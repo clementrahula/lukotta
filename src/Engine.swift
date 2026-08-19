@@ -30,16 +30,21 @@ enum EnginePaths {
         engineRoot?.appendingPathComponent("anylinuxfs/bin/anylinuxfs")
     }
 
-    /// Directories holding the privately relocated dylibs.
+    /// Directories holding the bundled dylibs. The embedded engine loads its one
+    /// external dependency through @executable_path, so this is belt-and-braces
+    /// for the development fallback, where the Homebrew layout is still in use.
     static func libraryPaths() -> [String] {
-        guard let deps = engineRoot?.appendingPathComponent("deps", isDirectory: true),
-              let e = FileManager.default.enumerator(at: deps,
-                                                     includingPropertiesForKeys: [.isDirectoryKey],
-                                                     options: [.skipsHiddenFiles])
-        else { return [] }
+        guard let root = engineRoot else { return [] }
         var out: [String] = []
-        for case let url as URL in e where url.lastPathComponent == "lib" {
-            out.append(url.path)
+        let bundled = root.appendingPathComponent("anylinuxfs/lib", isDirectory: true)
+        if FileManager.default.fileExists(atPath: bundled.path) { out.append(bundled.path) }
+        let deps = root.appendingPathComponent("deps", isDirectory: true)
+        if let e = FileManager.default.enumerator(at: deps,
+                                                  includingPropertiesForKeys: [.isDirectoryKey],
+                                                  options: [.skipsHiddenFiles]) {
+            for case let url as URL in e where url.lastPathComponent == "lib" {
+                out.append(url.path)
+            }
         }
         return out
     }
@@ -49,11 +54,18 @@ enum EnginePaths {
         Bundle.main.resourceURL?.appendingPathComponent("helpers/validate-key.sh")
     }
 
-    /// Rootfs that ships with the app, if present.
-    static var embeddedRootfs: URL? {
-        guard let root = engineRoot?.appendingPathComponent("rootfs", isDirectory: true),
-              FileManager.default.fileExists(atPath: root.path) else { return nil }
-        return root
+    /// Rootfs archive that ships with the app, if present.
+    static var embeddedRootfsArchive: URL? {
+        guard let a = engineRoot?.appendingPathComponent("alpine/rootfs.tar.gz"),
+              FileManager.default.fileExists(atPath: a.path) else { return nil }
+        return a
+    }
+
+    /// Image metadata that sits beside the rootfs.
+    static var embeddedAlpineDirectory: URL? {
+        guard let d = engineRoot?.appendingPathComponent("alpine", isDirectory: true),
+              FileManager.default.fileExists(atPath: d.path) else { return nil }
+        return d
     }
 
     /// Rootfs produced by a previous `anylinuxfs init` in the real home.
@@ -83,23 +95,64 @@ final class Workspace {
 
     var homeDirectory: URL { root }
 
-    /// Link the read-only rootfs into $HOME/.anylinuxfs/alpine/rootfs so the
-    /// engine finds it without us copying ~90 MB on every launch.
-    func linkRootfs(from source: URL) throws {
-        let alpine = root.appendingPathComponent(".anylinuxfs/alpine", isDirectory: true)
-        try FileManager.default.createDirectory(at: alpine, withIntermediateDirectories: true)
-        let dest = alpine.appendingPathComponent("rootfs")
-        if FileManager.default.fileExists(atPath: dest.path) {
-            try? FileManager.default.removeItem(at: dest)
-        }
-        try FileManager.default.createSymbolicLink(at: dest, withDestinationURL: source)
+    var alpineDirectory: URL {
+        root.appendingPathComponent(".anylinuxfs/alpine", isDirectory: true)
+    }
 
-        // The version marker sits next to the rootfs; copy it when present so the
-        // engine does not decide the environment needs reinitialising.
-        let verName = "rootfs.ver"
-        let srcVer = source.deletingLastPathComponent().appendingPathComponent(verName)
-        if FileManager.default.fileExists(atPath: srcVer.path) {
-            try? FileManager.default.copyItem(at: srcVer, to: alpine.appendingPathComponent(verName))
+    /// True once the Linux environment is in place for this session.
+    var rootfsIsReady: Bool {
+        FileManager.default.fileExists(
+            atPath: alpineDirectory.appendingPathComponent("rootfs").path)
+    }
+
+    /// Put the Linux environment where the engine expects it, inside this
+    /// session's workspace so that nothing lands in the real home directory.
+    ///
+    /// The embedded copy is an archive and is unpacked; a development install is
+    /// an existing directory and is symlinked.
+    func prepareRootfs(progress: (String) -> Void) throws {
+        // Unpacking costs a few seconds; do it once per session, not per retry.
+        if rootfsIsReady { return }
+        let fm = FileManager.default
+        try fm.createDirectory(at: alpineDirectory, withIntermediateDirectories: true)
+
+        // Image metadata first - small files the engine reads alongside the rootfs.
+        if let meta = EnginePaths.embeddedAlpineDirectory,
+           let entries = try? fm.contentsOfDirectory(atPath: meta.path) {
+            for entry in entries where entry != "rootfs.tar.gz" {
+                try? fm.copyItem(at: meta.appendingPathComponent(entry),
+                                 to: alpineDirectory.appendingPathComponent(entry))
+            }
+        }
+
+        if let archive = EnginePaths.embeddedRootfsArchive {
+            progress("Preparing the Linux environment…")
+            let tar = Process()
+            tar.executableURL = URL(fileURLWithPath: "/usr/bin/tar")
+            tar.arguments = ["-xzpf", archive.path, "-C", alpineDirectory.path]
+            let err = Pipe()
+            tar.standardError = err
+            try tar.run()
+            let errData = err.fileHandleForReading.readDataToEndOfFile()
+            tar.waitUntilExit()
+            guard tar.terminationStatus == 0, rootfsIsReady else {
+                let msg = String(data: errData, encoding: .utf8) ?? ""
+                throw EngineError.workspace("Could not unpack the Linux environment. \(msg)")
+            }
+            return
+        }
+
+        // Development fallback: reuse an already-initialised rootfs in the home
+        // directory rather than copying ~95 MB.
+        guard let existing = EnginePaths.developmentRootfs else {
+            throw EngineError.missingRootfs
+        }
+        let dest = alpineDirectory.appendingPathComponent("rootfs")
+        try? fm.removeItem(at: dest)
+        try fm.createSymbolicLink(at: dest, withDestinationURL: existing)
+        let ver = existing.deletingLastPathComponent().appendingPathComponent("rootfs.ver")
+        if fm.fileExists(atPath: ver.path) {
+            try? fm.copyItem(at: ver, to: alpineDirectory.appendingPathComponent("rootfs.ver"))
         }
     }
 
@@ -161,23 +214,10 @@ enum EngineError: LocalizedError {
 /// application holds Full Disk Access. There is no public API to query that, so
 /// probe a file that only an FDA-holding process can open.
 enum Permissions {
-    static var hasFullDiskAccess: Bool {
-        let home = FileManager.default.homeDirectoryForCurrentUser
-        let probes = [
-            "Library/Application Support/com.apple.TCC/TCC.db",
-            "Library/Safari/CloudTabs.db",
-        ]
-        for rel in probes {
-            let path = home.appendingPathComponent(rel).path
-            guard FileManager.default.fileExists(atPath: path) else { continue }
-            if let fh = FileHandle(forReadingAtPath: path) {
-                try? fh.close()
-                return true
-            }
-            return false
-        }
-        // Nothing to probe with: do not block the user on a guess.
-        return true
+    /// Whether macOS refused the engine raw disk access.
+    static func isAccessDenied(_ transcript: String) -> Bool {
+        let l = transcript.lowercased()
+        return l.contains("cannot probe") || l.contains("insufficient permissions")
     }
 
     static func openFullDiskAccessSettings() {

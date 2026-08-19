@@ -182,12 +182,8 @@ enum Mounter {
               FileManager.default.fileExists(atPath: engine.path) else {
             throw EngineError.missingEngine
         }
-        guard let rootfs = EnginePaths.embeddedRootfs ?? EnginePaths.developmentRootfs else {
-            throw EngineError.missingRootfs
-        }
-
         progress("Preparing a private workspace…")
-        try workspace.linkRootfs(from: rootfs)
+        try workspace.prepareRootfs(progress: progress)
         let fifo = try workspace.makeCredentialPipe()
         let log = workspace.root.appendingPathComponent("mount.log")
         FileManager.default.createFile(atPath: log.path, contents: nil)

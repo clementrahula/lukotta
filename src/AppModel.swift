@@ -26,10 +26,6 @@ final class AppModel: ObservableObject {
     // MARK: Lifecycle
 
     func start() {
-        guard Permissions.hasFullDiskAccess else {
-            phase = .needsPermission
-            return
-        }
         phase = .scanning
         Task.detached(priority: .userInitiated) {
             let found = DriveScanner.scan()
@@ -118,9 +114,15 @@ final class AppModel: ObservableObject {
                 } catch let err as EngineError {
                     await MainActor.run {
                         self.credential = ""
-                        self.phase = .failed(drive,
-                                             err.errorDescription ?? "The drive could not be opened.",
-                                             err.detail)
+                        // A macOS access refusal is a setup problem, not a
+                        // failed unlock: send the user to the guided screen.
+                        if Permissions.isAccessDenied(err.detail ?? "") {
+                            self.phase = .needsPermission
+                        } else {
+                            self.phase = .failed(drive,
+                                                 err.errorDescription ?? "The drive could not be opened.",
+                                                 err.detail)
+                        }
                     }
                 } catch {
                     await MainActor.run {

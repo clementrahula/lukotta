@@ -40,6 +40,27 @@ printf 'APPL????' > "$CONTENTS/PkgInfo"
 if [ -d "$HERE/vendor/engine" ]; then
   printf 'Embedding engine…\n'
   /usr/bin/ditto "$HERE/vendor/engine" "$CONTENTS/Resources/engine"
+
+  # Sign inside-out: every nested Mach-O first, then the bundle. The engine
+  # needs the hypervisor entitlement to start its microVM; the Linux rootfs is
+  # data and is left alone.
+  ENGINE="$CONTENTS/Resources/engine"
+  printf 'Signing embedded engine…\n'
+  /usr/bin/find "$ENGINE/anylinuxfs" -type f -print0 | while IFS= read -r -d "" f; do
+    /usr/bin/file "$f" 2>/dev/null | /usr/bin/grep -q "Mach-O" || continue
+    case "$f" in
+      */bin/anylinuxfs)
+        /usr/bin/codesign --force --options runtime \
+          --entitlements "$HERE/anylinuxfs.entitlements" \
+          --sign "$SIGN_ID" "$f" >/dev/null 2>&1 \
+          || { printf "error: could not sign %s\n" "$f" >&2; exit 1; }
+        ;;
+      *)
+        /usr/bin/codesign --force --options runtime --sign "$SIGN_ID" "$f" >/dev/null 2>&1 \
+          || /usr/bin/codesign --force --sign "$SIGN_ID" "$f" >/dev/null 2>&1 || true
+        ;;
+    esac
+  done
 fi
 
 printf 'Signing with: %s\n' "$SIGN_ID"
