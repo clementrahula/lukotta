@@ -236,7 +236,107 @@ Apple Silicon native, and open source.
 
 ---
 
-## 7. Recommendation
+## 7. Escaping the network drive — native volume research
+
+The goal: the drive appears as a real local disk, with the Finder behaviour that
+follows from that (proper sidebar entry, rename, Get Info, eject, Time Machine
+eligibility). Researched 19 August 2026.
+
+### Why it is a network drive today
+
+Not a bug and not a mount flag. Upstream anylinuxfs states it outright: *"by
+design, any mounted volume is seen by macOS as a network drive shared by our
+virtual machine."* The drive is read inside a Linux microVM and re-exported over
+NFS to localhost. macOS offers no supported way to mark an NFS mount local —
+there is no `local` option in `mount_nfs` and `MNT_LOCAL` is not settable from
+user space. **Any fix means replacing the transport, not configuring it.**
+
+### The three real options
+
+#### A. FSKit filesystem extension — the strategic answer, currently blocked
+
+FSKit is Apple's user-space filesystem framework, introduced in Sequoia and
+usable from **macOS 15.4**. It is the sanctioned, kext-free replacement for
+macFUSE, and its volumes mount as genuine local volumes. Modules are signed with
+the `com.apple.developer.fskit.fsmodule` entitlement.
+
+Two obstacles, one of them serious:
+
+- **Third-party FSKit extensions are currently broken on macOS 26.** `fskitd`
+  rejects unprivileged clients outright — the log line is literally
+  `Hello FSClient! entitlement no`. Confirmed broken on 26.1 (25B78) and 26.2
+  (25C56), and it breaks *Apple's own FSKitSample* too, so it is not an
+  implementation error. An Apple DTS engineer's position as of July 2025: "more
+  bugs have been found so you're going to need to wait for more fixes." **This
+  machine runs 26.6.1, so the first thing to do is re-test — the status above
+  predates it.**
+- **Apple's built-in NTFS kext masks third-party NTFS modules.** Kexts probe
+  before FSKit modules, so a third-party NTFS module never gets a look in via
+  DiskArbitration, and `mount -F` reportedly fails on real (non-RAM) disks.
+
+  *But this may not apply to us.* A locked BitLocker partition contains FVE
+  metadata, not an NTFS boot sector. Apple's NTFS driver should decline to probe
+  it, which could leave the field clear for our module. That is a cheap and
+  high-value experiment.
+
+#### B. DriverKit virtual block device — plausible, gated by Apple
+
+`IOUserBlockStorageDevice` (BlockStorageDeviceDriverKit) lets a user-space
+system extension present a block storage device. Expose the *decrypted* volume
+as a real `/dev/diskN` and let macOS mount the filesystem on it — the truest
+"physical disk" result, and almost certainly what iBoysoft and M3 do.
+
+Three catches:
+
+- Block-storage DriverKit entitlements are **restricted and require Apple's
+  approval**, which is a business dependency, not an engineering one.
+- DriverKit deliberately has **no filesystem or network access**, so the
+  extension cannot read the source disk itself. It needs an app-side user client
+  to feed it blocks — workable, but it puts an IPC hop in the data path.
+- macOS's own NTFS is **read-only**, so write support still needs a licensed
+  driver or our own implementation.
+
+#### C. macFUSE — rejected
+
+A kernel extension. On Apple Silicon it requires reduced security and a recovery
+-mode dance. This is precisely the experience you would be trying to beat, and
+it is what Hasleo makes users do.
+
+### The cost nobody escapes: NTFS read/write
+
+All three paths converge on the same wall. Both native options remove the
+microVM, and with it `ntfs-3g` — the thing currently providing read/write. So a
+native product needs:
+
+| Layer | Options | Difficulty |
+| --- | --- | --- |
+| BitLocker unlock | `libbde` (**LGPL-3.0**, usable in a proprietary app if dynamically linked and relinkable), or own AES-XTS + FVE parser | Tractable — the format is documented |
+| NTFS read/write | License Paragon or Tuxera (per-unit), or implement it | **The dominant cost** |
+
+Reading NTFS is a known quantity; *writing* it correctly — journal, MFT, sparse
+files, compression, hard links — is where filesystem projects go to die. This is
+the real gate on "perfect native UX", not the mount mechanism.
+
+One upside worth noting: **going native also escapes the GPL.** libbde is
+LGPL-3.0 and a licensed NTFS driver is commercial, so a native rewrite makes a
+proprietary, sellable product possible — §4's option B and this section's option
+A/B are the same project.
+
+### Suggested order of work
+
+1. **Re-test FSKit on 26.6.1** with Apple's FSKitSample. One afternoon, and it
+   decides whether path A is open at all.
+2. **Test whether Apple's NTFS kext probes a locked BitLocker partition.** If it
+   does not, the masking problem is moot for our case.
+3. Prototype BitLocker unlock natively with `libbde` — independent of the mount
+   mechanism, and useful under every path.
+4. Only then decide between FSKit (own NTFS) and DriverKit (licensed NTFS), and
+   start the Apple entitlement conversation early if it is DriverKit.
+
+Until at least step 1 clears, the NFS approach stays, and the network-drive
+presentation with it.
+
+## 8. Recommendation
 
 Two coherent products, and it is worth picking deliberately:
 
@@ -244,11 +344,12 @@ Two coherent products, and it is worth picking deliberately:
 ship free or paid-binary. Low cost, honest, fills the real gap (every other free
 option is CLI-only). Accepts the network-drive presentation permanently.
 
-**B. Commercial product.** Replace anylinuxfs with an own BitLocker
-implementation plus a licensed or FSKit-based NTFS driver. Removes the GPL
-constraint *and* the network-drive problem in one move, and puts it on par with
-iBoysoft and M3. Months of work plus per-unit licensing, competing with
-established products.
+**B. Native product.** Replace anylinuxfs with a native BitLocker layer plus
+FSKit or DriverKit and an NTFS driver (§7). Removes the GPL constraint *and* the
+network-drive problem in one move, and is the only route to the native UX you
+are aiming at. Months of work, gated today by an Apple FSKit bug and, on the
+DriverKit route, by Apple entitlement approval. NTFS write support is the
+dominant cost.
 
 Option A is a few weeks. Option B is a company. The current codebase is a good
 option A and a reasonable prototype for option B, but it cannot become option B
