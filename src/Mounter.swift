@@ -202,6 +202,12 @@ enum Mounter {
             parts.append("export DYLD_LIBRARY_PATH=\(shellQuoted(libs))")
             parts.append("export DYLD_FALLBACK_LIBRARY_PATH=\(shellQuoted(libs))")
         }
+        // `do shell script ... with administrator privileges` runs the command
+        // directly as root rather than through sudo, so SUDO_UID/SUDO_GID are
+        // absent and the engine refuses to start ("must not be run directly by
+        // root"). Supply the real invoking user explicitly.
+        parts.append("export SUDO_UID=\(getuid())")
+        parts.append("export SUDO_GID=\(getgid())")
         parts.append("export HOME=\(shellQuoted(workspace.homeDirectory.path))")
         let cmd = "ALFS_PASSPHRASE=\"$(cat \(shellQuoted(fifo.path)))\" "
             + shellQuoted(engine.path)
@@ -293,6 +299,9 @@ enum Mounter {
 enum Diagnosis {
     static func summarise(_ transcript: String, fallback: String) -> String {
         let lower = transcript.lowercased()
+        if lower.contains("cannot probe") || lower.contains("insufficient permissions") {
+            return "macOS blocked access to the drive. BitLocker Mounter needs Full Disk Access before it can read an encrypted disk."
+        }
         if lower.contains("wrong key") || lower.contains("invalid passphrase")
             || lower.contains("no key available") || lower.contains("keyslot") {
             return "That password or recovery key did not unlock this drive."

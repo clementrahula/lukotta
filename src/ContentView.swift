@@ -9,6 +9,7 @@ struct ContentView: View {
             Divider().opacity(0.5)
             Group {
                 switch model.phase {
+                case .needsPermission:     PermissionView()
                 case .scanning:            ScanningView()
                 case .chooseDrive:         DriveListView()
                 case .unlock(let d):       UnlockView(drive: d)
@@ -51,6 +52,62 @@ private struct ScanningView: View {
         VStack(spacing: 14) {
             ProgressView().controlSize(.large)
             Text("Looking for encrypted drives…").foregroundStyle(.secondary)
+        }
+    }
+}
+
+// MARK: - Permission
+
+private struct PermissionView: View {
+    @EnvironmentObject var model: AppModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 12) {
+                Image(systemName: "lock.open.trianglebadge.exclamationmark")
+                    .font(.system(size: 28)).foregroundStyle(.orange)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("One-time setup needed").font(.title3.weight(.semibold))
+                    Text("macOS will not let any app read an encrypted disk without permission — not even with an administrator password.")
+                        .font(.callout).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 9) {
+                Step(number: 1, text: "Open Privacy & Security → Full Disk Access.")
+                Step(number: 2, text: "Click + and add BitLocker Mounter, then switch it on.")
+                Step(number: 3, text: "Quit BitLocker Mounter and open it again.")
+            }
+            .padding(13)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.04)))
+
+            InfoBox(icon: "hand.raised",
+                    text: "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.")
+
+            Spacer()
+            HStack {
+                Button("Reveal App") { model.revealApp() }
+                Spacer()
+                Button("Check Again") { model.recheckPermission() }
+                Button("Open Privacy Settings") { model.openPrivacySettings() }
+                    .keyboardShortcut(.defaultAction)
+            }
+        }
+    }
+}
+
+private struct Step: View {
+    let number: Int
+    let text: String
+    var body: some View {
+        HStack(alignment: .top, spacing: 9) {
+            Text("\(number)")
+                .font(.caption.weight(.bold)).foregroundStyle(.white)
+                .frame(width: 17, height: 17)
+                .background(Circle().fill(.tint))
+            Text(text).font(.callout).fixedSize(horizontal: false, vertical: true)
         }
     }
 }
@@ -289,7 +346,10 @@ private struct FailureView: View {
             HStack {
                 Button("Choose another drive", action: model.backToDrives)
                 Spacer()
-                if let drive {
+                if summary.contains("Full Disk Access") {
+                    Button("Open Privacy Settings") { model.openPrivacySettings() }
+                        .keyboardShortcut(.defaultAction)
+                } else if let drive {
                     Button("Try again") { model.choose(drive) }
                         .keyboardShortcut(.defaultAction)
                 }

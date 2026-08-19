@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 
 /// Everything the app needs to talk to the anylinuxfs runtime.
 ///
@@ -152,5 +153,35 @@ enum EngineError: LocalizedError {
     var detail: String? {
         if case .mountFailed(_, let detail) = self { return detail }
         return nil
+    }
+}
+
+
+/// macOS blocks raw reads of /dev/disk* even for root unless the responsible
+/// application holds Full Disk Access. There is no public API to query that, so
+/// probe a file that only an FDA-holding process can open.
+enum Permissions {
+    static var hasFullDiskAccess: Bool {
+        let home = FileManager.default.homeDirectoryForCurrentUser
+        let probes = [
+            "Library/Application Support/com.apple.TCC/TCC.db",
+            "Library/Safari/CloudTabs.db",
+        ]
+        for rel in probes {
+            let path = home.appendingPathComponent(rel).path
+            guard FileManager.default.fileExists(atPath: path) else { continue }
+            if let fh = FileHandle(forReadingAtPath: path) {
+                try? fh.close()
+                return true
+            }
+            return false
+        }
+        // Nothing to probe with: do not block the user on a guess.
+        return true
+    }
+
+    static func openFullDiskAccessSettings() {
+        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")!
+        NSWorkspace.shared.open(url)
     }
 }

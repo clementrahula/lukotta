@@ -5,6 +5,7 @@ import AppKit
 final class AppModel: ObservableObject {
 
     enum Phase {
+        case needsPermission
         case scanning
         case chooseDrive
         case unlock(Drive)
@@ -25,6 +26,10 @@ final class AppModel: ObservableObject {
     // MARK: Lifecycle
 
     func start() {
+        guard Permissions.hasFullDiskAccess else {
+            phase = .needsPermission
+            return
+        }
         phase = .scanning
         Task.detached(priority: .userInitiated) {
             let found = DriveScanner.scan()
@@ -33,6 +38,20 @@ final class AppModel: ObservableObject {
                 self.phase = .chooseDrive
             }
         }
+    }
+
+    /// Re-probe after the user has changed the setting.
+    func recheckPermission() {
+        start()
+    }
+
+    func openPrivacySettings() {
+        Permissions.openFullDiskAccessSettings()
+    }
+
+    /// Reveal the app itself so it can be dragged into the Full Disk Access list.
+    func revealApp() {
+        NSWorkspace.shared.activateFileViewerSelecting([Bundle.main.bundleURL])
     }
 
     func rescan() {
