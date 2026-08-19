@@ -49,3 +49,13 @@ printf 'Signing with: %s\n' "$SIGN_ID"
 
 /usr/bin/codesign --verify --strict "$OUT" && printf 'Signature verified\n'
 printf 'Built %s\n' "$OUT"
+
+# Install into /Applications unless told otherwise. macOS grants Full Disk
+# Access per app signature and location, and an app buried in a build directory
+# is both awkward to find in the settings picker and easy to invalidate.
+if [ "${BLM_INSTALL:-1}" = "1" ]; then
+  APPS="/Applications/BitLocker Mounter.app"
+  rm -rf "$APPS"
+  /usr/bin/ditto "$OUT" "$APPS"
+  printf 'Installed %s\n' "$APPS"
+fi
