@@ -173,30 +173,8 @@ struct MountResult {
 /// one approval - there is no persistent privileged helper and nothing is
 /// installed outside the app bundle.
 enum Mounter {
-    /// Turn a user-supplied name into something safe to use as a mount point.
-    static func sanitise(name: String) -> String {
-        let cleaned = name
-            .replacingOccurrences(of: "/", with: "-")
-            .replacingOccurrences(of: ":", with: "-")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        return cleaned.isEmpty ? "BitLocker Drive" : String(cleaned.prefix(60))
-    }
-
-    /// A mount point under /Volumes that is not already taken.
-    static func availableMountPoint(for name: String) -> String {
-        let base = sanitise(name: name)
-        var candidate = "/Volumes/\(base)"
-        var n = 2
-        while FileManager.default.fileExists(atPath: candidate) {
-            candidate = "/Volumes/\(base) \(n)"
-            n += 1
-        }
-        return candidate
-    }
-
     static func mount(drive: Drive,
                       credential: String,
-                      displayName: String,
                       workspace: Workspace,
                       progress: @escaping (String) -> Void) throws -> MountResult {
 
@@ -206,7 +184,6 @@ enum Mounter {
         }
         try EngineEnvironment.prepare(progress: progress)
         let fifo = try workspace.makeCredentialPipe()
-        let mountPoint = availableMountPoint(for: displayName)
         let log = workspace.root.appendingPathComponent("mount.log")
         FileManager.default.createFile(atPath: log.path, contents: nil)
 
@@ -240,7 +217,7 @@ enum Mounter {
         let cmd = "ALFS_PASSPHRASE=\"$(cat \(shellQuoted(fifo.path)))\" "
             + shellQuoted(engine.path)
             + " mount --ignore-permissions -t ntfs3 -w false -n \(shellQuoted(nfsOptions)) "
-            + shellQuoted(drive.devicePath) + " " + shellQuoted(mountPoint)
+            + shellQuoted(drive.devicePath)
             + " > \(shellQuoted(log.path)) 2>&1"
         parts.append(cmd)
         let script = parts.joined(separator: "; ")
@@ -286,9 +263,7 @@ enum Mounter {
                                           detail: transcript.isEmpty ? osaMessage : transcript)
         }
 
-        guard let mountPoint = FileManager.default.fileExists(atPath: mountPoint)
-                ? mountPoint
-                : discoverMountPoint(for: drive, transcript: transcript) else {
+        guard let mountPoint = discoverMountPoint(for: drive, transcript: transcript) else {
             throw EngineError.mountFailed(
                 summary: "The engine reported success but the drive did not appear in Finder.",
                 detail: transcript)

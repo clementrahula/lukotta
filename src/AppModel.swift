@@ -17,10 +17,6 @@ final class AppModel: ObservableObject {
     @Published var phase: Phase = .scanning
     @Published var drives: [Drive] = []
     @Published var credential: String = ""
-    /// Name the drive will carry in Finder. Defaults to the drive's own label
-    /// and is editable, because the engine otherwise names the mount after
-    /// whatever label Windows happened to leave on the volume.
-    @Published var displayName: String = ""
     @Published var revealCredential = false
     @Published var statusLines: [String] = []
     @Published var credentialProblem: String?
@@ -64,7 +60,6 @@ final class AppModel: ObservableObject {
     func choose(_ drive: Drive) {
         credential = ""
         credentialProblem = nil
-        displayName = drive.name
         phase = .unlock(drive)
     }
 
@@ -92,7 +87,6 @@ final class AppModel: ObservableObject {
             return
         case .success(let normalised):
             statusLines = []
-            let chosenName = displayName
             phase = .working(drive)
             let ws: Workspace
             do {
@@ -108,7 +102,6 @@ final class AppModel: ObservableObject {
                     let result = try Mounter.mount(
                         drive: drive,
                         credential: normalised,
-                        displayName: chosenName,
                         workspace: ws,
                         progress: { line in
                             Task { @MainActor in self.appendStatus(line) }
