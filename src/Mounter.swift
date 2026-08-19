@@ -17,14 +17,19 @@ func appleScriptQuoted(_ s: String) -> String {
 struct Drive: Identifiable, Hashable {
     let id: String          // disk4s1
     let devicePath: String  // /dev/disk4s1
-    let name: String        // volume name, or a synthesised one
+    let name: String        // best human-readable label we can find
     let sizeBytes: Int64
-    let mediaName: String   // enclosure / product name
+    let connection: String  // e.g. "USB · External"
 
     var sizeDescription: String {
         let f = ByteCountFormatter()
         f.countStyle = .file
         return f.string(fromByteCount: sizeBytes)
+    }
+
+    var subtitle: String {
+        connection.isEmpty ? "\(sizeDescription) · \(id)"
+                           : "\(sizeDescription) · \(connection) · \(id)"
     }
 }
 
@@ -41,23 +46,53 @@ enum DriveScanner {
 
         var drives: [Drive] = []
         for disk in allDisks {
-            let mediaName = disk["MediaName"] as? String ?? "Disk"
+            let wholeIdent = disk["DeviceIdentifier"] as? String
+            let wholeInfo = wholeIdent.flatMap { info(for: $0) } ?? [:]
+            // The product name of the physical drive is what a person recognises
+            // ("Elements 25A2"), and it is absent from the list plist.
+            let product = firstNonEmpty(wholeInfo["MediaName"] as? String,
+                                        wholeInfo["IORegistryEntryName"] as? String)
+            let bus = wholeInfo["BusProtocol"] as? String
+            let internalDisk = wholeInfo["Internal"] as? Bool ?? false
+
             guard let partitions = disk["Partitions"] as? [[String: Any]] else { continue }
             for part in partitions {
                 guard let ident = part["DeviceIdentifier"] as? String else { continue }
-                let content = part["Content"] as? String ?? ""
                 // Microsoft Basic Data covers both BitLocker and plain NTFS.
-                guard content == "Microsoft Basic Data" else { continue }
-                let size = (part["Size"] as? NSNumber)?.int64Value ?? 0
-                let name = (part["VolumeName"] as? String) ?? mediaName
+                guard (part["Content"] as? String) == "Microsoft Basic Data" else { continue }
+
+                let partInfo = info(for: ident) ?? [:]
+                let size = (part["Size"] as? NSNumber)?.int64Value
+                    ?? (partInfo["TotalSize"] as? NSNumber)?.int64Value ?? 0
+
+                let label = firstNonEmpty(part["VolumeName"] as? String,
+                                          partInfo["VolumeName"] as? String,
+                                          product,
+                                          partInfo["IORegistryEntryName"] as? String) ?? ident
+
+                var connection: [String] = []
+                if let bus, !bus.isEmpty { connection.append(bus) }
+                connection.append(internalDisk ? "Internal" : "External")
+
                 drives.append(Drive(id: ident,
                                     devicePath: "/dev/\(ident)",
-                                    name: name,
+                                    name: label,
                                     sizeBytes: size,
-                                    mediaName: mediaName))
+                                    connection: connection.joined(separator: " · ")))
             }
         }
         return drives
+    }
+
+    private static func firstNonEmpty(_ values: String?...) -> String? {
+        for v in values {
+            if let v, !v.trimmingCharacters(in: .whitespaces).isEmpty { return v }
+        }
+        return nil
+    }
+
+    private static func info(for ident: String) -> [String: Any]? {
+        runPlist(["/usr/sbin/diskutil", "info", "-plist", ident])
     }
 
     private static func runPlist(_ argv: [String]) -> [String: Any]? {

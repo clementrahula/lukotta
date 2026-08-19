@@ -103,7 +103,7 @@ private struct DriveRow: View {
                     .foregroundStyle(.tint)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(drive.name).font(.body.weight(.medium))
-                    Text("\(drive.sizeDescription) · \(drive.id)")
+                    Text(drive.subtitle)
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
