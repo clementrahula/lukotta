@@ -1,0 +1,144 @@
+import SwiftUI
+import AppKit
+
+@MainActor
+final class AppModel: ObservableObject {
+
+    enum Phase {
+        case scanning
+        case chooseDrive
+        case unlock(Drive)
+        case working(Drive)
+        case mounted(Drive, String)
+        case failed(Drive?, String, String?)   // drive, summary, raw detail
+    }
+
+    @Published var phase: Phase = .scanning
+    @Published var drives: [Drive] = []
+    @Published var credential: String = ""
+    @Published var revealCredential = false
+    @Published var statusLines: [String] = []
+    @Published var credentialProblem: String?
+
+    private var workspace: Workspace?
+
+    // MARK: Lifecycle
+
+    func start() {
+        phase = .scanning
+        Task.detached(priority: .userInitiated) {
+            let found = DriveScanner.scan()
+            await MainActor.run {
+                self.drives = found
+                self.phase = .chooseDrive
+            }
+        }
+    }
+
+    func rescan() {
+        credential = ""
+        credentialProblem = nil
+        statusLines = []
+        start()
+    }
+
+    func choose(_ drive: Drive) {
+        credential = ""
+        credentialProblem = nil
+        phase = .unlock(drive)
+    }
+
+    func backToDrives() {
+        credential = ""
+        credentialProblem = nil
+        phase = .chooseDrive
+    }
+
+    var credentialHint: String? { Credential.hint(for: credential) }
+
+    // MARK: Unlock
+
+    func unlock(_ drive: Drive) {
+        credentialProblem = nil
+        let raw = credential
+        guard !raw.isEmpty else {
+            credentialProblem = "Enter the drive's password, or its 48-digit recovery key."
+            return
+        }
+
+        switch Credential.normalise(raw) {
+        case .failure(let err):
+            credentialProblem = err.errorDescription
+            return
+        case .success(let normalised):
+            statusLines = []
+            phase = .working(drive)
+            let ws: Workspace
+            do {
+                ws = try Workspace()
+            } catch {
+                phase = .failed(drive, "Could not create a private working folder.", "\(error)")
+                return
+            }
+            workspace = ws
+
+            Task.detached(priority: .userInitiated) {
+                do {
+                    let result = try Mounter.mount(
+                        drive: drive,
+                        credential: normalised,
+                        workspace: ws,
+                        progress: { line in
+                            Task { @MainActor in self.appendStatus(line) }
+                        })
+                    await MainActor.run {
+                        self.credential = ""
+                        self.phase = .mounted(drive, result.mountPoint)
+                        NSWorkspace.shared.open(URL(fileURLWithPath: result.mountPoint))
+                    }
+                } catch let err as EngineError {
+                    await MainActor.run {
+                        self.credential = ""
+                        self.phase = .failed(drive,
+                                             err.errorDescription ?? "The drive could not be opened.",
+                                             err.detail)
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.credential = ""
+                        self.phase = .failed(drive, "The drive could not be opened.", "\(error)")
+                    }
+                }
+            }
+        }
+    }
+
+    private func appendStatus(_ line: String) {
+        statusLines.append(line)
+        if statusLines.count > 400 { statusLines.removeFirst(statusLines.count - 400) }
+    }
+
+    // MARK: Post-mount
+
+    func revealInFinder(_ path: String) {
+        NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: path)
+    }
+
+    func eject(_ path: String) {
+        Task.detached(priority: .userInitiated) {
+            let p = Process()
+            p.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+            p.arguments = ["unmount", path]
+            try? p.run()
+            p.waitUntilExit()
+            await MainActor.run { self.rescan() }
+        }
+    }
+
+    /// Remove the private workspace. Called when the app quits so nothing of
+    /// this session is left behind.
+    func cleanUp() {
+        workspace?.destroy()
+        workspace = nil
+    }
+}
