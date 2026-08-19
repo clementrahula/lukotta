@@ -190,6 +190,14 @@ private struct UnlockView: View {
             }
 
             VStack(alignment: .leading, spacing: 7) {
+                Text("Name in Finder").font(.subheadline)
+                TextField("", text: $model.displayName)
+                    .textFieldStyle(.roundedBorder)
+                Text("What the drive is called in the sidebar. Change it to anything you like.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+
+            VStack(alignment: .leading, spacing: 7) {
                 Text("Password or recovery key").font(.subheadline)
                 HStack(spacing: 8) {
                     Group {

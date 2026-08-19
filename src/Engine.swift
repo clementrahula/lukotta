@@ -76,11 +76,12 @@ enum EnginePaths {
     }
 }
 
-/// A private, self-destructing working directory.
+/// A private, self-destructing working directory for one unlock attempt.
 ///
-/// anylinuxfs derives every path it uses - the Linux rootfs, its logs, its
-/// runtime state - from $HOME. Pointing $HOME here is what keeps the app from
-/// writing into the real home directory.
+/// It holds only the credential pipe and this attempt's mount log. The engine
+/// resolves its own working directory from the invoking user's password-database
+/// entry rather than from $HOME, so its rootfs and logs cannot be redirected
+/// here; see EngineEnvironment.
 final class Workspace {
     let root: URL
     private var destroyed = false
@@ -91,69 +92,6 @@ final class Workspace {
         try FileManager.default.createDirectory(at: root,
                                                 withIntermediateDirectories: true,
                                                 attributes: [.posixPermissions: 0o700])
-    }
-
-    var homeDirectory: URL { root }
-
-    var alpineDirectory: URL {
-        root.appendingPathComponent(".anylinuxfs/alpine", isDirectory: true)
-    }
-
-    /// True once the Linux environment is in place for this session.
-    var rootfsIsReady: Bool {
-        FileManager.default.fileExists(
-            atPath: alpineDirectory.appendingPathComponent("rootfs").path)
-    }
-
-    /// Put the Linux environment where the engine expects it, inside this
-    /// session's workspace so that nothing lands in the real home directory.
-    ///
-    /// The embedded copy is an archive and is unpacked; a development install is
-    /// an existing directory and is symlinked.
-    func prepareRootfs(progress: (String) -> Void) throws {
-        // Unpacking costs a few seconds; do it once per session, not per retry.
-        if rootfsIsReady { return }
-        let fm = FileManager.default
-        try fm.createDirectory(at: alpineDirectory, withIntermediateDirectories: true)
-
-        // Image metadata first - small files the engine reads alongside the rootfs.
-        if let meta = EnginePaths.embeddedAlpineDirectory,
-           let entries = try? fm.contentsOfDirectory(atPath: meta.path) {
-            for entry in entries where entry != "rootfs.tar.gz" {
-                try? fm.copyItem(at: meta.appendingPathComponent(entry),
-                                 to: alpineDirectory.appendingPathComponent(entry))
-            }
-        }
-
-        if let archive = EnginePaths.embeddedRootfsArchive {
-            progress("Preparing the Linux environment…")
-            let tar = Process()
-            tar.executableURL = URL(fileURLWithPath: "/usr/bin/tar")
-            tar.arguments = ["-xzpf", archive.path, "-C", alpineDirectory.path]
-            let err = Pipe()
-            tar.standardError = err
-            try tar.run()
-            let errData = err.fileHandleForReading.readDataToEndOfFile()
-            tar.waitUntilExit()
-            guard tar.terminationStatus == 0, rootfsIsReady else {
-                let msg = String(data: errData, encoding: .utf8) ?? ""
-                throw EngineError.workspace("Could not unpack the Linux environment. \(msg)")
-            }
-            return
-        }
-
-        // Development fallback: reuse an already-initialised rootfs in the home
-        // directory rather than copying ~95 MB.
-        guard let existing = EnginePaths.developmentRootfs else {
-            throw EngineError.missingRootfs
-        }
-        let dest = alpineDirectory.appendingPathComponent("rootfs")
-        try? fm.removeItem(at: dest)
-        try fm.createSymbolicLink(at: dest, withDestinationURL: existing)
-        let ver = existing.deletingLastPathComponent().appendingPathComponent("rootfs.ver")
-        if fm.fileExists(atPath: ver.path) {
-            try? fm.copyItem(at: ver, to: alpineDirectory.appendingPathComponent("rootfs.ver"))
-        }
     }
 
     /// Create a FIFO used to hand the credential to the elevated process.
@@ -175,6 +113,63 @@ final class Workspace {
     }
 
     deinit { destroy() }
+}
+
+/// Makes sure the Linux environment the engine needs is present.
+///
+/// The engine hard-resolves ~/.anylinuxfs from the invoking user and offers no
+/// setting to move it, so the app cannot keep it elsewhere. What it can do is
+/// guarantee the environment is there without downloading anything: the rootfs
+/// ships inside the bundle and is unpacked on demand.
+enum EngineEnvironment {
+    static var alpineDirectory: URL {
+        FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".anylinuxfs/alpine", isDirectory: true)
+    }
+
+    static var isReady: Bool {
+        FileManager.default.fileExists(
+            atPath: alpineDirectory.appendingPathComponent("rootfs").path)
+    }
+
+    /// Unpack the bundled Linux environment if it is not already in place.
+    /// Returns true when work was done, so the caller can explain the delay.
+    @discardableResult
+    static func prepare(progress: (String) -> Void) throws -> Bool {
+        if isReady { return false }
+        guard let archive = EnginePaths.embeddedRootfsArchive else {
+            throw EngineError.missingRootfs
+        }
+        let fm = FileManager.default
+        try fm.createDirectory(at: alpineDirectory, withIntermediateDirectories: true)
+
+        // Metadata the engine reads alongside the rootfs.
+        if let meta = EnginePaths.embeddedAlpineDirectory,
+           let entries = try? fm.contentsOfDirectory(atPath: meta.path) {
+            for entry in entries where entry != "rootfs.tar.gz" {
+                let dest = alpineDirectory.appendingPathComponent(entry)
+                if !fm.fileExists(atPath: dest.path) {
+                    try? fm.copyItem(at: meta.appendingPathComponent(entry), to: dest)
+                }
+            }
+        }
+
+        progress("Setting up the Linux environment (first run only)…")
+        let tar = Process()
+        tar.executableURL = URL(fileURLWithPath: "/usr/bin/tar")
+        tar.arguments = ["-xzpf", archive.path, "-C", alpineDirectory.path]
+        let err = Pipe()
+        tar.standardError = err
+        try tar.run()
+        let errData = err.fileHandleForReading.readDataToEndOfFile()
+        tar.waitUntilExit()
+        guard tar.terminationStatus == 0, isReady else {
+            throw EngineError.workspace(
+                "Could not unpack the Linux environment. "
+                + (String(data: errData, encoding: .utf8) ?? ""))
+        }
+        return true
+    }
 }
 
 enum EngineError: LocalizedError {
