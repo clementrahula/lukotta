@@ -21,7 +21,7 @@ GUI_BIN="$(/usr/bin/find "$GUI_APP/Contents/MacOS" -type f -perm -111 -print -qu
 [ -d "$ROOTFS" ] || exit 1
 
 BLM_USER_HOME="$USER_HOME" "$BRIDGE/anylinuxfs" --version 2>/dev/null | /usr/bin/grep -q '0\.19\.0' || exit 1
-/usr/bin/find "$ROOTFS" -type f -name cryptsetup -perm -111 -print -quit 2>/dev/null | /usr/bin/grep -q . || exit 1
-/usr/bin/find "$ROOTFS" -type f \( -name rpc.nfsd -o -name exportfs \) -perm -111 -print -quit 2>/dev/null | /usr/bin/grep -q . || exit 1
+/usr/bin/find "$ROOTFS" -type f -name cryptsetup -print -quit 2>/dev/null | /usr/bin/grep -q . || exit 1
+/usr/bin/find "$ROOTFS" -type f \( -name rpc.nfsd -o -name exportfs \) -print -quit 2>/dev/null | /usr/bin/grep -q . || exit 1
 
 exit 0

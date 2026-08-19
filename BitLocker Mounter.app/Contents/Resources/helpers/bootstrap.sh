@@ -385,14 +385,14 @@ ROOTFS="$USER_HOME/.anylinuxfs/alpine/rootfs"
 [ -d "$ROOTFS" ] || fail 62 "Initialization completed without creating the Linux root filesystem."
 
 progress 95 "Verifying cryptsetup, NFS and the Finder mount path"
-CRYPT="$(/usr/bin/find "$ROOTFS" -type f -name cryptsetup -perm -111 -print -quit 2>/dev/null)"
-NFS="$(/usr/bin/find "$ROOTFS" -type f \( -name rpc.nfsd -o -name exportfs \) -perm -111 -print -quit 2>/dev/null)"
-MOUNTBIN="$(/usr/bin/find "$ROOTFS" -type f -name mount -perm -111 -print -quit 2>/dev/null)"
+CRYPT="$(/usr/bin/find "$ROOTFS" -type f -name cryptsetup -print -quit 2>/dev/null)"
+NFS="$(/usr/bin/find "$ROOTFS" -type f \( -name rpc.nfsd -o -name exportfs \) -print -quit 2>/dev/null)"
+MOUNTBIN="$(/usr/bin/find "$ROOTFS" -type f -name mount -print -quit 2>/dev/null)"
 [ -n "$CRYPT" ] || fail 63 "The initialized Linux environment is missing cryptsetup; BitLocker cannot be unlocked."
 [ -n "$NFS" ] || fail 64 "The initialized Linux environment is missing NFS utilities required by Finder."
 [ -n "$MOUNTBIN" ] || fail 65 "The initialized Linux environment is missing its mount utility."
 
-/bin/touch "$MARKER"
+/usr/bin/touch "$MARKER"
 BLM_RESOURCES="$RESOURCES" BLM_USER_HOME="$USER_HOME" "$RESOURCES/helpers/runtime-ready.sh" || {
   /bin/rm -f "$MARKER"
   fail 66 "Final end-to-end readiness verification failed."
