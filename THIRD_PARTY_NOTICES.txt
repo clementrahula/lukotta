@@ -1,0 +1,40 @@
+THIRD-PARTY NOTICES — BitLocker Mounter 0.5
+
+This wrapper uses and redistributes/downloads open-source components. It does not
+claim ownership of the upstream projects.
+
+1. anylinuxfs
+   Project: https://github.com/nohajc/anylinuxfs
+   Pinned version: 0.19.0
+   License: GPL-3.0-or-later
+
+2. anylinuxfs-gui
+   Project: https://github.com/fenio/anylinuxfs-gui
+   Pinned version: 0.7.5
+   License: GPL-3.0
+
+3. util-linux
+   Project: https://github.com/util-linux/util-linux
+   The upstream distribution contains components under BSD, GPL, LGPL and
+   public-domain terms. See the upstream source/package metadata for the license
+   applicable to each installed library/tool.
+
+4. GNU gettext / libintl
+   Project: https://www.gnu.org/software/gettext/
+   Licenses include GPL-3.0-or-later and LGPL-2.1-or-later components.
+
+5. json-c
+   Project: https://github.com/json-c/json-c
+   License: MIT
+
+6. GNU libunistring
+   Project: https://www.gnu.org/software/libunistring/
+   Licenses include GPL-2.0-or-later / LGPL-3.0-or-later depending on component.
+
+The private Linux environment is initialized by anylinuxfs from Alpine Linux and
+contains packages selected by the upstream anylinuxfs project, including
+cryptsetup, NFS utilities and NTFS tooling. Their respective upstream licenses
+apply.
+
+For full corresponding source, use the versioned upstream project URLs above and
+the package versions/hashes pinned in `helpers/bootstrap.sh`.

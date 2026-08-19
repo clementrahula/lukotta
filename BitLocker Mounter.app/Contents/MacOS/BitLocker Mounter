@@ -1,0 +1,201 @@
+#!/bin/bash
+# Thin macOS launcher. The permanent GUI is the upstream native Rust/Tauri app;
+# this process only verifies first-run setup and launches it with our private CLI.
+set -u
+
+MACOS_DIR="$(cd "$(dirname "$0")" && pwd)"
+CONTENTS="$(cd "$MACOS_DIR/.." && pwd)"
+RESOURCES="$CONTENTS/Resources"
+SUPPORT="$HOME/Library/Application Support/BitLocker Mounter"
+LOG_DIR="$SUPPORT/logs"
+SETUP_LOG="$LOG_DIR/setup-v5.log"
+GUI_LOG="$LOG_DIR/native-gui.log"
+BRIDGE="$SUPPORT/bridge"
+GUI_APP="$SUPPORT/native/BitLocker Mounter.app"
+GUI_PREF_DIR="$HOME/Library/Application Support/com.anylinuxfs.gui"
+GUI_PREF="$GUI_PREF_DIR/preferences.toml"
+READY="$RESOURCES/helpers/runtime-ready.sh"
+BOOTSTRAP="$RESOURCES/helpers/bootstrap.sh"
+OSASCRIPT="${BLM_OSASCRIPT:-/usr/bin/osascript}"
+OPEN_CMD="${BLM_OPEN_CMD:-/usr/bin/open}"
+STARTUP_WAIT="${BLM_STARTUP_WAIT:-4}"
+
+mkdir -p "$LOG_DIR" "$BRIDGE"
+chmod 700 "$SUPPORT" "$BRIDGE" 2>/dev/null || true
+
+# Always refresh the tiny bridge from the currently launched outer app. This is
+# safe even when the expensive runtime is already installed.
+/bin/cp -f "$RESOURCES/helpers/alfs-proxy.sh" "$BRIDGE/anylinuxfs" 2>/dev/null || true
+/bin/cp -f "$RESOURCES/helpers/validate-key.sh" "$BRIDGE/validate-key.sh" 2>/dev/null || true
+/bin/chmod 755 "$BRIDGE/anylinuxfs" "$BRIDGE/validate-key.sh" 2>/dev/null || true
+
+setup_prompt() {
+  "$OSASCRIPT" <<'APPLESCRIPT'
+set r to display dialog "BitLocker Mounter needs to prepare its private BitLocker engine and native interface before it can show any drives.\n\nThis happens once. Nothing is installed system-wide: no Homebrew, macFUSE, kernel extension, or background service." with title "BitLocker Mounter" buttons {"Quit", "Set Up"} default button "Set Up"
+return button returned of r
+APPLESCRIPT
+}
+
+progress_notice() {
+  pct="$1"; msg="$2"
+  "$OSASCRIPT" - "$pct" "$msg" <<'APPLESCRIPT' >/dev/null 2>&1 || true
+on run argv
+  display notification (item 2 of argv) with title ("BitLocker Mounter — Setup " & item 1 of argv & "%")
+end run
+APPLESCRIPT
+}
+
+progress_dialog() {
+  pct="$1"; msg="$2"
+  "$OSASCRIPT" - "$pct" "$msg" <<'APPLESCRIPT' >/dev/null 2>&1 || true
+on run argv
+  display dialog ((item 2 of argv) & "\n\n" & (item 1 of argv) & "% complete") with title "Setting up BitLocker Mounter" buttons {"Keep Running"} default button "Keep Running" giving up after 1
+end run
+APPLESCRIPT
+}
+
+failure_prompt() {
+  reason="$1"
+  "$OSASCRIPT" - "$reason" <<'APPLESCRIPT'
+on run argv
+  set reasonText to item 1 of argv
+  set r to display dialog ("Setup did not complete.\n\n" & reasonText & "\n\nThe drive was never opened or modified. The complete setup log is available if you want the raw output.") with title "BitLocker Mounter setup failed" buttons {"Quit", "Open Log", "Retry"} default button "Retry"
+  return button returned of r
+end run
+APPLESCRIPT
+}
+
+native_failure() {
+  reason="$1"
+  "$OSASCRIPT" - "$reason" <<'APPLESCRIPT' >/dev/null 2>&1 || true
+on run argv
+  display dialog ("The verified native interface exited before it could remain open.\n\n" & (item 1 of argv) & "\n\nOpen the native GUI log from:\n~/Library/Application Support/BitLocker Mounter/logs/native-gui.log") with title "BitLocker Mounter could not open" buttons {"OK"} default button "OK"
+end run
+APPLESCRIPT
+}
+
+is_ready() {
+  BLM_RESOURCES="$RESOURCES" BLM_USER_HOME="$HOME" "$READY" >/dev/null 2>&1
+}
+
+run_setup() {
+  : > "$SETUP_LOG"
+  FIFO="$(/usr/bin/mktemp -u "$SUPPORT/setup-fifo.XXXXXX")"
+  /usr/bin/mkfifo "$FIFO" || return 90
+
+  BLM_RESOURCES="$RESOURCES" BLM_USER_HOME="$HOME" "$BOOTSTRAP" >"$FIFO" 2>&1 &
+  setup_pid=$!
+  last_dialog_pct=-20
+  last_error=""
+
+  while IFS= read -r line; do
+    printf '%s\n' "$line" >> "$SETUP_LOG"
+    case "$line" in
+      PROGRESS\|*\|*)
+        rest="${line#PROGRESS|}"
+        pct="${rest%%|*}"
+        msg="${rest#*|}"
+        progress_notice "$pct" "$msg"
+        case "$pct" in
+          ''|*[!0-9]*) ;;
+          *)
+            if [ $((pct - last_dialog_pct)) -ge 10 ] || [ "$pct" -eq 100 ]; then
+              progress_dialog "$pct" "$msg"
+              last_dialog_pct="$pct"
+            fi
+            ;;
+        esac
+        ;;
+      ERROR\|*\|*) last_error="$line" ;;
+    esac
+  done < "$FIFO"
+
+  wait "$setup_pid"
+  rc=$?
+  /bin/rm -f "$FIFO"
+  if [ "$rc" -ne 0 ]; then
+    if [ -n "$last_error" ]; then
+      reason="${last_error#ERROR|}"
+      reason="${reason#*|}"
+    else
+      reason="$(/usr/bin/tail -n 12 "$SETUP_LOG" 2>/dev/null | /usr/bin/tr '\n' ' ')"
+      [ -n "$reason" ] || reason="Setup stopped with exit code $rc."
+    fi
+    BLM_LAST_SETUP_REASON="$reason"
+    return "$rc"
+  fi
+  return 0
+}
+
+force_native_elevation() {
+  # anylinuxfs-gui persists its administrator-authentication policy in Tauri's
+  # app config directory. This product intentionally supports only Native mode;
+  # never inherit the upstream GUI's optional Interactive Terminal setting.
+  /bin/mkdir -p "$GUI_PREF_DIR" || return 92
+  /usr/bin/printf 'mode = "native"\n' > "$GUI_PREF" || return 92
+  /bin/chmod 600 "$GUI_PREF" 2>/dev/null || true
+  return 0
+}
+
+launch_native() {
+  if [ ! -d "$GUI_APP" ]; then
+    native_failure "The private native app is missing. Reopen BitLocker Mounter to repair setup."
+    return 91
+  fi
+
+  if ! force_native_elevation; then
+    native_failure "Could not set the native administrator-authentication policy in $GUI_PREF."
+    return 92
+  fi
+
+  : > "$GUI_LOG"
+  GUI_OUT="$LOG_DIR/native-gui.stdout.log"
+  : > "$GUI_OUT"
+
+  # Launch through LaunchServices (the same path as double-clicking a real .app)
+  # while explicitly injecting the private anylinuxfs path supported by the
+  # upstream GUI. -W lets us detect immediate launch failures without keeping
+  # this thin outer wrapper alive for the whole GUI session.
+  "$OPEN_CMD" -n -W --env "ANYLINUXFS_PATH=$BRIDGE/anylinuxfs" --stdout "$GUI_OUT" --stderr "$GUI_LOG" "$GUI_APP" &
+  open_pid=$!
+
+  /bin/sleep "$STARTUP_WAIT"
+  if /bin/kill -0 "$open_pid" >/dev/null 2>&1; then
+    # The native application has stayed alive through the startup window. Stop
+    # waiting on it; this does not terminate the launched application.
+    /bin/kill "$open_pid" >/dev/null 2>&1 || true
+    wait "$open_pid" >/dev/null 2>&1 || true
+    return 0
+  fi
+
+  wait "$open_pid"
+  rc=$?
+  if [ "$rc" -ne 0 ]; then
+    tail_text="$(/usr/bin/tail -n 14 "$GUI_LOG" 2>/dev/null | /usr/bin/tr '\n' ' ')"
+    [ -n "$tail_text" ] || tail_text="LaunchServices/open exit code $rc."
+    native_failure "$tail_text"
+    return "$rc"
+  fi
+  return 0
+}
+
+if ! is_ready; then
+  choice="$(setup_prompt)" || exit 0
+  [ "$choice" = "Set Up" ] || exit 0
+
+  while ! is_ready; do
+    BLM_LAST_SETUP_REASON=""
+    if run_setup && is_ready; then
+      break
+    fi
+    choice="$(failure_prompt "${BLM_LAST_SETUP_REASON:-Setup verification failed after the installer returned.}")" || exit 1
+    case "$choice" in
+      "Retry") ;;
+      "Open Log") "$OPEN_CMD" -a TextEdit "$SETUP_LOG" >/dev/null 2>&1 || "$OPEN_CMD" "$SETUP_LOG" >/dev/null 2>&1 || true; exit 1 ;;
+      *) exit 1 ;;
+    esac
+  done
+fi
+
+launch_native
+exit $?
