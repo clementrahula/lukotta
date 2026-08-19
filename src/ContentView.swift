@@ -298,15 +298,27 @@ private struct MountedView: View {
             }
 
             InfoBox(icon: "sidebar.left",
-                    text: "The drive appears in the Finder sidebar under Locations. Eject it there, or with the button below, before unplugging it.")
+                    text: "The drive appears in the Finder sidebar under Locations. Eject it here or in Finder before unplugging it.")
+
+            if let problem = model.ejectProblem {
+                Label(problem, systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption).foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
             Spacer()
             HStack {
                 Button("Show in Finder") { model.revealInFinder(mountPoint) }
                 Spacer()
-                Button("Eject") { model.eject(mountPoint) }
-                Button("Done", action: model.rescan).keyboardShortcut(.defaultAction)
+                if model.isEjecting {
+                    ProgressView().controlSize(.small)
+                    Text("Ejecting…").font(.caption).foregroundStyle(.secondary)
+                } else {
+                    Button("Eject") { model.eject(mountPoint) }
+                        .keyboardShortcut(.defaultAction)
+                }
             }
+            .disabled(model.isEjecting)
         }
     }
 }

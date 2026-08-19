@@ -166,24 +166,53 @@ Apple Silicon native, and open source.
 
 ### Bugs and correctness
 
+Fixed on 19 Aug 2026 (all verified against the real drive):
+
+- [x] Bridge crashed with "unbound variable" under bash 3.2 + `set -u` whenever
+      the argument rewriter stripped every argument.
+- [x] Only 48-digit recovery keys were accepted; volume passwords were rejected.
+- [x] Two unsatisfiable setup gates meant first-run setup could never complete
+      on any machine: a check that guest binaries be executable *on the host*,
+      and `/bin/touch`, which does not exist on macOS.
+- [x] `SUDO_UID`/`SUDO_GID` unset, because `do shell script` elevates directly
+      to root rather than via sudo; the engine refused to start.
+- [x] Full Disk Access is required even as root (TCC gates raw disk reads); now
+      detected from the engine's output and explained on a guided screen.
+- [x] `build.sh` wrote its output outside the repository.
+- [x] Launcher slept blindly for the whole startup window instead of polling.
+- [x] Two test suites failed deterministically on real hardware due to a
+      100 ms race.
+- [x] **Eject left the microVM running** — it used `diskutil unmount`, which
+      drops the NFS mount only. Now `anylinuxfs unmount --wait-for-vm`, which is
+      unprivileged, so ejecting needs no password.
+- [x] **Quitting orphaned the microVM.** Quit now offers Eject and Quit /
+      Leave Open / Cancel.
+- [x] **Reopening the app ignored an already-open drive** and showed a stale
+      drive list. It now resumes from `anylinuxfs status`.
+- [x] Mount point was found by scraping `mount` output; now taken from
+      `anylinuxfs status`, with scraping only as fallback.
+- [x] Deployment target raised from macOS 14 to 15, which the engine requires.
+- [x] Engine defaulted to 1 vCPU / 512 MiB and 32 KiB NFS transfers; now scaled
+      to the host with 1 MiB transfers.
+- [x] Engine opened its own Finder window on top of the app's; suppressed.
+- [x] Dead `$HOME` redirection removed — the engine resolves its own directory
+      from the passwd entry and ignored it, so it was a false guarantee.
+
+Still open:
+
 - [ ] **Sidebar name** — unresolved. Finder's API reports the volume as its NTFS
       label, but the sidebar reportedly shows something more technical. Need the
       exact string to tell whether it is the label or the NFS server name
       (`disk4s1.local`, derived from an internal `vm_hostname` with no CLI flag).
-- [ ] **Eject is wrong.** `AppModel.eject` calls `diskutil unmount`, which drops
-      the NFS mount but leaves the microVM running. Should call
-      `anylinuxfs unmount` and then `stop`.
-- [ ] **No VM shutdown on quit.** Quitting the app orphans the VM.
 - [ ] **Drive removal while mounted** is not handled; NFS will hang on a soft
       timeout rather than reporting anything useful.
 - [ ] **Sleep/wake** untested — the NFS mount very likely does not survive it.
-- [ ] `Mounter.discoverMountPoint` parses `/sbin/mount` text and the engine
-      transcript. Fragile; prefer `anylinuxfs status`, which reports the mount
-      point directly.
 - [ ] `Diagnosis.summarise` maps engine strings to messages by substring, so an
       upstream wording change silently degrades to raw output.
-- [ ] Deployment target is macOS 14, but the engine bottles are Sequoia/Tahoe
-      and `Permissions`/mount paths assume 15+. Raise it to 15.0 and mean it.
+- [ ] Only the first mounted drive is resumed on launch; multiple simultaneous
+      drives are not modelled.
+- [ ] A plain NTFS drive is indistinguishable from BitLocker until unlock is
+      attempted, so the user finds out by failing.
 
 ### Build and release
 

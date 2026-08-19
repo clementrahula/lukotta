@@ -20,6 +20,8 @@ final class AppModel: ObservableObject {
     @Published var revealCredential = false
     @Published var statusLines: [String] = []
     @Published var credentialProblem: String?
+    @Published var isEjecting = false
+    @Published var ejectProblem: String?
 
     private var workspace: Workspace?
 
@@ -28,13 +30,29 @@ final class AppModel: ObservableObject {
     func start() {
         phase = .scanning
         Task.detached(priority: .userInitiated) {
+            // If a drive is already open - the app was reopened, or a previous
+            // session left it mounted - go straight to that state.
+            let existing = EngineStatus.current().first
             let found = DriveScanner.scan()
             await MainActor.run {
                 self.drives = found
-                self.phase = .chooseDrive
+                if let existing {
+                    let drive = found.first { $0.devicePath == existing.devicePath }
+                        ?? Drive(id: URL(fileURLWithPath: existing.devicePath).lastPathComponent,
+                                 devicePath: existing.devicePath,
+                                 name: URL(fileURLWithPath: existing.mountPoint).lastPathComponent,
+                                 sizeBytes: 0,
+                                 connection: "")
+                    self.phase = .mounted(drive, existing.mountPoint)
+                } else {
+                    self.phase = .chooseDrive
+                }
             }
         }
     }
+
+    /// True while a drive is open, so quitting can offer to eject first.
+    var hasOpenDrive: Bool { !EngineStatus.current().isEmpty }
 
     /// Re-probe after the user has changed the setting.
     func recheckPermission() {
@@ -51,6 +69,7 @@ final class AppModel: ObservableObject {
     }
 
     func rescan() {
+        ejectProblem = nil
         credential = ""
         credentialProblem = nil
         statusLines = []
@@ -145,14 +164,31 @@ final class AppModel: ObservableObject {
         NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: path)
     }
 
+    /// Eject through the engine, not diskutil: diskutil drops the NFS mount but
+    /// leaves the microVM running, which orphans a VM on every eject.
     func eject(_ path: String) {
+        isEjecting = true
+        ejectProblem = nil
         Task.detached(priority: .userInitiated) {
-            let p = Process()
-            p.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
-            p.arguments = ["unmount", path]
-            try? p.run()
-            p.waitUntilExit()
-            await MainActor.run { self.rescan() }
+            let result = EngineStatus.unmount(mountPoint: path)
+            await MainActor.run {
+                self.isEjecting = false
+                if result.ok {
+                    self.rescan()
+                } else {
+                    self.ejectProblem = result.message
+                }
+            }
+        }
+    }
+
+    /// Eject everything, then run the completion. Used on quit.
+    func ejectAll(completion: @escaping () -> Void) {
+        Task.detached(priority: .userInitiated) {
+            for m in EngineStatus.current() {
+                _ = EngineStatus.unmount(mountPoint: m.mountPoint)
+            }
+            await MainActor.run { completion() }
         }
     }
 

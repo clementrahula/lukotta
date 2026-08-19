@@ -19,7 +19,7 @@ mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources/helpers"
 
 printf 'Compiling…\n'
 swiftc -parse-as-library \
-  -target arm64-apple-macos14.0 \
+  -target arm64-apple-macos15.0 \
   -O -whole-module-optimization \
   "$HERE/src/Engine.swift" \
   "$HERE/src/Mounter.swift" \
