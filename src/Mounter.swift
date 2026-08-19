@@ -133,9 +133,11 @@ enum EngineStatus {
         do { try p.run() } catch { return [] }
         let data = out.fileHandleForReading.readDataToEndOfFile()
         p.waitUntilExit()
-        let text = String(data: data, encoding: .utf8) ?? ""
+        return parse(String(data: data, encoding: .utf8) ?? "")
+    }
 
-        // "/dev/disk4s1 on /Volumes/BACKUP (ntfs3, ...) VM[cpus: 4, ram: 2048 MiB]"
+    /// "/dev/disk4s1 on /Volumes/BACKUP (ntfs3, ...) VM[cpus: 4, ram: 2048 MiB]"
+    static func parse(_ text: String) -> [EngineMount] {
         var mounts: [EngineMount] = []
         for line in text.components(separatedBy: .newlines) {
             guard let onRange = line.range(of: " on "),

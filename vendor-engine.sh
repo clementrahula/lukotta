@@ -30,8 +30,23 @@ echo "Copying Linux root filesystem…"
 # symlinks pointing at absolute guest paths, and codesign --verify --strict
 # follows them and fails, which would make the signed app unverifiable.
 mkdir -p "$OUT/alpine"
+
+# Strip ZFS. This is a BitLocker/NTFS tool and never touches ZFS, but the image
+# ships zfs.ko + spl.ko, which are CDDL-1.0 kernel modules combined with a
+# GPL-2.0 kernel - the one genuinely contested licence combination in the whole
+# dependency set. Removing it also saves space. Set BLM_KEEP_ZFS=1 to keep it.
+STAGE="$(mktemp -d)/rootfs"
+/usr/bin/ditto "$SRC_ROOTFS/rootfs" "$STAGE"
+if [ "${BLM_KEEP_ZFS:-0}" != "1" ]; then
+  echo "  removing ZFS (CDDL) components…"
+  rm -rf "$STAGE/lib/modules"/*/fs/zfs          "$STAGE/etc/zfs" "$STAGE/usr/libexec/zfs"          "$STAGE/usr/lib/libzfs"* "$STAGE/usr/lib/libzpool"*          "$STAGE/usr/lib/libnvpair"* "$STAGE/usr/lib/libuutil"*          "$STAGE/usr/lib/libzfs_core"* 2>/dev/null || true
+  rm -f "$STAGE/usr/lib/modules-load.d/zfs.conf" "$STAGE/etc/modules-load.d/zfs.conf" \
+        "$STAGE/sbin/mount.zfs" "$STAGE/usr/sbin/zfs" "$STAGE/usr/sbin/zpool"         "$STAGE/usr/sbin/fsck.zfs" "$STAGE/usr/sbin/zfs_ids_to_path"         "$STAGE/usr/sbin/zdb" "$STAGE/usr/sbin/zstream" 2>/dev/null || true
+fi
+
 echo "  packing rootfs (this takes a moment)…"
-/usr/bin/tar --format ustar -czf "$OUT/alpine/rootfs.tar.gz" -C "$SRC_ROOTFS" rootfs
+/usr/bin/tar --format ustar -czf "$OUT/alpine/rootfs.tar.gz" -C "$(dirname "$STAGE")" rootfs
+rm -rf "$(dirname "$STAGE")"
 # The engine also reads the OCI image metadata that sits beside the rootfs.
 for extra in rootfs.ver config.json umoci.json oci; do
   [ -e "$SRC_ROOTFS/$extra" ] && /usr/bin/ditto "$SRC_ROOTFS/$extra" "$OUT/alpine/$extra"

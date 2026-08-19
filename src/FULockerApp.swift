@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 
 @main
-struct BitLockerMounterApp: App {
+struct FULockerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var model = AppModel()
 

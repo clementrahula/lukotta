@@ -20,7 +20,7 @@ enum EnginePaths {
     static var developmentEngineRoot: URL? {
         let home = FileManager.default.homeDirectoryForCurrentUser
         let root = home
-            .appendingPathComponent("Library/Application Support/BitLocker Mounter/runtime", isDirectory: true)
+            .appendingPathComponent("Library/Application Support/FULocker/runtime", isDirectory: true)
         return FileManager.default.fileExists(atPath: root.path) ? root : nil
     }
 
@@ -88,7 +88,7 @@ final class Workspace {
 
     init() throws {
         let base = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        root = base.appendingPathComponent("BitLockerMounter-\(UUID().uuidString)", isDirectory: true)
+        root = base.appendingPathComponent("FULocker-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: root,
                                                 withIntermediateDirectories: true,
                                                 attributes: [.posixPermissions: 0o700])
@@ -183,9 +183,9 @@ enum EngineError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .missingEngine:
-            return "This copy of BitLocker Mounter is incomplete - its mounting engine is missing."
+            return "This copy of FULocker is incomplete - its mounting engine is missing."
         case .missingRootfs:
-            return "This copy of BitLocker Mounter is incomplete - its Linux environment is missing."
+            return "This copy of FULocker is incomplete - its Linux environment is missing."
         case .workspace(let why):
             return why
         case .credentialRejected(let why):
