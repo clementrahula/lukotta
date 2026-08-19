@@ -2,7 +2,7 @@
 # Reassemble BitLocker Mounter.app from this Source directory.
 set -e
 HERE="$(cd "$(dirname "$0")" && pwd)"
-OUT="${1:-$HERE/../BitLocker Mounter.app}"
+OUT="${1:-$HERE/BitLocker Mounter.app}"
 rm -rf "$OUT"
 mkdir -p "$OUT/Contents/MacOS" "$OUT/Contents/Resources/helpers"
 cp "$HERE/Info.plist" "$OUT/Contents/Info.plist"

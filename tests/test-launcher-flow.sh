@@ -58,11 +58,11 @@ FAKE_OPEN="$TMP/fake-open"
 cat > "$FAKE_OPEN" <<'S'
 #!/bin/bash
 printf '%s\n' "$@" > "$HOME/open-args.txt"
-/bin/sleep 1
+/bin/sleep 5
 S
 chmod 755 "$FAKE_OPEN"
 
-BLM_OSASCRIPT="$FAKE_OSA" BLM_OPEN_CMD="$FAKE_OPEN" BLM_STARTUP_WAIT=0.1 "$MAC/BitLocker Mounter"
+BLM_OSASCRIPT="$FAKE_OSA" BLM_OPEN_CMD="$FAKE_OPEN" BLM_STARTUP_WAIT=1 "$MAC/BitLocker Mounter"
 for _ in 1 2 3 4 5 6 7 8 9 10; do
   [ -f "$HOME/open-args.txt" ] && break
   /bin/sleep 0.1

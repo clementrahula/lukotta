@@ -159,7 +159,17 @@ launch_native() {
   "$OPEN_CMD" -n -W --env "ANYLINUXFS_PATH=$BRIDGE/anylinuxfs" --stdout "$GUI_OUT" --stderr "$GUI_LOG" "$GUI_APP" &
   open_pid=$!
 
-  /bin/sleep "$STARTUP_WAIT"
+  # Poll rather than sleeping blindly for the whole window: a GUI that fails to
+  # start usually does so immediately, and polling surfaces its exit code and
+  # stderr straight away instead of making the user wait out the full timeout.
+  deadline="$(/usr/bin/awk -v w="$STARTUP_WAIT" 'BEGIN { t = int(w * 10); if (t < 1) t = 1; print t }')"
+  waited=0
+  while [ "$waited" -lt "$deadline" ]; do
+    /bin/kill -0 "$open_pid" >/dev/null 2>&1 || break
+    /bin/sleep 0.1
+    waited=$((waited + 1))
+  done
+
   if /bin/kill -0 "$open_pid" >/dev/null 2>&1; then
     # The native application has stayed alive through the startup window. Stop
     # waiting on it; this does not terminate the launched application.

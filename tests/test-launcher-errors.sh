@@ -85,7 +85,7 @@ S
   chmod 755 "$FAKE_OPEN"
 
   set +e
-  BLM_OSASCRIPT="$FAKE_OSA" BLM_OPEN_CMD="$FAKE_OPEN" BLM_STARTUP_WAIT=0.1 "$MAC/BitLocker Mounter" >/dev/null 2>&1
+  BLM_OSASCRIPT="$FAKE_OSA" BLM_OPEN_CMD="$FAKE_OPEN" BLM_STARTUP_WAIT=1 "$MAC/BitLocker Mounter" >/dev/null 2>&1
   rc=$?
   set -e
   [ "$rc" -eq 42 ] || { echo "FAIL: native failure exit code was $rc, expected 42"; rm -rf "$TMP"; return 1; }

@@ -45,11 +45,34 @@ if printf '%s\n' "$out" | grep -F 'ntfs3' >/dev/null; then
   echo "FAIL: ntfs3 injected into non-mount command"; exit 1
 fi
 
+# A BitLocker user password is forwarded verbatim, not forced into recovery-key
+# shape. Spaces and punctuation are significant.
+PW='Correct Horse Battery! 42'
+out="$(BLM_TESTING=1 BLM_TEST_SUPPORT="$SUPPORT" BLM_TEST_REAL_ALFS="$FAKE" ALFS_PASSPHRASE="$PW" "$BRIDGE/anylinuxfs" mount /dev/disk9s1)"
+printf '%s\n' "$out" | grep -F "PASS=$PW" >/dev/null || { echo "FAIL: BitLocker user password was not forwarded verbatim"; exit 1; }
+
+# Recovery-shaped input is still validated strictly, and the failure is
+# classified so the UI can keep the user in the retry flow.
 set +e
-invalid_out="$(BLM_TESTING=1 BLM_TEST_SUPPORT="$SUPPORT" BLM_TEST_REAL_ALFS="$FAKE" ALFS_PASSPHRASE="1234" "$BRIDGE/anylinuxfs" mount /dev/disk9s1 2>&1)"
+invalid_out="$(BLM_TESTING=1 BLM_TEST_SUPPORT="$SUPPORT" BLM_TEST_REAL_ALFS="$FAKE" ALFS_PASSPHRASE="110011-220022-330033-440044-550055-660066-700007-711712" "$BRIDGE/anylinuxfs" mount /dev/disk9s1 2>&1)"
 invalid_rc=$?
 set -e
-[ "$invalid_rc" -ne 0 ] || { echo "FAIL: proxy accepted invalid recovery key"; exit 1; }
-printf '%s\n' "$invalid_out" | grep -F 'wrong key / invalid passphrase' >/dev/null || { echo "FAIL: invalid recovery key is not classified as an encryption/passphrase error for native GUI retry UX"; exit 1; }
+[ "$invalid_rc" -ne 0 ] || { echo "FAIL: proxy accepted a recovery key with a bad checksum"; exit 1; }
+printf '%s\n' "$invalid_out" | grep -F 'wrong key / invalid passphrase' >/dev/null || { echo "FAIL: invalid recovery key is not classified as an encryption/passphrase error for retry UX"; exit 1; }
+printf '%s\n' "$invalid_out" | grep -F 'Group 8' >/dev/null || { echo "FAIL: proxy discarded the precise validator message"; exit 1; }
+
+# Regression: bash 3.2 aborts on "${arr[@]}" when the array is empty and set -u
+# is active. Every argument below is stripped by the rewriter, so the array is
+# empty by the time the real binary is invoked.
+for bare in "mount" "mount --ignore-permissions" "mount -t ntfs"; do
+  set +e
+  bare_out="$(BLM_TESTING=1 BLM_TEST_SUPPORT="$SUPPORT" BLM_TEST_REAL_ALFS="$FAKE" "$BRIDGE/anylinuxfs" $bare 2>&1)"
+  bare_rc=$?
+  set -e
+  if printf '%s\n' "$bare_out" | grep -F 'unbound variable' >/dev/null; then
+    echo "FAIL: empty argument list crashes the bridge ($bare)"; exit 1
+  fi
+  [ "$bare_rc" -eq 0 ] || { echo "FAIL: bridge failed on '$bare' (rc=$bare_rc): $bare_out"; exit 1; }
+done
 
 echo "PASS: anylinuxfs bridge normalization and mount policy"

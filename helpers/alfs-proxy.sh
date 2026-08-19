@@ -74,7 +74,7 @@ if [ "$IS_MOUNT" -eq 1 ] && [ -n "${ALFS_PASSPHRASE:-}" ]; then
   NORMALIZED="$("$VALIDATOR" "$ALFS_PASSPHRASE" 2>&1)"
   rc=$?
   if [ "$rc" -ne 0 ]; then
-    echo "Error: wrong key / invalid passphrase: Invalid BitLocker recovery key. $NORMALIZED" >&2
+    echo "Error: wrong key / invalid passphrase: $NORMALIZED" >&2
     exit 64
   fi
   export ALFS_PASSPHRASE="$NORMALIZED"
@@ -105,9 +105,9 @@ if [ "$IS_MOUNT" -eq 1 ]; then
   done
 
   if [ "$explicit_mount" -eq 1 ]; then
-    exec "$REAL_ALFS" mount --ignore-permissions -t ntfs3 "${CLEAN_ARGS[@]}"
+    exec "$REAL_ALFS" mount --ignore-permissions -t ntfs3 ${CLEAN_ARGS[@]+"${CLEAN_ARGS[@]}"}
   else
-    exec "$REAL_ALFS" --ignore-permissions -t ntfs3 "${CLEAN_ARGS[@]}"
+    exec "$REAL_ALFS" --ignore-permissions -t ntfs3 ${CLEAN_ARGS[@]+"${CLEAN_ARGS[@]}"}
   fi
 fi
 
