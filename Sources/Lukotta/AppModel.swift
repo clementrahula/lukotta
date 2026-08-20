@@ -31,8 +31,14 @@ final class AppModel: ObservableObject {
     /// Set when a stored credential was found and filled in, so the interface
     /// can say so rather than showing a field of dots with no explanation.
     @Published var usingSavedCredential = false
+    /// Which step a failed mount got to, so the failure can point at it rather
+    /// than replacing the steps with a bare sentence.
+    @Published var failedStage: MountStage?
     @Published var isEjecting = false
     @Published var ejectProblem: String?
+    /// Explains something that happened before the user was looking, such as a
+    /// drive that dropped while the app was not running.
+    @Published var notice: String?
 
     /// Removes the administrator prompt when installed and approved.
     let helper = HelperClient()
@@ -76,6 +82,13 @@ final class AppModel: ObservableObject {
         }
         phase = .scanning
         Task.detached(priority: .userInitiated) {
+            // Clear anything left mounted by a virtual machine that is no
+            // longer running. Until it goes, macOS keeps asking the user about
+            // a server that cannot answer, and the drive cannot be opened
+            // again because its mount point is still occupied.
+            let abandoned = EngineStatus.stale()
+            for point in abandoned { EngineStatus.forceUnmount(mountPoint: point) }
+
             // If a drive is already open - the app was reopened, or a previous
             // session left it mounted - go straight to that state.
             let mounts = EngineStatus.current()
@@ -83,6 +96,12 @@ final class AppModel: ObservableObject {
             let found = DriveScanner.scan()
             await MainActor.run {
                 self.drives = found
+                if let name = abandoned.first.map({ URL(fileURLWithPath: $0).lastPathComponent }) {
+                    self.notice =
+                        abandoned.count > 1
+                        ? "\(abandoned.count) drives had stopped responding and were disconnected. You can open them again."
+                        : "“\(name)” had stopped responding and was disconnected. You can open it again."
+                }
                 self.openMounts = Dictionary(
                     uniqueKeysWithValues:
                         mounts.map { ($0.devicePath, $0.mountPoint) })
@@ -141,9 +160,12 @@ final class AppModel: ObservableObject {
     func forgetSavedCredential(for drive: Drive) {
         CredentialStore.delete(for: drive.uuid)
         credential = ""
-        rememberCredential = false
+        // Left on: forgetting is how a key gets replaced, not how saving gets
+        // turned off. The toggle is right there for the other meaning.
+        rememberCredential = true
         usingSavedCredential = false
         credentialProblem = nil
+        credentialBelongsTo = drive.id
     }
 
     func openFilesAndFoldersSettings() {
@@ -191,7 +213,12 @@ final class AppModel: ObservableObject {
     private var credentialBelongsTo: String?
 
     func choose(_ drive: Drive) {
-        if credentialBelongsTo != drive.id {
+        // Reload for a different drive, and whenever the field is empty. The
+        // second half matters: navigating away clears the value but not this
+        // marker, so without it the saved-key banner outlives the key it
+        // describes, and Unlock then refuses for want of a credential the
+        // interface says it is holding.
+        if credentialBelongsTo != drive.id || credential.isEmpty {
             // A stored credential means the user asked us to remember it.
             if let saved = CredentialStore.load(for: drive.uuid) {
                 credential = saved
@@ -205,6 +232,7 @@ final class AppModel: ObservableObject {
             credentialBelongsTo = drive.id
         }
         credentialProblem = nil
+        notice = nil
         phase = .unlock(drive)
     }
 
@@ -240,6 +268,9 @@ final class AppModel: ObservableObject {
         credentialProblem = nil
         let raw = credential
         guard !raw.isEmpty else {
+            // Whatever the interface was claiming, there is no saved key in
+            // hand. Say the true thing before asking for one.
+            usingSavedCredential = false
             credentialProblem = "Enter the drive's password, or its 48-digit recovery key."
             return
         }
@@ -255,7 +286,7 @@ final class AppModel: ObservableObject {
             do {
                 ws = try Workspace()
             } catch {
-                phase = .failed(drive, "Could not create a private working folder.", "\(error)")
+                fail(drive, "Could not create a private working folder.", "\(error)")
                 return
             }
             workspace = ws
@@ -264,12 +295,17 @@ final class AppModel: ObservableObject {
         }
     }
 
+    /// How much of the helper's transcript has already been shown, so the
+    /// final reply can append the remainder instead of repeating all of it.
+    private var helperLinesShown = 0
+
     private func runMount(drive: Drive, credential: String, volume: LogicalVolume?) {
+        failedStage = nil
         let ws: Workspace
         do {
             ws = try Workspace()
         } catch {
-            phase = .failed(drive, "Could not create a private working folder.", "\(error)")
+            fail(drive, "Could not create a private working folder.", "\(error)")
             return
         }
         workspace = ws
@@ -280,9 +316,23 @@ final class AppModel: ObservableObject {
             appendStatus("Using the background helper — no password needed")
             let aliasPath = (try? ws.makeDeviceAlias(named: drive.name, target: drive.devicePath))?
                 .path
+            // The helper only replies once, at the end. Without this the steps
+            // would show the first one and then jump straight to a mounted
+            // drive, which is what the indicator did for the whole time the
+            // helper has existed.
+            helperLinesShown = 0
+            let poll = Task { [weak self] in
+                while !Task.isCancelled {
+                    try? await Task.sleep(nanoseconds: 400_000_000)
+                    guard let self, let text = await self.helper.progress() else { continue }
+                    self.showHelperTranscript(text)
+                }
+            }
+
             Task {
                 let outcome = await helper.mount(
                     drive: drive, aliasPath: aliasPath, volume: volume, credential: credential)
+                poll.cancel()
                 guard let outcome else {
                     // The helper went away; take the ordinary route.
                     self.helper.refresh()
@@ -290,17 +340,14 @@ final class AppModel: ObservableObject {
                         drive: drive, credential: credential, volume: volume, workspace: ws)
                     return
                 }
-                for line in outcome.transcript.components(separatedBy: .newlines)
-                where !line.isEmpty {
-                    self.appendStatus(line)
-                }
+                self.showHelperTranscript(outcome.transcript)
                 if outcome.status == 0,
                     let point = Mounter.discoverMountPoint(
                         for: drive, transcript: outcome.transcript)
                 {
                     self.finishMount(drive: drive, credential: credential, mountPoint: point)
                 } else {
-                    self.phase = .failed(
+                    self.fail(
                         drive,
                         Diagnosis.summarise(outcome.transcript, fallback: ""),
                         outcome.transcript)
@@ -331,7 +378,6 @@ final class AppModel: ObservableObject {
         credentialBelongsTo = nil
         pendingCredential = nil
         phase = .mounted(drive, mountPoint)
-        NSWorkspace.shared.open(URL(fileURLWithPath: mountPoint))
     }
 
     private func runMountWithAuthorisation(
@@ -365,7 +411,6 @@ final class AppModel: ObservableObject {
                     DriveMemory.remember(mountPoint: result.mountPoint, for: drive.uuid)
                     self.openMounts[drive.devicePath] = result.mountPoint
                     self.phase = .mounted(drive, result.mountPoint)
-                    NSWorkspace.shared.open(URL(fileURLWithPath: result.mountPoint))
                 }
             } catch let err as EngineError {
                 await MainActor.run {
@@ -380,7 +425,7 @@ final class AppModel: ObservableObject {
                     if Permissions.isAccessDenied(err.detail ?? "") {
                         self.phase = .needsPermission
                     } else {
-                        self.phase = .failed(
+                        self.fail(
                             drive,
                             err.errorDescription ?? "The drive could not be opened.",
                             err.detail)
@@ -389,10 +434,28 @@ final class AppModel: ObservableObject {
             } catch {
                 await MainActor.run {
                     self.pendingCredential = nil
-                    self.phase = .failed(drive, "The drive could not be opened.", "\(error)")
+                    self.fail(drive, "The drive could not be opened.", "\(error)")
                 }
             }
         }
+    }
+
+    /// Every route to a failed mount goes through here, so the step the mount
+    /// stopped on is recorded in one place instead of at each of the four
+    /// sites that can fail.
+    private func fail(_ drive: Drive?, _ summary: String, _ detail: String?) {
+        failedStage = MountStage.inferred(from: stageLines + statusLines)
+        phase = .failed(drive, summary, detail)
+    }
+
+    /// Show whatever of the helper's transcript has not been shown yet.
+    private func showHelperTranscript(_ text: String) {
+        let lines = text.components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+        guard lines.count > helperLinesShown else { return }
+        for line in lines[helperLinesShown...] { appendStatus(line) }
+        helperLinesShown = lines.count
     }
 
     private func appendStatus(_ line: String) {
@@ -424,7 +487,14 @@ final class AppModel: ObservableObject {
                 self.isEjecting = false
                 if result.ok {
                     self.openMounts = self.openMounts.filter { $0.value != path }
-                    self.rescan()
+                    // The list, not start(): with a single drive attached that
+                    // selects it again and reopens the unlock screen, which is
+                    // the opposite of what ejecting asked for.
+                    self.credential = ""
+                    self.credentialBelongsTo = nil
+                    self.credentialProblem = nil
+                    self.statusLines = []
+                    self.showAllDrives()
                 } else {
                     self.ejectProblem = result.message
                 }

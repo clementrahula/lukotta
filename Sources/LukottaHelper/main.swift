@@ -11,6 +11,11 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
 
     private let listener: NSXPCListener
 
+    /// The running mount's output, so the app can show progress rather than
+    /// sit on one step until everything is over.
+    private let progressQueue = DispatchQueue(label: "dev.lukotta.helper.progress")
+    private var transcript = ""
+
     override init() {
         listener = NSXPCListener(machServiceName: HelperInfo.machServiceName)
         super.init()
@@ -113,6 +118,12 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")
             try script.write(to: scriptURL, atomically: true, encoding: .utf8)
 
+            progressQueue.sync { transcript = "" }
+            let streamer = LogStreamer(path: log.path) { [weak self] line in
+                self?.progressQueue.sync { self?.transcript += line + "\n" }
+            }
+            streamer.start()
+
             let task = Process()
             task.executableURL = URL(fileURLWithPath: "/bin/sh")
             task.arguments = [scriptURL.path]
@@ -126,12 +137,18 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 }
             }
             task.waitUntilExit()
+            streamer.stop()
 
-            let transcript = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
-            reply(task.terminationStatus, Diagnostics.redact(transcript))
+            let output = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
+            reply(task.terminationStatus, Diagnostics.redact(output))
         } catch {
             reply(71, "\(error)")
         }
+    }
+
+    func progress(reply: @escaping (String) -> Void) {
+        let text = progressQueue.sync { transcript }
+        reply(Diagnostics.redact(text))
     }
 
     func unmount(mountPoint: String, reply: @escaping (Int32, String) -> Void) {

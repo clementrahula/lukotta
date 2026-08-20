@@ -61,14 +61,26 @@ struct WorkingView: View {
 struct StageRow: View {
     let stage: MountStage
     let current: MountStage
+    /// When set, `current` is where the mount stopped rather than where it is.
+    var stopped = false
 
     private var done: Bool { stage.rawValue < current.rawValue }
     private var active: Bool { stage == current }
+    private var failed: Bool { stopped && active }
+
+    private var state: String {
+        if failed { return "stopped here" }
+        if done { return "done" }
+        if active { return "in progress" }
+        return stopped ? "not reached" : "waiting"
+    }
 
     var body: some View {
         HStack(spacing: 10) {
             Group {
-                if done {
+                if failed {
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+                } else if done {
                     Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
                 } else if active {
                     ProgressView().controlSize(.small).scaleEffect(0.7)
@@ -80,11 +92,15 @@ struct StageRow: View {
             .frame(width: 18, height: 18)
 
             Text(stage.title)
-                .font(.callout)
-                .foregroundStyle(active ? .primary : (done ? .secondary : .tertiary))
+                .font(failed ? .callout.weight(.medium) : .callout)
+                .foregroundStyle(
+                    failed ? .primary : (active ? .primary : (done ? .secondary : .tertiary)))
+            if failed {
+                Text("stopped here").font(.caption).foregroundStyle(.red)
+            }
             Spacer()
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(stage.title): \(done ? "done" : active ? "in progress" : "waiting")")
+        .accessibilityLabel("\(stage.title): \(state)")
     }
 }

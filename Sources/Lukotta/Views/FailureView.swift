@@ -9,7 +9,9 @@ struct FailureView: View {
     let drive: Drive?
     let summary: String
     let detail: String?
-    @State private var showDetail = false
+    // Open from the start. A failure is exactly when the log is worth reading,
+    // and hiding it behind a second click asks the user to guess that it exists.
+    @State private var showDetail = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -25,6 +27,15 @@ struct FailureView: View {
                         }
                     }
 
+                    if let stopped = model.failedStage {
+                        VStack(alignment: .leading, spacing: 11) {
+                            ForEach(MountStage.allCases, id: \.rawValue) { s in
+                                StageRow(stage: s, current: stopped, stopped: true)
+                            }
+                        }
+                        .padding(.leading, 2)
+                    }
+
                     InfoBox(
                         icon: "shield.checkered",
                         text:
@@ -32,7 +43,7 @@ struct FailureView: View {
                     )
 
                     if let detail, !detail.isEmpty {
-                        DisclosureGroup("What the engine reported", isExpanded: $showDetail) {
+                        DisclosureGroup("Details", isExpanded: $showDetail) {
                             LogView(
                                 lines: detail.components(separatedBy: .newlines).filter {
                                     !$0.isEmpty
@@ -46,7 +57,11 @@ struct FailureView: View {
             Spacer()
             HStack {
                 Button("Choose another drive", action: model.backToDrives)
-                Button("Report…") { model.showReport = true }
+                Button {
+                    model.showReport = true
+                } label: {
+                    Label("Report a Bug", systemImage: "ladybug")
+                }
                 Spacer()
                 if summary.contains("Full Disk Access") {
                     Button("Open Privacy Settings") { model.openPrivacySettings() }

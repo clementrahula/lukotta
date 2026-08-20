@@ -45,6 +45,62 @@ public enum EngineStatus {
         return mounts
     }
 
+    /// Mount points macOS still shows for a microVM that is no longer running.
+    ///
+    /// If the virtual machine goes away with an NFS mount still up — it
+    /// crashed, or was killed — the mount outlives it, and macOS keeps
+    /// reporting "server connections interrupted" until something clears it.
+    /// That dialog belongs to the system and cannot be suppressed; the dead
+    /// mount behind it can be removed, which is the part we can do.
+    public static func stale() -> [String] {
+        let live = Set(current().map(\.mountPoint))
+        return engineMountPoints(in: mountTable()).filter { !live.contains($0) }
+    }
+
+    private static func mountTable() -> String {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/sbin/mount")
+        let out = Pipe()
+        p.standardOutput = out
+        p.standardError = FileHandle.nullDevice
+        do { try p.run() } catch { return "" }
+        let data = out.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+
+    /// Which entries of `mount` output this engine is responsible for.
+    ///
+    /// Recognised by the export path the engine always uses, so a network
+    /// share the user mounted themselves is never touched.
+    public static func engineMountPoints(in text: String) -> [String] {
+        var found: [String] = []
+        for line in text.components(separatedBy: .newlines) {
+            guard line.contains("(nfs"), line.contains(":/mnt/"),
+                let onRange = line.range(of: " on "),
+                let parenRange = line.range(of: " (", range: onRange.upperBound..<line.endIndex)
+            else { continue }
+            let mp = String(line[onRange.upperBound..<parenRange.lowerBound])
+                .trimmingCharacters(in: .whitespaces)
+            if mp.hasPrefix("/") { found.append(mp) }
+        }
+        return found
+    }
+
+    /// Detach a mount whose server is already gone. The ordinary unmount asks
+    /// the server to co-operate, which a dead one cannot do.
+    @discardableResult
+    public static func forceUnmount(mountPoint: String) -> Bool {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/sbin/umount")
+        p.arguments = ["-f", mountPoint]
+        p.standardOutput = FileHandle.nullDevice
+        p.standardError = FileHandle.nullDevice
+        do { try p.run() } catch { return false }
+        p.waitUntilExit()
+        return p.terminationStatus == 0
+    }
+
     /// Unmount and wait for the microVM to exit. Unprivileged - the engine
     /// tears down the VM it started, so ejecting never needs a password.
     @discardableResult

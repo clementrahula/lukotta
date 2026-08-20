@@ -16,7 +16,7 @@ struct MountedView: View {
                     .font(.system(size: 30)).foregroundStyle(.green)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("“\(drive.name)” is unlocked").font(.title3.weight(.semibold))
-                    Text("Available in Finder, and readable and writable.")
+                    Text("You can open, change, and save files on it.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }

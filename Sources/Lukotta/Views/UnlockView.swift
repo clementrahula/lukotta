@@ -168,11 +168,14 @@ struct PermissionsPanel: View {
     private var helperDetail: String {
         switch model.helper.state {
         case .ready:
-            return "Handled in the background. You will not be asked again."
+            return
+                "Reading a raw disk and mounting a filesystem are actions only an administrator can do."
         case .awaitingApproval:
-            return "Switch Lukotta on in Login Items and you will not be asked again."
+            return
+                "Reading a raw disk and mounting a filesystem are actions only an administrator can do. Approve Lukotta in Login Items to finish."
         default:
-            return "Needed to open a drive. Lukotta never sees it."
+            return
+                "Reading a raw disk and mounting a filesystem are actions only an administrator can do. Lukotta never sees your password."
         }
     }
 
@@ -210,8 +213,12 @@ struct PermissionsPanel: View {
                         .font(.system(size: 15))
                         .foregroundStyle(settled ? Color.green : Color.orange)
                         .frame(width: 26)
-                    Text(settled ? "Everything is set up" : "Setup not finished")
-                        .font(.subheadline.weight(.medium))
+                    Text(
+                        settled
+                            ? "All required permissions granted"
+                            : "Some permissions are still needed"
+                    )
+                    .font(.subheadline.weight(.medium))
                     Spacer()
                     Image(systemName: "chevron.right")
                         .font(.caption.weight(.semibold))

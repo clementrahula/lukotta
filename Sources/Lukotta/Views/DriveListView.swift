@@ -18,6 +18,13 @@ struct DriveListView: View {
                 action: model.rescan)
         } else {
             VStack(alignment: .leading, spacing: 14) {
+                if let notice = model.notice {
+                    Label(notice, systemImage: "bolt.horizontal.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.bottom, 2)
+                }
                 Text("Select a drive to unlock")
                     .font(.subheadline).foregroundStyle(.secondary)
                 ScrollView {

@@ -30,6 +30,13 @@ public enum HelperInfo {
         credential: String,
         reply: @escaping (Int32, String) -> Void)
 
+    /// The transcript of the mount running right now, as far as it has got.
+    ///
+    /// Polled rather than pushed back over the connection: the helper stays a
+    /// thing that answers questions, and never needs the client to export an
+    /// object for it to call into.
+    func progress(reply: @escaping (String) -> Void)
+
     func unmount(mountPoint: String, reply: @escaping (Int32, String) -> Void)
 
     func helperVersion(reply: @escaping (String) -> Void)

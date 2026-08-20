@@ -74,6 +74,24 @@ final class HelperClient: ObservableObject {
         return connection?.remoteObjectProxyWithErrorHandler { _ in } as? LukottaHelperProtocol
     }
 
+    /// The running mount's output so far, or nil if it cannot be had.
+    ///
+    /// A helper installed by an earlier version has no such method, and an XPC
+    /// call to a method the peer does not implement never calls its reply. The
+    /// error handler is what resumes the continuation in that case; without it
+    /// this would hang, and leak, on every poll.
+    func progress() async -> String? {
+        guard isReady, proxy() != nil, let connection else { return nil }
+        return await withCheckedContinuation { continuation in
+            let once = ResumeOnce(continuation)
+            guard
+                let proxy = connection.remoteObjectProxyWithErrorHandler({ _ in once.resume(nil) })
+                    as? LukottaHelperProtocol
+            else { return once.resume(nil) }
+            proxy.progress { once.resume($0) }
+        }
+    }
+
     /// Mount through the helper. Returns nil when it is unavailable, so the
     /// caller can fall back rather than fail.
     func mount(
@@ -94,5 +112,24 @@ final class HelperClient: ObservableObject {
                 continuation.resume(returning: (status, transcript))
             }
         }
+    }
+}
+
+/// Guarantees a continuation is resumed exactly once, whichever of the reply
+/// and the error handler arrives — both may, and neither is on a known queue.
+private final class ResumeOnce: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<String?, Never>?
+
+    init(_ continuation: CheckedContinuation<String?, Never>) {
+        self.continuation = continuation
+    }
+
+    func resume(_ value: String?) {
+        lock.lock()
+        let pending = continuation
+        continuation = nil
+        lock.unlock()
+        pending?.resume(returning: value)
     }
 }

@@ -247,6 +247,22 @@ group("theElevatedMountScript") {
 }
 
 group("mountStages") {
+    // A mount left behind by a dead virtual machine has to be recognisable
+    // without touching anything the user mounted themselves: clearing one of
+    // those would be a far worse bug than the one this fixes.
+    let table = """
+        /dev/disk1s1 on / (apfs, sealed, local, read-only, journaled)
+        disk4s1.local:/mnt/BACKUP on /Volumes/BACKUP (nfs, nodev, nosuid, mounted by someone)
+        //someone@nas.local/media on /Volumes/media (smbfs, nodev, nosuid)
+        fileserver:/exports/home on /Volumes/home (nfs, nodev, nosuid)
+        map auto_home on /System/Volumes/Data/home (autofs, automounted)
+        """
+    let engineMounts = EngineStatus.engineMountPoints(in: table)
+    expect(engineMounts == ["/Volumes/BACKUP"], "only the engine's own NFS mount is claimed")
+    expect(!engineMounts.contains("/Volumes/media"), "an SMB share of the user's is left alone")
+    expect(!engineMounts.contains("/Volumes/home"), "an unrelated NFS share is left alone")
+    expect(EngineStatus.engineMountPoints(in: "").isEmpty, "an empty mount table claims nothing")
+
     // Stages come from markers the script writes. The engine prints almost
     // nothing while mounting, so inferring them from its output left the
     // indicator stuck on one step and then jumping — the bug this replaces.
@@ -268,6 +284,15 @@ group("mountStages") {
         MountStage.inferred(from: ["mounted on /Volumes/BACKUP", "\(marker)authorised"])
             == .finishing,
         "stages never go backwards")
+
+    // The helper redacts its transcript before handing it back, and the same
+    // text is what drives the step indicator. Redaction that mangled a marker
+    // would leave the steps stuck without anything looking wrong.
+    for stage in ["authorised", "working"] {
+        expect(
+            Diagnostics.redact("\(marker)\(stage)").contains("\(marker)\(stage)"),
+            "redaction leaves the \(stage) marker intact")
+    }
 
     // The markers are plumbing and must not be shown as engine output.
     let script = MountScript.build(sampleInputs())
