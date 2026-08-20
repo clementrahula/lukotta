@@ -1,5 +1,5 @@
 // Measures the Lukotta mark from the source artwork: bounding box, colours and
-// the geometry of the cut. Used to calibrate tools/make-icon.swift.
+// the geometry of the cut. Used to calibrate scripts/make-icon.swift.
 import AppKit
 
 let src = CommandLine.arguments[1]

@@ -1,11 +1,11 @@
-# Lukotta — production readiness, licensing and market
+# Background: licensing, market and the native-volume question
 
-Task list extracted to [TODO.md](TODO.md).
+Reference material behind decisions already taken. Outstanding work is in
+[TODO.md](TODO.md).
 
-Written 19 August 2026, against the state of the repo at that date. Findings
-about licensing are a careful engineering read of the licences involved, not
-legal advice; the App Store and GPL section in particular is worth putting in
-front of a solicitor before money changes hands.
+Findings about licensing are a careful engineering read of the licences
+involved, not legal advice. The App Store and GPL section in particular is worth
+putting in front of a solicitor before money changes hands.
 
 ---
 
@@ -164,121 +164,11 @@ Apple Silicon native, and open source.
 
 ---
 
-## 6. What still needs doing
-
-### Bugs and correctness
-
-Renamed to **Lukotta** (bundle id `dev.rahula.fulocker`) on 19 Aug 2026.
-Versioning is semver in `VERSION` with the git commit count as build number.
-
-Fixed on 19 Aug 2026 (all verified against the real drive):
-
-- [x] Bridge crashed with "unbound variable" under bash 3.2 + `set -u` whenever
-      the argument rewriter stripped every argument.
-- [x] Only 48-digit recovery keys were accepted; volume passwords were rejected.
-- [x] Two unsatisfiable setup gates meant first-run setup could never complete
-      on any machine: a check that guest binaries be executable *on the host*,
-      and `/bin/touch`, which does not exist on macOS.
-- [x] `SUDO_UID`/`SUDO_GID` unset, because `do shell script` elevates directly
-      to root rather than via sudo; the engine refused to start.
-- [x] Full Disk Access is required even as root (TCC gates raw disk reads); now
-      detected from the engine's output and explained on a guided screen.
-- [x] `build.sh` wrote its output outside the repository.
-- [x] Launcher slept blindly for the whole startup window instead of polling.
-- [x] Two test suites failed deterministically on real hardware due to a
-      100 ms race.
-- [x] **Eject left the microVM running** — it used `diskutil unmount`, which
-      drops the NFS mount only. Now `anylinuxfs unmount --wait-for-vm`, which is
-      unprivileged, so ejecting needs no password.
-- [x] **Quitting orphaned the microVM.** Quit now offers Eject and Quit /
-      Leave Open / Cancel.
-- [x] **Reopening the app ignored an already-open drive** and showed a stale
-      drive list. It now resumes from `anylinuxfs status`.
-- [x] Mount point was found by scraping `mount` output; now taken from
-      `anylinuxfs status`, with scraping only as fallback.
-- [x] Deployment target raised from macOS 14 to 15, which the engine requires.
-- [x] Engine defaulted to 1 vCPU / 512 MiB and 32 KiB NFS transfers; now scaled
-      to the host with 1 MiB transfers.
-- [x] Engine opened its own Finder window on top of the app's; suppressed.
-- [x] Dead `$HOME` redirection removed — the engine resolves its own directory
-      from the passwd entry and ignored it, so it was a false guarantee.
-
-Still open:
-
-- [ ] **Sidebar name** — unresolved. Finder's API reports the volume as its NTFS
-      label, but the sidebar reportedly shows something more technical. Need the
-      exact string to tell whether it is the label or the NFS server name
-      (`disk4s1.local`, derived from an internal `vm_hostname` with no CLI flag).
-- [ ] **Drive removal while mounted** is not handled; NFS will hang on a soft
-      timeout rather than reporting anything useful.
-- [ ] **Sleep/wake** untested — the NFS mount very likely does not survive it.
-- [ ] `Diagnosis.summarise` maps engine strings to messages by substring, so an
-      upstream wording change silently degrades to raw output.
-- [ ] Only the first mounted drive is resumed on launch; multiple simultaneous
-      drives are not modelled.
-- [ ] A plain NTFS drive is indistinguishable from BitLocker until unlock is
-      attempted, so the user finds out by failing.
-
-### Build and release
-
-- [ ] **A clean checkout cannot build the app.** `vendor/` is gitignored and
-      `vendor-engine.sh` copies from whatever happens to be installed on the
-      developer's machine. Reproducible builds need pinned, checksummed
-      upstream artefacts — the hashes still in `helpers/bootstrap.sh` are the
-      right starting point.
-- [ ] **Notarisation.** The app is Developer ID signed but unnotarised, so
-      `spctl` rejects it. Anyone who downloads it gets a Gatekeeper warning.
-      Needs `notarytool` with an app-specific password, and stapling.
-- [ ] No CI. Nothing runs the test suite or checks the build.
-- [ ] No update mechanism. Sparkle 2.x is MIT (with BSD-2/zlib bundled
-      components) so it composes fine with GPL-3; delta updates matter because
-      the bundle is 154 MB. Planned in TODO.md §3.
-- [ ] No crash reporting.
-
-### Dead code and hygiene
-
-- [x] The repo contained two products. The bash launcher, `bootstrap.sh`,
-      `runtime-ready.sh`, `alfs-proxy.sh`, `build.sh` and the old `.app` are
-      deleted; `helpers/validate-key.sh` survives because the app still uses it.
-- [x] The tests tested the dead product. The four shell suites covering the old
-      launcher and bridge are gone, replaced by Swift unit tests
-      (`tests/swift/main.swift`, 24 checks) covering shell/AppleScript quoting,
-      recovery-key hinting, engine status parsing and failure diagnosis.
-- [ ] Old residue on dev machines: `~/Library/Application Support/BitLocker
-      Mounter/` (83 MB download cache, an empty `secrets/` folder from an
-      earlier design) and a stale `anylinuxfs` row in Full Disk Access.
-- [x] **zfs stripped from the shipped image.** Confirmed that `zfs.ko` and
-      `spl.ko` were present — CDDL-1.0 kernel modules combined with a GPL-2.0
-      kernel, the one genuinely contested combination in the dependency set.
-      `vendor-engine.sh` now removes them (and the stale `modules-load.d` entry
-      that would try to load them). `BLM_KEEP_ZFS=1` restores them.
-
-### Licence compliance before any public release
-
-- [x] Written offer for source is included in `THIRD_PARTY_NOTICES.md`.
-- [ ] Still to do: actually mirror the source tarballs, or confirm a contact
-      address in the README that can honour the offer for three years.
-- [x] `THIRD_PARTY_NOTICES.md` is now generated by `tools/generate-notices.sh`
-      from the Alpine package database inside the shipped image, so licence
-      strings are verbatim from what actually ships (76 packages), and it
-      carries the written offer for source.
-- [ ] Include full licence texts in the bundle, not just links.
-
-### UX still open
-
-- [ ] First unlock unpacks ~95 MB with only a status line; needs real progress.
-- [ ] No handling for a drive that is plain NTFS rather than BitLocker — the
-      user finds out by failing to unlock.
-- [ ] No "unlock at login" / re-unlock convenience.
-- [ ] No localisation, no accessibility audit.
-
----
-
-## 7. Escaping the network drive — native volume research
+## 6. Escaping the network drive — native volume research
 
 The goal: the drive appears as a real local disk, with the Finder behaviour that
 follows from that (proper sidebar entry, rename, Get Info, eject, Time Machine
-eligibility). Researched 19 August 2026.
+eligibility).
 
 ### Why it is a network drive today
 
@@ -374,7 +264,7 @@ A/B are the same project.
 Until at least step 1 clears, the NFS approach stays, and the network-drive
 presentation with it.
 
-## 8. Recommendation
+## 7. Recommendation
 
 Two coherent products, and it is worth picking deliberately:
 

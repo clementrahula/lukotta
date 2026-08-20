@@ -30,7 +30,7 @@ func drawIcon(into ctx: CGContext) {
     }
 
     // The cut runs off both edges so it slices cleanly through the clip.
-    // Traced from assets/brand/lukotta-logo.jpg by tools/analyse-logo.swift:
+    // Traced from assets/brand/lukotta-logo.jpg by scripts/analyse-logo.swift:
     // the cut's centre runs 0.332 -> 0.484 across as it descends to 0.70 down,
     // then turns and leaves the right edge at 0.79 down. Width 0.053 of the mark.
     let cut = CGMutablePath()

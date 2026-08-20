@@ -7,6 +7,9 @@
 # binaries the engine never invokes on the host.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
+# Staged from a runtime already present on this machine. That is the reason the
+# build is not reproducible: see Documentation/TODO.md, stage 1. The default path
+# is where an earlier version of this project installed it.
 SRC_RUNTIME="${BLM_SRC_RUNTIME:-$HOME/Library/Application Support/BitLocker Mounter/runtime}"
 SRC_ROOTFS="${BLM_SRC_ROOTFS:-$HOME/.anylinuxfs/alpine}"
 OUT="$HERE/vendor/engine"

@@ -5,6 +5,6 @@
    base language; adding a language means adding <code>.lproj</code> beside it.
 
    Regenerate with:
-     genstrings -o resources/en.lproj src/*.swift
+     genstrings -o resources/en.lproj Sources/Lukotta/*.swift Sources/Lukotta/Views/*.swift
    (requires Xcode; the Command Line Tools alone do not ship genstrings)
 */

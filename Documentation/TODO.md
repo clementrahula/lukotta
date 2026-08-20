@@ -1,759 +1,222 @@
-# Lukotta — TODO
+# Plan
 
-Consolidated from the release review and PRODUCTION-READINESS.md.
-Ordered by what blocks what. Last updated 20 August 2026 (v1.0.1).
+What is left to do. Completed work is not recorded here — the history is in git.
 
-Legend: **[you]** needs your credentials or a decision · **[me]** can be done
-without either · **[both]** needs a decision, then implementation.
-
----
-
-## 0. Tonight — before anything else
-
-- [ ] **[you]** Do one real unlock with the current build. ZFS was stripped from
-      the Linux image and that change touches the guest boot path; it has not
-      been verified against the drive. If it fails, revert first with
-      `BLM_KEEP_ZFS=1 ./vendor-engine.sh && ./build-app.sh`.
-- [ ] **[you]** Re-grant Full Disk Access. The bundle id is now
-      `com.clementrahula.lukotta` and the app is `Lukotta.app`, so any earlier
-      grant no longer applies. This is the last identity change. Remove the stale
-      `BitLocker Mounter`, `FULocker` and `anylinuxfs` rows while you are there.
-- [ ] **[you]** Confirm what the Finder sidebar actually says, so the naming
-      question can be closed (see §4).
+Items are marked **[you]** where they need credentials, a decision, or hardware
+only you have; everything else is unassigned and can be picked up in any order.
 
 ---
 
-## 1. Release blockers
+## Stage 1 — Ship the first release
 
-Nothing ships until these are done.
+Nothing below is optional. Until all of it is done there is no artefact that can
+responsibly be given to anyone.
 
-- [ ] **[you]** **Notarise the app.** Confirmed state: `spctl` returns
-      `rejected — Unnotarized Developer ID`, no stapled ticket. Users will see
-      "Apple cannot check it for malicious software". Needs an Apple ID, an
-      app-specific password and the Team ID, then `notarytool submit --wait`
-      followed by `stapler staple`. The hypervisor entitlement should pass, but
-      submission is how that gets confirmed.
-- [ ] **[me]** Write the notarisation script so the above is one command.
-- [ ] **[you]** **Make the repository public.** GPL-3 binaries entitle
-      recipients to the corresponding source; a private repo plus a public
-      binary is a violation from the first download.
-- [x] Dropped the three-year written offer in favour of GPL-3 §6(d) /
-      GPL-2 §3 same-place distribution. §6(a) and §6(b) are both written for
-      object code "embodied in a physical product"; for a download, publishing
-      source beside the binary discharges the obligation immediately and starts
-      no clock. `lukotta@rahula.dev` stays as an ordinary contact.
-- [x] `scripts/collect-sources.sh` assembles the corresponding source:
-      Lukotta via `git archive`, the pinned anylinuxfs tarball, the Linux kernel
-      matching the version detected in the shipped image, and the Alpine aports
-      recipes for every shipped package. It exits non-zero if anything cannot be
-      fetched, so a release cannot quietly ship without complete source.
-- [ ] **[me]** Attach its output to the release next to the .dmg, and say so in
-      the release notes — §6(d) requires the source be offered *from the same
-      place* as the binary.
-- [ ] **[me]** Resolve each Alpine package's upstream tarball from its APKBUILD
-      rather than shipping only the aports recipes. Recipes are the "scripts
-      used to control compilation"; the upstream tarballs are the source proper.
-- [x] Guest image trimmed by `scripts/trim-image.py`, which resolves the apk
-      dependency graph and keeps only the closure of the BitLocker, NTFS, NFS
-      and mount tooling: 76 packages down to 58, 25.6 MiB of files removed, and
-      the package database rewritten so it still describes what ships. LVM,
-      RAID, btrfs, squashfs and ZFS are gone. `BLM_NO_TRIM=1` ships the lot.
-      Note python3 and krb5 stay: `nfs-utils` depends on them.
-- [ ] **[me]** **Make the build reproducible.** `vendor/` is gitignored and
-      `vendor-engine.sh` stages from whatever anylinuxfs happens to be installed
-      on the build machine, so nobody else can build Lukotta and v1.0.1 cannot
-      be rebuilt identically. Pin and checksum the upstream artefacts — the
-      hashes are still in git history in the old `bootstrap.sh`.
-- [ ] **[both]** **Decide the first public version number.** The repo is at
-      1.0.1 because the bump script was exercised during setup. A first public
-      release is usually 1.0.0, or 0.x while the network-drive limitation and
-      untested sleep/wake behaviour stand.
-- [ ] **[me]** **Produce a distributable artefact.** The build emits an `.app`,
-      not something you can attach to a release. Needs a signed `.dmg` with a
-      drag-to-Applications layout — and the DMG must itself be notarised, not
-      just the app inside it.
+- **[you] Notarise the app.** `spctl` currently rejects it as an unnotarised
+  Developer ID build, so a downloader is told macOS cannot check it for
+  malicious software. Needs an Apple ID, an app-specific password and the team
+  identifier, then `notarytool submit --wait` and `stapler staple`.
+- Write the notarisation script so the above is a single command.
+- **Produce a distributable artefact.** The build emits a `.app`; a release
+  needs a signed `.dmg` with a drag-to-Applications layout. The DMG must itself
+  be notarised, not only the app inside it.
+- **[you] Make the repository public.** GPL-3 binaries entitle recipients to the
+  corresponding source. A private repository and a public binary cannot coexist.
+- **Attach the source archive to each release** and say so in the release notes.
+  `scripts/collect-sources.sh` produces it; nothing yet publishes it. Section 6(d)
+  requires the source to be offered from the same place as the binary, so this is
+  what makes the claim in the notices true.
+- **Make the build reproducible.** `vendor/` is gitignored and
+  `scripts/vendor-engine.sh` stages from whatever runtime happens to be installed
+  on the build machine. Nobody else can build Lukotta, and a released version
+  cannot be rebuilt. Pin and checksum the upstream artefacts.
+- **[both] Choose the first public version number.** The current number reflects
+  development churn rather than a release.
 
 ---
 
-## 2. Strongly recommended before release
+## Stage 2 — Before handing it to strangers
 
-- [ ] **[both]** Test sleep/wake and drive-removal-while-mounted. An NFS soft
-      mount that hangs produces beachballs with no explanation. If it is bad,
-      detect it and say something useful.
-- [ ] **[me]** Real progress for the first unlock — it unpacks ~95 MB behind a
-      single status line and looks frozen.
-- [ ] **[me]** Trademark line: state that Lukotta is unaffiliated with and not
-      endorsed by Microsoft. Describing it as "for BitLocker drives" is ordinary
-      nominative use and fine.
-- [ ] **[you]** Check whether the US export notification for publicly available
-      encryption source applies to you (EAR §742.15(b), a one-time email with a
-      URL). Published open source is generally exempt in the EU. Ten minutes,
-      routinely skipped. Not legal advice.
-- [ ] **[me]** Rename the repository to `fulocker` and give it a description; it
-      is still `bitlocker-mac-gui` with an empty description.
-- [ ] **[me]** Short privacy statement, with lukotta@rahula.dev as the contact. It is a security tool that handles
-      recovery keys — say plainly that nothing is transmitted anywhere.
-- [ ] **[me]** Bundle full licence texts, not just links.
-- [ ] **[me]** Add `CHANGELOG.md`. Needed independently of Sparkle, which uses
-      release notes in the appcast.
-- [ ] **[me]** Write `RELEASING.md`: vendor, build, test, bump, notarise, DMG,
-      appcast, tag, publish. Right now that sequence exists only in my head and
-      in scattered scripts.
-- [ ] **[me]** **Document a clean uninstall.** Removing the app leaves
-      `~/.anylinuxfs` (95 MB), any engine logs, and a Full Disk Access entry.
-      For a tool sold on leaving no unnecessary traces, "drag to Trash" being
-      insufficient is a real gap — either document it or add a Remove
-      Everything action.
-
----
-
-## 3. Updates — Sparkle
-
-Ship this with 1.0.x, not later. Without it, every user of a released build is
-stranded on whatever version they first downloaded, and this app asks for Full
-Disk Access and root — exactly the kind of thing that needs a working patch
-path.
-
-**Licensing is clear.** Sparkle 2.x is MIT, with bundled bsdiff (BSD-2-Clause),
-sais-lite (MIT) and an Ed25519 implementation (zlib-style). All permissive and
-all compatible with distributing Lukotta under GPL-3-or-later. Runtime
-requirement is macOS 12+, below our 15.0 floor.
-
-- [ ] **[me]** Embed `Sparkle.framework` in `Contents/Frameworks/` and add it to
-      the inside-out signing pass in `build-app.sh`. Sparkle 2 ships XPC
-      services and an installer helper that each need signing with the hardened
-      runtime, so this is more than dropping in a framework.
-- [ ] **[you]** Generate the EdDSA key pair with Sparkle's `generate_keys`, and
-      **back up the private key**. It lives in the login keychain. If it is
-      lost, every existing install becomes unupdatable — there is no recovery,
-      because clients only trust that one key.
-- [ ] **[me]** Add `SUFeedURL` and `SUPublicEDKey` to `Info.plist`.
-- [ ] **[both]** Decide where the appcast lives. GitHub Releases plus an
-      `appcast.xml` in the repo works and costs nothing; a custom domain is
-      nicer if the project ever moves off GitHub. The feed URL is baked into
-      every shipped build, so changing it later strands old installs — pick a
-      URL you can keep.
-- [ ] **[me]** Wire `generate_appcast` into the release flow so publishing is
-      one command that builds, signs, generates the appcast and produces deltas.
-- [ ] **[me]** **Delta updates are not optional here.** The bundle is 154 MB and
-      roughly 150 MB of that is the engine and Linux image, which change rarely.
-      Without deltas every bug-fix release is a 154 MB download for a few
-      kilobytes of changed Swift. `generate_appcast` produces and signs them
-      automatically.
-- [ ] **[me]** Guard against updating mid-mount. Installing over the app while a
-      drive is unlocked would pull the engine out from under a running microVM.
-      Defer installation until nothing is mounted, using the same
-      `EngineStatus.current()` check the quit handler uses.
-- [ ] **[me]** Add Sparkle and its bundled components to
-      `THIRD_PARTY_NOTICES.md`; the generator currently only covers the engine
-      and the Linux image.
-- [ ] Note the ordering: **notarisation must come first.** Sparkle verifies both
-      its EdDSA signature and the Apple code signature, and the artefact it
-      downloads has to be notarised or Gatekeeper rejects the installed update.
+- **[both] Test sleep/wake and drive removal while mounted.** Neither is handled.
+  An NFS mount that hangs after a lid close gives no explanation. Needs someone
+  present to close a lid and pull a cable.
+- **Guard against updating mid-mount.** Installing over the app while a drive is
+  open would pull the engine out from under a running virtual machine. Defer
+  installation using the same check the quit handler uses.
+- **[you] Generate the Sparkle signing keypair** with `scripts/sparkle-keys.sh`
+  and back up the private key. It is unrecoverable: lose it and every installed
+  copy becomes permanently unupdatable.
+- **[both] Decide where the appcast lives.** The feed URL is compiled into every
+  build, so changing it later strands existing installs.
+- **Wire `generate_appcast` into the release flow**, including delta updates.
+  Without them every bug-fix release is a 154 MB download for a few kilobytes of
+  changed code.
+- **Add Sparkle to the third-party notices.** It is MIT with BSD-2 and zlib
+  components, and is not currently listed.
+- **[you] Check whether the US export notification applies** to publishing
+  encryption software from a US-hosted repository. Published open source is
+  generally exempt in the EU. Not legal advice.
+- **Add a trademark line**: Lukotta is unaffiliated with and not endorsed by
+  Microsoft. Describing it as "for BitLocker drives" is ordinary nominative use.
+- **Provide a clean uninstall.** Removing the app leaves the registered helper,
+  `~/.anylinuxfs`, and a privacy entry behind. `SMAppService.unregister` is
+  wired but nothing calls it.
+- **[you] Have the licence position reviewed** by someone qualified. The
+  analysis is careful, but it is engineering judgement.
 
 ---
 
-## 4. Branding and assets
+## Stage 3 — Reach
 
-Renamed to **Lukotta** ("without a lock", Finnish) on 20 August 2026. Bundle id
-is now `dev.rahula.lukotta`.
-
-- [x] Official logo stored at `assets/brand/lukotta-logo.jpg`, with the mark
-      extracted to `assets/brand/lukotta-mark.png`.
-- [x] Icon calibrated against the artwork by `scripts/analyse-logo.swift`, which
-      measures the mark rather than eyeballing it: charcoal `#444953` (median of
-      971 interior samples), cream `#FBF6F2`, corner radius 0.174 of width, cut
-      width 0.053, and a cut centre that tracks linearly from 0.343 to 0.473
-      across as it descends. Still a redraw, but a measured one.
-- [ ] **[you]** Supply vector or high-resolution artwork. The source is a
-      1448×1086 JPEG, so the mark crops to 448 px — below the 1024 px an icns
-      needs, and JPEG-compressed. The icon is therefore drawn rather than
-      derived from the file. An SVG or a 1024 px+ PNG would let the icon come
-      straight from the artwork, and is worth having as the brand master
-      regardless.
-- [ ] **[me]** Use the wordmark. The logo lockup includes "lukotta" set in a
-      light geometric sans; it belongs in the About panel and at the top of the
-      README, neither of which currently show any branding.
-- [x] Brand colours and the mark's construction are recorded in
-      `scripts/make-icon.swift` and reproducible via `scripts/analyse-logo.swift`.
-- [ ] **[me]** Write them up in a short `assets/brand/README.md` so they are
-      findable without reading Swift.
+- **Enable GitHub Pages** for the site in `docs/` — **[you]** repository
+  settings, source `main` / `docs`. Pages on a private repository needs a paid
+  plan, so this follows the repository going public.
+- **[you] Add the DNS record**: `lukotta` CNAME → `clementrahula.github.io`,
+  then enforce HTTPS once the certificate is issued.
+- **Add screenshots** to the site and the README. The download button points at
+  `/releases/latest` and will 404 until a release exists.
+- **Publish a Homebrew cask** so installation is `brew install --cask lukotta`.
+  A personal tap first; `homebrew-cask` once there is a release history. Both
+  expect a notarised app and a stable versioned download.
+- **Submit to the awesome lists** — `serhii-londar/open-source-mac-os-apps`
+  first, then `jaywcjlove/awesome-mac` and `iCHAIT/awesome-macOS`. All require a
+  public repository, a tagged release and screenshots.
+- Consider Alternativeto and an r/macapps post at the same time. The angle worth
+  leading with is that every comparable tool is closed and paid, and the free
+  ones are command-line only.
 
 ---
 
-## 5. Icons and caching
+## Correctness and robustness
 
-- [x] Dock and Finder showed a stale icon after the renames. The bundle was
-      correct — identical hash in `assets/`, `/Applications` and the delivered
-      copy — so this was LaunchServices and IconServices caching the icon
-      registered under the earlier names at the same path. Fixed by re-running
-      `lsregister -f`, clearing `~/Library/Caches/com.apple.iconservices.store`
-      and restarting Dock and Finder. A stale `FULocker.app` registration was
-      also unregistered.
-- [ ] **[me]** Fold that into the build: after installing to `/Applications`,
-      `touch` the bundle and re-register it, so a rebuilt icon shows up without
-      anyone having to know about icon caches.
-- [ ] **[you]** Confirm the Dock and Finder now show the Lukotta mark. If a
-      stale icon persists, logging out and back in clears the last cache layer.
+- **Handle multiple simultaneous drives.** Only the first mounted drive is
+  resumed on launch.
+- **Distinguish plain NTFS from BitLocker before unlocking.** Today the user
+  finds out by failing. Probing the FVE signature once elevated would tell them.
+- **Handle "already mounted by macOS"** rather than only diagnosing it. The
+  engine has `--remount`; the app could offer it.
+- **Replace substring matching in `Diagnosis`.** Engine output is matched by
+  text, so an upstream wording change silently degrades to raw output.
+- **Check engine log growth.** The engine writes to `~/Library/Logs` and
+  `~/.anylinuxfs` regardless of anything the app does. Confirm the logs rotate.
+- **Move the Full Disk Access check off the main thread.** It performs file I/O
+  during launch.
+- **Adopt Swift 6 language mode.** Strict concurrency flags real issues in
+  `AppModel`'s detached tasks. Deliberately deferred so that concurrency
+  semantics did not change during a structural refactor.
+- **Add structured logging** with `os.Logger`, so support reports contain more
+  than whatever is still in memory.
+- **Port `validate-key.sh` to Swift**, removing a shell dependency and a process
+  spawn from the unlock path for thirty lines of logic.
 
----
+## Testing
 
-## 6. Permissions — what is and is not possible
+- **Cover what is currently untested**: `DriveScanner` plist parsing (needs only
+  fixtures), `EngineEnvironment` unpacking and `Workspace` lifecycle (temp
+  directories).
+- **Add snapshot tests for the interface.** Several layout and state regressions
+  reached the screen because nothing checks rendering.
+- LUKS layouts can be exercised without hardware: `scripts/make-test-volumes.sh`
+  builds LUKS1, LUKS2, direct and LVM variants inside the guest, unprivileged.
+- **[you] Test against a real LUKS drive.** Detection, unlock and the LVM path
+  are implemented and verified against volumes built inside the guest, but never
+  against real hardware.
 
-Researched 20 August 2026, after the claim that Full Disk Access cannot be
-requested was challenged. The correction is worth recording precisely.
+## Accessibility and localisation
 
-- **Files & Folders permissions are promptable.** Desktop, Documents, Downloads,
-  Network Volumes and **Removable Volumes** all show a system consent dialog on
-  first access, driven by the matching `NS…UsageDescription` key. Lukotta uses
-  `NSRemovableVolumesUsageDescription`, which is the prompt users actually see.
-- **Full Disk Access is not.** `kTCCServiceSystemPolicyAllFiles` has no request
-  API; apps that appear to ask are showing their own dialog and deep-linking to
-  System Settings. Granting it is manual or via an MDM configuration profile.
-- **Removable Volumes does not cover raw devices.** It grants access to *files*
-  on a removable volume. Reading `/dev/rdiskN` — which is what unlocking
-  requires — falls under Full Disk Access. That is why granting the promptable
-  one was not enough.
+- **Audit with VoiceOver running** and test Dynamic Type at larger sizes. Labels
+  exist; nothing has been verified with the assistive technology itself.
+- **Extract the strings table** with `genstrings`. Every literal is already a
+  translation key by virtue of SwiftUI, but no table is generated, so nothing can
+  be translated yet.
 
-- [x] Detect Full Disk Access at launch and show the guided screen *before* a
-      password is typed, rather than failing afterwards.
-- [x] Offer Relaunch from that screen: a newly granted TCC permission only
-      applies to a freshly started process, which is the usual reason "I granted
-      it and it still does not work".
-- [x] Explain every prompt before it appears, and say why each is needed.
-- [x] **Experiment run: pointing the engine at `/dev/diskN` does not help.**
-      Lukotta already passes the buffered node — the failure message names
-      `/dev/disk4s1` — but the engine derives the raw path itself. Its `DevInfo`
-      structure carries both `path` and `rpath`, and the binary holds the
-      literals `/dev/disk` and `/dev/rdisk` adjacently, so it converts one to
-      the other and opens the raw node regardless of what it is given. The
-      choice is not ours to make from outside.
+## Interface
 
-      Corroborating evidence: every test against a *disk image* mounted
-      unprivileged, with no Full Disk Access involved, because an image is an
-      ordinary file and no device node is opened. The requirement is
-      specifically about device nodes.
-
-- [ ] **[both]** The residual question — whether the buffered node is gated
-      differently from the raw one — needs a root process *without* Full Disk
-      Access, which cannot be produced here. It would take either a one-off test
-      with the permission toggled off, or patching the engine (it is GPL, so a
-      fork is permitted) to use the buffered node and measuring. Worth doing
-      only if the buffered node turns out to be ungated; if it is gated the
-      same, which is the likelier outcome, the requirement is unavoidable for
-      any tool that reads an encrypted disk directly.
-
-- [x] **One permission entry confirmed.** The system TCC database now shows a
-      single grant for `com.clementrahula.lukotta`, covering the engine embedded
-      inside the bundle. Two stale rows remain from earlier names and should be
-      removed by hand: the old `…/BitLocker Mounter/runtime/anylinuxfs` path and
-      `dev.rahula.fulocker`.
+- **Read-only unlock**, as a checkbox on the unlock screen rather than a global
+  setting: it is a per-drive decision, and mounting a failing drive without
+  writing to it is a real need.
+- **"Don't ask again" on the eject-on-quit dialog.**
+- **A minimal Settings scene**, once Sparkle needs somewhere for its
+  automatic-update toggle. One pane, two rows.
+- **Remember window size and position**, the last drive used, and offer it first.
+- The window leaves vertical slack on its shortest screen. Tolerable.
 
 ---
 
-## 7. Menus and settings
+## Stage 4 — Larger bets
 
-The app has no persisted preferences at all and no Settings scene, which is the
-right default — it does one thing and auto-scales the VM to the host, so there
-is nothing worth a knob. The gaps below are menu-bar and per-mount issues rather
-than reasons to add a preferences window.
+### A native volume, instead of a network share
 
-- [ ] **[me]** The licence is unreachable. `LICENSE` and
-      `THIRD_PARTY_NOTICES.md` ship inside the bundle but nothing opens them.
-      For a GPL app that is a compliance-adjacent gap as well as a courtesy —
-      add an About panel and a Help menu entry that open both.
-- [ ] **[me]** No Help menu and no in-app support path. Point it at the issues
-      page once the repo is public, and at lukotta@rahula.dev.
-- [ ] **[me]** Read-only unlock, as a checkbox on the unlock screen — *not* a
-      global setting. Mounting a suspect or failing drive without writing to it
-      is a real use case, and it is a per-drive decision, so it belongs next to
-      the credential field. The engine already supports it.
-- [ ] **[me]** "Don't ask again" on the eject-on-quit dialog, which is better
-      than a preferences pane for a three-button prompt someone will always
-      answer the same way. This is the first thing that needs persisted state.
-- [ ] **[me]** A minimal `Settings` scene becomes necessary when Sparkle lands
-      (§3): convention is "Check for Updates…" in the app menu plus an
-      "Automatically check for updates" toggle, and that toggle needs somewhere
-      to live. One pane, two rows — resist growing it further.
+The drive appears in Finder as a network volume because the engine re-exports it
+over NFS. This is the single biggest difference between Lukotta and the paid
+alternatives, and the only fix is to replace the transport.
 
-Deliberately **not** exposed: vCPU count, RAM and NFS transfer sizes. These are
-derived from the host and no user can set them better than the machine can.
+- Re-test FSKit on the current macOS. Third-party FSKit extensions were broken on
+  26.1 and 26.2 — `fskitd` rejects unprivileged clients, which breaks Apple's own
+  sample too. One afternoon, and it decides whether the route is open.
+- Test whether Apple's read-only NTFS kext probes a *locked* BitLocker partition.
+  It holds FVE metadata rather than an NTFS boot sector, so it may not — which
+  would sidestep the module-masking problem entirely.
+- Prototype BitLocker unlock with `libbde` (LGPL-3.0). Useful under every route,
+  and independent of the mount mechanism.
+- Then choose: FSKit with an NTFS implementation of our own, or DriverKit with a
+  licensed driver. DriverKit block-storage entitlements need Apple's approval, so
+  that conversation starts early.
 
----
+NTFS read/write is the dominant cost under either route. Going native also
+removes the GPL constraint, so this and a proprietary product are the same
+project.
 
-## 8. Correctness and robustness
+### Intel support — probably not worth it
 
-- [ ] `Diagnosis.summarise` matches engine output by substring, so an upstream
-      wording change silently degrades to raw output. Pin to exit codes where
-      the engine provides them.
-- [ ] Only the first mounted drive is resumed on launch; multiple simultaneous
-      drives are not modelled.
-- [ ] A plain NTFS drive is indistinguishable from BitLocker until an unlock is
-      attempted, so the user finds out by failing. Probe the FVE signature once
-      elevated and say so before asking for a credential.
-- [ ] No CI. Nothing runs `tests/run-all.sh` or checks that the app builds.
-- [ ] **Check engine log growth.** The engine writes to `~/Library/Logs` and
-      `~/.anylinuxfs` and ignores `$HOME`, so nothing the app does can redirect
-      it. Confirm the logs are bounded rather than growing without limit — "no
-      random logs and rubbish" is only true if they rotate.
-- [ ] Handle "already mounted by macOS" rather than only diagnosing it. The
-      engine has `-r/--remount`; today the user is told to eject in Finder and
-      retry, which the app could do for them.
-- [ ] Test coverage is pure logic only: `Credential`, `EngineStatus`,
-      `Diagnosis`, `Permissions`. Untested: `DriveScanner` plist parsing,
-      `EngineEnvironment` unpacking, `Workspace` lifecycle, and the construction
-      of the privileged mount command — the last of these being the highest-risk
-      code in the app.
-- [ ] Port `helpers/validate-key.sh` to Swift. Shelling out to bash for
-      credential validation means a process spawn and a shell dependency on the
-      unlock path, for logic that is thirty lines.
-- [ ] **Crash reports go to Apple, not to us.** The "Lukotta cannot be opened…
-      Report to Apple" dialog is macOS's own crash reporter; the app is not
-      running, so it cannot redirect it. Two routes to actually receiving them:
-      notarise, after which Developer ID crash reports appear in Xcode Organizer
-      for the signing team; or, on launch, look for a fresh report for Lukotta
-      in `~/Library/Logs/DiagnosticReports` and offer to send it to
-      lukotta@rahula.dev. The second works without Apple in the loop and is
-      probably the one worth doing.
+Gated on whether libkrun works on Intel macOS at all; if it does not, nothing
+else matters. Would also need a second guest image and kernel, taking the bundle
+past 250 MB, for an audience that stopped growing in 2020.
+
+### Unlock at login
+
+Needs both a stored credential and the helper. Worth designing carefully:
+"convenient" and "a drive silently unlocks itself" are the same sentence.
 
 ---
 
-## 9. The sidebar name — resolved as far as NFS allows
+## Waiting on you
 
-Finder labels a network mount with its **server** name, and the engine builds
-that from the last path component it is handed — so a raw device appeared as
-`disk4s1.local`, sitting beside the user's iPhone with a computer icon.
-
-- [x] Mount through a symlink named after the drive. Verified on a test volume:
-      a link named "My Backup Drive" produced `My-Backup-Drive.local` instead of
-      `luks2-direct-img.local`. The real device path is always tried afterwards,
-      so this cannot break mounting if the engine treats a symlinked device
-      differently.
-- [ ] **[you]** Confirm the sidebar now shows the drive's name rather than
-      `disk4s1.local`.
-- [ ] The name used is the best one known *before* unlocking: the volume label
-      when macOS reports one, otherwise the physical drive's product name. A
-      locked BitLocker volume reports no label — `BACKUP` only becomes known
-      once it is open, which is after the server has been named. Matching it
-      exactly would need either a second mount pass or remembering the label
-      between launches.
-- [ ] Inherent and not fixable here: it remains a *server* entry with a `.local`
-      suffix and an eject control, because the volume genuinely is an NFS share.
-      Only replacing the microVM (§13) changes that.
+- Approve the helper in Login Items and confirm an unlock runs without a
+  password. The privileged path cannot be exercised here.
+- Supply vector or high-resolution artwork. The source is a JPEG whose mark crops
+  to 448 px, below what an icon needs, so the icon is drawn from measurements
+  rather than derived from the file.
+- Delete the stale privacy entries from earlier names, and the leftover
+  `~/Library/Application Support/BitLocker Mounter/` directory.
 
 ---
 
-## 9a. Superseded question
+## Documents to write
 
-- [ ] Establish what the sidebar actually displays. Finder's own API reports the
-      volume as `BACKUP`, which is the NTFS label from Windows — i.e. the
-      drive's real name. If that is what you see, nothing is wrong. If it shows
-      something like `disk4s1.local`, that is the NFS server name, derived from
-      an internal `vm_hostname` with no CLI flag, and it needs fixing at source.
-
----
-
-## 10. Nice to have
-
-- [ ] "Unlock at login" or a remembered-drive convenience.
-- [ ] Localisation and an accessibility audit.
-- [x] Icon legibility at 16 px checked — the Lukotta mark still reads as itself.
-- [ ] Clean up old residue on this machine: `~/Library/Application Support/
-      BitLocker Mounter/` (83 MB download cache, an empty `secrets/` folder from
-      an earlier design).
+- `CHANGELOG.md` — needed independently of Sparkle, which uses release notes.
+- `RELEASING.md` — vendor, build, test, bump, notarise, package, appcast, tag,
+  publish. That sequence currently exists only as scattered scripts.
+- `PRIVACY.md`, published at lukotta.rahula.dev and linked from the About sheet.
+  Needed even though nothing is collected: the app handles disk encryption keys,
+  asks for Full Disk Access, and can store a credential in the Keychain.
+- `assets/brand/README.md` — the palette and the mark's construction, so future
+  assets stay consistent without reading Swift.
 
 ---
 
-## 11. UI/UX improvements
-
-Reviewed and implemented 20 August 2026. Verified by screenshotting the running
-app, not by inspection.
-
-- [x] **Credential kept on failure.** It was cleared on all seven error paths,
-      so one mistyped digit cost the user all 48. It now persists for the same
-      drive and is cleared only on success or when a different drive is chosen.
-- [x] **Keychain, opt-in per drive.** Keyed on the partition UUID rather than
-      the device path, so it survives replugging as a different diskNsM. Stored
-      only after a credential has actually worked, never synced, and available
-      only while the Mac is unlocked.
-- [x] **Real progress.** Five named stages inferred from the engine's output,
-      shown as steps; inference only ever moves forward, since matching on text
-      is loose. The first-run unpack now reports a true percentage by counting
-      entries against a file count shipped with the archive.
-- [x] **Single drive is auto-selected**, skipping a click with no decision in it.
-- [x] **The drive list is the hub**: open drives are badged and can be ejected
-      inline.
-- [x] **First run reads as a welcome**, not an error.
-- [x] **Drive rows restructured**: name and a type pill, size and connection
-      beneath, device identifier demoted.
-- [x] **Window resizes**, and the failure log grows with it — it was a fixed
-      150 pt box of 10.5 pt monospace, least readable exactly when it mattered.
-- [x] **Caps Lock indicator** in the credential field.
-- [x] **Menu bar extra** listing open volumes with one-click eject, shown only
-      while something is open.
-- [x] Accessibility labels on icon-only controls, and drive rows exposed as
-      single elements with hints.
-- [x] Localisation scaffolding: `resources/en.lproj`, installed by the build.
-
-Still open:
-
-- [ ] **[me]** Audit with VoiceOver actually running, and test Dynamic Type at
-      larger sizes. Labels have been added, but nothing has been verified with
-      the assistive technology itself — that is not the same as being accessible.
-- [ ] **[me]** Extract the strings table with `genstrings`. Every literal is
-      already a translation key by virtue of SwiftUI, but no table is generated,
-      so nothing can actually be translated yet.
-- [ ] A resizable window leaves vertical slack on the shortest screen. Tolerable,
-      but the unlock screen could fill it better.
-
----
-
-## 12. Engineering — architecture, tooling, tests
-
-Reviewed 20 August 2026 against measurements of the tree, not impressions.
-
-### The finding that matters
-
-`Mounter.mount` is a **214-line function** that builds a shell script, writes
-it, elevates it, streams its output and interprets the result. It constructs the
-command that runs as **root**, and it is **completely untested**, because
-generation and execution are fused into one function.
-
-Both production-breaking bugs so far lived exactly there:
-
-- `-n <opts> <device>` — the flag is variadic, so it swallowed the device path
-  and every mount failed with "mount with no disk".
-- `--decrypt all <image>` — the same trap, found earlier and then repeated.
-
-Neither was reachable by any test. A test asserting "the generated command
-contains the device path as a positional argument" would have caught both in
-milliseconds. This is an architecture problem, not a discipline problem.
-
-- [ ] **[me]** Extract a pure `MountScript.build(…) -> String`. Assert on the
-      generated text: device present as a positional, `--nfs-options=` in
-      joined form, credential never inlined, fallback ordering correct, and the
-      LVM branch only present for Linux volumes.
-
-### Structure
-
-- [ ] `Mounter.swift` is 702 lines holding **13 top-level types** — quoting
-      helpers, the Drive model, drive scanning, engine status, volume-group
-      parsing, stage inference, diagnosis, log streaming and mounting. Split by
-      responsibility: `Drives`, `EngineStatus`, `VolumeGroups`, `Diagnosis`,
-      `MountScript`, `Mounter`.
-- [ ] `ContentView.swift` is 883 lines holding every screen. One file per screen.
-- [ ] Root directory holds eight loose shell scripts and four markdown files.
-      Move to `Sources/`, `Tests/`, `Scripts/`, `Docs/`.
-- [ ] 22 `contains("…")` matches against engine output are scattered through
-      `Diagnosis`. Centralise into one table, tested, so an upstream wording
-      change is a single edit rather than a silent degradation.
-
-### Build system
-
-- [ ] **Adopt SwiftPM.** There is no `Package.swift`; everything is `swiftc`
-      invoked from a shell script. That costs module boundaries, incremental
-      builds, `swift test`, editor integration, and dependency management —
-      which Sparkle will require. Structure as a `LukottaCore` library (all the
-      logic, fully testable), a thin executable, and a test target. Keep
-      `build-app.sh` for bundling, embedding and signing, which SwiftPM does not
-      do.
-
-### Tests
-
-- [ ] **16 of 22 top-level types are untested.** The suite compiles three source
-      files. Untested and readily testable: `DriveScanner` (plist parsing, needs
-      only fixtures), `Workspace` and `EngineEnvironment` (temp directories),
-      `CredentialStore` (Keychain round-trip), and the mount script above.
-- [ ] The harness is a hand-rolled `expect()` with a manual counter in
-      `main.swift`: no test names in output, no filtering, no parallelism. Move
-      to swift-testing once SwiftPM is in place.
-
-### Linting and CI
-
-- [ ] **`swift format` 6.3.0 is already in the toolchain** and unused. Add a
-      `.swift-format` and a lint step; it is free.
-- [ ] **Eight shell scripts and nothing checks them.** `shellcheck` would have
-      caught the `/usr/bin/mkfile` call that silently produced no test images.
-- [ ] **No CI.** Nothing runs the tests or checks that the app builds. A macOS
-      workflow can run tests, format and shellcheck immediately; producing a
-      full bundle also needs the vendored engine, so that waits on reproducible
-      vendoring (§1).
-
-### Correctness details
-
-- [ ] `Permissions.hasFullDiskAccess` does file I/O on the main thread at
-      launch, and `hasOpenDrive` spawns a process **synchronously on the main
-      thread** during quit. Both can stall the UI; the second runs while the
-      user is trying to close the app.
-- [ ] No structured logging. `os.Logger` with subsystems would make support
-      reports far more useful than "what the engine reported".
-- [ ] `helpers/validate-key.sh` puts a shell dependency and a process spawn on
-      the unlock path for thirty lines of logic. Port to Swift (also in §8).
-
----
-
-## 13. Third-party notices — rewrite the prose
-
-- [ ] **[me]** `Documentation/THIRD_PARTY_NOTICES.md` reads like generated
-      filler. The licence data in it is correct and machine-derived, but the
-      surrounding prose is padded and repetitive, and a compliance document is
-      exactly the wrong place for that. Rewrite it to be terse, plainly worded
-      and precise, without weakening what it asserts — the GPL §6(d) position
-      and the source offer have to remain legally sound.
-- [ ] Redo it **after** the remaining parts settle. The component list changes
-      with every trim of the guest image, and the wording should be written once
-      against the final set rather than repeatedly against a moving one.
-- [ ] Have the licence claims checked by someone qualified before release. The
-      analysis is careful but it is engineering judgement, not legal advice.
-
----
-
-## 14. What relaxing "no traces" makes possible
-
-Recorded 20 August 2026, after the requirement moved from "no trace" to "no
-unnecessary traces".
-
-- [x] **Drive labels are remembered.** The volume label is only knowable after
-      unlocking, which is after the NFS share has been named — hence
-      `disk4s1.local` in Finder. The label from a successful mount is now stored
-      against the partition UUID, so the second and later unlocks name the share
-      properly. Nothing sensitive is kept; credentials stay in the Keychain.
-- [x] **A privileged helper** removes the administrator prompt entirely
-      (see below).
-- [ ] **[me]** Remember window size and position. Standard macOS behaviour that
-      was impossible while nothing could be written.
-- [ ] **[me]** Remember the eject-on-quit answer, so the three-button dialog can
-      have "don't ask again" rather than appearing every time.
-- [ ] **[me]** Remember the last drive used and offer it first when several are
-      attached.
-- [ ] **[both]** Unlock at login for a chosen drive, which needs both a stored
-      credential and the helper. Worth designing carefully: it is convenient and
-      it also means a drive silently unlocking itself.
-- [ ] **[me]** Keep a bounded, rotated log across sessions. Support reports are
-      currently limited to whatever is still in memory.
-
----
-
-## 15. The administrator prompt on every unlock
-
-Each unlock asks for an administrator password because the mount runs through
-`do shell script … with administrator privileges`, which authorises exactly one
-command. There is no session for it to reuse.
-
-- [x] **Implemented.** `SMAppService` registers a daemon from
-      `Contents/Library/LaunchDaemons`; the user approves it once in Login
-      Items, after which unlocking needs no password. The app falls back to the
-      single-command authorisation whenever the helper is absent, unapproved or
-      unreachable, so nothing breaks if it is declined.
-- [x] The helper accepts **parameters, never a command**. It composes the script
-      itself from the same builder the app uses, so it cannot be asked to run
-      arbitrary code as root even if the client check were defeated. Callers are
-      verified against a code requirement pinning the bundle identifier and the
-      signing team.
-- [ ] **[you]** Approve it once in Login Items and confirm an unlock runs
-      without a password. The privileged path cannot be exercised here.
-- [ ] **[me]** The client is identified by process id, because
-      `NSXPCConnection.auditToken` is private API. The audit token is immune to
-      pid reuse; investigate whether a supported route to it now exists.
-- [ ] **[me]** Provide an uninstall path: removing the app leaves a registered
-      daemon behind. `SMAppService.unregister` is wired but nothing calls it.
-- [ ] **[both]** Original reasoning, kept because it may need revisiting: Removing it means installing a
-      privileged helper with `SMAppService`, authorised once at install, after
-      which unlocking needs no password at all. That was rejected early because
-      it writes a permanent launch daemon under `/Library` — at the time the
-      requirement was to leave no trace. That requirement has since been relaxed
-      to "no unnecessary traces", so the trade is worth revisiting: one
-      persistent daemon against a password on every single unlock.
-- [ ] If the helper route is taken, note what it costs: a second signed
-      executable, an XPC interface to design and keep secure, an uninstall path,
-      and a component that runs as root permanently rather than for the duration
-      of one command. The current design has no resident privileged code at all,
-      which is worth something.
-- [ ] Intermediate option worth measuring first: Authorization Services can hold
-      a right for a few minutes, which would cover unlocking several drives in
-      one sitting without a resident helper.
-
----
-
-## 16. Privacy policy
-
-- [ ] **[both]** Write one and publish it at lukotta.rahula.dev. Needed even
-      though the app collects nothing: it handles disk encryption keys, asks for
-      Full Disk Access and can store a credential in the Keychain, and users are
-      right to want that stated rather than inferred.
-- [ ] It should say plainly: nothing is transmitted; credentials go to the
-      Keychain only when the user asks, and only after they have worked; logs
-      stay in a temporary directory removed on quit; crash reports are sent only
-      if the user chooses to send them, and are redacted first; the only network
-      access is the update check, which fetches an appcast and sends nothing
-      beyond what any HTTP request reveals.
-- [ ] Link it from the About sheet and the website footer.
-
----
-
-## 17. Keychain reliability
-
-- [ ] **[me]** A saved credential did not reload after the app was rebuilt and
-      reinstalled several times in one session. The round-trip is covered by
-      tests and passes, so the storage layer is sound; the likely cause is that
-      macOS scopes access to the signing identity of the binary that created the
-      item, and a stream of fresh builds is not something a user would hit.
-      Confirm on a stable installed build before treating it as a defect.
-- [ ] If it does recur, move to the data-protection keychain
-      (`kSecUseDataProtectionKeychain`), which scopes access to the team rather
-      than the individual binary. That needs a `keychain-access-groups`
-      entitlement, so it is a signing change as well as a code change.
-
----
-
-## 18. Distribution — Homebrew
-
-- [ ] **[me]** Submit a Homebrew cask, so installation is
-      `brew install --cask lukotta`. Blocked on the release blockers in §1: a
-      cask needs a stable versioned download URL and a SHA-256, and
-      homebrew-cask expects the app to be **notarised** — an unnotarised cask
-      makes every user right-click to open.
-- [ ] Decide between homebrew-cask (discoverable, review queue, strict rules)
-      and a personal tap (`brew tap clementrahula/lukotta`, instant, no review).
-      A tap is the sensible first step, with homebrew-cask once there is a
-      release history.
-
----
-
-## 19. Website and visibility
-
-### Website — built, needs switching on
-
-`docs/` holds a single-page site using the brand palette and mark, with a
-`CNAME` for **lukotta.rahula.dev**. It states the Full Disk Access requirement
-and the network-drive limitation up front rather than burying them.
-
-- [ ] **[you]** Enable GitHub Pages: repository **Settings → Pages**, source
-      **main branch, /docs folder**. Note that **Pages on a private repository
-      needs a paid plan** — on a free account the repo must be public first,
-      which is already release blocker §1.
-- [ ] **[you]** Add the DNS record at `rahula.dev`:
-      `lukotta` **CNAME** → `clementrahula.github.io`. GitHub issues the TLS
-      certificate automatically once that resolves; then tick **Enforce HTTPS**.
-- [ ] **[me]** Add screenshots of the app once there is a release to point at —
-      the page currently describes the product without showing it.
-- [ ] The Download button points at `/releases/latest`, so it 404s until the
-      first release exists.
-
-### Awesome lists
-
-Worth doing, but only once the repo is public and has a tagged release with a
-README and screenshots — every list rejects submissions that lack those.
-
-- [ ] **[me]** `serhii-londar/open-source-mac-os-apps` — the closest fit, a
-      curated list of open-source macOS applications.
-- [ ] **[me]** `jaywcjlove/awesome-mac` — very large and widely read; has an
-      explicit open-source marker.
-- [ ] **[me]** `iCHAIT/awesome-macOS`.
-- [ ] Consider Alternativeto and the r/macapps launch post at the same time;
-      "open source, no macFUSE, no kernel extension" is the differentiator to
-      lead with, given every comparable tool is closed and paid.
-
----
-
-## 20. Platform and feature expansion
-
-### Intel / universal binary — probably not worth it
-
-The Swift side is trivial: build for `x86_64-apple-macos15.0` as well and `lipo`
-the results. Everything else is the problem.
-
-- [ ] Check whether anylinuxfs publishes an **x86_64 bottle**. The pinned hashes
-      were `arm64_tahoe` and `arm64_sequoia` only, and the original bootstrap
-      hard-failed on anything but arm64, which suggests upstream is
-      Apple-Silicon-only.
-- [ ] Check **libkrun on Intel macOS**. It uses Hypervisor.framework, which
-      Intel Macs have, but libkrun's macOS support has been arm64-centric. This
-      is the gating question — no hypervisor, no product.
-- [ ] Budget for **a second guest image**. The Alpine rootfs and the kernel
-      inside libkrunfw are both `aarch64`; Intel needs an x86_64 pair, adding
-      roughly 100 MB and taking the bundle past 250 MB, plus a second set of
-      sources to mirror.
-
-Weigh against a shrinking audience: the last Intel Macs shipped in 2020 and the
-deployment floor is already macOS 15. **Verify the libkrun question before
-committing to any of it** — if that fails, the rest is moot.
-
-### LUKS / Linux encrypted volumes — genuinely promising
-
-Much better value than Intel. The engine already does this: `cryptsetup` is
-already in the guest image (it is what unlocks BitLocker), and anylinuxfs
-advertises LUKS decryption in its own `list` command. Ubuntu's full-disk
-encryption is LUKS, typically LUKS → LVM → ext4.
-
-- [x] `lvm2`, `e2fsprogs` and `btrfs-progs` restored to the trim roots — LVM is
-      the layer Ubuntu, Debian, Fedora and openSUSE all put inside LUKS. Image
-      is 66 packages, 150 MB; ZFS stays out.
-- [x] `DriveScanner` now recognises Linux partition types alongside
-      `Microsoft Basic Data`, and each drive carries a `VolumeKind` so the UI
-      can say "BitLocker or NTFS" / "LUKS or Linux filesystem" — honest about
-      what cannot be known before unlocking.
-- [x] `-t ntfs3` is no longer forced. Microsoft volumes try ntfs3 then fall back
-      to ntfs-3g; Linux volumes get no override so the engine detects ext4,
-      btrfs or xfs itself. Both attempts run inside one elevated command, so it
-      is still a single authorisation.
-- [x] UI copy no longer says BitLocker throughout.
-- [ ] **[you]** **Capture `anylinuxfs list --decrypt` output from a real
-      Ubuntu-encrypted drive.** This unblocks the LVM work below; it is the one
-      thing needed and cannot be synthesised here.
-- [ ] **[you]** **Test against a real LUKS drive.** None of the above is
-      verified — there is no Linux volume here. An Ubuntu USB installer or a
-      LUKS-formatted stick would confirm detection, unlock and the LVM path.
-- [ ] Confirm the guest kernel has ext4/btrfs/xfs built in. The userland tools
-      are present, but mounting depends on the kernel in libkrunfw, which was
-      not checked.
-- [ ] **[me]** **LUKS-inside-LVM is NOT wired — and it is the default layout on
-      Ubuntu, Debian, Mint, Pop and Fedora.** Confirmed from the engine itself:
-      LVM must be addressed explicitly as `lvm:<vg-name>:diskXsY:<lv-name>`, and
-      its help says "see `list` command output for available volumes". It runs
-      `vgchange -ay` and `lsblk -O --json` during `list`, so `list --decrypt`
-      is the discovery step. Lukotta currently passes the bare `/dev/diskXsY`,
-      which unlocks the container and then finds an LVM physical volume rather
-      than a filesystem.
-
-      The flow needs to be: unlock and list, parse the volume group and logical
-      volume names, then mount `lvm:<vg>:<disk>:<lv>` — all inside one elevated
-      command to preserve the single authorisation. Where a container holds
-      several logical volumes (root, home, swap) the user has to pick one.
-
-      **Deliberately not written blind.** The parser has to match the real
-      output of `list --decrypt` against an LVM stack, and that output has
-      never been seen here. Writing it from a guess would most likely be wrong
-      in the exact case that matters most. Capture the output from a real
-      Ubuntu-encrypted drive first, then implement against it.
-- [ ] Out of scope, worth stating in the UI: TPM-sealed volumes (Ubuntu 23.10+
-      experimental FDE) and detached LUKS headers cannot be unlocked here.
-
-Strategically this is the stronger move: it widens the product beyond BitLocker
-and differentiates it from iBoysoft and M3, which are BitLocker-only. Most of
-the work is detection and UI, not new engine capability.
-
----
-
-## 21. Strategic — the native UX project
-
-Not a release task. This is the separate project described in
-PRODUCTION-READINESS.md §7, and it is what would make the product genuinely
-differentiated.
-
-- [ ] Re-test FSKit on macOS 26.6.1 with Apple's FSKitSample. Third-party FSKit
-      extensions were broken on 26.1 and 26.2 (`fskitd` rejecting unprivileged
-      clients), but those reports predate this build. One afternoon, and it
-      decides whether the good path is open at all.
-- [ ] Test whether Apple's read-only NTFS kext probes a *locked* BitLocker
-      partition. It contains FVE metadata rather than an NTFS boot sector, so it
-      may not — which would sidestep the module-masking problem entirely.
-- [ ] Prototype BitLocker unlock natively with `libbde` (LGPL-3.0). Useful under
-      every path, and independent of the mount mechanism.
-- [ ] Decide FSKit (own NTFS) vs DriverKit (licensed NTFS). If DriverKit, start
-      the Apple entitlement conversation early — block-storage entitlements need
-      approval.
-
-Note that NTFS read/write is the dominant cost under every option, and that
-going native also removes the GPL constraint, making a proprietary product
-possible.
+## Known limitations
+
+Not tasks. These are properties of the design, worth stating so they are not
+rediscovered as bugs.
+
+- **The volume appears as a network drive.** macOS offers no supported way to
+  mark an NFS mount local. Only Stage 4 changes this.
+- **Full Disk Access cannot be requested.** No API exists; it is granted by hand.
+  The app detects the refusal and explains it.
+- **The drive's name in Finder is only correct from the second unlock onward.**
+  The label is not knowable until the volume is open, which is after the share
+  has been named.
+- **Apple Silicon and macOS 15 or later**, and no Mac App Store: sandboxed apps
+  cannot read raw devices or elevate, quite apart from the licence.
+- **TPM-sealed volumes and detached LUKS headers cannot be opened.**

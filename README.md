@@ -60,7 +60,7 @@ machine". macOS offers no supported way to mark an NFS mount local: there is no
 
 Everything works — read, write, eject — but Finder shows a network volume, and
 in-place renaming is not offered for network volumes. See
-[PRODUCTION-READINESS.md](Documentation/PRODUCTION-READINESS.md) §7 for the routes out of this
+[BACKGROUND.md](Documentation/BACKGROUND.md) §6 for the routes out of this
 (FSKit, DriverKit) and why neither is available today.
 
 ## How it works
@@ -87,7 +87,7 @@ appears in an argument list, an exported environment, or on disk.
 
 `vendor-engine.sh` currently stages from an anylinuxfs runtime already present
 on the build machine. Reproducible builds from pinned upstream artefacts are
-still outstanding — see PRODUCTION-READINESS.md §6.
+still outstanding — see [TODO.md](Documentation/TODO.md).
 
 Outstanding work is tracked in [TODO.md](Documentation/TODO.md).
 
