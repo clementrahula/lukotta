@@ -18,12 +18,19 @@ to lukotta@rahula.dev.
 
 ## Host Components
 
+The following run on macOS, outside the Linux guest image. `vmproxy`,
+`init-rootfs` and the other helper programs distributed alongside them form
+part of anylinuxfs and are covered by its licence. The kernel images `Image`
+and `Image-4K` are Linux kernel binaries supplied by libkrunfw.
+
 | Component | Version | Licence | Source |
 | --- | --- | --- | --- |
 | anylinuxfs | 0.19.0 | GPL-3.0-or-later | https://github.com/nohajc/anylinuxfs |
 | libkrun and libkrunfw | as embedded | GPL-2.0-only AND LGPL-2.1-only | https://github.com/containers/libkrun |
 | Linux kernel | 6.12.62 | GPL-2.0-only | https://www.kernel.org/ |
 | util-linux (libblkid) | as embedded | LGPL-2.1-or-later | https://github.com/util-linux/util-linux |
+| gvisor-tap-vsock (gvproxy) | as embedded | Apache-2.0 | https://github.com/containers/gvisor-tap-vsock |
+| vmnet-helper | as embedded | Apache-2.0 | https://github.com/nirs/vmnet-helper |
 
 ## Linux Guest Image
 

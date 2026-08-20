@@ -52,7 +52,23 @@ fetch "https://github.com/nohajc/anylinuxfs/archive/refs/tags/v${ANYLINUXFS_VER}
       "$OUT/anylinuxfs-${ANYLINUXFS_VER}.tar.gz"
 note ""
 
-# --- 3. Linux kernel + libkrunfw ------------------------------------------
+# --- 3. libkrun, libkrunfw and the other embedded programs -----------------
+# These are distributed inside the engine, so their source travels with it.
+note "libkrun and libkrunfw (GPL-2.0-only AND LGPL-2.1-only)"
+fetch "https://github.com/containers/libkrun/archive/refs/heads/main.tar.gz" \
+      "$OUT/libkrun.tar.gz"
+fetch "https://github.com/containers/libkrunfw/archive/refs/heads/main.tar.gz" \
+      "$OUT/libkrunfw.tar.gz"
+note ""
+
+note "gvisor-tap-vsock (gvproxy) and vmnet-helper (Apache-2.0)"
+fetch "https://github.com/containers/gvisor-tap-vsock/archive/refs/heads/main.tar.gz" \
+      "$OUT/gvisor-tap-vsock.tar.gz"
+fetch "https://github.com/nirs/vmnet-helper/archive/refs/heads/main.tar.gz" \
+      "$OUT/vmnet-helper.tar.gz"
+note ""
+
+# --- 4. Linux kernel bundled by libkrunfw ---------------------------------
 # The kernel version is taken from the module directory inside the guest image.
 KVER="$(/usr/bin/tar -tzf "$HERE/vendor/engine/alpine/rootfs.tar.gz" 2>/dev/null \
         | sed -n 's|.*lib/modules/\([0-9][^/]*\)/.*|\1|p' | head -1)"
@@ -68,7 +84,7 @@ else
 fi
 note ""
 
-# --- 4. Alpine packages ----------------------------------------------------
+# --- 5. Alpine packages ----------------------------------------------------
 # GPL-2's same-place paragraph has no third-party-server allowance, so the
 # GPL-2 components are mirrored here rather than linked.
 note "Alpine packages shipped in the guest image"
