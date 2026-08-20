@@ -262,7 +262,43 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 9. Platform and feature expansion
+## 9. Website and visibility
+
+### Website — built, needs switching on
+
+`docs/` holds a single-page site using the brand palette and mark, with a
+`CNAME` for **lukotta.rahula.dev**. It states the Full Disk Access requirement
+and the network-drive limitation up front rather than burying them.
+
+- [ ] **[you]** Enable GitHub Pages: repository **Settings → Pages**, source
+      **main branch, /docs folder**. Note that **Pages on a private repository
+      needs a paid plan** — on a free account the repo must be public first,
+      which is already release blocker §1.
+- [ ] **[you]** Add the DNS record at `rahula.dev`:
+      `lukotta` **CNAME** → `clementrahula.github.io`. GitHub issues the TLS
+      certificate automatically once that resolves; then tick **Enforce HTTPS**.
+- [ ] **[me]** Add screenshots of the app once there is a release to point at —
+      the page currently describes the product without showing it.
+- [ ] The Download button points at `/releases/latest`, so it 404s until the
+      first release exists.
+
+### Awesome lists
+
+Worth doing, but only once the repo is public and has a tagged release with a
+README and screenshots — every list rejects submissions that lack those.
+
+- [ ] **[me]** `serhii-londar/open-source-mac-os-apps` — the closest fit, a
+      curated list of open-source macOS applications.
+- [ ] **[me]** `jaywcjlove/awesome-mac` — very large and widely read; has an
+      explicit open-source marker.
+- [ ] **[me]** `iCHAIT/awesome-macOS`.
+- [ ] Consider Alternativeto and the r/macapps launch post at the same time;
+      "open source, no macFUSE, no kernel extension" is the differentiator to
+      lead with, given every comparable tool is closed and paid.
+
+---
+
+## 10. Platform and feature expansion
 
 ### Intel / universal binary — probably not worth it
 
@@ -311,7 +347,7 @@ the work is detection and UI, not new engine capability.
 
 ---
 
-## 10. Strategic — the native UX project
+## 11. Strategic — the native UX project
 
 Not a release task. This is the separate project described in
 PRODUCTION-READINESS.md §7, and it is what would make the product genuinely
