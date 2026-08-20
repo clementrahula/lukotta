@@ -69,6 +69,14 @@ struct LukottaApp: App {
                 .environmentObject(model)
                 .onAppear {
                     delegate.model = model
+                    // Without the helper the virtual machine is this process's
+                    // child, so replacing the app would take the drive with it.
+                    updater.holdsADrive = {
+                        MainActor.assumeIsolated { model.hasOpenDrive && !model.helper.isReady }
+                    }
+                    model.onAllDrivesClosed = { [weak updater] in
+                        updater?.installPostponedUpdate()
+                    }
                     model.start()
                 }
                 .onReceive(

@@ -22,14 +22,6 @@ responsibly be given to anyone.
   be notarised, not only the app inside it.
 - **[you] Make the repository public.** GPL-3 binaries entitle recipients to the
   corresponding source. A private repository and a public binary cannot coexist.
-- **Attach the source archive to each release** and say so in the release notes.
-  `scripts/collect-sources.sh` produces it; nothing yet publishes it. Section 6(d)
-  requires the source to be offered from the same place as the binary, so this is
-  what makes the claim in the notices true.
-- **Make the build reproducible.** `vendor/` is gitignored and
-  `scripts/vendor-engine.sh` stages from whatever runtime happens to be installed
-  on the build machine. Nobody else can build Lukotta, and a released version
-  cannot be rebuilt. Pin and checksum the upstream artefacts.
 - **[both] Choose the first public version number.** The current number reflects
   development churn rather than a release.
 
@@ -40,9 +32,6 @@ responsibly be given to anyone.
 - **[both] Test sleep/wake and drive removal while mounted.** Neither is handled.
   An NFS mount that hangs after a lid close gives no explanation. Needs someone
   present to close a lid and pull a cable.
-- **Guard against updating mid-mount.** Installing over the app while a drive is
-  open would pull the engine out from under a running virtual machine. Defer
-  installation using the same check the quit handler uses.
 - **[you] Generate the Sparkle signing keypair** with `scripts/sparkle-keys.sh`
   and back up the private key. It is unrecoverable: lose it and every installed
   copy becomes permanently unupdatable.
@@ -88,8 +77,6 @@ responsibly be given to anyone.
   avoided by unmounting first. Mounts made through the helper survive the app
   quitting, so this only affects the fallback path — but a crash still triggers
   it. Worth checking for a stale mount on launch and offering to clear it.
-- **Handle multiple simultaneous drives.** Only the first mounted drive is
-  resumed on launch.
 - **Distinguish plain NTFS from BitLocker before unlocking.** Today the user
   finds out by failing. Probing the FVE signature once elevated would tell them.
 - **Handle "already mounted by macOS"** rather than only diagnosing it. The

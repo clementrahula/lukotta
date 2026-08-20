@@ -18,11 +18,40 @@ import SwiftUI
 private final class UpdaterRelay: NSObject, SPUUpdaterDelegate {
     var onFailure: ((String) -> Void)?
     var onWillInstall: (() -> Void)?
+    /// Answers whether a drive is open that the app itself is holding.
+    var isHoldingADrive: (() -> Bool)?
 
     /// The last moment the outgoing bundle can be copied: this runs in the
     /// version about to be replaced.
     func updater(_ updater: SPUUpdater, willInstallUpdate item: SUAppcastItem) {
         onWillInstall?()
+    }
+
+    /// Do not replace the app while it is the thing holding a drive open.
+    ///
+    /// Installing pulls the engine out from under a running virtual machine.
+    /// With the helper installed the machine belongs to launchd and survives,
+    /// so only the case where the app itself owns it has to wait — and it waits
+    /// rather than refuses, so the update installs on quit.
+    func updaterShouldRelaunchApplication(_ updater: SPUUpdater) -> Bool { true }
+
+    func updater(
+        _ updater: SPUUpdater,
+        shouldPostponeRelaunchForUpdate item: SUAppcastItem,
+        untilInvokingBlock installHandler: @escaping () -> Void
+    ) -> Bool {
+        guard isHoldingADrive?() == true else { return false }
+        pendingInstall = installHandler
+        return true
+    }
+
+    /// Held until the drive it would have interrupted is ejected.
+    private(set) var pendingInstall: (() -> Void)?
+
+    func installWhenReady() {
+        guard let pendingInstall else { return }
+        self.pendingInstall = nil
+        pendingInstall()
     }
 
     func updater(_ updater: SPUUpdater, didAbortWithError error: Error) {
@@ -56,6 +85,15 @@ final class Updater: ObservableObject {
     /// than left on an old build wondering why nothing arrives.
     @Published var failure: String?
 
+    /// Set by the app: true while this process is the one keeping a drive open.
+    var holdsADrive: (() -> Bool)?
+
+    /// An update that was waiting for a drive to be ejected.
+    var updateIsWaiting: Bool { relay.pendingInstall != nil }
+
+    /// Called once nothing is open, so a postponed update can go ahead.
+    func installPostponedUpdate() { relay.installWhenReady() }
+
     @Published var canCheck = false
 
     /// Mirrors of Sparkle's own settings, so the interface can offer them.
@@ -80,6 +118,9 @@ final class Updater: ObservableObject {
         downloadsAutomatically = controller.updater.automaticallyDownloadsUpdates
         canCheck = controller.updater.canCheckForUpdates
         relay.onWillInstall = { Rollback.keepCurrentAside() }
+        // Only the app holding a drive itself has to postpone: a drive held by
+        // the helper belongs to launchd and survives the app being replaced.
+        relay.isHoldingADrive = { [weak self] in self?.holdsADrive?() ?? false }
         relay.onFailure = { [weak self] message in
             Task { @MainActor in self?.failure = message }
         }

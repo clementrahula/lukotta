@@ -36,6 +36,9 @@ final class AppModel: ObservableObject {
     /// Every volume opened for the drive on screen. A container can hold more
     /// than one, and all of them are opened rather than asking which.
     @Published var openVolumes: [String] = []
+    /// Told when the last drive closes, so an update that was waiting for it can
+    /// go ahead.
+    var onAllDrivesClosed: (() -> Void)?
     @Published var isEjecting = false
     @Published var ejectProblem: String?
     /// Explains something that happened before the user was looking, such as a
@@ -606,6 +609,7 @@ final class AppModel: ObservableObject {
                 self.isEjecting = false
                 if result.ok {
                     self.openVolumes = []
+                    if self.openMounts.isEmpty { self.onAllDrivesClosed?() }
                     self.openMounts = self.openMounts.filter { !paths.contains($0.value) }
                     // The list, not start(): with a single drive attached that
                     // selects it again and reopens the unlock screen, which is
