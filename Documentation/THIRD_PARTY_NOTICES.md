@@ -119,6 +119,8 @@ nor the `zfs.ko` and `spl.ko` kernel modules are distributed with Lukotta.
 - Licence identifiers are reproduced verbatim from each package's own
   metadata. Packages under more than one licence retain the full expression
   rather than being reduced to a single identifier.
+- `blessing` is the SPDX identifier for the SQLite licence, under which the
+  work is dedicated to the public domain.
 - `cryptsetup` is distributed under GPL-2.0-or-later with an OpenSSL
   exception, as recorded in its licence expression.
 - The full licence text of each component accompanies it within the guest

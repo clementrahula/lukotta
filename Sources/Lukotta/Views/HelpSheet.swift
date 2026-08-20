@@ -112,8 +112,9 @@ struct HelpSheet: View {
 
                     HelpSection(title: "The name") {
                         Text(
-                            "Lukotta is Finnish for “without a lock”. It comes from lukko, a lock, "
-                                + "with the ending -tta meaning the absence of something."
+                            "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the "
+                                + "ending -tta marking the absence of something. The stress falls on "
+                                + "the first syllable, as it always does in Finnish."
                         )
                     }
 

@@ -70,6 +70,11 @@ public enum MarkdownDocument {
                 flushParagraph()
                 flushTable()
                 bullets.append(String(line.dropFirst(2)))
+            } else if !bullets.isEmpty, raw.first == " " || raw.first == "\t" {
+                // An indented line after a bullet continues that bullet. Treating
+                // it as a new paragraph broke every wrapped list item into a
+                // bullet followed by a stray block of text.
+                bullets[bullets.count - 1] += " " + line
             } else {
                 flushBullets()
                 flushTable()

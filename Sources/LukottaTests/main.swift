@@ -308,6 +308,23 @@ group("markdownRendering") {
     expect(tables == 1, "table parsed")
     expect(bullets == 1, "bullet list parsed")
     expect(MarkdownDocument.parse("").isEmpty, "empty document yields no blocks")
+
+    // A wrapped bullet is one bullet, not a bullet plus a loose paragraph.
+    let wrapped = """
+        - First item that runs on
+          across two source lines
+        - Second item
+        """
+    let wrappedBlocks = MarkdownDocument.parse(wrapped)
+    expect(wrappedBlocks.count == 1, "a wrapped list produces one block")
+    if case .bullets(let items) = wrappedBlocks[0] {
+        expect(items.count == 2, "two items, not three blocks")
+        expect(
+            items[0] == "First item that runs on across two source lines",
+            "the continuation joins its own bullet")
+    } else {
+        expect(false, "expected a bullet list")
+    }
 }
 
 group("secretRedaction") {
