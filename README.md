@@ -5,8 +5,8 @@ password, and it appears in Finder — readable and writable, like any other dis
 
 [lukotta.rahula.dev](https://lukotta.rahula.dev)
 
-Native Apple Silicon. No Homebrew, no macFUSE, no kernel extension, and nothing
-downloaded on first run — everything it needs is inside the app.
+A native Apple Silicon app that carries everything it needs: no Homebrew, no
+macFUSE, no kernel extension, and nothing downloaded on first run.
 
 ## What it opens
 
@@ -45,10 +45,10 @@ and takes you to the right place in System Settings.
 Plug in the drive and pick it from the list. Type the password or paste the
 recovery key. It appears in Finder under Locations.
 
-Eject it from Lukotta, from the menu bar, or from Finder — whichever is nearer.
+Eject it from Lukotta, from the menu bar, or from Finder.
 
-Lukotta can remember a passphrase in your Keychain if you ask it to. That is off
-unless you turn it on.
+Lukotta can remember a passphrase in your Keychain. It does not unless you ask
+it to.
 
 ## It appears as a network drive
 
@@ -59,18 +59,17 @@ ejects like any other drive. macOS offers no way to present it as a local disk;
 
 ## How it works
 
-macOS cannot read BitLocker or Linux filesystems. Linux can. Lukotta starts a
+macOS cannot read BitLocker or Linux filesystems. Linux can. So Lukotta starts a
 small Linux virtual machine, unlocks the drive inside it, and hands the drive
 back to Finder.
 
-That machinery is [anylinuxfs][anylinuxfs], which is GPL-3 and ships inside the
-app. One virtual machine per drive, about 30 to 80 MB of memory each.
+That work is done by [anylinuxfs][anylinuxfs], GPL-3, shipped inside the app.
+One virtual machine per drive, 30 to 80 MB of memory each.
 
 ## Uninstalling
 
-Dragging the app to the Bin leaves the privileged helper registered with
-launchd, because launchd knows about the service and not the folder it came
-from. To remove everything:
+Dragging the app to the Bin leaves the privileged helper registered: launchd
+knows about the service, not the folder it came from. To remove everything:
 
 ```bash
 ./scripts/uninstall.sh            # say what would go, remove nothing
