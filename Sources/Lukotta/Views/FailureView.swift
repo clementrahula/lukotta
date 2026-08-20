@@ -13,27 +13,36 @@ struct FailureView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top, spacing: 12) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: 28)).foregroundStyle(.orange)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("The drive was not opened").font(.title3.weight(.semibold))
-                    Text(summary).font(.callout)
-                        .fixedSize(horizontal: false, vertical: true)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 28)).foregroundStyle(.orange)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("The drive was not opened").font(.title3.weight(.semibold))
+                            Text(summary).font(.callout)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+
+                    InfoBox(
+                        icon: "shield.checkered",
+                        text:
+                            "Your drive was not modified. A failed unlock cannot damage the data on it."
+                    )
+
+                    if let detail, !detail.isEmpty {
+                        DisclosureGroup("What the engine reported", isExpanded: $showDetail) {
+                            LogView(
+                                lines: detail.components(separatedBy: .newlines).filter {
+                                    !$0.isEmpty
+                                })
+                        }
+                        .font(.caption)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-
-            InfoBox(
-                icon: "shield.checkered",
-                text: "Your drive was not modified. A failed unlock cannot damage the data on it.")
-
-            if let detail, !detail.isEmpty {
-                DisclosureGroup("What the engine reported", isExpanded: $showDetail) {
-                    LogView(lines: detail.components(separatedBy: .newlines).filter { !$0.isEmpty })
-                }
-                .font(.caption)
-            }
-
             Spacer()
             HStack {
                 Button("Choose another drive", action: model.backToDrives)

@@ -16,6 +16,14 @@ struct LukottaApp: App {
                     delegate.model = model
                     model.start()
                 }
+                .onReceive(
+                    NotificationCenter.default.publisher(
+                        for: NSApplication.didBecomeActiveNotification)
+                ) { _ in
+                    // Permissions are granted elsewhere, so look again on the
+                    // way back rather than trusting a stale reading.
+                    model.refreshPermissions()
+                }
         }
         .windowResizability(.contentMinSize)
         // Present only while something is open, so it does not clutter the menu

@@ -36,6 +36,10 @@ public enum DriveMemory {
         store = current
     }
 
+    /// Whether any drive has been opened before. Evidence that reading a drive
+    /// was permitted at least once.
+    public static var hasAny: Bool { !store.isEmpty }
+
     public static func forget(uuid: String) {
         var current = store
         current.removeValue(forKey: uuid)

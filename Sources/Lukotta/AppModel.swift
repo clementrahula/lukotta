@@ -37,6 +37,28 @@ final class AppModel: ObservableObject {
     /// Removes the administrator prompt when installed and approved.
     let helper = HelperClient()
 
+    /// Live permission state, re-checked whenever the app is brought forward
+    /// rather than captured once. Granting a permission happens in System
+    /// Settings, so the app has to look again when the user comes back.
+    @Published var hasFullDiskAccess = true
+    /// nil when it cannot be determined.
+    @Published var removableAccess: Bool?
+
+    /// True when nothing is outstanding. Drives the panel's summary, so it
+    /// cannot claim everything is granted while something still needs doing.
+    var allPermissionsSettled: Bool {
+        hasFullDiskAccess && helper.isReady
+    }
+
+    func refreshPermissions() {
+        hasFullDiskAccess = Permissions.hasFullDiskAccess
+        // Prefer the recorded decision; fall back to evidence. Having opened a
+        // drive before is proof the permission was granted, and does not depend
+        // on an undocumented database schema continuing to look the same.
+        removableAccess = Permissions.removableVolumeAccess() ?? (DriveMemory.hasAny ? true : nil)
+        helper.refresh()
+    }
+
     private var workspace: Workspace?
     /// Held only between discovering several volumes and the user picking one,
     /// so the second attempt does not ask for the credential again.
@@ -45,10 +67,10 @@ final class AppModel: ObservableObject {
     // MARK: Lifecycle
 
     func start() {
-        helper.refresh()
+        refreshPermissions()
         // Say so before any password is typed, rather than after a failed
         // unlock. Full Disk Access cannot be requested, only detected.
-        guard Permissions.hasFullDiskAccess else {
+        guard hasFullDiskAccess else {
             phase = .needsPermission
             return
         }
@@ -283,6 +305,10 @@ final class AppModel: ObservableObject {
             CredentialStore.delete(for: drive.uuid)
         }
         DriveMemory.remember(mountPoint: mountPoint, for: drive.uuid)
+        // The user has just proved they can authorise this. Register the helper
+        // so the next unlock does not ask again; macOS still requires them to
+        // approve it in Login Items, which the panel then prompts for.
+        if case .notInstalled = helper.state { helper.install() }
         openMounts[drive.devicePath] = mountPoint
         self.credential = ""
         credentialBelongsTo = nil

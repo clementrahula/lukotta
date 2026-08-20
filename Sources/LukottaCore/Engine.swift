@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import SQLite3
 
 /// Everything the app needs to talk to the anylinuxfs runtime.
 ///
@@ -298,6 +299,46 @@ public enum Permissions {
     public static func isAccessDenied(_ transcript: String) -> Bool {
         let l = transcript.lowercased()
         return l.contains("cannot probe") || l.contains("insufficient permissions")
+    }
+
+    /// Whether access to removable volumes has been granted.
+    ///
+    /// Returns nil when it cannot be determined. macOS offers no API for this,
+    /// but the decision is recorded in the user's TCC database, which is
+    /// readable once Full Disk Access is held — so in the case that matters,
+    /// deciding whether to keep asking, the answer is usually knowable.
+    public static func removableVolumeAccess() -> Bool? {
+        let db = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Application Support/com.apple.TCC/TCC.db")
+        guard let identifier = Bundle.main.bundleIdentifier else { return nil }
+
+        // Read in-process. Spawning sqlite3 does not work: the subprocess is
+        // judged by TCC on its own, so it cannot read the database even when
+        // this application can.
+        // Opened immutable through a URI. A plain read-only open fails on this
+        // database: SQLite wants to create -wal and -shm sidecars beside it,
+        // which is not permitted, and the read then reports nothing rather than
+        // the answer that is sitting right there.
+        var handle: OpaquePointer?
+        let uri = "file:\(db.path)?immutable=1"
+        let flags = SQLITE_OPEN_READONLY | SQLITE_OPEN_URI
+        guard sqlite3_open_v2(uri, &handle, flags, nil) == SQLITE_OK, let handle else {
+            return nil
+        }
+        defer { sqlite3_close(handle) }
+
+        let sql = """
+            select auth_value from access
+            where service = 'kTCCServiceSystemPolicyRemovableVolumes' and client = ?
+            """
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(handle, sql, -1, &statement, nil) == SQLITE_OK else { return nil }
+        defer { sqlite3_finalize(statement) }
+        sqlite3_bind_text(
+            statement, 1, identifier, -1, unsafeBitCast(-1, to: sqlite3_destructor_type.self))
+
+        guard sqlite3_step(statement) == SQLITE_ROW else { return nil }
+        return sqlite3_column_int(statement, 0) == 2
     }
 
     public static func openFullDiskAccessSettings() {

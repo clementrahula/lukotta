@@ -12,96 +12,107 @@ struct UnlockView: View {
     @State private var capsMonitor: Any?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text("Unlock “\(drive.name)”").font(.title3.weight(.semibold))
-                Text("\(drive.sizeDescription) · \(drive.devicePath)")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-
-            if model.usingSavedCredential {
-                // A stored key and a field of dots asking to store it again is
-                // two states at once. Show the one that applies.
-                HStack(spacing: 12) {
-                    Image(systemName: "key.fill")
-                        .foregroundStyle(.green)
-                        .accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Using the key saved in your Keychain")
-                            .font(.callout.weight(.medium))
-                        Text("Unlock uses it directly. Forget it to type a different one.")
+        VStack(alignment: .leading, spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Unlock “\(drive.name)”").font(.title3.weight(.semibold))
+                        Text("\(drive.sizeDescription) · \(drive.devicePath)")
                             .font(.caption).foregroundStyle(.secondary)
                     }
-                    Spacer()
-                    Button("Forget") { model.forgetSavedCredential(for: drive) }
-                        .controlSize(.small)
-                }
-                .padding(13)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color.green.opacity(0.10)))
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.green.opacity(0.25)))
 
-                if let problem = model.credentialProblem {
-                    Label(problem, systemImage: "exclamationmark.triangle.fill")
-                        .font(.caption).foregroundStyle(.orange)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            } else {
-                VStack(alignment: .leading, spacing: 7) {
-                    Text("Password or recovery key").font(.subheadline)
-                    HStack(spacing: 8) {
-                        Group {
-                            if model.revealCredential {
-                                TextField("", text: $model.credential)
-                            } else {
-                                SecureField("", text: $model.credential)
+                    if model.usingSavedCredential {
+                        // A stored key and a field of dots asking to store it again is
+                        // two states at once. Show the one that applies.
+                        HStack(spacing: 12) {
+                            Image(systemName: "key.fill")
+                                .foregroundStyle(.green)
+                                .accessibilityHidden(true)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Using the key saved in your Keychain")
+                                    .font(.callout.weight(.medium))
+                                Text("Unlock uses it directly. Forget it to type a different one.")
+                                    .font(.caption).foregroundStyle(.secondary)
                             }
+                            Spacer()
+                            Button("Forget") { model.forgetSavedCredential(for: drive) }
+                                .controlSize(.small)
                         }
-                        .textFieldStyle(.roundedBorder)
-                        .font(.system(.body, design: .monospaced))
-                        .focused($focused)
-                        .onSubmit { model.unlock(drive) }
+                        .padding(13)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8).fill(Color.green.opacity(0.10))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8).stroke(Color.green.opacity(0.25)))
 
-                        Button {
-                            model.revealCredential.toggle()
-                        } label: {
-                            Image(systemName: model.revealCredential ? "eye.slash" : "eye")
+                        if let problem = model.credentialProblem {
+                            Label(problem, systemImage: "exclamationmark.triangle.fill")
+                                .font(.caption).foregroundStyle(.orange)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
-                        .buttonStyle(.borderless)
-                        .help(model.revealCredential ? "Hide" : "Show")
-                        .accessibilityLabel(
-                            model.revealCredential ? "Hide the credential" : "Show the credential")
-                    }
+                    } else {
+                        VStack(alignment: .leading, spacing: 7) {
+                            Text("Password or recovery key").font(.subheadline)
+                            HStack(spacing: 8) {
+                                Group {
+                                    if model.revealCredential {
+                                        TextField("", text: $model.credential)
+                                    } else {
+                                        SecureField("", text: $model.credential)
+                                    }
+                                }
+                                .textFieldStyle(.roundedBorder)
+                                .font(.system(.body, design: .monospaced))
+                                .focused($focused)
+                                .onSubmit { model.unlock(drive) }
 
-                    if capsLockOn {
-                        Label("Caps Lock is on", systemImage: "capslock.fill")
-                            .font(.caption).foregroundStyle(.orange)
-                    }
-                    if let hint = model.credentialHint {
-                        Label(hint, systemImage: "number")
+                                Button {
+                                    model.revealCredential.toggle()
+                                } label: {
+                                    Image(systemName: model.revealCredential ? "eye.slash" : "eye")
+                                }
+                                .buttonStyle(.borderless)
+                                .help(model.revealCredential ? "Hide" : "Show")
+                                .accessibilityLabel(
+                                    model.revealCredential
+                                        ? "Hide the credential" : "Show the credential")
+                            }
+
+                            if capsLockOn {
+                                Label("Caps Lock is on", systemImage: "capslock.fill")
+                                    .font(.caption).foregroundStyle(.orange)
+                            }
+                            if let hint = model.credentialHint {
+                                Label(hint, systemImage: "number")
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
+                            if let problem = model.credentialProblem {
+                                Label(problem, systemImage: "exclamationmark.triangle.fill")
+                                    .font(.caption).foregroundStyle(.orange)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+
+                            Toggle(
+                                "Remember this key in my Keychain", isOn: $model.rememberCredential
+                            )
+                            .font(.callout)
+                            .padding(.top, 2)
+
+                            Text(
+                                "The password the drive was locked with, or a 48-digit BitLocker recovery key. Spaces and hyphens in a recovery key are ignored."
+                            )
                             .font(.caption).foregroundStyle(.secondary)
-                    }
-                    if let problem = model.credentialProblem {
-                        Label(problem, systemImage: "exclamationmark.triangle.fill")
-                            .font(.caption).foregroundStyle(.orange)
                             .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
 
-                    Toggle("Remember this key in my Keychain", isOn: $model.rememberCredential)
-                        .font(.callout)
-                        .padding(.top, 2)
+                    PermissionsPanel()
 
-                    Text(
-                        "The password the drive was locked with, or a 48-digit BitLocker recovery key. Spaces and hyphens in a recovery key are ignored."
-                    )
-                    .font(.caption).foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
                 }
+                .padding(.bottom, 4)
             }
-
-            PermissionsPanel()
-
-            Spacer()
+            Spacer(minLength: 12)
             HStack {
                 Button("Back", action: model.backToDrives)
                 Spacer()
@@ -133,17 +144,35 @@ struct UnlockView: View {
 struct PermissionsPanel: View {
     @EnvironmentObject var model: AppModel
 
+    private var removableDetail: String {
+        if model.removableAccess == false {
+            // A bare button into a settings pane is a dead end. Say what to do
+            // once it opens.
+            return
+                "Was refused. In Files and Folders, switch on Removable Volumes for Lukotta, then come back."
+        }
+        return "Lets Lukotta list the drives you plug in. macOS asks for this on its own."
+    }
+
+    private var removableStatus: PermissionStatus {
+        switch model.removableAccess {
+        case true: return .granted
+        case false: return .needed
+        default: return .automatic("Asked when needed")
+        }
+    }
+
+    /// Only rows that are actually granted show "Granted"; the rest show a
+    /// button or a neutral note, never both.
+
     private var helperDetail: String {
         switch model.helper.state {
         case .ready:
-            return
-                "Handled by Lukotta's background helper, so unlocking no longer asks for a password."
+            return "Handled in the background. You will not be asked again."
         case .awaitingApproval:
-            return
-                "Lukotta's helper is installed but not yet approved. Switch it on in Login Items to stop being asked on every unlock."
+            return "Switch Lukotta on in Login Items and you will not be asked again."
         default:
-            return
-                "Reading a raw disk and mounting a volume both need it. macOS asks once per unlock, and Lukotta never sees it. A background helper can remove the prompt."
+            return "Needed to open a drive. Lukotta never sees it."
         }
     }
 
@@ -151,7 +180,7 @@ struct PermissionsPanel: View {
         switch model.helper.state {
         case .ready: return .granted
         case .awaitingApproval: return .needed
-        default: return .automatic("Asked each unlock")
+        default: return .automatic("Asked each time")
         }
     }
 
@@ -164,31 +193,25 @@ struct PermissionsPanel: View {
     }
     @State private var expanded: Bool
 
-    private let fullDiskGranted: Bool
-
     init() {
-        let granted = Permissions.hasFullDiskAccess
-        self.fullDiskGranted = granted
-        _expanded = State(initialValue: !granted)
+        _expanded = State(initialValue: true)
     }
+
+    private var fullDiskGranted: Bool { model.hasFullDiskAccess }
+    private var settled: Bool { model.allPermissionsSettled }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Button {
                 withAnimation(.easeInOut(duration: 0.18)) { expanded.toggle() }
             } label: {
-                HStack(spacing: 10) {
-                    Image(
-                        systemName: fullDiskGranted ? "checkmark.shield.fill" : "hand.raised.fill"
-                    )
-                    .font(.system(size: 14))
-                    .foregroundStyle(fullDiskGranted ? Color.green : Color.orange)
-                    Text(
-                        fullDiskGranted
-                            ? "Permissions granted"
-                            : "One permission still needs your approval"
-                    )
-                    .font(.subheadline.weight(.medium))
+                HStack(spacing: 13) {
+                    Image(systemName: settled ? "checkmark.shield.fill" : "hand.raised.fill")
+                        .font(.system(size: 15))
+                        .foregroundStyle(settled ? Color.green : Color.orange)
+                        .frame(width: 26)
+                    Text(settled ? "Everything is set up" : "Setup not finished")
+                        .font(.subheadline.weight(.medium))
                     Spacer()
                     Image(systemName: "chevron.right")
                         .font(.caption.weight(.semibold))
@@ -199,29 +222,30 @@ struct PermissionsPanel: View {
             }
             .buttonStyle(.plain)
 
-            if expanded {
+            // Open while anything is outstanding; the user can still collapse it.
+            if expanded || !settled {
                 VStack(alignment: .leading, spacing: 16) {
                     PermissionRow(
-                        icon: "externaldrive.fill",
-                        title: "Access to removable volumes",
-                        detail:
-                            "Lukotta reads the drive directly in order to unlock it. Only the drive you choose is read.",
-                        status: .automatic("Asked by macOS"),
-                        action: ("Settings", { model.openFilesAndFoldersSettings() }))
+                        number: 1,
+                        title: "Seeing connected drives",
+                        detail: removableDetail,
+                        status: removableStatus,
+                        action: model.removableAccess == false
+                            ? ("Settings", { model.openFilesAndFoldersSettings() }) : nil)
 
                     PermissionRow(
-                        icon: "key.fill",
-                        title: "Your administrator password",
+                        number: 2,
+                        title: "Administrator password",
                         detail: helperDetail,
                         status: helperStatus,
                         action: helperAction)
 
                     PermissionRow(
-                        icon: "lock.shield.fill",
+                        number: 3,
                         title: "Full Disk Access",
                         detail: fullDiskGranted
-                            ? "Granted. This is what lets Lukotta read the drive at all."
-                            : "macOS blocks raw disk reads without it, even for administrators. It is the one permission an app cannot request — it has to be switched on by hand.",
+                            ? "Lets Lukotta read the encrypted data itself."
+                            : "Lets Lukotta read the encrypted data itself. macOS blocks this without it, even for administrators, and it cannot be requested — it has to be switched on by hand.",
                         status: fullDiskGranted ? .granted : .needed,
                         action: fullDiskGranted
                             ? nil
@@ -232,6 +256,7 @@ struct PermissionsPanel: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .onAppear { if settled { expanded = false } }
         .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.045)))
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.primary.opacity(0.07)))
     }
@@ -244,7 +269,7 @@ enum PermissionStatus {
 }
 
 struct PermissionRow: View {
-    let icon: String
+    let number: Int
     let title: String
     let detail: String
     let status: PermissionStatus
@@ -252,10 +277,15 @@ struct PermissionRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 13) {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(tint.opacity(0.14))
-                .frame(width: 32, height: 32)
-                .overlay(Image(systemName: icon).font(.system(size: 14)).foregroundStyle(tint))
+            Circle()
+                .fill(tint.opacity(0.16))
+                .frame(width: 26, height: 26)
+                .overlay(
+                    Text("\(number)")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(tint)
+                )
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 7) {
@@ -270,37 +300,45 @@ struct PermissionRow: View {
 
             Spacer(minLength: 8)
 
-            if let action {
-                Button(action.0, action: action.1)
-                    .controlSize(.small)
-                    .buttonStyle(.bordered)
+            // Fixed trailing column, so buttons and "Granted" line up down the
+            // list instead of sitting wherever the text happens to end.
+            Group {
+                if let action {
+                    Button(action.0, action: action.1)
+                        .controlSize(.small)
+                        .buttonStyle(.bordered)
+                } else if case .granted = status {
+                    // Sized to sit level with the buttons on the other rows,
+                    // rather than reading as a stray caption.
+                    Label("Granted", systemImage: "checkmark.circle.fill")
+                        .labelStyle(.titleAndIcon)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.green)
+                        .imageScale(.medium)
+                }
             }
+            .frame(width: 96, alignment: .trailing)
         }
     }
 
+    /// Green means granted. Anything not yet given is orange, including the
+    /// permissions macOS asks for on its own — colouring those green would
+    /// claim something that has not happened.
     private var tint: Color {
-        switch status {
-        case .granted: return .green
-        case .needed: return .orange
-        case .automatic: return .accentColor
-        }
+        if case .granted = status { return .green }
+        return .orange
     }
 
     @ViewBuilder private var badge: some View {
         switch status {
         case .granted:
-            Label("Granted", systemImage: "checkmark")
-                .labelStyle(.titleAndIcon)
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(.green)
+            EmptyView()
         case .needed:
             Text("Needed")
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(.orange)
-        case .automatic(let note):
-            Text(note)
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
+        case .automatic:
+            EmptyView()
         }
     }
 }

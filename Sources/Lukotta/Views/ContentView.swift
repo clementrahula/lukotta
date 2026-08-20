@@ -26,7 +26,7 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(24)
         }
-        .frame(minWidth: 580, idealWidth: 620, minHeight: 420, idealHeight: 450)
+        .frame(minWidth: 580, idealWidth: 640, minHeight: 560, idealHeight: 620)
         .background(Color(nsColor: .windowBackgroundColor))
         .sheet(isPresented: $model.showHelp) { HelpSheet() }
         .sheet(isPresented: $model.showReport) { ReportIssueSheet() }
