@@ -1,5 +1,6 @@
 import AppKit
 import LukottaCore
+import ServiceManagement
 import SwiftUI
 
 /// Prove the binary starts before it is released.
@@ -28,6 +29,25 @@ enum MenuBarPreference {
     static let key = "dev.lukotta.showMenuBarIcon"
 }
 
+/// Unregister the privileged helper and exit.
+///
+/// Dragging the app to the Bin leaves the daemon registered, because launchd
+/// knows about the service and not about the folder it came from. Only the app
+/// that registered it can withdraw it, so uninstalling has to go through here.
+private func unregisterHelperIfAsked() {
+    guard CommandLine.arguments.contains("--uninstall-helper") else { return }
+    let service = SMAppService.daemon(plistName: HelperInfo.plistName)
+    do {
+        try service.unregister()
+        print("Unregistered \(HelperInfo.machServiceName)")
+        exit(0)
+    } catch {
+        FileHandle.standardError.write(
+            Data("could not unregister the helper: \(error.localizedDescription)\n".utf8))
+        exit(1)
+    }
+}
+
 @main
 struct LukottaApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
@@ -37,6 +57,7 @@ struct LukottaApp: App {
 
     init() {
         runSmokeTestIfAsked()
+        unregisterHelperIfAsked()
         // Before anything else: a build that has failed to start twice already
         // does not get a third go at it.
         guard Rollback.evaluateLaunch() else { exit(0) }

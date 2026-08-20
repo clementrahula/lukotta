@@ -54,9 +54,6 @@ responsibly be given to anyone.
 - **[you] Check whether the US export notification applies** to publishing
   encryption software from a US-hosted repository. Published open source is
   generally exempt in the EU. Not legal advice.
-- **Provide a clean uninstall.** Removing the app leaves the registered helper,
-  `~/.anylinuxfs`, and a privacy entry behind. `SMAppService.unregister` is
-  wired but nothing calls it.
 - **[you] Have the licence position reviewed** by someone qualified. The
   analysis is careful, but it is engineering judgement.
 

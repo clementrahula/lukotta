@@ -77,6 +77,21 @@ Lukotta.app  ──►  anylinuxfs  ──►  Linux microVM (libkrun)
 The credential is passed to the elevated process through a FIFO, so it never
 appears in an argument list, an exported environment, or on disk.
 
+## Uninstalling
+
+Dragging the app to the Bin leaves the privileged helper registered with
+launchd, because launchd knows about the service and not about the folder it
+came from. To remove everything:
+
+```bash
+./scripts/uninstall.sh            # say what would go, remove nothing
+./scripts/uninstall.sh --remove   # do it
+```
+
+It ejects any open drive first, unregisters the helper, and removes the app, the
+Linux environment and the preferences. Saved passphrases are left in your
+Keychain and named so you can remove them yourself.
+
 ## Building
 
 ```bash
