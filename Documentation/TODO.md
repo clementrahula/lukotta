@@ -220,6 +220,11 @@ Worth deciding first whether a root daemon that can replace the contents of
 
 ## Waiting on you
 
+- **Screenshots.** The README and the website both want one and neither has one.
+  They cannot be taken while the Mac is locked, so this is the first thing to do
+  at a keyboard: the drive list, an unlock, and a drive open with several
+  volumes, in both light and dark appearance.
+
 - **Make the repository public.** GitHub Pages refuses a private repository on
   the current plan, so the project page and the appcast have nowhere to live
   until then, and without the appcast there is no update mechanism at all.

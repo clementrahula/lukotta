@@ -5,8 +5,6 @@ password, and it appears in Finder — readable and writable, like any other dis
 
 [lukotta.rahula.dev](https://lukotta.rahula.dev)
 
-<img src="docs/images/drive-list.png" alt="Lukotta showing an encrypted drive ready to unlock" width="620">
-
 Native Apple Silicon. No Homebrew, no macFUSE, no kernel extension, and nothing
 downloaded on first run — everything it needs is inside the app.
 
