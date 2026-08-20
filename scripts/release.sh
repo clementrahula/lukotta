@@ -38,6 +38,19 @@ LUKOTTA_NOTARY_PROFILE="$PROFILE" "$HERE/build-app.sh" >/dev/null
 spctl -a -vv -t install "$APP" 2>&1 | grep -q "source=Notarized Developer ID" || {
   echo "error: the built app is not notarised" >&2; exit 1; }
 
+printf '==> Checking it starts\n'
+# A build that cannot launch is the one failure Sparkle cannot undo: it verifies
+# and installs correctly, then the app dies and the old copy is gone. This has
+# happened once already, when the Sparkle framework was not embedded and dyld
+# refused the binary. Cheaper to find here than on someone else's machine.
+SMOKE_LOG="$HERE/dist/smoke.log"
+if ! "$APP/Contents/MacOS/Lukotta" --smoke-test >"$SMOKE_LOG" 2>&1; then
+  echo "error: the built app failed to start:" >&2
+  sed 's/^/    /' "$SMOKE_LOG" >&2
+  exit 1
+fi
+printf '    starts, and loads every library it needs\n'
+
 printf '==> Archiving\n'
 rm -f "$ZIP"
 # ditto, not zip: zip(1) does not preserve the signature.
@@ -51,6 +64,32 @@ LENGTH="$(printf '%s' "$SIG_LINE" | sed -n 's/.*length="\([^"]*\)".*/\1/p')"
 [ -n "$SIGNATURE" ] && [ -n "$LENGTH" ] || {
   echo "error: could not read the signature from: $SIG_LINE" >&2; exit 1; }
 
+printf '==> Release notes\n'
+NOTES_DIR="$(dirname "$APPCAST")/notes"
+mkdir -p "$NOTES_DIR"
+NOTES_FILE="$NOTES_DIR/$VERSION.html"
+# The section for this version out of CHANGELOG.md, as plain HTML. Anything
+# richer belongs in the changelog itself, not in a converter here.
+python3 - "$VERSION" > "$NOTES_FILE" <<'PYEOF'
+import re, sys
+version = sys.argv[1]
+text = open("CHANGELOG.md").read()
+match = re.search(r"^## " + re.escape(version) + r"\s*\n(.*?)(?=^## |\Z)", text, re.S | re.M)
+body = (match.group(1) if match else "").strip()
+items = [re.sub(r"\s+", " ", b).strip() for b in re.split(r"\n(?=- )", body) if b.strip()]
+print("<html><body style=\"font: -apple-system-body; margin: 0\">")
+print(f"<h2>Version {version}</h2>")
+if items:
+    print("<ul>")
+    for item in items:
+        print(f"  <li>{item.lstrip('- ')}</li>")
+    print("</ul>")
+else:
+    print("<p>No notes were written for this version.</p>")
+print("</body></html>")
+PYEOF
+grep -q "<li>" "$NOTES_FILE" || echo "warning: CHANGELOG.md has no section for $VERSION" >&2
+
 printf '==> Describing it in the appcast\n'
 mkdir -p "$(dirname "$APPCAST")"
 python3 "$HERE/scripts/appcast.py" \
@@ -61,6 +100,7 @@ python3 "$HERE/scripts/appcast.py" \
   --length "$LENGTH" \
   --signature "$SIGNATURE" \
   --min-system "$(/usr/libexec/PlistBuddy -c 'Print LSMinimumSystemVersion' "$APP/Contents/Info.plist")" \
+  --notes-link "${LUKOTTA_NOTES_BASE:-https://lukotta-updates.rahula.dev}/notes/$VERSION.html" \
   --pubdate "$(LC_ALL=C date -u '+%a, %d %b %Y %H:%M:%S +0000')"
 
 if [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then

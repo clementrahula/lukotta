@@ -33,7 +33,7 @@ def main():
     ap.add_argument("--signature", required=True)
     ap.add_argument("--min-system", default="15.0")
     ap.add_argument("--pubdate", required=True, help="RFC 822")
-    ap.add_argument("--notes", default="")
+    ap.add_argument("--notes-link", default="", help="URL of the release notes for this version")
     args = ap.parse_args()
 
     if not os.path.exists(args.appcast):
@@ -57,8 +57,12 @@ def main():
     ET.SubElement(item, f"{{{SPARKLE}}}version").text = args.build
     ET.SubElement(item, f"{{{SPARKLE}}}shortVersionString").text = args.version
     ET.SubElement(item, f"{{{SPARKLE}}}minimumSystemVersion").text = args.min_system
-    if args.notes:
-        ET.SubElement(item, "description").text = args.notes
+    # Linked rather than embedded: release notes are HTML, and HTML inside XML
+    # has to be escaped or wrapped in CDATA, neither of which ElementTree does
+    # well. A link is also what lets notes be corrected without reissuing a
+    # signed build.
+    if args.notes_link:
+        ET.SubElement(item, f"{{{SPARKLE}}}releaseNotesLink").text = args.notes_link
     enclosure = ET.SubElement(item, "enclosure")
     enclosure.set("url", args.url)
     enclosure.set("length", args.length)

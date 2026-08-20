@@ -2,11 +2,33 @@ import AppKit
 import LukottaCore
 import SwiftUI
 
+/// Prove the binary starts before it is released.
+///
+/// Reaching `main` means dyld resolved every library, including the embedded
+/// Sparkle framework — the one failure an update cannot undo, because the
+/// update installs correctly and only then does the app refuse to run. Exits
+/// straight away rather than raising a window.
+private func runSmokeTestIfAsked() {
+    guard CommandLine.arguments.contains("--smoke-test") else { return }
+    let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
+    let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"
+    guard let key = Bundle.main.infoDictionary?["SUPublicEDKey"] as? String,
+        !key.isEmpty, !key.hasPrefix("__")
+    else {
+        FileHandle.standardError.write(Data("no Sparkle public key embedded\n".utf8))
+        exit(1)
+    }
+    print("Lukotta \(version) (\(build)) started, update key present")
+    exit(0)
+}
+
 @main
 struct LukottaApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var model = AppModel()
     @StateObject private var updater = Updater()
+
+    init() { runSmokeTestIfAsked() }
 
     var body: some Scene {
         WindowGroup {
@@ -48,6 +70,12 @@ struct LukottaApp: App {
                 NSApp.windows.first?.makeKeyAndOrderFront(nil)
             }
             Button("Quit Lukotta") { NSApp.terminate(nil) }
+        }
+
+        Settings {
+            SettingsView()
+                .environmentObject(updater)
+                .environmentObject(model)
         }
 
         .commands {
