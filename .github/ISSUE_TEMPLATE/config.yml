@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: A passphrase, a drive's contents, or the privileged helper
+    url: https://github.com/clementrahula/lukotta/blob/main/SECURITY.md
+    about: Anything security-related goes to lukotta@rahula.dev, not here.

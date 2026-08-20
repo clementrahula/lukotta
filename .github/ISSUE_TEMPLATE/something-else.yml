@@ -1,0 +1,14 @@
+name: Something else
+description: Wording, interface, documentation, or a suggestion.
+body:
+  - type: textarea
+    id: detail
+    attributes:
+      label: What is wrong, or what you would like
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: From the bottom of the Help screen. Leave blank if it does not apply.

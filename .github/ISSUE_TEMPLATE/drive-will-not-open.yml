@@ -1,0 +1,42 @@
+name: A drive will not open
+description: An unlock fails, hangs, or opens the wrong thing.
+labels: [drive]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The bug icon in Lukotta gathers the version, the environment and the
+        engine's output, and removes your passphrase from it. Paste that here
+        and most of the questions below answer themselves.
+
+        If a passphrase could be exposed, email lukotta@rahula.dev instead.
+  - type: textarea
+    id: report
+    attributes:
+      label: The report from the app
+      description: From the bug icon. It is scrubbed of your passphrase before you see it.
+      render: text
+    validations:
+      required: false
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, and what the app did instead.
+    validations:
+      required: true
+  - type: input
+    id: drive
+    attributes:
+      label: The drive
+      description: How it was encrypted, and what wrote it. For example "BitLocker, from Windows 11" or "LUKS2 with LVM, from Fedora".
+    validations:
+      required: true
+  - type: dropdown
+    id: helper
+    attributes:
+      label: Was the background helper set up?
+      description: The Help screen says, under Permissions.
+      options: ["Yes", "No", "I do not know"]
+    validations:
+      required: true
