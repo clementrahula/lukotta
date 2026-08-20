@@ -75,6 +75,7 @@ public enum Mounter {
                 logPath: log.path,
                 discoverLogPath: workspace.root.appendingPathComponent("discover.log").path,
                 expectScriptPath: expectURL.path,
+                configPath: EngineConfig.path,
                 libraryPaths: EnginePaths.libraryPaths(),
                 uid: getuid(),
                 gid: getgid(),
@@ -127,14 +128,6 @@ public enum Mounter {
             if osaMessage.contains("-128") || osaMessage.lowercased().contains("user canceled") {
                 throw EngineError.authorisationCancelled
             }
-            // The container held several logical volumes, so the engine was
-            // never told which to mount. That is a question, not a failure.
-            if transcript.contains(MountScript.multipleVolumesMarker) {
-                let volumes = VolumeGroupParser.logicalVolumes(in: transcript)
-                if !volumes.isEmpty {
-                    throw EngineError.multipleVolumes(volumes, transcript: transcript)
-                }
-            }
             throw EngineError.mountFailed(
                 summary: Diagnosis.summarise(transcript, fallback: osaMessage),
                 detail: transcript.isEmpty ? osaMessage : transcript)
@@ -151,7 +144,12 @@ public enum Mounter {
     /// Ask the engine where the volume landed; fall back to scraping only if it
     /// has nothing to say.
     public static func discoverMountPoint(for drive: Drive, transcript: String) -> String? {
-        if let m = EngineStatus.current().first(where: { $0.devicePath == drive.devicePath }) {
+        // An LVM mount is reported as "lvm:<vg>:<disk>:<lv>" rather than by the
+        // device path, so match on the disk identifier it carries.
+        if let m = EngineStatus.current().first(where: {
+            $0.devicePath == drive.devicePath
+                || (!drive.id.isEmpty && $0.devicePath.contains(drive.id))
+        }) {
             return m.mountPoint
         }
         return scrapeMountPoint(for: drive, transcript: transcript)

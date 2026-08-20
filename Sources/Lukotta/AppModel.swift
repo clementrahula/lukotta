@@ -11,7 +11,6 @@ final class AppModel: ObservableObject {
         case chooseDrive
         case unlock(Drive)
         case working(Drive)
-        case chooseVolume(Drive, [LogicalVolume])
         case mounted(Drive, String)
         case failed(Drive?, String, String?)  // drive, summary, raw detail
     }
@@ -69,9 +68,6 @@ final class AppModel: ObservableObject {
     }
 
     private var workspace: Workspace?
-    /// Held only between discovering several volumes and the user picking one,
-    /// so the second attempt does not ask for the credential again.
-    private var pendingCredential: String?
 
     // MARK: Lifecycle
 
@@ -126,6 +122,7 @@ final class AppModel: ObservableObject {
                             kind: .microsoft,
                             uuid: existing.devicePath)
                     self.phase = .mounted(drive, existing.mountPoint)
+                    self.collectVolumes(for: drive, fallback: existing.mountPoint)
                 } else {
                     self.phase = .chooseDrive
                 }
@@ -255,18 +252,6 @@ final class AppModel: ObservableObject {
 
     // MARK: Unlock
 
-    /// Mount a specific logical volume after the user has chosen it.
-    func choose(_ volume: LogicalVolume, on drive: Drive) {
-        guard let credential = pendingCredential else {
-            phase = .unlock(drive)
-            return
-        }
-        statusLines = []
-        stageLines = []
-        phase = .working(drive)
-        runMount(drive: drive, credential: credential, volume: volume)
-    }
-
     func unlock(_ drive: Drive) {
         credentialProblem = nil
         let raw = credential
@@ -300,7 +285,7 @@ final class AppModel: ObservableObject {
             }
             workspace = ws
 
-            runMount(drive: drive, credential: normalised, volume: nil)
+            runMount(drive: drive, credential: normalised)
         }
     }
 
@@ -311,7 +296,7 @@ final class AppModel: ObservableObject {
     /// it before it reaches the screen, the log or a report.
     private var activeCredential: String?
 
-    private func runMount(drive: Drive, credential: String, volume: LogicalVolume?) {
+    private func runMount(drive: Drive, credential: String) {
         failedStage = nil
         activeCredential = credential
         let ws: Workspace
@@ -344,13 +329,13 @@ final class AppModel: ObservableObject {
 
             Task {
                 let outcome = await helper.mount(
-                    drive: drive, aliasPath: aliasPath, volume: volume, credential: credential)
+                    drive: drive, aliasPath: aliasPath, volume: nil, credential: credential)
                 poll.cancel()
                 guard let outcome else {
                     // The helper went away; take the ordinary route.
                     self.helper.refresh()
                     self.runMountWithAuthorisation(
-                        drive: drive, credential: credential, volume: volume, workspace: ws)
+                        drive: drive, credential: credential, workspace: ws)
                     return
                 }
                 self.showHelperTranscript(outcome.transcript)
@@ -360,16 +345,6 @@ final class AppModel: ObservableObject {
                 {
                     self.noteVolumeCount(outcome.transcript)
                     self.finishMount(drive: drive, credential: credential, mountPoint: point)
-                } else if outcome.transcript.contains(MountScript.multipleVolumesMarker),
-                    case let volumes = VolumeGroupParser.logicalVolumes(in: outcome.transcript),
-                    !volumes.isEmpty
-                {
-                    // Several volumes is a question, not a failure. The other
-                    // route has always treated it as one; this one did not, so
-                    // with the helper installed — the normal case — a drive
-                    // with LVM inside it could never reach the chooser.
-                    self.pendingCredential = credential
-                    self.phase = .chooseVolume(drive, volumes)
                 } else {
                     self.fail(
                         drive,
@@ -379,22 +354,25 @@ final class AppModel: ObservableObject {
             }
             return
         }
-        runMountWithAuthorisation(
-            drive: drive, credential: credential, volume: volume, workspace: ws)
+        runMountWithAuthorisation(drive: drive, credential: credential, workspace: ws)
     }
 
     /// Find every volume this drive opened.
     ///
-    /// One container can yield several mounts, so the mount point the transcript
-    /// happened to name is not the whole story. The engine reports an LVM mount
-    /// as "lvm:<vg>:<disk>:<lv>", which carries the disk, so the drive's own
-    /// mounts can be told from any other drive's.
+    /// A container of several volumes is served as one mount with the others
+    /// nested inside it, which only the system mount table can see. A mount the
+    /// engine reports itself — as "lvm:<vg>:<disk>:<lv>", which carries the
+    /// disk — is the fallback for a drive mounted the ordinary way.
     private func collectVolumes(for drive: Drive, fallback: String) {
         openVolumes = [fallback]
         Task.detached(priority: .userInitiated) {
-            let mine = EngineStatus.current()
-                .filter { $0.devicePath.contains(drive.id) }
-                .map(\.mountPoint)
+            let nested = EngineStatus.nestedVolumes(under: fallback)
+            let mine =
+                nested.isEmpty
+                ? EngineStatus.current()
+                    .filter { $0.devicePath.contains(drive.id) }
+                    .map(\.mountPoint)
+                : nested
             await MainActor.run {
                 if !mine.isEmpty { self.openVolumes = mine }
             }
@@ -412,9 +390,7 @@ final class AppModel: ObservableObject {
         guard parts.count == 2, let opened = Int(parts[0]), let total = Int(parts[1]),
             total > opened
         else { return }
-        notice =
-            "This drive holds \(total) volumes and \(opened) opened. "
-            + "Eject it and open it again to reach the others."
+        notice = "This drive holds \(total) volumes and \(opened) could be opened."
     }
 
     /// Record a successful mount, wherever it came from.
@@ -435,19 +411,17 @@ final class AppModel: ObservableObject {
         collectVolumes(for: drive, fallback: mountPoint)
         self.credential = ""
         credentialBelongsTo = nil
-        pendingCredential = nil
         phase = .mounted(drive, mountPoint)
     }
 
     private func runMountWithAuthorisation(
-        drive: Drive, credential: String, volume: LogicalVolume?, workspace ws: Workspace
+        drive: Drive, credential: String, workspace ws: Workspace
     ) {
         Task.detached(priority: .userInitiated) {
             do {
                 let result = try Mounter.mount(
                     drive: drive,
                     credential: credential,
-                    volume: volume,
                     workspace: ws,
                     progress: { line in
                         Task { @MainActor in self.appendStatus(line) }
@@ -464,24 +438,16 @@ final class AppModel: ObservableObject {
                     }
                     self.credential = ""
                     self.credentialBelongsTo = nil
-                    self.pendingCredential = nil
                     // The label is only knowable now. Remember it so the next
                     // unlock can name the share before mounting.
                     DriveMemory.remember(mountPoint: result.mountPoint, for: drive.uuid)
                     self.openMounts[drive.devicePath] = result.mountPoint
+                    self.noteVolumeCount(result.transcript)
                     self.collectVolumes(for: drive, fallback: result.mountPoint)
                     self.phase = .mounted(drive, result.mountPoint)
                 }
             } catch let err as EngineError {
                 await MainActor.run {
-                    // Several volumes is a question for the user, not a failure:
-                    // keep the credential so picking one does not re-prompt.
-                    if case .multipleVolumes(let volumes, _) = err {
-                        self.pendingCredential = credential
-                        self.phase = .chooseVolume(drive, volumes)
-                        return
-                    }
-                    self.pendingCredential = nil
                     if Permissions.isAccessDenied(err.detail ?? "") {
                         self.phase = .needsPermission
                     } else {
@@ -493,7 +459,6 @@ final class AppModel: ObservableObject {
                 }
             } catch {
                 await MainActor.run {
-                    self.pendingCredential = nil
                     self.fail(drive, "The drive could not be opened.", "\(error)")
                 }
             }
@@ -546,14 +511,21 @@ final class AppModel: ObservableObject {
         isEjecting = true
         ejectProblem = nil
         // Every volume this drive opened, so a container of several does not
-        // leave the rest mounted behind an ejected one.
-        let paths = openVolumes.isEmpty ? [path] : openVolumes
+        // leave the rest mounted behind an ejected one. Volumes nested inside
+        // another go with their parent: the engine tears down everything under
+        // the mount it owns, and does not recognise the nested points as its.
+        var paths = openVolumes
+        if !paths.contains(path) { paths.append(path) }
+        let roots = paths.filter { point in
+            !paths.contains { $0 != point && point.hasPrefix($0 + "/") }
+        }
         Task.detached(priority: .userInitiated) {
-            var result = (ok: true, message: "")
-            for point in paths {
-                let one = EngineStatus.unmount(mountPoint: point)
-                if !one.ok { result = one }
-            }
+            let result =
+                roots.map { EngineStatus.unmount(mountPoint: $0) }
+                .last { !$0.ok } ?? (ok: true, message: "")
+            // The generated multi-volume action has served its purpose once the
+            // drive is gone; removing it leaves the engine's config as found.
+            if result.ok { EngineConfig.removeGeneratedAction() }
             await MainActor.run {
                 self.isEjecting = false
                 if result.ok {
@@ -580,6 +552,7 @@ final class AppModel: ObservableObject {
             for m in EngineStatus.current() {
                 _ = EngineStatus.unmount(mountPoint: m.mountPoint)
             }
+            EngineConfig.removeGeneratedAction()
             await MainActor.run { completion() }
         }
     }
@@ -589,5 +562,6 @@ final class AppModel: ObservableObject {
     func cleanUp() {
         workspace?.destroy()
         workspace = nil
+        EngineConfig.removeGeneratedAction()
     }
 }

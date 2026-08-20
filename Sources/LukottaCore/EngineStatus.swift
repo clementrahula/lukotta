@@ -37,9 +37,12 @@ public enum EngineStatus {
                 .trimmingCharacters(in: .whitespaces)
             let mp = String(line[onRange.upperBound..<parenRange.lowerBound])
                 .trimmingCharacters(in: .whitespaces)
-            // Any absolute source, not only /dev/. The engine also mounts disk
-            // images, and a mount it reports is a mount worth resuming.
-            guard dev.hasPrefix("/"), mp.hasPrefix("/") else { continue }
+            // Any absolute source, not only /dev/ — the engine also mounts disk
+            // images — and the lvm:/raid: identifiers it uses for volumes inside
+            // a container. A mount it reports is a mount worth resuming.
+            guard dev.hasPrefix("/") || dev.hasPrefix("lvm:") || dev.hasPrefix("raid:"),
+                mp.hasPrefix("/")
+            else { continue }
             mounts.append(EngineMount(devicePath: dev, mountPoint: mp))
         }
         return mounts
@@ -53,8 +56,18 @@ public enum EngineStatus {
     /// That dialog belongs to the system and cannot be suppressed; the dead
     /// mount behind it can be removed, which is the part we can do.
     public static func stale() -> [String] {
-        let live = Set(current().map(\.mountPoint))
-        return engineMountPoints(in: mountTable()).filter { !live.contains($0) }
+        let live = current().map(\.mountPoint)
+        // A multi-volume mount nests per-volume mounts inside the primary, and
+        // the engine reports only the primary: anything under a live mount is
+        // alive too, not abandoned. What is genuinely stale is cleared deepest
+        // first, or a parent would be detached with its children still mounted.
+        return engineMountPoints(in: mountTable())
+            .filter { point in
+                !live.contains(point) && !live.contains { point.hasPrefix($0 + "/") }
+            }
+            .sorted {
+                $0.components(separatedBy: "/").count > $1.components(separatedBy: "/").count
+            }
     }
 
     private static func mountTable() -> String {
@@ -71,18 +84,44 @@ public enum EngineStatus {
 
     /// Which entries of `mount` output this engine is responsible for.
     ///
-    /// Recognised by the export path the engine always uses, so a network
-    /// share the user mounted themselves is never touched.
+    /// Recognised by the export path, so a network share the user mounted
+    /// themselves is never touched: the engine exports under /mnt, and
+    /// Lukotta's multi-volume action exports under /run.
     public static func engineMountPoints(in text: String) -> [String] {
         var found: [String] = []
         for line in text.components(separatedBy: .newlines) {
-            guard line.contains("(nfs"), line.contains(":/mnt/"),
+            guard line.contains("(nfs"),
+                line.contains(":/mnt/") || line.contains(":/run/"),
                 let onRange = line.range(of: " on "),
                 let parenRange = line.range(of: " (", range: onRange.upperBound..<line.endIndex)
             else { continue }
             let mp = String(line[onRange.upperBound..<parenRange.lowerBound])
                 .trimmingCharacters(in: .whitespaces)
             if mp.hasPrefix("/") { found.append(mp) }
+        }
+        return found
+    }
+
+    /// NFS mounts nested under a drive's mount point — one per logical volume
+    /// when a container held several. Read from the system mount table because
+    /// the engine's status reports only the primary mount, and the nested ones
+    /// are what the user actually opens.
+    public static func nestedVolumes(under mountPoint: String) -> [String] {
+        nestedVolumes(under: mountPoint, in: mountTable())
+    }
+
+    /// "server:/run/T7/HOME on /Volumes/T7/HOME (nfs, ...)"
+    public static func nestedVolumes(under mountPoint: String, in mountText: String) -> [String] {
+        let prefix = mountPoint.hasSuffix("/") ? mountPoint : mountPoint + "/"
+        var found: [String] = []
+        for line in mountText.components(separatedBy: .newlines) {
+            guard let onRange = line.range(of: " on "),
+                let parenRange = line.range(of: " (", range: onRange.upperBound..<line.endIndex),
+                line[parenRange.upperBound...].hasPrefix("nfs")
+            else { continue }
+            let mp = String(line[onRange.upperBound..<parenRange.lowerBound])
+                .trimmingCharacters(in: .whitespaces)
+            if mp.hasPrefix(prefix) { found.append(mp) }
         }
         return found
     }

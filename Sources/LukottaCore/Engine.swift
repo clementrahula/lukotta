@@ -239,8 +239,6 @@ public enum EngineError: LocalizedError {
     case credentialRejected(String)
     case authorisationCancelled
     case mountFailed(summary: String, detail: String)
-    /// The container holds several logical volumes and one must be chosen.
-    case multipleVolumes([LogicalVolume], transcript: String)
 
     public var errorDescription: String? {
         switch self {
@@ -256,15 +254,12 @@ public enum EngineError: LocalizedError {
             return "You cancelled the administrator prompt, so the drive was not opened."
         case .mountFailed(let summary, _):
             return summary
-        case .multipleVolumes(let volumes, _):
-            return "This drive contains \(volumes.count) volumes. Choose which one to open."
         }
     }
 
     /// Raw engine output, shown behind a disclosure triangle rather than thrown away.
     public var detail: String? {
         if case .mountFailed(_, let detail) = self { return detail }
-        if case .multipleVolumes(_, let transcript) = self { return transcript }
         return nil
     }
 }
