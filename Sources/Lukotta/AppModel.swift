@@ -34,6 +34,9 @@ final class AppModel: ObservableObject {
     @Published var isEjecting = false
     @Published var ejectProblem: String?
 
+    /// Removes the administrator prompt when installed and approved.
+    let helper = HelperClient()
+
     private var workspace: Workspace?
     /// Held only between discovering several volumes and the user picking one,
     /// so the second attempt does not ask for the credential again.
@@ -42,6 +45,7 @@ final class AppModel: ObservableObject {
     // MARK: Lifecycle
 
     func start() {
+        helper.refresh()
         // Say so before any password is typed, rather than after a failed
         // unlock. Full Disk Access cannot be requested, only detected.
         guard Permissions.hasFullDiskAccess else {
@@ -231,6 +235,65 @@ final class AppModel: ObservableObject {
         }
         workspace = ws
 
+        // With the helper approved, this needs no password at all. Without it,
+        // fall back to asking macOS to authorise a single command.
+        if helper.isReady {
+            appendStatus("Using the background helper — no password needed")
+            let aliasPath = (try? ws.makeDeviceAlias(named: drive.name, target: drive.devicePath))?
+                .path
+            Task {
+                let outcome = await helper.mount(
+                    drive: drive, aliasPath: aliasPath, volume: volume, credential: credential)
+                guard let outcome else {
+                    // The helper went away; take the ordinary route.
+                    self.helper.refresh()
+                    self.runMountWithAuthorisation(
+                        drive: drive, credential: credential, volume: volume, workspace: ws)
+                    return
+                }
+                for line in outcome.transcript.components(separatedBy: .newlines)
+                where !line.isEmpty {
+                    self.appendStatus(line)
+                }
+                if outcome.status == 0,
+                    let point = Mounter.discoverMountPoint(
+                        for: drive, transcript: outcome.transcript)
+                {
+                    self.finishMount(drive: drive, credential: credential, mountPoint: point)
+                } else {
+                    self.phase = .failed(
+                        drive,
+                        Diagnosis.summarise(outcome.transcript, fallback: ""),
+                        outcome.transcript)
+                }
+            }
+            return
+        }
+        runMountWithAuthorisation(
+            drive: drive, credential: credential, volume: volume, workspace: ws)
+    }
+
+    /// Record a successful mount, wherever it came from.
+    private func finishMount(drive: Drive, credential: String, mountPoint: String) {
+        if rememberCredential {
+            if !CredentialStore.save(credential, for: drive.uuid) {
+                ejectProblem = "The drive opened, but the key could not be saved to your Keychain."
+            }
+        } else {
+            CredentialStore.delete(for: drive.uuid)
+        }
+        DriveMemory.remember(mountPoint: mountPoint, for: drive.uuid)
+        openMounts[drive.devicePath] = mountPoint
+        self.credential = ""
+        credentialBelongsTo = nil
+        pendingCredential = nil
+        phase = .mounted(drive, mountPoint)
+        NSWorkspace.shared.open(URL(fileURLWithPath: mountPoint))
+    }
+
+    private func runMountWithAuthorisation(
+        drive: Drive, credential: String, volume: LogicalVolume?, workspace ws: Workspace
+    ) {
         Task.detached(priority: .userInitiated) {
             do {
                 let result = try Mounter.mount(
@@ -254,6 +317,9 @@ final class AppModel: ObservableObject {
                     self.credential = ""
                     self.credentialBelongsTo = nil
                     self.pendingCredential = nil
+                    // The label is only knowable now. Remember it so the next
+                    // unlock can name the share before mounting.
+                    DriveMemory.remember(mountPoint: result.mountPoint, for: drive.uuid)
                     self.openMounts[drive.devicePath] = result.mountPoint
                     self.phase = .mounted(drive, result.mountPoint)
                     NSWorkspace.shared.open(URL(fileURLWithPath: result.mountPoint))

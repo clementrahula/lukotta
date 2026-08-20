@@ -46,6 +46,15 @@ cp "$(swift build -c release --product Lukotta --show-bin-path)/Lukotta" \
 /usr/bin/install_name_tool -add_rpath "@executable_path/../Frameworks" \
   "$CONTENTS/MacOS/$APP_NAME" 2>/dev/null || true
 
+# The privileged helper, registered with SMAppService so unlocking does not need
+# an administrator password every time.
+swift build -c release --product LukottaHelper
+cp "$(swift build -c release --product LukottaHelper --show-bin-path)/LukottaHelper" \
+   "$CONTENTS/MacOS/LukottaHelper"
+mkdir -p "$CONTENTS/Library/LaunchDaemons"
+cp "$HERE/resources/helper.plist" \
+   "$CONTENTS/Library/LaunchDaemons/com.clementrahula.lukotta.helper.plist"
+
 # Sparkle ships as a framework and must be embedded and signed inside the
 # bundle. Its XCFramework is resolved by SwiftPM; take the built slice.
 SPARKLE="$(find "$HERE/.build/artifacts" -name Sparkle.framework -path "*macos-arm64*" -print -quit 2>/dev/null)"
@@ -116,6 +125,12 @@ if [ -d "$CONTENTS/Frameworks/Sparkle.framework" ]; then
   done
   /usr/bin/codesign --force --options runtime --sign "$SIGN_ID" \
     "$CONTENTS/Frameworks/Sparkle.framework" >/dev/null 2>&1 || true
+fi
+
+# The helper is a separate executable and must be signed in its own right.
+if [ -f "$CONTENTS/MacOS/LukottaHelper" ]; then
+  /usr/bin/codesign --force --options runtime --sign "$SIGN_ID" \
+    "$CONTENTS/MacOS/LukottaHelper" >/dev/null 2>&1 || true
 fi
 
 printf 'Signing with: %s\n' "$SIGN_ID"

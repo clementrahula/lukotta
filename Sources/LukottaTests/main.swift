@@ -365,6 +365,27 @@ group("crashReportFiltering") {
     expect(none.isEmpty, "no reports for an application that has never crashed")
 }
 
+group("driveMemory") {
+    // The volume label is only knowable after unlocking, which is after the
+    // share has been named. Remembering it is what lets the next unlock show
+    // "BACKUP" instead of "disk4s1.local".
+    let uuid = "lukotta-memory-test-\(UUID().uuidString)"
+    expect(DriveMemory.knownName(for: uuid) == nil, "nothing known about a new drive")
+
+    DriveMemory.remember(mountPoint: "/Volumes/BACKUP", for: uuid)
+    expect(DriveMemory.knownName(for: uuid) == "BACKUP", "the label is remembered")
+
+    DriveMemory.remember(mountPoint: "/Users/someone/Volumes/Field Recorder", for: uuid)
+    expect(DriveMemory.knownName(for: uuid) == "Field Recorder", "a later mount replaces it")
+
+    DriveMemory.remember(mountPoint: "/", for: uuid)
+    expect(DriveMemory.knownName(for: uuid) == "Field Recorder", "a meaningless path is ignored")
+
+    DriveMemory.forget(uuid: uuid)
+    expect(DriveMemory.knownName(for: uuid) == nil, "forgetting removes it")
+    expect(DriveMemory.knownName(for: "") == nil, "an empty identifier is refused")
+}
+
 group("keychainRoundTrip") {
     // A saved credential that cannot be read back is worse than not offering
     // to save it: the user believes it is stored.

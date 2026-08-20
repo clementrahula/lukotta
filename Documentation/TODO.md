@@ -508,13 +508,56 @@ milliseconds. This is an architecture problem, not a discipline problem.
 
 ---
 
-## 14. The administrator prompt on every unlock
+## 14. What relaxing "no traces" makes possible
+
+Recorded 20 August 2026, after the requirement moved from "no trace" to "no
+unnecessary traces".
+
+- [x] **Drive labels are remembered.** The volume label is only knowable after
+      unlocking, which is after the NFS share has been named — hence
+      `disk4s1.local` in Finder. The label from a successful mount is now stored
+      against the partition UUID, so the second and later unlocks name the share
+      properly. Nothing sensitive is kept; credentials stay in the Keychain.
+- [x] **A privileged helper** removes the administrator prompt entirely
+      (see below).
+- [ ] **[me]** Remember window size and position. Standard macOS behaviour that
+      was impossible while nothing could be written.
+- [ ] **[me]** Remember the eject-on-quit answer, so the three-button dialog can
+      have "don't ask again" rather than appearing every time.
+- [ ] **[me]** Remember the last drive used and offer it first when several are
+      attached.
+- [ ] **[both]** Unlock at login for a chosen drive, which needs both a stored
+      credential and the helper. Worth designing carefully: it is convenient and
+      it also means a drive silently unlocking itself.
+- [ ] **[me]** Keep a bounded, rotated log across sessions. Support reports are
+      currently limited to whatever is still in memory.
+
+---
+
+## 15. The administrator prompt on every unlock
 
 Each unlock asks for an administrator password because the mount runs through
 `do shell script … with administrator privileges`, which authorises exactly one
 command. There is no session for it to reuse.
 
-- [ ] **[both]** Decide whether to keep it. Removing it means installing a
+- [x] **Implemented.** `SMAppService` registers a daemon from
+      `Contents/Library/LaunchDaemons`; the user approves it once in Login
+      Items, after which unlocking needs no password. The app falls back to the
+      single-command authorisation whenever the helper is absent, unapproved or
+      unreachable, so nothing breaks if it is declined.
+- [x] The helper accepts **parameters, never a command**. It composes the script
+      itself from the same builder the app uses, so it cannot be asked to run
+      arbitrary code as root even if the client check were defeated. Callers are
+      verified against a code requirement pinning the bundle identifier and the
+      signing team.
+- [ ] **[you]** Approve it once in Login Items and confirm an unlock runs
+      without a password. The privileged path cannot be exercised here.
+- [ ] **[me]** The client is identified by process id, because
+      `NSXPCConnection.auditToken` is private API. The audit token is immune to
+      pid reuse; investigate whether a supported route to it now exists.
+- [ ] **[me]** Provide an uninstall path: removing the app leaves a registered
+      daemon behind. `SMAppService.unregister` is wired but nothing calls it.
+- [ ] **[both]** Original reasoning, kept because it may need revisiting: Removing it means installing a
       privileged helper with `SMAppService`, authorised once at install, after
       which unlocking needs no password at all. That was rejected early because
       it writes a permanent launch daemon under `/Library` — at the time the
@@ -532,7 +575,7 @@ command. There is no session for it to reuse.
 
 ---
 
-## 15. Privacy policy
+## 16. Privacy policy
 
 - [ ] **[both]** Write one and publish it at lukotta.rahula.dev. Needed even
       though the app collects nothing: it handles disk encryption keys, asks for
@@ -548,7 +591,7 @@ command. There is no session for it to reuse.
 
 ---
 
-## 16. Keychain reliability
+## 17. Keychain reliability
 
 - [ ] **[me]** A saved credential did not reload after the app was rebuilt and
       reinstalled several times in one session. The round-trip is covered by
@@ -563,7 +606,7 @@ command. There is no session for it to reuse.
 
 ---
 
-## 17. Distribution — Homebrew
+## 18. Distribution — Homebrew
 
 - [ ] **[me]** Submit a Homebrew cask, so installation is
       `brew install --cask lukotta`. Blocked on the release blockers in §1: a
@@ -577,7 +620,7 @@ command. There is no session for it to reuse.
 
 ---
 
-## 18. Website and visibility
+## 19. Website and visibility
 
 ### Website — built, needs switching on
 
@@ -613,7 +656,7 @@ README and screenshots — every list rejects submissions that lack those.
 
 ---
 
-## 19. Platform and feature expansion
+## 20. Platform and feature expansion
 
 ### Intel / universal binary — probably not worth it
 
@@ -692,7 +735,7 @@ the work is detection and UI, not new engine capability.
 
 ---
 
-## 20. Strategic — the native UX project
+## 21. Strategic — the native UX project
 
 Not a release task. This is the separate project described in
 PRODUCTION-READINESS.md §7, and it is what would make the product genuinely

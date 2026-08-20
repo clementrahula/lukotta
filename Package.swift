@@ -26,6 +26,11 @@ let package = Package(
         // Run with `swift run LukottaTests`. Not a .testTarget: XCTest and
         // swift-testing both require a full Xcode installation, and the tests
         // should run anywhere the app can be built.
+        // Runs as root under launchd. Composes commands itself; it never
+        // accepts one.
+        .executableTarget(name: "LukottaHelper", dependencies: ["LukottaCore"],
+                          swiftSettings: [.swiftLanguageMode(.v5)]),
+
         .executableTarget(name: "LukottaTests", dependencies: ["LukottaCore"],
                           swiftSettings: [.swiftLanguageMode(.v5)]),
     ]

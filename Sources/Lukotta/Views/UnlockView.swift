@@ -132,6 +132,36 @@ struct UnlockView: View {
 /// granted it collapses to a single line.
 struct PermissionsPanel: View {
     @EnvironmentObject var model: AppModel
+
+    private var helperDetail: String {
+        switch model.helper.state {
+        case .ready:
+            return
+                "Handled by Lukotta's background helper, so unlocking no longer asks for a password."
+        case .awaitingApproval:
+            return
+                "Lukotta's helper is installed but not yet approved. Switch it on in Login Items to stop being asked on every unlock."
+        default:
+            return
+                "Reading a raw disk and mounting a volume both need it. macOS asks once per unlock, and Lukotta never sees it. A background helper can remove the prompt."
+        }
+    }
+
+    private var helperStatus: PermissionStatus {
+        switch model.helper.state {
+        case .ready: return .granted
+        case .awaitingApproval: return .needed
+        default: return .automatic("Asked each unlock")
+        }
+    }
+
+    private var helperAction: (String, () -> Void)? {
+        switch model.helper.state {
+        case .ready: return nil
+        case .awaitingApproval: return ("Approve", { model.helper.openLoginItemsSettings() })
+        default: return ("Set Up", { model.helper.install() })
+        }
+    }
     @State private var expanded: Bool
 
     private let fullDiskGranted: Bool
@@ -182,10 +212,9 @@ struct PermissionsPanel: View {
                     PermissionRow(
                         icon: "key.fill",
                         title: "Your administrator password",
-                        detail:
-                            "Reading a raw disk and mounting a volume both need it. macOS asks once per unlock, and Lukotta never sees it.",
-                        status: .automatic("Asked each unlock"),
-                        action: nil)
+                        detail: helperDetail,
+                        status: helperStatus,
+                        action: helperAction)
 
                     PermissionRow(
                         icon: "lock.shield.fill",
