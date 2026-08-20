@@ -79,8 +79,8 @@ public enum Mounter {
                 libraryPaths: EnginePaths.libraryPaths(),
                 uid: getuid(),
                 gid: getgid(),
-                cores: max(2, min(4, ProcessInfo.processInfo.activeProcessorCount / 2)),
-                ramMiB: 2560))
+                cores: MountScript.VirtualMachine.cores,
+                ramMiB: MountScript.VirtualMachine.ramMiB))
 
         let scriptURL = workspace.root.appendingPathComponent("mount.sh")
         try script.write(to: scriptURL, atomically: true, encoding: .utf8)

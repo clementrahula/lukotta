@@ -76,6 +76,23 @@ public enum MountScript {
     /// How many of a container's volumes opened, of how many were found.
     public static let volumesMarker = "LUKOTTA_VOLUMES:"
 
+    /// How large a machine to give a mount.
+    ///
+    /// Its whole job is to unlock a filesystem and serve it over NFS, so it
+    /// does not need much. Asking for a quarter of a small Mac's memory was a
+    /// number picked without measuring, and libkrun backs guest memory lazily,
+    /// which hides that from anyone watching Activity Monitor rather than
+    /// excusing it: the scratch directory a container's volumes are served from
+    /// is sized from this figure, so asking for more invents free space that
+    /// does not exist.
+    public enum VirtualMachine {
+        public static let ramMiB = 1024
+        /// Half the machine, never more than two: the work is I/O, not compute.
+        public static var cores: Int {
+            max(1, min(2, ProcessInfo.processInfo.activeProcessorCount / 2))
+        }
+    }
+
     /// Name of the custom action generated into the engine's config.toml. A
     /// constant rather than per-drive: the engine only reads it at mount time,
     /// so each mount can safely overwrite it, and cleanup never has to hunt.
@@ -354,6 +371,12 @@ public enum MountScript {
                     cmd = cmd "; mount -o bind \\"$ALFS_VM_MOUNT_POINT\\" " s "/" names[1]
                     for (f = 2; f <= n; f++)
                       cmd = cmd "; mount /dev/" vgs[f] "/" lvs[f] " " s "/" names[f]
+                    # The directory holding the volumes together lives in the
+                    # machine's own memory, not on the drive. Left writable it
+                    # reports free space that does not exist, accepts a copy,
+                    # and loses it on eject. Read-only once the volumes are
+                    # mounted into it: they carry their own permissions.
+                    cmd = cmd "; chmod 555 " s
                     subs = ""
                     for (f = 1; f <= n; f++) subs = subs (f > 1 ? ", " : "") "\\"" names[f] "\\""
                     print "[custom_actions.\(generatedAction)]"

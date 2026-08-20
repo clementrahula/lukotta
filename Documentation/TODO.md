@@ -261,6 +261,14 @@ Worth deciding first whether a root daemon that can replace the contents of
 
 ## Known limitations
 
+- **Encryption nested inside encryption is not opened.** A container holds one
+  passphrase and every volume inside it is reached with that one, which is how
+  LUKS and LVM fit together. A logical volume that is itself a LUKS container is
+  a different matter: mounting it fails, the action aborts, and the drive falls
+  back to opening a single volume. It should say so instead of looking broken.
+  Several containers on one disk are fine — they are separate drives in the list
+  and each asks for its own password.
+
 - **The initialise dialog is only held back while Lukotta is running.** Plugging
   an encrypted drive into a Mac where Lukotta is closed still gets the system's
   offer to initialise it. Claiming the disk is what suppresses it, and a claim
