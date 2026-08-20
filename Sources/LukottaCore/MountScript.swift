@@ -139,7 +139,8 @@ public enum MountScript {
                 mountCommand(
                     engineQ: engineQ,
                     target: shellQuoted(volume.mountIdentifier),
-                    driver: nil, options: i.nfsOptions, logQ: logQ)
+                    driver: nil, options: i.nfsOptions, logQ: logQ,
+                    devicePath: i.devicePath)
             ]
         }
 
@@ -158,7 +159,7 @@ public enum MountScript {
             drivers.map {
                 mountCommand(
                     engineQ: engineQ, target: target, driver: $0,
-                    options: i.nfsOptions, logQ: logQ)
+                    options: i.nfsOptions, logQ: logQ, devicePath: i.devicePath)
             }
         }
         if i.kind == .linux {
@@ -167,19 +168,32 @@ public enum MountScript {
         return result
     }
 
+    /// Proof that a mount actually happened.
+    ///
+    /// The engine exits 0 when a mount fails — it reports the status of its own
+    /// orderly shutdown, not of the mount. Every fallback here is chained with
+    /// `||`, so without this the shell saw the first attempt succeed and ran
+    /// none of them: no ntfs-3g retry for a dirty volume, and no LVM discovery
+    /// for a container holding several volumes.
+    private static func mountedCheck(_ devicePath: String) -> String {
+        let share = (devicePath as NSString).lastPathComponent + ".local:"
+        return "/sbin/mount | grep -q \(shellQuoted(share))"
+    }
+
     private static func mountCommand(
         engineQ: String,
         target: String,
         driver: String?,
         options: String,
-        logQ: String
+        logQ: String,
+        devicePath: String
     ) -> String {
         let typeFlag = driver.map { " -t \($0)" } ?? ""
         // --nfs-options MUST use the joined form: the flag is variadic, and the
         // separated form swallows the target that follows it.
         return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
             + "\(typeFlag) -w false --nfs-options=\(shellQuoted(options))"
-            + " \(target) >> \(logQ) 2>&1"
+            + " \(target) >> \(logQ) 2>&1 && \(mountedCheck(devicePath))"
     }
 
     /// Ubuntu, Debian, Mint and Fedora all put LVM inside the LUKS container,
@@ -198,7 +212,7 @@ public enum MountScript {
               __lvs=$(awk '$NF ~ /^[^:]+:[^:]+:[^:]+$/ && $2 != "LVM2_scheme" { print $NF }' \(listQ))
               __count=$(printf '%s\\n' "$__lvs" | grep -c . )
               if [ "$__count" -eq 1 ]; then
-                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(i.nfsOptions)) "lvm:$__lvs" >> \(logQ) 2>&1
+                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(i.nfsOptions)) "lvm:$__lvs" >> \(logQ) 2>&1 && \(mountedCheck(i.devicePath))
               elif [ "$__count" -gt 1 ]; then
                 echo "\(multipleVolumesMarker)" >> \(logQ)
                 false

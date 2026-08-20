@@ -257,6 +257,24 @@ group("theElevatedMountScript") {
 }
 
 group("mountStages") {
+    // The engine exits 0 on a failed mount: the status is its own shutdown, not
+    // the mount's. Every fallback is chained with ||, so a mount attempt has to
+    // be judged by whether a mount appeared, not by what the engine returned.
+    // Without this the first attempt always looked like a success and nothing
+    // after it ever ran — no ntfs-3g retry, no LVM discovery.
+    let checked = MountScript.build(sampleInputs(kind: .linux))
+    expect(
+        checked.contains("&& /sbin/mount | grep -q 'disk4s1.local:'"),
+        "a mount attempt is verified against the mount table")
+    expect(
+        checked.range(of: "grep -q 'disk4s1.local:'")!.lowerBound
+            < checked.range(of: "LUKOTTA_MULTIPLE_VOLUMES")!.lowerBound,
+        "the check comes before the discovery it guards")
+    let checkedMS = MountScript.build(sampleInputs(kind: .microsoft))
+    expect(
+        checkedMS.components(separatedBy: "grep -q 'disk4s1.local:'").count - 1 == 2,
+        "both NTFS driver attempts are verified, so the retry can be reached")
+
     // Taken from a real failure on a Fedora-style container: LUKS holding LVM
     // holding three volumes. The engine refuses to mount the container itself,
     // and the app has to turn that into a question rather than a failure.
