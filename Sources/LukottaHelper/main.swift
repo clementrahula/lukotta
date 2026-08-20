@@ -112,6 +112,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     logPath: log.path,
                     discoverLogPath: workspace.root.appendingPathComponent("discover.log").path,
                     expectScriptPath: expect.path,
+                    configPath: invokingHome() + "/.anylinuxfs/config.toml",
                     libraryPaths: EnginePaths.libraryPaths(),
                     uid: invokingUID(), gid: invokingGID(),
                     cores: max(2, min(4, ProcessInfo.processInfo.activeProcessorCount / 2)),
@@ -183,6 +184,16 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             _ = name
         }
         return gid == 0 ? 20 : gid
+    }
+
+    /// The console user's home, where the engine keeps its config.toml. The
+    /// helper runs as root, so NSHomeDirectory would answer /var/root — a
+    /// config there is one the engine, resolving against SUDO_UID, never reads.
+    private func invokingHome() -> String {
+        if let entry = getpwuid(invokingUID()), let dir = entry.pointee.pw_dir {
+            return String(cString: dir)
+        }
+        return "/Users/Shared"
     }
 }
 

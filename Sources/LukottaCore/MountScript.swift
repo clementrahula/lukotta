@@ -28,6 +28,9 @@ public enum MountScript {
         var logPath: String
         var discoverLogPath: String
         var expectScriptPath: String
+        /// The engine's config.toml. A container holding several volumes is
+        /// served through a custom action generated into this file.
+        var configPath: String
         var libraryPaths: [String]
         var uid: UInt32
         var gid: UInt32
@@ -43,7 +46,7 @@ public enum MountScript {
             kind: VolumeKind, volume: LogicalVolume? = nil,
             aliasPath: String? = nil, fifoPath: String, logPath: String,
             discoverLogPath: String, expectScriptPath: String,
-            libraryPaths: [String], uid: UInt32, gid: UInt32,
+            configPath: String, libraryPaths: [String], uid: UInt32, gid: UInt32,
             cores: Int, ramMiB: Int
         ) {
             self.enginePath = enginePath; self.devicePath = devicePath
@@ -52,6 +55,7 @@ public enum MountScript {
             self.fifoPath = fifoPath; self.logPath = logPath
             self.discoverLogPath = discoverLogPath
             self.expectScriptPath = expectScriptPath
+            self.configPath = configPath
             self.libraryPaths = libraryPaths
             self.uid = uid; self.gid = gid
             self.cores = cores; self.ramMiB = ramMiB
@@ -70,6 +74,42 @@ public enum MountScript {
     public static let multipleVolumesMarker = "LUKOTTA_MULTIPLE_VOLUMES"
     /// How many of a container's volumes opened, of how many were found.
     public static let volumesMarker = "LUKOTTA_VOLUMES:"
+
+    /// Name of the custom action generated into the engine's config.toml. A
+    /// constant rather than per-drive: the engine only reads it at mount time,
+    /// so each mount can safely overwrite it, and cleanup never has to hunt.
+    public static let generatedAction = "lukotta"
+
+    /// The guest-side scratch directory's name — and therefore the drive's name
+    /// in Finder, because the engine derives the mount point from the last
+    /// component of the exported path.
+    ///
+    /// Restricted to characters that are safe unquoted in a shell command, in a
+    /// TOML literal string, and in the engine's NFS-export markers, because the
+    /// name is embedded in all three.
+    public static func exportName(driveName: String, devicePath: String) -> String {
+        let fromDrive = sanitised(driveName)
+        if !fromDrive.isEmpty { return fromDrive }
+        let fromDevice = sanitised(URL(fileURLWithPath: devicePath).lastPathComponent)
+        return fromDevice.isEmpty ? "Volumes" : fromDevice
+    }
+
+    private static func sanitised(_ name: String) -> String {
+        var out = ""
+        for scalar in name.unicodeScalars {
+            let safe =
+                ("a"..."z").contains(scalar) || ("A"..."Z").contains(scalar)
+                || ("0"..."9").contains(scalar) || scalar == "." || scalar == "_"
+                || scalar == "-"
+            out.append(safe ? Character(scalar) : "-")
+        }
+        // A leading dot would hide the volume in Finder; a leading dash reads
+        // as a flag to any tool later handed the bare name.
+        while let first = out.first, first == "." || first == "-" {
+            out.removeFirst()
+        }
+        return String(out.prefix(40))
+    }
 
     /// Drives the engine's interactive passphrase prompt.
     ///
@@ -171,8 +211,9 @@ public enum MountScript {
         return result
     }
 
-    /// How many mounts the engine currently has, by its export path.
-    private static let mountCount = "/sbin/mount | grep -c ':/mnt/'"
+    /// How many mounts the engine currently has, by its export path: /mnt for
+    /// ordinary mounts, /run for the multi-volume scratch directory.
+    private static let mountCount = "/sbin/mount | grep -cE ':/(mnt|run)/'"
 
     /// Proof that a mount actually happened.
     ///
@@ -203,8 +244,24 @@ public enum MountScript {
             + " \(target) >> \(logQ) 2>&1 && \(mountedCheck)"
     }
 
+    /// Rows of `list --decrypt=all` that are mountable logical volumes: an
+    /// indexed row whose identifier is vg:disk:lv and whose type is an actual
+    /// filesystem. Must agree with VolumeGroupParser's container list — the
+    /// generated action mounts everything this matches, and one unmountable
+    /// row would sink the whole multi-volume mount.
+    private static let lvRow =
+        "$1 ~ /^[0-9]+:$/ && $NF ~ /^[^:]+:[^:]+:[^:]+$/"
+        + " && $2 !~ /^(LVM2_scheme|LVM2_member|crypto_LUKS|swap|linux_raid_member)$/"
+
     /// Ubuntu, Debian, Mint and Fedora all put LVM inside the LUKS container,
     /// so unlocking exposes a volume group rather than a filesystem.
+    ///
+    /// Several volumes are served together from the one microVM. One VM is a
+    /// constraint, not a convenience: the engine takes an exclusive lock on the
+    /// device for a read-write mount, so a second VM on the same disk can never
+    /// start — which is why mounting each volume separately only ever opened
+    /// the first. If the combined mount fails, the loop below falls back to
+    /// exactly that: one volume open is still better than none.
     private static func discovery(
         _ i: Inputs,
         engineQ: String,
@@ -212,6 +269,7 @@ public enum MountScript {
         logQ: String
     ) -> String {
         let listQ = shellQuoted(i.discoverLogPath)
+        let scratch = "/run/" + exportName(driveName: i.driveName, devicePath: i.devicePath)
         return """
             {
               ALFS_PASSPHRASE="$__cred" /usr/bin/expect -f \(shellQuoted(i.expectScriptPath)) \(engineQ) \(deviceQ) > \(listQ) 2>&1
@@ -221,20 +279,97 @@ public enum MountScript {
               # "vg:disk:lv\\r" and names a block device that cannot exist.
               tr -d '\\r' < \(listQ) > \(listQ).clean && mv \(listQ).clean \(listQ)
               cat \(listQ) >> \(logQ)
-              __lvs=$(awk '$NF ~ /^[^:]+:[^:]+:[^:]+$/ && $2 != "LVM2_scheme" { print $NF }' \(listQ))
+              __lvs=$(awk '\(lvRow) { print $NF }' \(listQ))
               __count=$(printf '%s\\n' "$__lvs" | grep -c . )
-              __opened=0
-              for __lv in $__lvs; do
-                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(i.nfsOptions)) "lvm:$__lv" >> \(logQ) 2>&1
-                __now=$(\(mountCount))
-                if [ "$__now" -gt "$__mounts" ]; then
-                  __opened=$((__opened+1))
-                  __mounts=$__now
-                fi
-              done
-              echo "\(volumesMarker)$__opened:$__count" >> \(logQ)
-              [ "$__opened" -gt 0 ]
+              if [ "$__count" -gt 1 ]; then
+            \(multiVolume(i, engineQ: engineQ, logQ: logQ, listQ: listQ, scratch: scratch))
+              fi
+              if \(mountedCheck); then
+                echo "\(volumesMarker)$(/sbin/mount | grep -cF \(shellQuoted(":" + scratch + "/"))):$__count" >> \(logQ)
+              else
+                __opened=0
+                for __lv in $__lvs; do
+                  ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(i.nfsOptions)) "lvm:$__lv" >> \(logQ) 2>&1
+                  __now=$(\(mountCount))
+                  if [ "$__now" -gt "$__mounts" ]; then
+                    __opened=$((__opened+1))
+                    __mounts=$__now
+                  fi
+                done
+                echo "\(volumesMarker)$__opened:$__count" >> \(logQ)
+                [ "$__opened" -gt 0 ]
+              fi
             }
+            """
+    }
+
+    /// Generate the custom action that serves every volume, and mount with it.
+    ///
+    /// Inside the VM every volume is already active under /dev/<vg>/<lv> —
+    /// `vgchange -ay` runs before any action — so the generated `after_mount`
+    /// mounts each one onto a scratch directory in the VM's own tmpfs and the
+    /// engine NFS-exports the lot: the primary at the mount point, the rest
+    /// nested inside it.
+    ///
+    /// The scratch directory is the load-bearing part. Mounting the extra
+    /// volumes onto directories created inside the primary volume would write
+    /// to the user's data, and Lukotta must never modify a drive it opens.
+    /// `override_nfs_export` points the export at /run instead, which is tmpfs
+    /// and vanishes with the VM.
+    private static func multiVolume(
+        _ i: Inputs,
+        engineQ: String,
+        logQ: String,
+        listQ: String,
+        scratch: String
+    ) -> String {
+        let actionQ = shellQuoted(i.discoverLogPath + ".action")
+        let mergedQ = shellQuoted(i.discoverLogPath + ".merged")
+        let configQ = shellQuoted(i.configPath)
+        // The engine substitutes $VARIABLES in action strings on the host and
+        // aborts on any it does not know, so the generated command may use
+        // $ALFS_VM_MOUNT_POINT and nothing else. Every other path is literal,
+        // which exportName's character set makes safe unquoted.
+        //
+        // The per-volume directories are created read-only (555): should a
+        // nested NFS mount ever fail on the host, the bare tmpfs stub under it
+        // must not accept writes the user believes go to the drive.
+        return """
+                awk -v s='\(scratch)' -v q="'" '\(lvRow) {
+                    n++
+                    lv = $NF; sub(/^.*:/, "", lv)
+                    vg = $NF; sub(/:.*/, "", vg)
+                    name = ""
+                    for (f = 3; f <= NF - 3; f++) name = name (f > 3 ? "-" : "") $f
+                    gsub(/[^A-Za-z0-9._-]/, "-", name)
+                    sub(/^[-.]+/, "", name)
+                    if (name == "") name = lv
+                    if (seen[name]++) name = name "-" seen[name]
+                    names[n] = name; lvs[n] = lv; vgs[n] = vg
+                  }
+                  END {
+                    cmd = "set -eu; mkdir -p " s "; mkdir -m 555"
+                    for (f = 1; f <= n; f++) cmd = cmd " " s "/" names[f]
+                    cmd = cmd "; mount -o bind \\"$ALFS_VM_MOUNT_POINT\\" " s "/" names[1]
+                    for (f = 2; f <= n; f++)
+                      cmd = cmd "; mount /dev/" vgs[f] "/" lvs[f] " " s "/" names[f]
+                    subs = ""
+                    for (f = 1; f <= n; f++) subs = subs (f > 1 ? ", " : "") "\\"" names[f] "\\""
+                    print "[custom_actions.\(generatedAction)]"
+                    print "description = " q "Generated by Lukotta; removed after ejecting" q
+                    print "after_mount = " q cmd q
+                    print "override_nfs_export = " q s q
+                    print "nfs_export_subdirs = [" subs "]"
+                  }' \(listQ) > \(actionQ)
+                # Merge, never replace: the config also holds the user's own
+                # settings, and the engine rewrites it wholesale on every run.
+                # Truncating in place keeps whoever owns the file owning it.
+                { awk 'BEGIN { skip = 0 }
+                       /^\\[/ { skip = ($0 == "[custom_actions.\(generatedAction)]") }
+                       !skip' \(configQ) 2>/dev/null; cat \(actionQ); } > \(mergedQ)
+                cat \(mergedQ) > \(configQ)
+                __first=$(printf '%s\\n' "$__lvs" | head -n 1)
+                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(i.nfsOptions)) -a \(generatedAction) "lvm:$__first" >> \(logQ) 2>&1
             """
     }
 }

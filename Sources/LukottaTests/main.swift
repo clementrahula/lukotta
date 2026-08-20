@@ -45,6 +45,7 @@ func sampleInputs(
         logPath: "/tmp/ws/mount.log",
         discoverLogPath: "/tmp/ws/discover.log",
         expectScriptPath: "/tmp/ws/discover.exp",
+        configPath: "/Users/u/.anylinuxfs/config.toml",
         libraryPaths: ["/engine/lib"],
         uid: 501, gid: 20, cores: 4, ramMiB: 2560)
 }
@@ -211,7 +212,7 @@ group("theElevatedMountScript") {
         msScript.range(of: "-t ntfs3")!.lowerBound < msScript.range(of: "-t ntfs-3g")!.lowerBound,
         "ntfs3 is tried before ntfs-3g")
     expect(
-        !msScript.contains("LUKOTTA_MULTIPLE_VOLUMES"),
+        !msScript.contains("/usr/bin/expect"),
         "no LVM discovery for a Microsoft volume")
 
     // The alias was meant to give Finder a friendlier name by being mounted in
@@ -237,7 +238,7 @@ group("theElevatedMountScript") {
         filesystem: "btrfs", size: "394 MB")
     let msChosen = MountScript.build(sampleInputs(kind: .linux, volume: lv))
     expect(msChosen.contains("'lvm:ubuntuvg:disk4s1:home'"), "chosen volume mounted by identifier")
-    expect(!msChosen.contains("LUKOTTA_MULTIPLE_VOLUMES"), "no rediscovery once chosen")
+    expect(!msChosen.contains("/usr/bin/expect"), "no rediscovery once chosen")
     expect(!msChosen.contains("-t ntfs"), "no driver override for a chosen volume")
 
     // Paths with spaces must survive quoting: they reach a root shell. The
@@ -248,11 +249,135 @@ group("theElevatedMountScript") {
             enginePath: "/eng/any linux fs", devicePath: "/dev/disk4s1", driveName: "D",
             kind: .linux, volume: nil, aliasPath: nil, fifoPath: "/tmp/My Space/fifo",
             logPath: "/tmp/My Space/mount.log", discoverLogPath: "/tmp/My Space/discover.log",
-            expectScriptPath: "/tmp/My Space/discover.exp", libraryPaths: ["/eng/li b"],
+            expectScriptPath: "/tmp/My Space/discover.exp",
+            configPath: "/Users/u/.anylinuxfs/config.toml", libraryPaths: ["/eng/li b"],
             uid: 501, gid: 20, cores: 4, ramMiB: 2560))
     expect(msSpaces.contains("'/tmp/My Space/mount.log'"), "spaces in paths stay quoted")
     expect(msSpaces.contains("'/eng/any linux fs'"), "spaces in the engine path stay quoted")
     expect(msSpaces.contains("'/tmp/My Space/discover.exp'"), "spaces in the expect path quoted")
+}
+
+group("multiVolumeServing") {
+
+    // All volumes of a container are served from the one microVM: the engine
+    // holds an exclusive lock on the device for read-write mounts, so mounting
+    // each volume in its own VM can never work. The script generates a custom
+    // action that mounts every volume onto tmpfs inside the VM and exports the
+    // lot, and only falls back to one-at-a-time if that combined mount fails.
+    let script = MountScript.build(sampleInputs(kind: .linux))
+
+    expect(script.contains("-a lukotta"), "the generated action is selected for the mount")
+    expect(script.contains("\"lvm:$__first\""), "one volume carries the primary mount")
+    expect(script.contains("[custom_actions.lukotta]"), "the action section is generated")
+    expect(script.contains("'/run/Elements'"), "the export scratch dir is named after the drive")
+    expect(
+        script.contains(#"mount -o bind \"$ALFS_VM_MOUNT_POINT\""#),
+        "the primary volume is bound into the scratch dir, not re-mounted")
+    expect(
+        script.contains("'/Users/u/.anylinuxfs/config.toml'"),
+        "the action is merged into the engine's config")
+    expect(
+        script.contains("LUKOTTA_VOLUMES:$(/sbin/mount"),
+        "a combined mount reports how many volumes actually appeared")
+    expect(script.contains("\"lvm:$__lv\""), "the one-at-a-time fallback is still present")
+    // Volumes that are not mountable filesystems would sink the combined
+    // mount: its after_mount stops at the first failure, deliberately, so a
+    // half-served drive cannot masquerade as the whole one.
+    expect(script.contains("|swap|"), "swap volumes are excluded from serving")
+    expect(script.contains("crypto_LUKS"), "nested encrypted volumes are excluded")
+
+    // The scratch dir name reaches a root shell, a TOML file and Finder.
+    expect(
+        MountScript.exportName(driveName: "Elements", devicePath: "/dev/disk4s1"), "Elements",
+        "a plain name is kept")
+    expect(
+        MountScript.exportName(driveName: "Samsung T7", devicePath: "/dev/disk4s1"),
+        "Samsung-T7", "spaces are made shell- and marker-safe")
+    expect(
+        MountScript.exportName(driveName: "", devicePath: "/dev/disk4s1"), "disk4s1",
+        "an unnamed drive falls back to the device")
+    expect(
+        MountScript.exportName(driveName: ".système; rm -rf /", devicePath: "/dev/disk4s1"),
+        "syst-me--rm--rf--", "hostile names are neutralised and cannot hide the volume")
+    expect(
+        MountScript.exportName(driveName: "---", devicePath: "/dev/disk4s1"), "disk4s1",
+        "a name that sanitises to nothing falls back to the device")
+}
+
+group("engineConfigCleanup") {
+
+    // The generated action must be removable without touching anything else in
+    // the engine's config, which also holds the user's own settings.
+    let config = """
+        [alpine]
+        custom_packages = []
+
+        [custom_actions.lukotta]
+        description = 'Generated by Lukotta; removed after ejecting'
+        after_mount = 'set -eu; mkdir -p /run/T7'
+        override_nfs_export = '/run/T7'
+        nfs_export_subdirs = ["ROOT", "HOME"]
+
+        [custom_actions.mine]
+        description = 'the user wrote this one'
+
+        [krun]
+        num_vcpus = 4
+        """
+    let cleaned = EngineConfig.withoutGeneratedAction(config)
+    expect(!cleaned.contains("[custom_actions.lukotta]"), "the generated section is removed")
+    expect(!cleaned.contains("override_nfs_export"), "its body goes with it")
+    expect(cleaned.contains("[custom_actions.mine]"), "a user-written action survives")
+    expect(cleaned.contains("the user wrote this one"), "with its body")
+    expect(cleaned.contains("num_vcpus = 4"), "engine settings survive")
+    expect(EngineConfig.withoutGeneratedAction(cleaned) == cleaned, "removal is idempotent")
+
+    // The section may sit at the end of the file, with no header after it.
+    let atEnd = "[krun]\nnum_vcpus = 4\n\n[custom_actions.lukotta]\nafter_mount = 'x'"
+    let cleanedEnd = EngineConfig.withoutGeneratedAction(atEnd)
+    expect(!cleanedEnd.contains("lukotta"), "a trailing section is removed")
+    expect(cleanedEnd.contains("num_vcpus = 4"), "what precedes it survives")
+    expect(
+        EngineConfig.withoutGeneratedAction("[krun]\nnum_vcpus = 4") == "[krun]\nnum_vcpus = 4",
+        "a config without the section is untouched")
+}
+
+group("nestedVolumeMounts") {
+
+    // The engine's status reports only the primary mount of a multi-volume
+    // drive; the per-volume NFS mounts nested under it come from the system
+    // mount table.
+    let table = """
+        /dev/disk3s5 on / (apfs, sealed, local, read-only, journaled)
+        lvm-fedoravg.local:/run/T7 on /Volumes/T7 (nfs, nodev, nosuid, mounted by someone)
+        lvm-fedoravg.local:/run/T7/ROOT on /Volumes/T7/ROOT (nfs, nodev, nosuid, mounted by someone)
+        lvm-fedoravg.local:/run/T7/HOME on /Volumes/T7/HOME (nfs, nodev, nosuid, mounted by someone)
+        /dev/disk5s1 on /Volumes/T7ish (apfs, local, journaled)
+        """
+    let nested = EngineStatus.nestedVolumes(under: "/Volumes/T7", in: table)
+    expect(nested == ["/Volumes/T7/ROOT", "/Volumes/T7/HOME"], "nested NFS mounts found in order")
+    expect(
+        EngineStatus.nestedVolumes(under: "/Volumes/T7", in: "").isEmpty,
+        "an empty table yields nothing")
+    expect(
+        !EngineStatus.nestedVolumes(under: "/Volumes/T7", in: table).contains("/Volumes/T7ish"),
+        "a sibling with a shared prefix is not mistaken for a nested volume")
+
+    // The scratch export lives under /run, so those mounts are the engine's
+    // to clear when their VM dies — but not while it is alive.
+    let claimed = EngineStatus.engineMountPoints(in: table)
+    expect(claimed.contains("/Volumes/T7"), "a multi-volume primary is recognised as ours")
+    expect(claimed.contains("/Volumes/T7/HOME"), "and so are its nested volumes")
+    expect(!claimed.contains("/Volumes/T7ish"), "a local disk is not")
+
+    // Multi-volume mounts are reported with an lvm: source, which must still
+    // be recognised or an open drive would not be resumed after a relaunch.
+    let status = """
+        lvm:fedoravg:disk5s1:root on /Volumes/T7 (btrfs, mounted by someone) VM[cpus: 4, ram: 2560 MiB]
+        """
+    let parsed = EngineStatus.parse(status)
+    expect(parsed.count == 1, "an lvm-backed mount is reported")
+    expect(parsed.first?.mountPoint ?? "", "/Volumes/T7", "its mount point is parsed")
 }
 
 group("mountStages") {
@@ -262,11 +387,13 @@ group("mountStages") {
     // Without this the first attempt always looked like a success and nothing
     // after it ever ran — no ntfs-3g retry, no LVM discovery.
     let checked = MountScript.build(sampleInputs(kind: .linux))
-    expect(checked.contains("__mounts=$(/sbin/mount | grep -c ':/mnt/')"), "a baseline is taken")
+    expect(
+        checked.contains("__mounts=$(/sbin/mount | grep -cE ':/(mnt|run)/')"),
+        "a baseline is taken")
     expect(
         checked.contains(
             """
-            2>&1 && [ "$(/sbin/mount | grep -c ':/mnt/')" -gt "$__mounts" ]
+            2>&1 && [ "$(/sbin/mount | grep -cE ':/(mnt|run)/')" -gt "$__mounts" ]
             """.trimmingCharacters(in: .whitespacesAndNewlines)),
         "an attempt counts as success only if a mount appeared")
     // Counting, not name matching: the share is named for the device on a plain
@@ -356,7 +483,7 @@ group("mountStages") {
             enginePath: "/e", devicePath: "/dev/disk5s1", driveName: "D", kind: .linux,
             volume: nil, aliasPath: "/tmp/ws/alias/Disk Image", fifoPath: "/f",
             logPath: "/l", discoverLogPath: "/d", expectScriptPath: "/x",
-            libraryPaths: [], uid: 501, gid: 20, cores: 4, ramMiB: 2560))
+            configPath: "/c", libraryPaths: [], uid: 501, gid: 20, cores: 4, ramMiB: 2560))
     expect(!aliased.contains("/tmp/ws/alias"), "an unresolvable alias is not attempted")
     expect(aliased.contains("'/dev/disk5s1'"), "the device itself still is")
 
