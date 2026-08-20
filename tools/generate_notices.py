@@ -3,7 +3,9 @@
 import sys, os, datetime
 
 rootfs, out = sys.argv[1], sys.argv[2]
-db = os.path.join(rootfs, "lib/apk/db/installed")
+# Prefer the database captured from the trimmed image that actually ships.
+shipped = os.path.join(os.path.dirname(os.path.abspath(out)), "vendor/engine/alpine/packages.db")
+db = shipped if os.path.exists(shipped) else os.path.join(rootfs, "lib/apk/db/installed")
 pkgs, cur = [], {}
 if os.path.exists(db):
     for line in open(db, encoding="utf-8", errors="replace"):
@@ -17,8 +19,7 @@ if os.path.exists(db):
     if cur.get("P"): pkgs.append(cur)
 
 rows = sorted({(p.get("P", ""), p.get("V", ""), p.get("L", "(unstated)")) for p in pkgs})
-zfs = [r for r in rows if r[0].startswith("zfs")]
-rows = [r for r in rows if not r[0].startswith("zfs")]
+
 
 host = [
     ("anylinuxfs", "0.19.0", "GPL-3.0-or-later",
@@ -69,7 +70,9 @@ for name, ver, lic, url, note in host:
 w("")
 w("## Linux guest image (Alpine Linux)")
 w("")
-w(f"{len(rows)} packages are shipped inside the embedded Alpine root filesystem.")
+w(f"{len(rows)} packages are shipped inside the embedded Alpine root filesystem,")
+w("which is trimmed by `tools/trim-image.py` to the dependency closure of what")
+w("Lukotta actually uses — the upstream image carries 76.")
 w("Licence strings are taken verbatim from the image's own package database.")
 w("Source for each is available from the Alpine Linux package archive")
 w("(<https://pkgs.alpinelinux.org/>) at the exact version listed.")
@@ -79,15 +82,18 @@ w("| --- | --- | --- |")
 for name, ver, lic in rows:
     w(f"| {name} | {ver} | {lic} |")
 w("")
-if zfs:
-    w("### Removed from the shipped image")
-    w("")
-    w("ZFS is **not** shipped. The upstream Alpine image includes `zfs` and")
-    w("`zfs-libs` (CDDL-1.0) together with `zfs.ko` and `spl.ko`, which combine")
-    w("CDDL-licensed kernel modules with a GPL-2.0 kernel. Lukotta never touches")
-    w("ZFS, so `vendor-engine.sh` removes those components rather than")
-    w("redistribute that combination.")
-    w("")
+w("### Removed from the shipped image")
+w("")
+w("The upstream image supports every filesystem anylinuxfs handles.")
+w("`tools/trim-image.py` keeps only the dependency closure of the tooling")
+w("Lukotta uses — BitLocker unlock, NTFS, NFS export and mounting — and removes")
+w("LVM, RAID (mdadm), btrfs, squashfs, ZFS and their exclusive dependencies.")
+w("")
+w("ZFS is worth calling out. The upstream image ships `zfs` and `zfs-libs`")
+w("(CDDL-1.0) together with `zfs.ko` and `spl.ko`: CDDL-licensed kernel modules")
+w("combined with a GPL-2.0 kernel, the one genuinely contested licence")
+w("combination in the dependency set. Lukotta never touches ZFS.")
+w("")
 w("## Notes")
 w("")
 w("- `cryptsetup` carries an OpenSSL exception, recorded in its licence string.")

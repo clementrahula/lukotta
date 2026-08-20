@@ -38,7 +38,9 @@ If a release is ever missing its source archive, that is a bug — write to
 
 ## Linux guest image (Alpine Linux)
 
-74 packages are shipped inside the embedded Alpine root filesystem.
+58 packages are shipped inside the embedded Alpine root filesystem,
+which is trimmed by `tools/trim-image.py` to the dependency closure of what
+Lukotta actually uses — the upstream image carries 76.
 Licence strings are taken verbatim from the image's own package database.
 Source for each is available from the Alpine Linux package archive
 (<https://pkgs.alpinelinux.org/>) at the exact version listed.
@@ -52,21 +54,17 @@ Source for each is available from the Alpine Linux package archive
 | apk-tools | 3.0.6-r0 | GPL-2.0-only |
 | bash | 5.3.9-r1 | GPL-3.0-or-later |
 | blkid | 2.42.1-r0 | LGPL-1.0-only |
-| btrfs-progs | 6.17.1-r1 | GPL-2.0-or-later |
 | busybox | 1.37.0-r31 | GPL-2.0-only |
 | busybox-binsh | 1.37.0-r31 | GPL-2.0-only |
 | ca-certificates-bundle | 20260611-r0 | MPL-2.0 AND MIT |
 | cryptsetup | 2.8.6-r0 | GPL-2.0-or-later WITH cryptsetup-OpenSSL-exception |
 | cryptsetup-libs | 2.8.6-r0 | GPL-2.0-or-later WITH cryptsetup-OpenSSL-exception |
-| device-mapper-event-libs | 2.03.35-r3 | GPL-2.0-or-later AND LGPL-2.1-or-later |
 | device-mapper-libs | 2.03.35-r3 | GPL-2.0-or-later AND LGPL-2.1-or-later |
-| eudev-libs | 3.2.14-r6 | GPL-2.0-or-later |
 | gdbm | 1.26-r0 | GPL-3.0-or-later |
 | json-c | 0.18-r1 | MIT |
 | keyutils-libs | 1.6.3-r4 | GPL-2.0-or-later AND LGPL-2.0-or-later |
 | krb5-conf | 1.0-r2 | MIT |
 | krb5-libs | 1.22.2-r1 | MIT |
-| libaio | 0.3.113-r2 | LGPL-2.1-or-later |
 | libapk | 3.0.6-r0 | GPL-2.0-only |
 | libblkid | 2.42.1-r0 | LGPL-2.1-or-later |
 | libbz2 | 1.0.8-r6 | bzip2-1.0.6 |
@@ -78,7 +76,6 @@ Source for each is available from the Alpine Linux package archive
 | libexpat | 2.8.2-r0 | MIT |
 | libffi | 3.5.2-r1 | MIT |
 | libgcc | 15.2.0-r5 | GPL-2.0-or-later AND LGPL-2.1-or-later |
-| libintl | 1.0-r0 | LGPL-2.1-or-later |
 | libmount | 2.42.1-r0 | LGPL-2.1-or-later |
 | libncursesw | 6.6_p20260516-r0 | X11 |
 | libnfsidmap | 2.6.4-r6 | GPL-2.0-only |
@@ -91,11 +88,6 @@ Source for each is available from the Alpine Linux package archive
 | libuuid | 2.42.1-r0 | BSD-3-Clause |
 | libverto | 0.3.2-r2 | MIT |
 | lsblk | 2.42.1-r0 | GPL-2.0-or-later |
-| lvm2 | 2.03.35-r2 | GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause |
-| lvm2-libs | 2.03.35-r2 | GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause |
-| lz4-libs | 1.10.0-r1 | BSD-2-Clause AND GPL-2.0-or-later |
-| lzo | 2.10-r5 | GPL-2.0-or-later |
-| mdadm | 4.3-r3 | GPL-2.0-only |
 | mount | 2.42.1-r0 | GPL-3.0-or-later AND GPL-2.0-or-later AND GPL-2.0-only AND GPL-1.0-only AND LGPL-2.1-or-later AND BSD-1-Clause AND BSD-3-Clause AND BSD-4-Clause-UC AND MIT AND Public-Domain |
 | mpdecimal | 4.0.1-r0 | BSD-2-Clause |
 | musl | 1.2.6-r2 | MIT |
@@ -106,27 +98,25 @@ Source for each is available from the Alpine Linux package archive
 | ntfs-3g-libs | 2026.2.25-r0 | GPL-2.0-only |
 | ntfs-3g-progs | 2026.2.25-r0 | GPL-2.0-only |
 | popt | 1.19-r4 | MIT |
-| pyc | 3.14.7-r1 | PSF-2.0 |
 | python3 | 3.14.7-r1 | PSF-2.0 |
-| python3-pyc | 3.14.7-r1 | PSF-2.0 |
-| python3-pycache-pyc0 | 3.14.7-r1 | PSF-2.0 |
 | readline | 8.3.3-r1 | GPL-3.0-or-later |
 | rpcbind | 1.2.9-r0 | BSD-3-Clause |
 | scanelf | 1.3.9-r1 | GPL-2.0-only |
 | sqlite-libs | 3.53.2-r0 | blessing |
-| squashfs-tools | 4.7.5-r0 | GPL-2.0-or-later |
-| ssl_client | 1.37.0-r31 | GPL-2.0-only |
 | xz-libs | 5.8.3-r0 | GPL-2.0-or-later AND 0BSD AND Public-Domain AND LGPL-2.1-or-later |
 | zlib | 1.3.2-r0 | Zlib |
-| zstd-libs | 1.5.7-r2 | BSD-3-Clause OR GPL-2.0-or-later |
 
 ### Removed from the shipped image
 
-ZFS is **not** shipped. The upstream Alpine image includes `zfs` and
-`zfs-libs` (CDDL-1.0) together with `zfs.ko` and `spl.ko`, which combine
-CDDL-licensed kernel modules with a GPL-2.0 kernel. Lukotta never touches
-ZFS, so `vendor-engine.sh` removes those components rather than
-redistribute that combination.
+The upstream image supports every filesystem anylinuxfs handles.
+`tools/trim-image.py` keeps only the dependency closure of the tooling
+Lukotta uses — BitLocker unlock, NTFS, NFS export and mounting — and removes
+LVM, RAID (mdadm), btrfs, squashfs, ZFS and their exclusive dependencies.
+
+ZFS is worth calling out. The upstream image ships `zfs` and `zfs-libs`
+(CDDL-1.0) together with `zfs.ko` and `spl.ko`: CDDL-licensed kernel modules
+combined with a GPL-2.0 kernel, the one genuinely contested licence
+combination in the dependency set. Lukotta never touches ZFS.
 
 ## Notes
 

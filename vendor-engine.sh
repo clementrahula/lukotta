@@ -31,18 +31,20 @@ echo "Copying Linux root filesystem…"
 # follows them and fails, which would make the signed app unverifiable.
 mkdir -p "$OUT/alpine"
 
-# Strip ZFS. This is a BitLocker/NTFS tool and never touches ZFS, but the image
-# ships zfs.ko + spl.ko, which are CDDL-1.0 kernel modules combined with a
-# GPL-2.0 kernel - the one genuinely contested licence combination in the whole
-# dependency set. Removing it also saves space. Set BLM_KEEP_ZFS=1 to keep it.
+# Reduce the guest image to the packages Lukotta can actually reach. The image
+# ships everything anylinuxfs supports (LVM, RAID, btrfs, squashfs, ZFS); we
+# unlock BitLocker and mount NTFS. Every GPL package shipped is also a package
+# whose source must be published with the release, so this shrinks the download
+# and the compliance surface together. Set BLM_NO_TRIM=1 to ship the full image.
 STAGE="$(mktemp -d)/rootfs"
 /usr/bin/ditto "$SRC_ROOTFS/rootfs" "$STAGE"
-if [ "${BLM_KEEP_ZFS:-0}" != "1" ]; then
-  echo "  removing ZFS (CDDL) components…"
-  rm -rf "$STAGE/lib/modules"/*/fs/zfs          "$STAGE/etc/zfs" "$STAGE/usr/libexec/zfs"          "$STAGE/usr/lib/libzfs"* "$STAGE/usr/lib/libzpool"*          "$STAGE/usr/lib/libnvpair"* "$STAGE/usr/lib/libuutil"*          "$STAGE/usr/lib/libzfs_core"* 2>/dev/null || true
-  rm -f "$STAGE/usr/lib/modules-load.d/zfs.conf" "$STAGE/etc/modules-load.d/zfs.conf" \
-        "$STAGE/sbin/mount.zfs" "$STAGE/usr/sbin/zfs" "$STAGE/usr/sbin/zpool"         "$STAGE/usr/sbin/fsck.zfs" "$STAGE/usr/sbin/zfs_ids_to_path"         "$STAGE/usr/sbin/zdb" "$STAGE/usr/sbin/zstream" 2>/dev/null || true
+if [ "${BLM_NO_TRIM:-0}" != "1" ]; then
+  echo "  trimming guest image…"
+  /usr/bin/python3 "$HERE/tools/trim-image.py" "$STAGE"
 fi
+# Keep the resulting package database beside the image so the notices describe
+# what actually ships rather than what upstream installed.
+cp "$STAGE/lib/apk/db/installed" "$OUT/alpine/packages.db"
 
 echo "  packing rootfs (this takes a moment)…"
 /usr/bin/tar --format ustar -czf "$OUT/alpine/rootfs.tar.gz" -C "$(dirname "$STAGE")" rootfs

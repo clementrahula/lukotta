@@ -42,19 +42,23 @@ Nothing ships until these are done.
       object code "embodied in a physical product"; for a download, publishing
       source beside the binary discharges the obligation immediately and starts
       no clock. `lukotta@rahula.dev` stays as an ordinary contact.
-- [ ] **[me]** **Build the source archive into the release process.** This is
-      what makes §6(d) true rather than aspirational: every release carrying a
-      binary must carry source for Lukotta *and* for every embedded GPL
-      component — anylinuxfs, libkrunfw and its kernel, and each GPL package in
-      the Alpine image. GPL-3 §6(d) permits a third-party server with clear
-      directions, but GPL-2's equivalent paragraph says "the same place", so
-      the GPL-2 components (kernel, busybox, ntfs-3g, nfs-utils, mdadm, …)
-      should be mirrored by us.
-- [ ] **[me]** **Shrink the guest image.** The compliance surface is 76 Alpine
-      packages because anylinuxfs is a general-purpose filesystem tool. Lukotta
-      needs cryptsetup, NTFS and NFS tooling, mount and their dependencies —
-      likely under half of that. Less to mirror, a smaller download, and a
-      smaller attack surface, for the same functionality.
+- [x] `scripts/collect-sources.sh` assembles the corresponding source:
+      Lukotta via `git archive`, the pinned anylinuxfs tarball, the Linux kernel
+      matching the version detected in the shipped image, and the Alpine aports
+      recipes for every shipped package. It exits non-zero if anything cannot be
+      fetched, so a release cannot quietly ship without complete source.
+- [ ] **[me]** Attach its output to the release next to the .dmg, and say so in
+      the release notes — §6(d) requires the source be offered *from the same
+      place* as the binary.
+- [ ] **[me]** Resolve each Alpine package's upstream tarball from its APKBUILD
+      rather than shipping only the aports recipes. Recipes are the "scripts
+      used to control compilation"; the upstream tarballs are the source proper.
+- [x] Guest image trimmed by `tools/trim-image.py`, which resolves the apk
+      dependency graph and keeps only the closure of the BitLocker, NTFS, NFS
+      and mount tooling: 76 packages down to 58, 25.6 MiB of files removed, and
+      the package database rewritten so it still describes what ships. LVM,
+      RAID, btrfs, squashfs and ZFS are gone. `BLM_NO_TRIM=1` ships the lot.
+      Note python3 and krb5 stay: `nfs-utils` depends on them.
 - [ ] **[me]** **Make the build reproducible.** `vendor/` is gitignored and
       `vendor-engine.sh` stages from whatever anylinuxfs happens to be installed
       on the build machine, so nobody else can build Lukotta and v1.0.1 cannot
