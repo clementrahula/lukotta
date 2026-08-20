@@ -102,7 +102,12 @@ struct HelpSheet: View {
                         Bullet(
                             "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use"
                         )
-                        Bullet("About 40 MB of memory while a drive is unlocked")
+                        Bullet(
+                            "30 to 80 MB of RAM per unlocked drive, depending on how many volumes it holds"
+                        )
+                        Bullet(
+                            "Each unlocked drive runs a Linux virtual machine, limited to 1 GB of RAM and 2 processor cores"
+                        )
                     }
 
                     HelpSection(title: "Author") {
