@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "Lukotta",
-    platforms: [.macOS(.v15)],
+    platforms: [.macOS("26.0")],
     dependencies: [
         // Updates. MIT, with BSD-2 and zlib-licensed components bundled, so it
         // composes with distributing Lukotta under the GPL.

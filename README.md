@@ -12,7 +12,7 @@ inside the app.
 ## Requirements
 
 - Apple Silicon Mac (arm64)
-- macOS 15 Sequoia or later
+- macOS 26 or later
 - Full Disk Access granted to Lukotta (one-time, see below)
 
 ## Install

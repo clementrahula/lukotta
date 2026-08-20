@@ -98,16 +98,14 @@ struct HelpSheet: View {
 
                     HelpSection(title: "Requirements") {
                         Bullet("An Apple Silicon Mac. Intel Macs are not supported")
-                        Bullet("macOS 15 Sequoia or later")
+                        Bullet("macOS 26 or later")
                         Bullet(
                             "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use"
                         )
                         Bullet(
                             "30 to 80 MB of RAM per unlocked drive, depending on how many volumes it holds"
                         )
-                        Bullet(
-                            "Each unlocked drive runs a Linux virtual machine, limited to 1 GB of RAM and 2 processor cores"
-                        )
+                        Bullet("Each unlocked drive runs its own Linux virtual machine")
                     }
 
                     HelpSection(title: "Author") {
