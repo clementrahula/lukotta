@@ -401,7 +401,91 @@ Still open:
 
 ---
 
-## 12. Distribution — Homebrew
+## 12. Engineering — architecture, tooling, tests
+
+Reviewed 20 August 2026 against measurements of the tree, not impressions.
+
+### The finding that matters
+
+`Mounter.mount` is a **214-line function** that builds a shell script, writes
+it, elevates it, streams its output and interprets the result. It constructs the
+command that runs as **root**, and it is **completely untested**, because
+generation and execution are fused into one function.
+
+Both production-breaking bugs so far lived exactly there:
+
+- `-n <opts> <device>` — the flag is variadic, so it swallowed the device path
+  and every mount failed with "mount with no disk".
+- `--decrypt all <image>` — the same trap, found earlier and then repeated.
+
+Neither was reachable by any test. A test asserting "the generated command
+contains the device path as a positional argument" would have caught both in
+milliseconds. This is an architecture problem, not a discipline problem.
+
+- [ ] **[me]** Extract a pure `MountScript.build(…) -> String`. Assert on the
+      generated text: device present as a positional, `--nfs-options=` in
+      joined form, credential never inlined, fallback ordering correct, and the
+      LVM branch only present for Linux volumes.
+
+### Structure
+
+- [ ] `Mounter.swift` is 702 lines holding **13 top-level types** — quoting
+      helpers, the Drive model, drive scanning, engine status, volume-group
+      parsing, stage inference, diagnosis, log streaming and mounting. Split by
+      responsibility: `Drives`, `EngineStatus`, `VolumeGroups`, `Diagnosis`,
+      `MountScript`, `Mounter`.
+- [ ] `ContentView.swift` is 883 lines holding every screen. One file per screen.
+- [ ] Root directory holds eight loose shell scripts and four markdown files.
+      Move to `Sources/`, `Tests/`, `Scripts/`, `Docs/`.
+- [ ] 22 `contains("…")` matches against engine output are scattered through
+      `Diagnosis`. Centralise into one table, tested, so an upstream wording
+      change is a single edit rather than a silent degradation.
+
+### Build system
+
+- [ ] **Adopt SwiftPM.** There is no `Package.swift`; everything is `swiftc`
+      invoked from a shell script. That costs module boundaries, incremental
+      builds, `swift test`, editor integration, and dependency management —
+      which Sparkle will require. Structure as a `LukottaCore` library (all the
+      logic, fully testable), a thin executable, and a test target. Keep
+      `build-app.sh` for bundling, embedding and signing, which SwiftPM does not
+      do.
+
+### Tests
+
+- [ ] **16 of 22 top-level types are untested.** The suite compiles three source
+      files. Untested and readily testable: `DriveScanner` (plist parsing, needs
+      only fixtures), `Workspace` and `EngineEnvironment` (temp directories),
+      `CredentialStore` (Keychain round-trip), and the mount script above.
+- [ ] The harness is a hand-rolled `expect()` with a manual counter in
+      `main.swift`: no test names in output, no filtering, no parallelism. Move
+      to swift-testing once SwiftPM is in place.
+
+### Linting and CI
+
+- [ ] **`swift format` 6.3.0 is already in the toolchain** and unused. Add a
+      `.swift-format` and a lint step; it is free.
+- [ ] **Eight shell scripts and nothing checks them.** `shellcheck` would have
+      caught the `/usr/bin/mkfile` call that silently produced no test images.
+- [ ] **No CI.** Nothing runs the tests or checks that the app builds. A macOS
+      workflow can run tests, format and shellcheck immediately; producing a
+      full bundle also needs the vendored engine, so that waits on reproducible
+      vendoring (§1).
+
+### Correctness details
+
+- [ ] `Permissions.hasFullDiskAccess` does file I/O on the main thread at
+      launch, and `hasOpenDrive` spawns a process **synchronously on the main
+      thread** during quit. Both can stall the UI; the second runs while the
+      user is trying to close the app.
+- [ ] No structured logging. `os.Logger` with subsystems would make support
+      reports far more useful than "what the engine reported".
+- [ ] `helpers/validate-key.sh` puts a shell dependency and a process spawn on
+      the unlock path for thirty lines of logic. Port to Swift (also in §8).
+
+---
+
+## 13. Distribution — Homebrew
 
 - [ ] **[me]** Submit a Homebrew cask, so installation is
       `brew install --cask lukotta`. Blocked on the release blockers in §1: a
@@ -415,7 +499,7 @@ Still open:
 
 ---
 
-## 13. Website and visibility
+## 14. Website and visibility
 
 ### Website — built, needs switching on
 
@@ -451,7 +535,7 @@ README and screenshots — every list rejects submissions that lack those.
 
 ---
 
-## 14. Platform and feature expansion
+## 15. Platform and feature expansion
 
 ### Intel / universal binary — probably not worth it
 
@@ -530,7 +614,7 @@ the work is detection and UI, not new engine capability.
 
 ---
 
-## 15. Strategic — the native UX project
+## 16. Strategic — the native UX project
 
 Not a release task. This is the separate project described in
 PRODUCTION-READINESS.md §7, and it is what would make the product genuinely
