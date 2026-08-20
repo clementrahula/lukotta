@@ -16,7 +16,7 @@ VERSION="$(tr -d ' \n' < "$HERE/VERSION")"
 DB="$HERE/vendor/engine/alpine/packages.db"
 
 ANYLINUXFS_VER="0.19.0"
-ALPINE_BRANCH="v3.24"
+ALPINE_TAG="v3.24.1"   # the exact release the image was built from
 
 [ -f "$DB" ] || { echo "error: no $DB — run ./vendor-engine.sh first" >&2; exit 1; }
 rm -rf "$OUT"; mkdir -p "$OUT/alpine"
@@ -72,30 +72,16 @@ note ""
 # GPL-2's same-place paragraph has no third-party-server allowance, so the
 # GPL-2 components are mirrored here rather than linked.
 note "Alpine packages shipped in the guest image"
-note "  aports build recipes (the scripts controlling compilation) plus each"
-note "  package's upstream source, per APKBUILD."
-fetch "https://gitlab.alpinelinux.org/alpine/aports/-/archive/${ALPINE_BRANCH}/aports-${ALPINE_BRANCH}.tar.gz" \
-      "$OUT/alpine/aports-${ALPINE_BRANCH}.tar.gz"
-
-PKGS="$(/usr/bin/grep '^P:' "$DB" | sed 's/^P://' | sort -u)"
-COUNT="$(printf '%s\n' "$PKGS" | wc -l | tr -d ' ')"
-note "  $COUNT packages shipped; upstream sources resolved from aports:"
-
-if [ -s "$OUT/alpine/aports-${ALPINE_BRANCH}.tar.gz" ]; then
-  APORTS="$(mktemp -d)"
-  /usr/bin/tar -xzf "$OUT/alpine/aports-${ALPINE_BRANCH}.tar.gz" -C "$APORTS" 2>/dev/null
-  ROOT="$(/usr/bin/find "$APORTS" -maxdepth 1 -type d -name 'aports-*' | head -1)"
-  for pkg in $PKGS; do
-    AB="$(/usr/bin/find "$ROOT" -maxdepth 3 -type d -name "$pkg" -print -quit 2>/dev/null)/APKBUILD"
-    if [ ! -f "$AB" ]; then
-      note "  ---  $pkg: no APKBUILD (subpackage or renamed; covered by its origin)"
-      continue
-    fi
-    note "  OK   $pkg: recipe in aports"
-  done
-  rm -rf "$APORTS"
+note "  The apk database records each binary package's origin, so the shipped"
+note "  packages resolve to fewer source packages. For each, the build recipe"
+note "  and the upstream tarballs it names are mirrored here — GPL-2's"
+note "  same-place paragraph has no third-party-server allowance."
+if /usr/bin/python3 "$HERE/tools/collect_alpine_sources.py" \
+     "$DB" "$OUT/alpine" "$ALPINE_TAG" >> "$MANIFEST" 2>&1; then
+  note "  Alpine sources complete."
 else
-  note "  FAIL aports snapshot unavailable; per-package recipes not verified"
+  note "  FAIL Alpine source collection reported problems (see above)."
+  echo "alpine-sources" >> "$FAILED"
 fi
 note ""
 
