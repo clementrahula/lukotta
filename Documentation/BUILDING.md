@@ -1,8 +1,8 @@
 # Building Lukotta from source
 
-Lukotta is GPL-3.0. Anyone who receives the app is entitled to the source and to
-the scripts that build it, so this describes the whole path from a clean machine
-to a signed application.
+Lukotta is GPL-3.0. Anyone who receives the app is entitled to its source and
+to the scripts that build it. This is the whole path, from a clean machine to a
+signed application.
 
 ## What you need
 
@@ -24,13 +24,13 @@ cd lukotta
 ./build-app.sh                 # compile, embed, sign, install
 ```
 
-The result is `dist/Lukotta.app`, also copied to `/Applications`.
+The result is `dist/Lukotta.app`, and a copy in `/Applications`.
 
 ## Where the engine comes from
 
-Lukotta mounts filesystems by handing the drive to a Linux virtual machine. That
-machinery is [anylinuxfs](https://github.com/nohajc/anylinuxfs), which is GPL-3
-and is shipped inside the app.
+Lukotta mounts filesystems by handing the drive to a Linux virtual machine.
+That work is done by [anylinuxfs](https://github.com/nohajc/anylinuxfs), GPL-3,
+shipped inside the app.
 
 `vendor/engine.lock` pins it exactly:
 
@@ -64,11 +64,11 @@ That writes `~/.anylinuxfs/alpine`. `vendor-engine.sh` checks it is the image th
 lock names — umoci records the manifest digest in the name of the mtree file
 beside the image — and refuses to build against a different one.
 
-The image is then trimmed to the packages Lukotta can reach. It arrives
-supporting far more than Lukotta uses, and every GPL package shipped is one
-whose source has to be published with the release, so trimming reduces the
-download and the compliance surface together. Set `LUKOTTA_NO_TRIM=1` to keep
-the whole image.
+The image is then trimmed to the packages Lukotta can reach; it arrives
+supporting far more than Lukotta uses. Every GPL package shipped is one whose
+source must be published with the release, so this makes both the download and
+the compliance surface smaller. Set `LUKOTTA_NO_TRIM=1` to keep the whole
+image.
 
 ## Building the app
 
@@ -103,9 +103,9 @@ Gatekeeper will refuse it. Store credentials once:
 xcrun notarytool store-credentials "lukotta" --apple-id YOU --team-id TEAM
 ```
 
-Then build with `LUKOTTA_NOTARY_PROFILE="lukotta"`. The archive is made with
-`ditto`, which preserves the signature where `zip` does not, submitted, and the
-ticket stapled into the bundle so a first launch works offline.
+Then build with `LUKOTTA_NOTARY_PROFILE="lukotta"`. It archives the app with
+`ditto`, which preserves the signature where `zip` does not, submits it, and
+staples the ticket into the bundle so a first launch works offline.
 
 ## Checking what you built
 
@@ -119,7 +119,7 @@ The smoke test starts the app far enough to prove dyld resolved every library
 and exits. It exists because a build that installs and then refuses to launch is
 the one failure an update cannot undo.
 
-To see the lowest macOS your build actually supports:
+To see the lowest macOS your build supports:
 
 ```bash
 find dist/Lukotta.app -type f \( -perm -111 -o -name "*.dylib" \) | while read -r f; do
