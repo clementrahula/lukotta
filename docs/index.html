@@ -98,10 +98,10 @@
   <h2>Known limitation</h2>
   <div class="note">
     The drive appears under <strong>Locations</strong> in Finder, but macOS classifies
-    it as a <strong>network volume</strong> rather than a local disk. Lukotta reads the
-    drive inside a Linux microVM and re-exports it over NFS to localhost, and macOS
-    provides no supported way to mark an NFS mount local. Everything works — read,
-    write, eject — but Finder shows it as a network drive.
+    it as a <strong>network volume</strong> rather than a local disk. The drive is
+    unlocked inside a small Linux virtual machine and handed to Finder over a local
+    network connection, and macOS offers no way to present that as a local disk. It
+    reads, writes and ejects like any other drive.
   </div>
 </section>
 
