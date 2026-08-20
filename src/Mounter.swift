@@ -332,6 +332,7 @@ struct MountResult {
 enum Mounter {
     static func mount(drive: Drive,
                       credential: String,
+                      volume: LogicalVolume? = nil,
                       workspace: Workspace,
                       progress: @escaping (String) -> Void) throws -> MountResult {
 
@@ -388,6 +389,25 @@ enum Mounter {
         let deviceQ = shellQuoted(drive.devicePath)
         let logQ = shellQuoted(log.path)
         let listLog = workspace.root.appendingPathComponent("discover.log")
+        let expectURL = workspace.root.appendingPathComponent("discover.exp")
+
+        // `expect -c` keeps reading commands from stdin once the inline script
+        // ends, so it never exits; a script file terminates cleanly. The
+        // credential arrives in the environment and is never written to disk.
+        let expectScript = """
+        set timeout 600
+        spawn -noecho [lindex $argv 0] list --decrypt=all [lindex $argv 1]
+        expect {
+          -re "passphrase.*: " { send "$env(ALFS_PASSPHRASE)\r"; exp_continue }
+          timeout { exit 99 }
+          eof
+        }
+        catch wait result
+        exit [lindex $result 3]
+        """
+        try expectScript.write(to: expectURL, atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0o700],
+                                              ofItemAtPath: expectURL.path)
 
         var attempts = drivers.map { driver -> String in
             let typeFlag = driver.map { " -t \($0)" } ?? ""
@@ -400,20 +420,21 @@ enum Mounter {
         // exposes the volume group, but prompts on a terminal and ignores
         // ALFS_PASSPHRASE, so it is driven through expect with the credential
         // passed in the environment rather than written anywhere.
-        if drive.kind == .linux {
+        if let volume {
+            // Already chosen by the user after discovery: mount it directly,
+            // with no driver override and no second discovery pass.
+            attempts = ["ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
+                + " -w false -n \(shellQuoted(nfsOptions)) \(shellQuoted(volume.mountIdentifier))"
+                + " >> \(logQ) 2>&1"]
+        } else if drive.kind == .linux {
             attempts.append("""
             {
-              ALFS_PASSPHRASE="$__cred" /usr/bin/expect -c '
-                set timeout 600
-                spawn -noecho [lindex $argv 0] list --decrypt=all [lindex $argv 1]
-                expect { -re "passphrase.*: " { send "$env(ALFS_PASSPHRASE)\r"; exp_continue } eof }
-              ' \(engineQ) \(deviceQ) > \(shellQuoted(listLog.path)) 2>&1
+              ALFS_PASSPHRASE="$__cred" /usr/bin/expect -f \(shellQuoted(expectURL.path)) \(engineQ) \(deviceQ) > \(shellQuoted(listLog.path)) 2>&1
               cat \(shellQuoted(listLog.path)) >> \(logQ)
               __lvs=$(awk '$NF ~ /^[^:]+:[^:]+:[^:]+$/ && $2 != "LVM2_scheme" { print $NF }' \(shellQuoted(listLog.path)))
               __count=$(printf '%s\\n' "$__lvs" | grep -c . )
               if [ "$__count" -eq 1 ]; then
-                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false \\
-                  -n \(shellQuoted(nfsOptions)) "lvm:$__lvs" >> \(logQ) 2>&1
+                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false -n \(shellQuoted(nfsOptions)) "lvm:$__lvs" >> \(logQ) 2>&1
               elif [ "$__count" -gt 1 ]; then
                 echo "LUKOTTA_MULTIPLE_VOLUMES" >> \(logQ)
                 false
@@ -479,6 +500,14 @@ enum Mounter {
         if osa.terminationStatus != 0 {
             if osaMessage.contains("-128") || osaMessage.lowercased().contains("user canceled") {
                 throw EngineError.authorisationCancelled
+            }
+            // The container held several logical volumes, so the engine was
+            // never told which to mount. That is a question, not a failure.
+            if transcript.contains("LUKOTTA_MULTIPLE_VOLUMES") {
+                let volumes = VolumeGroupParser.logicalVolumes(in: transcript)
+                if !volumes.isEmpty {
+                    throw EngineError.multipleVolumes(volumes, transcript: transcript)
+                }
             }
             throw EngineError.mountFailed(summary: Diagnosis.summarise(transcript, fallback: osaMessage),
                                           detail: transcript.isEmpty ? osaMessage : transcript)
