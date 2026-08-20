@@ -49,10 +49,22 @@ struct Header: View {
             }
             Spacer()
             Button {
+                model.showReport = true
+            } label: {
+                Image(systemName: "ladybug.circle")
+                    .font(.system(size: 15))
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help("Report a problem or send a crash report")
+            .accessibilityLabel("Report a problem")
+            .padding(.trailing, 8)
+
+            Button {
                 model.showHelp = true
             } label: {
                 Image(systemName: "questionmark.circle")
-                    .font(.system(size: 16))
+                    .font(.system(size: 15))
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
