@@ -508,7 +508,31 @@ milliseconds. This is an architecture problem, not a discipline problem.
 
 ---
 
-## 14. Privacy policy
+## 14. The administrator prompt on every unlock
+
+Each unlock asks for an administrator password because the mount runs through
+`do shell script … with administrator privileges`, which authorises exactly one
+command. There is no session for it to reuse.
+
+- [ ] **[both]** Decide whether to keep it. Removing it means installing a
+      privileged helper with `SMAppService`, authorised once at install, after
+      which unlocking needs no password at all. That was rejected early because
+      it writes a permanent launch daemon under `/Library` — at the time the
+      requirement was to leave no trace. That requirement has since been relaxed
+      to "no unnecessary traces", so the trade is worth revisiting: one
+      persistent daemon against a password on every single unlock.
+- [ ] If the helper route is taken, note what it costs: a second signed
+      executable, an XPC interface to design and keep secure, an uninstall path,
+      and a component that runs as root permanently rather than for the duration
+      of one command. The current design has no resident privileged code at all,
+      which is worth something.
+- [ ] Intermediate option worth measuring first: Authorization Services can hold
+      a right for a few minutes, which would cover unlocking several drives in
+      one sitting without a resident helper.
+
+---
+
+## 15. Privacy policy
 
 - [ ] **[both]** Write one and publish it at lukotta.rahula.dev. Needed even
       though the app collects nothing: it handles disk encryption keys, asks for
@@ -524,7 +548,7 @@ milliseconds. This is an architecture problem, not a discipline problem.
 
 ---
 
-## 15. Keychain reliability
+## 16. Keychain reliability
 
 - [ ] **[me]** A saved credential did not reload after the app was rebuilt and
       reinstalled several times in one session. The round-trip is covered by
@@ -539,7 +563,7 @@ milliseconds. This is an architecture problem, not a discipline problem.
 
 ---
 
-## 16. Distribution — Homebrew
+## 17. Distribution — Homebrew
 
 - [ ] **[me]** Submit a Homebrew cask, so installation is
       `brew install --cask lukotta`. Blocked on the release blockers in §1: a
@@ -553,7 +577,7 @@ milliseconds. This is an architecture problem, not a discipline problem.
 
 ---
 
-## 17. Website and visibility
+## 18. Website and visibility
 
 ### Website — built, needs switching on
 
@@ -589,7 +613,7 @@ README and screenshots — every list rejects submissions that lack those.
 
 ---
 
-## 18. Platform and feature expansion
+## 19. Platform and feature expansion
 
 ### Intel / universal binary — probably not worth it
 
@@ -668,7 +692,7 @@ the work is detection and UI, not new engine capability.
 
 ---
 
-## 19. Strategic — the native UX project
+## 20. Strategic — the native UX project
 
 Not a release task. This is the separate project described in
 PRODUCTION-READINESS.md §7, and it is what would make the product genuinely

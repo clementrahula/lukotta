@@ -61,7 +61,14 @@ public struct Drive: Identifiable, Hashable, Sendable {
 /// plain NTFS uses. The UI is honest about that rather than claiming certainty.
 public enum DriveScanner {
     public static func scan() -> [Drive] {
-        guard let plist = runPlist(["/usr/sbin/diskutil", "list", "-plist", "physical"]),
+        // Disk images are excluded: a real drive is what this is for. Setting
+        // LUKOTTA_INCLUDE_IMAGES=1 includes them, which is how the interface is
+        // exercised with several drives without owning several drives.
+        var argv = ["/usr/sbin/diskutil", "list", "-plist"]
+        if ProcessInfo.processInfo.environment["LUKOTTA_INCLUDE_IMAGES"] != "1" {
+            argv.append("physical")
+        }
+        guard let plist = runPlist(argv),
             let allDisks = plist["AllDisksAndPartitions"] as? [[String: Any]]
         else { return [] }
 

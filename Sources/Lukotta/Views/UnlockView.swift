@@ -19,59 +19,84 @@ struct UnlockView: View {
                     .font(.caption).foregroundStyle(.secondary)
             }
 
-            VStack(alignment: .leading, spacing: 7) {
-                Text("Password or recovery key").font(.subheadline)
-                HStack(spacing: 8) {
-                    Group {
-                        if model.revealCredential {
-                            TextField("", text: $model.credential)
-                        } else {
-                            SecureField("", text: $model.credential)
-                        }
+            if model.usingSavedCredential {
+                // A stored key and a field of dots asking to store it again is
+                // two states at once. Show the one that applies.
+                HStack(spacing: 12) {
+                    Image(systemName: "key.fill")
+                        .foregroundStyle(.green)
+                        .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Using the key saved in your Keychain")
+                            .font(.callout.weight(.medium))
+                        Text("Unlock uses it directly. Forget it to type a different one.")
+                            .font(.caption).foregroundStyle(.secondary)
                     }
-                    .textFieldStyle(.roundedBorder)
-                    .font(.system(.body, design: .monospaced))
-                    .focused($focused)
-                    .onSubmit { model.unlock(drive) }
+                    Spacer()
+                    Button("Forget") { model.forgetSavedCredential(for: drive) }
+                        .controlSize(.small)
+                }
+                .padding(13)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(RoundedRectangle(cornerRadius: 8).fill(Color.green.opacity(0.10)))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.green.opacity(0.25)))
 
-                    Button {
-                        model.revealCredential.toggle()
-                    } label: {
-                        Image(systemName: model.revealCredential ? "eye.slash" : "eye")
-                    }
-                    .buttonStyle(.borderless)
-                    .help(model.revealCredential ? "Hide" : "Show")
-                    .accessibilityLabel(
-                        model.revealCredential
-                            ? "Hide the credential" : "Show the credential")
-                }
-
-                if capsLockOn {
-                    Label("Caps Lock is on", systemImage: "capslock.fill")
-                        .font(.caption).foregroundStyle(.orange)
-                }
-                if let hint = model.credentialHint {
-                    Label(hint, systemImage: "number")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
                 if let problem = model.credentialProblem {
                     Label(problem, systemImage: "exclamationmark.triangle.fill")
                         .font(.caption).foregroundStyle(.orange)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                if model.usingSavedCredential {
-                    Label("Using the key saved in your Keychain", systemImage: "key.fill")
-                        .font(.caption).foregroundStyle(.green)
-                }
-                Toggle("Remember this key in my Keychain", isOn: $model.rememberCredential)
-                    .font(.callout)
-                    .padding(.top, 2)
+            } else {
+                VStack(alignment: .leading, spacing: 7) {
+                    Text("Password or recovery key").font(.subheadline)
+                    HStack(spacing: 8) {
+                        Group {
+                            if model.revealCredential {
+                                TextField("", text: $model.credential)
+                            } else {
+                                SecureField("", text: $model.credential)
+                            }
+                        }
+                        .textFieldStyle(.roundedBorder)
+                        .font(.system(.body, design: .monospaced))
+                        .focused($focused)
+                        .onSubmit { model.unlock(drive) }
 
-                Text(
-                    "The password the drive was locked with, or a 48-digit BitLocker recovery key. Spaces and hyphens in a recovery key are ignored."
-                )
-                .font(.caption).foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                        Button {
+                            model.revealCredential.toggle()
+                        } label: {
+                            Image(systemName: model.revealCredential ? "eye.slash" : "eye")
+                        }
+                        .buttonStyle(.borderless)
+                        .help(model.revealCredential ? "Hide" : "Show")
+                        .accessibilityLabel(
+                            model.revealCredential ? "Hide the credential" : "Show the credential")
+                    }
+
+                    if capsLockOn {
+                        Label("Caps Lock is on", systemImage: "capslock.fill")
+                            .font(.caption).foregroundStyle(.orange)
+                    }
+                    if let hint = model.credentialHint {
+                        Label(hint, systemImage: "number")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                    if let problem = model.credentialProblem {
+                        Label(problem, systemImage: "exclamationmark.triangle.fill")
+                            .font(.caption).foregroundStyle(.orange)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    Toggle("Remember this key in my Keychain", isOn: $model.rememberCredential)
+                        .font(.callout)
+                        .padding(.top, 2)
+
+                    Text(
+                        "The password the drive was locked with, or a 48-digit BitLocker recovery key. Spaces and hyphens in a recovery key are ignored."
+                    )
+                    .font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
             }
 
             PermissionsPanel()
@@ -82,7 +107,7 @@ struct UnlockView: View {
                 Spacer()
                 Button("Unlock") { model.unlock(drive) }
                     .keyboardShortcut(.defaultAction)
-                    .disabled(model.credential.isEmpty)
+                    .disabled(model.credential.isEmpty && !model.usingSavedCredential)
             }
         }
         .onAppear {

@@ -111,6 +111,15 @@ final class AppModel: ObservableObject {
         NSApp.terminate(nil)
     }
 
+    /// Discard a stored credential and return to entering one.
+    func forgetSavedCredential(for drive: Drive) {
+        CredentialStore.delete(for: drive.uuid)
+        credential = ""
+        rememberCredential = false
+        usingSavedCredential = false
+        credentialProblem = nil
+    }
+
     func openFilesAndFoldersSettings() {
         Permissions.openFilesAndFoldersSettings()
     }

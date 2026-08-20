@@ -5,7 +5,6 @@ import SwiftUI
 struct WorkingView: View {
     @EnvironmentObject var model: AppModel
     let drive: Drive
-    @State private var showDetail = false
 
     private var stage: MountStage {
         MountStage.inferred(from: model.stageLines + model.statusLines)
@@ -41,10 +40,14 @@ struct WorkingView: View {
                 }
             }
 
-            DisclosureGroup("Details", isExpanded: $showDetail) {
-                LogView(lines: model.statusLines)
+            // Shown outright rather than behind a disclosure: during a wait,
+            // seeing what is happening is the point.
+            if !model.statusLines.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Details").font(.caption).foregroundStyle(.secondary)
+                    LogView(lines: model.statusLines)
+                }
             }
-            .font(.caption)
             Spacer()
         }
     }

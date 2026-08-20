@@ -39,7 +39,15 @@ public enum Diagnostics {
     }
 
     /// Crash reports macOS has written for this application, newest first.
-    public static func crashReports(appName: String = "Lukotta", limit: Int = 5) -> [URL] {
+    ///
+    /// Only recent ones. An old report offered next to an unrelated failure
+    /// reads as "this just crashed", which is misleading — a cancelled
+    /// authorisation is not a crash.
+    public static func crashReports(
+        appName: String = "Lukotta",
+        within: TimeInterval = 24 * 60 * 60,
+        limit: Int = 5
+    ) -> [URL] {
         let directory = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/Logs/DiagnosticReports", isDirectory: true)
         guard
@@ -51,7 +59,14 @@ public enum Diagnostics {
 
         return
             entries
-            .filter { $0.lastPathComponent.hasPrefix(appName) && $0.pathExtension == "ips" }
+            .filter { url in
+                guard url.lastPathComponent.hasPrefix(appName), url.pathExtension == "ips"
+                else { return false }
+                let modified =
+                    (try? url.resourceValues(forKeys: [.contentModificationDateKey]))?
+                    .contentModificationDate ?? .distantPast
+                return Date().timeIntervalSince(modified) <= within
+            }
             .sorted { a, b in
                 let x =
                     (try? a.resourceValues(forKeys: [.contentModificationDateKey]))?
@@ -126,12 +141,19 @@ public enum Diagnostics {
             lines.append("")
             lines.append("Crash report: \(crashReport.lastPathComponent)")
         }
+        _ = 0
         return lines.joined(separator: "\n")
     }
 
     /// A mailto: URL. The body is kept short deliberately — mail clients and
     /// the shell both truncate long URLs, so the full detail goes to the
     /// clipboard and the message asks for it to be pasted.
+    /// When a crash report was written, for showing alongside it.
+    public static func date(of report: URL) -> Date? {
+        (try? report.resourceValues(forKeys: [.contentModificationDateKey]))?
+            .contentModificationDate
+    }
+
     public static func mailtoURL(address: String, environment: Environment) -> URL? {
         let subject = "Lukotta \(environment.appVersion) — issue report"
         let body = """

@@ -17,6 +17,15 @@ struct ReportIssueSheet: View {
     private let environment = Diagnostics.environment()
     private let crashes = Diagnostics.crashReports()
 
+    private var crashWhen: String {
+        guard let crash = crashes.first, let date = Diagnostics.date(of: crash) else {
+            return "earlier"
+        }
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return formatter.localizedString(for: date, relativeTo: Date())
+    }
+
     private var reportText: String {
         Diagnostics.report(
             environment: environment,
