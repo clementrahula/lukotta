@@ -1,4 +1,4 @@
-// Renders the FULocker app icon and writes an .icns.
+// Renders the Lukotta app icon and writes an .icns.
 // Drawn programmatically so the icon is reproducible from source.
 import AppKit
 import CoreGraphics
@@ -6,83 +6,50 @@ import CoreGraphics
 let size: CGFloat = 1024
 
 func drawIcon(into ctx: CGContext) {
-    // macOS icons sit on a rounded-rect "squircle" with margin.
-    let margin: CGFloat = size * 0.09
+    // The Lukotta mark: a charcoal squircle split by a pale cut that turns a
+    // corner, so the negative space reads as an L and as an opening lock.
+    let margin: CGFloat = size * 0.085
     let rect = CGRect(x: margin, y: margin, width: size - margin * 2, height: size - margin * 2)
-    let radius = rect.width * 0.2237   // Big Sur corner ratio
+    let radius = rect.width * 0.275
 
-    let path = CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil)
+    let charcoal = CGColor(red: 0.204, green: 0.231, blue: 0.271, alpha: 1)   // #343B45
+    let cream    = CGColor(red: 0.965, green: 0.953, blue: 0.929, alpha: 1)   // #F6F3ED
+
+    let squircle = CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil)
     ctx.saveGState()
-    ctx.addPath(path)
+    ctx.addPath(squircle)
     ctx.clip()
 
-    // Deep indigo -> violet, reading as "secure" without being a cliché padlock-on-grey.
-    let colors = [
-        CGColor(red: 0.24, green: 0.20, blue: 0.62, alpha: 1),
-        CGColor(red: 0.42, green: 0.24, blue: 0.78, alpha: 1),
-        CGColor(red: 0.60, green: 0.31, blue: 0.86, alpha: 1),
-    ] as CFArray
-    if let grad = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
-                             colors: colors, locations: [0, 0.55, 1]) {
-        ctx.drawLinearGradient(grad,
-                               start: CGPoint(x: rect.minX, y: rect.maxY),
-                               end: CGPoint(x: rect.maxX, y: rect.minY),
-                               options: [])
+    ctx.setFillColor(charcoal)
+    ctx.fill(rect)
+
+    // Measurements are taken top-down from the logo, then flipped: CGContext
+    // here is y-up, so a fraction f down the mark sits at maxY - f * height.
+    func p(_ fx: CGFloat, _ fy: CGFloat) -> CGPoint {
+        CGPoint(x: rect.minX + fx * rect.width, y: rect.maxY - fy * rect.height)
     }
 
-    // Soft highlight across the top for depth.
-    ctx.setFillColor(CGColor(red: 1, green: 1, blue: 1, alpha: 0.10))
-    ctx.fillEllipse(in: CGRect(x: rect.minX - rect.width * 0.2,
-                               y: rect.midY + rect.height * 0.12,
-                               width: rect.width * 1.4, height: rect.height * 0.85))
+    // The cut runs off both edges so it slices cleanly through the clip.
+    let cut = CGMutablePath()
+    cut.move(to: p(0.450, -0.06))
+    cut.addLine(to: p(0.516, 0.700))
+    cut.addLine(to: p(1.06, 0.788))
+
+    ctx.setStrokeColor(cream)
+    ctx.setLineWidth(rect.width * 0.052)
+    ctx.setLineJoin(.miter)
+    ctx.setMiterLimit(10)
+    ctx.setLineCap(.butt)
+    ctx.addPath(cut)
+    ctx.strokePath()
+
     ctx.restoreGState()
-
-    // Subtle inner edge.
-    ctx.addPath(path)
-    ctx.setStrokeColor(CGColor(red: 1, green: 1, blue: 1, alpha: 0.18))
-    ctx.setLineWidth(size * 0.006)
-    ctx.strokePath()
-
-    // --- Drive body -------------------------------------------------------
-    let dW = rect.width * 0.56
-    let dH = rect.height * 0.34
-    let drive = CGRect(x: rect.midX - dW / 2, y: rect.minY + rect.height * 0.17,
-                       width: dW, height: dH)
-    let drivePath = CGPath(roundedRect: drive, cornerWidth: dH * 0.22,
-                           cornerHeight: dH * 0.22, transform: nil)
-    ctx.addPath(drivePath)
-    ctx.setFillColor(CGColor(red: 1, green: 1, blue: 1, alpha: 0.96))
-    ctx.fillPath()
-
-    // Activity light on the drive.
-    let lamp = CGRect(x: drive.minX + drive.width * 0.12,
-                      y: drive.minY + drive.height * 0.36,
-                      width: drive.height * 0.16, height: drive.height * 0.16)
-    ctx.setFillColor(CGColor(red: 0.42, green: 0.24, blue: 0.78, alpha: 1))
-    ctx.fillEllipse(in: lamp)
-
-    // --- Shackle rising out of the drive ----------------------------------
-    let shackleW = drive.width * 0.42
-    let shackleCenter = CGPoint(x: rect.midX, y: drive.maxY + rect.height * 0.10)
-    let lineW = size * 0.052
-    ctx.setLineWidth(lineW)
-    ctx.setLineCap(.round)
-    ctx.setStrokeColor(CGColor(red: 1, green: 1, blue: 1, alpha: 0.96))
-    let arc = CGMutablePath()
-    arc.addArc(center: shackleCenter, radius: shackleW / 2,
-               startAngle: .pi, endAngle: 0, clockwise: false)
-    arc.move(to: CGPoint(x: shackleCenter.x - shackleW / 2, y: shackleCenter.y))
-    arc.addLine(to: CGPoint(x: shackleCenter.x - shackleW / 2, y: drive.maxY - lineW * 0.1))
-    arc.move(to: CGPoint(x: shackleCenter.x + shackleW / 2, y: shackleCenter.y))
-    arc.addLine(to: CGPoint(x: shackleCenter.x + shackleW / 2, y: shackleCenter.y - rect.height * 0.055))
-    ctx.addPath(arc)
-    ctx.strokePath()
 }
 
 let sizes = [16, 32, 64, 128, 256, 512, 1024]
 let out = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "AppIcon.icns"
 let iconset = URL(fileURLWithPath: NSTemporaryDirectory())
-    .appendingPathComponent("FULocker-\(UUID().uuidString).iconset")
+    .appendingPathComponent("Lukotta-\(UUID().uuidString).iconset")
 try! FileManager.default.createDirectory(at: iconset, withIntermediateDirectories: true)
 
 for px in sizes {

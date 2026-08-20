@@ -21,6 +21,6 @@ NEW="$MA.$MI.$PA"
 printf '%s\n' "$NEW" > "$HERE/VERSION"
 git -C "$HERE" add VERSION
 git -C "$HERE" commit -q -m "Release v$NEW"
-git -C "$HERE" tag -a "v$NEW" -m "FULocker v$NEW"
+git -C "$HERE" tag -a "v$NEW" -m "Lukotta v$NEW"
 printf 'Bumped %s -> %s and tagged v%s\n' "$CUR" "$NEW" "$NEW"
 printf 'Push with: git push origin main --follow-tags\n'

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build, sign and install FULocker.
+# Build, sign and install Lukotta.
 #
 #   ./build-app.sh                 build, sign, install to /Applications
 #   BLM_INSTALL=0 ./build-app.sh   build only
@@ -9,7 +9,7 @@
 # git commit count, which is monotonic and needs no manual bookkeeping.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-APP_NAME="FULocker"
+APP_NAME="Lukotta"
 OUT="${1:-$HERE/dist/$APP_NAME.app}"
 CONTENTS="$OUT/Contents"
 
@@ -35,12 +35,12 @@ swiftc -parse-as-library \
   "$HERE/src/Mounter.swift" \
   "$HERE/src/AppModel.swift" \
   "$HERE/src/ContentView.swift" \
-  "$HERE/src/FULockerApp.swift" \
+  "$HERE/src/LukottaApp.swift" \
   -o "$CONTENTS/MacOS/$APP_NAME"
 
 sed -e "s/__VERSION__/$VERSION/" -e "s/__BUILD__/$BUILD/" \
   "$HERE/src/Info.plist" > "$CONTENTS/Info.plist"
-cp "$HERE/AppIcon.icns" "$CONTENTS/Resources/AppIcon.icns"
+cp "$HERE/assets/AppIcon.icns" "$CONTENTS/Resources/AppIcon.icns"
 cp "$HERE/helpers/validate-key.sh" "$CONTENTS/Resources/helpers/validate-key.sh"
 chmod 755 "$CONTENTS/Resources/helpers/validate-key.sh"
 cp "$HERE/LICENSE" "$CONTENTS/Resources/LICENSE"

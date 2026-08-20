@@ -36,7 +36,7 @@ private struct Header: View {
                 .font(.system(size: 22))
                 .foregroundStyle(.tint)
             VStack(alignment: .leading, spacing: 1) {
-                Text("FULocker").font(.headline)
+                Text("Lukotta").font(.headline)
                 Text("Open BitLocker-encrypted drives on macOS")
                     .font(.caption).foregroundStyle(.secondary)
             }
@@ -76,8 +76,8 @@ private struct PermissionView: View {
 
             VStack(alignment: .leading, spacing: 9) {
                 Step(number: 1, text: "Open Privacy & Security → Full Disk Access.")
-                Step(number: 2, text: "Click + and add FULocker, then switch it on.")
-                Step(number: 3, text: "Quit FULocker and open it again.")
+                Step(number: 2, text: "Click + and add Lukotta, then switch it on.")
+                Step(number: 3, text: "Quit Lukotta and open it again.")
             }
             .padding(13)
             .frame(maxWidth: .infinity, alignment: .leading)

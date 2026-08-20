@@ -1,4 +1,4 @@
-# FULocker
+# Lukotta
 
 Open BitLocker-encrypted drives on macOS. Unlock with the drive's password or
 its 48-digit recovery key, and it mounts read/write in Finder.
@@ -11,11 +11,11 @@ inside the app.
 
 - Apple Silicon Mac (arm64)
 - macOS 15 Sequoia or later
-- Full Disk Access granted to FULocker (one-time, see below)
+- Full Disk Access granted to Lukotta (one-time, see below)
 
 ## Install
 
-Download `FULocker.app`, drag it to **Applications**, and open it.
+Download `Lukotta.app`, drag it to **Applications**, and open it.
 
 The app is signed with a Developer ID certificate. It is not notarised yet, so
 the first launch may need **right-click → Open** rather than a double-click.
@@ -27,15 +27,15 @@ running as root — unless the responsible app holds Full Disk Access. An
 administrator password is not sufficient on its own.
 
 1. **System Settings → Privacy & Security → Full Disk Access**
-2. Click **+**, press **⌘⇧A**, and pick **FULocker**
-3. Switch it on, then quit and reopen FULocker
+2. Click **+**, press **⌘⇧A**, and pick **Lukotta**
+3. Switch it on, then quit and reopen Lukotta
 
 The app detects when macOS has refused access and walks you through this, rather
 than failing with a cryptic error.
 
 ## Using it
 
-1. Open FULocker. Connected BitLocker-candidate drives are listed.
+1. Open Lukotta. Connected BitLocker-candidate drives are listed.
 2. Pick the drive, enter its password or recovery key, click **Unlock**.
 3. Approve the single administrator prompt.
 4. The drive appears in Finder, readable and writable.
@@ -64,7 +64,7 @@ in-place renaming is not offered for network volumes. See
 ## How it works
 
 ```
-FULocker.app  ──►  anylinuxfs  ──►  Linux microVM (libkrun)
+Lukotta.app  ──►  anylinuxfs  ──►  Linux microVM (libkrun)
    SwiftUI          embedded          cryptsetup unlocks BitLocker
    one auth         engine            ntfs3 mounts the volume
    prompt                             NFS server exports it
@@ -97,13 +97,13 @@ Versioning is semver in `VERSION`; the build number is the git commit count.
 
 ## Licence
 
-**GPL-3.0-or-later.** FULocker embeds anylinuxfs (GPL-3.0-or-later), a Linux
+**GPL-3.0-or-later.** Lukotta embeds anylinuxfs (GPL-3.0-or-later), a Linux
 kernel image (GPL-2.0-only) and an Alpine Linux userland, so the combined work
 is distributed under the GPL. See [LICENSE](LICENSE) and
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), which is generated from the
 components actually shipped and carries the written offer for source.
 
-This also means FULocker cannot be published on the Mac App Store — both because
+This also means Lukotta cannot be published on the Mac App Store — both because
 of the licence and because App Store apps must be sandboxed, which rules out raw
 disk access and privilege elevation.
 

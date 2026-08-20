@@ -1,4 +1,4 @@
-# FULocker — TODO
+# Lukotta — TODO
 
 Consolidated from the release review and PRODUCTION-READINESS.md.
 Ordered by what blocks what. Last updated 20 August 2026 (v1.0.1).
@@ -14,9 +14,9 @@ without either · **[both]** needs a decision, then implementation.
       the Linux image and that change touches the guest boot path; it has not
       been verified against the drive. If it fails, revert first with
       `BLM_KEEP_ZFS=1 ./vendor-engine.sh && ./build-app.sh`.
-- [ ] **[you]** Re-grant Full Disk Access. The rename changed the bundle id and
-      path, so the old grant no longer applies. Remove the stale
-      `BitLocker Mounter` and `anylinuxfs` rows while you are there.
+- [ ] **[you]** Re-grant Full Disk Access. The rename to Lukotta changed the
+      bundle id and path again, so any earlier grant no longer applies. Remove the stale
+      `BitLocker Mounter`, `FULocker` and `anylinuxfs` rows while you are there.
 - [ ] **[you]** Confirm what the Finder sidebar actually says, so the naming
       question can be closed (see §4).
 
@@ -43,7 +43,7 @@ Nothing ships until these are done.
       drop the offer.
 - [ ] **[me]** **Make the build reproducible.** `vendor/` is gitignored and
       `vendor-engine.sh` stages from whatever anylinuxfs happens to be installed
-      on the build machine, so nobody else can build FULocker and v1.0.1 cannot
+      on the build machine, so nobody else can build Lukotta and v1.0.1 cannot
       be rebuilt identically. Pin and checksum the upstream artefacts — the
       hashes are still in git history in the old `bootstrap.sh`.
 - [ ] **[both]** **Decide the first public version number.** The repo is at
@@ -64,7 +64,7 @@ Nothing ships until these are done.
       detect it and say something useful.
 - [ ] **[me]** Real progress for the first unlock — it unpacks ~95 MB behind a
       single status line and looks frozen.
-- [ ] **[me]** Trademark line: state that FULocker is unaffiliated with and not
+- [ ] **[me]** Trademark line: state that Lukotta is unaffiliated with and not
       endorsed by Microsoft. Describing it as "for BitLocker drives" is ordinary
       nominative use and fine.
 - [ ] **[you]** Check whether the US export notification for publicly available
@@ -98,7 +98,7 @@ path.
 
 **Licensing is clear.** Sparkle 2.x is MIT, with bundled bsdiff (BSD-2-Clause),
 sais-lite (MIT) and an Ed25519 implementation (zlib-style). All permissive and
-all compatible with distributing FULocker under GPL-3-or-later. Runtime
+all compatible with distributing Lukotta under GPL-3-or-later. Runtime
 requirement is macOS 12+, below our 15.0 floor.
 
 - [ ] **[me]** Embed `Sparkle.framework` in `Contents/Frameworks/` and add it to
@@ -135,7 +135,30 @@ requirement is macOS 12+, below our 15.0 floor.
 
 ---
 
-## 4. Menus and settings
+## 4. Branding and assets
+
+Renamed to **Lukotta** ("without a lock", Finnish) on 20 August 2026. Bundle id
+is now `dev.rahula.lukotta`.
+
+- [ ] **[you]** **Save the official logo into the repo.** The logo was shared in
+      conversation, so it could be seen but not stored — there is no file to
+      commit. Drop the original (ideally SVG or the largest PNG) somewhere like
+      `~/Downloads/lukotta-logo.png` and say so, and it will be committed to
+      `assets/` as the canonical source.
+- [ ] **[me]** Replace the drawn icon with the official mark once that file
+      exists. `assets/AppIcon.icns` is currently *my reproduction* of the mark
+      in `tools/make-icon.swift` — measured off the shared image, matched for
+      corner radius, cut angle and colours (#343B45 on #F6F3ED), and verified
+      legible down to 16 px. It is close, but it is a redraw, not the artwork.
+- [ ] **[me]** Use the wordmark. The logo lockup includes "lukotta" set in a
+      light geometric sans; it belongs in the About panel and at the top of the
+      README, neither of which currently show any branding.
+- [ ] **[me]** Record the brand colours and the mark's construction in the repo
+      so future assets stay consistent.
+
+---
+
+## 5. Menus and settings
 
 The app has no persisted preferences at all and no Settings scene, which is the
 right default — it does one thing and auto-scales the VM to the host, so there
@@ -165,7 +188,7 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 5. Correctness and robustness
+## 6. Correctness and robustness
 
 - [ ] `Diagnosis.summarise` matches engine output by substring, so an upstream
       wording change silently degrades to raw output. Pin to exit codes where
@@ -195,7 +218,7 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 6. Open question: the sidebar name
+## 7. Open question: the sidebar name
 
 - [ ] Establish what the sidebar actually displays. Finder's own API reports the
       volume as `BACKUP`, which is the NTFS label from Windows — i.e. the
@@ -205,19 +228,18 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 7. Nice to have
+## 8. Nice to have
 
 - [ ] "Unlock at login" or a remembered-drive convenience.
 - [ ] Localisation and an accessibility audit.
-- [ ] Check icon legibility at 16 and 32 px. It was designed at 1024 and the
-      drive-and-shackle mark may not survive being shrunk to a sidebar glyph.
+- [x] Icon legibility at 16 px checked — the Lukotta mark still reads as itself.
 - [ ] Clean up old residue on this machine: `~/Library/Application Support/
       BitLocker Mounter/` (83 MB download cache, an empty `secrets/` folder from
       an earlier design).
 
 ---
 
-## 8. Strategic — the native UX project
+## 9. Strategic — the native UX project
 
 Not a release task. This is the separate project described in
 PRODUCTION-READINESS.md §7, and it is what would make the product genuinely

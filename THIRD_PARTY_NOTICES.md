@@ -1,16 +1,16 @@
 # Third-party notices
 
-Generated 2026-08-19 by `tools/generate-notices.sh` from the
+Generated 2026-08-20 by `tools/generate-notices.sh` from the
 components actually embedded in the application bundle.
 
-FULocker itself is licensed **GPL-3.0-or-later** (see `LICENSE`). It embeds the
+Lukotta itself is licensed **GPL-3.0-or-later** (see `LICENSE`). It embeds the
 components below and redistributes them under their own terms.
 
 ## Written offer for source code
 
 As required by GPL-2.0 section 3 and GPL-3.0 section 6, the complete
 corresponding source code for every GPL component listed here is available.
-Source for FULocker is at the project repository. For the embedded components,
+Source for Lukotta is at the project repository. For the embedded components,
 open an issue on the project repository, or write to the address in the
 repository README, and you will be sent the complete corresponding source for
 the exact versions shipped, for at least three years from the date of
@@ -118,7 +118,7 @@ Source for each is available from the Alpine Linux package archive
 
 ZFS is **not** shipped. The upstream Alpine image includes `zfs` and
 `zfs-libs` (CDDL-1.0) together with `zfs.ko` and `spl.ko`, which combine
-CDDL-licensed kernel modules with a GPL-2.0 kernel. FULocker never touches
+CDDL-licensed kernel modules with a GPL-2.0 kernel. Lukotta never touches
 ZFS, so `vendor-engine.sh` removes those components rather than
 redistribute that combination.
 

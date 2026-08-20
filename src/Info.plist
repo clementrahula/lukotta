@@ -3,19 +3,19 @@
 <plist version="1.0">
 <dict>
   <key>CFBundleDevelopmentRegion</key><string>en</string>
-  <key>CFBundleDisplayName</key><string>FULocker</string>
-  <key>CFBundleExecutable</key><string>FULocker</string>
+  <key>CFBundleDisplayName</key><string>Lukotta</string>
+  <key>CFBundleExecutable</key><string>Lukotta</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
-  <key>CFBundleIdentifier</key><string>dev.rahula.fulocker</string>
+  <key>CFBundleIdentifier</key><string>dev.rahula.lukotta</string>
   <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
-  <key>CFBundleName</key><string>FULocker</string>
+  <key>CFBundleName</key><string>Lukotta</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>__VERSION__</string>
   <key>CFBundleVersion</key><string>__BUILD__</string>
   <key>LSMinimumSystemVersion</key><string>15.0</string>
   <key>LSArchitecturePriority</key><array><string>arm64</string></array>
   <key>NSHighResolutionCapable</key><true/>
-  <key>NSRemovableVolumesUsageDescription</key><string>FULocker needs to read your encrypted drive in order to unlock it.</string>
+  <key>NSRemovableVolumesUsageDescription</key><string>Lukotta needs to read your encrypted drive in order to unlock it.</string>
   <key>NSPrincipalClass</key><string>NSApplication</string>
   <key>NSHumanReadableCopyright</key><string>Copyright © 2026. Licensed under GPL-3.0-or-later.</string>
 </dict>

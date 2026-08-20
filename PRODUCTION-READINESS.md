@@ -1,4 +1,4 @@
-# FULocker — production readiness, licensing and market
+# Lukotta — production readiness, licensing and market
 
 Task list extracted to [TODO.md](TODO.md).
 
@@ -168,7 +168,7 @@ Apple Silicon native, and open source.
 
 ### Bugs and correctness
 
-Renamed to **FULocker** (bundle id `dev.rahula.fulocker`) on 19 Aug 2026.
+Renamed to **Lukotta** (bundle id `dev.rahula.fulocker`) on 19 Aug 2026.
 Versioning is semver in `VERSION` with the git commit count as build number.
 
 Fixed on 19 Aug 2026 (all verified against the real drive):

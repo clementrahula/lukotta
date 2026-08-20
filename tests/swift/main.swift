@@ -1,4 +1,4 @@
-// Unit tests for the pure logic in FULocker.
+// Unit tests for the pure logic in Lukotta.
 // Built and run by tests/run-swift-tests.sh — no Xcode project required.
 import Foundation
 
@@ -76,4 +76,4 @@ if failures > 0 {
     print("FAILED: \(failures) check(s)")
     exit(1)
 }
-print("PASS: FULocker unit tests")
+print("PASS: Lukotta unit tests")

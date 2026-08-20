@@ -380,7 +380,7 @@ enum Diagnosis {
     static func summarise(_ transcript: String, fallback: String) -> String {
         let lower = transcript.lowercased()
         if lower.contains("cannot probe") || lower.contains("insufficient permissions") {
-            return "macOS blocked access to the drive. BitLocker Mounter needs Full Disk Access before it can read an encrypted disk."
+            return "macOS blocked access to the drive. Lukotta needs Full Disk Access before it can read an encrypted disk."
         }
         if lower.contains("wrong key") || lower.contains("invalid passphrase")
             || lower.contains("no key available") || lower.contains("keyslot") {

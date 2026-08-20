@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 
 @main
-struct FULockerApp: App {
+struct LukottaApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var model = AppModel()
 
