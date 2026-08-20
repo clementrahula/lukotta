@@ -205,6 +205,19 @@ and not on someone else's machine.
 Worth deciding first whether a root daemon that can replace the contents of
 /Applications is a trade worth making for it.
 
+## First thing in the morning
+
+These need a Mac that is not locked, and were the only things blocked overnight.
+
+- **Notarise a build.** The login keychain is locked at the login screen, so
+  notarytool cannot read its credential. `LUKOTTA_NOTARY_PROFILE="lukotta"
+  ./build-app.sh` is all it takes once signed in. The build script refuses to
+  finish rather than producing an unnotarised bundle, so nothing silently ships.
+- **Take the screenshots**, for the README and the site: the drive list, an
+  unlock, and a drive open with several volumes, in light and dark appearance.
+- **Look at the site rendered**, in both appearances. Its content is current and
+  its markup parses, but nothing about how it looks has been seen.
+
 ## Waiting on you
 
 - **Screenshots.** The README and the website both want one and neither has one.
