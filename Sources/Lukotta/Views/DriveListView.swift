@@ -58,31 +58,43 @@ struct DriveRow: View {
 
     private var isMounted: Bool { mountPoint != nil }
 
+    /// The same facts whether open or not. A drive that is open does not stop
+    /// being a 500 GB USB disk, and losing that when it opens made the two rows
+    /// look like different kinds of thing.
+    private var details: String {
+        var parts = [drive.sizeDescription]
+        if !drive.connection.isEmpty { parts.append(drive.connection) }
+        parts.append(drive.kind.summary)
+        return parts.joined(separator: "  ·  ")
+    }
+
     var body: some View {
         HStack(spacing: 14) {
+            // One fixed-width column, so the text starts in the same place on
+            // every row. There is no "…badge.lock" symbol — asking for one drew
+            // nothing at all, which is what left the closed rows without an
+            // icon and their text out of line with the open ones.
             Image(
-                systemName: isMounted
-                    ? "externaldrive.fill.badge.checkmark"
-                    : "externaldrive.fill.badge.lock"
+                systemName: isMounted ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill"
             )
             .font(.system(size: 26))
-            .foregroundStyle(isMounted ? Color.green : Color.accentColor)
+            .foregroundStyle(isMounted ? Color.green : Color.orange)
+            .frame(width: 30)
             .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
                     Text(drive.name).font(.body.weight(.medium))
-                    TypePill(text: drive.kind.summary, open: isMounted)
+                    StatePill(open: isMounted)
                 }
-                // Size leads; the device identifier is the least useful fact
-                // and no longer competes with it.
-                Text(
-                    isMounted
-                        ? "Open at \(mountPoint ?? "")"
-                        : "\(drive.sizeDescription)  ·  \(drive.connection)"
-                )
-                .font(.caption).foregroundStyle(.secondary)
-                .lineLimit(1).truncationMode(.middle)
+                Text(details)
+                    .font(.caption).foregroundStyle(.secondary)
+                    .lineLimit(1).truncationMode(.middle)
+                if let mountPoint {
+                    Text("Open at \(mountPoint)")
+                        .font(.caption).foregroundStyle(.tertiary)
+                        .lineLimit(1).truncationMode(.middle)
+                }
             }
 
             Spacer(minLength: 8)
@@ -102,22 +114,21 @@ struct DriveRow: View {
         .contentShape(Rectangle())
         .onTapGesture { if !isMounted { action() } }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(drive.name), \(drive.sizeDescription), \(drive.kind.summary)")
+        .accessibilityLabel("\(drive.name), \(isMounted ? "open" : "locked"), \(details)")
         .accessibilityHint(isMounted ? "Already open" : "Unlock this drive")
         .accessibilityAddTraits(.isButton)
     }
 }
 
-/// Small label for what a partition might contain.
-struct TypePill: View {
-    let text: String
+/// Whether the drive is open, in the same place on every row.
+struct StatePill: View {
     let open: Bool
 
     var body: some View {
-        Text(open ? "Open" : text)
+        Text(open ? "Open" : "Locked")
             .font(.caption2.weight(.medium))
             .padding(.horizontal, 7).padding(.vertical, 2)
-            .background(Capsule().fill((open ? Color.green : Color.secondary).opacity(0.15)))
-            .foregroundStyle(open ? Color.green : Color.secondary)
+            .background(Capsule().fill((open ? Color.green : Color.orange).opacity(0.15)))
+            .foregroundStyle(open ? Color.green : Color.orange)
     }
 }
