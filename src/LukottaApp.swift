@@ -15,7 +15,25 @@ struct LukottaApp: App {
                     model.start()
                 }
         }
-        .windowResizability(.contentSize)
+        .windowResizability(.contentMinSize)
+        // Present only while something is open, so it does not clutter the menu
+        // bar for a tool used occasionally.
+        MenuBarExtra("Lukotta", systemImage: "lock.open.fill",
+                     isInserted: Binding(get: { !model.openMounts.isEmpty },
+                                         set: { _ in })) {
+            ForEach(Array(model.openMounts.values.sorted()), id: \.self) { path in
+                Button("Eject \((path as NSString).lastPathComponent)") {
+                    model.eject(path)
+                }
+            }
+            Divider()
+            Button("Open Lukotta") {
+                NSApp.activate(ignoringOtherApps: true)
+                NSApp.windows.first?.makeKeyAndOrderFront(nil)
+            }
+            Button("Quit Lukotta") { NSApp.terminate(nil) }
+        }
+
         .commands {
             CommandGroup(replacing: .newItem) {}
             CommandGroup(replacing: .help) {

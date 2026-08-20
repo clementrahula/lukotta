@@ -175,14 +175,39 @@ enum EngineEnvironment {
         }
 
         progress("Setting up the Linux environment (first run only)…")
+
+        // Count entries as they are written so this reports a percentage. It is
+        // the longest wait a new user ever sees, and a bare spinner for a couple
+        // of minutes is indistinguishable from a hang.
+        let expected = EnginePaths.embeddedAlpineDirectory
+            .flatMap { try? String(contentsOf: $0.appendingPathComponent("rootfs.count"),
+                                   encoding: .utf8) }
+            .flatMap { Int($0.trimmingCharacters(in: .whitespacesAndNewlines)) } ?? 0
+
         let tar = Process()
         tar.executableURL = URL(fileURLWithPath: "/usr/bin/tar")
-        tar.arguments = ["-xzpf", archive.path, "-C", alpineDirectory.path]
+        tar.arguments = ["-xzpvf", archive.path, "-C", alpineDirectory.path]
         let err = Pipe()
         tar.standardError = err
         try tar.run()
-        let errData = err.fileHandleForReading.readDataToEndOfFile()
+
+        var seen = 0
+        var pending = ""
+        let handle = err.fileHandleForReading
+        while true {
+            let chunk = handle.availableData
+            if chunk.isEmpty { break }
+            pending += String(data: chunk, encoding: .utf8) ?? ""
+            let lines = pending.components(separatedBy: "\n")
+            pending = lines.last ?? ""
+            seen += max(0, lines.count - 1)
+            if expected > 0 {
+                let pct = min(99, seen * 100 / expected)
+                progress("Setting up the Linux environment — \(pct)%")
+            }
+        }
         tar.waitUntilExit()
+        let errData = Data()
         guard tar.terminationStatus == 0, isReady else {
             throw EngineError.workspace(
                 "Could not unpack the Linux environment. "

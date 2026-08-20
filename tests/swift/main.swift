@@ -72,7 +72,8 @@ expect(VolumeKind.microsoft.summary, "BitLocker or NTFS", "microsoft kind summar
 expect(VolumeKind.linux.summary, "LUKS or Linux filesystem", "linux kind summary")
 
 let d = Drive(id: "disk4s1", devicePath: "/dev/disk4s1", name: "BACKUP",
-              sizeBytes: 500_000_000_000, connection: "USB · External", kind: .microsoft)
+              sizeBytes: 500_000_000_000, connection: "USB · External", kind: .microsoft,
+              uuid: "7A2E4F10-3C58-4D9B-A6E1-2F7C05B34D88")
 expect(d.subtitle.contains("BitLocker or NTFS"), "subtitle states what the volume might be")
 expect(d.subtitle.contains("disk4s1"), "subtitle keeps the device identifier")
 
@@ -107,6 +108,19 @@ expect(lvs.first?.label ?? "", "LUKOTTATEST", "filesystem label parsed")
 expect(VolumeGroupParser.logicalVolumes(in: "").isEmpty, "no volume groups in empty output")
 expect(VolumeGroupParser.logicalVolumes(in: "   1:  crypto_LUKS  x  1 GB  a:b:c").isEmpty,
        "container types are not offered as mountable")
+
+// MARK: mount stages
+
+expect(MountStage.inferred(from: []) == .preparing, "no output yet means preparing")
+expect(MountStage.inferred(from: ["Waiting for your administrator approval…"]) == .authorising,
+       "approval line detected")
+expect(MountStage.inferred(from: ["booting linux kernel"]) == .starting, "vm start detected")
+expect(MountStage.inferred(from: ["Enter passphrase for /dev/disk4s1"]) == .unlocking,
+       "unlock detected")
+expect(MountStage.inferred(from: ["starting nfs export"]) == .sharing, "sharing detected")
+// Stages only ever move forward, because matching on text is loose.
+expect(MountStage.inferred(from: ["starting nfs export", "booting linux"]) == .sharing,
+       "stage never goes backwards")
 
 expect(Permissions.isAccessDenied("Cannot probe /dev/disk4s1"), "access denial detected")
 expect(!Permissions.isAccessDenied("No key available"), "wrong key is not an access denial")

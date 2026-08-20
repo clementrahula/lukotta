@@ -40,6 +40,7 @@ swiftc -parse-as-library \
   -target arm64-apple-macos15.0 \
   -O -whole-module-optimization \
   "$HERE/src/Engine.swift" \
+  "$HERE/src/CredentialStore.swift" \
   "$HERE/src/Mounter.swift" \
   "$HERE/src/AppModel.swift" \
   "$HERE/src/ContentView.swift" \
@@ -52,6 +53,11 @@ cp "$HERE/assets/AppIcon.icns" "$CONTENTS/Resources/AppIcon.icns"
 cp "$HERE/helpers/validate-key.sh" "$CONTENTS/Resources/helpers/validate-key.sh"
 chmod 755 "$CONTENTS/Resources/helpers/validate-key.sh"
 cp "$HERE/LICENSE" "$CONTENTS/Resources/LICENSE"
+# Localisation tables, if present.
+for lproj in "$HERE"/resources/*.lproj; do
+  [ -d "$lproj" ] || continue
+  /usr/bin/ditto "$lproj" "$CONTENTS/Resources/$(basename "$lproj")"
+done
 [ -f "$HERE/THIRD_PARTY_NOTICES.md" ] && cp "$HERE/THIRD_PARTY_NOTICES.md" "$CONTENTS/Resources/"
 printf 'APPL????' > "$CONTENTS/PkgInfo"
 

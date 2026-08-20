@@ -22,6 +22,8 @@ final class AppModel: ObservableObject {
     @Published var statusLines: [String] = []
     @Published var credentialProblem: String?
     @Published var showHelp = false
+    /// Whether to keep this drive's credential in the Keychain. Opt-in.
+    @Published var rememberCredential = false
     @Published var isEjecting = false
     @Published var ejectProblem: String?
 
@@ -43,10 +45,19 @@ final class AppModel: ObservableObject {
         Task.detached(priority: .userInitiated) {
             // If a drive is already open - the app was reopened, or a previous
             // session left it mounted - go straight to that state.
-            let existing = EngineStatus.current().first
+            let mounts = EngineStatus.current()
+            let existing = mounts.first
             let found = DriveScanner.scan()
             await MainActor.run {
                 self.drives = found
+                self.openMounts = Dictionary(uniqueKeysWithValues:
+                    mounts.map { ($0.devicePath, $0.mountPoint) })
+                if found.count == 1, existing == nil {
+                    // One candidate: asking the user to click the only row is
+                    // a step with no decision in it.
+                    self.choose(found[0])
+                    return
+                }
                 if let existing {
                     let drive = found.first { $0.devicePath == existing.devicePath }
                         ?? Drive(id: URL(fileURLWithPath: existing.devicePath).lastPathComponent,
@@ -54,7 +65,8 @@ final class AppModel: ObservableObject {
                                  name: URL(fileURLWithPath: existing.mountPoint).lastPathComponent,
                                  sizeBytes: 0,
                                  connection: "",
-                                 kind: .microsoft)
+                                 kind: .microsoft,
+                                 uuid: existing.devicePath)
                     self.phase = .mounted(drive, existing.mountPoint)
                 } else {
                     self.phase = .chooseDrive
@@ -103,14 +115,29 @@ final class AppModel: ObservableObject {
 
     func rescan() {
         ejectProblem = nil
+        credentialBelongsTo = nil
         credential = ""
         credentialProblem = nil
         statusLines = []
         start()
     }
 
+    /// Selecting a drive keeps whatever was typed for that same drive, so a
+    /// single mistyped digit in a 48-digit recovery key does not cost all 48.
+    private var credentialBelongsTo: String?
+
     func choose(_ drive: Drive) {
-        credential = ""
+        if credentialBelongsTo != drive.id {
+            // A stored credential means the user asked us to remember it.
+            if let saved = CredentialStore.load(for: drive.uuid) {
+                credential = saved
+                rememberCredential = true
+            } else {
+                credential = ""
+                rememberCredential = false
+            }
+            credentialBelongsTo = drive.id
+        }
         credentialProblem = nil
         phase = .unlock(drive)
     }
@@ -122,6 +149,12 @@ final class AppModel: ObservableObject {
     }
 
     var credentialHint: String? { Credential.hint(for: credential) }
+
+    /// Where a drive is currently open, if it is. Lets the drive list answer
+    /// "what is going on" without navigating away from it.
+    @Published var openMounts: [String: String] = [:]
+
+    func mountPoint(for drive: Drive) -> String? { openMounts[drive.devicePath] }
 
     // MARK: Unlock
 
@@ -185,8 +218,16 @@ final class AppModel: ObservableObject {
                         Task { @MainActor in self.appendStatus(line) }
                     })
                 await MainActor.run {
+                    // Only store a credential that has actually worked.
+                    if self.rememberCredential {
+                        _ = CredentialStore.save(credential, for: drive.uuid)
+                    } else {
+                        CredentialStore.delete(for: drive.uuid)
+                    }
                     self.credential = ""
+                    self.credentialBelongsTo = nil
                     self.pendingCredential = nil
+                    self.openMounts[drive.devicePath] = result.mountPoint
                     self.phase = .mounted(drive, result.mountPoint)
                     NSWorkspace.shared.open(URL(fileURLWithPath: result.mountPoint))
                 }
@@ -196,11 +237,9 @@ final class AppModel: ObservableObject {
                     // keep the credential so picking one does not re-prompt.
                     if case .multipleVolumes(let volumes, _) = err {
                         self.pendingCredential = credential
-                        self.credential = ""
                         self.phase = .chooseVolume(drive, volumes)
                         return
                     }
-                    self.credential = ""
                     self.pendingCredential = nil
                     if Permissions.isAccessDenied(err.detail ?? "") {
                         self.phase = .needsPermission
@@ -212,7 +251,6 @@ final class AppModel: ObservableObject {
                 }
             } catch {
                 await MainActor.run {
-                    self.credential = ""
                     self.pendingCredential = nil
                     self.phase = .failed(drive, "The drive could not be opened.", "\(error)")
                 }
@@ -241,6 +279,7 @@ final class AppModel: ObservableObject {
             await MainActor.run {
                 self.isEjecting = false
                 if result.ok {
+                    self.openMounts = self.openMounts.filter { $0.value != path }
                     self.rescan()
                 } else {
                     self.ejectProblem = result.message

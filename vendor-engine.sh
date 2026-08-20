@@ -45,6 +45,9 @@ fi
 # Keep the resulting package database beside the image so the notices describe
 # what actually ships rather than what upstream installed.
 cp "$STAGE/lib/apk/db/installed" "$OUT/alpine/packages.db"
+# Number of entries in the archive, so the first-run unpack can show progress
+# rather than a spinner that looks stuck.
+/usr/bin/find "$STAGE" | wc -l | tr -d ' ' > "$OUT/alpine/rootfs.count"
 
 echo "  packing rootfs (this takes a moment)…"
 /usr/bin/tar --format ustar -czf "$OUT/alpine/rootfs.tar.gz" -C "$(dirname "$STAGE")" rootfs

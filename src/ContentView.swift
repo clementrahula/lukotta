@@ -24,7 +24,7 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(24)
         }
-        .frame(minWidth: 560, minHeight: 460)
+        .frame(minWidth: 580, idealWidth: 620, minHeight: 420, idealHeight: 450)
         .background(Color(nsColor: .windowBackgroundColor))
         .sheet(isPresented: $model.showHelp) { HelpSheet() }
     }
@@ -40,6 +40,7 @@ private struct Header: View {
             Image(systemName: "lock.shield.fill")
                 .font(.system(size: 22))
                 .foregroundStyle(.tint)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 1) {
                 Text("Lukotta").font(.headline)
                 Text("Open encrypted drives on macOS")
@@ -53,6 +54,7 @@ private struct Header: View {
             }
             .buttonStyle(.plain)
             .help("How Lukotta works, and what it supports")
+            .accessibilityLabel("About Lukotta")
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 14)
@@ -76,11 +78,12 @@ private struct PermissionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 12) {
-                Image(systemName: "lock.open.trianglebadge.exclamationmark")
-                    .font(.system(size: 28)).foregroundStyle(.orange)
+                Image(systemName: "hand.wave.fill")
+                    .font(.system(size: 28)).foregroundStyle(.tint)
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("One-time setup needed").font(.title3.weight(.semibold))
-                    Text("Reading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.")
+                    Text("Welcome to Lukotta").font(.title3.weight(.semibold))
+                    Text("Lukotta opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.")
                         .font(.callout).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -145,7 +148,10 @@ private struct DriveListView: View {
                 ScrollView {
                     VStack(spacing: 10) {
                         ForEach(model.drives) { drive in
-                            DriveRow(drive: drive) { model.choose(drive) }
+                            DriveRow(drive: drive,
+                                     mountPoint: model.mountPoint(for: drive),
+                                     action: { model.choose(drive) },
+                                     eject: { model.eject(model.mountPoint(for: drive) ?? "") })
                         }
                     }
                 }
@@ -163,27 +169,66 @@ private struct DriveListView: View {
 
 private struct DriveRow: View {
     let drive: Drive
+    let mountPoint: String?
     let action: () -> Void
+    let eject: () -> Void
+
+    private var isMounted: Bool { mountPoint != nil }
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 14) {
-                Image(systemName: "externaldrive.fill.badge.lock")
-                    .font(.system(size: 26))
-                    .foregroundStyle(.tint)
-                VStack(alignment: .leading, spacing: 2) {
+        HStack(spacing: 14) {
+            Image(systemName: isMounted ? "externaldrive.fill.badge.checkmark"
+                                        : "externaldrive.fill.badge.lock")
+                .font(.system(size: 26))
+                .foregroundStyle(isMounted ? Color.green : Color.accentColor)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
                     Text(drive.name).font(.body.weight(.medium))
-                    Text(drive.subtitle)
-                        .font(.caption).foregroundStyle(.secondary)
+                    TypePill(text: drive.kind.summary, open: isMounted)
                 }
-                Spacer()
-                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                // Size leads; the device identifier is the least useful fact
+                // and no longer competes with it.
+                Text(isMounted
+                     ? "Open at \(mountPoint ?? "")"
+                     : "\(drive.sizeDescription)  ·  \(drive.connection)")
+                    .font(.caption).foregroundStyle(.secondary)
+                    .lineLimit(1).truncationMode(.middle)
             }
-            .padding(14)
-            .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor)))
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.primary.opacity(0.08)))
+
+            Spacer(minLength: 8)
+
+            if isMounted {
+                Button("Eject", action: eject).controlSize(.small)
+            } else {
+                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
+            }
         }
-        .buttonStyle(.plain)
+        .padding(14)
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor)))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.primary.opacity(0.08)))
+        .contentShape(Rectangle())
+        .onTapGesture { if !isMounted { action() } }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(drive.name), \(drive.sizeDescription), \(drive.kind.summary)")
+        .accessibilityHint(isMounted ? "Already open" : "Unlock this drive")
+        .accessibilityAddTraits(.isButton)
+    }
+}
+
+/// Small label for what a partition might contain.
+private struct TypePill: View {
+    let text: String
+    let open: Bool
+
+    var body: some View {
+        Text(open ? "Open" : text)
+            .font(.caption2.weight(.medium))
+            .padding(.horizontal, 7).padding(.vertical, 2)
+            .background(Capsule().fill((open ? Color.green : Color.secondary).opacity(0.15)))
+            .foregroundStyle(open ? Color.green : Color.secondary)
     }
 }
 
@@ -193,6 +238,8 @@ private struct UnlockView: View {
     @EnvironmentObject var model: AppModel
     let drive: Drive
     @FocusState private var focused: Bool
+    @State private var capsLockOn = false
+    @State private var capsMonitor: Any?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -224,8 +271,14 @@ private struct UnlockView: View {
                     }
                     .buttonStyle(.borderless)
                     .help(model.revealCredential ? "Hide" : "Show")
+                    .accessibilityLabel(model.revealCredential
+                                        ? "Hide the credential" : "Show the credential")
                 }
 
+                if capsLockOn {
+                    Label("Caps Lock is on", systemImage: "capslock.fill")
+                        .font(.caption).foregroundStyle(.orange)
+                }
                 if let hint = model.credentialHint {
                     Label(hint, systemImage: "number")
                         .font(.caption).foregroundStyle(.secondary)
@@ -235,6 +288,10 @@ private struct UnlockView: View {
                         .font(.caption).foregroundStyle(.orange)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                Toggle("Remember this key in my Keychain", isOn: $model.rememberCredential)
+                    .font(.callout)
+                    .padding(.top, 2)
+
                 Text("The password the drive was locked with, or a 48-digit BitLocker recovery key. Spaces and hyphens in a recovery key are ignored.")
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -251,7 +308,18 @@ private struct UnlockView: View {
                     .disabled(model.credential.isEmpty)
             }
         }
-        .onAppear { focused = true }
+        .onAppear {
+            focused = true
+            capsLockOn = NSEvent.modifierFlags.contains(.capsLock)
+            capsMonitor = NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+                capsLockOn = event.modifierFlags.contains(.capsLock)
+                return event
+            }
+        }
+        .onDisappear {
+            if let capsMonitor { NSEvent.removeMonitor(capsMonitor) }
+            capsMonitor = nil
+        }
     }
 }
 
@@ -404,20 +472,37 @@ private struct WorkingView: View {
     let drive: Drive
     @State private var showDetail = false
 
+    private var stage: MountStage { MountStage.inferred(from: model.statusLines) }
+
+    /// The unpack reports a percentage; surface it rather than the stage list.
+    private var unpackProgress: String? {
+        model.statusLines.last(where: { $0.contains("Setting up the Linux environment") })
+            .flatMap { $0.contains("%") ? $0 : nil }
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 12) {
-                ProgressView().controlSize(.small)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Unlocking “\(drive.name)”…").font(.body.weight(.medium))
-                    Text(model.statusLines.last ?? "Starting the mounting engine…")
-                        .font(.caption).foregroundStyle(.secondary)
-                        .lineLimit(1).truncationMode(.middle)
-                }
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Opening “\(drive.name)”").font(.title3.weight(.semibold))
+                Text("This usually takes under a minute.")
+                    .font(.caption).foregroundStyle(.secondary)
             }
 
-            InfoBox(icon: "clock",
-                    text: "The first unlock after connecting a drive takes longest — a small Linux virtual machine has to start before the drive can be read.")
+            if let unpackProgress {
+                VStack(alignment: .leading, spacing: 7) {
+                    Text(unpackProgress).font(.callout)
+                    ProgressView(value: percent(of: unpackProgress), total: 100)
+                        .progressViewStyle(.linear)
+                    Text("The Linux environment is unpacked once, on first use.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 11) {
+                    ForEach(MountStage.allCases, id: \.rawValue) { s in
+                        StageRow(stage: s, current: stage)
+                    }
+                }
+            }
 
             DisclosureGroup("Details", isExpanded: $showDetail) {
                 LogView(lines: model.statusLines)
@@ -425,6 +510,42 @@ private struct WorkingView: View {
             .font(.caption)
             Spacer()
         }
+    }
+
+    private func percent(of text: String) -> Double {
+        let digits = text.split(whereSeparator: { !$0.isNumber })
+        return Double(digits.last.map(String.init) ?? "0") ?? 0
+    }
+}
+
+private struct StageRow: View {
+    let stage: MountStage
+    let current: MountStage
+
+    private var done: Bool { stage.rawValue < current.rawValue }
+    private var active: Bool { stage == current }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Group {
+                if done {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                } else if active {
+                    ProgressView().controlSize(.small).scaleEffect(0.7)
+                        .frame(width: 16, height: 16)
+                } else {
+                    Image(systemName: "circle").foregroundStyle(.tertiary)
+                }
+            }
+            .frame(width: 18, height: 18)
+
+            Text(stage.title)
+                .font(.callout)
+                .foregroundStyle(active ? .primary : (done ? .secondary : .tertiary))
+            Spacer()
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(stage.title): \(done ? "done" : active ? "in progress" : "waiting")")
     }
 }
 
@@ -607,7 +728,8 @@ private struct LogView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     ForEach(Array(lines.enumerated()), id: \.offset) { idx, line in
                         Text(line)
-                            .font(.system(size: 10.5, design: .monospaced))
+                            .font(.system(size: 11.5, design: .monospaced))
+                            .textSelection(.enabled)
                             .textSelection(.enabled)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .id(idx)
@@ -615,7 +737,7 @@ private struct LogView: View {
                 }
                 .padding(8)
             }
-            .frame(height: 150)
+            .frame(minHeight: 150, maxHeight: .infinity)
             .background(RoundedRectangle(cornerRadius: 6).fill(Color.primary.opacity(0.05)))
             .onChange(of: lines.count) { _, n in
                 withAnimation { proxy.scrollTo(max(0, n - 1), anchor: .bottom) }

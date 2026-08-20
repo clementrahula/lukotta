@@ -1,0 +1,10 @@
+/* Lukotta — base language strings.
+
+   SwiftUI's Text, Button and Label already take LocalizedStringKey, so every
+   literal in the interface is a translation key as written. This table is the
+   base language; adding a language means adding <code>.lproj</code> beside it.
+
+   Regenerate with:
+     genstrings -o resources/en.lproj src/*.swift
+   (requires Xcode; the Command Line Tools alone do not ship genstrings)
+*/

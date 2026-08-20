@@ -359,58 +359,45 @@ that from the last path component it is handed — so a raw device appeared as
 
 ## 11. UI/UX improvements
 
-Reviewed 20 August 2026 against the running app and the source. Ordered by how
-much friction each removes, not by effort.
+Reviewed and implemented 20 August 2026. Verified by screenshotting the running
+app, not by inspection.
 
-### Daily friction — worth doing first
+- [x] **Credential kept on failure.** It was cleared on all seven error paths,
+      so one mistyped digit cost the user all 48. It now persists for the same
+      drive and is cleared only on success or when a different drive is chosen.
+- [x] **Keychain, opt-in per drive.** Keyed on the partition UUID rather than
+      the device path, so it survives replugging as a different diskNsM. Stored
+      only after a credential has actually worked, never synced, and available
+      only while the Mac is unlocked.
+- [x] **Real progress.** Five named stages inferred from the engine's output,
+      shown as steps; inference only ever moves forward, since matching on text
+      is loose. The first-run unpack now reports a true percentage by counting
+      entries against a file count shipped with the archive.
+- [x] **Single drive is auto-selected**, skipping a click with no decision in it.
+- [x] **The drive list is the hub**: open drives are badged and can be ejected
+      inline.
+- [x] **First run reads as a welcome**, not an error.
+- [x] **Drive rows restructured**: name and a type pill, size and connection
+      beneath, device identifier demoted.
+- [x] **Window resizes**, and the failure log grows with it — it was a fixed
+      150 pt box of 10.5 pt monospace, least readable exactly when it mattered.
+- [x] **Caps Lock indicator** in the credential field.
+- [x] **Menu bar extra** listing open volumes with one-click eject, shown only
+      while something is open.
+- [x] Accessibility labels on icon-only controls, and drive rows exposed as
+      single elements with hints.
+- [x] Localisation scaffolding: `resources/en.lproj`, installed by the build.
 
-- [ ] **Stop clearing the credential on failure.** `AppModel` wipes it on every
-      error path. After mistyping one digit of a 48-digit recovery key, the user
-      retypes all 48. Keep the value on a wrong-credential failure, select it,
-      and return focus to the field. Clear it only on success or when the drive
-      changes.
-- [ ] **Offer to remember the key in the Keychain, per drive.** Opt-in, off by
-      default, stated plainly. This is the single largest daily-use win: without
-      it every single unlock means re-entering a 48-digit key. The Keychain is
-      the right place for it — the security argument for typing it each time is
-      weak when the alternative is a text file on the desktop, which is what
-      people actually do.
-- [ ] **Make the progress meaningful.** The working screen shows the engine's
-      last raw line, which is technical and gives no sense of how long. Map the
-      output to phases — preparing, starting Linux, unlocking, mounting — show
-      them as steps, and say roughly how long a first unlock takes. The 95 MB
-      first-run unpack still has no progress at all.
+Still open:
 
-### Flow
-
-- [ ] **Auto-select a single drive.** With exactly one candidate, go straight to
-      unlock instead of asking the user to click the only row.
-- [ ] **Make the drive list the hub.** It does not show which drive is already
-      open. Badge mounted drives and offer eject inline, so the list answers
-      "what is going on" without navigating.
-- [ ] **First-run welcome.** A new user's first screen is the permission
-      warning, which reads as an error. Frame it as setup, with the three steps
-      and what the app does, before anything looks like it went wrong.
-
-### Presentation
-
-- [ ] **Drive rows read as a run-on.** "500,07 GB · USB · External · BitLocker
-      or NTFS · disk4s1" is five facts in one dot-separated line. Promote size,
-      demote the identifier, and make the type a small pill.
-- [ ] **Let the window resize.** It is pinned to `.contentSize`, and the
-      failure log is a fixed 150 pt box of 10.5 pt monospace. Exactly when a
-      user most needs to read something — a failure — they cannot make it
-      bigger. Allow resizing and let the log grow.
-- [ ] **Caps Lock indicator** in the credential field, standard for password
-      entry and the cause of many "wrong password" reports.
-
-### Reach
-
-- [ ] **Menu bar extra** showing open volumes with one-click eject, so the app
-      need not be foregrounded to unmount.
-- [ ] **Accessibility pass.** Icon-only buttons need VoiceOver labels, and the
-      layout should survive Dynamic Type. Never audited.
-- [ ] **Localisation scaffolding.** All strings are inline literals today.
+- [ ] **[me]** Audit with VoiceOver actually running, and test Dynamic Type at
+      larger sizes. Labels have been added, but nothing has been verified with
+      the assistive technology itself — that is not the same as being accessible.
+- [ ] **[me]** Extract the strings table with `genstrings`. Every literal is
+      already a translation key by virtue of SwiftUI, but no table is generated,
+      so nothing can actually be translated yet.
+- [ ] A resizable window leaves vertical slack on the shortest screen. Tolerable,
+      but the unlock screen could fill it better.
 
 ---
 
