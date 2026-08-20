@@ -213,6 +213,11 @@ public enum MountScript {
         return """
             {
               ALFS_PASSPHRASE="$__cred" /usr/bin/expect -f \(shellQuoted(i.expectScriptPath)) \(engineQ) \(deviceQ) > \(listQ) 2>&1
+              # expect drives the engine through a pty, so every line comes back
+              # CRLF. awk splits on newlines only, which leaves the carriage
+              # return stuck to the last field: the identifier becomes
+              # "vg:disk:lv\\r" and names a block device that cannot exist.
+              tr -d '\\r' < \(listQ) > \(listQ).clean && mv \(listQ).clean \(listQ)
               cat \(listQ) >> \(logQ)
               __lvs=$(awk '$NF ~ /^[^:]+:[^:]+:[^:]+$/ && $2 != "LVM2_scheme" { print $NF }' \(listQ))
               __count=$(printf '%s\\n' "$__lvs" | grep -c . )

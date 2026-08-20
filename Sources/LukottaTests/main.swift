@@ -277,6 +277,14 @@ group("mountStages") {
         checkedMS.components(separatedBy: "-gt \"$__mounts\"").count - 1 == 2,
         "both NTFS driver attempts are verified, so the retry can be reached")
 
+    // Discovery is driven through expect, which uses a pty, so its output is
+    // CRLF. Left in place the carriage return joins the identifier and the
+    // mount names a block device that cannot exist.
+    expect(checked.contains("tr -d '\\r'"), "carriage returns are stripped from discovery")
+    expect(
+        checked.range(of: "tr -d '\\r'")!.lowerBound < checked.range(of: "__lvs=$(awk")!.lowerBound,
+        "stripped before the identifiers are read out")
+
     // Every volume found is opened, rather than asking which one is wanted.
     expect(checked.contains("for __lv in $__lvs; do"), "each discovered volume is mounted")
     expect(checked.contains("[ \"$__opened\" -gt 0 ]"), "opening any one of them is a success")
