@@ -214,6 +214,37 @@ enum EngineError: LocalizedError {
 /// application holds Full Disk Access. There is no public API to query that, so
 /// probe a file that only an FDA-holding process can open.
 enum Permissions {
+    /// Whether Full Disk Access has been granted.
+    ///
+    /// There is no API to request it — Apple requires it to be switched on by
+    /// hand — but it can be *detected*, by reading a file only an FDA-holding
+    /// process can open. Detecting it lets the app say so before the user types
+    /// a password, instead of failing afterwards.
+    static var hasFullDiskAccess: Bool {
+        let home = FileManager.default.homeDirectoryForCurrentUser
+        for rel in ["Library/Application Support/com.apple.TCC/TCC.db",
+                    "Library/Safari/CloudTabs.db"] {
+            let path = home.appendingPathComponent(rel).path
+            guard FileManager.default.fileExists(atPath: path) else { continue }
+            guard let fh = FileHandle(forReadingAtPath: path) else { return false }
+            try? fh.close()
+            return true
+        }
+        // Nothing to probe with: do not block on a guess.
+        return true
+    }
+
+    /// Relaunch, because a newly granted TCC permission only applies to a fresh
+    /// process — the most common reason "I granted it and it still fails".
+    static func relaunch() {
+        let url = Bundle.main.bundleURL
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        task.arguments = ["-n", url.path]
+        try? task.run()
+        NSApp.terminate(nil)
+    }
+
     /// Whether macOS refused the engine raw disk access.
     static func isAccessDenied(_ transcript: String) -> Bool {
         let l = transcript.lowercased()

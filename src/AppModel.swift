@@ -32,6 +32,12 @@ final class AppModel: ObservableObject {
     // MARK: Lifecycle
 
     func start() {
+        // Say so before any password is typed, rather than after a failed
+        // unlock. Full Disk Access cannot be requested, only detected.
+        guard Permissions.hasFullDiskAccess else {
+            phase = .needsPermission
+            return
+        }
         phase = .scanning
         Task.detached(priority: .userInitiated) {
             // If a drive is already open - the app was reopened, or a previous
@@ -66,6 +72,11 @@ final class AppModel: ObservableObject {
 
     func openPrivacySettings() {
         Permissions.openFullDiskAccessSettings()
+    }
+
+    /// A newly granted permission only applies to a fresh process.
+    func relaunch() {
+        Permissions.relaunch()
     }
 
     /// Reveal the app itself so it can be dragged into the Full Disk Access list.

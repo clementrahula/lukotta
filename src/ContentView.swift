@@ -70,7 +70,7 @@ private struct PermissionView: View {
                     .font(.system(size: 28)).foregroundStyle(.orange)
                 VStack(alignment: .leading, spacing: 3) {
                     Text("One-time setup needed").font(.title3.weight(.semibold))
-                    Text("macOS will not let any app read an encrypted disk without Full Disk Access — not even with an administrator password. Unlike other permissions, there is no way for an app to ask for this one: Apple requires it to be switched on by hand.")
+                    Text("Reading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.")
                         .font(.callout).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -79,7 +79,7 @@ private struct PermissionView: View {
             VStack(alignment: .leading, spacing: 9) {
                 Step(number: 1, text: "Open Privacy & Security → Full Disk Access.")
                 Step(number: 2, text: "Click + and add Lukotta, then switch it on.")
-                Step(number: 3, text: "Quit Lukotta and open it again.")
+                Step(number: 3, text: "Come back here and choose Relaunch — a new permission only applies to a freshly started app.")
             }
             .padding(13)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -92,6 +92,7 @@ private struct PermissionView: View {
             HStack {
                 Button("Reveal App") { model.revealApp() }
                 Spacer()
+                Button("Relaunch") { model.relaunch() }
                 Button("Check Again") { model.recheckPermission() }
                 Button("Open Privacy Settings") { model.openPrivacySettings() }
                     .keyboardShortcut(.defaultAction)

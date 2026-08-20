@@ -198,7 +198,37 @@ is now `dev.rahula.lukotta`.
 
 ---
 
-## 6. Menus and settings
+## 6. Permissions — what is and is not possible
+
+Researched 20 August 2026, after the claim that Full Disk Access cannot be
+requested was challenged. The correction is worth recording precisely.
+
+- **Files & Folders permissions are promptable.** Desktop, Documents, Downloads,
+  Network Volumes and **Removable Volumes** all show a system consent dialog on
+  first access, driven by the matching `NS…UsageDescription` key. Lukotta uses
+  `NSRemovableVolumesUsageDescription`, which is the prompt users actually see.
+- **Full Disk Access is not.** `kTCCServiceSystemPolicyAllFiles` has no request
+  API; apps that appear to ask are showing their own dialog and deep-linking to
+  System Settings. Granting it is manual or via an MDM configuration profile.
+- **Removable Volumes does not cover raw devices.** It grants access to *files*
+  on a removable volume. Reading `/dev/rdiskN` — which is what unlocking
+  requires — falls under Full Disk Access. That is why granting the promptable
+  one was not enough.
+
+- [x] Detect Full Disk Access at launch and show the guided screen *before* a
+      password is typed, rather than failing afterwards.
+- [x] Offer Relaunch from that screen: a newly granted TCC permission only
+      applies to a freshly started process, which is the usual reason "I granted
+      it and it still does not work".
+- [x] Explain every prompt before it appears, and say why each is needed.
+- [ ] **[me]** Test whether the engine can be pointed at `/dev/diskN` rather
+      than `/dev/rdiskN`. If the buffered device is not gated the same way, the
+      Full Disk Access requirement might be avoidable entirely — the single
+      biggest UX win available, and worth an experiment before assuming not.
+
+---
+
+## 7. Menus and settings
 
 The app has no persisted preferences at all and no Settings scene, which is the
 right default — it does one thing and auto-scales the VM to the host, so there
@@ -228,7 +258,7 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 7. Correctness and robustness
+## 8. Correctness and robustness
 
 - [ ] `Diagnosis.summarise` matches engine output by substring, so an upstream
       wording change silently degrades to raw output. Pin to exit codes where
@@ -258,7 +288,7 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 8. Open question: the sidebar name
+## 9. Open question: the sidebar name
 
 - [ ] Establish what the sidebar actually displays. Finder's own API reports the
       volume as `BACKUP`, which is the NTFS label from Windows — i.e. the
@@ -268,7 +298,7 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 9. Nice to have
+## 10. Nice to have
 
 - [ ] "Unlock at login" or a remembered-drive convenience.
 - [ ] Localisation and an accessibility audit.
@@ -279,7 +309,7 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 10. Website and visibility
+## 11. Website and visibility
 
 ### Website — built, needs switching on
 
@@ -315,7 +345,7 @@ README and screenshots — every list rejects submissions that lack those.
 
 ---
 
-## 11. Platform and feature expansion
+## 12. Platform and feature expansion
 
 ### Intel / universal binary — probably not worth it
 
@@ -394,7 +424,7 @@ the work is detection and UI, not new engine capability.
 
 ---
 
-## 12. Strategic — the native UX project
+## 13. Strategic — the native UX project
 
 Not a release task. This is the separate project described in
 PRODUCTION-READINESS.md §7, and it is what would make the product genuinely
