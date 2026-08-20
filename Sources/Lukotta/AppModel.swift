@@ -69,9 +69,64 @@ final class AppModel: ObservableObject {
 
     private var workspace: Workspace?
 
+    /// Watches for drives arriving and leaving while the app is open.
+    private lazy var watcher = DiskWatcher { [weak self] in
+        Task { @MainActor in self?.driveSetChanged() }
+    }
+
+    /// The drive on screen, whichever way it is being shown.
+    private var currentDrive: Drive? {
+        switch phase {
+        case .unlock(let drive), .working(let drive), .mounted(let drive, _): return drive
+        default: return nil
+        }
+    }
+
+    /// A drive was plugged in or pulled out.
+    ///
+    /// Refreshes the list in place. A drive the user is looking at that has
+    /// gone away is worth interrupting for — the alternative is a screen
+    /// offering to unlock something that is no longer attached, or claiming a
+    /// drive is open when it has been pulled out from under the mount.
+    private func driveSetChanged() {
+        Task.detached(priority: .userInitiated) {
+            let found = DriveScanner.scan()
+            let mounts = EngineStatus.current()
+            await MainActor.run {
+                let vanished =
+                    self.currentDrive.map { drive in
+                        !found.contains { $0.devicePath == drive.devicePath }
+                    } ?? false
+
+                self.drives = found
+                self.openMounts = Dictionary(
+                    mounts.map { ($0.devicePath, $0.mountPoint) },
+                    uniquingKeysWith: { first, _ in first })
+
+                guard vanished, let drive = self.currentDrive else { return }
+                // Whatever was mounted from it cannot be reached any more, and
+                // leaving the mount behind is what makes macOS ask about a
+                // server that will never answer.
+                let name = drive.name
+                Task.detached(priority: .userInitiated) {
+                    for point in EngineStatus.stale() {
+                        EngineStatus.forceUnmount(mountPoint: point)
+                    }
+                }
+                self.openVolumes = []
+                self.openMounts = self.openMounts.filter { !$0.key.contains(drive.id) }
+                self.notice = "“\(name)” was disconnected."
+                self.credential = ""
+                self.credentialProblem = nil
+                self.phase = .chooseDrive
+            }
+        }
+    }
+
     // MARK: Lifecycle
 
     func start() {
+        watcher.start()
         refreshPermissions()
         // Say so before any password is typed, rather than after a failed
         // unlock. Full Disk Access cannot be requested, only detected.
