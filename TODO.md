@@ -37,11 +37,14 @@ Nothing ships until these are done.
 - [ ] **[you]** **Make the repository public.** GPL-3 binaries entitle
       recipients to the corresponding source; a private repo plus a public
       binary is a violation from the first download.
-- [ ] **[both]** **Give the source offer a real address.**
-      `THIRD_PARTY_NOTICES.md` promises source "to the address in the repository
-      README", and the README currently contains no contact at all. Either add
-      one you will honour for three years, or mirror the upstream tarballs and
-      drop the offer.
+- [x] Source offer now names a real address: **lukotta@rahula.dev**, in both
+      `THIRD_PARTY_NOTICES.md` and the README. Note the commitment this creates:
+      the offer is valid for **three years from the date of distribution**, so
+      the address has to keep working that long and someone has to be able to
+      produce the source for the exact versions shipped.
+- [ ] **[me]** Reduce that burden by archiving the upstream source tarballs
+      alongside each release, so honouring the offer is a link rather than a
+      manual hunt for versions shipped years earlier.
 - [ ] **[me]** **Make the build reproducible.** `vendor/` is gitignored and
       `vendor-engine.sh` stages from whatever anylinuxfs happens to be installed
       on the build machine, so nobody else can build Lukotta and v1.0.1 cannot
@@ -74,7 +77,7 @@ Nothing ships until these are done.
       routinely skipped. Not legal advice.
 - [ ] **[me]** Rename the repository to `fulocker` and give it a description; it
       is still `bitlocker-mac-gui` with an empty description.
-- [ ] **[me]** Short privacy statement. It is a security tool that handles
+- [ ] **[me]** Short privacy statement, with lukotta@rahula.dev as the contact. It is a security tool that handles
       recovery keys — say plainly that nothing is transmitted anywhere.
 - [ ] **[me]** Bundle full licence texts, not just links.
 - [ ] **[me]** Add `CHANGELOG.md`. Needed independently of Sparkle, which uses
@@ -175,8 +178,8 @@ than reasons to add a preferences window.
       `THIRD_PARTY_NOTICES.md` ship inside the bundle but nothing opens them.
       For a GPL app that is a compliance-adjacent gap as well as a courtesy —
       add an About panel and a Help menu entry that open both.
-- [ ] **[me]** No Help menu and no in-app support path. Once the repo is public,
-      point it at the issues page.
+- [ ] **[me]** No Help menu and no in-app support path. Point it at the issues
+      page once the repo is public, and at lukotta@rahula.dev.
 - [ ] **[me]** Read-only unlock, as a checkbox on the unlock screen — *not* a
       global setting. Mounting a suspect or failing drive without writing to it
       is a real use case, and it is a per-drive decision, so it belongs next to

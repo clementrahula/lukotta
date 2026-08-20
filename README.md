@@ -95,6 +95,11 @@ Versioning is semver in `VERSION`; the build number is the git commit count.
 ./scripts/bump-version.sh patch   # or minor / major, commits and tags
 ```
 
+## Contact
+
+**lukotta@rahula.dev** — bug reports, questions, and requests for the
+corresponding source of any GPL component shipped in the app.
+
 ## Licence
 
 **GPL-3.0-or-later.** Lukotta embeds anylinuxfs (GPL-3.0-or-later), a Linux

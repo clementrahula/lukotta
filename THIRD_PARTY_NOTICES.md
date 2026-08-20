@@ -11,10 +11,10 @@ components below and redistributes them under their own terms.
 As required by GPL-2.0 section 3 and GPL-3.0 section 6, the complete
 corresponding source code for every GPL component listed here is available.
 Source for Lukotta is at the project repository. For the embedded components,
-open an issue on the project repository, or write to the address in the
-repository README, and you will be sent the complete corresponding source for
-the exact versions shipped, for at least three years from the date of
-distribution, at no more than the cost of the transfer.
+open an issue on the project repository, or write to **lukotta@rahula.dev**,
+and you will be sent the complete corresponding source for the exact versions
+shipped, for at least three years from the date of distribution, at no more
+than the cost of the transfer.
 
 ## Host components
 
