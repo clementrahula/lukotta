@@ -1,7 +1,7 @@
 # Privacy
 
-Lukotta has no accounts, no analytics, and no server that belongs to it beyond a
-file listing the latest version.
+Lukotta has no accounts and no analytics. The only server involved is one
+holding a file that says what the latest version is.
 
 ## What leaves your Mac
 
@@ -9,14 +9,13 @@ One thing: a request for the update feed at
 `https://lukotta-updates.rahula.dev/appcast.xml`, made daily while the app is
 running.
 
-Like any web request, it tells the server the address it came from, along with
-the app version and macOS version that Sparkle includes so it can offer a
-suitable update. The file is served by GitHub Pages, which keeps its own logs;
-that data is GitHub's, not ours, and nothing about it identifies you beyond what
-any visit to any website reveals.
+That request carries your IP address, as any web request does, and the app and
+macOS versions, which Sparkle sends so the reply can offer a suitable update.
+The file is served by GitHub Pages, so those requests appear in GitHub's logs
+rather than in any log of ours.
 
-Turn it off in Settings and nothing is requested at all. Lukotta will not check
-for updates, and you can still check by hand whenever you want.
+Turn it off in Settings and nothing is requested. You can still check by hand
+whenever you want.
 
 Updates are downloaded from GitHub when you choose to install one.
 
@@ -26,7 +25,7 @@ Updates are downloaded from GitHub when you choose to install one.
 - The names, contents or sizes of anything on your drives.
 - Which drives you have, when you unlock them, or how often.
 
-There is no telemetry, no crash reporting service, and no analytics of any kind.
+There is no telemetry, no crash reporting service and no analytics.
 
 ## Bug reports
 
@@ -47,20 +46,20 @@ string is deleted, not merely anything shaped like a key.
 
 ## Passphrases you asked to be remembered
 
-Storing a passphrase is optional and off unless you turn it on. When you do, it
-goes to your login Keychain, reachable only while your Mac is unlocked, and it
-is marked not to sync — it will not travel to iCloud or another device.
+Storing a passphrase is optional and off unless you turn it on. It then goes to
+your login Keychain, reachable only while your Mac is unlocked and marked not to
+sync, so it does not travel to iCloud or another device.
 
 Forgetting it in the app deletes the entry.
 
 ## Files on your Mac
 
 The Linux environment is unpacked to `~/.anylinuxfs` on first use, about 95 MB.
-Everything an unlock needs beyond that is created in a private temporary folder
-and removed when the app quits.
+Anything else an unlock needs is created in a private temporary folder and
+removed when the app quits.
 
-Lukotta keeps the label of a drive you have opened, so it can name the drive
-correctly next time. That is a name and an identifier, nothing about contents.
+Lukotta remembers the label of a drive you have opened, so it can name it
+correctly next time. A label and an identifier, nothing about the contents.
 
 ## Contact
 
