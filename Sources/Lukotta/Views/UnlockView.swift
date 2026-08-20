@@ -151,7 +151,7 @@ struct PermissionsPanel: View {
             return
                 "Was refused. In Files and Folders, switch on Removable Volumes for Lukotta, then come back."
         }
-        return "Lets Lukotta list the drives you plug in. macOS asks for this on its own."
+        return "Lets Lukotta see the drives you plug in."
     }
 
     private var removableStatus: PermissionStatus {
