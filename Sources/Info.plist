@@ -21,6 +21,14 @@
   <key>SUFeedURL</key><string>https://lukotta-updates.rahula.dev/appcast.xml</string>
   <key>SUPublicEDKey</key><string>__SPARKLE_PUBLIC_KEY__</string>
   <key>SUEnableInstallerLauncherService</key><false/>
+  <!-- On by default, and no first-run question about it. Lukotta asks for Full
+       Disk Access and runs part of itself as root, so a machine sitting on a
+       build with a known fault is the worse outcome; a build that broke
+       mounting has already shipped once. -->
+  <key>SUEnableAutomaticChecks</key><true/>
+  <key>SUAutomaticallyUpdate</key><true/>
+  <!-- Daily. The default is a week, which is a long time to carry a fix. -->
+  <key>SUScheduledCheckInterval</key><integer>86400</integer>
   <key>LSApplicationCategoryType</key><string>public.app-category.utilities</string>
 </dict>
 </plist>
