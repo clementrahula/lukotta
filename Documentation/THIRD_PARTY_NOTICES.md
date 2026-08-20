@@ -130,6 +130,11 @@ nor the `zfs.ko` and `spl.ko` kernel modules are distributed with Lukotta.
 
 ## Trademarks
 
+Lukotta, the Lukotta wordmark and the Lukotta logo are trademarks of Clement
+Rahula and are not licensed under the GPL, as section 7(e) of that licence
+allows. The code may be forked and redistributed freely; a modified version
+must carry its own name and artwork. See TRADEMARK.md in the source.
+
 BitLocker and Windows are trademarks of Microsoft Corporation. Linux is a
 registered trademark of Linus Torvalds. macOS, Finder and Apple Silicon are
 trademarks of Apple Inc. Lukotta is not affiliated with, endorsed by, or

@@ -92,7 +92,7 @@ struct HelpSheet: View {
 
                     HelpSection(title: "Licence") {
                         Text(
-                            "Lukotta is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release."
+                            "Lukotta is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence."
                         )
                         HStack(spacing: 10) {
                             Button("Licence") { document = .licence }

@@ -105,7 +105,11 @@ privileged helper will and will not accept, and where to report a fault.
 GPL-3.0-or-later. Complete source for every component, including the GPL parts
 inside the app, is published with each release.
 
-[Licence][licence] · [Third-party notices][notices] · [Changelog][changelog]
+The name Lukotta and the logo are trademarks and are not covered by that
+licence, as GPL-3 section 7(e) allows. Fork the code freely; give your version
+its own name. [TRADEMARK.md][trademark] says what that means in practice.
+
+[Licence][licence] · [Trademarks][trademark] · [Third-party notices][notices] · [Changelog][changelog]
 
 ## Author
 
@@ -123,6 +127,7 @@ or the Linux projects it works with.
 [privacy]: PRIVACY.md
 [security]: SECURITY.md
 [licence]: LICENSE
+[trademark]: TRADEMARK.md
 [notices]: Documentation/THIRD_PARTY_NOTICES.md
 [changelog]: CHANGELOG.md
 [anylinuxfs]: https://github.com/nohajc/anylinuxfs

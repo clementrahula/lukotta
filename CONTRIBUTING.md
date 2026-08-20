@@ -103,6 +103,8 @@ Issues and patches: <https://github.com/clementrahula/lukotta>.
 ## Licence
 
 Contributions are accepted under GPL-3.0, the same licence as the project. The
+name and the logo are trademarks and are not covered by it — see
+[TRADEMARK.md](TRADEMARK.md) — so a fork is welcome under its own name. The
 engine and the Linux components it carries are third-party GPL software;
 `Documentation/THIRD_PARTY_NOTICES.md` records what is shipped and under what
 terms, and `scripts/collect-sources.sh` assembles the corresponding source that
