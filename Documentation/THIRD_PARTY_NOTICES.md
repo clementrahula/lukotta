@@ -31,6 +31,7 @@ and `Image-4K` are Linux kernel binaries supplied by libkrunfw.
 | util-linux (libblkid) | as embedded | LGPL-2.1-or-later | https://github.com/util-linux/util-linux |
 | gvisor-tap-vsock (gvproxy) | as embedded | Apache-2.0 | https://github.com/containers/gvisor-tap-vsock |
 | vmnet-helper | as embedded | Apache-2.0 | https://github.com/nirs/vmnet-helper |
+| Sparkle | 2.9.6 | MIT AND BSD-2-Clause AND Zlib | https://github.com/sparkle-project/Sparkle |
 
 ## Linux Guest Image
 
@@ -125,5 +126,13 @@ nor the `zfs.ko` and `spl.ko` kernel modules are distributed with Lukotta.
   exception, as recorded in its licence expression.
 - The full licence text of each component accompanies it within the guest
   image and within the corresponding source archive.
+
+
+## Trademarks
+
+BitLocker and Windows are trademarks of Microsoft Corporation. Linux is a
+registered trademark of Linus Torvalds. macOS, Finder and Apple Silicon are
+trademarks of Apple Inc. Lukotta is not affiliated with, endorsed by, or
+sponsored by any of them, and names them only to say what it works with.
 
 Generated 2026-08-20.

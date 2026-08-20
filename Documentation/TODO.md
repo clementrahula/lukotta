@@ -51,13 +51,9 @@ responsibly be given to anyone.
 - **Wire `generate_appcast` into the release flow**, including delta updates.
   Without them every bug-fix release is a 154 MB download for a few kilobytes of
   changed code.
-- **Add Sparkle to the third-party notices.** It is MIT with BSD-2 and zlib
-  components, and is not currently listed.
 - **[you] Check whether the US export notification applies** to publishing
   encryption software from a US-hosted repository. Published open source is
   generally exempt in the EU. Not legal advice.
-- **Add a trademark line**: Lukotta is unaffiliated with and not endorsed by
-  Microsoft. Describing it as "for BitLocker drives" is ordinary nominative use.
 - **Provide a clean uninstall.** Removing the app leaves the registered helper,
   `~/.anylinuxfs`, and a privacy entry behind. `SMAppService.unregister` is
   wired but nothing calls it.
