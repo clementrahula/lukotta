@@ -19,5 +19,5 @@
   claims drives it recognises while it is running.
 - If an update installs and the new version will not start, the previous one is
   put back after two failed attempts.
-- Software updates, checked daily and installed automatically. Both can be
-  turned off in Settings.
+- Software updates, checked daily. Installing them is offered rather than done,
+  and both can be changed in Settings.

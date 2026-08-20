@@ -5,6 +5,7 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var updater: Updater
     @EnvironmentObject var model: AppModel
+    @AppStorage(MenuBarPreference.key) private var showMenuBarIcon = true
 
     private var lastChecked: String {
         guard let date = updater.lastChecked else { return "Not yet" }
@@ -21,13 +22,10 @@ struct SettingsView: View {
                     .disabled(!updater.checksAutomatically)
                     .padding(.leading, 18)
 
-                Text(
-                    updater.checksAutomatically
-                        ? "Checked daily. Lukotta reads a raw disk and runs part of itself as root, so a fix reaching you matters."
-                        : "Lukotta will not look for updates. You can still check whenever you like."
-                )
-                .font(.caption).foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                if !updater.checksAutomatically {
+                    Text("You can still check whenever you like.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
 
                 HStack {
                     Text("Last checked: \(lastChecked)")
@@ -52,6 +50,14 @@ struct SettingsView: View {
                 .padding(.top, 2)
             } header: {
                 Text("Updates").font(.headline)
+            }
+
+            Section {
+                Toggle("Show Lukotta in the menu bar", isOn: $showMenuBarIcon)
+                Text("Appears only while a drive is open, for ejecting it.")
+                    .font(.caption).foregroundStyle(.secondary)
+            } header: {
+                Text("Menu Bar").font(.headline)
             }
         }
         .formStyle(.grouped)

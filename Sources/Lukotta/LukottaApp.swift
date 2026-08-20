@@ -22,11 +22,18 @@ private func runSmokeTestIfAsked() {
     exit(0)
 }
 
+/// Where the menu bar preference lives, so the setting and the scene that reads
+/// it cannot drift apart over a spelled-out key.
+enum MenuBarPreference {
+    static let key = "dev.lukotta.showMenuBarIcon"
+}
+
 @main
 struct LukottaApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var model = AppModel()
     @StateObject private var updater = Updater()
+    @AppStorage(MenuBarPreference.key) private var showMenuBarIcon = true
 
     init() {
         runSmokeTestIfAsked()
@@ -61,7 +68,7 @@ struct LukottaApp: App {
         MenuBarExtra(
             "Lukotta", systemImage: "externaldrive.fill",
             isInserted: Binding(
-                get: { !model.openMounts.isEmpty },
+                get: { showMenuBarIcon && !model.openMounts.isEmpty },
                 set: { _ in })
         ) {
             ForEach(Array(model.openMounts.values.sorted()), id: \.self) { path in
