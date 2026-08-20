@@ -46,6 +46,24 @@ ALFS="$SRC_RUNTIME/anylinuxfs/$ALFS_VERSION"
 cp -f "$SRC_BLKID/libblkid.1.dylib" "$OUT/anylinuxfs/lib/libblkid.1.dylib"
 /usr/bin/install_name_tool -id "@rpath/libblkid.1.dylib" "$OUT/anylinuxfs/lib/libblkid.1.dylib" 2>/dev/null || true
 
+# The image is downloaded by "anylinuxfs init" rather than shipped in the
+# bottle, so it is the one piece not fetched here. Its identity is checked
+# instead: umoci leaves the manifest digest in the name of the mtree file beside
+# it, and the lock records which digest this release was built against.
+WANT_DIGEST="$(lockfield guest_image oci_digest | sed 's/^sha256://')"
+if [ -n "$WANT_DIGEST" ]; then
+  if [ -e "$SRC_ROOTFS/sha256_$WANT_DIGEST.mtree" ]; then
+    echo "  guest image digest matches the lock"
+  else
+    echo "error: the guest image is not the one vendor/engine.lock pins." >&2
+    echo "  expected sha256:$WANT_DIGEST" >&2
+    /usr/bin/find "$SRC_ROOTFS" -maxdepth 1 -name '*.mtree' -exec basename {} \; 2>/dev/null \
+      | sed 's/^/  found:   /' >&2
+    echo "  Re-create it with: $UPSTREAM/anylinuxfs/$ALFS_VERSION/bin/anylinuxfs init" >&2
+    exit 1
+  fi
+fi
+
 echo "Copying Linux root filesystem…"
 # The rootfs is shipped as a single archive, not a directory tree: it holds ~500
 # symlinks pointing at absolute guest paths, and codesign --verify --strict
