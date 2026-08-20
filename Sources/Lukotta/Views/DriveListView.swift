@@ -58,7 +58,7 @@ struct DriveRow: View {
 
     private var isMounted: Bool { mountPoint != nil }
 
-    /// The same facts whether open or not. A drive that is open does not stop
+    /// The same facts whether unlocked or not. A drive that is unlocked does not stop
     /// being a 500 GB USB disk, and losing that when it opens made the two rows
     /// look like different kinds of thing.
     private var details: String {
@@ -91,7 +91,7 @@ struct DriveRow: View {
                     .font(.caption).foregroundStyle(.secondary)
                     .lineLimit(1).truncationMode(.middle)
                 if let mountPoint {
-                    Text("Open at \(mountPoint)")
+                    Text("Unlocked at \(mountPoint)")
                         .font(.caption).foregroundStyle(.tertiary)
                         .lineLimit(1).truncationMode(.middle)
                 }
@@ -114,18 +114,18 @@ struct DriveRow: View {
         .contentShape(Rectangle())
         .onTapGesture { if !isMounted { action() } }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(drive.name), \(isMounted ? "open" : "locked"), \(details)")
-        .accessibilityHint(isMounted ? "Already open" : "Unlock this drive")
+        .accessibilityLabel("\(drive.name), \(isMounted ? "unlocked" : "locked"), \(details)")
+        .accessibilityHint(isMounted ? "Already unlocked" : "Unlock this drive")
         .accessibilityAddTraits(.isButton)
     }
 }
 
-/// Whether the drive is open, in the same place on every row.
+/// Whether the drive is unlocked, in the same place on every row.
 struct StatePill: View {
     let open: Bool
 
     var body: some View {
-        Text(open ? "Open" : "Locked")
+        Text(open ? "Unlocked" : "Locked")
             .font(.caption2.weight(.medium))
             .padding(.horizontal, 7).padding(.vertical, 2)
             .background(Capsule().fill((open ? Color.green : Color.orange).opacity(0.15)))

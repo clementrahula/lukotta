@@ -37,8 +37,8 @@ struct SettingsView: View {
                 .padding(.top, 4)
                 Text(
                     model.helper.isReady
-                        ? "Updating does not eject your drives. Anything open stays open and keeps working."
-                        : "Once the background helper is set up, updating will leave open drives alone."
+                        ? "Updating does not eject your drives. Anything unlocked stays unlocked and keeps working."
+                        : "Once the background helper is set up, updating will leave unlocked drives alone."
                 )
                 .font(.caption).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -49,7 +49,7 @@ struct SettingsView: View {
 
             Section {
                 Toggle("Show Lukotta in the menu bar", isOn: $showMenuBarIcon)
-                Text("Appears only while a drive is open, for ejecting it.")
+                Text("Appears only while a drive is unlocked, for ejecting it.")
                     .font(.caption).foregroundStyle(.secondary)
             } header: {
                 Text("Menu Bar").font(.headline)

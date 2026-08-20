@@ -21,10 +21,9 @@ struct MountedView: View {
                     .font(.system(size: 30)).foregroundStyle(.green)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(
-                        volumes.count > 1
-                            ? "“\(drive.name)” is open" : "“\(drive.name)” is unlocked"
+                        "“\(drive.name)” is unlocked"
                     ).font(.title3.weight(.semibold))
-                    Text("You can open, change, and save files on it.")
+                    Text("You can read and write files on it.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }

@@ -366,16 +366,17 @@ public enum MountScript {
                     names[n] = name; lvs[n] = lv; vgs[n] = vg
                   }
                   END {
-                    cmd = "set -eu; mkdir -p " s "; mkdir -m 555"
+                    cmd = "set -eu; mkdir -p " s "; mount -t tmpfs -o size=1m tmpfs " s "; mkdir"
                     for (f = 1; f <= n; f++) cmd = cmd " " s "/" names[f]
                     cmd = cmd "; mount -o bind \\"$ALFS_VM_MOUNT_POINT\\" " s "/" names[1]
                     for (f = 2; f <= n; f++)
                       cmd = cmd "; mount /dev/" vgs[f] "/" lvs[f] " " s "/" names[f]
-                    # Read-only once the volumes are mounted into it. The
-                    # directory holding them together lives in VM memory, not on
-                    # the drive, and left writable it reported free space that
-                    # did not exist and lost whatever was copied there.
-                    cmd = cmd "; chmod 555 " s
+                    # A read-only filesystem, not read-only permissions: the
+                    # export ignores permissions by design, so a mode of 555 was
+                    # obeyed by nobody and a file copied here still vanished on
+                    # eject. One megabyte, so it cannot pretend to hold anything
+                    # either.
+                    cmd = cmd "; mount -o remount,ro " s
                     subs = ""
                     for (f = 1; f <= n; f++) subs = subs (f > 1 ? ", " : "") "\\"" names[f] "\\""
                     print "[custom_actions.\(generatedAction)]"

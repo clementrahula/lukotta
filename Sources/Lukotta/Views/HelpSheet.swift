@@ -102,7 +102,7 @@ struct HelpSheet: View {
                         Bullet(
                             "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use"
                         )
-                        Bullet("About 40 MB of memory while a drive is open")
+                        Bullet("About 40 MB of memory while a drive is unlocked")
                     }
 
                     HelpSection(title: "Author") {
