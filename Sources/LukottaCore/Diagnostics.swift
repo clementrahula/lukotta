@@ -40,9 +40,12 @@ public enum Diagnostics {
 
     /// Crash reports macOS has written for this application, newest first.
     ///
-    /// Only recent ones. An old report offered next to an unrelated failure
-    /// reads as "this just crashed", which is misleading — a cancelled
-    /// authorisation is not a crash.
+    /// Only recent reports, and only for the build that is running.
+    ///
+    /// A report from an earlier build, offered beside an unrelated failure,
+    /// reads as "this just crashed" — which is how a cancelled authorisation
+    /// came to look like a crash. Cancelling is not a crash, and a report from
+    /// a build the user is no longer running is not evidence about this one.
     public static func crashReports(
         appName: String = "Lukotta",
         within: TimeInterval = 24 * 60 * 60,
@@ -65,7 +68,11 @@ public enum Diagnostics {
                 let modified =
                     (try? url.resourceValues(forKeys: [.contentModificationDateKey]))?
                     .contentModificationDate ?? .distantPast
-                return Date().timeIntervalSince(modified) <= within
+                guard Date().timeIntervalSince(modified) <= within else { return false }
+                guard let build = currentBuild else { return true }
+                // The .ips header is a JSON object on the first line.
+                guard let reported = buildRecorded(in: url) else { return true }
+                return reported == build
             }
             .sorted { a, b in
                 let x =
@@ -148,6 +155,25 @@ public enum Diagnostics {
     /// A mailto: URL. The body is kept short deliberately — mail clients and
     /// the shell both truncate long URLs, so the full detail goes to the
     /// clipboard and the message asks for it to be pasted.
+    private static var currentBuild: String? {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String
+    }
+
+    /// The build number recorded in a crash report's header.
+    public static func buildRecorded(in report: URL) -> String? {
+        guard let handle = try? FileHandle(forReadingFrom: report) else { return nil }
+        defer { try? handle.close() }
+        // The header line is short; reading the whole file would be wasteful.
+        let head = (try? handle.read(upToCount: 4096)) ?? Data()
+        guard
+            let text = String(data: head, encoding: .utf8),
+            let line = text.components(separatedBy: "\n").first,
+            let data = line.data(using: .utf8),
+            let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return nil }
+        return object["build_version"] as? String
+    }
+
     /// When a crash report was written, for showing alongside it.
     public static func date(of report: URL) -> Date? {
         (try? report.resourceValues(forKeys: [.contentModificationDateKey]))?

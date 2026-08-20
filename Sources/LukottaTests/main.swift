@@ -345,6 +345,26 @@ group("secretRedaction") {
     expect(!report.contains("121121"), "the assembled report carries no key")
 }
 
+group("crashReportFiltering") {
+    // A crash from an older build, offered beside an unrelated failure, reads
+    // as "this just crashed". That is how a cancelled authorisation came to
+    // look like a crash.
+    let dir = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent("Library/Logs/DiagnosticReports")
+    if let found = try? FileManager.default.contentsOfDirectory(atPath: dir.path),
+        let sample = found.first(where: { $0.hasPrefix("Lukotta") && $0.hasSuffix(".ips") })
+    {
+        let url = dir.appendingPathComponent(sample)
+        let build = Diagnostics.buildRecorded(in: url)
+        expect(build != nil, "a build number is read from the report header")
+        expect(build.map { !$0.isEmpty } ?? false, "the build number is not empty")
+    }
+
+    // Nothing is offered when no report matches, which is the normal case.
+    let none = Diagnostics.crashReports(appName: "NoSuchApplication")
+    expect(none.isEmpty, "no reports for an application that has never crashed")
+}
+
 group("keychainRoundTrip") {
     // A saved credential that cannot be read back is worse than not offering
     // to save it: the user believes it is stored.
