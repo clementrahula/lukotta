@@ -163,12 +163,6 @@ final class AppModel: ObservableObject {
                 // a window on screen. Reaching main is not enough — a build
                 // that starts and then falls over must still count as failed.
                 Rollback.confirmHealthy()
-                if found.count == 1, existing == nil {
-                    // One candidate: asking the user to click the only row is
-                    // a step with no decision in it.
-                    self.choose(found[0])
-                    return
-                }
                 if let existing {
                     let drive =
                         found.first { $0.devicePath == existing.devicePath }
@@ -250,6 +244,9 @@ final class AppModel: ObservableObject {
     func cancelMount(_ drive: Drive) {
         mountTask?.cancel()
         mountTask = nil
+        helperLinesShown = 0
+        activeCredential = nil
+        failedStage = nil
         statusLines = []
         stageLines = []
         credentialProblem = nil
@@ -502,7 +499,10 @@ final class AppModel: ObservableObject {
     private func runMountWithAuthorisation(
         drive: Drive, credential: String, workspace ws: Workspace
     ) {
-        Task.detached(priority: .userInitiated) {
+        // Held like the helper's, so Cancel reaches this route too. Without it
+        // the button worked on one path and did nothing on the other, which is
+        // worse than not offering it.
+        mountTask = Task.detached(priority: .userInitiated) {
             do {
                 let result = try Mounter.mount(
                     drive: drive,
