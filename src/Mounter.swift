@@ -389,6 +389,22 @@ enum Mounter {
         case .linux:     drivers = [nil]
         }
 
+        // Finder shows an NFS mount under its *server* name, and the engine
+        // derives that from the last path component of whatever it is given —
+        // so a raw device shows up as "disk4s1.local" beside the user's iPhone.
+        // Handing it a symlink named after the drive makes Finder show that
+        // instead. Verified against a test volume: a link named "My Backup
+        // Drive" produced "My-Backup-Drive.local".
+        //
+        // The engine may or may not treat a symlinked device the same as the
+        // device itself, so this is only ever an additional first attempt; the
+        // real path is always tried afterwards.
+        var aliasPath: String?
+        if let alias = try? workspace.makeDeviceAlias(named: drive.name,
+                                                      target: drive.devicePath) {
+            aliasPath = alias.path
+        }
+
         let engineQ = shellQuoted(engine.path)
         let deviceQ = shellQuoted(drive.devicePath)
         let logQ = shellQuoted(log.path)
@@ -413,10 +429,14 @@ enum Mounter {
         try FileManager.default.setAttributes([.posixPermissions: 0o700],
                                               ofItemAtPath: expectURL.path)
 
-        var attempts = drivers.map { driver -> String in
-            let typeFlag = driver.map { " -t \($0)" } ?? ""
-            return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
-                + "\(typeFlag) -w false --nfs-options=\(shellQuoted(nfsOptions)) \(deviceQ) >> \(logQ) 2>&1"
+        // Friendly name first, real device path second.
+        let targets = [aliasPath.map(shellQuoted), deviceQ].compactMap { $0 }
+        var attempts = targets.flatMap { target in
+            drivers.map { driver -> String in
+                let typeFlag = driver.map { " -t \($0)" } ?? ""
+                return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
+                    + "\(typeFlag) -w false --nfs-options=\(shellQuoted(nfsOptions)) \(target) >> \(logQ) 2>&1"
+            }
         }
 
         // A Linux container usually holds LVM rather than a filesystem: Ubuntu,

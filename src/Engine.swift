@@ -94,6 +94,26 @@ final class Workspace {
                                                 attributes: [.posixPermissions: 0o700])
     }
 
+    /// A symlink to the device, named after the drive.
+    ///
+    /// Finder labels a network mount with its server name, which the engine
+    /// builds from the last component of the path it is handed. Pointing it at
+    /// a nicely named link is what stops the drive appearing as "disk4s1.local".
+    func makeDeviceAlias(named name: String, target: String) throws -> URL {
+        let cleaned = name
+            .replacingOccurrences(of: "/", with: "-")
+            .replacingOccurrences(of: ":", with: "-")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let safe = cleaned.isEmpty ? "Encrypted Drive" : String(cleaned.prefix(40))
+        let dir = root.appendingPathComponent("alias", isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let link = dir.appendingPathComponent(safe)
+        try? FileManager.default.removeItem(at: link)
+        try FileManager.default.createSymbolicLink(atPath: link.path,
+                                                   withDestinationPath: target)
+        return link
+    }
+
     /// Create a FIFO used to hand the credential to the elevated process.
     /// The credential never reaches a command line, an environment we export,
     /// or a file on disk.

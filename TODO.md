@@ -311,7 +311,32 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 9. Open question: the sidebar name
+## 9. The sidebar name — resolved as far as NFS allows
+
+Finder labels a network mount with its **server** name, and the engine builds
+that from the last path component it is handed — so a raw device appeared as
+`disk4s1.local`, sitting beside the user's iPhone with a computer icon.
+
+- [x] Mount through a symlink named after the drive. Verified on a test volume:
+      a link named "My Backup Drive" produced `My-Backup-Drive.local` instead of
+      `luks2-direct-img.local`. The real device path is always tried afterwards,
+      so this cannot break mounting if the engine treats a symlinked device
+      differently.
+- [ ] **[you]** Confirm the sidebar now shows the drive's name rather than
+      `disk4s1.local`.
+- [ ] The name used is the best one known *before* unlocking: the volume label
+      when macOS reports one, otherwise the physical drive's product name. A
+      locked BitLocker volume reports no label — `BACKUP` only becomes known
+      once it is open, which is after the server has been named. Matching it
+      exactly would need either a second mount pass or remembering the label
+      between launches.
+- [ ] Inherent and not fixable here: it remains a *server* entry with a `.local`
+      suffix and an eject control, because the volume genuinely is an NFS share.
+      Only replacing the microVM (§13) changes that.
+
+---
+
+## 9a. Superseded question
 
 - [ ] Establish what the sidebar actually displays. Finder's own API reports the
       volume as `BACKUP`, which is the NTFS label from Windows — i.e. the
