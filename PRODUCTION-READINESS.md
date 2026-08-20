@@ -1,5 +1,7 @@
 # FULocker — production readiness, licensing and market
 
+Task list extracted to [TODO.md](TODO.md).
+
 Written 19 August 2026, against the state of the repo at that date. Findings
 about licensing are a careful engineering read of the licences involved, not
 legal advice; the App Store and GPL section in particular is worth putting in

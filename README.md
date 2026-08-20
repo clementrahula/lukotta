@@ -87,6 +87,8 @@ appears in an argument list, an exported environment, or on disk.
 on the build machine. Reproducible builds from pinned upstream artefacts are
 still outstanding — see PRODUCTION-READINESS.md §6.
 
+Outstanding work is tracked in [TODO.md](TODO.md).
+
 Versioning is semver in `VERSION`; the build number is the git commit count.
 
 ```bash
