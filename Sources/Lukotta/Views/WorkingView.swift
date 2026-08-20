@@ -40,15 +40,12 @@ struct WorkingView: View {
                 }
             }
 
-            // Shown outright rather than behind a disclosure: during a wait,
-            // seeing what is happening is the point.
-            if !model.statusLines.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Details").font(.caption).foregroundStyle(.secondary)
-                    LogView(lines: model.statusLines)
-                }
-            }
             Spacer()
+
+            HStack {
+                Button("Cancel") { model.cancelMount(drive) }
+                Spacer()
+            }
         }
     }
 

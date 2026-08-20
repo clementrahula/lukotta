@@ -241,6 +241,21 @@ final class AppModel: ObservableObject {
         NSWorkspace.shared.activateFileViewerSelecting([Bundle.main.bundleURL])
     }
 
+    /// Stop waiting on a mount and go back to the credential.
+    ///
+    /// The engine may already be working, and nothing here can reach into it,
+    /// so this gives up watching rather than undoing: a drive that does open
+    /// afterwards shows as open on the next look. Better than a spinner with no
+    /// way out of it.
+    func cancelMount(_ drive: Drive) {
+        mountTask?.cancel()
+        mountTask = nil
+        statusLines = []
+        stageLines = []
+        credentialProblem = nil
+        phase = .unlock(drive)
+    }
+
     /// Return to the list of drives without ejecting anything.
     ///
     /// Not `start()`: that resumes whatever is already open, which is right on
@@ -360,6 +375,8 @@ final class AppModel: ObservableObject {
     /// How much of the helper's transcript has already been shown, so the
     /// final reply can append the remainder instead of repeating all of it.
     private var helperLinesShown = 0
+    /// The mount in flight, so waiting on it can be given up.
+    private var mountTask: Task<Void, Never>?
     /// The credential of the mount in flight, so its output can be scrubbed of
     /// it before it reaches the screen, the log or a report.
     private var activeCredential: String?
@@ -395,7 +412,7 @@ final class AppModel: ObservableObject {
                 }
             }
 
-            Task {
+            mountTask = Task {
                 let outcome = await helper.mount(
                     drive: drive, aliasPath: aliasPath, volume: nil, credential: credential)
                 poll.cancel()

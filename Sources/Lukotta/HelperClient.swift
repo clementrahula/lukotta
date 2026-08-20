@@ -97,9 +97,18 @@ final class HelperClient: ObservableObject {
     func mount(
         drive: Drive, aliasPath: String?, volume: LogicalVolume?, credential: String
     ) async -> (status: Int32, transcript: String)? {
-        guard isReady, let proxy = proxy() else { return nil }
+        guard isReady, proxy() != nil, let connection else { return nil }
         return await withCheckedContinuation { continuation in
-            var resumed = false
+            // Returning nil rather than never returning. Without an error
+            // handler a helper that has gone away — restarted, crashed,
+            // replaced by an update — leaves this waiting for a reply that
+            // cannot arrive, and the app sits on "Unlocking and mounting" for
+            // ever. The caller falls back to asking for authorisation instead.
+            let once = ResumeOnceOutcome(continuation)
+            guard
+                let proxy = connection.remoteObjectProxyWithErrorHandler({ _ in once.resume(nil) })
+                    as? LukottaHelperProtocol
+            else { return once.resume(nil) }
             proxy.mount(
                 devicePath: drive.devicePath,
                 aliasPath: aliasPath,
@@ -107,9 +116,7 @@ final class HelperClient: ObservableObject {
                 volumeIdentifier: volume?.mountIdentifier,
                 credential: credential
             ) { status, transcript in
-                guard !resumed else { return }
-                resumed = true
-                continuation.resume(returning: (status, transcript))
+                once.resume((status, transcript))
             }
         }
     }
@@ -126,6 +133,24 @@ private final class ResumeOnce: @unchecked Sendable {
     }
 
     func resume(_ value: String?) {
+        lock.lock()
+        let pending = continuation
+        continuation = nil
+        lock.unlock()
+        pending?.resume(returning: value)
+    }
+}
+
+/// The same guarantee as ResumeOnce, for the mount reply's pair.
+private final class ResumeOnceOutcome: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<(status: Int32, transcript: String)?, Never>?
+
+    init(_ continuation: CheckedContinuation<(status: Int32, transcript: String)?, Never>) {
+        self.continuation = continuation
+    }
+
+    func resume(_ value: (status: Int32, transcript: String)?) {
         lock.lock()
         let pending = continuation
         continuation = nil
