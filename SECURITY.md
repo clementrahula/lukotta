@@ -1,21 +1,21 @@
 # Security
 
 Lukotta reads raw disks, handles disk encryption passphrases, and runs part of
-itself as root. This describes how it does those things and how to report it
-when something is wrong.
+itself as root. Here is how it does those things, and where to report a fault in
+any of them.
 
 ## Reporting a vulnerability
 
 Email **lukotta@rahula.dev**. Please do not open a public issue for anything
 that could expose someone's passphrase or their data.
 
-Useful things to include: what you did, what happened, the version from the
-Help screen, and whether the background helper was installed. If a report needs
+Include what you did, what happened, the version from the Help screen, and
+whether the background helper was installed. If a report needs
 a log, use the bug icon in the app — it scrubs the passphrase out of the engine
 output and shows you the whole report before anything is sent.
 
-Expect an acknowledgement within a few days. This is a one-person project, so
-there is no formal response window, and no bounty.
+One person maintains this, so there is no response window and no bounty. You
+should hear back within a few days.
 
 ## In scope
 
@@ -47,9 +47,9 @@ only be read by root.
 
 The engine is driven through a pseudo-terminal, and a pseudo-terminal echoes
 what is written to it, so the passphrase can come back inside the engine's own
-output. Because of that, transcripts are scrubbed by value — the exact string is
-removed — before they reach the screen, a log, or a bug report. Pattern matching
-alone would not catch an ordinary passphrase.
+output. Transcripts are therefore scrubbed by value: the exact string is removed before
+anything reaches the screen, a log or a bug report. Matching on shape would
+catch a recovery key and miss an ordinary passphrase.
 
 Storing it is optional and off by default. When chosen, it goes to the login
 Keychain, reachable only while the Mac is unlocked, and never synced to iCloud
@@ -61,9 +61,9 @@ Unlocking a drive requires root. Without the helper, macOS asks for an
 administrator password each time. With it, a small daemon holds that privilege
 so the password is asked for once, when it is installed.
 
-The daemon accepts parameters, never a command. It is given a device path, a
-volume name and a passphrase, and composes the command itself from the same
-builder the app uses, so a caller cannot use it to run arbitrary code as root.
+The daemon accepts parameters, never a command, so it cannot be used to run
+arbitrary code as root. It is given a device path, a volume name and a
+passphrase, and composes the command itself.
 
 Every connection is checked against a code requirement pinning both the
 application's identifier and the signing team. A binary that is not Lukotta,
@@ -74,9 +74,9 @@ back to asking for an administrator password.
 
 ## What the app can reach
 
-Full Disk Access is required, because macOS blocks reading a drive's raw
-contents without it — and an encrypted drive is only raw contents until it is
-unlocked. It cannot be requested by an app; it has to be granted by hand.
+Full Disk Access is required. macOS blocks reading a drive's raw contents
+without it, and an encrypted drive is nothing but raw contents until it is
+unlocked. No app can request it; it has to be granted by hand.
 
 Nothing is sent anywhere. The engine is inside the app, so no component is
 downloaded at first run. The only outbound request Lukotta makes on its own is
@@ -90,7 +90,7 @@ Developer ID signature of the app inside it. A build that fails either is
 refused.
 
 If an update installs and then will not start, the previous version is put back
-after two failed launches.
+after two failed starts.
 
 ## What this does not protect against
 
