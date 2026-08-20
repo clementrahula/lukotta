@@ -74,13 +74,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return .terminateNow
         }
 
+        // Without the helper the virtual machine is tied to this process, so
+        // leaving a drive open would drop it the moment the app quits, and macOS
+        // would report the connection as interrupted. Only offer that choice
+        // when the drive would actually survive.
+        let survives = MainActor.assumeIsolated { model.helper.isReady }
+
         let alert = NSAlert()
         alert.messageText = "A drive is still open"
         alert.informativeText =
-            "Ejecting keeps your files safe and shuts down the background helper. "
-            + "Leaving it open keeps the drive available, but the helper keeps running."
+            survives
+            ? "Ejecting keeps your files safe. Leaving it open keeps the drive available in Finder."
+            : "Ejecting keeps your files safe. Quitting without ejecting will disconnect the drive."
         alert.addButton(withTitle: "Eject and Quit")
-        alert.addButton(withTitle: "Leave Open")
+        if survives { alert.addButton(withTitle: "Leave Open") }
         alert.addButton(withTitle: "Cancel")
         switch alert.runModal() {
         case .alertFirstButtonReturn:
@@ -89,7 +96,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             return .terminateLater
         case .alertSecondButtonReturn:
-            return .terminateNow
+            return survives ? .terminateNow : .terminateCancel
         default:
             return .terminateCancel
         }

@@ -160,6 +160,23 @@ final class AppModel: ObservableObject {
         NSWorkspace.shared.activateFileViewerSelecting([Bundle.main.bundleURL])
     }
 
+    /// Return to the list of drives without ejecting anything.
+    ///
+    /// Not `start()`: that resumes whatever is already open, which is right on
+    /// launch and wrong when the user has asked to see the list.
+    func showAllDrives() {
+        Task.detached(priority: .userInitiated) {
+            let mounts = EngineStatus.current()
+            let found = DriveScanner.scan()
+            await MainActor.run {
+                self.drives = found
+                self.openMounts = Dictionary(
+                    uniqueKeysWithValues: mounts.map { ($0.devicePath, $0.mountPoint) })
+                self.phase = .chooseDrive
+            }
+        }
+    }
+
     func rescan() {
         ejectProblem = nil
         credentialBelongsTo = nil

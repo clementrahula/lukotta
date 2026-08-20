@@ -37,7 +37,9 @@ public enum EngineStatus {
                 .trimmingCharacters(in: .whitespaces)
             let mp = String(line[onRange.upperBound..<parenRange.lowerBound])
                 .trimmingCharacters(in: .whitespaces)
-            guard dev.hasPrefix("/dev/"), mp.hasPrefix("/") else { continue }
+            // Any absolute source, not only /dev/. The engine also mounts disk
+            // images, and a mount it reports is a mount worth resuming.
+            guard dev.hasPrefix("/"), mp.hasPrefix("/") else { continue }
             mounts.append(EngineMount(devicePath: dev, mountPoint: mp))
         }
         return mounts

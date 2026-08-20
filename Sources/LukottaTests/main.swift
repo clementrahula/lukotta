@@ -92,6 +92,13 @@ group("engineStatusParsing") {
         "mount point with spaces parsed")
     expect(EngineStatus.parse("").isEmpty, "empty status yields no mounts")
     expect(EngineStatus.parse("garbage line without markers").isEmpty, "unparseable line ignored")
+
+    // Image-backed mounts are reported with a file path rather than a device.
+    let image =
+        "/Users/someone/.lukotta-testvols/luks2-direct.img on /Users/someone/Volumes/DIRECTFS (btrfs, mounted by someone)"
+    expect(
+        EngineStatus.parse(image).first?.mountPoint ?? "", "/Users/someone/Volumes/DIRECTFS",
+        "an image-backed mount is recognised")
 }
 
 group("failureDiagnosis") {

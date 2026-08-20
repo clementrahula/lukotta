@@ -40,6 +40,7 @@ struct MountedView: View {
 
             Spacer()
             HStack {
+                Button("All Drives") { model.showAllDrives() }
                 Button("Show in Finder") { model.revealInFinder(mountPoint) }
                 Spacer()
                 if model.isEjecting {

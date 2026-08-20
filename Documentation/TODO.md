@@ -89,6 +89,12 @@ responsibly be given to anyone.
 
 ## Correctness and robustness
 
+- **A drive dropped abruptly produces a macOS dialog we cannot restyle.** When
+  the virtual machine goes away with an NFS mount still active, macOS reports
+  "server connections interrupted". It cannot be intercepted; it can only be
+  avoided by unmounting first. Mounts made through the helper survive the app
+  quitting, so this only affects the fallback path — but a crash still triggers
+  it. Worth checking for a stale mount on launch and offering to clear it.
 - **Handle multiple simultaneous drives.** Only the first mounted drive is
   resumed on launch.
 - **Distinguish plain NTFS from BitLocker before unlocking.** Today the user

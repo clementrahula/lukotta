@@ -32,11 +32,9 @@ struct DriveListView: View {
                     }
                 }
                 HStack {
-                    Text(
-                        "Encrypted and Windows volumes are listed. A partition's contents can only be confirmed once it is unlocked."
-                    )
-                    .font(.caption).foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                    Text("What a drive contains is only known once it is unlocked.")
+                        .font(.caption).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                     Spacer()
                     Button("Rescan", action: model.rescan)
                 }
