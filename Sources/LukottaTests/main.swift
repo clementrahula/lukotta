@@ -259,6 +259,48 @@ group("mountStages") {
     expect(!Permissions.isAccessDenied("No key available"), "wrong key is not an access denial")
 }
 
+group("markdownRendering") {
+    // The notices are shown in-app; dumping raw Markdown at a reader is what
+    // this replaces, so the parser has to actually handle what the file uses.
+    let doc = """
+        # Third-party notices
+
+        Lukotta is licensed **GPL-3.0-or-later**.
+
+        ## Host components
+
+        | Component | Licence |
+        | --- | --- |
+        | anylinuxfs | GPL-3.0-or-later |
+        | Linux kernel | GPL-2.0-only |
+
+        - First point
+        - Second point
+        """
+    let blocks = MarkdownDocument.parse(doc)
+
+    var headings = 0, paragraphs = 0, tables = 0, bullets = 0
+    for b in blocks {
+        switch b {
+        case .heading: headings += 1
+        case .paragraph: paragraphs += 1
+        case .table(let header, let rows):
+            tables += 1
+            expect(header == ["Component", "Licence"], "table header parsed")
+            expect(rows.count == 2, "alignment row is not treated as data")
+            expect(rows.first == ["anylinuxfs", "GPL-3.0-or-later"], "table cells parsed")
+        case .bullets(let items):
+            bullets += 1
+            expect(items == ["First point", "Second point"], "bullets parsed")
+        }
+    }
+    expect(headings == 2, "both headings parsed")
+    expect(paragraphs == 1, "paragraph parsed")
+    expect(tables == 1, "table parsed")
+    expect(bullets == 1, "bullet list parsed")
+    expect(MarkdownDocument.parse("").isEmpty, "empty document yields no blocks")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

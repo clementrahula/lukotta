@@ -76,7 +76,7 @@ note "  The apk database records each binary package's origin, so the shipped"
 note "  packages resolve to fewer source packages. For each, the build recipe"
 note "  and the upstream tarballs it names are mirrored here — GPL-2's"
 note "  same-place paragraph has no third-party-server allowance."
-if /usr/bin/python3 "$HERE/tools/collect_alpine_sources.py" \
+if /usr/bin/python3 "$HERE/scripts/collect_alpine_sources.py" \
      "$DB" "$OUT/alpine" "$ALPINE_TAG" >> "$MANIFEST" 2>&1; then
   note "  Alpine sources complete."
 else

@@ -156,11 +156,21 @@ struct DocumentSheet: View {
             Divider()
 
             ScrollView {
-                Text(text.isEmpty ? "Not found in this build." : text)
-                    .font(.system(size: 11.5, design: .monospaced))
-                    .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(20)
+                Group {
+                    if text.isEmpty {
+                        Text("Not found in this build.").foregroundStyle(.secondary)
+                    } else if document == .licence {
+                        // The GPL is a legal text with meaningful line breaks;
+                        // reflowing it would be wrong.
+                        Text(text)
+                            .font(.system(size: 11, design: .monospaced))
+                            .textSelection(.enabled)
+                    } else {
+                        MarkdownView(source: text).textSelection(.enabled)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(20)
             }
         }
         .frame(width: 720, height: 620)

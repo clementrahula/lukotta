@@ -106,6 +106,16 @@ def main():
 
     if dry: return
 
+    # Record the removal so the notices can state it from data rather than from
+    # a hand-written list that drifts every time the roots change.
+    manifest = os.path.join(os.path.dirname(rootfs), "removed-packages.txt")
+    try:
+        with open(manifest, "w") as fh:
+            for name in drop:
+                fh.write(f"{name} {by_name[name].get('V','')} {by_name[name].get('L','')}\n")
+    except OSError:
+        pass
+
     # Rewrite the database so it describes what is actually present. Otherwise
     # the notices would claim packages the image no longer ships.
     dropped = set(drop)

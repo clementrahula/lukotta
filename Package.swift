@@ -4,6 +4,11 @@ import PackageDescription
 let package = Package(
     name: "Lukotta",
     platforms: [.macOS(.v15)],
+    dependencies: [
+        // Updates. MIT, with BSD-2 and zlib-licensed components bundled, so it
+        // composes with distributing Lukotta under the GPL.
+        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.6.0")
+    ],
     targets: [
         // All logic lives here, with no SwiftUI dependency, so it can be tested
         // without a running application.
@@ -14,7 +19,8 @@ let package = Package(
         .target(name: "LukottaCore", swiftSettings: [.swiftLanguageMode(.v5)]),
 
         // The interface. Deliberately thin.
-        .executableTarget(name: "Lukotta", dependencies: ["LukottaCore"],
+        .executableTarget(name: "Lukotta",
+                          dependencies: ["LukottaCore", .product(name: "Sparkle", package: "Sparkle")],
                           swiftSettings: [.swiftLanguageMode(.v5)]),
 
         // Run with `swift run LukottaTests`. Not a .testTarget: XCTest and

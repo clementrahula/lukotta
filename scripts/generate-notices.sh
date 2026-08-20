@@ -5,5 +5,5 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 ROOTFS="${BLM_SRC_ROOTFS:-$HOME/.anylinuxfs/alpine}/rootfs"
 OUT="$HERE/Documentation/THIRD_PARTY_NOTICES.md"
-/usr/bin/python3 "$HERE/tools/generate_notices.py" "$ROOTFS" "$OUT"
+/usr/bin/python3 "$HERE/scripts/generate_notices.py" "$ROOTFS" "$OUT"
 printf 'Wrote %s\n' "$OUT"

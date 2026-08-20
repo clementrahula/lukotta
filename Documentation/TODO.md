@@ -307,7 +307,14 @@ derived from the host and no user can set them better than the machine can.
 - [ ] Port `helpers/validate-key.sh` to Swift. Shelling out to bash for
       credential validation means a process spawn and a shell dependency on the
       unlock path, for logic that is thirty lines.
-- [ ] No crash reporting, and no in-app way to report a problem.
+- [ ] **Crash reports go to Apple, not to us.** The "Lukotta cannot be opened…
+      Report to Apple" dialog is macOS's own crash reporter; the app is not
+      running, so it cannot redirect it. Two routes to actually receiving them:
+      notarise, after which Developer ID crash reports appear in Xcode Organizer
+      for the signing team; or, on launch, look for a fresh report for Lukotta
+      in `~/Library/Logs/DiagnosticReports` and offer to send it to
+      lukotta@rahula.dev. The second works without Apple in the loop and is
+      probably the one worth doing.
 
 ---
 

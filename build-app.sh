@@ -40,8 +40,33 @@ swift build -c release --product Lukotta
 cp "$(swift build -c release --product Lukotta --show-bin-path)/Lukotta" \
    "$CONTENTS/MacOS/$APP_NAME"
 
+# SwiftPM links frameworks by @rpath but emits rpaths pointing into its own
+# build tree. Inside a bundle they live in Contents/Frameworks, so the loader
+# needs to be told. Without this the app fails to launch at all.
+/usr/bin/install_name_tool -add_rpath "@executable_path/../Frameworks" \
+  "$CONTENTS/MacOS/$APP_NAME" 2>/dev/null || true
+
+# Sparkle ships as a framework and must be embedded and signed inside the
+# bundle. Its XCFramework is resolved by SwiftPM; take the built slice.
+SPARKLE="$(find "$HERE/.build/artifacts" -name Sparkle.framework -path "*macos-arm64*" -print -quit 2>/dev/null)"
+if [ -n "$SPARKLE" ]; then
+  mkdir -p "$CONTENTS/Frameworks"
+  /usr/bin/ditto "$SPARKLE" "$CONTENTS/Frameworks/Sparkle.framework"
+  printf 'Embedded Sparkle\n'
+fi
+
+# The Sparkle public key is generated once with scripts/sparkle-keys.sh and set
+# in the environment (or a local file). Without it the app still builds and
+# runs; it simply cannot verify an update, so it must not pretend it can.
+SPARKLE_KEY="${LUKOTTA_SPARKLE_PUBLIC_KEY:-$(cat "$HERE/.sparkle-public-key" 2>/dev/null || true)}"
 sed -e "s/__VERSION__/$VERSION/" -e "s/__BUILD__/$BUILD/" \
+    -e "s|__SPARKLE_PUBLIC_KEY__|${SPARKLE_KEY}|" \
   "$HERE/Sources/Info.plist" > "$CONTENTS/Info.plist"
+if [ -z "$SPARKLE_KEY" ]; then
+  /usr/libexec/PlistBuddy -c 'Delete :SUPublicEDKey' "$CONTENTS/Info.plist" >/dev/null 2>&1 || true
+  /usr/libexec/PlistBuddy -c 'Delete :SUFeedURL' "$CONTENTS/Info.plist" >/dev/null 2>&1 || true
+  printf 'note: no Sparkle key set — updates disabled in this build\n'
+fi
 cp "$HERE/assets/AppIcon.icns" "$CONTENTS/Resources/AppIcon.icns"
 cp "$HERE/resources/helpers/validate-key.sh" "$CONTENTS/Resources/helpers/validate-key.sh"
 chmod 755 "$CONTENTS/Resources/helpers/validate-key.sh"
@@ -80,6 +105,17 @@ if [ -d "$HERE/vendor/engine" ]; then
   done
 else
   printf 'warning: no vendor/engine - run ./vendor-engine.sh first\n' >&2
+fi
+
+if [ -d "$CONTENTS/Frameworks/Sparkle.framework" ]; then
+  for nested in "$CONTENTS/Frameworks/Sparkle.framework/Versions/B/XPCServices"/*.xpc \
+                "$CONTENTS/Frameworks/Sparkle.framework/Versions/B/Autoupdate" \
+                "$CONTENTS/Frameworks/Sparkle.framework/Versions/B/Updater.app"; do
+    [ -e "$nested" ] || continue
+    /usr/bin/codesign --force --options runtime --sign "$SIGN_ID" "$nested" >/dev/null 2>&1 || true
+  done
+  /usr/bin/codesign --force --options runtime --sign "$SIGN_ID" \
+    "$CONTENTS/Frameworks/Sparkle.framework" >/dev/null 2>&1 || true
 fi
 
 printf 'Signing with: %s\n' "$SIGN_ID"

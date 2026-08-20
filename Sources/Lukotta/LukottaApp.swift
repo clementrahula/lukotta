@@ -6,6 +6,7 @@ import SwiftUI
 struct LukottaApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var model = AppModel()
+    @StateObject private var updater = Updater()
 
     var body: some Scene {
         WindowGroup {
@@ -40,6 +41,10 @@ struct LukottaApp: App {
 
         .commands {
             CommandGroup(replacing: .newItem) {}
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates…") { updater.checkForUpdates() }
+                    .disabled(!updater.canCheck)
+            }
             CommandGroup(replacing: .help) {
                 Button("Lukotta Help") { model.showHelp = true }
                     .keyboardShortcut("?", modifiers: .command)

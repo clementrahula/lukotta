@@ -1,26 +1,21 @@
 # Third-party notices
 
-Generated 2026-08-20 by `tools/generate-notices.sh` from the
-components actually embedded in the application bundle.
+Generated 2026-08-20 by `scripts/generate-notices.sh`
+from the components embedded in the application bundle. Do not edit by hand.
 
 Lukotta itself is licensed **GPL-3.0-or-later** (see `LICENSE`). It embeds the
 components below and redistributes them under their own terms.
 
 ## Corresponding source
 
-Lukotta is conveyed over a network, so source is provided under GPL-3.0
-section 6(d) and the equivalent paragraph of GPL-2.0 section 3: the complete
-corresponding source is offered **from the same place as the application, at
-no further charge**. Every release that carries a binary also carries the
-source for that binary and for every GPL component embedded in it.
+Lukotta is distributed over a network. Corresponding source is therefore
+provided under GPL-3.0 section 6(d), and the equivalent provision of GPL-2.0
+section 3: the complete corresponding source for the binary and for every
+GPL-licensed component it embeds is offered from the same place as the
+application, at no additional charge.
 
-This is deliberately not the section 6(b) written-offer route. That option is
-written for object code "embodied in a physical product" and binds the
-distributor for three years; supplying the source alongside the download
-discharges the obligation at the moment of distribution instead.
-
-If a release is ever missing its source archive, that is a bug — write to
-**lukotta@rahula.dev** and it will be fixed.
+Each release includes that source. Requests may also be sent to
+**lukotta@rahula.dev**.
 
 ## Host components
 
@@ -38,7 +33,7 @@ If a release is ever missing its source archive, that is a bug — write to
 
 ## Linux guest image (Alpine Linux)
 
-66 packages are shipped inside the embedded Alpine root filesystem,
+76 packages are shipped inside the embedded Alpine root filesystem,
 which is trimmed by `tools/trim-image.py` to the dependency closure of what
 Lukotta actually uses — the upstream image carries 76.
 Licence strings are taken verbatim from the image's own package database.
@@ -80,6 +75,7 @@ Source for each is available from the Alpine Linux package archive
 | libexpat | 2.8.2-r0 | MIT |
 | libffi | 3.5.2-r1 | MIT |
 | libgcc | 15.2.0-r5 | GPL-2.0-or-later AND LGPL-2.1-or-later |
+| libintl | 1.0-r0 | LGPL-2.1-or-later |
 | libmount | 2.42.1-r0 | LGPL-2.1-or-later |
 | libncursesw | 6.6_p20260516-r0 | X11 |
 | libnfsidmap | 2.6.4-r6 | GPL-2.0-only |
@@ -94,7 +90,9 @@ Source for each is available from the Alpine Linux package archive
 | lsblk | 2.42.1-r0 | GPL-2.0-or-later |
 | lvm2 | 2.03.35-r2 | GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause |
 | lvm2-libs | 2.03.35-r2 | GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause |
+| lz4-libs | 1.10.0-r1 | BSD-2-Clause AND GPL-2.0-or-later |
 | lzo | 2.10-r5 | GPL-2.0-or-later |
+| mdadm | 4.3-r3 | GPL-2.0-only |
 | mount | 2.42.1-r0 | GPL-3.0-or-later AND GPL-2.0-or-later AND GPL-2.0-only AND GPL-1.0-only AND LGPL-2.1-or-later AND BSD-1-Clause AND BSD-3-Clause AND BSD-4-Clause-UC AND MIT AND Public-Domain |
 | mpdecimal | 4.0.1-r0 | BSD-2-Clause |
 | musl | 1.2.6-r2 | MIT |
@@ -105,31 +103,28 @@ Source for each is available from the Alpine Linux package archive
 | ntfs-3g-libs | 2026.2.25-r0 | GPL-2.0-only |
 | ntfs-3g-progs | 2026.2.25-r0 | GPL-2.0-only |
 | popt | 1.19-r4 | MIT |
+| pyc | 3.14.7-r1 | PSF-2.0 |
 | python3 | 3.14.7-r1 | PSF-2.0 |
+| python3-pyc | 3.14.7-r1 | PSF-2.0 |
+| python3-pycache-pyc0 | 3.14.7-r1 | PSF-2.0 |
 | readline | 8.3.3-r1 | GPL-3.0-or-later |
 | rpcbind | 1.2.9-r0 | BSD-3-Clause |
 | scanelf | 1.3.9-r1 | GPL-2.0-only |
 | sqlite-libs | 3.53.2-r0 | blessing |
+| squashfs-tools | 4.7.5-r0 | GPL-2.0-or-later |
+| ssl_client | 1.37.0-r31 | GPL-2.0-only |
 | xz-libs | 5.8.3-r0 | GPL-2.0-or-later AND 0BSD AND Public-Domain AND LGPL-2.1-or-later |
+| zfs | 2.4.3-r0 | CDDL-1.0 |
+| zfs-libs | 2.4.3-r0 | CDDL-1.0 |
 | zlib | 1.3.2-r0 | Zlib |
 | zstd-libs | 1.5.7-r2 | BSD-3-Clause OR GPL-2.0-or-later |
 
-### Removed from the shipped image
-
-The upstream image supports every filesystem anylinuxfs handles.
-`tools/trim-image.py` keeps only the dependency closure of the tooling
-Lukotta uses — BitLocker unlock, NTFS, NFS export and mounting — and removes
-LVM, RAID (mdadm), btrfs, squashfs, ZFS and their exclusive dependencies.
-
-ZFS is worth calling out. The upstream image ships `zfs` and `zfs-libs`
-(CDDL-1.0) together with `zfs.ko` and `spl.ko`: CDDL-licensed kernel modules
-combined with a GPL-2.0 kernel, the one genuinely contested licence
-combination in the dependency set. Lukotta never touches ZFS.
-
 ## Notes
 
-- `cryptsetup` carries an OpenSSL exception, recorded in its licence string.
-- Several packages are multi-licensed; the strings above preserve the full
-  expression rather than reducing it to a single identifier.
-- Full licence texts are distributed inside the Alpine image and with each
-  upstream source archive.
+- Licence identifiers are reproduced verbatim from each package's own
+  metadata. Multi-licensed packages retain the full expression rather than
+  being reduced to a single identifier.
+- `cryptsetup` is distributed under GPL-2.0-or-later with an OpenSSL
+  exception, as recorded in its licence expression.
+- Full licence texts accompany each component in the Alpine image and in the
+  corresponding source archive.

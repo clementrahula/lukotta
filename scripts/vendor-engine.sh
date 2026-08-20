@@ -6,7 +6,7 @@
 # at runtime are taken: the full Homebrew dependency trees are ~60 MB of
 # binaries the engine never invokes on the host.
 set -euo pipefail
-HERE="$(cd "$(dirname "$0")" && pwd)"
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
 SRC_RUNTIME="${BLM_SRC_RUNTIME:-$HOME/Library/Application Support/BitLocker Mounter/runtime}"
 SRC_ROOTFS="${BLM_SRC_ROOTFS:-$HOME/.anylinuxfs/alpine}"
 OUT="$HERE/vendor/engine"
@@ -40,11 +40,13 @@ STAGE="$(mktemp -d)/rootfs"
 /usr/bin/ditto "$SRC_ROOTFS/rootfs" "$STAGE"
 if [ "${BLM_NO_TRIM:-0}" != "1" ]; then
   echo "  trimming guest image…"
-  /usr/bin/python3 "$HERE/tools/trim-image.py" "$STAGE"
+  /usr/bin/python3 "$HERE/scripts/trim-image.py" "$STAGE"
 fi
 # Keep the resulting package database beside the image so the notices describe
 # what actually ships rather than what upstream installed.
 cp "$STAGE/lib/apk/db/installed" "$OUT/alpine/packages.db"
+[ -f "$(dirname "$STAGE")/removed-packages.txt" ] && \
+  cp "$(dirname "$STAGE")/removed-packages.txt" "$OUT/alpine/removed-packages.txt"
 # Number of entries in the archive, so the first-run unpack can show progress
 # rather than a spinner that looks stuck.
 /usr/bin/find "$STAGE" | wc -l | tr -d ' ' > "$OUT/alpine/rootfs.count"
