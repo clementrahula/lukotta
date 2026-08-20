@@ -17,8 +17,12 @@ import os, re, sys, shutil
 ROOTS = [
     # BitLocker unlock
     "cryptsetup",
-    # NTFS
+    # NTFS: ntfs-3g is the compatibility path for volumes ntfs3 refuses
     "ntfs-3g", "ntfs-3g-progs",
+    # LUKS containers: Ubuntu, Debian, Fedora and openSUSE all put LVM inside
+    "lvm2",
+    # filesystems found inside LUKS containers
+    "e2fsprogs", "btrfs-progs",
     # export back to macOS
     "nfs-utils", "rpcbind",
     # mounting and block-device identification

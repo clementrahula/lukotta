@@ -328,18 +328,30 @@ already in the guest image (it is what unlocks BitLocker), and anylinuxfs
 advertises LUKS decryption in its own `list` command. Ubuntu's full-disk
 encryption is LUKS, typically LUKS → LVM → ext4.
 
-- [ ] Restore **lvm2** to `tools/trim-image.py`'s roots. It was just trimmed
-      out, and Ubuntu's default layout is LVM inside LUKS, so it is needed
-      again the moment LUKS is supported.
-- [ ] Confirm **ext4** is available in the guest kernel and that `e2fsprogs` is
-      in the closure.
-- [ ] Widen `DriveScanner`: it currently matches only GPT type
-      `Microsoft Basic Data`. LUKS volumes are usually `Linux filesystem` or
-      `Linux LVM`.
-- [ ] Stop forcing `-t ntfs3` unconditionally in `Mounter`. The driver has to
-      follow the volume: ntfs3 for BitLocker/NTFS, ext4 for a Linux volume.
-- [ ] Reword the UI, which says "BitLocker" throughout. The name Lukotta does
-      not tie the product to one format, which is convenient.
+- [x] `lvm2`, `e2fsprogs` and `btrfs-progs` restored to the trim roots — LVM is
+      the layer Ubuntu, Debian, Fedora and openSUSE all put inside LUKS. Image
+      is 66 packages, 150 MB; ZFS stays out.
+- [x] `DriveScanner` now recognises Linux partition types alongside
+      `Microsoft Basic Data`, and each drive carries a `VolumeKind` so the UI
+      can say "BitLocker or NTFS" / "LUKS or Linux filesystem" — honest about
+      what cannot be known before unlocking.
+- [x] `-t ntfs3` is no longer forced. Microsoft volumes try ntfs3 then fall back
+      to ntfs-3g; Linux volumes get no override so the engine detects ext4,
+      btrfs or xfs itself. Both attempts run inside one elevated command, so it
+      is still a single authorisation.
+- [x] UI copy no longer says BitLocker throughout.
+- [ ] **[you]** **Test against a real LUKS drive.** None of the above is
+      verified — there is no Linux volume here. An Ubuntu USB installer or a
+      LUKS-formatted stick would confirm detection, unlock and the LVM path.
+- [ ] Confirm the guest kernel has ext4/btrfs/xfs built in. The userland tools
+      are present, but mounting depends on the kernel in libkrunfw, which was
+      not checked.
+- [ ] LUKS-inside-LVM may need the two-step flow: `anylinuxfs list --decrypt`
+      reveals volume groups after unlocking, and the engine addresses them as
+      `lvm:<vg>:<disk>:<lv>`. A single-partition LUKS volume should work
+      directly; a stacked one may need the LV chosen first.
+- [ ] Out of scope, worth stating in the UI: TPM-sealed volumes (Ubuntu 23.10+
+      experimental FDE) and detached LUKS headers cannot be unlocked here.
 
 Strategically this is the stronger move: it widens the product beyond BitLocker
 and differentiates it from iBoysoft and M3, which are BitLocker-only. Most of

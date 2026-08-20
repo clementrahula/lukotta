@@ -37,7 +37,7 @@ private struct Header: View {
                 .foregroundStyle(.tint)
             VStack(alignment: .leading, spacing: 1) {
                 Text("Lukotta").font(.headline)
-                Text("Open BitLocker-encrypted drives on macOS")
+                Text("Open encrypted drives on macOS")
                     .font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
@@ -121,8 +121,8 @@ private struct DriveListView: View {
         if model.drives.isEmpty {
             EmptyStateView(
                 icon: "externaldrive.badge.questionmark",
-                title: "No BitLocker drives found",
-                message: "Connect the encrypted USB drive and choose Rescan. If it is already connected, macOS may have it mounted — eject it in Finder first.",
+                title: "No encrypted drives found",
+                message: "Connect the encrypted drive and choose Rescan. If it is already connected, macOS may have it mounted — eject it in Finder first.",
                 actionTitle: "Rescan",
                 action: model.rescan)
         } else {
@@ -137,7 +137,7 @@ private struct DriveListView: View {
                     }
                 }
                 HStack {
-                    Text("Drives of type “Microsoft Basic Data” are shown. Plain NTFS drives look identical to BitLocker ones until unlocking is attempted.")
+                    Text("BitLocker, NTFS and Linux volumes are shown. What a partition holds cannot be determined without unlocking it, so the labels say what is possible rather than what is certain.")
                         .font(.caption).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer()
@@ -222,7 +222,7 @@ private struct UnlockView: View {
                         .font(.caption).foregroundStyle(.orange)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                Text("Either the password the drive was locked with, or the 48-digit recovery key. Spaces and hyphens in a recovery key are ignored.")
+                Text("The password the drive was locked with, or a 48-digit BitLocker recovery key. Spaces and hyphens in a recovery key are ignored.")
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }

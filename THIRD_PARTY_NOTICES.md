@@ -38,7 +38,7 @@ If a release is ever missing its source archive, that is a bug — write to
 
 ## Linux guest image (Alpine Linux)
 
-58 packages are shipped inside the embedded Alpine root filesystem,
+66 packages are shipped inside the embedded Alpine root filesystem,
 which is trimmed by `tools/trim-image.py` to the dependency closure of what
 Lukotta actually uses — the upstream image carries 76.
 Licence strings are taken verbatim from the image's own package database.
@@ -54,17 +54,21 @@ Source for each is available from the Alpine Linux package archive
 | apk-tools | 3.0.6-r0 | GPL-2.0-only |
 | bash | 5.3.9-r1 | GPL-3.0-or-later |
 | blkid | 2.42.1-r0 | LGPL-1.0-only |
+| btrfs-progs | 6.17.1-r1 | GPL-2.0-or-later |
 | busybox | 1.37.0-r31 | GPL-2.0-only |
 | busybox-binsh | 1.37.0-r31 | GPL-2.0-only |
 | ca-certificates-bundle | 20260611-r0 | MPL-2.0 AND MIT |
 | cryptsetup | 2.8.6-r0 | GPL-2.0-or-later WITH cryptsetup-OpenSSL-exception |
 | cryptsetup-libs | 2.8.6-r0 | GPL-2.0-or-later WITH cryptsetup-OpenSSL-exception |
+| device-mapper-event-libs | 2.03.35-r3 | GPL-2.0-or-later AND LGPL-2.1-or-later |
 | device-mapper-libs | 2.03.35-r3 | GPL-2.0-or-later AND LGPL-2.1-or-later |
+| eudev-libs | 3.2.14-r6 | GPL-2.0-or-later |
 | gdbm | 1.26-r0 | GPL-3.0-or-later |
 | json-c | 0.18-r1 | MIT |
 | keyutils-libs | 1.6.3-r4 | GPL-2.0-or-later AND LGPL-2.0-or-later |
 | krb5-conf | 1.0-r2 | MIT |
 | krb5-libs | 1.22.2-r1 | MIT |
+| libaio | 0.3.113-r2 | LGPL-2.1-or-later |
 | libapk | 3.0.6-r0 | GPL-2.0-only |
 | libblkid | 2.42.1-r0 | LGPL-2.1-or-later |
 | libbz2 | 1.0.8-r6 | bzip2-1.0.6 |
@@ -88,6 +92,9 @@ Source for each is available from the Alpine Linux package archive
 | libuuid | 2.42.1-r0 | BSD-3-Clause |
 | libverto | 0.3.2-r2 | MIT |
 | lsblk | 2.42.1-r0 | GPL-2.0-or-later |
+| lvm2 | 2.03.35-r2 | GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause |
+| lvm2-libs | 2.03.35-r2 | GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause |
+| lzo | 2.10-r5 | GPL-2.0-or-later |
 | mount | 2.42.1-r0 | GPL-3.0-or-later AND GPL-2.0-or-later AND GPL-2.0-only AND GPL-1.0-only AND LGPL-2.1-or-later AND BSD-1-Clause AND BSD-3-Clause AND BSD-4-Clause-UC AND MIT AND Public-Domain |
 | mpdecimal | 4.0.1-r0 | BSD-2-Clause |
 | musl | 1.2.6-r2 | MIT |
@@ -105,6 +112,7 @@ Source for each is available from the Alpine Linux package archive
 | sqlite-libs | 3.53.2-r0 | blessing |
 | xz-libs | 5.8.3-r0 | GPL-2.0-or-later AND 0BSD AND Public-Domain AND LGPL-2.1-or-later |
 | zlib | 1.3.2-r0 | Zlib |
+| zstd-libs | 1.5.7-r2 | BSD-3-Clause OR GPL-2.0-or-later |
 
 ### Removed from the shipped image
 

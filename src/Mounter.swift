@@ -14,12 +14,29 @@ func appleScriptQuoted(_ s: String) -> String {
 
 // MARK: - Drives
 
+/// What we can tell about a partition before anything is unlocked.
+enum VolumeKind: String, Hashable {
+    /// GPT "Microsoft Basic Data" — BitLocker or plain NTFS, indistinguishable
+    /// until an unlock is attempted.
+    case microsoft
+    /// A Linux partition — LUKS, or an unencrypted Linux filesystem.
+    case linux
+
+    var summary: String {
+        switch self {
+        case .microsoft: return "BitLocker or NTFS"
+        case .linux:     return "LUKS or Linux filesystem"
+        }
+    }
+}
+
 struct Drive: Identifiable, Hashable {
     let id: String          // disk4s1
     let devicePath: String  // /dev/disk4s1
     let name: String        // best human-readable label we can find
     let sizeBytes: Int64
     let connection: String  // e.g. "USB · External"
+    let kind: VolumeKind
 
     var sizeDescription: String {
         let f = ByteCountFormatter()
@@ -28,8 +45,8 @@ struct Drive: Identifiable, Hashable {
     }
 
     var subtitle: String {
-        connection.isEmpty ? "\(sizeDescription) · \(id)"
-                           : "\(sizeDescription) · \(connection) · \(id)"
+        connection.isEmpty ? "\(sizeDescription) · \(kind.summary) · \(id)"
+                           : "\(sizeDescription) · \(connection) · \(kind.summary) · \(id)"
     }
 }
 
@@ -58,8 +75,21 @@ enum DriveScanner {
             guard let partitions = disk["Partitions"] as? [[String: Any]] else { continue }
             for part in partitions {
                 guard let ident = part["DeviceIdentifier"] as? String else { continue }
-                // Microsoft Basic Data covers both BitLocker and plain NTFS.
-                guard (part["Content"] as? String) == "Microsoft Basic Data" else { continue }
+                // "Microsoft Basic Data" covers BitLocker and plain NTFS alike;
+                // Linux types cover LUKS and unencrypted Linux filesystems.
+                // Nothing can be distinguished further without reading the
+                // header, which needs root, so the UI stays honest about it.
+                let content = (part["Content"] as? String) ?? ""
+                let kind: VolumeKind
+                switch content {
+                case "Microsoft Basic Data":
+                    kind = .microsoft
+                case "Linux Filesystem", "Linux_Filesystem",
+                     "Linux LVM", "Linux_LVM", "Linux RAID", "Linux_RAID":
+                    kind = .linux
+                default:
+                    continue
+                }
 
                 let partInfo = info(for: ident) ?? [:]
                 let size = (part["Size"] as? NSNumber)?.int64Value
@@ -78,7 +108,8 @@ enum DriveScanner {
                                     devicePath: "/dev/\(ident)",
                                     name: label,
                                     sizeBytes: size,
-                                    connection: connection.joined(separator: " · ")))
+                                    connection: connection.joined(separator: " · "),
+                                    kind: kind))
             }
         }
         return drives
@@ -272,7 +303,7 @@ enum Mounter {
         parts.append("export SUDO_GID=\(getgid())")
 
         // The engine defaults to a 1 vCPU / 512 MiB microVM, which throttles the
-        // in-guest NFS server and ntfs3 driver. Scale to the host, within reason.
+        // in-guest NFS server and filesystem drivers. Scale to the host.
         let cores = max(2, min(4, ProcessInfo.processInfo.activeProcessorCount / 2))
         let ram = 2048
         parts.append(shellQuoted(engine.path) + " config -n \(cores) -r \(ram) >/dev/null 2>&1 || true")
@@ -281,12 +312,35 @@ enum Mounter {
         // which matters a lot for sequential throughput on this loopback mount.
         let nfsOptions = "rsize=1048576,wsize=1048576,readahead=128"
 
-        let cmd = "ALFS_PASSPHRASE=\"$(cat \(shellQuoted(fifo.path)))\" "
-            + shellQuoted(engine.path)
-            + " mount --ignore-permissions -t ntfs3 -w false -n \(shellQuoted(nfsOptions)) "
-            + shellQuoted(drive.devicePath)
-            + " > \(shellQuoted(log.path)) 2>&1"
-        parts.append(cmd)
+        // Which filesystem drivers to try, in order.
+        //
+        // ntfs3 is the in-kernel driver and much faster, but it refuses a
+        // "dirty" volume — which is what Windows Fast Startup and hibernation
+        // leave behind, and therefore the most common real-world failure.
+        // ntfs-3g will mount those. A Linux volume gets no override at all:
+        // the engine detects ext4/btrfs/xfs itself.
+        let drivers: [String?]
+        switch drive.kind {
+        case .microsoft: drivers = ["ntfs3", "ntfs-3g"]
+        case .linux:     drivers = [nil]
+        }
+
+        // The credential is read from the pipe once into a shell variable, then
+        // reused: a FIFO can only be consumed once, and re-prompting the user
+        // for each attempt would defeat the point of a single authorisation.
+        parts.append("__cred=\"$(cat \(shellQuoted(fifo.path)))\"")
+
+        let attempts: [String] = drivers.enumerated().map { index, driver in
+            let redirect = index == 0 ? ">" : ">>"
+            let typeFlag = driver.map { " -t \($0)" } ?? ""
+            return "ALFS_PASSPHRASE=\"$__cred\" "
+                + shellQuoted(engine.path)
+                + " mount --ignore-permissions\(typeFlag) -w false -n \(shellQuoted(nfsOptions)) "
+                + shellQuoted(drive.devicePath)
+                + " \(redirect) \(shellQuoted(log.path)) 2>&1"
+        }
+        parts.append(attempts.joined(separator: " || "))
+        parts.append("unset __cred")
         let script = parts.joined(separator: "; ")
 
         let osa = Process()
@@ -389,6 +443,13 @@ enum Diagnosis {
         if lower.contains("not a valid bitlocker") || lower.contains("unknown filesystem")
             || lower.contains("no bitlocker") {
             return "This partition does not look like a BitLocker volume."
+        }
+        if lower.contains("hiberfile") || lower.contains("hibernated")
+            || lower.contains("unclean") || lower.contains("dirty") {
+            return "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again."
+        }
+        if lower.contains("unknown filesystem type") || lower.contains("no such device") {
+            return "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong."
         }
         if lower.contains("already mounted") {
             return "macOS already has this drive mounted. Eject it in Finder and try again."

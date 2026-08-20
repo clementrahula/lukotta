@@ -42,7 +42,8 @@ final class AppModel: ObservableObject {
                                  devicePath: existing.devicePath,
                                  name: URL(fileURLWithPath: existing.mountPoint).lastPathComponent,
                                  sizeBytes: 0,
-                                 connection: "")
+                                 connection: "",
+                                 kind: .microsoft)
                     self.phase = .mounted(drive, existing.mountPoint)
                 } else {
                     self.phase = .chooseDrive

@@ -66,6 +66,25 @@ expect(Diagnosis.summarise("error: device is already mounted", fallback: "").con
        "already-mounted diagnosis")
 expect(Diagnosis.summarise("", fallback: "").isEmpty == false, "empty transcript still yields a sentence")
 
+// MARK: volume kinds and the dirty-volume path
+
+expect(VolumeKind.microsoft.summary, "BitLocker or NTFS", "microsoft kind summary")
+expect(VolumeKind.linux.summary, "LUKS or Linux filesystem", "linux kind summary")
+
+let d = Drive(id: "disk4s1", devicePath: "/dev/disk4s1", name: "BACKUP",
+              sizeBytes: 500_000_000_000, connection: "USB · External", kind: .microsoft)
+expect(d.subtitle.contains("BitLocker or NTFS"), "subtitle states what the volume might be")
+expect(d.subtitle.contains("disk4s1"), "subtitle keeps the device identifier")
+
+// Windows Fast Startup and hibernation are the most common real-world failure,
+// and the advice has to be actionable rather than a raw driver error.
+let dirty = Diagnosis.summarise("ntfs3: volume is dirty and mounting is refused", fallback: "")
+expect(dirty.contains("Fast Startup"), "dirty volume explains Fast Startup")
+let hib = Diagnosis.summarise("Windows is hibernated, refused to mount (hiberfile)", fallback: "")
+expect(hib.contains("Fast Startup"), "hibernated volume gets the same advice")
+expect(Diagnosis.summarise("mount: unknown filesystem type 'crypto_LUKS'", fallback: "")
+        .contains("did not recognise"), "unrecognised filesystem diagnosis")
+
 expect(Permissions.isAccessDenied("Cannot probe /dev/disk4s1"), "access denial detected")
 expect(!Permissions.isAccessDenied("No key available"), "wrong key is not an access denial")
 
