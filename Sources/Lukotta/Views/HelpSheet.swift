@@ -80,6 +80,17 @@ struct HelpSheet: View {
                         )
                     }
 
+                    HelpSection(title: "Requirements") {
+                        Bullet("An Apple Silicon Mac. Intel Macs are not supported")
+                        Bullet("macOS 26 or later")
+                        Bullet(
+                            "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use"
+                        )
+                        Bullet(
+                            "30 to 80 MB of RAM per unlocked drive. Nothing is set aside while a drive sits idle, so the limit in practice is how many drives you can plug in"
+                        )
+                    }
+
                     HelpSection(title: "Licence") {
                         Text(
                             "Lukotta is free software under the GPL, version 3 or later. It is built on anylinuxfs, which does the hard part. Complete source for every component is published alongside each release."
@@ -94,17 +105,6 @@ struct HelpSheet: View {
                         }
                         .controlSize(.small)
                         .padding(.top, 2)
-                    }
-
-                    HelpSection(title: "Requirements") {
-                        Bullet("An Apple Silicon Mac. Intel Macs are not supported")
-                        Bullet("macOS 26 or later")
-                        Bullet(
-                            "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use"
-                        )
-                        Bullet(
-                            "30 to 80 MB of RAM per unlocked drive. Nothing is set aside while a drive sits idle, so the limit in practice is how many drives you can plug in"
-                        )
                     }
 
                     HelpSection(title: "Author") {
