@@ -262,7 +262,56 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 9. Strategic — the native UX project
+## 9. Platform and feature expansion
+
+### Intel / universal binary — probably not worth it
+
+The Swift side is trivial: build for `x86_64-apple-macos15.0` as well and `lipo`
+the results. Everything else is the problem.
+
+- [ ] Check whether anylinuxfs publishes an **x86_64 bottle**. The pinned hashes
+      were `arm64_tahoe` and `arm64_sequoia` only, and the original bootstrap
+      hard-failed on anything but arm64, which suggests upstream is
+      Apple-Silicon-only.
+- [ ] Check **libkrun on Intel macOS**. It uses Hypervisor.framework, which
+      Intel Macs have, but libkrun's macOS support has been arm64-centric. This
+      is the gating question — no hypervisor, no product.
+- [ ] Budget for **a second guest image**. The Alpine rootfs and the kernel
+      inside libkrunfw are both `aarch64`; Intel needs an x86_64 pair, adding
+      roughly 100 MB and taking the bundle past 250 MB, plus a second set of
+      sources to mirror.
+
+Weigh against a shrinking audience: the last Intel Macs shipped in 2020 and the
+deployment floor is already macOS 15. **Verify the libkrun question before
+committing to any of it** — if that fails, the rest is moot.
+
+### LUKS / Linux encrypted volumes — genuinely promising
+
+Much better value than Intel. The engine already does this: `cryptsetup` is
+already in the guest image (it is what unlocks BitLocker), and anylinuxfs
+advertises LUKS decryption in its own `list` command. Ubuntu's full-disk
+encryption is LUKS, typically LUKS → LVM → ext4.
+
+- [ ] Restore **lvm2** to `tools/trim-image.py`'s roots. It was just trimmed
+      out, and Ubuntu's default layout is LVM inside LUKS, so it is needed
+      again the moment LUKS is supported.
+- [ ] Confirm **ext4** is available in the guest kernel and that `e2fsprogs` is
+      in the closure.
+- [ ] Widen `DriveScanner`: it currently matches only GPT type
+      `Microsoft Basic Data`. LUKS volumes are usually `Linux filesystem` or
+      `Linux LVM`.
+- [ ] Stop forcing `-t ntfs3` unconditionally in `Mounter`. The driver has to
+      follow the volume: ntfs3 for BitLocker/NTFS, ext4 for a Linux volume.
+- [ ] Reword the UI, which says "BitLocker" throughout. The name Lukotta does
+      not tie the product to one format, which is convenient.
+
+Strategically this is the stronger move: it widens the product beyond BitLocker
+and differentiates it from iBoysoft and M3, which are BitLocker-only. Most of
+the work is detection and UI, not new engine capability.
+
+---
+
+## 10. Strategic — the native UX project
 
 Not a release task. This is the separate project described in
 PRODUCTION-READINESS.md §7, and it is what would make the product genuinely
