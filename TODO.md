@@ -37,14 +37,24 @@ Nothing ships until these are done.
 - [ ] **[you]** **Make the repository public.** GPL-3 binaries entitle
       recipients to the corresponding source; a private repo plus a public
       binary is a violation from the first download.
-- [x] Source offer now names a real address: **lukotta@rahula.dev**, in both
-      `THIRD_PARTY_NOTICES.md` and the README. Note the commitment this creates:
-      the offer is valid for **three years from the date of distribution**, so
-      the address has to keep working that long and someone has to be able to
-      produce the source for the exact versions shipped.
-- [ ] **[me]** Reduce that burden by archiving the upstream source tarballs
-      alongside each release, so honouring the offer is a link rather than a
-      manual hunt for versions shipped years earlier.
+- [x] Dropped the three-year written offer in favour of GPL-3 §6(d) /
+      GPL-2 §3 same-place distribution. §6(a) and §6(b) are both written for
+      object code "embodied in a physical product"; for a download, publishing
+      source beside the binary discharges the obligation immediately and starts
+      no clock. `lukotta@rahula.dev` stays as an ordinary contact.
+- [ ] **[me]** **Build the source archive into the release process.** This is
+      what makes §6(d) true rather than aspirational: every release carrying a
+      binary must carry source for Lukotta *and* for every embedded GPL
+      component — anylinuxfs, libkrunfw and its kernel, and each GPL package in
+      the Alpine image. GPL-3 §6(d) permits a third-party server with clear
+      directions, but GPL-2's equivalent paragraph says "the same place", so
+      the GPL-2 components (kernel, busybox, ntfs-3g, nfs-utils, mdadm, …)
+      should be mirrored by us.
+- [ ] **[me]** **Shrink the guest image.** The compliance surface is 76 Alpine
+      packages because anylinuxfs is a general-purpose filesystem tool. Lukotta
+      needs cryptsetup, NTFS and NFS tooling, mount and their dependencies —
+      likely under half of that. Less to mirror, a smaller download, and a
+      smaller attack surface, for the same functionality.
 - [ ] **[me]** **Make the build reproducible.** `vendor/` is gitignored and
       `vendor-engine.sh` stages from whatever anylinuxfs happens to be installed
       on the build machine, so nobody else can build Lukotta and v1.0.1 cannot

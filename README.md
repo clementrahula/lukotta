@@ -97,8 +97,11 @@ Versioning is semver in `VERSION`; the build number is the git commit count.
 
 ## Contact
 
-**lukotta@rahula.dev** — bug reports, questions, and requests for the
-corresponding source of any GPL component shipped in the app.
+**lukotta@rahula.dev** — bug reports and questions.
+
+Corresponding source for every GPL component is published alongside each
+release, so you should never need to ask for it. If a release is missing its
+source archive, that is a bug worth reporting.
 
 ## Licence
 

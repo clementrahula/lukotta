@@ -6,15 +6,21 @@ components actually embedded in the application bundle.
 Lukotta itself is licensed **GPL-3.0-or-later** (see `LICENSE`). It embeds the
 components below and redistributes them under their own terms.
 
-## Written offer for source code
+## Corresponding source
 
-As required by GPL-2.0 section 3 and GPL-3.0 section 6, the complete
-corresponding source code for every GPL component listed here is available.
-Source for Lukotta is at the project repository. For the embedded components,
-open an issue on the project repository, or write to **lukotta@rahula.dev**,
-and you will be sent the complete corresponding source for the exact versions
-shipped, for at least three years from the date of distribution, at no more
-than the cost of the transfer.
+Lukotta is conveyed over a network, so source is provided under GPL-3.0
+section 6(d) and the equivalent paragraph of GPL-2.0 section 3: the complete
+corresponding source is offered **from the same place as the application, at
+no further charge**. Every release that carries a binary also carries the
+source for that binary and for every GPL component embedded in it.
+
+This is deliberately not the section 6(b) written-offer route. That option is
+written for object code "embodied in a physical product" and binds the
+distributor for three years; supplying the source alongside the download
+discharges the obligation at the moment of distribution instead.
+
+If a release is ever missing its source archive, that is a bug — write to
+**lukotta@rahula.dev** and it will be fixed.
 
 ## Host components
 
