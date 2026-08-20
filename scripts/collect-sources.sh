@@ -61,6 +61,18 @@ fetch "https://github.com/containers/libkrunfw/archive/refs/heads/main.tar.gz" \
       "$OUT/libkrunfw.tar.gz"
 note ""
 
+# libblkid is the one library the engine links from outside its own build, and
+# it is LGPL: shipping it obliges us to offer its source too. The version comes
+# from the same lock that decides which build is vendored, so this cannot drift
+# from what is actually in the app.
+UTIL_VER="$(/usr/bin/python3 -c "import json;print(json.load(open('$HERE/vendor/engine.lock'))['util_linux']['version'])" 2>/dev/null || echo "")"
+if [ -n "$UTIL_VER" ]; then
+  note "util-linux $UTIL_VER (LGPL-2.1-or-later), source of the bundled libblkid"
+  UTIL_SERIES="$(printf '%s' "$UTIL_VER" | cut -d. -f1-2)"
+  fetch "https://cdn.kernel.org/pub/linux/utils/util-linux/v${UTIL_SERIES}/util-linux-${UTIL_VER}.tar.xz" \
+        "$OUT/util-linux-${UTIL_VER}.tar.xz"
+fi
+
 note "gvisor-tap-vsock (gvproxy) and vmnet-helper (Apache-2.0)"
 fetch "https://github.com/containers/gvisor-tap-vsock/archive/refs/heads/main.tar.gz" \
       "$OUT/gvisor-tap-vsock.tar.gz"

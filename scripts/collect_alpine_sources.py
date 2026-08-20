@@ -169,6 +169,24 @@ for pkg in origins:
         # source Alpine built from. Upstream projects move and delete tarballs,
         # and the mirror is what the recipe was actually built against.
         candidates = [url]
+
+        # SQLite names its tarballs by a version code the APKBUILD computes with
+        # shell arithmetic — 3.53.2 becomes 3530200 — which the expansion above
+        # cannot evaluate, so it produced a name that exists nowhere. Build the
+        # code here, and try the years SQLite files releases under.
+        if pkg.startswith("sqlite"):
+            pv = vars_.get("pkgver", "")
+            parts = pv.split(".")
+            if len(parts) >= 3 and all(x.isdigit() for x in parts[:3]):
+                code = f"{int(parts[0])}{int(parts[1]):02d}{int(parts[2]):02d}00"
+                stem = f"sqlite-autoconf-{code}.tar.gz"
+                candidates = [f"https://sqlite.org/{y}/{stem}" for y in (2026, 2025, 2024)]
+                candidates.append(f"https://distfiles.alpinelinux.org/distfiles/{stem}")
+                name = stem
+                dest = os.path.join(pdir, name)
+                if os.path.exists(dest):
+                    continue
+
         if name and "$" not in name:
             candidates += [
                 f"https://distfiles.alpinelinux.org/distfiles/v3.24/{name}",

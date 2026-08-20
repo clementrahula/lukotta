@@ -64,6 +64,18 @@ LENGTH="$(printf '%s' "$SIG_LINE" | sed -n 's/.*length="\([^"]*\)".*/\1/p')"
 [ -n "$SIGNATURE" ] && [ -n "$LENGTH" ] || {
   echo "error: could not read the signature from: $SIG_LINE" >&2; exit 1; }
 
+printf '==> Corresponding source\n'
+# GPL-3 section 6(d): source offered from the same place as the binary. A
+# release without it is a licence breach, so the release builds it rather than
+# leaving it to be remembered.
+SOURCES_DIR="$HERE/dist/sources"
+SOURCES_ZIP="$HERE/dist/Lukotta-$VERSION-source.zip"
+"$HERE/scripts/collect-sources.sh" "$SOURCES_DIR" >/dev/null
+[ -d "$SOURCES_DIR" ] || { echo "error: no corresponding source was produced" >&2; exit 1; }
+rm -f "$SOURCES_ZIP"
+/usr/bin/ditto -c -k --keepParent "$SOURCES_DIR" "$SOURCES_ZIP"
+printf '    %s (%s)\n' "$(basename "$SOURCES_ZIP")" "$(du -h "$SOURCES_ZIP" | awk '{print $1}')"
+
 printf '==> Release notes\n'
 NOTES_DIR="$(dirname "$APPCAST")/notes"
 mkdir -p "$NOTES_DIR"
@@ -106,10 +118,11 @@ python3 "$HERE/scripts/appcast.py" \
 if [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
   printf '==> Publishing the GitHub release\n'
   if gh release view "v$VERSION" --repo "$REPO" >/dev/null 2>&1; then
-    gh release upload "v$VERSION" "$ZIP" --repo "$REPO" --clobber
+    gh release upload "v$VERSION" "$ZIP" "$SOURCES_ZIP" --repo "$REPO" --clobber
   else
-    gh release create "v$VERSION" "$ZIP" --repo "$REPO" \
-      --title "Lukotta $VERSION" --notes "See the appcast for details."
+    gh release create "v$VERSION" "$ZIP" "$SOURCES_ZIP" --repo "$REPO" \
+      --title "Lukotta $VERSION" \
+      --notes "Complete corresponding source for the GPL components is attached as Lukotta-$VERSION-source.zip."
   fi
 else
   printf '==> Not published. Set LUKOTTA_PUBLISH=1 to create the GitHub release.\n'
