@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Swift version
+        run: swift --version
+
+      - name: Build
+        run: swift build
+
+      # The suite is a plain executable, not a test target: XCTest and
+      # swift-testing both need a full Xcode install, and the tests should run
+      # anywhere the package builds.
+      - name: Tests
+        run: swift run LukottaTests
+
+      - name: Recovery-key validator
+        run: ./scripts/test-key-validator.sh
+
+      - name: Format
+        run: swift format lint --recursive --strict Sources
+
+      - name: Shell scripts
+        run: |
+          brew install shellcheck
+          shellcheck -e SC1091,SC2317 ./*.sh ./scripts/*.sh
+
+  # Producing a signed bundle needs the vendored engine and a signing identity,
+  # neither of which exists on a runner. Enable once vendoring is reproducible
+  # from pinned upstream artefacts — see Documentation/TODO.md section 1.

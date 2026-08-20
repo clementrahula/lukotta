@@ -53,7 +53,7 @@ Nothing ships until these are done.
 - [ ] **[me]** Resolve each Alpine package's upstream tarball from its APKBUILD
       rather than shipping only the aports recipes. Recipes are the "scripts
       used to control compilation"; the upstream tarballs are the source proper.
-- [x] Guest image trimmed by `tools/trim-image.py`, which resolves the apk
+- [x] Guest image trimmed by `scripts/trim-image.py`, which resolves the apk
       dependency graph and keeps only the closure of the BitLocker, NTFS, NFS
       and mount tooling: 76 packages down to 58, 25.6 MiB of files removed, and
       the package database rewritten so it still describes what ships. LVM,
@@ -160,7 +160,7 @@ is now `dev.rahula.lukotta`.
 
 - [x] Official logo stored at `assets/brand/lukotta-logo.jpg`, with the mark
       extracted to `assets/brand/lukotta-mark.png`.
-- [x] Icon calibrated against the artwork by `tools/analyse-logo.swift`, which
+- [x] Icon calibrated against the artwork by `scripts/analyse-logo.swift`, which
       measures the mark rather than eyeballing it: charcoal `#444953` (median of
       971 interior samples), cream `#FBF6F2`, corner radius 0.174 of width, cut
       width 0.053, and a cut centre that tracks linearly from 0.343 to 0.473
@@ -175,7 +175,7 @@ is now `dev.rahula.lukotta`.
       light geometric sans; it belongs in the About panel and at the top of the
       README, neither of which currently show any branding.
 - [x] Brand colours and the mark's construction are recorded in
-      `tools/make-icon.swift` and reproducible via `tools/analyse-logo.swift`.
+      `scripts/make-icon.swift` and reproducible via `scripts/analyse-logo.swift`.
 - [ ] **[me]** Write them up in a short `assets/brand/README.md` so they are
       findable without reading Swift.
 
@@ -485,7 +485,23 @@ milliseconds. This is an architecture problem, not a discipline problem.
 
 ---
 
-## 13. Distribution — Homebrew
+## 13. Third-party notices — rewrite the prose
+
+- [ ] **[me]** `Documentation/THIRD_PARTY_NOTICES.md` reads like generated
+      filler. The licence data in it is correct and machine-derived, but the
+      surrounding prose is padded and repetitive, and a compliance document is
+      exactly the wrong place for that. Rewrite it to be terse, plainly worded
+      and precise, without weakening what it asserts — the GPL §6(d) position
+      and the source offer have to remain legally sound.
+- [ ] Redo it **after** the remaining parts settle. The component list changes
+      with every trim of the guest image, and the wording should be written once
+      against the final set rather than repeatedly against a moving one.
+- [ ] Have the licence claims checked by someone qualified before release. The
+      analysis is careful but it is engineering judgement, not legal advice.
+
+---
+
+## 14. Distribution — Homebrew
 
 - [ ] **[me]** Submit a Homebrew cask, so installation is
       `brew install --cask lukotta`. Blocked on the release blockers in §1: a
@@ -499,7 +515,7 @@ milliseconds. This is an architecture problem, not a discipline problem.
 
 ---
 
-## 14. Website and visibility
+## 15. Website and visibility
 
 ### Website — built, needs switching on
 
@@ -535,7 +551,7 @@ README and screenshots — every list rejects submissions that lack those.
 
 ---
 
-## 15. Platform and feature expansion
+## 16. Platform and feature expansion
 
 ### Intel / universal binary — probably not worth it
 
@@ -614,7 +630,7 @@ the work is detection and UI, not new engine capability.
 
 ---
 
-## 16. Strategic — the native UX project
+## 17. Strategic — the native UX project
 
 Not a release task. This is the separate project described in
 PRODUCTION-READINESS.md §7, and it is what would make the product genuinely

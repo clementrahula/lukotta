@@ -28,30 +28,22 @@ SIGN_ID="${BLM_SIGN_ID:-$(security find-identity -v -p codesigning 2>/dev/null \
 # fast iteration only.
 if [ "${BLM_SKIP_TESTS:-0}" != "1" ]; then
   printf 'Running tests…\n'
-  "$HERE/tests/run-all.sh" >/dev/null || {
-    echo "error: tests failed; refusing to build. Run ./tests/run-all.sh" >&2; exit 1; }
+  swift run -c release LukottaTests >/dev/null || {
+    echo "error: tests failed; refusing to build. Run: swift run LukottaTests" >&2; exit 1; }
 fi
 
 rm -rf "$OUT"
 mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources/helpers"
 
 printf 'Building %s %s (build %s)\n' "$APP_NAME" "$VERSION" "$BUILD"
-swiftc -parse-as-library \
-  -target arm64-apple-macos15.0 \
-  -O -whole-module-optimization \
-  "$HERE/src/Engine.swift" \
-  "$HERE/src/CredentialStore.swift" \
-  "$HERE/src/MountScript.swift" \
-  "$HERE/src/Mounter.swift" \
-  "$HERE/src/AppModel.swift" \
-  "$HERE/src/ContentView.swift" \
-  "$HERE/src/LukottaApp.swift" \
-  -o "$CONTENTS/MacOS/$APP_NAME"
+swift build -c release --product Lukotta
+cp "$(swift build -c release --product Lukotta --show-bin-path)/Lukotta" \
+   "$CONTENTS/MacOS/$APP_NAME"
 
 sed -e "s/__VERSION__/$VERSION/" -e "s/__BUILD__/$BUILD/" \
-  "$HERE/src/Info.plist" > "$CONTENTS/Info.plist"
+  "$HERE/Sources/Info.plist" > "$CONTENTS/Info.plist"
 cp "$HERE/assets/AppIcon.icns" "$CONTENTS/Resources/AppIcon.icns"
-cp "$HERE/helpers/validate-key.sh" "$CONTENTS/Resources/helpers/validate-key.sh"
+cp "$HERE/resources/helpers/validate-key.sh" "$CONTENTS/Resources/helpers/validate-key.sh"
 chmod 755 "$CONTENTS/Resources/helpers/validate-key.sh"
 cp "$HERE/LICENSE" "$CONTENTS/Resources/LICENSE"
 # Localisation tables, if present.
@@ -59,7 +51,7 @@ for lproj in "$HERE"/resources/*.lproj; do
   [ -d "$lproj" ] || continue
   /usr/bin/ditto "$lproj" "$CONTENTS/Resources/$(basename "$lproj")"
 done
-[ -f "$HERE/THIRD_PARTY_NOTICES.md" ] && cp "$HERE/THIRD_PARTY_NOTICES.md" "$CONTENTS/Resources/"
+[ -f "$HERE/Documentation/THIRD_PARTY_NOTICES.md" ] && cp "$HERE/Documentation/THIRD_PARTY_NOTICES.md" "$CONTENTS/Resources/"
 printf 'APPL????' > "$CONTENTS/PkgInfo"
 
 if [ -d "$HERE/vendor/engine" ]; then

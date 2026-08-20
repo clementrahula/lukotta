@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
-V="$HERE/helpers/validate-key.sh"
+V="$HERE/resources/helpers/validate-key.sh"
 VALID="110011-220022-330033-440044-550055-660066-700007-711711"
 UNDASHED="110011220022330033440044550055660066700007711711"
 

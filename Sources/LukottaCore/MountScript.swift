@@ -12,9 +12,9 @@ import Foundation
 ///
 /// Neither was reachable by a test while generation and execution were fused
 /// into one function. Keeping this pure means the exact text can be asserted.
-enum MountScript {
+public enum MountScript {
 
-    struct Inputs {
+    public struct Inputs {
         var enginePath: String
         var devicePath: String
         var driveName: String
@@ -37,30 +37,49 @@ enum MountScript {
         /// macOS negotiates 32 KiB NFS transfers by default and supports 1 MiB,
         /// which matters for sequential throughput over this loopback mount.
         var nfsOptions = "rsize=1048576,wsize=1048576,readahead=128"
+
+        public init(
+            enginePath: String, devicePath: String, driveName: String,
+            kind: VolumeKind, volume: LogicalVolume? = nil,
+            aliasPath: String? = nil, fifoPath: String, logPath: String,
+            discoverLogPath: String, expectScriptPath: String,
+            libraryPaths: [String], uid: UInt32, gid: UInt32,
+            cores: Int, ramMiB: Int
+        ) {
+            self.enginePath = enginePath; self.devicePath = devicePath
+            self.driveName = driveName; self.kind = kind
+            self.volume = volume; self.aliasPath = aliasPath
+            self.fifoPath = fifoPath; self.logPath = logPath
+            self.discoverLogPath = discoverLogPath
+            self.expectScriptPath = expectScriptPath
+            self.libraryPaths = libraryPaths
+            self.uid = uid; self.gid = gid
+            self.cores = cores; self.ramMiB = ramMiB
+        }
     }
 
     /// Marker written when a container holds several volumes and the engine was
     /// therefore never told which to mount.
-    static let multipleVolumesMarker = "LUKOTTA_MULTIPLE_VOLUMES"
+    public static let multipleVolumesMarker = "LUKOTTA_MULTIPLE_VOLUMES"
 
     /// Drives the engine's interactive passphrase prompt.
     ///
     /// `list --decrypt` prompts on a terminal and ignores ALFS_PASSPHRASE, so it
     /// has to be fed through a pty. `expect -c` keeps reading commands from
     /// stdin once an inline script ends and never exits, so this must be a file.
-    static let expectDriver = """
-    set timeout 600
-    spawn -noecho [lindex $argv 0] list --decrypt=all [lindex $argv 1]
-    expect {
-      -re "passphrase.*: " { send "$env(ALFS_PASSPHRASE)\\r"; exp_continue }
-      timeout { exit 99 }
-      eof
-    }
-    catch wait result
-    exit [lindex $result 3]
-    """
+    public static let expectDriver = """
+        set timeout 600
+        spawn -noecho [lindex $argv 0] list --decrypt=all [lindex $argv 1]
+        expect {
+          -re "passphrase.*: " { send "$env(ALFS_PASSPHRASE)\\r"; exp_continue }
+          timeout { exit 99 }
+          eof
+        }
+        catch wait result
+        exit [lindex $result 3]
+        """
 
-    static func build(_ i: Inputs) -> String {
+    public static func build(_ i: Inputs) -> String {
         let engineQ = shellQuoted(i.enginePath)
         let deviceQ = shellQuoted(i.devicePath)
         let logQ = shellQuoted(i.logPath)
@@ -87,24 +106,30 @@ enum MountScript {
         lines.append("__cred=\"$(cat \(shellQuoted(i.fifoPath)))\"")
         lines.append("\(engineQ) config -n \(i.cores) -r \(i.ramMiB) >/dev/null 2>&1 || true")
 
-        lines.append(attempts(i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
-                        .joined(separator: " || "))
+        lines.append(
+            attempts(i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
+                .joined(separator: " || "))
         lines.append("__rc=$?")
         lines.append("unset __cred")
         lines.append("exit $__rc")
         return lines.joined(separator: "\n")
     }
 
-    private static func attempts(_ i: Inputs,
-                                 engineQ: String,
-                                 deviceQ: String,
-                                 logQ: String) -> [String] {
+    private static func attempts(
+        _ i: Inputs,
+        engineQ: String,
+        deviceQ: String,
+        logQ: String
+    ) -> [String] {
         // A volume already chosen by the user is mounted directly: no driver
         // override, no discovery.
         if let volume = i.volume {
-            return [mountCommand(engineQ: engineQ,
-                                 target: shellQuoted(volume.mountIdentifier),
-                                 driver: nil, options: i.nfsOptions, logQ: logQ)]
+            return [
+                mountCommand(
+                    engineQ: engineQ,
+                    target: shellQuoted(volume.mountIdentifier),
+                    driver: nil, options: i.nfsOptions, logQ: logQ)
+            ]
         }
 
         // ntfs3 is the in-kernel driver and much faster, but refuses a "dirty"
@@ -115,8 +140,11 @@ enum MountScript {
         let targets = [i.aliasPath.map(shellQuoted), deviceQ].compactMap { $0 }
 
         var result = targets.flatMap { target in
-            drivers.map { mountCommand(engineQ: engineQ, target: target, driver: $0,
-                                       options: i.nfsOptions, logQ: logQ) }
+            drivers.map {
+                mountCommand(
+                    engineQ: engineQ, target: target, driver: $0,
+                    options: i.nfsOptions, logQ: logQ)
+            }
         }
         if i.kind == .linux {
             result.append(discovery(i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ))
@@ -124,11 +152,13 @@ enum MountScript {
         return result
     }
 
-    private static func mountCommand(engineQ: String,
-                                     target: String,
-                                     driver: String?,
-                                     options: String,
-                                     logQ: String) -> String {
+    private static func mountCommand(
+        engineQ: String,
+        target: String,
+        driver: String?,
+        options: String,
+        logQ: String
+    ) -> String {
         let typeFlag = driver.map { " -t \($0)" } ?? ""
         // --nfs-options MUST use the joined form: the flag is variadic, and the
         // separated form swallows the target that follows it.
@@ -139,26 +169,28 @@ enum MountScript {
 
     /// Ubuntu, Debian, Mint and Fedora all put LVM inside the LUKS container,
     /// so unlocking exposes a volume group rather than a filesystem.
-    private static func discovery(_ i: Inputs,
-                                  engineQ: String,
-                                  deviceQ: String,
-                                  logQ: String) -> String {
+    private static func discovery(
+        _ i: Inputs,
+        engineQ: String,
+        deviceQ: String,
+        logQ: String
+    ) -> String {
         let listQ = shellQuoted(i.discoverLogPath)
         return """
-        {
-          ALFS_PASSPHRASE="$__cred" /usr/bin/expect -f \(shellQuoted(i.expectScriptPath)) \(engineQ) \(deviceQ) > \(listQ) 2>&1
-          cat \(listQ) >> \(logQ)
-          __lvs=$(awk '$NF ~ /^[^:]+:[^:]+:[^:]+$/ && $2 != "LVM2_scheme" { print $NF }' \(listQ))
-          __count=$(printf '%s\\n' "$__lvs" | grep -c . )
-          if [ "$__count" -eq 1 ]; then
-            ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(i.nfsOptions)) "lvm:$__lvs" >> \(logQ) 2>&1
-          elif [ "$__count" -gt 1 ]; then
-            echo "\(multipleVolumesMarker)" >> \(logQ)
-            false
-          else
-            false
-          fi
-        }
-        """
+            {
+              ALFS_PASSPHRASE="$__cred" /usr/bin/expect -f \(shellQuoted(i.expectScriptPath)) \(engineQ) \(deviceQ) > \(listQ) 2>&1
+              cat \(listQ) >> \(logQ)
+              __lvs=$(awk '$NF ~ /^[^:]+:[^:]+:[^:]+$/ && $2 != "LVM2_scheme" { print $NF }' \(listQ))
+              __count=$(printf '%s\\n' "$__lvs" | grep -c . )
+              if [ "$__count" -eq 1 ]; then
+                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(i.nfsOptions)) "lvm:$__lvs" >> \(logQ) 2>&1
+              elif [ "$__count" -gt 1 ]; then
+                echo "\(multipleVolumesMarker)" >> \(logQ)
+                false
+              else
+                false
+              fi
+            }
+            """
     }
 }

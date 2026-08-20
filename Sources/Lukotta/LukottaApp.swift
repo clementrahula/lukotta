@@ -1,5 +1,6 @@
-import SwiftUI
 import AppKit
+import LukottaCore
+import SwiftUI
 
 @main
 struct LukottaApp: App {
@@ -18,9 +19,12 @@ struct LukottaApp: App {
         .windowResizability(.contentMinSize)
         // Present only while something is open, so it does not clutter the menu
         // bar for a tool used occasionally.
-        MenuBarExtra("Lukotta", systemImage: "lock.open.fill",
-                     isInserted: Binding(get: { !model.openMounts.isEmpty },
-                                         set: { _ in })) {
+        MenuBarExtra(
+            "Lukotta", systemImage: "lock.open.fill",
+            isInserted: Binding(
+                get: { !model.openMounts.isEmpty },
+                set: { _ in })
+        ) {
             ForEach(Array(model.openMounts.values.sorted()), id: \.self) { path in
                 Button("Eject \((path as NSString).lastPathComponent)") {
                     model.eject(path)
@@ -52,11 +56,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// A mounted drive means a microVM is still running. Quitting without
     /// ejecting would leave it behind, so ask.
     func applicationShouldTerminate(_ app: NSApplication) -> NSApplication.TerminateReply {
-        guard let model, MainActor.assumeIsolated({ model.hasOpenDrive }) else { return .terminateNow }
+        guard let model, MainActor.assumeIsolated({ model.hasOpenDrive }) else {
+            return .terminateNow
+        }
 
         let alert = NSAlert()
         alert.messageText = "A drive is still open"
-        alert.informativeText = "Ejecting keeps your files safe and shuts down the background helper. "
+        alert.informativeText =
+            "Ejecting keeps your files safe and shuts down the background helper. "
             + "Leaving it open keeps the drive available, but the helper keeps running."
         alert.addButton(withTitle: "Eject and Quit")
         alert.addButton(withTitle: "Leave Open")

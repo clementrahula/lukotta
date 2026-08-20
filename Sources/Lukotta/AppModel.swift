@@ -1,5 +1,6 @@
-import SwiftUI
 import AppKit
+import LukottaCore
+import SwiftUI
 
 @MainActor
 final class AppModel: ObservableObject {
@@ -12,7 +13,7 @@ final class AppModel: ObservableObject {
         case working(Drive)
         case chooseVolume(Drive, [LogicalVolume])
         case mounted(Drive, String)
-        case failed(Drive?, String, String?)   // drive, summary, raw detail
+        case failed(Drive?, String, String?)  // drive, summary, raw detail
     }
 
     @Published var phase: Phase = .scanning
@@ -50,8 +51,9 @@ final class AppModel: ObservableObject {
             let found = DriveScanner.scan()
             await MainActor.run {
                 self.drives = found
-                self.openMounts = Dictionary(uniqueKeysWithValues:
-                    mounts.map { ($0.devicePath, $0.mountPoint) })
+                self.openMounts = Dictionary(
+                    uniqueKeysWithValues:
+                        mounts.map { ($0.devicePath, $0.mountPoint) })
                 if found.count == 1, existing == nil {
                     // One candidate: asking the user to click the only row is
                     // a step with no decision in it.
@@ -59,14 +61,16 @@ final class AppModel: ObservableObject {
                     return
                 }
                 if let existing {
-                    let drive = found.first { $0.devicePath == existing.devicePath }
-                        ?? Drive(id: URL(fileURLWithPath: existing.devicePath).lastPathComponent,
-                                 devicePath: existing.devicePath,
-                                 name: URL(fileURLWithPath: existing.mountPoint).lastPathComponent,
-                                 sizeBytes: 0,
-                                 connection: "",
-                                 kind: .microsoft,
-                                 uuid: existing.devicePath)
+                    let drive =
+                        found.first { $0.devicePath == existing.devicePath }
+                        ?? Drive(
+                            id: URL(fileURLWithPath: existing.devicePath).lastPathComponent,
+                            devicePath: existing.devicePath,
+                            name: URL(fileURLWithPath: existing.mountPoint).lastPathComponent,
+                            sizeBytes: 0,
+                            connection: "",
+                            kind: .microsoft,
+                            uuid: existing.devicePath)
                     self.phase = .mounted(drive, existing.mountPoint)
                 } else {
                     self.phase = .chooseDrive
@@ -76,7 +80,11 @@ final class AppModel: ObservableObject {
     }
 
     /// True while a drive is open, so quitting can offer to eject first.
-    var hasOpenDrive: Bool { !EngineStatus.current().isEmpty }
+    ///
+    /// Reads cached state rather than spawning the engine: this is consulted on
+    /// the main thread while the user is trying to quit, and a subprocess there
+    /// stalls the app at exactly the wrong moment.
+    var hasOpenDrive: Bool { !openMounts.isEmpty }
 
     /// Re-probe after the user has changed the setting.
     func recheckPermission() {
@@ -88,23 +96,21 @@ final class AppModel: ObservableObject {
     }
 
     /// A newly granted permission only applies to a fresh process.
+    /// A newly granted permission only applies to a freshly started process.
     func relaunch() {
-        Permissions.relaunch()
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        task.arguments = ["-n", Bundle.main.bundleURL.path]
+        try? task.run()
+        NSApp.terminate(nil)
     }
 
     func openFilesAndFoldersSettings() {
         Permissions.openFilesAndFoldersSettings()
     }
 
-    /// Open a document shipped inside the bundle, such as the licence.
-    func openBundledDocument(_ name: String) {
-        guard let url = Bundle.main.resourceURL?.appendingPathComponent(name),
-              FileManager.default.fileExists(atPath: url.path) else { return }
-        NSWorkspace.shared.open(url)
-    }
-
-    func openProjectPage() {
-        guard let url = URL(string: "https://github.com/clementrahula/lukotta") else { return }
+    func open(_ string: String) {
+        guard let url = URL(string: string) else { return }
         NSWorkspace.shared.open(url)
     }
 
@@ -244,9 +250,10 @@ final class AppModel: ObservableObject {
                     if Permissions.isAccessDenied(err.detail ?? "") {
                         self.phase = .needsPermission
                     } else {
-                        self.phase = .failed(drive,
-                                             err.errorDescription ?? "The drive could not be opened.",
-                                             err.detail)
+                        self.phase = .failed(
+                            drive,
+                            err.errorDescription ?? "The drive could not be opened.",
+                            err.detail)
                     }
                 }
             } catch {

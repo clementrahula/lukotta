@@ -1,5 +1,7 @@
 # Lukotta
 
+[lukotta.rahula.dev](https://lukotta.rahula.dev)
+
 Open BitLocker-encrypted drives on macOS. Unlock with the drive's password or
 its 48-digit recovery key, and it mounts read/write in Finder.
 
@@ -58,7 +60,7 @@ machine". macOS offers no supported way to mark an NFS mount local: there is no
 
 Everything works — read, write, eject — but Finder shows a network volume, and
 in-place renaming is not offered for network volumes. See
-[PRODUCTION-READINESS.md](PRODUCTION-READINESS.md) §7 for the routes out of this
+[PRODUCTION-READINESS.md](Documentation/PRODUCTION-READINESS.md) §7 for the routes out of this
 (FSKit, DriverKit) and why neither is available today.
 
 ## How it works
@@ -78,22 +80,26 @@ appears in an argument list, an exported environment, or on disk.
 ## Building
 
 ```bash
-./vendor-engine.sh     # stage the engine + Linux image into vendor/
+./Scripts/vendor-engine.sh     # stage the engine + Linux image into vendor/
 ./build-app.sh         # compile, embed, sign, install to /Applications
-./tests/run-all.sh     # shell + Swift unit tests
+./Scripts/run-tests.sh     # shell + Swift unit tests
 ```
 
 `vendor-engine.sh` currently stages from an anylinuxfs runtime already present
 on the build machine. Reproducible builds from pinned upstream artefacts are
 still outstanding — see PRODUCTION-READINESS.md §6.
 
-Outstanding work is tracked in [TODO.md](TODO.md).
+Outstanding work is tracked in [TODO.md](Documentation/TODO.md).
 
 Versioning is semver in `VERSION`; the build number is the git commit count.
 
 ```bash
-./scripts/bump-version.sh patch   # or minor / major, commits and tags
+./Scripts/bump-version.sh patch   # or minor / major, commits and tags
 ```
+
+## Author
+
+**Clement Rahula** — [rahula.dev](https://rahula.dev)
 
 ## Contact
 
@@ -108,7 +114,7 @@ source archive, that is a bug worth reporting.
 **GPL-3.0-or-later.** Lukotta embeds anylinuxfs (GPL-3.0-or-later), a Linux
 kernel image (GPL-2.0-only) and an Alpine Linux userland, so the combined work
 is distributed under the GPL. See [LICENSE](LICENSE) and
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), which is generated from the
+[THIRD_PARTY_NOTICES.md](Documentation/THIRD_PARTY_NOTICES.md), which is generated from the
 components actually shipped and carries the written offer for source.
 
 This also means Lukotta cannot be published on the Mac App Store — both because
