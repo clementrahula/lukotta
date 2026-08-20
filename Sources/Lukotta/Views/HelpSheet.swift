@@ -99,6 +99,22 @@ struct HelpSheet: View {
                     HelpSection(title: "Requirements") {
                         Bullet("An Apple Silicon Mac. Intel Macs are not supported")
                         Bullet("macOS 15 Sequoia or later")
+                        Bullet(
+                            "About 250 MB of disk: the app, and the Linux environment it unpacks once on first use"
+                        )
+                    }
+
+                    HelpSection(title: "What an open drive costs") {
+                        Bullet(
+                            "One small virtual machine per drive, however many volumes that drive holds. A drive with three volumes inside it costs the same as a drive with one"
+                        )
+                        Bullet(
+                            "Up to 2.5 GB of memory and four processor cores are set aside for it, but that is a ceiling rather than a reservation: in ordinary use it holds a few tens of megabytes, growing only while a lot of data is being read or written"
+                        )
+                        Bullet("Around ten seconds to open, most of it starting that machine")
+                        Bullet(
+                            "Two different drives open at once means two machines. Ejecting a drive shuts its machine down"
+                        )
                     }
 
                     HelpSection(title: "Author") {
