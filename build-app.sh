@@ -41,6 +41,7 @@ swiftc -parse-as-library \
   -O -whole-module-optimization \
   "$HERE/src/Engine.swift" \
   "$HERE/src/CredentialStore.swift" \
+  "$HERE/src/MountScript.swift" \
   "$HERE/src/Mounter.swift" \
   "$HERE/src/AppModel.swift" \
   "$HERE/src/ContentView.swift" \

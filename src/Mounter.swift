@@ -400,127 +400,34 @@ enum Mounter {
         parts.append("export SUDO_UID=\(getuid())")
         parts.append("export SUDO_GID=\(getgid())")
 
-        // The engine defaults to a 1 vCPU / 512 MiB microVM, which throttles the
-        // in-guest NFS server and filesystem drivers. LUKS decryption needs at
-        // least 2560 MiB or the engine raises it itself and warns.
-        let cores = max(2, min(4, ProcessInfo.processInfo.activeProcessorCount / 2))
-        let ram = 2560
+        // Finder shows an NFS mount under its server name, which the engine
+        // derives from the last path component it is given. A symlink named
+        // after the drive is what stops it reading "disk4s1.local".
+        let aliasPath = (try? workspace.makeDeviceAlias(named: drive.name,
+                                                        target: drive.devicePath))?.path
 
-        // macOS negotiates 32 KiB NFS transfers by default; it supports 1 MiB,
-        // which matters for sequential throughput on this loopback mount.
-        //
-        // This MUST be passed as --nfs-options=VALUE. The flag is variadic, so
-        // the separated form swallows the device path that follows it and the
-        // engine fails with "mount with no disk isn't valid".
-        let nfsOptions = "rsize=1048576,wsize=1048576,readahead=128"
-
-        // Which filesystem drivers to try, in order.
-        //
-        // ntfs3 is the in-kernel driver and much faster, but it refuses a
-        // "dirty" volume — which is what Windows Fast Startup and hibernation
-        // leave behind, and therefore the most common real-world failure.
-        // ntfs-3g will mount those. A Linux volume gets no override at all:
-        // the engine detects ext4/btrfs/xfs itself.
-        let drivers: [String?]
-        switch drive.kind {
-        case .microsoft: drivers = ["ntfs3", "ntfs-3g"]
-        case .linux:     drivers = [nil]
-        }
-
-        // Finder shows an NFS mount under its *server* name, and the engine
-        // derives that from the last path component of whatever it is given —
-        // so a raw device shows up as "disk4s1.local" beside the user's iPhone.
-        // Handing it a symlink named after the drive makes Finder show that
-        // instead. Verified against a test volume: a link named "My Backup
-        // Drive" produced "My-Backup-Drive.local".
-        //
-        // The engine may or may not treat a symlinked device the same as the
-        // device itself, so this is only ever an additional first attempt; the
-        // real path is always tried afterwards.
-        var aliasPath: String?
-        if let alias = try? workspace.makeDeviceAlias(named: drive.name,
-                                                      target: drive.devicePath) {
-            aliasPath = alias.path
-        }
-
-        let engineQ = shellQuoted(engine.path)
-        let deviceQ = shellQuoted(drive.devicePath)
-        let logQ = shellQuoted(log.path)
-        let listLog = workspace.root.appendingPathComponent("discover.log")
         let expectURL = workspace.root.appendingPathComponent("discover.exp")
-
-        // `expect -c` keeps reading commands from stdin once the inline script
-        // ends, so it never exits; a script file terminates cleanly. The
-        // credential arrives in the environment and is never written to disk.
-        let expectScript = """
-        set timeout 600
-        spawn -noecho [lindex $argv 0] list --decrypt=all [lindex $argv 1]
-        expect {
-          -re "passphrase.*: " { send "$env(ALFS_PASSPHRASE)\r"; exp_continue }
-          timeout { exit 99 }
-          eof
-        }
-        catch wait result
-        exit [lindex $result 3]
-        """
-        try expectScript.write(to: expectURL, atomically: true, encoding: .utf8)
+        try MountScript.expectDriver.write(to: expectURL, atomically: true, encoding: .utf8)
         try FileManager.default.setAttributes([.posixPermissions: 0o700],
                                               ofItemAtPath: expectURL.path)
 
-        // Friendly name first, real device path second.
-        let targets = [aliasPath.map(shellQuoted), deviceQ].compactMap { $0 }
-        var attempts = targets.flatMap { target in
-            drivers.map { driver -> String in
-                let typeFlag = driver.map { " -t \($0)" } ?? ""
-                return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
-                    + "\(typeFlag) -w false --nfs-options=\(shellQuoted(nfsOptions)) \(target) >> \(logQ) 2>&1"
-            }
-        }
+        let script = MountScript.build(MountScript.Inputs(
+            enginePath: engine.path,
+            devicePath: drive.devicePath,
+            driveName: drive.name,
+            kind: drive.kind,
+            volume: volume,
+            aliasPath: aliasPath,
+            fifoPath: fifo.path,
+            logPath: log.path,
+            discoverLogPath: workspace.root.appendingPathComponent("discover.log").path,
+            expectScriptPath: expectURL.path,
+            libraryPaths: EnginePaths.libraryPaths(),
+            uid: getuid(),
+            gid: getgid(),
+            cores: max(2, min(4, ProcessInfo.processInfo.activeProcessorCount / 2)),
+            ramMiB: 2560))
 
-        // A Linux container usually holds LVM rather than a filesystem: Ubuntu,
-        // Debian, Mint, Pop and Fedora all layer it that way. `list --decrypt`
-        // exposes the volume group, but prompts on a terminal and ignores
-        // ALFS_PASSPHRASE, so it is driven through expect with the credential
-        // passed in the environment rather than written anywhere.
-        if let volume {
-            // Already chosen by the user after discovery: mount it directly,
-            // with no driver override and no second discovery pass.
-            attempts = ["ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
-                + " -w false --nfs-options=\(shellQuoted(nfsOptions)) \(shellQuoted(volume.mountIdentifier))"
-                + " >> \(logQ) 2>&1"]
-        } else if drive.kind == .linux {
-            attempts.append("""
-            {
-              ALFS_PASSPHRASE="$__cred" /usr/bin/expect -f \(shellQuoted(expectURL.path)) \(engineQ) \(deviceQ) > \(shellQuoted(listLog.path)) 2>&1
-              cat \(shellQuoted(listLog.path)) >> \(logQ)
-              __lvs=$(awk '$NF ~ /^[^:]+:[^:]+:[^:]+$/ && $2 != "LVM2_scheme" { print $NF }' \(shellQuoted(listLog.path)))
-              __count=$(printf '%s\\n' "$__lvs" | grep -c . )
-              if [ "$__count" -eq 1 ]; then
-                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(nfsOptions)) "lvm:$__lvs" >> \(logQ) 2>&1
-              elif [ "$__count" -gt 1 ]; then
-                echo "LUKOTTA_MULTIPLE_VOLUMES" >> \(logQ)
-                false
-              else
-                false
-              fi
-            }
-            """)
-        }
-
-        // One script, one authorisation. Written to the private workspace rather
-        // than inlined, because quoting this through AppleScript would be a
-        // correctness hazard. It contains no secret: the credential is read
-        // from the pipe at run time.
-        let script = """
-        #!/bin/sh
-        \(parts.joined(separator: "\n"))
-        __cred="$(cat \(shellQuoted(fifo.path)))"
-        \(engineQ) config -n \(cores) -r \(ram) >/dev/null 2>&1 || true
-        \(attempts.joined(separator: " || "))
-        __rc=$?
-        unset __cred
-        exit $__rc
-        """
         let scriptURL = workspace.root.appendingPathComponent("mount.sh")
         try script.write(to: scriptURL, atomically: true, encoding: .utf8)
         try FileManager.default.setAttributes([.posixPermissions: 0o700],
@@ -565,7 +472,7 @@ enum Mounter {
             }
             // The container held several logical volumes, so the engine was
             // never told which to mount. That is a question, not a failure.
-            if transcript.contains("LUKOTTA_MULTIPLE_VOLUMES") {
+            if transcript.contains(MountScript.multipleVolumesMarker) {
                 let volumes = VolumeGroupParser.logicalVolumes(in: transcript)
                 if !volumes.isEmpty {
                     throw EngineError.multipleVolumes(volumes, transcript: transcript)

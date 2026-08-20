@@ -109,6 +109,88 @@ expect(VolumeGroupParser.logicalVolumes(in: "").isEmpty, "no volume groups in em
 expect(VolumeGroupParser.logicalVolumes(in: "   1:  crypto_LUKS  x  1 GB  a:b:c").isEmpty,
        "container types are not offered as mountable")
 
+// MARK: the elevated mount script
+//
+// This text becomes a command run as root. Both production-breaking bugs so far
+// were malformed arguments here, and neither was reachable by a test while
+// generation and execution lived in the same function.
+
+func sampleInputs(kind: VolumeKind = .microsoft,
+                  volume: LogicalVolume? = nil,
+                  alias: String? = "/tmp/ws/alias/Elements") -> MountScript.Inputs {
+    MountScript.Inputs(
+        enginePath: "/Applications/Lukotta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs",
+        devicePath: "/dev/disk4s1",
+        driveName: "Elements",
+        kind: kind,
+        volume: volume,
+        aliasPath: alias,
+        fifoPath: "/tmp/ws/credential.fifo",
+        logPath: "/tmp/ws/mount.log",
+        discoverLogPath: "/tmp/ws/discover.log",
+        expectScriptPath: "/tmp/ws/discover.exp",
+        libraryPaths: ["/engine/lib"],
+        uid: 501, gid: 20, cores: 4, ramMiB: 2560)
+}
+
+let msScript = MountScript.build(sampleInputs())
+
+// The regression that broke v1.1.0: --nfs-options is variadic, so the separated
+// form consumes the device path and the engine reports "mount with no disk".
+expect(!msScript.contains("-n '"), "NFS options must never use the separated form")
+expect(msScript.contains("--nfs-options='rsize=1048576,wsize=1048576,readahead=128'"),
+       "NFS options use the joined form")
+expect(msScript.contains("'/dev/disk4s1' >>"),
+       "the device is a positional argument, not swallowed by a preceding flag")
+
+// The credential is read from the pipe, never written into the script.
+expect(msScript.contains("__cred=\"$(cat '/tmp/ws/credential.fifo')\""),
+       "credential is read from the FIFO")
+expect(msScript.contains("ALFS_PASSPHRASE=\"$__cred\""), "credential passed by reference")
+expect(msScript.contains("unset __cred"), "credential is unset afterwards")
+
+// Without these the engine refuses to run: it is root but not via sudo.
+expect(msScript.contains("export SUDO_UID=501"), "invoking uid exported")
+expect(msScript.contains("export SUDO_GID=20"), "invoking gid exported")
+expect(msScript.contains("export DYLD_LIBRARY_PATH='/engine/lib'"), "dyld path exported")
+
+// Microsoft volumes try the fast kernel driver, then the one that copes with a
+// dirty volume left by Windows Fast Startup.
+expect(msScript.contains("-t ntfs3"), "ntfs3 attempted")
+expect(msScript.contains("-t ntfs-3g"), "ntfs-3g attempted as fallback")
+expect(msScript.range(of: "-t ntfs3")!.lowerBound < msScript.range(of: "-t ntfs-3g")!.lowerBound,
+       "ntfs3 is tried before ntfs-3g")
+expect(!msScript.contains("LUKOTTA_MULTIPLE_VOLUMES"),
+       "no LVM discovery for a Microsoft volume")
+
+// The friendly alias is tried before the real device, so Finder shows a name.
+expect(msScript.range(of: "alias/Elements")!.lowerBound < msScript.range(of: "'/dev/disk4s1'")!.lowerBound,
+       "alias attempted before the raw device")
+// …but the device is always attempted too, so a symlink cannot break mounting.
+expect(msScript.contains("'/dev/disk4s1'"), "raw device always attempted as fallback")
+
+let msNoAlias = MountScript.build(sampleInputs(alias: nil))
+expect(msNoAlias.contains("'/dev/disk4s1'"), "device used when no alias is available")
+
+// Linux volumes: no driver override, and LVM discovery appended.
+let msLinux = MountScript.build(sampleInputs(kind: .linux))
+expect(!msLinux.contains("-t ntfs"), "no NTFS driver forced on a Linux volume")
+expect(msLinux.contains("LUKOTTA_MULTIPLE_VOLUMES"), "LVM discovery present for Linux")
+expect(msLinux.contains("expect -f '/tmp/ws/discover.exp'"), "discovery driven through expect")
+expect(msLinux.contains("lvm:$__lvs"), "a single logical volume is mounted directly")
+
+// A volume the user picked is mounted directly, with no discovery or override.
+let lv = LogicalVolume(identifier: "ubuntuvg:disk4s1:home", label: "HOMEFS",
+                       filesystem: "btrfs", size: "394 MB")
+let msChosen = MountScript.build(sampleInputs(kind: .linux, volume: lv))
+expect(msChosen.contains("'lvm:ubuntuvg:disk4s1:home'"), "chosen volume mounted by identifier")
+expect(!msChosen.contains("LUKOTTA_MULTIPLE_VOLUMES"), "no rediscovery once chosen")
+expect(!msChosen.contains("-t ntfs"), "no driver override for a chosen volume")
+
+// Paths with spaces must survive quoting: they reach a root shell.
+let msSpaces = MountScript.build(sampleInputs(alias: "/tmp/ws/alias/My Backup Drive"))
+expect(msSpaces.contains("'/tmp/ws/alias/My Backup Drive'"), "spaces in paths stay quoted")
+
 // MARK: mount stages
 
 expect(MountStage.inferred(from: []) == .preparing, "no output yet means preparing")
