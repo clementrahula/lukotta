@@ -21,6 +21,7 @@ final class AppModel: ObservableObject {
     @Published var revealCredential = false
     @Published var statusLines: [String] = []
     @Published var credentialProblem: String?
+    @Published var showHelp = false
     @Published var isEjecting = false
     @Published var ejectProblem: String?
 
@@ -81,6 +82,18 @@ final class AppModel: ObservableObject {
 
     func openFilesAndFoldersSettings() {
         Permissions.openFilesAndFoldersSettings()
+    }
+
+    /// Open a document shipped inside the bundle, such as the licence.
+    func openBundledDocument(_ name: String) {
+        guard let url = Bundle.main.resourceURL?.appendingPathComponent(name),
+              FileManager.default.fileExists(atPath: url.path) else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    func openProjectPage() {
+        guard let url = URL(string: "https://github.com/clementrahula/lukotta") else { return }
+        NSWorkspace.shared.open(url)
     }
 
     /// Reveal the app itself so it can be dragged into the Full Disk Access list.

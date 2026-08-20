@@ -16,7 +16,13 @@ struct LukottaApp: App {
                 }
         }
         .windowResizability(.contentSize)
-        .commands { CommandGroup(replacing: .newItem) {} }
+        .commands {
+            CommandGroup(replacing: .newItem) {}
+            CommandGroup(replacing: .help) {
+                Button("Lukotta Help") { model.showHelp = true }
+                    .keyboardShortcut("?", modifiers: .command)
+            }
+        }
     }
 }
 

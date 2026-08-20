@@ -26,12 +26,15 @@ struct ContentView: View {
         }
         .frame(minWidth: 560, minHeight: 460)
         .background(Color(nsColor: .windowBackgroundColor))
+        .sheet(isPresented: $model.showHelp) { HelpSheet() }
     }
 }
 
 // MARK: - Chrome
 
 private struct Header: View {
+    @EnvironmentObject var model: AppModel
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: "lock.shield.fill")
@@ -43,6 +46,13 @@ private struct Header: View {
                     .font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
+            Button { model.showHelp = true } label: {
+                Image(systemName: "questionmark.circle")
+                    .font(.system(size: 16))
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help("How Lukotta works, and what it supports")
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 14)
@@ -140,7 +150,7 @@ private struct DriveListView: View {
                     }
                 }
                 HStack {
-                    Text("BitLocker, NTFS and Linux volumes are shown. What a partition holds cannot be determined without unlocking it, so the labels say what is possible rather than what is certain.")
+                    Text("Encrypted and Windows volumes are listed. A partition's contents can only be confirmed once it is unlocked.")
                         .font(.caption).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer()
@@ -633,5 +643,119 @@ private struct EmptyStateView: View {
             Button(actionTitle, action: action).keyboardShortcut(.defaultAction)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+// MARK: - Help
+
+/// How the app works, what it supports, and what it cannot do.
+///
+/// Also the only route to the licence and third-party notices, which ship in
+/// the bundle — for a GPL application those need to be reachable, not just
+/// present.
+struct HelpSheet: View {
+    @EnvironmentObject var model: AppModel
+    @Environment(\.dismiss) private var dismiss
+
+    private var version: String {
+        let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
+        let b = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"
+        return "Version \(v) (\(b))"
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text("About Lukotta").font(.headline)
+                Spacer()
+                Button("Done") { dismiss() }.keyboardShortcut(.defaultAction)
+            }
+            .padding(.horizontal, 22)
+            .padding(.vertical, 15)
+            Divider()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    HelpSection(title: "How it works") {
+                        Text("Lukotta starts a small Linux virtual machine, unlocks the drive inside it, and shares the result back to Finder over a local connection. macOS has no built-in support for BitLocker or Linux filesystems, so the work happens in Linux, where it is well supported.")
+                        Text("Nothing is installed on your Mac. The engine ships inside the app, no drive is written to unless you write to it, and nothing leaves your machine.")
+                    }
+
+                    HelpSection(title: "What it can open") {
+                        Bullet("BitLocker drives, unlocked with the volume password or a 48-digit recovery key")
+                        Bullet("Windows NTFS drives, including ones Windows left in a hibernated or unclean state")
+                        Bullet("LUKS drives from Linux, both LUKS1 and LUKS2")
+                        Bullet("LVM inside LUKS, the layout Ubuntu, Debian, Mint and Fedora use — if the container holds several volumes, Lukotta asks which to open")
+                        Bullet("ext4, btrfs and XFS filesystems inside those containers")
+                    }
+
+                    HelpSection(title: "What it cannot open") {
+                        Bullet("Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption")
+                        Bullet("LUKS volumes whose header is stored separately from the drive")
+                    }
+
+                    HelpSection(title: "Why it appears as a network drive") {
+                        Text("The unlocked volume is shared back to Finder over a local network connection, so macOS files it under Locations and shows it with a network icon. It reads and writes normally, and ejecting works as usual. macOS provides no way to present it as a local disk.")
+                    }
+
+                    HelpSection(title: "Permissions") {
+                        Bullet("Full Disk Access — macOS blocks reading a drive at the raw level without it. It is the one permission an app cannot request, so it must be switched on by hand")
+                        Bullet("Removable volumes — requested by macOS the first time a drive is read")
+                        Bullet("Administrator password — required once per unlock to read the disk and mount the volume. Lukotta never sees it")
+                    }
+
+                    HelpSection(title: "Licence") {
+                        Text("Lukotta is free software under the GPL, version 3 or later. It is built on anylinuxfs, which does the hard part. Complete source for every component is published alongside each release.")
+                        HStack(spacing: 10) {
+                            Button("Licence") { model.openBundledDocument("LICENSE") }
+                            Button("Third-Party Notices") { model.openBundledDocument("THIRD_PARTY_NOTICES.md") }
+                            Button("Project Page") { model.openProjectPage() }
+                        }
+                        .controlSize(.small)
+                        .padding(.top, 2)
+                    }
+
+                    HelpSection(title: "Requirements") {
+                        Bullet("An Apple Silicon Mac. Intel Macs are not supported")
+                        Bullet("macOS 15 Sequoia or later")
+                    }
+
+                    Text(version).font(.caption).foregroundStyle(.tertiary)
+                }
+                .padding(22)
+            }
+        }
+        .frame(width: 580, height: 560)
+    }
+}
+
+private struct HelpSection<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .textCase(.uppercase)
+                .foregroundStyle(.secondary)
+                .kerning(0.6)
+            VStack(alignment: .leading, spacing: 7) { content }
+                .font(.callout)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+private struct Bullet: View {
+    let text: String
+    init(_ text: String) { self.text = text }
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 9) {
+            Circle().fill(Color.secondary.opacity(0.5)).frame(width: 4, height: 4)
+                .offset(y: -2)
+            Text(text).fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
