@@ -230,7 +230,7 @@ private struct UnlockView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            PromptExplainer()
+            PermissionsPanel()
 
             Spacer()
             HStack {
@@ -245,51 +245,144 @@ private struct UnlockView: View {
     }
 }
 
-/// What macOS is about to ask for, and why — shown before the prompts appear
-/// rather than leaving the user to guess at a system dialog.
-private struct PromptExplainer: View {
-    @State private var expanded = false
+/// What macOS asks for, why, and what still needs doing.
+///
+/// Shown open whenever something is outstanding — this is what a user needs
+/// before they hit a wall, not something to go looking for. Once everything is
+/// granted it collapses to a single line.
+private struct PermissionsPanel: View {
+    @EnvironmentObject var model: AppModel
+    @State private var expanded: Bool
+
+    private let fullDiskGranted: Bool
+
+    init() {
+        let granted = Permissions.hasFullDiskAccess
+        self.fullDiskGranted = granted
+        _expanded = State(initialValue: !granted)
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            DisclosureGroup(isExpanded: $expanded) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Reason(icon: "externaldrive",
-                           title: "Access to removable volumes",
-                           why: "Lukotta reads the drive directly to unlock it. macOS asks the first time; only the drive you pick is read.")
-                    Reason(icon: "key",
-                           title: "Your administrator password",
-                           why: "Reading a raw disk and mounting a volume both require it. It is requested by macOS, once per unlock, and Lukotta never sees it.")
-                    Reason(icon: "folder.badge.gearshape",
-                           title: "Full Disk Access",
-                           why: "macOS blocks raw disk reads without it, even for administrators. It is the one permission an app cannot ask for — Apple requires it to be switched on by hand in System Settings.")
+        VStack(alignment: .leading, spacing: 0) {
+            Button { withAnimation(.easeInOut(duration: 0.18)) { expanded.toggle() } } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: fullDiskGranted ? "checkmark.shield.fill" : "hand.raised.fill")
+                        .font(.system(size: 14))
+                        .foregroundStyle(fullDiskGranted ? Color.green : Color.orange)
+                    Text(fullDiskGranted
+                         ? "Permissions granted"
+                         : "One permission still needs your approval")
+                        .font(.subheadline.weight(.medium))
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                        .rotationEffect(.degrees(expanded ? 90 : 0))
                 }
-                .padding(.top, 8)
-            } label: {
-                Label("What Lukotta will ask for, and why", systemImage: "hand.raised")
-                    .font(.caption)
+                .contentShape(Rectangle())
             }
-            .font(.caption)
+            .buttonStyle(.plain)
+
+            if expanded {
+                VStack(alignment: .leading, spacing: 16) {
+                    PermissionRow(
+                        icon: "externaldrive.fill",
+                        title: "Access to removable volumes",
+                        detail: "Lukotta reads the drive directly in order to unlock it. Only the drive you choose is read.",
+                        status: .automatic("Asked by macOS"),
+                        action: ("Settings", { model.openFilesAndFoldersSettings() }))
+
+                    PermissionRow(
+                        icon: "key.fill",
+                        title: "Your administrator password",
+                        detail: "Reading a raw disk and mounting a volume both need it. macOS asks once per unlock, and Lukotta never sees it.",
+                        status: .automatic("Asked each unlock"),
+                        action: nil)
+
+                    PermissionRow(
+                        icon: "lock.shield.fill",
+                        title: "Full Disk Access",
+                        detail: fullDiskGranted
+                            ? "Granted. This is what lets Lukotta read the drive at all."
+                            : "macOS blocks raw disk reads without it, even for administrators. It is the one permission an app cannot request — it has to be switched on by hand.",
+                        status: fullDiskGranted ? .granted : .needed,
+                        action: fullDiskGranted ? nil
+                                                : ("Open Settings", { model.openPrivacySettings() }))
+                }
+                .padding(.top, 16)
+            }
         }
-        .padding(11)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.04)))
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.045)))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.primary.opacity(0.07)))
     }
 }
 
-private struct Reason: View {
+private enum PermissionStatus {
+    case granted
+    case needed
+    case automatic(String)
+}
+
+private struct PermissionRow: View {
     let icon: String
     let title: String
-    let why: String
+    let detail: String
+    let status: PermissionStatus
+    let action: (String, () -> Void)?
 
     var body: some View {
-        HStack(alignment: .top, spacing: 9) {
-            Image(systemName: icon).font(.caption).foregroundStyle(.tint).frame(width: 16)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.caption.weight(.semibold))
-                Text(why).font(.caption).foregroundStyle(.secondary)
+        HStack(alignment: .top, spacing: 13) {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(tint.opacity(0.14))
+                .frame(width: 32, height: 32)
+                .overlay(Image(systemName: icon).font(.system(size: 14)).foregroundStyle(tint))
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 7) {
+                    Text(title).font(.subheadline.weight(.semibold))
+                    badge
+                }
+                Text(detail)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+
+            Spacer(minLength: 8)
+
+            if let action {
+                Button(action.0, action: action.1)
+                    .controlSize(.small)
+                    .buttonStyle(.bordered)
+            }
+        }
+    }
+
+    private var tint: Color {
+        switch status {
+        case .granted:   return .green
+        case .needed:    return .orange
+        case .automatic: return .accentColor
+        }
+    }
+
+    @ViewBuilder private var badge: some View {
+        switch status {
+        case .granted:
+            Label("Granted", systemImage: "checkmark")
+                .labelStyle(.titleAndIcon)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.green)
+        case .needed:
+            Text("Needed")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.orange)
+        case .automatic(let note):
+            Text(note)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
         }
     }
 }

@@ -272,7 +272,18 @@ enum Permissions {
     }
 
     static func openFullDiskAccessSettings() {
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")!
+        open("x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")
+    }
+
+    /// Removable-volume access lives under Files & Folders.
+    static func openFilesAndFoldersSettings() {
+        open("x-apple.systempreferences:com.apple.preference.security?Privacy_FilesAndFolders")
+    }
+
+    private static func open(_ string: String) {
+        guard let url = URL(string: string) else { return }
+        // NSWorkspace is required here: these deep links do not resolve when
+        // handed to `open` from a shell.
         NSWorkspace.shared.open(url)
     }
 }

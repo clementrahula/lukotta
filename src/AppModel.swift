@@ -79,6 +79,10 @@ final class AppModel: ObservableObject {
         Permissions.relaunch()
     }
 
+    func openFilesAndFoldersSettings() {
+        Permissions.openFilesAndFoldersSettings()
+    }
+
     /// Reveal the app itself so it can be dragged into the Full Disk Access list.
     func revealApp() {
         NSWorkspace.shared.activateFileViewerSelecting([Bundle.main.bundleURL])
