@@ -56,18 +56,21 @@ struct FailureView: View {
             }
             Spacer()
             HStack {
-                Button("Choose another drive", action: model.backToDrives)
-                Button {
-                    model.showReport = true
-                } label: {
-                    Label("Report a Bug", systemImage: "ladybug")
+                // Back is where the user came from — the credential for this
+                // drive — not the list of every drive.
+                if let drive {
+                    Button("Back") { model.choose(drive) }
+                } else {
+                    Button("Back", action: model.backToDrives)
                 }
+                Button("Report This Issue") { model.showReport = true }
                 Spacer()
                 if summary.contains("Full Disk Access") {
                     Button("Open Privacy Settings") { model.openPrivacySettings() }
                         .keyboardShortcut(.defaultAction)
                 } else if let drive {
-                    Button("Try again") { model.choose(drive) }
+                    // Retries as it stands. Back is the way to change anything.
+                    Button("Try Again") { model.unlock(drive) }
                         .keyboardShortcut(.defaultAction)
                 }
             }

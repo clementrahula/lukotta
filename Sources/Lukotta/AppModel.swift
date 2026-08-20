@@ -271,7 +271,13 @@ final class AppModel: ObservableObject {
             // Whatever the interface was claiming, there is no saved key in
             // hand. Say the true thing before asking for one.
             usingSavedCredential = false
-            credentialProblem = "Enter the drive's password, or its 48-digit recovery key."
+            // Try Again can reach this from the failure screen, where there is
+            // no field to show the message next to.
+            phase = .unlock(drive)
+            credentialProblem =
+                drive.kind == .linux
+                ? "Enter the drive's passphrase."
+                : "Enter the drive's password, or its 48-digit recovery key."
             return
         }
 
@@ -346,6 +352,16 @@ final class AppModel: ObservableObject {
                         for: drive, transcript: outcome.transcript)
                 {
                     self.finishMount(drive: drive, credential: credential, mountPoint: point)
+                } else if outcome.transcript.contains(MountScript.multipleVolumesMarker),
+                    case let volumes = VolumeGroupParser.logicalVolumes(in: outcome.transcript),
+                    !volumes.isEmpty
+                {
+                    // Several volumes is a question, not a failure. The other
+                    // route has always treated it as one; this one did not, so
+                    // with the helper installed — the normal case — a drive
+                    // with LVM inside it could never reach the chooser.
+                    self.pendingCredential = credential
+                    self.phase = .chooseVolume(drive, volumes)
                 } else {
                     self.fail(
                         drive,
@@ -445,7 +461,7 @@ final class AppModel: ObservableObject {
     /// sites that can fail.
     private func fail(_ drive: Drive?, _ summary: String, _ detail: String?) {
         failedStage = MountStage.inferred(from: stageLines + statusLines)
-        phase = .failed(drive, summary, detail)
+        phase = .failed(drive, summary, detail.map(Diagnostics.withoutStageMarkers))
     }
 
     /// Show whatever of the helper's transcript has not been shown yet.

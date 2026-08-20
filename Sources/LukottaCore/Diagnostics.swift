@@ -96,6 +96,17 @@ public enum Diagnostics {
     /// a passphrase — or a future change to one — would put it in a log the
     /// user is invited to send. Redaction is applied to everything, so being
     /// wrong about that costs nothing.
+    /// Strip the step-indicator markers from engine output.
+    ///
+    /// They are written into the same log the engine writes to, because that is
+    /// the only channel that survives the trip back from root. They are not
+    /// output anyone should be shown or asked to report.
+    public static func withoutStageMarkers(_ text: String) -> String {
+        text.components(separatedBy: .newlines)
+            .filter { !$0.contains(MountScript.stageMarker) }
+            .joined(separator: "\n")
+    }
+
     public static func redact(_ text: String) -> String {
         var result = text
 

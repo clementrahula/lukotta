@@ -53,7 +53,8 @@ struct UnlockView: View {
                         }
                     } else {
                         VStack(alignment: .leading, spacing: 7) {
-                            Text("Password or recovery key").font(.subheadline)
+                            Text(drive.kind == .linux ? "Passphrase" : "Password or recovery key")
+                                .font(.subheadline)
                             HStack(spacing: 8) {
                                 Group {
                                     if model.revealCredential {
@@ -83,7 +84,9 @@ struct UnlockView: View {
                                 Label("Caps Lock is on", systemImage: "capslock.fill")
                                     .font(.caption).foregroundStyle(.orange)
                             }
-                            if let hint = model.credentialHint {
+                            // The 48-digit hint counts BitLocker recovery-key
+                            // digits, which mean nothing on a LUKS drive.
+                            if drive.kind != .linux, let hint = model.credentialHint {
                                 Label(hint, systemImage: "number")
                                     .font(.caption).foregroundStyle(.secondary)
                             }
@@ -99,8 +102,13 @@ struct UnlockView: View {
                             .font(.callout)
                             .padding(.top, 2)
 
+                            // A recovery key is a BitLocker idea. Offering one
+                            // to a LUKS drive describes something that does not
+                            // exist for it.
                             Text(
-                                "The password the drive was locked with, or a 48-digit BitLocker recovery key. Spaces and hyphens in a recovery key are ignored."
+                                drive.kind == .linux
+                                    ? "The passphrase this drive was encrypted with."
+                                    : "The password the drive was locked with, or a 48-digit BitLocker recovery key. Spaces and hyphens in a recovery key are ignored."
                             )
                             .font(.caption).foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)

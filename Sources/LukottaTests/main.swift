@@ -214,13 +214,13 @@ group("theElevatedMountScript") {
         !msScript.contains("LUKOTTA_MULTIPLE_VOLUMES"),
         "no LVM discovery for a Microsoft volume")
 
-    // The friendly alias is tried before the real device, so Finder shows a name.
-    expect(
-        msScript.range(of: "alias/Elements")!.lowerBound
-            < msScript.range(of: "'/dev/disk4s1'")!.lowerBound,
-        "alias attempted before the raw device")
-    // …but the device is always attempted too, so a symlink cannot break mounting.
-    expect(msScript.contains("'/dev/disk4s1'"), "raw device always attempted as fallback")
+    // The alias was meant to give Finder a friendlier name by being mounted in
+    // place of the device. It never could: the engine prefixes /dev/ onto the
+    // target it is handed, so an alias under /tmp resolved to /dev//tmp/… and
+    // every mount opened with a "disk not found" line. Names come from
+    // DriveMemory instead, and an alias outside /dev is no longer attempted.
+    expect(!msScript.contains("alias/Elements"), "an unresolvable alias is not attempted")
+    expect(msScript.contains("'/dev/disk4s1'"), "the device itself is what gets mounted")
 
     let msNoAlias = MountScript.build(sampleInputs(alias: nil))
     expect(msNoAlias.contains("'/dev/disk4s1'"), "device used when no alias is available")
@@ -241,12 +241,72 @@ group("theElevatedMountScript") {
     expect(!msChosen.contains("LUKOTTA_MULTIPLE_VOLUMES"), "no rediscovery once chosen")
     expect(!msChosen.contains("-t ntfs"), "no driver override for a chosen volume")
 
-    // Paths with spaces must survive quoting: they reach a root shell.
-    let msSpaces = MountScript.build(sampleInputs(alias: "/tmp/ws/alias/My Backup Drive"))
-    expect(msSpaces.contains("'/tmp/ws/alias/My Backup Drive'"), "spaces in paths stay quoted")
+    // Paths with spaces must survive quoting: they reach a root shell. The
+    // workspace sits under a temporary directory the user does not choose, so
+    // this is not hypothetical.
+    let msSpaces = MountScript.build(
+        MountScript.Inputs(
+            enginePath: "/eng/any linux fs", devicePath: "/dev/disk4s1", driveName: "D",
+            kind: .linux, volume: nil, aliasPath: nil, fifoPath: "/tmp/My Space/fifo",
+            logPath: "/tmp/My Space/mount.log", discoverLogPath: "/tmp/My Space/discover.log",
+            expectScriptPath: "/tmp/My Space/discover.exp", libraryPaths: ["/eng/li b"],
+            uid: 501, gid: 20, cores: 4, ramMiB: 2560))
+    expect(msSpaces.contains("'/tmp/My Space/mount.log'"), "spaces in paths stay quoted")
+    expect(msSpaces.contains("'/eng/any linux fs'"), "spaces in the engine path stay quoted")
+    expect(msSpaces.contains("'/tmp/My Space/discover.exp'"), "spaces in the expect path quoted")
 }
 
 group("mountStages") {
+    // Taken from a real failure on a Fedora-style container: LUKS holding LVM
+    // holding three volumes. The engine refuses to mount the container itself,
+    // and the app has to turn that into a question rather than a failure.
+    let lvmTranscript = """
+        \(MountScript.stageMarker)authorised
+        macOS: fs_type: Some("crypto_LUKS")
+        Linux:   3 logical volume(s) in volume group "fedoravg" now active
+        Linux: Error: `LVM2_member` partition cannot be mounted directly.
+        macOS: libkrun VM exited with status: 1
+        macOS: gvproxy exited with status: 0
+        """
+    expect(
+        !Diagnosis.summarise(lvmTranscript, fallback: "").contains("gvproxy"),
+        "an orderly shutdown is not what went wrong")
+    expect(
+        Diagnosis.summarise(lvmTranscript, fallback: "").contains("several volumes"),
+        "a container holding volumes is explained as such")
+    expect(
+        !Diagnostics.withoutStageMarkers(lvmTranscript).contains(MountScript.stageMarker),
+        "step markers are stripped from anything the user reads")
+    expect(
+        Diagnostics.withoutStageMarkers(lvmTranscript).contains("crypto_LUKS"),
+        "stripping markers keeps the engine's own output")
+
+    // The volume list the engine prints once discovery has run.
+    let listing = """
+        lvm:fedoravg (volume group):
+           #:            TYPE NAME             SIZE       IDENTIFIER
+           0:     LVM2_scheme                  +0.9 GB    fedoravg
+           1:           btrfs FEDORAROOT       252.0 MB   fedoravg:disk5s1:root
+           2:           btrfs FEDORAHOME       252.0 MB   fedoravg:disk5s1:home
+           3:           btrfs FEDORABACKUP     376.0 MB   fedoravg:disk5s1:backup
+        """
+    let lvs = VolumeGroupParser.logicalVolumes(in: listing)
+    expect(lvs.count == 3, "three logical volumes are found, the scheme row is not one")
+    expect(lvs.map(\.label) == ["FEDORAROOT", "FEDORAHOME", "FEDORABACKUP"], "labels are read")
+    expect(
+        lvs.first?.mountIdentifier == "lvm:fedoravg:disk5s1:root",
+        "the engine's own lvm: form is what gets mounted")
+
+    // An alias outside /dev cannot resolve, so it must not become an attempt.
+    let aliased = MountScript.build(
+        MountScript.Inputs(
+            enginePath: "/e", devicePath: "/dev/disk5s1", driveName: "D", kind: .linux,
+            volume: nil, aliasPath: "/tmp/ws/alias/Disk Image", fifoPath: "/f",
+            logPath: "/l", discoverLogPath: "/d", expectScriptPath: "/x",
+            libraryPaths: [], uid: 501, gid: 20, cores: 4, ramMiB: 2560))
+    expect(!aliased.contains("/tmp/ws/alias"), "an unresolvable alias is not attempted")
+    expect(aliased.contains("'/dev/disk5s1'"), "the device itself still is")
+
     // A mount left behind by a dead virtual machine has to be recognisable
     // without touching anything the user mounted themselves: clearing one of
     // those would be a far worse bug than the one this fixes.

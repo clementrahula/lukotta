@@ -148,7 +148,11 @@ public enum MountScript {
         // behind. ntfs-3g mounts those. A Linux volume gets no override, so the
         // engine detects ext4, btrfs or xfs itself.
         let drivers: [String?] = i.kind == .microsoft ? ["ntfs3", "ntfs-3g"] : [nil]
-        let targets = [i.aliasPath.map(shellQuoted), deviceQ].compactMap { $0 }
+        // The engine resolves whatever target it is handed by prefixing /dev/,
+        // so an alias living anywhere else can never resolve — it only produced
+        // a "disk /dev//var/folders/… not found" line ahead of every mount.
+        let alias = i.aliasPath.flatMap { $0.hasPrefix("/dev/") ? $0 : nil }
+        let targets = [alias.map(shellQuoted), deviceQ].compactMap { $0 }
 
         var result = targets.flatMap { target in
             drivers.map {
