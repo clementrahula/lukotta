@@ -1,144 +1,132 @@
 # Lukotta
 
+**Open BitLocker and Linux drives on macOS.** Plug in the drive, type its
+password, and it appears in Finder — readable and writable, like any other disk.
+
 [lukotta.rahula.dev](https://lukotta.rahula.dev)
 
-Open BitLocker-encrypted drives on macOS. Unlock with the drive's password or
-its 48-digit recovery key, and it mounts read/write in Finder.
+<img src="docs/images/drive-list.png" alt="Lukotta showing an encrypted drive ready to unlock" width="620">
 
-Native Apple Silicon app. No Homebrew, no macFUSE, no kernel extension, no
-system extension, and nothing downloaded on first run — the entire engine ships
-inside the app.
+Native Apple Silicon. No Homebrew, no macFUSE, no kernel extension, and nothing
+downloaded on first run — everything it needs is inside the app.
+
+## What it opens
+
+- **BitLocker** drives, with the password or a 48-digit recovery key
+- **Windows NTFS** drives, including ones Windows left hibernated or not shut
+  down properly
+- **LUKS** drives from Linux, both LUKS1 and LUKS2
+- **LVM inside LUKS**, as Ubuntu, Debian, Mint and Fedora set it up. Several
+  volumes on one drive all unlock together
+- **ext4, btrfs and XFS** filesystems inside them
+
+It cannot open drives sealed to a TPM rather than a password, or LUKS volumes
+whose header is kept away from the drive.
 
 ## Requirements
 
-- Apple Silicon Mac (arm64)
+- An Apple Silicon Mac. Intel is not supported
 - macOS 15 Sequoia or later
-- Full Disk Access granted to Lukotta (one-time, see below)
+- Full Disk Access, granted once
 
-## Install
+## Installing
 
-Download `Lukotta.app`, drag it to **Applications**, and open it.
+Download `Lukotta.app` from [Releases][releases], drag it to Applications, and
+open it. It is signed and notarised, so it opens with a double-click.
 
-The app is signed with a Developer ID certificate. It is not notarised yet, so
-the first launch may need **right-click → Open** rather than a double-click.
+### Full Disk Access
 
-### One-time: Full Disk Access
-
-macOS refuses raw reads of an encrypted disk to *every* process — including ones
-running as root — unless the responsible app holds Full Disk Access. An
-administrator password is not sufficient on its own.
-
-1. **System Settings → Privacy & Security → Full Disk Access**
-2. Click **+**, press **⌘⇧A**, and pick **Lukotta**
-3. Switch it on, then quit and reopen Lukotta
-
-The app detects when macOS has refused access and walks you through this, rather
-than failing with a cryptic error.
+macOS refuses raw reads of a disk to every process, including ones running as
+root, unless the app asking holds Full Disk Access — and an encrypted drive is
+nothing but raw contents until it is unlocked. No app can request this
+permission, so it has to be granted by hand. Lukotta explains it on first run
+and takes you to the right place in System Settings.
 
 ## Using it
 
-1. Open Lukotta. Connected BitLocker-candidate drives are listed.
-2. Pick the drive, enter its password or recovery key, click **Unlock**.
-3. Approve the single administrator prompt.
-4. The drive appears in Finder, readable and writable.
-5. **Eject** in the app or in Finder when done. Ejecting needs no password.
+Plug in the drive and pick it from the list. Type the password or paste the
+recovery key. It appears in Finder under Locations.
 
-Recovery keys may be typed with hyphens, spaces, or as one 48-digit run. The
-app validates the checksum before anything is attempted, so a mistyped key is
-reported precisely instead of as a generic unlock failure.
+Eject it from Lukotta, from the menu bar, or from Finder — whichever is nearer.
 
-## Known limitation: it mounts as a network drive
+Lukotta can remember a passphrase in your Keychain if you ask it to. That is off
+unless you turn it on.
 
-The drive appears in Finder under **Locations**, but macOS classifies it as a
-network volume rather than a local disk.
+## It appears as a network drive
 
-This is architectural. The engine reads the drive inside a Linux microVM and
-re-exports it to `127.0.0.1` over NFS — upstream states that "by design, any
-mounted volume is seen by macOS as a network drive shared by our virtual
-machine". macOS offers no supported way to mark an NFS mount local: there is no
-`local` option in `mount_nfs`, and `MNT_LOCAL` is not settable from user space.
-
-Everything works — read, write, eject — but Finder shows a network volume, and
-in-place renaming is not offered for network volumes. See
-[BACKGROUND.md](Documentation/BACKGROUND.md) §6 for the routes out of this
-(FSKit, DriverKit) and why neither is available today.
+The drive is handed to Finder over a local network connection, so it sits under
+Locations with a network icon rather than under Devices. It reads, writes and
+ejects like any other drive. macOS offers no way to present it as a local disk;
+[BACKGROUND.md][background] explains what was tried.
 
 ## How it works
 
-```
-Lukotta.app  ──►  anylinuxfs  ──►  Linux microVM (libkrun)
-   SwiftUI          embedded          cryptsetup unlocks BitLocker
-   one auth         engine            ntfs3 mounts the volume
-   prompt                             NFS server exports it
-                                             │
-   Finder  ◄────────  /Volumes/<label>  ◄─────┘  localhost NFS
-```
+macOS cannot read BitLocker or Linux filesystems. Linux can. Lukotta starts a
+small Linux virtual machine, unlocks the drive inside it, and hands the drive
+back to Finder.
 
-The credential is passed to the elevated process through a FIFO, so it never
-appears in an argument list, an exported environment, or on disk.
+That machinery is [anylinuxfs][anylinuxfs], which is GPL-3 and ships inside the
+app. One virtual machine per drive, about 30 to 80 MB of memory each.
 
 ## Uninstalling
 
 Dragging the app to the Bin leaves the privileged helper registered with
-launchd, because launchd knows about the service and not about the folder it
-came from. To remove everything:
+launchd, because launchd knows about the service and not the folder it came
+from. To remove everything:
 
 ```bash
 ./scripts/uninstall.sh            # say what would go, remove nothing
 ./scripts/uninstall.sh --remove   # do it
 ```
 
-It ejects any open drive first, unregisters the helper, and removes the app, the
-Linux environment and the preferences. Saved passphrases are left in your
-Keychain and named so you can remove them yourself.
+Saved passphrases are left in your Keychain, named so you can remove them
+yourself.
 
 ## Building
 
 ```bash
-./scripts/vendor-engine.sh    # stage the engine + Linux image into vendor/
-./build-app.sh                # compile, embed, sign, install to /Applications
-./scripts/run-tests.sh        # the unit tests
+./scripts/fetch-engine.sh    # download the pinned engine, verify checksums
+./scripts/vendor-engine.sh   # stage it into vendor/
+./build-app.sh               # compile, embed, sign, install
 ```
 
-Requirements, the switches `build-app.sh` takes, how the targets fit together,
-and how to make encrypted test drives without encrypted hardware are all in
-[CONTRIBUTING.md](CONTRIBUTING.md).
+The whole path, including how to reproduce a released build, is in
+[BUILDING.md][building]. To work on Lukotta, see [CONTRIBUTING.md][contributing].
 
-`vendor-engine.sh` currently stages from an anylinuxfs runtime already present
-on the build machine. Reproducible builds from pinned upstream artefacts are
-still outstanding — see [TODO.md](Documentation/TODO.md).
+## Privacy and security
 
-Versioning is semver in `VERSION`; the build number is the git commit count.
+Nothing is collected. The only request Lukotta makes on its own is a daily check
+for updates, which can be turned off — [PRIVACY.md][privacy] says exactly what
+that involves.
 
-```bash
-./scripts/bump-version.sh patch   # or minor / major, commits and tags
-```
-
-## Author
-
-**Clement Rahula** — [rahula.dev](https://rahula.dev)
-
-## Contact
-
-**lukotta@rahula.dev** — bug reports and questions.
-
-Corresponding source for every GPL component is published alongside each
-release, so you should never need to ask for it. If a release is missing its
-source archive, that is a bug worth reporting.
+Your passphrase never touches the disk in the clear and never appears in a
+command line. [SECURITY.md][security] describes how it is handled, what the
+privileged helper will and will not accept, and where to report a fault.
 
 ## Licence
 
-**GPL-3.0-or-later.** Lukotta embeds anylinuxfs (GPL-3.0-or-later), a Linux
-kernel image (GPL-2.0-only) and an Alpine Linux userland, so the combined work
-is distributed under the GPL. See [LICENSE](LICENSE) and
-[THIRD_PARTY_NOTICES.md](Documentation/THIRD_PARTY_NOTICES.md), which is generated from the
-components actually shipped and carries the written offer for source.
+GPL-3.0-or-later. Complete source for every component, including the GPL parts
+inside the app, is published with each release.
 
-This also means Lukotta cannot be published on the Mac App Store — both because
-of the licence and because App Store apps must be sandboxed, which rules out raw
-disk access and privilege elevation.
+[Licence][licence] · [Third-party notices][notices] · [Changelog][changelog]
 
-## Acknowledgements
+## Author
 
-Built on [anylinuxfs](https://github.com/nohajc/anylinuxfs) by nohajc, which
-does the hard part.
+Clement Rahula — [lukotta@rahula.dev](mailto:lukotta@rahula.dev) ·
+[rahula.dev](https://rahula.dev)
+
+Built on [anylinuxfs][anylinuxfs] by nohajc, which does the mounting, and on
+[Sparkle][sparkle] for updates. Lukotta is not affiliated with Microsoft, Apple,
+or the Linux projects it works with.
+
+[releases]: https://github.com/clementrahula/lukotta/releases
+[background]: Documentation/BACKGROUND.md
+[building]: Documentation/BUILDING.md
+[contributing]: CONTRIBUTING.md
+[privacy]: PRIVACY.md
+[security]: SECURITY.md
+[licence]: LICENSE
+[notices]: Documentation/THIRD_PARTY_NOTICES.md
+[changelog]: CHANGELOG.md
+[anylinuxfs]: https://github.com/nohajc/anylinuxfs
+[sparkle]: https://sparkle-project.org
