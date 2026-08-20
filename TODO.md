@@ -75,7 +75,53 @@ Nothing ships until these are done.
 
 ---
 
-## 3. Correctness and robustness
+## 3. Updates — Sparkle
+
+Ship this with 1.0.x, not later. Without it, every user of a released build is
+stranded on whatever version they first downloaded, and this app asks for Full
+Disk Access and root — exactly the kind of thing that needs a working patch
+path.
+
+**Licensing is clear.** Sparkle 2.x is MIT, with bundled bsdiff (BSD-2-Clause),
+sais-lite (MIT) and an Ed25519 implementation (zlib-style). All permissive and
+all compatible with distributing FULocker under GPL-3-or-later. Runtime
+requirement is macOS 12+, below our 15.0 floor.
+
+- [ ] **[me]** Embed `Sparkle.framework` in `Contents/Frameworks/` and add it to
+      the inside-out signing pass in `build-app.sh`. Sparkle 2 ships XPC
+      services and an installer helper that each need signing with the hardened
+      runtime, so this is more than dropping in a framework.
+- [ ] **[you]** Generate the EdDSA key pair with Sparkle's `generate_keys`, and
+      **back up the private key**. It lives in the login keychain. If it is
+      lost, every existing install becomes unupdatable — there is no recovery,
+      because clients only trust that one key.
+- [ ] **[me]** Add `SUFeedURL` and `SUPublicEDKey` to `Info.plist`.
+- [ ] **[both]** Decide where the appcast lives. GitHub Releases plus an
+      `appcast.xml` in the repo works and costs nothing; a custom domain is
+      nicer if the project ever moves off GitHub. The feed URL is baked into
+      every shipped build, so changing it later strands old installs — pick a
+      URL you can keep.
+- [ ] **[me]** Wire `generate_appcast` into the release flow so publishing is
+      one command that builds, signs, generates the appcast and produces deltas.
+- [ ] **[me]** **Delta updates are not optional here.** The bundle is 154 MB and
+      roughly 150 MB of that is the engine and Linux image, which change rarely.
+      Without deltas every bug-fix release is a 154 MB download for a few
+      kilobytes of changed Swift. `generate_appcast` produces and signs them
+      automatically.
+- [ ] **[me]** Guard against updating mid-mount. Installing over the app while a
+      drive is unlocked would pull the engine out from under a running microVM.
+      Defer installation until nothing is mounted, using the same
+      `EngineStatus.current()` check the quit handler uses.
+- [ ] **[me]** Add Sparkle and its bundled components to
+      `THIRD_PARTY_NOTICES.md`; the generator currently only covers the engine
+      and the Linux image.
+- [ ] Note the ordering: **notarisation must come first.** Sparkle verifies both
+      its EdDSA signature and the Apple code signature, and the artefact it
+      downloads has to be notarised or Gatekeeper rejects the installed update.
+
+---
+
+## 4. Correctness and robustness
 
 - [ ] `Diagnosis.summarise` matches engine output by substring, so an upstream
       wording change silently degrades to raw output. Pin to exit codes where
@@ -87,11 +133,10 @@ Nothing ships until these are done.
       elevated and say so before asking for a credential.
 - [ ] No CI. Nothing runs `tests/run-all.sh` or checks that the app builds.
 - [ ] No crash reporting, and no in-app way to report a problem.
-- [ ] No update mechanism. Sparkle is GPL-compatible but needs care.
 
 ---
 
-## 4. Open question: the sidebar name
+## 5. Open question: the sidebar name
 
 - [ ] Establish what the sidebar actually displays. Finder's own API reports the
       volume as `BACKUP`, which is the NTFS label from Windows — i.e. the
@@ -101,7 +146,7 @@ Nothing ships until these are done.
 
 ---
 
-## 5. Nice to have
+## 6. Nice to have
 
 - [ ] "Unlock at login" or a remembered-drive convenience.
 - [ ] Localisation and an accessibility audit.
@@ -111,7 +156,7 @@ Nothing ships until these are done.
 
 ---
 
-## 6. Strategic — the native UX project
+## 7. Strategic — the native UX project
 
 Not a release task. This is the separate project described in
 PRODUCTION-READINESS.md §7, and it is what would make the product genuinely

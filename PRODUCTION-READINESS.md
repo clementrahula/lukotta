@@ -230,7 +230,9 @@ Still open:
       `spctl` rejects it. Anyone who downloads it gets a Gatekeeper warning.
       Needs `notarytool` with an app-specific password, and stapling.
 - [ ] No CI. Nothing runs the test suite or checks the build.
-- [ ] No update mechanism (Sparkle would need care under GPL, but is fine).
+- [ ] No update mechanism. Sparkle 2.x is MIT (with BSD-2/zlib bundled
+      components) so it composes fine with GPL-3; delta updates matter because
+      the bundle is 154 MB. Planned in TODO.md §3.
 - [ ] No crash reporting.
 
 ### Dead code and hygiene
