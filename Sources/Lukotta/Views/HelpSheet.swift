@@ -51,7 +51,7 @@ struct HelpSheet: View {
                         )
                         Bullet("LUKS drives from Linux, both LUKS1 and LUKS2")
                         Bullet(
-                            "LVM inside LUKS, the layout Ubuntu, Debian, Mint and Fedora use — if the container holds several volumes, Lukotta asks which to open"
+                            "LVM inside LUKS, the layout Ubuntu, Debian, Mint and Fedora use. If the container holds several volumes, all of them are unlocked together"
                         )
                         Bullet("ext4, btrfs and XFS filesystems inside those containers")
                     }
