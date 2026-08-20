@@ -70,7 +70,7 @@ private struct PermissionView: View {
                     .font(.system(size: 28)).foregroundStyle(.orange)
                 VStack(alignment: .leading, spacing: 3) {
                     Text("One-time setup needed").font(.title3.weight(.semibold))
-                    Text("macOS will not let any app read an encrypted disk without permission — not even with an administrator password.")
+                    Text("macOS will not let any app read an encrypted disk without Full Disk Access — not even with an administrator password. Unlike other permissions, there is no way for an app to ask for this one: Apple requires it to be switched on by hand.")
                         .font(.callout).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -229,8 +229,7 @@ private struct UnlockView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            InfoBox(icon: "lock.badge.clock",
-                    text: "macOS will ask for your administrator password once. Reading an encrypted disk requires it. Nothing is installed on your Mac.")
+            PromptExplainer()
 
             Spacer()
             HStack {
@@ -242,6 +241,55 @@ private struct UnlockView: View {
             }
         }
         .onAppear { focused = true }
+    }
+}
+
+/// What macOS is about to ask for, and why — shown before the prompts appear
+/// rather than leaving the user to guess at a system dialog.
+private struct PromptExplainer: View {
+    @State private var expanded = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            DisclosureGroup(isExpanded: $expanded) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Reason(icon: "externaldrive",
+                           title: "Access to removable volumes",
+                           why: "Lukotta reads the drive directly to unlock it. macOS asks the first time; only the drive you pick is read.")
+                    Reason(icon: "key",
+                           title: "Your administrator password",
+                           why: "Reading a raw disk and mounting a volume both require it. It is requested by macOS, once per unlock, and Lukotta never sees it.")
+                    Reason(icon: "folder.badge.gearshape",
+                           title: "Full Disk Access",
+                           why: "macOS blocks raw disk reads without it, even for administrators. It is the one permission an app cannot ask for — Apple requires it to be switched on by hand in System Settings.")
+                }
+                .padding(.top, 8)
+            } label: {
+                Label("What Lukotta will ask for, and why", systemImage: "hand.raised")
+                    .font(.caption)
+            }
+            .font(.caption)
+        }
+        .padding(11)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.04)))
+    }
+}
+
+private struct Reason: View {
+    let icon: String
+    let title: String
+    let why: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 9) {
+            Image(systemName: icon).font(.caption).foregroundStyle(.tint).frame(width: 16)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.caption.weight(.semibold))
+                Text(why).font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
     }
 }
 

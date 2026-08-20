@@ -370,6 +370,10 @@ enum Mounter {
 
         // macOS negotiates 32 KiB NFS transfers by default; it supports 1 MiB,
         // which matters for sequential throughput on this loopback mount.
+        //
+        // This MUST be passed as --nfs-options=VALUE. The flag is variadic, so
+        // the separated form swallows the device path that follows it and the
+        // engine fails with "mount with no disk isn't valid".
         let nfsOptions = "rsize=1048576,wsize=1048576,readahead=128"
 
         // Which filesystem drivers to try, in order.
@@ -412,7 +416,7 @@ enum Mounter {
         var attempts = drivers.map { driver -> String in
             let typeFlag = driver.map { " -t \($0)" } ?? ""
             return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
-                + "\(typeFlag) -w false -n \(shellQuoted(nfsOptions)) \(deviceQ) >> \(logQ) 2>&1"
+                + "\(typeFlag) -w false --nfs-options=\(shellQuoted(nfsOptions)) \(deviceQ) >> \(logQ) 2>&1"
         }
 
         // A Linux container usually holds LVM rather than a filesystem: Ubuntu,
@@ -424,7 +428,7 @@ enum Mounter {
             // Already chosen by the user after discovery: mount it directly,
             // with no driver override and no second discovery pass.
             attempts = ["ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
-                + " -w false -n \(shellQuoted(nfsOptions)) \(shellQuoted(volume.mountIdentifier))"
+                + " -w false --nfs-options=\(shellQuoted(nfsOptions)) \(shellQuoted(volume.mountIdentifier))"
                 + " >> \(logQ) 2>&1"]
         } else if drive.kind == .linux {
             attempts.append("""
@@ -434,7 +438,7 @@ enum Mounter {
               __lvs=$(awk '$NF ~ /^[^:]+:[^:]+:[^:]+$/ && $2 != "LVM2_scheme" { print $NF }' \(shellQuoted(listLog.path)))
               __count=$(printf '%s\\n' "$__lvs" | grep -c . )
               if [ "$__count" -eq 1 ]; then
-                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false -n \(shellQuoted(nfsOptions)) "lvm:$__lvs" >> \(logQ) 2>&1
+                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(nfsOptions)) "lvm:$__lvs" >> \(logQ) 2>&1
               elif [ "$__count" -gt 1 ]; then
                 echo "LUKOTTA_MULTIPLE_VOLUMES" >> \(logQ)
                 false
