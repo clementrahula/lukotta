@@ -87,7 +87,7 @@ struct HelpSheet: View {
                             "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use"
                         )
                         Bullet("30 to 80 MB of RAM per unlocked drive")
-                        Bullet("Around ten drives unlocked at once")
+                        Bullet("Around ten drives unlocked at once should be no trouble")
                     }
 
                     HelpSection(title: "Licence") {
