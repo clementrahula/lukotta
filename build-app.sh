@@ -24,9 +24,6 @@ SIGN_ID="${BLM_SIGN_ID:-$(security find-identity -v -p codesigning 2>/dev/null \
   | awk -F'"' '/Developer ID Application/ {print $2; exit}')}"
 [ -n "$SIGN_ID" ] || SIGN_ID="-"
 
-rm -rf "$OUT"
-mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources/helpers"
-
 # Never build a shippable bundle from a failing tree. BLM_SKIP_TESTS=1 is for
 # fast iteration only.
 if [ "${BLM_SKIP_TESTS:-0}" != "1" ]; then
@@ -34,6 +31,9 @@ if [ "${BLM_SKIP_TESTS:-0}" != "1" ]; then
   "$HERE/tests/run-all.sh" >/dev/null || {
     echo "error: tests failed; refusing to build. Run ./tests/run-all.sh" >&2; exit 1; }
 fi
+
+rm -rf "$OUT"
+mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources/helpers"
 
 printf 'Building %s %s (build %s)\n' "$APP_NAME" "$VERSION" "$BUILD"
 swiftc -parse-as-library \
