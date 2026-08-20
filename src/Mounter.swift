@@ -209,6 +209,65 @@ enum EngineStatus {
     }
 }
 
+/// A logical volume discovered inside an unlocked container.
+struct LogicalVolume: Equatable {
+    let identifier: String   // "lukottavg:disk4s1:root"
+    let label: String        // filesystem label, or the LV name
+    let filesystem: String   // ext4, btrfs, xfs …
+    let size: String
+
+    /// What `anylinuxfs mount` expects for this volume.
+    var mountIdentifier: String { "lvm:\(identifier)" }
+}
+
+/// Parses `anylinuxfs list --decrypt` output.
+///
+/// Ubuntu, Debian, Mint, Pop and Fedora all put LVM inside the LUKS container,
+/// so unlocking exposes a volume group rather than a filesystem. The engine
+/// addresses those as `lvm:<vg>:<disk>:<lv>`, and prints exactly that triple in
+/// the IDENTIFIER column:
+///
+///     lvm:lukottavg (volume group):
+///        #:            TYPE NAME             SIZE       IDENTIFIER
+///        0:     LVM2_scheme                  +0.6 GB    lukottavg
+///                          Physical Store luks-lvm.img
+///        1:           btrfs LUKOTTATEST      608.2 MB   lukottavg:luks-lvm.img:data
+enum VolumeGroupParser {
+    /// Container types that are not themselves mountable.
+    private static let containers: Set<String> = [
+        "LVM2_scheme", "LVM2_member", "crypto_LUKS", "GUID_partition_scheme",
+        "linux_raid_member", "swap",
+    ]
+
+    static func logicalVolumes(in text: String) -> [LogicalVolume] {
+        var found: [LogicalVolume] = []
+        for line in text.components(separatedBy: .newlines) {
+            let fields = line.split(whereSeparator: { $0 == " " || $0 == "\t" }).map(String.init)
+            // A mountable row ends in vg:disk:lv and begins with an index.
+            guard let identifier = fields.last,
+                  identifier.split(separator: ":").count == 3,
+                  let first = fields.first, first.hasSuffix(":"),
+                  Int(first.dropLast()) != nil,
+                  fields.count >= 4
+            else { continue }
+
+            let filesystem = fields[1]
+            guard !containers.contains(filesystem) else { continue }
+
+            // NAME may be absent when the filesystem carries no label.
+            let sizeIndex = fields.count - 3
+            let label = fields.count >= 5 ? fields[2] : ""
+            let size = "\(fields[sizeIndex]) \(fields[sizeIndex + 1])"
+            let lvName = identifier.split(separator: ":").last.map(String.init) ?? identifier
+            found.append(LogicalVolume(identifier: identifier,
+                                       label: label.isEmpty ? lvName : label,
+                                       filesystem: filesystem,
+                                       size: size))
+        }
+        return found
+    }
+}
+
 // MARK: - Credential handling
 
 enum Credential {
@@ -273,6 +332,7 @@ struct MountResult {
 enum Mounter {
     static func mount(drive: Drive,
                       credential: String,
+                      volume: LogicalVolume? = nil,
                       workspace: Workspace,
                       progress: @escaping (String) -> Void) throws -> MountResult {
 
@@ -303,13 +363,17 @@ enum Mounter {
         parts.append("export SUDO_GID=\(getgid())")
 
         // The engine defaults to a 1 vCPU / 512 MiB microVM, which throttles the
-        // in-guest NFS server and filesystem drivers. Scale to the host.
+        // in-guest NFS server and filesystem drivers. LUKS decryption needs at
+        // least 2560 MiB or the engine raises it itself and warns.
         let cores = max(2, min(4, ProcessInfo.processInfo.activeProcessorCount / 2))
-        let ram = 2048
-        parts.append(shellQuoted(engine.path) + " config -n \(cores) -r \(ram) >/dev/null 2>&1 || true")
+        let ram = 2560
 
         // macOS negotiates 32 KiB NFS transfers by default; it supports 1 MiB,
-        // which matters a lot for sequential throughput on this loopback mount.
+        // which matters for sequential throughput on this loopback mount.
+        //
+        // This MUST be passed as --nfs-options=VALUE. The flag is variadic, so
+        // the separated form swallows the device path that follows it and the
+        // engine fails with "mount with no disk isn't valid".
         let nfsOptions = "rsize=1048576,wsize=1048576,readahead=128"
 
         // Which filesystem drivers to try, in order.
@@ -325,29 +389,90 @@ enum Mounter {
         case .linux:     drivers = [nil]
         }
 
-        // The credential is read from the pipe once into a shell variable, then
-        // reused: a FIFO can only be consumed once, and re-prompting the user
-        // for each attempt would defeat the point of a single authorisation.
-        parts.append("__cred=\"$(cat \(shellQuoted(fifo.path)))\"")
+        let engineQ = shellQuoted(engine.path)
+        let deviceQ = shellQuoted(drive.devicePath)
+        let logQ = shellQuoted(log.path)
+        let listLog = workspace.root.appendingPathComponent("discover.log")
+        let expectURL = workspace.root.appendingPathComponent("discover.exp")
 
-        let attempts: [String] = drivers.enumerated().map { index, driver in
-            let redirect = index == 0 ? ">" : ">>"
-            let typeFlag = driver.map { " -t \($0)" } ?? ""
-            return "ALFS_PASSPHRASE=\"$__cred\" "
-                + shellQuoted(engine.path)
-                + " mount --ignore-permissions\(typeFlag) -w false -n \(shellQuoted(nfsOptions)) "
-                + shellQuoted(drive.devicePath)
-                + " \(redirect) \(shellQuoted(log.path)) 2>&1"
+        // `expect -c` keeps reading commands from stdin once the inline script
+        // ends, so it never exits; a script file terminates cleanly. The
+        // credential arrives in the environment and is never written to disk.
+        let expectScript = """
+        set timeout 600
+        spawn -noecho [lindex $argv 0] list --decrypt=all [lindex $argv 1]
+        expect {
+          -re "passphrase.*: " { send "$env(ALFS_PASSPHRASE)\r"; exp_continue }
+          timeout { exit 99 }
+          eof
         }
-        parts.append(attempts.joined(separator: " || "))
-        parts.append("unset __cred")
-        let script = parts.joined(separator: "; ")
+        catch wait result
+        exit [lindex $result 3]
+        """
+        try expectScript.write(to: expectURL, atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0o700],
+                                              ofItemAtPath: expectURL.path)
+
+        var attempts = drivers.map { driver -> String in
+            let typeFlag = driver.map { " -t \($0)" } ?? ""
+            return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
+                + "\(typeFlag) -w false --nfs-options=\(shellQuoted(nfsOptions)) \(deviceQ) >> \(logQ) 2>&1"
+        }
+
+        // A Linux container usually holds LVM rather than a filesystem: Ubuntu,
+        // Debian, Mint, Pop and Fedora all layer it that way. `list --decrypt`
+        // exposes the volume group, but prompts on a terminal and ignores
+        // ALFS_PASSPHRASE, so it is driven through expect with the credential
+        // passed in the environment rather than written anywhere.
+        if let volume {
+            // Already chosen by the user after discovery: mount it directly,
+            // with no driver override and no second discovery pass.
+            attempts = ["ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
+                + " -w false --nfs-options=\(shellQuoted(nfsOptions)) \(shellQuoted(volume.mountIdentifier))"
+                + " >> \(logQ) 2>&1"]
+        } else if drive.kind == .linux {
+            attempts.append("""
+            {
+              ALFS_PASSPHRASE="$__cred" /usr/bin/expect -f \(shellQuoted(expectURL.path)) \(engineQ) \(deviceQ) > \(shellQuoted(listLog.path)) 2>&1
+              cat \(shellQuoted(listLog.path)) >> \(logQ)
+              __lvs=$(awk '$NF ~ /^[^:]+:[^:]+:[^:]+$/ && $2 != "LVM2_scheme" { print $NF }' \(shellQuoted(listLog.path)))
+              __count=$(printf '%s\\n' "$__lvs" | grep -c . )
+              if [ "$__count" -eq 1 ]; then
+                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(nfsOptions)) "lvm:$__lvs" >> \(logQ) 2>&1
+              elif [ "$__count" -gt 1 ]; then
+                echo "LUKOTTA_MULTIPLE_VOLUMES" >> \(logQ)
+                false
+              else
+                false
+              fi
+            }
+            """)
+        }
+
+        // One script, one authorisation. Written to the private workspace rather
+        // than inlined, because quoting this through AppleScript would be a
+        // correctness hazard. It contains no secret: the credential is read
+        // from the pipe at run time.
+        let script = """
+        #!/bin/sh
+        \(parts.joined(separator: "\n"))
+        __cred="$(cat \(shellQuoted(fifo.path)))"
+        \(engineQ) config -n \(cores) -r \(ram) >/dev/null 2>&1 || true
+        \(attempts.joined(separator: " || "))
+        __rc=$?
+        unset __cred
+        exit $__rc
+        """
+        let scriptURL = workspace.root.appendingPathComponent("mount.sh")
+        try script.write(to: scriptURL, atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0o700],
+                                              ofItemAtPath: scriptURL.path)
 
         let osa = Process()
         osa.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
         osa.arguments = [
             "-e", "with timeout of 1800 seconds",
-            "-e", "do shell script \(appleScriptQuoted(script)) with administrator privileges",
+            "-e", "do shell script \(appleScriptQuoted("/bin/sh " + shellQuoted(scriptURL.path))) with administrator privileges",
             "-e", "end timeout",
         ]
         let osaErr = Pipe()
@@ -379,6 +504,14 @@ enum Mounter {
         if osa.terminationStatus != 0 {
             if osaMessage.contains("-128") || osaMessage.lowercased().contains("user canceled") {
                 throw EngineError.authorisationCancelled
+            }
+            // The container held several logical volumes, so the engine was
+            // never told which to mount. That is a question, not a failure.
+            if transcript.contains("LUKOTTA_MULTIPLE_VOLUMES") {
+                let volumes = VolumeGroupParser.logicalVolumes(in: transcript)
+                if !volumes.isEmpty {
+                    throw EngineError.multipleVolumes(volumes, transcript: transcript)
+                }
             }
             throw EngineError.mountFailed(summary: Diagnosis.summarise(transcript, fallback: osaMessage),
                                           detail: transcript.isEmpty ? osaMessage : transcript)

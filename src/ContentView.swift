@@ -14,6 +14,8 @@ struct ContentView: View {
                 case .chooseDrive:         DriveListView()
                 case .unlock(let d):       UnlockView(drive: d)
                 case .working(let d):      WorkingView(drive: d)
+                case .chooseVolume(let d, let vols):
+                    VolumeChoiceView(drive: d, volumes: vols)
                 case .mounted(let d, let p): MountedView(drive: d, mountPoint: p)
                 case .failed(let d, let s, let detail):
                     FailureView(drive: d, summary: s, detail: detail)
@@ -68,7 +70,7 @@ private struct PermissionView: View {
                     .font(.system(size: 28)).foregroundStyle(.orange)
                 VStack(alignment: .leading, spacing: 3) {
                     Text("One-time setup needed").font(.title3.weight(.semibold))
-                    Text("macOS will not let any app read an encrypted disk without permission — not even with an administrator password.")
+                    Text("macOS will not let any app read an encrypted disk without Full Disk Access — not even with an administrator password. Unlike other permissions, there is no way for an app to ask for this one: Apple requires it to be switched on by hand.")
                         .font(.callout).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -227,8 +229,7 @@ private struct UnlockView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            InfoBox(icon: "lock.badge.clock",
-                    text: "macOS will ask for your administrator password once. Reading an encrypted disk requires it. Nothing is installed on your Mac.")
+            PromptExplainer()
 
             Spacer()
             HStack {
@@ -240,6 +241,55 @@ private struct UnlockView: View {
             }
         }
         .onAppear { focused = true }
+    }
+}
+
+/// What macOS is about to ask for, and why — shown before the prompts appear
+/// rather than leaving the user to guess at a system dialog.
+private struct PromptExplainer: View {
+    @State private var expanded = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            DisclosureGroup(isExpanded: $expanded) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Reason(icon: "externaldrive",
+                           title: "Access to removable volumes",
+                           why: "Lukotta reads the drive directly to unlock it. macOS asks the first time; only the drive you pick is read.")
+                    Reason(icon: "key",
+                           title: "Your administrator password",
+                           why: "Reading a raw disk and mounting a volume both require it. It is requested by macOS, once per unlock, and Lukotta never sees it.")
+                    Reason(icon: "folder.badge.gearshape",
+                           title: "Full Disk Access",
+                           why: "macOS blocks raw disk reads without it, even for administrators. It is the one permission an app cannot ask for — Apple requires it to be switched on by hand in System Settings.")
+                }
+                .padding(.top, 8)
+            } label: {
+                Label("What Lukotta will ask for, and why", systemImage: "hand.raised")
+                    .font(.caption)
+            }
+            .font(.caption)
+        }
+        .padding(11)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.04)))
+    }
+}
+
+private struct Reason: View {
+    let icon: String
+    let title: String
+    let why: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 9) {
+            Image(systemName: icon).font(.caption).foregroundStyle(.tint).frame(width: 16)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.caption.weight(.semibold))
+                Text(why).font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
     }
 }
 
@@ -270,6 +320,62 @@ private struct WorkingView: View {
             }
             .font(.caption)
             Spacer()
+        }
+    }
+}
+
+// MARK: - Choosing a volume
+
+/// Shown when an unlocked container holds several logical volumes — the normal
+/// case for Ubuntu, Debian and Fedora, which put root, home and swap inside one
+/// LUKS container.
+private struct VolumeChoiceView: View {
+    @EnvironmentObject var model: AppModel
+    let drive: Drive
+    let volumes: [LogicalVolume]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Choose a volume").font(.title3.weight(.semibold))
+                Text("“\(drive.name)” is unlocked and contains \(volumes.count) volumes.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+
+            ScrollView {
+                VStack(spacing: 10) {
+                    ForEach(volumes, id: \.identifier) { vol in
+                        Button { model.choose(vol, on: drive) } label: {
+                            HStack(spacing: 14) {
+                                Image(systemName: "internaldrive")
+                                    .font(.system(size: 22)).foregroundStyle(.tint)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(vol.label).font(.body.weight(.medium))
+                                    Text("\(vol.filesystem) · \(vol.size)")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                            }
+                            .padding(13)
+                            .background(RoundedRectangle(cornerRadius: 10)
+                                .fill(Color(nsColor: .controlBackgroundColor)))
+                            .overlay(RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.primary.opacity(0.08)))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            InfoBox(icon: "lock.open",
+                    text: "The drive stays unlocked, so opening one of these will not ask for the password again.")
+
+            Spacer()
+            HStack {
+                Button("Back", action: model.backToDrives)
+                Spacer()
+            }
         }
     }
 }

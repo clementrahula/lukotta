@@ -10,6 +10,7 @@ final class AppModel: ObservableObject {
         case chooseDrive
         case unlock(Drive)
         case working(Drive)
+        case chooseVolume(Drive, [LogicalVolume])
         case mounted(Drive, String)
         case failed(Drive?, String, String?)   // drive, summary, raw detail
     }
@@ -24,6 +25,9 @@ final class AppModel: ObservableObject {
     @Published var ejectProblem: String?
 
     private var workspace: Workspace?
+    /// Held only between discovering several volumes and the user picking one,
+    /// so the second attempt does not ask for the credential again.
+    private var pendingCredential: String?
 
     // MARK: Lifecycle
 
@@ -93,6 +97,17 @@ final class AppModel: ObservableObject {
 
     // MARK: Unlock
 
+    /// Mount a specific logical volume after the user has chosen it.
+    func choose(_ volume: LogicalVolume, on drive: Drive) {
+        guard let credential = pendingCredential else {
+            phase = .unlock(drive)
+            return
+        }
+        statusLines = []
+        phase = .working(drive)
+        runMount(drive: drive, credential: credential, volume: volume)
+    }
+
     func unlock(_ drive: Drive) {
         credentialProblem = nil
         let raw = credential
@@ -117,38 +132,61 @@ final class AppModel: ObservableObject {
             }
             workspace = ws
 
-            Task.detached(priority: .userInitiated) {
-                do {
-                    let result = try Mounter.mount(
-                        drive: drive,
-                        credential: normalised,
-                        workspace: ws,
-                        progress: { line in
-                            Task { @MainActor in self.appendStatus(line) }
-                        })
-                    await MainActor.run {
+            runMount(drive: drive, credential: normalised, volume: nil)
+        }
+    }
+
+    private func runMount(drive: Drive, credential: String, volume: LogicalVolume?) {
+        let ws: Workspace
+        do {
+            ws = try Workspace()
+        } catch {
+            phase = .failed(drive, "Could not create a private working folder.", "\(error)")
+            return
+        }
+        workspace = ws
+
+        Task.detached(priority: .userInitiated) {
+            do {
+                let result = try Mounter.mount(
+                    drive: drive,
+                    credential: credential,
+                    volume: volume,
+                    workspace: ws,
+                    progress: { line in
+                        Task { @MainActor in self.appendStatus(line) }
+                    })
+                await MainActor.run {
+                    self.credential = ""
+                    self.pendingCredential = nil
+                    self.phase = .mounted(drive, result.mountPoint)
+                    NSWorkspace.shared.open(URL(fileURLWithPath: result.mountPoint))
+                }
+            } catch let err as EngineError {
+                await MainActor.run {
+                    // Several volumes is a question for the user, not a failure:
+                    // keep the credential so picking one does not re-prompt.
+                    if case .multipleVolumes(let volumes, _) = err {
+                        self.pendingCredential = credential
                         self.credential = ""
-                        self.phase = .mounted(drive, result.mountPoint)
-                        NSWorkspace.shared.open(URL(fileURLWithPath: result.mountPoint))
+                        self.phase = .chooseVolume(drive, volumes)
+                        return
                     }
-                } catch let err as EngineError {
-                    await MainActor.run {
-                        self.credential = ""
-                        // A macOS access refusal is a setup problem, not a
-                        // failed unlock: send the user to the guided screen.
-                        if Permissions.isAccessDenied(err.detail ?? "") {
-                            self.phase = .needsPermission
-                        } else {
-                            self.phase = .failed(drive,
-                                                 err.errorDescription ?? "The drive could not be opened.",
-                                                 err.detail)
-                        }
+                    self.credential = ""
+                    self.pendingCredential = nil
+                    if Permissions.isAccessDenied(err.detail ?? "") {
+                        self.phase = .needsPermission
+                    } else {
+                        self.phase = .failed(drive,
+                                             err.errorDescription ?? "The drive could not be opened.",
+                                             err.detail)
                     }
-                } catch {
-                    await MainActor.run {
-                        self.credential = ""
-                        self.phase = .failed(drive, "The drive could not be opened.", "\(error)")
-                    }
+                }
+            } catch {
+                await MainActor.run {
+                    self.credential = ""
+                    self.pendingCredential = nil
+                    self.phase = .failed(drive, "The drive could not be opened.", "\(error)")
                 }
             }
         }

@@ -93,5 +93,10 @@ if [ "${BLM_INSTALL:-1}" = "1" ]; then
   APPS="/Applications/$APP_NAME.app"
   rm -rf "$APPS"
   /usr/bin/ditto "$OUT" "$APPS"
+  # Renaming an app at the same path leaves Dock and Finder showing the icon
+  # cached under the old name, which looks like a build failure and is not.
+  touch "$APPS"
+  LSREG=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+  [ -x "$LSREG" ] && "$LSREG" -f "$APPS" >/dev/null 2>&1 || true
   printf 'Installed %s\n' "$APPS"
 fi
