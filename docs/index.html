@@ -61,23 +61,25 @@
           fill="none" stroke-linejoin="round" clip-path="inset(0 round 17.4)"/>
   </svg>
   <h1>lukotta</h1>
-  <p class="tag">Open BitLocker-encrypted drives on macOS. Unlock with the drive’s
-     password or its recovery key, and it mounts read&nbsp;/&nbsp;write in Finder.</p>
+  <p class="tag">Open BitLocker and Linux drives on macOS. Type the drive’s
+     password and it appears in Finder, readable and writable, like any other disk.</p>
   <div class="cta">
     <a class="btn" href="https://github.com/clementrahula/lukotta/releases/latest">Download</a>
     <a class="btn ghost" href="https://github.com/clementrahula/lukotta">Source</a>
   </div>
-  <p class="req">Apple Silicon · macOS 15 or later · free and open source</p>
+  <p class="req">Apple Silicon · macOS 15 Sequoia or later · free and open source</p>
 </header>
 
 <section>
   <h2>What it does</h2>
   <ul>
-    <li>Unlocks with the volume password <em>or</em> the 48-digit recovery key, checked before anything is attempted.</li>
+    <li><strong>BitLocker</strong> drives, with the password or a 48-digit recovery key.</li>
+    <li><strong>Windows NTFS</strong> drives, including ones Windows left hibernated or not shut down properly.</li>
+    <li><strong>LUKS</strong> drives from Linux, both LUKS1 and LUKS2.</li>
+    <li><strong>LVM inside LUKS</strong>, as Ubuntu, Debian, Mint and Fedora set it up. Several volumes on one drive all unlock together.</li>
     <li>Mounts read and write, not read-only.</li>
-    <li>One administrator prompt per unlock. Ejecting needs no password at all.</li>
-    <li>Nothing to install first: no Homebrew, no macFUSE, no kernel extension, no system extension.</li>
-    <li>Nothing downloaded at first run — the engine ships inside the app.</li>
+    <li>An administrator password once, when the background helper is set up. Not again, and never to eject.</li>
+    <li>Nothing to install first, and nothing downloaded at first run — the engine ships inside the app.</li>
   </ul>
 </section>
 
@@ -106,9 +108,14 @@
 <section>
   <h2>Open source</h2>
   <p>Lukotta is <strong>GPL-3.0-or-later</strong>. It is built on
-     <a href="https://github.com/nohajc/anylinuxfs">anylinuxfs</a>, which does the hard part.
+     <a href="https://github.com/nohajc/anylinuxfs">anylinuxfs</a>, which does the mounting.
      Complete corresponding source for every component — including the Linux kernel and
-     every package in the embedded image — is published alongside each release.</p>
+     every package in the embedded image — is published with each release.</p>
+  <p><a href="https://github.com/clementrahula/lukotta/blob/main/PRIVACY.md">Privacy</a> ·
+     <a href="https://github.com/clementrahula/lukotta/blob/main/SECURITY.md">Security</a> ·
+     <a href="https://github.com/clementrahula/lukotta/blob/main/CHANGELOG.md">Changelog</a> ·
+     <a href="https://github.com/clementrahula/lukotta/blob/main/Documentation/THIRD_PARTY_NOTICES.md">Third-party notices</a> ·
+     <a href="https://github.com/clementrahula/lukotta/blob/main/Documentation/BUILDING.md">Building from source</a></p>
   <p>It cannot be distributed on the Mac App Store: the licence conflicts with the
      App&nbsp;Store terms, and App&nbsp;Store apps must be sandboxed, which rules out
      raw disk access.</p>
@@ -117,8 +124,9 @@
 <footer>
   <a href="mailto:lukotta@rahula.dev">lukotta@rahula.dev</a> ·
   <a href="https://github.com/clementrahula/lukotta">GitHub</a><br>
-  BitLocker is a trademark of Microsoft Corporation. Lukotta is not affiliated with
-  or endorsed by Microsoft.
+  BitLocker and Windows are trademarks of Microsoft Corporation. Linux is a registered
+  trademark of Linus Torvalds. macOS and Finder are trademarks of Apple Inc. Lukotta is
+  not affiliated with, endorsed by, or sponsored by any of them.
 </footer>
 
 </div>
