@@ -48,6 +48,7 @@ struct LukottaApp: App {
             CommandGroup(replacing: .help) {
                 Button("Lukotta Help") { model.showHelp = true }
                     .keyboardShortcut("?", modifiers: .command)
+                Button("Report an Issue…") { model.showReport = true }
             }
         }
     }

@@ -59,6 +59,10 @@ struct UnlockView: View {
                         .font(.caption).foregroundStyle(.orange)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                if model.usingSavedCredential {
+                    Label("Using the key saved in your Keychain", systemImage: "key.fill")
+                        .font(.caption).foregroundStyle(.green)
+                }
                 Toggle("Remember this key in my Keychain", isOn: $model.rememberCredential)
                     .font(.callout)
                     .padding(.top, 2)

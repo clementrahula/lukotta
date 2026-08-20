@@ -58,6 +58,13 @@ public enum MountScript {
         }
     }
 
+    /// Prefix for stage markers the script writes as it progresses.
+    ///
+    /// The engine emits very little while mounting, so progress cannot be
+    /// inferred from its output. These are written by the script itself, at
+    /// points where something has definitely happened.
+    public static let stageMarker = "LUKOTTA_STAGE:"
+
     /// Marker written when a container holds several volumes and the engine was
     /// therefore never told which to mount.
     public static let multipleVolumesMarker = "LUKOTTA_MULTIPLE_VOLUMES"
@@ -103,7 +110,11 @@ public enum MountScript {
         // Read the credential from the pipe once into a variable: a FIFO can
         // only be consumed once, and re-prompting per attempt would defeat the
         // single authorisation.
+        // Reaching this line means authorisation succeeded and the script is
+        // running as root.
+        lines.append("echo \"\(stageMarker)authorised\" >> \(logQ)")
         lines.append("__cred=\"$(cat \(shellQuoted(i.fifoPath)))\"")
+        lines.append("echo \"\(stageMarker)working\" >> \(logQ)")
         lines.append("\(engineQ) config -n \(i.cores) -r \(i.ramMiB) >/dev/null 2>&1 || true")
 
         lines.append(

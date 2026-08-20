@@ -21,10 +21,16 @@ final class AppModel: ObservableObject {
     @Published var credential: String = ""
     @Published var revealCredential = false
     @Published var statusLines: [String] = []
+    /// Stage markers, kept apart from the human-readable log.
+    @Published var stageLines: [String] = []
     @Published var credentialProblem: String?
     @Published var showHelp = false
+    @Published var showReport = false
     /// Whether to keep this drive's credential in the Keychain. Opt-in.
     @Published var rememberCredential = false
+    /// Set when a stored credential was found and filled in, so the interface
+    /// can say so rather than showing a field of dots with no explanation.
+    @Published var usingSavedCredential = false
     @Published var isEjecting = false
     @Published var ejectProblem: String?
 
@@ -138,9 +144,11 @@ final class AppModel: ObservableObject {
             if let saved = CredentialStore.load(for: drive.uuid) {
                 credential = saved
                 rememberCredential = true
+                usingSavedCredential = true
             } else {
                 credential = ""
                 rememberCredential = false
+                usingSavedCredential = false
             }
             credentialBelongsTo = drive.id
         }
@@ -171,6 +179,7 @@ final class AppModel: ObservableObject {
             return
         }
         statusLines = []
+        stageLines = []
         phase = .working(drive)
         runMount(drive: drive, credential: credential, volume: volume)
     }
@@ -226,7 +235,10 @@ final class AppModel: ObservableObject {
                 await MainActor.run {
                     // Only store a credential that has actually worked.
                     if self.rememberCredential {
-                        _ = CredentialStore.save(credential, for: drive.uuid)
+                        if !CredentialStore.save(credential, for: drive.uuid) {
+                            self.ejectProblem =
+                                "The drive opened, but the key could not be saved to your Keychain."
+                        }
                     } else {
                         CredentialStore.delete(for: drive.uuid)
                     }
@@ -266,7 +278,14 @@ final class AppModel: ObservableObject {
     }
 
     private func appendStatus(_ line: String) {
-        statusLines.append(line)
+        // Redact as it arrives: the log is shown in the interface, offered in
+        // bug reports, and written to the workspace. Doing it here means there
+        // is no window in which a credential-shaped string exists in any of
+        // those places.
+        statusLines.append(Diagnostics.redact(line))
+        // Stage markers drive the indicator; they are not output worth reading.
+        if line.contains(MountScript.stageMarker) { statusLines.removeLast() }
+        if line.contains(MountScript.stageMarker) { stageLines.append(line) }
         if statusLines.count > 400 { statusLines.removeFirst(statusLines.count - 400) }
     }
 

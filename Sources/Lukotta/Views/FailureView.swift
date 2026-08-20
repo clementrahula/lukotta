@@ -37,6 +37,7 @@ struct FailureView: View {
             Spacer()
             HStack {
                 Button("Choose another drive", action: model.backToDrives)
+                Button("Report…") { model.showReport = true }
                 Spacer()
                 if summary.contains("Full Disk Access") {
                     Button("Open Privacy Settings") { model.openPrivacySettings() }

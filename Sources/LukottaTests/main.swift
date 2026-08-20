@@ -28,6 +28,27 @@ func expect(_ condition: Bool, _ what: String) {
     if !condition { failures += 1; print("    FAIL [\(currentGroup)] \(what)") }
 }
 
+func sampleInputs(
+    kind: VolumeKind = .microsoft,
+    volume: LogicalVolume? = nil,
+    alias: String? = "/tmp/ws/alias/Elements"
+) -> MountScript.Inputs {
+    MountScript.Inputs(
+        enginePath:
+            "/Applications/Lukotta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs",
+        devicePath: "/dev/disk4s1",
+        driveName: "Elements",
+        kind: kind,
+        volume: volume,
+        aliasPath: alias,
+        fifoPath: "/tmp/ws/credential.fifo",
+        logPath: "/tmp/ws/mount.log",
+        discoverLogPath: "/tmp/ws/discover.log",
+        expectScriptPath: "/tmp/ws/discover.exp",
+        libraryPaths: ["/engine/lib"],
+        uid: 501, gid: 20, cores: 4, ramMiB: 2560)
+}
+
 print("LukottaCore")
 
 group("quotingTheseBuildACommandThatRunsAsRootSoTheyMatter") {
@@ -151,27 +172,6 @@ group("theElevatedMountScript") {
     // were malformed arguments here, and neither was reachable by a test while
     // generation and execution lived in the same function.
 
-    func sampleInputs(
-        kind: VolumeKind = .microsoft,
-        volume: LogicalVolume? = nil,
-        alias: String? = "/tmp/ws/alias/Elements"
-    ) -> MountScript.Inputs {
-        MountScript.Inputs(
-            enginePath:
-                "/Applications/Lukotta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs",
-            devicePath: "/dev/disk4s1",
-            driveName: "Elements",
-            kind: kind,
-            volume: volume,
-            aliasPath: alias,
-            fifoPath: "/tmp/ws/credential.fifo",
-            logPath: "/tmp/ws/mount.log",
-            discoverLogPath: "/tmp/ws/discover.log",
-            expectScriptPath: "/tmp/ws/discover.exp",
-            libraryPaths: ["/engine/lib"],
-            uid: 501, gid: 20, cores: 4, ramMiB: 2560)
-    }
-
     let msScript = MountScript.build(sampleInputs())
 
     // The regression that broke v1.1.0: --nfs-options is variadic, so the separated
@@ -240,23 +240,32 @@ group("theElevatedMountScript") {
 }
 
 group("mountStages") {
-
-    expect(MountStage.inferred(from: []) == .preparing, "no output yet means preparing")
+    // Stages come from markers the script writes. The engine prints almost
+    // nothing while mounting, so inferring them from its output left the
+    // indicator stuck on one step and then jumping — the bug this replaces.
+    let marker = MountScript.stageMarker
+    expect(MountStage.inferred(from: []) == .preparing, "nothing yet means preparing")
     expect(
         MountStage.inferred(from: ["Waiting for your administrator approval…"]) == .authorising,
-        "approval line detected")
-    expect(MountStage.inferred(from: ["booting linux kernel"]) == .starting, "vm start detected")
+        "approval reported by the app")
     expect(
-        MountStage.inferred(from: ["Enter passphrase for /dev/disk4s1"]) == .unlocking,
-        "unlock detected")
-    expect(MountStage.inferred(from: ["starting nfs export"]) == .sharing, "sharing detected")
-    // Stages only ever move forward, because matching on text is loose.
+        MountStage.inferred(from: ["\(marker)authorised"]) == .authorising,
+        "authorisation marker recognised")
     expect(
-        MountStage.inferred(from: ["starting nfs export", "booting linux"]) == .sharing,
-        "stage never goes backwards")
+        MountStage.inferred(from: ["\(marker)authorised", "\(marker)working"]) == .working,
+        "work started once the credential has been read")
+    expect(
+        MountStage.inferred(from: ["\(marker)working", "mounted on /Volumes/BACKUP"]) == .finishing,
+        "a mount point means it is being handed to Finder")
+    expect(
+        MountStage.inferred(from: ["mounted on /Volumes/BACKUP", "\(marker)authorised"])
+            == .finishing,
+        "stages never go backwards")
 
-    expect(Permissions.isAccessDenied("Cannot probe /dev/disk4s1"), "access denial detected")
-    expect(!Permissions.isAccessDenied("No key available"), "wrong key is not an access denial")
+    // The markers are plumbing and must not be shown as engine output.
+    let script = MountScript.build(sampleInputs())
+    expect(script.contains("\(marker)authorised"), "script announces authorisation")
+    expect(script.contains("\(marker)working"), "script announces that work began")
 }
 
 group("markdownRendering") {
@@ -299,6 +308,64 @@ group("markdownRendering") {
     expect(tables == 1, "table parsed")
     expect(bullets == 1, "bullet list parsed")
     expect(MarkdownDocument.parse("").isEmpty, "empty document yields no blocks")
+}
+
+group("secretRedaction") {
+    // Engine output is shown in the app, kept in the workspace, and offered in
+    // bug reports. Nothing credential-shaped may survive any of those paths.
+    let key = "121121-131131-141141-151151-161161-171171-181181-191191"
+    let redactedGrouped = Diagnostics.redact("Enter passphrase: \(key) ok")
+    expect(!redactedGrouped.contains("121121"), "grouped recovery key is removed")
+    expect(!redactedGrouped.contains(key), "the full key never survives")
+
+    let run = "121121131131141141151151161161171171181181191191"
+    expect(
+        !Diagnostics.redact("key was \(run)").contains(run),
+        "an unseparated 48-digit key is removed")
+
+    expect(
+        !Diagnostics.redact("ALFS_PASSPHRASE=hunter2").contains("hunter2"),
+        "a labelled secret is removed whatever its shape")
+    expect(
+        !Diagnostics.redact("password: correct horse").contains("correct"),
+        "a labelled password is removed")
+
+    // Ordinary diagnostics must survive, or redaction makes reports useless.
+    let ordinary = "mount: /dev/disk4s1 on /Volumes/BACKUP (ntfs3) 500.07 GB"
+    expect(Diagnostics.redact(ordinary) == ordinary, "normal output is untouched")
+    expect(
+        Diagnostics.redact("Lukotta 1.5.0 build 52").contains("1.5.0"),
+        "version numbers are not mistaken for secrets")
+
+    // The report itself must be clean even when handed raw output.
+    let env = Diagnostics.environment()
+    let report = Diagnostics.report(
+        environment: env, problem: "tried \(key)",
+        engineOutput: "passphrase: \(key)")
+    expect(!report.contains("121121"), "the assembled report carries no key")
+}
+
+group("keychainRoundTrip") {
+    // A saved credential that cannot be read back is worse than not offering
+    // to save it: the user believes it is stored.
+    let uuid = "lukotta-test-\(UUID().uuidString)"
+    let secret = "121121-131131-141141-151151-161161-171171-181181-191191"
+
+    expect(CredentialStore.load(for: uuid) == nil, "nothing stored for a fresh identifier")
+    let saved = CredentialStore.save(secret, for: uuid)
+    expect(saved, "save reports success")
+    expect(CredentialStore.load(for: uuid) == secret, "the credential reads back unchanged")
+    expect(CredentialStore.has(for: uuid), "presence is reported")
+
+    // Saving again must replace rather than fail on a duplicate.
+    expect(CredentialStore.save("second", for: uuid), "re-saving replaces")
+    expect(CredentialStore.load(for: uuid) == "second", "the replacement is what reads back")
+
+    CredentialStore.delete(for: uuid)
+    expect(CredentialStore.load(for: uuid) == nil, "deletion removes it")
+    expect(!CredentialStore.has(for: uuid), "presence is false after deletion")
+
+    expect(!CredentialStore.save("x", for: ""), "an empty identifier is refused")
 }
 
 print("\n\(checks - failures)/\(checks) checks passed")

@@ -7,7 +7,9 @@ struct WorkingView: View {
     let drive: Drive
     @State private var showDetail = false
 
-    private var stage: MountStage { MountStage.inferred(from: model.statusLines) }
+    private var stage: MountStage {
+        MountStage.inferred(from: model.stageLines + model.statusLines)
+    }
 
     /// The unpack reports a percentage; surface it rather than the stage list.
     private var unpackProgress: String? {

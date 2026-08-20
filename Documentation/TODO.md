@@ -508,7 +508,38 @@ milliseconds. This is an architecture problem, not a discipline problem.
 
 ---
 
-## 14. Distribution — Homebrew
+## 14. Privacy policy
+
+- [ ] **[both]** Write one and publish it at lukotta.rahula.dev. Needed even
+      though the app collects nothing: it handles disk encryption keys, asks for
+      Full Disk Access and can store a credential in the Keychain, and users are
+      right to want that stated rather than inferred.
+- [ ] It should say plainly: nothing is transmitted; credentials go to the
+      Keychain only when the user asks, and only after they have worked; logs
+      stay in a temporary directory removed on quit; crash reports are sent only
+      if the user chooses to send them, and are redacted first; the only network
+      access is the update check, which fetches an appcast and sends nothing
+      beyond what any HTTP request reveals.
+- [ ] Link it from the About sheet and the website footer.
+
+---
+
+## 15. Keychain reliability
+
+- [ ] **[me]** A saved credential did not reload after the app was rebuilt and
+      reinstalled several times in one session. The round-trip is covered by
+      tests and passes, so the storage layer is sound; the likely cause is that
+      macOS scopes access to the signing identity of the binary that created the
+      item, and a stream of fresh builds is not something a user would hit.
+      Confirm on a stable installed build before treating it as a defect.
+- [ ] If it does recur, move to the data-protection keychain
+      (`kSecUseDataProtectionKeychain`), which scopes access to the team rather
+      than the individual binary. That needs a `keychain-access-groups`
+      entitlement, so it is a signing change as well as a code change.
+
+---
+
+## 16. Distribution — Homebrew
 
 - [ ] **[me]** Submit a Homebrew cask, so installation is
       `brew install --cask lukotta`. Blocked on the release blockers in §1: a
@@ -522,7 +553,7 @@ milliseconds. This is an architecture problem, not a discipline problem.
 
 ---
 
-## 15. Website and visibility
+## 17. Website and visibility
 
 ### Website — built, needs switching on
 
@@ -558,7 +589,7 @@ README and screenshots — every list rejects submissions that lack those.
 
 ---
 
-## 16. Platform and feature expansion
+## 18. Platform and feature expansion
 
 ### Intel / universal binary — probably not worth it
 
@@ -637,7 +668,7 @@ the work is detection and UI, not new engine capability.
 
 ---
 
-## 17. Strategic — the native UX project
+## 19. Strategic — the native UX project
 
 Not a release task. This is the separate project described in
 PRODUCTION-READINESS.md §7, and it is what would make the product genuinely

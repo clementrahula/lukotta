@@ -1,43 +1,44 @@
 import Foundation
 
 /// The stages a mount goes through, derived from what the engine reports.
-public enum MountStage: Int, CaseIterable {
-    case preparing, authorising, starting, unlocking, sharing
+public enum MountStage: Int, CaseIterable, Sendable {
+    case preparing, authorising, working, finishing
 
     public var title: String {
         switch self {
         case .preparing: return "Preparing"
         case .authorising: return "Waiting for your approval"
-        case .starting: return "Starting the Linux environment"
-        case .unlocking: return "Unlocking the drive"
-        case .sharing: return "Handing the drive to Finder"
+        case .working: return "Unlocking and mounting"
+        case .finishing: return "Handing the drive to Finder"
         }
     }
 
-    /// Best guess at the current stage from the engine's own words. Matching on
-    /// text is inherently loose, so it only ever moves the indicator forward.
+    /// Derived from markers the script writes, not from engine output.
+    ///
+    /// An earlier version matched on the engine's words. That could not work:
+    /// the engine prints almost nothing between starting and finishing, so the
+    /// indicator sat on one step and then jumped.
     public static func inferred(from lines: [String]) -> MountStage {
         var stage = MountStage.preparing
         for line in lines {
-            let l = line.lowercased()
-            func advance(_ s: MountStage) { if s.rawValue > stage.rawValue { stage = s } }
-            if l.contains("approval") || l.contains("administrator") { advance(.authorising) }
-            if l.contains("krun") || l.contains("vm") || l.contains("kernel")
-                || l.contains("boot") || l.contains("linux")
-            {
-                advance(.starting)
+            if line.contains(MountScript.stageMarker + "authorised") {
+                stage = max(stage, .authorising)
             }
-            if l.contains("passphrase") || l.contains("luks") || l.contains("crypt")
-                || l.contains("bitlocker") || l.contains("unlock")
-            {
-                advance(.unlocking)
+            if line.contains(MountScript.stageMarker + "working") {
+                stage = max(stage, .working)
             }
-            if l.contains("nfs") || l.contains("export") || l.contains("mount")
-                || l.contains("share")
-            {
-                advance(.sharing)
+            // The engine names the mount point only once it is exporting it.
+            if line.contains("/Volumes/") || line.lowercased().contains("nfs") {
+                stage = max(stage, .finishing)
+            }
+            if line.lowercased().contains("approval") {
+                stage = max(stage, .authorising)
             }
         }
         return stage
     }
+}
+
+extension MountStage: Comparable {
+    public static func < (a: MountStage, b: MountStage) -> Bool { a.rawValue < b.rawValue }
 }

@@ -29,6 +29,7 @@ struct ContentView: View {
         .frame(minWidth: 580, idealWidth: 620, minHeight: 420, idealHeight: 450)
         .background(Color(nsColor: .windowBackgroundColor))
         .sheet(isPresented: $model.showHelp) { HelpSheet() }
+        .sheet(isPresented: $model.showReport) { ReportIssueSheet() }
     }
 }
 
