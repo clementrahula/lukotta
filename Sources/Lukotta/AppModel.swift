@@ -102,8 +102,8 @@ final class AppModel: ObservableObject {
                         : "“\(name)” had stopped responding and was disconnected. You can open it again."
                 }
                 self.openMounts = Dictionary(
-                    uniqueKeysWithValues:
-                        mounts.map { ($0.devicePath, $0.mountPoint) })
+                    mounts.map { ($0.devicePath, $0.mountPoint) },
+                    uniquingKeysWith: { first, _ in first })
                 if found.count == 1, existing == nil {
                     // One candidate: asking the user to click the only row is
                     // a step with no decision in it.
@@ -193,7 +193,8 @@ final class AppModel: ObservableObject {
             await MainActor.run {
                 self.drives = found
                 self.openMounts = Dictionary(
-                    uniqueKeysWithValues: mounts.map { ($0.devicePath, $0.mountPoint) })
+                    mounts.map { ($0.devicePath, $0.mountPoint) },
+                    uniquingKeysWith: { first, _ in first })
                 self.phase = .chooseDrive
             }
         }
@@ -248,7 +249,15 @@ final class AppModel: ObservableObject {
     /// "what is going on" without navigating away from it.
     @Published var openMounts: [String: String] = [:]
 
-    func mountPoint(for drive: Drive) -> String? { openMounts[drive.devicePath] }
+    func mountPoint(for drive: Drive) -> String? {
+        if let direct = openMounts[drive.devicePath] { return direct }
+        // A volume inside a container is reported against its logical name —
+        // "lvm:<vg>:<disk>:<lv>" — not against the device, so looking the drive
+        // up by its device path finds nothing and the row claims to be closed
+        // while the drive is plainly open in Finder. The disk is in that
+        // identifier, which is what ties the mount back to the drive.
+        return openMounts.first { $0.key.contains(drive.id) }?.value
+    }
 
     // MARK: Unlock
 
