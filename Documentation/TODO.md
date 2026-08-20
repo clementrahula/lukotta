@@ -203,6 +203,36 @@ several volumes of one container could be opened as separate VMs.
 
 ---
 
+### Put the old app back when a new one will not start
+
+Sparkle rolls back only a failed *move*: `SUPlainInstaller.m` restores the old
+bundle if the new one cannot be moved into place, and discards it the moment
+that move succeeds. An update that installs correctly and then refuses to launch
+leaves nothing to go back to. That is the case that has actually happened here,
+when the Sparkle framework was not embedded and dyld rejected the binary.
+
+No guard inside the app can cover it: a binary dyld refuses never runs its own
+code. The watchdog has to be something that outlives the app, which means the
+privileged helper.
+
+Shape of it:
+
+- Before installing, the helper copies the running bundle aside as the
+  last-known-good. Costs the size of the app on disk.
+- The app tells the helper it has started successfully — after the window is up,
+  not merely after `main`, so a crash during startup still counts as a failure.
+- If that confirmation does not arrive within a timeout of the update being
+  installed, the helper puts the old bundle back and relaunches it.
+- A restored version must not immediately update to the same broken build:
+  record the rejected build and refuse it until a newer one appears.
+
+The release smoke test already refuses to publish a build that cannot start,
+which addresses the common case. This covers the rest: a build that starts here
+and not on someone else's machine.
+
+Worth deciding first whether a root daemon that can replace the contents of
+/Applications is a trade worth making for it.
+
 ## Waiting on you
 
 - **Make the repository public.** GitHub Pages refuses a private repository on
