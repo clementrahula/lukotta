@@ -5,12 +5,16 @@ import SwiftUI
 // MARK: - Shared pieces
 
 struct InfoBox: View {
-    let icon: String
+    /// Optional: a note that reads as a sentence does not need a picture of
+    /// itself in front of it.
+    var icon: String?
     let text: String
 
     var body: some View {
         HStack(alignment: .top, spacing: 9) {
-            Image(systemName: icon).foregroundStyle(.secondary).font(.caption)
+            if let icon {
+                Image(systemName: icon).foregroundStyle(.secondary).font(.caption)
+            }
             Text(text).font(.caption).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }

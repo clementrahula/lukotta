@@ -428,10 +428,16 @@ final class AppModel: ObservableObject {
                     self.noteVolumeCount(outcome.transcript)
                     self.finishMount(drive: drive, credential: credential, mountPoint: point)
                 } else {
+                    // The route taken is half the story when something goes
+                    // wrong, and it is not in the engine's output.
+                    self.appendStatus(
+                        "opened through the background helper; it returned status \(outcome.status)"
+                    )
                     self.fail(
                         drive,
                         Diagnosis.summarise(outcome.transcript, fallback: ""),
-                        outcome.transcript)
+                        outcome.transcript + "\n"
+                            + self.statusLines.joined(separator: "\n"))
                 }
             }
             return

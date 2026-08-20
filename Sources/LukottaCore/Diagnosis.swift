@@ -47,9 +47,12 @@ public enum Diagnosis {
         // Prefer the engine's last meaningful line over a generic message —
         // but the last line is usually the tail of an orderly shutdown, which
         // says nothing about why anything failed. Look for the complaint first.
+        // Lukotta's own markers are plumbing for the step indicator. One
+        // surfacing as the explanation of a failure — "LUKOTTA_STAGE:working" —
+        // tells the user nothing and reads like a fault in the app.
         let lines = transcript.components(separatedBy: .newlines)
             .map { $0.trimmingCharacters(in: .whitespaces) }
-            .filter { !$0.isEmpty }
+            .filter { !$0.isEmpty && !$0.contains("LUKOTTA_") }
         let noise = [
             "exited with status", "kernel log saved", "vm report received",
             "nfs server not ready", "using the background helper",
@@ -68,6 +71,11 @@ public enum Diagnosis {
             return last
         }
         let fb = fallback.trimmingCharacters(in: .whitespacesAndNewlines)
-        return fb.isEmpty ? "The drive could not be opened." : fb
+        if !fb.isEmpty { return fb }
+        // No output at all usually means the drive went away before the engine
+        // reached it, which is worth saying rather than shrugging.
+        return lines.isEmpty
+            ? "The drive could not be opened, and the engine reported nothing. It may have been unplugged."
+            : "The drive could not be opened."
     }
 }

@@ -37,7 +37,6 @@ struct FailureView: View {
                     }
 
                     InfoBox(
-                        icon: "shield.checkered",
                         text:
                             "Your drive was not modified. A failed unlock cannot damage the data on it."
                     )

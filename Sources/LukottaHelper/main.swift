@@ -146,7 +146,13 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             task.waitUntilExit()
             streamer.stop()
 
-            let output = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
+            var output = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
+            // Always leave a trace. A failure whose log is empty gives the user
+            // nothing to report and us nothing to read; the exit status alone
+            // says whether the script ran at all and how far it got.
+            output +=
+                "\nmount script exited with status \(task.terminationStatus)"
+                + " for \(devicePath)"
             reply(task.terminationStatus, Diagnostics.redact(output, secret: credential))
         } catch {
             reply(71, "\(error)")
