@@ -7,3 +7,5 @@ vendor/
 
 # Agent worktrees are checkouts of this repo, not content of it.
 .claude/worktrees/
+vendor/.cache/
+vendor/upstream/

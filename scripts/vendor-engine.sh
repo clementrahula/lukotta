@@ -7,15 +7,27 @@
 # binaries the engine never invokes on the host.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
-# Staged from a runtime already present on this machine. That is the reason the
-# build is not reproducible: see Documentation/TODO.md, stage 1. The default path
-# is where an earlier version of this project installed it.
-SRC_RUNTIME="${LUKOTTA_SRC_RUNTIME:-$HOME/Library/Application Support/BitLocker Mounter/runtime}"
+# Staged from artefacts fetched and checksummed against vendor/engine.lock, not
+# from whatever happens to be installed here. Staging from a local install is
+# what made the build unreproducible and what quietly set the app's minimum
+# macOS to that of the build machine.
+UPSTREAM="$HERE/vendor/upstream"
+LOCK="$HERE/vendor/engine.lock"
+lockfield() { /usr/bin/python3 -c "import json;d=json.load(open('$LOCK'));print(d['$1']['$2'])"; }
+ALFS_VERSION="$(lockfield anylinuxfs version)"
+UTIL_VERSION="$(lockfield util_linux version)"
+
+[ -x "$UPSTREAM/anylinuxfs/$ALFS_VERSION/bin/anylinuxfs" ] || "$HERE/scripts/fetch-engine.sh"
+
+SRC_RUNTIME="${LUKOTTA_SRC_RUNTIME:-$UPSTREAM}"
+SRC_BLKID="$UPSTREAM/util-linux/$UTIL_VERSION/lib"
+# Still from a local install: the guest image is downloaded by "anylinuxfs init"
+# rather than shipped in the bottle. Its identity is recorded in the lock.
 SRC_ROOTFS="${LUKOTTA_SRC_ROOTFS:-$HOME/.anylinuxfs/alpine}"
 OUT="$HERE/vendor/engine"
 
-[ -x "$SRC_RUNTIME/anylinuxfs/bin/anylinuxfs" ] || {
-  echo "error: no anylinuxfs runtime at $SRC_RUNTIME" >&2; exit 1; }
+[ -x "$SRC_RUNTIME/anylinuxfs/$ALFS_VERSION/bin/anylinuxfs" ] || {
+  echo "error: no anylinuxfs $ALFS_VERSION under $SRC_RUNTIME" >&2; exit 1; }
 [ -d "$SRC_ROOTFS/rootfs" ] || {
   echo "error: no Linux rootfs at $SRC_ROOTFS/rootfs" >&2; exit 1; }
 
@@ -23,10 +35,16 @@ rm -rf "$OUT"
 mkdir -p "$OUT/anylinuxfs/lib"
 
 echo "Copying engine…"
-/usr/bin/ditto "$SRC_RUNTIME/anylinuxfs/bin"     "$OUT/anylinuxfs/bin"
-/usr/bin/ditto "$SRC_RUNTIME/anylinuxfs/lib"     "$OUT/anylinuxfs/lib"
-/usr/bin/ditto "$SRC_RUNTIME/anylinuxfs/libexec" "$OUT/anylinuxfs/libexec"
-[ -d "$SRC_RUNTIME/anylinuxfs/etc" ] && /usr/bin/ditto "$SRC_RUNTIME/anylinuxfs/etc" "$OUT/anylinuxfs/etc"
+ALFS="$SRC_RUNTIME/anylinuxfs/$ALFS_VERSION"
+/usr/bin/ditto "$ALFS/bin"     "$OUT/anylinuxfs/bin"
+/usr/bin/ditto "$ALFS/lib"     "$OUT/anylinuxfs/lib"
+/usr/bin/ditto "$ALFS/libexec" "$OUT/anylinuxfs/libexec"
+[ -d "$ALFS/etc" ] && /usr/bin/ditto "$ALFS/etc" "$OUT/anylinuxfs/etc"
+[ -d "$ALFS/share" ] && /usr/bin/ditto "$ALFS/share" "$OUT/anylinuxfs/share"
+# The one library the engine links from outside its own bottle. It sets the
+# lowest macOS the finished app supports, so it is pinned like everything else.
+cp -f "$SRC_BLKID/libblkid.1.dylib" "$OUT/anylinuxfs/lib/libblkid.1.dylib"
+/usr/bin/install_name_tool -id "@rpath/libblkid.1.dylib" "$OUT/anylinuxfs/lib/libblkid.1.dylib" 2>/dev/null || true
 
 echo "Copying Linux root filesystem…"
 # The rootfs is shipped as a single archive, not a directory tree: it holds ~500
@@ -73,6 +91,10 @@ BIN="$OUT/anylinuxfs/bin/anylinuxfs"
 /usr/bin/otool -L "$BIN" | tail -n +2 | sed 's/ (compatibility.*//; s/^	//' | \
 while IFS= read -r dep; do
   case "$dep" in
+    # @@HOMEBREW_PREFIX@@ is a placeholder a bottle carries until Homebrew
+    # rewrites it. Skipping everything beginning with @ skipped that too, and
+    # left the finished binary pointing at a path that exists nowhere.
+    @@HOMEBREW_PREFIX@@*) ;;
     /usr/lib/*|/System/*|@*) continue ;;
   esac
   leaf="${dep##*/}"
