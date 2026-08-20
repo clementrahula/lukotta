@@ -440,9 +440,8 @@ enum Diagnosis {
             || lower.contains("no key available") || lower.contains("keyslot") {
             return "That password or recovery key did not unlock this drive."
         }
-        if lower.contains("not a valid bitlocker") || lower.contains("unknown filesystem")
-            || lower.contains("no bitlocker") {
-            return "This partition does not look like a BitLocker volume."
+        if lower.contains("not a valid bitlocker") || lower.contains("no bitlocker") {
+            return "This partition is not a BitLocker volume."
         }
         if lower.contains("hiberfile") || lower.contains("hibernated")
             || lower.contains("unclean") || lower.contains("dirty") {
