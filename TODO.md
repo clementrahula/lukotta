@@ -357,7 +357,78 @@ that from the last path component it is handed — so a raw device appeared as
 
 ---
 
-## 11. Website and visibility
+## 11. UI/UX improvements
+
+Reviewed 20 August 2026 against the running app and the source. Ordered by how
+much friction each removes, not by effort.
+
+### Daily friction — worth doing first
+
+- [ ] **Stop clearing the credential on failure.** `AppModel` wipes it on every
+      error path. After mistyping one digit of a 48-digit recovery key, the user
+      retypes all 48. Keep the value on a wrong-credential failure, select it,
+      and return focus to the field. Clear it only on success or when the drive
+      changes.
+- [ ] **Offer to remember the key in the Keychain, per drive.** Opt-in, off by
+      default, stated plainly. This is the single largest daily-use win: without
+      it every single unlock means re-entering a 48-digit key. The Keychain is
+      the right place for it — the security argument for typing it each time is
+      weak when the alternative is a text file on the desktop, which is what
+      people actually do.
+- [ ] **Make the progress meaningful.** The working screen shows the engine's
+      last raw line, which is technical and gives no sense of how long. Map the
+      output to phases — preparing, starting Linux, unlocking, mounting — show
+      them as steps, and say roughly how long a first unlock takes. The 95 MB
+      first-run unpack still has no progress at all.
+
+### Flow
+
+- [ ] **Auto-select a single drive.** With exactly one candidate, go straight to
+      unlock instead of asking the user to click the only row.
+- [ ] **Make the drive list the hub.** It does not show which drive is already
+      open. Badge mounted drives and offer eject inline, so the list answers
+      "what is going on" without navigating.
+- [ ] **First-run welcome.** A new user's first screen is the permission
+      warning, which reads as an error. Frame it as setup, with the three steps
+      and what the app does, before anything looks like it went wrong.
+
+### Presentation
+
+- [ ] **Drive rows read as a run-on.** "500,07 GB · USB · External · BitLocker
+      or NTFS · disk4s1" is five facts in one dot-separated line. Promote size,
+      demote the identifier, and make the type a small pill.
+- [ ] **Let the window resize.** It is pinned to `.contentSize`, and the
+      failure log is a fixed 150 pt box of 10.5 pt monospace. Exactly when a
+      user most needs to read something — a failure — they cannot make it
+      bigger. Allow resizing and let the log grow.
+- [ ] **Caps Lock indicator** in the credential field, standard for password
+      entry and the cause of many "wrong password" reports.
+
+### Reach
+
+- [ ] **Menu bar extra** showing open volumes with one-click eject, so the app
+      need not be foregrounded to unmount.
+- [ ] **Accessibility pass.** Icon-only buttons need VoiceOver labels, and the
+      layout should survive Dynamic Type. Never audited.
+- [ ] **Localisation scaffolding.** All strings are inline literals today.
+
+---
+
+## 12. Distribution — Homebrew
+
+- [ ] **[me]** Submit a Homebrew cask, so installation is
+      `brew install --cask lukotta`. Blocked on the release blockers in §1: a
+      cask needs a stable versioned download URL and a SHA-256, and
+      homebrew-cask expects the app to be **notarised** — an unnotarised cask
+      makes every user right-click to open.
+- [ ] Decide between homebrew-cask (discoverable, review queue, strict rules)
+      and a personal tap (`brew tap clementrahula/lukotta`, instant, no review).
+      A tap is the sensible first step, with homebrew-cask once there is a
+      release history.
+
+---
+
+## 13. Website and visibility
 
 ### Website — built, needs switching on
 
@@ -393,7 +464,7 @@ README and screenshots — every list rejects submissions that lack those.
 
 ---
 
-## 12. Platform and feature expansion
+## 14. Platform and feature expansion
 
 ### Intel / universal binary — probably not worth it
 
@@ -472,7 +543,7 @@ the work is detection and UI, not new engine capability.
 
 ---
 
-## 13. Strategic — the native UX project
+## 15. Strategic — the native UX project
 
 Not a release task. This is the separate project described in
 PRODUCTION-READINESS.md §7, and it is what would make the product genuinely
