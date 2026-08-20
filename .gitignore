@@ -4,3 +4,6 @@ dist/
 vendor/
 # The Sparkle PUBLIC key is not a secret, and a clone without it builds an
 # app that trusts no update at all. Tracked deliberately.
+
+# Agent worktrees are checkouts of this repo, not content of it.
+.claude/worktrees/

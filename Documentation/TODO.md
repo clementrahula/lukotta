@@ -184,6 +184,23 @@ past 250 MB, for an audience that stopped growing in 2020.
 Needs both a stored credential and the helper. Worth designing carefully:
 "convenient" and "a drive silently unlocks itself" are the same sentence.
 
+Its companion: run at login, and open remembered drives as they are plugged in.
+The same caution applies, and more so — nobody is watching when it happens.
+
+### Meet the drive before macOS does
+
+Plugging in a BitLocker or LUKS drive gets the Finder dialog offering to
+initialise it, which is the one action that would destroy it. Lukotta could
+recognise the drive first and offer to open it instead. Needs a running
+background presence and DiskArbitration; the dialog belongs to the system, so
+the question is whether it can be pre-empted rather than answered.
+
+### Read-only per drive
+
+A choice at unlock, remembered per drive. The engine takes only a shared lock
+on the device when mounting read-only, so this is also the one route by which
+several volumes of one container could be opened as separate VMs.
+
 ---
 
 ## Waiting on you
