@@ -371,11 +371,10 @@ public enum MountScript {
                     cmd = cmd "; mount -o bind \\"$ALFS_VM_MOUNT_POINT\\" " s "/" names[1]
                     for (f = 2; f <= n; f++)
                       cmd = cmd "; mount /dev/" vgs[f] "/" lvs[f] " " s "/" names[f]
-                    # The directory holding the volumes together lives in the
-                    # machine's own memory, not on the drive. Left writable it
-                    # reports free space that does not exist, accepts a copy,
-                    # and loses it on eject. Read-only once the volumes are
-                    # mounted into it: they carry their own permissions.
+                    # Read-only once the volumes are mounted into it. The
+                    # directory holding them together lives in VM memory, not on
+                    # the drive, and left writable it reported free space that
+                    # did not exist and lost whatever was copied there.
                     cmd = cmd "; chmod 555 " s
                     subs = ""
                     for (f = 1; f <= n; f++) subs = subs (f > 1 ? ", " : "") "\\"" names[f] "\\""

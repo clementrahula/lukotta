@@ -75,7 +75,7 @@ public enum Diagnosis {
         // No output at all usually means the drive went away before the engine
         // reached it, which is worth saying rather than shrugging.
         return lines.isEmpty
-            ? "The drive could not be opened, and the engine reported nothing. It may have been unplugged."
-            : "The drive could not be opened."
+            ? "The engine reported nothing at all. The drive may have been unplugged."
+            : "No reason was reported. The details below may say more."
     }
 }

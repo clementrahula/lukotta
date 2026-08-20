@@ -22,8 +22,15 @@ struct FailureView: View {
                             .font(.system(size: 28)).foregroundStyle(.orange)
                         VStack(alignment: .leading, spacing: 3) {
                             Text("The drive was not opened").font(.title3.weight(.semibold))
-                            Text(summary).font(.callout)
-                                .fixedSize(horizontal: false, vertical: true)
+                            // A summary that only restates the heading is
+                            // worse than none: it reads as though the app has
+                            // nothing to say and says it anyway.
+                            if !summary.isEmpty,
+                                summary.lowercased() != "the drive could not be opened."
+                            {
+                                Text(summary).font(.callout)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
                         }
                     }
 

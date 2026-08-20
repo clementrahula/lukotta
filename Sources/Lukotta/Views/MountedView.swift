@@ -51,7 +51,6 @@ struct MountedView: View {
             }
 
             InfoBox(
-                icon: "sidebar.left",
                 text:
                     "The drive appears in the Finder sidebar under Locations.\nEject it here or in Finder before unplugging it."
             )

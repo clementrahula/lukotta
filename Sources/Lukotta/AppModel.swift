@@ -143,10 +143,7 @@ final class AppModel: ObservableObject {
             let abandoned = EngineStatus.stale()
             for point in abandoned { EngineStatus.forceUnmount(mountPoint: point) }
 
-            // If a drive is already open - the app was reopened, or a previous
-            // session left it mounted - go straight to that state.
             let mounts = EngineStatus.current()
-            let existing = mounts.first
             let found = DriveScanner.scan()
             await MainActor.run {
                 self.drives = found
@@ -163,22 +160,10 @@ final class AppModel: ObservableObject {
                 // a window on screen. Reaching main is not enough — a build
                 // that starts and then falls over must still count as failed.
                 Rollback.confirmHealthy()
-                if let existing {
-                    let drive =
-                        found.first { $0.devicePath == existing.devicePath }
-                        ?? Drive(
-                            id: URL(fileURLWithPath: existing.devicePath).lastPathComponent,
-                            devicePath: existing.devicePath,
-                            name: URL(fileURLWithPath: existing.mountPoint).lastPathComponent,
-                            sizeBytes: 0,
-                            connection: "",
-                            kind: .microsoft,
-                            uuid: existing.devicePath)
-                    self.phase = .mounted(drive, existing.mountPoint)
-                    self.collectVolumes(for: drive, fallback: existing.mountPoint)
-                } else {
-                    self.phase = .chooseDrive
-                }
+                // Always the list, even when a drive is already open. The list
+                // shows it as open and offers to eject it, so opening straight
+                // into one drive only hides the others.
+                self.phase = .chooseDrive
             }
         }
     }
