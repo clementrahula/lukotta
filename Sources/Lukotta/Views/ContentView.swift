@@ -52,7 +52,8 @@ struct Header: View {
                 model.showReport = true
             } label: {
                 Image(systemName: "ladybug.circle")
-                    .font(.system(size: 15))
+                    .font(.system(size: 17))
+                    .symbolRenderingMode(.monochrome)
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
@@ -64,7 +65,8 @@ struct Header: View {
                 model.showHelp = true
             } label: {
                 Image(systemName: "questionmark.circle")
-                    .font(.system(size: 15))
+                    .font(.system(size: 17))
+                    .symbolRenderingMode(.monochrome)
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)

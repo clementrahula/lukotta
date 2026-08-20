@@ -110,6 +110,13 @@ struct HelpSheet: View {
                         .controlSize(.small)
                     }
 
+                    HelpSection(title: "The name") {
+                        Text(
+                            "Lukotta is Finnish for “without a lock”. It comes from lukko, a lock, "
+                                + "with the ending -tta meaning the absence of something."
+                        )
+                    }
+
                     Text(version).font(.caption).foregroundStyle(.tertiary)
                 }
                 .padding(22)
