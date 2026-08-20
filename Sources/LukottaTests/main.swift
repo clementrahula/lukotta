@@ -480,6 +480,25 @@ group("mountStages") {
         ).contains("100000-200000"),
         "a recovery key is still caught by shape")
 
+    // The script is assembled from strings, quoted by hand, and run as root. A
+    // single apostrophe inside the awk program once closed its quote and made
+    // every multi-volume mount fail with no output at all, so the shell's own
+    // parser is the judge of whether it is valid.
+    for kind in [VolumeKind.linux, .microsoft] {
+        let generated = MountScript.build(sampleInputs(kind: kind))
+        let file = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("lukotta-script-\(kind.rawValue).sh")
+        try? generated.write(to: file, atomically: true, encoding: .utf8)
+        let check = Process()
+        check.executableURL = URL(fileURLWithPath: "/bin/sh")
+        check.arguments = ["-n", file.path]
+        check.standardError = FileHandle.nullDevice
+        try? check.run()
+        check.waitUntilExit()
+        expect(check.terminationStatus == 0, "the \(kind.rawValue) script is valid shell")
+        try? FileManager.default.removeItem(at: file)
+    }
+
     // Discovery is driven through expect, which uses a pty, so its output is
     // CRLF. Left in place the carriage return joins the identifier and the
     // mount names a block device that cannot exist.
