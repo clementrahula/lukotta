@@ -2,4 +2,5 @@
 .build/
 dist/
 vendor/
-.sparkle-public-key
+# The Sparkle PUBLIC key is not a secret, and a clone without it builds an
+# app that trusts no update at all. Tracked deliberately.
