@@ -85,6 +85,29 @@ expect(hib.contains("Fast Startup"), "hibernated volume gets the same advice")
 expect(Diagnosis.summarise("mount: unknown filesystem type 'crypto_LUKS'", fallback: "")
         .contains("did not recognise"), "unrecognised filesystem diagnosis")
 
+// MARK: LVM discovery — fixture captured from a real LUKS2+LVM+btrfs volume
+
+let vgSample = """
+/Users/someone/.lukotta-testvols/luks-lvm.img (disk image):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:                crypto_LUKS                        +629.1 MB   luks-lvm.img
+
+lvm:lukottavg (volume group):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:                LVM2_scheme                        +0.6 GB     lukottavg
+                                 Physical Store luks-lvm.img
+   1:                      btrfs LUKOTTATEST             608.2 MB   lukottavg:luks-lvm.img:data
+"""
+let lvs = VolumeGroupParser.logicalVolumes(in: vgSample)
+expect(lvs.count == 1, "one mountable logical volume found (LVM2_scheme row ignored)")
+expect(lvs.first?.identifier ?? "", "lukottavg:luks-lvm.img:data", "vg:disk:lv identifier parsed")
+expect(lvs.first?.mountIdentifier ?? "", "lvm:lukottavg:luks-lvm.img:data", "mount identifier built")
+expect(lvs.first?.filesystem ?? "", "btrfs", "filesystem parsed")
+expect(lvs.first?.label ?? "", "LUKOTTATEST", "filesystem label parsed")
+expect(VolumeGroupParser.logicalVolumes(in: "").isEmpty, "no volume groups in empty output")
+expect(VolumeGroupParser.logicalVolumes(in: "   1:  crypto_LUKS  x  1 GB  a:b:c").isEmpty,
+       "container types are not offered as mountable")
+
 expect(Permissions.isAccessDenied("Cannot probe /dev/disk4s1"), "access denial detected")
 expect(!Permissions.isAccessDenied("No key available"), "wrong key is not an access denial")
 

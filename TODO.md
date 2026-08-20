@@ -181,7 +181,24 @@ is now `dev.rahula.lukotta`.
 
 ---
 
-## 5. Menus and settings
+## 5. Icons and caching
+
+- [x] Dock and Finder showed a stale icon after the renames. The bundle was
+      correct — identical hash in `assets/`, `/Applications` and the delivered
+      copy — so this was LaunchServices and IconServices caching the icon
+      registered under the earlier names at the same path. Fixed by re-running
+      `lsregister -f`, clearing `~/Library/Caches/com.apple.iconservices.store`
+      and restarting Dock and Finder. A stale `FULocker.app` registration was
+      also unregistered.
+- [ ] **[me]** Fold that into the build: after installing to `/Applications`,
+      `touch` the bundle and re-register it, so a rebuilt icon shows up without
+      anyone having to know about icon caches.
+- [ ] **[you]** Confirm the Dock and Finder now show the Lukotta mark. If a
+      stale icon persists, logging out and back in clears the last cache layer.
+
+---
+
+## 6. Menus and settings
 
 The app has no persisted preferences at all and no Settings scene, which is the
 right default — it does one thing and auto-scales the VM to the host, so there
@@ -211,7 +228,7 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 6. Correctness and robustness
+## 7. Correctness and robustness
 
 - [ ] `Diagnosis.summarise` matches engine output by substring, so an upstream
       wording change silently degrades to raw output. Pin to exit codes where
@@ -241,7 +258,7 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 7. Open question: the sidebar name
+## 8. Open question: the sidebar name
 
 - [ ] Establish what the sidebar actually displays. Finder's own API reports the
       volume as `BACKUP`, which is the NTFS label from Windows — i.e. the
@@ -251,7 +268,7 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 8. Nice to have
+## 9. Nice to have
 
 - [ ] "Unlock at login" or a remembered-drive convenience.
 - [ ] Localisation and an accessibility audit.
@@ -262,7 +279,7 @@ derived from the host and no user can set them better than the machine can.
 
 ---
 
-## 9. Website and visibility
+## 10. Website and visibility
 
 ### Website — built, needs switching on
 
@@ -298,7 +315,7 @@ README and screenshots — every list rejects submissions that lack those.
 
 ---
 
-## 10. Platform and feature expansion
+## 11. Platform and feature expansion
 
 ### Intel / universal binary — probably not worth it
 
@@ -377,7 +394,7 @@ the work is detection and UI, not new engine capability.
 
 ---
 
-## 11. Strategic — the native UX project
+## 12. Strategic — the native UX project
 
 Not a release task. This is the separate project described in
 PRODUCTION-READINESS.md §7, and it is what would make the product genuinely
