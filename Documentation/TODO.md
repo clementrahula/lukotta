@@ -205,6 +205,15 @@ several volumes of one container could be opened as separate VMs.
 
 ## Waiting on you
 
+- **Make the repository public.** GitHub Pages refuses a private repository on
+  the current plan, so the project page and the appcast have nowhere to live
+  until then, and without the appcast there is no update mechanism at all.
+- **A second repository for the appcast**, served at
+  lukotta-updates.rahula.dev. One Pages site takes one custom domain, so the
+  feed cannot share a host with the website. Keeping them apart also keeps the
+  feed off the proxied hostname, where an edge cache could serve a stale
+  version and updates would quietly stop appearing.
+
 - Approve the helper in Login Items and confirm an unlock runs without a
   password. The privileged path cannot be exercised here.
 - Supply vector or high-resolution artwork. The source is a JPEG whose mark crops
