@@ -103,9 +103,8 @@ struct HelpSheet: View {
                             "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use"
                         )
                         Bullet(
-                            "30 to 80 MB of RAM per unlocked drive, depending on how many volumes it holds"
+                            "30 to 80 MB of RAM per unlocked drive. Nothing is set aside while a drive sits idle, so the limit in practice is how many drives you can plug in"
                         )
-                        Bullet("Each unlocked drive runs its own Linux virtual machine")
                     }
 
                     HelpSection(title: "Author") {
