@@ -3,9 +3,18 @@
 import sys, os, datetime
 
 rootfs, out = sys.argv[1], sys.argv[2]
-# Prefer the database captured from the trimmed image that actually ships.
-shipped = os.path.join(os.path.dirname(os.path.abspath(out)), "vendor/engine/alpine/packages.db")
-db = shipped if os.path.exists(shipped) else os.path.join(rootfs, "lib/apk/db/installed")
+# The database captured from the image that actually ships. Falling back to the
+# build machine's own copy silently produced notices listing components that had
+# been removed, so a missing file is an error rather than a quiet substitution.
+repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+shipped = os.path.join(repo, "vendor", "engine", "alpine", "packages.db")
+if not os.path.exists(shipped):
+    sys.exit(
+        "error: no vendored package database at "
+        + shipped
+        + "\n       run ./scripts/vendor-engine.sh first; refusing to generate "
+        + "notices from anything other than what ships.")
+db = shipped
 pkgs, cur = [], {}
 if os.path.exists(db):
     for line in open(db, encoding="utf-8", errors="replace"):
@@ -24,53 +33,48 @@ rows = sorted({(p.get("P", ""), p.get("V", ""), p.get("L", "(unstated)")) for p 
 host = [
     ("anylinuxfs", "0.19.0", "GPL-3.0-or-later",
      "https://github.com/nohajc/anylinuxfs", "Mounts the drive inside a microVM and exports it over NFS."),
-    ("libkrun / libkrunfw", "bundled", "GPL-2.0-only AND LGPL-2.1-only",
+    ("libkrun and libkrunfw", "as embedded", "GPL-2.0-only AND LGPL-2.1-only",
      "https://github.com/containers/libkrun", "microVM hypervisor; libkrunfw bundles a Linux kernel image."),
     ("Linux kernel", "6.12.62", "GPL-2.0-only",
      "https://www.kernel.org/", "Bundled inside libkrunfw and shipped as a binary image."),
-    ("util-linux (libblkid)", "see image", "LGPL-2.1-or-later",
+    ("util-linux (libblkid)", "as embedded", "LGPL-2.1-or-later",
      "https://github.com/util-linux/util-linux", "The single external dylib the engine links on the host."),
 ]
 
 lines = []
 w = lines.append
-w("# Third-party notices")
+w("# Third-Party Notices")
 w("")
-w(f"Generated {datetime.date.today().isoformat()} by `scripts/generate-notices.sh`")
-w("from the components embedded in the application bundle. Do not edit by hand.")
+w("Lukotta is licensed under the GNU General Public License, version 3 or")
+w("later. The application embeds the components listed below and redistributes")
+w("them under their respective licences. The full text of the GNU General Public")
+w("License accompanies the application.")
 w("")
-w("Lukotta itself is licensed **GPL-3.0-or-later** (see `LICENSE`). It embeds the")
-w("components below and redistributes them under their own terms.")
+w("## Corresponding Source")
 w("")
-w("## Corresponding source")
+w("Lukotta is conveyed over a network. In accordance with section 6(d) of the")
+w("GNU General Public License version 3, and the corresponding provision of")
+w("section 3 of version 2, the complete corresponding source for the")
+w("application and for every GPL-licensed component embedded in it is offered")
+w("from the same location as the application itself, at no additional charge.")
 w("")
-w("Lukotta is distributed over a network. Corresponding source is therefore")
-w("provided under GPL-3.0 section 6(d), and the equivalent provision of GPL-2.0")
-w("section 3: the complete corresponding source for the binary and for every")
-w("GPL-licensed component it embeds is offered from the same place as the")
-w("application, at no additional charge.")
+w("Each release is accompanied by that source. Requests may also be addressed")
+w("to lukotta@rahula.dev.")
 w("")
-w("Each release includes that source. Requests may also be sent to")
-w("**lukotta@rahula.dev**.")
-w("")
-w("## Host components")
+w("## Host Components")
 w("")
 w("| Component | Version | Licence | Source |")
 w("| --- | --- | --- | --- |")
 for name, ver, lic, url, _ in host:
     w(f"| {name} | {ver} | {lic} | {url} |")
 w("")
-for name, ver, lic, url, note in host:
-    w(f"- **{name}** — {note}")
+w("## Linux Guest Image")
 w("")
-w("## Linux guest image (Alpine Linux)")
-w("")
-w(f"{len(rows)} packages are shipped inside the embedded Alpine root filesystem,")
-w("which is trimmed by `tools/trim-image.py` to the dependency closure of what")
-w("Lukotta actually uses — the upstream image carries 76.")
-w("Licence strings are taken verbatim from the image's own package database.")
-w("Source for each is available from the Alpine Linux package archive")
-w("(<https://pkgs.alpinelinux.org/>) at the exact version listed.")
+w(f"The application embeds an Alpine Linux root filesystem containing the")
+w(f"following {len(rows)} packages. Licence identifiers are reproduced from the")
+w("package metadata contained in that filesystem. Source for each package is")
+w("available from the Alpine Linux package archive at")
+w("<https://pkgs.alpinelinux.org/> at the version stated.")
 w("")
 w("| Package | Version | Licence |")
 w("| --- | --- | --- |")
@@ -86,11 +90,11 @@ if os.path.exists(removed_path):
             removed.append((parts[0], parts[1], parts[2].strip() if len(parts) > 2 else ""))
 
 if removed:
-    w("### Removed from the upstream image")
+    w("## Components Not Distributed")
     w("")
-    w("The upstream image supports every filesystem anylinuxfs handles. Packages")
-    w("outside the dependency closure of the tooling Lukotta uses are removed by")
-    w("`scripts/trim-image.py` and are not distributed:")
+    w("The upstream image provides support for filesystems that Lukotta does not")
+    w("use. The following packages are removed during preparation of the guest")
+    w("image and are not distributed with the application:")
     w("")
     w("| Package | Version | Licence |")
     w("| --- | --- | --- |")
@@ -98,19 +102,22 @@ if removed:
         w(f"| {name} | {ver} | {lic or '(unstated)'} |")
     w("")
     if any(n.startswith("zfs") for n, _, _ in removed):
-        w("This includes ZFS. The upstream image ships `zfs` and `zfs-libs`")
-        w("(CDDL-1.0) together with the `zfs.ko` and `spl.ko` kernel modules.")
-        w("Lukotta does not use ZFS and does not distribute those components.")
+        w("This includes the ZFS components, comprising the `zfs` and `zfs-libs`")
+        w("packages and the `zfs.ko` and `spl.ko` kernel modules, which are")
+        w("licensed under the CDDL-1.0. Lukotta does not use ZFS, and neither")
+        w("those packages nor those modules are distributed with it.")
         w("")
 
 w("## Notes")
 w("")
 w("- Licence identifiers are reproduced verbatim from each package's own")
-w("  metadata. Multi-licensed packages retain the full expression rather than")
-w("  being reduced to a single identifier.")
+w("  metadata. Packages under more than one licence retain the full expression")
+w("  rather than being reduced to a single identifier.")
 w("- `cryptsetup` is distributed under GPL-2.0-or-later with an OpenSSL")
 w("  exception, as recorded in its licence expression.")
-w("- Full licence texts accompany each component in the Alpine image and in the")
-w("  corresponding source archive.")
+w("- The full licence text of each component accompanies it within the guest")
+w("  image and within the corresponding source archive.")
+w("")
+w(f"Generated {datetime.date.today().isoformat()}.")
 
 open(out, "w").write("\n".join(lines) + "\n")
