@@ -340,16 +340,34 @@ encryption is LUKS, typically LUKS → LVM → ext4.
       btrfs or xfs itself. Both attempts run inside one elevated command, so it
       is still a single authorisation.
 - [x] UI copy no longer says BitLocker throughout.
+- [ ] **[you]** **Capture `anylinuxfs list --decrypt` output from a real
+      Ubuntu-encrypted drive.** This unblocks the LVM work below; it is the one
+      thing needed and cannot be synthesised here.
 - [ ] **[you]** **Test against a real LUKS drive.** None of the above is
       verified — there is no Linux volume here. An Ubuntu USB installer or a
       LUKS-formatted stick would confirm detection, unlock and the LVM path.
 - [ ] Confirm the guest kernel has ext4/btrfs/xfs built in. The userland tools
       are present, but mounting depends on the kernel in libkrunfw, which was
       not checked.
-- [ ] LUKS-inside-LVM may need the two-step flow: `anylinuxfs list --decrypt`
-      reveals volume groups after unlocking, and the engine addresses them as
-      `lvm:<vg>:<disk>:<lv>`. A single-partition LUKS volume should work
-      directly; a stacked one may need the LV chosen first.
+- [ ] **[me]** **LUKS-inside-LVM is NOT wired — and it is the default layout on
+      Ubuntu, Debian, Mint, Pop and Fedora.** Confirmed from the engine itself:
+      LVM must be addressed explicitly as `lvm:<vg-name>:diskXsY:<lv-name>`, and
+      its help says "see `list` command output for available volumes". It runs
+      `vgchange -ay` and `lsblk -O --json` during `list`, so `list --decrypt`
+      is the discovery step. Lukotta currently passes the bare `/dev/diskXsY`,
+      which unlocks the container and then finds an LVM physical volume rather
+      than a filesystem.
+
+      The flow needs to be: unlock and list, parse the volume group and logical
+      volume names, then mount `lvm:<vg>:<disk>:<lv>` — all inside one elevated
+      command to preserve the single authorisation. Where a container holds
+      several logical volumes (root, home, swap) the user has to pick one.
+
+      **Deliberately not written blind.** The parser has to match the real
+      output of `list --decrypt` against an LVM stack, and that output has
+      never been seen here. Writing it from a guess would most likely be wrong
+      in the exact case that matters most. Capture the output from a real
+      Ubuntu-encrypted drive first, then implement against it.
 - [ ] Out of scope, worth stating in the UI: TPM-sealed volumes (Ubuntu 23.10+
       experimental FDE) and detached LUKS headers cannot be unlocked here.
 
