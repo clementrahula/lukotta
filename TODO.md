@@ -221,10 +221,33 @@ requested was challenged. The correction is worth recording precisely.
       applies to a freshly started process, which is the usual reason "I granted
       it and it still does not work".
 - [x] Explain every prompt before it appears, and say why each is needed.
-- [ ] **[me]** Test whether the engine can be pointed at `/dev/diskN` rather
-      than `/dev/rdiskN`. If the buffered device is not gated the same way, the
-      Full Disk Access requirement might be avoidable entirely — the single
-      biggest UX win available, and worth an experiment before assuming not.
+- [x] **Experiment run: pointing the engine at `/dev/diskN` does not help.**
+      Lukotta already passes the buffered node — the failure message names
+      `/dev/disk4s1` — but the engine derives the raw path itself. Its `DevInfo`
+      structure carries both `path` and `rpath`, and the binary holds the
+      literals `/dev/disk` and `/dev/rdisk` adjacently, so it converts one to
+      the other and opens the raw node regardless of what it is given. The
+      choice is not ours to make from outside.
+
+      Corroborating evidence: every test against a *disk image* mounted
+      unprivileged, with no Full Disk Access involved, because an image is an
+      ordinary file and no device node is opened. The requirement is
+      specifically about device nodes.
+
+- [ ] **[both]** The residual question — whether the buffered node is gated
+      differently from the raw one — needs a root process *without* Full Disk
+      Access, which cannot be produced here. It would take either a one-off test
+      with the permission toggled off, or patching the engine (it is GPL, so a
+      fork is permitted) to use the buffered node and measuring. Worth doing
+      only if the buffered node turns out to be ungated; if it is gated the
+      same, which is the likelier outcome, the requirement is unavoidable for
+      any tool that reads an encrypted disk directly.
+
+- [x] **One permission entry confirmed.** The system TCC database now shows a
+      single grant for `com.clementrahula.lukotta`, covering the engine embedded
+      inside the bundle. Two stale rows remain from earlier names and should be
+      removed by hand: the old `…/BitLocker Mounter/runtime/anylinuxfs` path and
+      `dev.rahula.fulocker`.
 
 ---
 
