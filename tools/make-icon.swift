@@ -10,10 +10,10 @@ func drawIcon(into ctx: CGContext) {
     // corner, so the negative space reads as an L and as an opening lock.
     let margin: CGFloat = size * 0.085
     let rect = CGRect(x: margin, y: margin, width: size - margin * 2, height: size - margin * 2)
-    let radius = rect.width * 0.275
+    let radius = rect.width * 0.174
 
-    let charcoal = CGColor(red: 0.204, green: 0.231, blue: 0.271, alpha: 1)   // #343B45
-    let cream    = CGColor(red: 0.965, green: 0.953, blue: 0.929, alpha: 1)   // #F6F3ED
+    let charcoal = CGColor(red: 0.274, green: 0.289, blue: 0.328, alpha: 1)   // #454953
+    let cream    = CGColor(red: 0.982, green: 0.972, blue: 0.953, alpha: 1)   // #FAF7F3
 
     let squircle = CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil)
     ctx.saveGState()
@@ -30,15 +30,19 @@ func drawIcon(into ctx: CGContext) {
     }
 
     // The cut runs off both edges so it slices cleanly through the clip.
+    // Traced from assets/brand/lukotta-logo.jpg by tools/analyse-logo.swift:
+    // the cut's centre runs 0.332 -> 0.484 across as it descends to 0.70 down,
+    // then turns and leaves the right edge at 0.79 down. Width 0.053 of the mark.
     let cut = CGMutablePath()
-    cut.move(to: p(0.450, -0.06))
-    cut.addLine(to: p(0.516, 0.700))
-    cut.addLine(to: p(1.06, 0.788))
+    cut.move(to: p(0.332, -0.06))
+    cut.addLine(to: p(0.492, 0.720))
+    cut.addLine(to: p(1.06, 0.792))
 
     ctx.setStrokeColor(cream)
-    ctx.setLineWidth(rect.width * 0.052)
-    ctx.setLineJoin(.miter)
-    ctx.setMiterLimit(10)
+    ctx.setLineWidth(rect.width * 0.053)
+    // The turn in the artwork is a soft radius, not a mitred point - that join
+    // is most of the mark's character.
+    ctx.setLineJoin(.round)
     ctx.setLineCap(.butt)
     ctx.addPath(cut)
     ctx.strokePath()

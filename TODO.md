@@ -14,8 +14,9 @@ without either · **[both]** needs a decision, then implementation.
       the Linux image and that change touches the guest boot path; it has not
       been verified against the drive. If it fails, revert first with
       `BLM_KEEP_ZFS=1 ./vendor-engine.sh && ./build-app.sh`.
-- [ ] **[you]** Re-grant Full Disk Access. The rename to Lukotta changed the
-      bundle id and path again, so any earlier grant no longer applies. Remove the stale
+- [ ] **[you]** Re-grant Full Disk Access. The bundle id is now
+      `com.clementrahula.lukotta` and the app is `Lukotta.app`, so any earlier
+      grant no longer applies. This is the last identity change. Remove the stale
       `BitLocker Mounter`, `FULocker` and `anylinuxfs` rows while you are there.
 - [ ] **[you]** Confirm what the Finder sidebar actually says, so the naming
       question can be closed (see §4).
@@ -140,21 +141,26 @@ requirement is macOS 12+, below our 15.0 floor.
 Renamed to **Lukotta** ("without a lock", Finnish) on 20 August 2026. Bundle id
 is now `dev.rahula.lukotta`.
 
-- [ ] **[you]** **Save the official logo into the repo.** The logo was shared in
-      conversation, so it could be seen but not stored — there is no file to
-      commit. Drop the original (ideally SVG or the largest PNG) somewhere like
-      `~/Downloads/lukotta-logo.png` and say so, and it will be committed to
-      `assets/` as the canonical source.
-- [ ] **[me]** Replace the drawn icon with the official mark once that file
-      exists. `assets/AppIcon.icns` is currently *my reproduction* of the mark
-      in `tools/make-icon.swift` — measured off the shared image, matched for
-      corner radius, cut angle and colours (#343B45 on #F6F3ED), and verified
-      legible down to 16 px. It is close, but it is a redraw, not the artwork.
+- [x] Official logo stored at `assets/brand/lukotta-logo.jpg`, with the mark
+      extracted to `assets/brand/lukotta-mark.png`.
+- [x] Icon calibrated against the artwork by `tools/analyse-logo.swift`, which
+      measures the mark rather than eyeballing it: charcoal `#444953` (median of
+      971 interior samples), cream `#FBF6F2`, corner radius 0.174 of width, cut
+      width 0.053, and a cut centre that tracks linearly from 0.343 to 0.473
+      across as it descends. Still a redraw, but a measured one.
+- [ ] **[you]** Supply vector or high-resolution artwork. The source is a
+      1448×1086 JPEG, so the mark crops to 448 px — below the 1024 px an icns
+      needs, and JPEG-compressed. The icon is therefore drawn rather than
+      derived from the file. An SVG or a 1024 px+ PNG would let the icon come
+      straight from the artwork, and is worth having as the brand master
+      regardless.
 - [ ] **[me]** Use the wordmark. The logo lockup includes "lukotta" set in a
       light geometric sans; it belongs in the About panel and at the top of the
       README, neither of which currently show any branding.
-- [ ] **[me]** Record the brand colours and the mark's construction in the repo
-      so future assets stay consistent.
+- [x] Brand colours and the mark's construction are recorded in
+      `tools/make-icon.swift` and reproducible via `tools/analyse-logo.swift`.
+- [ ] **[me]** Write them up in a short `assets/brand/README.md` so they are
+      findable without reading Swift.
 
 ---
 
