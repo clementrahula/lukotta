@@ -187,14 +187,6 @@ Needs both a stored credential and the helper. Worth designing carefully:
 Its companion: run at login, and open remembered drives as they are plugged in.
 The same caution applies, and more so — nobody is watching when it happens.
 
-### Meet the drive before macOS does
-
-Plugging in a BitLocker or LUKS drive gets the Finder dialog offering to
-initialise it, which is the one action that would destroy it. Lukotta could
-recognise the drive first and offer to open it instead. Needs a running
-background presence and DiskArbitration; the dialog belongs to the system, so
-the question is whether it can be pre-empted rather than answered.
-
 ### Read-only per drive
 
 A choice at unlock, remembered per drive. The engine takes only a shared lock
@@ -268,6 +260,13 @@ Worth deciding first whether a root daemon that can replace the contents of
 ---
 
 ## Known limitations
+
+- **The initialise dialog is only held back while Lukotta is running.** Plugging
+  an encrypted drive into a Mac where Lukotta is closed still gets the system's
+  offer to initialise it. Claiming the disk is what suppresses it, and a claim
+  belongs to a running process. Doing better means a filesystem probe that lives
+  outside the app — an FSKit module, or a bundle in /Library/Filesystems — and
+  both are a larger commitment than the claim was.
 
 Not tasks. These are properties of the design, worth stating so they are not
 rediscovered as bugs.

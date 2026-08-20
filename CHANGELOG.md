@@ -14,5 +14,10 @@
   fault in the engine.
 - The drive list says whether each drive is locked or open, and keeps a drive's
   details when it opens.
+- macOS no longer offers to initialise a BitLocker or LUKS drive when it is
+  plugged in, which was an offer to destroy it sitting one click away. Lukotta
+  claims drives it recognises while it is running.
+- If an update installs and the new version will not start, the previous one is
+  put back after two failed attempts.
 - Software updates, checked daily and installed automatically. Both can be
   turned off in Settings.
