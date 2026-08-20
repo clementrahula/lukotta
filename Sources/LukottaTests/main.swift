@@ -228,9 +228,8 @@ group("theElevatedMountScript") {
     // Linux volumes: no driver override, and LVM discovery appended.
     let msLinux = MountScript.build(sampleInputs(kind: .linux))
     expect(!msLinux.contains("-t ntfs"), "no NTFS driver forced on a Linux volume")
-    expect(msLinux.contains("LUKOTTA_MULTIPLE_VOLUMES"), "LVM discovery present for Linux")
     expect(msLinux.contains("expect -f '/tmp/ws/discover.exp'"), "discovery driven through expect")
-    expect(msLinux.contains("lvm:$__lvs"), "a single logical volume is mounted directly")
+    expect(msLinux.contains("\"lvm:$__lv\""), "each discovered volume is mounted by identifier")
 
     // A volume the user picked is mounted directly, with no discovery or override.
     let lv = LogicalVolume(
@@ -263,17 +262,24 @@ group("mountStages") {
     // Without this the first attempt always looked like a success and nothing
     // after it ever ran — no ntfs-3g retry, no LVM discovery.
     let checked = MountScript.build(sampleInputs(kind: .linux))
+    expect(checked.contains("__mounts=$(/sbin/mount | grep -c ':/mnt/')"), "a baseline is taken")
     expect(
-        checked.contains("&& /sbin/mount | grep -q 'disk4s1.local:'"),
-        "a mount attempt is verified against the mount table")
-    expect(
-        checked.range(of: "grep -q 'disk4s1.local:'")!.lowerBound
-            < checked.range(of: "LUKOTTA_MULTIPLE_VOLUMES")!.lowerBound,
-        "the check comes before the discovery it guards")
+        checked.contains(
+            """
+            2>&1 && [ "$(/sbin/mount | grep -c ':/mnt/')" -gt "$__mounts" ]
+            """.trimmingCharacters(in: .whitespacesAndNewlines)),
+        "an attempt counts as success only if a mount appeared")
+    // Counting, not name matching: the share is named for the device on a plain
+    // volume but for the volume group on an LVM one, so there is no one name.
+    expect(!checked.contains("disk4s1.local:"), "the check does not guess the share's name")
     let checkedMS = MountScript.build(sampleInputs(kind: .microsoft))
     expect(
-        checkedMS.components(separatedBy: "grep -q 'disk4s1.local:'").count - 1 == 2,
+        checkedMS.components(separatedBy: "-gt \"$__mounts\"").count - 1 == 2,
         "both NTFS driver attempts are verified, so the retry can be reached")
+
+    // Every volume found is opened, rather than asking which one is wanted.
+    expect(checked.contains("for __lv in $__lvs; do"), "each discovered volume is mounted")
+    expect(checked.contains("[ \"$__opened\" -gt 0 ]"), "opening any one of them is a success")
 
     // Taken from a real failure on a Fedora-style container: LUKS holding LVM
     // holding three volumes. The engine refuses to mount the container itself,

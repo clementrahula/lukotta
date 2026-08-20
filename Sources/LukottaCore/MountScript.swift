@@ -116,6 +116,8 @@ public enum MountScript {
         lines.append("__cred=\"$(cat \(shellQuoted(i.fifoPath)))\"")
         lines.append("echo \"\(stageMarker)working\" >> \(logQ)")
         lines.append("\(engineQ) config -n \(i.cores) -r \(i.ramMiB) >/dev/null 2>&1 || true")
+        // The baseline every attempt is judged against.
+        lines.append("__mounts=$(\(mountCount))")
 
         lines.append(
             attempts(i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
@@ -139,8 +141,7 @@ public enum MountScript {
                 mountCommand(
                     engineQ: engineQ,
                     target: shellQuoted(volume.mountIdentifier),
-                    driver: nil, options: i.nfsOptions, logQ: logQ,
-                    devicePath: i.devicePath)
+                    driver: nil, options: i.nfsOptions, logQ: logQ)
             ]
         }
 
@@ -159,7 +160,7 @@ public enum MountScript {
             drivers.map {
                 mountCommand(
                     engineQ: engineQ, target: target, driver: $0,
-                    options: i.nfsOptions, logQ: logQ, devicePath: i.devicePath)
+                    options: i.nfsOptions, logQ: logQ)
             }
         }
         if i.kind == .linux {
@@ -168,6 +169,9 @@ public enum MountScript {
         return result
     }
 
+    /// How many mounts the engine currently has, by its export path.
+    private static let mountCount = "/sbin/mount | grep -c ':/mnt/'"
+
     /// Proof that a mount actually happened.
     ///
     /// The engine exits 0 when a mount fails — it reports the status of its own
@@ -175,25 +179,26 @@ public enum MountScript {
     /// `||`, so without this the shell saw the first attempt succeed and ran
     /// none of them: no ntfs-3g retry for a dirty volume, and no LVM discovery
     /// for a container holding several volumes.
-    private static func mountedCheck(_ devicePath: String) -> String {
-        let share = (devicePath as NSString).lastPathComponent + ".local:"
-        return "/sbin/mount | grep -q \(shellQuoted(share))"
-    }
+    ///
+    /// Counting rather than matching a name: the share is named after the
+    /// device for a plain volume but after the volume group for an LVM one
+    /// ("lvm-fedoravg.local:"), so there is no one name to look for, and
+    /// guessing wrong reports a mounted drive as a failure.
+    private static let mountedCheck = "[ \"$(\(mountCount))\" -gt \"$__mounts\" ]"
 
     private static func mountCommand(
         engineQ: String,
         target: String,
         driver: String?,
         options: String,
-        logQ: String,
-        devicePath: String
+        logQ: String
     ) -> String {
         let typeFlag = driver.map { " -t \($0)" } ?? ""
         // --nfs-options MUST use the joined form: the flag is variadic, and the
         // separated form swallows the target that follows it.
         return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
             + "\(typeFlag) -w false --nfs-options=\(shellQuoted(options))"
-            + " \(target) >> \(logQ) 2>&1 && \(mountedCheck(devicePath))"
+            + " \(target) >> \(logQ) 2>&1 && \(mountedCheck)"
     }
 
     /// Ubuntu, Debian, Mint and Fedora all put LVM inside the LUKS container,
@@ -211,14 +216,16 @@ public enum MountScript {
               cat \(listQ) >> \(logQ)
               __lvs=$(awk '$NF ~ /^[^:]+:[^:]+:[^:]+$/ && $2 != "LVM2_scheme" { print $NF }' \(listQ))
               __count=$(printf '%s\\n' "$__lvs" | grep -c . )
-              if [ "$__count" -eq 1 ]; then
-                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(i.nfsOptions)) "lvm:$__lvs" >> \(logQ) 2>&1 && \(mountedCheck(i.devicePath))
-              elif [ "$__count" -gt 1 ]; then
-                echo "\(multipleVolumesMarker)" >> \(logQ)
-                false
-              else
-                false
-              fi
+              __opened=0
+              for __lv in $__lvs; do
+                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(i.nfsOptions)) "lvm:$__lv" >> \(logQ) 2>&1
+                __now=$(\(mountCount))
+                if [ "$__now" -gt "$__mounts" ]; then
+                  __opened=$((__opened+1))
+                  __mounts=$__now
+                fi
+              done
+              [ "$__opened" -gt 0 ]
             }
             """
     }

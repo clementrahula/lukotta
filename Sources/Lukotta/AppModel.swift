@@ -34,6 +34,9 @@ final class AppModel: ObservableObject {
     /// Which step a failed mount got to, so the failure can point at it rather
     /// than replacing the steps with a bare sentence.
     @Published var failedStage: MountStage?
+    /// Every volume opened for the drive on screen. A container can hold more
+    /// than one, and all of them are opened rather than asking which.
+    @Published var openVolumes: [String] = []
     @Published var isEjecting = false
     @Published var ejectProblem: String?
     /// Explains something that happened before the user was looking, such as a
@@ -375,6 +378,24 @@ final class AppModel: ObservableObject {
             drive: drive, credential: credential, volume: volume, workspace: ws)
     }
 
+    /// Find every volume this drive opened.
+    ///
+    /// One container can yield several mounts, so the mount point the transcript
+    /// happened to name is not the whole story. The engine reports an LVM mount
+    /// as "lvm:<vg>:<disk>:<lv>", which carries the disk, so the drive's own
+    /// mounts can be told from any other drive's.
+    private func collectVolumes(for drive: Drive, fallback: String) {
+        openVolumes = [fallback]
+        Task.detached(priority: .userInitiated) {
+            let mine = EngineStatus.current()
+                .filter { $0.devicePath.contains(drive.id) }
+                .map(\.mountPoint)
+            await MainActor.run {
+                if !mine.isEmpty { self.openVolumes = mine }
+            }
+        }
+    }
+
     /// Record a successful mount, wherever it came from.
     private func finishMount(drive: Drive, credential: String, mountPoint: String) {
         if rememberCredential {
@@ -390,6 +411,7 @@ final class AppModel: ObservableObject {
         // approve it in Login Items, which the panel then prompts for.
         if case .notInstalled = helper.state { helper.install() }
         openMounts[drive.devicePath] = mountPoint
+        collectVolumes(for: drive, fallback: mountPoint)
         self.credential = ""
         credentialBelongsTo = nil
         pendingCredential = nil
@@ -426,6 +448,7 @@ final class AppModel: ObservableObject {
                     // unlock can name the share before mounting.
                     DriveMemory.remember(mountPoint: result.mountPoint, for: drive.uuid)
                     self.openMounts[drive.devicePath] = result.mountPoint
+                    self.collectVolumes(for: drive, fallback: result.mountPoint)
                     self.phase = .mounted(drive, result.mountPoint)
                 }
             } catch let err as EngineError {
@@ -497,12 +520,20 @@ final class AppModel: ObservableObject {
     func eject(_ path: String) {
         isEjecting = true
         ejectProblem = nil
+        // Every volume this drive opened, so a container of several does not
+        // leave the rest mounted behind an ejected one.
+        let paths = openVolumes.isEmpty ? [path] : openVolumes
         Task.detached(priority: .userInitiated) {
-            let result = EngineStatus.unmount(mountPoint: path)
+            var result = (ok: true, message: "")
+            for point in paths {
+                let one = EngineStatus.unmount(mountPoint: point)
+                if !one.ok { result = one }
+            }
             await MainActor.run {
                 self.isEjecting = false
                 if result.ok {
-                    self.openMounts = self.openMounts.filter { $0.value != path }
+                    self.openVolumes = []
+                    self.openMounts = self.openMounts.filter { !paths.contains($0.value) }
                     // The list, not start(): with a single drive attached that
                     // selects it again and reopens the unlock screen, which is
                     // the opposite of what ejecting asked for.
