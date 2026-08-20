@@ -121,7 +121,37 @@ requirement is macOS 12+, below our 15.0 floor.
 
 ---
 
-## 4. Correctness and robustness
+## 4. Menus and settings
+
+The app has no persisted preferences at all and no Settings scene, which is the
+right default — it does one thing and auto-scales the VM to the host, so there
+is nothing worth a knob. The gaps below are menu-bar and per-mount issues rather
+than reasons to add a preferences window.
+
+- [ ] **[me]** The licence is unreachable. `LICENSE` and
+      `THIRD_PARTY_NOTICES.md` ship inside the bundle but nothing opens them.
+      For a GPL app that is a compliance-adjacent gap as well as a courtesy —
+      add an About panel and a Help menu entry that open both.
+- [ ] **[me]** No Help menu and no in-app support path. Once the repo is public,
+      point it at the issues page.
+- [ ] **[me]** Read-only unlock, as a checkbox on the unlock screen — *not* a
+      global setting. Mounting a suspect or failing drive without writing to it
+      is a real use case, and it is a per-drive decision, so it belongs next to
+      the credential field. The engine already supports it.
+- [ ] **[me]** "Don't ask again" on the eject-on-quit dialog, which is better
+      than a preferences pane for a three-button prompt someone will always
+      answer the same way. This is the first thing that needs persisted state.
+- [ ] **[me]** A minimal `Settings` scene becomes necessary when Sparkle lands
+      (§3): convention is "Check for Updates…" in the app menu plus an
+      "Automatically check for updates" toggle, and that toggle needs somewhere
+      to live. One pane, two rows — resist growing it further.
+
+Deliberately **not** exposed: vCPU count, RAM and NFS transfer sizes. These are
+derived from the host and no user can set them better than the machine can.
+
+---
+
+## 5. Correctness and robustness
 
 - [ ] `Diagnosis.summarise` matches engine output by substring, so an upstream
       wording change silently degrades to raw output. Pin to exit codes where
@@ -136,7 +166,7 @@ requirement is macOS 12+, below our 15.0 floor.
 
 ---
 
-## 5. Open question: the sidebar name
+## 6. Open question: the sidebar name
 
 - [ ] Establish what the sidebar actually displays. Finder's own API reports the
       volume as `BACKUP`, which is the NTFS label from Windows — i.e. the
@@ -146,7 +176,7 @@ requirement is macOS 12+, below our 15.0 floor.
 
 ---
 
-## 6. Nice to have
+## 7. Nice to have
 
 - [ ] "Unlock at login" or a remembered-drive convenience.
 - [ ] Localisation and an accessibility audit.
@@ -156,7 +186,7 @@ requirement is macOS 12+, below our 15.0 floor.
 
 ---
 
-## 7. Strategic — the native UX project
+## 8. Strategic — the native UX project
 
 Not a release task. This is the separate project described in
 PRODUCTION-READINESS.md §7, and it is what would make the product genuinely
