@@ -46,6 +46,10 @@ Nothing ships until these are done.
       on the build machine, so nobody else can build FULocker and v1.0.1 cannot
       be rebuilt identically. Pin and checksum the upstream artefacts — the
       hashes are still in git history in the old `bootstrap.sh`.
+- [ ] **[both]** **Decide the first public version number.** The repo is at
+      1.0.1 because the bump script was exercised during setup. A first public
+      release is usually 1.0.0, or 0.x while the network-drive limitation and
+      untested sleep/wake behaviour stand.
 - [ ] **[me]** **Produce a distributable artefact.** The build emits an `.app`,
       not something you can attach to a release. Needs a signed `.dmg` with a
       drag-to-Applications layout — and the DMG must itself be notarised, not
@@ -72,6 +76,16 @@ Nothing ships until these are done.
 - [ ] **[me]** Short privacy statement. It is a security tool that handles
       recovery keys — say plainly that nothing is transmitted anywhere.
 - [ ] **[me]** Bundle full licence texts, not just links.
+- [ ] **[me]** Add `CHANGELOG.md`. Needed independently of Sparkle, which uses
+      release notes in the appcast.
+- [ ] **[me]** Write `RELEASING.md`: vendor, build, test, bump, notarise, DMG,
+      appcast, tag, publish. Right now that sequence exists only in my head and
+      in scattered scripts.
+- [ ] **[me]** **Document a clean uninstall.** Removing the app leaves
+      `~/.anylinuxfs` (95 MB), any engine logs, and a Full Disk Access entry.
+      For a tool sold on leaving no unnecessary traces, "drag to Trash" being
+      insufficient is a real gap — either document it or add a Remove
+      Everything action.
 
 ---
 
@@ -162,6 +176,21 @@ derived from the host and no user can set them better than the machine can.
       attempted, so the user finds out by failing. Probe the FVE signature once
       elevated and say so before asking for a credential.
 - [ ] No CI. Nothing runs `tests/run-all.sh` or checks that the app builds.
+- [ ] **Check engine log growth.** The engine writes to `~/Library/Logs` and
+      `~/.anylinuxfs` and ignores `$HOME`, so nothing the app does can redirect
+      it. Confirm the logs are bounded rather than growing without limit — "no
+      random logs and rubbish" is only true if they rotate.
+- [ ] Handle "already mounted by macOS" rather than only diagnosing it. The
+      engine has `-r/--remount`; today the user is told to eject in Finder and
+      retry, which the app could do for them.
+- [ ] Test coverage is pure logic only: `Credential`, `EngineStatus`,
+      `Diagnosis`, `Permissions`. Untested: `DriveScanner` plist parsing,
+      `EngineEnvironment` unpacking, `Workspace` lifecycle, and the construction
+      of the privileged mount command — the last of these being the highest-risk
+      code in the app.
+- [ ] Port `helpers/validate-key.sh` to Swift. Shelling out to bash for
+      credential validation means a process spawn and a shell dependency on the
+      unlock path, for logic that is thirty lines.
 - [ ] No crash reporting, and no in-app way to report a problem.
 
 ---
@@ -180,6 +209,8 @@ derived from the host and no user can set them better than the machine can.
 
 - [ ] "Unlock at login" or a remembered-drive convenience.
 - [ ] Localisation and an accessibility audit.
+- [ ] Check icon legibility at 16 and 32 px. It was designed at 1024 and the
+      drive-and-shackle mark may not survive being shrunk to a sidebar glyph.
 - [ ] Clean up old residue on this machine: `~/Library/Application Support/
       BitLocker Mounter/` (83 MB download cache, an empty `secrets/` folder from
       an earlier design).
