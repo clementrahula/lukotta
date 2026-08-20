@@ -307,9 +307,13 @@ final class AppModel: ObservableObject {
     /// How much of the helper's transcript has already been shown, so the
     /// final reply can append the remainder instead of repeating all of it.
     private var helperLinesShown = 0
+    /// The credential of the mount in flight, so its output can be scrubbed of
+    /// it before it reaches the screen, the log or a report.
+    private var activeCredential: String?
 
     private func runMount(drive: Drive, credential: String, volume: LogicalVolume?) {
         failedStage = nil
+        activeCredential = credential
         let ws: Workspace
         do {
             ws = try Workspace()
@@ -354,6 +358,7 @@ final class AppModel: ObservableObject {
                     let point = Mounter.discoverMountPoint(
                         for: drive, transcript: outcome.transcript)
                 {
+                    self.noteVolumeCount(outcome.transcript)
                     self.finishMount(drive: drive, credential: credential, mountPoint: point)
                 } else if outcome.transcript.contains(MountScript.multipleVolumesMarker),
                     case let volumes = VolumeGroupParser.logicalVolumes(in: outcome.transcript),
@@ -394,6 +399,22 @@ final class AppModel: ObservableObject {
                 if !mine.isEmpty { self.openVolumes = mine }
             }
         }
+    }
+
+    /// Note when a container held more volumes than could be opened.
+    private func noteVolumeCount(_ transcript: String) {
+        guard
+            let line = transcript.components(separatedBy: .newlines)
+                .last(where: { $0.contains(MountScript.volumesMarker) }),
+            let tail = line.components(separatedBy: MountScript.volumesMarker).last
+        else { return }
+        let parts = tail.trimmingCharacters(in: .whitespaces).split(separator: ":")
+        guard parts.count == 2, let opened = Int(parts[0]), let total = Int(parts[1]),
+            total > opened
+        else { return }
+        notice =
+            "This drive holds \(total) volumes and \(opened) opened. "
+            + "Eject it and open it again to reach the others."
     }
 
     /// Record a successful mount, wherever it came from.
@@ -484,7 +505,11 @@ final class AppModel: ObservableObject {
     /// sites that can fail.
     private func fail(_ drive: Drive?, _ summary: String, _ detail: String?) {
         failedStage = MountStage.inferred(from: stageLines + statusLines)
-        phase = .failed(drive, summary, detail.map(Diagnostics.withoutStageMarkers))
+        let clean =
+            detail
+            .map { Diagnostics.redact($0, secret: activeCredential) }
+            .map(Diagnostics.withoutMarkers)
+        phase = .failed(drive, Diagnostics.redact(summary, secret: activeCredential), clean)
     }
 
     /// Show whatever of the helper's transcript has not been shown yet.
@@ -502,9 +527,9 @@ final class AppModel: ObservableObject {
         // bug reports, and written to the workspace. Doing it here means there
         // is no window in which a credential-shaped string exists in any of
         // those places.
-        statusLines.append(Diagnostics.redact(line))
+        statusLines.append(Diagnostics.redact(line, secret: activeCredential))
         // Stage markers drive the indicator; they are not output worth reading.
-        if line.contains(MountScript.stageMarker) { statusLines.removeLast() }
+        if line.contains("LUKOTTA_") { statusLines.removeLast() }
         if line.contains(MountScript.stageMarker) { stageLines.append(line) }
         if statusLines.count > 400 { statusLines.removeFirst(statusLines.count - 400) }
     }

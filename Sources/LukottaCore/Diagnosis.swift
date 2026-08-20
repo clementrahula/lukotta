@@ -8,8 +8,13 @@ public enum Diagnosis {
             return
                 "macOS blocked access to the drive. Lukotta needs Full Disk Access before it can read an encrypted disk."
         }
+        // "No key available" is what discovery reports; "failed to open
+        // encrypted device" is the same refusal from the mount path. Both mean
+        // the credential was wrong, which is not a technical problem and should
+        // not be described as one.
         if lower.contains("wrong key") || lower.contains("invalid passphrase")
             || lower.contains("no key available") || lower.contains("keyslot")
+            || lower.contains("failed to open encrypted device")
         {
             return "That password or recovery key did not unlock this drive."
         }

@@ -277,6 +277,27 @@ group("mountStages") {
         checkedMS.components(separatedBy: "-gt \"$__mounts\"").count - 1 == 2,
         "both NTFS driver attempts are verified, so the retry can be reached")
 
+    // A pty echoes what is written to it, so the engine's own output can carry
+    // the passphrase back. Shape-matching cannot catch an ordinary one, so the
+    // value itself is removed when it is known.
+    let leak = "Enter passphrase for /dev/disk4s1:\nhunter2-correct-horse\nunlocked"
+    let scrubbed = Diagnostics.redact(leak, secret: "hunter2-correct-horse")
+    expect(!scrubbed.contains("hunter2-correct-horse"), "an echoed passphrase is removed")
+    expect(scrubbed.contains("unlocked"), "the rest of the output survives")
+    expect(
+        Diagnostics.redact("a mount failed", secret: "ab").contains("a mount failed"),
+        "a secret too short to be one does not eat ordinary output")
+    expect(
+        Diagnostics.redact("nothing secret here", secret: nil) == "nothing secret here",
+        "no secret means no change")
+    // The shape rules still apply on top, for output whose secret is unknown.
+    expect(
+        !Diagnostics.redact(
+            "key 100000-200000-300000-400000-500000-600000-700000-800000",
+            secret: nil
+        ).contains("100000-200000"),
+        "a recovery key is still caught by shape")
+
     // Discovery is driven through expect, which uses a pty, so its output is
     // CRLF. Left in place the carriage return joins the identifier and the
     // mount names a block device that cannot exist.
@@ -307,10 +328,10 @@ group("mountStages") {
         Diagnosis.summarise(lvmTranscript, fallback: "").contains("several volumes"),
         "a container holding volumes is explained as such")
     expect(
-        !Diagnostics.withoutStageMarkers(lvmTranscript).contains(MountScript.stageMarker),
+        !Diagnostics.withoutMarkers(lvmTranscript).contains(MountScript.stageMarker),
         "step markers are stripped from anything the user reads")
     expect(
-        Diagnostics.withoutStageMarkers(lvmTranscript).contains("crypto_LUKS"),
+        Diagnostics.withoutMarkers(lvmTranscript).contains("crypto_LUKS"),
         "stripping markers keeps the engine's own output")
 
     // The volume list the engine prints once discovery has run.

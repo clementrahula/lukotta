@@ -53,8 +53,14 @@ struct MountedView: View {
             InfoBox(
                 icon: "sidebar.left",
                 text:
-                    "The drive appears in the Finder sidebar under Locations. Eject it here or in Finder before unplugging it."
+                    "The drive appears in the Finder sidebar under Locations.\nEject it here or in Finder before unplugging it."
             )
+
+            if let notice = model.notice {
+                Label(notice, systemImage: "info.circle")
+                    .font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
             if let problem = model.ejectProblem {
                 Label(problem, systemImage: "exclamationmark.triangle.fill")

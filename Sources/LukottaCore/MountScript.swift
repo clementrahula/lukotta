@@ -68,6 +68,8 @@ public enum MountScript {
     /// Marker written when a container holds several volumes and the engine was
     /// therefore never told which to mount.
     public static let multipleVolumesMarker = "LUKOTTA_MULTIPLE_VOLUMES"
+    /// How many of a container's volumes opened, of how many were found.
+    public static let volumesMarker = "LUKOTTA_VOLUMES:"
 
     /// Drives the engine's interactive passphrase prompt.
     ///
@@ -230,6 +232,7 @@ public enum MountScript {
                   __mounts=$__now
                 fi
               done
+              echo "\(volumesMarker)$__opened:$__count" >> \(logQ)
               [ "$__opened" -gt 0 ]
             }
             """

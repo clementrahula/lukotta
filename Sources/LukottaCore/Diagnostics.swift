@@ -96,15 +96,35 @@ public enum Diagnostics {
     /// a passphrase — or a future change to one — would put it in a log the
     /// user is invited to send. Redaction is applied to everything, so being
     /// wrong about that costs nothing.
-    /// Strip the step-indicator markers from engine output.
+    /// Strip Lukotta's own markers from engine output.
     ///
     /// They are written into the same log the engine writes to, because that is
     /// the only channel that survives the trip back from root. They are not
     /// output anyone should be shown or asked to report.
-    public static func withoutStageMarkers(_ text: String) -> String {
+    public static func withoutMarkers(_ text: String) -> String {
         text.components(separatedBy: .newlines)
-            .filter { !$0.contains(MountScript.stageMarker) }
+            .filter { !$0.contains("LUKOTTA_") }
             .joined(separator: "\n")
+    }
+
+    /// Redact, knowing the credential in play.
+    ///
+    /// The pattern rules below recognise the shape of a recovery key, which is
+    /// no help against an ordinary passphrase. One can still reach the log: the
+    /// engine is driven through a pty, and a pty echoes what is typed into it,
+    /// so a passphrase can come back in the engine's own output. When the exact
+    /// secret is known, remove it by value rather than hoping it looks like
+    /// something.
+    public static func redact(_ text: String, secret: String?) -> String {
+        var result = text
+        if let secret {
+            let trimmed = secret.trimmingCharacters(in: .whitespacesAndNewlines)
+            // Short strings would match far too much ordinary output.
+            if trimmed.count >= 4 {
+                result = result.replacingOccurrences(of: trimmed, with: "[redacted]")
+            }
+        }
+        return redact(result)
     }
 
     public static func redact(_ text: String) -> String {

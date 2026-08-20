@@ -27,8 +27,10 @@ public enum MountStage: Int, CaseIterable, Sendable {
             if line.contains(MountScript.stageMarker + "working") {
                 stage = max(stage, .working)
             }
-            // The engine names the mount point only once it is exporting it.
-            if line.contains("/Volumes/") || line.lowercased().contains("nfs") {
+            // Only an actual mount means this stage was reached. Matching on
+            // "nfs" caught "NFS server not ready", which is a failure, and made
+            // a mount that never started look as though it had nearly finished.
+            if line.contains(" on /Volumes/") {
                 stage = max(stage, .finishing)
             }
             if line.lowercased().contains("approval") {

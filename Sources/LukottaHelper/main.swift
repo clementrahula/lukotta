@@ -15,6 +15,8 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     /// sit on one step until everything is over.
     private let progressQueue = DispatchQueue(label: "dev.lukotta.helper.progress")
     private var transcript = ""
+    /// Held only while a mount runs, so its output can be scrubbed of it.
+    private var activeCredential: String?
 
     override init() {
         listener = NSXPCListener(machServiceName: HelperInfo.machServiceName)
@@ -118,7 +120,11 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")
             try script.write(to: scriptURL, atomically: true, encoding: .utf8)
 
-            progressQueue.sync { transcript = "" }
+            progressQueue.sync {
+                transcript = ""
+                activeCredential = credential
+            }
+            defer { progressQueue.sync { activeCredential = nil } }
             let streamer = LogStreamer(path: log.path) { [weak self] line in
                 self?.progressQueue.sync { self?.transcript += line + "\n" }
             }
@@ -140,15 +146,15 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             streamer.stop()
 
             let output = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
-            reply(task.terminationStatus, Diagnostics.redact(output))
+            reply(task.terminationStatus, Diagnostics.redact(output, secret: credential))
         } catch {
             reply(71, "\(error)")
         }
     }
 
     func progress(reply: @escaping (String) -> Void) {
-        let text = progressQueue.sync { transcript }
-        reply(Diagnostics.redact(text))
+        let (text, secret) = progressQueue.sync { (transcript, activeCredential) }
+        reply(Diagnostics.redact(text, secret: secret))
     }
 
     func unmount(mountPoint: String, reply: @escaping (Int32, String) -> Void) {
