@@ -1,0 +1,82 @@
+#!/bin/bash
+# Cut a release: build, notarise, sign the archive, and describe it in the appcast.
+#
+#   ./scripts/release.sh                 build and prepare everything locally
+#   LUKOTTA_PUBLISH=1 ./scripts/release.sh   also create the GitHub release
+#
+# Nothing here is destructive to a published release: the appcast entry is
+# rewritten in place if the same build is released twice, and the GitHub release
+# is only created when asked for explicitly.
+set -euo pipefail
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$HERE"
+
+VERSION="$(tr -d ' \n' < VERSION)"
+BUILD="$(git rev-list --count HEAD)"
+APP="$HERE/dist/Lukotta.app"
+ZIP="$HERE/dist/Lukotta-$VERSION.zip"
+REPO="${LUKOTTA_REPO:-clementrahula/lukotta}"
+PROFILE="${LUKOTTA_NOTARY_PROFILE:-lukotta}"
+# Point this at a checkout of the updates repository to update it in place.
+APPCAST="${LUKOTTA_APPCAST:-$HERE/dist/appcast.xml}"
+BASE_URL="${LUKOTTA_DOWNLOAD_BASE:-https://github.com/$REPO/releases/download/v$VERSION}"
+
+# A release built from uncommitted work cannot be reproduced from the tag.
+[ -z "$(git status --porcelain)" ] || {
+  echo "error: working tree is dirty; commit before releasing" >&2; exit 1; }
+git rev-parse "v$VERSION" >/dev/null 2>&1 || {
+  echo "error: no tag v$VERSION; run scripts/bump-version.sh first" >&2; exit 1; }
+
+SIGN_TOOL="$(find "$HERE/.build" -name sign_update -type f -perm -111 -print -quit 2>/dev/null || true)"
+[ -n "$SIGN_TOOL" ] || { echo "error: sign_update not found; run swift build" >&2; exit 1; }
+
+printf '==> Building and notarising %s (build %s)\n' "$VERSION" "$BUILD"
+rm -rf "$HERE/dist"
+LUKOTTA_NOTARY_PROFILE="$PROFILE" "$HERE/build-app.sh" >/dev/null
+
+# Refuse to ship something Gatekeeper will refuse to open.
+spctl -a -vv -t install "$APP" 2>&1 | grep -q "source=Notarized Developer ID" || {
+  echo "error: the built app is not notarised" >&2; exit 1; }
+
+printf '==> Archiving\n'
+rm -f "$ZIP"
+# ditto, not zip: zip(1) does not preserve the signature.
+/usr/bin/ditto -c -k --keepParent "$APP" "$ZIP"
+
+printf '==> Signing the archive\n'
+# Under Lukotta's own key, not the global Sparkle account.
+SIG_LINE="$("$SIGN_TOOL" --account "${LUKOTTA_SPARKLE_ACCOUNT:-lukotta}" "$ZIP")"
+SIGNATURE="$(printf '%s' "$SIG_LINE" | sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p')"
+LENGTH="$(printf '%s' "$SIG_LINE" | sed -n 's/.*length="\([^"]*\)".*/\1/p')"
+[ -n "$SIGNATURE" ] && [ -n "$LENGTH" ] || {
+  echo "error: could not read the signature from: $SIG_LINE" >&2; exit 1; }
+
+printf '==> Describing it in the appcast\n'
+mkdir -p "$(dirname "$APPCAST")"
+python3 "$HERE/scripts/appcast.py" \
+  --appcast "$APPCAST" \
+  --version "$VERSION" \
+  --build "$BUILD" \
+  --url "$BASE_URL/$(basename "$ZIP")" \
+  --length "$LENGTH" \
+  --signature "$SIGNATURE" \
+  --min-system "$(/usr/libexec/PlistBuddy -c 'Print LSMinimumSystemVersion' "$APP/Contents/Info.plist")" \
+  --pubdate "$(LC_ALL=C date -u '+%a, %d %b %Y %H:%M:%S +0000')"
+
+if [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
+  printf '==> Publishing the GitHub release\n'
+  if gh release view "v$VERSION" --repo "$REPO" >/dev/null 2>&1; then
+    gh release upload "v$VERSION" "$ZIP" --repo "$REPO" --clobber
+  else
+    gh release create "v$VERSION" "$ZIP" --repo "$REPO" \
+      --title "Lukotta $VERSION" --notes "See the appcast for details."
+  fi
+else
+  printf '==> Not published. Set LUKOTTA_PUBLISH=1 to create the GitHub release.\n'
+fi
+
+printf '\nArchive : %s\n' "$ZIP"
+printf 'Appcast : %s\n' "$APPCAST"
+printf 'Download: %s/%s\n' "$BASE_URL" "$(basename "$ZIP")"
+printf '\nCommit the appcast to the updates repository so it is served at\n'
+printf '  %s\n' "$(/usr/libexec/PlistBuddy -c 'Print SUFeedURL' "$APP/Contents/Info.plist")"
