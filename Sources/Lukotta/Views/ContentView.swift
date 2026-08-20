@@ -16,8 +16,6 @@ struct ContentView: View {
                 case .chooseDrive: DriveListView()
                 case .unlock(let d): UnlockView(drive: d)
                 case .working(let d): WorkingView(drive: d)
-                case .chooseVolume(let d, let vols):
-                    VolumeChoiceView(drive: d, volumes: vols)
                 case .mounted(let d, let p): MountedView(drive: d, mountPoint: p)
                 case .failed(let d, let s, let detail):
                     FailureView(drive: d, summary: s, detail: detail)

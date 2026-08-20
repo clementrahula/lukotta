@@ -19,7 +19,11 @@ public enum MountScript {
         var devicePath: String
         var driveName: String
         var kind: VolumeKind
-        /// Set once the user has chosen among several logical volumes.
+        /// A single volume to mount directly, skipping discovery. No interface
+        /// sets one any more — every volume of a container is opened — but the
+        /// helper's XPC method still carries the parameter: renaming that
+        /// selector would leave a freshly updated app calling a still-running
+        /// older helper that never answers.
         var volume: LogicalVolume?
         /// Symlink named after the drive, so Finder shows that rather than
         /// "disk4s1.local". Optional: the real device path is always tried too.
@@ -69,9 +73,6 @@ public enum MountScript {
     /// points where something has definitely happened.
     public static let stageMarker = "LUKOTTA_STAGE:"
 
-    /// Marker written when a container holds several volumes and the engine was
-    /// therefore never told which to mount.
-    public static let multipleVolumesMarker = "LUKOTTA_MULTIPLE_VOLUMES"
     /// How many of a container's volumes opened, of how many were found.
     public static let volumesMarker = "LUKOTTA_VOLUMES:"
 
