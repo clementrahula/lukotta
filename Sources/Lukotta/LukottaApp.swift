@@ -28,7 +28,11 @@ struct LukottaApp: App {
         .windowResizability(.contentMinSize)
         // Present only while something is open, so it does not clutter the menu
         // bar for a tool used occasionally.
+        // The systemImage initialiser, not a custom label: a label built from a
+        // view is rendered as-is, without the template treatment and sizing the
+        // menu bar applies to a symbol, and comes out heavy and misaligned.
         MenuBarExtra(
+            "Lukotta", systemImage: "externaldrive.fill",
             isInserted: Binding(
                 get: { !model.openMounts.isEmpty },
                 set: { _ in })
@@ -44,16 +48,7 @@ struct LukottaApp: App {
                 NSApp.windows.first?.makeKeyAndOrderFront(nil)
             }
             Button("Quit Lukotta") { NSApp.terminate(nil) }
-        } label: {
-            // Drawn as a template symbol rather than the app's own mark: the
-            // mark's diagonal cut is under a pixel wide at this size, so it
-            // would read as a plain filled square. A template glyph is also
-            // what inverts by itself between a light and a dark menu bar.
-            Image(systemName: "lock.open")
-                .font(.system(size: 14, weight: .medium))
-                .accessibilityLabel("Lukotta — a drive is open")
         }
-        .menuBarExtraStyle(.menu)
 
         .commands {
             CommandGroup(replacing: .newItem) {}
