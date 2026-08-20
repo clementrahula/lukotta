@@ -90,23 +90,14 @@ if os.path.exists(removed_path):
             removed.append((parts[0], parts[1], parts[2].strip() if len(parts) > 2 else ""))
 
 if removed:
-    w("## Components Not Distributed")
+    # A notices document enumerates what is distributed. A table of absent
+    # packages is build detail, and risks being read as a list of inclusions.
+    # One sentence prevents the assumption that this is a stock Alpine image.
+    w("The guest image is a reduced subset of Alpine Linux, containing only the")
+    w("packages required to unlock and mount the supported filesystems. Notably")
+    w("it contains no ZFS components: neither the `zfs` and `zfs-libs` packages")
+    w("nor the `zfs.ko` and `spl.ko` kernel modules are distributed with Lukotta.")
     w("")
-    w("The upstream image provides support for filesystems that Lukotta does not")
-    w("use. The following packages are removed during preparation of the guest")
-    w("image and are not distributed with the application:")
-    w("")
-    w("| Package | Version | Licence |")
-    w("| --- | --- | --- |")
-    for name, ver, lic in sorted(removed):
-        w(f"| {name} | {ver} | {lic or '(unstated)'} |")
-    w("")
-    if any(n.startswith("zfs") for n, _, _ in removed):
-        w("This includes the ZFS components, comprising the `zfs` and `zfs-libs`")
-        w("packages and the `zfs.ko` and `spl.ko` kernel modules, which are")
-        w("licensed under the CDDL-1.0. Lukotta does not use ZFS, and neither")
-        w("those packages nor those modules are distributed with it.")
-        w("")
 
 w("## Notes")
 w("")

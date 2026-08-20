@@ -102,29 +102,10 @@ available from the Alpine Linux package archive at
 | zlib | 1.3.2-r0 | Zlib |
 | zstd-libs | 1.5.7-r2 | BSD-3-Clause OR GPL-2.0-or-later |
 
-## Components Not Distributed
-
-The upstream image provides support for filesystems that Lukotta does not
-use. The following packages are removed during preparation of the guest
-image and are not distributed with the application:
-
-| Package | Version | Licence |
-| --- | --- | --- |
-| libintl | 1.0-r0 | LGPL-2.1-or-later |
-| lz4-libs | 1.10.0-r1 | BSD-2-Clause AND GPL-2.0-or-later |
-| mdadm | 4.3-r3 | GPL-2.0-only |
-| pyc | 3.14.7-r1 | PSF-2.0 |
-| python3-pyc | 3.14.7-r1 | PSF-2.0 |
-| python3-pycache-pyc0 | 3.14.7-r1 | PSF-2.0 |
-| squashfs-tools | 4.7.5-r0 | GPL-2.0-or-later |
-| ssl_client | 1.37.0-r31 | GPL-2.0-only |
-| zfs | 2.4.3-r0 | CDDL-1.0 |
-| zfs-libs | 2.4.3-r0 | CDDL-1.0 |
-
-This includes the ZFS components, comprising the `zfs` and `zfs-libs`
-packages and the `zfs.ko` and `spl.ko` kernel modules, which are
-licensed under the CDDL-1.0. Lukotta does not use ZFS, and neither
-those packages nor those modules are distributed with it.
+The guest image is a reduced subset of Alpine Linux, containing only the
+packages required to unlock and mount the supported filesystems. Notably
+it contains no ZFS components: neither the `zfs` and `zfs-libs` packages
+nor the `zfs.ko` and `spl.ko` kernel modules are distributed with Lukotta.
 
 ## Notes
 
