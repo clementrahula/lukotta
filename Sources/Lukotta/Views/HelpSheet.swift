@@ -35,10 +35,10 @@ struct HelpSheet: View {
                 VStack(alignment: .leading, spacing: 22) {
                     HelpSection(title: "How it works") {
                         Text(
-                            "Lukotta starts a small Linux virtual machine, unlocks the drive inside it, and shares the result back to Finder over a local connection. macOS has no built-in support for BitLocker or Linux filesystems, so the work happens in Linux, where it is well supported."
+                            "Lukotta starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can."
                         )
                         Text(
-                            "Nothing is installed on your Mac. The engine ships inside the app, no drive is written to unless you write to it, and nothing leaves your machine."
+                            "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it."
                         )
                     }
 
@@ -47,13 +47,13 @@ struct HelpSheet: View {
                             "BitLocker drives, unlocked with the volume password or a 48-digit recovery key"
                         )
                         Bullet(
-                            "Windows NTFS drives, including ones Windows left in a hibernated or unclean state"
+                            "Windows NTFS drives, including ones Windows left hibernated or not shut down properly"
                         )
                         Bullet("LUKS drives from Linux, both LUKS1 and LUKS2")
                         Bullet(
-                            "LVM inside LUKS, the layout Ubuntu, Debian, Mint and Fedora use. If the container holds several volumes, all of them are unlocked together"
+                            "LVM inside LUKS, as Ubuntu, Debian, Mint and Fedora set it up. Several volumes on one drive all unlock together"
                         )
-                        Bullet("ext4, btrfs and XFS filesystems inside those containers")
+                        Bullet("ext4, btrfs and XFS filesystems inside them")
                     }
 
                     HelpSection(title: "What it cannot open") {
@@ -65,18 +65,18 @@ struct HelpSheet: View {
 
                     HelpSection(title: "Why it appears as a network drive") {
                         Text(
-                            "The unlocked volume is shared back to Finder over a local network connection, so macOS files it under Locations and shows it with a network icon. It reads and writes normally, and ejecting works as usual. macOS provides no way to present it as a local disk."
+                            "The drive is handed to Finder over a local network connection, so it appears under Locations with a network icon. It reads, writes and ejects like any other drive. macOS offers no way to present it as a local disk."
                         )
                     }
 
                     HelpSection(title: "Permissions") {
                         Bullet(
-                            "Full Disk Access — macOS blocks reading a drive at the raw level without it. It is the one permission an app cannot request, so it must be switched on by hand"
+                            "Full Disk Access — macOS will not let any app read a drive’s raw contents without it. It cannot be requested, so it has to be switched on by hand"
                         )
                         Bullet(
                             "Removable volumes — requested by macOS the first time a drive is read")
                         Bullet(
-                            "Administrator password — required once per unlock to read the disk and mount the volume. Lukotta never sees it"
+                            "Administrator password — asked for once when the background helper is set up, then not again. Lukotta never sees it"
                         )
                     }
 
@@ -87,12 +87,12 @@ struct HelpSheet: View {
                             "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use"
                         )
                         Bullet("30 to 80 MB of RAM per unlocked drive")
-                        Bullet("A dozen drives unlocked at once is comfortable")
+                        Bullet("Around ten drives unlocked at once")
                     }
 
                     HelpSection(title: "Licence") {
                         Text(
-                            "Lukotta is free software under the GPL, version 3 or later. It is built on anylinuxfs, which does the hard part. Complete source for every component is published alongside each release."
+                            "Lukotta is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release."
                         )
                         HStack(spacing: 10) {
                             Button("Licence") { document = .licence }
