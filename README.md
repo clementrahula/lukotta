@@ -80,21 +80,23 @@ appears in an argument list, an exported environment, or on disk.
 ## Building
 
 ```bash
-./Scripts/vendor-engine.sh     # stage the engine + Linux image into vendor/
-./build-app.sh         # compile, embed, sign, install to /Applications
-./Scripts/run-tests.sh     # shell + Swift unit tests
+./scripts/vendor-engine.sh    # stage the engine + Linux image into vendor/
+./build-app.sh                # compile, embed, sign, install to /Applications
+./scripts/run-tests.sh        # the unit tests
 ```
+
+Requirements, the switches `build-app.sh` takes, how the targets fit together,
+and how to make encrypted test drives without encrypted hardware are all in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 `vendor-engine.sh` currently stages from an anylinuxfs runtime already present
 on the build machine. Reproducible builds from pinned upstream artefacts are
 still outstanding — see [TODO.md](Documentation/TODO.md).
 
-Outstanding work is tracked in [TODO.md](Documentation/TODO.md).
-
 Versioning is semver in `VERSION`; the build number is the git commit count.
 
 ```bash
-./Scripts/bump-version.sh patch   # or minor / major, commits and tags
+./scripts/bump-version.sh patch   # or minor / major, commits and tags
 ```
 
 ## Author

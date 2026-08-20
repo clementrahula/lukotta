@@ -35,17 +35,12 @@ struct SettingsView: View {
                         .disabled(!updater.canCheck)
                 }
                 .padding(.top, 4)
-                // Worth saying plainly: an update replaces the app while a
-                // drive may be open, and whether that drive survives depends on
-                // which route opened it.
-                Label(
+                Text(
                     model.helper.isReady
-                        ? "An open drive stays open through an update. The background helper holds it, not the app."
-                        : "An open drive will close when an update installs, because the app itself is holding it. Setting up the background helper keeps it open.",
-                    systemImage: model.helper.isReady ? "checkmark.circle" : "info.circle"
+                        ? "Updating does not eject your drives. Anything open stays open and keeps working."
+                        : "Once the background helper is set up, updating will leave open drives alone."
                 )
-                .font(.caption)
-                .foregroundStyle(model.helper.isReady ? Color.secondary : Color.orange)
+                .font(.caption).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 2)
             } header: {
