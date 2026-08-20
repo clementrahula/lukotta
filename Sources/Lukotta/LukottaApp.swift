@@ -28,7 +28,12 @@ struct LukottaApp: App {
     @StateObject private var model = AppModel()
     @StateObject private var updater = Updater()
 
-    init() { runSmokeTestIfAsked() }
+    init() {
+        runSmokeTestIfAsked()
+        // Before anything else: a build that has failed to start twice already
+        // does not get a third go at it.
+        guard Rollback.evaluateLaunch() else { exit(0) }
+    }
 
     var body: some Scene {
         WindowGroup {

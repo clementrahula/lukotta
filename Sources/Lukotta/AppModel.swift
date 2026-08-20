@@ -159,6 +159,10 @@ final class AppModel: ObservableObject {
                 self.openMounts = Dictionary(
                     mounts.map { ($0.devicePath, $0.mountPoint) },
                     uniquingKeysWith: { first, _ in first })
+                // Far enough to be working: permissions read, drives scanned,
+                // a window on screen. Reaching main is not enough — a build
+                // that starts and then falls over must still count as failed.
+                Rollback.confirmHealthy()
                 if found.count == 1, existing == nil {
                     // One candidate: asking the user to click the only row is
                     // a step with no decision in it.
