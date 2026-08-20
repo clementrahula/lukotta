@@ -2,8 +2,16 @@
 # Build, sign and install Lukotta.
 #
 #   ./build-app.sh                 build, sign, install to /Applications
-#   BLM_INSTALL=0 ./build-app.sh   build only
-#   BLM_SIGN_ID="..." ./build-app.sh
+#   LUKOTTA_INSTALL=0 ./build-app.sh   build only
+#   LUKOTTA_SIGN_ID="..." ./build-app.sh
+#   LUKOTTA_NOTARY_PROFILE="name" ./build-app.sh   also notarise and staple
+#
+# Signing proves who built it; notarising is a separate round trip to Apple,
+# and without it Gatekeeper refuses the app on every Mac but the one that built
+# it. Opt-in by naming a notarytool keychain profile, since it needs an Apple ID
+# and an app-specific password stored beforehand:
+#
+#   xcrun notarytool store-credentials "name" --apple-id ID --team-id TEAM
 #
 # The marketing version comes from ./VERSION (semver). The build number is the
 # git commit count, which is monotonic and needs no manual bookkeeping.
@@ -20,13 +28,13 @@ case "$VERSION" in
 esac
 BUILD="$(git -C "$HERE" rev-list --count HEAD 2>/dev/null || echo 1)"
 
-SIGN_ID="${BLM_SIGN_ID:-$(security find-identity -v -p codesigning 2>/dev/null \
+SIGN_ID="${LUKOTTA_SIGN_ID:-$(security find-identity -v -p codesigning 2>/dev/null \
   | awk -F'"' '/Developer ID Application/ {print $2; exit}')}"
 [ -n "$SIGN_ID" ] || SIGN_ID="-"
 
-# Never build a shippable bundle from a failing tree. BLM_SKIP_TESTS=1 is for
+# Never build a shippable bundle from a failing tree. LUKOTTA_SKIP_TESTS=1 is for
 # fast iteration only.
-if [ "${BLM_SKIP_TESTS:-0}" != "1" ]; then
+if [ "${LUKOTTA_SKIP_TESTS:-0}" != "1" ]; then
   printf 'Running tests…\n'
   swift run -c release LukottaTests >/dev/null || {
     echo "error: tests failed; refusing to build. Run: swift run LukottaTests" >&2; exit 1; }
@@ -137,9 +145,30 @@ printf 'Signing with: %s\n' "$SIGN_ID"
 /usr/bin/codesign --force --options runtime --sign "$SIGN_ID" "$OUT" >/dev/null 2>&1 \
   || /usr/bin/codesign --force --sign "$SIGN_ID" "$OUT" >/dev/null
 /usr/bin/codesign --verify --strict "$OUT" && printf 'Signature verified\n'
+
+NOTARY_PROFILE="${LUKOTTA_NOTARY_PROFILE:-}"
+if [ -n "$NOTARY_PROFILE" ] && [ "$SIGN_ID" != "-" ]; then
+  printf 'Notarising as profile "%s"…\n' "$NOTARY_PROFILE"
+  ZIP="$(dirname "$OUT")/$APP_NAME-notarise.zip"
+  rm -f "$ZIP"
+  # ditto keeps the signature intact; zip(1) does not.
+  /usr/bin/ditto -c -k --keepParent "$OUT" "$ZIP"
+  if /usr/bin/xcrun notarytool submit "$ZIP" \
+      --keychain-profile "$NOTARY_PROFILE" --wait; then
+    # Stapling puts the ticket inside the bundle, so a first launch works
+    # without asking Apple — which matters on a machine that is offline.
+    /usr/bin/xcrun stapler staple "$OUT"
+    /usr/sbin/spctl -a -vv -t install "$OUT" 2>&1 | sed 's/^/  /'
+  else
+    printf 'error: notarisation failed; the build is signed but not notarised\n' >&2
+    rm -f "$ZIP"
+    exit 1
+  fi
+  rm -f "$ZIP"
+fi
 printf 'Built %s\n' "$OUT"
 
-if [ "${BLM_INSTALL:-1}" = "1" ]; then
+if [ "${LUKOTTA_INSTALL:-1}" = "1" ]; then
   APPS="/Applications/$APP_NAME.app"
   rm -rf "$APPS"
   /usr/bin/ditto "$OUT" "$APPS"

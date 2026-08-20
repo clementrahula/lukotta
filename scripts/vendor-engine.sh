@@ -10,8 +10,8 @@ HERE="$(cd "$(dirname "$0")/.." && pwd)"
 # Staged from a runtime already present on this machine. That is the reason the
 # build is not reproducible: see Documentation/TODO.md, stage 1. The default path
 # is where an earlier version of this project installed it.
-SRC_RUNTIME="${BLM_SRC_RUNTIME:-$HOME/Library/Application Support/BitLocker Mounter/runtime}"
-SRC_ROOTFS="${BLM_SRC_ROOTFS:-$HOME/.anylinuxfs/alpine}"
+SRC_RUNTIME="${LUKOTTA_SRC_RUNTIME:-$HOME/Library/Application Support/BitLocker Mounter/runtime}"
+SRC_ROOTFS="${LUKOTTA_SRC_ROOTFS:-$HOME/.anylinuxfs/alpine}"
 OUT="$HERE/vendor/engine"
 
 [ -x "$SRC_RUNTIME/anylinuxfs/bin/anylinuxfs" ] || {
@@ -38,10 +38,10 @@ mkdir -p "$OUT/alpine"
 # ships everything anylinuxfs supports (LVM, RAID, btrfs, squashfs, ZFS); we
 # unlock BitLocker and mount NTFS. Every GPL package shipped is also a package
 # whose source must be published with the release, so this shrinks the download
-# and the compliance surface together. Set BLM_NO_TRIM=1 to ship the full image.
+# and the compliance surface together. Set LUKOTTA_NO_TRIM=1 to ship the full image.
 STAGE="$(mktemp -d)/rootfs"
 /usr/bin/ditto "$SRC_ROOTFS/rootfs" "$STAGE"
-if [ "${BLM_NO_TRIM:-0}" != "1" ]; then
+if [ "${LUKOTTA_NO_TRIM:-0}" != "1" ]; then
   echo "  trimming guest image…"
   /usr/bin/python3 "$HERE/scripts/trim-image.py" "$STAGE"
 fi
