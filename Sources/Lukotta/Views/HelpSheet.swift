@@ -87,7 +87,13 @@ struct HelpSheet: View {
                             "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use"
                         )
                         Bullet(
-                            "30 to 80 MB of RAM per unlocked drive. Nothing is set aside while a drive sits idle, so the limit in practice is how many drives you can plug in"
+                            "As many drives unlocked at once as you can attach — a dozen together use well under a gigabyte of RAM"
+                        )
+                        Bullet(
+                            "Each drive runs its own small Linux virtual machine, which is what lets one drive be busy without slowing another"
+                        )
+                        Bullet(
+                            "30 to 80 MB of RAM per unlocked drive, and none of it set aside in advance. An idle drive costs almost nothing"
                         )
                     }
 
