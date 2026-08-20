@@ -82,7 +82,7 @@ struct HelpSheet: View {
 
                     HelpSection(title: "Requirements") {
                         Bullet("An Apple Silicon Mac. Intel Macs are not supported")
-                        Bullet("macOS 26 or later")
+                        Bullet("macOS 15 Sequoia or later")
                         Bullet(
                             "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use"
                         )

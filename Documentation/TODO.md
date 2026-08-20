@@ -261,11 +261,6 @@ Worth deciding first whether a root daemon that can replace the contents of
 
 ## Known limitations
 
-- **The macOS floor comes from the build machine, not from a decision.** The
-  engine is staged from whatever anylinuxfs runtime is installed locally, and
-  one of its libraries carries that machine's minimum — currently 26.0, which is
-  what sets the app's. Building on an older macOS would lower it. Pinning the
-  engine to upstream artefacts would make the floor a choice instead.
 
 - **Encryption nested inside encryption is not opened.** A container holds one
   passphrase and every volume inside it is reached with that one, which is how
@@ -292,6 +287,6 @@ rediscovered as bugs.
 - **The drive's name in Finder is only correct from the second unlock onward.**
   The label is not knowable until the volume is open, which is after the share
   has been named.
-- **Apple Silicon and macOS 26 or later**, and no Mac App Store: sandboxed apps
+- **Apple Silicon and macOS 15 or later**, and no Mac App Store: sandboxed apps
   cannot read raw devices or elevate, quite apart from the licence.
 - **TPM-sealed volumes and detached LUKS headers cannot be opened.**

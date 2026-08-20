@@ -8,9 +8,9 @@ here rather than in someone's head.
 
 - An Apple Silicon Mac. The engine and every bundled library are `arm64`; there
   is no Intel build and no cross-compilation.
-- macOS 26 or later. The engine is staged from the build machine, so a library
-  in it carries that machine's minimum — building on an older macOS lowers the
-  floor, building on a newer one raises it.
+- macOS 15 or later. The engine is fetched from pinned artefacts rather than
+  the build machine, so the floor is set by `vendor/engine.lock` and not by
+  whatever the machine happens to be running.
 - Xcode's command line tools, with a Swift 6 toolchain. The package declares
   `swift-tools-version: 6.0` and builds its targets in Swift 5 language mode.
 - `shellcheck` and `swift-format` for the linter. Without them `scripts/lint.sh`

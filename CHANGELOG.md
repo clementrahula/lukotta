@@ -2,6 +2,9 @@
 
 ## 1.7.0
 
+- The engine is built from pinned, checksummed upstream artefacts rather than
+  whatever is installed on the machine that builds it.
+
 - Drives holding several volumes now open all of them at once. A container with
   LVM inside it could previously not be opened at all.
 - Drives are noticed as they are plugged in and pulled out, rather than when the
