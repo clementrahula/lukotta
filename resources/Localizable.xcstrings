@@ -39,6 +39,12 @@
             "value": "%@ è stato rimosso"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ pašalinta"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -101,6 +107,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ è software libero sotto licenza GPL, versione 3 o successiva. Il montaggio è svolto da anylinuxfs. Il codice sorgente completo di ogni componente viene pubblicato a ogni versione. Il nome e il logo sono marchi e non sono coperti da quella licenza."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ yra laisva programinė įranga pagal GPL licenciją, 3 arba naujesnę versiją. Prijungimą atlieka anylinuxfs. Visas kiekvieno komponento pirminis kodas skelbiamas su kiekviena laida. Pavadinimas ir logotipas yra prekių ženklai ir ta licencija jų neapima."
           }
         },
         "lv": {
@@ -167,6 +179,12 @@
             "value": "%@ apre dischi BitLocker e Linux che macOS da solo non riesce a leggere. Prima serve un’impostazione.\n\nLeggere un disco a livello di dispositivo richiede l’accesso completo al disco: una password di amministratore non basta, e il permesso per i volumi rimovibili riguarda i file su un disco, non il dispositivo stesso. macOS non permette a nessuna app di richiederlo, quindi va attivato a mano."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ atveria „BitLocker“ ir „Linux“ diskus, kurių „macOS“ pati perskaityti negali. Prieš tai reikia vienos nuostatos.\n\nDisko skaitymui įrenginio lygmeniu reikia leidimo „Full Disk Access“ — administratoriaus slaptažodžio nepakanka, o keičiamųjų tomų leidimas apima disko failus, o ne patį įrenginį. „macOS“ neleidžia programai jo paprašyti, todėl jį reikia įjungti rankiniu būdu."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -231,6 +249,12 @@
             "value": "%@ avvia una piccola macchina virtuale Linux, vi sblocca il disco e lo consegna al Finder. macOS non sa leggere i file system BitLocker o Linux. Linux sì."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ paleidžia nedidelę „Linux“ virtualiąją mašiną, joje atrakina diską ir perduoda diską atgal „Finder“ programai. „macOS“ negali skaityti „BitLocker“ ar „Linux“ failų sistemų. „Linux“ gali."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -293,6 +317,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ verrà spostato nel Cestino."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ bus perkelta į šiukšlinę (Trash)."
           }
         },
         "lv": {
@@ -444,6 +474,36 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld dischi non rispondevano più e sono stati scollegati. Puoi aprirli di nuovo."
+                }
+              }
+            }
+          }
+        },
+        "lt": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld diskai nustojo atsakyti ir buvo atjungti. Galite juos atverti dar kartą."
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld disko nustojo atsakyti ir buvo atjungta. Galite juos atverti dar kartą."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld diskas nustojo atsakyti ir buvo atjungtas. Galite jį atverti dar kartą."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld diskų nustojo atsakyti ir buvo atjungta. Galite juos atverti dar kartą."
                 }
               }
             }
@@ -669,6 +729,36 @@
             }
           }
         },
+        "lt": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld atverti diskai bus išstumti."
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld atverto disko bus išstumta."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld atvertas diskas bus išstumtas."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld atvertų diskų bus išstumta."
+                }
+              }
+            }
+          }
+        },
         "lv": {
           "variations": {
             "plural": {
@@ -799,6 +889,12 @@
             "value": "%lld per cento"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld procentų"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -861,6 +957,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "250 MB di disco: 155 MB per l’app e 95 MB per l’ambiente Linux estratto al primo utilizzo"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 MB disko vietos: 155 MB programai ir 95 MB „Linux“ aplinkai, kuri išpakuojama pirmą kartą naudojant"
           }
         },
         "lv": {
@@ -927,6 +1029,12 @@
             "value": "Da 30 a 80 MB di RAM per disco sbloccato"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuo 30 iki 80 MB operatyviosios atminties kiekvienam atrakintam diskui"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -989,6 +1097,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "È stato trovato un rapporto di arresto anomalo"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rasta strigties ataskaita"
           }
         },
         "lv": {
@@ -1055,6 +1169,12 @@
             "value": "Informazioni su %@"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apie %@"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -1117,6 +1237,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Informazioni e aiuto"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apie ir žinynas"
           }
         },
         "lv": {
@@ -1183,6 +1309,12 @@
             "value": "Circa dieci dischi possono restare sbloccati contemporaneamente"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apie dešimt diskų gali likti atrakinti vienu metu"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -1245,6 +1377,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Password di amministratore"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratoriaus slaptažodis"
           }
         },
         "lv": {
@@ -1311,6 +1449,12 @@
             "value": "Password di amministratore: richiesta una sola volta quando si configura l’helper in background, poi mai più. %@ non la vede mai"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratoriaus slaptažodis — prašomas vieną kartą nustatant foninį pagalbininką, vėliau nebe. %@ jo niekada nemato"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -1375,6 +1519,12 @@
             "value": "Tutti i dischi"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visi diskai"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -1437,6 +1587,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tutti i permessi necessari sono concessi"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visi reikalingi leidimai suteikti"
           }
         },
         "lv": {
@@ -1593,6 +1749,36 @@
             }
           }
         },
+        "lt": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Taip pat ištrinti %1$lld išsaugotas slaptafrazes (%2$@)"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Taip pat ištrinti %1$lld išsaugotos slaptafrazės (%2$@)"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Taip pat ištrinti %1$lld išsaugotą slaptafrazę (%2$@)"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Taip pat ištrinti %1$lld išsaugotų slaptafrazių (%2$@)"
+                }
+              }
+            }
+          }
+        },
         "lv": {
           "variations": {
             "plural": {
@@ -1723,6 +1909,12 @@
             "value": "Un Mac con Apple Silicon. I Mac Intel non sono supportati"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Mac“ su „Apple Silicon“. „Mac“ su „Intel“ nepalaikomi"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -1785,6 +1977,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Un altro disco è aperto e il motore deve funzionare da solo la prima volta dopo una modifica. Espelli gli altri dischi, apri questo, poi potranno essere di nuovo tutti aperti insieme."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvertas kitas diskas, o variklis po pakeitimo pirmą kartą turi veikti vienas. Išstumkite kitus diskus, atverkite šį, ir tada jie visi vėl galės būti atverti kartu."
           }
         },
         "lv": {
@@ -1851,6 +2049,12 @@
             "value": "Aspetto"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išvaizda"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -1913,6 +2117,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Appare solo quando un disco è sbloccato, per espellerlo."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodoma tik tada, kai diskas atrakintas, kad jį būtų galima išstumti."
           }
         },
         "lv": {
@@ -1979,6 +2189,12 @@
             "value": "Sviluppatore"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kūrėjas"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -2041,6 +2257,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Indietro"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atgal"
           }
         },
         "lv": {
@@ -2107,6 +2329,12 @@
             "value": "Dischi BitLocker, sbloccati con la password del volume o una chiave di recupero di 48 cifre"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„BitLocker“ diskai, atrakinami tomo slaptažodžiu arba 48 skaitmenų atkūrimo raktu"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -2169,6 +2397,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "BitLocker o NTFS"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„BitLocker“ arba NTFS"
           }
         },
         "lv": {
@@ -2235,6 +2469,12 @@
             "value": "Annulla"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atsisakyti"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -2297,6 +2537,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il blocco maiuscole è attivo"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Caps Lock“ įjungtas"
           }
         },
         "lv": {
@@ -2363,6 +2609,12 @@
             "value": "Controlla di nuovo"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tikrinti dar kartą"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -2425,6 +2677,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cerca ora"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ieškoti dabar"
           }
         },
         "lv": {
@@ -2491,6 +2749,12 @@
             "value": "Cerca aggiornamenti…"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ieškoti naujinių…"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -2553,6 +2817,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cerca aggiornamenti automaticamente"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatiškai ieškoti naujinių"
           }
         },
         "lv": {
@@ -2619,6 +2889,12 @@
             "value": "Fai clic su «+», aggiungi %@ e attivalo."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spustelėkite „+“, pridėkite %@ ir įjunkite."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -2681,6 +2957,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ridotto"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suskleista"
           }
         },
         "lv": {
@@ -2747,6 +3029,12 @@
             "value": "Torna qui e scegli «Riavvia»: un nuovo permesso vale solo per un’app appena avviata."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grįžkite čia ir pasirinkite „Paleisti iš naujo“ — naujas leidimas galioja tik ką paleistai programai."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -2809,6 +3097,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Collega il disco cifrato e scegli «Cerca di nuovo». Se è già collegato, macOS potrebbe averlo montato: espellilo prima nel Finder."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijunkite užšifruotą diską ir pasirinkite „Ieškoti iš naujo“. Jei jis jau prijungtas, „macOS“ galėjo jį prijungti — pirmiausia išstumkite jį „Finder“ programoje."
           }
         },
         "lv": {
@@ -2875,6 +3169,12 @@
             "value": "Copiato"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nukopijuota"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -2939,6 +3239,12 @@
             "value": "Copia i dettagli"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopijuoti informaciją"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -3001,6 +3307,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Scuro"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamsi"
           }
         },
         "lv": {
@@ -3157,6 +3469,36 @@
             }
           }
         },
+        "lt": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Trinamos %lld išsaugotos slaptafrazės"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Trinama %lld išsaugotos slaptafrazės"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Trinama %lld išsaugota slaptafrazė"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Trinama %lld išsaugotų slaptafrazių"
+                }
+              }
+            }
+          }
+        },
         "lv": {
           "variations": {
             "plural": {
@@ -3287,6 +3629,12 @@
             "value": "Eliminazione dell’ambiente Linux"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trinama „Linux“ aplinka"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -3349,6 +3697,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dettagli che verranno inclusi"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informacija, kuri bus įtraukta"
           }
         },
         "lv": {
@@ -3415,6 +3769,12 @@
             "value": "Fine"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atlikta"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -3477,6 +3837,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Scaricali e installali"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atsisiųsti ir įdiegti juos"
           }
         },
         "lv": {
@@ -3543,6 +3909,12 @@
             "value": "Dischi legati a un TPM anziché a una password, compresa la più recente cifratura basata su hardware di Ubuntu"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskai, susieti su TPM, o ne su slaptažodžiu, įskaitant naujesnį „Ubuntu“ aparatinį šifravimą"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -3605,6 +3977,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Espelli"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išstumti"
           }
         },
         "lv": {
@@ -3671,6 +4049,12 @@
             "value": "Espelli %@"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išstumti %@"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -3733,6 +4117,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Espelli ed esci"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išstumti ir baigti"
           }
         },
         "lv": {
@@ -3889,6 +4279,36 @@
             }
           }
         },
+        "lt": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Išstumiami %lld atverti diskai"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Išstumiama %lld atverto disko"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Išstumiamas %lld atvertas diskas"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Išstumiama %lld atvertų diskų"
+                }
+              }
+            }
+          }
+        },
         "lv": {
           "variations": {
             "plural": {
@@ -4019,6 +4439,12 @@
             "value": "Espulsione…"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išstumiama…"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -4081,6 +4507,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Output del motore"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variklio išvestis"
           }
         },
         "lv": {
@@ -4147,6 +4579,12 @@
             "value": "Inserisci la passphrase del disco."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įveskite disko slaptafrazę."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -4209,6 +4647,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Inserisci la password del disco o la sua chiave di recupero di 48 cifre."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įveskite disko slaptažodį arba jo 48 skaitmenų atkūrimo raktą."
           }
         },
         "lv": {
@@ -4275,6 +4719,12 @@
             "value": "Tutto il resto è stato rimosso. %@ stesso non è stato spostato nel Cestino (%@): trascinalo tu per completare."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visa kita pašalinta. Pačios %@ nepavyko perkelti į šiukšlinę (%@) — nutempkite ją ten patys, kad užbaigtumėte."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -4337,6 +4787,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Espanso"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išskleista"
           }
         },
         "lv": {
@@ -4403,6 +4859,12 @@
             "value": "Esterno"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išorinis"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -4465,6 +4927,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dimentica"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pamiršti"
           }
         },
         "lv": {
@@ -4531,6 +4999,12 @@
             "value": "Accesso completo al disco"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -4595,6 +5069,12 @@
             "value": "Accesso completo al disco: senza di esso macOS non permette a nessuna app di leggere il contenuto grezzo di un disco. Non può essere richiesto, quindi va attivato a mano"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access — be jo „macOS“ neleidžia jokiai programai skaityti neapdoroto disko turinio. Jo negalima paprašyti, todėl jį reikia įjungti rankiniu būdu"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -4654,6 +5134,12 @@
           }
         },
         "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        },
+        "lt": {
           "stringUnit": {
             "state": "translated",
             "value": "GNU General Public License"
@@ -4723,6 +5209,12 @@
             "value": "Concesso"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suteikta"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -4785,6 +5277,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nascondi"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slėpti"
           }
         },
         "lv": {
@@ -4851,6 +5349,12 @@
             "value": "Nascondi quanto digitato"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slėpti įvestį"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -4913,6 +5417,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nascondi i dettagli"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slėpti išsamią informaciją"
           }
         },
         "lv": {
@@ -4979,6 +5489,12 @@
             "value": "Come funziona %@ e cosa supporta"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaip %@ veikia ir ką palaiko"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -5041,6 +5557,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Come funziona"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaip tai veikia"
           }
         },
         "lv": {
@@ -5107,6 +5629,12 @@
             "value": "Interno"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vidinis"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -5169,6 +5697,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "È nel Cestino. Non ne resta altro su questo Mac."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ji yra šiukšlinėje. Daugiau nieko iš jos šiame „Mac“ neliko."
           }
         },
         "lv": {
@@ -5235,6 +5769,12 @@
             "value": "Dischi LUKS di Linux, sia LUKS1 sia LUKS2"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Linux“ LUKS diskai, tiek LUKS1, tiek LUKS2"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -5297,6 +5837,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LUKS o file system Linux"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS arba „Linux“ failų sistema"
           }
         },
         "lv": {
@@ -5363,6 +5909,12 @@
             "value": "Volumi LUKS il cui header è conservato separatamente dal disco"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS tomai, kurių antraštė saugoma atskirai nuo disko"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -5425,6 +5977,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LVM dentro LUKS, come lo configurano Ubuntu, Debian, Mint e Fedora. Più volumi sullo stesso disco si sbloccano insieme"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM LUKS viduje, kaip jį nustato „Ubuntu“, „Debian“, „Mint“ ir „Fedora“. Keli tomai viename diske atrakinami kartu"
           }
         },
         "lv": {
@@ -5491,6 +6049,12 @@
             "value": "Lingua"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalba"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -5553,6 +6117,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ultimo controllo: %@"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paskutinį kartą tikrinta: %@"
           }
         },
         "lv": {
@@ -5619,6 +6189,12 @@
             "value": "Lascia aperto"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Palikti atvertą"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -5681,6 +6257,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Consente a %@ di leggere direttamente i dati cifrati."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leidžia %@ pačiai skaityti užšifruotus duomenis."
           }
         },
         "lv": {
@@ -5747,6 +6329,12 @@
             "value": "Consente a %@ di leggere direttamente i dati cifrati. Senza questo permesso macOS lo impedisce, anche agli amministratori, e non può essere richiesto: va attivato a mano."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leidžia %@ pačiai skaityti užšifruotus duomenis. Be jo „macOS“ tai blokuoja net administratoriams, ir jo negalima paprašyti — jį reikia įjungti rankiniu būdu."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -5809,6 +6397,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Licenza"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licencija"
           }
         },
         "lv": {
@@ -5875,6 +6469,12 @@
             "value": "Chiaro"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šviesi"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -5937,6 +6537,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Posizione"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vieta"
           }
         },
         "lv": {
@@ -6003,6 +6609,12 @@
             "value": "Bloccato"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Užrakintas"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -6065,6 +6677,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ricerca di dischi cifrati…"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ieškoma užšifruotų diskų…"
           }
         },
         "lv": {
@@ -6131,6 +6749,12 @@
             "value": "Lúkotta in finlandese significa «senza serratura», da lukko, serratura, con la desinenza -tta che indica l’assenza di qualcosa. L’accento cade sulla prima sillaba, come sempre in finlandese."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Lúkotta“ suomiškai reiškia „be spynos“, nuo žodžio lukko — spyna — su galūne -tta, žyminčia ko nors nebuvimą. Kirtis tenka pirmam skiemeniui, kaip visada suomių kalboje."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -6193,6 +6817,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Barra dei menu"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meniu juosta"
           }
         },
         "lv": {
@@ -6259,6 +6889,12 @@
             "value": "Spostamento di %@ nel Cestino"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ perkeliama į šiukšlinę"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -6321,6 +6957,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Necessario"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reikalinga"
           }
         },
         "lv": {
@@ -6387,6 +7029,12 @@
             "value": "Nessun disco cifrato trovato"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Užšifruotų diskų nerasta"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -6449,6 +7097,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Non è stato indicato alcun motivo. I dettagli qui sotto potrebbero dire di più."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priežastis nenurodyta. Toliau pateikta informacija gali pasakyti daugiau."
           }
         },
         "lv": {
@@ -6515,6 +7169,12 @@
             "value": "Non presente in questa versione."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šioje versijoje nėra."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -6577,6 +7237,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Non viene installato nulla. Il motore è incluso nell’app, nulla lascia il tuo Mac e su un disco si scrive solo quando ci scrivi tu."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niekas nediegiama. Variklis yra programos viduje, niekas neišeina iš jūsų „Mac“, o į diską rašoma tik tada, kai patys į jį rašote."
           }
         },
         "lv": {
@@ -6643,6 +7309,12 @@
             "value": "Una volta configurato l’helper in background, l’aggiornamento lascerà stare i dischi sbloccati."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kai foninis pagalbininkas nustatytas, naujinimas nepalies atrakintų diskų."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -6705,6 +7377,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apri %@"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverti %@"
           }
         },
         "lv": {
@@ -6771,6 +7449,12 @@
             "value": "Apri l’email"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverti el. paštą"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -6833,6 +7517,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apri «Privacy e sicurezza» → «Accesso completo al disco»."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverkite „Privacy & Security“ → „Full Disk Access“."
           }
         },
         "lv": {
@@ -6899,6 +7589,12 @@
             "value": "Apri le impostazioni di privacy"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverti privatumo nuostatas"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -6961,6 +7657,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apri dischi cifrati su macOS"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverkite užšifruotus diskus „macOS“ sistemoje"
           }
         },
         "lv": {
@@ -7027,6 +7729,12 @@
             "value": "Apertura di «%@»"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atveriama „%@“"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -7089,6 +7797,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Passphrase"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slaptafrazė"
           }
         },
         "lv": {
@@ -7155,6 +7869,12 @@
             "value": "Password o chiave di recupero"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slaptažodis arba atkūrimo raktas"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -7217,6 +7937,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permessi"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leidimai"
           }
         },
         "lv": {
@@ -7283,6 +8009,12 @@
             "value": "Esci"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baigti"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -7345,6 +8077,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esci da %@"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baigti %@"
           }
         },
         "lv": {
@@ -7501,6 +8239,36 @@
             }
           }
         },
+        "lt": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Baigti ir palikti %lld diskus atvertus?"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Baigti ir palikti %lld disko atvertą?"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Baigti ir palikti %lld diską atvertą?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Baigti ir palikti %lld diskų atvertų?"
+                }
+              }
+            }
+          }
+        },
         "lv": {
           "variations": {
             "plural": {
@@ -7631,6 +8399,12 @@
             "value": "Uscire e lasciare «%@» aperto?"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baigti ir palikti „%@“ atvertą?"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -7693,6 +8467,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Riavvia"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paleisti iš naujo"
           }
         },
         "lv": {
@@ -7759,6 +8539,12 @@
             "value": "Ricorda questa chiave nel mio portachiavi"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įsiminti šį raktą mano „Keychain“"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -7821,6 +8607,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volumi rimovibili: richiesto da macOS la prima volta che si legge un disco"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removable Volumes — „macOS“ jo paprašo pirmą kartą skaitant diską"
           }
         },
         "lv": {
@@ -7887,6 +8679,12 @@
             "value": "Rimozione di %@"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šalinama %@"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -7949,6 +8747,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rimozione delle impostazioni"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šalinamos nuostatos"
           }
         },
         "lv": {
@@ -8015,6 +8819,12 @@
             "value": "Segnala questo problema"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pranešti apie šią problemą"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -8077,6 +8887,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Segnala un problema"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pranešti apie problemą"
           }
         },
         "lv": {
@@ -8143,6 +8959,12 @@
             "value": "Segnala un problema o invia un rapporto di arresto anomalo"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pranešti apie problemą arba siųsti strigties ataskaitą"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -8205,6 +9027,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Segnala un problema"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pranešti apie problemą"
           }
         },
         "lv": {
@@ -8271,6 +9099,12 @@
             "value": "Segnala un problema…"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pranešti apie problemą…"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -8333,6 +9167,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Requisiti"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reikalavimai"
           }
         },
         "lv": {
@@ -8399,6 +9239,12 @@
             "value": "Cerca di nuovo"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ieškoti iš naujo"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -8461,6 +9307,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostra l’app nel Finder"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti programą „Finder“ lange"
           }
         },
         "lv": {
@@ -8527,6 +9379,12 @@
             "value": "Vedere i dischi collegati"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijungtų diskų matymas"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -8589,6 +9447,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Seleziona un disco da sbloccare"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasirinkite diską, kurį atrakinti"
           }
         },
         "lv": {
@@ -8655,6 +9519,12 @@
             "value": "Preparazione dell’ambiente Linux"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruošiama „Linux“ aplinka"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -8717,6 +9587,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostra"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti"
           }
         },
         "lv": {
@@ -8783,6 +9659,12 @@
             "value": "Mostra %@ nella barra dei menu"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti %@ meniu juostoje"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -8845,6 +9727,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostra nel Finder"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti „Finder“ programoje"
           }
         },
         "lv": {
@@ -8911,6 +9799,12 @@
             "value": "Mostra quanto digitato"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti įvestį"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -8973,6 +9867,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostra a cosa serve ogni permesso"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti, kam skirtas kiekvienas leidimas"
           }
         },
         "lv": {
@@ -9039,6 +9939,12 @@
             "value": "Mancano ancora alcuni permessi"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kai kurių leidimų vis dar trūksta"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -9101,6 +10007,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Codice sorgente"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pirminis kodas"
           }
         },
         "lv": {
@@ -9167,6 +10079,12 @@
             "value": "Sistema"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistemos"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -9229,6 +10147,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "«Sistema» segue la lingua del tuo Mac."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Sistemos“ seka jūsų „Mac“ kalbą."
           }
         },
         "lv": {
@@ -9295,6 +10219,12 @@
             "value": "«Sistema» segue l’impostazione del tuo Mac, anche quando cambia."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Sistemos“ seka jūsų „Mac“ nuostatą, taip pat ir tada, kai ji pasikeičia."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -9357,6 +10287,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quella password o chiave di recupero non ha sbloccato questo disco."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šis slaptažodis ar atkūrimo raktas šio disko neatrakino."
           }
         },
         "lv": {
@@ -9423,6 +10359,12 @@
             "value": "L’ambiente Linux viene estratto una sola volta, al primo utilizzo."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Linux“ aplinka išpakuojama vieną kartą, pirmojo naudojimo metu."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -9485,6 +10427,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’ambiente Linux verrà eliminato, liberando circa %lld MB."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Linux“ aplinka bus ištrinta, atlaisvinant apie %lld MB."
           }
         },
         "lv": {
@@ -9551,6 +10499,12 @@
             "value": "L’helper in background non è configurato, quindi è %@ stesso a tenere aperto il disco. Uscire ora lo scollega e ciò che resta da scrivere non verrebbe completato.\n\nUna volta configurato l’helper, i dischi restano aperti da soli."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foninis pagalbininkas nenustatytas, todėl %@ pati laiko diską atvertą. Baigus dabar jis bus atjungtas, o tai, kas dar rašoma, nebūtų užbaigta.\n\nKai pagalbininkas nustatytas, diskai lieka atverti savaime."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -9613,6 +10567,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’helper in background non è configurato, quindi è %@ stesso a tenerli aperti. Uscire ora li scollega e ciò che resta da scrivere non verrebbe completato.\n\nUna volta configurato l’helper, i dischi restano aperti da soli."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foninis pagalbininkas nenustatytas, todėl %@ pati laiko juos atvertus. Baigus dabar jie bus atjungti, o tai, kas dar rašoma, nebūtų užbaigta.\n\nKai pagalbininkas nustatytas, diskai lieka atverti savaime."
           }
         },
         "lv": {
@@ -9679,6 +10639,12 @@
             "value": "L’helper in background verrà deregistrato."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foninio pagalbininko registracija bus atšaukta."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -9741,6 +10707,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il disco appare nella barra laterale del Finder, sotto «Posizioni».\nEspellilo qui o nel Finder prima di scollegarlo."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskas rodomas „Finder“ šoninėje juostoje skiltyje „Locations“.\nIšstumkite jį čia arba „Finder“ programoje prieš atjungdami."
           }
         },
         "lv": {
@@ -9807,6 +10779,12 @@
             "value": "Il disco è occupato. Chiudi tutto ciò che lo sta usando, quindi riprova."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskas užimtas. Uždarykite viską, kas jį naudoja, ir bandykite dar kartą."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -9869,6 +10847,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il disco viene consegnato al Finder tramite una connessione di rete locale, quindi appare sotto «Posizioni» con un’icona di rete. Si legge, si scrive e si espelle come qualsiasi altro disco. macOS non offre alcun modo di presentarlo come disco locale."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskas perduodamas „Finder“ programai vietinio tinklo ryšiu, todėl rodomas skiltyje „Locations“ su tinklo piktograma. Jis skaitomas, į jį rašoma ir jis išstumiamas kaip bet kuris kitas diskas. „macOS“ nesiūlo būdo pateikti jį kaip vietinį diską."
           }
         },
         "lv": {
@@ -9935,6 +10919,12 @@
             "value": "Il disco resta nel Finder dopo la chiusura di %@. Espellilo da lì quando hai finito."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskas lieka „Finder“ programoje, kai %@ baigia darbą. Išstumkite jį ten, kai baigsite."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -9997,6 +10987,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il disco non è stato aperto"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskas nebuvo atvertas"
           }
         },
         "lv": {
@@ -10063,6 +11059,12 @@
             "value": "Il disco non è stato aperto. %@"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskas nebuvo atvertas. %@"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -10125,6 +11127,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Windows non ha spento il disco correttamente. Disattiva l’avvio rapido in Windows, oppure spegni Windows completamente invece di ibernarlo, quindi riprova."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Windows“ neišjungė disko tvarkingai. Išjunkite spartųjį paleidimą „Windows“ sistemoje arba išjunkite „Windows“ visiškai, o ne užmigdykite, ir bandykite dar kartą."
           }
         },
         "lv": {
@@ -10191,6 +11199,12 @@
             "value": "Il motore non ha riconosciuto alcun file system su questo volume. Se è cifrato, la password o la chiave di recupero potrebbero essere errate."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variklis šiame tome neatpažino failų sistemos. Jei ji užšifruota, slaptažodis arba atkūrimo raktas gali būti neteisingi."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -10253,6 +11267,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il motore non ha segnalato nulla. Il disco potrebbe essere stato scollegato."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variklis nepranešė nieko. Diskas galėjo būti atjungtas."
           }
         },
         "lv": {
@@ -10319,6 +11339,12 @@
             "value": "La lingua cambia al prossimo avvio di %@."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalba pasikeis, kai %@ bus paleista iš naujo."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -10381,6 +11407,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il nome"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pavadinimas"
           }
         },
         "lv": {
@@ -10447,6 +11479,12 @@
             "value": "La passphrase con cui è stato cifrato questo disco."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slaptafrazė, kuria šis diskas buvo užšifruotas."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -10509,6 +11547,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "La password con cui il disco è stato bloccato, oppure una chiave di recupero BitLocker di 48 cifre. Gli spazi e i trattini nella chiave di recupero vengono ignorati."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slaptažodis, kuriuo diskas buvo užrakintas, arba 48 skaitmenų „BitLocker“ atkūrimo raktas. Tarpai ir brūkšneliai atkūrimo rakte nepaisomi."
           }
         },
         "lv": {
@@ -10575,6 +11619,12 @@
             "value": "Il motore di virtualizzazione non è riuscito ad avviarsi. Di solito basta un riavvio."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtualizavimo variklis negalėjo pasileisti. Paprastai tai išsprendžia paleidimas iš naujo."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -10637,6 +11687,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Restano nel Finder dopo la chiusura di %@. Espellili da lì quando hai finito."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jie lieka „Finder“ programoje, kai %@ baigia darbą. Išstumkite juos ten, kai baigsite."
           }
         },
         "lv": {
@@ -10703,6 +11759,12 @@
             "value": "Note su software di terze parti"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trečiųjų šalių pranešimai"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -10765,6 +11827,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Questo disco contiene più volumi e %@ non è riuscito a capire quali. Segnalarlo sarebbe utile."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šiame diske yra keli tomai, o %@ nepavyko nustatyti, kurie. Pranešimas apie tai padėtų."
           }
         },
         "lv": {
@@ -10831,6 +11899,12 @@
             "value": "È un’impostazione di privacy di macOS, non una modifica al tuo Mac. Puoi disattivarla quando vuoi e non viene installato nulla."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tai „macOS“ privatumo nuostata, o ne jūsų „Mac“ pakeitimas. Galite ją bet kada vėl išjungti, ir niekas nediegiama."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -10893,6 +11967,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Questa partizione non è un volume BitLocker."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šis skaidinys nėra „BitLocker“ tomas."
           }
         },
         "lv": {
@@ -10959,6 +12039,12 @@
             "value": "Richiede un momento."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tai užtruks akimirką."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -11021,6 +12107,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Di solito richiede meno di un minuto."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paprastai tai trunka mažiau nei minutę."
           }
         },
         "lv": {
@@ -11087,6 +12179,12 @@
             "value": "Riprova"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bandyti dar kartą"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -11149,6 +12247,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Disinstalla"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pašalinti"
           }
         },
         "lv": {
@@ -11215,6 +12319,12 @@
             "value": "Disinstallare %@?"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pašalinti %@?"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -11277,6 +12387,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Disinstalla %@…"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pašalinti %@…"
           }
         },
         "lv": {
@@ -11343,6 +12459,12 @@
             "value": "Sblocca"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atrakinti"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -11405,6 +12527,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sblocca questo disco"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atrakinti šį diską"
           }
         },
         "lv": {
@@ -11471,6 +12599,12 @@
             "value": "Lo sblocco la usa direttamente. Dimenticala per inserirne un’altra."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atrakinimas naudoja jį tiesiogiai. Pamirškite jį, kad įvestumėte kitą."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -11533,6 +12667,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sblocca «%@»"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atrakinti „%@“"
           }
         },
         "lv": {
@@ -11599,6 +12739,12 @@
             "value": "Sbloccato"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atrakintas"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -11661,6 +12807,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sbloccato in %@"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atrakinta vietoje %@"
           }
         },
         "lv": {
@@ -11727,6 +12879,12 @@
             "value": "Deregistrazione dell’helper in background"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atšaukiama foninio pagalbininko registracija"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -11789,6 +12947,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aggiornamenti"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naujiniai"
           }
         },
         "lv": {
@@ -11855,6 +13019,12 @@
             "value": "L’aggiornamento non espelle i tuoi dischi. Ciò che è sbloccato resta sbloccato e continua a funzionare."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naujinimas neišstumia jūsų diskų. Viskas, kas atrakinta, lieka atrakinta ir veikia toliau."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -11917,6 +13087,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Viene usata la chiave salvata nel tuo portachiavi"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naudojamas jūsų „Keychain“ išsaugotas raktas"
           }
         },
         "lv": {
@@ -11983,6 +13159,12 @@
             "value": "Versione %@ (%@)"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versija %@ (%@)"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -12045,6 +13227,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volumi aperti"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverti tomai"
           }
         },
         "lv": {
@@ -12111,6 +13299,12 @@
             "value": "Sito web"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Svetainė"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -12173,6 +13367,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ti diamo il benvenuto in %@"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sveiki, tai %@"
           }
         },
         "lv": {
@@ -12239,6 +13439,12 @@
             "value": "Il contenuto di un disco si conosce solo dopo averlo sbloccato."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disko turinys paaiškėja tik jį atrakinus."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -12301,6 +13507,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cos’è successo"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kas nutiko"
           }
         },
         "lv": {
@@ -12367,6 +13579,12 @@
             "value": "Cos’è successo?"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kas nutiko?"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -12429,6 +13647,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cosa può aprire"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ką ji gali atverti"
           }
         },
         "lv": {
@@ -12495,6 +13719,12 @@
             "value": "Cosa non può aprire"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ko ji negali atverti"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -12557,6 +13787,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cosa fare"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ką daryti"
           }
         },
         "lv": {
@@ -12623,6 +13859,12 @@
             "value": "Perché appare come disco di rete"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kodėl jis rodomas kaip tinklo diskas"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -12685,6 +13927,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dischi NTFS di Windows, compresi quelli lasciati da Windows in ibernazione o spenti male"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Windows“ NTFS diskai, įskaitant tuos, kuriuos „Windows“ paliko užmigdytus arba netinkamai išjungė"
           }
         },
         "lv": {
@@ -12751,6 +13999,12 @@
             "value": "Puoi leggere e scrivere file al suo interno."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jame galite skaityti ir rašyti failus."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -12813,6 +14067,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Puoi comunque cercarli quando vuoi."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vis tiek galite tikrinti kada panorėję."
           }
         },
         "lv": {
@@ -12879,6 +14139,12 @@
             "value": "Il tuo disco non è stato modificato. Uno sblocco non riuscito non può danneggiare i dati che contiene."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūsų diskas nebuvo pakeistas. Nepavykęs atrakinimas negali pažeisti jame esančių duomenų."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -12941,6 +14207,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "completato"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "atlikta"
           }
         },
         "lv": {
@@ -13007,6 +14279,12 @@
             "value": "File system ext4, btrfs e XFS al loro interno"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ext4, btrfs ir XFS failų sistemos jų viduje"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -13069,6 +14347,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "in corso"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vykdoma"
           }
         },
         "lv": {
@@ -13135,6 +14419,12 @@
             "value": "bloccato"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "užrakintas"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -13197,6 +14487,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS 15 Sequoia o successivo"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„macOS 15 Sequoia“ arba naujesnė"
           }
         },
         "lv": {
@@ -13263,6 +14559,12 @@
             "value": "macOS ha già montato questo disco. Espellilo nel Finder e riprova."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„macOS“ šį diską jau prijungė. Išstumkite jį „Finder“ programoje ir bandykite dar kartą."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -13325,6 +14627,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS ha bloccato l’accesso al disco. %@ necessita dell’accesso completo al disco per poter leggere un disco cifrato."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„macOS“ užblokavo prieigą prie disko. %@ reikia leidimo „Full Disk Access“, kad galėtų skaityti užšifruotą diską."
           }
         },
         "lv": {
@@ -13391,6 +14699,12 @@
             "value": "macOS ha scritto %@. Non viene inviato automaticamente da nessuna parte: allegalo al tuo messaggio se puoi."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„macOS“ sukūrė %@. Ji niekur automatiškai nesiunčiama — pridėkite ją prie savo žinutės, jei galite."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -13453,6 +14767,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "non raggiunto"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nepasiekta"
           }
         },
         "lv": {
@@ -13519,6 +14839,12 @@
             "value": "interrotto qui"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sustojo čia"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -13581,6 +14907,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "sbloccato"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "atrakintas"
           }
         },
         "lv": {
@@ -13647,6 +14979,12 @@
             "value": "in attesa"
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "laukiama"
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -13711,6 +15049,12 @@
             "value": "«%@» non rispondeva più ed è stato scollegato. Puoi aprirlo di nuovo."
           }
         },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ nustojo atsakyti ir buvo atjungtas. Galite jį atverti dar kartą."
+          }
+        },
         "lv": {
           "stringUnit": {
             "state": "translated",
@@ -13773,6 +15117,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "«%@» è sbloccato"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ atrakintas"
           }
         },
         "lv": {
