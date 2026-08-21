@@ -1,9 +1,11 @@
 name: CI
 
+# Manual only, for now. It was running on every push and failing, and the
+# failures were arriving as email rather than as something anyone was looking
+# at. To be wired back up deliberately, with a toolchain pinned to match what
+# the app is actually built with.
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   check:
