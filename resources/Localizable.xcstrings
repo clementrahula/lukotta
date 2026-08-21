@@ -15,6 +15,12 @@
             "value": "%@ se ha eliminado"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ on eemaldatud"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -65,6 +71,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ es software libre bajo la GPL, versión 3 o posterior. Del montaje se encarga anylinuxfs. El código fuente completo de cada componente se publica con cada versión. El nombre y el logotipo son marcas registradas y no están cubiertos por esa licencia."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ on vaba tarkvara GPL-litsentsi versiooni 3 või uuema alusel. Haakimise teeb anylinuxfs. Iga komponendi täielik lähtekood avaldatakse koos iga väljalaskega. Nimi ja logo on kaubamärgid ning need litsents ei hõlma."
           }
         },
         "fi": {
@@ -119,6 +131,12 @@
             "value": "%@ abre discos BitLocker y Linux que macOS no puede leer por sí solo. Antes hace falta un ajuste.\n\nLeer un disco a nivel de dispositivo requiere Acceso total al disco: una contraseña de administrador no basta, y el permiso de volúmenes extraíbles cubre los archivos de un disco, no el dispositivo en sí. macOS no ofrece a ninguna app forma de solicitarlo, así que debe activarse a mano."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ avab BitLockeri ja Linuxi kettaid, mida macOS ise lugeda ei oska. Enne seda on vaja üht seadet.\n\nKetta lugemine seadme tasemel nõuab õigust „Full Disk Access“ — administraatori paroolist ei piisa ja eemaldatavate köidete õigus katab ketta faile, mitte seadet ennast. macOS ei võimalda rakendusel seda küsida, seega tuleb see käsitsi sisse lülitada."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -171,6 +189,12 @@
             "value": "%@ arranca una pequeña máquina virtual Linux, desbloquea el disco dentro de ella y se lo entrega al Finder. macOS no puede leer sistemas de archivos BitLocker ni de Linux. Linux sí."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ käivitab väikese Linuxi virtuaalmasina, avab ketta selle sees ja annab ketta Finderile tagasi. macOS ei oska lugeda BitLockeri ega Linuxi failisüsteeme. Linux oskab."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -221,6 +245,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ se moverá a la papelera."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ teisaldatakse prügikasti (Trash)."
           }
         },
         "fi": {
@@ -312,6 +342,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld discos habían dejado de responder y se desconectaron. Puedes volver a abrirlos."
+                }
+              }
+            }
+          }
+        },
+        "et": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ketas ei vastanud enam ja ühendati lahti. Sa saad selle uuesti avada."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ketast ei vastanud enam ja ühendati lahti. Sa saad need uuesti avada."
                 }
               }
             }
@@ -495,6 +543,24 @@
             }
           }
         },
+        "et": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Avatud ketas väljutatakse."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld avatud ketast väljutatakse."
+                }
+              }
+            }
+          }
+        },
         "fi": {
           "variations": {
             "plural": {
@@ -631,6 +697,12 @@
             "value": "%lld por ciento"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld protsenti"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -681,6 +753,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "250 MB de disco: 155 MB para la app y 95 MB para el entorno Linux que descomprime la primera vez"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 MB kettaruumi: 155 MB rakendusele ja 95 MB Linuxi keskkonnale, mis pakitakse lahti esimesel kasutamisel"
           }
         },
         "fi": {
@@ -735,6 +813,12 @@
             "value": "De 30 a 80 MB de RAM por disco desbloqueado"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30–80 MB muutmälu iga avatud ketta kohta"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -785,6 +869,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Se ha encontrado un informe de fallo"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leiti krahhiaruanne"
           }
         },
         "fi": {
@@ -839,6 +929,12 @@
             "value": "Acerca de %@"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teave: %@"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -889,6 +985,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Acerca de y ayuda"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teave ja abi"
           }
         },
         "fi": {
@@ -943,6 +1045,12 @@
             "value": "Puede haber unos diez discos desbloqueados a la vez"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Umbes kümme ketast võib korraga avatuks jääda"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -993,6 +1101,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Contraseña de administrador"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administraatori parool"
           }
         },
         "fi": {
@@ -1047,6 +1161,12 @@
             "value": "Contraseña de administrador: se pide una sola vez al configurar el asistente en segundo plano y nunca más. %@ no la ve nunca"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administraatori parool — küsitakse üks kord taustaabilise seadistamisel, seejärel enam mitte. %@ ei näe seda kunagi"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -1099,6 +1219,12 @@
             "value": "Todos los discos"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kõik kettad"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -1149,6 +1275,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Todos los permisos necesarios están concedidos"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kõik vajalikud õigused on antud"
           }
         },
         "fi": {
@@ -1240,6 +1372,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Eliminar también %1$lld frases de contraseña guardadas (%2$@)"
+                }
+              }
+            }
+          }
+        },
+        "et": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Kustuta ka salvestatud paroolifraas: %2$@"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Kustuta ka %1$lld salvestatud paroolifraasi (%2$@)"
                 }
               }
             }
@@ -1381,6 +1531,12 @@
             "value": "Un Mac con Apple Silicon. Los Mac con Intel no son compatibles"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Siliconi Mac. Inteli Mac-e ei toetata"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -1431,6 +1587,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hay otro disco abierto y el motor debe ejecutarse solo la primera vez tras cambiar. Expulsa los demás discos, abre este y después podrán estar todos abiertos a la vez de nuevo."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teine ketas on avatud ja mootor peab pärast muutumist esimesel korral üksi töötama. Väljuta teised kettad, ava see, seejärel saavad nad taas koos avatud olla."
           }
         },
         "fi": {
@@ -1485,6 +1647,12 @@
             "value": "Aspecto"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Välimus"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -1535,6 +1703,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Solo aparece mientras hay un disco desbloqueado, para expulsarlo."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ilmub ainult siis, kui ketas on avatud, selle väljutamiseks."
           }
         },
         "fi": {
@@ -1589,6 +1763,12 @@
             "value": "Desarrollador"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arendaja"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -1639,6 +1819,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Atrás"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tagasi"
           }
         },
         "fi": {
@@ -1693,6 +1879,12 @@
             "value": "Discos BitLocker, desbloqueados con la contraseña del volumen o una clave de recuperación de 48 dígitos"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLockeri kettad, avatuna köite parooli või 48-kohalise taastevõtmega"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -1743,6 +1935,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "BitLocker o NTFS"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker või NTFS"
           }
         },
         "fi": {
@@ -1797,6 +1995,12 @@
             "value": "Cancelar"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loobu"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -1847,6 +2051,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El bloqueo de mayúsculas está activado"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps Lock on sisse lülitatud"
           }
         },
         "fi": {
@@ -1901,6 +2111,12 @@
             "value": "Comprobar de nuevo"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kontrolli uuesti"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -1951,6 +2167,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Buscar ahora"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otsi kohe"
           }
         },
         "fi": {
@@ -2005,6 +2227,12 @@
             "value": "Buscar actualizaciones…"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otsi uuendusi…"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -2055,6 +2283,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Buscar actualizaciones automáticamente"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otsi uuendusi automaatselt"
           }
         },
         "fi": {
@@ -2109,6 +2343,12 @@
             "value": "Haz clic en «+», añade %@ y actívalo."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klõpsa „+“, lisa %@ ja lülita see sisse."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -2159,6 +2399,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Plegado"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suletud"
           }
         },
         "fi": {
@@ -2213,6 +2459,12 @@
             "value": "Vuelve aquí y elige «Reiniciar»: un permiso nuevo solo se aplica a una app recién iniciada."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tule siia tagasi ja vali „Käivita uuesti“ — uus õigus kehtib ainult äsja käivitatud rakendusele."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -2263,6 +2515,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Conecta el disco cifrado y elige «Volver a buscar». Si ya está conectado, es posible que macOS lo haya montado: expúlsalo primero en el Finder."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ühenda krüpteeritud ketas ja vali „Otsi uuesti“. Kui see on juba ühendatud, võib macOS olla selle haakinud — väljuta see esmalt Finderis."
           }
         },
         "fi": {
@@ -2317,6 +2575,12 @@
             "value": "Copiado"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopeeritud"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -2369,6 +2633,12 @@
             "value": "Copiar detalles"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopeeri üksikasjad"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -2419,6 +2689,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Oscuro"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tume"
           }
         },
         "fi": {
@@ -2510,6 +2786,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Eliminando %lld frases de contraseña guardadas"
+                }
+              }
+            }
+          }
+        },
+        "et": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Salvestatud paroolifraasi kustutamine"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld salvestatud paroolifraasi kustutamine"
                 }
               }
             }
@@ -2651,6 +2945,12 @@
             "value": "Eliminando el entorno Linux"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linuxi keskkonna kustutamine"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -2701,6 +3001,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Detalles que se incluirán"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaasatavad üksikasjad"
           }
         },
         "fi": {
@@ -2755,6 +3061,12 @@
             "value": "OK"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valmis"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -2805,6 +3117,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Descargarlas e instalarlas"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laadi need alla ja paigalda"
           }
         },
         "fi": {
@@ -2859,6 +3177,12 @@
             "value": "Discos sellados a un TPM en vez de a una contraseña, incluido el cifrado por hardware más reciente de Ubuntu"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kettad, mis on seotud TPM-iga parooli asemel, sealhulgas Ubuntu uuem riistvarapõhine krüpteering"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -2909,6 +3233,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Expulsar"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Väljuta"
           }
         },
         "fi": {
@@ -2963,6 +3293,12 @@
             "value": "Expulsar %@"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Väljuta %@"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -3013,6 +3349,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Expulsar y salir"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Väljuta ja välju"
           }
         },
         "fi": {
@@ -3104,6 +3446,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Expulsando %lld discos abiertos"
+                }
+              }
+            }
+          }
+        },
+        "et": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Avatud ketta väljutamine"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld avatud ketta väljutamine"
                 }
               }
             }
@@ -3245,6 +3605,12 @@
             "value": "Expulsando…"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Väljutamine…"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -3295,6 +3661,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Salida del motor"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mootori väljund"
           }
         },
         "fi": {
@@ -3349,6 +3721,12 @@
             "value": "Introduce la frase de contraseña del disco."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sisesta ketta paroolifraas."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -3399,6 +3777,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Introduce la contraseña del disco o su clave de recuperación de 48 dígitos."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sisesta ketta parool või selle 48-kohaline taastevõti."
           }
         },
         "fi": {
@@ -3453,6 +3837,12 @@
             "value": "Todo lo demás se ha eliminado. %@ en sí no se ha podido mover a la papelera (%@), así que arrástralo tú para terminar."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kõik muu eemaldati. Rakendust %@ ennast ei õnnestunud prügikasti teisaldada (%@) — lohista see ise sinna, et lõpetada."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -3503,6 +3893,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desplegado"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avatud"
           }
         },
         "fi": {
@@ -3557,6 +3953,12 @@
             "value": "Externo"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Väline"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -3607,6 +4009,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Olvidar"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unusta"
           }
         },
         "fi": {
@@ -3661,6 +4069,12 @@
             "value": "Acceso total al disco"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -3713,6 +4127,12 @@
             "value": "Acceso total al disco: sin él, macOS no deja que ninguna app lea el contenido en bruto de un disco. No se puede solicitar, así que hay que activarlo a mano"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access — ilma selleta ei lase macOS ühelgi rakendusel ketta toorsisu lugeda. Seda ei saa küsida, seega tuleb see käsitsi sisse lülitada"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -3760,6 +4180,12 @@
           }
         },
         "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        },
+        "et": {
           "stringUnit": {
             "state": "translated",
             "value": "GNU General Public License"
@@ -3817,6 +4243,12 @@
             "value": "Concedido"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antud"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -3867,6 +4299,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ocultar"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peida"
           }
         },
         "fi": {
@@ -3921,6 +4359,12 @@
             "value": "Ocultar lo escrito"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peida sisestatu"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -3971,6 +4415,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ocultar los detalles"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peida üksikasjad"
           }
         },
         "fi": {
@@ -4025,6 +4475,12 @@
             "value": "Cómo funciona %@ y qué admite"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kuidas %@ töötab ja mida see toetab"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -4075,6 +4531,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cómo funciona"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kuidas see töötab"
           }
         },
         "fi": {
@@ -4129,6 +4591,12 @@
             "value": "Interno"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sisemine"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -4179,6 +4647,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Está en la papelera. No queda nada más de ello en este Mac."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See on prügikastis. Muud sellest siia Maci ei jäänud."
           }
         },
         "fi": {
@@ -4233,6 +4707,12 @@
             "value": "Discos LUKS de Linux, tanto LUKS1 como LUKS2"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linuxi LUKS-kettad, nii LUKS1 kui ka LUKS2"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -4283,6 +4763,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LUKS o sistema de archivos Linux"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS või Linuxi failisüsteem"
           }
         },
         "fi": {
@@ -4337,6 +4823,12 @@
             "value": "Volúmenes LUKS cuya cabecera se guarda aparte del disco"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS-köited, mille päis on salvestatud kettast eraldi"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -4387,6 +4879,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LVM dentro de LUKS, tal como lo configuran Ubuntu, Debian, Mint y Fedora. Varios volúmenes de un mismo disco se desbloquean juntos"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM LUKS-i sees, nagu Ubuntu, Debian, Mint ja Fedora selle seadistavad. Ühe ketta mitu köidet avanevad koos"
           }
         },
         "fi": {
@@ -4441,6 +4939,12 @@
             "value": "Idioma"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keel"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -4491,6 +4995,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Última comprobación: %@"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viimati kontrollitud: %@"
           }
         },
         "fi": {
@@ -4545,6 +5055,12 @@
             "value": "Dejar abierto"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jäta avatuks"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -4595,6 +5111,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permite que %@ lea los datos cifrados directamente."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Võimaldab rakendusel %@ krüpteeritud andmeid ise lugeda."
           }
         },
         "fi": {
@@ -4649,6 +5171,12 @@
             "value": "Permite que %@ lea los datos cifrados directamente. Sin este permiso macOS lo bloquea, incluso para administradores, y no se puede solicitar: hay que activarlo a mano."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Võimaldab rakendusel %@ krüpteeritud andmeid ise lugeda. Ilma selleta blokeerib macOS selle isegi administraatoritele ja seda ei saa küsida — see tuleb käsitsi sisse lülitada."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -4699,6 +5227,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Licencia"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Litsents"
           }
         },
         "fi": {
@@ -4753,6 +5287,12 @@
             "value": "Claro"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hele"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -4803,6 +5343,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ubicación"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asukoht"
           }
         },
         "fi": {
@@ -4857,6 +5403,12 @@
             "value": "Bloqueado"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lukus"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -4907,6 +5459,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Buscando discos cifrados…"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Krüpteeritud ketaste otsimine…"
           }
         },
         "fi": {
@@ -4961,6 +5519,12 @@
             "value": "Lúkotta significa «sin cerradura» en finés, de lukko, una cerradura, con la terminación -tta que indica la ausencia de algo. El acento recae en la primera sílaba, como siempre en finés."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lúkotta tähendab soome keeles „ilma lukuta“, sõnast lukko ehk lukk, lõpuga -tta, mis märgib millegi puudumist. Rõhk on esimesel silbil, nagu soome keeles alati."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -5011,6 +5575,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Barra de menús"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menüüriba"
           }
         },
         "fi": {
@@ -5065,6 +5635,12 @@
             "value": "Moviendo %@ a la papelera"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ teisaldamine prügikasti"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -5115,6 +5691,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Necesario"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vajalik"
           }
         },
         "fi": {
@@ -5169,6 +5751,12 @@
             "value": "No se han encontrado discos cifrados"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Krüpteeritud kettaid ei leitud"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -5219,6 +5807,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se ha indicado ningún motivo. Los detalles de abajo pueden decir más."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Põhjust ei teatatud. Allolevad üksikasjad võivad rohkem öelda."
           }
         },
         "fi": {
@@ -5273,6 +5867,12 @@
             "value": "No está en esta versión."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selles versioonis puudub."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -5323,6 +5923,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se instala nada. El motor viene dentro de la app, nada sale de tu Mac y solo se escribe en un disco cuando tú escribes en él."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Midagi ei paigaldata. Mootor on rakenduse sees, miski ei lahku sinu Macist ja kettale kirjutatakse ainult siis, kui sa ise sellele kirjutad."
           }
         },
         "fi": {
@@ -5377,6 +5983,12 @@
             "value": "Una vez configurado el asistente en segundo plano, actualizar no afectará a los discos desbloqueados."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kui taustaabiline on seadistatud, ei puuduta uuendamine avatud kettaid."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -5427,6 +6039,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Abrir %@"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava %@"
           }
         },
         "fi": {
@@ -5481,6 +6099,12 @@
             "value": "Abrir el correo"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava e-post"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -5531,6 +6155,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Abre «Privacidad y seguridad» → «Acceso total al disco»."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava „Privacy & Security“ → „Full Disk Access“."
           }
         },
         "fi": {
@@ -5585,6 +6215,12 @@
             "value": "Abrir los ajustes de privacidad"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava privaatsusseaded"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -5635,6 +6271,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Abre discos cifrados en macOS"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava macOS-is krüpteeritud kettaid"
           }
         },
         "fi": {
@@ -5689,6 +6331,12 @@
             "value": "Abriendo «%@»"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ avamine"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -5739,6 +6387,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Frase de contraseña"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paroolifraas"
           }
         },
         "fi": {
@@ -5793,6 +6447,12 @@
             "value": "Contraseña o clave de recuperación"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parool või taastevõti"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -5843,6 +6503,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permisos"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Õigused"
           }
         },
         "fi": {
@@ -5897,6 +6563,12 @@
             "value": "Salir"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Välju"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -5947,6 +6619,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Salir de %@"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Välju: %@"
           }
         },
         "fi": {
@@ -6038,6 +6716,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "¿Salir y dejar %lld discos abiertos?"
+                }
+              }
+            }
+          }
+        },
+        "et": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Kas väljuda ja jätta %lld ketas avatuks?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Kas väljuda ja jätta %lld ketast avatuks?"
                 }
               }
             }
@@ -6179,6 +6875,12 @@
             "value": "¿Salir y dejar «%@» abierto?"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kas väljuda ja jätta „%@“ avatuks?"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -6229,6 +6931,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reiniciar"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Käivita uuesti"
           }
         },
         "fi": {
@@ -6283,6 +6991,12 @@
             "value": "Recordar esta clave en mi llavero"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jäta see võti minu Keychaini"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -6333,6 +7047,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volúmenes extraíbles: macOS lo solicita la primera vez que se lee un disco"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removable Volumes — macOS küsib seda esimesel korral, kui ketast loetakse"
           }
         },
         "fi": {
@@ -6387,6 +7107,12 @@
             "value": "Eliminando %@"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ eemaldamine"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -6437,6 +7163,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Eliminando los ajustes"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seadete eemaldamine"
           }
         },
         "fi": {
@@ -6491,6 +7223,12 @@
             "value": "Informar de este problema"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teata sellest probleemist"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -6541,6 +7279,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Informar de un problema"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teata probleemist"
           }
         },
         "fi": {
@@ -6595,6 +7339,12 @@
             "value": "Informar de un problema o enviar un informe de fallo"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teata probleemist või saada krahhiaruanne"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -6645,6 +7395,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Informar de un problema"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teata probleemist"
           }
         },
         "fi": {
@@ -6699,6 +7455,12 @@
             "value": "Informar de un problema…"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teata probleemist…"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -6749,6 +7511,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Requisitos"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nõuded"
           }
         },
         "fi": {
@@ -6803,6 +7571,12 @@
             "value": "Volver a buscar"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otsi uuesti"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -6853,6 +7627,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostrar la app en el Finder"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näita rakendust Finderis"
           }
         },
         "fi": {
@@ -6907,6 +7687,12 @@
             "value": "Ver los discos conectados"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ühendatud ketaste nägemine"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -6957,6 +7743,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Selecciona un disco para desbloquear"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vali ketas, mida avada"
           }
         },
         "fi": {
@@ -7011,6 +7803,12 @@
             "value": "Preparando el entorno Linux"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linuxi keskkonna ettevalmistamine"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -7061,6 +7859,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostrar"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näita"
           }
         },
         "fi": {
@@ -7115,6 +7919,12 @@
             "value": "Mostrar %@ en la barra de menús"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näita rakendust %@ menüüribal"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -7165,6 +7975,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostrar en el Finder"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näita Finderis"
           }
         },
         "fi": {
@@ -7219,6 +8035,12 @@
             "value": "Mostrar lo escrito"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näita sisestatut"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -7269,6 +8091,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostrar para qué sirve cada permiso"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näita, milleks iga õigus on"
           }
         },
         "fi": {
@@ -7323,6 +8151,12 @@
             "value": "Aún faltan algunos permisos"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mõned õigused on veel vajalikud"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -7373,6 +8207,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Código fuente"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähtekood"
           }
         },
         "fi": {
@@ -7427,6 +8267,12 @@
             "value": "Sistema"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Süsteemne"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -7477,6 +8323,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "«Sistema» sigue el idioma de tu Mac."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Süsteemne“ järgib sinu Maci keelt."
           }
         },
         "fi": {
@@ -7531,6 +8383,12 @@
             "value": "«Sistema» sigue el ajuste de tu Mac, también cuando cambia."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Süsteemne“ järgib sinu Maci seadet, ka siis, kui see muutub."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -7581,6 +8439,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esa contraseña o clave de recuperación no ha desbloqueado este disco."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See parool või taastevõti ei avanud seda ketast."
           }
         },
         "fi": {
@@ -7635,6 +8499,12 @@
             "value": "El entorno Linux se descomprime una sola vez, la primera vez que se usa."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linuxi keskkond pakitakse lahti ühe korra, esimesel kasutamisel."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -7685,6 +8555,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Se eliminará el entorno Linux, liberando unos %lld MB."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linuxi keskkond kustutatakse, vabastades umbes %lld MB."
           }
         },
         "fi": {
@@ -7739,6 +8615,12 @@
             "value": "El asistente en segundo plano no está configurado, así que es %@ quien mantiene el disco abierto. Salir ahora lo desconecta y lo que quede por escribir no se completaría.\n\nUna vez configurado el asistente, los discos permanecen abiertos por sí solos."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taustaabiline ei ole seadistatud, seega hoiab %@ ketast ise avatuna. Praegu väljumine ühendab selle lahti ja pooleli kirjutamine ei lõpeks.\n\nKui abiline on seadistatud, jäävad kettad iseenesest avatuks."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -7789,6 +8671,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El asistente en segundo plano no está configurado, así que es %@ quien los mantiene abiertos. Salir ahora los desconecta y lo que quede por escribir no se completaría.\n\nUna vez configurado el asistente, los discos permanecen abiertos por sí solos."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taustaabiline ei ole seadistatud, seega hoiab %@ neid ise avatuna. Praegu väljumine ühendab nad lahti ja pooleli kirjutamine ei lõpeks.\n\nKui abiline on seadistatud, jäävad kettad iseenesest avatuks."
           }
         },
         "fi": {
@@ -7843,6 +8731,12 @@
             "value": "Se anulará el registro del asistente en segundo plano."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taustaabilise registreering tühistatakse."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -7893,6 +8787,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El disco aparece en la barra lateral del Finder, en «Ubicaciones».\nExpúlsalo aquí o en el Finder antes de desconectarlo."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketas ilmub Finderi külgribale jaotisse „Locations“.\nVäljuta see siin või Finderis, enne kui selle lahti ühendad."
           }
         },
         "fi": {
@@ -7947,6 +8847,12 @@
             "value": "El disco está ocupado. Cierra todo lo que lo esté usando y vuelve a intentarlo."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketas on hõivatud. Sulge kõik, mis seda kasutab, ja proovi uuesti."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -7997,6 +8903,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El disco se entrega al Finder mediante una conexión de red local, por lo que aparece en «Ubicaciones» con un icono de red. Se lee, se escribe y se expulsa como cualquier otro disco. macOS no ofrece ninguna forma de presentarlo como un disco local."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketas antakse Finderile üle kohtvõrguühenduse kaudu, seega ilmub see jaotisse „Locations“ võrguikooniga. Seda loetakse, sellele kirjutatakse ja see väljutatakse nagu iga teine ketas. macOS ei võimalda seda kohaliku kettana esitada."
           }
         },
         "fi": {
@@ -8051,6 +8963,12 @@
             "value": "El disco permanece en el Finder después de salir de %@. Expúlsalo allí cuando termines."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketas jääb Finderisse pärast seda, kui %@ väljub. Väljuta see sealt, kui oled lõpetanud."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -8101,6 +9019,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El disco no se abrió"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketast ei avatud"
           }
         },
         "fi": {
@@ -8155,6 +9079,12 @@
             "value": "El disco no se abrió. %@"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketast ei avatud. %@"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -8205,6 +9135,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Windows no apagó el disco correctamente. Desactiva el inicio rápido en Windows, o apaga Windows por completo en vez de hibernarlo, y vuelve a intentarlo."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows ei sulgenud ketast korralikult. Lülita Windowsis välja kiirkäivitus või sulge Windows täielikult, selle asemel et see talveunne panna, ja proovi siis uuesti."
           }
         },
         "fi": {
@@ -8259,6 +9195,12 @@
             "value": "El motor no ha reconocido ningún sistema de archivos en este volumen. Si está cifrado, puede que la contraseña o la clave de recuperación sean incorrectas."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mootor ei tuvastanud sellel köitel failisüsteemi. Kui see on krüpteeritud, võib parool või taastevõti olla vale."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -8309,6 +9251,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El motor no ha indicado nada en absoluto. Puede que el disco se haya desconectado."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mootor ei teatanud üldse midagi. Ketas võis olla lahti ühendatud."
           }
         },
         "fi": {
@@ -8363,6 +9311,12 @@
             "value": "El idioma cambia la próxima vez que se inicie %@."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keel muutub, kui %@ uuesti käivitub."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -8413,6 +9367,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El nombre"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nimi"
           }
         },
         "fi": {
@@ -8467,6 +9427,12 @@
             "value": "La frase de contraseña con la que se cifró este disco."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paroolifraas, millega see ketas krüpteeriti."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -8517,6 +9483,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "La contraseña con la que se bloqueó el disco, o una clave de recuperación de BitLocker de 48 dígitos. Los espacios y guiones de una clave de recuperación se ignoran."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parool, millega ketas lukustati, või 48-kohaline BitLockeri taastevõti. Taastevõtme tühikuid ja sidekriipse eiratakse."
           }
         },
         "fi": {
@@ -8571,6 +9543,12 @@
             "value": "El motor de virtualización no ha podido arrancar. Reiniciar suele solucionarlo."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtualiseerimismootor ei saanud käivituda. Taaskäivitus lahendab selle tavaliselt."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -8621,6 +9599,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permanecen en el Finder después de salir de %@. Expúlsalos allí cuando termines."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nad jäävad Finderisse pärast seda, kui %@ väljub. Väljuta nad sealt, kui oled lõpetanud."
           }
         },
         "fi": {
@@ -8675,6 +9659,12 @@
             "value": "Avisos de terceros"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolmandate osapoolte teatised"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -8725,6 +9715,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Este disco contiene varios volúmenes y %@ no ha podido determinar cuáles. Informar de ello sería útil."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See ketas sisaldab mitut köidet ja %@ ei suutnud tuvastada, milliseid. Sellest teatamine aitaks."
           }
         },
         "fi": {
@@ -8779,6 +9775,12 @@
             "value": "Es un ajuste de privacidad de macOS, no un cambio en tu Mac. Puedes desactivarlo cuando quieras y no se instala nada."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See on macOS-i privaatsusseade, mitte muudatus sinu Macis. Sa võid selle igal ajal uuesti välja lülitada ja midagi ei paigaldata."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -8829,6 +9831,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esta partición no es un volumen de BitLocker."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See partitsioon ei ole BitLockeri köide."
           }
         },
         "fi": {
@@ -8883,6 +9891,12 @@
             "value": "Esto tarda un momento."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See võtab hetke."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -8933,6 +9947,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Normalmente tarda menos de un minuto."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tavaliselt võtab see alla minuti."
           }
         },
         "fi": {
@@ -8987,6 +10007,12 @@
             "value": "Reintentar"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proovi uuesti"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -9037,6 +10063,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desinstalar"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eemalda"
           }
         },
         "fi": {
@@ -9091,6 +10123,12 @@
             "value": "¿Desinstalar %@?"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kas eemaldada %@?"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -9141,6 +10179,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desinstalar %@…"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eemalda %@…"
           }
         },
         "fi": {
@@ -9195,6 +10239,12 @@
             "value": "Desbloquear"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -9245,6 +10295,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desbloquear este disco"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava see ketas"
           }
         },
         "fi": {
@@ -9299,6 +10355,12 @@
             "value": "El desbloqueo la usa directamente. Olvídala para escribir otra."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avamine kasutab seda otse. Unusta see, kui soovid sisestada teise."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -9349,6 +10411,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desbloquear «%@»"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava „%@“"
           }
         },
         "fi": {
@@ -9403,6 +10471,12 @@
             "value": "Desbloqueado"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avatud"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -9453,6 +10527,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desbloqueado en %@"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avatud asukohas %@"
           }
         },
         "fi": {
@@ -9507,6 +10587,12 @@
             "value": "Anulando el registro del asistente en segundo plano"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taustaabilise registreeringu tühistamine"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -9557,6 +10643,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Actualizaciones"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uuendused"
           }
         },
         "fi": {
@@ -9611,6 +10703,12 @@
             "value": "Actualizar no expulsa tus discos. Todo lo que esté desbloqueado sigue desbloqueado y funcionando."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uuendamine ei väljuta sinu kettaid. Kõik avatu jääb avatuks ja töötab edasi."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -9661,6 +10759,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Se usa la clave guardada en tu llavero"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kasutatakse sinu Keychaini salvestatud võtit"
           }
         },
         "fi": {
@@ -9715,6 +10819,12 @@
             "value": "Versión %@ (%@)"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versioon %@ (%@)"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -9765,6 +10875,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volúmenes abiertos"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avatud köited"
           }
         },
         "fi": {
@@ -9819,6 +10935,12 @@
             "value": "Sitio web"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veebisait"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -9869,6 +10991,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Te damos la bienvenida a %@"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tere tulemast! See on %@"
           }
         },
         "fi": {
@@ -9923,6 +11051,12 @@
             "value": "El contenido de un disco solo se conoce una vez desbloqueado."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketta sisu selgub alles siis, kui see on avatud."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -9973,6 +11107,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Qué ha pasado"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mis juhtus"
           }
         },
         "fi": {
@@ -10027,6 +11167,12 @@
             "value": "¿Qué ha pasado?"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mis juhtus?"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -10077,6 +11223,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Qué puede abrir"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mida see avada suudab"
           }
         },
         "fi": {
@@ -10131,6 +11283,12 @@
             "value": "Qué no puede abrir"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mida see avada ei suuda"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -10181,6 +11339,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Qué hacer"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mida teha"
           }
         },
         "fi": {
@@ -10235,6 +11399,12 @@
             "value": "Por qué aparece como un disco de red"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miks see ilmub võrgukettana"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -10285,6 +11455,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Discos NTFS de Windows, incluidos los que Windows dejó hibernados o mal apagados"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windowsi NTFS-kettad, sealhulgas need, mille Windows jättis talveunne või korralikult sulgemata"
           }
         },
         "fi": {
@@ -10339,6 +11515,12 @@
             "value": "Puedes leer y escribir archivos en él."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sa saad sellele faile lugeda ja kirjutada."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -10389,6 +11571,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Puedes buscarlas manualmente cuando quieras."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sa saad ikka ise kontrollida, millal soovid."
           }
         },
         "fi": {
@@ -10443,6 +11631,12 @@
             "value": "Tu disco no se ha modificado. Un desbloqueo fallido no puede dañar los datos que contiene."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinu ketast ei muudetud. Ebaõnnestunud avamine ei saa sellel olevaid andmeid kahjustada."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -10493,6 +11687,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "hecho"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tehtud"
           }
         },
         "fi": {
@@ -10547,6 +11747,12 @@
             "value": "Sistemas de archivos ext4, btrfs y XFS dentro de ellos"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ext4-, btrfs- ja XFS-failisüsteemid nende sees"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -10597,6 +11803,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "en curso"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "käimas"
           }
         },
         "fi": {
@@ -10651,6 +11863,12 @@
             "value": "bloqueado"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lukus"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -10701,6 +11919,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS 15 Sequoia o posterior"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 15 Sequoia või uuem"
           }
         },
         "fi": {
@@ -10755,6 +11979,12 @@
             "value": "macOS ya tiene este disco montado. Expúlsalo en el Finder y vuelve a intentarlo."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS on selle ketta juba haakinud. Väljuta see Finderis ja proovi uuesti."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -10805,6 +12035,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS ha bloqueado el acceso al disco. %@ necesita Acceso total al disco para poder leer un disco cifrado."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS blokeeris ligipääsu kettale. %@ vajab õigust „Full Disk Access“, et krüpteeritud ketast lugeda."
           }
         },
         "fi": {
@@ -10859,6 +12095,12 @@
             "value": "macOS ha escrito %@. No se envía a ningún sitio automáticamente: adjúntalo a tu mensaje si puedes."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS kirjutas faili %@. Seda ei saadeta kuhugi automaatselt — lisa see oma sõnumile, kui saad."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -10909,6 +12151,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "no alcanzado"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ei jõudnud"
           }
         },
         "fi": {
@@ -10963,6 +12211,12 @@
             "value": "se detuvo aquí"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "peatus siin"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -11013,6 +12267,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "desbloqueado"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avatud"
           }
         },
         "fi": {
@@ -11067,6 +12327,12 @@
             "value": "en espera"
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ootel"
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -11119,6 +12385,12 @@
             "value": "«%@» había dejado de responder y se desconectó. Puedes volver a abrirlo."
           }
         },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ ei vastanud enam ja ühendati lahti. Sa saad selle uuesti avada."
+          }
+        },
         "fi": {
           "stringUnit": {
             "state": "translated",
@@ -11169,6 +12441,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "«%@» está desbloqueado"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ on avatud"
           }
         },
         "fi": {
