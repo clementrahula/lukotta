@@ -70,8 +70,7 @@ undo — ask it:
 | `LukottaTests` | A plain executable, not XCTest, so the suite runs anywhere with a toolchain. |
 
 Mounting works by handing the drive to a Linux virtual machine, which unlocks it
-and re-exports it over NFS to localhost. `BACKGROUND.md` explains
-why, and what was tried first.
+and re-exports it over NFS to localhost.
 
 ## Test drives without encrypted hardware
 
@@ -87,7 +86,7 @@ and run the app so that disk images appear alongside real drives.
 ## House style
 
 - Comments explain **why**, not what. If a line needs saying at all, it is
-  usually because the obvious thing was wrong.
+  because the obvious thing was wrong.
 - No historical narration in comments or documents — git remembers.
 - Commit messages describe the reasoning, not just the change.
 - British spelling in prose; Apple's spelling in API names.
@@ -104,7 +103,7 @@ Issues and patches: <https://github.com/clementrahula/lukotta>.
 
 Contributions are accepted under GPL-3.0, the same licence as the project. The
 name and the logo are trademarks and are not covered by it — see
-[TRADEMARKS.md](TRADEMARKS.md) — so a fork is welcome under its own name. The
+[TRADEMARKS.txt](TRADEMARKS.txt) — so a fork is welcome under its own name. The
 engine and the Linux components it carries are third-party GPL software;
 `THIRD_PARTY_NOTICES.md` records what is shipped and under what
 terms, and `scripts/collect-sources.sh` assembles the corresponding source that

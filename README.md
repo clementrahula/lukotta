@@ -54,8 +54,7 @@ it to.
 
 The drive is handed to Finder over a local network connection, so it sits under
 Locations with a network icon rather than under Devices. It reads, writes and
-ejects like any other drive. macOS offers no way to present it as a local disk;
-[BACKGROUND.md][background] explains what was tried.
+ejects like any other drive. macOS offers no way to present it as a local disk.
 
 ## How it works
 
@@ -107,7 +106,7 @@ inside the app, is published with each release.
 
 The name Lukotta and the logo are trademarks and are not covered by that
 licence, as GPL-3 section 7(e) allows. Fork the code freely; give your version
-its own name. [TRADEMARKS.md][trademark] says what that means in practice.
+its own name. [TRADEMARKS.txt][trademark] says what that means in practice.
 
 [Licence][licence] · [Trademarks][trademark] · [Third-party notices][notices] · [Changelog][changelog]
 
@@ -121,13 +120,12 @@ Built on [anylinuxfs][anylinuxfs] by nohajc, which does the mounting, and on
 or the Linux projects it works with.
 
 [releases]: https://github.com/clementrahula/lukotta/releases
-[background]: BACKGROUND.md
 [building]: BUILDING.md
 [contributing]: CONTRIBUTING.md
 [privacy]: PRIVACY.md
 [security]: SECURITY.md
 [licence]: LICENSE.txt
-[trademark]: TRADEMARKS.md
+[trademark]: TRADEMARKS.txt
 [notices]: THIRD_PARTY_NOTICES.md
 [changelog]: CHANGELOG.md
 [anylinuxfs]: https://github.com/nohajc/anylinuxfs
