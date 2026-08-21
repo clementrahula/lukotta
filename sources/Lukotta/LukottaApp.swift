@@ -23,6 +23,44 @@ private func runSmokeTestIfAsked() {
     exit(0)
 }
 
+/// Take the daemon down and put it back, so a replaced helper binary is the one
+/// actually running.
+///
+/// The daemon has no KeepAlive and never exits on its own: launchd starts it
+/// the first time something asks for its mach service, and it then runs a run
+/// loop for ever. Replacing the application therefore leaves the *old* helper
+/// resident, answering with whatever methods it was built with. Unregistering
+/// removes the job, which ends the process; registering puts it back, and the
+/// next call starts the new binary.
+///
+/// Ordinary updates do not need this — Sparkle replaces the app while the
+/// helper is idle and the next launch of it picks the new one up — but a
+/// hand-installed build during development does.
+private func reinstallHelperIfAsked() {
+    guard CommandLine.arguments.contains("--reinstall-helper") else { return }
+    let service = SMAppService.daemon(plistName: HelperInfo.plistName)
+    try? service.unregister()
+    // launchd takes a moment to tear the job down; registering into a job that
+    // is still going away puts the status back to notRegistered.
+    Thread.sleep(forTimeInterval: 2)
+    do {
+        try service.register()
+    } catch {
+        FileHandle.standardError.write(
+            Data("could not register the helper: \(error.localizedDescription)\n".utf8))
+        exit(1)
+    }
+    Thread.sleep(forTimeInterval: 1)
+    switch service.status {
+    case .enabled: print("helper re-registered and enabled")
+    case .requiresApproval: print("helper re-registered; approve it in Login Items")
+    case .notRegistered: print("helper is not registered")
+    case .notFound: print("helper not found")
+    @unknown default: print("helper status unknown")
+    }
+    exit(0)
+}
+
 /// Talk to the helper and come back, or die trying.
 ///
 /// Both paths: a reply, and an error handler on XPC's own queue. The second is
@@ -39,11 +77,20 @@ private func checkHelperIfAsked() {
         print("helper not registered; nothing to check")
         exit(0)
     }
+    // A device may be named after the flag, so a real drive can be checked
+    // without going through the interface: --check-helper /dev/disk4s1.
+    let index = CommandLine.arguments.firstIndex(of: "--check-helper") ?? 0
+    let device =
+        CommandLine.arguments.count > index + 1
+            && CommandLine.arguments[index + 1].hasPrefix("/dev/")
+        ? CommandLine.arguments[index + 1] : "/dev/disk0s1"
+    print("device:      \(device)")
+
     let semaphore = DispatchSemaphore(value: 0)
     Task { @MainActor in
-        let replied = await client.identify(devicePath: "/dev/disk0s1")
+        let replied = await client.identify(devicePath: device)
         print("reply path:  \(replied.rawValue)")
-        let errored = await client.identifyOverABrokenConnection(devicePath: "/dev/disk0s1")
+        let errored = await client.identifyOverABrokenConnection(devicePath: device)
         print("error path:  \(errored.rawValue)")
         semaphore.signal()
     }
@@ -157,6 +204,7 @@ struct LukottaApp: App {
     init() {
         runSmokeTestIfAsked()
         unregisterHelperIfAsked()
+        reinstallHelperIfAsked()
         MainActor.assumeIsolated { checkHelperIfAsked() }
         MainActor.assumeIsolated { Snapshots.runIfAsked() }
         // Before anything else: a build that has failed to start twice already

@@ -123,8 +123,16 @@ created **outside** any actor — a `nonisolated` function, usually static. Hop
 back with `Task { @MainActor in … }` once inside. `HelperClient.roundTrip` and
 `moveToTheBin` are the two shapes to copy.
 
-`--check-helper` exercises both the reply and the error path against the real
-daemon and needs no drive. Run it after touching any of this.
+`--check-helper [/dev/diskNsM]` exercises both the reply and the error path
+against the real daemon. Without a device it probes the internal disk, which
+answers `unknown` — root cannot read the sealed system partitions, so that
+proves the plumbing rather than the identification.
+
+`--reinstall-helper` takes the daemon down and puts it back. The helper has no
+KeepAlive and never exits on its own, so **replacing the application leaves the
+old helper resident**, answering with whatever methods it was built with. That
+is what made a hand-installed build look like it had a broken probe. Sparkle
+updates do not need it; hand-installed ones do.
 
 ## Security Invariants
 
