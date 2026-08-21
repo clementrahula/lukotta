@@ -277,16 +277,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         alert.addButton(withTitle: "Cancel")
         alert.buttons.last?.keyEquivalent = "\u{1b}"
 
-        // Cancel is not one of the two answers, so it should not sit flush
-        // against them. NSAlert stacks three buttons vertically and offers no
-        // spacing control, so reach the stack it built. If AppKit ever lays
-        // this out differently the alert is merely evenly spaced, as before.
-        alert.layout()
-        if let stack = alert.buttons.first?.superview as? NSStackView,
-            let ejectButton = alert.buttons.dropLast().last
-        {
-            stack.setCustomSpacing(18, after: ejectButton)
-        }
+        // Cancel sits where AppKit puts it. Setting the stack's spacing to hold
+        // it apart from the two answers either left the gap's height empty under
+        // it, because the alert is measured before the spacing is set, or
+        // collapsed the alert entirely when that measurement was forced. Getting
+        // it would mean building this dialog by hand, which is not worth it on
+        // the path that quits the app.
 
         let ejectButton: NSApplication.ModalResponse =
             survives ? .alertSecondButtonReturn : .alertFirstButtonReturn
