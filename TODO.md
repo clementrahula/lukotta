@@ -7,6 +7,62 @@ only you have; everything else is unassigned and can be picked up in any order.
 
 ---
 
+## Order of work
+
+Eight things stand between here and a public release, and they are not
+independent. This is the order they are being done in, and why that order.
+
+**Phase 1 — instruments and safety nets.** Nothing user-visible changes.
+
+1. `os.Logger`, first. Additive, changes no behaviour, and it is the thing that
+   says what happened during everything that follows — including the sleep test,
+   which would otherwise produce an anecdote rather than evidence.
+2. Tests for `DriveScanner`, `EngineEnvironment` and `Workspace`. Fixtures only.
+   These three sit directly under what phases 2 and 3 disturb.
+3. Snapshot tests, with baselines captured from the interface **as it stands**.
+   This is the one item with a hard deadline: capture them after a UI change and
+   the change is what gets enshrined.
+
+**Phase 2 — the structural change, while there is time for it to settle.**
+
+4. The Full Disk Access check, off the main thread. Small, self-contained, and a
+   concurrency change — so it goes immediately before the language-mode switch
+   rather than being reasoned about twice.
+5. Swift 6 language mode. The largest and riskiest item, so it goes as early as
+   the safety nets allow and as far from the release as possible. Everything in
+   phase 3 is then written under the strict rules instead of retrofitted to them.
+
+**Phase 3 — behaviour, on a base that has stopped moving.**
+
+6. Telling plain NTFS from BitLocker before the unlock.
+7. `Diagnosis` without substring matching — after 6, not before. Two of the
+   cases it currently guesses at exist only because the app lets someone try to
+   unlock something that was never encrypted. Fix that first and the replacement
+   is written once, against a smaller problem.
+
+**Phase 4 — polish, checked by phase 1.**
+
+8. Dynamic Type at larger sizes, rendered through the snapshot harness at
+   several text sizes so it stays fixed. Then one translation sweep for whatever
+   strings phase 3 added — new sentences cost twenty-one translations each, so
+   they are written once and translated together.
+
+### Everything that needs you, in one pass at the end
+
+Nothing here is done piecemeal. The work above is finished first, and then the
+whole of it is tried in a single sitting:
+
+- **Close the lid with a drive open**, and see whether the microVM survives, the
+  NFS client recovers on its own, and how long it takes.
+- **A plain NTFS drive and a BitLocker drive**, to prove the probe tells them
+  apart rather than merely believing it does.
+- **Anything needing a drive to be ejected.** Nothing is unmounted while the
+  work is going on. Whatever wants an eject waits for this pass and for you to
+  say when.
+- **Notarise, and take the screenshots**, which are Stage 1 anyway.
+
+---
+
 ## Stage 1 — Ship the first release
 
 Nothing below is optional. Until all of it is done there is no artefact that can
