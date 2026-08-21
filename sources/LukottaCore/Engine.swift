@@ -305,6 +305,23 @@ public enum Permissions {
         return l.contains("cannot probe") || l.contains("insufficient permissions")
     }
 
+    /// Both permission probes at once, off whatever thread asks.
+    ///
+    /// Each opens files — one of them a SQLite database — so together they are
+    /// disk I/O, and reading them where the interface is drawn stalls the first
+    /// frame on however long the disk takes to answer.
+    public struct Reading: Sendable {
+        public let fullDiskAccess: Bool
+        /// nil when it cannot be determined.
+        public let removableVolumes: Bool?
+    }
+
+    public static func reading() -> Reading {
+        Reading(
+            fullDiskAccess: hasFullDiskAccess,
+            removableVolumes: removableVolumeAccess())
+    }
+
     /// Whether access to removable volumes has been granted.
     ///
     /// Returns nil when it cannot be determined. macOS offers no API for this,

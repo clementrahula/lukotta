@@ -130,12 +130,31 @@ final class AppModel: ObservableObject {
         hasFullDiskAccess && helper.isReady
     }
 
+    /// Look again, off the main thread.
+    ///
+    /// Called every time the app comes forward: permissions are granted in
+    /// System Settings, so the reading goes stale the moment the user leaves.
+    /// Reading them on the way back in would mean disk I/O on the main thread
+    /// at every switch between applications.
     func refreshPermissions() {
-        hasFullDiskAccess = Permissions.hasFullDiskAccess
+        Task.detached(priority: .utility) {
+            let reading = Permissions.reading()
+            await MainActor.run { self.applyPermissions(reading) }
+        }
+    }
+
+    /// Take a reading that was made off the main thread.
+    ///
+    /// The two probes open files, one of them a SQLite database, so they are
+    /// not done here — `start` reads them on the way to scanning and hands the
+    /// answer back. `helper.refresh` stays: it asks launchd about a service it
+    /// already knows about, and touches no disk.
+    func applyPermissions(_ reading: Permissions.Reading) {
+        hasFullDiskAccess = reading.fullDiskAccess
         // Prefer the recorded decision; fall back to evidence. Having opened a
         // drive before is proof the permission was granted, and does not depend
         // on an undocumented database schema continuing to look the same.
-        removableAccess = Permissions.removableVolumeAccess() ?? (DriveMemory.hasAny ? true : nil)
+        removableAccess = reading.removableVolumes ?? (DriveMemory.hasAny ? true : nil)
         helper.refresh()
     }
 
@@ -294,18 +313,35 @@ final class AppModel: ObservableObject {
     func start() {
         watcher.start()
         sleepWatch.start()
-        refreshPermissions()
-        // Say so before any password is typed, rather than after a failed
-        // unlock. Full Disk Access cannot be requested, only detected.
-        guard hasFullDiskAccess else {
-            phase = .needsPermission
-            return
-        }
-        Log.app.notice(
-            "starting: full disk access \(self.hasFullDiskAccess, privacy: .public), helper \(String(describing: self.helper.state), privacy: .public)"
-        )
         phase = .scanning
         Task.detached(priority: .userInitiated) {
+            // First, and off the main thread: both probes read files, and doing
+            // that where the interface is drawn stalls the first frame on
+            // however long the disk takes to answer.
+            let permissions = Permissions.reading()
+            let settled = await MainActor.run { () -> Bool in
+                self.applyPermissions(permissions)
+                Log.app.notice(
+                    "starting: full disk access \(self.hasFullDiskAccess, privacy: .public), helper \(String(describing: self.helper.state), privacy: .public)"
+                )
+                // Far enough to count as a working build: dyld resolved
+                // everything, a window is drawn, and the permissions have been
+                // read. Whether the user has granted Full Disk Access is not a
+                // property of the build — waiting for a drive scan that a
+                // machine without the permission never reaches would roll a
+                // perfectly good version back after three launches.
+                Rollback.confirmHealthy()
+                // Say so before any password is typed, rather than after a
+                // failed unlock. Full Disk Access cannot be requested, only
+                // detected.
+                guard self.hasFullDiskAccess else {
+                    self.phase = .needsPermission
+                    return false
+                }
+                return true
+            }
+            guard settled else { return }
+
             // Before anything is mounted, while the engine's lock can still be
             // had. Declines the moment a drive is open, which is the only time
             // it would matter and the only time it would be unsafe.
@@ -341,10 +377,6 @@ final class AppModel: ObservableObject {
                     mounts.map { ($0.devicePath, $0.mountPoint) },
                     uniquingKeysWith: { first, _ in first })
                 self.refreshSpace()
-                // Far enough to be working: permissions read, drives scanned,
-                // a window on screen. Reaching main is not enough — a build
-                // that starts and then falls over must still count as failed.
-                Rollback.confirmHealthy()
                 // Always the list, even when a drive is already open. The list
                 // shows it as open and offers to eject it, so opening straight
                 // into one drive only hides the others.
