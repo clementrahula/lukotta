@@ -33,7 +33,13 @@ struct DriveListView: View {
                     .font(.subheadline).foregroundStyle(.secondary)
                 ScrollView {
                     VStack(spacing: 10) {
-                        ForEach(model.drives) { drive in
+                        // A drive that has just gone leaves its message where
+                        // it was, in the space it was taking.
+                        ForEach(model.departed.filter { $0.index == 0 }) { gone in
+                            DepartedRow(name: gone.name)
+                        }
+                        ForEach(Array(model.drives.enumerated()), id: \.element.id) {
+                            position, drive in
                             let point = model.mountPoint(for: drive)
                             DriveRow(
                                 drive: drive,
@@ -47,6 +53,9 @@ struct DriveListView: View {
                                 // first is running is how a drive ends up half
                                 // ejected.
                                 otherEjectInFlight: model.isEjecting)
+                            ForEach(model.departed.filter { $0.index == position + 1 }) { gone in
+                                DepartedRow(name: gone.name)
+                            }
                         }
                     }
                 }
@@ -206,5 +215,41 @@ struct StatePill: View {
             .padding(.horizontal, 7).padding(.vertical, 2)
             .background(Capsule().fill((open ? Color.green : Color.orange).opacity(0.15)))
             .foregroundStyle(open ? Color.green : Color.orange)
+    }
+}
+
+/// Stands in for a drive that has just gone, in the space it was taking.
+///
+/// Shaped like a drive row, and plainly not one: the point is that something
+/// was there and is not, said where the eye already is rather than at the top
+/// of the screen where it would push everything down and be missed.
+struct DepartedRow: View {
+    let name: String
+
+    var body: some View {
+        HStack(spacing: 13) {
+            Image(systemName: "externaldrive.badge.xmark")
+                .font(.system(size: 22))
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+            Text("“\(name)” was disconnected.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 8)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.primary.opacity(0.04))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                .foregroundStyle(Color.primary.opacity(0.12))
+        )
+        .accessibilityElement(children: .combine)
+        .transition(.opacity)
     }
 }

@@ -113,6 +113,47 @@ final class AppModel: ObservableObject {
     /// and ejecting one detaches it and takes it out again.
     @Published private(set) var openedImages: [String: URL] = [:]
 
+    /// A drive that has just left the list, shown where it was.
+    ///
+    /// Said at the top of the screen it moved everything below it down, which
+    /// is both easy to miss and a jolt at the moment something disappeared. In
+    /// the row's own place it is where the eye already is, and it takes the
+    /// space the drive was taking rather than adding more.
+    struct Departed: Identifiable, Equatable {
+        public let id: String
+        let name: String
+        /// Where in the list it was, so the message stands in for it.
+        let index: Int
+    }
+
+    @Published private(set) var departed: [Departed] = []
+    private var departedTimer: Timer?
+
+    /// How long the message stays. Long enough to read twice, short enough not
+    /// to be furniture — it describes a moment, and nothing is waiting on it.
+    static let departedLingers: TimeInterval = 8
+
+    /// For the snapshots, which need this state without a drive going away.
+    func showDeparted(name: String, index: Int) {
+        departed = [Departed(id: "snapshot", name: name, index: index)]
+    }
+
+    private func noteDeparted(_ drive: Drive) {
+        let index = drives.firstIndex { $0.id == drive.id } ?? drives.count
+        departed.removeAll { $0.id == drive.id }
+        departed.append(Departed(id: drive.id, name: drive.name, index: index))
+        departedTimer?.invalidate()
+        departedTimer = Timer.scheduledTimer(
+            withTimeInterval: Self.departedLingers, repeats: false
+        ) { [weak self] _ in
+            Task { @MainActor in
+                guard let self else { return }
+                withAnimation { self.departed = [] }
+                self.departedTimer = nil
+            }
+        }
+    }
+
     /// The rows standing in for container files that hold no partition table.
     ///
     /// `diskutil` reports such a disk as empty, so no scan will ever return it
@@ -122,9 +163,19 @@ final class AppModel: ObservableObject {
     /// while the mount it was serving carried on quite happily.
     private var imageDrives: [String: Drive] = [:]
 
-    /// A scan's results, with those rows added back.
-    private func withImages(_ found: [Drive]) -> [Drive] {
-        ImageList.merge(found: found, images: imageDrives)
+    /// A scan's results, with the container rows put back — and the ones
+    /// whose device has gone taken out for good.
+    ///
+    /// A container detached in Finder, or unplugged with the drive it lived on,
+    /// should leave the list like anything else. Merging without this would
+    /// keep a row for a file that is not there any more.
+    private func reconcileImages(_ found: [Drive], attached: Set<String>) -> [Drive] {
+        for identifier in imageDrives.keys where !attached.contains(identifier) {
+            Log.drives.notice("a container file is no longer attached")
+            imageDrives[identifier] = nil
+            openedImages[identifier] = nil
+        }
+        return ImageList.merge(found: found, images: imageDrives)
     }
     /// Opening a container file, while it is happening and if it fails.
     ///
@@ -444,14 +495,22 @@ final class AppModel: ObservableObject {
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
             let found = DriveScanner.scan(images: images)
+            let attached = DiskImage.stillAttached(images)
             let mounts = EngineStatus.current()
             await MainActor.run {
+                let listed = self.reconcileImages(found, attached: attached)
+                // Against the list as it will be shown, not the raw scan. A
+                // container with no partition table is in one and not the
+                // other, and judging by the scan alone called it unplugged the
+                // moment anything refreshed — which threw the user back to the
+                // list from a drive they had just opened.
                 let vanished =
                     self.currentDrive.map { drive in
-                        !found.contains { $0.devicePath == drive.devicePath }
+                        !listed.contains { $0.devicePath == drive.devicePath }
                     } ?? false
 
-                self.drives = self.withImages(found)
+                self.drives = listed
+                self.scanGeneration += 1
                 self.openMounts = Dictionary(
                     mounts.map { ($0.devicePath, $0.mountPoint) },
                     uniquingKeysWith: { first, _ in first })
@@ -462,7 +521,6 @@ final class AppModel: ObservableObject {
                 // Whatever was mounted from it cannot be reached any more, and
                 // leaving the mount behind is what makes macOS ask about a
                 // server that will never answer.
-                let name = drive.name
                 Task.detached(priority: .userInitiated) {
                     for point in EngineStatus.stale() {
                         EngineStatus.forceUnmount(mountPoint: point)
@@ -470,7 +528,7 @@ final class AppModel: ObservableObject {
                 }
                 self.openVolumes = []
                 self.openMounts = self.openMounts.filter { !$0.key.contains(drive.id) }
-                self.notice = appString("“\(name)” was disconnected.")
+                self.noteDeparted(drive)
                 self.credential = ""
                 self.credentialProblem = nil
                 self.phase = .chooseDrive
@@ -532,8 +590,9 @@ final class AppModel: ObservableObject {
 
             let mounts = EngineStatus.current()
             let found = DriveScanner.scan(images: images)
+            let attached = DiskImage.stillAttached(images)
             await MainActor.run {
-                self.drives = self.withImages(found)
+                self.drives = self.reconcileImages(found, attached: attached)
                 if let name = abandoned.first.map({ URL(fileURLWithPath: $0).lastPathComponent }) {
                     self.notice =
                         abandoned.count > 1
@@ -638,8 +697,9 @@ final class AppModel: ObservableObject {
         Task.detached(priority: .userInitiated) {
             let mounts = EngineStatus.current()
             let found = DriveScanner.scan(images: images)
+            let attached = DiskImage.stillAttached(images)
             await MainActor.run {
-                self.drives = self.withImages(found)
+                self.drives = self.reconcileImages(found, attached: attached)
                 self.openMounts = Dictionary(
                     mounts.map { ($0.devicePath, $0.mountPoint) },
                     uniquingKeysWith: { first, _ in first })
@@ -647,6 +707,26 @@ final class AppModel: ObservableObject {
                 self.phase = .chooseDrive
             }
         }
+    }
+
+    /// Whether the app is on its opening scan.
+    var isScanning: Bool {
+        if case .scanning = phase { return true }
+        return false
+    }
+
+    /// Bumped every time a scan's results are applied.
+    ///
+    /// A rebuild does not change the phase — the drive on screen stays on
+    /// screen — so there is otherwise nothing that says one has happened, and
+    /// a test waiting on the phase would sail straight past and assert against
+    /// the list as it was before.
+    @Published private(set) var scanGeneration = 0
+
+    /// Rebuild the list without touching anything else. What a drive appearing
+    /// or disappearing does, reachable from a test.
+    func refreshDrives() {
+        driveSetChanged()
     }
 
     func rescan() {

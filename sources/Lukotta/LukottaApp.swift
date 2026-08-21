@@ -226,6 +226,7 @@ struct LukottaApp: App {
         unregisterHelperIfAsked()
         reinstallHelperIfAsked()
         MainActor.assumeIsolated { checkHelperIfAsked() }
+        MainActor.assumeIsolated { EndToEnd.runIfAsked() }
         MainActor.assumeIsolated { Snapshots.runIfAsked() }
         // Before anything else: a build that has failed to start twice already
         // does not get a third go at it.

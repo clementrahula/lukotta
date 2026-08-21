@@ -124,6 +124,16 @@ enum Snapshots {
                             "There is nothing in “\(refused.lastPathComponent)” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
                         )))
             ),
+            // A drive that has just gone, said where it was rather than at
+            // the top of the screen.
+            (
+                "drives-departed",
+                model {
+                    $0.drives = [drive]
+                    $0.showDeparted(name: "backup", index: 1)
+                    $0.phase = .chooseDrive
+                }
+            ),
             ("unlock", model { $0.phase = .unlock(drive) }),
             (
                 "unlock-problem",

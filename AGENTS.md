@@ -134,6 +134,19 @@ old helper resident**, answering with whatever methods it was built with. That
 is what made a hand-installed build look like it had a broken probe. Sparkle
 updates do not need it; hand-installed ones do.
 
+## End-To-End
+
+`./scripts/e2e.sh` drives a whole flow through the built app with no window and
+no person: open a container file, unlock it, rebuild the list underneath it,
+eject it. Real engine, real helper, real hdiutil. It builds its own LUKS
+container once, in a cache of its own, and touches nothing of the user's.
+
+**Check that a new step can fail.** The first version of the rebuild step passed
+against a deliberately broken build, because it waited on the phase — which a
+rebuild does not change — and asserted against the list as it was before.
+`scanGeneration` exists for that: it counts scans actually applied. Break the
+thing on purpose and watch the step fail before trusting it.
+
 ## Security Invariants
 
 These are load-bearing. Changing any of them needs a deliberate decision, not

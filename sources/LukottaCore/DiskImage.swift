@@ -184,3 +184,14 @@ public enum ImageList {
         return images.keys.filter { ejected.contains($0) }.sorted()
     }
 }
+
+extension DiskImage {
+    /// Which of these disks are still attached.
+    ///
+    /// A container file can go away without anything asking us: detached in
+    /// Finder, or on a drive that was unplugged. The device node is the answer,
+    /// and asking is a stat.
+    public static func stillAttached(_ identifiers: Set<String>) -> Set<String> {
+        identifiers.filter { FileManager.default.fileExists(atPath: "/dev/" + $0) }
+    }
+}
