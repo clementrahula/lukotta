@@ -187,7 +187,7 @@
     "Some permissions are still needed": "Es fehlen noch Berechtigungen",
     "Source": "Quelltext",
     "System": "System",
-    "System follows your Mac's language, and falls back to English.": "„System“ folgt der Sprache deines Mac und weicht auf Englisch aus.",
+    "System follows your Mac's language.": "„System“ folgt der Sprache deines Mac.",
     "System follows your Mac's setting, including when it changes.": "„System“ folgt der Einstellung deines Mac, auch wenn sie sich ändert.",
     "That password or recovery key did not unlock this drive.": "Dieses Passwort bzw. dieser Wiederherstellungsschlüssel hat das Laufwerk nicht entsperrt.",
     "The Linux environment is unpacked once, on first use.": "Die Linux-Umgebung wird einmalig beim ersten Verwenden entpackt.",

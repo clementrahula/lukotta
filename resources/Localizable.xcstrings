@@ -1461,12 +1461,12 @@
         }
       }
     },
-    "System follows your Mac's language, and falls back to English.": {
+    "System follows your Mac's language.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "„System“ folgt der Sprache deines Mac und weicht auf Englisch aus."
+            "value": "„System“ folgt der Sprache deines Mac."
           }
         }
       }

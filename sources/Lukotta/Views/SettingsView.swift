@@ -21,9 +21,14 @@ struct SettingsView: View {
         Form {
             Section {
                 Toggle("Check for updates automatically", isOn: $updater.checksAutomatically)
-                Toggle("Download and install them", isOn: $updater.downloadsAutomatically)
-                    .disabled(!updater.checksAutomatically)
-                    .padding(.leading, 18)
+                Toggle(
+                    "Download and install them",
+                    isOn: Binding(
+                        get: { updater.checksAutomatically && updater.downloadsAutomatically },
+                        set: { updater.downloadsAutomatically = $0 })
+                )
+                .disabled(!updater.checksAutomatically)
+                .padding(.leading, 18)
 
                 if !updater.checksAutomatically {
                     Text("You can still check whenever you like.")
@@ -59,14 +64,33 @@ struct SettingsView: View {
             }
 
             Section {
-                Picker("", selection: $language) {
-                    Text("System").tag(Language.system)
-                    Divider()
-                    ForEach(Language.available, id: \.self) { code in
-                        Text(Language.name(of: code)).tag(code)
+                // A Picker keeps its control at the width of its widest
+                // choice however much room it is given, which leaves the name
+                // stranded in the middle of the row. A Menu's label is an
+                // ordinary view, so it fills the row and starts where every
+                // other label in this window starts.
+                Menu {
+                    Picker("", selection: $language) {
+                        Text("System").tag(Language.system)
+                        Divider()
+                        ForEach(Language.available, id: \.self) { code in
+                            Text(Language.name(of: code)).tag(code)
+                        }
                     }
+                    .labelsHidden()
+                    .pickerStyle(.inline)
+                } label: {
+                    Text(
+                        language == Language.system
+                            ? String(localized: "System") : Language.name(of: language)
+                    )
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .labelsHidden()
+                .menuStyle(.borderlessButton)
+                // A borderless menu still insets its title by a few points.
+                // Taken back, so the language starts on the same line down the
+                // window as every label above it.
+                .padding(.leading, -4)
                 .accessibilityLabel("Language")
                 .onChange(of: language) { _, choice in
                     Language.apply(choice)
@@ -81,7 +105,7 @@ struct SettingsView: View {
                             .controlSize(.small)
                     }
                 } else {
-                    Text("System follows your Mac's language, and falls back to English.")
+                    Text("System follows your Mac's language.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             } header: {
