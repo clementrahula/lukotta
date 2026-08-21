@@ -76,7 +76,7 @@ for (points, scales) in [(16, [1, 2]), (32, [1, 2]), (128, [1, 2]), (256, [1, 2]
     for scale in scales {
         let px = points * scale
         let suffix = scale == 1 ? "@1x" : "@2x"
-        write(draw(size: px, inset: 0.09), "\(icon)/icon_\(points)x\(points)\(suffix).png")
+        write(draw(size: px, inset: 0.0), "\(icon)/icon_\(points)x\(points)\(suffix).png")
     }
 }
 

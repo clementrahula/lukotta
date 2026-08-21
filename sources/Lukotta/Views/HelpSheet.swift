@@ -117,6 +117,9 @@ struct HelpSheet: View {
 
                     HelpSection(title: "The name") {
                         Text(
+                            // The acute is deliberate: it marks the stress the
+                            // sentence goes on to describe. Not the app's name,
+                            // which comes from the bundle everywhere else.
                             "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the "
                                 + "ending -tta marking the absence of something. The stress falls on "
                                 + "the first syllable, as it always does in Finnish."

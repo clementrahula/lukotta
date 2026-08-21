@@ -49,7 +49,7 @@ struct Header: View {
             LukottaMark()
                 .frame(width: 26, height: 26)
             VStack(alignment: .leading, spacing: 1) {
-                Text("Lúkotta").font(.headline)
+                Text(Brand.name).font(.headline)
                 Text("Open encrypted drives on macOS")
                     .font(.caption).foregroundStyle(.secondary)
             }
