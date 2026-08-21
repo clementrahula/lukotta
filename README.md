@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/lukotta-logo-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/brand/lukotta-logo-light.png">
-    <img src="assets/brand/lukotta-logo-light.png" alt="Lukotta" width="320">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/lukotta-logo-dark.webp">
+    <source media="(prefers-color-scheme: light)" srcset="assets/brand/lukotta-logo-light.webp">
+    <img src="assets/brand/lukotta-logo-light.webp" alt="Lukotta" width="320">
   </picture>
 </p>
 

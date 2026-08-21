@@ -85,6 +85,11 @@ if [ -z "$SPARKLE_KEY" ]; then
   printf 'note: no Sparkle key set — updates disabled in this build\n'
 fi
 cp "$HERE/assets/AppIcon.icns" "$CONTENTS/Resources/AppIcon.icns"
+# The mark the interface draws, as artwork rather than geometry copied from it.
+cp "$HERE/assets/brand/lukotta-mark-template.png" "$CONTENTS/Resources/LukottaMark.png"
+# The mark, in both renderings. The interface picks by appearance.
+cp "$HERE/assets/brand/mark-light.png" "$CONTENTS/Resources/mark-light.png"
+cp "$HERE/assets/brand/mark-dark.png"  "$CONTENTS/Resources/mark-dark.png"
 cp "$HERE/resources/helpers/validate-key.sh" "$CONTENTS/Resources/helpers/validate-key.sh"
 chmod 755 "$CONTENTS/Resources/helpers/validate-key.sh"
 cp "$HERE/LICENSE.txt" "$CONTENTS/Resources/LICENSE.txt"
