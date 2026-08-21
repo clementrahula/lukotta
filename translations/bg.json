@@ -20,6 +20,16 @@
         "other": "%lld open drives will be ejected."
       }
     },
+    "%lld volumes": {
+      "bg": {
+        "one": "%lld тома",
+        "other": "%lld тома"
+      },
+      "en": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      }
+    },
     "Also delete %lld saved passphrases (%@)": {
       "bg": {
         "one": "Изтрий също запазената парола-фраза за %2$@",
@@ -62,6 +72,7 @@
     }
   },
   "strings": {
+    "%@ free of %@": "%@ свободни от %@",
     "%@ has been removed": "%@ е премахнато",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ е свободен софтуер под лиценза GPL, версия 3 или по-нова. Монтирането се извършва от anylinuxfs. Пълният изходен код на всеки компонент се публикува с всяко издание. Името и логото са търговски марки и не са обхванати от този лиценз.",
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": "%@ отваря дискове с BitLocker и Linux, които macOS не може да прочете сама. Преди това е необходима една настройка.\n\nЧетенето на диск на ниво устройство изисква „Full Disk Access“ — паролата на администратор не е достатъчна, а разрешението за преносими томове обхваща файловете на диска, а не самото устройство. macOS не позволява на приложение да го поиска, затова трябва да бъде включено ръчно.",

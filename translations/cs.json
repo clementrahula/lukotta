@@ -24,6 +24,18 @@
         "other": "%lld open drives will be ejected."
       }
     },
+    "%lld volumes": {
+      "cs": {
+        "few": "%lld svazky",
+        "many": "%lld svazku",
+        "one": "%lld svazek",
+        "other": "%lld svazků"
+      },
+      "en": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      }
+    },
     "Also delete %lld saved passphrases (%@)": {
       "cs": {
         "few": "Smazat také %1$lld uložené přístupové fráze (%2$@)",
@@ -74,6 +86,7 @@
     }
   },
   "strings": {
+    "%@ free of %@": "%@ volných z %@",
     "%@ has been removed": "%@ byl odstraněn",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ je svobodný software pod licencí GPL verze 3 nebo novější. Připojování zajišťuje anylinuxfs. Úplný zdrojový kód každé součásti je zveřejňován s každým vydáním. Název a logo jsou ochranné známky a tato licence se na ně nevztahuje.",
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": "%@ otevírá disky BitLocker a Linux, které macOS sám přečíst nedokáže. Nejprve je potřeba jedno nastavení.\n\nČtení disku na úrovni zařízení vyžaduje plný přístup k disku — heslo správce nestačí a oprávnění pro výměnné svazky se týká souborů na disku, nikoli zařízení samotného. macOS neumožňuje aplikaci o ně požádat, takže je nutné je zapnout ručně.",

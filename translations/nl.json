@@ -20,6 +20,16 @@
         "other": "%lld geopende schijven worden verwijderd."
       }
     },
+    "%lld volumes": {
+      "en": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      },
+      "nl": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      }
+    },
     "Also delete %lld saved passphrases (%@)": {
       "en": {
         "one": "Also delete the saved passphrase for %2$@",
@@ -62,6 +72,7 @@
     }
   },
   "strings": {
+    "%@ free of %@": "%@ vrij van %@",
     "%@ has been removed": "%@ is verwijderd",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ is vrije software onder de GPL, versie 3 of later. Het activeren gebeurt door anylinuxfs. De volledige broncode van elk onderdeel wordt bij elke versie gepubliceerd. De naam en het logo zijn handelsmerken en vallen niet onder die licentie.",
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": "%@ opent BitLocker- en Linux-schijven die macOS zelf niet kan lezen. Daarvoor is eerst één instelling nodig.\n\nEen schijf op apparaatniveau lezen vereist volledige schijftoegang — een beheerderswachtwoord is niet genoeg, en het recht voor verwijderbare volumes geldt voor bestanden op een schijf, niet voor het apparaat zelf. macOS biedt apps geen manier om dit aan te vragen, dus moet het met de hand worden ingeschakeld.",

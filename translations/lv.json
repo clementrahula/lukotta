@@ -22,6 +22,17 @@
         "zero": "%lld atvērto disku tiks izstumti."
       }
     },
+    "%lld volumes": {
+      "en": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      },
+      "lv": {
+        "one": "%lld sējums",
+        "other": "%lld sējumi",
+        "zero": "%lld sējumu"
+      }
+    },
     "Also delete %lld saved passphrases (%@)": {
       "en": {
         "one": "Also delete the saved passphrase for %2$@",
@@ -68,6 +79,7 @@
     }
   },
   "strings": {
+    "%@ free of %@": "%@ brīvi no %@",
     "%@ has been removed": "%@ ir noņemta",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ ir brīvā programmatūra ar GPL licenci, versiju 3 vai jaunāku. Montēšanu veic anylinuxfs. Katra komponenta pilns pirmkods tiek publicēts ar katru laidienu. Nosaukums un logotips ir preču zīmes, un šī licence uz tiem neattiecas.",
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": "%@ atver BitLocker un Linux diskus, ko macOS pati nespēj nolasīt. Vispirms ir nepieciešams viens iestatījums.\n\nDiska lasīšanai ierīces līmenī ir vajadzīga atļauja “Full Disk Access” — administratora parole nav pietiekama, un noņemamo sējumu atļauja attiecas uz failiem diskā, nevis uz pašu ierīci. macOS neļauj lietotnei to pieprasīt, tāpēc tā jāieslēdz manuāli.",

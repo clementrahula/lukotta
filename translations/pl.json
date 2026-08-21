@@ -24,6 +24,18 @@
         "other": "%lld otwartego dysku zostanie wysunięte."
       }
     },
+    "%lld volumes": {
+      "en": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      },
+      "pl": {
+        "few": "%lld woluminy",
+        "many": "%lld woluminów",
+        "one": "%lld wolumin",
+        "other": "%lld woluminu"
+      }
+    },
     "Also delete %lld saved passphrases (%@)": {
       "en": {
         "one": "Also delete the saved passphrase for %2$@",
@@ -74,6 +86,7 @@
     }
   },
   "strings": {
+    "%@ free of %@": "%@ wolne z %@",
     "%@ has been removed": "%@ został usunięty",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ jest wolnym oprogramowaniem na licencji GPL w wersji 3 lub nowszej. Montowaniem zajmuje się anylinuxfs. Pełny kod źródłowy każdego składnika jest publikowany wraz z każdym wydaniem. Nazwa i logo są znakami towarowymi i nie są objęte tą licencją.",
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": "%@ otwiera dyski BitLocker i Linuksa, których macOS sam nie odczyta. Najpierw potrzebne jest jedno ustawienie.\n\nOdczyt dysku na poziomie urządzenia wymaga pełnego dostępu do dysku — hasło administratora nie wystarcza, a uprawnienie do woluminów wymiennych obejmuje pliki na dysku, a nie samo urządzenie. macOS nie pozwala aplikacji o nie poprosić, więc trzeba je włączyć ręcznie.",

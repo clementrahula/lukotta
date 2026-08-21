@@ -20,6 +20,16 @@
         "other": "%lld avatud ketast väljutatakse."
       }
     },
+    "%lld volumes": {
+      "en": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      },
+      "et": {
+        "one": "%lld köide",
+        "other": "%lld köidet"
+      }
+    },
     "Also delete %lld saved passphrases (%@)": {
       "en": {
         "one": "Also delete the saved passphrase for %2$@",
@@ -62,6 +72,7 @@
     }
   },
   "strings": {
+    "%@ free of %@": "%@ vaba / %@",
     "%@ has been removed": "%@ on eemaldatud",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ on vaba tarkvara GPL-litsentsi versiooni 3 või uuema alusel. Haakimise teeb anylinuxfs. Iga komponendi täielik lähtekood avaldatakse koos iga väljalaskega. Nimi ja logo on kaubamärgid ning need litsents ei hõlma.",
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": "%@ avab BitLockeri ja Linuxi kettaid, mida macOS ise lugeda ei oska. Enne seda on vaja üht seadet.\n\nKetta lugemine seadme tasemel nõuab õigust „Full Disk Access“ — administraatori paroolist ei piisa ja eemaldatavate köidete õigus katab ketta faile, mitte seadet ennast. macOS ei võimalda rakendusel seda küsida, seega tuleb see käsitsi sisse lülitada.",

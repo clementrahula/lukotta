@@ -22,6 +22,17 @@
         "other": "%lld de discuri deschise vor fi ejectate."
       }
     },
+    "%lld volumes": {
+      "en": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      },
+      "ro": {
+        "few": "%lld volume",
+        "one": "%lld volum",
+        "other": "%lld de volume"
+      }
+    },
     "Also delete %lld saved passphrases (%@)": {
       "en": {
         "one": "Also delete the saved passphrase for %2$@",
@@ -68,6 +79,7 @@
     }
   },
   "strings": {
+    "%@ free of %@": "%@ liberi din %@",
     "%@ has been removed": "%@ a fost eliminat",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ este software liber sub licența GPL, versiunea 3 sau ulterioară. Montarea este realizată de anylinuxfs. Codul sursă complet al fiecărei componente este publicat cu fiecare versiune. Numele și sigla sunt mărci comerciale și nu sunt acoperite de acea licență.",
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": "%@ deschide discuri BitLocker și Linux pe care macOS nu le poate citi singur. Mai întâi este nevoie de o configurare.\n\nCitirea unui disc la nivel de dispozitiv necesită acces complet la disc — o parolă de administrator nu este suficientă, iar permisiunea pentru volume amovibile acoperă fișierele de pe un disc, nu dispozitivul în sine. macOS nu permite unei aplicații să o solicite, deci trebuie activată manual.",

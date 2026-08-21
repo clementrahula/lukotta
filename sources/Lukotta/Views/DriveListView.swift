@@ -30,11 +30,14 @@ struct DriveListView: View {
                 ScrollView {
                     VStack(spacing: 10) {
                         ForEach(model.drives) { drive in
+                            let point = model.mountPoint(for: drive)
                             DriveRow(
                                 drive: drive,
-                                mountPoint: model.mountPoint(for: drive),
+                                mountPoint: point,
+                                space: point.flatMap { model.space[$0] },
+                                volumeCount: point.flatMap { model.volumeCount[$0] } ?? 1,
                                 action: { model.choose(drive) },
-                                eject: { model.eject(model.mountPoint(for: drive) ?? "") })
+                                eject: { model.eject(point ?? "") })
                         }
                     }
                 }
@@ -53,6 +56,9 @@ struct DriveListView: View {
 struct DriveRow: View {
     let drive: Drive
     let mountPoint: String?
+    /// Only known once the drive is open, and only then worth showing.
+    var space: VolumeSpace?
+    var volumeCount: Int = 1
     let action: () -> Void
     let eject: () -> Void
 
@@ -63,6 +69,14 @@ struct DriveRow: View {
     /// look like different kinds of thing.
     /// Said inside a longer label, so it has to be a string that is already
     /// translated: what is interpolated into a key is inserted as it stands.
+    /// The parts only an open drive has, said after the rest.
+    private var spoken: String {
+        var parts: [String] = []
+        if volumeCount > 1 { parts.append(String(localized: "\(volumeCount) volumes")) }
+        if let space { parts.append(space.summary) }
+        return parts.isEmpty ? "" : ", " + parts.joined(separator: ", ")
+    }
+
     private var openWord: String { String(localized: "unlocked") }
     private var shutWord: String { String(localized: "locked") }
 
@@ -112,14 +126,27 @@ struct DriveRow: View {
                     .font(.caption).foregroundStyle(.secondary)
                     .lineLimit(1).truncationMode(.middle)
                 if let mountPoint {
-                    Text("Unlocked at \(mountPoint)")
-                        .font(.caption).foregroundStyle(.tertiary)
-                        .lineLimit(1).truncationMode(.middle)
+                    HStack(spacing: 6) {
+                        Text("Unlocked at \(mountPoint)")
+                            .lineLimit(1).truncationMode(.middle)
+                        if volumeCount > 1 {
+                            Text(verbatim: "·")
+                            Text("\(volumeCount) volumes")
+                        }
+                        if let space {
+                            Text(verbatim: "·")
+                            Text(space.summary)
+                        }
+                    }
+                    .font(.caption).foregroundStyle(.tertiary)
                 }
             }
             .accessibilityElement(children: .combine)
+            // Spelled out rather than combined from the children, so it reads
+            // as a sentence — and the space has to be named here too, because
+            // a label replaces what the children would have said.
             .accessibilityLabel(
-                "\(drive.name), \(isMounted ? openWord : shutWord), \(details)")
+                "\(drive.name), \(isMounted ? openWord : shutWord), \(details)\(spoken)")
 
             Spacer(minLength: 8)
 

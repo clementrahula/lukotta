@@ -20,6 +20,16 @@
         "other": "%lld open drives will be ejected."
       }
     },
+    "%lld volumes": {
+      "el": {
+        "one": "%lld τόμος",
+        "other": "%lld τόμοι"
+      },
+      "en": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      }
+    },
     "Also delete %lld saved passphrases (%@)": {
       "el": {
         "one": "Διαγραφή και της αποθηκευμένης φράσης πρόσβασης για %2$@",
@@ -62,6 +72,7 @@
     }
   },
   "strings": {
+    "%@ free of %@": "%@ ελεύθερα από %@",
     "%@ has been removed": "Το %@ καταργήθηκε",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "Το %@ είναι ελεύθερο λογισμικό υπό την άδεια GPL, έκδοση 3 ή νεότερη. Η προσάρτηση γίνεται από το anylinuxfs. Ο πλήρης πηγαίος κώδικας κάθε στοιχείου δημοσιεύεται με κάθε έκδοση. Το όνομα και το λογότυπο είναι εμπορικά σήματα και δεν καλύπτονται από αυτήν την άδεια.",
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": "Το %@ ανοίγει δίσκους BitLocker και Linux που το macOS δεν μπορεί να διαβάσει μόνο του. Πρώτα χρειάζεται μία ρύθμιση.\n\nΗ ανάγνωση δίσκου σε επίπεδο συσκευής απαιτεί «Πλήρης πρόσβαση στον δίσκο» — ένα συνθηματικό διαχειριστή δεν αρκεί, και η άδεια για αφαιρούμενους τόμους καλύπτει τα αρχεία ενός δίσκου, όχι την ίδια τη συσκευή. Το macOS δεν επιτρέπει σε εφαρμογή να τη ζητήσει, οπότε πρέπει να ενεργοποιηθεί χειροκίνητα.",

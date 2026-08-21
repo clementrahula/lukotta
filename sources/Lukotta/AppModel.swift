@@ -58,6 +58,51 @@ final class AppModel: ObservableObject {
     /// Told when the last drive closes, so an update that was waiting for it can
     /// go ahead.
     var onAllDrivesClosed: (() -> Void)?
+
+    /// How full each open drive is, by mount point, and how many volumes it
+    /// opened. Kept current rather than read once: the number people want is
+    /// how much room is left now, and copying a file to the drive is exactly
+    /// when they look.
+    @Published var space: [String: VolumeSpace] = [:]
+    @Published var volumeCount: [String: Int] = [:]
+    private var spaceTimer: Timer?
+
+    /// Re-read the open drives, and keep doing it while any are open.
+    ///
+    /// Off the main actor: statfs on a network mount blocks, and a drive that
+    /// has stopped answering would otherwise take the interface with it.
+    func refreshSpace() {
+        let points = Array(openMounts.values)
+        guard !points.isEmpty else {
+            space = [:]
+            volumeCount = [:]
+            spaceTimer?.invalidate()
+            spaceTimer = nil
+            return
+        }
+        Task.detached(priority: .utility) {
+            var found: [String: VolumeSpace] = [:]
+            var counts: [String: Int] = [:]
+            for point in points {
+                if let s = VolumeSpace.of(point) { found[point] = s }
+                let nested = EngineStatus.nestedVolumes(under: point)
+                counts[point] = max(1, nested.count)
+            }
+            let readings = found
+            let tally = counts
+            await MainActor.run {
+                self.space = readings
+                self.volumeCount = tally
+            }
+        }
+        if spaceTimer == nil {
+            // Often enough that a copy in progress is visibly moving, rarely
+            // enough that a sleeping drive is not woken for it.
+            spaceTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
+                Task { @MainActor in self?.refreshSpace() }
+            }
+        }
+    }
     /// The uninstall in progress, so it can be shown rather than guessed at.
     @Published var isUninstalling = false
     @Published var uninstallSteps: [Uninstall.Step] = []
@@ -129,6 +174,7 @@ final class AppModel: ObservableObject {
                 self.openMounts = Dictionary(
                     mounts.map { ($0.devicePath, $0.mountPoint) },
                     uniquingKeysWith: { first, _ in first })
+                self.refreshSpace()
 
                 guard vanished, let drive = self.currentDrive else { return }
                 // Whatever was mounted from it cannot be reached any more, and
@@ -188,6 +234,7 @@ final class AppModel: ObservableObject {
                 self.openMounts = Dictionary(
                     mounts.map { ($0.devicePath, $0.mountPoint) },
                     uniquingKeysWith: { first, _ in first })
+                self.refreshSpace()
                 // Far enough to be working: permissions read, drives scanned,
                 // a window on screen. Reaching main is not enough — a build
                 // that starts and then falls over must still count as failed.
@@ -287,6 +334,7 @@ final class AppModel: ObservableObject {
                 self.openMounts = Dictionary(
                     mounts.map { ($0.devicePath, $0.mountPoint) },
                     uniquingKeysWith: { first, _ in first })
+                self.refreshSpace()
                 self.phase = .chooseDrive
             }
         }

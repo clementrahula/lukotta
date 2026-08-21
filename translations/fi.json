@@ -20,6 +20,16 @@
         "other": "%lld avattua asemaa poistetaan käytöstä."
       }
     },
+    "%lld volumes": {
+      "en": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      },
+      "fi": {
+        "one": "%lld taltio",
+        "other": "%lld taltiota"
+      }
+    },
     "Also delete %lld saved passphrases (%@)": {
       "en": {
         "one": "Also delete the saved passphrase for %2$@",
@@ -62,6 +72,7 @@
     }
   },
   "strings": {
+    "%@ free of %@": "%@ vapaana / %@",
     "%@ has been removed": "%@ on poistettu",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ on vapaa ohjelmisto GPL-lisenssin version 3 tai uudemman alaisuudessa. Käyttöönotosta huolehtii anylinuxfs. Jokaisen osan täydellinen lähdekoodi julkaistaan jokaisen version mukana. Nimi ja logo ovat tavaramerkkejä, eikä kyseinen lisenssi kata niitä.",
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": "%@ avaa BitLocker- ja Linux-asemia, joita macOS ei osaa itse lukea. Sitä ennen tarvitaan yksi asetus.\n\nAseman lukeminen laitetasolla vaatii koko levyn käyttöoikeuden — pääkäyttäjän salasana ei riitä, ja siirrettävien taltioiden oikeus koskee aseman tiedostoja, ei itse laitetta. macOS ei anna ohjelman pyytää tätä, joten se on otettava käyttöön käsin.",

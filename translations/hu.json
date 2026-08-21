@@ -20,6 +20,16 @@
         "other": "%lld nyitott meghajtó kiadásra kerül."
       }
     },
+    "%lld volumes": {
+      "en": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      },
+      "hu": {
+        "one": "%lld kötet",
+        "other": "%lld kötet"
+      }
+    },
     "Also delete %lld saved passphrases (%@)": {
       "en": {
         "one": "Also delete the saved passphrase for %2$@",
@@ -62,6 +72,7 @@
     }
   },
   "strings": {
+    "%@ free of %@": "%@ szabad ebből: %@",
     "%@ has been removed": "A(z) %@ eltávolítva",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "A(z) %@ szabad szoftver a GPL 3-as vagy újabb verziója alatt. A csatolást az anylinuxfs végzi. Minden összetevő teljes forráskódja megjelenik minden kiadással. A név és a logó védjegy, és nem tartozik az említett licenc hatálya alá.",
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": "A(z) %@ olyan BitLocker- és Linux-meghajtókat nyit meg, amelyeket a macOS önmagában nem tud olvasni. Előbb egy beállításra van szükség.\n\nEgy meghajtó eszközszintű olvasásához teljes hozzáférés kell a lemezhez — a rendszergazdai jelszó nem elég, a cserélhető kötetekre vonatkozó engedély pedig a meghajtón lévő fájlokra vonatkozik, nem magára az eszközre. A macOS nem ad módot arra, hogy egy alkalmazás ezt kérje, ezért kézzel kell bekapcsolni.",

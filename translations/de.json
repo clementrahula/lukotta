@@ -20,6 +20,16 @@
         "other": "%lld open drives will be ejected."
       }
     },
+    "%lld volumes": {
+      "de": {
+        "one": "%lld Volume",
+        "other": "%lld Volumes"
+      },
+      "en": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      }
+    },
     "Also delete %lld saved passphrases (%@)": {
       "de": {
         "one": "Auch das gesicherte Passwort für %2$@ löschen",
@@ -62,6 +72,7 @@
     }
   },
   "strings": {
+    "%@ free of %@": "%@ frei von %@",
     "%@ has been removed": "%@ wurde entfernt",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ ist freie Software unter der GPL, Version 3 oder höher. Das Aktivieren übernimmt anylinuxfs. Der vollständige Quelltext jeder Komponente wird mit jeder Version veröffentlicht. Der Name und das Logo sind Marken und fallen nicht unter diese Lizenz.",
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": "%@ öffnet BitLocker- und Linux-Laufwerke, die macOS von sich aus nicht lesen kann. Dafür ist zunächst eine Einstellung nötig.\n\nUm ein Laufwerk auf Geräteebene zu lesen, wird Festplattenvollzugriff benötigt — ein Administratorpasswort genügt nicht, und die Berechtigung für entfernbare Volumes umfasst Dateien auf einem Laufwerk, nicht das Gerät selbst. macOS bietet Apps keine Möglichkeit, diese Berechtigung anzufordern, daher muss sie von Hand aktiviert werden.",

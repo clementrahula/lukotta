@@ -24,6 +24,18 @@
         "other": "%lld atvertų diskų bus išstumta."
       }
     },
+    "%lld volumes": {
+      "en": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      },
+      "lt": {
+        "few": "%lld tomai",
+        "many": "%lld tomo",
+        "one": "%lld tomas",
+        "other": "%lld tomų"
+      }
+    },
     "Also delete %lld saved passphrases (%@)": {
       "en": {
         "one": "Also delete the saved passphrase for %2$@",
@@ -74,6 +86,7 @@
     }
   },
   "strings": {
+    "%@ free of %@": "%@ laisva iš %@",
     "%@ has been removed": "%@ pašalinta",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ yra laisva programinė įranga pagal GPL licenciją, 3 arba naujesnę versiją. Prijungimą atlieka anylinuxfs. Visas kiekvieno komponento pirminis kodas skelbiamas su kiekviena laida. Pavadinimas ir logotipas yra prekių ženklai ir ta licencija jų neapima.",
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": "%@ atveria „BitLocker“ ir „Linux“ diskus, kurių „macOS“ pati perskaityti negali. Prieš tai reikia vienos nuostatos.\n\nDisko skaitymui įrenginio lygmeniu reikia leidimo „Full Disk Access“ — administratoriaus slaptažodžio nepakanka, o keičiamųjų tomų leidimas apima disko failus, o ne patį įrenginį. „macOS“ neleidžia programai jo paprašyti, todėl jį reikia įjungti rankiniu būdu.",

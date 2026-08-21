@@ -20,6 +20,16 @@
         "other": "%lld åpne enheter mates ut."
       }
     },
+    "%lld volumes": {
+      "en": {
+        "one": "%lld volume",
+        "other": "%lld volumes"
+      },
+      "nb": {
+        "one": "%lld volum",
+        "other": "%lld volumer"
+      }
+    },
     "Also delete %lld saved passphrases (%@)": {
       "en": {
         "one": "Also delete the saved passphrase for %2$@",
@@ -62,6 +72,7 @@
     }
   },
   "strings": {
+    "%@ free of %@": "%@ ledig av %@",
     "%@ has been removed": "%@ er fjernet",
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": "%@ er fri programvare under GPL, versjon 3 eller nyere. Monteringen gjøres av anylinuxfs. Fullstendig kildekode for hver komponent publiseres med hver utgivelse. Navnet og logoen er varemerker og omfattes ikke av den lisensen.",
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": "%@ åpner BitLocker- og Linux-enheter som macOS ikke kan lese på egen hånd. Først trengs én innstilling.\n\nÅ lese en enhet på enhetsnivå krever full disktilgang – et administratorpassord er ikke nok, og tillatelsen for uttakbare volumer gjelder filene på en enhet, ikke enheten selv. macOS gir ingen app mulighet til å be om den, så den må slås på manuelt.",
