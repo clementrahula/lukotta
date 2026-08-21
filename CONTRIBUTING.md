@@ -36,6 +36,15 @@ it:
 ./dist/Lukotta.app/Contents/MacOS/Lukotta --smoke-test
 ```
 
+To check what a screen reader would find:
+
+```bash
+swift scripts/dump-accessibility.swift
+```
+
+It prints every control the running app exposes. A `desc=nil` is a control
+nobody can use without seeing it.
+
 ## How It Fits Together
 
 | Target | What it is |
