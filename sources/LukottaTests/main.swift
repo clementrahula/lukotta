@@ -1454,6 +1454,53 @@ group("aContainerFileStaysInTheList") {
     expect(untouched.isEmpty, "and ejecting something else leaves it alone")
 }
 
+group("unencryptedFilesystemsNeedNoPassword") {
+    // A container or a drive holding an ordinary filesystem has nothing to
+    // unlock, and asking for a passphrase for one is asking for something that
+    // does not exist. Each writes its magic at one place and only there.
+    func image(_ bytes: [(Int, [UInt8])]) -> Data {
+        var buffer = [UInt8](repeating: 0, count: BootSector.length)
+        for (offset, magic) in bytes {
+            for (i, b) in magic.enumerated() where offset + i < buffer.count {
+                buffer[offset + i] = b
+            }
+        }
+        return Data(buffer)
+    }
+
+    // ext puts its superblock at 1024 and its magic 56 bytes into it.
+    expect("\(BootSector.identify(image([(1080, [0x53, 0xEF])])))", "ext", "ext is recognised")
+    // btrfs writes its signature 64 KB in, which is why a single sector was
+    // never going to be enough.
+    expect(
+        "\(BootSector.identify(image([(65600, Array("_BHRfS_M".utf8))])))", "btrfs",
+        "btrfs is recognised, well past the first sector")
+    expect(
+        "\(BootSector.identify(image([(0, Array("XFSB".utf8))])))", "xfs", "and XFS at the front")
+
+    // Not at that offset is not that filesystem.
+    expect(
+        "\(BootSector.identify(image([(2048, [0x53, 0xEF])])))", "unknown",
+        "ext's two bytes elsewhere mean nothing")
+    expect(
+        "\(BootSector.identify(image([(1024, Array("_BHRfS_M".utf8))])))", "unknown",
+        "and so does btrfs's signature in the wrong place")
+
+    // Encryption wins wherever it appears, because getting this backwards
+    // would tell someone their encrypted drive needs no password.
+    expect(
+        "\(BootSector.identify(image([(0, BootSector.luksMagic), (1080, [0x53, 0xEF])])))",
+        "luks", "a LUKS container holding ext is still a LUKS container")
+
+    // Which of them open without being asked for anything.
+    for format in [VolumeFormat.ntfs, .exfat, .ext, .btrfs, .xfs] {
+        expect(format.isUnencrypted, "\(format) opens without a password")
+    }
+    for format in [VolumeFormat.bitlocker, .luks, .unknown] {
+        expect(!format.isUnencrypted, "\(format) does not")
+    }
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

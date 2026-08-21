@@ -254,6 +254,7 @@
     "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": "A(z) „%1$@” nem tartalmaz semmit, amit a(z) %2$@ meg tudna nyitni. Nincs benne BitLocker-, LUKS-, NTFS- vagy Linux-kötet.",
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": "A Finderben maradnak, miután a(z) %@ kilép. Ha végzett, onnan adja ki őket.",
     "Third-Party Notices": "Harmadik felekre vonatkozó tájékoztatók",
+    "This drive holds a Linux filesystem, and is not encrypted.": "Ez a meghajtó Linux-fájlrendszert tartalmaz, és nincs titkosítva.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ez a meghajtó több kötetet tartalmaz, és a(z) %@ nem tudta megállapítani, melyeket. Segítene, ha jelentené.",
     "This drive is exFAT, and is not encrypted.": "Ez a meghajtó exFAT, és nincs titkosítva.",
     "This drive is plain NTFS, and is not encrypted.": "Ez a meghajtó egyszerű NTFS, és nincs titkosítva.",

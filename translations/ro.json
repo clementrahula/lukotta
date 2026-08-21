@@ -262,6 +262,7 @@
     "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": "Nu există nimic în „%1$@” pe care %2$@ să îl poată deschide. Nu conține niciun volum BitLocker, LUKS, NTFS sau Linux.",
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": "Rămân în Finder după ce %@ se închide. Ejectați-le de acolo când terminați.",
     "Third-Party Notices": "Notificări privind terții",
+    "This drive holds a Linux filesystem, and is not encrypted.": "Acest disc conține un sistem de fișiere Linux și nu este criptat.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Acest disc conține mai multe volume, iar %@ nu a putut stabili care anume. Raportarea ar fi de ajutor.",
     "This drive is exFAT, and is not encrypted.": "Acest disc este exFAT și nu este criptat.",
     "This drive is plain NTFS, and is not encrypted.": "Acest disc este NTFS simplu și nu este criptat.",

@@ -14,14 +14,35 @@ public enum VolumeFormat: String, Sendable {
     /// which is what `cryptsetup luksFormat container.img` makes and what a
     /// container file almost always is.
     case luks
+    /// ext2, ext3 or ext4 — a Linux filesystem with no encryption over it.
+    case ext
+    case btrfs
+    case xfs
+
+    /// Nothing to unlock: it can be opened without asking for anything.
+    public var isUnencrypted: Bool {
+        switch self {
+        case .ntfs, .exfat, .ext, .btrfs, .xfs: return true
+        case .bitlocker, .luks, .unknown: return false
+        }
+    }
     /// Not recognised, and not guessed at.
     case unknown
 }
 
 public enum BootSector {
 
-    /// How many bytes are needed to tell. One sector.
-    public static let length = 512
+    /// How many bytes are needed to tell.
+    ///
+    /// Far more than a boot sector, because the Linux filesystems do not put
+    /// their magic near the front: ext puts its superblock at 1024 and btrfs
+    /// its signature at 65600. Reading 128 KB costs nothing and covers them
+    /// all with room to spare.
+    public static let length = 128 * 1024
+
+    /// Where each filesystem writes what it is.
+    static let extMagicOffset = 1080  // 1024 + 56, inside the superblock
+    static let btrfsMagicOffset = 65600
 
     /// The identifier BitLocker writes into its volume header, as it appears
     /// on disk: a GUID in Microsoft's mixed-endian form, so the first three
@@ -48,6 +69,7 @@ public enum BootSector {
         // At offset zero, and only there: the bytes are short enough to turn up
         // by chance in the middle of something else.
         if Array(sector.prefix(luksMagic.count)) == luksMagic { return .luks }
+        if Array(sector.prefix(4)) == Array("XFSB".utf8) { return .xfs }
         if contains(sector, bitlockerIdentifier) { return .bitlocker }
 
         let oem = String(
@@ -56,8 +78,22 @@ public enum BootSector {
         case "-FVE-FS-": return .bitlocker
         case "NTFS    ": return .ntfs
         case "EXFAT   ": return .exfat
-        default: return .unknown
+        default: break
         }
+
+        // The Linux filesystems, each at the one place it writes its magic.
+        // Anywhere else would be a coincidence: two bytes for ext especially.
+        if at(sector, extMagicOffset, [0x53, 0xEF]) { return .ext }
+        if at(sector, btrfsMagicOffset, Array("_BHRfS_M".utf8)) { return .btrfs }
+        return .unknown
+    }
+
+    /// Whether these bytes sit at exactly this offset.
+    private static func at(_ data: Data, _ offset: Int, _ bytes: [UInt8]) -> Bool {
+        guard data.count >= offset + bytes.count else { return false }
+        let start = data.index(data.startIndex, offsetBy: offset)
+        let end = data.index(start, offsetBy: bytes.count)
+        return Array(data[start..<end]) == bytes
     }
 
     private static func contains(_ haystack: Data, _ needle: [UInt8]) -> Bool {
@@ -84,11 +120,10 @@ public enum BootSector {
                 ?? FileHandle(forReadingAtPath: devicePath)
         else { return nil }
         defer { try? handle.close() }
-        // A character device wants a whole block; a short read is an error, not
-        // a partial answer.
-        guard let data = try? handle.read(upToCount: length), data.count == length else {
-            return nil
-        }
+        // A short read is not an error here: a container can be smaller than
+        // the window we ask for, and everything before the end of it is still
+        // worth reading. Only nothing at all is nothing.
+        guard let data = try? handle.read(upToCount: length), !data.isEmpty else { return nil }
         return data
     }
 }

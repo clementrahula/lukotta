@@ -409,9 +409,12 @@ private struct FormatNote: View {
     let format: VolumeFormat
 
     private var title: String {
-        format == .exfat
-            ? String(localized: "This drive is exFAT, and is not encrypted.")
-            : String(localized: "This drive is plain NTFS, and is not encrypted.")
+        switch format {
+        case .exfat: return String(localized: "This drive is exFAT, and is not encrypted.")
+        case .ext, .btrfs, .xfs:
+            return String(localized: "This drive holds a Linux filesystem, and is not encrypted.")
+        default: return String(localized: "This drive is plain NTFS, and is not encrypted.")
+        }
     }
 
     var body: some View {

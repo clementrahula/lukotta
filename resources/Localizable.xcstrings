@@ -26089,6 +26089,136 @@
         }
       }
     },
+    "This drive holds a Linux filesystem, and is not encrypted.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Този диск съдържа файлова система на Linux и не е шифрован."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tento disk obsahuje linuxový souborový systém a není šifrovaný."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne enhed indeholder et Linux-filsystem og er ikke krypteret."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Laufwerk enthält ein Linux-Dateisystem und ist nicht verschlüsselt."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτός ο δίσκος περιέχει σύστημα αρχείων Linux και δεν είναι κρυπτογραφημένος."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este disco contiene un sistema de archivos Linux y no está cifrado."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See ketas sisaldab Linuxi failisüsteemi ega ole krüptitud."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä asema sisältää Linux-tiedostojärjestelmän eikä sitä ole salattu."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce disque contient un système de fichiers Linux et n’est pas chiffré."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj disk sadrži Linux datotečni sustav i nije šifriran."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez a meghajtó Linux-fájlrendszert tartalmaz, és nincs titkosítva."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo disco contiene un file system Linux e non è cifrato."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šiame diske yra „Linux“ failų sistema ir jis nėra šifruotas."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šis disks satur Linux failu sistēmu un nav šifrēts."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne enheten inneholder et Linux-filsystem og er ikke kryptert."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze schijf bevat een Linux-bestandssysteem en is niet versleuteld."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten dysk zawiera linuksowy system plików i nie jest zaszyfrowany."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este disco contém um sistema de ficheiros Linux e não está encriptado."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acest disc conține un sistem de fișiere Linux și nu este criptat."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta pogon vsebuje datotečni sistem Linux in ni šifriran."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enheten innehåller ett Linux-filsystem och är inte krypterad."
+          }
+        }
+      }
+    },
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": {
       "localizations": {
         "bg": {

@@ -254,6 +254,7 @@
     "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": "В „%1$@“ няма нищо, което %2$@ да може да отвори. Той не съдържа том с BitLocker, LUKS, NTFS или Linux.",
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": "Те остават във Finder, след като %@ приключи. Извадете ги оттам, когато сте готови.",
     "Third-Party Notices": "Известия за софтуер на трети страни",
+    "This drive holds a Linux filesystem, and is not encrypted.": "Този диск съдържа файлова система на Linux и не е шифрован.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Този диск съдържа няколко тома и %@ не успя да определи кои. Съобщаването за това би помогнало.",
     "This drive is exFAT, and is not encrypted.": "Този диск е exFAT и не е шифрован.",
     "This drive is plain NTFS, and is not encrypted.": "Този диск е обикновен NTFS и не е шифрован.",

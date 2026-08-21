@@ -255,6 +255,7 @@
     "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": "No hay nada en «%1$@» que %2$@ pueda abrir. No contiene ningún volumen BitLocker, LUKS, NTFS ni Linux.",
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": "Permanecen en el Finder después de salir de %@. Expúlsalos allí cuando termines.",
     "Third-Party Notices": "Avisos de terceros",
+    "This drive holds a Linux filesystem, and is not encrypted.": "Este disco contiene un sistema de archivos Linux y no está cifrado.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Este disco contiene varios volúmenes y %@ no ha podido determinar cuáles. Informar de ello sería útil.",
     "This drive is exFAT, and is not encrypted.": "Este disco es exFAT y no está cifrado.",
     "This drive is plain NTFS, and is not encrypted.": "Este disco es NTFS simple y no está cifrado.",

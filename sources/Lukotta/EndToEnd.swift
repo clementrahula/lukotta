@@ -25,7 +25,7 @@ enum EndToEnd {
         let arguments = Array(CommandLine.arguments.dropFirst(index + 1))
         guard arguments.count >= 2 else {
             FileHandle.standardError.write(
-                Data("usage: --e2e <container.img> <passphrase>\n".utf8))
+                Data("usage: --e2e <container.img> <passphrase> [plain.img]\n".utf8))
             exit(2)
         }
         let container = URL(fileURLWithPath: arguments[0])
@@ -35,8 +35,25 @@ enum EndToEnd {
             exit(2)
         }
 
-        print("container: \(container.lastPathComponent)")
+        print("encrypted container: \(container.lastPathComponent)")
         containerFlow(container: container, passphrase: passphrase)
+
+        if arguments.count >= 3 {
+            let plain = URL(fileURLWithPath: arguments[2])
+            if FileManager.default.fileExists(atPath: plain.path) {
+                print("")
+                print("unencrypted image: \(plain.lastPathComponent)")
+                plainFlow(image: plain)
+            }
+        }
+
+        // However it went, nothing of ours stays attached. A run that fails
+        // halfway used to leave the image behind, and the next run then passed
+        // or failed for reasons that had nothing to do with the code.
+        detachEverything(
+            Array(
+                arguments.prefix(3).enumerated().filter { $0.offset != 1 }
+                    .map { URL(fileURLWithPath: $0.element) }))
 
         print("")
         print("\(checks - failures)/\(checks) steps passed")
@@ -125,6 +142,76 @@ enum EndToEnd {
         check(
             !FileManager.default.fileExists(atPath: drive.devicePath),
             "and its device is gone, so the file is a file again")
+    }
+
+    /// An image holding an ordinary filesystem, which has no password to ask
+    /// for and should not ask for one.
+    @MainActor
+    private static func plainFlow(image: URL) {
+        let model = AppModel()
+        model.start()
+        guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
+            return
+        }
+
+        model.openImage(image)
+        guard
+            waitUntil(
+                "the image opens", timeout: 60,
+                condition: {
+                    model.imageOpening == nil && model.drives.contains { $0.uuid == image.path }
+                })
+        else {
+            if case .failed(_, let why) = model.imageOpening { print("      \(why)") }
+            return
+        }
+        guard let drive = model.drives.first(where: { $0.uuid == image.path }) else { return }
+
+        // Choosing it reads the first sector. Nothing is asked of the user
+        // while that happens, and what comes back decides whether anything is
+        // asked at all.
+        model.choose(drive)
+        guard
+            waitUntil(
+                "it is recognised without a password", timeout: 30,
+                condition: { model.chosenFormat != nil })
+        else { return }
+        check(model.chosenFormat == .btrfs, "and recognised as the filesystem it is")
+        check(model.chosenDriveIsOpenAlready, "so no password is asked for")
+        check(model.credential.isEmpty, "and none has been typed")
+
+        model.unlock(drive)
+        guard
+            waitUntil(
+                "it opens with no password at all", timeout: 180,
+                condition: {
+                    if case .mounted = model.phase { return true }
+                    if case .failed = model.phase { return true }
+                    return false
+                })
+        else { return }
+        guard case .mounted(_, let mountPoint) = model.phase else {
+            if case .failed(_, let summary, _) = model.phase { print("      \(summary)") }
+            check(false, "it mounted rather than failing")
+            return
+        }
+        check(FileManager.default.fileExists(atPath: mountPoint), "the mount point exists")
+
+        model.eject(mountPoint)
+        guard waitUntil("it ejects", timeout: 120, condition: { !model.isEjecting }) else { return }
+        check(model.ejectProblem == nil, "ejecting reported no problem")
+        waitUntil(
+            "the image is detached", timeout: 30,
+            condition: { !model.drives.contains { $0.uuid == image.path } })
+    }
+
+    /// Detach anything still attached from these files, whatever happened.
+    @MainActor
+    private static func detachEverything(_ files: [URL]) {
+        let paths = Set(files.map(\.path))
+        for device in DiskImage.attachedDevices(forImages: paths) {
+            if DiskImage.detach(device) { print("  ..   detached \(device)") }
+        }
     }
 
     // MARK: Running the loop

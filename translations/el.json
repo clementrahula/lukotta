@@ -254,6 +254,7 @@
     "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": "Δεν υπάρχει τίποτα στο «%1$@» που να μπορεί να ανοίξει το %2$@. Δεν περιέχει τόμο BitLocker, LUKS, NTFS ή Linux.",
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": "Παραμένουν στο Finder αφού τερματιστεί το %@. Κάντε εξαγωγή από εκεί όταν τελειώσετε.",
     "Third-Party Notices": "Σημειώσεις τρίτων",
+    "This drive holds a Linux filesystem, and is not encrypted.": "Αυτός ο δίσκος περιέχει σύστημα αρχείων Linux και δεν είναι κρυπτογραφημένος.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Αυτός ο δίσκος περιέχει πολλούς τόμους και το %@ δεν μπόρεσε να διακρίνει ποιους. Μια αναφορά θα βοηθούσε.",
     "This drive is exFAT, and is not encrypted.": "Αυτός ο δίσκος είναι exFAT και δεν είναι κρυπτογραφημένος.",
     "This drive is plain NTFS, and is not encrypted.": "Αυτός ο δίσκος είναι απλό NTFS και δεν είναι κρυπτογραφημένος.",

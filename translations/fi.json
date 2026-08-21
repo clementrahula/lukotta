@@ -254,6 +254,7 @@
     "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": "Tiedostossa ”%1$@” ei ole mitään, minkä %2$@ voisi avata. Se ei sisällä BitLocker-, LUKS-, NTFS- eikä Linux-taltiota.",
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": "Ne jäävät Finderiin sen jälkeen, kun %@ lopetetaan. Poista ne sieltä käytöstä, kun olet valmis.",
     "Third-Party Notices": "Kolmansien osapuolten ilmoitukset",
+    "This drive holds a Linux filesystem, and is not encrypted.": "Tämä asema sisältää Linux-tiedostojärjestelmän eikä sitä ole salattu.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Tämä asema sisältää useita taltioita, eikä %@ pystynyt selvittämään mitkä. Tästä ilmoittaminen auttaisi.",
     "This drive is exFAT, and is not encrypted.": "Tämä asema on exFAT eikä sitä ole salattu.",
     "This drive is plain NTFS, and is not encrypted.": "Tämä asema on tavallinen NTFS eikä sitä ole salattu.",

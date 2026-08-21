@@ -270,6 +270,7 @@
     "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": "V »%1$@« ni ničesar, kar bi %2$@ lahko odprl. Ne vsebuje nosilca BitLocker, LUKS, NTFS ali Linux.",
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": "Ostanejo v Finderju, potem ko se %@ konča. Izvrzite jih tam, ko končate.",
     "Third-Party Notices": "Obvestila tretjih oseb",
+    "This drive holds a Linux filesystem, and is not encrypted.": "Ta pogon vsebuje datotečni sistem Linux in ni šifriran.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ta pogon vsebuje več nosilcev, %@ pa ni mogel ugotoviti, katere. Prijava bi pomagala.",
     "This drive is exFAT, and is not encrypted.": "Ta pogon je exFAT in ni šifriran.",
     "This drive is plain NTFS, and is not encrypted.": "Ta pogon je navaden NTFS in ni šifriran.",

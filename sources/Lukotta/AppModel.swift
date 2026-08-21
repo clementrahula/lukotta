@@ -783,12 +783,23 @@ final class AppModel: ObservableObject {
     /// header, and the engine's own probe already reports it.
     private func identify(_ drive: Drive) {
         chosenFormat = nil
-        guard drive.kind == .microsoft, helper.isReady else { return }
         let devicePath = drive.devicePath
         let identifier = drive.id
+        // A container file was attached by this user, so its device can be read
+        // here. A physical drive is mode 640 root:operator and needs the
+        // helper — and without one, nothing is claimed.
+        let ours = openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil
+        guard ours || helper.isReady else { return }
         Task { [weak self] in
             guard let self else { return }
-            let format = await self.helper.identify(devicePath: devicePath)
+            let format: VolumeFormat
+            if ours {
+                format = await Task.detached(priority: .userInitiated) {
+                    BootSector.read(devicePath: devicePath).map(BootSector.identify) ?? .unknown
+                }.value
+            } else {
+                format = await self.helper.identify(devicePath: devicePath)
+            }
             // The user may have gone somewhere else while the helper read a
             // sector. Answering about a drive nobody is looking at would put a
             // sentence about one drive under the name of another.
@@ -828,7 +839,7 @@ final class AppModel: ObservableObject {
     /// The one case where an empty field is the right answer rather than a
     /// missing one.
     var chosenDriveIsOpenAlready: Bool {
-        chosenFormat == .ntfs || chosenFormat == .exfat
+        chosenFormat?.isUnencrypted ?? false
     }
 
     func unlock(_ drive: Drive) {

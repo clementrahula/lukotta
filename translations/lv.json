@@ -262,6 +262,7 @@
     "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": "Failā “%1$@” nav nekā, ko %2$@ varētu atvērt. Tajā nav BitLocker, LUKS, NTFS vai Linux sējuma.",
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": "Tie paliek programmā Finder pēc tam, kad %@ ir aizvērta. Izstumiet tos tur, kad esat pabeidzis.",
     "Third-Party Notices": "Trešo pušu paziņojumi",
+    "This drive holds a Linux filesystem, and is not encrypted.": "Šis disks satur Linux failu sistēmu un nav šifrēts.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Šis disks satur vairākus sējumus, un %@ nespēja noskaidrot, kurus. Ziņošana par to palīdzētu.",
     "This drive is exFAT, and is not encrypted.": "Šis disks ir exFAT un nav šifrēts.",
     "This drive is plain NTFS, and is not encrypted.": "Šis disks ir vienkāršs NTFS un nav šifrēts.",

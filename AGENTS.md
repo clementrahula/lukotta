@@ -141,6 +141,11 @@ no person: open a container file, unlock it, rebuild the list underneath it,
 eject it. Real engine, real helper, real hdiutil. It builds its own LUKS
 container once, in a cache of its own, and touches nothing of the user's.
 
+`anylinuxfs shell` **truncates an image file to the last byte written** — 320 MB
+in, 69 MB out — so a filesystem made that way records one size and later finds
+another and will not mount. `scripts/e2e.sh` puts the length back afterwards.
+This is why fixtures built through the engine look fine and then fail.
+
 **Check that a new step can fail.** The first version of the rebuild step passed
 against a deliberately broken build, because it waited on the phase — which a
 rebuild does not change — and asserted against the list as it was before.

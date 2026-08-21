@@ -254,6 +254,7 @@
     "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": "Failis „%1$@“ pole midagi, mida %2$@ avada saaks. See ei sisalda BitLockeri, LUKS-i, NTFS-i ega Linuxi köidet.",
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": "Nad jäävad Finderisse pärast seda, kui %@ väljub. Väljuta nad sealt, kui oled lõpetanud.",
     "Third-Party Notices": "Kolmandate osapoolte teatised",
+    "This drive holds a Linux filesystem, and is not encrypted.": "See ketas sisaldab Linuxi failisüsteemi ega ole krüptitud.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "See ketas sisaldab mitut köidet ja %@ ei suutnud tuvastada, milliseid. Sellest teatamine aitaks.",
     "This drive is exFAT, and is not encrypted.": "See ketas on exFAT ega ole krüptitud.",
     "This drive is plain NTFS, and is not encrypted.": "See ketas on tavaline NTFS ega ole krüptitud.",

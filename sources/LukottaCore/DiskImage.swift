@@ -100,7 +100,7 @@ public enum DiskImage {
         guard let sector = BootSector.read(devicePath: attached.device) else { return nil }
         let kind: VolumeKind
         switch BootSector.identify(sector) {
-        case .luks: kind = .linux
+        case .luks, .ext, .btrfs, .xfs: kind = .linux
         case .bitlocker, .ntfs, .exfat: kind = .microsoft
         case .unknown: return nil
         }
@@ -129,7 +129,7 @@ public enum DiskImage {
         run(["detach", device, "-force"]).status == 0
     }
 
-    private static func run(_ arguments: [String], timeout: TimeInterval = 30) -> (
+    static func run(_ arguments: [String], timeout: TimeInterval = 30) -> (
         status: Int32, out: String
     ) {
         let p = Process()
@@ -193,5 +193,29 @@ extension DiskImage {
     /// and asking is a stat.
     public static func stillAttached(_ identifiers: Set<String>) -> Set<String> {
         identifiers.filter { FileManager.default.fileExists(atPath: "/dev/" + $0) }
+    }
+}
+
+extension DiskImage {
+    /// Which devices these image files are attached as, if any.
+    ///
+    /// For clearing up after a run that ended early: an image left attached
+    /// makes the next run pass or fail for reasons of its own.
+    public static func attachedDevices(forImages paths: Set<String>) -> [String] {
+        let listing = run(["info"]).out
+        var devices: [String] = []
+        var path = ""
+        for line in listing.components(separatedBy: .newlines) {
+            if line.hasPrefix("image-path") {
+                path = line.components(separatedBy: ":").dropFirst()
+                    .joined(separator: ":").trimmingCharacters(in: .whitespaces)
+            } else if line.hasPrefix("/dev/disk"), paths.contains(path) {
+                let device = line.components(separatedBy: .whitespaces)[0]
+                // The whole disk, not its partitions: detaching that takes the
+                // rest with it.
+                if !device.dropFirst(9).contains("s") { devices.append(device) }
+            }
+        }
+        return devices
     }
 }

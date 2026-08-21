@@ -270,6 +270,7 @@
     "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": "V „%1$@“ není nic, co by %2$@ dokázal otevřít. Neobsahuje žádný svazek BitLocker, LUKS, NTFS ani Linux.",
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": "Zůstanou ve Finderu i po ukončení aplikace %@. Až budete hotovi, vysuňte je odtud.",
     "Third-Party Notices": "Upozornění třetích stran",
+    "This drive holds a Linux filesystem, and is not encrypted.": "Tento disk obsahuje linuxový souborový systém a není šifrovaný.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Tento disk obsahuje několik svazků a %@ nedokázal určit které. Nahlášení by pomohlo.",
     "This drive is exFAT, and is not encrypted.": "Tento disk je exFAT a není šifrovaný.",
     "This drive is plain NTFS, and is not encrypted.": "Tento disk je běžný NTFS a není šifrovaný.",

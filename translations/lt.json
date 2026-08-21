@@ -270,6 +270,7 @@
     "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": "Faile „%1$@“ nėra nieko, ką %2$@ galėtų atverti. Jame nėra BitLocker, LUKS, NTFS ar Linux tomo.",
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": "Jie lieka „Finder“ programoje, kai %@ baigia darbą. Išstumkite juos ten, kai baigsite.",
     "Third-Party Notices": "Trečiųjų šalių pranešimai",
+    "This drive holds a Linux filesystem, and is not encrypted.": "Šiame diske yra „Linux“ failų sistema ir jis nėra šifruotas.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Šiame diske yra keli tomai, o %@ nepavyko nustatyti, kurie. Pranešimas apie tai padėtų.",
     "This drive is exFAT, and is not encrypted.": "Šis diskas yra exFAT ir nėra šifruotas.",
     "This drive is plain NTFS, and is not encrypted.": "Šis diskas yra paprastas NTFS ir nėra šifruotas.",

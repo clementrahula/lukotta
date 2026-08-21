@@ -254,6 +254,7 @@
     "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": "Der er intet i “%1$@”, som %2$@ kan åbne. Den indeholder ingen BitLocker-, LUKS-, NTFS- eller Linux-enhed.",
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": "De bliver i Finder, efter at %@ er sluttet. Skub dem ud derfra, når du er færdig.",
     "Third-Party Notices": "Meddelelser om tredjepartssoftware",
+    "This drive holds a Linux filesystem, and is not encrypted.": "Denne enhed indeholder et Linux-filsystem og er ikke krypteret.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Denne enhed indeholder flere enheder, og %@ kunne ikke finde ud af hvilke. Det vil hjælpe at rapportere det.",
     "This drive is exFAT, and is not encrypted.": "Denne enhed er exFAT og er ikke krypteret.",
     "This drive is plain NTFS, and is not encrypted.": "Denne enhed er almindelig NTFS og er ikke krypteret.",
