@@ -117,7 +117,8 @@ public enum DriveScanner {
 
                 var connection: [String] = []
                 if let bus, !bus.isEmpty { connection.append(bus) }
-                connection.append(internalDisk ? "Internal" : "External")
+                connection.append(
+                    internalDisk ? appString("Internal") : appString("External"))
 
                 let uuid =
                     firstNonEmpty(

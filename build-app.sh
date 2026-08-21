@@ -129,7 +129,23 @@ ACTOOL="$(xcrun --find actool 2>/dev/null || echo /Applications/Xcode.app/Conten
 cp "$HERE/resources/helpers/validate-key.sh" "$CONTENTS/Resources/helpers/validate-key.sh"
 chmod 755 "$CONTENTS/Resources/helpers/validate-key.sh"
 cp "$HERE/LICENSE.txt" "$CONTENTS/Resources/LICENSE.txt"
-# Localisation tables, if present.
+# Localisation. The catalogue is the source; xcstringstool turns it into the
+# .lproj tables macOS looks for, one per language. macOS then picks by the
+# user's language order and falls back to the development region, so a language
+# that is missing or half-finished shows English rather than keys.
+XCSTRINGS="$(xcrun --find xcstringstool 2>/dev/null \
+  || echo /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool)"
+if [ -f "$HERE/resources/Localizable.xcstrings" ]; then
+  [ -x "$XCSTRINGS" ] || {
+    echo "error: xcstringstool not found; Xcode is required to build the string catalogue" >&2
+    exit 1
+  }
+  "$XCSTRINGS" compile --output-directory "$CONTENTS/Resources" \
+    "$HERE/resources/Localizable.xcstrings" >/dev/null
+  [ -d "$CONTENTS/Resources/en.lproj" ] || {
+    echo "error: xcstringstool produced no tables" >&2; exit 1; }
+fi
+# Anything hand-written alongside it.
 for lproj in "$HERE"/resources/*.lproj; do
   [ -d "$lproj" ] || continue
   /usr/bin/ditto "$lproj" "$CONTENTS/Resources/$(basename "$lproj")"

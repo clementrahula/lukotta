@@ -8,7 +8,7 @@ struct InfoBox: View {
     /// Optional: a note that reads as a sentence does not need a picture of
     /// itself in front of it.
     var icon: String?
-    let text: String
+    let text: LocalizedStringKey
 
     var body: some View {
         HStack(alignment: .top, spacing: 9) {
@@ -56,9 +56,9 @@ struct LogView: View {
 
 struct EmptyStateView: View {
     let icon: String
-    let title: String
-    let message: String
-    let actionTitle: String
+    let title: LocalizedStringKey
+    let message: LocalizedStringKey
+    let actionTitle: LocalizedStringKey
     let action: () -> Void
 
     var body: some View {

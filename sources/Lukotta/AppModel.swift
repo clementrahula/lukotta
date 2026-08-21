@@ -24,11 +24,14 @@ final class AppModel: ObservableObject {
     /// for: a drive that opened, one that did not, and one that started.
     var spokenPhase: String? {
         switch phase {
-        case .mounted(let drive, _): return "“\(drive.name)” is unlocked"
-        case .working(let drive): return "Opening “\(drive.name)”"
+        case .mounted(let drive, _):
+            return String(localized: "“\(drive.name)” is unlocked")
+        case .working(let drive):
+            return String(localized: "Opening “\(drive.name)”")
         case .failed(_, let summary, _):
             return summary.isEmpty
-                ? "The drive was not opened" : "The drive was not opened. \(summary)"
+                ? String(localized: "The drive was not opened")
+                : String(localized: "The drive was not opened. \(summary)")
         default: return nil
         }
     }

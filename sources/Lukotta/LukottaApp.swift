@@ -57,22 +57,23 @@ private func confirmUninstall(_ model: AppModel) {
     var detail: [String] = []
     if !plan.openDrives.isEmpty {
         detail.append(
-            plan.openDrives.count == 1
-                ? "The open drive will be ejected."
-                : "\(plan.openDrives.count) open drives will be ejected.")
+            String(localized: "\(plan.openDrives.count) open drives will be ejected."))
     }
-    if plan.helperRegistered { detail.append("The background helper will be unregistered.") }
+    if plan.helperRegistered {
+        detail.append(String(localized: "The background helper will be unregistered."))
+    }
     if let mb = plan.guestSizeMB, mb > 0 {
-        detail.append("The Linux environment will be deleted, freeing about \(mb) MB.")
+        detail.append(
+            String(localized: "The Linux environment will be deleted, freeing about \(mb) MB."))
     }
-    detail.append("\(Brand.name) will be moved to the Bin.")
+    detail.append(String(localized: "\(Brand.name) will be moved to the Bin."))
 
     let alert = NSAlert()
-    alert.messageText = "Uninstall \(Brand.name)?"
+    alert.messageText = String(localized: "Uninstall \(Brand.name)?")
     alert.informativeText = detail.joined(separator: "\n")
     alert.alertStyle = .warning
-    alert.addButton(withTitle: "Uninstall")
-    alert.addButton(withTitle: "Cancel")
+    alert.addButton(withTitle: String(localized: "Uninstall"))
+    alert.addButton(withTitle: String(localized: "Cancel"))
 
     // Passphrases are the one thing worth asking about rather than deciding.
     // Some are 48-digit recovery keys that exist nowhere else, so the question
@@ -81,10 +82,9 @@ private func confirmUninstall(_ model: AppModel) {
     if !plan.savedPassphrases.isEmpty {
         let names = plan.savedPassphrases.joined(separator: ", ")
         let box = NSButton(
-            checkboxWithTitle:
-                plan.savedPassphrases.count == 1
-                ? "Also delete the saved passphrase for \(names)"
-                : "Also delete \(plan.savedPassphrases.count) saved passphrases (\(names))",
+            checkboxWithTitle: String(
+                localized:
+                    "Also delete \(plan.savedPassphrases.count) saved passphrases (\(names))"),
             target: nil, action: nil)
         box.state = .off
         let wrap = NSView(frame: NSRect(x: 0, y: 0, width: 380, height: 40))
@@ -254,36 +254,47 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let names = MainActor.assumeIsolated {
             model.openMounts.values.sorted().map { ($0 as NSString).lastPathComponent }
         }
-        let subject =
-            names.count == 1 ? "\u{201C}\(names[0])\u{201D}" : "\(names.count) drives"
-
         let one = names.count == 1
-        let it = one ? "it" : "them"
 
-        var body: String
-        if survives {
+        let title: String
+        let body: String
+        if one {
+            title = String(localized: "Quit and leave \u{201C}\(names[0])\u{201D} open?")
             body =
-                "\(one ? "The drive stays" : "They stay") in Finder after \(Brand.name) quits. "
-                + "Eject \(it) there whenever you are finished."
+                survives
+                ? String(
+                    localized:
+                        "The drive stays in Finder after \(Brand.name) quits. Eject it there whenever you are finished."
+                )
+                : String(
+                    localized:
+                        "The background helper is not set up, so \(Brand.name) is holding the drive open itself. Quitting now disconnects it, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own."
+                )
         } else {
+            title = String(localized: "Quit and leave \(names.count) drives open?")
             body =
-                "The background helper is not set up, so \(Brand.name) is holding "
-                + "\(one ? "the drive" : it) open itself. Quitting now disconnects \(it), and "
-                + "anything still being written would not finish.\n\n"
-                + "Once the helper is set up, drives stay open on their own."
+                survives
+                ? String(
+                    localized:
+                        "They stay in Finder after \(Brand.name) quits. Eject them there whenever you are finished."
+                )
+                : String(
+                    localized:
+                        "The background helper is not set up, so \(Brand.name) is holding them open itself. Quitting now disconnects them, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own."
+                )
         }
 
         let alert = NSAlert()
-        alert.messageText = "Quit and leave \(subject) open?"
+        alert.messageText = title
         alert.informativeText = body
 
         // Leaving them open is what most people want when they close a window,
         // and it is the one choice here that cannot lose anything: the drives
         // keep working. Ejecting is the deliberate act, so it does not get the
         // return key.
-        if survives { alert.addButton(withTitle: "Leave Open") }
-        alert.addButton(withTitle: "Eject and Quit")
-        alert.addButton(withTitle: "Cancel")
+        if survives { alert.addButton(withTitle: String(localized: "Leave Open")) }
+        alert.addButton(withTitle: String(localized: "Eject and Quit"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
         alert.buttons.last?.keyEquivalent = "\u{1b}"
 
         // Cancel sits where AppKit puts it. Setting the stack's spacing to hold

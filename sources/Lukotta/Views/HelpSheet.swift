@@ -121,9 +121,11 @@ struct HelpSheet: View {
                             // The acute is deliberate: it marks the stress the
                             // sentence goes on to describe. Not the app's name,
                             // which comes from the bundle everywhere else.
-                            "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the "
-                                + "ending -tta marking the absence of something. The stress falls on "
-                                + "the first syllable, as it always does in Finnish."
+                            """
+                            Lúkotta is Finnish for “without a lock”, from lukko, a lock, with \
+                            the ending -tta marking the absence of something. The stress falls \
+                            on the first syllable, as it always does in Finnish.
+                            """
                         )
                     }
 
@@ -203,7 +205,7 @@ struct DocumentSheet: View {
 }
 
 struct HelpSection<Content: View>: View {
-    let title: String
+    let title: LocalizedStringKey
     @ViewBuilder let content: Content
 
     var body: some View {
@@ -222,8 +224,8 @@ struct HelpSection<Content: View>: View {
 }
 
 struct Bullet: View {
-    let text: String
-    init(_ text: String) { self.text = text }
+    let text: LocalizedStringKey
+    init(_ text: LocalizedStringKey) { self.text = text }
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 9) {

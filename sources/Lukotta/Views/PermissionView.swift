@@ -64,10 +64,10 @@ struct PermissionView: View {
 
 struct Step: View {
     let number: Int
-    let text: String
+    let text: LocalizedStringKey
     var body: some View {
         HStack(alignment: .top, spacing: 9) {
-            Text("\(number)")
+            Text(verbatim: "\(number)")
                 .font(.caption.weight(.bold)).foregroundStyle(.white)
                 .frame(width: 17, height: 17)
                 .background(Circle().fill(.tint))

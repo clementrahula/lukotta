@@ -1,4 +1,5 @@
 import Foundation
+import LukottaCore
 
 /// What this build calls itself.
 ///
@@ -7,6 +8,5 @@ import Foundation
 /// string the user reads should interpolate this instead of spelling out
 /// Lukotta. See TRADEMARKS.txt.
 enum Brand {
-    static let name =
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Lukotta"
+    static var name: String { appName }
 }

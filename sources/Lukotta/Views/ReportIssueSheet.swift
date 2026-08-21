@@ -68,8 +68,10 @@ struct ReportIssueSheet: View {
                             )
                             .font(.subheadline.weight(.semibold))
                             Text(
-                                "macOS wrote \(crash.lastPathComponent). It is not sent anywhere "
-                                    + "automatically — attach it to your message if you can."
+                                """
+                                macOS wrote \(crash.lastPathComponent). It is not sent \
+                                anywhere automatically — attach it to your message if you can.
+                                """
                             )
                             .font(.caption).foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)

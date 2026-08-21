@@ -66,23 +66,23 @@ enum Uninstall {
         if !plan.openDrives.isEmpty {
             steps.append(
                 Step(
-                    label: plan.openDrives.count == 1
-                        ? "Ejecting the open drive"
-                        : "Ejecting \(plan.openDrives.count) open drives"))
+                    label: String(localized: "Ejecting \(plan.openDrives.count) open drives")))
         }
         if plan.helperRegistered {
-            steps.append(Step(label: "Unregistering the background helper"))
+            steps.append(
+                Step(label: String(localized: "Unregistering the background helper")))
         }
-        if plan.guestSizeMB != nil { steps.append(Step(label: "Deleting the Linux environment")) }
-        steps.append(Step(label: "Removing settings"))
+        if plan.guestSizeMB != nil {
+            steps.append(Step(label: String(localized: "Deleting the Linux environment")))
+        }
+        steps.append(Step(label: String(localized: "Removing settings")))
         if removingPassphrases, !plan.savedPassphrases.isEmpty {
             steps.append(
                 Step(
-                    label: plan.savedPassphrases.count == 1
-                        ? "Deleting the saved passphrase"
-                        : "Deleting \(plan.savedPassphrases.count) saved passphrases"))
+                    label: String(
+                        localized: "Deleting \(plan.savedPassphrases.count) saved passphrases")))
         }
-        steps.append(Step(label: "Moving \(Brand.name) to the Bin"))
+        steps.append(Step(label: String(localized: "Moving \(Brand.name) to the Bin")))
         return steps
     }
 

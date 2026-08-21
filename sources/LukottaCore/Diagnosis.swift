@@ -5,8 +5,9 @@ public enum Diagnosis {
     public static func summarise(_ transcript: String, fallback: String) -> String {
         let lower = transcript.lowercased()
         if lower.contains("cannot probe") || lower.contains("insufficient permissions") {
-            return
-                "macOS blocked access to the drive. Lukotta needs Full Disk Access before it can read an encrypted disk."
+            return appString(
+                "macOS blocked access to the drive. \(appName) needs Full Disk Access before it can read an encrypted disk."
+            )
         }
         // "No key available" is what discovery reports; "failed to open
         // encrypted device" is the same refusal from the mount path. Both mean
@@ -16,24 +17,27 @@ public enum Diagnosis {
             || lower.contains("no key available") || lower.contains("keyslot")
             || lower.contains("failed to open encrypted device")
         {
-            return "That password or recovery key did not unlock this drive."
+            return appString("That password or recovery key did not unlock this drive.")
         }
         if lower.contains("not a valid bitlocker") || lower.contains("no bitlocker") {
-            return "This partition is not a BitLocker volume."
+            return appString("This partition is not a BitLocker volume.")
         }
         if lower.contains("hiberfile") || lower.contains("hibernated")
             || lower.contains("unclean") || lower.contains("dirty")
         {
-            return
+            return appString(
                 "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again."
+            )
         }
         if lower.contains("unknown filesystem type") || lower.contains("no such device") {
-            return
+            return appString(
                 "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong."
+            )
         }
         if lower.contains("cannot be mounted directly") || lower.contains("lvm2_member") {
-            return
-                "This drive holds several volumes inside it, and Lukotta could not work out which ones. Reporting this would help."
+            return appString(
+                "This drive holds several volumes inside it, and \(appName) could not work out which ones. Reporting this would help."
+            )
         }
         // The engine writes to the guest filesystem only while holding its lock
         // exclusively, and it cannot have it exclusively while another drive is
@@ -41,17 +45,20 @@ public enum Diagnosis {
         // so reaching here means a drive was already open when the engine
         // changed under it.
         if lower.contains("another instance is already running") {
-            return
+            return appString(
                 "Another drive is open, and the drive engine has to run on its own the first time after it changes. Eject the other drives, open this one, then they can all be open together again."
+            )
         }
         if lower.contains("already mounted") {
-            return "macOS already has this drive mounted. Eject it in Finder and try again."
+            return appString(
+                "macOS already has this drive mounted. Eject it in Finder and try again.")
         }
         if lower.contains("hypervisor") || lower.contains("hv_") || lower.contains("vmm") {
-            return "The virtualisation engine could not start. A restart usually clears this."
+            return appString(
+                "The virtualisation engine could not start. A restart usually clears this.")
         }
         if lower.contains("resource busy") || lower.contains("device busy") {
-            return "The drive is busy. Close anything using it, then try again."
+            return appString("The drive is busy. Close anything using it, then try again.")
         }
         // Prefer the engine's last meaningful line over a generic message —
         // but the last line is usually the tail of an orderly shutdown, which

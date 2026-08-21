@@ -17,7 +17,7 @@ struct UnlockView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Unlock “\(drive.name)”").font(.title3.weight(.semibold))
-                        Text("\(drive.sizeDescription) · \(drive.devicePath)")
+                        Text(verbatim: "\(drive.sizeDescription) · \(drive.devicePath)")
                             .font(.caption).foregroundStyle(.secondary)
                     }
 
@@ -310,7 +310,7 @@ struct PermissionRow: View {
                 .fill(tint.opacity(0.16))
                 .frame(width: 26, height: 26)
                 .overlay(
-                    Text("\(number)")
+                    Text(verbatim: "\(number)")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(tint)
                 )

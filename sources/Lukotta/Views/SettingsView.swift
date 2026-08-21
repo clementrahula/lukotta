@@ -7,6 +7,8 @@ struct SettingsView: View {
     @EnvironmentObject var model: AppModel
     @AppStorage(MenuBarPreference.key) private var showMenuBarIcon = true
     @AppStorage(Appearance.key) private var appearance = Appearance.system.rawValue
+    @AppStorage(Language.key) private var language = Language.system
+    @State private var languageChanged = false
 
     private var lastChecked: String {
         guard let date = updater.lastChecked else { return "Not yet" }
@@ -54,6 +56,36 @@ struct SettingsView: View {
                     .font(.caption).foregroundStyle(.secondary)
             } header: {
                 Text("Menu Bar").font(.headline)
+            }
+
+            Section {
+                Picker("", selection: $language) {
+                    Text("System").tag(Language.system)
+                    Divider()
+                    ForEach(Language.available, id: \.self) { code in
+                        Text(Language.name(of: code)).tag(code)
+                    }
+                }
+                .labelsHidden()
+                .accessibilityLabel("Language")
+                .onChange(of: language) { _, choice in
+                    Language.apply(choice)
+                    languageChanged = true
+                }
+                if languageChanged {
+                    HStack {
+                        Text("The language changes when \(Brand.name) starts again.")
+                            .font(.caption).foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Relaunch") { model.relaunch() }
+                            .controlSize(.small)
+                    }
+                } else {
+                    Text("System follows your Mac's language, and falls back to English.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+            } header: {
+                Text("Language").font(.headline)
             }
 
             Section {

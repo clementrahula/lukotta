@@ -1,0 +1,2186 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ has been removed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wurde entfernt"
+          }
+        }
+      }
+    },
+    "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ist freie Software unter der GPL, Version 3 oder höher. Das Aktivieren übernimmt anylinuxfs. Der vollständige Quelltext jeder Komponente wird mit jeder Version veröffentlicht. Der Name und das Logo sind Marken und fallen nicht unter diese Lizenz."
+          }
+        }
+      }
+    },
+    "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ öffnet BitLocker- und Linux-Laufwerke, die macOS von sich aus nicht lesen kann. Dafür ist zunächst eine Einstellung nötig.\n\nUm ein Laufwerk auf Geräteebene zu lesen, wird Festplattenvollzugriff benötigt — ein Administratorpasswort genügt nicht, und die Berechtigung für entfernbare Volumes umfasst Dateien auf einem Laufwerk, nicht das Gerät selbst. macOS bietet Apps keine Möglichkeit, diese Berechtigung anzufordern, daher muss sie von Hand aktiviert werden."
+          }
+        }
+      }
+    },
+    "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ startet eine kleine virtuelle Linux-Maschine, entsperrt das Laufwerk darin und übergibt es zurück an den Finder. macOS kann BitLocker- und Linux-Dateisysteme nicht lesen. Linux schon."
+          }
+        }
+      }
+    },
+    "%@ will be moved to the Bin.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wird in den Papierkorb bewegt."
+          }
+        }
+      }
+    },
+    "%@, locked, %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, gesperrt, %@"
+          }
+        }
+      }
+    },
+    "%lld drives had stopped responding and were disconnected. You can open them again.": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Laufwerk hat nicht mehr reagiert und wurde getrennt. Du kannst es erneut öffnen."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Laufwerke haben nicht mehr reagiert und wurden getrennt. Du kannst sie erneut öffnen."
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld drive had stopped responding and was disconnected. You can open it again."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld drives had stopped responding and were disconnected. You can open them again."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld open drives will be ejected.": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Das geöffnete Laufwerk wird ausgeworfen."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld geöffnete Laufwerke werden ausgeworfen."
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "The open drive will be ejected."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld open drives will be ejected."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld percent": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Prozent"
+          }
+        }
+      }
+    },
+    "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 MB Speicherplatz: 155 MB für die App, 95 MB für die Linux-Umgebung, die beim ersten Verwenden entpackt wird"
+          }
+        }
+      }
+    },
+    "30 to 80 MB of RAM per unlocked drive": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 bis 80 MB RAM pro entsperrtem Laufwerk"
+          }
+        }
+      }
+    },
+    "A crash report was found": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Absturzbericht wurde gefunden"
+          }
+        }
+      }
+    },
+    "About %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über %@"
+          }
+        }
+      }
+    },
+    "About & Help": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über & Hilfe"
+          }
+        }
+      }
+    },
+    "About ten drives can stay unlocked at once": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etwa zehn Laufwerke können gleichzeitig entsperrt bleiben"
+          }
+        }
+      }
+    },
+    "Administrator password": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratorpasswort"
+          }
+        }
+      }
+    },
+    "Administrator password — asked for once when the background helper is set up, then not again. %@ never sees it": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratorpasswort — wird einmal beim Einrichten des Hintergrund-Helfers abgefragt, danach nicht mehr. %@ sieht es nie"
+          }
+        }
+      }
+    },
+    "All Drives": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Laufwerke"
+          }
+        }
+      }
+    },
+    "All required permissions granted": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle erforderlichen Berechtigungen erteilt"
+          }
+        }
+      }
+    },
+    "Also delete %lld saved passphrases (%@)": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Auch das gesicherte Passwort für %2$@ löschen"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Auch %1$lld gesicherte Passwörter löschen (%2$@)"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Also delete the saved passphrase for %2$@"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Also delete %1$lld saved passphrases (%2$@)"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "An Apple Silicon Mac. Intel Macs are not supported": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Mac mit Apple Silicon. Intel-Macs werden nicht unterstützt"
+          }
+        }
+      }
+    },
+    "Another drive is open, and the drive engine has to run on its own the first time after it changes. Eject the other drives, open this one, then they can all be open together again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein anderes Laufwerk ist geöffnet, und die Laufwerks-Engine muss nach einer Änderung beim ersten Mal allein laufen. Wirf die anderen Laufwerke aus, öffne dieses, danach können wieder alle gleichzeitig geöffnet sein."
+          }
+        }
+      }
+    },
+    "Appearance": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erscheinungsbild"
+          }
+        }
+      }
+    },
+    "Appears only while a drive is unlocked, for ejecting it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erscheint nur, solange ein Laufwerk entsperrt ist, zum Auswerfen."
+          }
+        }
+      }
+    },
+    "Author": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwickler"
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zurück"
+          }
+        }
+      }
+    },
+    "BitLocker drives, unlocked with the volume password or a 48-digit recovery key": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker-Laufwerke, entsperrt mit dem Volume-Passwort oder einem 48-stelligen Wiederherstellungsschlüssel"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbrechen"
+          }
+        }
+      }
+    },
+    "Caps Lock is on": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feststelltaste ist aktiviert"
+          }
+        }
+      }
+    },
+    "Check Again": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut prüfen"
+          }
+        }
+      }
+    },
+    "Check Now": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jetzt suchen"
+          }
+        }
+      }
+    },
+    "Check for Updates…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach Updates suchen …"
+          }
+        }
+      }
+    },
+    "Check for updates automatically": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatisch nach Updates suchen"
+          }
+        }
+      }
+    },
+    "Click + and add %@, then switch it on.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klicke auf „+“, füge %@ hinzu und aktiviere den Schalter."
+          }
+        }
+      }
+    },
+    "Collapsed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgeblendet"
+          }
+        }
+      }
+    },
+    "Come back here and choose Relaunch — a new permission only applies to a freshly started app.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Komm hierher zurück und wähle „Neu starten“ — eine neue Berechtigung gilt erst für eine frisch gestartete App."
+          }
+        }
+      }
+    },
+    "Connect the encrypted drive and choose Rescan. If it is already connected, macOS may have it mounted — eject it in Finder first.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schließe das verschlüsselte Laufwerk an und wähle „Erneut suchen“. Falls es bereits angeschlossen ist, hat macOS es möglicherweise aktiviert — wirf es dann zuerst im Finder aus."
+          }
+        }
+      }
+    },
+    "Copied": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopiert"
+          }
+        }
+      }
+    },
+    "Copy Details": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details kopieren"
+          }
+        }
+      }
+    },
+    "Dark": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dunkel"
+          }
+        }
+      }
+    },
+    "Deleting %lld saved passphrases": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Gesichertes Passwort wird gelöscht"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld gesicherte Passwörter werden gelöscht"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Deleting the saved passphrase"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Deleting %lld saved passphrases"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Deleting the Linux environment": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linux-Umgebung wird gelöscht"
+          }
+        }
+      }
+    },
+    "Details that will be included": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details, die mitgesendet werden"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig"
+          }
+        }
+      }
+    },
+    "Download and install them": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates laden und installieren"
+          }
+        }
+      }
+    },
+    "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laufwerke, die an ein TPM statt an ein Passwort gebunden sind, einschließlich der neueren hardwaregestützten Verschlüsselung von Ubuntu"
+          }
+        }
+      }
+    },
+    "Eject": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auswerfen"
+          }
+        }
+      }
+    },
+    "Eject %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ auswerfen"
+          }
+        }
+      }
+    },
+    "Eject and Quit": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auswerfen und beenden"
+          }
+        }
+      }
+    },
+    "Ejecting %lld open drives": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Geöffnetes Laufwerk wird ausgeworfen"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld geöffnete Laufwerke werden ausgeworfen"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Ejecting the open drive"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Ejecting %lld open drives"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Ejecting…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird ausgeworfen …"
+          }
+        }
+      }
+    },
+    "Engine output": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgabe der Engine"
+          }
+        }
+      }
+    },
+    "Enter the drive's passphrase.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gib die Passphrase des Laufwerks ein."
+          }
+        }
+      }
+    },
+    "Enter the drive's password, or its 48-digit recovery key.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gib das Passwort des Laufwerks ein oder seinen 48-stelligen Wiederherstellungsschlüssel."
+          }
+        }
+      }
+    },
+    "Everything else was removed. %@ itself could not be moved to the Bin — %@ — so drag it there yourself to finish.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles Übrige wurde entfernt. %@ selbst konnte nicht in den Papierkorb bewegt werden — %@ — bewege es zum Abschluss selbst dorthin."
+          }
+        }
+      }
+    },
+    "Expanded": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eingeblendet"
+          }
+        }
+      }
+    },
+    "External": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extern"
+          }
+        }
+      }
+    },
+    "Forget": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vergessen"
+          }
+        }
+      }
+    },
+    "Full Disk Access": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Festplattenvollzugriff"
+          }
+        }
+      }
+    },
+    "Full Disk Access — macOS will not let any app read a drive’s raw contents without it. It cannot be requested, so it has to be switched on by hand": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Festplattenvollzugriff — ohne ihn lässt macOS keine App den Rohinhalt eines Laufwerks lesen. Er kann nicht angefordert werden und muss daher von Hand aktiviert werden"
+          }
+        }
+      }
+    },
+    "GNU General Public License": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        }
+      }
+    },
+    "Granted": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erteilt"
+          }
+        }
+      }
+    },
+    "Hide": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausblenden"
+          }
+        }
+      }
+    },
+    "Hide the credential": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eingabe verbergen"
+          }
+        }
+      }
+    },
+    "Hide the details": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details ausblenden"
+          }
+        }
+      }
+    },
+    "How %@ works, and what it supports": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie %@ funktioniert und was es unterstützt"
+          }
+        }
+      }
+    },
+    "How it works": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Funktionsweise"
+          }
+        }
+      }
+    },
+    "Internal": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intern"
+          }
+        }
+      }
+    },
+    "It is in the Bin. Nothing else of it is left on this Mac.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es liegt im Papierkorb. Sonst ist nichts davon auf diesem Mac verblieben."
+          }
+        }
+      }
+    },
+    "LUKS drives from Linux, both LUKS1 and LUKS2": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS-Laufwerke von Linux, LUKS1 und LUKS2"
+          }
+        }
+      }
+    },
+    "LUKS volumes whose header is stored separately from the drive": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS-Volumes, deren Header getrennt vom Laufwerk gespeichert ist"
+          }
+        }
+      }
+    },
+    "LVM inside LUKS, as Ubuntu, Debian, Mint and Fedora set it up. Several volumes on one drive all unlock together": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM innerhalb von LUKS, wie es Ubuntu, Debian, Mint und Fedora einrichten. Mehrere Volumes auf einem Laufwerk werden gemeinsam entsperrt"
+          }
+        }
+      }
+    },
+    "Language": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprache"
+          }
+        }
+      }
+    },
+    "Last checked: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zuletzt gesucht: %@"
+          }
+        }
+      }
+    },
+    "Leave Open": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geöffnet lassen"
+          }
+        }
+      }
+    },
+    "Lets %@ read the encrypted data itself.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ermöglicht %@, die verschlüsselten Daten selbst zu lesen."
+          }
+        }
+      }
+    },
+    "Lets %@ read the encrypted data itself. macOS blocks this without it, even for administrators, and it cannot be requested — it has to be switched on by hand.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ermöglicht %@, die verschlüsselten Daten selbst zu lesen. Ohne diese Berechtigung blockiert macOS das selbst für Administratoren, und sie kann nicht angefordert werden — sie muss von Hand aktiviert werden."
+          }
+        }
+      }
+    },
+    "Licence": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lizenz"
+          }
+        }
+      }
+    },
+    "Light": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hell"
+          }
+        }
+      }
+    },
+    "Location": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ort"
+          }
+        }
+      }
+    },
+    "Locked": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesperrt"
+          }
+        }
+      }
+    },
+    "Looking for encrypted drives…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suche nach verschlüsselten Laufwerken …"
+          }
+        }
+      }
+    },
+    "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the ending -tta marking the absence of something. The stress falls on the first syllable, as it always does in Finnish.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lúkotta ist Finnisch für „ohne Schloss“, von lukko, einem Schloss, mit der Endung -tta, die das Fehlen von etwas bezeichnet. Die Betonung liegt auf der ersten Silbe, wie im Finnischen immer."
+          }
+        }
+      }
+    },
+    "Menu Bar": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menüleiste"
+          }
+        }
+      }
+    },
+    "Moving %@ to the Bin": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wird in den Papierkorb bewegt"
+          }
+        }
+      }
+    },
+    "Needed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erforderlich"
+          }
+        }
+      }
+    },
+    "No encrypted drives found": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine verschlüsselten Laufwerke gefunden"
+          }
+        }
+      }
+    },
+    "No reason was reported. The details below may say more.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es wurde kein Grund gemeldet. Die Details unten sagen möglicherweise mehr."
+          }
+        }
+      }
+    },
+    "Not found in this build.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In dieser Version nicht enthalten."
+          }
+        }
+      }
+    },
+    "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es wird nichts installiert. Die Engine steckt in der App, nichts verlässt deinen Mac, und auf ein Laufwerk wird nur geschrieben, wenn du darauf schreibst."
+          }
+        }
+      }
+    },
+    "Once the background helper is set up, updating will leave unlocked drives alone.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sobald der Hintergrund-Helfer eingerichtet ist, lässt ein Update entsperrte Laufwerke unberührt."
+          }
+        }
+      }
+    },
+    "Open %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ öffnen"
+          }
+        }
+      }
+    },
+    "Open Email": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-Mail öffnen"
+          }
+        }
+      }
+    },
+    "Open Privacy & Security → Full Disk Access.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffne „Datenschutz & Sicherheit“ → „Festplattenvollzugriff“."
+          }
+        }
+      }
+    },
+    "Open Privacy Settings": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datenschutzeinstellungen öffnen"
+          }
+        }
+      }
+    },
+    "Open encrypted drives on macOS": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verschlüsselte Laufwerke unter macOS öffnen"
+          }
+        }
+      }
+    },
+    "Opening “%@”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ wird geöffnet"
+          }
+        }
+      }
+    },
+    "Passphrase": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passphrase"
+          }
+        }
+      }
+    },
+    "Password or recovery key": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwort oder Wiederherstellungsschlüssel"
+          }
+        }
+      }
+    },
+    "Permissions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Berechtigungen"
+          }
+        }
+      }
+    },
+    "Quit": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beenden"
+          }
+        }
+      }
+    },
+    "Quit %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ beenden"
+          }
+        }
+      }
+    },
+    "Quit and leave %lld drives open?": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Beenden und %lld Laufwerk geöffnet lassen?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Beenden und %lld Laufwerke geöffnet lassen?"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Quit and leave %lld drive open?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Quit and leave %lld drives open?"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Quit and leave “%@” open?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beenden und „%@“ geöffnet lassen?"
+          }
+        }
+      }
+    },
+    "Relaunch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neu starten"
+          }
+        }
+      }
+    },
+    "Remember this key in my Keychain": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diesen Schlüssel in meinem Schlüsselbund sichern"
+          }
+        }
+      }
+    },
+    "Removable volumes — requested by macOS the first time a drive is read": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entfernbare Volumes — von macOS beim ersten Lesen eines Laufwerks angefordert"
+          }
+        }
+      }
+    },
+    "Removing %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wird entfernt"
+          }
+        }
+      }
+    },
+    "Removing settings": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen werden entfernt"
+          }
+        }
+      }
+    },
+    "Report This Issue": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Problem melden"
+          }
+        }
+      }
+    },
+    "Report a problem": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Problem melden"
+          }
+        }
+      }
+    },
+    "Report a problem or send a crash report": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Problem melden oder einen Absturzbericht senden"
+          }
+        }
+      }
+    },
+    "Report an Issue": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Problem melden"
+          }
+        }
+      }
+    },
+    "Report an Issue…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Problem melden …"
+          }
+        }
+      }
+    },
+    "Requirements": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Systemvoraussetzungen"
+          }
+        }
+      }
+    },
+    "Rescan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut suchen"
+          }
+        }
+      }
+    },
+    "Reveal App": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App im Finder zeigen"
+          }
+        }
+      }
+    },
+    "Seeing connected drives": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Angeschlossene Laufwerke sehen"
+          }
+        }
+      }
+    },
+    "Select a drive to unlock": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle ein Laufwerk zum Entsperren"
+          }
+        }
+      }
+    },
+    "Setting up the Linux environment": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linux-Umgebung wird eingerichtet"
+          }
+        }
+      }
+    },
+    "Show": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einblenden"
+          }
+        }
+      }
+    },
+    "Show %@ in the menu bar": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ in der Menüleiste anzeigen"
+          }
+        }
+      }
+    },
+    "Show in Finder": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Finder zeigen"
+          }
+        }
+      }
+    },
+    "Show the credential": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eingabe anzeigen"
+          }
+        }
+      }
+    },
+    "Show what each permission is for": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeigen, wofür jede Berechtigung dient"
+          }
+        }
+      }
+    },
+    "Some permissions are still needed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es fehlen noch Berechtigungen"
+          }
+        }
+      }
+    },
+    "Source": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelltext"
+          }
+        }
+      }
+    },
+    "System": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        }
+      }
+    },
+    "System follows your Mac's language, and falls back to English.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„System“ folgt der Sprache deines Mac und weicht auf Englisch aus."
+          }
+        }
+      }
+    },
+    "System follows your Mac's setting, including when it changes.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„System“ folgt der Einstellung deines Mac, auch wenn sie sich ändert."
+          }
+        }
+      }
+    },
+    "That password or recovery key did not unlock this drive.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Passwort bzw. dieser Wiederherstellungsschlüssel hat das Laufwerk nicht entsperrt."
+          }
+        }
+      }
+    },
+    "The Linux environment is unpacked once, on first use.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Linux-Umgebung wird einmalig beim ersten Verwenden entpackt."
+          }
+        }
+      }
+    },
+    "The Linux environment will be deleted, freeing about %lld MB.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Linux-Umgebung wird gelöscht und gibt etwa %lld MB frei."
+          }
+        }
+      }
+    },
+    "The background helper is not set up, so %@ is holding the drive open itself. Quitting now disconnects it, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Hintergrund-Helfer ist nicht eingerichtet, daher hält %@ das Laufwerk selbst offen. Beenden trennt es jetzt, und alles, was noch geschrieben wird, würde nicht abgeschlossen.\n\nSobald der Helfer eingerichtet ist, bleiben Laufwerke von selbst geöffnet."
+          }
+        }
+      }
+    },
+    "The background helper is not set up, so %@ is holding them open itself. Quitting now disconnects them, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Hintergrund-Helfer ist nicht eingerichtet, daher hält %@ sie selbst offen. Beenden trennt sie jetzt, und alles, was noch geschrieben wird, würde nicht abgeschlossen.\n\nSobald der Helfer eingerichtet ist, bleiben Laufwerke von selbst geöffnet."
+          }
+        }
+      }
+    },
+    "The background helper will be unregistered.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Registrierung des Hintergrund-Helfers wird aufgehoben."
+          }
+        }
+      }
+    },
+    "The drive appears in the Finder sidebar under Locations.\nEject it here or in Finder before unplugging it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Laufwerk erscheint in der Finder-Seitenleiste unter „Umgebungen“.\nWirf es hier oder im Finder aus, bevor du es abziehst."
+          }
+        }
+      }
+    },
+    "The drive is busy. Close anything using it, then try again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Laufwerk ist belegt. Schließe alles, was es verwendet, und versuche es erneut."
+          }
+        }
+      }
+    },
+    "The drive is handed to Finder over a local network connection, so it appears under Locations with a network icon. It reads, writes and ejects like any other drive. macOS offers no way to present it as a local disk.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Laufwerk wird dem Finder über eine lokale Netzwerkverbindung übergeben und erscheint deshalb unter „Umgebungen“ mit einem Netzwerksymbol. Es liest, schreibt und wird ausgeworfen wie jedes andere Laufwerk. macOS bietet keine Möglichkeit, es als lokales Volume darzustellen."
+          }
+        }
+      }
+    },
+    "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Laufwerk bleibt nach dem Beenden von %@ im Finder. Wirf es dort aus, wenn du fertig bist."
+          }
+        }
+      }
+    },
+    "The drive was not opened": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Laufwerk wurde nicht geöffnet"
+          }
+        }
+      }
+    },
+    "The drive was not opened. %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Laufwerk wurde nicht geöffnet. %@"
+          }
+        }
+      }
+    },
+    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows hat das Laufwerk nicht sauber heruntergefahren. Deaktiviere den Schnellstart in Windows oder fahre Windows vollständig herunter, statt in den Ruhezustand zu wechseln, und versuche es erneut."
+          }
+        }
+      }
+    },
+    "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Engine hat auf diesem Volume kein Dateisystem erkannt. Falls es verschlüsselt ist, ist möglicherweise das Passwort oder der Wiederherstellungsschlüssel falsch."
+          }
+        }
+      }
+    },
+    "The engine reported nothing at all. The drive may have been unplugged.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Engine hat überhaupt nichts gemeldet. Möglicherweise wurde das Laufwerk abgezogen."
+          }
+        }
+      }
+    },
+    "The language changes when %@ starts again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Sprache ändert sich, wenn %@ neu gestartet wird."
+          }
+        }
+      }
+    },
+    "The name": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Name"
+          }
+        }
+      }
+    },
+    "The passphrase this drive was encrypted with.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Passphrase, mit der dieses Laufwerk verschlüsselt wurde."
+          }
+        }
+      }
+    },
+    "The password the drive was locked with, or a 48-digit BitLocker recovery key. Spaces and hyphens in a recovery key are ignored.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Passwort, mit dem das Laufwerk gesperrt wurde, oder ein 48-stelliger BitLocker-Wiederherstellungsschlüssel. Leerzeichen und Bindestriche im Wiederherstellungsschlüssel werden ignoriert."
+          }
+        }
+      }
+    },
+    "The virtualisation engine could not start. A restart usually clears this.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Virtualisierungs-Engine konnte nicht starten. Ein Neustart behebt das meistens."
+          }
+        }
+      }
+    },
+    "They stay in Finder after %@ quits. Eject them there whenever you are finished.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sie bleiben nach dem Beenden von %@ im Finder. Wirf sie dort aus, wenn du fertig bist."
+          }
+        }
+      }
+    },
+    "Third-Party Notices": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hinweise zu Drittanbietern"
+          }
+        }
+      }
+    },
+    "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Laufwerk enthält mehrere Volumes, und %@ konnte nicht ermitteln, welche. Eine Meldung darüber würde helfen."
+          }
+        }
+      }
+    },
+    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das ist eine Datenschutzeinstellung von macOS, keine Änderung an deinem Mac. Du kannst sie jederzeit wieder deaktivieren, und es wird nichts installiert."
+          }
+        }
+      }
+    },
+    "This partition is not a BitLocker volume.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Partition ist kein BitLocker-Volume."
+          }
+        }
+      }
+    },
+    "This takes a moment.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das dauert einen Moment."
+          }
+        }
+      }
+    },
+    "This usually takes under a minute.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das dauert normalerweise weniger als eine Minute."
+          }
+        }
+      }
+    },
+    "Try Again": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut versuchen"
+          }
+        }
+      }
+    },
+    "Uninstall": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deinstallieren"
+          }
+        }
+      }
+    },
+    "Uninstall %@?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ deinstallieren?"
+          }
+        }
+      }
+    },
+    "Uninstall %@…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ deinstallieren …"
+          }
+        }
+      }
+    },
+    "Unlock": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entsperren"
+          }
+        }
+      }
+    },
+    "Unlock this drive": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Laufwerk entsperren"
+          }
+        }
+      }
+    },
+    "Unlock uses it directly. Forget it to type a different one.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er wird direkt zum Entsperren verwendet. Vergiss ihn, um einen anderen einzugeben."
+          }
+        }
+      }
+    },
+    "Unlock “%@”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ entsperren"
+          }
+        }
+      }
+    },
+    "Unlocked": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entsperrt"
+          }
+        }
+      }
+    },
+    "Unlocked at %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entsperrt unter %@"
+          }
+        }
+      }
+    },
+    "Unregistering the background helper": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registrierung des Hintergrund-Helfers wird aufgehoben"
+          }
+        }
+      }
+    },
+    "Updates": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates"
+          }
+        }
+      }
+    },
+    "Updating does not eject your drives. Anything unlocked stays unlocked and keeps working.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Update wirft deine Laufwerke nicht aus. Alles Entsperrte bleibt entsperrt und funktioniert weiter."
+          }
+        }
+      }
+    },
+    "Using the key saved in your Keychain": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der im Schlüsselbund gesicherte Schlüssel wird verwendet"
+          }
+        }
+      }
+    },
+    "Version %@ (%@)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@ (%@)"
+          }
+        }
+      }
+    },
+    "Volumes opened": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geöffnete Volumes"
+          }
+        }
+      }
+    },
+    "Website": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Website"
+          }
+        }
+      }
+    },
+    "Welcome to %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Willkommen bei %@"
+          }
+        }
+      }
+    },
+    "What a drive contains is only known once it is unlocked.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was ein Laufwerk enthält, ist erst nach dem Entsperren bekannt."
+          }
+        }
+      }
+    },
+    "What happened": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was ist passiert"
+          }
+        }
+      }
+    },
+    "What happened?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was ist passiert?"
+          }
+        }
+      }
+    },
+    "What it can open": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was geöffnet werden kann"
+          }
+        }
+      }
+    },
+    "What it cannot open": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was nicht geöffnet werden kann"
+          }
+        }
+      }
+    },
+    "What to do": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was zu tun ist"
+          }
+        }
+      }
+    },
+    "Why it appears as a network drive": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Warum es als Netzlaufwerk erscheint"
+          }
+        }
+      }
+    },
+    "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows-NTFS-Laufwerke, auch solche, die Windows im Ruhezustand oder nicht ordnungsgemäß heruntergefahren hinterlassen hat"
+          }
+        }
+      }
+    },
+    "You can read and write files on it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du kannst Dateien darauf lesen und schreiben."
+          }
+        }
+      }
+    },
+    "You can still check whenever you like.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du kannst weiterhin jederzeit selbst suchen."
+          }
+        }
+      }
+    },
+    "Your drive was not modified. A failed unlock cannot damage the data on it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Laufwerk wurde nicht verändert. Ein fehlgeschlagener Entsperrversuch kann den Daten darauf nicht schaden."
+          }
+        }
+      }
+    },
+    "done": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "erledigt"
+          }
+        }
+      }
+    },
+    "ext4, btrfs and XFS filesystems inside them": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ext4-, btrfs- und XFS-Dateisysteme darin"
+          }
+        }
+      }
+    },
+    "in progress": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "läuft"
+          }
+        }
+      }
+    },
+    "locked": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gesperrt"
+          }
+        }
+      }
+    },
+    "macOS 15 Sequoia or later": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 15 Sequoia oder neuer"
+          }
+        }
+      }
+    },
+    "macOS already has this drive mounted. Eject it in Finder and try again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS hat dieses Laufwerk bereits aktiviert. Wirf es im Finder aus und versuche es erneut."
+          }
+        }
+      }
+    },
+    "macOS blocked access to the drive. %@ needs Full Disk Access before it can read an encrypted disk.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS hat den Zugriff auf das Laufwerk blockiert. %@ benötigt Festplattenvollzugriff, um eine verschlüsselte Festplatte lesen zu können."
+          }
+        }
+      }
+    },
+    "macOS wrote %@. It is not sent anywhere automatically — attach it to your message if you can.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS hat %@ geschrieben. Er wird nirgendwohin automatisch gesendet — hänge ihn deiner Nachricht an, wenn du kannst."
+          }
+        }
+      }
+    },
+    "not reached": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nicht erreicht"
+          }
+        }
+      }
+    },
+    "stopped here": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hier gestoppt"
+          }
+        }
+      }
+    },
+    "unlocked": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "entsperrt"
+          }
+        }
+      }
+    },
+    "waiting": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wartet"
+          }
+        }
+      }
+    },
+    "“%@” had stopped responding and was disconnected. You can open it again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ hat nicht mehr reagiert und wurde getrennt. Du kannst es erneut öffnen."
+          }
+        }
+      }
+    },
+    "“%@” is unlocked": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ ist entsperrt"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

@@ -16,7 +16,9 @@ enum Appearance: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var label: String {
+    /// A key, not a String: Text(String) shows the string as written, so a
+    /// label typed as String is a label that never translates.
+    var label: LocalizedStringKey {
         switch self {
         case .system: return "System"
         case .light: return "Light"

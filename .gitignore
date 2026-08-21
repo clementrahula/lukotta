@@ -16,3 +16,6 @@ dist/
 
 # The Sparkle PUBLIC key is not a secret, and a clone without it builds an app
 # that trusts no update at all. Tracked deliberately.
+
+# Built from resources/Localizable.xcstrings at build time.
+/resources/*.lproj/
