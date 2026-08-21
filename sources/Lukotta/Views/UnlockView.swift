@@ -25,11 +25,11 @@ struct UnlockView: View {
                             .font(.caption).foregroundStyle(.secondary)
                     }
 
-                    // Said before a password is typed rather than after one
-                    // fails. A Microsoft Basic Data partition is BitLocker,
-                    // plain NTFS or exFAT, and nothing outside the first sector
-                    // distinguishes them.
-                    if let format = model.chosenFormat, format != .bitlocker {
+                    // Only for something that really has no password. Written
+                    // as "not BitLocker" when those were the only three
+                    // formats, it began calling LUKS containers unencrypted
+                    // the moment the probe learned to recognise one.
+                    if let format = model.chosenFormat, format.isUnencrypted {
                         FormatNote(format: format)
                     }
 
@@ -408,12 +408,20 @@ struct PermissionRow: View {
 private struct FormatNote: View {
     let format: VolumeFormat
 
+    /// Exhaustive on purpose. The old `default` said "plain NTFS" for anything
+    /// it did not recognise, which is how a LUKS container came to be described
+    /// as unencrypted NTFS.
     private var title: String {
         switch format {
+        case .ntfs: return String(localized: "This drive is plain NTFS, and is not encrypted.")
         case .exfat: return String(localized: "This drive is exFAT, and is not encrypted.")
         case .ext, .btrfs, .xfs:
             return String(localized: "This drive holds a Linux filesystem, and is not encrypted.")
-        default: return String(localized: "This drive is plain NTFS, and is not encrypted.")
+        case .bitlocker, .luks, .unknown:
+            // Never shown: the note is only put up for a format with nothing to
+            // unlock. Stated rather than defaulted, so adding a format has to
+            // decide which of the two it is.
+            return ""
         }
     }
 

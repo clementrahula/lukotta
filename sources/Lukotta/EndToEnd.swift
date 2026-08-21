@@ -87,7 +87,21 @@ enum EndToEnd {
         check(drive.connection.contains(appString("Disk Image")), "it is listed as a disk image")
 
         // 2. Unlock it.
+        //
+        // Checked before anything is typed: a LUKS container was being
+        // described on this screen as "plain NTFS, and is not encrypted",
+        // because the note was shown for anything that was not BitLocker and
+        // its wording fell through to a default.
         model.choose(drive)
+        guard
+            waitUntil(
+                "the container is identified", timeout: 30,
+                condition: { model.chosenFormat != nil })
+        else { return }
+        check(model.chosenFormat == .luks, "and identified as LUKS, which is what it is")
+        check(!model.chosenDriveIsOpenAlready, "so a passphrase is asked for")
+        check(!model.phase.isMounted, "and nothing is opened behind the question")
+
         model.credential = passphrase
         model.unlock(drive)
         guard
@@ -180,10 +194,11 @@ enum EndToEnd {
         check(model.chosenDriveIsOpenAlready, "so no password is asked for")
         check(model.credential.isEmpty, "and none has been typed")
 
-        model.unlock(drive)
+        // Nothing is asked and nothing is pressed: recognising it as
+        // unencrypted is enough to open it.
         guard
             waitUntil(
-                "it opens with no password at all", timeout: 180,
+                "it opens on its own, without being told to", timeout: 180,
                 condition: {
                     if case .mounted = model.phase { return true }
                     if case .failed = model.phase { return true }

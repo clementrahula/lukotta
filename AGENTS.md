@@ -146,6 +146,11 @@ in, 69 MB out — so a filesystem made that way records one size and later finds
 another and will not mount. `scripts/e2e.sh` puts the length back afterwards.
 This is why fixtures built through the engine look fine and then fail.
 
+`build-app.sh` **runs the tests and refuses to build when they fail**, so
+breaking something on purpose to check a test can fail may leave you running
+the previous binary and drawing the wrong conclusion. Check the binary's
+timestamp changed.
+
 **Check that a new step can fail.** The first version of the rebuild step passed
 against a deliberately broken build, because it waited on the phase — which a
 rebuild does not change — and asserted against the list as it was before.

@@ -169,7 +169,13 @@ final class AppModel: ObservableObject {
     /// A container detached in Finder, or unplugged with the drive it lived on,
     /// should leave the list like anything else. Merging without this would
     /// keep a row for a file that is not there any more.
-    private func reconcileImages(_ found: [Drive], attached: Set<String>) -> [Drive] {
+    private func reconcileImages(_ found: [Drive]) -> [Drive] {
+        // Asked here, now, about the containers we are holding this instant —
+        // not from a set captured before the scan began. A scan started while
+        // a file was still opening carried an empty set, every container was
+        // judged detached, and the drive the user had just opened was declared
+        // unplugged. Two stats against /dev, on the main thread, for that.
+        let attached = DiskImage.stillAttached(Set(imageDrives.keys))
         for identifier in imageDrives.keys where !attached.contains(identifier) {
             Log.drives.notice("a container file is no longer attached")
             imageDrives[identifier] = nil
@@ -495,10 +501,9 @@ final class AppModel: ObservableObject {
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
             let found = DriveScanner.scan(images: images)
-            let attached = DiskImage.stillAttached(images)
             let mounts = EngineStatus.current()
             await MainActor.run {
-                let listed = self.reconcileImages(found, attached: attached)
+                let listed = self.reconcileImages(found)
                 // Against the list as it will be shown, not the raw scan. A
                 // container with no partition table is in one and not the
                 // other, and judging by the scan alone called it unplugged the
@@ -590,9 +595,8 @@ final class AppModel: ObservableObject {
 
             let mounts = EngineStatus.current()
             let found = DriveScanner.scan(images: images)
-            let attached = DiskImage.stillAttached(images)
             await MainActor.run {
-                self.drives = self.reconcileImages(found, attached: attached)
+                self.drives = self.reconcileImages(found)
                 if let name = abandoned.first.map({ URL(fileURLWithPath: $0).lastPathComponent }) {
                     self.notice =
                         abandoned.count > 1
@@ -697,9 +701,8 @@ final class AppModel: ObservableObject {
         Task.detached(priority: .userInitiated) {
             let mounts = EngineStatus.current()
             let found = DriveScanner.scan(images: images)
-            let attached = DiskImage.stillAttached(images)
             await MainActor.run {
-                self.drives = self.reconcileImages(found, attached: attached)
+                self.drives = self.reconcileImages(found)
                 self.openMounts = Dictionary(
                     mounts.map { ($0.devicePath, $0.mountPoint) },
                     uniquingKeysWith: { first, _ in first })
@@ -806,6 +809,15 @@ final class AppModel: ObservableObject {
             guard case .unlock(let current) = self.phase, current.id == identifier else { return }
             Log.drives.notice("identified as \(format.rawValue, privacy: .public)")
             self.chosenFormat = format == .unknown ? nil : format
+
+            // Nothing to unlock, so there is nothing to ask, and a screen
+            // asking anyway is a screen in the way. Only when the field is
+            // still untouched: someone who has started typing has decided
+            // otherwise, whatever the sector says.
+            if format.isUnencrypted, self.credential.isEmpty {
+                Log.mount.notice("opening without asking, nothing is encrypted")
+                self.unlock(current)
+            }
         }
     }
 
