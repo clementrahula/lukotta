@@ -229,6 +229,7 @@ struct PermissionsPanel: View {
                         .font(.system(size: 15))
                         .foregroundStyle(settled ? Color.green : Color.orange)
                         .frame(width: 26)
+                        .accessibilityHidden(true)
                     Text(
                         settled
                             ? "All required permissions granted"
@@ -240,10 +241,15 @@ struct PermissionsPanel: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.tertiary)
                         .rotationEffect(.degrees(expanded ? 90 : 0))
+                        .accessibilityHidden(true)
                 }
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            // Which way the chevron points is the only sign of whether this is
+            // open, and a chevron is not something a screen reader can see.
+            .accessibilityValue(expanded ? "Expanded" : "Collapsed")
+            .accessibilityHint(expanded ? "Hide the details" : "Show what each permission is for")
 
             // Open while anything is outstanding; the user can still collapse it.
             if expanded || !settled {
