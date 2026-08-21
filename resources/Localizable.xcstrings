@@ -8,6 +8,12 @@
             "state": "translated",
             "value": "%@ wurde entfernt"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ a été supprimé"
+          }
         }
       }
     },
@@ -17,6 +23,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ ist freie Software unter der GPL, Version 3 oder höher. Das Aktivieren übernimmt anylinuxfs. Der vollständige Quelltext jeder Komponente wird mit jeder Version veröffentlicht. Der Name und das Logo sind Marken und fallen nicht unter diese Lizenz."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ est un logiciel libre sous licence GPL, version 3 ou ultérieure. Le montage est assuré par anylinuxfs. Le code source complet de chaque composant est publié à chaque version. Le nom et le logo sont des marques et ne sont pas couverts par cette licence."
           }
         }
       }
@@ -28,6 +40,12 @@
             "state": "translated",
             "value": "%@ öffnet BitLocker- und Linux-Laufwerke, die macOS von sich aus nicht lesen kann. Dafür ist zunächst eine Einstellung nötig.\n\nUm ein Laufwerk auf Geräteebene zu lesen, wird Festplattenvollzugriff benötigt — ein Administratorpasswort genügt nicht, und die Berechtigung für entfernbare Volumes umfasst Dateien auf einem Laufwerk, nicht das Gerät selbst. macOS bietet Apps keine Möglichkeit, diese Berechtigung anzufordern, daher muss sie von Hand aktiviert werden."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ouvre les disques BitLocker et Linux que macOS ne sait pas lire seul. Un réglage est nécessaire au préalable.\n\nLire un disque au niveau du périphérique brut exige l’accès complet au disque — un mot de passe administrateur ne suffit pas, et l’autorisation relative aux volumes amovibles couvre les fichiers d’un disque, pas le périphérique lui-même. macOS ne permet à aucune app de demander celle-ci : elle doit être activée à la main."
+          }
         }
       }
     },
@@ -37,6 +55,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ startet eine kleine virtuelle Linux-Maschine, entsperrt das Laufwerk darin und übergibt es zurück an den Finder. macOS kann BitLocker- und Linux-Dateisysteme nicht lesen. Linux schon."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ démarre une petite machine virtuelle Linux, y déverrouille le disque, puis le transmet au Finder. macOS ne sait pas lire les systèmes de fichiers BitLocker ou Linux. Linux, si."
           }
         }
       }
@@ -48,6 +72,12 @@
             "state": "translated",
             "value": "%@ wird in den Papierkorb bewegt."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sera placé dans la corbeille."
+          }
         }
       }
     },
@@ -57,6 +87,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@, gesperrt, %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, verrouillé, %@"
           }
         }
       }
@@ -94,6 +130,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld drives had stopped responding and were disconnected. You can open them again."
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld disque ne répondait plus et a été déconnecté. Vous pouvez l’ouvrir à nouveau."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld disques ne répondaient plus et ont été déconnectés. Vous pouvez les ouvrir à nouveau."
                 }
               }
             }
@@ -138,6 +192,24 @@
               }
             }
           }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Le disque ouvert sera éjecté."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld disques ouverts seront éjectés."
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -147,6 +219,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld Prozent"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld pour cent"
           }
         }
       }
@@ -158,6 +236,12 @@
             "state": "translated",
             "value": "250 MB Speicherplatz: 155 MB für die App, 95 MB für die Linux-Umgebung, die beim ersten Verwenden entpackt wird"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 Mo d’espace disque : 155 Mo pour l’app, 95 Mo pour l’environnement Linux décompressé à la première utilisation"
+          }
         }
       }
     },
@@ -167,6 +251,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "30 bis 80 MB RAM pro entsperrtem Laufwerk"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 à 80 Mo de mémoire vive par disque déverrouillé"
           }
         }
       }
@@ -178,6 +268,12 @@
             "state": "translated",
             "value": "Ein Absturzbericht wurde gefunden"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un rapport de plantage a été trouvé"
+          }
         }
       }
     },
@@ -187,6 +283,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Über %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À propos de %@"
           }
         }
       }
@@ -198,6 +300,12 @@
             "state": "translated",
             "value": "Über & Hilfe"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À propos et aide"
+          }
         }
       }
     },
@@ -207,6 +315,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Etwa zehn Laufwerke können gleichzeitig entsperrt bleiben"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une dizaine de disques peuvent rester déverrouillés en même temps"
           }
         }
       }
@@ -218,6 +332,12 @@
             "state": "translated",
             "value": "Administratorpasswort"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe administrateur"
+          }
         }
       }
     },
@@ -227,6 +347,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Administratorpasswort — wird einmal beim Einrichten des Hintergrund-Helfers abgefragt, danach nicht mehr. %@ sieht es nie"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe administrateur — demandé une seule fois lors de la configuration de l’assistant en arrière-plan, puis plus jamais. %@ ne le voit jamais"
           }
         }
       }
@@ -238,6 +364,12 @@
             "state": "translated",
             "value": "Alle Laufwerke"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous les disques"
+          }
         }
       }
     },
@@ -247,6 +379,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Alle erforderlichen Berechtigungen erteilt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toutes les autorisations requises sont accordées"
           }
         }
       }
@@ -288,6 +426,24 @@
               }
             }
           }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Supprimer aussi la phrase secrète enregistrée pour %2$@"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Supprimer aussi %1$lld phrases secrètes enregistrées (%2$@)"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -297,6 +453,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ein Mac mit Apple Silicon. Intel-Macs werden nicht unterstützt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un Mac Apple Silicon. Les Mac Intel ne sont pas pris en charge"
           }
         }
       }
@@ -308,6 +470,12 @@
             "state": "translated",
             "value": "Ein anderes Laufwerk ist geöffnet, und die Laufwerks-Engine muss nach einer Änderung beim ersten Mal allein laufen. Wirf die anderen Laufwerke aus, öffne dieses, danach können wieder alle gleichzeitig geöffnet sein."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un autre disque est ouvert, et le moteur doit s’exécuter seul la première fois après une modification. Éjectez les autres disques, ouvrez celui-ci, puis ils pourront de nouveau être ouverts ensemble."
+          }
         }
       }
     },
@@ -317,6 +485,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Erscheinungsbild"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apparence"
           }
         }
       }
@@ -328,6 +502,12 @@
             "state": "translated",
             "value": "Erscheint nur, solange ein Laufwerk entsperrt ist, zum Auswerfen."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "N’apparaît que lorsqu’un disque est déverrouillé, pour l’éjecter."
+          }
         }
       }
     },
@@ -337,6 +517,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Entwickler"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Développeur"
           }
         }
       }
@@ -348,6 +534,12 @@
             "state": "translated",
             "value": "Zurück"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour"
+          }
         }
       }
     },
@@ -357,6 +549,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "BitLocker-Laufwerke, entsperrt mit dem Volume-Passwort oder einem 48-stelligen Wiederherstellungsschlüssel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les disques BitLocker, déverrouillés avec le mot de passe du volume ou une clé de récupération à 48 chiffres"
           }
         }
       }
@@ -368,6 +566,12 @@
             "state": "translated",
             "value": "Abbrechen"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler"
+          }
         }
       }
     },
@@ -377,6 +581,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Feststelltaste ist aktiviert"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La touche Verr. maj. est activée"
           }
         }
       }
@@ -388,6 +598,12 @@
             "state": "translated",
             "value": "Erneut prüfen"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifier à nouveau"
+          }
         }
       }
     },
@@ -397,6 +613,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Jetzt suchen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifier maintenant"
           }
         }
       }
@@ -408,6 +630,12 @@
             "state": "translated",
             "value": "Nach Updates suchen …"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher les mises à jour…"
+          }
         }
       }
     },
@@ -417,6 +645,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Automatisch nach Updates suchen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher les mises à jour automatiquement"
           }
         }
       }
@@ -428,6 +662,12 @@
             "state": "translated",
             "value": "Klicke auf „+“, füge %@ hinzu und aktiviere den Schalter."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cliquez sur « + », ajoutez %@, puis activez l’option."
+          }
         }
       }
     },
@@ -437,6 +677,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ausgeblendet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réduit"
           }
         }
       }
@@ -448,6 +694,12 @@
             "state": "translated",
             "value": "Komm hierher zurück und wähle „Neu starten“ — eine neue Berechtigung gilt erst für eine frisch gestartete App."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revenez ici et choisissez « Relancer » — une nouvelle autorisation ne s’applique qu’à une app qui vient de démarrer."
+          }
         }
       }
     },
@@ -457,6 +709,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Schließe das verschlüsselte Laufwerk an und wähle „Erneut suchen“. Falls es bereits angeschlossen ist, hat macOS es möglicherweise aktiviert — wirf es dann zuerst im Finder aus."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez le disque chiffré, puis choisissez « Rechercher à nouveau ». S’il est déjà connecté, macOS l’a peut-être monté — éjectez-le d’abord dans le Finder."
           }
         }
       }
@@ -468,6 +726,12 @@
             "state": "translated",
             "value": "Kopiert"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copié"
+          }
         }
       }
     },
@@ -478,6 +742,12 @@
             "state": "translated",
             "value": "Details kopieren"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copier les détails"
+          }
         }
       }
     },
@@ -487,6 +757,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dunkel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sombre"
           }
         }
       }
@@ -528,6 +804,24 @@
               }
             }
           }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Suppression de la phrase secrète enregistrée"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Suppression de %lld phrases secrètes enregistrées"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -537,6 +831,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Linux-Umgebung wird gelöscht"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suppression de l’environnement Linux"
           }
         }
       }
@@ -548,6 +848,12 @@
             "state": "translated",
             "value": "Details, die mitgesendet werden"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Détails qui seront inclus"
+          }
         }
       }
     },
@@ -557,6 +863,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fertig"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
           }
         }
       }
@@ -568,6 +880,12 @@
             "state": "translated",
             "value": "Updates laden und installieren"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les télécharger et les installer"
+          }
         }
       }
     },
@@ -577,6 +895,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Laufwerke, die an ein TPM statt an ein Passwort gebunden sind, einschließlich der neueren hardwaregestützten Verschlüsselung von Ubuntu"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les disques scellés à un TPM plutôt qu’à un mot de passe, y compris le chiffrement matériel plus récent d’Ubuntu"
           }
         }
       }
@@ -588,6 +912,12 @@
             "state": "translated",
             "value": "Auswerfen"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éjecter"
+          }
         }
       }
     },
@@ -598,6 +928,12 @@
             "state": "translated",
             "value": "%@ auswerfen"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éjecter %@"
+          }
         }
       }
     },
@@ -607,6 +943,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Auswerfen und beenden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éjecter et quitter"
           }
         }
       }
@@ -648,6 +990,24 @@
               }
             }
           }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Éjection du disque ouvert"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Éjection de %lld disques ouverts"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -657,6 +1017,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Wird ausgeworfen …"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éjection…"
           }
         }
       }
@@ -668,6 +1034,12 @@
             "state": "translated",
             "value": "Ausgabe der Engine"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sortie du moteur"
+          }
         }
       }
     },
@@ -677,6 +1049,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gib die Passphrase des Laufwerks ein."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisissez la phrase secrète du disque."
           }
         }
       }
@@ -688,6 +1066,12 @@
             "state": "translated",
             "value": "Gib das Passwort des Laufwerks ein oder seinen 48-stelligen Wiederherstellungsschlüssel."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisissez le mot de passe du disque ou sa clé de récupération à 48 chiffres."
+          }
         }
       }
     },
@@ -697,6 +1081,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Alles Übrige wurde entfernt. %@ selbst konnte nicht in den Papierkorb bewegt werden — %@ — bewege es zum Abschluss selbst dorthin."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout le reste a été supprimé. %@ lui-même n’a pas pu être placé dans la corbeille — %@ — faites-le glisser vous-même pour terminer."
           }
         }
       }
@@ -708,6 +1098,12 @@
             "state": "translated",
             "value": "Eingeblendet"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Développé"
+          }
         }
       }
     },
@@ -717,6 +1113,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Extern"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Externe"
           }
         }
       }
@@ -728,6 +1130,12 @@
             "state": "translated",
             "value": "Vergessen"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oublier"
+          }
         }
       }
     },
@@ -737,6 +1145,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Festplattenvollzugriff"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès complet au disque"
           }
         }
       }
@@ -748,12 +1162,24 @@
             "state": "translated",
             "value": "Festplattenvollzugriff — ohne ihn lässt macOS keine App den Rohinhalt eines Laufwerks lesen. Er kann nicht angefordert werden und muss daher von Hand aktiviert werden"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès complet au disque — sans lui, macOS n’autorise aucune app à lire le contenu brut d’un disque. Il ne peut pas être demandé et doit donc être activé à la main"
+          }
         }
       }
     },
     "GNU General Public License": {
       "localizations": {
         "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        },
+        "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "GNU General Public License"
@@ -768,6 +1194,12 @@
             "state": "translated",
             "value": "Erteilt"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accordée"
+          }
         }
       }
     },
@@ -777,6 +1209,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ausblenden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer"
           }
         }
       }
@@ -788,6 +1226,12 @@
             "state": "translated",
             "value": "Eingabe verbergen"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer la saisie"
+          }
         }
       }
     },
@@ -797,6 +1241,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Details ausblenden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer les détails"
           }
         }
       }
@@ -808,6 +1258,12 @@
             "state": "translated",
             "value": "Wie %@ funktioniert und was es unterstützt"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment %@ fonctionne et ce qu’il prend en charge"
+          }
         }
       }
     },
@@ -817,6 +1273,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Funktionsweise"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fonctionnement"
           }
         }
       }
@@ -828,6 +1290,12 @@
             "state": "translated",
             "value": "Intern"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interne"
+          }
         }
       }
     },
@@ -837,6 +1305,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Es liegt im Papierkorb. Sonst ist nichts davon auf diesem Mac verblieben."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il est dans la corbeille. Rien d’autre n’en subsiste sur ce Mac."
           }
         }
       }
@@ -848,6 +1322,12 @@
             "state": "translated",
             "value": "LUKS-Laufwerke von Linux, LUKS1 und LUKS2"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les disques LUKS de Linux, LUKS1 comme LUKS2"
+          }
         }
       }
     },
@@ -857,6 +1337,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LUKS-Volumes, deren Header getrennt vom Laufwerk gespeichert ist"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les volumes LUKS dont l’en-tête est stocké séparément du disque"
           }
         }
       }
@@ -868,6 +1354,12 @@
             "state": "translated",
             "value": "LVM innerhalb von LUKS, wie es Ubuntu, Debian, Mint und Fedora einrichten. Mehrere Volumes auf einem Laufwerk werden gemeinsam entsperrt"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM dans LUKS, tel que le configurent Ubuntu, Debian, Mint et Fedora. Plusieurs volumes sur un même disque se déverrouillent ensemble"
+          }
         }
       }
     },
@@ -877,6 +1369,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sprache"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Langue"
           }
         }
       }
@@ -888,6 +1386,12 @@
             "state": "translated",
             "value": "Zuletzt gesucht: %@"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dernière vérification : %@"
+          }
         }
       }
     },
@@ -897,6 +1401,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Geöffnet lassen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laisser ouvert"
           }
         }
       }
@@ -908,6 +1418,12 @@
             "state": "translated",
             "value": "Ermöglicht %@, die verschlüsselten Daten selbst zu lesen."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permet à %@ de lire lui-même les données chiffrées."
+          }
         }
       }
     },
@@ -917,6 +1433,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ermöglicht %@, die verschlüsselten Daten selbst zu lesen. Ohne diese Berechtigung blockiert macOS das selbst für Administratoren, und sie kann nicht angefordert werden — sie muss von Hand aktiviert werden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permet à %@ de lire lui-même les données chiffrées. Sans cette autorisation, macOS le bloque, même pour les administrateurs, et elle ne peut pas être demandée : elle doit être activée à la main."
           }
         }
       }
@@ -928,6 +1450,12 @@
             "state": "translated",
             "value": "Lizenz"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licence"
+          }
         }
       }
     },
@@ -937,6 +1465,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hell"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clair"
           }
         }
       }
@@ -948,6 +1482,12 @@
             "state": "translated",
             "value": "Ort"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emplacement"
+          }
         }
       }
     },
@@ -957,6 +1497,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gesperrt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verrouillé"
           }
         }
       }
@@ -968,6 +1514,12 @@
             "state": "translated",
             "value": "Suche nach verschlüsselten Laufwerken …"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche de disques chiffrés…"
+          }
         }
       }
     },
@@ -977,6 +1529,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lúkotta ist Finnisch für „ohne Schloss“, von lukko, einem Schloss, mit der Endung -tta, die das Fehlen von etwas bezeichnet. Die Betonung liegt auf der ersten Silbe, wie im Finnischen immer."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lúkotta signifie « sans serrure » en finnois, de lukko, une serrure, avec la terminaison -tta qui marque l’absence de quelque chose. L’accent tonique porte sur la première syllabe, comme toujours en finnois."
           }
         }
       }
@@ -988,6 +1546,12 @@
             "state": "translated",
             "value": "Menüleiste"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barre des menus"
+          }
         }
       }
     },
@@ -997,6 +1561,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ wird in den Papierkorb bewegt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Placement de %@ dans la corbeille"
           }
         }
       }
@@ -1008,6 +1578,12 @@
             "state": "translated",
             "value": "Erforderlich"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requise"
+          }
         }
       }
     },
@@ -1017,6 +1593,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keine verschlüsselten Laufwerke gefunden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun disque chiffré trouvé"
           }
         }
       }
@@ -1028,6 +1610,12 @@
             "state": "translated",
             "value": "Es wurde kein Grund gemeldet. Die Details unten sagen möglicherweise mehr."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune raison n’a été signalée. Les détails ci-dessous en disent peut-être davantage."
+          }
         }
       }
     },
@@ -1037,6 +1625,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "In dieser Version nicht enthalten."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Absent de cette version."
           }
         }
       }
@@ -1048,6 +1642,12 @@
             "state": "translated",
             "value": "Es wird nichts installiert. Die Engine steckt in der App, nichts verlässt deinen Mac, und auf ein Laufwerk wird nur geschrieben, wenn du darauf schreibst."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien n’est installé. Le moteur est intégré à l’app, rien ne quitte votre Mac, et un disque n’est écrit que lorsque vous y écrivez."
+          }
         }
       }
     },
@@ -1057,6 +1657,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sobald der Hintergrund-Helfer eingerichtet ist, lässt ein Update entsperrte Laufwerke unberührt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une fois l’assistant en arrière-plan configuré, une mise à jour laissera les disques déverrouillés tranquilles."
           }
         }
       }
@@ -1068,6 +1674,12 @@
             "state": "translated",
             "value": "%@ öffnen"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir %@"
+          }
         }
       }
     },
@@ -1077,6 +1689,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "E-Mail öffnen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir la messagerie"
           }
         }
       }
@@ -1088,6 +1706,12 @@
             "state": "translated",
             "value": "Öffne „Datenschutz & Sicherheit“ → „Festplattenvollzugriff“."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez « Confidentialité et sécurité » → « Accès complet au disque »."
+          }
         }
       }
     },
@@ -1097,6 +1721,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Datenschutzeinstellungen öffnen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les réglages de confidentialité"
           }
         }
       }
@@ -1108,6 +1738,12 @@
             "state": "translated",
             "value": "Verschlüsselte Laufwerke unter macOS öffnen"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez des disques chiffrés sur macOS"
+          }
         }
       }
     },
@@ -1117,6 +1753,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„%@“ wird geöffnet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouverture de « %@ »"
           }
         }
       }
@@ -1128,6 +1770,12 @@
             "state": "translated",
             "value": "Passphrase"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phrase secrète"
+          }
         }
       }
     },
@@ -1137,6 +1785,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Passwort oder Wiederherstellungsschlüssel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe ou clé de récupération"
           }
         }
       }
@@ -1148,6 +1802,12 @@
             "state": "translated",
             "value": "Berechtigungen"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorisations"
+          }
         }
       }
     },
@@ -1158,6 +1818,12 @@
             "state": "translated",
             "value": "Beenden"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitter"
+          }
         }
       }
     },
@@ -1167,6 +1833,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ beenden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitter %@"
           }
         }
       }
@@ -1208,6 +1880,24 @@
               }
             }
           }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Quitter et laisser %lld disque ouvert ?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Quitter et laisser %lld disques ouverts ?"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1217,6 +1907,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Beenden und „%@“ geöffnet lassen?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitter et laisser « %@ » ouvert ?"
           }
         }
       }
@@ -1228,6 +1924,12 @@
             "state": "translated",
             "value": "Neu starten"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relancer"
+          }
         }
       }
     },
@@ -1237,6 +1939,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Diesen Schlüssel in meinem Schlüsselbund sichern"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mémoriser cette clé dans mon trousseau"
           }
         }
       }
@@ -1248,6 +1956,12 @@
             "state": "translated",
             "value": "Entfernbare Volumes — von macOS beim ersten Lesen eines Laufwerks angefordert"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volumes amovibles — demandé par macOS la première fois qu’un disque est lu"
+          }
         }
       }
     },
@@ -1257,6 +1971,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ wird entfernt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suppression de %@"
           }
         }
       }
@@ -1268,6 +1988,12 @@
             "state": "translated",
             "value": "Einstellungen werden entfernt"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suppression des réglages"
+          }
         }
       }
     },
@@ -1277,6 +2003,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dieses Problem melden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signaler ce problème"
           }
         }
       }
@@ -1288,6 +2020,12 @@
             "state": "translated",
             "value": "Ein Problem melden"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signaler un problème"
+          }
         }
       }
     },
@@ -1297,6 +2035,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ein Problem melden oder einen Absturzbericht senden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signaler un problème ou envoyer un rapport de plantage"
           }
         }
       }
@@ -1308,6 +2052,12 @@
             "state": "translated",
             "value": "Problem melden"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signaler un problème"
+          }
         }
       }
     },
@@ -1317,6 +2067,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Problem melden …"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signaler un problème…"
           }
         }
       }
@@ -1328,6 +2084,12 @@
             "state": "translated",
             "value": "Systemvoraussetzungen"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configuration requise"
+          }
         }
       }
     },
@@ -1337,6 +2099,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Erneut suchen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher à nouveau"
           }
         }
       }
@@ -1348,6 +2116,12 @@
             "state": "translated",
             "value": "App im Finder zeigen"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher l’app dans le Finder"
+          }
         }
       }
     },
@@ -1357,6 +2131,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Angeschlossene Laufwerke sehen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voir les disques connectés"
           }
         }
       }
@@ -1368,6 +2148,12 @@
             "state": "translated",
             "value": "Wähle ein Laufwerk zum Entsperren"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionnez un disque à déverrouiller"
+          }
         }
       }
     },
@@ -1377,6 +2163,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Linux-Umgebung wird eingerichtet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configuration de l’environnement Linux"
           }
         }
       }
@@ -1388,6 +2180,12 @@
             "state": "translated",
             "value": "Einblenden"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher"
+          }
         }
       }
     },
@@ -1397,6 +2195,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ in der Menüleiste anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher %@ dans la barre des menus"
           }
         }
       }
@@ -1408,6 +2212,12 @@
             "state": "translated",
             "value": "Im Finder zeigen"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher dans le Finder"
+          }
         }
       }
     },
@@ -1417,6 +2227,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Eingabe anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher la saisie"
           }
         }
       }
@@ -1428,6 +2244,12 @@
             "state": "translated",
             "value": "Zeigen, wofür jede Berechtigung dient"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher à quoi sert chaque autorisation"
+          }
         }
       }
     },
@@ -1437,6 +2259,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Es fehlen noch Berechtigungen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certaines autorisations manquent encore"
           }
         }
       }
@@ -1448,6 +2276,12 @@
             "state": "translated",
             "value": "Quelltext"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code source"
+          }
         }
       }
     },
@@ -1457,6 +2291,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "System"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Système"
           }
         }
       }
@@ -1468,6 +2308,12 @@
             "state": "translated",
             "value": "„System“ folgt der Sprache deines Mac."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Système » suit la langue de votre Mac."
+          }
         }
       }
     },
@@ -1477,6 +2323,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„System“ folgt der Einstellung deines Mac, auch wenn sie sich ändert."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Système » suit le réglage de votre Mac, y compris lorsqu’il change."
           }
         }
       }
@@ -1488,6 +2340,12 @@
             "state": "translated",
             "value": "Dieses Passwort bzw. dieser Wiederherstellungsschlüssel hat das Laufwerk nicht entsperrt."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce mot de passe ou cette clé de récupération n’a pas déverrouillé ce disque."
+          }
         }
       }
     },
@@ -1497,6 +2355,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Die Linux-Umgebung wird einmalig beim ersten Verwenden entpackt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’environnement Linux n’est décompressé qu’une seule fois, à la première utilisation."
           }
         }
       }
@@ -1508,6 +2372,12 @@
             "state": "translated",
             "value": "Die Linux-Umgebung wird gelöscht und gibt etwa %lld MB frei."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’environnement Linux sera supprimé, libérant environ %lld Mo."
+          }
         }
       }
     },
@@ -1517,6 +2387,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Der Hintergrund-Helfer ist nicht eingerichtet, daher hält %@ das Laufwerk selbst offen. Beenden trennt es jetzt, und alles, was noch geschrieben wird, würde nicht abgeschlossen.\n\nSobald der Helfer eingerichtet ist, bleiben Laufwerke von selbst geöffnet."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’assistant en arrière-plan n’est pas configuré : %@ maintient donc le disque ouvert lui-même. Quitter maintenant le déconnecte, et tout ce qui reste à écrire ne serait pas terminé.\n\nUne fois l’assistant configuré, les disques restent ouverts d’eux-mêmes."
           }
         }
       }
@@ -1528,6 +2404,12 @@
             "state": "translated",
             "value": "Der Hintergrund-Helfer ist nicht eingerichtet, daher hält %@ sie selbst offen. Beenden trennt sie jetzt, und alles, was noch geschrieben wird, würde nicht abgeschlossen.\n\nSobald der Helfer eingerichtet ist, bleiben Laufwerke von selbst geöffnet."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’assistant en arrière-plan n’est pas configuré : %@ les maintient donc ouverts lui-même. Quitter maintenant les déconnecte, et tout ce qui reste à écrire ne serait pas terminé.\n\nUne fois l’assistant configuré, les disques restent ouverts d’eux-mêmes."
+          }
         }
       }
     },
@@ -1537,6 +2419,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Die Registrierung des Hintergrund-Helfers wird aufgehoben."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’assistant en arrière-plan sera désenregistré."
           }
         }
       }
@@ -1548,6 +2436,12 @@
             "state": "translated",
             "value": "Das Laufwerk erscheint in der Finder-Seitenleiste unter „Orte“.\nWirf es hier oder im Finder aus, bevor du es abziehst."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le disque apparaît dans la barre latérale du Finder, sous « Emplacements ».\nÉjectez-le ici ou dans le Finder avant de le débrancher."
+          }
         }
       }
     },
@@ -1557,6 +2451,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das Laufwerk ist belegt. Schließe alles, was es verwendet, und versuche es erneut."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le disque est occupé. Fermez tout ce qui l’utilise, puis réessayez."
           }
         }
       }
@@ -1568,6 +2468,12 @@
             "state": "translated",
             "value": "Das Laufwerk wird dem Finder über eine lokale Netzwerkverbindung übergeben und erscheint deshalb unter „Orte“ mit einem Netzwerksymbol. Es liest, schreibt und wird ausgeworfen wie jedes andere Laufwerk. macOS bietet keine Möglichkeit, es als lokales Volume darzustellen."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le disque est transmis au Finder via une connexion réseau locale : il apparaît donc sous « Emplacements » avec une icône de réseau. Il se lit, s’écrit et s’éjecte comme n’importe quel autre disque. macOS n’offre aucun moyen de le présenter comme un disque local."
+          }
         }
       }
     },
@@ -1577,6 +2483,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das Laufwerk bleibt nach dem Beenden von %@ im Finder. Wirf es dort aus, wenn du fertig bist."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le disque reste dans le Finder après la fermeture de %@. Éjectez-le depuis le Finder lorsque vous avez terminé."
           }
         }
       }
@@ -1588,6 +2500,12 @@
             "state": "translated",
             "value": "Das Laufwerk wurde nicht geöffnet"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le disque n’a pas été ouvert"
+          }
         }
       }
     },
@@ -1597,6 +2515,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das Laufwerk wurde nicht geöffnet. %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le disque n’a pas été ouvert. %@"
           }
         }
       }
@@ -1608,6 +2532,12 @@
             "state": "translated",
             "value": "Windows hat das Laufwerk nicht sauber heruntergefahren. Deaktiviere den Schnellstart in Windows oder fahre Windows vollständig herunter, statt in den Ruhezustand zu wechseln, und versuche es erneut."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows n’a pas arrêté le disque proprement. Désactivez le démarrage rapide dans Windows, ou arrêtez complètement Windows au lieu de le mettre en veille prolongée, puis réessayez."
+          }
         }
       }
     },
@@ -1617,6 +2547,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Die Engine hat auf diesem Volume kein Dateisystem erkannt. Falls es verschlüsselt ist, ist möglicherweise das Passwort oder der Wiederherstellungsschlüssel falsch."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le moteur n’a reconnu aucun système de fichiers sur ce volume. S’il est chiffré, le mot de passe ou la clé de récupération est peut-être incorrect."
           }
         }
       }
@@ -1628,6 +2564,12 @@
             "state": "translated",
             "value": "Die Engine hat überhaupt nichts gemeldet. Möglicherweise wurde das Laufwerk abgezogen."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le moteur n’a rien signalé du tout. Le disque a peut-être été débranché."
+          }
         }
       }
     },
@@ -1637,6 +2579,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Die Sprache ändert sich, wenn %@ neu gestartet wird."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La langue change au prochain démarrage de %@."
           }
         }
       }
@@ -1648,6 +2596,12 @@
             "state": "translated",
             "value": "Der Name"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le nom"
+          }
         }
       }
     },
@@ -1657,6 +2611,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Die Passphrase, mit der dieses Laufwerk verschlüsselt wurde."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La phrase secrète avec laquelle ce disque a été chiffré."
           }
         }
       }
@@ -1668,6 +2628,12 @@
             "state": "translated",
             "value": "Das Passwort, mit dem das Laufwerk gesperrt wurde, oder ein 48-stelliger BitLocker-Wiederherstellungsschlüssel. Leerzeichen und Bindestriche im Wiederherstellungsschlüssel werden ignoriert."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le mot de passe avec lequel le disque a été verrouillé, ou une clé de récupération BitLocker à 48 chiffres. Les espaces et les traits d’union d’une clé de récupération sont ignorés."
+          }
         }
       }
     },
@@ -1677,6 +2643,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Die Virtualisierungs-Engine konnte nicht starten. Ein Neustart behebt das meistens."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le moteur de virtualisation n’a pas pu démarrer. Un redémarrage suffit généralement à corriger cela."
           }
         }
       }
@@ -1688,6 +2660,12 @@
             "state": "translated",
             "value": "Sie bleiben nach dem Beenden von %@ im Finder. Wirf sie dort aus, wenn du fertig bist."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ils restent dans le Finder après la fermeture de %@. Éjectez-les depuis le Finder lorsque vous avez terminé."
+          }
         }
       }
     },
@@ -1697,6 +2675,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hinweise zu Drittanbietern"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mentions relatives aux tiers"
           }
         }
       }
@@ -1708,6 +2692,12 @@
             "state": "translated",
             "value": "Dieses Laufwerk enthält mehrere Volumes, und %@ konnte nicht ermitteln, welche. Eine Meldung darüber würde helfen."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce disque contient plusieurs volumes, et %@ n’a pas pu déterminer lesquels. Le signaler serait utile."
+          }
         }
       }
     },
@@ -1717,6 +2707,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das ist eine Datenschutzeinstellung von macOS, keine Änderung an deinem Mac. Du kannst sie jederzeit wieder deaktivieren, und es wird nichts installiert."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il s’agit d’un réglage de confidentialité de macOS, pas d’une modification de votre Mac. Vous pouvez le désactiver à tout moment, et rien n’est installé."
           }
         }
       }
@@ -1728,6 +2724,12 @@
             "state": "translated",
             "value": "Diese Partition ist kein BitLocker-Volume."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette partition n’est pas un volume BitLocker."
+          }
         }
       }
     },
@@ -1737,6 +2739,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das dauert einen Moment."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cela prend un instant."
           }
         }
       }
@@ -1748,6 +2756,12 @@
             "state": "translated",
             "value": "Das dauert normalerweise weniger als eine Minute."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cela prend généralement moins d’une minute."
+          }
         }
       }
     },
@@ -1757,6 +2771,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Erneut versuchen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réessayer"
           }
         }
       }
@@ -1768,6 +2788,12 @@
             "state": "translated",
             "value": "Deinstallieren"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désinstaller"
+          }
         }
       }
     },
@@ -1777,6 +2803,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ deinstallieren?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désinstaller %@ ?"
           }
         }
       }
@@ -1788,6 +2820,12 @@
             "state": "translated",
             "value": "%@ deinstallieren …"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désinstaller %@…"
+          }
         }
       }
     },
@@ -1797,6 +2835,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Entsperren"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déverrouiller"
           }
         }
       }
@@ -1808,6 +2852,12 @@
             "state": "translated",
             "value": "Dieses Laufwerk entsperren"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déverrouiller ce disque"
+          }
         }
       }
     },
@@ -1817,6 +2867,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Er wird direkt zum Entsperren verwendet. Vergiss ihn, um einen anderen einzugeben."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le déverrouillage l’utilise directement. Oubliez-la pour en saisir une autre."
           }
         }
       }
@@ -1828,6 +2884,12 @@
             "state": "translated",
             "value": "„%@“ entsperren"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déverrouiller « %@ »"
+          }
         }
       }
     },
@@ -1837,6 +2899,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Entsperrt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déverrouillé"
           }
         }
       }
@@ -1848,6 +2916,12 @@
             "state": "translated",
             "value": "Entsperrt unter %@"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déverrouillé dans %@"
+          }
         }
       }
     },
@@ -1857,6 +2931,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Registrierung des Hintergrund-Helfers wird aufgehoben"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désenregistrement de l’assistant en arrière-plan"
           }
         }
       }
@@ -1868,6 +2948,12 @@
             "state": "translated",
             "value": "Updates"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mises à jour"
+          }
         }
       }
     },
@@ -1877,6 +2963,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ein Update wirft deine Laufwerke nicht aus. Alles Entsperrte bleibt entsperrt und funktioniert weiter."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une mise à jour n’éjecte pas vos disques. Tout ce qui est déverrouillé le reste et continue de fonctionner."
           }
         }
       }
@@ -1888,12 +2980,24 @@
             "state": "translated",
             "value": "Der im Schlüsselbund gesicherte Schlüssel wird verwendet"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilisation de la clé enregistrée dans votre trousseau"
+          }
         }
       }
     },
     "Version %@ (%@)": {
       "localizations": {
         "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@ (%@)"
+          }
+        },
+        "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Version %@ (%@)"
@@ -1908,6 +3012,12 @@
             "state": "translated",
             "value": "Geöffnete Volumes"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volumes ouverts"
+          }
         }
       }
     },
@@ -1917,6 +3027,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Website"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Site web"
           }
         }
       }
@@ -1928,6 +3044,12 @@
             "state": "translated",
             "value": "Willkommen bei %@"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bienvenue dans %@"
+          }
         }
       }
     },
@@ -1937,6 +3059,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Was ein Laufwerk enthält, ist erst nach dem Entsperren bekannt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le contenu d’un disque n’est connu qu’une fois celui-ci déverrouillé."
           }
         }
       }
@@ -1948,6 +3076,12 @@
             "state": "translated",
             "value": "Was ist passiert"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Que s’est-il passé"
+          }
         }
       }
     },
@@ -1957,6 +3091,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Was ist passiert?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Que s’est-il passé ?"
           }
         }
       }
@@ -1968,6 +3108,12 @@
             "state": "translated",
             "value": "Was geöffnet werden kann"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce qu’il peut ouvrir"
+          }
         }
       }
     },
@@ -1977,6 +3123,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Was nicht geöffnet werden kann"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce qu’il ne peut pas ouvrir"
           }
         }
       }
@@ -1988,6 +3140,12 @@
             "state": "translated",
             "value": "Was zu tun ist"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Que faire"
+          }
         }
       }
     },
@@ -1997,6 +3155,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Warum es als Netzlaufwerk erscheint"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pourquoi il apparaît comme un disque réseau"
           }
         }
       }
@@ -2008,6 +3172,12 @@
             "state": "translated",
             "value": "Windows-NTFS-Laufwerke, auch solche, die Windows im Ruhezustand oder nicht ordnungsgemäß heruntergefahren hinterlassen hat"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les disques NTFS Windows, y compris ceux que Windows a laissés en veille prolongée ou mal arrêtés"
+          }
         }
       }
     },
@@ -2017,6 +3187,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Du kannst Dateien darauf lesen und schreiben."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous pouvez y lire et y écrire des fichiers."
           }
         }
       }
@@ -2028,6 +3204,12 @@
             "state": "translated",
             "value": "Du kannst weiterhin jederzeit selbst suchen."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous pouvez toujours vérifier quand vous le souhaitez."
+          }
         }
       }
     },
@@ -2037,6 +3219,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dein Laufwerk wurde nicht verändert. Ein fehlgeschlagener Entsperrversuch kann den Daten darauf nicht schaden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre disque n’a pas été modifié. Un déverrouillage qui échoue ne peut pas endommager les données qu’il contient."
           }
         }
       }
@@ -2048,6 +3236,12 @@
             "state": "translated",
             "value": "erledigt"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "terminé"
+          }
         }
       }
     },
@@ -2057,6 +3251,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "ext4-, btrfs- und XFS-Dateisysteme darin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les systèmes de fichiers ext4, btrfs et XFS qu’ils contiennent"
           }
         }
       }
@@ -2068,6 +3268,12 @@
             "state": "translated",
             "value": "läuft"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "en cours"
+          }
         }
       }
     },
@@ -2077,6 +3283,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "gesperrt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "verrouillé"
           }
         }
       }
@@ -2088,6 +3300,12 @@
             "state": "translated",
             "value": "macOS 15 Sequoia oder neuer"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 15 Sequoia ou ultérieur"
+          }
         }
       }
     },
@@ -2097,6 +3315,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS hat dieses Laufwerk bereits aktiviert. Wirf es im Finder aus und versuche es erneut."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS a déjà monté ce disque. Éjectez-le dans le Finder, puis réessayez."
           }
         }
       }
@@ -2108,6 +3332,12 @@
             "state": "translated",
             "value": "macOS hat den Zugriff auf das Laufwerk blockiert. %@ benötigt Festplattenvollzugriff, um eine verschlüsselte Festplatte lesen zu können."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS a bloqué l’accès au disque. %@ a besoin de l’accès complet au disque pour pouvoir lire un disque chiffré."
+          }
         }
       }
     },
@@ -2117,6 +3347,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS hat %@ geschrieben. Er wird nirgendwohin automatisch gesendet — hänge ihn deiner Nachricht an, wenn du kannst."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS a écrit %@. Il n’est envoyé nulle part automatiquement — joignez-le à votre message si vous le pouvez."
           }
         }
       }
@@ -2128,6 +3364,12 @@
             "state": "translated",
             "value": "nicht erreicht"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "non atteint"
+          }
         }
       }
     },
@@ -2137,6 +3379,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "hier gestoppt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "arrêté ici"
           }
         }
       }
@@ -2148,6 +3396,12 @@
             "state": "translated",
             "value": "entsperrt"
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "déverrouillé"
+          }
         }
       }
     },
@@ -2157,6 +3411,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "wartet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "en attente"
           }
         }
       }
@@ -2168,6 +3428,12 @@
             "state": "translated",
             "value": "„%@“ hat nicht mehr reagiert und wurde getrennt. Du kannst es erneut öffnen."
           }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » ne répondait plus et a été déconnecté. Vous pouvez l’ouvrir à nouveau."
+          }
         }
       }
     },
@@ -2177,6 +3443,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„%@“ ist entsperrt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » est déverrouillé"
           }
         }
       }
