@@ -6,13 +6,16 @@ import LukottaCore
 // would put them out of reach of anyone building from source, and of CI.
 var failures = 0, checks = 0, currentGroup = ""
 
-func group(_ name: String, _ body: () -> Void) {
+// Top-level code is on the main actor, so the state these keep is too.
+@MainActor
+func group(_ name: String, _ body: @MainActor () -> Void) {
     currentGroup = name
     let before = failures
     body()
     print("  \(failures == before ? "ok  " : "FAIL") \(name)")
 }
 
+@MainActor
 func expect(_ actual: String, _ expected: String, _ what: String) {
     checks += 1
     if actual != expected {
@@ -23,6 +26,7 @@ func expect(_ actual: String, _ expected: String, _ what: String) {
     }
 }
 
+@MainActor
 func expect(_ condition: Bool, _ what: String) {
     checks += 1
     if !condition { failures += 1; print("    FAIL [\(currentGroup)] \(what)") }

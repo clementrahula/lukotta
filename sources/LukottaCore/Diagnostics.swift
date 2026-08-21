@@ -36,7 +36,8 @@ public enum Diagnostics {
         guard size > 0 else { return "unknown" }
         var chars = [CChar](repeating: 0, count: size)
         sysctlbyname("hw.model", &chars, &size, nil, 0)
-        return String(cString: chars)
+        let bytes = chars.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }
+        return String(decoding: bytes, as: UTF8.self)
     }
 
     /// Crash reports macOS has written for this application, newest first.

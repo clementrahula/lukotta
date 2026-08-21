@@ -857,7 +857,7 @@ final class AppModel: ObservableObject {
     }
 
     /// Eject everything, then run the completion. Used on quit.
-    func ejectAll(completion: @escaping () -> Void) {
+    func ejectAll(completion: @escaping @MainActor @Sendable () -> Void) {
         Task.detached(priority: .userInitiated) {
             for m in EngineStatus.current() {
                 _ = EngineStatus.unmount(mountPoint: m.mountPoint)

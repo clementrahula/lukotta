@@ -71,8 +71,13 @@ public enum EnginePaths {
 /// resolves its own working directory from the invoking user's password-database
 /// entry rather than from $HOME, so its rootfs and logs cannot be redirected
 /// here; see EngineEnvironment.
-public final class Workspace {
+/// Unchecked, and safe: the directory is decided once and never changes, so
+/// the only mutable thing here is whether it has been removed yet — and that is
+/// behind a lock. It has to be: the mount runs on a background task holding
+/// this, while quitting removes it from the main actor.
+public final class Workspace: @unchecked Sendable {
     public let root: URL
+    private let lock = NSLock()
     private var destroyed = false
 
     public init() throws {
@@ -119,8 +124,11 @@ public final class Workspace {
     }
 
     public func destroy() {
-        guard !destroyed else { return }
+        lock.lock()
+        let already = destroyed
         destroyed = true
+        lock.unlock()
+        guard !already else { return }
         try? FileManager.default.removeItem(at: root)
     }
 

@@ -94,8 +94,8 @@ enum Uninstall {
     static func perform(
         _ plan: Plan,
         removingPassphrases: Bool,
-        advance: @escaping (Int) -> Void,
-        completion: @escaping (String?) -> Void
+        advance: @escaping @MainActor @Sendable (Int) -> Void,
+        completion: @escaping @MainActor @Sendable (String?) -> Void
     ) {
         Task.detached(priority: .userInitiated) {
             var step = 0
@@ -128,12 +128,18 @@ enum Uninstall {
                 finished()
             }
 
+            let last = step
             await MainActor.run {
                 // recycle() puts it in the Bin rather than deleting it, so a
                 // change of mind costs nothing.
                 NSWorkspace.shared.recycle([Bundle.main.bundleURL]) { _, error in
-                    finished()
-                    completion(error?.localizedDescription)
+                    // Where this is called back is not documented, and the two
+                    // it calls belong to the interface.
+                    let message = error?.localizedDescription
+                    Task { @MainActor in
+                        advance(last)
+                        completion(message)
+                    }
                 }
             }
         }
