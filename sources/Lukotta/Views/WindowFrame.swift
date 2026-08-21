@@ -56,8 +56,31 @@ struct RememberFrame: NSViewRepresentable {
             self.window = window
             restore(into: window)
 
-            // Closing counts too: a window the user never dragged still has a
-            // size worth keeping, and quitting is when most people leave.
+            // And again, once SwiftUI has had its turn.
+            //
+            // Setting the frame here works and is then undone: SwiftUI sizes
+            // and places the window itself immediately afterwards — three
+            // frames within the same millisecond, ending at the content's
+            // minimum size in a cascaded position. Restoring after that is what
+            // makes it stick.
+            //
+            // Nothing is recorded until then either. The old code started
+            // watching straight away and dutifully saved each of those three,
+            // so every launch overwrote the remembered frame with wherever
+            // SwiftUI had just put the window — which is why it looked as
+            // though nothing was being remembered at all.
+            DispatchQueue.main.async { [weak self] in
+                MainActor.assumeIsolated {
+                    guard let self, let window = self.window else { return }
+                    self.restore(into: window)
+                    self.watch(window)
+                }
+            }
+        }
+
+        /// Closing counts too: a window the user never dragged still has a size
+        /// worth keeping, and quitting is when most people leave.
+        private func watch(_ window: NSWindow) {
             for name in [
                 NSWindow.didMoveNotification, NSWindow.didResizeNotification,
                 NSWindow.willCloseNotification,
