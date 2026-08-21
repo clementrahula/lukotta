@@ -9,6 +9,12 @@
             "value": "%@ е премахнато"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ er fjernet"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -95,6 +101,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ е свободен софтуер под лиценза GPL, версия 3 или по-нова. Монтирането се извършва от anylinuxfs. Пълният изходен код на всеки компонент се публикува с всяко издание. Името и логото са търговски марки и не са обхванати от този лиценз."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ er fri software under GPL, version 3 eller nyere. Aktiveringen klares af anylinuxfs. Den fulde kildekode for hver komponent udgives med hver version. Navnet og logoet er varemærker og er ikke omfattet af den licens."
           }
         },
         "de": {
@@ -185,6 +197,12 @@
             "value": "%@ отваря дискове с BitLocker и Linux, които macOS не може да прочете сама. Преди това е необходима една настройка.\n\nЧетенето на диск на ниво устройство изисква „Full Disk Access“ — паролата на администратор не е достатъчна, а разрешението за преносими томове обхваща файловете на диска, а не самото устройство. macOS не позволява на приложение да го поиска, затова трябва да бъде включено ръчно."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ åbner BitLocker- og Linux-enheder, som macOS ikke selv kan læse. Først skal én indstilling på plads.\n\nAt læse en enhed på enhedsniveau kræver fuld adgang til disk — en administratoradgangskode er ikke nok, og tilladelsen til udskiftelige enheder dækker arkiverne på en enhed, ikke selve enheden. macOS giver ingen app mulighed for at bede om den, så den skal slås til manuelt."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -273,6 +291,12 @@
             "value": "%@ стартира малка виртуална машина с Linux, отключва диска в нея и го предава обратно на Finder. macOS не може да чете файлови системи на BitLocker или Linux. Linux може."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ starter en lille virtuel Linux-maskine, låser enheden op inde i den og giver enheden tilbage til Finder. macOS kan ikke læse BitLocker- eller Linux-filsystemer. Det kan Linux."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -359,6 +383,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ ще бъде преместено в кошчето (Trash)."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ flyttes til papirkurven."
           }
         },
         "de": {
@@ -456,6 +486,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld диска спряха да отговарят и бяха изключени. Можете да ги отворите отново."
+                }
+              }
+            }
+          }
+        },
+        "da": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld enhed svarede ikke længere og blev frakoblet. Du kan åbne den igen."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld enheder svarede ikke længere og blev frakoblet. Du kan åbne dem igen."
                 }
               }
             }
@@ -765,6 +813,24 @@
             }
           }
         },
+        "da": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Den åbne enhed skubbes ud."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld åbne enheder skubbes ud."
+                }
+              }
+            }
+          }
+        },
         "de": {
           "variations": {
             "plural": {
@@ -1057,6 +1123,12 @@
             "value": "%lld процента"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld procent"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1143,6 +1215,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "250 MB дисково пространство: 155 MB за приложението и 95 MB за средата на Linux, разопакована при първото използване"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 MB diskplads: 155 MB til appen og 95 MB til Linux-miljøet, der pakkes ud første gang"
           }
         },
         "de": {
@@ -1233,6 +1311,12 @@
             "value": "От 30 до 80 MB оперативна памет за всеки отключен диск"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 til 80 MB hukommelse pr. oplåst enhed"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1319,6 +1403,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Намерен е отчет за срив"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der blev fundet en nedbrudsrapport"
           }
         },
         "de": {
@@ -1409,6 +1499,12 @@
             "value": "Относно %@"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Om %@"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1495,6 +1591,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Информация и помощ"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Om og hjælp"
           }
         },
         "de": {
@@ -1585,6 +1687,12 @@
             "value": "Около десет диска могат да останат отключени едновременно"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omkring ti enheder kan være låst op samtidig"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1671,6 +1779,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Парола на администратор"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratoradgangskode"
           }
         },
         "de": {
@@ -1761,6 +1875,12 @@
             "value": "Парола на администратор — иска се веднъж при настройването на фоновия помощник, след това не. %@ никога не я вижда"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratoradgangskode — der bedes om den én gang, når baggrundshjælperen sættes op, og derefter ikke igen. %@ ser den aldrig"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1849,6 +1969,12 @@
             "value": "Всички дискове"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle enheder"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1935,6 +2061,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Всички необходими разрешения са дадени"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle nødvendige tilladelser er givet"
           }
         },
         "de": {
@@ -2032,6 +2164,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Изтрий също %1$lld запазени пароли-фрази (%2$@)"
+                }
+              }
+            }
+          }
+        },
+        "da": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Slet også den arkiverede adgangssætning til %2$@"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Slet også %1$lld arkiverede adgangssætninger (%2$@)"
                 }
               }
             }
@@ -2329,6 +2479,12 @@
             "value": "Mac с Apple Silicon. Mac с Intel не се поддържат"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Mac med Apple Silicon. Mac-computere med Intel understøttes ikke"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2415,6 +2571,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Отворен е друг диск, а двигателят трябва да работи сам първия път след промяна. Извадете другите дискове, отворете този и след това всички отново могат да бъдат отворени заедно."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En anden enhed er åben, og motoren skal køre alene første gang efter en ændring. Skub de andre enheder ud, åbn denne, og derefter kan de alle være åbne sammen igen."
           }
         },
         "de": {
@@ -2505,6 +2667,12 @@
             "value": "Външен вид"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Udseende"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2591,6 +2759,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Появява се само докато диск е отключен, за да бъде изваден."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vises kun, mens en enhed er låst op, så den kan skubbes ud."
           }
         },
         "de": {
@@ -2681,6 +2855,12 @@
             "value": "Разработчик"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Udvikler"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2767,6 +2947,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Назад"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tilbage"
           }
         },
         "de": {
@@ -2857,6 +3043,12 @@
             "value": "Дискове с BitLocker, отключени с паролата на тома или 48-цифрен ключ за възстановяване"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker-enheder, låst op med enhedens adgangskode eller en 48-cifret genoprettelsesnøgle"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2943,6 +3135,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "BitLocker или NTFS"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker eller NTFS"
           }
         },
         "de": {
@@ -3033,6 +3231,12 @@
             "value": "Отказ"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuller"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3119,6 +3323,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Caps Lock е включен"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps Lock er slået til"
           }
         },
         "de": {
@@ -3209,6 +3419,12 @@
             "value": "Провери отново"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tjek igen"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3295,6 +3511,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Провери сега"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Søg nu"
           }
         },
         "de": {
@@ -3385,6 +3607,12 @@
             "value": "Провери за актуализации…"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Søg efter opdateringer…"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3471,6 +3699,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Автоматично проверявай за актуализации"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Søg automatisk efter opdateringer"
           }
         },
         "de": {
@@ -3561,6 +3795,12 @@
             "value": "Щракнете върху „+“, добавете %@ и го включете."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klik på “+”, tilføj %@, og slå den til."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3647,6 +3887,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Свито"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sammenfoldet"
           }
         },
         "de": {
@@ -3737,6 +3983,12 @@
             "value": "Върнете се тук и изберете „Рестартирай“ — ново разрешение важи само за току-що стартирано приложение."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kom tilbage hertil, og vælg “Start igen” — en ny tilladelse gælder kun for en app, der lige er startet."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3823,6 +4075,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Свържете шифрования диск и изберете „Търсене отново“. Ако вече е свързан, macOS може да го е монтирала — първо го извадете във Finder."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tilslut den krypterede enhed, og vælg “Søg igen”. Hvis den allerede er tilsluttet, har macOS måske aktiveret den — skub den først ud i Finder."
           }
         },
         "de": {
@@ -3913,6 +4171,12 @@
             "value": "Копирано"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopieret"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4001,6 +4265,12 @@
             "value": "Копирай подробностите"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopier oplysninger"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4087,6 +4357,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Тъмен"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mørkt"
           }
         },
         "de": {
@@ -4184,6 +4460,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Изтриване на %lld запазени пароли-фрази"
+                }
+              }
+            }
+          }
+        },
+        "da": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Sletter den arkiverede adgangssætning"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Sletter %lld arkiverede adgangssætninger"
                 }
               }
             }
@@ -4481,6 +4775,12 @@
             "value": "Изтриване на средата на Linux"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sletter Linux-miljøet"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4567,6 +4867,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Подробности, които ще бъдат включени"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oplysninger, der bliver taget med"
           }
         },
         "de": {
@@ -4657,6 +4963,12 @@
             "value": "Готово"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4743,6 +5055,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Изтегляй ги и ги инсталирай"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hent og installer dem"
           }
         },
         "de": {
@@ -4833,6 +5151,12 @@
             "value": "Дискове, обвързани с TPM вместо с парола, включително по-новото хардуерно шифроване на Ubuntu"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enheder bundet til en TPM i stedet for en adgangskode, herunder Ubuntus nyere hardwarekryptering"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4919,6 +5243,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Извади"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skub ud"
           }
         },
         "de": {
@@ -5009,6 +5339,12 @@
             "value": "Извади %@"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skub %@ ud"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5095,6 +5431,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Извади и излез"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skub ud, og slut"
           }
         },
         "de": {
@@ -5192,6 +5534,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Изваждане на %lld отворени диска"
+                }
+              }
+            }
+          }
+        },
+        "da": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Skubber den åbne enhed ud"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Skubber %lld åbne enheder ud"
                 }
               }
             }
@@ -5489,6 +5849,12 @@
             "value": "Изваждане…"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skubber ud…"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5575,6 +5941,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Изход на двигателя"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Output fra motoren"
           }
         },
         "de": {
@@ -5665,6 +6037,12 @@
             "value": "Въведете паролата-фраза на диска."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skriv enhedens adgangssætning."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5751,6 +6129,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Въведете паролата на диска или неговия 48-цифрен ключ за възстановяване."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skriv enhedens adgangskode eller dens 48-cifrede genoprettelsesnøgle."
           }
         },
         "de": {
@@ -5841,6 +6225,12 @@
             "value": "Всичко останало беше премахнато. Самото %@ не можа да бъде преместено в кошчето (%@) — плъзнете го там сами, за да завършите."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alt andet blev fjernet. Selve %@ kunne ikke flyttes til papirkurven (%@) — træk den derhen selv for at afslutte."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5927,6 +6317,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Разгънато"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Udvidet"
           }
         },
         "de": {
@@ -6017,6 +6413,12 @@
             "value": "Външен"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekstern"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6103,6 +6505,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Забрави"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glem"
           }
         },
         "de": {
@@ -6193,6 +6601,12 @@
             "value": "Full Disk Access"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fuld adgang til disk"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6281,6 +6695,12 @@
             "value": "Full Disk Access — без него macOS не позволява на нито едно приложение да чете суровото съдържание на диск. Не може да бъде поискано, затова трябва да се включи ръчно"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fuld adgang til disk — uden den lader macOS ingen app læse en enheds rå indhold. Der kan ikke bedes om den, så den skal slås til manuelt"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6364,6 +6784,12 @@
     "GNU General Public License": {
       "localizations": {
         "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        },
+        "da": {
           "stringUnit": {
             "state": "translated",
             "value": "GNU General Public License"
@@ -6457,6 +6883,12 @@
             "value": "Дадено"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Givet"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6543,6 +6975,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Скрий"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skjul"
           }
         },
         "de": {
@@ -6633,6 +7071,12 @@
             "value": "Скрий въведеното"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skjul det, du skriver"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6719,6 +7163,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Скрий подробностите"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skjul oplysningerne"
           }
         },
         "de": {
@@ -6809,6 +7259,12 @@
             "value": "Как работи %@ и какво поддържа"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hvordan %@ virker, og hvad den understøtter"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6895,6 +7351,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Как работи"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sådan virker det"
           }
         },
         "de": {
@@ -6985,6 +7447,12 @@
             "value": "Вътрешен"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intern"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7071,6 +7539,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Намира се в кошчето. Нищо друго от него не е останало на този Mac."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den ligger i papirkurven. Der er ikke andet tilbage af den på denne Mac."
           }
         },
         "de": {
@@ -7161,6 +7635,12 @@
             "value": "LUKS дискове от Linux, както LUKS1, така и LUKS2"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS-enheder fra Linux, både LUKS1 og LUKS2"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7247,6 +7727,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LUKS или файлова система на Linux"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS eller Linux-filsystem"
           }
         },
         "de": {
@@ -7337,6 +7823,12 @@
             "value": "LUKS томове, чиято заглавка се съхранява отделно от диска"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS-enheder, hvis header er arkiveret adskilt fra disken"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7423,6 +7915,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LVM вътре в LUKS, както го настройват Ubuntu, Debian, Mint и Fedora. Няколко тома на един диск се отключват заедно"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM inde i LUKS, som Ubuntu, Debian, Mint og Fedora sætter det op. Flere enheder på samme disk låses op sammen"
           }
         },
         "de": {
@@ -7513,6 +8011,12 @@
             "value": "Език"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprog"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7599,6 +8103,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Последна проверка: %@"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sidst søgt: %@"
           }
         },
         "de": {
@@ -7689,6 +8199,12 @@
             "value": "Остави отворен"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lad være åben"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7775,6 +8291,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Позволява на %@ сама да чете шифрованите данни."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lader %@ selv læse de krypterede data."
           }
         },
         "de": {
@@ -7865,6 +8387,12 @@
             "value": "Позволява на %@ сама да чете шифрованите данни. Без него macOS блокира това дори за администратори и не може да бъде поискано — трябва да се включи ръчно."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lader %@ selv læse de krypterede data. Uden den blokerer macOS det, også for administratorer, og der kan ikke bedes om den — den skal slås til manuelt."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7951,6 +8479,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Лиценз"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licens"
           }
         },
         "de": {
@@ -8041,6 +8575,12 @@
             "value": "Светъл"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lyst"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8127,6 +8667,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Местоположение"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Placering"
           }
         },
         "de": {
@@ -8217,6 +8763,12 @@
             "value": "Заключен"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Låst"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8303,6 +8855,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Търсене на шифровани дискове…"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Søger efter krypterede enheder…"
           }
         },
         "de": {
@@ -8393,6 +8951,12 @@
             "value": "Lúkotta на финландски означава „без ключалка“, от lukko — ключалка — с окончанието -tta, което означава липсата на нещо. Ударението пада върху първата сричка, както винаги във финландския."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lúkotta er finsk for “uden lås”, af lukko, en lås, med endelsen -tta, der angiver fraværet af noget. Trykket ligger på første stavelse, som det altid gør på finsk."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8479,6 +9043,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Лента с менюта"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menulinje"
           }
         },
         "de": {
@@ -8569,6 +9139,12 @@
             "value": "Преместване на %@ в кошчето"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flytter %@ til papirkurven"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8655,6 +9231,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Необходимо"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Påkrævet"
           }
         },
         "de": {
@@ -8745,6 +9327,12 @@
             "value": "Не са намерени шифровани дискове"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der blev ikke fundet nogen krypterede enheder"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8831,6 +9419,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Не беше посочена причина. Подробностите по-долу може да кажат повече."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der blev ikke oplyst nogen årsag. Oplysningerne nedenfor siger måske mere."
           }
         },
         "de": {
@@ -8921,6 +9515,12 @@
             "value": "Не е налично в тази версия."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Findes ikke i denne version."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9007,6 +9607,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Нищо не се инсталира. Двигателят е вътре в приложението, нищо не напуска вашия Mac и на диска се записва само когато вие записвате на него."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der installeres ikke noget. Motoren følger med appen, intet forlader din Mac, og der skrives kun til en enhed, når du selv skriver til den."
           }
         },
         "de": {
@@ -9097,6 +9703,12 @@
             "value": "След като фоновият помощник бъде настроен, актуализирането няма да засяга отключените дискове."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Når baggrundshjælperen er sat op, rører opdateringer ikke ved oplåste enheder."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9183,6 +9795,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Отвори %@"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn %@"
           }
         },
         "de": {
@@ -9273,6 +9891,12 @@
             "value": "Отвори имейла"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn e-mail"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9359,6 +9983,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Отворете „Privacy & Security“ → „Full Disk Access“."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn “Anonymitet & sikkerhed” → “Fuld adgang til disk”."
           }
         },
         "de": {
@@ -9449,6 +10079,12 @@
             "value": "Отвори настройките за поверителност"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn anonymitetsindstillinger"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9535,6 +10171,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Отваряйте шифровани дискове в macOS"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn krypterede enheder i macOS"
           }
         },
         "de": {
@@ -9625,6 +10267,12 @@
             "value": "Отваряне на „%@“"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbner “%@”"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9711,6 +10359,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Парола-фраза"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adgangssætning"
           }
         },
         "de": {
@@ -9801,6 +10455,12 @@
             "value": "Парола или ключ за възстановяване"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adgangskode eller genoprettelsesnøgle"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9887,6 +10547,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Разрешения"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tilladelser"
           }
         },
         "de": {
@@ -9977,6 +10643,12 @@
             "value": "Изход"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slut"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10063,6 +10735,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Изход от %@"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slut %@"
           }
         },
         "de": {
@@ -10160,6 +10838,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Изход и оставяне на %lld диска отворени?"
+                }
+              }
+            }
+          }
+        },
+        "da": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Slut og lade %lld enhed være åben?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Slut og lade %lld enheder være åbne?"
                 }
               }
             }
@@ -10457,6 +11153,12 @@
             "value": "Изход и оставяне на „%@“ отворен?"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slut og lade “%@” være åben?"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10543,6 +11245,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Рестартирай"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start igen"
           }
         },
         "de": {
@@ -10633,6 +11341,12 @@
             "value": "Запомни този ключ в моя Keychain"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Husk denne nøgle i min nøglering"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10719,6 +11433,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Removable Volumes — macOS го изисква при първото четене на диск"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Udskiftelige enheder — macOS beder om den, første gang en enhed læses"
           }
         },
         "de": {
@@ -10809,6 +11529,12 @@
             "value": "Премахване на %@"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fjerner %@"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10895,6 +11621,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Премахване на настройките"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fjerner indstillinger"
           }
         },
         "de": {
@@ -10985,6 +11717,12 @@
             "value": "Съобщете за този проблем"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapporter dette problem"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11071,6 +11809,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Съобщи за проблем"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapporter et problem"
           }
         },
         "de": {
@@ -11161,6 +11905,12 @@
             "value": "Съобщете за проблем или изпратете отчет за срив"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapporter et problem, eller send en nedbrudsrapport"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11247,6 +11997,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Съобщи за проблем"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapporter et problem"
           }
         },
         "de": {
@@ -11337,6 +12093,12 @@
             "value": "Съобщи за проблем…"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapporter et problem…"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11423,6 +12185,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Изисквания"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Systemkrav"
           }
         },
         "de": {
@@ -11513,6 +12281,12 @@
             "value": "Търсене отново"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Søg igen"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11599,6 +12373,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Покажи приложението във Finder"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vis appen i Finder"
           }
         },
         "de": {
@@ -11689,6 +12469,12 @@
             "value": "Виждане на свързаните дискове"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se tilsluttede enheder"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11775,6 +12561,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Изберете диск за отключване"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vælg en enhed, der skal låses op"
           }
         },
         "de": {
@@ -11865,6 +12657,12 @@
             "value": "Подготвяне на средата на Linux"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klargør Linux-miljøet"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11951,6 +12749,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Покажи"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vis"
           }
         },
         "de": {
@@ -12041,6 +12845,12 @@
             "value": "Показвай %@ в лентата с менюта"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vis %@ på menulinjen"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12127,6 +12937,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Покажи във Finder"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vis i Finder"
           }
         },
         "de": {
@@ -12217,6 +13033,12 @@
             "value": "Покажи въведеното"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vis det, du skriver"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12303,6 +13125,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Покажи за какво служи всяко разрешение"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vis, hvad hver tilladelse bruges til"
           }
         },
         "de": {
@@ -12393,6 +13221,12 @@
             "value": "Все още липсват някои разрешения"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der mangler stadig nogle tilladelser"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12479,6 +13313,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Изходен код"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kildekode"
           }
         },
         "de": {
@@ -12569,6 +13409,12 @@
             "value": "Системен"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12655,6 +13501,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„Системен“ следва езика на вашия Mac."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“System” følger sproget på din Mac."
           }
         },
         "de": {
@@ -12745,6 +13597,12 @@
             "value": "„Системен“ следва настройката на вашия Mac, включително когато тя се променя."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“System” følger indstillingen på din Mac, også når den ændres."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12831,6 +13689,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Тази парола или ключ за възстановяване не отключи този диск."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den adgangskode eller genoprettelsesnøgle låste ikke denne enhed op."
           }
         },
         "de": {
@@ -12921,6 +13785,12 @@
             "value": "Средата на Linux се разопакова веднъж, при първото използване."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linux-miljøet pakkes ud én gang, første gang det bruges."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13007,6 +13877,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Средата на Linux ще бъде изтрита, освобождавайки около %lld MB."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linux-miljøet slettes, hvilket frigør omkring %lld MB."
           }
         },
         "de": {
@@ -13097,6 +13973,12 @@
             "value": "Фоновият помощник не е настроен, затова %@ сама държи диска отворен. Изходът сега го изключва и това, което още се записва, няма да завърши.\n\nСлед като помощникът бъде настроен, дисковете остават отворени сами."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baggrundshjælperen er ikke sat op, så %@ holder selv enheden åben. At slutte nu frakobler den, og det, der stadig skrives, ville ikke blive færdigt.\n\nNår hjælperen er sat op, forbliver enheder åbne af sig selv."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13183,6 +14065,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Фоновият помощник не е настроен, затова %@ сама ги държи отворени. Изходът сега ги изключва и това, което още се записва, няма да завърши.\n\nСлед като помощникът бъде настроен, дисковете остават отворени сами."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baggrundshjælperen er ikke sat op, så %@ holder dem selv åbne. At slutte nu frakobler dem, og det, der stadig skrives, ville ikke blive færdigt.\n\nNår hjælperen er sat op, forbliver enheder åbne af sig selv."
           }
         },
         "de": {
@@ -13273,6 +14161,12 @@
             "value": "Регистрацията на фоновия помощник ще бъде отменена."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baggrundshjælperens registrering fjernes."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13359,6 +14253,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Дискът се появява в страничната лента на Finder в раздела „Locations“.\nИзвадете го тук или във Finder, преди да го изключите."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enheden vises i Finders indholdsoversigt under “Placeringer”.\nSkub den ud her eller i Finder, før du frakobler den."
           }
         },
         "de": {
@@ -13449,6 +14349,12 @@
             "value": "Дискът е зает. Затворете всичко, което го използва, и опитайте отново."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enheden er optaget. Luk alt, der bruger den, og prøv igen."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13535,6 +14441,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Дискът се предава на Finder през локална мрежова връзка, затова се появява в „Locations“ с мрежова икона. Чете се, записва се и се изважда като всеки друг диск. macOS не предлага начин да бъде показан като локален диск."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enheden gives videre til Finder via en lokal netværksforbindelse og vises derfor under “Placeringer” med et netværkssymbol. Den læses, skrives og skubbes ud som enhver anden enhed. macOS giver ingen mulighed for at vise den som en lokal disk."
           }
         },
         "de": {
@@ -13625,6 +14537,12 @@
             "value": "Дискът остава във Finder, след като %@ приключи. Извадете го оттам, когато сте готови."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enheden bliver i Finder, efter at %@ er sluttet. Skub den ud derfra, når du er færdig."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13711,6 +14629,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Дискът не беше отворен"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enheden blev ikke åbnet"
           }
         },
         "de": {
@@ -13801,6 +14725,12 @@
             "value": "Дискът не беше отворен. %@"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enheden blev ikke åbnet. %@"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13887,6 +14817,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Windows не е изключил диска правилно. Изключете бързото стартиране в Windows или изключете Windows напълно, вместо да го приспивате, и опитайте отново."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows lukkede ikke enheden korrekt ned. Slå hurtig opstart fra i Windows, eller luk Windows helt ned i stedet for at sætte den i dvale, og prøv igen."
           }
         },
         "de": {
@@ -13977,6 +14913,12 @@
             "value": "Двигателят не разпозна файлова система на този том. Ако е шифрована, паролата или ключът за възстановяване може да са грешни."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Motoren genkendte ikke noget filsystem på denne enhed. Hvis den er krypteret, er adgangskoden eller genoprettelsesnøglen måske forkert."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14063,6 +15005,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Двигателят не съобщи нищо. Възможно е дискът да е бил изключен."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Motoren meldte ingenting. Enheden er måske blevet frakoblet."
           }
         },
         "de": {
@@ -14153,6 +15101,12 @@
             "value": "Езикът се променя, когато %@ стартира отново."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sproget ændres, når %@ starter igen."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14239,6 +15193,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Името"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navnet"
           }
         },
         "de": {
@@ -14329,6 +15289,12 @@
             "value": "Паролата-фраза, с която този диск е шифрован."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adgangssætningen, som denne enhed blev krypteret med."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14415,6 +15381,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Паролата, с която дискът е заключен, или 48-цифрен ключ за възстановяване на BitLocker. Интервалите и тиретата в ключа се пренебрегват."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adgangskoden, som enheden blev låst med, eller en 48-cifret BitLocker-genoprettelsesnøgle. Mellemrum og bindestreger i en genoprettelsesnøgle ignoreres."
           }
         },
         "de": {
@@ -14505,6 +15477,12 @@
             "value": "Двигателят за виртуализация не можа да стартира. Рестартирането обикновено решава това."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtualiseringsmotoren kunne ikke starte. En genstart løser det som regel."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14591,6 +15569,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Те остават във Finder, след като %@ приключи. Извадете ги оттам, когато сте готови."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De bliver i Finder, efter at %@ er sluttet. Skub dem ud derfra, når du er færdig."
           }
         },
         "de": {
@@ -14681,6 +15665,12 @@
             "value": "Известия за софтуер на трети страни"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meddelelser om tredjepartssoftware"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14767,6 +15757,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Този диск съдържа няколко тома и %@ не успя да определи кои. Съобщаването за това би помогнало."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne enhed indeholder flere enheder, og %@ kunne ikke finde ud af hvilke. Det vil hjælpe at rapportere det."
           }
         },
         "de": {
@@ -14857,6 +15853,12 @@
             "value": "Това е настройка за поверителност на macOS, а не промяна на вашия Mac. Можете да я изключите по всяко време и нищо не се инсталира."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det er en anonymitetsindstilling i macOS, ikke en ændring af din Mac. Du kan slå den fra igen når som helst, og der installeres ikke noget."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14943,6 +15945,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Този дял не е том на BitLocker."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne partition er ikke en BitLocker-enhed."
           }
         },
         "de": {
@@ -15033,6 +16041,12 @@
             "value": "Това отнема момент."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det tager et øjeblik."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -15119,6 +16133,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Обикновено отнема под минута."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det tager som regel under et minut."
           }
         },
         "de": {
@@ -15209,6 +16229,12 @@
             "value": "Опитайте отново"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prøv igen"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -15295,6 +16321,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Деинсталирай"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afinstaller"
           }
         },
         "de": {
@@ -15385,6 +16417,12 @@
             "value": "Да се деинсталира ли %@?"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afinstaller %@?"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -15471,6 +16509,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Деинсталирай %@…"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afinstaller %@…"
           }
         },
         "de": {
@@ -15561,6 +16605,12 @@
             "value": "Отключи"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lås op"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -15647,6 +16697,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Отключване на този диск"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lås denne enhed op"
           }
         },
         "de": {
@@ -15737,6 +16793,12 @@
             "value": "Отключването го използва директно. Забравете го, за да въведете друг."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oplåsningen bruger den direkte. Glem den for at skrive en anden."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -15823,6 +16885,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Отключване на „%@“"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lås “%@” op"
           }
         },
         "de": {
@@ -15913,6 +16981,12 @@
             "value": "Отключен"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Låst op"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -15999,6 +17073,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Отключен в %@"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Låst op på %@"
           }
         },
         "de": {
@@ -16089,6 +17169,12 @@
             "value": "Отменяне на регистрацията на фоновия помощник"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fjerner baggrundshjælperens registrering"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -16175,6 +17261,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Актуализации"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opdateringer"
           }
         },
         "de": {
@@ -16265,6 +17357,12 @@
             "value": "Актуализирането не изважда вашите дискове. Всичко отключено остава отключено и продължава да работи."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En opdatering skubber ikke dine enheder ud. Alt, der er låst op, forbliver låst op og fungerer videre."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -16351,6 +17449,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Използва се ключът, запазен във вашия Keychain"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nøglen, der er arkiveret i din nøglering, bruges"
           }
         },
         "de": {
@@ -16441,6 +17545,12 @@
             "value": "Версия %@ (%@)"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@ (%@)"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -16527,6 +17637,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Отворени томове"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbnede enheder"
           }
         },
         "de": {
@@ -16617,6 +17733,12 @@
             "value": "Уебсайт"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Websted"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -16703,6 +17825,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Добре дошли в %@"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Velkommen til %@"
           }
         },
         "de": {
@@ -16793,6 +17921,12 @@
             "value": "Съдържанието на диска се разбира едва след като бъде отключен."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hvad en enhed indeholder, ved man først, når den er låst op."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -16879,6 +18013,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Какво се случи"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hvad skete der"
           }
         },
         "de": {
@@ -16969,6 +18109,12 @@
             "value": "Какво се случи?"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hvad skete der?"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -17055,6 +18201,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Какво може да отваря"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hvad den kan åbne"
           }
         },
         "de": {
@@ -17145,6 +18297,12 @@
             "value": "Какво не може да отваря"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hvad den ikke kan åbne"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -17231,6 +18389,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Какво да направите"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hvad du kan gøre"
           }
         },
         "de": {
@@ -17321,6 +18485,12 @@
             "value": "Защо се появява като мрежов диск"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hvorfor den vises som en netværksenhed"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -17407,6 +18577,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "NTFS дискове на Windows, включително оставените от Windows в хибернация или неизключени правилно"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NTFS-enheder fra Windows, også dem Windows efterlod i dvale eller ikke lukkede korrekt ned"
           }
         },
         "de": {
@@ -17497,6 +18673,12 @@
             "value": "Можете да четете и записвате файлове на него."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du kan læse og skrive arkiver på den."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -17583,6 +18765,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Пак можете да проверявате, когато пожелаете."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du kan stadig selv søge, når du vil."
           }
         },
         "de": {
@@ -17673,6 +18861,12 @@
             "value": "Вашият диск не беше променен. Неуспешно отключване не може да повреди данните на него."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Din enhed blev ikke ændret. En mislykket oplåsning kan ikke beskadige dataene på den."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -17759,6 +18953,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "готово"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "færdig"
           }
         },
         "de": {
@@ -17849,6 +19049,12 @@
             "value": "Файлови системи ext4, btrfs и XFS в тях"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filsystemerne ext4, btrfs og XFS inde i dem"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -17935,6 +19141,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "в ход"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "i gang"
           }
         },
         "de": {
@@ -18025,6 +19237,12 @@
             "value": "заключен"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "låst"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -18111,6 +19329,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS 15 Sequoia или по-нова"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 15 Sequoia eller nyere"
           }
         },
         "de": {
@@ -18201,6 +19425,12 @@
             "value": "macOS вече е монтирала този диск. Извадете го във Finder и опитайте отново."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS har allerede aktiveret denne enhed. Skub den ud i Finder, og prøv igen."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -18287,6 +19517,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS блокира достъпа до диска. %@ се нуждае от „Full Disk Access“, за да може да чете шифрован диск."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS blokerede adgangen til enheden. %@ har brug for fuld adgang til disk for at kunne læse en krypteret disk."
           }
         },
         "de": {
@@ -18377,6 +19613,12 @@
             "value": "macOS записа %@. Не се изпраща никъде автоматично — прикачете го към съобщението си, ако можете."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS skrev %@. Den sendes ikke automatisk nogen steder — vedhæft den til din besked, hvis du kan."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -18463,6 +19705,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "не е достигнато"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ikke nået"
           }
         },
         "de": {
@@ -18553,6 +19801,12 @@
             "value": "спря тук"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "stoppede her"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -18639,6 +19893,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "отключен"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "låst op"
           }
         },
         "de": {
@@ -18729,6 +19989,12 @@
             "value": "изчаква"
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "venter"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -18817,6 +20083,12 @@
             "value": "„%@“ спря да отговаря и беше изключен. Можете да го отворите отново."
           }
         },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” svarede ikke længere og blev frakoblet. Du kan åbne den igen."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -18903,6 +20175,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„%@“ е отключен"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” er låst op"
           }
         },
         "de": {
