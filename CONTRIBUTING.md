@@ -44,6 +44,18 @@ it:
 Mounting works by handing the drive to a Linux virtual machine, which unlocks
 it and re-exports it over NFS to localhost.
 
+The top level holds the documents, the package manifest and `build-app.sh`.
+Everything else is in one of these:
+
+| Directory | What it is |
+| --- | --- |
+| `sources/` | Swift, one directory per target. Lowercase, and every target names its `path:`. |
+| `scripts/` | The build, test, release and packaging scripts. |
+| `resources/` | Files the build copies into the bundle rather than compiles. |
+| `assets/` | Artwork. `assets/brand/` holds the originals and the renderings made from them. |
+| `docs/` | **The website**, at lukotta.rahula.dev. GitHub Pages serves from the repository root or `docs/`, so it takes that name; the documentation is in the root. |
+| `vendor/` | The Linux engine, fetched by the build. Ignored apart from `engine.lock`, which pins it. |
+
 ## Test Drives Without Encrypted Hardware
 
 ```bash
@@ -57,9 +69,10 @@ one and run the app so that disk images appear alongside real drives.
 
 ## Uninstalling a Build
 
-The app removes itself from **Lukotta → Uninstall Lukotta…**. From a checkout,
-`./scripts/uninstall.sh` does the same thing and takes `--remove` to act;
-without it, it only says what it would do.
+The app removes itself from **Lukotta → Uninstall Lukotta…**. It ejects any
+open drives, unregisters the background helper, deletes the Linux environment
+and the settings, offers to delete saved passphrases, and moves itself to the
+Bin. A development build removes itself the same way a released one does.
 
 ## House Style
 

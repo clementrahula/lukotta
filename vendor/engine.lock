@@ -1,0 +1,33 @@
+{
+  "_comment": [
+    "Every byte of the engine Lukotta ships, pinned and checksummed.",
+    "vendor-engine.sh fetches exactly these and refuses anything else, so the",
+    "app does not depend on what happens to be installed on the build machine.",
+    "bottle_tag sets the lowest macOS the built app can run on: libblkid comes",
+    "from that bottle and carries its minimum."
+  ],
+  "anylinuxfs": {
+    "version": "0.19.0",
+    "tap": "nohajc/homebrew-anylinuxfs",
+    "tap_commit": "1d323c29366325f7b219f5c609c265e1c3b9b522",
+    "licence": "GPL-3.0-or-later",
+    "source_url": "https://github.com/nohajc/anylinuxfs/archive/refs/tags/v0.19.0.tar.gz",
+    "source_sha256": "560e9a9da5e0187be0a2ede1967bc6d27e456c6446328374711e20088aeeaa44",
+    "bottle_tag": "arm64_sequoia",
+    "bottle_url": "https://github.com/nohajc/homebrew-anylinuxfs/releases/download/v0.19.0/anylinuxfs-0.19.0.arm64_sequoia.bottle.tar.gz",
+    "bottle_sha256": "723586666ffae512c543546356678f30de45d341595b9028f4058969dfb32dac"
+  },
+  "util_linux": {
+    "_why": "anylinuxfs links libblkid from it, and nothing else outside the bundle.",
+    "version": "2.42.2",
+    "licence": "GPL-2.0-or-later and LGPL-2.1-or-later",
+    "bottle_tag": "arm64_sequoia",
+    "bottle_url": "https://ghcr.io/v2/homebrew/core/util-linux/blobs/sha256:190141242ffdeb5cf236a3b040342097019fce761e655a4c5a12eae18591d628",
+    "bottle_sha256": "190141242ffdeb5cf236a3b040342097019fce761e655a4c5a12eae18591d628"
+  },
+  "guest_image": {
+    "_why": "Alpine Linux, downloaded by 'anylinuxfs init'. Not yet fetched by this script.",
+    "rootfs_ver": "1.5.1",
+    "oci_digest": "sha256:e7a1a92a5bfeee40966aea60f0796b0e7917cc35591542701834f03a68fa3d18"
+  }
+}

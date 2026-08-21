@@ -1,11 +1,18 @@
 .DS_Store
 .build/
 dist/
-vendor/
-# The Sparkle PUBLIC key is not a secret, and a clone without it builds an
-# app that trusts no update at all. Tracked deliberately.
+
+# The engine the build fetches. Anchored to the root, so a stray vendor tree
+# anywhere else shows up in git status instead of hiding. The contents are
+# ignored rather than the directory itself, because git cannot re-include a
+# file inside an excluded directory — and engine.lock has to be tracked: the
+# build scripts read it to know which engine to fetch, so a clone without it
+# cannot build at all.
+/vendor/*
+!/vendor/engine.lock
 
 # Agent worktrees are checkouts of this repo, not content of it.
 .claude/worktrees/
-vendor/.cache/
-vendor/upstream/
+
+# The Sparkle PUBLIC key is not a secret, and a clone without it builds an app
+# that trusts no update at all. Tracked deliberately.

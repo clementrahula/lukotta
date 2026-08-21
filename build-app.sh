@@ -95,9 +95,6 @@ ACTOOL="$(xcrun --find actool 2>/dev/null || echo /Applications/Xcode.app/Conten
   --platform macosx --minimum-deployment-target 15.0 \
   --app-icon AppIcon --output-partial-info-plist /dev/null >/dev/null
 [ -f "$CONTENTS/Resources/Assets.car" ] || { echo "error: actool produced no Assets.car" >&2; exit 1; }
-# The mark, in both renderings. The interface picks by appearance.
-cp "$HERE/assets/brand/mark-light.png" "$CONTENTS/Resources/mark-light.png"
-cp "$HERE/assets/brand/mark-dark.png"  "$CONTENTS/Resources/mark-dark.png"
 cp "$HERE/resources/helpers/validate-key.sh" "$CONTENTS/Resources/helpers/validate-key.sh"
 chmod 755 "$CONTENTS/Resources/helpers/validate-key.sh"
 cp "$HERE/LICENSE.txt" "$CONTENTS/Resources/LICENSE.txt"
@@ -123,7 +120,7 @@ if [ -d "$HERE/vendor/engine" ]; then
     case "$f" in
       */bin/anylinuxfs)
         /usr/bin/codesign --force --options runtime \
-          --entitlements "$HERE/anylinuxfs.entitlements" \
+          --entitlements "$HERE/lukotta.entitlements" \
           --sign "$SIGN_ID" "$f" >/dev/null 2>&1 \
           || { printf "error: could not sign %s\n" "$f" >&2; exit 1; }
         ;;
