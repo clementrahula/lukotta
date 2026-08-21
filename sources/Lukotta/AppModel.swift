@@ -144,6 +144,11 @@ final class AppModel: ObservableObject {
         }
         phase = .scanning
         Task.detached(priority: .userInitiated) {
+            // Before anything is mounted, while the engine's lock can still be
+            // had. Declines the moment a drive is open, which is the only time
+            // it would matter and the only time it would be unsafe.
+            GuestRuntime.syncIfNeeded()
+
             // Clear anything left mounted by a virtual machine that is no
             // longer running. Until it goes, macOS keeps asking the user about
             // a server that cannot answer, and the drive cannot be opened

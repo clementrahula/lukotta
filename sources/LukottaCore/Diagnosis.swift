@@ -35,6 +35,15 @@ public enum Diagnosis {
             return
                 "This drive holds several volumes inside it, and Lukotta could not work out which ones. Reporting this would help."
         }
+        // The engine writes to the guest filesystem only while holding its lock
+        // exclusively, and it cannot have it exclusively while another drive is
+        // open. Lukotta does that write at launch to keep this from happening,
+        // so reaching here means a drive was already open when the engine
+        // changed under it.
+        if lower.contains("another instance is already running") {
+            return
+                "Another drive is open, and the drive engine has to run on its own the first time after it changes. Eject the other drives, open this one, then they can all be open together again."
+        }
         if lower.contains("already mounted") {
             return "macOS already has this drive mounted. Eject it in Finder and try again."
         }

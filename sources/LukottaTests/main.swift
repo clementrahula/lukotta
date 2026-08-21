@@ -808,6 +808,38 @@ group("clientRequirement") {
         "the daemon plist name derives from the service name")
 }
 
+group("guestRuntimeSync") {
+    let now = Date()
+    let older = now.addingTimeInterval(-3600)
+
+    // The engine's own test: size first, then "is the bundled one newer".
+    expect(
+        GuestRuntime.needsSync(
+            bundledSize: 100, bundledModified: older, guestSize: 101, guestModified: now),
+        "a different size means the guest copy is stale")
+    expect(
+        GuestRuntime.needsSync(
+            bundledSize: 100, bundledModified: now, guestSize: 100, guestModified: older),
+        "a newer bundled file means the guest copy is stale")
+    expect(
+        !GuestRuntime.needsSync(
+            bundledSize: 100, bundledModified: older, guestSize: 100, guestModified: now),
+        "an older bundled file leaves the guest copy alone")
+
+    // Copying keeps the timestamp, so the two match exactly afterwards. That
+    // has to read as settled, or every launch would copy again.
+    expect(
+        !GuestRuntime.needsSync(
+            bundledSize: 100, bundledModified: now, guestSize: 100, guestModified: now),
+        "matching size and timestamp is settled, not stale")
+
+    // The raw engine string is not something to show anyone.
+    let advice = Diagnosis.summarise(
+        "macOS: Error: another instance is already running", fallback: "x")
+    expect(advice.contains("Eject the other drives"), "the lock clash says what to do")
+    expect(!advice.contains("another instance"), "and does not repeat the engine's wording")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")
