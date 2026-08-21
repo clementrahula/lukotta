@@ -92,6 +92,25 @@ final class HelperClient: ObservableObject {
         }
     }
 
+    /// What a partition holds, read from its first sector by the helper.
+    ///
+    /// Unknown when the helper is not there, which is the same as not asking:
+    /// nothing is claimed about the drive and the screen says what it always
+    /// said. A helper from an earlier version has no such method, and the
+    /// error handler is what stops that hanging for ever.
+    func identify(devicePath: String) async -> VolumeFormat {
+        guard isReady, proxy() != nil, let connection else { return .unknown }
+        let answer = await withCheckedContinuation { continuation in
+            let once = ResumeOnce(continuation)
+            guard
+                let proxy = connection.remoteObjectProxyWithErrorHandler({ _ in once.resume(nil) })
+                    as? LukottaHelperProtocol
+            else { return once.resume(nil) }
+            proxy.identify(devicePath: devicePath) { once.resume($0) }
+        }
+        return answer.flatMap(VolumeFormat.init(rawValue:)) ?? .unknown
+    }
+
     /// Mount through the helper. Returns nil when it is unavailable, so the
     /// caller can fall back rather than fail.
     func mount(

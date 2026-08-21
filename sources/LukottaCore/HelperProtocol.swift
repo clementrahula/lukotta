@@ -67,5 +67,13 @@ public enum HelperInfo {
 
     func unmount(mountPoint: String, reply: @escaping (Int32, String) -> Void)
 
+    /// What a partition actually holds, read from its first sector.
+    ///
+    /// Here rather than in the app because /dev/diskNsM is mode 640 owned by
+    /// root and the operator group, which an ordinary account is not in. Full
+    /// Disk Access does not help: that is a POSIX permission, not a privacy
+    /// one. Replies with a `VolumeFormat` raw value.
+    func identify(devicePath: String, reply: @escaping (String) -> Void)
+
     func helperVersion(reply: @escaping (String) -> Void)
 }

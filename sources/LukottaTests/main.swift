@@ -1186,6 +1186,61 @@ group("unpackingProgress") {
         "with nothing to count against, no percentage is claimed")
 }
 
+group("bootSectorIdentification") {
+    // A first sector, built the way the real ones are: a jump instruction,
+    // then eight bytes of OEM name.
+    func sector(oem: String, identifierAt offset: Int? = nil) -> Data {
+        var bytes = [UInt8](repeating: 0, count: BootSector.length)
+        bytes[0] = 0xEB
+        bytes[1] = 0x58
+        bytes[2] = 0x90
+        for (i, byte) in Array(oem.utf8).enumerated() where i < 8 { bytes[3 + i] = byte }
+        if let offset {
+            for (i, byte) in BootSector.bitlockerIdentifier.enumerated() {
+                bytes[offset + i] = byte
+            }
+        }
+        return Data(bytes)
+    }
+
+    expect(
+        "\(BootSector.identify(sector(oem: "-FVE-FS-")))", "bitlocker",
+        "a BitLocker volume names itself in the header")
+    expect(
+        "\(BootSector.identify(sector(oem: "NTFS    ")))", "ntfs",
+        "and so does plain NTFS, which is the one people were finding out about by failing")
+    expect("\(BootSector.identify(sector(oem: "EXFAT   ")))", "exfat", "exFAT too")
+
+    // BitLocker To Go writes a FAT-looking header. Reading only the name would
+    // call an encrypted drive unencrypted, which is the worst answer available.
+    expect(
+        "\(BootSector.identify(sector(oem: "MSWIN4.1", identifierAt: 0x70)))", "bitlocker",
+        "a drive that looks like FAT is still BitLocker when it carries the identifier")
+    expect(
+        "\(BootSector.identify(sector(oem: "MSWIN4.1")))", "unknown",
+        "and without the identifier no claim is made about it")
+
+    // The identifier is authoritative wherever it sits in the sector.
+    expect(
+        "\(BootSector.identify(sector(oem: "NTFS    ", identifierAt: 0x1F0)))", "bitlocker",
+        "the identifier outranks the name, wherever in the sector it is")
+
+    // Nothing recognised is nothing said. A wrong guess here sends someone
+    // looking for a password that does not exist.
+    expect(
+        "\(BootSector.identify(sector(oem: "XXXXXXXX")))", "unknown", "an unknown header is unknown"
+    )
+    expect("\(BootSector.identify(Data()))", "unknown", "an empty read is not an answer")
+    expect("\(BootSector.identify(Data([0xEB, 0x58])))", "unknown", "and neither is a short one")
+
+    // Data slices do not start at zero. Reading the name from the wrong end of
+    // one would misidentify every drive.
+    let padded = Data([0, 0, 0, 0]) + sector(oem: "NTFS    ")
+    expect(
+        "\(BootSector.identify(padded.dropFirst(4)))", "ntfs",
+        "a sector read into the middle of a buffer reads the same")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

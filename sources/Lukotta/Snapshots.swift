@@ -72,6 +72,15 @@ enum Snapshots {
                 }
             ),
             ("unlock-linux", model { $0.phase = .unlock(linux) }),
+            // A drive that turned out not to be encrypted, said before anyone
+            // goes looking for a password.
+            (
+                "unlock-unencrypted",
+                model {
+                    $0.phase = .unlock(drive)
+                    $0.chosenFormat = .ntfs
+                }
+            ),
             (
                 "working",
                 model {

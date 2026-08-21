@@ -16,12 +16,29 @@ struct UnlockView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Unlock “\(drive.name)”").font(.title3.weight(.semibold))
+                        Text(
+                            model.chosenDriveIsOpenAlready
+                                ? "Open “\(drive.name)”" : "Unlock “\(drive.name)”"
+                        )
+                        .font(.title3.weight(.semibold))
                         Text(verbatim: "\(drive.sizeDescription) · \(drive.devicePath)")
                             .font(.caption).foregroundStyle(.secondary)
                     }
 
-                    if model.usingSavedCredential {
+                    // Said before a password is typed rather than after one
+                    // fails. A Microsoft Basic Data partition is BitLocker,
+                    // plain NTFS or exFAT, and nothing outside the first sector
+                    // distinguishes them.
+                    if let format = model.chosenFormat, format != .bitlocker {
+                        FormatNote(format: format)
+                    }
+
+                    if model.chosenDriveIsOpenAlready {
+                        // No field at all. Asking for a password beside a
+                        // sentence saying there is none to give is worse than
+                        // saying nothing.
+                        EmptyView()
+                    } else if model.usingSavedCredential {
                         // A stored key and a field of dots asking to store it again is
                         // two states at once. Show the one that applies.
                         HStack(spacing: 12) {
@@ -132,9 +149,12 @@ struct UnlockView: View {
             HStack {
                 Button("Back", action: model.backToDrives)
                 Spacer()
-                Button("Unlock") { model.unlock(drive) }
+                // "Open", not "Unlock", for a drive that was never locked.
+                Button(model.chosenDriveIsOpenAlready ? "Open" : "Unlock") { model.unlock(drive) }
                     .keyboardShortcut(.defaultAction)
-                    .disabled(model.credential.isEmpty && !model.usingSavedCredential)
+                    .disabled(
+                        model.credential.isEmpty && !model.usingSavedCredential
+                            && !model.chosenDriveIsOpenAlready)
             }
         }
         .onAppear {
@@ -369,5 +389,42 @@ struct PermissionRow: View {
         case .automatic:
             EmptyView()
         }
+    }
+}
+
+/// Says what an unencrypted drive is, before anyone looks for a password.
+///
+/// Only shown for a drive that turned out not to be locked. Lukotta can still
+/// open it — that is what gives a Windows disk read and write access macOS does
+/// not — so this is worded as an explanation rather than as a refusal.
+private struct FormatNote: View {
+    let format: VolumeFormat
+
+    private var title: String {
+        format == .exfat
+            ? String(localized: "This drive is exFAT, and is not encrypted.")
+            : String(localized: "This drive is plain NTFS, and is not encrypted.")
+    }
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "info.circle.fill")
+                .foregroundStyle(.blue)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.callout.weight(.medium))
+                Text(
+                    "There is no password to enter. Open it anyway to read and write to it, which macOS on its own cannot do."
+                )
+                .font(.caption).foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+        }
+        .padding(13)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 8).fill(Color.blue.opacity(0.10)))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.blue.opacity(0.25)))
+        .accessibilityElement(children: .combine)
     }
 }

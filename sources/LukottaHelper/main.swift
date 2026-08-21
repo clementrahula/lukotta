@@ -198,6 +198,17 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         reply(Diagnostics.redact(text, secret: secret))
     }
 
+    func identify(devicePath: String, reply: @escaping (String) -> Void) {
+        guard let sector = BootSector.read(devicePath: devicePath) else {
+            Log.helper.notice("could not read the first sector")
+            reply(VolumeFormat.unknown.rawValue)
+            return
+        }
+        let format = BootSector.identify(sector)
+        Log.helper.notice("partition identified as \(format.rawValue, privacy: .public)")
+        reply(format.rawValue)
+    }
+
     func unmount(mountPoint: String, reply: @escaping (Int32, String) -> Void) {
         let result = EngineStatus.unmount(mountPoint: mountPoint)
         Log.helper.notice("unmount \(result.ok ? "succeeded" : "failed", privacy: .public)")

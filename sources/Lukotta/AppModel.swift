@@ -512,11 +512,44 @@ final class AppModel: ObservableObject {
         credentialProblem = nil
         notice = nil
         phase = .unlock(drive)
+        identify(drive)
+    }
+
+    /// What the chosen partition actually holds, once the helper has read it.
+    ///
+    /// Only ever set to something worth saying. A drive whose first sector
+    /// cannot be read, or that is read as something nobody recognises, leaves
+    /// this nil and the screen exactly as it was.
+    @Published var chosenFormat: VolumeFormat?
+
+    /// Ask the helper what is on the drive, in the background.
+    ///
+    /// A Microsoft Basic Data partition is BitLocker, plain NTFS or exFAT and
+    /// the partition type does not say which — so until this comes back the
+    /// only way to find out has been to type a password and watch it fail.
+    /// Linux partitions are left alone: LUKS announces itself in its own
+    /// header, and the engine's own probe already reports it.
+    private func identify(_ drive: Drive) {
+        chosenFormat = nil
+        guard drive.kind == .microsoft, helper.isReady else { return }
+        let devicePath = drive.devicePath
+        let identifier = drive.id
+        Task { [weak self] in
+            guard let self else { return }
+            let format = await self.helper.identify(devicePath: devicePath)
+            // The user may have gone somewhere else while the helper read a
+            // sector. Answering about a drive nobody is looking at would put a
+            // sentence about one drive under the name of another.
+            guard case .unlock(let current) = self.phase, current.id == identifier else { return }
+            Log.drives.notice("identified as \(format.rawValue, privacy: .public)")
+            self.chosenFormat = format == .unknown ? nil : format
+        }
     }
 
     func backToDrives() {
         credential = ""
         credentialProblem = nil
+        chosenFormat = nil
         phase = .chooseDrive
     }
 
@@ -538,9 +571,27 @@ final class AppModel: ObservableObject {
 
     // MARK: Unlock
 
+    /// Whether this drive has already been read and found not to be encrypted.
+    ///
+    /// The one case where an empty field is the right answer rather than a
+    /// missing one.
+    var chosenDriveIsOpenAlready: Bool {
+        chosenFormat == .ntfs || chosenFormat == .exfat
+    }
+
     func unlock(_ drive: Drive) {
         credentialProblem = nil
         let raw = credential
+        // Nothing to unlock: the first sector says it is not encrypted, so the
+        // engine mounts it without asking for anything. Sending it on with an
+        // empty credential is what makes the screen's own sentence true.
+        if raw.isEmpty, chosenDriveIsOpenAlready {
+            Log.mount.notice("opening an unencrypted drive, no credential needed")
+            statusLines = []
+            phase = .working(drive)
+            runMount(drive: drive, credential: "")
+            return
+        }
         guard !raw.isEmpty else {
             // Whatever the interface was claiming, there is no saved key in
             // hand. Say the true thing before asking for one.
@@ -565,15 +616,6 @@ final class AppModel: ObservableObject {
             )
             statusLines = []
             phase = .working(drive)
-            let ws: Workspace
-            do {
-                ws = try Workspace()
-            } catch {
-                fail(drive, "Could not create a private working folder.", "\(error)")
-                return
-            }
-            workspace = ws
-
             runMount(drive: drive, credential: normalised)
         }
     }
