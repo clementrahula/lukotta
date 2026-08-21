@@ -94,13 +94,13 @@ it to.
 
 ## Uninstalling
 
-Drag Lukotta to the Bin, then open **System Settings → General → Login Items &
-Extensions** and switch Lukotta off. That removes the background helper, which
-stays registered with macOS otherwise.
+Choose **Lukotta → Uninstall Lukotta…** from the menu bar. It says what it will
+remove, then ejects anything open, unregisters the background helper, deletes
+the Linux environment, and moves the app to the Bin.
 
-The Linux environment sits in `~/.anylinuxfs` and is about 95 MB. Delete it to
-reclaim the space. Passphrases you asked Lukotta to remember stay in your
-Keychain under `dev.lukotta.drive-credential` until you remove them.
+Passphrases you asked Lukotta to remember are left in your Keychain. Some are
+48-digit recovery keys that exist nowhere else, so removing them is left to you,
+in Keychain Access.
 
 ## Building
 

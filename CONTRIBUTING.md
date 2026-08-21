@@ -55,6 +55,12 @@ partition table and three logical volumes inside a single container. The
 passphrase is printed when it finishes. The script also prints how to attach
 one and run the app so that disk images appear alongside real drives.
 
+## Uninstalling a Build
+
+The app removes itself from **Lukotta → Uninstall Lukotta…**. From a checkout,
+`./scripts/uninstall.sh` does the same thing and takes `--remove` to act;
+without it, it only says what it would do.
+
 ## House Style
 
 - Comments explain **why**, not what. If a line needs saying at all, it is

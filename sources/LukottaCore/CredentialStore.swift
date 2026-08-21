@@ -58,4 +58,17 @@ public enum CredentialStore {
     }
 
     public static func has(for uuid: String) -> Bool { load(for: uuid) != nil }
+
+    /// Whether any drive credential is stored at all.
+    ///
+    /// Used when uninstalling, to say that passphrases are being left behind
+    /// rather than removing them without asking.
+    public static var hasAny: Bool {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+        ]
+        return SecItemCopyMatching(query as CFDictionary, nil) == errSecSuccess
+    }
 }

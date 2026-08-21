@@ -48,6 +48,53 @@ private func unregisterHelperIfAsked() {
     }
 }
 
+/// Ask before removing anything, describing this Mac rather than the general
+/// case, then do it.
+@MainActor
+private func confirmUninstall() {
+    let plan = Uninstall.survey()
+
+    var detail: [String] = ["Lukotta will be moved to the Bin."]
+    if !plan.openDrives.isEmpty {
+        detail.append(
+            plan.openDrives.count == 1
+                ? "The open drive will be ejected first."
+                : "\(plan.openDrives.count) open drives will be ejected first.")
+    }
+    if plan.helperRegistered {
+        detail.append("The background helper will be unregistered.")
+    }
+    if let mb = plan.guestSizeMB, mb > 0 {
+        detail.append("The Linux environment will be deleted, freeing about \(mb) MB.")
+    }
+    if plan.savedCredentials {
+        detail.append(
+            "Passphrases you asked Lukotta to remember are left in your Keychain. "
+                + "Remove them yourself in Keychain Access if you want them gone.")
+    }
+
+    let alert = NSAlert()
+    alert.messageText = "Uninstall Lukotta?"
+    alert.informativeText = detail.joined(separator: "\n\n")
+    alert.alertStyle = .warning
+    alert.addButton(withTitle: "Uninstall")
+    alert.addButton(withTitle: "Cancel")
+    guard alert.runModal() == .alertFirstButtonReturn else { return }
+
+    Uninstall.perform(plan) { failure in
+        guard let failure else { NSApp.terminate(nil); return }
+        // Everything else is already gone; only the move to the Bin failed, so
+        // say so rather than quitting as though it had worked.
+        let problem = NSAlert()
+        problem.messageText = "Lukotta could not be moved to the Bin"
+        problem.informativeText =
+            failure + "\n\nEverything else has been removed. "
+            + "Drag Lukotta to the Bin yourself to finish."
+        problem.runModal()
+        NSApp.terminate(nil)
+    }
+}
+
 @main
 struct LukottaApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
@@ -124,6 +171,8 @@ struct LukottaApp: App {
             CommandGroup(after: .appInfo) {
                 Button("Check for Updates…") { updater.checkForUpdates() }
                     .disabled(!updater.canCheck)
+                Divider()
+                Button("Uninstall Lukotta…") { confirmUninstall() }
             }
             CommandGroup(replacing: .help) {
                 Button("Lukotta Help") { model.showHelp = true }
