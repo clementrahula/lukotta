@@ -38,6 +38,9 @@ public enum MountScript {
         var gid: UInt32
         var cores: Int
         var ramMiB: Int
+        /// Whether the script will be run as root. A container file attached by
+        /// this user needs no privilege at all.
+        var elevated = true
 
         /// macOS negotiates 32 KiB NFS transfers by default and supports 1 MiB,
         /// which matters for sequential throughput over this loopback mount.
@@ -49,7 +52,7 @@ public enum MountScript {
             aliasPath: String? = nil, fifoPath: String, logPath: String,
             discoverLogPath: String, expectScriptPath: String,
             configPath: String, libraryPaths: [String], uid: UInt32, gid: UInt32,
-            cores: Int, ramMiB: Int
+            cores: Int, ramMiB: Int, elevated: Bool = true
         ) {
             self.enginePath = enginePath; self.devicePath = devicePath
             self.driveName = driveName; self.kind = kind
@@ -61,6 +64,7 @@ public enum MountScript {
             self.libraryPaths = libraryPaths
             self.uid = uid; self.gid = gid
             self.cores = cores; self.ramMiB = ramMiB
+            self.elevated = elevated
         }
     }
 
@@ -161,8 +165,16 @@ public enum MountScript {
         // `do shell script … with administrator privileges` runs the command
         // directly as root rather than through sudo, so these are absent and the
         // engine refuses to start with "must not be run directly by root".
-        lines.append("export SUDO_UID=\(i.uid)")
-        lines.append("export SUDO_GID=\(i.gid)")
+        // Only when elevated. `do shell script ... with administrator
+        // privileges` runs as root rather than through sudo, so SUDO_UID and
+        // SUDO_GID are absent and the engine refuses to start ("must not be run
+        // directly by root"); supplying them names the real invoking user. Run
+        // as that user in the first place and they are not merely unnecessary
+        // but wrong — the engine would take itself for a sudo session.
+        if i.elevated {
+            lines.append("export SUDO_UID=\(i.uid)")
+            lines.append("export SUDO_GID=\(i.gid)")
+        }
 
         // Read the credential from the pipe once into a variable: a FIFO can
         // only be consumed once, and re-prompting per attempt would defeat the

@@ -14,11 +14,20 @@ public struct MountResult: Sendable {
 /// one approval. This is the route taken when the privileged helper is not
 /// registered; with it, unlocking asks for nothing.
 public enum Mounter {
+    /// Open a drive with the engine.
+    ///
+    /// `elevated` is what decides whether macOS is asked to authorise the
+    /// command. A physical drive needs it — `/dev/diskNsM` is mode 640 owned by
+    /// root and the operator group. A container file attached by this user does
+    /// not: the device node is theirs, and the NFS mount the engine makes is a
+    /// user mount. Run unelevated, the engine mounts under `~/Volumes` rather
+    /// than `/Volumes`, which is the visible difference.
     public static func mount(
         drive: Drive,
         credential: String,
         volume: LogicalVolume? = nil,
         workspace: Workspace,
+        elevated: Bool = true,
         progress: @escaping (String) -> Void
     ) throws -> MountResult {
 
@@ -31,23 +40,6 @@ public enum Mounter {
         let fifo = try workspace.makeCredentialPipe()
         let log = workspace.root.appendingPathComponent("mount.log")
         FileManager.default.createFile(atPath: log.path, contents: nil)
-
-        // Build the privileged command. The credential is read from a FIFO, so
-        // it never appears in an argument list, an exported environment, or on
-        // disk. DYLD_* must be set inside the elevated shell because macOS
-        // strips those variables across a privilege boundary.
-        var parts: [String] = []
-        let libs = EnginePaths.libraryPaths().joined(separator: ":")
-        if !libs.isEmpty {
-            parts.append("export DYLD_LIBRARY_PATH=\(shellQuoted(libs))")
-            parts.append("export DYLD_FALLBACK_LIBRARY_PATH=\(shellQuoted(libs))")
-        }
-        // `do shell script ... with administrator privileges` runs the command
-        // directly as root rather than through sudo, so SUDO_UID/SUDO_GID are
-        // absent and the engine refuses to start ("must not be run directly by
-        // root"). Supply the real invoking user explicitly.
-        parts.append("export SUDO_UID=\(getuid())")
-        parts.append("export SUDO_GID=\(getgid())")
 
         // Finder shows an NFS mount under its server name, which the engine
         // derives from the last path component it is given. A symlink named
@@ -80,7 +72,8 @@ public enum Mounter {
                 uid: getuid(),
                 gid: getgid(),
                 cores: MountScript.VirtualMachine.cores,
-                ramMiB: MountScript.VirtualMachine.ramMiB))
+                ramMiB: MountScript.VirtualMachine.ramMiB,
+                elevated: elevated))
 
         let scriptURL = workspace.root.appendingPathComponent("mount.sh")
         try script.write(to: scriptURL, atomically: true, encoding: .utf8)
@@ -89,18 +82,25 @@ public enum Mounter {
             ofItemAtPath: scriptURL.path)
 
         let osa = Process()
-        osa.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        osa.arguments = [
-            "-e", "with timeout of 1800 seconds",
-            "-e",
-            "do shell script \(appleScriptQuoted("/bin/sh " + shellQuoted(scriptURL.path))) with administrator privileges",
-            "-e", "end timeout",
-        ]
         let osaErr = Pipe()
+        if elevated {
+            osa.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+            osa.arguments = [
+                "-e", "with timeout of 1800 seconds",
+                "-e",
+                "do shell script \(appleScriptQuoted("/bin/sh " + shellQuoted(scriptURL.path))) with administrator privileges",
+                "-e", "end timeout",
+            ]
+        } else {
+            // Straight to the shell. Nothing here needs a privilege the user
+            // does not already have over their own file.
+            osa.executableURL = URL(fileURLWithPath: "/bin/sh")
+            osa.arguments = [scriptURL.path]
+        }
         osa.standardOutput = FileHandle.nullDevice
         osa.standardError = osaErr
 
-        progress("Waiting for your administrator approval…")
+        if elevated { progress("Waiting for your administrator approval…") }
         try osa.run()
 
         // Hand the credential over once the elevated shell opens the FIFO. This

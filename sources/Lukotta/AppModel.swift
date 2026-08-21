@@ -1016,6 +1016,17 @@ final class AppModel: ObservableObject {
         }
         workspace = ws
 
+        // A container file needs no privilege at all: this user attached it, so
+        // the device node is theirs and the NFS mount the engine makes is a
+        // user mount. Neither the helper nor an authorisation prompt is
+        // involved — the drive simply mounts, under ~/Volumes rather than
+        // /Volumes, which is the one visible difference.
+        if openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil {
+            Log.mount.notice("opening a container file without any privilege")
+            runMountAsThisUser(drive: drive, credential: credential, workspace: ws)
+            return
+        }
+
         // With the helper approved, this needs no password at all. Without it,
         // fall back to asking macOS to authorise a single command.
         if helper.isReady {
@@ -1110,7 +1121,10 @@ final class AppModel: ObservableObject {
     }
 
     /// Record a successful mount, wherever it came from.
-    private func finishMount(drive: Drive, credential: String, mountPoint: String) {
+    private func finishMount(
+        drive: Drive, credential: String, mountPoint: String, transcript: String = ""
+    ) {
+        if !transcript.isEmpty { noteVolumeCount(transcript) }
         if rememberCredential {
             if !CredentialStore.save(credential, for: drive.uuid) {
                 ejectProblem = "The drive opened, but the key could not be saved to your Keychain."
@@ -1129,6 +1143,37 @@ final class AppModel: ObservableObject {
         self.credential = ""
         credentialBelongsTo = nil
         phase = .mounted(drive, mountPoint)
+    }
+
+    /// Run the engine as the user who is sitting there.
+    ///
+    /// Shares everything with the authorised route but the authorising: same
+    /// script, same progress, same failures. Only container files come here.
+    private func runMountAsThisUser(drive: Drive, credential: String, workspace ws: Workspace) {
+        mountTask = Task.detached(priority: .userInitiated) {
+            do {
+                let result = try Mounter.mount(
+                    drive: drive, credential: credential, workspace: ws, elevated: false,
+                    progress: { line in
+                        Task { @MainActor in self.appendStatus(line) }
+                    })
+                await MainActor.run {
+                    self.finishMount(
+                        drive: drive, credential: credential, mountPoint: result.mountPoint,
+                        transcript: result.transcript)
+                }
+            } catch let err as EngineError {
+                await MainActor.run {
+                    self.fail(
+                        drive, err.errorDescription ?? "The drive could not be opened.",
+                        err.detail)
+                }
+            } catch {
+                await MainActor.run {
+                    self.fail(drive, "The drive could not be opened.", "\(error)")
+                }
+            }
+        }
     }
 
     private func runMountWithAuthorisation(

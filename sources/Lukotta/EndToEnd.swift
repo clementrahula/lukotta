@@ -127,6 +127,11 @@ enum EndToEnd {
             return
         }
         check(FileManager.default.fileExists(atPath: mountPoint), "the mount point exists")
+        // Opened as the user, with no helper and no authorisation, which is why
+        // it lands here rather than in /Volumes.
+        check(
+            mountPoint.hasPrefix(NSHomeDirectory() + "/Volumes/"),
+            "and it is under ~/Volumes, so nothing was elevated to open it")
 
         // 3. The list is rebuilt while it is open.
         //
