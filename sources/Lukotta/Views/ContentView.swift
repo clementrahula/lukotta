@@ -46,7 +46,7 @@ struct Header: View {
     var body: some View {
         HStack(spacing: 12) {
             LukottaMark()
-                .frame(width: 38, height: 38)
+                .frame(width: 26, height: 26)
             VStack(alignment: .leading, spacing: 1) {
                 Text("Lúkotta").font(.headline)
                 Text("Open encrypted drives on macOS")

@@ -86,7 +86,8 @@ if [ -z "$SPARKLE_KEY" ]; then
 fi
 cp "$HERE/assets/AppIcon.icns" "$CONTENTS/Resources/AppIcon.icns"
 # The mark the interface draws, as artwork rather than geometry copied from it.
-cp "$HERE/assets/brand/lukotta-mark-template.png" "$CONTENTS/Resources/LukottaMark.png"
+cp "$HERE/assets/brand/lukotta-mark-light.png" "$CONTENTS/Resources/LukottaMarkLight.png"
+cp "$HERE/assets/brand/lukotta-mark-dark.png"  "$CONTENTS/Resources/LukottaMarkDark.png"
 # The mark, in both renderings. The interface picks by appearance.
 cp "$HERE/assets/brand/mark-light.png" "$CONTENTS/Resources/mark-light.png"
 cp "$HERE/assets/brand/mark-dark.png"  "$CONTENTS/Resources/mark-dark.png"
