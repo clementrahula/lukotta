@@ -12,6 +12,15 @@ only you have; everything else is unassigned and can be picked up in any order.
 Nothing below is optional. Until all of it is done there is no artefact that can
 responsibly be given to anyone.
 
+- **[both] Handle sleep and wake with a drive open.** Nothing is done for it
+  today: the machine sleeps, the virtual machine's clock and its NFS server come
+  back to a client that has been waiting, and a mount that hangs afterwards gives
+  no explanation and cannot be ejected. This is the failure most likely to be met
+  by someone who leaves a drive mounted and closes the lid, which is everyone.
+  Wants `NSWorkspace.willSleepNotification` and `didWakeNotification`, a decision
+  about what to do on each — unmount cleanly before sleeping and offer to reopen,
+  or verify the mount on wake and clear it if it is dead — and then a lid close
+  with a drive open to prove it.
 - **[you] Notarise a build.** `spctl` rejects the installed copy as an
   unnotarised Developer ID build, so a downloader is told macOS cannot check it
   for malicious software. Everything around it is written: the whole sequence is
@@ -26,30 +35,37 @@ responsibly be given to anyone.
   reflects development churn rather than a release.
 - **[you] Make the repository public.** GPL-3 binaries entitle recipients to the
   corresponding source. A private repository and a public binary cannot coexist.
-- **[you] Back up the Sparkle private key.** It exists in the login keychain and
-  is unrecoverable: lose it and every installed copy becomes permanently
-  unupdatable.
-- **Decide whether to ship a `.dmg`.** The release produces a notarised `.zip`,
-  which is what Sparkle needs and what the GitHub release carries. A DMG with a
-  drag-to-Applications layout is only for the website download, and would have to
-  be notarised in its own right.
+- **Build a `.dmg` in the release flow.** Every release ships one. The archive
+  Sparkle updates from stays a `.zip` — that is the format it installs — so the
+  release produces both, and the DMG is notarised and stapled in its own right
+  rather than inheriting it from the app inside. Drag-to-Applications layout,
+  and the website's download button points at it.
 
 ---
 
 ## Stage 2 — Before handing it to strangers
 
-- **[both] Test sleep/wake with a drive mounted.** A drive pulled while mounted
-  is now handled — the mount is cleared and the list says so — but a lid close is
-  not, and an NFS mount that hangs afterwards gives no explanation. Needs someone
-  present to close a lid.
 - **Add delta updates to the release flow.** The appcast is generated and signed;
   deltas are not, so every bug-fix release is a 154 MB download for a few
   kilobytes of changed code.
-- **[you] Check whether the US export notification applies** to publishing
-  encryption software from a US-hosted repository. Published open source is
-  generally exempt in the EU. Not legal advice.
-- **[you] Have the licence position reviewed** by someone qualified. The
-  analysis is careful, but it is engineering judgement.
+- **[you] Send the US export notification, or establish that it is not owed.**
+  US export rules (EAR 742.15(b), 740.13(e)) treat publicly available encryption
+  source code as exempt, but the exemption is conditional on emailing the URL to
+  `crypt@bis.doc.gov` and `enc@nsa.gov` once, when it is first published. The
+  rule follows the hosting, not the author, so publishing on GitHub is what
+  raises it; an author in Estonia does not. It is one email with a repository
+  link and no reply to wait for. Not legal advice.
+- **[you] Have one licence question answered** by someone qualified. Everything
+  else is settled and written down: the app is GPL-3.0-or-later, every component
+  is identified in `THIRD_PARTY_NOTICES.md`, and each release carries the
+  corresponding source. What is not settled is that the bundle ships GPL-2.0-only
+  components — the Linux kernel, libkrunfw, busybox, apk-tools — next to GPL-3
+  application code, and GPL-2.0-only and GPL-3.0 cannot be combined into one
+  work. The position taken here is that they are aggregated rather than combined:
+  they are separate binaries that run inside a virtual machine, not linked into
+  the app. That is almost certainly right, and it is what upstream anylinuxfs
+  already ships, but it is the one conclusion in the project that is a legal
+  judgement rather than an engineering one.
 
 ---
 
@@ -117,13 +133,8 @@ responsibly be given to anyone.
 
 ## Accessibility and localisation
 
-- **[you] Have the translations reviewed by native speakers.** Twenty-one
-  languages ship and none has been read by anyone who speaks it. The terminology
-  follows Apple's own macOS tables, which limits how wrong it can be, but not how
-  stilted.
-- **Hear VoiceOver end to end**, and test Dynamic Type at larger sizes. The
-  accessibility tree is verified by `scripts/dump-accessibility.swift`; the
-  assistive technology itself has never been switched on.
+- **Test Dynamic Type at larger sizes.** The layouts are built for it but have
+  only ever been seen at the default size.
 - **Checkbox rows report no description** to the accessibility tree — a SwiftUI
   `Form` puts the label and the switch side by side as siblings. The label is
   read, so this is a polish item rather than a barrier.
