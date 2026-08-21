@@ -84,7 +84,6 @@ if [ -z "$SPARKLE_KEY" ]; then
   /usr/libexec/PlistBuddy -c 'Delete :SUFeedURL' "$CONTENTS/Info.plist" >/dev/null 2>&1 || true
   printf 'note: no Sparkle key set — updates disabled in this build\n'
 fi
-cp "$HERE/assets/AppIcon.icns" "$CONTENTS/Resources/AppIcon.icns"
 # The mark the interface draws, as artwork rather than geometry copied from it.
 # Compile the asset catalogue. SwiftPM's command line copies a .xcassets
 # directory rather than building it, and an uncompiled catalogue cannot be
