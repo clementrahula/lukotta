@@ -1,16 +1,31 @@
-# Lukotta
+<p align="center">
+  <img src="docs/images/lukotta-logo.png" alt="Lukotta" width="360">
+</p>
 
-**Open BitLocker and Linux drives on macOS.** Plug in the drive, type its
-password, and it appears in Finder — readable and writable, like any other disk.
+<p align="center">
+  <strong>Open BitLocker and Linux drives on macOS.</strong><br>
+  Plug in the drive, type its password, and it appears in Finder — readable and
+  writable, like any other disk.
+</p>
 
-[lukotta.rahula.dev](https://lukotta.rahula.dev)
+<p align="center">
+  <a href="https://lukotta.rahula.dev">lukotta.rahula.dev</a> ·
+  <a href="https://github.com/clementrahula/lukotta/releases">Download</a>
+</p>
 
-A native Apple Silicon app that carries everything it needs: no Homebrew, no
-macFUSE, no kernel extension, and nothing downloaded on first run.
+## How It Works
 
-## What it opens
+macOS cannot read BitLocker or Linux filesystems. Linux can. So Lukotta starts a
+small Linux virtual machine, unlocks the drive inside it, and hands the drive
+back to Finder.
 
-- **BitLocker** drives, with the password or a 48-digit recovery key
+Nothing is installed. The engine ships inside the app, nothing leaves your Mac,
+and a drive is only written to when you write to it.
+
+## What It Can Open
+
+- **BitLocker** drives, unlocked with the volume password or a 48-digit recovery
+  key
 - **Windows NTFS** drives, including ones Windows left hibernated or not shut
   down properly
 - **LUKS** drives from Linux, both LUKS1 and LUKS2
@@ -18,29 +33,38 @@ macFUSE, no kernel extension, and nothing downloaded on first run.
   volumes on one drive all unlock together
 - **ext4, btrfs and XFS** filesystems inside them
 
-It cannot open drives sealed to a TPM rather than a password, or LUKS volumes
-whose header is kept away from the drive.
+## What It Cannot Open
+
+- Drives sealed to a TPM rather than a password, including Ubuntu's newer
+  hardware-backed encryption
+- LUKS volumes whose header is stored separately from the drive
 
 ## Requirements
 
-- An Apple Silicon Mac. Intel is not supported
+- An Apple Silicon Mac. Intel Macs are not supported
 - macOS 15 Sequoia or later
-- Full Disk Access, granted once
+- 250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks
+  on first use
+- 30 to 80 MB of RAM per unlocked drive
+- About ten drives can stay unlocked at once
 
 ## Installing
 
 Download `Lukotta.app` from [Releases][releases], drag it to Applications, and
 open it. It is signed and notarised, so it opens with a double-click.
 
-### Full Disk Access
+## Permissions
 
-macOS refuses raw reads of a disk to every process, including ones running as
-root, unless the app asking holds Full Disk Access — and an encrypted drive is
-nothing but raw contents until it is unlocked. No app can request this
-permission, so it has to be granted by hand. Lukotta explains it on first run
-and takes you to the right place in System Settings.
+- **Full Disk Access** — macOS will not let any app read a drive's raw contents
+  without it. It cannot be requested, so it has to be switched on by hand
+- **Removable volumes** — requested by macOS the first time a drive is read
+- **Administrator password** — asked for once when the background helper is set
+  up, then not again. Lukotta never sees it
 
-## Using it
+Lukotta explains each of these on first run and opens the right page of System
+Settings.
+
+## Using It
 
 Plug in the drive and pick it from the list. Type the password or paste the
 recovery key. It appears in Finder under Locations.
@@ -50,20 +74,11 @@ Eject it from Lukotta, from the menu bar, or from Finder.
 Lukotta can remember a passphrase in your Keychain. It does not unless you ask
 it to.
 
-## It appears as a network drive
+## Why It Appears as a Network Drive
 
-The drive is handed to Finder over a local network connection, so it sits under
-Locations with a network icon rather than under Devices. It reads, writes and
-ejects like any other drive. macOS offers no way to present it as a local disk.
-
-## How it works
-
-macOS cannot read BitLocker or Linux filesystems. Linux can. So Lukotta starts a
-small Linux virtual machine, unlocks the drive inside it, and hands the drive
-back to Finder.
-
-That work is done by [anylinuxfs][anylinuxfs], GPL-3, shipped inside the app.
-One virtual machine per drive, 30 to 80 MB of memory each.
+The drive is handed to Finder over a local network connection, so it appears
+under Locations with a network icon. It reads, writes and ejects like any other
+drive. macOS offers no way to present it as a local disk.
 
 ## Uninstalling
 
@@ -89,7 +104,7 @@ yourself.
 The whole path, including how to reproduce a released build, is in
 [BUILDING.md][building]. To work on Lukotta, see [CONTRIBUTING.md][contributing].
 
-## Privacy and security
+## Privacy and Security
 
 Nothing is collected. The only request Lukotta makes on its own is a daily check
 for updates, which can be turned off — [PRIVACY.md][privacy] says exactly what
@@ -101,14 +116,22 @@ privileged helper will and will not accept, and where to report a fault.
 
 ## Licence
 
-GPL-3.0-or-later. Complete source for every component, including the GPL parts
-inside the app, is published with each release.
+Lukotta is free software under the GPL, version 3 or later. The mounting is done
+by [anylinuxfs][anylinuxfs]. Complete source for every component is published
+with each release.
 
-The name Lukotta and the logo are trademarks and are not covered by that
-licence, as GPL-3 section 7(e) allows. Fork the code freely; give your version
-its own name. [TRADEMARKS.txt][trademark] says what that means in practice.
+The name and the logo are trademarks, and are not covered by that licence. Fork
+the code freely; give your version its own name. [TRADEMARKS.txt][trademark]
+says what that means in practice.
 
-[Licence][licence] · [Trademarks][trademark] · [Third-party notices][notices] · [Changelog][changelog]
+[Licence][licence] · [Trademarks][trademark] · [Third-party notices][notices] ·
+[Changelog][changelog]
+
+## The Name
+
+Lúkotta is Finnish for "without a lock", from *lukko*, a lock, with the ending
+*-tta* marking the absence of something. The stress falls on the first syllable,
+as it always does in Finnish.
 
 ## Author
 
