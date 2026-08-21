@@ -51,6 +51,14 @@ shutdown. Judge a mount by the mount table, which is what
 `MountScript.mountedCheck` does. Trusting the exit status silently disables
 every fallback path in the generated script.
 
+Failures are explained by matching text, because there is nothing else: with
+the exit status meaningless, `Diagnosis.rules` looks for phrases. Each rule
+records whether the words are the engine's own or the Linux tooling's, and
+`Diagnosis.enginesChecked` lists the engine versions the rules have been tried
+against. **Bumping `vendor/engine.lock` fails a test until that list is
+updated** — deliberately, so a rewording upstream cannot quietly stop every
+rule from firing.
+
 `MountScript` lives in `LukottaCore`, which the privileged helper links.
 After changing it, restart the helper or you are testing the old script.
 

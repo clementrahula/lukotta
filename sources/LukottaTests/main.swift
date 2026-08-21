@@ -1241,6 +1241,81 @@ group("bootSectorIdentification") {
         "a sector read into the middle of a buffer reads the same")
 }
 
+group("diagnosisRulesAreTiedToAnEngineVersion") {
+    // The whole of this matches on text, because the engine exits 0 whether or
+    // not the mount worked and there is nothing else to match on. What must not
+    // happen is an upgrade rewording a phrase and every rule quietly ceasing to
+    // fire, with people shown raw output for a release or two before anyone
+    // notices.
+    let lock =
+        (try? String(contentsOfFile: "vendor/engine.lock", encoding: .utf8))
+        ?? (try? String(
+            contentsOfFile: FileManager.default.currentDirectoryPath + "/vendor/engine.lock",
+            encoding: .utf8))
+    if let lock,
+        let data = lock.data(using: .utf8),
+        let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+        let engine = root["anylinuxfs"] as? [String: Any],
+        let version = engine["version"] as? String
+    {
+        expect(
+            Diagnosis.enginesChecked.contains(version),
+            "the rules have been checked against engine \(version) — if this fails, read the "
+                + "release notes, try the failure paths, then add it to Diagnosis.enginesChecked")
+    } else {
+        // Not a silent pass: a test that cannot find what it checks is a test
+        // that is not running.
+        expect(false, "vendor/engine.lock could be read")
+    }
+
+    // Every rule says where its words come from, because that is what says how
+    // likely they are to change, and no rule is empty.
+    for rule in Diagnosis.rules {
+        expect(!rule.patterns.isEmpty, "\(rule.name) looks for something")
+        expect(!rule.message().isEmpty, "\(rule.name) says something")
+        expect(
+            rule.patterns.allSatisfy { $0 == $0.lowercased() },
+            "\(rule.name) is matched against lowercased output, so its patterns are lowercase")
+    }
+
+    // Order matters: the first match wins. "No key available" is a refused
+    // password, and the filesystem rule below it would otherwise claim the
+    // volume was unreadable.
+    expect(
+        Diagnosis.rule(for: "cryptsetup: No key available with this passphrase.")?.name
+            ?? "none", "wrong-credential", "a refused key is a refused key")
+    expect(
+        Diagnosis.rule(for: "mount: unknown filesystem type 'crypto_LUKS'")?.name ?? "none",
+        "unrecognised-filesystem", "and an unreadable volume is that")
+
+    // Real lines, from the tools that actually emit them.
+    let known: [(String, String)] = [
+        ("anylinuxfs: cannot probe /dev/disk4s1: insufficient permissions", "no-full-disk-access"),
+        ("device-mapper: reload ioctl failed: Wrong key", "wrong-credential"),
+        ("bdemount: unable to open BitLocker volume: no BitLocker signature", "not-bitlocker"),
+        ("ntfs3: volume is dirty and \"force\" flag is not set", "windows-hibernated"),
+        ("mount: /mnt: no such device", "unrecognised-filesystem"),
+        ("blkid: TYPE=\"LVM2_member\"", "container-not-understood"),
+        ("Error: another instance is already running", "engine-lock-held"),
+        ("diskutil: volume is already mounted at /Volumes/BACKUP", "already-mounted"),
+        ("hv_vm_create failed", "hypervisor-refused"),
+        ("umount: /Volumes/X: device busy", "busy"),
+    ]
+    for (line, expected) in known {
+        expect(Diagnosis.rule(for: line)?.name ?? "none", expected, "\(expected) recognised")
+    }
+
+    // Output nobody has a rule for falls through to the engine's own words
+    // rather than to a shrug.
+    expect(
+        Diagnosis.rule(for: "something entirely new went wrong") == nil,
+        "an unrecognised failure matches nothing")
+    expect(
+        Diagnosis.summarise("modprobe: FATAL: could not insert module", fallback: ""),
+        "modprobe: FATAL: could not insert module",
+        "and the engine's own line is shown instead")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")
