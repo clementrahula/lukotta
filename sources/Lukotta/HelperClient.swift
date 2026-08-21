@@ -74,39 +74,68 @@ final class HelperClient: ObservableObject {
         return connection?.remoteObjectProxyWithErrorHandler { _ in } as? LukottaHelperProtocol
     }
 
-    /// The running mount's output so far, or nil if it cannot be had.
+    /// One round trip to the helper, off the main actor.
     ///
-    /// A helper installed by an earlier version has no such method, and an XPC
-    /// call to a method the peer does not implement never calls its reply. The
-    /// error handler is what resumes the continuation in that case; without it
-    /// this would hang, and leak, on every poll.
-    func progress() async -> String? {
-        guard isReady, proxy() != nil, let connection else { return nil }
-        return await withCheckedContinuation { continuation in
+    /// `nonisolated`, and that is the whole point. XPC calls both the reply and
+    /// the error handler on a private queue. A continuation created inside a
+    /// `@MainActor` method carries that isolation, and resuming it from another
+    /// queue trips Swift 6's isolation check and kills the process — which is
+    /// exactly what happened the first time a helper too old to answer sent the
+    /// call to its error handler. Under Swift 5 the same code ran, because
+    /// nothing was checking.
+    ///
+    /// The error handler is not optional either: an XPC call to a method the
+    /// peer does not implement never calls its reply, so without it this would
+    /// hang, and leak, on every attempt.
+    private nonisolated static func roundTrip<T: Sendable>(
+        _ box: ConnectionBox,
+        _ send:
+            @escaping @Sendable (LukottaHelperProtocol, @escaping @Sendable (T?) -> Void) ->
+            Void
+    ) async -> T? {
+        await withCheckedContinuation { (continuation: CheckedContinuation<T?, Never>) in
             let once = ResumeOnce(continuation)
             guard
-                let proxy = connection.remoteObjectProxyWithErrorHandler({ _ in once.resume(nil) })
+                let proxy = box.connection
+                    .remoteObjectProxyWithErrorHandler({ _ in once.resume(nil) })
                     as? LukottaHelperProtocol
             else { return once.resume(nil) }
-            proxy.progress { once.resume($0) }
+            send(proxy) { once.resume($0) }
+        }
+    }
+
+    /// The running mount's output so far, or nil if it cannot be had.
+    func progress() async -> String? {
+        guard isReady, proxy() != nil, let connection else { return nil }
+        return await Self.roundTrip(ConnectionBox(connection)) { proxy, done in
+            proxy.progress { done($0) }
         }
     }
 
     /// What a partition holds, read from its first sector by the helper.
     ///
-    /// Unknown when the helper is not there, which is the same as not asking:
-    /// nothing is claimed about the drive and the screen says what it always
-    /// said. A helper from an earlier version has no such method, and the
-    /// error handler is what stops that hanging for ever.
+    /// Unknown when the helper is not there, or is an older one without the
+    /// method: nothing is claimed about the drive and the screen says what it
+    /// always said.
     func identify(devicePath: String) async -> VolumeFormat {
         guard isReady, proxy() != nil, let connection else { return .unknown }
-        let answer = await withCheckedContinuation { continuation in
-            let once = ResumeOnce(continuation)
-            guard
-                let proxy = connection.remoteObjectProxyWithErrorHandler({ _ in once.resume(nil) })
-                    as? LukottaHelperProtocol
-            else { return once.resume(nil) }
-            proxy.identify(devicePath: devicePath) { once.resume($0) }
+        let answer: String? = await Self.roundTrip(ConnectionBox(connection)) { proxy, done in
+            proxy.identify(devicePath: devicePath) { done($0) }
+        }
+        return answer.flatMap(VolumeFormat.init(rawValue:)) ?? .unknown
+    }
+
+    /// Force the error handler to run, for `--check-helper`.
+    ///
+    /// An invalidated connection replies to nothing and calls its error handler
+    /// instead, which is the path that killed the app: it arrives on XPC's own
+    /// queue, and anything main-actor isolated waiting there traps.
+    func identifyOverABrokenConnection(devicePath: String) async -> VolumeFormat {
+        guard proxy() != nil, let connection else { return .unknown }
+        connection.invalidate()
+        self.connection = nil
+        let answer: String? = await Self.roundTrip(ConnectionBox(connection)) { proxy, done in
+            proxy.identify(devicePath: devicePath) { done($0) }
         }
         return answer.flatMap(VolumeFormat.init(rawValue:)) ?? .unknown
     }
@@ -117,59 +146,44 @@ final class HelperClient: ObservableObject {
         drive: Drive, aliasPath: String?, volume: LogicalVolume?, credential: String
     ) async -> (status: Int32, transcript: String)? {
         guard isReady, proxy() != nil, let connection else { return nil }
-        return await withCheckedContinuation { continuation in
-            // Returning nil rather than never returning. Without an error
-            // handler a helper that has gone away — restarted, crashed,
-            // replaced by an update — leaves this waiting for a reply that
-            // cannot arrive, and the app sits on "Unlocking and mounting" for
-            // ever. The caller falls back to asking for authorisation instead.
-            let once = ResumeOnceOutcome(continuation)
-            guard
-                let proxy = connection.remoteObjectProxyWithErrorHandler({ _ in once.resume(nil) })
-                    as? LukottaHelperProtocol
-            else { return once.resume(nil) }
+        let devicePath = drive.devicePath
+        let isLinux = drive.kind == .linux
+        let identifier = volume?.mountIdentifier
+        return await Self.roundTrip(ConnectionBox(connection)) { proxy, done in
             proxy.mount(
-                devicePath: drive.devicePath,
+                devicePath: devicePath,
                 aliasPath: aliasPath,
-                isLinux: drive.kind == .linux,
-                volumeIdentifier: volume?.mountIdentifier,
+                isLinux: isLinux,
+                volumeIdentifier: identifier,
                 credential: credential
             ) { status, transcript in
-                once.resume((status, transcript))
+                done((status: status, transcript: transcript))
             }
         }
     }
 }
 
-/// Guarantees a continuation is resumed exactly once, whichever of the reply
-/// and the error handler arrives — both may, and neither is on a known queue.
-private final class ResumeOnce: @unchecked Sendable {
-    private let lock = NSLock()
-    private var continuation: CheckedContinuation<String?, Never>?
-
-    init(_ continuation: CheckedContinuation<String?, Never>) {
-        self.continuation = continuation
-    }
-
-    func resume(_ value: String?) {
-        lock.lock()
-        let pending = continuation
-        continuation = nil
-        lock.unlock()
-        pending?.resume(returning: value)
-    }
+/// Carries the connection across to a nonisolated context.
+///
+/// `NSXPCConnection` is thread-safe by design — it exists to be called from
+/// whatever queue has work for it — and is not marked `Sendable`. Saying so
+/// once, here, rather than conforming a Foundation class on its behalf.
+private struct ConnectionBox: @unchecked Sendable {
+    let connection: NSXPCConnection
+    init(_ connection: NSXPCConnection) { self.connection = connection }
 }
 
-/// The same guarantee as ResumeOnce, for the mount reply's pair.
-private final class ResumeOnceOutcome: @unchecked Sendable {
+/// Guarantees a continuation is resumed exactly once, whichever of the reply
+/// and the error handler arrives — both may, and neither is on a known queue.
+private final class ResumeOnce<T: Sendable>: @unchecked Sendable {
     private let lock = NSLock()
-    private var continuation: CheckedContinuation<(status: Int32, transcript: String)?, Never>?
+    private var continuation: CheckedContinuation<T?, Never>?
 
-    init(_ continuation: CheckedContinuation<(status: Int32, transcript: String)?, Never>) {
+    init(_ continuation: CheckedContinuation<T?, Never>) {
         self.continuation = continuation
     }
 
-    func resume(_ value: (status: Int32, transcript: String)?) {
+    func resume(_ value: T?) {
         lock.lock()
         let pending = continuation
         continuation = nil

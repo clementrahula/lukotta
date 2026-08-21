@@ -23,6 +23,37 @@ private func runSmokeTestIfAsked() {
     exit(0)
 }
 
+/// Talk to the helper and come back, or die trying.
+///
+/// Both paths: a reply, and an error handler on XPC's own queue. The second is
+/// what killed build 232 — the error handler was a main-actor closure and
+/// running it anywhere else traps under Swift 6. Nothing here needs a drive, so
+/// it can be run any time the helper is registered.
+@MainActor
+private func checkHelperIfAsked() {
+    guard CommandLine.arguments.contains("--check-helper") else { return }
+    let client = HelperClient()
+    client.refresh()
+    print("helper state: \(client.state)")
+    guard client.isReady else {
+        print("helper not registered; nothing to check")
+        exit(0)
+    }
+    let semaphore = DispatchSemaphore(value: 0)
+    Task { @MainActor in
+        let replied = await client.identify(devicePath: "/dev/disk0s1")
+        print("reply path:  \(replied.rawValue)")
+        let errored = await client.identifyOverABrokenConnection(devicePath: "/dev/disk0s1")
+        print("error path:  \(errored.rawValue)")
+        semaphore.signal()
+    }
+    while semaphore.wait(timeout: .now() + 0.05) == .timedOut {
+        RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+    }
+    print("both paths returned without trapping")
+    exit(0)
+}
+
 /// Where the menu bar preference lives, so the setting and the scene that reads
 /// it cannot drift apart over a spelled-out key.
 enum MenuBarPreference {
@@ -126,6 +157,7 @@ struct LukottaApp: App {
     init() {
         runSmokeTestIfAsked()
         unregisterHelperIfAsked()
+        MainActor.assumeIsolated { checkHelperIfAsked() }
         MainActor.assumeIsolated { Snapshots.runIfAsked() }
         // Before anything else: a build that has failed to start twice already
         // does not get a third go at it.

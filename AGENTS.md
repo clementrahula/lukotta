@@ -107,6 +107,25 @@ scenes are hosted in an off-screen `NSWindow` instead.
 `.accessibility3` came out byte-identical to `.large`, which is why the second
 axis is window size rather than text size.
 
+## A Closure Handed To An Objective-C API
+
+Under Swift 6 a closure written inside `@MainActor` code **is** main-actor
+isolated, and an Objective-C API that calls it on its own queue traps —
+`dispatch_assert_queue_fail`, SIGTRAP, process gone. Under Swift 5 the same
+code ran, because nothing checked.
+
+This killed build 232: `HelperClient`'s XPC error handler, reached the first
+time a helper too old to answer sent the call to that handler.
+
+So a closure destined for `NSXPCConnection`, `NSWorkspace.recycle`,
+`DiskArbitration` or anything else that calls back on an unknown queue must be
+created **outside** any actor — a `nonisolated` function, usually static. Hop
+back with `Task { @MainActor in … }` once inside. `HelperClient.roundTrip` and
+`moveToTheBin` are the two shapes to copy.
+
+`--check-helper` exercises both the reply and the error path against the real
+daemon and needs no drive. Run it after touching any of this.
+
 ## Security Invariants
 
 These are load-bearing. Changing any of them needs a deliberate decision, not

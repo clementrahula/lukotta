@@ -129,20 +129,48 @@ enum Uninstall {
             }
 
             let last = step
+            let message = await moveToTheBin(Bundle.main.bundleURL)
             await MainActor.run {
-                // recycle() puts it in the Bin rather than deleting it, so a
-                // change of mind costs nothing.
-                NSWorkspace.shared.recycle([Bundle.main.bundleURL]) { _, error in
-                    // Where this is called back is not documented, and the two
-                    // it calls belong to the interface.
-                    let message = error?.localizedDescription
-                    Task { @MainActor in
-                        advance(last)
-                        completion(message)
-                    }
-                }
+                advance(last)
+                completion(message)
             }
         }
+    }
+}
+
+/// Put the application in the Bin, and say what went wrong if anything did.
+///
+/// Deliberately not written as a closure handed to `recycle` from the main
+/// actor. Where `recycle` calls back is undocumented, and a closure created in
+/// main-actor code carries that isolation with it: running it anywhere else
+/// traps under Swift 6 rather than merely being wrong. Made here, outside any
+/// actor, it carries none.
+///
+/// recycle() rather than a delete: a change of mind then costs nothing.
+private func moveToTheBin(_ url: URL) async -> String? {
+    await withCheckedContinuation { (continuation: CheckedContinuation<String?, Never>) in
+        let once = ResumeOnceMessage(continuation)
+        NSWorkspace.shared.recycle([url]) { _, error in
+            once.resume(error?.localizedDescription)
+        }
+    }
+}
+
+/// One resume, whatever arrives and from wherever.
+private final class ResumeOnceMessage: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<String?, Never>?
+
+    init(_ continuation: CheckedContinuation<String?, Never>) {
+        self.continuation = continuation
+    }
+
+    func resume(_ value: String?) {
+        lock.lock()
+        let pending = continuation
+        continuation = nil
+        lock.unlock()
+        pending?.resume(returning: value)
     }
 }
 
