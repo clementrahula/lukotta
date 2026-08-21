@@ -17,9 +17,8 @@ on your drives, and your passphrase never leaves your Mac.
 The app makes one network request on its own: a daily check for a newer
 version. That can be turned off in Settings, after which it makes none.
 
-The Developer receives personal data only when you choose to send it — by
-email, or through the bug reporter, which shows you the whole report first and
-sends nothing by itself.
+The Developer receives nothing unless you send it: an email, or a bug report
+you have read and chosen to send.
 
 ## The App
 
@@ -34,8 +33,8 @@ command line. [SECURITY.md](SECURITY.md) describes how it is handled.
 
 While the app is running, it asks `lukotta-updates.rahula.dev` once a day
 whether a newer version exists. That request carries your IP address, as any
-web request does, along with the app version and the macOS version, which
-Sparkle sends so the reply can offer a suitable update.
+web request does, along with the app version and the macOS version, so the
+reply can offer a suitable update.
 
 The legal basis for this processing is the Developer's legitimate interest in
 delivering security and reliability fixes to installed copies.
@@ -49,11 +48,12 @@ downloaded from GitHub only when you choose to install one.
 The bug icon in the app gathers the app version and build, the macOS version,
 the model of Mac, whether the engine is present, whether Full Disk Access is
 granted, and the last 4,000 characters of the engine's output. If macOS has
-written a crash report for that exact build in the past day, the report names
-the file; its contents are neither read nor included.
+written a crash report for that build in the past day, the report names that
+file so you can attach it yourself. Its contents are not read and not
+included.
 
-Your passphrase is removed from that output by value — the exact string is
-deleted, not merely anything shaped like a key.
+Your passphrase is removed from that output by value: the exact string is
+deleted wherever it appears.
 
 Nothing is sent automatically. The whole report is shown to you first, and
 copying it or opening an email is your decision.
@@ -85,7 +85,8 @@ MB. Anything else an unlock needs is created in a private temporary folder and
 removed when the app quits.
 
 Lukotta remembers the label of a drive you have opened, so it can name it
-correctly next time. A label and an identifier, nothing about the contents.
+correctly next time. That is a volume label and a partition identifier.
+Nothing about the contents is stored.
 
 ## Service Providers
 
@@ -117,9 +118,11 @@ you: access, correction, deletion, restriction, objection and portability. To
 exercise them, contact **lukotta@rahula.dev**.
 
 Because so little is collected, the Developer will usually hold nothing that
-identifies you, and may be unable to link a request to any stored data. You
-may also complain to your local data protection authority; in Estonia that is
-the Andmekaitse Inspektsioon.
+identifies you, and may be unable to link a request to any stored data. If you
+believe your personal data has been processed unlawfully, you also have the
+right to lodge a complaint with a data-protection supervisory authority. In
+the Republic of Estonia, this is the Estonian Data Protection Inspectorate
+(Andmekaitse Inspektsioon).
 
 ## Changes to This Policy
 
