@@ -9,6 +9,7 @@
 # is ever built — and nothing of the user's is touched: the container is made
 # here, in a cache of its own, and only that is opened.
 set -euo pipefail
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
 
 # `anylinuxfs shell` truncates the image file to the last byte written, so an
 # image comes back shorter than it went in — 320 MB in, 69 MB out — and the
@@ -23,6 +24,8 @@ CACHE="${LUKOTTA_E2E_CACHE:-$HOME/Library/Caches/dev.lukotta.e2e}"
 CONTAINER="$CACHE/container.img"
 PLAIN="$CACHE/plain.img"
 EXFAT="$CACHE/exfat.img"
+QCOW_PLAIN="$CACHE/plain.qcow2"
+QCOW_ENC="$CACHE/container.qcow2"
 PASSPHRASE="lukotta-e2e"
 
 [ -d "$APP" ] || { echo "error: no app at $APP" >&2; exit 1; }
@@ -76,6 +79,12 @@ if [ ! -f "$EXFAT" ]; then
   hdiutil detach "$dev" -force >/dev/null 2>&1
 fi
 
+# qcow2 wrappers around the two images above. There is no qemu-img on a Mac,
+# so the test writes its own; a linear mapping is what a converted image looks
+# like anyway.
+[ -f "$QCOW_PLAIN" ] || "$HERE/scripts/make-qcow2.py" "$PLAIN" "$QCOW_PLAIN" >/dev/null
+[ -f "$QCOW_ENC" ] || "$HERE/scripts/make-qcow2.py" "$CONTAINER" "$QCOW_ENC" >/dev/null
+
 # Anything left attached from a run that was interrupted, so a stale device
 # does not make this one pass or fail for the wrong reason.
 while read -r device; do
@@ -84,4 +93,4 @@ done < <(hdiutil info 2>/dev/null | awk -v c="$CONTAINER" -v p="$PLAIN" -v e="$E
   /^image-path/ { path = $3 }
   /^\/dev\/disk[0-9]+\t/ { if (path == c || path == p || path == e) print $1 }')
 
-"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT"
+"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC"

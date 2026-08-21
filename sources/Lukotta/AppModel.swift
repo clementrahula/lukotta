@@ -200,6 +200,14 @@ final class AppModel: ObservableObject {
     /// while the mount it was serving carried on quite happily.
     private var imageDrives: [String: Drive] = [:]
 
+    /// Container files the engine reads itself, by drive id. Nothing is
+    /// attached for these, so nothing is detached: closing one is forgetting it.
+    private var qcow2Drives: [String: Drive] = [:]
+
+    /// What the engine already said is inside the file being opened, so the
+    /// first-sector probe is not asked about a container it cannot see into.
+    private var knownFormat: VolumeFormat?
+
     /// A scan's results, with the container rows put back — and the ones
     /// whose device has gone taken out for good.
     ///
@@ -207,6 +215,11 @@ final class AppModel: ObservableObject {
     /// should leave the list like anything else. Merging without this would
     /// keep a row for a file that is not there any more.
     private func reconcileImages(_ found: [Drive]) -> [Drive] {
+        // Nothing is attached for a qcow2, so nothing can say whether it is
+        // still there; it stays listed until it is ejected.
+        let engineRead = qcow2Drives.values.filter { drive in
+            !found.contains { $0.uuid == drive.uuid }
+        }
         // Asked here, now, about the containers we are holding this instant —
         // not from a set captured before the scan began. A scan started while
         // a file was still opening carried an empty set, every container was
@@ -218,7 +231,7 @@ final class AppModel: ObservableObject {
             imageDrives[identifier] = nil
             openedImages[identifier] = nil
         }
-        return ImageList.merge(found: found, images: imageDrives)
+        return ImageList.merge(found: found, images: imageDrives) + engineRead
     }
     /// Opening a container file, while it is happening and if it fails.
     ///
@@ -293,6 +306,13 @@ final class AppModel: ObservableObject {
             case .failure(let message):
                 Log.drives.error("the image could not be opened")
                 self.imageOpening = .failed(url, message)
+            case .qcow2(let drive, let format):
+                Log.drives.notice("qcow2 read by the engine: \(format.rawValue, privacy: .public)")
+                self.qcow2Drives[drive.id] = drive
+                self.drives.append(drive)
+                self.imageOpening = nil
+                self.knownFormat = format
+                self.choose(drive)
             case .success(let attached, let all, _):
                 self.openedImages[attached.identifier] = url
                 // Only when the scan could not see it for itself.
@@ -320,12 +340,55 @@ final class AppModel: ObservableObject {
 
     private enum ImageOutcome {
         case success(DiskImage.Attached, [Drive], [Drive])
+        /// Read by the engine rather than attached, so there is no device and
+        /// nothing to detach afterwards.
+        case qcow2(Drive, VolumeFormat)
         case failure(String)
     }
 
     /// The part that blocks: attach, look, and put it back if there is nothing
     /// in it. Off the main actor, and knows nothing about the interface.
     private nonisolated static func attachAndList(_ url: URL) -> ImageOutcome {
+        // A qcow2 is never attached. macOS cannot read one, but the engine can,
+        // so it is handed over as a path — and since a container file needs no
+        // privilege, that path only ever reaches a process running as the user
+        // who chose it.
+        if DiskImage.isQcow2(url) {
+            let types = DiskImage.contents(of: url)
+            // Encryption inside a qcow2 is not opened by this engine. It probes
+            // the container on the host only far enough to list what is in it,
+            // and then asks the guest to mount that — so the guest is handed
+            // "crypto_LUKS" as though it were a filesystem, and says it has
+            // never heard of it. Said plainly here rather than let through to
+            // fail three screens later.
+            if DiskImage.format(fromTypes: types).isEncrypted {
+                return .failure(
+                    appString(
+                        "“\(url.lastPathComponent)” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from."
+                    ))
+            }
+            guard !types.isEmpty else {
+                return .failure(
+                    appString(
+                        "There is nothing in “\(url.lastPathComponent)” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
+                    ))
+            }
+            let drive = Drive(
+                id: url.lastPathComponent,
+                // The engine takes the file itself as the disk to open.
+                devicePath: url.path,
+                name: url.deletingPathExtension().lastPathComponent,
+                sizeBytes: (try? FileManager.default.attributesOfItem(atPath: url.path)[.size]
+                    as? Int64) as? Int64 ?? 0,
+                connection: appString("Disk Image"),
+                kind: DiskImage.format(fromTypes: types) == .luks
+                    || types.contains(where: { $0.hasPrefix("ext") || $0 == "btrfs" || $0 == "xfs" }
+                    )
+                    ? .linux : .microsoft,
+                uuid: url.path)
+            return .qcow2(drive, DiskImage.format(fromTypes: types))
+        }
+
         switch DiskImage.attach(url) {
         case .failure(let failure):
             switch failure {
@@ -365,6 +428,17 @@ final class AppModel: ObservableObject {
     /// the list: a container that has been opened and not yet mounted is
     /// missing nothing, and detaching it because some other drive was ejected
     /// would take it out from under the person who just opened it.
+    /// Forget a container the engine read for itself. There is no device to
+    /// detach — closing it is simply no longer listing it.
+    private func forgetEngineRead(_ paths: [String]) {
+        let gone = qcow2Drives.filter { paths.contains($0.value.devicePath) }.map(\.key)
+        for id in gone { qcow2Drives[id] = nil }
+        if !gone.isEmpty {
+            drives.removeAll { gone.contains($0.id) }
+            Log.drives.notice("closed \(gone.count, privacy: .public) engine-read containers")
+        }
+    }
+
     private func detachImages(forDevices devices: [String]) {
         let gone = ImageList.detaching(devices: devices, images: imageDrives)
         guard !gone.isEmpty else { return }
@@ -822,6 +896,25 @@ final class AppModel: ObservableObject {
         // unencrypted drive flashed a demand for a password it does not have.
         // The reading takes tens of milliseconds; the list simply stays up
         // until it is in, and then the drive either opens or asks.
+        // The engine already looked inside a qcow2 — no sector of ours can see
+        // past the container's mapping, so its answer is the answer.
+        if let known = knownFormat, qcow2Drives[drive.id] != nil {
+            knownFormat = nil
+            chosenFormat = known == .unknown ? nil : known
+            if known.macOSHandlesFully {
+                // Nothing to hand over: macOS cannot read a qcow2 either, so
+                // this app is still the only way in.
+                phase = .unlock(drive)
+            } else if known.isUnencrypted {
+                Log.mount.notice("opening a qcow2 without asking, nothing is encrypted")
+                phase = .unlock(drive)
+                unlock(drive)
+            } else {
+                phase = .unlock(drive)
+            }
+            return
+        }
+
         guard canReadFirstSector(of: drive) else {
             phase = .unlock(drive)
             return
@@ -1021,7 +1114,9 @@ final class AppModel: ObservableObject {
         // user mount. Neither the helper nor an authorisation prompt is
         // involved — the drive simply mounts, under ~/Volumes rather than
         // /Volumes, which is the one visible difference.
-        if openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil {
+        if openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil
+            || qcow2Drives[drive.id] != nil
+        {
             Log.mount.notice("opening a container file without any privilege")
             runMountAsThisUser(drive: drive, credential: credential, workspace: ws)
             return
@@ -1325,6 +1420,7 @@ final class AppModel: ObservableObject {
                     // Before the list is rebuilt, so the rebuilt one does not
                     // put back a row for a file that is going away.
                     self.detachImages(forDevices: devices)
+                    self.forgetEngineRead(devices)
                     self.showAllDrives()
                 } else {
                     self.ejectProblem = result.message

@@ -313,6 +313,7 @@
     "unlocked": "ontgrendeld",
     "waiting": "wachten",
     "“%@” had stopped responding and was disconnected. You can open it again.": "‘%@’ reageerde niet meer en is losgekoppeld. Je kunt die opnieuw openen.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "‘%@’ bevat een versleuteld volume in een qcow2, dat de schijfmodule niet kan openen. Omzetten naar een onbewerkte schijfkopie zou werken, of open de schijf waarvan die is gemaakt.",
     "“%@” is unlocked": "‘%@’ is ontgrendeld",
     "“%@” was disconnected.": "‘%@’ is losgekoppeld.",
     "“%@” was not opened": "‘%@’ is niet geopend"

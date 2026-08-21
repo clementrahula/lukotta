@@ -313,6 +313,7 @@
     "unlocked": "avatud",
     "waiting": "ootel",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ ei vastanud enam ja ühendati lahti. Sa saad selle uuesti avada.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@“ sisaldab krüptitud köidet qcow2 sees, mida mootor avada ei suuda. Toimiks teisendamine töötlemata tõmmiseks või ava ketas, millest see tehti.",
     "“%@” is unlocked": "„%@“ on avatud",
     "“%@” was disconnected.": "„%@“ ühendati lahti.",
     "“%@” was not opened": "„%@“ ei avatud"

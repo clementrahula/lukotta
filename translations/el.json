@@ -313,6 +313,7 @@
     "unlocked": "ξεκλείδωτος",
     "waiting": "αναμονή",
     "“%@” had stopped responding and was disconnected. You can open it again.": "Το «%@» σταμάτησε να αποκρίνεται και αποσυνδέθηκε. Μπορείτε να το ανοίξετε ξανά.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "Το «%@» περιέχει κρυπτογραφημένο τόμο μέσα σε qcow2, το οποίο η μηχανή δεν μπορεί να ανοίξει. Η μετατροπή σε ακατέργαστο είδωλο θα λειτουργούσε, ή ανοίξτε τον δίσκο από τον οποίο δημιουργήθηκε.",
     "“%@” is unlocked": "Το «%@» ξεκλειδώθηκε",
     "“%@” was disconnected.": "Το «%@» αποσυνδέθηκε.",
     "“%@” was not opened": "Το «%@» δεν άνοιξε"

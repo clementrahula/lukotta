@@ -313,6 +313,7 @@
     "unlocked": "feloldott",
     "waiting": "várakozik",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” nem válaszolt, ezért le lett választva. Újra megnyithatja.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "A(z) „%@” egy qcow2-n belüli titkosított kötetet tartalmaz, amelyet a motor nem tud megnyitni. A nyers képpé alakítás működne, vagy nyissa meg azt a meghajtót, amelyből készült.",
     "“%@” is unlocked": "„%@” fel van oldva",
     "“%@” was disconnected.": "A(z) „%@” le lett választva.",
     "“%@” was not opened": "A(z) „%@” nem lett megnyitva"

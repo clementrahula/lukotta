@@ -314,6 +314,7 @@
     "unlocked": "déverrouillé",
     "waiting": "en attente",
     "“%@” had stopped responding and was disconnected. You can open it again.": "« %@ » ne répondait plus et a été déconnecté. Vous pouvez l’ouvrir à nouveau.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "« %@ » contient un volume chiffré dans un qcow2, que le moteur ne sait pas ouvrir. Une conversion en image brute fonctionnerait, ou ouvrez le disque dont il provient.",
     "“%@” is unlocked": "« %@ » est déverrouillé",
     "“%@” was disconnected.": "« %@ » a été déconnecté.",
     "“%@” was not opened": "« %@ » n’a pas été ouvert"

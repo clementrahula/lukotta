@@ -329,6 +329,7 @@
     "unlocked": "odemčený",
     "waiting": "čeká",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ přestal odpovídat a byl odpojen. Můžete jej otevřít znovu.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@“ obsahuje šifrovaný svazek uvnitř qcow2, který engine neumí otevřít. Pomohl by převod na surový obraz, případně otevřete disk, ze kterého vznikl.",
     "“%@” is unlocked": "„%@“ je odemčen",
     "“%@” was disconnected.": "„%@“ byl odpojen.",
     "“%@” was not opened": "„%@“ se nepodařilo otevřít"

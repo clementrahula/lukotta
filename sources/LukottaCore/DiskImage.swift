@@ -283,3 +283,72 @@ extension DiskImage {
         return p.terminationStatus
     }
 }
+
+extension DiskImage {
+    /// Whether this file is a qcow2, by its magic rather than its name.
+    ///
+    /// An extension proves nothing and a qcow2 is often called `.img`. The
+    /// engine reads the format natively, so one is never attached — it is
+    /// handed to the engine as a path, which is why it has to be told apart
+    /// from a raw image before anything else happens.
+    public static func isQcow2(_ url: URL) -> Bool {
+        guard let handle = try? FileHandle(forReadingFrom: url) else { return false }
+        defer { try? handle.close() }
+        return (try? handle.read(upToCount: 4)) == Data([0x51, 0x46, 0x49, 0xFB])  // QFI\xfb
+    }
+
+    /// What the engine says is inside an image it can read itself.
+    ///
+    /// Its own probe, run unprivileged, for the formats no sector of ours can
+    /// answer for: everything in a qcow2 is behind the container's mapping.
+    ///
+    ///     0:   crypto_LUKS            +335.5 MB   container.qcow2
+    ///     0:   btrfs LUKOTTAPLAIN     +335.5 MB   plain.qcow2
+    public static func contents(of url: URL) -> [String] {
+        guard let engine = EnginePaths.anylinuxfs else { return [] }
+        let p = Process()
+        p.executableURL = engine
+        p.arguments = ["list", url.path]
+        let out = Pipe()
+        p.standardOutput = out
+        p.standardError = FileHandle.nullDevice
+        do { try p.run() } catch { return [] }
+        let data = out.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        return types(inListing: String(data: data, encoding: .utf8) ?? "")
+    }
+
+    /// The TYPE column of the engine's listing, in order.
+    public static func types(inListing text: String) -> [String] {
+        var found: [String] = []
+        for line in text.components(separatedBy: .newlines) {
+            let fields = line.split(separator: " ", omittingEmptySubsequences: true)
+            // "0:   crypto_LUKS   +335.5 MB   name" — the row number, then the
+            // type. The header line has no colon-terminated number.
+            guard fields.count >= 2, fields[0].hasSuffix(":"),
+                Int(fields[0].dropLast()) != nil
+            else { continue }
+            found.append(String(fields[1]))
+        }
+        return found
+    }
+
+    /// What that listing means for whether a passphrase is needed.
+    public static func format(fromTypes types: [String]) -> VolumeFormat {
+        // Any encrypted volume in the image means a passphrase is wanted; the
+        // engine opens the container before it can see anything inside.
+        if types.contains(where: { $0.hasPrefix("crypto_") }) { return .luks }
+        if types.contains("BitLocker") || types.contains("bitlocker") { return .bitlocker }
+        for type in types {
+            switch type {
+            case "ntfs", "ntfs3": return .ntfs
+            case "exfat": return .exfat
+            case "btrfs": return .btrfs
+            case "xfs": return .xfs
+            case "ext2", "ext3", "ext4": return .ext
+            default: continue
+            }
+        }
+        return .unknown
+    }
+}

@@ -33629,6 +33629,136 @@
         }
       }
     },
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ съдържа шифрован том в qcow2, който двигателят не може да отвори. Преобразуването в суров образ би помогнало, или отворете диска, от който е направен."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ obsahuje šifrovaný svazek uvnitř qcow2, který engine neumí otevřít. Pomohl by převod na surový obraz, případně otevřete disk, ze kterého vznikl."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” indeholder en krypteret enhed inde i en qcow2, som drevmotoren ikke kan åbne. En konvertering til et råt image ville virke, eller åbn den disk, den er lavet af."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ enthält ein verschlüsseltes Volume in einer qcow2-Datei, die das Laufwerk-Modul nicht öffnen kann. Eine Umwandlung in ein Rohimage würde funktionieren, oder öffne das Laufwerk, aus dem es erstellt wurde."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%@» περιέχει κρυπτογραφημένο τόμο μέσα σε qcow2, το οποίο η μηχανή δεν μπορεί να ανοίξει. Η μετατροπή σε ακατέργαστο είδωλο θα λειτουργούσε, ή ανοίξτε τον δίσκο από τον οποίο δημιουργήθηκε."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» contiene un volumen cifrado dentro de un qcow2, que el motor no puede abrir. Convertirlo a una imagen sin formato funcionaría, o abre el disco del que se creó."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ sisaldab krüptitud köidet qcow2 sees, mida mootor avada ei suuda. Toimiks teisendamine töötlemata tõmmiseks või ava ketas, millest see tehti."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” sisältää salatun taltion qcow2-tiedoston sisällä, jota moottori ei osaa avata. Muuntaminen raakalevykuvaksi toimisi, tai avaa asema, josta se on tehty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » contient un volume chiffré dans un qcow2, que le moteur ne sait pas ouvrir. Une conversion en image brute fonctionnerait, ou ouvrez le disque dont il provient."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” sadrži šifriranu jedinicu unutar qcow2, koju pogon ne može otvoriti. Pretvorba u sirovu sliku bi uspjela, ili otvorite disk iz kojeg je nastala."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%@” egy qcow2-n belüli titkosított kötetet tartalmaz, amelyet a motor nem tud megnyitni. A nyers képpé alakítás működne, vagy nyissa meg azt a meghajtót, amelyből készült."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» contiene un volume cifrato dentro un qcow2, che il motore non sa aprire. Convertirlo in un’immagine grezza funzionerebbe, oppure apri il disco da cui è stato creato."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ turi šifruotą tomą qcow2 viduje, kurio variklis atverti negali. Padėtų konvertavimas į neapdorotą atvaizdį arba atverkite diską, iš kurio jis sukurtas."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” satur šifrētu sējumu qcow2 iekšpusē, ko dzinējs nespēj atvērt. Palīdzētu pārveidošana neapstrādātā attēlā vai atveriet disku, no kura tas izveidots."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» inneholder en kryptert enhet inne i en qcow2, som motoren ikke kan åpne. Konvertering til et råbilde ville fungere, eller åpne disken den ble laget av."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’ bevat een versleuteld volume in een qcow2, dat de schijfmodule niet kan openen. Omzetten naar een onbewerkte schijfkopie zou werken, of open de schijf waarvan die is gemaakt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” zawiera zaszyfrowany wolumin wewnątrz qcow2, którego silnik nie potrafi otworzyć. Pomogłaby konwersja na surowy obraz albo otwarcie dysku, z którego powstał."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» contém um volume encriptado dentro de um qcow2, que o motor não consegue abrir. Converter para uma imagem em bruto resultaria, ou abra o disco a partir do qual foi criado."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” conține un volum criptat într-un qcow2, pe care motorul nu îl poate deschide. Conversia într-o imagine brută ar funcționa, sau deschideți discul din care a fost creat."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%@« vsebuje šifriran nosilec znotraj qcow2, ki ga pogon ne zna odpreti. Pretvorba v surovo sliko bi delovala, ali pa odprite pogon, iz katerega je nastal."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” innehåller en krypterad volym inuti en qcow2, som motorn inte kan öppna. Konvertering till en råavbild skulle fungera, eller öppna disken den skapades från."
+          }
+        }
+      }
+    },
     "“%@” is unlocked": {
       "localizations": {
         "bg": {

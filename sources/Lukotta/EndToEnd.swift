@@ -38,6 +38,21 @@ enum EndToEnd {
         print("encrypted container: \(container.lastPathComponent)")
         containerFlow(container: container, passphrase: passphrase)
 
+        if arguments.count >= 6 {
+            let plain = URL(fileURLWithPath: arguments[4])
+            let encrypted = URL(fileURLWithPath: arguments[5])
+            if FileManager.default.fileExists(atPath: plain.path) {
+                print("")
+                print("qcow2, unencrypted: \(plain.lastPathComponent)")
+                qcow2Flow(image: plain, passphrase: nil)
+            }
+            if FileManager.default.fileExists(atPath: encrypted.path) {
+                print("")
+                print("qcow2, encrypted: \(encrypted.lastPathComponent)")
+                qcow2RefusedFlow(image: encrypted)
+            }
+        }
+
         if arguments.count >= 4 {
             let exfat = URL(fileURLWithPath: arguments[3])
             if FileManager.default.fileExists(atPath: exfat.path) {
@@ -313,6 +328,95 @@ enum EndToEnd {
         // detaching it here would take away the volume just mounted.
         DiskImage.detach("/dev/" + (point as NSString).lastPathComponent)
         _ = DiskImage.attachedDevices(forImages: [image.path]).map { DiskImage.detach($0) }
+    }
+
+    /// A qcow2, which macOS cannot attach at all. The engine reads the format
+    /// itself and is handed the path — never a device, and never root.
+    /// Encryption inside a qcow2 is not something this engine opens. What
+    /// matters is that it is said plainly and at once, rather than failing
+    /// three screens later with a message about filesystems.
+    @MainActor
+    private static func qcow2RefusedFlow(image: URL) {
+        let model = AppModel()
+        model.start()
+        guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
+            return
+        }
+        model.openImage(image)
+        guard
+            waitUntil(
+                "it is refused rather than attempted", timeout: 60,
+                condition: {
+                    if case .failed = model.imageOpening { return true }
+                    if model.drives.contains(where: { $0.uuid == image.path }) { return true }
+                    return false
+                })
+        else { return }
+        guard case .failed(_, let why) = model.imageOpening else {
+            check(false, "it was refused rather than listed")
+            return
+        }
+        check(why.contains("qcow2"), "and the reason names the container it is in")
+        check(!model.phaseIsUnlock, "no passphrase was asked for something it cannot use")
+    }
+
+    @MainActor
+    private static func qcow2Flow(image: URL, passphrase: String?) {
+        let model = AppModel()
+        model.start()
+        guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
+            return
+        }
+
+        var sawTheQuestion = false
+        model.openImage(image)
+        guard
+            waitUntil(
+                "the engine reads it without attaching anything", timeout: 60,
+                condition: {
+                    if model.phaseIsUnlock { sawTheQuestion = true }
+                    if model.drives.contains(where: { $0.uuid == image.path }) { return true }
+                    if case .failed = model.imageOpening { return true }
+                    return false
+                })
+        else { return }
+        if case .failed(_, let why) = model.imageOpening {
+            print("      \(why)")
+            check(false, "it was read rather than refused")
+            return
+        }
+
+        check(
+            DiskImage.attachedDevices(forImages: [image.path]).isEmpty,
+            "and nothing was attached, because macOS cannot read a qcow2")
+
+        check(!sawTheQuestion, "and it is never asked about, because nothing in it is encrypted")
+
+        guard
+            waitUntil(
+                "it opens", timeout: 180,
+                condition: {
+                    if case .mounted = model.phase { return true }
+                    if case .failed = model.phase { return true }
+                    return false
+                })
+        else { return }
+        guard case .mounted(_, let point) = model.phase else {
+            if case .failed(_, let summary, _) = model.phase { print("      \(summary)") }
+            check(false, "it mounted rather than failing")
+            return
+        }
+        check(FileManager.default.fileExists(atPath: point), "the mount point exists")
+        check(
+            point.hasPrefix(NSHomeDirectory() + "/Volumes/"),
+            "under ~/Volumes, so nothing was elevated")
+
+        model.eject(point)
+        guard waitUntil("it ejects", timeout: 120, condition: { !model.isEjecting }) else { return }
+        check(model.ejectProblem == nil, "ejecting reported no problem")
+        waitUntil(
+            "and it leaves the list", timeout: 30,
+            condition: { !model.drives.contains { $0.uuid == image.path } })
     }
 
     // MARK: Running the loop

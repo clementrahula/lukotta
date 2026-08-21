@@ -313,6 +313,7 @@
     "unlocked": "låst op",
     "waiting": "venter",
     "“%@” had stopped responding and was disconnected. You can open it again.": "“%@” svarede ikke længere og blev frakoblet. Du kan åbne den igen.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "“%@” indeholder en krypteret enhed inde i en qcow2, som drevmotoren ikke kan åbne. En konvertering til et råt image ville virke, eller åbn den disk, den er lavet af.",
     "“%@” is unlocked": "“%@” er låst op",
     "“%@” was disconnected.": "“%@” blev frakoblet.",
     "“%@” was not opened": "“%@” blev ikke åbnet"

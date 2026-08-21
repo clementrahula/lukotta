@@ -1526,6 +1526,48 @@ group("whatMacOSDoesBetterOnItsOwn") {
     }
 }
 
+group("qcow2ContainersAreReadByTheEngine") {
+    // macOS cannot attach a qcow2, so it is never attached: the engine reads
+    // the format itself and is handed the path. Which means no sector of ours
+    // can see what is inside, and the engine's own listing is the only answer.
+    let listing = """
+
+        /Users/someone/vm.qcow2 (disk image):
+           #:                       TYPE NAME                    SIZE       IDENTIFIER
+           0:                crypto_LUKS                        +335.5 MB   vm.qcow2
+        """
+    expect(
+        DiskImage.types(inListing: listing).joined(separator: ","), "crypto_LUKS",
+        "the type column is read and the header is not")
+    expect(
+        "\(DiskImage.format(fromTypes: DiskImage.types(inListing: listing)))", "luks",
+        "an encrypted volume means a passphrase is wanted")
+
+    let plain = """
+           #:                       TYPE NAME                    SIZE       IDENTIFIER
+           0:                      btrfs LUKOTTAPLAIN           +335.5 MB   plain.qcow2
+        """
+    expect(
+        "\(DiskImage.format(fromTypes: DiskImage.types(inListing: plain)))", "btrfs",
+        "and an ordinary filesystem means none is")
+
+    // Several volumes: any encrypted one decides it, because the engine has to
+    // open the container before it can see past it.
+    expect(
+        "\(DiskImage.format(fromTypes: ["ext4", "crypto_LUKS"]))", "luks",
+        "one encrypted volume among several still means a passphrase")
+    expect("\(DiskImage.format(fromTypes: ["ntfs"]))", "ntfs", "NTFS is recognised")
+    expect(
+        "\(DiskImage.format(fromTypes: ["swap", "unknown"]))", "unknown",
+        "and nothing recognisable is not guessed at")
+    expect("\(DiskImage.format(fromTypes: []))", "unknown", "nor is an empty listing")
+
+    // Rows are found by their number, so a stray line cannot become a volume.
+    expect(
+        DiskImage.types(inListing: "no rows here at all").isEmpty,
+        "prose in the listing is not mistaken for a volume")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

@@ -329,6 +329,7 @@
     "unlocked": "odklenjen",
     "waiting": "čaka",
     "“%@” had stopped responding and was disconnected. You can open it again.": "»%@« se ni več odzival in je bil odklopljen. Lahko ga znova odprete.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "»%@« vsebuje šifriran nosilec znotraj qcow2, ki ga pogon ne zna odpreti. Pretvorba v surovo sliko bi delovala, ali pa odprite pogon, iz katerega je nastal.",
     "“%@” is unlocked": "»%@« je odklenjen",
     "“%@” was disconnected.": "»%@« je bil odklopljen.",
     "“%@” was not opened": "»%@« ni bil odprt"

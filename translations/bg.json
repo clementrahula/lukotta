@@ -313,6 +313,7 @@
     "unlocked": "отключен",
     "waiting": "изчаква",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ спря да отговаря и беше изключен. Можете да го отворите отново.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@“ съдържа шифрован том в qcow2, който двигателят не може да отвори. Преобразуването в суров образ би помогнало, или отворете диска, от който е направен.",
     "“%@” is unlocked": "„%@“ е отключен",
     "“%@” was disconnected.": "„%@“ беше изключен.",
     "“%@” was not opened": "„%@“ не беше отворен"

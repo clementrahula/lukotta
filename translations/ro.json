@@ -321,6 +321,7 @@
     "unlocked": "deblocat",
     "waiting": "în așteptare",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” nu mai răspundea și a fost deconectat. Îl puteți deschide din nou.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@” conține un volum criptat într-un qcow2, pe care motorul nu îl poate deschide. Conversia într-o imagine brută ar funcționa, sau deschideți discul din care a fost creat.",
     "“%@” is unlocked": "„%@” este deblocat",
     "“%@” was disconnected.": "„%@” a fost deconectat.",
     "“%@” was not opened": "„%@” nu a fost deschis"

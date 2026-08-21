@@ -27,6 +27,11 @@ public enum VolumeFormat: String, Sendable {
         }
     }
 
+    /// Whether something has to be unlocked before anything can be read.
+    public var isEncrypted: Bool {
+        self == .luks || self == .bitlocker
+    }
+
     /// Whether macOS reads and writes this on its own.
     ///
     /// exFAT it mounts locally, read and write, through FSKit — so opening one

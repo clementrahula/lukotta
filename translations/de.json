@@ -313,6 +313,7 @@
     "unlocked": "entsperrt",
     "waiting": "wartet",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ hat nicht mehr reagiert und wurde getrennt. Du kannst es erneut öffnen.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@“ enthält ein verschlüsseltes Volume in einer qcow2-Datei, die das Laufwerk-Modul nicht öffnen kann. Eine Umwandlung in ein Rohimage würde funktionieren, oder öffne das Laufwerk, aus dem es erstellt wurde.",
     "“%@” is unlocked": "„%@“ ist entsperrt",
     "“%@” was disconnected.": "„%@“ wurde getrennt.",
     "“%@” was not opened": "„%@“ wurde nicht geöffnet"

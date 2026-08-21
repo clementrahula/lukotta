@@ -321,6 +321,7 @@
     "unlocked": "atbloķēts",
     "waiting": "gaida",
     "“%@” had stopped responding and was disconnected. You can open it again.": "“%@” pārstāja atbildēt un tika atvienots. Jūs varat to atvērt vēlreiz.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "“%@” satur šifrētu sējumu qcow2 iekšpusē, ko dzinējs nespēj atvērt. Palīdzētu pārveidošana neapstrādātā attēlā vai atveriet disku, no kura tas izveidots.",
     "“%@” is unlocked": "“%@” ir atbloķēts",
     "“%@” was disconnected.": "“%@” tika atvienots.",
     "“%@” was not opened": "“%@” netika atvērts"

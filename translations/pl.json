@@ -329,6 +329,7 @@
     "unlocked": "odblokowany",
     "waiting": "oczekiwanie",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” przestał odpowiadać i został odłączony. Możesz otworzyć go ponownie.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@” zawiera zaszyfrowany wolumin wewnątrz qcow2, którego silnik nie potrafi otworzyć. Pomogłaby konwersja na surowy obraz albo otwarcie dysku, z którego powstał.",
     "“%@” is unlocked": "„%@” jest odblokowany",
     "“%@” was disconnected.": "„%@” został odłączony.",
     "“%@” was not opened": "Nie otwarto „%@”"

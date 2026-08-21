@@ -329,6 +329,7 @@
     "unlocked": "atrakintas",
     "waiting": "laukiama",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ nustojo atsakyti ir buvo atjungtas. Galite jį atverti dar kartą.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@“ turi šifruotą tomą qcow2 viduje, kurio variklis atverti negali. Padėtų konvertavimas į neapdorotą atvaizdį arba atverkite diską, iš kurio jis sukurtas.",
     "“%@” is unlocked": "„%@“ atrakintas",
     "“%@” was disconnected.": "„%@“ buvo atjungtas.",
     "“%@” was not opened": "„%@“ nebuvo atvertas"

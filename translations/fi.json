@@ -313,6 +313,7 @@
     "unlocked": "avattu",
     "waiting": "odottaa",
     "“%@” had stopped responding and was disconnected. You can open it again.": "”%@” lakkasi vastaamasta ja irrotettiin. Voit avata sen uudelleen.",
+    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "”%@” sisältää salatun taltion qcow2-tiedoston sisällä, jota moottori ei osaa avata. Muuntaminen raakalevykuvaksi toimisi, tai avaa asema, josta se on tehty.",
     "“%@” is unlocked": "”%@” on avattu",
     "“%@” was disconnected.": "”%@” irrotettiin.",
     "“%@” was not opened": "”%@” ei avautunut"
