@@ -12,15 +12,15 @@ only you have; everything else is unassigned and can be picked up in any order.
 Nothing below is optional. Until all of it is done there is no artefact that can
 responsibly be given to anyone.
 
-- **[both] Handle sleep and wake with a drive open.** Nothing is done for it
-  today: the machine sleeps, the virtual machine's clock and its NFS server come
-  back to a client that has been waiting, and a mount that hangs afterwards gives
-  no explanation and cannot be ejected. This is the failure most likely to be met
-  by someone who leaves a drive mounted and closes the lid, which is everyone.
-  Wants `NSWorkspace.willSleepNotification` and `didWakeNotification`, a decision
-  about what to do on each — unmount cleanly before sleeping and offer to reopen,
-  or verify the mount on wake and clear it if it is dead — and then a lid close
-  with a drive open to prove it.
+- **Survive sleep and wake with a drive open.** The drive stays mounted across a
+  lid close, and nothing is asked of the person who closed it. Nothing is done
+  for it today, so what happens now is whatever the NFS client and a virtual
+  machine that lost an hour happen to do — and a mount that hangs afterwards
+  gives no explanation and cannot even be ejected. Wants the mount held across
+  `NSWorkspace.willSleepNotification` and checked silently on
+  `didWakeNotification`, healed without a word if it comes back stale, and then a
+  real lid close with a drive open to prove it. This is the failure most likely
+  to be met by anyone who leaves a drive mounted, which is everyone.
 - **[you] Notarise a build.** `spctl` rejects the installed copy as an
   unnotarised Developer ID build, so a downloader is told macOS cannot check it
   for malicious software. Everything around it is written: the whole sequence is
@@ -28,7 +28,7 @@ responsibly be given to anyone.
   finish rather than producing an unnotarised bundle. It needs the login keychain
   unlocked, so it cannot run from a locked Mac.
 - **[you] Take the screenshots.** The README, the site and every listing in
-  Stage 3 want them and none has one: the drive list, an unlock, and a drive open
+  Stage 2 want them and none has one: the drive list, an unlock, and a drive open
   with several volumes, in both light and dark appearance. The site's download
   button points at `/releases/latest` and 404s until a release exists.
 - **[both] Choose the first public version number.** `VERSION` says 1.7.0, which
@@ -43,34 +43,11 @@ responsibly be given to anyone.
 
 ---
 
-## Stage 2 — Before handing it to strangers
+## Stage 2 — Reach
 
 - **Add delta updates to the release flow.** The appcast is generated and signed;
   deltas are not, so every bug-fix release is a 154 MB download for a few
   kilobytes of changed code.
-- **[you] Send the US export notification, or establish that it is not owed.**
-  US export rules (EAR 742.15(b), 740.13(e)) treat publicly available encryption
-  source code as exempt, but the exemption is conditional on emailing the URL to
-  `crypt@bis.doc.gov` and `enc@nsa.gov` once, when it is first published. The
-  rule follows the hosting, not the author, so publishing on GitHub is what
-  raises it; an author in Estonia does not. It is one email with a repository
-  link and no reply to wait for. Not legal advice.
-- **[you] Have one licence question answered** by someone qualified. Everything
-  else is settled and written down: the app is GPL-3.0-or-later, every component
-  is identified in `THIRD_PARTY_NOTICES.md`, and each release carries the
-  corresponding source. What is not settled is that the bundle ships GPL-2.0-only
-  components — the Linux kernel, libkrunfw, busybox, apk-tools — next to GPL-3
-  application code, and GPL-2.0-only and GPL-3.0 cannot be combined into one
-  work. The position taken here is that they are aggregated rather than combined:
-  they are separate binaries that run inside a virtual machine, not linked into
-  the app. That is almost certainly right, and it is what upstream anylinuxfs
-  already ships, but it is the one conclusion in the project that is a legal
-  judgement rather than an engineering one.
-
----
-
-## Stage 3 — Reach
-
 - **[you] A second repository for the appcast**, served at
   `lukotta-updates.rahula.dev`. The feed URL is already compiled into every
   build, so this host is fixed. One Pages site takes one custom domain, so the
@@ -157,7 +134,7 @@ responsibly be given to anyone.
 
 ---
 
-## Stage 4 — Larger bets
+## Stage 3 — Larger bets
 
 ### A native volume, instead of a network share
 
@@ -250,7 +227,7 @@ rediscovered as bugs.
   both are a larger commitment than the claim was.
 
 - **The volume appears as a network drive.** macOS offers no supported way to
-  mark an NFS mount local. Only Stage 4 changes this.
+  mark an NFS mount local. Only Stage 3 changes this.
 
 - **Full Disk Access cannot be requested.** No API exists; it is granted by hand.
   The app detects the refusal and explains it.
