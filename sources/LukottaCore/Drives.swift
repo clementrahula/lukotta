@@ -202,7 +202,7 @@ public enum DriveScanner {
         return nil
     }
 
-    private static func info(for ident: String) -> [String: Any]? {
+    public static func info(for ident: String) -> [String: Any]? {
         runPlist(["/usr/sbin/diskutil", "info", "-plist", ident])
     }
 

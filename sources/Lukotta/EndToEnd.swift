@@ -35,6 +35,10 @@ enum EndToEnd {
             exit(2)
         }
 
+        print("every disk on this Mac")
+        surveyFlow()
+
+        print("")
         print("encrypted container: \(container.lastPathComponent)")
         containerFlow(container: container, passphrase: passphrase)
 
@@ -417,6 +421,31 @@ enum EndToEnd {
         waitUntil(
             "and it leaves the list", timeout: 30,
             condition: { !model.drives.contains { $0.uuid == image.path } })
+    }
+
+    /// Every disk on this Mac, with a verdict each. Run against the real
+    /// machine, so it says whatever is actually plugged in.
+    @MainActor
+    private static func surveyFlow() {
+        let model = AppModel()
+        model.surveyDrives()
+        guard waitUntil("every disk is surveyed", timeout: 30, condition: { !model.survey.isEmpty })
+        else { return }
+
+        check(model.survey.count >= 2, "more than one thing is listed")
+        // The boot disk must be there and must not be offered: a list that
+        // omits it is a list that lost something, and one that offers it is
+        // inviting the user to open their own system.
+        let system = model.survey.filter { $0.verdict == .system }
+        check(!system.isEmpty, "the running system's own volumes are listed")
+        check(
+            system.allSatisfy { $0.drive == nil },
+            "and none of them is offered as something to open")
+        // Everything has a name and a size; a row saying nothing helps nobody.
+        check(
+            model.survey.allSatisfy { !$0.name.isEmpty && !$0.content.isEmpty },
+            "and every row says what it is")
+        print("      \(model.survey.count) disks and volumes seen")
     }
 
     // MARK: Running the loop

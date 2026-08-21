@@ -31,6 +31,19 @@ public enum DriveSurvey {
         /// The drive to open, when there is one.
         public let drive: Drive?
 
+        public init(
+            id: String, disk: String, name: String, sizeBytes: Int64, content: String,
+            verdict: Verdict, drive: Drive?
+        ) {
+            self.id = id
+            self.disk = disk
+            self.name = name
+            self.sizeBytes = sizeBytes
+            self.content = content
+            self.verdict = verdict
+            self.drive = drive
+        }
+
         public var sizeDescription: String {
             let f = ByteCountFormatter()
             f.countStyle = .file
@@ -140,5 +153,38 @@ public enum DriveSurvey {
             return String(line[on.upperBound..<paren.lowerBound])
         }
         return nil
+    }
+}
+
+extension DriveSurvey {
+    /// Everything `diskutil` knows about, including what this app cannot open.
+    public static func diskutilList() -> [String: Any] {
+        run(["/usr/sbin/diskutil", "list", "-plist"])
+    }
+
+    public static func mountTable() -> String {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/sbin/mount")
+        let out = Pipe()
+        p.standardOutput = out
+        p.standardError = FileHandle.nullDevice
+        do { try p.run() } catch { return "" }
+        let data = out.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+
+    private static func run(_ argv: [String]) -> [String: Any] {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: argv[0])
+        p.arguments = Array(argv.dropFirst())
+        let out = Pipe()
+        p.standardOutput = out
+        p.standardError = FileHandle.nullDevice
+        do { try p.run() } catch { return [:] }
+        let data = out.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        return (try? PropertyListSerialization.propertyList(from: data, options: [], format: nil))
+            as? [String: Any] ?? [:]
     }
 }

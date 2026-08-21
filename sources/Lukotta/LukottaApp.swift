@@ -296,6 +296,10 @@ struct LukottaApp: App {
             CommandGroup(replacing: .newItem) {
                 Button("Open Disk Image…") { chooseImage(model) }
                     .keyboardShortcut("o", modifiers: .command)
+                // Where to look when the list is empty and the drive is
+                // plainly plugged in.
+                Button("Open Drive…") { model.showOpenDrive = true }
+                    .keyboardShortcut("o", modifiers: [.command, .shift])
             }
             // The standard About panel says the version and the licence and
             // stops there. This one says what the app does, what it can open

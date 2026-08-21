@@ -1568,6 +1568,98 @@ group("qcow2ContainersAreReadByTheEngine") {
         "prose in the listing is not mistaken for a volume")
 }
 
+group("surveyingEveryDisk") {
+    // "No encrypted drives found" says nothing about the drive sitting on the
+    // desk. This is the other view: everything attached, with a reason beside
+    // each thing that cannot be opened.
+    let list: [String: Any] = [
+        "AllDisksAndPartitions": [
+            [
+                "DeviceIdentifier": "disk0", "Content": "GUID_partition_scheme",
+                "Partitions": [
+                    ["DeviceIdentifier": "disk0s1", "Content": "Apple_APFS_ISC"],
+                    ["DeviceIdentifier": "disk0s2", "Content": "Apple_APFS"],
+                ],
+            ],
+            [
+                "DeviceIdentifier": "disk3", "Content": "Apple_APFS_Container",
+                "APFSVolumes": [
+                    ["DeviceIdentifier": "disk3s1", "VolumeName": "Macintosh HD"]
+                ],
+            ],
+            [
+                "DeviceIdentifier": "disk4", "Content": "GUID_partition_scheme",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk4s1", "Content": "Microsoft Basic Data",
+                        "Size": NSNumber(value: 500),
+                    ]
+                ],
+            ],
+            [
+                "DeviceIdentifier": "disk6", "Content": "GUID_partition_scheme",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk6s1", "Content": "Microsoft Basic Data",
+                        "VolumeName": "STICK", "Size": NSNumber(value: 64),
+                    ]
+                ],
+            ],
+        ]
+    ]
+    let openable = [
+        Drive(
+            id: "disk4s1", devicePath: "/dev/disk4s1", name: "Elements", sizeBytes: 500,
+            connection: "USB", kind: .microsoft, uuid: "U1")
+    ]
+    let mounts = "/dev/disk6s1 on /Volumes/STICK (exfat, local, nodev)\n"
+    let info: [String: [String: Any]] = [
+        "disk0": ["Internal": true], "disk3": ["Internal": true],
+        "disk4": ["Internal": false, "MediaName": "Elements"],
+        "disk6": ["Internal": false, "MediaName": "Stick"],
+    ]
+    let entries = DriveSurvey.survey(
+        list: list, info: { info[$0] ?? [:] }, mountTable: mounts, openable: openable)
+
+    func verdict(_ id: String) -> String {
+        guard let e = entries.first(where: { $0.id == id }) else { return "absent" }
+        switch e.verdict {
+        case .openable: return "openable"
+        case .macOSHasIt(let p): return "mounted:" + p
+        case .macOSReadsIt: return "macOS"
+        case .system: return "system"
+        case .unreadable: return "unreadable"
+        }
+    }
+
+    expect(verdict("disk4s1"), "openable", "a locked drive is offered")
+    expect(entries.first(where: { $0.id == "disk4s1" })?.drive != nil, "and carries the drive")
+    expect(verdict("disk6s1"), "mounted:/Volumes/STICK", "one macOS already has says where")
+    expect(verdict("disk0s1"), "system", "the boot disk's own partitions are not offered")
+    expect(verdict("disk0s2"), "system", "nor is its APFS container")
+    expect(verdict("disk3s1"), "system", "nor Macintosh HD")
+
+    // Every disk is accounted for: the point is that nothing is silently left
+    // out, since a missing drive is exactly what sends someone here.
+    expect("\(entries.count)", "5", "every partition and volume is listed")
+    expect(
+        entries.first(where: { $0.id == "disk6s1" })?.name ?? "", "STICK",
+        "named by its volume where it has one")
+    expect(
+        entries.first(where: { $0.id == "disk4s1" })?.name ?? "", "Elements",
+        "and by the drive's own name where it does not")
+
+    // A disk with no partition table at all still appears.
+    let bare: [String: Any] = [
+        "AllDisksAndPartitions": [
+            ["DeviceIdentifier": "disk9", "Content": "", "Size": NSNumber(value: 100)]
+        ]
+    ]
+    let one = DriveSurvey.survey(list: bare, info: { _ in [:] }, mountTable: "", openable: [])
+    expect("\(one.count)", "1", "a disk with nothing on it is still listed")
+    expect(one.first?.id ?? "", "disk9", "as the whole disk")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

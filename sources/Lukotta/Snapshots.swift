@@ -39,6 +39,32 @@ enum Snapshots {
 
         let refused = URL(fileURLWithPath: "/Users/someone/Desktop/notes.pdf")
 
+        /// The Open Drive sheet, with the range of verdicts it has to show.
+        func openDriveSheet() -> AnyView {
+            let m = AppModel()
+            m.survey = [
+                DriveSurvey.Entry(
+                    id: "disk4s1", disk: "disk4", name: "Elements",
+                    sizeBytes: 500_072_185_856, content: "Microsoft Basic Data",
+                    verdict: .openable, drive: drive),
+                DriveSurvey.Entry(
+                    id: "disk6s1", disk: "disk6", name: "STICK", sizeBytes: 64_000_000_000,
+                    content: "Microsoft Basic Data",
+                    verdict: .macOSHasIt("/Volumes/STICK"), drive: nil),
+                DriveSurvey.Entry(
+                    id: "disk3s1", disk: "disk3", name: "Macintosh HD",
+                    sizeBytes: 494_384_795_648, content: "Apple_APFS",
+                    verdict: .system, drive: nil),
+                DriveSurvey.Entry(
+                    id: "disk7s2", disk: "disk7", name: "unknown", sizeBytes: 2_000_000_000,
+                    content: "Apple_Boot", verdict: .unreadable, drive: nil),
+            ]
+            return AnyView(
+                OpenDriveSheet().environmentObject(m)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(nsColor: .windowBackgroundColor)))
+        }
+
         /// A sheet, rendered on its own. Sheets are separate windows and do not
         /// appear in a picture of the one underneath, so the only way to check
         /// one is to draw it by itself.
@@ -113,6 +139,7 @@ enum Snapshots {
                 "image-opening",
                 sheet(.opening(URL(fileURLWithPath: "/Users/someone/Desktop/backup.img")))
             ),
+            ("open-drive", openDriveSheet()),
             (
                 "image-handed-over",
                 sheet(

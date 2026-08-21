@@ -133,6 +133,24 @@ final class AppModel: ObservableObject {
     /// to be furniture — it describes a moment, and nothing is waiting on it.
     static let departedLingers: TimeInterval = 8
 
+    /// Every disk attached, for the Open Drive sheet.
+    @Published var survey: [DriveSurvey.Entry] = []
+    @Published var showOpenDrive = false
+
+    /// Look at every disk, not only the ones this app is willing to open.
+    func surveyDrives() {
+        let images = Set(openedImages.keys)
+        Task.detached(priority: .userInitiated) {
+            let plist = DriveSurvey.diskutilList()
+            let table = DriveSurvey.mountTable()
+            let openable = DriveScanner.scan(images: images)
+            let entries = DriveSurvey.survey(
+                list: plist, info: { DriveScanner.info(for: $0) ?? [:] },
+                mountTable: table, openable: openable)
+            await MainActor.run { self.survey = entries }
+        }
+    }
+
     /// Give the drive to macOS, and say so rather than appearing to do nothing.
     ///
     /// Silence would be its own surprise: the user asked for the file to be

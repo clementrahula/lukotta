@@ -44,6 +44,9 @@ struct ContentView: View {
         .sheet(item: $model.imageOpening) { state in
             ImageOpenSheet(state: state).environmentObject(model)
         }
+        .sheet(isPresented: $model.showOpenDrive) {
+            OpenDriveSheet().environmentObject(model)
+        }
         .sheet(isPresented: $model.showHelp) { HelpSheet() }
         .sheet(isPresented: $model.showReport) { ReportIssueSheet() }
         .sheet(isPresented: $model.isUninstalling) {
