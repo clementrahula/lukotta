@@ -15,6 +15,12 @@
             "value": "%@ wurde entfernt"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το %@ καταργήθηκε"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -89,6 +95,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ ist freie Software unter der GPL, Version 3 oder höher. Das Aktivieren übernimmt anylinuxfs. Der vollständige Quelltext jeder Komponente wird mit jeder Version veröffentlicht. Der Name und das Logo sind Marken und fallen nicht unter diese Lizenz."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το %@ είναι ελεύθερο λογισμικό υπό την άδεια GPL, έκδοση 3 ή νεότερη. Η προσάρτηση γίνεται από το anylinuxfs. Ο πλήρης πηγαίος κώδικας κάθε στοιχείου δημοσιεύεται με κάθε έκδοση. Το όνομα και το λογότυπο είναι εμπορικά σήματα και δεν καλύπτονται από αυτήν την άδεια."
           }
         },
         "es": {
@@ -167,6 +179,12 @@
             "value": "%@ öffnet BitLocker- und Linux-Laufwerke, die macOS von sich aus nicht lesen kann. Dafür ist zunächst eine Einstellung nötig.\n\nUm ein Laufwerk auf Geräteebene zu lesen, wird Festplattenvollzugriff benötigt — ein Administratorpasswort genügt nicht, und die Berechtigung für entfernbare Volumes umfasst Dateien auf einem Laufwerk, nicht das Gerät selbst. macOS bietet Apps keine Möglichkeit, diese Berechtigung anzufordern, daher muss sie von Hand aktiviert werden."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το %@ ανοίγει δίσκους BitLocker και Linux που το macOS δεν μπορεί να διαβάσει μόνο του. Πρώτα χρειάζεται μία ρύθμιση.\n\nΗ ανάγνωση δίσκου σε επίπεδο συσκευής απαιτεί «Πλήρης πρόσβαση στον δίσκο» — ένα συνθηματικό διαχειριστή δεν αρκεί, και η άδεια για αφαιρούμενους τόμους καλύπτει τα αρχεία ενός δίσκου, όχι την ίδια τη συσκευή. Το macOS δεν επιτρέπει σε εφαρμογή να τη ζητήσει, οπότε πρέπει να ενεργοποιηθεί χειροκίνητα."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -243,6 +261,12 @@
             "value": "%@ startet eine kleine virtuelle Linux-Maschine, entsperrt das Laufwerk darin und übergibt es zurück an den Finder. macOS kann BitLocker- und Linux-Dateisysteme nicht lesen. Linux schon."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το %@ ξεκινά μια μικρή εικονική μηχανή Linux, ξεκλειδώνει τον δίσκο μέσα σε αυτήν και τον παραδίδει πίσω στο Finder. Το macOS δεν μπορεί να διαβάσει συστήματα αρχείων BitLocker ή Linux. Το Linux μπορεί."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -317,6 +341,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ wird in den Papierkorb bewegt."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το %@ θα μετακινηθεί στον Κάδο."
           }
         },
         "es": {
@@ -414,6 +444,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld Laufwerke haben nicht mehr reagiert und wurden getrennt. Du kannst sie erneut öffnen."
+                }
+              }
+            }
+          }
+        },
+        "el": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld δίσκος σταμάτησε να αποκρίνεται και αποσυνδέθηκε. Μπορείτε να τον ανοίξετε ξανά."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld δίσκοι σταμάτησαν να αποκρίνονται και αποσυνδέθηκαν. Μπορείτε να τους ανοίξετε ξανά."
                 }
               }
             }
@@ -687,6 +735,24 @@
             }
           }
         },
+        "el": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Θα γίνει εξαγωγή του ανοιχτού δίσκου."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Θα γίνει εξαγωγή %lld ανοιχτών δίσκων."
+                }
+              }
+            }
+          }
+        },
         "en": {
           "variations": {
             "plural": {
@@ -931,6 +997,12 @@
             "value": "%lld Prozent"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld τοις εκατό"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1005,6 +1077,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "250 MB Speicherplatz: 155 MB für die App, 95 MB für die Linux-Umgebung, die beim ersten Verwenden entpackt wird"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 MB στον δίσκο: 155 MB για την εφαρμογή και 95 MB για το περιβάλλον Linux που αποσυμπιέζεται στην πρώτη χρήση"
           }
         },
         "es": {
@@ -1083,6 +1161,12 @@
             "value": "30 bis 80 MB RAM pro entsperrtem Laufwerk"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 έως 80 MB μνήμης για κάθε ξεκλείδωτο δίσκο"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1157,6 +1241,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ein Absturzbericht wurde gefunden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Βρέθηκε αναφορά σφάλματος"
           }
         },
         "es": {
@@ -1235,6 +1325,12 @@
             "value": "Über %@"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Σχετικά με το %@"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1309,6 +1405,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Über & Hilfe"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Πληροφορίες και βοήθεια"
           }
         },
         "es": {
@@ -1387,6 +1489,12 @@
             "value": "Etwa zehn Laufwerke können gleichzeitig entsperrt bleiben"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Περίπου δέκα δίσκοι μπορούν να μείνουν ξεκλείδωτοι ταυτόχρονα"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1461,6 +1569,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Administratorpasswort"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Συνθηματικό διαχειριστή"
           }
         },
         "es": {
@@ -1539,6 +1653,12 @@
             "value": "Administratorpasswort — wird einmal beim Einrichten des Hintergrund-Helfers abgefragt, danach nicht mehr. %@ sieht es nie"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Συνθηματικό διαχειριστή — ζητείται μία φορά κατά τη ρύθμιση του βοηθού παρασκηνίου και μετά ποτέ. Το %@ δεν το βλέπει ποτέ"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1615,6 +1735,12 @@
             "value": "Alle Laufwerke"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Όλοι οι δίσκοι"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1689,6 +1815,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Alle erforderlichen Berechtigungen erteilt"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Όλες οι απαιτούμενες άδειες χορηγήθηκαν"
           }
         },
         "es": {
@@ -1786,6 +1918,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Auch %1$lld gesicherte Passwörter löschen (%2$@)"
+                }
+              }
+            }
+          }
+        },
+        "el": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Διαγραφή και της αποθηκευμένης φράσης πρόσβασης για %2$@"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Διαγραφή και %1$lld αποθηκευμένων φράσεων πρόσβασης (%2$@)"
                 }
               }
             }
@@ -2035,6 +2185,12 @@
             "value": "Ein Mac mit Apple Silicon. Intel-Macs werden nicht unterstützt"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac με Apple Silicon. Τα Mac με Intel δεν υποστηρίζονται"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2109,6 +2265,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ein anderes Laufwerk ist geöffnet, und die Laufwerks-Engine muss nach einer Änderung beim ersten Mal allein laufen. Wirf die anderen Laufwerke aus, öffne dieses, danach können wieder alle gleichzeitig geöffnet sein."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ένας άλλος δίσκος είναι ανοιχτός και η μηχανή πρέπει να τρέξει μόνη της την πρώτη φορά μετά από αλλαγή. Κάντε εξαγωγή των άλλων δίσκων, ανοίξτε αυτόν, και έπειτα μπορούν όλοι να είναι ξανά ανοιχτοί μαζί."
           }
         },
         "es": {
@@ -2187,6 +2349,12 @@
             "value": "Erscheinungsbild"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εμφάνιση"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2261,6 +2429,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Erscheint nur, solange ein Laufwerk entsperrt ist, zum Auswerfen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εμφανίζεται μόνο όσο ένας δίσκος είναι ξεκλείδωτος, για την εξαγωγή του."
           }
         },
         "es": {
@@ -2339,6 +2513,12 @@
             "value": "Entwickler"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δημιουργός"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2413,6 +2593,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zurück"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Πίσω"
           }
         },
         "es": {
@@ -2491,6 +2677,12 @@
             "value": "BitLocker-Laufwerke, entsperrt mit dem Volume-Passwort oder einem 48-stelligen Wiederherstellungsschlüssel"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δίσκοι BitLocker, ξεκλειδωμένοι με το συνθηματικό του τόμου ή ένα 48ψήφιο κλειδί ανάκτησης"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2565,6 +2757,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "BitLocker oder NTFS"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker ή NTFS"
           }
         },
         "es": {
@@ -2643,6 +2841,12 @@
             "value": "Abbrechen"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ακύρωση"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2717,6 +2921,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Feststelltaste ist aktiviert"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το Caps Lock είναι ενεργό"
           }
         },
         "es": {
@@ -2795,6 +3005,12 @@
             "value": "Erneut prüfen"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Έλεγχος ξανά"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2869,6 +3085,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Jetzt suchen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Έλεγχος τώρα"
           }
         },
         "es": {
@@ -2947,6 +3169,12 @@
             "value": "Nach Updates suchen …"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Έλεγχος για ενημερώσεις…"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3021,6 +3249,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Automatisch nach Updates suchen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτόματος έλεγχος για ενημερώσεις"
           }
         },
         "es": {
@@ -3099,6 +3333,12 @@
             "value": "Klicke auf „+“, füge %@ hinzu und aktiviere den Schalter."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Κάντε κλικ στο «+», προσθέστε το %@ και ενεργοποιήστε το."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3173,6 +3413,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ausgeblendet"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Συμπτυγμένο"
           }
         },
         "es": {
@@ -3251,6 +3497,12 @@
             "value": "Komm hierher zurück und wähle „Neu starten“ — eine neue Berechtigung gilt erst für eine frisch gestartete App."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Επιστρέψτε εδώ και επιλέξτε «Επανεκκίνηση» — μια νέα άδεια ισχύει μόνο για εφαρμογή που μόλις ξεκίνησε."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3325,6 +3577,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Schließe das verschlüsselte Laufwerk an und wähle „Erneut suchen“. Falls es bereits angeschlossen ist, hat macOS es möglicherweise aktiviert — wirf es dann zuerst im Finder aus."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Συνδέστε τον κρυπτογραφημένο δίσκο και επιλέξτε «Νέα αναζήτηση». Αν είναι ήδη συνδεδεμένος, το macOS ίσως τον έχει προσαρτήσει — κάντε πρώτα εξαγωγή στο Finder."
           }
         },
         "es": {
@@ -3403,6 +3661,12 @@
             "value": "Kopiert"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αντιγράφηκε"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3479,6 +3743,12 @@
             "value": "Details kopieren"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αντιγραφή λεπτομερειών"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3553,6 +3823,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dunkel"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Σκούρα"
           }
         },
         "es": {
@@ -3650,6 +3926,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld gesicherte Passwörter werden gelöscht"
+                }
+              }
+            }
+          }
+        },
+        "el": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Διαγραφή της αποθηκευμένης φράσης πρόσβασης"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Διαγραφή %lld αποθηκευμένων φράσεων πρόσβασης"
                 }
               }
             }
@@ -3899,6 +4193,12 @@
             "value": "Linux-Umgebung wird gelöscht"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Διαγραφή του περιβάλλοντος Linux"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3973,6 +4273,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Details, die mitgesendet werden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Λεπτομέρειες που θα συμπεριληφθούν"
           }
         },
         "es": {
@@ -4051,6 +4357,12 @@
             "value": "Fertig"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τέλος"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4125,6 +4437,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Updates laden und installieren"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Λήψη και εγκατάστασή τους"
           }
         },
         "es": {
@@ -4203,6 +4521,12 @@
             "value": "Laufwerke, die an ein TPM statt an ein Passwort gebunden sind, einschließlich der neueren hardwaregestützten Verschlüsselung von Ubuntu"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δίσκοι δεμένοι με TPM αντί για συνθηματικό, όπως η νεότερη κρυπτογράφηση υλικού του Ubuntu"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4277,6 +4601,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Auswerfen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εξαγωγή"
           }
         },
         "es": {
@@ -4355,6 +4685,12 @@
             "value": "%@ auswerfen"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εξαγωγή %@"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4429,6 +4765,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Auswerfen und beenden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εξαγωγή και τερματισμός"
           }
         },
         "es": {
@@ -4526,6 +4868,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld geöffnete Laufwerke werden ausgeworfen"
+                }
+              }
+            }
+          }
+        },
+        "el": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Εξαγωγή του ανοιχτού δίσκου"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Εξαγωγή %lld ανοιχτών δίσκων"
                 }
               }
             }
@@ -4775,6 +5135,12 @@
             "value": "Wird ausgeworfen …"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εξαγωγή…"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4849,6 +5215,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ausgabe der Engine"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Έξοδος μηχανής"
           }
         },
         "es": {
@@ -4927,6 +5299,12 @@
             "value": "Gib die Passphrase des Laufwerks ein."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εισαγάγετε τη φράση πρόσβασης του δίσκου."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -5001,6 +5379,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gib das Passwort des Laufwerks ein oder seinen 48-stelligen Wiederherstellungsschlüssel."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εισαγάγετε το συνθηματικό του δίσκου ή το 48ψήφιο κλειδί ανάκτησής του."
           }
         },
         "es": {
@@ -5079,6 +5463,12 @@
             "value": "Alles Übrige wurde entfernt. %@ selbst konnte nicht in den Papierkorb bewegt werden — %@ — bewege es zum Abschluss selbst dorthin."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Όλα τα υπόλοιπα αφαιρέθηκαν. Το ίδιο το %@ δεν μπόρεσε να μετακινηθεί στον Κάδο (%@) — σύρετέ το εκεί μόνοι σας για να ολοκληρώσετε."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -5153,6 +5543,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Eingeblendet"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αναπτυγμένο"
           }
         },
         "es": {
@@ -5231,6 +5627,12 @@
             "value": "Extern"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εξωτερικός"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -5305,6 +5707,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vergessen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Διαγραφή"
           }
         },
         "es": {
@@ -5383,6 +5791,12 @@
             "value": "Festplattenvollzugriff"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Πλήρης πρόσβαση στον δίσκο"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -5459,6 +5873,12 @@
             "value": "Festplattenvollzugriff — ohne ihn lässt macOS keine App den Rohinhalt eines Laufwerks lesen. Er kann nicht angefordert werden und muss daher von Hand aktiviert werden"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Πλήρης πρόσβαση στον δίσκο — χωρίς αυτήν το macOS δεν επιτρέπει σε καμία εφαρμογή να διαβάσει το ακατέργαστο περιεχόμενο δίσκου. Δεν μπορεί να ζητηθεί, οπότε πρέπει να ενεργοποιηθεί χειροκίνητα"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -5530,6 +5950,12 @@
           }
         },
         "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        },
+        "el": {
           "stringUnit": {
             "state": "translated",
             "value": "GNU General Public License"
@@ -5611,6 +6037,12 @@
             "value": "Erteilt"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Χορηγήθηκε"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -5685,6 +6117,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ausblenden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Απόκρυψη"
           }
         },
         "es": {
@@ -5763,6 +6201,12 @@
             "value": "Eingabe verbergen"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Απόκρυψη όσων πληκτρολογείτε"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -5837,6 +6281,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Details ausblenden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Απόκρυψη λεπτομερειών"
           }
         },
         "es": {
@@ -5915,6 +6365,12 @@
             "value": "Wie %@ funktioniert und was es unterstützt"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Πώς λειτουργεί το %@ και τι υποστηρίζει"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -5989,6 +6445,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Funktionsweise"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Πώς λειτουργεί"
           }
         },
         "es": {
@@ -6067,6 +6529,12 @@
             "value": "Intern"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εσωτερικός"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -6141,6 +6609,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Es liegt im Papierkorb. Sonst ist nichts davon auf diesem Mac verblieben."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Βρίσκεται στον Κάδο. Τίποτα άλλο από αυτό δεν έμεινε σε αυτό το Mac."
           }
         },
         "es": {
@@ -6219,6 +6693,12 @@
             "value": "LUKS-Laufwerke von Linux, LUKS1 und LUKS2"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δίσκοι LUKS από Linux, τόσο LUKS1 όσο και LUKS2"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -6293,6 +6773,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LUKS oder Linux-Dateisystem"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS ή σύστημα αρχείων Linux"
           }
         },
         "es": {
@@ -6371,6 +6857,12 @@
             "value": "LUKS-Volumes, deren Header getrennt vom Laufwerk gespeichert ist"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τόμοι LUKS των οποίων η κεφαλίδα αποθηκεύεται χωριστά από τον δίσκο"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -6445,6 +6937,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LVM innerhalb von LUKS, wie es Ubuntu, Debian, Mint und Fedora einrichten. Mehrere Volumes auf einem Laufwerk werden gemeinsam entsperrt"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM μέσα σε LUKS, όπως το ρυθμίζουν τα Ubuntu, Debian, Mint και Fedora. Πολλοί τόμοι σε έναν δίσκο ξεκλειδώνουν μαζί"
           }
         },
         "es": {
@@ -6523,6 +7021,12 @@
             "value": "Sprache"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Γλώσσα"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -6597,6 +7101,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zuletzt gesucht: %@"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τελευταίος έλεγχος: %@"
           }
         },
         "es": {
@@ -6675,6 +7185,12 @@
             "value": "Geöffnet lassen"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Διατήρηση ανοιχτού"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -6749,6 +7265,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ermöglicht %@, die verschlüsselten Daten selbst zu lesen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Επιτρέπει στο %@ να διαβάζει το ίδιο τα κρυπτογραφημένα δεδομένα."
           }
         },
         "es": {
@@ -6827,6 +7349,12 @@
             "value": "Ermöglicht %@, die verschlüsselten Daten selbst zu lesen. Ohne diese Berechtigung blockiert macOS das selbst für Administratoren, und sie kann nicht angefordert werden — sie muss von Hand aktiviert werden."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Επιτρέπει στο %@ να διαβάζει το ίδιο τα κρυπτογραφημένα δεδομένα. Χωρίς αυτήν, το macOS το εμποδίζει ακόμη και για διαχειριστές, και δεν μπορεί να ζητηθεί — πρέπει να ενεργοποιηθεί χειροκίνητα."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -6901,6 +7429,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lizenz"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άδεια χρήσης"
           }
         },
         "es": {
@@ -6979,6 +7513,12 @@
             "value": "Hell"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Φωτεινή"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -7053,6 +7593,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ort"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τοποθεσία"
           }
         },
         "es": {
@@ -7131,6 +7677,12 @@
             "value": "Gesperrt"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Κλειδωμένος"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -7205,6 +7757,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Suche nach verschlüsselten Laufwerken …"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αναζήτηση κρυπτογραφημένων δίσκων…"
           }
         },
         "es": {
@@ -7283,6 +7841,12 @@
             "value": "Lúkotta ist Finnisch für „ohne Schloss“, von lukko, einem Schloss, mit der Endung -tta, die das Fehlen von etwas bezeichnet. Die Betonung liegt auf der ersten Silbe, wie im Finnischen immer."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το Lúkotta σημαίνει «χωρίς κλειδαριά» στα φινλανδικά, από το lukko, κλειδαριά, με την κατάληξη -tta που δηλώνει την απουσία κάποιου πράγματος. Ο τόνος πέφτει στην πρώτη συλλαβή, όπως πάντα στα φινλανδικά."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -7357,6 +7921,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Menüleiste"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Γραμμή μενού"
           }
         },
         "es": {
@@ -7435,6 +8005,12 @@
             "value": "%@ wird in den Papierkorb bewegt"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Μετακίνηση του %@ στον Κάδο"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -7509,6 +8085,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Erforderlich"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Απαιτείται"
           }
         },
         "es": {
@@ -7587,6 +8169,12 @@
             "value": "Keine verschlüsselten Laufwerke gefunden"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δεν βρέθηκαν κρυπτογραφημένοι δίσκοι"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -7661,6 +8249,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Es wurde kein Grund gemeldet. Die Details unten sagen möglicherweise mehr."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δεν αναφέρθηκε αιτία. Οι λεπτομέρειες παρακάτω ίσως πουν περισσότερα."
           }
         },
         "es": {
@@ -7739,6 +8333,12 @@
             "value": "In dieser Version nicht enthalten."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δεν περιλαμβάνεται σε αυτήν την έκδοση."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -7813,6 +8413,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Es wird nichts installiert. Die Engine steckt in der App, nichts verlässt deinen Mac, und auf ein Laufwerk wird nur geschrieben, wenn du darauf schreibst."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δεν εγκαθίσταται τίποτα. Η μηχανή περιέχεται στην εφαρμογή, τίποτα δεν φεύγει από το Mac σας, και σε έναν δίσκο γράφεται μόνο ό,τι γράφετε εσείς."
           }
         },
         "es": {
@@ -7891,6 +8497,12 @@
             "value": "Sobald der Hintergrund-Helfer eingerichtet ist, lässt ein Update entsperrte Laufwerke unberührt."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Μόλις ρυθμιστεί ο βοηθός παρασκηνίου, η ενημέρωση δεν θα πειράζει τους ξεκλείδωτους δίσκους."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -7965,6 +8577,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα %@"
           }
         },
         "es": {
@@ -8043,6 +8661,12 @@
             "value": "E-Mail öffnen"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα email"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -8117,6 +8741,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Öffne „Datenschutz & Sicherheit“ → „Festplattenvollzugriff“."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ανοίξτε «Απόρρητο και ασφάλεια» → «Πλήρης πρόσβαση στον δίσκο»."
           }
         },
         "es": {
@@ -8195,6 +8825,12 @@
             "value": "Datenschutzeinstellungen öffnen"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα ρυθμίσεων απορρήτου"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -8269,6 +8905,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Verschlüsselte Laufwerke unter macOS öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ανοίξτε κρυπτογραφημένους δίσκους στο macOS"
           }
         },
         "es": {
@@ -8347,6 +8989,12 @@
             "value": "„%@“ wird geöffnet"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα «%@»"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -8421,6 +9069,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Passphrase"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Φράση πρόσβασης"
           }
         },
         "es": {
@@ -8499,6 +9153,12 @@
             "value": "Passwort oder Wiederherstellungsschlüssel"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Συνθηματικό ή κλειδί ανάκτησης"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -8573,6 +9233,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Berechtigungen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άδειες"
           }
         },
         "es": {
@@ -8651,6 +9317,12 @@
             "value": "Beenden"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τερματισμός"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -8725,6 +9397,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ beenden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τερματισμός %@"
           }
         },
         "es": {
@@ -8822,6 +9500,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Beenden und %lld Laufwerke geöffnet lassen?"
+                }
+              }
+            }
+          }
+        },
+        "el": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Τερματισμός και διατήρηση %lld δίσκου ανοιχτού;"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Τερματισμός και διατήρηση %lld δίσκων ανοιχτών;"
                 }
               }
             }
@@ -9071,6 +9767,12 @@
             "value": "Beenden und „%@“ geöffnet lassen?"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τερματισμός και διατήρηση του «%@» ανοιχτού;"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -9145,6 +9847,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Neu starten"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Επανεκκίνηση"
           }
         },
         "es": {
@@ -9223,6 +9931,12 @@
             "value": "Diesen Schlüssel in meinem Schlüsselbund sichern"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Απομνημόνευση αυτού του κλειδιού στο Μπρελόκ μου"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -9297,6 +10011,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Entfernbare Volumes — von macOS beim ersten Lesen eines Laufwerks angefordert"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αφαιρούμενοι τόμοι — ζητούνται από το macOS την πρώτη φορά που διαβάζεται δίσκος"
           }
         },
         "es": {
@@ -9375,6 +10095,12 @@
             "value": "%@ wird entfernt"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Κατάργηση του %@"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -9449,6 +10175,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Einstellungen werden entfernt"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αφαίρεση ρυθμίσεων"
           }
         },
         "es": {
@@ -9527,6 +10259,12 @@
             "value": "Dieses Problem melden"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αναφορά αυτού του προβλήματος"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -9601,6 +10339,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ein Problem melden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αναφορά προβλήματος"
           }
         },
         "es": {
@@ -9679,6 +10423,12 @@
             "value": "Ein Problem melden oder einen Absturzbericht senden"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αναφέρετε πρόβλημα ή στείλτε αναφορά σφάλματος"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -9753,6 +10503,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Problem melden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αναφορά προβλήματος"
           }
         },
         "es": {
@@ -9831,6 +10587,12 @@
             "value": "Problem melden …"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αναφορά προβλήματος…"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -9905,6 +10667,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Systemvoraussetzungen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Απαιτήσεις"
           }
         },
         "es": {
@@ -9983,6 +10751,12 @@
             "value": "Erneut suchen"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Νέα αναζήτηση"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -10057,6 +10831,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "App im Finder zeigen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εμφάνιση εφαρμογής στο Finder"
           }
         },
         "es": {
@@ -10135,6 +10915,12 @@
             "value": "Angeschlossene Laufwerke sehen"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εμφάνιση συνδεδεμένων δίσκων"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -10209,6 +10995,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Wähle ein Laufwerk zum Entsperren"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Επιλέξτε δίσκο για ξεκλείδωμα"
           }
         },
         "es": {
@@ -10287,6 +11079,12 @@
             "value": "Linux-Umgebung wird eingerichtet"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Προετοιμασία του περιβάλλοντος Linux"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -10361,6 +11159,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Einblenden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εμφάνιση"
           }
         },
         "es": {
@@ -10439,6 +11243,12 @@
             "value": "%@ in der Menüleiste anzeigen"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εμφάνιση του %@ στη γραμμή μενού"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -10513,6 +11323,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Im Finder zeigen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εμφάνιση στο Finder"
           }
         },
         "es": {
@@ -10591,6 +11407,12 @@
             "value": "Eingabe anzeigen"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εμφάνιση όσων πληκτρολογείτε"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -10665,6 +11487,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zeigen, wofür jede Berechtigung dient"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εμφάνιση του σκοπού κάθε άδειας"
           }
         },
         "es": {
@@ -10743,6 +11571,12 @@
             "value": "Es fehlen noch Berechtigungen"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ορισμένες άδειες λείπουν ακόμη"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -10817,6 +11651,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quelltext"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Πηγαίος κώδικας"
           }
         },
         "es": {
@@ -10895,6 +11735,12 @@
             "value": "System"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Συστήματος"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -10969,6 +11815,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„System“ folgt der Sprache deines Mac."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η επιλογή «Συστήματος» ακολουθεί τη γλώσσα του Mac σας."
           }
         },
         "es": {
@@ -11047,6 +11899,12 @@
             "value": "„System“ folgt der Einstellung deines Mac, auch wenn sie sich ändert."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η επιλογή «Συστήματος» ακολουθεί τη ρύθμιση του Mac σας, ακόμη και όταν αλλάζει."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -11121,6 +11979,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dieses Passwort bzw. dieser Wiederherstellungsschlüssel hat das Laufwerk nicht entsperrt."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτό το συνθηματικό ή κλειδί ανάκτησης δεν ξεκλείδωσε αυτόν τον δίσκο."
           }
         },
         "es": {
@@ -11199,6 +12063,12 @@
             "value": "Die Linux-Umgebung wird einmalig beim ersten Verwenden entpackt."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το περιβάλλον Linux αποσυμπιέζεται μία φορά, κατά την πρώτη χρήση."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -11273,6 +12143,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Die Linux-Umgebung wird gelöscht und gibt etwa %lld MB frei."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το περιβάλλον Linux θα διαγραφεί, ελευθερώνοντας περίπου %lld MB."
           }
         },
         "es": {
@@ -11351,6 +12227,12 @@
             "value": "Der Hintergrund-Helfer ist nicht eingerichtet, daher hält %@ das Laufwerk selbst offen. Beenden trennt es jetzt, und alles, was noch geschrieben wird, würde nicht abgeschlossen.\n\nSobald der Helfer eingerichtet ist, bleiben Laufwerke von selbst geöffnet."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ο βοηθός παρασκηνίου δεν έχει ρυθμιστεί, επομένως το ίδιο το %@ κρατά τον δίσκο ανοιχτό. Ο τερματισμός τώρα τον αποσυνδέει και ό,τι γράφεται ακόμη δεν θα ολοκληρωθεί.\n\nΜόλις ρυθμιστεί ο βοηθός, οι δίσκοι παραμένουν ανοιχτοί από μόνοι τους."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -11425,6 +12307,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Der Hintergrund-Helfer ist nicht eingerichtet, daher hält %@ sie selbst offen. Beenden trennt sie jetzt, und alles, was noch geschrieben wird, würde nicht abgeschlossen.\n\nSobald der Helfer eingerichtet ist, bleiben Laufwerke von selbst geöffnet."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ο βοηθός παρασκηνίου δεν έχει ρυθμιστεί, επομένως το ίδιο το %@ τους κρατά ανοιχτούς. Ο τερματισμός τώρα τους αποσυνδέει και ό,τι γράφεται ακόμη δεν θα ολοκληρωθεί.\n\nΜόλις ρυθμιστεί ο βοηθός, οι δίσκοι παραμένουν ανοιχτοί από μόνοι τους."
           }
         },
         "es": {
@@ -11503,6 +12391,12 @@
             "value": "Die Registrierung des Hintergrund-Helfers wird aufgehoben."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η καταχώριση του βοηθού παρασκηνίου θα ακυρωθεί."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -11577,6 +12471,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das Laufwerk erscheint in der Finder-Seitenleiste unter „Orte“.\nWirf es hier oder im Finder aus, bevor du es abziehst."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ο δίσκος εμφανίζεται στην πλαϊνή στήλη του Finder, στην ενότητα «Τοποθεσίες».\nΚάντε εξαγωγή εδώ ή στο Finder πριν τον αποσυνδέσετε."
           }
         },
         "es": {
@@ -11655,6 +12555,12 @@
             "value": "Das Laufwerk ist belegt. Schließe alles, was es verwendet, und versuche es erneut."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ο δίσκος είναι απασχολημένος. Κλείστε ό,τι τον χρησιμοποιεί και δοκιμάστε ξανά."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -11729,6 +12635,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das Laufwerk wird dem Finder über eine lokale Netzwerkverbindung übergeben und erscheint deshalb unter „Orte“ mit einem Netzwerksymbol. Es liest, schreibt und wird ausgeworfen wie jedes andere Laufwerk. macOS bietet keine Möglichkeit, es als lokales Volume darzustellen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ο δίσκος παραδίδεται στο Finder μέσω τοπικής σύνδεσης δικτύου, γι’ αυτό εμφανίζεται στις «Τοποθεσίες» με εικονίδιο δικτύου. Διαβάζεται, γράφεται και εξάγεται όπως κάθε άλλος δίσκος. Το macOS δεν προσφέρει τρόπο να παρουσιαστεί ως τοπικός δίσκος."
           }
         },
         "es": {
@@ -11807,6 +12719,12 @@
             "value": "Das Laufwerk bleibt nach dem Beenden von %@ im Finder. Wirf es dort aus, wenn du fertig bist."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ο δίσκος παραμένει στο Finder αφού τερματιστεί το %@. Κάντε εξαγωγή από εκεί όταν τελειώσετε."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -11881,6 +12799,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das Laufwerk wurde nicht geöffnet"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ο δίσκος δεν άνοιξε"
           }
         },
         "es": {
@@ -11959,6 +12883,12 @@
             "value": "Das Laufwerk wurde nicht geöffnet. %@"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ο δίσκος δεν άνοιξε. %@"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -12033,6 +12963,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Windows hat das Laufwerk nicht sauber heruntergefahren. Deaktiviere den Schnellstart in Windows oder fahre Windows vollständig herunter, statt in den Ruhezustand zu wechseln, und versuche es erneut."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τα Windows δεν τερμάτισαν σωστά τον δίσκο. Απενεργοποιήστε τη γρήγορη εκκίνηση στα Windows ή τερματίστε τα πλήρως αντί για αδρανοποίηση, και δοκιμάστε ξανά."
           }
         },
         "es": {
@@ -12111,6 +13047,12 @@
             "value": "Die Engine hat auf diesem Volume kein Dateisystem erkannt. Falls es verschlüsselt ist, ist möglicherweise das Passwort oder der Wiederherstellungsschlüssel falsch."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η μηχανή δεν αναγνώρισε σύστημα αρχείων σε αυτόν τον τόμο. Αν είναι κρυπτογραφημένος, το συνθηματικό ή το κλειδί ανάκτησης ίσως είναι λάθος."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -12185,6 +13127,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Die Engine hat überhaupt nichts gemeldet. Möglicherweise wurde das Laufwerk abgezogen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η μηχανή δεν ανέφερε τίποτα. Ο δίσκος ίσως αποσυνδέθηκε."
           }
         },
         "es": {
@@ -12263,6 +13211,12 @@
             "value": "Die Sprache ändert sich, wenn %@ neu gestartet wird."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η γλώσσα αλλάζει όταν το %@ ξεκινήσει ξανά."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -12337,6 +13291,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Der Name"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το όνομα"
           }
         },
         "es": {
@@ -12415,6 +13375,12 @@
             "value": "Die Passphrase, mit der dieses Laufwerk verschlüsselt wurde."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η φράση πρόσβασης με την οποία κρυπτογραφήθηκε αυτός ο δίσκος."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -12489,6 +13455,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das Passwort, mit dem das Laufwerk gesperrt wurde, oder ein 48-stelliger BitLocker-Wiederherstellungsschlüssel. Leerzeichen und Bindestriche im Wiederherstellungsschlüssel werden ignoriert."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το συνθηματικό με το οποίο κλειδώθηκε ο δίσκος ή ένα 48ψήφιο κλειδί ανάκτησης BitLocker. Τα κενά και οι παύλες στο κλειδί ανάκτησης αγνοούνται."
           }
         },
         "es": {
@@ -12567,6 +13539,12 @@
             "value": "Die Virtualisierungs-Engine konnte nicht starten. Ein Neustart behebt das meistens."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η μηχανή εικονικοποίησης δεν μπόρεσε να ξεκινήσει. Μια επανεκκίνηση συνήθως το λύνει."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -12641,6 +13619,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sie bleiben nach dem Beenden von %@ im Finder. Wirf sie dort aus, wenn du fertig bist."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Παραμένουν στο Finder αφού τερματιστεί το %@. Κάντε εξαγωγή από εκεί όταν τελειώσετε."
           }
         },
         "es": {
@@ -12719,6 +13703,12 @@
             "value": "Hinweise zu Drittanbietern"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Σημειώσεις τρίτων"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -12793,6 +13783,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dieses Laufwerk enthält mehrere Volumes, und %@ konnte nicht ermitteln, welche. Eine Meldung darüber würde helfen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτός ο δίσκος περιέχει πολλούς τόμους και το %@ δεν μπόρεσε να διακρίνει ποιους. Μια αναφορά θα βοηθούσε."
           }
         },
         "es": {
@@ -12871,6 +13867,12 @@
             "value": "Das ist eine Datenschutzeinstellung von macOS, keine Änderung an deinem Mac. Du kannst sie jederzeit wieder deaktivieren, und es wird nichts installiert."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Πρόκειται για ρύθμιση απορρήτου του macOS, όχι για αλλαγή στο Mac σας. Μπορείτε να την απενεργοποιήσετε όποτε θέλετε και δεν εγκαθίσταται τίποτα."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -12945,6 +13947,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Diese Partition ist kein BitLocker-Volume."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτό το διαμέρισμα δεν είναι τόμος BitLocker."
           }
         },
         "es": {
@@ -13023,6 +14031,12 @@
             "value": "Das dauert einen Moment."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτό παίρνει μια στιγμή."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -13097,6 +14111,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das dauert normalerweise weniger als eine Minute."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Συνήθως διαρκεί λιγότερο από ένα λεπτό."
           }
         },
         "es": {
@@ -13175,6 +14195,12 @@
             "value": "Erneut versuchen"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δοκιμή ξανά"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -13249,6 +14275,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Deinstallieren"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Κατάργηση"
           }
         },
         "es": {
@@ -13327,6 +14359,12 @@
             "value": "%@ deinstallieren?"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Κατάργηση του %@;"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -13401,6 +14439,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ deinstallieren …"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Κατάργηση του %@…"
           }
         },
         "es": {
@@ -13479,6 +14523,12 @@
             "value": "Entsperren"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ξεκλείδωμα"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -13553,6 +14603,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dieses Laufwerk entsperren"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ξεκλείδωμα αυτού του δίσκου"
           }
         },
         "es": {
@@ -13631,6 +14687,12 @@
             "value": "Er wird direkt zum Entsperren verwendet. Vergiss ihn, um einen anderen einzugeben."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το ξεκλείδωμα το χρησιμοποιεί απευθείας. Διαγράψτε το για να πληκτρολογήσετε άλλο."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -13705,6 +14767,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„%@“ entsperren"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ξεκλείδωμα «%@»"
           }
         },
         "es": {
@@ -13783,6 +14851,12 @@
             "value": "Entsperrt"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ξεκλείδωτος"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -13857,6 +14931,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Entsperrt unter %@"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ξεκλειδώθηκε στο %@"
           }
         },
         "es": {
@@ -13935,6 +15015,12 @@
             "value": "Registrierung des Hintergrund-Helfers wird aufgehoben"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ακύρωση καταχώρισης του βοηθού παρασκηνίου"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -14009,6 +15095,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Updates"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ενημερώσεις"
           }
         },
         "es": {
@@ -14087,6 +15179,12 @@
             "value": "Ein Update wirft deine Laufwerke nicht aus. Alles Entsperrte bleibt entsperrt und funktioniert weiter."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η ενημέρωση δεν κάνει εξαγωγή των δίσκων σας. Ό,τι είναι ξεκλείδωτο παραμένει ξεκλείδωτο και συνεχίζει να λειτουργεί."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -14161,6 +15259,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Der im Schlüsselbund gesicherte Schlüssel wird verwendet"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Χρησιμοποιείται το κλειδί που έχει αποθηκευτεί στο Μπρελόκ σας"
           }
         },
         "es": {
@@ -14239,6 +15343,12 @@
             "value": "Version %@ (%@)"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Έκδοση %@ (%@)"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -14313,6 +15423,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Geöffnete Volumes"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τόμοι που άνοιξαν"
           }
         },
         "es": {
@@ -14391,6 +15507,12 @@
             "value": "Website"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ιστότοπος"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -14465,6 +15587,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Willkommen bei %@"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Καλώς ορίσατε στο %@"
           }
         },
         "es": {
@@ -14543,6 +15671,12 @@
             "value": "Was ein Laufwerk enthält, ist erst nach dem Entsperren bekannt."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το περιεχόμενο ενός δίσκου γίνεται γνωστό μόνο αφού ξεκλειδωθεί."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -14617,6 +15751,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Was ist passiert"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τι συνέβη"
           }
         },
         "es": {
@@ -14695,6 +15835,12 @@
             "value": "Was ist passiert?"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τι συνέβη;"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -14769,6 +15915,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Was geöffnet werden kann"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τι μπορεί να ανοίξει"
           }
         },
         "es": {
@@ -14847,6 +15999,12 @@
             "value": "Was nicht geöffnet werden kann"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τι δεν μπορεί να ανοίξει"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -14921,6 +16079,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Was zu tun ist"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τι να κάνετε"
           }
         },
         "es": {
@@ -14999,6 +16163,12 @@
             "value": "Warum es als Netzlaufwerk erscheint"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Γιατί εμφανίζεται ως δίσκος δικτύου"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -15073,6 +16243,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Windows-NTFS-Laufwerke, auch solche, die Windows im Ruhezustand oder nicht ordnungsgemäß heruntergefahren hinterlassen hat"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δίσκοι NTFS των Windows, ακόμη και όσοι έμειναν σε αδρανοποίηση ή δεν τερματίστηκαν σωστά"
           }
         },
         "es": {
@@ -15151,6 +16327,12 @@
             "value": "Du kannst Dateien darauf lesen und schreiben."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Μπορείτε να διαβάζετε και να γράφετε αρχεία σε αυτόν."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -15225,6 +16407,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Du kannst weiterhin jederzeit selbst suchen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Μπορείτε πάντα να ελέγχετε όποτε θέλετε."
           }
         },
         "es": {
@@ -15303,6 +16491,12 @@
             "value": "Dein Laufwerk wurde nicht verändert. Ein fehlgeschlagener Entsperrversuch kann den Daten darauf nicht schaden."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ο δίσκος σας δεν τροποποιήθηκε. Ένα αποτυχημένο ξεκλείδωμα δεν μπορεί να βλάψει τα δεδομένα του."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -15377,6 +16571,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "erledigt"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ολοκληρώθηκε"
           }
         },
         "es": {
@@ -15455,6 +16655,12 @@
             "value": "ext4-, btrfs- und XFS-Dateisysteme darin"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Συστήματα αρχείων ext4, btrfs και XFS μέσα σε αυτούς"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -15529,6 +16735,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "läuft"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "σε εξέλιξη"
           }
         },
         "es": {
@@ -15607,6 +16819,12 @@
             "value": "gesperrt"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "κλειδωμένος"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -15681,6 +16899,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS 15 Sequoia oder neuer"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 15 Sequoia ή νεότερο"
           }
         },
         "es": {
@@ -15759,6 +16983,12 @@
             "value": "macOS hat dieses Laufwerk bereits aktiviert. Wirf es im Finder aus und versuche es erneut."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το macOS έχει ήδη προσαρτήσει αυτόν τον δίσκο. Κάντε εξαγωγή στο Finder και δοκιμάστε ξανά."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -15833,6 +17063,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS hat den Zugriff auf das Laufwerk blockiert. %@ benötigt Festplattenvollzugriff, um eine verschlüsselte Festplatte lesen zu können."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το macOS απέκλεισε την πρόσβαση στον δίσκο. Το %@ χρειάζεται «Πλήρης πρόσβαση στον δίσκο» για να μπορεί να διαβάσει κρυπτογραφημένο δίσκο."
           }
         },
         "es": {
@@ -15911,6 +17147,12 @@
             "value": "macOS hat %@ geschrieben. Er wird nirgendwohin automatisch gesendet — hänge ihn deiner Nachricht an, wenn du kannst."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το macOS έγραψε το %@. Δεν αποστέλλεται πουθενά αυτόματα — επισυνάψτε το στο μήνυμά σας αν μπορείτε."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -15985,6 +17227,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "nicht erreicht"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "δεν προσεγγίστηκε"
           }
         },
         "es": {
@@ -16063,6 +17311,12 @@
             "value": "hier gestoppt"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "σταμάτησε εδώ"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -16137,6 +17391,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "entsperrt"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ξεκλείδωτος"
           }
         },
         "es": {
@@ -16215,6 +17475,12 @@
             "value": "wartet"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "αναμονή"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -16291,6 +17557,12 @@
             "value": "„%@“ hat nicht mehr reagiert und wurde getrennt. Du kannst es erneut öffnen."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%@» σταμάτησε να αποκρίνεται και αποσυνδέθηκε. Μπορείτε να το ανοίξετε ξανά."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -16365,6 +17637,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„%@“ ist entsperrt"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%@» ξεκλειδώθηκε"
           }
         },
         "es": {
