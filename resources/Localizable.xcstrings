@@ -4595,6 +4595,396 @@
         }
       }
     },
+    "Approve": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Одобри"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schválit"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Godkend"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erlauben"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Έγκριση"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorizar"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luba"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salli"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odobri"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jóváhagyás"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leisti"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atļaut"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Godkjenn"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sta toe"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zezwól"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprobați"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dovoli"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Godkänn"
+          }
+        }
+      }
+    },
+    "Asked each time": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изисква се всеки път"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyžádá se pokaždé"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bliver bedt om hver gang"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird jedes Mal abgefragt"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ζητείται κάθε φορά"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se solicita cada vez"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Küsitakse iga kord"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kysytään joka kerta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demandé à chaque fois"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traži se svaki put"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minden alkalommal kéri"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Richiesto ogni volta"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prašoma kaskart"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiek prasīts katru reizi"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blir spurt om hver gang"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wordt elke keer gevraagd"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pytanie za każdym razem"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pedido de cada vez"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se solicită de fiecare dată"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vprašano vsakič"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Efterfrågas varje gång"
+          }
+        }
+      }
+    },
+    "Asked when needed": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изисква се при нужда"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyžádá se, až bude potřeba"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bliver bedt om ved behov"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird bei Bedarf abgefragt"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ζητείται όταν χρειαστεί"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se solicita cuando hace falta"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Küsitakse vajaduse korral"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kysytään tarvittaessa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demandé au besoin"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traži se po potrebi"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Szükség esetén kéri"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Richiesto quando serve"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prašoma prireikus"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiek prasīts pēc vajadzības"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blir spurt om ved behov"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wordt gevraagd wanneer nodig"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pytanie w razie potrzeby"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pedido quando necessário"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se solicită la nevoie"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vprašano po potrebi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Efterfrågas vid behov"
+          }
+        }
+      }
+    },
     "Author": {
       "localizations": {
         "bg": {
@@ -12547,6 +12937,136 @@
         }
       }
     },
+    "Lets %@ see the drives you plug in.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Позволява на %@ да вижда свързаните дискове."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Umožní aplikaci %@ vidět připojované disky."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lader %@ se de enheder, du tilslutter."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ermöglicht %@, angeschlossene Laufwerke zu sehen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Επιτρέπει στο %@ να βλέπει τους δίσκους που συνδέετε."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite que %@ vea los discos que conectas."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Võimaldab rakendusel %@ näha ühendatud kettaid."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antaa ohjelman %@ nähdä liittämäsi asemat."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permet à %@ de voir les disques que vous branchez."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omogućuje aplikaciji %@ da vidi diskove koje spajate."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lehetővé teszi, hogy a(z) %@ lássa a csatlakoztatott meghajtókat."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consente a %@ di vedere i dischi che colleghi."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leidžia %@ matyti prijungiamus diskus."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ļauj programmai %@ redzēt pievienotos diskus."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lar %@ se enhetene du kobler til."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiermee ziet %@ de schijven die je aansluit."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pozwala programowi %@ widzieć podłączane dyski."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite ao %@ ver os discos que liga."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite aplicației %@ să vadă discurile pe care le conectați."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omogoča, da %@ vidi pogone, ki jih priključite."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Låter %@ se enheterna du ansluter."
+          }
+        }
+      }
+    },
     "Licence": {
       "localizations": {
         "bg": {
@@ -14367,6 +14887,136 @@
         }
       }
     },
+    "Open": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отвори"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otevřít"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Megnyitás"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverti"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvērt"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpne"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschideți"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öppna"
+          }
+        }
+      }
+    },
     "Open %@": {
       "localizations": {
         "bg": {
@@ -14887,6 +15537,136 @@
         }
       }
     },
+    "Open Settings": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отвори настройките"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otevřít nastavení"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn indstillinger"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα ρυθμίσεων"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir los ajustes"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava seaded"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa asetukset"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les réglages"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori postavke"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beállítások megnyitása"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri le impostazioni"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverti nuostatas"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvērt iestatījumus"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpne innstillinger"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open instellingen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz ustawienia"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir as definições"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschideți configurările"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri nastavitve"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öppna inställningar"
+          }
+        }
+      }
+    },
     "Open encrypted drives on macOS": {
       "localizations": {
         "bg": {
@@ -15013,6 +15793,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Öppna krypterade enheter i macOS"
+          }
+        }
+      }
+    },
+    "Open “%@”": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отваряне на „%@“"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otevřít „%@“"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn “%@”"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα «%@»"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir «%@»"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava „%@“"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa ”%@”"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir « %@ »"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori „%@”"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” megnyitása"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri «%@»"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverti „%@“"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvērt “%@”"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpne «%@»"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open ‘%@’"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz „%@”"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir «%@»"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschideți „%@”"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri »%@«"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öppna ”%@”"
           }
         }
       }
@@ -16519,6 +17429,396 @@
           "stringUnit": {
             "state": "translated",
             "value": "Avsluta och lämna ”%@” öppen?"
+          }
+        }
+      }
+    },
+    "Reading a raw disk and mounting a filesystem are actions only an administrator can do.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прякото четене на диск и монтирането на файлова система са действия, които може да извърши само администратор."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Přímé čtení disku a připojení souborového systému může provést jen správce."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At læse en disk direkte og aktivere et filsystem kan kun en administrator."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Festplatte direkt zu lesen und ein Dateisystem zu aktivieren, kann nur ein Administrator."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η απευθείας ανάγνωση δίσκου και η προσάρτηση συστήματος αρχείων είναι ενέργειες που μόνο διαχειριστής μπορεί να κάνει."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leer un disco en bruto y montar un sistema de archivos son acciones que solo puede hacer un administrador."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketta otse lugemine ja failisüsteemi haakimine on toimingud, mida saab teha ainult administraator."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levyn suora lukeminen ja tiedostojärjestelmän käyttöönotto onnistuvat vain pääkäyttäjältä."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire un disque brut et monter un système de fichiers sont des actions réservées à un administrateur."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izravno čitanje diska i montiranje datotečnog sustava radnje su koje može obaviti samo administrator."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Egy lemez közvetlen olvasása és egy fájlrendszer csatolása csak rendszergazdai művelet."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leggere un disco grezzo e montare un file system sono operazioni riservate a un amministratore."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiesioginį disko skaitymą ir failų sistemos prijungimą gali atlikti tik administratorius."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diska tiešu lasīšanu un failu sistēmas montēšanu var veikt tikai administrators."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Å lese en disk direkte og montere et filsystem er noe bare en administrator kan gjøre."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een schijf rechtstreeks lezen en een bestandssysteem activeren kan alleen een beheerder."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bezpośredni odczyt dysku i montowanie systemu plików może wykonać wyłącznie administrator."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ler um disco diretamente e montar um sistema de ficheiros são ações reservadas a um administrador."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Citirea directă a unui disc și montarea unui sistem de fișiere sunt acțiuni pe care le poate face doar un administrator."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neposredno branje diska in priklop datotečnega sistema sta dejanji, ki ju lahko izvede le skrbnik."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Att läsa en disk direkt och montera ett filsystem kan bara en administratör göra."
+          }
+        }
+      }
+    },
+    "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прякото четене на диск и монтирането на файлова система са действия, които може да извърши само администратор. %@ никога не вижда вашата парола."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Přímé čtení disku a připojení souborového systému může provést jen správce. %@ vaše heslo nikdy nevidí."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At læse en disk direkte og aktivere et filsystem kan kun en administrator. %@ ser aldrig din adgangskode."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Festplatte direkt zu lesen und ein Dateisystem zu aktivieren, kann nur ein Administrator. %@ sieht dein Passwort nie."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η απευθείας ανάγνωση δίσκου και η προσάρτηση συστήματος αρχείων είναι ενέργειες που μόνο διαχειριστής μπορεί να κάνει. Το %@ δεν βλέπει ποτέ το συνθηματικό σας."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leer un disco en bruto y montar un sistema de archivos son acciones que solo puede hacer un administrador. %@ nunca ve tu contraseña."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketta otse lugemine ja failisüsteemi haakimine on toimingud, mida saab teha ainult administraator. %@ ei näe kunagi sinu parooli."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levyn suora lukeminen ja tiedostojärjestelmän käyttöönotto onnistuvat vain pääkäyttäjältä. %@ ei koskaan näe salasanaasi."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire un disque brut et monter un système de fichiers sont des actions réservées à un administrateur. %@ ne voit jamais votre mot de passe."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izravno čitanje diska i montiranje datotečnog sustava radnje su koje može obaviti samo administrator. %@ nikada ne vidi vašu lozinku."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Egy lemez közvetlen olvasása és egy fájlrendszer csatolása csak rendszergazdai művelet. A(z) %@ soha nem látja a jelszavát."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leggere un disco grezzo e montare un file system sono operazioni riservate a un amministratore. %@ non vede mai la tua password."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiesioginį disko skaitymą ir failų sistemos prijungimą gali atlikti tik administratorius. %@ niekada nemato jūsų slaptažodžio."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diska tiešu lasīšanu un failu sistēmas montēšanu var veikt tikai administrators. %@ nekad neredz jūsu paroli."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Å lese en disk direkte og montere et filsystem er noe bare en administrator kan gjøre. %@ ser aldri passordet ditt."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een schijf rechtstreeks lezen en een bestandssysteem activeren kan alleen een beheerder. %@ ziet je wachtwoord nooit."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bezpośredni odczyt dysku i montowanie systemu plików może wykonać wyłącznie administrator. %@ nigdy nie widzi Twojego hasła."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ler um disco diretamente e montar um sistema de ficheiros são ações reservadas a um administrador. O %@ nunca vê a sua palavra-passe."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Citirea directă a unui disc și montarea unui sistem de fișiere sunt acțiuni pe care le poate face doar un administrator. %@ nu vă vede niciodată parola."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neposredno branje diska in priklop datotečnega sistema sta dejanji, ki ju lahko izvede le skrbnik. %@ vašega gesla nikoli ne vidi."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Att läsa en disk direkt och montera ett filsystem kan bara en administratör göra. %@ ser aldrig ditt lösenord."
+          }
+        }
+      }
+    },
+    "Reading a raw disk and mounting a filesystem are actions only an administrator can do. Approve %@ in Login Items to finish.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прякото четене на диск и монтирането на файлова система са действия, които може да извърши само администратор. Одобрете %@ в „Login Items“, за да завършите."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Přímé čtení disku a připojení souborového systému může provést jen správce. Dokončete to schválením aplikace %@ v části „Přihlášení“."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At læse en disk direkte og aktivere et filsystem kan kun en administrator. Godkend %@ under “Loginemner” for at afslutte."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Festplatte direkt zu lesen und ein Dateisystem zu aktivieren, kann nur ein Administrator. Bestätige %@ unter „Anmeldeobjekte“, um den Vorgang abzuschließen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η απευθείας ανάγνωση δίσκου και η προσάρτηση συστήματος αρχείων είναι ενέργειες που μόνο διαχειριστής μπορεί να κάνει. Εγκρίνετε το %@ στα «Στοιχεία εισόδου» για να ολοκληρώσετε."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leer un disco en bruto y montar un sistema de archivos son acciones que solo puede hacer un administrador. Autoriza %@ en «Ítems de inicio» para terminar."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketta otse lugemine ja failisüsteemi haakimine on toimingud, mida saab teha ainult administraator. Kinnita %@ jaotises „Login Items“, et lõpetada."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levyn suora lukeminen ja tiedostojärjestelmän käyttöönotto onnistuvat vain pääkäyttäjältä. Hyväksy %@ kohdassa ”Kirjautumiskohteet” viimeistelläksesi."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire un disque brut et monter un système de fichiers sont des actions réservées à un administrateur. Approuvez %@ dans « Ouverture » pour terminer."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izravno čitanje diska i montiranje datotečnog sustava radnje su koje može obaviti samo administrator. Odobrite %@ u „Stavke za prijavu” da biste dovršili."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Egy lemez közvetlen olvasása és egy fájlrendszer csatolása csak rendszergazdai művelet. A befejezéshez hagyja jóvá a(z) %@ programot az „Indítóelemek” alatt."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leggere un disco grezzo e montare un file system sono operazioni riservate a un amministratore. Approva %@ in «Elementi login» per completare."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiesioginį disko skaitymą ir failų sistemos prijungimą gali atlikti tik administratorius. Patvirtinkite %@ skiltyje „Login Items“, kad užbaigtumėte."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diska tiešu lasīšanu un failu sistēmas montēšanu var veikt tikai administrators. Apstipriniet %@ sadaļā “Login Items”, lai pabeigtu."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Å lese en disk direkte og montere et filsystem er noe bare en administrator kan gjøre. Godkjenn %@ under «Påloggingsobjekter» for å fullføre."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een schijf rechtstreeks lezen en een bestandssysteem activeren kan alleen een beheerder. Keur %@ goed bij ‘Inloggen’ om dit af te ronden."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bezpośredni odczyt dysku i montowanie systemu plików może wykonać wyłącznie administrator. Zatwierdź %@ w sekcji „Logowanie”, aby dokończyć."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ler um disco diretamente e montar um sistema de ficheiros são ações reservadas a um administrador. Autorize o %@ em «Início de sessão» para concluir."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Citirea directă a unui disc și montarea unui sistem de fișiere sunt acțiuni pe care le poate face doar un administrator. Aprobați %@ la „Lansare la login” pentru a finaliza."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neposredno branje diska in priklop datotečnega sistema sta dejanji, ki ju lahko izvede le skrbnik. Za dokončanje odobrite %@ v »Elementi prijave«."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Att läsa en disk direkt och montera ett filsystem kan bara en administratör göra. Godkänn %@ under ”Startobjekt” för att slutföra."
           }
         }
       }
@@ -18469,6 +19769,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Välj en enhet att låsa upp"
+          }
+        }
+      }
+    },
+    "Set Up": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настрой"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nastavit"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konfigurer"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einrichten"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ρύθμιση"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurar"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seadista"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ota käyttöön"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurer"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Postavi"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beállítás"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configura"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nustatyti"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iestatīt"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konfigurer"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stel in"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skonfiguruj"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurar"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurați"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nastavi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konfigurera"
           }
         }
       }
@@ -22633,6 +24063,136 @@
         }
       }
     },
+    "There is no password to enter. Open it anyway to read and write to it, which macOS on its own cannot do.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Няма парола за въвеждане. Отворете го въпреки това, за да четете и пишете по него — нещо, което macOS сам по себе си не може."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Není co zadávat. Přesto jej otevřete, abyste na něj mohli číst i zapisovat, což samotný macOS nedokáže."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der er ingen adgangskode at indtaste. Åbn den alligevel for at kunne læse og skrive på den, hvilket macOS ikke kan alene."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es gibt kein Passwort einzugeben. Öffne es trotzdem, um darauf zu lesen und zu schreiben, was macOS allein nicht kann."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δεν υπάρχει συνθηματικό για εισαγωγή. Ανοίξτε τον ούτως ή άλλως, για να διαβάζετε και να γράφετε σε αυτόν, κάτι που το macOS από μόνο του δεν μπορεί."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay ninguna contraseña que introducir. Ábrelo igualmente para leer y escribir en él, algo que macOS por sí solo no puede hacer."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sisestada pole midagi. Ava see siiski, et sellelt lugeda ja sellele kirjutada — seda macOS üksi ei suuda."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salasanaa ei tarvita. Avaa se silti, niin voit lukea ja kirjoittaa sille, mihin macOS ei yksin pysty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il n’y a aucun mot de passe à saisir. Ouvrez-le tout de même pour y lire et y écrire, ce que macOS seul ne sait pas faire."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nema lozinke za unijeti. Svejedno ga otvorite kako biste s njega čitali i na njega pisali, što macOS sam ne može."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nincs mit beírni. Nyissa meg mégis, hogy olvashasson róla és írhasson rá, amire a macOS önmagában nem képes."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non c’è alcuna password da inserire. Aprilo comunque per leggerlo e scriverci, cosa che macOS da solo non può fare."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įvesti nieko nereikia. Vis tiek jį atverkite, kad galėtumėte skaityti ir rašyti — to macOS pats negali."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nav nekā, ko ievadīt. Atveriet to tik un tā, lai lasītu un rakstītu, ko macOS viens pats nespēj."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det er ikke noe passord å oppgi. Åpne den likevel for å lese og skrive til den, noe macOS ikke klarer alene."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er is geen wachtwoord in te voeren. Open die toch om erop te lezen en te schrijven, wat macOS alleen niet kan."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie ma czego wpisywać. Otwórz go mimo to, aby móc z niego czytać i na nim zapisywać, czego sam macOS nie potrafi."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não há palavra-passe a introduzir. Abra-o mesmo assim para ler e escrever nele, algo que o macOS sozinho não consegue."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu aveți nimic de introdus. Deschideți-l oricum pentru a citi și a scrie pe el, lucru pe care macOS singur nu îl poate face."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vnesti ni ničesar. Vseeno ga odprite, da boste z njega brali in nanj pisali, česar macOS sam ne zmore."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det finns inget lösenord att ange. Öppna den ändå för att läsa och skriva på den, vilket macOS inte klarar på egen hand."
+          }
+        }
+      }
+    },
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": {
       "localizations": {
         "bg": {
@@ -23485,6 +25045,266 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enheten innehåller flera volymer och %@ kunde inte avgöra vilka. Att rapportera det skulle hjälpa."
+          }
+        }
+      }
+    },
+    "This drive is exFAT, and is not encrypted.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Този диск е exFAT и не е шифрован."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tento disk je exFAT a není šifrovaný."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne enhed er exFAT og er ikke krypteret."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Laufwerk ist exFAT und nicht verschlüsselt."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτός ο δίσκος είναι exFAT και δεν είναι κρυπτογραφημένος."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este disco es exFAT y no está cifrado."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See ketas on exFAT ega ole krüptitud."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä asema on exFAT eikä sitä ole salattu."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce disque est en exFAT et n’est pas chiffré."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj disk je exFAT i nije šifriran."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez a meghajtó exFAT, és nincs titkosítva."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo disco è exFAT e non è cifrato."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šis diskas yra exFAT ir nėra šifruotas."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šis disks ir exFAT un nav šifrēts."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne enheten er exFAT og er ikke kryptert."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze schijf is exFAT en is niet versleuteld."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten dysk to exFAT i nie jest zaszyfrowany."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este disco é exFAT e não está encriptado."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acest disc este exFAT și nu este criptat."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta pogon je exFAT in ni šifriran."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enheten är exFAT och är inte krypterad."
+          }
+        }
+      }
+    },
+    "This drive is plain NTFS, and is not encrypted.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Този диск е обикновен NTFS и не е шифрован."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tento disk je běžný NTFS a není šifrovaný."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne enhed er almindelig NTFS og er ikke krypteret."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Laufwerk ist einfaches NTFS und nicht verschlüsselt."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτός ο δίσκος είναι απλό NTFS και δεν είναι κρυπτογραφημένος."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este disco es NTFS simple y no está cifrado."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See ketas on tavaline NTFS ega ole krüptitud."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä asema on tavallinen NTFS eikä sitä ole salattu."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce disque est en NTFS simple et n’est pas chiffré."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj disk je obični NTFS i nije šifriran."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez a meghajtó egyszerű NTFS, és nincs titkosítva."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo disco è NTFS semplice e non è cifrato."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šis diskas yra paprastas NTFS ir nėra šifruotas."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šis disks ir vienkāršs NTFS un nav šifrēts."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne enheten er vanlig NTFS og er ikke kryptert."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze schijf is gewoon NTFS en is niet versleuteld."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten dysk to zwykły NTFS i nie jest zaszyfrowany."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este disco é NTFS simples e não está encriptado."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acest disc este NTFS simplu și nu este criptat."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta pogon je navaden NTFS in ni šifriran."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enheten är vanlig NTFS och är inte krypterad."
           }
         }
       }
@@ -26345,6 +28165,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Väntar på ditt godkännande"
+          }
+        }
+      }
+    },
+    "Was refused. In Files and Folders, switch on Removable Volumes for %@, then come back.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Беше отказано. В „Files & Folders“ включете „Removable Volumes“ за %@ и се върнете."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bylo odmítnuto. V části „Soubory a složky“ zapněte „Výměnné svazky“ pro %@ a vraťte se sem."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blev afvist. Slå “Udskiftelige enheder” til for %@ under “Arkiver & mapper”, og kom tilbage."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wurde abgelehnt. Aktiviere unter „Dateien & Ordner“ die Option „Entfernbare Volumes“ für %@ und komm dann zurück."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Απορρίφθηκε. Στα «Αρχεία και φάκελοι» ενεργοποιήστε τους «Αφαιρούμενοι τόμοι» για το %@ και επιστρέψτε."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se ha denegado. En «Archivos y carpetas», activa «Volúmenes extraíbles» para %@ y vuelve aquí."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keelduti. Lülita jaotises „Files & Folders“ rakenduse %@ jaoks sisse „Removable Volumes“ ja tule tagasi."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evättiin. Ota kohdassa ”Tiedostot ja kansiot” käyttöön ”Siirrettävät taltiot” ohjelmalle %@ ja palaa tänne."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A été refusée. Dans « Fichiers et dossiers », activez « Volumes amovibles » pour %@, puis revenez ici."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odbijeno je. U „Datoteke i mape” uključite „Uklonjive jedinice” za %@ pa se vratite."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elutasítva. A „Fájlok és mappák” alatt kapcsolja be a „Cserélhető kötetek” beállítást a(z) %@ programhoz, majd térjen vissza."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "È stato rifiutato. In «File e cartelle» attiva «Volumi rimovibili» per %@, poi torna qui."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buvo atmesta. Skiltyje „Files & Folders“ įjunkite „Removable Volumes“ programai %@ ir grįžkite."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tika atteikta. Sadaļā “Files & Folders” ieslēdziet “Removable Volumes” programmai %@ un atgriezieties."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ble avvist. Slå på «Uttakbare volumer» for %@ under «Filer og mapper», og kom tilbake."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Is geweigerd. Schakel bij ‘Bestanden en mappen’ de optie ‘Verwijderbare volumes’ in voor %@ en kom terug."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zostało odrzucone. W sekcji „Pliki i foldery” włącz „Woluminy wymienne” dla programu %@ i wróć tutaj."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foi recusada. Em «Ficheiros e pastas», ative «Volumes amovíveis» para o %@ e volte aqui."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A fost refuzată. La „Fișiere și dosare”, activați „Volume amovibile” pentru %@, apoi reveniți."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bilo je zavrnjeno. V »Datoteke in mape« vklopite »Snemljivi nosilci« za %@ in se vrnite."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nekades. Slå på ”Borttagbara volymer” för %@ under ”Filer och mappar” och kom tillbaka."
           }
         }
       }

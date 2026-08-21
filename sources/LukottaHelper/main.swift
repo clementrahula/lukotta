@@ -211,7 +211,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
 
     func unmount(mountPoint: String, reply: @escaping (Int32, String) -> Void) {
         let result = EngineStatus.unmount(mountPoint: mountPoint)
-        Log.helper.notice("unmount \(result.ok ? "succeeded" : "failed", privacy: .public)")
+        Log.helper.notice("unmount succeeded: \(result.ok, privacy: .public)")
         reply(result.ok ? 0 : 1, result.message)
     }
 

@@ -184,17 +184,18 @@ struct PermissionsPanel: View {
         if model.removableAccess == false {
             // A bare button into a settings pane is a dead end. Say what to do
             // once it opens.
-            return
+            return appString(
                 "Was refused. In Files and Folders, switch on Removable Volumes for \(Brand.name), then come back."
+            )
         }
-        return "Lets \(Brand.name) see the drives you plug in."
+        return appString("Lets \(Brand.name) see the drives you plug in.")
     }
 
     private var removableStatus: PermissionStatus {
         switch model.removableAccess {
         case true: return .granted
         case false: return .needed
-        default: return .automatic("Asked when needed")
+        default: return .automatic(appString("Asked when needed"))
         }
     }
 
@@ -204,14 +205,17 @@ struct PermissionsPanel: View {
     private var helperDetail: String {
         switch model.helper.state {
         case .ready:
-            return
+            return appString(
                 "Reading a raw disk and mounting a filesystem are actions only an administrator can do."
+            )
         case .awaitingApproval:
-            return
+            return appString(
                 "Reading a raw disk and mounting a filesystem are actions only an administrator can do. Approve \(Brand.name) in Login Items to finish."
+            )
         default:
-            return
+            return appString(
                 "Reading a raw disk and mounting a filesystem are actions only an administrator can do. \(Brand.name) never sees your password."
+            )
         }
     }
 
@@ -219,15 +223,16 @@ struct PermissionsPanel: View {
         switch model.helper.state {
         case .ready: return .granted
         case .awaitingApproval: return .needed
-        default: return .automatic("Asked each time")
+        default: return .automatic(appString("Asked each time"))
         }
     }
 
     private var helperAction: (String, () -> Void)? {
         switch model.helper.state {
         case .ready: return nil
-        case .awaitingApproval: return ("Approve", { model.helper.openLoginItemsSettings() })
-        default: return ("Set Up", { model.helper.install() })
+        case .awaitingApproval:
+            return (appString("Approve"), { model.helper.openLoginItemsSettings() })
+        default: return (appString("Set Up"), { model.helper.install() })
         }
     }
     @State private var expanded: Bool
@@ -276,29 +281,32 @@ struct PermissionsPanel: View {
                 VStack(alignment: .leading, spacing: 16) {
                     PermissionRow(
                         number: 1,
-                        title: "Seeing connected drives",
+                        title: appString("Seeing connected drives"),
                         detail: removableDetail,
                         status: removableStatus,
                         action: model.removableAccess == false
-                            ? ("Settings", { model.openFilesAndFoldersSettings() }) : nil)
+                            ? (appString("Settings"), { model.openFilesAndFoldersSettings() })
+                            : nil)
 
                     PermissionRow(
                         number: 2,
-                        title: "Administrator password",
+                        title: appString("Administrator password"),
                         detail: helperDetail,
                         status: helperStatus,
                         action: helperAction)
 
                     PermissionRow(
                         number: 3,
-                        title: "Full Disk Access",
+                        title: appString("Full Disk Access"),
                         detail: fullDiskGranted
-                            ? "Lets \(Brand.name) read the encrypted data itself."
-                            : "Lets \(Brand.name) read the encrypted data itself. macOS blocks this without it, even for administrators, and it cannot be requested — it has to be switched on by hand.",
+                            ? appString("Lets \(Brand.name) read the encrypted data itself.")
+                            : appString(
+                                "Lets \(Brand.name) read the encrypted data itself. macOS blocks this without it, even for administrators, and it cannot be requested — it has to be switched on by hand."
+                            ),
                         status: fullDiskGranted ? .granted : .needed,
                         action: fullDiskGranted
                             ? nil
-                            : ("Open Settings", { model.openPrivacySettings() }))
+                            : (appString("Open Settings"), { model.openPrivacySettings() }))
                 }
                 .padding(.top, 16)
             }
