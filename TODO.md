@@ -45,17 +45,14 @@ All eight are implemented. What they were, and what came out of them:
 
 ### Everything that needs you, in one pass at the end
 
-The work above is finished. None of the following has been tried, and all of it
-wants you at the keyboard with hardware attached. Nothing has been unmounted in
-the meantime.
+The work above is finished. What is left wants you at the keyboard with hardware
+attached. Nothing has been unmounted in the meantime.
 
-- **Close the lid with a drive open.** Does the microVM survive a sleep at all,
-  does the NFS client come back on its own, and how long does it take? The
-  one-minute grace period is a guess until this is done. `log show --predicate
-  'subsystem == "com.clementrahula.lukotta"' --last 30m` says what happened.
-- **A plain NTFS drive and a BitLocker drive**, to prove the first-sector probe
-  tells them apart. Then open the unencrypted one with no password, which is a
-  path that has never run.
+- ~~**Close the lid with a drive open.**~~ Done, and it worked: the drive was
+  still there and still working afterwards. The microVM survives a sleep and the
+  NFS client comes back on its own.
+- **A BitLocker drive**, to prove the first-sector probe recognises one before a
+  password is typed.
 - **An unlock through the helper, end to end**, since the mount path was touched
   by the Swift 6 work and by the empty-credential route.
 - **Anything wanting a drive ejected.** Nothing was ejected while this was going
@@ -245,6 +242,19 @@ here and not on someone else's machine.
   states it in the order a person follows.
 - `assets/brand/README.md` — the palette and the mark's construction, so future
   assets stay consistent without reading Swift.
+
+---
+
+## Shipping without having been tried
+
+- **The plain-NTFS path.** The first-sector probe recognises three formats, and
+  only BitLocker can be tried here — there is no unencrypted NTFS drive to hand.
+  So the note saying a drive is not encrypted, and opening one with no password,
+  are written and unit-tested but have never run against a real disk. The
+  identification itself is covered both ways by tests over synthetic boot
+  sectors, and a drive that reads as anything unrecognised is left alone
+  entirely, so the failure mode is the screen saying nothing rather than saying
+  something wrong.
 
 ---
 
