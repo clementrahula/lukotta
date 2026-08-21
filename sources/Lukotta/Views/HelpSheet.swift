@@ -24,6 +24,7 @@ struct HelpSheet: View {
         VStack(spacing: 0) {
             HStack {
                 Text("About \(Brand.name)").font(.headline)
+                    .accessibilityAddTraits(.isHeader)
                 Spacer()
                 Button("Done") { dismiss() }.keyboardShortcut(.defaultAction)
             }
@@ -212,6 +213,7 @@ struct HelpSection<Content: View>: View {
                 .textCase(.uppercase)
                 .foregroundStyle(.secondary)
                 .kerning(0.6)
+                .accessibilityAddTraits(.isHeader)
             VStack(alignment: .leading, spacing: 7) { content }
                 .font(.callout)
                 .fixedSize(horizontal: false, vertical: true)

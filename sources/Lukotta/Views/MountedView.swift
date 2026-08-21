@@ -19,10 +19,12 @@ struct MountedView: View {
             HStack(spacing: 12) {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 30)).foregroundStyle(.green)
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(
                         "“\(drive.name)” is unlocked"
                     ).font(.title3.weight(.semibold))
+                        .accessibilityAddTraits(.isHeader)
                     Text("You can read and write files on it.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
@@ -46,6 +48,7 @@ struct MountedView: View {
                             .textSelection(.enabled)
                         Spacer()
                     }
+                    .accessibilityElement(children: .combine)
                 }
             }
 
@@ -73,6 +76,7 @@ struct MountedView: View {
                 Spacer()
                 if model.isEjecting {
                     ProgressView().controlSize(.small)
+                        .accessibilityHidden(true)
                     Text("Ejecting…").font(.caption).foregroundStyle(.secondary)
                 } else {
                     Button("Eject") { model.eject(mountPoint) }

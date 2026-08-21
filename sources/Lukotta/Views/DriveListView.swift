@@ -69,6 +69,21 @@ struct DriveRow: View {
     }
 
     var body: some View {
+        // A locked row is a button: that is what tapping it does. Written as one
+        // rather than as a tap gesture so it can be reached with the keyboard
+        // and activated by VoiceOver, neither of which a gesture offers.
+        if isMounted {
+            row
+        } else {
+            Button(action: action) { row }
+                .buttonStyle(.plain)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(drive.name), locked, \(details)")
+                .accessibilityHint("Unlock this drive")
+        }
+    }
+
+    private var row: some View {
         HStack(spacing: 14) {
             // One fixed-width column, so the text starts in the same place on
             // every row. There is no "…badge.lock" symbol — asking for one drew
@@ -87,6 +102,7 @@ struct DriveRow: View {
                     Text(drive.name).font(.body.weight(.medium))
                     StatePill(open: isMounted)
                 }
+
                 Text(details)
                     .font(.caption).foregroundStyle(.secondary)
                     .lineLimit(1).truncationMode(.middle)
@@ -96,6 +112,9 @@ struct DriveRow: View {
                         .lineLimit(1).truncationMode(.middle)
                 }
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(
+                "\(drive.name), \(isMounted ? "unlocked" : "locked"), \(details)")
 
             Spacer(minLength: 8)
 
@@ -112,11 +131,6 @@ struct DriveRow: View {
         )
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.primary.opacity(0.08)))
         .contentShape(Rectangle())
-        .onTapGesture { if !isMounted { action() } }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(drive.name), \(isMounted ? "unlocked" : "locked"), \(details)")
-        .accessibilityHint(isMounted ? "Already unlocked" : "Unlock this drive")
-        .accessibilityAddTraits(.isButton)
     }
 }
 

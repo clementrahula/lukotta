@@ -16,6 +16,22 @@ final class AppModel: ObservableObject {
     }
 
     @Published var phase: Phase = .scanning
+
+    /// What just happened, in a sentence, for anyone who is not watching.
+    ///
+    /// Unlocking finishes without moving the focus, so a screen reader is given
+    /// nothing to read unless it is told. Only the moments worth interrupting
+    /// for: a drive that opened, one that did not, and one that started.
+    var spokenPhase: String? {
+        switch phase {
+        case .mounted(let drive, _): return "“\(drive.name)” is unlocked"
+        case .working(let drive): return "Opening “\(drive.name)”"
+        case .failed(_, let summary, _):
+            return summary.isEmpty
+                ? "The drive was not opened" : "The drive was not opened. \(summary)"
+        default: return nil
+        }
+    }
     @Published var drives: [Drive] = []
     @Published var credential: String = ""
     @Published var revealCredential = false

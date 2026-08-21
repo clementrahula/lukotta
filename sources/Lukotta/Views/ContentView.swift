@@ -27,6 +27,20 @@ struct ContentView: View {
         .frame(minWidth: 580, idealWidth: 640, minHeight: 560, idealHeight: 620)
         .background(Color(nsColor: .windowBackgroundColor))
         .remembersFrame(as: "dev.lukotta.mainWindowFrame")
+        // One place for anything worth saying out loud, rather than each view
+        // announcing its own arrival and talking over the others.
+        .onChange(of: model.spokenPhase) { _, spoken in
+            guard let spoken else { return }
+            AccessibilityNotification.Announcement(spoken).post()
+        }
+        .onChange(of: model.credentialProblem) { _, problem in
+            guard let problem else { return }
+            AccessibilityNotification.Announcement(problem).post()
+        }
+        .onChange(of: model.notice) { _, notice in
+            guard let notice else { return }
+            AccessibilityNotification.Announcement(notice).post()
+        }
         .sheet(isPresented: $model.showHelp) { HelpSheet() }
         .sheet(isPresented: $model.showReport) { ReportIssueSheet() }
         .sheet(isPresented: $model.isUninstalling) {
@@ -50,6 +64,7 @@ struct Header: View {
                 .frame(width: 26, height: 26)
             VStack(alignment: .leading, spacing: 1) {
                 Text(Brand.name).font(.headline)
+                    .accessibilityAddTraits(.isHeader)
                 Text("Open encrypted drives on macOS")
                     .font(.caption).foregroundStyle(.secondary)
             }
@@ -88,7 +103,9 @@ struct ScanningView: View {
     var body: some View {
         VStack(spacing: 14) {
             ProgressView().controlSize(.large)
+                .accessibilityHidden(true)
             Text("Looking for encrypted drives…").foregroundStyle(.secondary)
         }
+        .accessibilityElement(children: .combine)
     }
 }

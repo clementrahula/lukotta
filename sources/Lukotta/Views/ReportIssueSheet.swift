@@ -38,8 +38,11 @@ struct ReportIssueSheet: View {
         VStack(spacing: 0) {
             HStack {
                 Text("Report an Issue").font(.headline)
+                    .accessibilityAddTraits(.isHeader)
                 Spacer()
-                Button("Done") { dismiss() }
+                // Escape closes it. Without this the sheet can only be left by
+                // finding one button with the mouse.
+                Button("Done") { dismiss() }.keyboardShortcut(.cancelAction)
             }
             .padding(.horizontal, 22).padding(.vertical, 15)
             Divider()
@@ -48,8 +51,10 @@ struct ReportIssueSheet: View {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 7) {
                         Text("What happened?").font(.subheadline.weight(.semibold))
+                            .accessibilityAddTraits(.isHeader)
                         TextEditor(text: $problem)
                             .font(.callout)
+                            .accessibilityLabel("What happened")
                             .frame(height: 84)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 6)

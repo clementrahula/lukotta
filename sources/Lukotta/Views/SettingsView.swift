@@ -57,12 +57,13 @@ struct SettingsView: View {
             }
 
             Section {
-                Picker("Appearance", selection: $appearance) {
+                Picker("", selection: $appearance) {
                     ForEach(Appearance.allCases) { choice in
                         Text(choice.label).tag(choice.rawValue)
                     }
                 }
                 .pickerStyle(.segmented)
+                .accessibilityLabel("Appearance")
                 .onChange(of: appearance) { _, new in
                     (Appearance(rawValue: new) ?? .system).apply()
                 }

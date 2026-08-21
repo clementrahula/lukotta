@@ -20,8 +20,10 @@ struct FailureView: View {
                     HStack(alignment: .top, spacing: 12) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.system(size: 28)).foregroundStyle(.orange)
+                            .accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 3) {
                             Text("The drive was not opened").font(.title3.weight(.semibold))
+                                .accessibilityAddTraits(.isHeader)
                             // A summary that only restates the heading is
                             // worse than none: it reads as though the app has
                             // nothing to say and says it anyway.

@@ -14,6 +14,7 @@ struct InfoBox: View {
         HStack(alignment: .top, spacing: 9) {
             if let icon {
                 Image(systemName: icon).foregroundStyle(.secondary).font(.caption)
+                    .accessibilityHidden(true)
             }
             Text(text).font(.caption).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -21,6 +22,7 @@ struct InfoBox: View {
         .padding(11)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.04)))
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -35,7 +37,6 @@ struct LogView: View {
                         Text(line)
                             .font(.system(size: 11.5, design: .monospaced))
                             .textSelection(.enabled)
-                            .textSelection(.enabled)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .id(idx)
                     }
@@ -44,6 +45,8 @@ struct LogView: View {
             }
             .frame(minHeight: 150, maxHeight: .infinity)
             .background(RoundedRectangle(cornerRadius: 6).fill(Color.primary.opacity(0.05)))
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("Engine output")
             .onChange(of: lines.count) { _, n in
                 withAnimation { proxy.scrollTo(max(0, n - 1), anchor: .bottom) }
             }
@@ -61,7 +64,9 @@ struct EmptyStateView: View {
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: icon).font(.system(size: 40)).foregroundStyle(.secondary)
+                .accessibilityHidden(true)
             Text(title).font(.title3.weight(.semibold))
+                .accessibilityAddTraits(.isHeader)
             Text(message)
                 .font(.callout).foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

@@ -67,6 +67,9 @@ struct UnlockView: View {
                                 .font(.system(.body, design: .monospaced))
                                 .focused($focused)
                                 .onSubmit { model.unlock(drive) }
+                                .accessibilityLabel(
+                                    drive.kind == .linux
+                                        ? "Passphrase" : "Password or recovery key")
 
                                 Button {
                                     model.revealCredential.toggle()
@@ -83,6 +86,11 @@ struct UnlockView: View {
                             if capsLockOn {
                                 Label("Caps Lock is on", systemImage: "capslock.fill")
                                     .font(.caption).foregroundStyle(.orange)
+                                    .onAppear {
+                                        AccessibilityNotification.Announcement(
+                                            "Caps Lock is on"
+                                        ).post()
+                                    }
                             }
                             // The 48-digit hint counts BitLocker recovery-key
                             // digits, which mean nothing on a LUKS drive.

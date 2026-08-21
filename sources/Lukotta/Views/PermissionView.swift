@@ -17,6 +17,7 @@ struct PermissionView: View {
                             .accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 3) {
                             Text("Welcome to \(Brand.name)").font(.title3.weight(.semibold))
+                                .accessibilityAddTraits(.isHeader)
                             Text(
                                 "\(Brand.name) opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand."
                             )
@@ -37,6 +38,8 @@ struct PermissionView: View {
                     .padding(13)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.04)))
+                    .accessibilityElement(children: .contain)
+                    .accessibilityLabel("What to do")
 
                     InfoBox(
                         icon: "hand.raised",

@@ -17,9 +17,11 @@ struct UninstallView: View {
                 Image(systemName: allDone ? "checkmark.circle.fill" : "trash")
                     .font(.system(size: 28))
                     .foregroundStyle(allDone ? Color.green : Color.secondary)
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(allDone ? "\(Brand.name) has been removed" : "Removing \(Brand.name)")
                         .font(.title3.weight(.semibold))
+                        .accessibilityAddTraits(.isHeader)
                     Text(
                         allDone
                             ? "It is in the Bin. Nothing else of it is left on this Mac."
@@ -46,6 +48,9 @@ struct UninstallView: View {
                             .foregroundStyle(step.done ? .secondary : .primary)
                         Spacer()
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel(
+                        "\(step.label): \(step.done ? "done" : "in progress")")
                 }
             }
 

@@ -20,6 +20,7 @@ struct WorkingView: View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 3) {
                 Text("Opening “\(drive.name)”").font(.title3.weight(.semibold))
+                    .accessibilityAddTraits(.isHeader)
                 Text("This usually takes under a minute.")
                     .font(.caption).foregroundStyle(.secondary)
             }
@@ -27,8 +28,12 @@ struct WorkingView: View {
             if let unpackProgress {
                 VStack(alignment: .leading, spacing: 7) {
                     Text(unpackProgress).font(.callout)
+                        .accessibilityHidden(true)
                     ProgressView(value: percent(of: unpackProgress), total: 100)
                         .progressViewStyle(.linear)
+                        .accessibilityLabel("Setting up the Linux environment")
+                        .accessibilityValue(
+                            "\(Int(percent(of: unpackProgress))) percent")
                     Text("The Linux environment is unpacked once, on first use.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
@@ -82,6 +87,7 @@ struct StageRow: View {
                 } else if active {
                     ProgressView().controlSize(.small).scaleEffect(0.7)
                         .frame(width: 16, height: 16)
+                        .accessibilityHidden(true)
                 } else {
                     Image(systemName: "circle").foregroundStyle(.tertiary)
                 }
