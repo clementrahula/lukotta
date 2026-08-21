@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 
 /// Gathers what a useful bug report needs, and finds crash logs macOS has
 /// already written.
@@ -149,12 +150,57 @@ public enum Diagnostics {
         return result
     }
 
+    // MARK: What the app said it was doing
+
+    /// The last stretch of this process's own log.
+    ///
+    /// A report arrives long after the thing it is about, describing it from
+    /// memory. This is what the app itself recorded at the time.
+    ///
+    /// `.currentProcessIdentifier` scope needs no entitlement: a process may
+    /// always read back what it wrote. The system-wide scope does need one, and
+    /// would return other applications' entries, which are neither wanted here
+    /// nor ours to collect.
+    ///
+    /// Reads from disk, so never from the main thread. Anything logged as a
+    /// private interpolation already reads as `<private>` by the time it gets
+    /// here, which is the point of having marked it.
+    public static func recentLog(within: TimeInterval = 900, limit: Int = 120) -> String {
+        guard let store = try? OSLogStore(scope: .currentProcessIdentifier) else { return "" }
+        let subsystem = Log.subsystem
+        let start = store.position(date: Date().addingTimeInterval(-within))
+        guard
+            let entries = try? store.getEntries(
+                at: start, matching: NSPredicate(format: "subsystem == %@", subsystem))
+        else { return "" }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        let lines = entries.compactMap { $0 as? OSLogEntryLog }
+            .map { entry in
+                "\(formatter.string(from: entry.date)) \(entry.category) \(entry.composedMessage)"
+            }
+        return tail(of: lines, limit: limit)
+    }
+
+    /// The last `limit` lines, saying so when earlier ones were dropped.
+    ///
+    /// A report that silently begins in the middle reads as though nothing
+    /// happened before it.
+    public static func tail(of lines: [String], limit: Int) -> String {
+        guard lines.count > limit else { return lines.joined(separator: "\n") }
+        let dropped = lines.count - limit
+        return (["… \(dropped) earlier lines not shown"] + lines.suffix(limit))
+            .joined(separator: "\n")
+    }
+
     /// The body of a report, ready to be copied or pasted into a message.
     public static func report(
         environment: Environment,
         problem: String? = nil,
         engineOutput: String? = nil,
-        crashReport: URL? = nil
+        crashReport: URL? = nil,
+        recentLog: String? = nil
     ) -> String {
         var lines = [
             "Lukotta \(environment.appVersion) (build \(environment.build))",
@@ -173,11 +219,15 @@ public enum Diagnostics {
             // Enough to diagnose, not so much that it cannot be pasted.
             lines.append(redact(String(engineOutput.suffix(4000))))
         }
+        if let recentLog, !recentLog.isEmpty {
+            lines.append("")
+            lines.append("What the app was doing:")
+            lines.append(redact(recentLog))
+        }
         if let crashReport {
             lines.append("")
             lines.append("Crash report: \(crashReport.lastPathComponent)")
         }
-        _ = 0
         return lines.joined(separator: "\n")
     }
 

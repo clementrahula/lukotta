@@ -67,9 +67,9 @@ enum Rollback {
             write(record)
             return true
         case .rollBack(let attempts):
-            NSLog(
-                "lukotta: %d launches of build %@ did not finish; restoring", attempts,
-                currentVersion)
+            Log.updates.error(
+                "\(attempts, privacy: .public) launches of build \(currentVersion, privacy: .public) did not finish; restoring"
+            )
             return !restore()
         }
     }
@@ -78,6 +78,9 @@ enum Rollback {
     /// until the next update arms it again.
     static func confirmHealthy() {
         write(nil)
+        if keptAsideVersion() != nil {
+            Log.updates.notice("this build started; the kept-aside copy is no longer needed")
+        }
         if let keptAside { try? FileManager.default.removeItem(at: keptAside) }
     }
 
@@ -98,7 +101,7 @@ enum Rollback {
             try manager.moveItem(at: installed, to: broken)
             try manager.moveItem(at: keptAside, to: installed)
         } catch {
-            NSLog("lukotta: could not restore the previous version: %@", "\(error)")
+            Log.updates.error("could not restore the previous version: \(error)")
             // Put it back the way it was, so nothing is lost either way.
             if !manager.fileExists(atPath: installed.path) {
                 try? manager.moveItem(at: broken, to: installed)

@@ -13,6 +13,9 @@ struct ReportIssueSheet: View {
 
     @State private var problem = ""
     @State private var copied = false
+    /// Read once when the sheet opens, not on every keystroke: the report is
+    /// recomputed as the description is typed, and this comes off disk.
+    @State private var recentLog = ""
 
     private let environment = Diagnostics.environment()
     private let crashes = Diagnostics.crashReports()
@@ -31,7 +34,8 @@ struct ReportIssueSheet: View {
             environment: environment,
             problem: problem,
             engineOutput: model.statusLines.joined(separator: "\n"),
-            crashReport: crashes.first)
+            crashReport: crashes.first,
+            recentLog: recentLog)
     }
 
     var body: some View {
@@ -122,5 +126,11 @@ struct ReportIssueSheet: View {
             .padding(.horizontal, 22).padding(.vertical, 14)
         }
         .frame(width: 600, height: 620)
+        .task {
+            let text = await Task.detached(priority: .userInitiated) {
+                Diagnostics.recentLog()
+            }.value
+            recentLog = text
+        }
     }
 }

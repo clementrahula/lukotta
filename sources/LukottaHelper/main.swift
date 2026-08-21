@@ -26,7 +26,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
 
     func run() {
         if Self.signingTeam == nil {
-            NSLog("lukotta-helper: unsigned or teamless build; every connection will be refused")
+            Log.helper.fault("unsigned or teamless build; every connection will be refused")
         }
         listener.resume()
         RunLoop.main.run()
@@ -38,7 +38,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         _ listener: NSXPCListener, shouldAcceptNewConnection connection: NSXPCConnection
     ) -> Bool {
         guard isTrusted(connection) else {
-            NSLog("lukotta-helper: rejected a connection failing the code requirement")
+            Log.helper.error("rejected a connection failing the code requirement")
             return false
         }
         connection.exportedInterface = NSXPCInterface(with: LukottaHelperProtocol.self)
@@ -109,7 +109,9 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         credential: String,
         reply: @escaping (Int32, String) -> Void
     ) {
+        Log.helper.notice("mount requested, linux \(isLinux, privacy: .public)")
         guard let engine = EnginePaths.anylinuxfs else {
+            Log.helper.error("the mounting engine is missing")
             reply(70, "The mounting engine is missing.")
             return
         }
@@ -182,8 +184,11 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             output +=
                 "\nmount script exited with status \(task.terminationStatus)"
                 + " for \(devicePath)"
+            Log.helper.notice(
+                "mount script exited \(task.terminationStatus, privacy: .public)")
             reply(task.terminationStatus, Diagnostics.redact(output, secret: credential))
         } catch {
+            Log.helper.error("the mount could not be run: \(error)")
             reply(71, "\(error)")
         }
     }
@@ -195,6 +200,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
 
     func unmount(mountPoint: String, reply: @escaping (Int32, String) -> Void) {
         let result = EngineStatus.unmount(mountPoint: mountPoint)
+        Log.helper.notice("unmount \(result.ok ? "succeeded" : "failed", privacy: .public)")
         reply(result.ok ? 0 : 1, result.message)
     }
 

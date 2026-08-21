@@ -158,6 +158,7 @@ final class AppModel: ObservableObject {
     /// wake window starting statfs calls against a mount that cannot answer
     /// yet — each of which would sit in the kernel until it could.
     private func prepareForSleep() {
+        Log.sleep.notice("sleeping with \(self.openMounts.count, privacy: .public) mounts open")
         spaceTimer?.invalidate()
         spaceTimer = nil
     }
@@ -171,6 +172,7 @@ final class AppModel: ObservableObject {
     /// is asked whether it is answering until it is — or until the grace period
     /// runs out and the drive really has gone.
     private func recoverFromSleep() {
+        Log.sleep.notice("woke with \(self.openMounts.count, privacy: .public) mounts open")
         driveSetChanged()
         let points = Array(openMounts.values)
         guard !points.isEmpty else { return }
@@ -180,11 +182,16 @@ final class AppModel: ObservableObject {
             while true {
                 let silent = points.filter { !MountProbe.isAnswering($0) }
                 if silent.isEmpty {
+                    Log.sleep.notice(
+                        "every mount answered after \(elapsed, privacy: .public)s")
                     // Back as it was. Nothing is said, because from where the
                     // user is sitting nothing happened.
                     await MainActor.run { self.refreshSpace() }
                     return
                 }
+                Log.sleep.notice(
+                    "\(silent.count, privacy: .public) mounts silent after \(elapsed, privacy: .public)s"
+                )
                 guard let delay = WakeRecovery.nextDelay(after: elapsed) else { break }
                 try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
                 elapsed += delay
@@ -198,9 +205,12 @@ final class AppModel: ObservableObject {
                 !live.contains(point) && !live.contains { point.hasPrefix($0 + "/") }
             }
             guard !dead.isEmpty else {
+                // Silent but still running: slow, not gone. Left alone.
+                Log.sleep.notice("the engine still reports every mount; leaving them")
                 await MainActor.run { self.refreshSpace() }
                 return
             }
+            Log.sleep.error("\(dead.count, privacy: .public) mounts did not come back")
             for point in EngineStatus.stale() { EngineStatus.forceUnmount(mountPoint: point) }
             await MainActor.run { self.dropMounts(dead) }
         }
@@ -259,6 +269,7 @@ final class AppModel: ObservableObject {
                 self.refreshSpace()
 
                 guard vanished, let drive = self.currentDrive else { return }
+                Log.drives.notice("the drive on screen was unplugged")
                 // Whatever was mounted from it cannot be reached any more, and
                 // leaving the mount behind is what makes macOS ask about a
                 // server that will never answer.
@@ -290,6 +301,9 @@ final class AppModel: ObservableObject {
             phase = .needsPermission
             return
         }
+        Log.app.notice(
+            "starting: full disk access \(self.hasFullDiskAccess, privacy: .public), helper \(String(describing: self.helper.state), privacy: .public)"
+        )
         phase = .scanning
         Task.detached(priority: .userInitiated) {
             // Before anything is mounted, while the engine's lock can still be
@@ -302,6 +316,11 @@ final class AppModel: ObservableObject {
             // a server that cannot answer, and the drive cannot be opened
             // again because its mount point is still occupied.
             let abandoned = EngineStatus.stale()
+            if !abandoned.isEmpty {
+                Log.mount.notice(
+                    "clearing \(abandoned.count, privacy: .public) mounts left by a microVM that is gone"
+                )
+            }
             for point in abandoned { EngineStatus.forceUnmount(mountPoint: point) }
 
             let mounts = EngineStatus.current()
@@ -358,6 +377,7 @@ final class AppModel: ObservableObject {
     nonisolated(unsafe) static var wantsRelaunch = false
 
     func relaunch() {
+        Log.app.notice("relaunching at the user's request")
         AppModel.wantsRelaunch = true
         NSApp.terminate(nil)
     }
@@ -508,6 +528,9 @@ final class AppModel: ObservableObject {
             credentialProblem = err.errorDescription
             return
         case .success(let normalised):
+            Log.mount.notice(
+                "unlock requested: kind \(String(describing: drive.kind), privacy: .public), helper \(self.helper.isReady, privacy: .public)"
+            )
             statusLines = []
             phase = .working(drive)
             let ws: Workspace
@@ -651,6 +674,7 @@ final class AppModel: ObservableObject {
         // so the next unlock does not ask again; macOS still requires them to
         // approve it in Login Items, which the panel then prompts for.
         if case .notInstalled = helper.state { helper.install() }
+        Log.mount.notice("mounted through the helper")
         openMounts[drive.devicePath] = mountPoint
         collectVolumes(for: drive, fallback: mountPoint)
         self.credential = ""
@@ -687,6 +711,7 @@ final class AppModel: ObservableObject {
                     // The label is only knowable now. Remember it so the next
                     // unlock can name the share before mounting.
                     DriveMemory.remember(mountPoint: result.mountPoint, for: drive.uuid)
+                    Log.mount.notice("mounted without the helper")
                     self.openMounts[drive.devicePath] = result.mountPoint
                     self.noteVolumeCount(result.transcript)
                     self.collectVolumes(for: drive, fallback: result.mountPoint)
@@ -716,6 +741,11 @@ final class AppModel: ObservableObject {
     /// sites that can fail.
     private func fail(_ drive: Drive?, _ summary: String, _ detail: String?) {
         failedStage = MountStage.inferred(from: stageLines + statusLines)
+        // The stage is ours and safe to read back; the summary can carry
+        // engine output, so it goes through the same redaction as the report.
+        Log.mount.error(
+            "mount failed at \(String(describing: self.failedStage), privacy: .public): \(Diagnostics.redact(summary, secret: self.activeCredential))"
+        )
         let clean =
             detail
             .map { Diagnostics.redact($0, secret: activeCredential) }
@@ -765,6 +795,7 @@ final class AppModel: ObservableObject {
         let roots = paths.filter { point in
             !paths.contains { $0 != point && point.hasPrefix($0 + "/") }
         }
+        Log.mount.notice("ejecting \(roots.count, privacy: .public) mounts")
         Task.detached(priority: .userInitiated) {
             let result =
                 roots.map { EngineStatus.unmount(mountPoint: $0) }

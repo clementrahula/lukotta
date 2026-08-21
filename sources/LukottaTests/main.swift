@@ -868,6 +868,47 @@ group("wakeRecovery") {
     expect(elapsed <= WakeRecovery.grace, "having waited no longer than the grace period")
 }
 
+group("reportLogTail") {
+    // A report that silently begins in the middle reads as though nothing
+    // happened before it, so a truncated log says it was truncated.
+    let short = ["one", "two"]
+    expect(Diagnostics.tail(of: short, limit: 5), "one\ntwo", "nothing is said when nothing is cut")
+
+    let long = (1...10).map { "line \($0)" }
+    let cut = Diagnostics.tail(of: long, limit: 3)
+    expect(cut.contains("7 earlier lines not shown"), "the count of what was dropped is stated")
+    expect(cut.hasSuffix("line 8\nline 9\nline 10"), "and the newest lines are the ones kept")
+    expect(!cut.contains("line 7"), "the dropped ones are gone")
+
+    // The report carries the log through the same redaction as everything
+    // else: a passphrase echoed by the pty must not reach it by this route.
+    let environment = Diagnostics.environment()
+    let body = Diagnostics.report(
+        environment: environment,
+        recentLog: "mount password: hunter2000\n123456-123456-123456-123456-123456")
+    expect(body.contains("What the app was doing:"), "the log is a section of its own")
+    expect(!body.contains("hunter2000"), "a labelled secret in the log is redacted")
+    expect(!body.contains("123456-123456"), "and so is a recovery key")
+
+    // Nothing to say is not a heading with nothing under it.
+    let empty = Diagnostics.report(environment: environment, recentLog: "")
+    expect(!empty.contains("What the app was doing:"), "an empty log adds no section")
+}
+
+group("theLogIsReadableBack") {
+    // The point of logging is a report that says what happened. That only
+    // works if what was written can be found again, under the same subsystem
+    // it was written to — a report reading one name and the logger writing
+    // another would be silently empty forever.
+    let marker = "log round trip \(ProcessInfo.processInfo.processIdentifier)"
+    Log.app.notice("\(marker, privacy: .public)")
+    // The store is written to asynchronously; give it a moment to land.
+    Thread.sleep(forTimeInterval: 0.5)
+    let text = Diagnostics.recentLog(within: 60)
+    expect(text.contains(marker), "a line just written is found again")
+    expect(text.contains("app"), "and carries the category it was written under")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

@@ -62,6 +62,22 @@ anywhere inside it — including in a comment — closes the quote and breaks th
 whole script. A test runs `sh -n` over the generated output to catch this.
 Keep it.
 
+## Finding Out What The App Did
+
+Everything is logged with `os.Logger` under the running bundle's identifier,
+which `Log.subsystem` is the only definition of. To read it back:
+
+    log show --predicate 'subsystem == "com.clementrahula.lukotta"' --last 30m
+
+An unbranded build logs under `com.example.driveunlocker`, and the privileged
+helper logs under the same subsystem as the app it came from — one predicate
+catches both processes, and the `category` tells them apart.
+
+A string interpolated into a log message is private by default and reads back
+as `<private>`, which is what a drive's name and a path on someone's disk
+should do. Anything meant to be legible says `privacy: .public`. A passphrase
+is never logged at all.
+
 ## Security Invariants
 
 These are load-bearing. Changing any of them needs a deliberate decision, not
