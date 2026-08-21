@@ -20,7 +20,7 @@ enum Snapshots {
     /// Every one of them is a screen someone can arrive at. States that differ
     /// only in wording are left out — this is a check on layout.
     @MainActor
-    static func scenes() -> [(name: String, model: AppModel)] {
+    static func scenes() -> [(name: String, view: AnyView)] {
         let drive = Drive(
             id: "disk4s1", devicePath: "/dev/disk4s1", name: "Elements",
             sizeBytes: 500_072_185_856, connection: "USB · \(appString("External"))",
@@ -30,10 +30,28 @@ enum Snapshots {
             sizeBytes: 1_000_204_886_016, connection: "USB · \(appString("External"))",
             kind: .linux, uuid: "SNAPSHOT-0000-0000-0000-000000000002")
 
-        func model(_ configure: (AppModel) -> Void) -> AppModel {
+        /// A whole window in a given state, which is what most scenes are.
+        func model(_ configure: (AppModel) -> Void) -> AnyView {
             let m = AppModel()
             configure(m)
-            return m
+            return AnyView(ContentView().environmentObject(m))
+        }
+
+        let refused = URL(fileURLWithPath: "/Users/someone/Desktop/notes.pdf")
+
+        /// A sheet, rendered on its own. Sheets are separate windows and do not
+        /// appear in a picture of the one underneath, so the only way to check
+        /// one is to draw it by itself.
+        func sheet(_ state: AppModel.ImageOpening) -> AnyView {
+            AnyView(
+                ImageOpenSheet(state: state)
+                    .environmentObject(AppModel())
+                    // Centred on a window-coloured ground, because a sheet
+                    // drawn on its own otherwise sits in a corner of the frame
+                    // with the rest left blank, and every future comparison is
+                    // then mostly of empty space.
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(nsColor: .windowBackgroundColor)))
         }
 
         return [
@@ -89,16 +107,22 @@ enum Snapshots {
                     $0.phase = .chooseDrive
                 }
             ),
-            // A file that held nothing openable.
+            // Opening a file, and a file that held nothing openable. Both are
+            // sheets, so they are rendered as sheets.
             (
-                "drives-image-refused",
-                model {
-                    $0.drives = [drive]
-                    $0.imageProblem = appString(
-                        "There is nothing in “notes.txt” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
-                    )
-                    $0.phase = .chooseDrive
-                }
+                "image-opening",
+                sheet(.opening(URL(fileURLWithPath: "/Users/someone/Desktop/backup.img")))
+            ),
+            (
+                "image-refused",
+                sheet(
+                    .failed(
+                        refused,
+                        // Through the same interpolation the app uses, so the
+                        // fixture does not become a catalogue key of its own.
+                        appString(
+                            "There is nothing in “\(refused.lastPathComponent)” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
+                        )))
             ),
             ("unlock", model { $0.phase = .unlock(drive) }),
             (
@@ -174,8 +198,7 @@ enum Snapshots {
         var written = 0
         for (schemeName, appearance) in appearances {
             for (geometryName, size) in geometries {
-                for (sceneName, model) in scenes() {
-                    let view = ContentView().environmentObject(model)
+                for (sceneName, view) in scenes() {
                     let name = "\(sceneName)-\(geometryName)-\(schemeName).png"
                     guard let png = render(view, appearance: appearance, size: size) else {
                         FileHandle.standardError.write(Data("could not render \(name)\n".utf8))

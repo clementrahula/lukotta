@@ -168,6 +168,7 @@
     "Light": "Φωτεινή",
     "Location": "Τοποθεσία",
     "Locked": "Κλειδωμένος",
+    "Looking at what is inside it.": "Γίνεται έλεγχος του περιεχομένου.",
     "Looking for encrypted drives…": "Αναζήτηση κρυπτογραφημένων δίσκων…",
     "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the ending -tta marking the absence of something. The stress falls on the first syllable, as it always does in Finnish.": "Το Lúkotta σημαίνει «χωρίς κλειδαριά» στα φινλανδικά, από το lukko, κλειδαριά, με την κατάληξη -tta που δηλώνει την απουσία κάποιου πράγματος. Ο τόνος πέφτει στην πρώτη συλλαβή, όπως πάντα στα φινλανδικά.",
     "Menu Bar": "Γραμμή μενού",
@@ -177,6 +178,7 @@
     "No reason was reported. The details below may say more.": "Δεν αναφέρθηκε αιτία. Οι λεπτομέρειες παρακάτω ίσως πουν περισσότερα.",
     "Not found in this build.": "Δεν περιλαμβάνεται σε αυτήν την έκδοση.",
     "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Δεν εγκαθίσταται τίποτα. Η μηχανή περιέχεται στην εφαρμογή, τίποτα δεν φεύγει από το Mac σας, και σε έναν δίσκο γράφεται μόνο ό,τι γράφετε εσείς.",
+    "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Μόλις ρυθμιστεί ο βοηθός παρασκηνίου, η ενημέρωση δεν θα πειράζει τους ξεκλείδωτους δίσκους.",
     "Open": "Άνοιγμα",
     "Open %@": "Άνοιγμα %@",
@@ -307,6 +309,7 @@
     "waiting": "αναμονή",
     "“%@” had stopped responding and was disconnected. You can open it again.": "Το «%@» σταμάτησε να αποκρίνεται και αποσυνδέθηκε. Μπορείτε να το ανοίξετε ξανά.",
     "“%@” is unlocked": "Το «%@» ξεκλειδώθηκε",
-    "“%@” was disconnected.": "Το «%@» αποσυνδέθηκε."
+    "“%@” was disconnected.": "Το «%@» αποσυνδέθηκε.",
+    "“%@” was not opened": "Το «%@» δεν άνοιξε"
   }
 }

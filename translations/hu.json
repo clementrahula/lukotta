@@ -168,6 +168,7 @@
     "Light": "Világos",
     "Location": "Hely",
     "Locked": "Zárolt",
+    "Looking at what is inside it.": "Megnézzük, mi van benne.",
     "Looking for encrypted drives…": "Titkosított meghajtók keresése…",
     "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the ending -tta marking the absence of something. The stress falls on the first syllable, as it always does in Finnish.": "A Lúkotta finnül azt jelenti: „zár nélkül”, a lukko, azaz zár szóból, a -tta végződéssel, amely valaminek a hiányát jelöli. A hangsúly az első szótagra esik, ahogy a finnben mindig.",
     "Menu Bar": "Menüsor",
@@ -177,6 +178,7 @@
     "No reason was reported. The details below may say more.": "Nem érkezett indoklás. Az alábbi részletek többet elárulhatnak.",
     "Not found in this build.": "Ebben a verzióban nem található.",
     "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Semmi nem kerül telepítésre. A motor az alkalmazásban van, semmi nem hagyja el a Macet, és a meghajtóra csak akkor ír bármi, ha Ön ír rá.",
+    "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Ha a háttérsegéd be van állítva, a frissítés nem nyúl a feloldott meghajtókhoz.",
     "Open": "Megnyitás",
     "Open %@": "%@ megnyitása",
@@ -307,6 +309,7 @@
     "waiting": "várakozik",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” nem válaszolt, ezért le lett választva. Újra megnyithatja.",
     "“%@” is unlocked": "„%@” fel van oldva",
-    "“%@” was disconnected.": "A(z) „%@” le lett választva."
+    "“%@” was disconnected.": "A(z) „%@” le lett választva.",
+    "“%@” was not opened": "A(z) „%@” nem lett megnyitva"
   }
 }

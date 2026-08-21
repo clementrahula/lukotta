@@ -184,6 +184,7 @@
     "Light": "Svetlo",
     "Location": "Lokacija",
     "Locked": "Zaklenjen",
+    "Looking at what is inside it.": "Preverjamo, kaj je notri.",
     "Looking for encrypted drives…": "Iskanje šifriranih pogonov…",
     "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the ending -tta marking the absence of something. The stress falls on the first syllable, as it always does in Finnish.": "Lúkotta v finščini pomeni »brez ključavnice«, od lukko, ključavnica, s končnico -tta, ki označuje odsotnost nečesa. Naglas je na prvem zlogu, kot vedno v finščini.",
     "Menu Bar": "Menijska vrstica",
@@ -193,6 +194,7 @@
     "No reason was reported. The details below may say more.": "Razlog ni bil naveden. Spodnje podrobnosti morda povedo več.",
     "Not found in this build.": "V tej različici ni vključeno.",
     "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Nič se ne namesti. Mehanizem je v aplikaciji, nič ne zapusti vašega Maca, na pogon pa se zapisuje le, ko nanj zapisujete vi.",
+    "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Ko je pomočnik v ozadju nastavljen, posodabljanje odklenjenih pogonov ne bo prizadelo.",
     "Open": "Odpri",
     "Open %@": "Odpri %@",
@@ -323,6 +325,7 @@
     "waiting": "čaka",
     "“%@” had stopped responding and was disconnected. You can open it again.": "»%@« se ni več odzival in je bil odklopljen. Lahko ga znova odprete.",
     "“%@” is unlocked": "»%@« je odklenjen",
-    "“%@” was disconnected.": "»%@« je bil odklopljen."
+    "“%@” was disconnected.": "»%@« je bil odklopljen.",
+    "“%@” was not opened": "»%@« ni bil odprt"
   }
 }

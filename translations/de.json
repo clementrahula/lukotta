@@ -169,6 +169,7 @@
     "Light": "Hell",
     "Location": "Ort",
     "Locked": "Gesperrt",
+    "Looking at what is inside it.": "Es wird nachgesehen, was darin ist.",
     "Looking for encrypted drives…": "Suche nach verschlüsselten Laufwerken …",
     "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the ending -tta marking the absence of something. The stress falls on the first syllable, as it always does in Finnish.": "Lúkotta ist Finnisch für „ohne Schloss“, von lukko, einem Schloss, mit der Endung -tta, die das Fehlen von etwas bezeichnet. Die Betonung liegt auf der ersten Silbe, wie im Finnischen immer.",
     "Menu Bar": "Menüleiste",
@@ -178,6 +179,7 @@
     "No reason was reported. The details below may say more.": "Es wurde kein Grund gemeldet. Die Details unten sagen möglicherweise mehr.",
     "Not found in this build.": "In dieser Version nicht enthalten.",
     "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Es wird nichts installiert. Die Engine steckt in der App, nichts verlässt deinen Mac, und auf ein Laufwerk wird nur geschrieben, wenn du darauf schreibst.",
+    "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Sobald der Hintergrund-Helfer eingerichtet ist, lässt ein Update entsperrte Laufwerke unberührt.",
     "Open": "Öffnen",
     "Open %@": "%@ öffnen",
@@ -307,6 +309,7 @@
     "waiting": "wartet",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ hat nicht mehr reagiert und wurde getrennt. Du kannst es erneut öffnen.",
     "“%@” is unlocked": "„%@“ ist entsperrt",
-    "“%@” was disconnected.": "„%@“ wurde getrennt."
+    "“%@” was disconnected.": "„%@“ wurde getrennt.",
+    "“%@” was not opened": "„%@“ wurde nicht geöffnet"
   }
 }

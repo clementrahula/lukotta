@@ -46,7 +46,16 @@ public enum DiskImage {
     /// Nothing is mounted by macOS, deliberately: an NTFS volume it recognises
     /// would otherwise be mounted read-only behind our back, and the engine
     /// then cannot have the device.
-    public static func attach(_ url: URL) -> Result<Attached, Failure> {
+    /// How long macOS is given to attach a file.
+    ///
+    /// Attaching is normally instant. A file on a slow or unreachable disk —
+    /// a network share that has gone away — is where it is not, and there the
+    /// alternative is a spinner that never stops.
+    public static let attachTimeout: TimeInterval = 30
+
+    public static func attach(_ url: URL, timeout: TimeInterval = attachTimeout) -> Result<
+        Attached, Failure
+    > {
         // Plain first. A raw image — which is what `dd` and cryptsetup produce,
         // and the common shape for a LUKS container — has no header for macOS
         // to recognise, and is only attachable when told what it is.
@@ -63,7 +72,7 @@ public enum DiskImage {
                 url.path,
             ],
         ] {
-            let result = run(arguments)
+            let result = run(arguments, timeout: timeout)
             guard result.status == 0,
                 let data = result.out.data(using: .utf8),
                 let plist = try? PropertyListSerialization.propertyList(
@@ -120,7 +129,9 @@ public enum DiskImage {
         run(["detach", device, "-force"]).status == 0
     }
 
-    private static func run(_ arguments: [String]) -> (status: Int32, out: String) {
+    private static func run(_ arguments: [String], timeout: TimeInterval = 30) -> (
+        status: Int32, out: String
+    ) {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
         p.arguments = arguments
@@ -128,6 +139,15 @@ public enum DiskImage {
         p.standardOutput = out
         p.standardError = FileHandle.nullDevice
         do { try p.run() } catch { return (1, "") }
+
+        // The deadline is watched before the pipe is read: reading to the end
+        // would itself wait for a process that is not going to finish.
+        let finished = DispatchSemaphore(value: 0)
+        p.terminationHandler = { _ in finished.signal() }
+        if finished.wait(timeout: .now() + timeout) == .timedOut {
+            p.terminate()
+            return (1, "")
+        }
         let data = out.fileHandleForReading.readDataToEndOfFile()
         p.waitUntilExit()
         return (p.terminationStatus, String(data: data, encoding: .utf8) ?? "")

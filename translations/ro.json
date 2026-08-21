@@ -176,6 +176,7 @@
     "Light": "Luminos",
     "Location": "Amplasament",
     "Locked": "Blocat",
+    "Looking at what is inside it.": "Se verifică ce este înăuntru.",
     "Looking for encrypted drives…": "Se caută discuri criptate…",
     "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the ending -tta marking the absence of something. The stress falls on the first syllable, as it always does in Finnish.": "Lúkotta înseamnă în finlandeză „fără lacăt”, de la lukko, un lacăt, cu terminația -tta care marchează absența a ceva. Accentul cade pe prima silabă, ca întotdeauna în finlandeză.",
     "Menu Bar": "Bara de meniu",
@@ -185,6 +186,7 @@
     "No reason was reported. The details below may say more.": "Nu a fost raportat niciun motiv. Detaliile de mai jos ar putea spune mai multe.",
     "Not found in this build.": "Nu există în această versiune.",
     "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Nu se instalează nimic. Motorul este inclus în aplicație, nimic nu părăsește Mac-ul dvs., iar pe un disc se scrie doar când scrieți dvs.",
+    "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "După configurarea asistentului din fundal, actualizarea nu va atinge discurile deblocate.",
     "Open": "Deschideți",
     "Open %@": "Deschideți %@",
@@ -315,6 +317,7 @@
     "waiting": "în așteptare",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” nu mai răspundea și a fost deconectat. Îl puteți deschide din nou.",
     "“%@” is unlocked": "„%@” este deblocat",
-    "“%@” was disconnected.": "„%@” a fost deconectat."
+    "“%@” was disconnected.": "„%@” a fost deconectat.",
+    "“%@” was not opened": "„%@” nu a fost deschis"
   }
 }

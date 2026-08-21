@@ -168,6 +168,7 @@
     "Light": "Hele",
     "Location": "Asukoht",
     "Locked": "Lukus",
+    "Looking at what is inside it.": "Vaatame, mis selle sees on.",
     "Looking for encrypted drives…": "Krüpteeritud ketaste otsimine…",
     "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the ending -tta marking the absence of something. The stress falls on the first syllable, as it always does in Finnish.": "Lúkotta tähendab soome keeles „ilma lukuta“, sõnast lukko ehk lukk, lõpuga -tta, mis märgib millegi puudumist. Rõhk on esimesel silbil, nagu soome keeles alati.",
     "Menu Bar": "Menüüriba",
@@ -177,6 +178,7 @@
     "No reason was reported. The details below may say more.": "Põhjust ei teatatud. Allolevad üksikasjad võivad rohkem öelda.",
     "Not found in this build.": "Selles versioonis puudub.",
     "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Midagi ei paigaldata. Mootor on rakenduse sees, miski ei lahku sinu Macist ja kettale kirjutatakse ainult siis, kui sa ise sellele kirjutad.",
+    "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Kui taustaabiline on seadistatud, ei puuduta uuendamine avatud kettaid.",
     "Open": "Ava",
     "Open %@": "Ava %@",
@@ -307,6 +309,7 @@
     "waiting": "ootel",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ ei vastanud enam ja ühendati lahti. Sa saad selle uuesti avada.",
     "“%@” is unlocked": "„%@“ on avatud",
-    "“%@” was disconnected.": "„%@“ ühendati lahti."
+    "“%@” was disconnected.": "„%@“ ühendati lahti.",
+    "“%@” was not opened": "„%@“ ei avatud"
   }
 }

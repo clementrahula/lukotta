@@ -112,8 +112,47 @@ final class AppModel: ObservableObject {
     /// attached as. They are in the list exactly as long as they are attached,
     /// and ejecting one detaches it and takes it out again.
     @Published private(set) var openedImages: [String: URL] = [:]
-    /// A file that could not be opened, and what was found in it.
-    @Published var imageProblem: String?
+    /// Opening a container file, while it is happening and if it fails.
+    ///
+    /// Attaching takes a moment and can take much longer — a file on a share
+    /// that has gone away — and until this existed the window simply sat there
+    /// with nothing to say. It is a sheet rather than a line on the list
+    /// because it is the answer to something the user just did, and because a
+    /// failure needs somewhere to be read and dismissed rather than a banner
+    /// left behind on a screen about something else.
+    enum ImageOpening: Equatable, Identifiable {
+        case opening(URL)
+        case failed(URL, String)
+
+        /// The file alone, deliberately: going from opening to failed keeps
+        /// the same sheet and changes what is in it. Including the state would
+        /// make those two different sheets, and the first would be dismissed
+        /// and the second presented — a flicker, at the exact moment the user
+        /// is being told something went wrong.
+        var id: String { url.path }
+
+        var url: URL {
+            switch self {
+            case .opening(let url), .failed(let url, _): return url
+            }
+        }
+    }
+
+    @Published var imageOpening: ImageOpening?
+    private var imageTask: Task<Void, Never>?
+
+    /// Stop trying, and put back anything that was attached in the meantime.
+    func cancelImageOpen() {
+        Log.drives.notice("opening a disk image was cancelled")
+        imageTask?.cancel()
+        imageTask = nil
+        imageOpening = nil
+    }
+
+    /// Dismiss a failure without trying again.
+    func dismissImageProblem() {
+        imageOpening = nil
+    }
 
     /// Open an encrypted container that is a file rather than a drive.
     ///
@@ -121,50 +160,75 @@ final class AppModel: ObservableObject {
     /// and everything after that — the scan, the probe, the mount — is what it
     /// always was. The root helper never learns the file name.
     func openImage(_ url: URL) {
-        imageProblem = nil
+        imageTask?.cancel()
+        imageOpening = .opening(url)
         Log.drives.notice("opening a disk image")
-        Task.detached(priority: .userInitiated) {
-            switch DiskImage.attach(url) {
-            case .failure(let failure):
-                let message: String
-                switch failure {
-                case .notAnImage(let text), .nothingToOpen(let text): message = text
-                }
-                Log.drives.error("the image would not attach")
-                await MainActor.run { self.imageProblem = message }
-            case .success(let attached):
-                var found = DriveScanner.scan(images: [attached.identifier])
-                var mine = found.filter {
-                    DriveScanner.wholeDisk(of: $0.id) == attached.identifier
-                }
-                // A container made with `cryptsetup luksFormat container.img`
-                // has no partition table: it attaches as a whole disk with
-                // nothing in it as far as diskutil is concerned, so the scan
-                // finds nothing. Its first sector says what it is, and the
-                // device belongs to whoever attached it, so it can be read
-                // here without troubling the helper.
-                if mine.isEmpty, let whole = DiskImage.wholeDiskDrive(attached, url: url) {
-                    mine = [whole]
-                    found.append(whole)
-                }
-                guard !mine.isEmpty else {
-                    // Attached, and holding nothing this app can open. Put it
-                    // back rather than leaving a device attached to nothing.
+        imageTask = Task { [weak self] in
+            guard let self else { return }
+            let outcome = await Task.detached(priority: .userInitiated) {
+                Self.attachAndList(url)
+            }.value
+
+            // Cancelled while it worked. Whatever attached goes back, because
+            // nothing is going to be shown for it.
+            guard !Task.isCancelled else {
+                if case .success(let attached, _, _) = outcome {
                     DiskImage.detach(attached.device)
-                    Log.drives.notice("the image held nothing openable")
-                    await MainActor.run {
-                        self.imageProblem = appString(
-                            "There is nothing in “\(url.lastPathComponent)” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
-                        )
-                    }
-                    return
                 }
-                await MainActor.run {
-                    self.openedImages[attached.identifier] = url
-                    self.drives = found
-                    self.phase = .chooseDrive
-                }
+                return
             }
+
+            switch outcome {
+            case .failure(let message):
+                Log.drives.error("the image could not be opened")
+                self.imageOpening = .failed(url, message)
+            case .success(let attached, let all, _):
+                self.openedImages[attached.identifier] = url
+                self.drives = all
+                self.phase = .chooseDrive
+                // Nothing to read, so nothing to dismiss: the drive appearing
+                // in the list is the whole of the answer.
+                self.imageOpening = nil
+            }
+            self.imageTask = nil
+        }
+    }
+
+    private enum ImageOutcome {
+        case success(DiskImage.Attached, [Drive], [Drive])
+        case failure(String)
+    }
+
+    /// The part that blocks: attach, look, and put it back if there is nothing
+    /// in it. Off the main actor, and knows nothing about the interface.
+    private nonisolated static func attachAndList(_ url: URL) -> ImageOutcome {
+        switch DiskImage.attach(url) {
+        case .failure(let failure):
+            switch failure {
+            case .notAnImage(let text), .nothingToOpen(let text): return .failure(text)
+            }
+        case .success(let attached):
+            var all = DriveScanner.scan(images: [attached.identifier])
+            var mine = all.filter { DriveScanner.wholeDisk(of: $0.id) == attached.identifier }
+            // A container made with `cryptsetup luksFormat container.img` has
+            // no partition table: it attaches as a whole disk with nothing in
+            // it as far as diskutil is concerned, so the scan finds nothing.
+            // Its first sector says what it is, and the device belongs to
+            // whoever attached it, so it can be read here without troubling
+            // the helper.
+            if mine.isEmpty, let whole = DiskImage.wholeDiskDrive(attached, url: url) {
+                mine = [whole]
+                all.append(whole)
+            }
+            guard !mine.isEmpty else {
+                DiskImage.detach(attached.device)
+                Log.drives.notice("the image held nothing openable")
+                return .failure(
+                    appString(
+                        "There is nothing in “\(url.lastPathComponent)” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
+                    ))
+            }
+            return .success(attached, all, mine)
         }
     }
 

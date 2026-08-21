@@ -168,6 +168,7 @@
     "Light": "Licht",
     "Location": "Locatie",
     "Locked": "Vergrendeld",
+    "Looking at what is inside it.": "Er wordt gekeken wat erin zit.",
     "Looking for encrypted drives…": "Bezig met zoeken naar versleutelde schijven…",
     "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the ending -tta marking the absence of something. The stress falls on the first syllable, as it always does in Finnish.": "Lúkotta is Fins voor ‘zonder slot’, van lukko, een slot, met de uitgang -tta die de afwezigheid van iets aanduidt. De klemtoon ligt op de eerste lettergreep, zoals altijd in het Fins.",
     "Menu Bar": "Menubalk",
@@ -177,6 +178,7 @@
     "No reason was reported. The details below may say more.": "Er is geen reden gemeld. De details hieronder zeggen mogelijk meer.",
     "Not found in this build.": "Niet aanwezig in deze versie.",
     "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Er wordt niets geïnstalleerd. De engine zit in de app, er verlaat niets je Mac, en er wordt alleen naar een schijf geschreven wanneer jij dat doet.",
+    "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Zodra de achtergrondhelper is ingesteld, laat bijwerken ontgrendelde schijven met rust.",
     "Open": "Open",
     "Open %@": "Open %@",
@@ -307,6 +309,7 @@
     "waiting": "wachten",
     "“%@” had stopped responding and was disconnected. You can open it again.": "‘%@’ reageerde niet meer en is losgekoppeld. Je kunt die opnieuw openen.",
     "“%@” is unlocked": "‘%@’ is ontgrendeld",
-    "“%@” was disconnected.": "‘%@’ is losgekoppeld."
+    "“%@” was disconnected.": "‘%@’ is losgekoppeld.",
+    "“%@” was not opened": "‘%@’ is niet geopend"
   }
 }

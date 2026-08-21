@@ -184,6 +184,7 @@
     "Light": "Světlý",
     "Location": "Umístění",
     "Locked": "Zamčený",
+    "Looking at what is inside it.": "Zjišťuje se, co je uvnitř.",
     "Looking for encrypted drives…": "Hledání šifrovaných disků…",
     "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the ending -tta marking the absence of something. The stress falls on the first syllable, as it always does in Finnish.": "Lúkotta znamená finsky „bez zámku“, od slova lukko, zámek, s koncovkou -tta označující nepřítomnost něčeho. Přízvuk je na první slabice, jako ve finštině vždy.",
     "Menu Bar": "Řádek nabídek",
@@ -193,6 +194,7 @@
     "No reason was reported. The details below may say more.": "Nebyl uveden žádný důvod. Podrobnosti níže mohou říct více.",
     "Not found in this build.": "V této verzi není obsaženo.",
     "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Nic se neinstaluje. Jádro je součástí aplikace, nic neopouští váš Mac a na disk se zapisuje jen tehdy, když na něj zapisujete vy.",
+    "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Jakmile je pomocník na pozadí nastaven, aktualizace se odemčených disků nedotkne.",
     "Open": "Otevřít",
     "Open %@": "Otevřít %@",
@@ -323,6 +325,7 @@
     "waiting": "čeká",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ přestal odpovídat a byl odpojen. Můžete jej otevřít znovu.",
     "“%@” is unlocked": "„%@“ je odemčen",
-    "“%@” was disconnected.": "„%@“ byl odpojen."
+    "“%@” was disconnected.": "„%@“ byl odpojen.",
+    "“%@” was not opened": "„%@“ se nepodařilo otevřít"
   }
 }

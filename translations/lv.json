@@ -176,6 +176,7 @@
     "Light": "Gaišs",
     "Location": "Atrašanās vieta",
     "Locked": "Bloķēts",
+    "Looking at what is inside it.": "Tiek pārbaudīts, kas ir iekšā.",
     "Looking for encrypted drives…": "Notiek šifrētu disku meklēšana…",
     "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the ending -tta marking the absence of something. The stress falls on the first syllable, as it always does in Finnish.": "Lúkotta somu valodā nozīmē “bez slēdzenes”, no vārda lukko — slēdzene — ar galotni -tta, kas apzīmē kaut kā trūkumu. Uzsvars krīt uz pirmo zilbi, kā somu valodā vienmēr.",
     "Menu Bar": "Izvēļņu josla",
@@ -185,6 +186,7 @@
     "No reason was reported. The details below may say more.": "Iemesls netika norādīts. Tālāk redzamā informācija var pastāstīt vairāk.",
     "Not found in this build.": "Šajā versijā nav iekļauts.",
     "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Nekas netiek instalēts. Dzinējs ir iekļauts lietotnē, nekas neatstāj jūsu Mac datoru, un diskā tiek rakstīts tikai tad, kad jūs pats tajā rakstāt.",
+    "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Kad fona palīgs ir iestatīts, atjaunināšana neaiztiks atbloķētos diskus.",
     "Open": "Atvērt",
     "Open %@": "Atvērt %@",
@@ -315,6 +317,7 @@
     "waiting": "gaida",
     "“%@” had stopped responding and was disconnected. You can open it again.": "“%@” pārstāja atbildēt un tika atvienots. Jūs varat to atvērt vēlreiz.",
     "“%@” is unlocked": "“%@” ir atbloķēts",
-    "“%@” was disconnected.": "“%@” tika atvienots."
+    "“%@” was disconnected.": "“%@” tika atvienots.",
+    "“%@” was not opened": "“%@” netika atvērts"
   }
 }
