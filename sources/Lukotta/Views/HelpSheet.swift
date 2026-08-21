@@ -135,7 +135,7 @@ struct HelpSheet: View {
 
 /// A document shipped inside the bundle.
 enum BundledDocument: String, Identifiable {
-    case licence = "LICENSE"
+    case licence = "LICENSE.txt"
     case notices = "THIRD_PARTY_NOTICES.md"
 
     var id: String { rawValue }

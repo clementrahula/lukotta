@@ -26,7 +26,7 @@ your version or to suggest that it comes from or is endorsed by this project.
 
 Replacing the name and the artwork in a fork is expected and explicitly
 permitted — the trademark must never prevent you exercising your rights under
-the GPL. The build takes the app name from `Sources/Info.plist` and the artwork
+the GPL. The build takes the app name from `sources/Info.plist` and the artwork
 from `assets/`, so a rename is a change to those two.
 
 ## Third-Party Trademarks

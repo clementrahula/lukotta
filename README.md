@@ -107,7 +107,7 @@ inside the app, is published with each release.
 
 The name Lukotta and the logo are trademarks and are not covered by that
 licence, as GPL-3 section 7(e) allows. Fork the code freely; give your version
-its own name. [TRADEMARK.md][trademark] says what that means in practice.
+its own name. [TRADEMARKS.md][trademark] says what that means in practice.
 
 [Licence][licence] · [Trademarks][trademark] · [Third-party notices][notices] · [Changelog][changelog]
 
@@ -121,14 +121,14 @@ Built on [anylinuxfs][anylinuxfs] by nohajc, which does the mounting, and on
 or the Linux projects it works with.
 
 [releases]: https://github.com/clementrahula/lukotta/releases
-[background]: Documentation/BACKGROUND.md
-[building]: Documentation/BUILDING.md
+[background]: BACKGROUND.md
+[building]: BUILDING.md
 [contributing]: CONTRIBUTING.md
 [privacy]: PRIVACY.md
 [security]: SECURITY.md
-[licence]: LICENSE
-[trademark]: TRADEMARK.md
-[notices]: Documentation/THIRD_PARTY_NOTICES.md
+[licence]: LICENSE.txt
+[trademark]: TRADEMARKS.md
+[notices]: THIRD_PARTY_NOTICES.md
 [changelog]: CHANGELOG.md
 [anylinuxfs]: https://github.com/nohajc/anylinuxfs
 [sparkle]: https://sparkle-project.org

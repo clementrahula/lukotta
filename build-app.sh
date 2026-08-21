@@ -78,7 +78,7 @@ fi
 SPARKLE_KEY="${LUKOTTA_SPARKLE_PUBLIC_KEY:-$(cat "$HERE/.sparkle-public-key" 2>/dev/null || true)}"
 sed -e "s/__VERSION__/$VERSION/" -e "s/__BUILD__/$BUILD/" \
     -e "s|__SPARKLE_PUBLIC_KEY__|${SPARKLE_KEY}|" \
-  "$HERE/Sources/Info.plist" > "$CONTENTS/Info.plist"
+  "$HERE/sources/Info.plist" > "$CONTENTS/Info.plist"
 if [ -z "$SPARKLE_KEY" ]; then
   /usr/libexec/PlistBuddy -c 'Delete :SUPublicEDKey' "$CONTENTS/Info.plist" >/dev/null 2>&1 || true
   /usr/libexec/PlistBuddy -c 'Delete :SUFeedURL' "$CONTENTS/Info.plist" >/dev/null 2>&1 || true
@@ -87,13 +87,13 @@ fi
 cp "$HERE/assets/AppIcon.icns" "$CONTENTS/Resources/AppIcon.icns"
 cp "$HERE/resources/helpers/validate-key.sh" "$CONTENTS/Resources/helpers/validate-key.sh"
 chmod 755 "$CONTENTS/Resources/helpers/validate-key.sh"
-cp "$HERE/LICENSE" "$CONTENTS/Resources/LICENSE"
+cp "$HERE/LICENSE.txt" "$CONTENTS/Resources/LICENSE.txt"
 # Localisation tables, if present.
 for lproj in "$HERE"/resources/*.lproj; do
   [ -d "$lproj" ] || continue
   /usr/bin/ditto "$lproj" "$CONTENTS/Resources/$(basename "$lproj")"
 done
-[ -f "$HERE/Documentation/THIRD_PARTY_NOTICES.md" ] && cp "$HERE/Documentation/THIRD_PARTY_NOTICES.md" "$CONTENTS/Resources/"
+[ -f "$HERE/THIRD_PARTY_NOTICES.md" ] && cp "$HERE/THIRD_PARTY_NOTICES.md" "$CONTENTS/Resources/"
 printf 'APPL????' > "$CONTENTS/PkgInfo"
 
 if [ -d "$HERE/vendor/engine" ]; then

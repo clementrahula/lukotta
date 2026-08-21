@@ -36,4 +36,4 @@ jobs:
 
   # Producing a signed bundle needs the vendored engine and a signing identity,
   # neither of which exists on a runner. Enable once vendoring is reproducible
-  # from pinned upstream artefacts — see Documentation/TODO.md section 1.
+  # from pinned upstream artefacts — see TODO.md section 1.

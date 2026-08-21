@@ -70,7 +70,7 @@ undo — ask it:
 | `LukottaTests` | A plain executable, not XCTest, so the suite runs anywhere with a toolchain. |
 
 Mounting works by handing the drive to a Linux virtual machine, which unlocks it
-and re-exports it over NFS to localhost. `Documentation/BACKGROUND.md` explains
+and re-exports it over NFS to localhost. `BACKGROUND.md` explains
 why, and what was tried first.
 
 ## Test drives without encrypted hardware
@@ -104,8 +104,8 @@ Issues and patches: <https://github.com/clementrahula/lukotta>.
 
 Contributions are accepted under GPL-3.0, the same licence as the project. The
 name and the logo are trademarks and are not covered by it — see
-[TRADEMARK.md](TRADEMARK.md) — so a fork is welcome under its own name. The
+[TRADEMARKS.md](TRADEMARKS.md) — so a fork is welcome under its own name. The
 engine and the Linux components it carries are third-party GPL software;
-`Documentation/THIRD_PARTY_NOTICES.md` records what is shipped and under what
+`THIRD_PARTY_NOTICES.md` records what is shipped and under what
 terms, and `scripts/collect-sources.sh` assembles the corresponding source that
 must accompany a release.

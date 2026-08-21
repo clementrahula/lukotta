@@ -145,6 +145,6 @@ The GPL obliges whoever distributes the app to offer source for its GPL parts.
 
 That assembles source for the engine and for every package in the guest image
 into `dist/sources`, matched to what is actually shipped rather than to what
-upstream offers. `Documentation/THIRD_PARTY_NOTICES.md` records each component
+upstream offers. `THIRD_PARTY_NOTICES.md` records each component
 and its licence, and is generated from the package database of the trimmed image
 so it cannot drift from what ships.
