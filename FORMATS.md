@@ -258,10 +258,18 @@ list**: macOS mounts it read-only, and writing to it is the entire reason to ope
 one here. That distinction is the rule in miniature — the app earns its place
 only where macOS falls short, and for NTFS it falls short by exactly one verb.
 
-Still open, and worth doing properly rather than at midnight: an exFAT image
-should be handed to macOS to mount rather than merely left alone, and a VM disk
-found to hold APFS, FAT or exFAT should be decoded, attached, and mounted
-locally rather than served over NFS.
+**Done, and it says so.** An exFAT image is now handed to macOS to mount, and
+the sheet explains what happened and why — that this one is exFAT, that macOS
+reads and writes it directly, that it is therefore an ordinary disk rather than
+a network one, where it landed, and that Finder is where to eject it. Silence
+would have been its own surprise: a volume appearing that the user did not put
+there.
+
+The attachment is not detached afterwards. macOS owns it now, and taking it back
+would remove the volume just mounted.
+
+Still open: a VM disk found to hold APFS, FAT or exFAT should get the same
+treatment — decoded, attached, and mounted locally rather than served over NFS.
 
 Not worth doing: **encrypted DMG**, native and better left alone. FileVault 2 and
 qemu-in-the-guest, both blocked behind a kernel rebuild. APFS encryption, which

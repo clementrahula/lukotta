@@ -133,6 +133,43 @@ final class AppModel: ObservableObject {
     /// to be furniture — it describes a moment, and nothing is waiting on it.
     static let departedLingers: TimeInterval = 8
 
+    /// Give the drive to macOS, and say so rather than appearing to do nothing.
+    ///
+    /// Silence would be its own surprise: the user asked for the file to be
+    /// opened, and something did open it — just not this app. So the sheet says
+    /// what happened, why, and where the volume went.
+    private func handToMacOS(_ drive: Drive) {
+        let identifier = DriveScanner.wholeDisk(of: drive.id)
+        let file = openedImages[identifier]
+        let device = "/dev/" + identifier
+        Log.drives.notice("handing the drive to macOS; it reads this format itself")
+
+        Task { [weak self] in
+            let point = await Task.detached(priority: .userInitiated) {
+                DiskImage.handToMacOS(device: device)
+            }.value
+            guard let self else { return }
+
+            // It belongs to macOS now, so this app stops holding it. Not
+            // detached: detaching would take away the volume just mounted.
+            self.openedImages[identifier] = nil
+            self.imageDrives[identifier] = nil
+            self.drives.removeAll { $0.id == drive.id }
+            self.phase = .chooseDrive
+
+            guard let file else { return }
+            guard let point else {
+                self.imageOpening = .failed(
+                    file,
+                    appString(
+                        "macOS reads this format itself, but would not mount it. It may already be open in Finder."
+                    ))
+                return
+            }
+            self.imageOpening = .handedToMacOS(file, point)
+        }
+    }
+
     /// For the snapshots, which need this state without a drive going away.
     func showDeparted(name: String, index: Int) {
         departed = [Departed(id: "snapshot", name: name, index: index)]
@@ -194,6 +231,8 @@ final class AppModel: ObservableObject {
     enum ImageOpening: Equatable, Identifiable {
         case opening(URL)
         case failed(URL, String)
+        /// macOS opened it instead, and where it put it.
+        case handedToMacOS(URL, String)
 
         /// The file alone, deliberately: going from opening to failed keeps
         /// the same sheet and changes what is in it. Including the state would
@@ -204,7 +243,8 @@ final class AppModel: ObservableObject {
 
         var url: URL {
             switch self {
-            case .opening(let url), .failed(let url, _): return url
+            case .opening(let url), .failed(let url, _), .handedToMacOS(let url, _):
+                return url
             }
         }
     }
@@ -867,7 +907,11 @@ final class AppModel: ObservableObject {
             // before anyone could type, and the only thing that ever filled
             // the field by then was a passphrase remembered in the Keychain —
             // which means nothing for a drive that has none to give.
-            if format.isUnencrypted, !format.macOSHandlesFully {
+            if format.macOSHandlesFully {
+                // Not ours to open. macOS mounts this locally, read and write,
+                // and doing it here would hand back a network volume instead.
+                self.handToMacOS(drive)
+            } else if format.isUnencrypted {
                 Log.mount.notice("opening without asking, nothing is encrypted")
                 self.unlock(drive)
             } else if pending != nil {

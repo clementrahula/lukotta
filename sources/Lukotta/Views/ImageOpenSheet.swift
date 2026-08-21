@@ -32,6 +32,34 @@ struct ImageOpenSheet: View {
                 }
                 .accessibilityElement(children: .combine)
 
+            case .handedToMacOS(_, let mountPoint):
+                HStack(alignment: .top, spacing: 13) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 26))
+                        .foregroundStyle(.green)
+                        .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("macOS opened “\(name)”").font(.headline)
+                        // Why it was handed over, not just that it was. A
+                        // volume appearing in Finder that the user did not put
+                        // there is a surprise worth heading off.
+                        Text(
+                            "This one is exFAT, which macOS reads and writes on its own — so it has been opened directly, as an ordinary disk rather than a network one."
+                        )
+                        .font(.callout).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        Text(verbatim: mountPoint)
+                            .font(.system(.caption, design: .monospaced))
+                            .foregroundStyle(.tertiary)
+                            .textSelection(.enabled)
+                            .padding(.top, 2)
+                        Text("Eject it in Finder when you are finished.")
+                            .font(.callout).foregroundStyle(.secondary)
+                            .padding(.top, 2)
+                    }
+                }
+                .accessibilityElement(children: .combine)
+
             case .failed(_, let message):
                 HStack(alignment: .top, spacing: 13) {
                     Image(systemName: "exclamationmark.triangle.fill")
@@ -57,6 +85,10 @@ struct ImageOpenSheet: View {
                     Button("Cancel") { model.cancelImageOpen() }
                         .keyboardShortcut(.cancelAction)
                 case .failed:
+                    Button("OK") { model.dismissImageProblem() }
+                        .keyboardShortcut(.defaultAction)
+                case .handedToMacOS(_, let mountPoint):
+                    Button("Show in Finder") { model.revealInFinder(mountPoint) }
                     Button("OK") { model.dismissImageProblem() }
                         .keyboardShortcut(.defaultAction)
                 }

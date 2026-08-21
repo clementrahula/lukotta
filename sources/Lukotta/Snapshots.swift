@@ -114,6 +114,13 @@ enum Snapshots {
                 sheet(.opening(URL(fileURLWithPath: "/Users/someone/Desktop/backup.img")))
             ),
             (
+                "image-handed-over",
+                sheet(
+                    .handedToMacOS(
+                        URL(fileURLWithPath: "/Users/someone/Desktop/photos.img"),
+                        "/Volumes/PHOTOS"))
+            ),
+            (
                 "image-refused",
                 sheet(
                     .failed(

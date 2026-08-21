@@ -8961,6 +8961,136 @@
         }
       }
     },
+    "Eject it in Finder when you are finished.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Извадете го от Finder, когато приключите."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Až budete hotovi, vysuňte jej ve Finderu."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skub den ud i Finder, når du er færdig."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wirf es im Finder aus, wenn du fertig bist."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Κάντε εξαγωγή από το Finder όταν τελειώσετε."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expúlsalo en el Finder cuando termines."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kui oled valmis, väljasta see Finderis."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poista se Finderissa, kun olet valmis."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éjectez-le dans le Finder lorsque vous avez terminé."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izbacite ga u Finderu kada završite."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ha végzett, adja ki a Finderben."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Espellilo nel Finder quando hai finito."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baigę išstumkite jį per „Finder“."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kad esat pabeidzis, izgrūdiet to programmā Finder."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Løs den ut i Finder når du er ferdig."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Werp die uit in de Finder als je klaar bent."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Po zakończeniu wysuń go w Finderze."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejete-o no Finder quando terminar."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scoateți-l în Finder când ați terminat."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ko končate, ga izvrzite v Finderju."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mata ut den i Finder när du är klar."
+          }
+        }
+      }
+    },
     "Ejecting %@": {
       "localizations": {
         "bg": {
@@ -26739,6 +26869,136 @@
         }
       }
     },
+    "This one is exFAT, which macOS reads and writes on its own — so it has been opened directly, as an ordinary disk rather than a network one.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Този е exFAT, който macOS чете и записва сам — затова беше отворен директно, като обикновен диск, а не като мрежов."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tento je exFAT, který macOS sám čte i zapisuje — proto byl otevřen přímo, jako běžný disk, nikoli síťový."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne er exFAT, som macOS selv kan læse og skrive — derfor er den åbnet direkte, som en almindelig disk frem for en netværksdisk."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses ist exFAT, das macOS selbst lesen und schreiben kann — deshalb wurde es direkt geöffnet, als gewöhnliches Laufwerk statt als Netzlaufwerk."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτό είναι exFAT, το οποίο το macOS διαβάζει και γράφει μόνο του — γι’ αυτό άνοιξε απευθείας, ως συνηθισμένος δίσκος και όχι ως δικτυακός."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este es exFAT, que macOS lee y escribe por su cuenta, así que se ha abierto directamente, como un disco normal en lugar de uno de red."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See on exFAT, mida macOS ise loeb ja kirjutab — nii et see avati otse, tavalise kettana, mitte võrgukettana."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä on exFAT, jota macOS lukee ja kirjoittaa itse — joten se avattiin suoraan, tavallisena levynä eikä verkkolevynä."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Celui-ci est en exFAT, que macOS lit et écrit tout seul — il a donc été ouvert directement, comme un disque ordinaire plutôt qu’un disque réseau."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj je exFAT, koji macOS sam čita i zapisuje — pa je otvoren izravno, kao običan disk, a ne mrežni."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez exFAT, amelyet a macOS magától olvas és ír — ezért közvetlenül lett megnyitva, hétköznapi lemezként, nem hálózatiként."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo è exFAT, che macOS legge e scrive da sé: è stato quindi aperto direttamente, come un disco normale anziché di rete."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šis yra exFAT, kurį „macOS“ pati skaito ir įrašo — todėl jis atvertas tiesiogiai, kaip įprastas, o ne tinklo diskas."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šis ir exFAT, ko macOS pati lasa un raksta — tāpēc tas tika atvērts tieši, kā parasts disks, nevis tīkla disks."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne er exFAT, som macOS leser og skriver selv — derfor er den åpnet direkte, som en vanlig disk i stedet for en nettverksdisk."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze is exFAT, dat macOS zelf leest en schrijft — daarom is die rechtstreeks geopend, als een gewone schijf in plaats van een netwerkschijf."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten jest w formacie exFAT, który macOS sam odczytuje i zapisuje — dlatego został otwarty bezpośrednio, jako zwykły dysk, a nie sieciowy."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este é exFAT, que o macOS lê e escreve sozinho — por isso foi aberto diretamente, como um disco normal em vez de um disco de rede."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acesta este exFAT, pe care macOS îl citește și scrie singur — așa că a fost deschis direct, ca un disc obișnuit, nu unul de rețea."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta je exFAT, ki ga macOS sam bere in zapisuje — zato je bil odprt neposredno, kot običajen in ne omrežni pogon."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den här är exFAT, som macOS läser och skriver på egen hand — därför öppnades den direkt, som en vanlig disk i stället för en nätverksdisk."
+          }
+        }
+      }
+    },
     "This partition is not a BitLocker volume.": {
       "localizations": {
         "bg": {
@@ -32325,6 +32585,266 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS kunde inte öppna filen som en skivavbild."
+          }
+        }
+      }
+    },
+    "macOS opened “%@”": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS отвори „%@“"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS otevřel „%@“"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS åbnede “%@”"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS hat „%@“ geöffnet"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το macOS άνοιξε το «%@»"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ha abierto «%@»"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS avas „%@“"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS avasi ”%@”"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS a ouvert « %@ »"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS je otvorio „%@”"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A macOS megnyitotta a(z) „%@” fájlt"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ha aperto «%@»"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„macOS“ atvėrė „%@“"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS atvēra “%@”"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS åpnet «%@»"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS heeft ‘%@’ geopend"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS otworzył „%@”"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O macOS abriu «%@»"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS a deschis „%@”"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS je odprl »%@«"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS öppnade ”%@”"
+          }
+        }
+      }
+    },
+    "macOS reads this format itself, but would not mount it. It may already be open in Finder.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS чете този формат сам, но не го монтира. Възможно е вече да е отворен във Finder."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS tento formát čte sám, ale nepřipojil jej. Možná už je otevřený ve Finderu."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS kan selv læse dette format, men aktiverede det ikke. Den er måske allerede åben i Finder."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS liest dieses Format selbst, hat es aber nicht aktiviert. Möglicherweise ist es im Finder bereits geöffnet."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το macOS διαβάζει μόνο του αυτή τη μορφή, αλλά δεν την προσάρτησε. Ίσως είναι ήδη ανοιχτή στο Finder."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS lee este formato por su cuenta, pero no lo ha montado. Puede que ya esté abierto en el Finder."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS loeb seda vormingut ise, kuid ei haakinud seda. See võib olla juba Finderis avatud."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS lukee tämän muodon itse, mutta ei ottanut sitä käyttöön. Se voi olla jo auki Finderissa."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS lit ce format tout seul, mais ne l’a pas monté. Il est peut-être déjà ouvert dans le Finder."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS sam čita ovaj format, ali ga nije montirao. Možda je već otvoren u Finderu."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A macOS magától olvassa ezt a formátumot, de nem csatolta. Lehet, hogy már meg van nyitva a Finderben."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS legge questo formato da sé, ma non lo ha montato. Potrebbe essere già aperto nel Finder."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„macOS“ šį formatą skaito pati, bet jo neprijungė. Jis gali būti jau atvertas per „Finder“."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS pati lasa šo formātu, taču to nemontēja. Iespējams, tas jau ir atvērts programmā Finder."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS leser dette formatet selv, men monterte det ikke. Den er kanskje allerede åpen i Finder."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS leest dit formaat zelf, maar heeft het niet geactiveerd. Mogelijk is het al open in de Finder."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS sam odczytuje ten format, ale go nie zamontował. Może być już otwarty w Finderze."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O macOS lê este formato sozinho, mas não o montou. Pode já estar aberto no Finder."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS citește singur acest format, dar nu l-a montat. Este posibil să fie deja deschis în Finder."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ta zapis bere sam, a ga ni priklopil. Morda je že odprt v Finderju."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS läser det här formatet på egen hand, men monterade det inte. Den kanske redan är öppen i Finder."
           }
         }
       }

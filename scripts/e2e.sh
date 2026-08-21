@@ -22,6 +22,7 @@ APP="${LUKOTTA_E2E_APP:-/Applications/Lukotta.app}"
 CACHE="${LUKOTTA_E2E_CACHE:-$HOME/Library/Caches/dev.lukotta.e2e}"
 CONTAINER="$CACHE/container.img"
 PLAIN="$CACHE/plain.img"
+EXFAT="$CACHE/exfat.img"
 PASSPHRASE="lukotta-e2e"
 
 [ -d "$APP" ] || { echo "error: no app at $APP" >&2; exit 1; }
@@ -63,12 +64,24 @@ if [ ! -f "$PLAIN" ]; then
   restore_length "$PLAIN" "$SIZE"
 fi
 
+if [ ! -f "$EXFAT" ]; then
+  echo "==> Building an exFAT image to test against (once)"
+  mkdir -p "$CACHE"
+  # A raw image and newfs_exfat, not `hdiutil create -fs ExFAT`: that answers
+  # "Operation not permitted" here, and this shape is the one that matters
+  # anyway — a filesystem with no partition table around it.
+  dd if=/dev/zero of="$EXFAT" bs=1m count=40 2>/dev/null
+  dev="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$EXFAT" | head -1 | awk '{print $1}')"
+  newfs_exfat -v EXFAT "$dev" >/dev/null 2>&1
+  hdiutil detach "$dev" -force >/dev/null 2>&1
+fi
+
 # Anything left attached from a run that was interrupted, so a stale device
 # does not make this one pass or fail for the wrong reason.
 while read -r device; do
   [ -n "$device" ] && hdiutil detach "$device" -force >/dev/null 2>&1 || true
-done < <(hdiutil info 2>/dev/null | awk -v c="$CONTAINER" -v p="$PLAIN" '
+done < <(hdiutil info 2>/dev/null | awk -v c="$CONTAINER" -v p="$PLAIN" -v e="$EXFAT" '
   /^image-path/ { path = $3 }
-  /^\/dev\/disk[0-9]+\t/ { if (path == c || path == p) print $1 }')
+  /^\/dev\/disk[0-9]+\t/ { if (path == c || path == p || path == e) print $1 }')
 
-"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN"
+"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT"

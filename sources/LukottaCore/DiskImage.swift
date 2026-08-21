@@ -219,3 +219,67 @@ extension DiskImage {
         return devices
     }
 }
+
+extension DiskImage {
+    /// Let macOS mount this itself, and say where it put it.
+    ///
+    /// For the formats macOS reads and writes on its own — exFAT — opening the
+    /// drive here would take a local volume and serve it back as a network one.
+    /// So the attachment is handed over instead: `diskutil` mounts every volume
+    /// on the disk that macOS understands, and it appears in Finder as an
+    /// ordinary disk, ejected there like any other.
+    ///
+    /// Returns where it landed, or nil if macOS declined after all.
+    public static func handToMacOS(device: String) -> String? {
+        let identifier = (device as NSString).lastPathComponent
+        // Already mounted is a success, not an error: a physical drive is
+        // usually mounted by macOS before this app has even seen it.
+        _ = diskutil(["mountDisk", device])
+        return mountPoint(ofDisk: identifier)
+    }
+
+    /// Where macOS has mounted anything belonging to this disk.
+    public static func mountPoint(ofDisk identifier: String) -> String? {
+        mountPoint(ofDisk: identifier, in: mountTable())
+    }
+
+    /// "/dev/disk5s1 on /Volumes/EXFATTEST (exfat, local, ...)"
+    public static func mountPoint(ofDisk identifier: String, in table: String) -> String? {
+        for line in table.components(separatedBy: .newlines) {
+            guard line.hasPrefix("/dev/") else { continue }
+            let device = String(line.prefix(while: { !$0.isWhitespace }).dropFirst(5))
+            // The disk itself or one of its partitions, and not disk50 when
+            // asked about disk5.
+            guard device == identifier || device.hasPrefix(identifier + "s") else { continue }
+            guard let on = line.range(of: " on "),
+                let paren = line.range(of: " (", range: on.upperBound..<line.endIndex)
+            else { continue }
+            return String(line[on.upperBound..<paren.lowerBound])
+        }
+        return nil
+    }
+
+    private static func mountTable() -> String {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/sbin/mount")
+        let out = Pipe()
+        p.standardOutput = out
+        p.standardError = FileHandle.nullDevice
+        do { try p.run() } catch { return "" }
+        let data = out.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+
+    @discardableResult
+    private static func diskutil(_ arguments: [String]) -> Int32 {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+        p.arguments = arguments
+        p.standardOutput = FileHandle.nullDevice
+        p.standardError = FileHandle.nullDevice
+        do { try p.run() } catch { return 1 }
+        p.waitUntilExit()
+        return p.terminationStatus
+    }
+}

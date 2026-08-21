@@ -38,6 +38,15 @@ enum EndToEnd {
         print("encrypted container: \(container.lastPathComponent)")
         containerFlow(container: container, passphrase: passphrase)
 
+        if arguments.count >= 4 {
+            let exfat = URL(fileURLWithPath: arguments[3])
+            if FileManager.default.fileExists(atPath: exfat.path) {
+                print("")
+                print("exFAT image: \(exfat.lastPathComponent)")
+                handOverFlow(image: exfat)
+            }
+        }
+
         if arguments.count >= 3 {
             let plain = URL(fileURLWithPath: arguments[2])
             if FileManager.default.fileExists(atPath: plain.path) {
@@ -253,6 +262,52 @@ enum EndToEnd {
         for device in DiskImage.attachedDevices(forImages: paths) {
             if DiskImage.detach(device) { print("  ..   detached \(device)") }
         }
+    }
+
+    /// A format macOS reads on its own. It should not be opened here at all —
+    /// it should be handed over, and the user told why.
+    @MainActor
+    private static func handOverFlow(image: URL) {
+        let model = AppModel()
+        model.start()
+        guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
+            return
+        }
+
+        var sawTheQuestion = false
+        model.openImage(image)
+        guard
+            waitUntil(
+                "macOS is given the image", timeout: 60,
+                condition: {
+                    if model.phaseIsUnlock { sawTheQuestion = true }
+                    if case .handedToMacOS = model.imageOpening { return true }
+                    if case .failed = model.imageOpening { return true }
+                    return false
+                })
+        else { return }
+
+        guard case .handedToMacOS(_, let point) = model.imageOpening else {
+            if case .failed(_, let why) = model.imageOpening { print("      \(why)") }
+            check(false, "it was handed over rather than refused")
+            return
+        }
+        check(!sawTheQuestion, "and no password was ever asked for")
+        check(model.chosenFormat == .exfat, "it was recognised as exFAT")
+
+        // The point of all this: a local volume, not one served over NFS.
+        let table = (try? String(contentsOfFile: "/dev/null", encoding: .utf8)) ?? ""
+        _ = table
+        check(FileManager.default.fileExists(atPath: point), "and macOS mounted it at \(point)")
+        check(point.hasPrefix("/Volumes/"), "in /Volumes, like any other disk")
+        check(
+            !model.drives.contains { $0.uuid == image.path },
+            "and it is not in this app's list, because it is not this app's to hold")
+
+        // Handed over means handed over: macOS owns the attachment now, so
+        // detaching it here would take away the volume just mounted.
+        DiskImage.detach("/dev/" + (point as NSString).lastPathComponent)
+        _ = DiskImage.attachedDevices(forImages: [image.path]).map { DiskImage.detach($0) }
     }
 
     // MARK: Running the loop
