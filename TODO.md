@@ -175,34 +175,39 @@ responsibly be given to anyone.
 
 ## More formats
 
-[FORMATS.md](FORMATS.md) is the whole of it: what the three layers — wrapper,
-encryption, filesystem — support today, and what each addition would cost. In
-short:
+Built. [FORMATS.md](FORMATS.md) has the reasoning; what shipped:
 
-- **Encrypted DMG is not worth building.** macOS mounts one natively, as a
-  *local* volume, which is better than the network volume this app can offer. The
-  app is only worth reaching for where macOS cannot manage: Linux filesystems,
-  LUKS, BitLocker, writing to NTFS, and wrappers it cannot open at all.
-- **Virtual machine disks are the only remaining gap worth filling.** They are
-  the one wrapper macOS cannot open, and what is inside is almost always ext4 or
-  NTFS, which it cannot read either — both layers failing at once.
-- **Container files do not need the helper.** An image attached by the user has
-  a device node owned by that user, and the engine mounts it start to finish
-  without any privilege — verified. That takes the path-to-root question off the
-  table instead of answering it, and makes qcow2 nearly free, since the engine
-  already reads qcow2 in full. The difference to design around is that an
-  unprivileged engine mounts under `~/Volumes`, not `/Volumes`.
-- **qemu inside the guest does not work.** `qemu-nbd` needs the kernel's `nbd`
-  driver and the guest kernel has none — no module, and `modprobe` refuses.
-  Adding the Alpine package would have been easy (`anylinuxfs apk add` exists for
-  it); adding the kernel driver means rebuilding libkrunfw.
-- **VMDK is already implemented** in the engine's own image layer and merely not
-  exposed by its CLI. Asking upstream to expose it is the cheapest way to VM
-  disks. VHDX and VDI are new work in that layer, or `qemu-img convert` first at
-  the cost of a full copy.
-- **FileVault 2 and VeraCrypt** are set aside — the first is blocked behind the
-  same kernel rebuild, the second needs a whole mode where the user declares what
-  a file is, because a VeraCrypt volume cannot be recognised by design.
+- **Container files open with no privilege at all.** The user attached the file,
+  so the device is theirs and the mount is a user mount. Neither the helper nor
+  an authorisation prompt is involved. They land under `~/Volumes` rather than
+  `/Volumes`, which is the one visible difference.
+- **qcow2**, read natively by the engine. Never attached, since macOS cannot
+  read one — the path goes to an unprivileged engine, which is what made this
+  cheap rather than a decision about what root may do.
+- **exFAT is handed to macOS**, which mounts it locally and read-write, with the
+  sheet explaining why rather than appearing to do nothing.
+- **VMDK is written but not applied.** See [patches/](patches/): libkrun already
+  reads it and the patch is six lines, but building the engine from source stops
+  on a missing Homebrew LLVM, and carrying our own build changes how the app is
+  vendored, reproduced and licensed. A deliberate decision, not a side effect.
+
+Still open, in rough order of worth:
+
+- **Encryption inside a qcow2** is not opened. The engine probes the container
+  on the host only far enough to list what it holds, then asks the guest to
+  mount that — so the guest is handed `crypto_LUKS` as if it were a filesystem.
+  The app says so plainly when the file is chosen. Fixing it properly is
+  upstream work, or a `before_mount` custom action running cryptsetup in the
+  guest.
+- **VHDX and VDI.** Nothing in the stack reads them, and converting first costs
+  a full copy, which is not a feature. Left undone deliberately.
+- **A VM disk holding APFS, FAT or exFAT** should be decoded, attached and
+  mounted locally rather than served over NFS — the same rule that sends exFAT
+  to macOS.
+- **libkrun opens files an image names.** A qcow2 backing file or a VMDK
+  descriptor's extents are opened by libkrun itself, so a hostile image can make
+  the guest read what the user can read. Container files run unprivileged, which
+  bounds it, but it is worth a look before accepting more formats.
 
 ## Stage 3 — Larger bets
 
