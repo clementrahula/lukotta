@@ -179,9 +179,13 @@ responsibly be given to anyone.
 encryption, filesystem — support today, and what each addition would cost. In
 short:
 
-- **Encrypted DMG** is a day's work with no new dependency, and it is the
-  encrypted container a Mac user is most likely to have. macOS attaches it with
-  `hdiutil -stdinpass` and refuses a wrong password on its own.
+- **Encrypted DMG is not worth building.** macOS mounts one natively, as a
+  *local* volume, which is better than the network volume this app can offer. The
+  app is only worth reaching for where macOS cannot manage: Linux filesystems,
+  LUKS, BitLocker, writing to NTFS, and wrappers it cannot open at all.
+- **Virtual machine disks are the only remaining gap worth filling.** They are
+  the one wrapper macOS cannot open, and what is inside is almost always ext4 or
+  NTFS, which it cannot read either — both layers failing at once.
 - **Container files do not need the helper.** An image attached by the user has
   a device node owned by that user, and the engine mounts it start to finish
   without any privilege — verified. That takes the path-to-root question off the

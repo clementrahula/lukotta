@@ -73,23 +73,44 @@ running 10.7 to 10.12 and never re-encrypted since. Not worth it.
 
 ---
 
-## Cheap and worth doing
+## What macOS already does, and where that leaves us
 
-### Encrypted DMG
+The app is only worth reaching for where macOS cannot manage on its own. Two
+tests, side by side:
 
-macOS does all of it. `hdiutil attach -stdinpass` takes the password on stdin,
-refuses a wrong one with a plain "Authentication error", and hands back a device
-node exactly like an unencrypted image. Verified.
+    encrypted DMG holding APFS   →  /Volumes/NATIVETEST  (apfs, local)
+    raw image holding btrfs      →  "no mountable file systems"
 
-Nothing new is linked, nothing is shipped, no licence question arises. It is the
-native encrypted-container format of the platform the app runs on, and it is the
-one a Mac user is most likely to have.
+The first mounts by double-clicking and typing the password. No app, no virtual
+machine, and — worth noticing — **a local volume rather than a network one**,
+which is better than anything Lukotta can offer.
 
-**Cost:** small. The open panel already exists; this adds "is it encrypted?"
-(`hdiutil imageinfo` says so), a passphrase prompt, and passing it on stdin.
-Perhaps a day.
+### What macOS handles by itself
 
----
+| Layer | Native |
+| --- | --- |
+| Wrappers | DMG, sparseimage, sparsebundle, ISO, raw |
+| Encryption | DMG's own AES, FileVault, APFS encryption |
+| Filesystems | APFS, HFS+, FAT32, exFAT, NTFS **read-only** |
+
+### What it cannot, at any price
+
+| Layer | Not native |
+| --- | --- |
+| Wrappers | VHD, VHDX, VMDK, VDI, qcow2 |
+| Encryption | LUKS, BitLocker |
+| Filesystems | ext2/3/4, btrfs, XFS, F2FS, bcachefs, erofs — and writing to NTFS |
+
+That second table is the app. Everything in the first should be left alone: for
+those, Lukotta would take something that already works and make it worse.
+
+### So encrypted DMG is off the list
+
+I had it as the first thing to build. That was wrong. An encrypted DMG is the
+native encrypted container of this platform, which is exactly why there is
+nothing to add: macOS opens it, and opens it better. The only version of it
+worth anything is a DMG holding a Linux filesystem, which is not a thing anyone
+makes.
 
 ## Virtual machine disks
 
@@ -204,18 +225,27 @@ looks like one and is not.
 
 ## If it were up to me
 
-1. **Encrypted DMG.** A day, no new dependencies, the format Mac users actually
-   have.
-2. **Open container files without the helper.** They do not need it, and it
+**Virtual machine disks are the only thing left worth building.** They are the
+one wrapper macOS cannot open at all — and what is inside one is almost always
+ext4 or NTFS, which it cannot read either. Both layers fail at once, which is
+the only place this app is the sole answer.
+
+1. **Open container files without the helper.** They do not need it, and it
    takes the path-to-root question off the table rather than answering it. Watch
    the `~/Volumes` difference.
-3. **qcow2**, which then costs almost nothing: the engine already reads it, and
+2. **qcow2**, which then costs almost nothing: the engine already reads it, and
    an unprivileged engine can be handed the path.
-4. **Ask upstream to expose VMDK.** The code is already in the engine's image
+3. **Ask upstream to expose VMDK.** The code is already in the engine's image
    layer.
-5. **VHDX and VDI**, either as upstream work in that layer or as
+4. **VHDX and VDI**, either as upstream work in that layer or as
    `qemu-img convert` first, with a warning about the disk space a copy costs.
 
-Not worth doing: FileVault 2 and qemu-in-the-guest, both blocked behind a kernel
-rebuild. APFS encryption, which nothing outside Apple reads. Windows EFS, which
-is per-file and needs a domain key. VeraCrypt, unless someone asks.
+One refinement for later. When a VM disk turns out to hold a filesystem macOS
+*does* read — a Mac VM's APFS, a FAT or exFAT data disk — the best outcome is to
+decode it, attach the result, and let macOS mount it locally rather than serving
+it over NFS. Converting to raw does that today.
+
+Not worth doing: **encrypted DMG**, native and better left alone. FileVault 2 and
+qemu-in-the-guest, both blocked behind a kernel rebuild. APFS encryption, which
+nothing outside Apple reads. Windows EFS, per-file and needing a domain key.
+VeraCrypt, unless somebody asks.
