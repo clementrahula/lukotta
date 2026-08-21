@@ -173,6 +173,29 @@ responsibly be given to anyone.
 
 ---
 
+## More formats
+
+[FORMATS.md](FORMATS.md) is the whole of it: what the three layers — wrapper,
+encryption, filesystem — support today, what is already in the guest and merely
+unreachable, and what each addition would cost. In short:
+
+- **Encrypted DMG** is a day's work with no new dependency, and it is the
+  encrypted container a Mac user is most likely to have. macOS attaches it with
+  `hdiutil -stdinpass` and refuses a wrong password on its own.
+- **VM disks** — VHD, VHDX, VMDK, VDI — are best done by putting `qemu-img` and
+  `qemu-nbd` in the guest rather than teaching the Mac side to read them. QEMU is
+  GPL-2.0-only, which cannot be linked into this app but can run beside it as its
+  own program, exactly as the kernel and busybox already do.
+- **qcow2** the engine already reads. What stops it is ours: macOS cannot attach
+  one, so there is no device node, and supporting it means handing a root process
+  a path the user chose. That is a decision about what the helper is allowed to
+  do, not a piece of work.
+- **VeraCrypt** needs no new code either — the guest's cryptsetup speaks
+  `tcrypt` — but a VeraCrypt volume cannot be recognised by design, so the user
+  has to say what it is. That is a screen and a mode the app has never needed.
+- **FileVault 2** is not worth it: cryptsetup covers only the old Core Storage
+  kind, and the guest kernel has no HFS+ driver to mount what comes out.
+
 ## Stage 3 — Larger bets
 
 ### A native volume, instead of a network share
