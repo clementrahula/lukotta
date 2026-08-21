@@ -57,6 +57,12 @@
             "value": "%@ a été supprimé"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ eltávolítva"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -161,6 +167,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ est un logiciel libre sous licence GPL, version 3 ou ultérieure. Le montage est assuré par anylinuxfs. Le code source complet de chaque composant est publié à chaque version. Le nom et le logo sont des marques et ne sont pas couverts par cette licence."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ szabad szoftver a GPL 3-as vagy újabb verziója alatt. A csatolást az anylinuxfs végzi. Minden összetevő teljes forráskódja megjelenik minden kiadással. A név és a logó védjegy, és nem tartozik az említett licenc hatálya alá."
           }
         },
         "it": {
@@ -269,6 +281,12 @@
             "value": "%@ ouvre les disques BitLocker et Linux que macOS ne sait pas lire seul. Un réglage est nécessaire au préalable.\n\nLire un disque au niveau du périphérique brut exige l’accès complet au disque — un mot de passe administrateur ne suffit pas, et l’autorisation relative aux volumes amovibles couvre les fichiers d’un disque, pas le périphérique lui-même. macOS ne permet à aucune app de demander celle-ci : elle doit être activée à la main."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ olyan BitLocker- és Linux-meghajtókat nyit meg, amelyeket a macOS önmagában nem tud olvasni. Előbb egy beállításra van szükség.\n\nEgy meghajtó eszközszintű olvasásához teljes hozzáférés kell a lemezhez — a rendszergazdai jelszó nem elég, a cserélhető kötetekre vonatkozó engedély pedig a meghajtón lévő fájlokra vonatkozik, nem magára az eszközre. A macOS nem ad módot arra, hogy egy alkalmazás ezt kérje, ezért kézzel kell bekapcsolni."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -375,6 +393,12 @@
             "value": "%@ démarre une petite machine virtuelle Linux, y déverrouille le disque, puis le transmet au Finder. macOS ne sait pas lire les systèmes de fichiers BitLocker ou Linux. Linux, si."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ elindít egy kis Linux virtuális gépet, abban feloldja a meghajtót, majd visszaadja a Findernek. A macOS nem tudja olvasni a BitLocker- és Linux-fájlrendszereket. A Linux igen."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -479,6 +503,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ sera placé dans la corbeille."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ a Kukába kerül."
           }
         },
         "it": {
@@ -720,6 +750,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld disques ne répondaient plus et ont été déconnectés. Vous pouvez les ouvrir à nouveau."
+                }
+              }
+            }
+          }
+        },
+        "hu": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld meghajtó nem válaszolt, ezért le lett választva. Újra megnyithatja."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld meghajtó nem válaszolt, ezért le lettek választva. Újra megnyithatja őket."
                 }
               }
             }
@@ -1095,6 +1143,24 @@
             }
           }
         },
+        "hu": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "A nyitott meghajtó kiadásra kerül."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld nyitott meghajtó kiadásra kerül."
+                }
+              }
+            }
+          }
+        },
         "it": {
           "variations": {
             "plural": {
@@ -1327,6 +1393,12 @@
             "value": "%lld pour cent"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld százalék"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -1431,6 +1503,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "250 Mo d’espace disque : 155 Mo pour l’app, 95 Mo pour l’environnement Linux décompressé à la première utilisation"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 MB lemezterület: 155 MB az alkalmazásnak és 95 MB a Linux-környezetnek, amelyet az első használatkor csomagol ki"
           }
         },
         "it": {
@@ -1539,6 +1617,12 @@
             "value": "30 à 80 Mo de mémoire vive par disque déverrouillé"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30–80 MB memória minden feloldott meghajtóra"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -1643,6 +1727,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Un rapport de plantage a été trouvé"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Összeomlási jelentés található"
           }
         },
         "it": {
@@ -1751,6 +1841,12 @@
             "value": "À propos de %@"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ névjegye"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -1855,6 +1951,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "À propos et aide"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Névjegy és súgó"
           }
         },
         "it": {
@@ -1963,6 +2065,12 @@
             "value": "Une dizaine de disques peuvent rester déverrouillés en même temps"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Körülbelül tíz meghajtó maradhat egyszerre feloldva"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -2067,6 +2175,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mot de passe administrateur"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rendszergazdai jelszó"
           }
         },
         "it": {
@@ -2175,6 +2289,12 @@
             "value": "Mot de passe administrateur — demandé une seule fois lors de la configuration de l’assistant en arrière-plan, puis plus jamais. %@ ne le voit jamais"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rendszergazdai jelszó — egyszer kéri a rendszer a háttérsegéd beállításakor, utána soha többé. A(z) %@ nem látja"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -2281,6 +2401,12 @@
             "value": "Tous les disques"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Összes meghajtó"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -2385,6 +2511,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Toutes les autorisations requises sont accordées"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minden szükséges engedély megvan"
           }
         },
         "it": {
@@ -2631,6 +2763,24 @@
             }
           }
         },
+        "hu": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "A(z) %2$@ mentett jelmondatának törlése is"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%1$lld mentett jelmondat törlése is (%2$@)"
+                }
+              }
+            }
+          }
+        },
         "it": {
           "variations": {
             "plural": {
@@ -2863,6 +3013,12 @@
             "value": "Un Mac Apple Silicon. Les Mac Intel ne sont pas pris en charge"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Silicon alapú Mac. Az Intel alapú Macek nem támogatottak"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -2967,6 +3123,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Un autre disque est ouvert, et le moteur doit s’exécuter seul la première fois après une modification. Éjectez les autres disques, ouvrez celui-ci, puis ils pourront de nouveau être ouverts ensemble."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Egy másik meghajtó nyitva van, a motornak pedig változás után először egyedül kell futnia. Adja ki a többi meghajtót, nyissa meg ezt, utána újra mind egyszerre lehetnek nyitva."
           }
         },
         "it": {
@@ -3075,6 +3237,12 @@
             "value": "Apparence"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Megjelenés"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -3179,6 +3347,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "N’apparaît que lorsqu’un disque est déverrouillé, pour l’éjecter."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Csak akkor jelenik meg, ha egy meghajtó fel van oldva, a kiadásához."
           }
         },
         "it": {
@@ -3287,6 +3461,12 @@
             "value": "Développeur"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fejlesztő"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -3391,6 +3571,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Retour"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vissza"
           }
         },
         "it": {
@@ -3499,6 +3685,12 @@
             "value": "Les disques BitLocker, déverrouillés avec le mot de passe du volume ou une clé de récupération à 48 chiffres"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker-meghajtók, a kötet jelszavával vagy 48 jegyű helyreállítási kulccsal feloldva"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -3603,6 +3795,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "BitLocker ou NTFS"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker vagy NTFS"
           }
         },
         "it": {
@@ -3711,6 +3909,12 @@
             "value": "Annuler"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mégsem"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -3815,6 +4019,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "La touche Verr. maj. est activée"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Caps Lock be van kapcsolva"
           }
         },
         "it": {
@@ -3923,6 +4133,12 @@
             "value": "Vérifier à nouveau"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ellenőrzés újra"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -4027,6 +4243,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vérifier maintenant"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keresés most"
           }
         },
         "it": {
@@ -4135,6 +4357,12 @@
             "value": "Rechercher les mises à jour…"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frissítések keresése…"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -4239,6 +4467,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rechercher les mises à jour automatiquement"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frissítések automatikus keresése"
           }
         },
         "it": {
@@ -4347,6 +4581,12 @@
             "value": "Cliquez sur « + », ajoutez %@, puis activez l’option."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kattintson a „+” gombra, adja hozzá a(z) %@ programot, majd kapcsolja be."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -4451,6 +4691,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Réduit"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Összecsukva"
           }
         },
         "it": {
@@ -4559,6 +4805,12 @@
             "value": "Revenez ici et choisissez « Relancer » — une nouvelle autorisation ne s’applique qu’à une app qui vient de démarrer."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Térjen vissza ide, és válassza az „Újraindítás” lehetőséget — egy új engedély csak frissen indított alkalmazásra érvényes."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -4663,6 +4915,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Connectez le disque chiffré, puis choisissez « Rechercher à nouveau ». S’il est déjà connecté, macOS l’a peut-être monté — éjectez-le d’abord dans le Finder."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Csatlakoztassa a titkosított meghajtót, majd válassza a „Keresés újra” lehetőséget. Ha már csatlakoztatva van, a macOS csatolhatta — előbb adja ki a Finderben."
           }
         },
         "it": {
@@ -4771,6 +5029,12 @@
             "value": "Copié"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Másolva"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -4877,6 +5141,12 @@
             "value": "Copier les détails"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adatok másolása"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -4981,6 +5251,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sombre"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sötét"
           }
         },
         "it": {
@@ -5227,6 +5503,24 @@
             }
           }
         },
+        "hu": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "A mentett jelmondat törlése"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld mentett jelmondat törlése"
+                }
+              }
+            }
+          }
+        },
         "it": {
           "variations": {
             "plural": {
@@ -5459,6 +5753,12 @@
             "value": "Suppression de l’environnement Linux"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Linux-környezet törlése"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -5563,6 +5863,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Détails qui seront inclus"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mellékelt adatok"
           }
         },
         "it": {
@@ -5671,6 +5977,12 @@
             "value": "OK"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kész"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -5775,6 +6087,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Les télécharger et les installer"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Letöltés és telepítés"
           }
         },
         "it": {
@@ -5883,6 +6201,12 @@
             "value": "Les disques scellés à un TPM plutôt qu’à un mot de passe, y compris le chiffrement matériel plus récent d’Ubuntu"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meghajtók, amelyeket jelszó helyett TPM-hez kötöttek, beleértve az Ubuntu újabb hardveres titkosítását"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -5987,6 +6311,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Éjecter"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiadás"
           }
         },
         "it": {
@@ -6095,6 +6425,12 @@
             "value": "Éjecter %@"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ kiadása"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -6199,6 +6535,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Éjecter et quitter"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiadás és kilépés"
           }
         },
         "it": {
@@ -6445,6 +6787,24 @@
             }
           }
         },
+        "hu": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "A nyitott meghajtó kiadása"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld nyitott meghajtó kiadása"
+                }
+              }
+            }
+          }
+        },
         "it": {
           "variations": {
             "plural": {
@@ -6677,6 +7037,12 @@
             "value": "Éjection…"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiadás…"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -6781,6 +7147,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sortie du moteur"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A motor kimenete"
           }
         },
         "it": {
@@ -6889,6 +7261,12 @@
             "value": "Saisissez la phrase secrète du disque."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adja meg a meghajtó jelmondatát."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -6993,6 +7371,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Saisissez le mot de passe du disque ou sa clé de récupération à 48 chiffres."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adja meg a meghajtó jelszavát vagy a 48 jegyű helyreállítási kulcsát."
           }
         },
         "it": {
@@ -7101,6 +7485,12 @@
             "value": "Tout le reste a été supprimé. %@ lui-même n’a pas pu être placé dans la corbeille — %@ — faites-le glisser vous-même pour terminer."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minden mást eltávolítottunk. Magát a(z) %@ programot nem sikerült a Kukába helyezni (%@) — a befejezéshez húzza oda saját kezűleg."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -7205,6 +7595,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Développé"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kibontva"
           }
         },
         "it": {
@@ -7313,6 +7709,12 @@
             "value": "Externe"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Külső"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -7417,6 +7819,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Oublier"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elfelejtés"
           }
         },
         "it": {
@@ -7525,6 +7933,12 @@
             "value": "Accès complet au disque"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teljes hozzáférés a lemezhez"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -7631,6 +8045,12 @@
             "value": "Accès complet au disque — sans lui, macOS n’autorise aucune app à lire le contenu brut d’un disque. Il ne peut pas être demandé et doit donc être activé à la main"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teljes hozzáférés a lemezhez — enélkül a macOS egyetlen alkalmazásnak sem engedi olvasni a meghajtó nyers tartalmát. Nem kérhető, ezért kézzel kell bekapcsolni"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -7732,6 +8152,12 @@
           }
         },
         "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        },
+        "hu": {
           "stringUnit": {
             "state": "translated",
             "value": "GNU General Public License"
@@ -7843,6 +8269,12 @@
             "value": "Accordée"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Megadva"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -7947,6 +8379,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Masquer"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elrejtés"
           }
         },
         "it": {
@@ -8055,6 +8493,12 @@
             "value": "Masquer la saisie"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A beírtak elrejtése"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -8159,6 +8603,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Masquer les détails"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Részletek elrejtése"
           }
         },
         "it": {
@@ -8267,6 +8717,12 @@
             "value": "Comment %@ fonctionne et ce qu’il prend en charge"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hogyan működik a(z) %@, és mit támogat"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -8371,6 +8827,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fonctionnement"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hogyan működik"
           }
         },
         "it": {
@@ -8479,6 +8941,12 @@
             "value": "Interne"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Belső"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -8583,6 +9051,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il est dans la corbeille. Rien d’autre n’en subsiste sur ce Mac."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Kukában van. Semmi más nem maradt belőle ezen a Macen."
           }
         },
         "it": {
@@ -8691,6 +9165,12 @@
             "value": "Les disques LUKS de Linux, LUKS1 comme LUKS2"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linuxos LUKS-meghajtók, LUKS1 és LUKS2 egyaránt"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -8795,6 +9275,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LUKS ou système de fichiers Linux"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS vagy Linux-fájlrendszer"
           }
         },
         "it": {
@@ -8903,6 +9389,12 @@
             "value": "Les volumes LUKS dont l’en-tête est stocké séparément du disque"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS-kötetek, amelyek fejléce a meghajtótól külön van tárolva"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -9007,6 +9499,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LVM dans LUKS, tel que le configurent Ubuntu, Debian, Mint et Fedora. Plusieurs volumes sur un même disque se déverrouillent ensemble"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM a LUKS-on belül, ahogy azt az Ubuntu, a Debian, a Mint és a Fedora beállítja. Egy meghajtó több kötete együtt oldódik fel"
           }
         },
         "it": {
@@ -9115,6 +9613,12 @@
             "value": "Langue"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nyelv"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -9219,6 +9723,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dernière vérification : %@"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Legutóbbi keresés: %@"
           }
         },
         "it": {
@@ -9327,6 +9837,12 @@
             "value": "Laisser ouvert"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maradjon nyitva"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -9431,6 +9947,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permet à %@ de lire lui-même les données chiffrées."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lehetővé teszi, hogy a(z) %@ maga olvassa a titkosított adatokat."
           }
         },
         "it": {
@@ -9539,6 +10061,12 @@
             "value": "Permet à %@ de lire lui-même les données chiffrées. Sans cette autorisation, macOS le bloque, même pour les administrateurs, et elle ne peut pas être demandée : elle doit être activée à la main."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lehetővé teszi, hogy a(z) %@ maga olvassa a titkosított adatokat. Enélkül a macOS ezt még a rendszergazdáknak is letiltja, és nem kérhető — kézzel kell bekapcsolni."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -9643,6 +10171,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Licence"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licenc"
           }
         },
         "it": {
@@ -9751,6 +10285,12 @@
             "value": "Clair"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Világos"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -9855,6 +10395,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Emplacement"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hely"
           }
         },
         "it": {
@@ -9963,6 +10509,12 @@
             "value": "Verrouillé"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zárolt"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -10067,6 +10619,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Recherche de disques chiffrés…"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Titkosított meghajtók keresése…"
           }
         },
         "it": {
@@ -10175,6 +10733,12 @@
             "value": "Lúkotta signifie « sans serrure » en finnois, de lukko, une serrure, avec la terminaison -tta qui marque l’absence de quelque chose. L’accent tonique porte sur la première syllabe, comme toujours en finnois."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Lúkotta finnül azt jelenti: „zár nélkül”, a lukko, azaz zár szóból, a -tta végződéssel, amely valaminek a hiányát jelöli. A hangsúly az első szótagra esik, ahogy a finnben mindig."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -10279,6 +10843,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Barre des menus"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menüsor"
           }
         },
         "it": {
@@ -10387,6 +10957,12 @@
             "value": "Placement de %@ dans la corbeille"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ áthelyezése a Kukába"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -10491,6 +11067,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Requise"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Szükséges"
           }
         },
         "it": {
@@ -10599,6 +11181,12 @@
             "value": "Aucun disque chiffré trouvé"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nem található titkosított meghajtó"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -10703,6 +11291,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aucune raison n’a été signalée. Les détails ci-dessous en disent peut-être davantage."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nem érkezett indoklás. Az alábbi részletek többet elárulhatnak."
           }
         },
         "it": {
@@ -10811,6 +11405,12 @@
             "value": "Absent de cette version."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ebben a verzióban nem található."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -10915,6 +11515,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rien n’est installé. Le moteur est intégré à l’app, rien ne quitte votre Mac, et un disque n’est écrit que lorsque vous y écrivez."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semmi nem kerül telepítésre. A motor az alkalmazásban van, semmi nem hagyja el a Macet, és a meghajtóra csak akkor ír bármi, ha Ön ír rá."
           }
         },
         "it": {
@@ -11023,6 +11629,12 @@
             "value": "Une fois l’assistant en arrière-plan configuré, une mise à jour laissera les disques déverrouillés tranquilles."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ha a háttérsegéd be van állítva, a frissítés nem nyúl a feloldott meghajtókhoz."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -11127,6 +11739,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ouvrir %@"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ megnyitása"
           }
         },
         "it": {
@@ -11235,6 +11853,12 @@
             "value": "Ouvrir la messagerie"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-mail megnyitása"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -11339,6 +11963,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ouvrez « Confidentialité et sécurité » → « Accès complet au disque »."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nyissa meg az „Adatvédelem és biztonság” → „Teljes hozzáférés a lemezhez” beállítást."
           }
         },
         "it": {
@@ -11447,6 +12077,12 @@
             "value": "Ouvrir les réglages de confidentialité"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adatvédelmi beállítások megnyitása"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -11551,6 +12187,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ouvrez des disques chiffrés sur macOS"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Titkosított meghajtók megnyitása macOS rendszeren"
           }
         },
         "it": {
@@ -11659,6 +12301,12 @@
             "value": "Ouverture de « %@ »"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” megnyitása"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -11763,6 +12411,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Phrase secrète"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jelmondat"
           }
         },
         "it": {
@@ -11871,6 +12525,12 @@
             "value": "Mot de passe ou clé de récupération"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jelszó vagy helyreállítási kulcs"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -11975,6 +12635,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Autorisations"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Engedélyek"
           }
         },
         "it": {
@@ -12083,6 +12749,12 @@
             "value": "Quitter"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kilépés"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -12187,6 +12859,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quitter %@"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kilépés: %@"
           }
         },
         "it": {
@@ -12433,6 +13111,24 @@
             }
           }
         },
+        "hu": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Kilép, és nyitva hagy %lld meghajtót?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Kilép, és nyitva hagy %lld meghajtót?"
+                }
+              }
+            }
+          }
+        },
         "it": {
           "variations": {
             "plural": {
@@ -12665,6 +13361,12 @@
             "value": "Quitter et laisser « %@ » ouvert ?"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kilép, és nyitva hagyja a következőt: „%@”?"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -12769,6 +13471,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Relancer"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Újraindítás"
           }
         },
         "it": {
@@ -12877,6 +13585,12 @@
             "value": "Mémoriser cette clé dans mon trousseau"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A kulcs megjegyzése a kulcskarikámon"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -12981,6 +13695,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volumes amovibles — demandé par macOS la première fois qu’un disque est lu"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cserélhető kötetek — a macOS az első meghajtóolvasáskor kéri"
           }
         },
         "it": {
@@ -13089,6 +13809,12 @@
             "value": "Suppression de %@"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ eltávolítása"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -13193,6 +13919,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Suppression des réglages"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beállítások eltávolítása"
           }
         },
         "it": {
@@ -13301,6 +14033,12 @@
             "value": "Signaler ce problème"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probléma jelentése"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -13405,6 +14143,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Signaler un problème"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probléma jelentése"
           }
         },
         "it": {
@@ -13513,6 +14257,12 @@
             "value": "Signaler un problème ou envoyer un rapport de plantage"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jelentsen problémát vagy küldjön összeomlási jelentést"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -13617,6 +14367,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Signaler un problème"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probléma jelentése"
           }
         },
         "it": {
@@ -13725,6 +14481,12 @@
             "value": "Signaler un problème…"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probléma jelentése…"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -13829,6 +14591,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Configuration requise"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Követelmények"
           }
         },
         "it": {
@@ -13937,6 +14705,12 @@
             "value": "Rechercher à nouveau"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keresés újra"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -14041,6 +14815,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afficher l’app dans le Finder"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alkalmazás megjelenítése a Finderben"
           }
         },
         "it": {
@@ -14149,6 +14929,12 @@
             "value": "Voir les disques connectés"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Csatlakoztatott meghajtók látása"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -14253,6 +15039,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sélectionnez un disque à déverrouiller"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Válasszon egy feloldandó meghajtót"
           }
         },
         "it": {
@@ -14361,6 +15153,12 @@
             "value": "Configuration de l’environnement Linux"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Linux-környezet előkészítése"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -14465,6 +15263,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afficher"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Megjelenítés"
           }
         },
         "it": {
@@ -14573,6 +15377,12 @@
             "value": "Afficher %@ dans la barre des menus"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ megjelenítése a menüsorban"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -14677,6 +15487,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afficher dans le Finder"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Megjelenítés a Finderben"
           }
         },
         "it": {
@@ -14785,6 +15601,12 @@
             "value": "Afficher la saisie"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A beírtak megjelenítése"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -14889,6 +15711,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afficher à quoi sert chaque autorisation"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Az egyes engedélyek céljának megjelenítése"
           }
         },
         "it": {
@@ -14997,6 +15825,12 @@
             "value": "Certaines autorisations manquent encore"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Néhány engedély még hiányzik"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -15101,6 +15935,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Code source"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forráskód"
           }
         },
         "it": {
@@ -15209,6 +16049,12 @@
             "value": "Système"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rendszer"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -15313,6 +16159,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "« Système » suit la langue de votre Mac."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A „Rendszer” a Mac nyelvét követi."
           }
         },
         "it": {
@@ -15421,6 +16273,12 @@
             "value": "« Système » suit le réglage de votre Mac, y compris lorsqu’il change."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A „Rendszer” a Mac beállítását követi, akkor is, ha az megváltozik."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -15525,6 +16383,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ce mot de passe ou cette clé de récupération n’a pas déverrouillé ce disque."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez a jelszó vagy helyreállítási kulcs nem oldotta fel a meghajtót."
           }
         },
         "it": {
@@ -15633,6 +16497,12 @@
             "value": "L’environnement Linux n’est décompressé qu’une seule fois, à la première utilisation."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Linux-környezet egyszer, az első használatkor kerül kicsomagolásra."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -15737,6 +16607,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’environnement Linux sera supprimé, libérant environ %lld Mo."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Linux-környezet törlődik, ezzel körülbelül %lld MB szabadul fel."
           }
         },
         "it": {
@@ -15845,6 +16721,12 @@
             "value": "L’assistant en arrière-plan n’est pas configuré : %@ maintient donc le disque ouvert lui-même. Quitter maintenant le déconnecte, et tout ce qui reste à écrire ne serait pas terminé.\n\nUne fois l’assistant configuré, les disques restent ouverts d’eux-mêmes."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A háttérsegéd nincs beállítva, ezért a meghajtót maga a(z) %@ tartja nyitva. A kilépés most leválasztja, és ami még íródik, nem fejeződne be.\n\nHa a segéd be van állítva, a meghajtók maguktól nyitva maradnak."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -15949,6 +16831,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’assistant en arrière-plan n’est pas configuré : %@ les maintient donc ouverts lui-même. Quitter maintenant les déconnecte, et tout ce qui reste à écrire ne serait pas terminé.\n\nUne fois l’assistant configuré, les disques restent ouverts d’eux-mêmes."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A háttérsegéd nincs beállítva, ezért őket maga a(z) %@ tartja nyitva. A kilépés most leválasztja őket, és ami még íródik, nem fejeződne be.\n\nHa a segéd be van állítva, a meghajtók maguktól nyitva maradnak."
           }
         },
         "it": {
@@ -16057,6 +16945,12 @@
             "value": "L’assistant en arrière-plan sera désenregistré."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A háttérsegéd regisztrációja megszűnik."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -16161,6 +17055,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le disque apparaît dans la barre latérale du Finder, sous « Emplacements ».\nÉjectez-le ici ou dans le Finder avant de le débrancher."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meghajtó a Finder oldalsávján, a „Helyek” alatt jelenik meg.\nLeválasztás előtt adja ki itt vagy a Finderben."
           }
         },
         "it": {
@@ -16269,6 +17169,12 @@
             "value": "Le disque est occupé. Fermez tout ce qui l’utilise, puis réessayez."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meghajtó foglalt. Zárjon be mindent, ami használja, majd próbálja újra."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -16373,6 +17279,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le disque est transmis au Finder via une connexion réseau locale : il apparaît donc sous « Emplacements » avec une icône de réseau. Il se lit, s’écrit et s’éjecte comme n’importe quel autre disque. macOS n’offre aucun moyen de le présenter comme un disque local."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meghajtót a program helyi hálózati kapcsolaton adja át a Findernek, ezért a „Helyek” alatt, hálózati ikonnal jelenik meg. Ugyanúgy olvasható, írható és kiadható, mint bármely más meghajtó. A macOS nem kínál módot arra, hogy helyi lemezként jelenjen meg."
           }
         },
         "it": {
@@ -16481,6 +17393,12 @@
             "value": "Le disque reste dans le Finder après la fermeture de %@. Éjectez-le depuis le Finder lorsque vous avez terminé."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meghajtó a Finderben marad, miután a(z) %@ kilép. Ha végzett, onnan adja ki."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -16585,6 +17503,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le disque n’a pas été ouvert"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meghajtó nem nyílt meg"
           }
         },
         "it": {
@@ -16693,6 +17617,12 @@
             "value": "Le disque n’a pas été ouvert. %@"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meghajtó nem nyílt meg. %@"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -16797,6 +17727,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Windows n’a pas arrêté le disque proprement. Désactivez le démarrage rapide dans Windows, ou arrêtez complètement Windows au lieu de le mettre en veille prolongée, puis réessayez."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Windows nem állította le szabályosan a meghajtót. Kapcsolja ki a gyorsindítást a Windowsban, vagy állítsa le teljesen a Windowst hibernálás helyett, majd próbálja újra."
           }
         },
         "it": {
@@ -16905,6 +17841,12 @@
             "value": "Le moteur n’a reconnu aucun système de fichiers sur ce volume. S’il est chiffré, le mot de passe ou la clé de récupération est peut-être incorrect."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A motor nem ismert fel fájlrendszert ezen a köteten. Ha titkosított, a jelszó vagy a helyreállítási kulcs lehet hibás."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -17009,6 +17951,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le moteur n’a rien signalé du tout. Le disque a peut-être été débranché."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A motor semmit sem jelzett. Lehet, hogy a meghajtót leválasztották."
           }
         },
         "it": {
@@ -17117,6 +18065,12 @@
             "value": "La langue change au prochain démarrage de %@."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A nyelv a(z) %@ újraindításakor változik meg."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -17221,6 +18175,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le nom"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A név"
           }
         },
         "it": {
@@ -17329,6 +18289,12 @@
             "value": "La phrase secrète avec laquelle ce disque a été chiffré."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A jelmondat, amellyel ezt a meghajtót titkosították."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -17433,6 +18399,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le mot de passe avec lequel le disque a été verrouillé, ou une clé de récupération BitLocker à 48 chiffres. Les espaces et les traits d’union d’une clé de récupération sont ignorés."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A jelszó, amellyel a meghajtót zárolták, vagy egy 48 jegyű BitLocker helyreállítási kulcs. A helyreállítási kulcsban lévő szóközöket és kötőjeleket a program figyelmen kívül hagyja."
           }
         },
         "it": {
@@ -17541,6 +18513,12 @@
             "value": "Le moteur de virtualisation n’a pas pu démarrer. Un redémarrage suffit généralement à corriger cela."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A virtualizációs motor nem indult el. Ezt általában egy újraindítás megoldja."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -17645,6 +18623,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ils restent dans le Finder après la fermeture de %@. Éjectez-les depuis le Finder lorsque vous avez terminé."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Finderben maradnak, miután a(z) %@ kilép. Ha végzett, onnan adja ki őket."
           }
         },
         "it": {
@@ -17753,6 +18737,12 @@
             "value": "Mentions relatives aux tiers"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Harmadik felekre vonatkozó tájékoztatók"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -17857,6 +18847,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ce disque contient plusieurs volumes, et %@ n’a pas pu déterminer lesquels. Le signaler serait utile."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez a meghajtó több kötetet tartalmaz, és a(z) %@ nem tudta megállapítani, melyeket. Segítene, ha jelentené."
           }
         },
         "it": {
@@ -17965,6 +18961,12 @@
             "value": "Il s’agit d’un réglage de confidentialité de macOS, pas d’une modification de votre Mac. Vous pouvez le désactiver à tout moment, et rien n’est installé."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez a macOS egyik adatvédelmi beállítása, nem a Mac módosítása. Bármikor újra kikapcsolhatja, és semmi nem kerül telepítésre."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -18069,6 +19071,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cette partition n’est pas un volume BitLocker."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez a partíció nem BitLocker-kötet."
           }
         },
         "it": {
@@ -18177,6 +19185,12 @@
             "value": "Cela prend un instant."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez eltart egy pillanatig."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -18281,6 +19295,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cela prend généralement moins d’une minute."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez általában egy percnél kevesebb ideig tart."
           }
         },
         "it": {
@@ -18389,6 +19409,12 @@
             "value": "Réessayer"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Újra"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -18493,6 +19519,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Désinstaller"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eltávolítás"
           }
         },
         "it": {
@@ -18601,6 +19633,12 @@
             "value": "Désinstaller %@ ?"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eltávolítja a(z) %@ programot?"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -18705,6 +19743,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Désinstaller %@…"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ eltávolítása…"
           }
         },
         "it": {
@@ -18813,6 +19857,12 @@
             "value": "Déverrouiller"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feloldás"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -18917,6 +19967,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Déverrouiller ce disque"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meghajtó feloldása"
           }
         },
         "it": {
@@ -19025,6 +20081,12 @@
             "value": "Le déverrouillage l’utilise directement. Oubliez-la pour en saisir une autre."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A feloldás közvetlenül ezt használja. Felejtse el, ha másikat szeretne megadni."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -19129,6 +20191,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Déverrouiller « %@ »"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” feloldása"
           }
         },
         "it": {
@@ -19237,6 +20305,12 @@
             "value": "Déverrouillé"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feloldott"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -19341,6 +20415,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Déverrouillé dans %@"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feloldva itt: %@"
           }
         },
         "it": {
@@ -19449,6 +20529,12 @@
             "value": "Désenregistrement de l’assistant en arrière-plan"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A háttérsegéd regisztrációjának megszüntetése"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -19553,6 +20639,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mises à jour"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frissítések"
           }
         },
         "it": {
@@ -19661,6 +20753,12 @@
             "value": "Une mise à jour n’éjecte pas vos disques. Tout ce qui est déverrouillé le reste et continue de fonctionner."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A frissítés nem adja ki a meghajtóit. Ami fel van oldva, az feloldva marad és tovább működik."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -19765,6 +20863,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Utilisation de la clé enregistrée dans votre trousseau"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A kulcskarikán tárolt kulcs használata"
           }
         },
         "it": {
@@ -19873,6 +20977,12 @@
             "value": "Version %@ (%@)"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ verzió (%@)"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -19977,6 +21087,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volumes ouverts"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Megnyitott kötetek"
           }
         },
         "it": {
@@ -20085,6 +21201,12 @@
             "value": "Site web"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Webhely"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -20189,6 +21311,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bienvenue dans %@"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Üdvözli a(z) %@"
           }
         },
         "it": {
@@ -20297,6 +21425,12 @@
             "value": "Le contenu d’un disque n’est connu qu’une fois celui-ci déverrouillé."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Egy meghajtó tartalma csak a feloldás után derül ki."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -20401,6 +21535,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Que s’est-il passé"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mi történt"
           }
         },
         "it": {
@@ -20509,6 +21649,12 @@
             "value": "Que s’est-il passé ?"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mi történt?"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -20613,6 +21759,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ce qu’il peut ouvrir"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit tud megnyitni"
           }
         },
         "it": {
@@ -20721,6 +21873,12 @@
             "value": "Ce qu’il ne peut pas ouvrir"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit nem tud megnyitni"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -20825,6 +21983,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Que faire"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mi a teendő"
           }
         },
         "it": {
@@ -20933,6 +22097,12 @@
             "value": "Pourquoi il apparaît comme un disque réseau"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miért hálózati meghajtóként jelenik meg"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -21037,6 +22207,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Les disques NTFS Windows, y compris ceux que Windows a laissés en veille prolongée ou mal arrêtés"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows NTFS-meghajtók, azokat is beleértve, amelyeket a Windows hibernálva vagy szabálytalanul leállítva hagyott"
           }
         },
         "it": {
@@ -21145,6 +22321,12 @@
             "value": "Vous pouvez y lire et y écrire des fichiers."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Olvashat és írhat rajta fájlokat."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -21249,6 +22431,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vous pouvez toujours vérifier quand vous le souhaitez."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bármikor kereshet frissítést saját maga is."
           }
         },
         "it": {
@@ -21357,6 +22545,12 @@
             "value": "Votre disque n’a pas été modifié. Un déverrouillage qui échoue ne peut pas endommager les données qu’il contient."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meghajtója nem módosult. A sikertelen feloldás nem károsíthatja a rajta lévő adatokat."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -21461,6 +22655,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "terminé"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kész"
           }
         },
         "it": {
@@ -21569,6 +22769,12 @@
             "value": "Les systèmes de fichiers ext4, btrfs et XFS qu’ils contiennent"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ext4, btrfs és XFS fájlrendszerek ezeken belül"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -21673,6 +22879,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "en cours"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "folyamatban"
           }
         },
         "it": {
@@ -21781,6 +22993,12 @@
             "value": "verrouillé"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "zárolt"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -21885,6 +23103,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS 15 Sequoia ou ultérieur"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 15 Sequoia vagy újabb"
           }
         },
         "it": {
@@ -21993,6 +23217,12 @@
             "value": "macOS a déjà monté ce disque. Éjectez-le dans le Finder, puis réessayez."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A macOS már csatolta ezt a meghajtót. Adja ki a Finderben, majd próbálja újra."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -22097,6 +23327,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS a bloqué l’accès au disque. %@ a besoin de l’accès complet au disque pour pouvoir lire un disque chiffré."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A macOS letiltotta a meghajtóhoz való hozzáférést. A(z) %@ programnak teljes hozzáférés kell a lemezhez, hogy titkosított lemezt olvashasson."
           }
         },
         "it": {
@@ -22205,6 +23441,12 @@
             "value": "macOS a écrit %@. Il n’est envoyé nulle part automatiquement — joignez-le à votre message si vous le pouvez."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A macOS létrehozta a következőt: %@. Sehová nem küldi el automatikusan — ha teheti, csatolja az üzenetéhez."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -22309,6 +23551,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "non atteint"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nem érte el"
           }
         },
         "it": {
@@ -22417,6 +23665,12 @@
             "value": "arrêté ici"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "itt állt meg"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -22521,6 +23775,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "déverrouillé"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "feloldott"
           }
         },
         "it": {
@@ -22629,6 +23889,12 @@
             "value": "en attente"
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "várakozik"
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -22735,6 +24001,12 @@
             "value": "« %@ » ne répondait plus et a été déconnecté. Vous pouvez l’ouvrir à nouveau."
           }
         },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” nem válaszolt, ezért le lett választva. Újra megnyithatja."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
@@ -22839,6 +24111,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "« %@ » est déverrouillé"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” fel van oldva"
           }
         },
         "it": {
