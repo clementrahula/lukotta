@@ -8701,6 +8701,136 @@
         }
       }
     },
+    "Ejecting %@": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изважда се %@"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vysouvá se %@"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skubber %@ ud"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wird ausgeworfen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εξαγωγή του %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expulsando %@"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ väljastamine"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poistetaan %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éjection de %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izbacivanje %@"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ kiadása"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Espulsione di %@"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išstumiamas %@"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiek izgrūsts %@"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Løser ut %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wordt uitgeworpen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wysuwanie %@"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A ejetar %@"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se scoate %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izmetavanje %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Matar ut %@"
+          }
+        }
+      }
+    },
     "Ejecting %lld open drives": {
       "localizations": {
         "bg": {
@@ -22369,6 +22499,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enheten visas i Finders sidofält under ”Platser”.\nMata ut den här eller i Finder innan du kopplar bort den."
+          }
+        }
+      }
+    },
+    "The drive did not finish ejecting. It may still be in use — try again, or eject it in Finder.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дискът не беше изваден докрай. Възможно е още да се използва — опитайте отново или го извадете от Finder."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk se nepodařilo úplně vysunout. Možná se stále používá — zkuste to znovu, nebo jej vysuňte ve Finderu."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enheden blev ikke skubbet helt ud. Den er måske stadig i brug — prøv igen, eller skub den ud i Finder."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Laufwerk wurde nicht vollständig ausgeworfen. Es wird möglicherweise noch verwendet — versuche es erneut oder wirf es im Finder aus."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ο δίσκος δεν ολοκλήρωσε την εξαγωγή. Ίσως χρησιμοποιείται ακόμη — δοκιμάστε ξανά ή κάντε εξαγωγή από το Finder."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El disco no ha terminado de expulsarse. Puede que aún esté en uso: inténtalo de nuevo o expúlsalo en el Finder."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketta väljastamine ei jõudnud lõpule. See võib veel kasutusel olla — proovi uuesti või väljasta see Finderis."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aseman poistaminen ei päättynyt. Se voi olla yhä käytössä — yritä uudelleen tai poista se Finderissa."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’éjection du disque ne s’est pas terminée. Il est peut-être encore utilisé — réessayez, ou éjectez-le dans le Finder."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izbacivanje diska nije dovršeno. Možda je još u upotrebi — pokušajte ponovno ili ga izbacite u Finderu."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meghajtó kiadása nem fejeződött be. Lehet, hogy még használatban van — próbálja újra, vagy adja ki a Finderben."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’espulsione del disco non è stata completata. Potrebbe essere ancora in uso: riprova, oppure espellilo nel Finder."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disko išstūmimas nebuvo baigtas. Jis dar gali būti naudojamas — bandykite dar kartą arba išstumkite jį per „Finder“."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diska izgrūšana netika pabeigta. Iespējams, tas vēl tiek lietots — mēģiniet vēlreiz vai izgrūdiet to programmā Finder."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utløsingen av enheten ble ikke fullført. Den er kanskje fremdeles i bruk — prøv igjen, eller løs den ut i Finder."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De schijf is niet volledig uitgeworpen. Mogelijk is die nog in gebruik — probeer het opnieuw of werp die uit in de Finder."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wysuwanie dysku nie zostało ukończone. Może być nadal używany — spróbuj ponownie lub wysuń go w Finderze."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O disco não terminou de ser ejetado. Pode ainda estar a ser utilizado — tente novamente ou ejete-o no Finder."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scoaterea discului nu s-a finalizat. Este posibil să fie încă utilizat — încercați din nou sau scoateți-l în Finder."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izmetavanje pogona se ni dokončalo. Morda je še v uporabi — poskusite znova ali ga izvrzite v Finderju."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utmatningen av enheten slutfördes inte. Den kanske fortfarande används — försök igen, eller mata ut den i Finder."
           }
         }
       }

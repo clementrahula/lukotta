@@ -62,6 +62,17 @@ enum Snapshots {
                     $0.phase = .chooseDrive
                 }
             ),
+            // Mid-eject: the row says what it is doing and cannot be pressed
+            // again while it does it.
+            (
+                "drives-ejecting",
+                model {
+                    $0.drives = [drive, linux]
+                    $0.openMounts = ["/dev/disk4s1": "/Volumes/Elements"]
+                    $0.ejectingPath = "/Volumes/Elements"
+                    $0.phase = .chooseDrive
+                }
+            ),
             ("unlock", model { $0.phase = .unlock(drive) }),
             (
                 "unlock-problem",

@@ -140,10 +140,21 @@ public enum EngineStatus {
         return p.terminationStatus == 0
     }
 
+    /// How long the engine is given to tear a mount down before it is treated
+    /// as stuck.
+    ///
+    /// It is told to wait thirty seconds for the virtual machine, so anything
+    /// past that is the engine itself not returning rather than the machine
+    /// being slow. Ten seconds of margin, and then the interface gets an answer
+    /// instead of a spinner that never stops.
+    public static let unmountTimeout: TimeInterval = 40
+
     /// Unmount and wait for the microVM to exit. Unprivileged - the engine
     /// tears down the VM it started, so ejecting never needs a password.
     @discardableResult
-    public static func unmount(mountPoint: String) -> (ok: Bool, message: String) {
+    public static func unmount(mountPoint: String, timeout: TimeInterval = unmountTimeout) -> (
+        ok: Bool, message: String
+    ) {
         guard let engine = EnginePaths.anylinuxfs else { return (false, "Engine missing.") }
         let p = Process()
         p.executableURL = engine
@@ -152,6 +163,22 @@ public enum EngineStatus {
         p.standardOutput = out
         p.standardError = err
         do { try p.run() } catch { return (false, "Could not run the engine.") }
+
+        // Give up rather than wait for ever. Reading the pipes to the end would
+        // itself block on a process that never finishes, so the deadline is
+        // watched first and the output read after.
+        let finished = DispatchSemaphore(value: 0)
+        p.terminationHandler = { _ in finished.signal() }
+        if finished.wait(timeout: .now() + timeout) == .timedOut {
+            p.terminate()
+            return (
+                false,
+                appString(
+                    "The drive did not finish ejecting. It may still be in use — try again, or eject it in Finder."
+                )
+            )
+        }
+
         let o = String(data: out.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
         let e = String(data: err.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
         p.waitUntilExit()

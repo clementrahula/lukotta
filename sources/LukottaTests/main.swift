@@ -1316,6 +1316,25 @@ group("diagnosisRulesAreTiedToAnEngineVersion") {
         "and the engine's own line is shown instead")
 }
 
+group("ejectingIsOneAtATime") {
+    // A drive takes seconds to eject and the engine is told to wait thirty for
+    // the virtual machine. Anything past that is the engine not returning, not
+    // the machine being slow, and the interface needs an answer rather than a
+    // spinner that never stops.
+    expect(
+        EngineStatus.unmountTimeout > 30,
+        "the deadline leaves room for the wait the engine is told to make")
+
+    // Nothing to unmount, and a deadline far too short to reach the engine:
+    // the answer is a refusal, not a hang.
+    let started = Date()
+    let result = EngineStatus.unmount(mountPoint: "/Volumes/nothing-here", timeout: 0.2)
+    expect(!result.ok, "an eject that does not finish in time is not a success")
+    expect(
+        Date().timeIntervalSince(started) < 5,
+        "and it comes back at once rather than waiting for the engine")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

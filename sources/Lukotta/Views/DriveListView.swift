@@ -37,7 +37,12 @@ struct DriveListView: View {
                                 space: point.flatMap { model.space[$0] },
                                 volumeCount: point.flatMap { model.volumeCount[$0] } ?? 1,
                                 action: { model.choose(drive) },
-                                eject: { model.eject(point ?? "") })
+                                eject: { model.eject(point ?? "") },
+                                ejecting: point != nil && model.ejectingPath == point,
+                                // One at a time. A second teardown while the
+                                // first is running is how a drive ends up half
+                                // ejected.
+                                otherEjectInFlight: model.isEjecting)
                         }
                     }
                 }
@@ -61,6 +66,10 @@ struct DriveRow: View {
     var volumeCount: Int = 1
     let action: () -> Void
     let eject: () -> Void
+    /// This drive is the one being ejected.
+    var ejecting = false
+    /// Some drive is, which is enough to stop this one being started.
+    var otherEjectInFlight = false
 
     private var isMounted: Bool { mountPoint != nil }
 
@@ -153,8 +162,22 @@ struct DriveRow: View {
                 // identical Ejects once several drives are open, and the drive
                 // each one belongs to is in the text beside it rather than in
                 // the button.
-                Button("Eject", action: eject).controlSize(.small)
-                    .accessibilityLabel("Eject \(drive.name)")
+                // Ejecting takes seconds, and a button that looks untouched
+                // for that long reads as broken — so it says what it is doing
+                // and refuses to be pressed again while it does it.
+                if ejecting {
+                    HStack(spacing: 6) {
+                        ProgressView().controlSize(.small).scaleEffect(0.7)
+                            .accessibilityHidden(true)
+                        Text("Ejecting…").font(.caption).foregroundStyle(.secondary)
+                    }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Ejecting \(drive.name)")
+                } else {
+                    Button("Eject", action: eject).controlSize(.small)
+                        .accessibilityLabel("Eject \(drive.name)")
+                        .disabled(otherEjectInFlight)
+                }
             } else {
                 Image(systemName: "chevron.right").foregroundStyle(.tertiary)
                     .accessibilityHidden(true)

@@ -108,7 +108,10 @@ final class AppModel: ObservableObject {
     @Published var uninstallSteps: [Uninstall.Step] = []
     @Published var uninstallFinished = false
     @Published var uninstallFailure: String?
-    @Published var isEjecting = false
+    /// Which mount is being ejected, so the row that was clicked is the row
+    /// that shows it happening. A drive list can have several open at once.
+    @Published var ejectingPath: String?
+    var isEjecting: Bool { ejectingPath != nil }
     @Published var ejectProblem: String?
     /// Explains something that happened before the user was looking, such as a
     /// drive that dropped while the app was not running.
@@ -858,7 +861,10 @@ final class AppModel: ObservableObject {
     /// Eject through the engine, not diskutil: diskutil drops the NFS mount but
     /// leaves the microVM running, which orphans a VM on every eject.
     func eject(_ path: String) {
-        isEjecting = true
+        // Already going. Ejecting takes seconds, and without this a second
+        // click starts a second teardown of the same drive.
+        guard ejectingPath == nil else { return }
+        ejectingPath = path
         ejectProblem = nil
         // Every volume this drive opened, so a container of several does not
         // leave the rest mounted behind an ejected one. Volumes nested inside
@@ -878,7 +884,7 @@ final class AppModel: ObservableObject {
             // drive is gone; removing it leaves the engine's config as found.
             if result.ok { EngineConfig.removeGeneratedAction() }
             await MainActor.run {
-                self.isEjecting = false
+                self.ejectingPath = nil
                 if result.ok {
                     self.openVolumes = []
                     if self.openMounts.isEmpty { self.onAllDrivesClosed?() }
