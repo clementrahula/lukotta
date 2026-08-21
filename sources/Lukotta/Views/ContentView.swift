@@ -69,6 +69,20 @@ struct Header: View {
                     .font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
+            // SettingsLink rather than a button that sends an action: it is
+            // what opens the Settings scene, and it brings an already-open one
+            // forward instead of doing nothing.
+            SettingsLink {
+                Image(systemName: "gearshape.circle")
+                    .font(.system(size: 17))
+                    .symbolRenderingMode(.monochrome)
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help("Settings")
+            .accessibilityLabel("Settings")
+            .padding(.trailing, 8)
+
             Button {
                 model.showReport = true
             } label: {

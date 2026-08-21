@@ -20,7 +20,7 @@ SKIP = {
     # Names and addresses.
     "Clement Rahula", "lukotta@rahula.dev", "rahula.dev",
     # Formats and separators, which carry no words.
-    "%@", "%@, %@", "%@, %@, %@", "%@: %@", "%@ · %@", "%@ · %@ · %@",
+    "%@", "%@, %@", "%@, %@, %@", "%@, %@, %@%@", "%@: %@", "%@ · %@", "%@ · %@ · %@",
     "%@ · %@ · %@ · %@", ", ", "-",
     # The bug report is read by whoever fixes the bug, so it stays in one
     # language however the interface is set.
