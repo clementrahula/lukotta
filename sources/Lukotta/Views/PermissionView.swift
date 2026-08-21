@@ -50,15 +50,45 @@ struct PermissionView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             Spacer()
-            HStack {
-                Button("Reveal App") { model.revealApp() }
-                Spacer()
-                Button("Relaunch") { model.relaunch() }
-                Button("Check Again") { model.recheckPermission() }
-                Button("Open Privacy Settings") { model.openPrivacySettings() }
-                    .keyboardShortcut(.defaultAction)
+            // Four buttons fill this row in English and overflow it in German,
+            // where the last one truncated to "Datenschutzeinstellu…". Given a
+            // width they do not fit in, they take two rows instead of losing
+            // their labels.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) {
+                    reveal
+                    Spacer(minLength: 20)
+                    relaunch
+                    checkAgain
+                    openSettings
+                }
+                VStack(spacing: 10) {
+                    HStack(spacing: 10) {
+                        reveal
+                        Spacer(minLength: 12)
+                        relaunch
+                        checkAgain
+                    }
+                    HStack {
+                        Spacer(); openSettings
+                    }
+                }
             }
         }
+    }
+
+    private var reveal: some View {
+        Button("Reveal App") { model.revealApp() }
+    }
+    private var relaunch: some View {
+        Button("Relaunch") { model.relaunch() }
+    }
+    private var checkAgain: some View {
+        Button("Check Again") { model.recheckPermission() }
+    }
+    private var openSettings: some View {
+        Button("Open Privacy Settings") { model.openPrivacySettings() }
+            .keyboardShortcut(.defaultAction)
     }
 }
 
