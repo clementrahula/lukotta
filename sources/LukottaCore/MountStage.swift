@@ -4,12 +4,14 @@ import Foundation
 public enum MountStage: Int, CaseIterable, Sendable {
     case preparing, authorising, working, finishing
 
+    /// Shown as the step list, so it is looked up rather than returned as
+    /// written: Text(String) prints what it is given.
     public var title: String {
         switch self {
-        case .preparing: return "Preparing"
-        case .authorising: return "Waiting for your approval"
-        case .working: return "Unlocking and mounting"
-        case .finishing: return "Handing the drive to Finder"
+        case .preparing: return appString("Preparing")
+        case .authorising: return appString("Waiting for your approval")
+        case .working: return appString("Unlocking and mounting")
+        case .finishing: return appString("Handing the drive to Finder")
         }
     }
 
