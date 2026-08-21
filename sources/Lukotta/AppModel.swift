@@ -867,7 +867,7 @@ final class AppModel: ObservableObject {
             // before anyone could type, and the only thing that ever filled
             // the field by then was a passphrase remembered in the Keychain —
             // which means nothing for a drive that has none to give.
-            if format.isUnencrypted {
+            if format.isUnencrypted, !format.macOSHandlesFully {
                 Log.mount.notice("opening without asking, nothing is encrypted")
                 self.unlock(drive)
             } else if pending != nil {

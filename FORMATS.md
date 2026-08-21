@@ -240,10 +240,28 @@ the only place this app is the sole answer.
 4. **VHDX and VDI**, either as upstream work in that layer or as
    `qemu-img convert` first, with a warning about the disk space a copy costs.
 
-One refinement for later. When a VM disk turns out to hold a filesystem macOS
-*does* read — a Mac VM's APFS, a FAT or exFAT data disk — the best outcome is to
-decode it, attach the result, and let macOS mount it locally rather than serving
-it over NFS. Converting to raw does that today.
+### The same rule applies to something already shipped
+
+Checked, and it did. An exFAT image attached the ordinary way is mounted by
+macOS **locally, read and write**, through FSKit:
+
+    /dev/disk5s1 on /Volumes/EXFATTEST (exfat, local, ... fskit)
+
+Lukotta attaches container files with `-nomount` — deliberately, so macOS cannot
+grab an NTFS volume before the engine gets it — and until now the first-sector
+probe would then see exFAT, call it unencrypted, and open it through the virtual
+machine. A local volume turned into a network one for no gain at all.
+
+So `VolumeFormat.macOSHandlesFully` exists, exFAT is the only thing on it, and
+such a drive is no longer opened on its own. **NTFS is deliberately not on that
+list**: macOS mounts it read-only, and writing to it is the entire reason to open
+one here. That distinction is the rule in miniature — the app earns its place
+only where macOS falls short, and for NTFS it falls short by exactly one verb.
+
+Still open, and worth doing properly rather than at midnight: an exFAT image
+should be handed to macOS to mount rather than merely left alone, and a VM disk
+found to hold APFS, FAT or exFAT should be decoded, attached, and mounted
+locally rather than served over NFS.
 
 Not worth doing: **encrypted DMG**, native and better left alone. FileVault 2 and
 qemu-in-the-guest, both blocked behind a kernel rebuild. APFS encryption, which

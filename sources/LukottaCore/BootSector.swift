@@ -26,6 +26,16 @@ public enum VolumeFormat: String, Sendable {
         case .bitlocker, .luks, .unknown: return false
         }
     }
+
+    /// Whether macOS reads and writes this on its own.
+    ///
+    /// exFAT it mounts locally, read and write, through FSKit — so opening one
+    /// here would take a local volume and turn it into a network one for no
+    /// gain. NTFS is not on this list: macOS mounts it read-only, and writing
+    /// to it is the whole reason to open it here.
+    public var macOSHandlesFully: Bool {
+        self == .exfat
+    }
     /// Not recognised, and not guessed at.
     case unknown
 }

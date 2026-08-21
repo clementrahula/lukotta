@@ -1501,6 +1501,31 @@ group("unencryptedFilesystemsNeedNoPassword") {
     }
 }
 
+group("whatMacOSDoesBetterOnItsOwn") {
+    // The app is worth reaching for only where macOS cannot manage. exFAT it
+    // mounts locally, read and write; opening one here would turn a local
+    // volume into a network one for nothing.
+    expect(VolumeFormat.exfat.macOSHandlesFully, "exFAT is left to macOS")
+
+    // NTFS is not on that list, and the distinction is the point: macOS mounts
+    // it read-only, and writing to it is the whole reason to open it here.
+    expect(!VolumeFormat.ntfs.macOSHandlesFully, "NTFS is not, because macOS only reads it")
+    for format in [VolumeFormat.ext, .btrfs, .xfs] {
+        expect(!format.macOSHandlesFully, "\(format) is not, because macOS cannot read it at all")
+    }
+    for format in [VolumeFormat.luks, .bitlocker] {
+        expect(!format.macOSHandlesFully, "\(format) is not, because it is encrypted")
+    }
+
+    // Everything macOS handles fully is by definition unencrypted, and the two
+    // together are what decide whether a drive opens on its own.
+    for format in [VolumeFormat.bitlocker, .luks, .ntfs, .exfat, .ext, .btrfs, .xfs, .unknown] {
+        if format.macOSHandlesFully {
+            expect(format.isUnencrypted, "\(format) is handled by macOS and so has no password")
+        }
+    }
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")
