@@ -1,33 +1,30 @@
 # Trademark Policy
 
-**Lukotta** — the name, the Lukotta wordmark, and the Lukotta logo — are
-trademarks of Clement Rahula. They are **not** licensed under the GNU General
-Public License.
+The **Lukotta** name, wordmark and logo are trademarks of Clement Rahula. They
+are **not** licensed under the GNU General Public License.
 
-This is an additional term of the kind GPL-3 section 7(e) permits: *declining to
-grant rights under trademark law for use of some trade names, trademarks, or
-service marks*. It restricts the name, not the software.
+GPL-3 section 7(e) permits this as an additional term: *declining to grant
+rights under trademark law for use of some trade names, trademarks, or service
+marks*. The software itself is unrestricted.
 
 ## Permitted Use
 
 The GPL's grants are unaffected. You may use the software, study it, change it,
-redistribute it, sell it, and fork it commercially. No permission is required
-for any of it.
+redistribute it, sell it, and fork it commercially. No permission is required.
 
-You may say truthfully that your work is based on, derived from, or compatible
-with Lukotta. Naming the original in this way is nominative use and is not an
-infringement.
+You may truthfully describe your work as based on, derived from, or compatible
+with Lukotta. That is nominative use and is not an infringement.
 
 ## Modified Versions
 
-If you distribute a modified version, give it your own name and your own mark.
-Do not use the name Lukotta, a confusingly similar name, or the logo to identify
-your version or to suggest that it comes from or is endorsed by this project.
+If you distribute a modified version, give it your own name and mark. Do not
+use the name Lukotta, a confusingly similar name, or the logo to identify your
+version or to suggest that it comes from or is endorsed by this project.
 
-Replacing the name and the artwork in a fork is expected and explicitly
-permitted — the trademark must never prevent you exercising your rights under
-the GPL. The build takes the app name from `sources/Info.plist` and the artwork
-from `assets/`, so a rename is a change to those two.
+Replacing the name and artwork in a fork is expressly permitted — the trademark
+must never prevent you exercising your rights under the GPL. The build takes
+the app name from `sources/Info.plist` and the artwork from `assets/`, so a
+rename is a change to those two.
 
 ## Third-Party Trademarks
 
