@@ -18,19 +18,19 @@ The app makes one network request on its own: a daily check for a newer
 version. That can be turned off in Settings, after which it makes none.
 
 The Developer receives personal data only when you choose to send it — by
-email, or by using the bug reporter, which shows you the whole report first
-and sends nothing by itself.
+email, or through the bug reporter, which shows you the whole report first and
+sends nothing by itself.
 
 ## The App
 
-Lukotta unlocks drives on your own Mac. Nothing about a drive is transmitted:
-not its contents, not the names or sizes of files on it, not which drives you
+Lukotta unlocks drives on your Mac. Nothing about a drive is transmitted: not
+its contents, not the names or sizes of files on it, not which drives you
 have, not when you unlock them or how often.
 
 Your passphrase is never written to disk in the clear and never appears in a
 command line. [SECURITY.md](SECURITY.md) describes how it is handled.
 
-### Checking for updates
+### Checking for Updates
 
 While the app is running, it asks `lukotta-updates.rahula.dev` once a day
 whether a newer version exists. That request carries your IP address, as any
@@ -58,9 +58,9 @@ deleted, not merely anything shaped like a key.
 Nothing is sent automatically. The whole report is shown to you first, and
 copying it or opening an email is your decision.
 
-If you email the Developer, for a bug or anything else, the Developer receives
-what you chose to send: your address, your message, and any attachment. This
-is used to reply, to investigate the problem, and to maintain Lukotta. The
+If you email the Developer, for a bug or anything else, that email arrives
+with what you chose to send: your address, your message, and any attachment.
+This is used to reply, to investigate problems, and to maintain Lukotta. The
 legal basis is the Developer's legitimate interest in supporting the software.
 
 ## The Website and the Update Feed
@@ -69,15 +69,14 @@ The website at `lukotta.rahula.dev` is hosted on GitHub Pages and delivered
 through Cloudflare. The update feed at `lukotta-updates.rahula.dev` is served
 by GitHub Pages directly, without Cloudflare.
 
-Neither uses cookies, advertising trackers or visitor profiling. There is no
-analytics product on either.
+Neither uses cookies, advertising trackers, visitor profiling or analytics.
 
 ## Passphrases You Ask to Be Remembered
 
-Storing a passphrase is optional and off unless you turn it on. It then goes
-to your login Keychain, reachable only while your Mac is unlocked and marked
-not to sync, so it does not travel to iCloud or another device. It stays on
-your Mac and is never transmitted. Forgetting it in the app deletes the entry.
+Storing a passphrase is off unless you turn it on. It then goes to your login
+Keychain, reachable only while your Mac is unlocked and marked not to sync, so
+it does not travel to iCloud or another device. It stays on your Mac and is
+never transmitted. Forgetting it in the app deletes the entry.
 
 ## Files on Your Mac
 
@@ -92,8 +91,7 @@ correctly next time. A label and an identifier, nothing about the contents.
 
 - **GitHub** hosts the website, the update feed, the source repository and the
   downloads. Requests to any of them appear in GitHub's logs.
-  <https://docs.github.com/site-policy/privacy-policies/github-privacy-
-  statement>
+  <https://docs.github.com/site-policy/privacy-policies/github-privacy-statement>
 - **Cloudflare** delivers and protects `lukotta.rahula.dev`.
   <https://www.cloudflare.com/privacypolicy/>
 
