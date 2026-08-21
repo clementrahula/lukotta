@@ -21,6 +21,16 @@ OUT="$(mktemp -d)"
 trap 'rm -rf "$OUT"' EXIT
 "$BINARY" --snapshots "$OUT" >/dev/null
 
+# German as well as English. macOS ignores dynamicTypeSize, so the way text
+# outgrowing its room actually shows up here is a translation: German runs a
+# third longer than English and compounds rather than wrapping. Anything that
+# survives it survives the other twenty.
+GERMAN="$OUT/de"
+mkdir -p "$GERMAN"
+"$BINARY" --snapshots "$GERMAN" -AppleLanguages "(de)" >/dev/null
+for f in "$GERMAN"/*.png; do mv "$f" "$OUT/de-$(basename "$f")"; done
+rmdir "$GERMAN"
+
 if [ "${1:-}" = "--record" ]; then
   mkdir -p "$BASELINE"
   rm -f "$BASELINE"/*.png

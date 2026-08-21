@@ -109,7 +109,9 @@ enum Snapshots {
     /// There is deliberately no text-size axis. `dynamicTypeSize` changes
     /// nothing on macOS — every scene rendered at `.accessibility3` came out
     /// byte-identical to the same scene at `.large` — so an axis for it would
-    /// have doubled the baselines while checking nothing.
+    /// have doubled the baselines while checking nothing. Text that needs more
+    /// room than English is covered by rendering in another language instead,
+    /// which is the same failure and one that actually happens here.
     static let geometries: [(name: String, size: NSSize)] = [
         ("ideal", NSSize(width: 640, height: 620)),
         ("min", NSSize(width: 580, height: 560)),
