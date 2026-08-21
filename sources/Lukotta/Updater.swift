@@ -2,14 +2,11 @@ import Foundation
 import Sparkle
 import SwiftUI
 
-/// Software updates.
-///
-/// Lukotta asks for Full Disk Access and runs part of itself as root, so a
-/// working way to ship a fix matters more than usual — a build that broke
-/// mounting has already shipped once.
-///
-/// Updates are verified twice: by Sparkle's EdDSA signature over the archive,
-/// and by macOS against the Developer ID signature of the app inside it.
+// Software updates. Lukotta asks for Full Disk Access and runs part of itself
+// as root, so a working way to ship a fix matters more than usual. Updates are
+// verified twice: by Sparkle's EdDSA signature over the archive, and by macOS
+// against the Developer ID signature of the app inside it.
+
 /// Forwards Sparkle's delegate callbacks to a closure.
 ///
 /// The delegate has to be handed to the controller as it is built, and is

@@ -6,8 +6,7 @@ import SwiftUI
 /// SwiftUI saves a window's frame under a key built from the type of its
 /// content: `NSWindow Frame SwiftUI.ModifiedContent<...ContentView...>`. Adding
 /// a modifier changes that type, which changes the key, and the window silently
-/// forgets its size and position. This app's defaults held two such keys with
-/// different sizes, from two shapes of the same view.
+/// forgets its size and position.
 ///
 /// Renaming the window's own autosave does not work, because SwiftUI sets its
 /// name after the view appears and takes it back. So the frame is saved and

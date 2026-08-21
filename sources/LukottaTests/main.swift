@@ -175,10 +175,9 @@ group("lvmDiscoveryFixtureCapturedFromARealLuks2LvmBtrfsVolume") {
 
 group("theElevatedMountScript") {
 
-    //
-    // This text becomes a command run as root. Both production-breaking bugs so far
-    // were malformed arguments here, and neither was reachable by a test while
-    // generation and execution lived in the same function.
+    // This text becomes a command run as root, and the mistakes it invites are
+    // malformed arguments — none of which is reachable by a test while
+    // generation and execution live in the same function.
 
     let msScript = MountScript.build(sampleInputs())
 
@@ -215,11 +214,10 @@ group("theElevatedMountScript") {
         !msScript.contains("/usr/bin/expect"),
         "no LVM discovery for a Microsoft volume")
 
-    // The alias was meant to give Finder a friendlier name by being mounted in
-    // place of the device. It never could: the engine prefixes /dev/ onto the
-    // target it is handed, so an alias under /tmp resolved to /dev//tmp/… and
-    // every mount opened with a "disk not found" line. Names come from
-    // DriveMemory instead, and an alias outside /dev is no longer attempted.
+    // An alias cannot stand in for the device: the engine prefixes /dev/ onto
+    // whatever target it is handed, so one under /tmp resolves to /dev//tmp/…
+    // and the mount opens with "disk not found". Friendly names come from
+    // DriveMemory, and only an alias already under /dev is worth passing.
     expect(!msScript.contains("alias/Elements"), "an unresolvable alias is not attempted")
     expect(msScript.contains("'/dev/disk4s1'"), "the device itself is what gets mounted")
 

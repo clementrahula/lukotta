@@ -305,12 +305,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         alert.addButton(withTitle: String(localized: "Cancel"))
         alert.buttons.last?.keyEquivalent = "\u{1b}"
 
-        // Cancel sits where AppKit puts it. Setting the stack's spacing to hold
-        // it apart from the two answers either left the gap's height empty under
-        // it, because the alert is measured before the spacing is set, or
-        // collapsed the alert entirely when that measurement was forced. Getting
-        // it would mean building this dialog by hand, which is not worth it on
-        // the path that quits the app.
+        // Cancel sits where AppKit puts it. NSAlert offers no way to hold it
+        // apart from the two answers, and reaching into the stack it builds
+        // fights a layout that is measured before the reach. Doing it properly
+        // would mean building this dialog by hand, which is not worth it on the
+        // path that quits the app.
 
         let ejectButton: NSApplication.ModalResponse =
             survives ? .alertSecondButtonReturn : .alertFirstButtonReturn

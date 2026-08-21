@@ -64,11 +64,6 @@ struct DriveRow: View {
 
     private var isMounted: Bool { mountPoint != nil }
 
-    /// The same facts whether unlocked or not. A drive that is unlocked does not stop
-    /// being a 500 GB USB disk, and losing that when it opens made the two rows
-    /// look like different kinds of thing.
-    /// Said inside a longer label, so it has to be a string that is already
-    /// translated: what is interpolated into a key is inserted as it stands.
     /// The parts only an open drive has, said after the rest.
     private var spoken: String {
         var parts: [String] = []
@@ -77,9 +72,13 @@ struct DriveRow: View {
         return parts.isEmpty ? "" : ", " + parts.joined(separator: ", ")
     }
 
+    /// Said inside a longer label, so each has to be a string that is already
+    /// translated: what is interpolated into a key is inserted as it stands.
     private var openWord: String { String(localized: "unlocked") }
     private var shutWord: String { String(localized: "locked") }
 
+    /// The same facts whether unlocked or not. A drive that is unlocked does
+    /// not stop being a 500 GB USB disk.
     private var details: String {
         var parts = [drive.sizeDescription]
         if !drive.connection.isEmpty { parts.append(drive.connection) }
@@ -105,9 +104,8 @@ struct DriveRow: View {
     private var row: some View {
         HStack(spacing: 14) {
             // One fixed-width column, so the text starts in the same place on
-            // every row. There is no "…badge.lock" symbol — asking for one drew
-            // nothing at all, which is what left the closed rows without an
-            // icon and their text out of line with the open ones.
+            // every row. There is no "…badge.lock" symbol to pair with the
+            // checkmark one, so a locked drive gets the plain drive icon.
             Image(
                 systemName: isMounted ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill"
             )

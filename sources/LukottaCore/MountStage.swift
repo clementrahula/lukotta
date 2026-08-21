@@ -15,9 +15,8 @@ public enum MountStage: Int, CaseIterable, Sendable {
 
     /// Derived from markers the script writes, not from engine output.
     ///
-    /// An earlier version matched on the engine's words. That could not work:
-    /// the engine prints almost nothing between starting and finishing, so the
-    /// indicator sat on one step and then jumped.
+    /// The engine prints almost nothing between starting and finishing, so an
+    /// indicator driven by its words sits on one step and then jumps.
     public static func inferred(from lines: [String]) -> MountStage {
         var stage = MountStage.preparing
         for line in lines {
@@ -28,8 +27,8 @@ public enum MountStage: Int, CaseIterable, Sendable {
                 stage = max(stage, .working)
             }
             // Only an actual mount means this stage was reached. Matching on
-            // "nfs" caught "NFS server not ready", which is a failure, and made
-            // a mount that never started look as though it had nearly finished.
+            // "nfs" would catch "NFS server not ready", which is a failure, and
+            // make a mount that never started look nearly finished.
             if line.contains(" on /Volumes/") {
                 stage = max(stage, .finishing)
             }

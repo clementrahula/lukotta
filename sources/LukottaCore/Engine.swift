@@ -16,26 +16,14 @@ public enum EnginePaths {
         return FileManager.default.fileExists(atPath: root.path) ? root : nil
     }
 
-    /// Development fallback: the runtime installed by the legacy bootstrap.
-    /// Only used when the app has not been packaged with an embedded engine.
-    public static var developmentEngineRoot: URL? {
-        let home = FileManager.default.homeDirectoryForCurrentUser
-        let root =
-            home
-            .appendingPathComponent(
-                "Library/Application Support/Lukotta/runtime", isDirectory: true)
-        return FileManager.default.fileExists(atPath: root.path) ? root : nil
-    }
-
-    public static var engineRoot: URL? { embeddedEngineRoot ?? developmentEngineRoot }
+    public static var engineRoot: URL? { embeddedEngineRoot }
 
     public static var anylinuxfs: URL? {
         engineRoot?.appendingPathComponent("anylinuxfs/bin/anylinuxfs")
     }
 
-    /// Directories holding the bundled dylibs. The embedded engine loads its one
-    /// external dependency through @executable_path, so this is belt-and-braces
-    /// for the development fallback, where the Homebrew layout is still in use.
+    /// Directories holding the bundled dylibs. The engine loads its one external
+    /// dependency through @executable_path, so this is belt-and-braces.
     public static func libraryPaths() -> [String] {
         guard let root = engineRoot else { return [] }
         var out: [String] = []
@@ -75,12 +63,6 @@ public enum EnginePaths {
         return d
     }
 
-    /// Rootfs produced by a previous `anylinuxfs init` in the real home.
-    public static var developmentRootfs: URL? {
-        let home = FileManager.default.homeDirectoryForCurrentUser
-        let root = home.appendingPathComponent(".anylinuxfs/alpine/rootfs", isDirectory: true)
-        return FileManager.default.fileExists(atPath: root.path) ? root : nil
-    }
 }
 
 /// A private, self-destructing working directory for one unlock attempt.

@@ -6,8 +6,8 @@ import ServiceManagement
 ///
 /// With the helper registered, unlocking needs no administrator password: the
 /// daemon already runs as root. Without it, the app falls back to asking macOS
-/// to authorise a single command, which is what it did before. Nothing breaks
-/// if the helper is unavailable or the user declines it.
+/// to authorise a single command. Nothing breaks if the helper is unavailable
+/// or the user declines it.
 @MainActor
 final class HelperClient: ObservableObject {
 

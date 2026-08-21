@@ -3,15 +3,13 @@ import Foundation
 /// Builds the shell script that runs, as root, to unlock and mount a drive.
 ///
 /// Deliberately separate from executing it. This is the highest-risk text in
-/// the application — it becomes a command run with full privileges — and both
-/// production-breaking bugs so far were malformed arguments here:
+/// the application — it becomes a command run with full privileges — and the
+/// mistakes it invites are malformed arguments. The engine's `-n` and
+/// `--decrypt` flags are variadic, so a value placed after one is swallowed by
+/// it and the device path never arrives.
 ///
-///   * `-n <options> <device>` — the flag is variadic, so it consumed the
-///     device path and the engine reported "mount with no disk".
-///   * `--decrypt all <image>` — the same trap, hit earlier and then repeated.
-///
-/// Neither was reachable by a test while generation and execution were fused
-/// into one function. Keeping this pure means the exact text can be asserted.
+/// Nothing of that shape is reachable by a test while generation and execution
+/// are one function. Keeping this pure means the exact text can be asserted.
 public enum MountScript {
 
     public struct Inputs {
@@ -19,9 +17,9 @@ public enum MountScript {
         var devicePath: String
         var driveName: String
         var kind: VolumeKind
-        /// A single volume to mount directly, skipping discovery. No interface
-        /// sets one any more — every volume of a container is opened — but the
-        /// helper's XPC method still carries the parameter: renaming that
+        /// A single volume to mount directly, skipping discovery. Nothing sets
+        /// one — every volume of a container is opened — but the helper's XPC
+        /// method still carries the parameter: renaming that
         /// selector would leave a freshly updated app calling a still-running
         /// older helper that never answers.
         var volume: LogicalVolume?
@@ -79,12 +77,11 @@ public enum MountScript {
     /// How large a machine to give a mount.
     ///
     /// Its whole job is to unlock a filesystem and serve it over NFS, so it
-    /// does not need much. Asking for a quarter of a small Mac's memory was a
-    /// number picked without measuring, and libkrun backs guest memory lazily,
-    /// which hides that from anyone watching Activity Monitor rather than
-    /// excusing it: the scratch directory a container's volumes are served from
-    /// is sized from this figure, so asking for more invents free space that
-    /// does not exist.
+    /// does not need much. libkrun backs guest memory lazily, so an inflated
+    /// figure hides from anyone watching Activity Monitor without being
+    /// harmless: the scratch directory a container's volumes are served from is
+    /// sized from it, and asking for more invents free space that does not
+    /// exist.
     public enum VirtualMachine {
         public static let ramMiB = 1024
         /// Half the machine, never more than two: the work is I/O, not compute.

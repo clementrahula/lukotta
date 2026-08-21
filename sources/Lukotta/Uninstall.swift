@@ -88,9 +88,9 @@ enum Uninstall {
 
     /// Eject, unregister, delete, then move the app to the Bin and quit.
     ///
-    /// Saved passphrases are deliberately untouched: some are 48-digit recovery
-    /// keys that exist nowhere else, and deleting them quietly during an
-    /// uninstall would be indefensible.
+    /// Saved passphrases go only if asked for. Some are 48-digit recovery keys
+    /// that exist nowhere else, so removing them is a decision the user makes
+    /// rather than one an uninstall makes quietly.
     static func perform(
         _ plan: Plan,
         removingPassphrases: Bool,

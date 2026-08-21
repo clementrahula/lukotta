@@ -4,9 +4,8 @@ import SwiftUI
 /// Renders the small subset of Markdown the bundled documents actually use:
 /// headings, paragraphs, bullet lists and tables.
 ///
-/// A full Markdown engine would be a dependency for one screen. Dumping the raw
-/// source instead, which is what this replaces, makes a compliance document
-/// harder to read than it needs to be.
+/// A full Markdown engine would be a dependency for one screen, and the raw
+/// source makes a compliance document harder to read than it needs to be.
 struct MarkdownView: View {
     let source: String
 

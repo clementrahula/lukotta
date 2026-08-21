@@ -11,8 +11,8 @@ public struct MountResult: Sendable {
 ///
 /// Reading a raw /dev/disk and creating an NFS mount both require root. The
 /// user is asked once, by macOS itself, and the entire mount runs under that
-/// one approval - there is no persistent privileged helper and nothing is
-/// installed outside the app bundle.
+/// one approval. This is the route taken when the privileged helper is not
+/// registered; with it, unlocking asks for nothing.
 public enum Mounter {
     public static func mount(
         drive: Drive,

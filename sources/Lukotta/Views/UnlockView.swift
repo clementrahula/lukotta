@@ -371,5 +371,3 @@ struct PermissionRow: View {
         }
     }
 }
-
-// MARK: - Working

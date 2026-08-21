@@ -1,11 +1,10 @@
 #!/bin/bash
 # Fetch the engine Lukotta ships, exactly as vendor/engine.lock pins it.
 #
-# The engine used to be staged from whatever anylinuxfs happened to be installed
-# on the build machine. That made the build unreproducible, and it silently set
-# the lowest macOS the app would run on — a library picked up from a macOS 26
-# machine carried a macOS 26 minimum into the bundle, while anylinuxfs itself
-# supports macOS 11.
+# Staging the engine from whatever anylinuxfs happens to be installed on the
+# build machine makes the build unreproducible, and silently sets the lowest
+# macOS the app will run on: a library picked up from a macOS 26 machine carries
+# a macOS 26 minimum into the bundle, while anylinuxfs itself supports macOS 11.
 #
 # Everything here is downloaded from a pinned URL and checked against a pinned
 # sha256. A mismatch stops the build rather than shipping something unexamined.

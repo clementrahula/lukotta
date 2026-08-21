@@ -263,13 +263,11 @@ final class AppModel: ObservableObject {
         Permissions.openFullDiskAccessSettings()
     }
 
-    /// A newly granted permission only applies to a fresh process.
-    /// A newly granted permission only applies to a freshly started process.
     /// Set while quitting in order to come straight back.
     ///
     /// Read by the delegate, which starts the replacement only once this copy
-    /// has actually gone. Starting it first meant a cancelled quit left two
-    /// copies running.
+    /// has actually gone. Starting it first would leave two copies running if
+    /// the quit were turned down.
     nonisolated(unsafe) static var wantsRelaunch = false
 
     func relaunch() {
@@ -467,8 +465,7 @@ final class AppModel: ObservableObject {
                 .path
             // The helper only replies once, at the end. Without this the steps
             // would show the first one and then jump straight to a mounted
-            // drive, which is what the indicator did for the whole time the
-            // helper has existed.
+            // drive.
             helperLinesShown = 0
             let poll = Task { [weak self] in
                 while !Task.isCancelled {
@@ -574,9 +571,8 @@ final class AppModel: ObservableObject {
     private func runMountWithAuthorisation(
         drive: Drive, credential: String, workspace ws: Workspace
     ) {
-        // Held like the helper's, so Cancel reaches this route too. Without it
-        // the button worked on one path and did nothing on the other, which is
-        // worse than not offering it.
+        // Held like the helper's, so Cancel reaches this route too. A button
+        // that works on one route and not the other is worse than none.
         mountTask = Task.detached(priority: .userInitiated) {
             do {
                 let result = try Mounter.mount(

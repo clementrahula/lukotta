@@ -22,9 +22,6 @@ enum Language {
         Bundle.main.localizations.filter { $0 != "Base" }.sorted()
     }
 
-    /// A language's name in that language, which is how a language picker
-    /// should read: someone looking for their own language knows its name in
-    /// it, and may not know its name in the one currently showing.
     /// Languages written differently in different countries, and which country
     /// this app's version of them is written for.
     ///
@@ -36,6 +33,9 @@ enum Language {
         "en": "UK", "fr": "France", "de": "Deutschland", "es": "España",
     ]
 
+    /// A language's name in that language, which is how a language picker
+    /// should read: someone looking for their own language knows its name in
+    /// it, and may not know its name in the one currently showing.
     static func name(of code: String) -> String {
         let locale = Locale(identifier: code)
         let own = locale.localizedString(forIdentifier: code) ?? code

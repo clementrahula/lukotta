@@ -40,6 +40,8 @@ public enum DriveMemory {
     /// was permitted at least once.
     public static var hasAny: Bool { !store.isEmpty }
 
+    /// Drop one entry. The app forgets everything at once or nothing; this is
+    /// how a test removes what it added without touching anyone's real names.
     public static func forget(uuid: String) {
         var current = store
         current.removeValue(forKey: uuid)

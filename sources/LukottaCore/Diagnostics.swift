@@ -43,9 +43,8 @@ public enum Diagnostics {
     /// Only recent reports, and only for the build that is running.
     ///
     /// A report from an earlier build, offered beside an unrelated failure,
-    /// reads as "this just crashed" — which is how a cancelled authorisation
-    /// came to look like a crash. Cancelling is not a crash, and a report from
-    /// a build the user is no longer running is not evidence about this one.
+    /// reads as "this just crashed". A report from a build the user is not
+    /// running is not evidence about the one they are.
     public static func crashReports(
         appName: String = "Lukotta",
         within: TimeInterval = 24 * 60 * 60,
@@ -87,15 +86,6 @@ public enum Diagnostics {
             .map { $0 }
     }
 
-    /// Removes anything credential-shaped from text that may be shown, stored
-    /// or sent.
-    ///
-    /// The credential is never deliberately written anywhere: it travels
-    /// through a FIFO and is referenced in the elevated script as a shell
-    /// variable. But engine output is captured verbatim, and a tool that echoed
-    /// a passphrase — or a future change to one — would put it in a log the
-    /// user is invited to send. Redaction is applied to everything, so being
-    /// wrong about that costs nothing.
     /// Strip Lukotta's own markers from engine output.
     ///
     /// They are written into the same log the engine writes to, because that is
@@ -107,7 +97,15 @@ public enum Diagnostics {
             .joined(separator: "\n")
     }
 
-    /// Redact, knowing the credential in play.
+    /// Removes anything credential-shaped from text that may be shown, stored
+    /// or sent, knowing the credential in play.
+    ///
+    /// The credential is never deliberately written anywhere: it travels
+    /// through a FIFO and is referenced in the elevated script as a shell
+    /// variable. But engine output is captured verbatim, and a tool that echoed
+    /// a passphrase — or a future change to one — would put it in a log the
+    /// user is invited to send. Redaction is applied to everything, so being
+    /// wrong about that costs nothing.
     ///
     /// The pattern rules below recognise the shape of a recovery key, which is
     /// no help against an ordinary passphrase. One can still reach the log: the
