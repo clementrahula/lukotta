@@ -62,18 +62,16 @@ and a drive is only written to when you write to it.
 
 ## Languages
 
-Lukotta is available in English and twenty-one other languages:
+Lukotta is available in English and 21 other languages:
 
 Bulgarian · Croatian · Czech · Danish · Dutch · Estonian · Finnish · French ·
 German · Greek · Hungarian · Italian · Latvian · Lithuanian ·
 Norwegian (Bokmål) · Polish · Portuguese (Portugal) · Romanian · Slovenian ·
 Spanish · Swedish
 
-It follows your Mac's language and falls back to English. You can also choose
-one in Settings.
-
-If a translation reads wrongly, or you want a language that is not here, write
-to [lukotta@rahula.dev][email] — corrections and requests are both welcome.
+If a translation reads wrongly, or you want a language that is not listed here,
+write to [lukotta@rahula.dev][email] or to GitHub Issues — corrections and
+requests are both welcome.
 
 ## Installing
 
@@ -170,8 +168,8 @@ Built on [anylinuxfs][anylinuxfs] by nohajc, which does the mounting, and on
 [Sparkle][sparkle] for updates. Lukotta is not affiliated with Microsoft, Apple,
 or the Linux projects it works with.
 
-Lukotta is developed and maintained with Anthropic's Claude, using the Opus 5
-and Fable 5 models.
+Lukotta is developed and maintained using GenAI tools, mainly the Opus 5
+and Fable 5 models from Anthropic.
 
 [email]: mailto:lukotta@rahula.dev
 [releases]: https://github.com/clementrahula/lukotta/releases

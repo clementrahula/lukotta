@@ -26,6 +26,12 @@ enum Language {
     /// should read: someone looking for their own language knows its name in
     /// it, and may not know its name in the one currently showing.
     static func name(of code: String) -> String {
+        // The interface English is British — licence, recognise, virtualisation
+        // — so the picker says which English it is rather than leaving someone
+        // to work it out from the spelling. Not translated: a language is named
+        // in itself here, as the others are.
+        if code == "en" { return "English (UK)" }
+
         let locale = Locale(identifier: code)
         let own = locale.localizedString(forIdentifier: code) ?? code
         return own.prefix(1).uppercased() + own.dropFirst()
