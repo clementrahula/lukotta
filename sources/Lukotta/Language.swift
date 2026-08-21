@@ -25,16 +25,23 @@ enum Language {
     /// A language's name in that language, which is how a language picker
     /// should read: someone looking for their own language knows its name in
     /// it, and may not know its name in the one currently showing.
-    static func name(of code: String) -> String {
-        // The interface English is British — licence, recognise, virtualisation
-        // — so the picker says which English it is rather than leaving someone
-        // to work it out from the spelling. Not translated: a language is named
-        // in itself here, as the others are.
-        if code == "en" { return "English (UK)" }
+    /// Languages written differently in different countries, and which country
+    /// this app's version of them is written for.
+    ///
+    /// English here is British — licence, recognise, virtualisation — and the
+    /// other three are as spoken where they are named. Portuguese and Norwegian
+    /// are not listed because macOS already names their variety for us. The
+    /// place is written in the language itself, as the language is.
+    private static let variety = [
+        "en": "UK", "fr": "France", "de": "Deutschland", "es": "España",
+    ]
 
+    static func name(of code: String) -> String {
         let locale = Locale(identifier: code)
         let own = locale.localizedString(forIdentifier: code) ?? code
-        return own.prefix(1).uppercased() + own.dropFirst()
+        let named = own.prefix(1).uppercased() + own.dropFirst()
+        guard let place = variety[code] else { return named }
+        return "\(named) (\(place))"
     }
 
     static var current: String {
