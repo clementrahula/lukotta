@@ -57,6 +57,12 @@
             "value": "%@ a été supprimé"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ je uklonjen"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -173,6 +179,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ est un logiciel libre sous licence GPL, version 3 ou ultérieure. Le montage est assuré par anylinuxfs. Le code source complet de chaque composant est publié à chaque version. Le nom et le logo sont des marques et ne sont pas couverts par cette licence."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ je slobodan softver pod licencom GPL, verzija 3 ili novija. Montiranje obavlja anylinuxfs. Potpuni izvorni kod svake komponente objavljuje se uz svako izdanje. Naziv i logotip zaštitni su znakovi i nisu obuhvaćeni tom licencom."
           }
         },
         "hu": {
@@ -293,6 +305,12 @@
             "value": "%@ ouvre les disques BitLocker et Linux que macOS ne sait pas lire seul. Un réglage est nécessaire au préalable.\n\nLire un disque au niveau du périphérique brut exige l’accès complet au disque — un mot de passe administrateur ne suffit pas, et l’autorisation relative aux volumes amovibles couvre les fichiers d’un disque, pas le périphérique lui-même. macOS ne permet à aucune app de demander celle-ci : elle doit être activée à la main."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ otvara BitLocker i Linux diskove koje macOS sam ne može pročitati. Prije toga potrebna je jedna postavka.\n\nČitanje diska na razini uređaja zahtijeva puni pristup disku — administratorska lozinka nije dovoljna, a dopuštenje za uklonjive jedinice odnosi se na datoteke na disku, a ne na sam uređaj. macOS ne omogućuje aplikaciji da ga zatraži, pa se mora uključiti ručno."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -411,6 +429,12 @@
             "value": "%@ démarre une petite machine virtuelle Linux, y déverrouille le disque, puis le transmet au Finder. macOS ne sait pas lire les systèmes de fichiers BitLocker ou Linux. Linux, si."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ pokreće mali virtualni Linux stroj, u njemu otključava disk i predaje ga natrag Finderu. macOS ne može čitati BitLocker ni Linux datotečne sustave. Linux može."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -527,6 +551,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ sera placé dans la corbeille."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ će biti premješten u Smeće."
           }
         },
         "hu": {
@@ -780,6 +810,30 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld disques ne répondaient plus et ont été déconnectés. Vous pouvez les ouvrir à nouveau."
+                }
+              }
+            }
+          }
+        },
+        "hr": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld diska prestala su odgovarati i odspojena su. Možete ih ponovno otvoriti."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld disk prestao je odgovarati i odspojen je. Možete ga ponovno otvoriti."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld diskova prestalo je odgovarati i odspojeno je. Možete ih ponovno otvoriti."
                 }
               }
             }
@@ -1197,6 +1251,30 @@
             }
           }
         },
+        "hr": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld otvorena diska bit će izbačena."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld otvoreni disk bit će izbačen."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld otvorenih diskova bit će izbačeno."
+                }
+              }
+            }
+          }
+        },
         "hu": {
           "variations": {
             "plural": {
@@ -1471,6 +1549,12 @@
             "value": "%lld pour cent"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld posto"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -1587,6 +1671,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "250 Mo d’espace disque : 155 Mo pour l’app, 95 Mo pour l’environnement Linux décompressé à la première utilisation"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 MB prostora na disku: 155 MB za aplikaciju i 95 MB za Linux okruženje koje se raspakirava pri prvom korištenju"
           }
         },
         "hu": {
@@ -1707,6 +1797,12 @@
             "value": "30 à 80 Mo de mémoire vive par disque déverrouillé"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 do 80 MB memorije po otključanom disku"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -1823,6 +1919,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Un rapport de plantage a été trouvé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pronađeno je izvješće o rušenju"
           }
         },
         "hu": {
@@ -1943,6 +2045,12 @@
             "value": "À propos de %@"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O aplikaciji %@"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -2059,6 +2167,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "À propos et aide"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informacije i pomoć"
           }
         },
         "hu": {
@@ -2179,6 +2293,12 @@
             "value": "Une dizaine de disques peuvent rester déverrouillés en même temps"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otključano istodobno može ostati oko deset diskova"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -2295,6 +2415,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mot de passe administrateur"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratorska lozinka"
           }
         },
         "hu": {
@@ -2415,6 +2541,12 @@
             "value": "Mot de passe administrateur — demandé une seule fois lors de la configuration de l’assistant en arrière-plan, puis plus jamais. %@ ne le voit jamais"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratorska lozinka — traži se jednom pri postavljanju pomoćnika u pozadini, a poslije više ne. %@ je nikada ne vidi"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -2533,6 +2665,12 @@
             "value": "Tous les disques"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Svi diskovi"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -2649,6 +2787,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Toutes les autorisations requises sont accordées"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sva potrebna dopuštenja su dodijeljena"
           }
         },
         "hu": {
@@ -2902,6 +3046,30 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Supprimer aussi %1$lld phrases secrètes enregistrées (%2$@)"
+                }
+              }
+            }
+          }
+        },
+        "hr": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izbriši i %1$lld spremljene zaporke (%2$@)"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izbriši i %1$lld spremljenu zaporku (%2$@)"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izbriši i %1$lld spremljenih zaporki (%2$@)"
                 }
               }
             }
@@ -3181,6 +3349,12 @@
             "value": "Un Mac Apple Silicon. Les Mac Intel ne sont pas pris en charge"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac s Apple Siliconom. Macovi s Intelom nisu podržani"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -3297,6 +3471,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Un autre disque est ouvert, et le moteur doit s’exécuter seul la première fois après une modification. Éjectez les autres disques, ouvrez celui-ci, puis ils pourront de nouveau être ouverts ensemble."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvoren je drugi disk, a pogon nakon promjene prvi put mora raditi sam. Izbacite ostale diskove, otvorite ovaj, a zatim opet svi mogu biti otvoreni zajedno."
           }
         },
         "hu": {
@@ -3417,6 +3597,12 @@
             "value": "Apparence"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izgled"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -3533,6 +3719,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "N’apparaît que lorsqu’un disque est déverrouillé, pour l’éjecter."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pojavljuje se samo dok je disk otključan, radi izbacivanja."
           }
         },
         "hu": {
@@ -3653,6 +3845,12 @@
             "value": "Développeur"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Razvojni programer"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -3769,6 +3967,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Retour"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Natrag"
           }
         },
         "hu": {
@@ -3889,6 +4093,12 @@
             "value": "Les disques BitLocker, déverrouillés avec le mot de passe du volume ou une clé de récupération à 48 chiffres"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker diskovi, otključani lozinkom jedinice ili 48-znamenkastim ključem za oporavak"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -4005,6 +4215,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "BitLocker ou NTFS"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker ili NTFS"
           }
         },
         "hu": {
@@ -4125,6 +4341,12 @@
             "value": "Annuler"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odustani"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -4241,6 +4463,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "La touche Verr. maj. est activée"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps Lock je uključen"
           }
         },
         "hu": {
@@ -4361,6 +4589,12 @@
             "value": "Vérifier à nouveau"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Provjeri ponovno"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -4477,6 +4711,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vérifier maintenant"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Provjeri sada"
           }
         },
         "hu": {
@@ -4597,6 +4837,12 @@
             "value": "Rechercher les mises à jour…"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Provjeri ažuriranja…"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -4713,6 +4959,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rechercher les mises à jour automatiquement"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatski provjeravaj ažuriranja"
           }
         },
         "hu": {
@@ -4833,6 +5085,12 @@
             "value": "Cliquez sur « + », ajoutez %@, puis activez l’option."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kliknite „+”, dodajte %@ i uključite ga."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -4949,6 +5207,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Réduit"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sažeto"
           }
         },
         "hu": {
@@ -5069,6 +5333,12 @@
             "value": "Revenez ici et choisissez « Relancer » — une nouvelle autorisation ne s’applique qu’à une app qui vient de démarrer."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vratite se ovamo i odaberite „Pokreni ponovno” — novo dopuštenje vrijedi tek za tek pokrenutu aplikaciju."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -5185,6 +5455,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Connectez le disque chiffré, puis choisissez « Rechercher à nouveau ». S’il est déjà connecté, macOS l’a peut-être monté — éjectez-le d’abord dans le Finder."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spojite šifrirani disk i odaberite „Pretraži ponovno”. Ako je već spojen, macOS ga je možda montirao — najprije ga izbacite u Finderu."
           }
         },
         "hu": {
@@ -5305,6 +5581,12 @@
             "value": "Copié"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopirano"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -5423,6 +5705,12 @@
             "value": "Copier les détails"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopiraj pojedinosti"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -5539,6 +5827,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sombre"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamno"
           }
         },
         "hu": {
@@ -5792,6 +6086,30 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Suppression de %lld phrases secrètes enregistrées"
+                }
+              }
+            }
+          }
+        },
+        "hr": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Brisanje %lld spremljene zaporke"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Brisanje %lld spremljene zaporke"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Brisanje %lld spremljenih zaporki"
                 }
               }
             }
@@ -6071,6 +6389,12 @@
             "value": "Suppression de l’environnement Linux"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brisanje Linux okruženja"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -6187,6 +6511,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Détails qui seront inclus"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pojedinosti koje će biti uključene"
           }
         },
         "hu": {
@@ -6307,6 +6637,12 @@
             "value": "OK"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gotovo"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -6423,6 +6759,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Les télécharger et les installer"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preuzmi ih i instaliraj"
           }
         },
         "hu": {
@@ -6543,6 +6885,12 @@
             "value": "Les disques scellés à un TPM plutôt qu’à un mot de passe, y compris le chiffrement matériel plus récent d’Ubuntu"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskovi vezani uz TPM umjesto uz lozinku, uključujući noviju hardversku enkripciju u Ubuntuu"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -6659,6 +7007,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Éjecter"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izbaci"
           }
         },
         "hu": {
@@ -6779,6 +7133,12 @@
             "value": "Éjecter %@"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izbaci %@"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -6895,6 +7255,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Éjecter et quitter"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izbaci i izađi"
           }
         },
         "hu": {
@@ -7148,6 +7514,30 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Éjection de %lld disques ouverts"
+                }
+              }
+            }
+          }
+        },
+        "hr": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izbacivanje %lld otvorena diska"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izbacivanje %lld otvorenog diska"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izbacivanje %lld otvorenih diskova"
                 }
               }
             }
@@ -7427,6 +7817,12 @@
             "value": "Éjection…"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izbacivanje…"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -7543,6 +7939,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sortie du moteur"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izlaz pogona"
           }
         },
         "hu": {
@@ -7663,6 +8065,12 @@
             "value": "Saisissez la phrase secrète du disque."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unesite zaporku diska."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -7779,6 +8187,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Saisissez le mot de passe du disque ou sa clé de récupération à 48 chiffres."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unesite lozinku diska ili njegov 48-znamenkasti ključ za oporavak."
           }
         },
         "hu": {
@@ -7899,6 +8313,12 @@
             "value": "Tout le reste a été supprimé. %@ lui-même n’a pas pu être placé dans la corbeille — %@ — faites-le glisser vous-même pour terminer."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sve ostalo je uklonjeno. Sam %@ nije se mogao premjestiti u Smeće (%@) — povucite ga ondje sami da biste dovršili."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -8015,6 +8435,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Développé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prošireno"
           }
         },
         "hu": {
@@ -8135,6 +8561,12 @@
             "value": "Externe"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vanjski"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -8251,6 +8683,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Oublier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaboravi"
           }
         },
         "hu": {
@@ -8371,6 +8809,12 @@
             "value": "Accès complet au disque"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puni pristup disku"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -8489,6 +8933,12 @@
             "value": "Accès complet au disque — sans lui, macOS n’autorise aucune app à lire le contenu brut d’un disque. Il ne peut pas être demandé et doit donc être activé à la main"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puni pristup disku — bez njega macOS nijednoj aplikaciji ne dopušta čitanje sirovog sadržaja diska. Ne može se zatražiti, pa se mora uključiti ručno"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -8602,6 +9052,12 @@
           }
         },
         "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        },
+        "hr": {
           "stringUnit": {
             "state": "translated",
             "value": "GNU General Public License"
@@ -8725,6 +9181,12 @@
             "value": "Accordée"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodijeljeno"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -8841,6 +9303,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Masquer"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sakrij"
           }
         },
         "hu": {
@@ -8961,6 +9429,12 @@
             "value": "Masquer la saisie"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sakrij uneseno"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -9077,6 +9551,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Masquer les détails"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sakrij pojedinosti"
           }
         },
         "hu": {
@@ -9197,6 +9677,12 @@
             "value": "Comment %@ fonctionne et ce qu’il prend en charge"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kako %@ radi i što podržava"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -9313,6 +9799,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fonctionnement"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kako radi"
           }
         },
         "hu": {
@@ -9433,6 +9925,12 @@
             "value": "Interne"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unutarnji"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -9549,6 +10047,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il est dans la corbeille. Rien d’autre n’en subsiste sur ce Mac."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nalazi se u Smeću. Ništa drugo od njega nije ostalo na ovom Macu."
           }
         },
         "hu": {
@@ -9669,6 +10173,12 @@
             "value": "Les disques LUKS de Linux, LUKS1 comme LUKS2"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS diskovi s Linuxa, i LUKS1 i LUKS2"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -9785,6 +10295,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LUKS ou système de fichiers Linux"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS ili Linux datotečni sustav"
           }
         },
         "hu": {
@@ -9905,6 +10421,12 @@
             "value": "Les volumes LUKS dont l’en-tête est stocké séparément du disque"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS jedinice čije je zaglavlje pohranjeno odvojeno od diska"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -10021,6 +10543,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LVM dans LUKS, tel que le configurent Ubuntu, Debian, Mint et Fedora. Plusieurs volumes sur un même disque se déverrouillent ensemble"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM unutar LUKS-a, kako ga postavljaju Ubuntu, Debian, Mint i Fedora. Više jedinica na jednom disku otključava se zajedno"
           }
         },
         "hu": {
@@ -10141,6 +10669,12 @@
             "value": "Langue"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jezik"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -10257,6 +10791,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dernière vérification : %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zadnja provjera: %@"
           }
         },
         "hu": {
@@ -10377,6 +10917,12 @@
             "value": "Laisser ouvert"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ostavi otvorenim"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -10493,6 +11039,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permet à %@ de lire lui-même les données chiffrées."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omogućuje aplikaciji %@ da sama čita šifrirane podatke."
           }
         },
         "hu": {
@@ -10613,6 +11165,12 @@
             "value": "Permet à %@ de lire lui-même les données chiffrées. Sans cette autorisation, macOS le bloque, même pour les administrateurs, et elle ne peut pas être demandée : elle doit être activée à la main."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omogućuje aplikaciji %@ da sama čita šifrirane podatke. Bez toga macOS to blokira i administratorima, a ne može se zatražiti — mora se uključiti ručno."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -10729,6 +11287,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Licence"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licenca"
           }
         },
         "hu": {
@@ -10849,6 +11413,12 @@
             "value": "Clair"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Svijetlo"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -10965,6 +11535,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Emplacement"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokacija"
           }
         },
         "hu": {
@@ -11085,6 +11661,12 @@
             "value": "Verrouillé"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaključan"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -11201,6 +11783,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Recherche de disques chiffrés…"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traženje šifriranih diskova…"
           }
         },
         "hu": {
@@ -11321,6 +11909,12 @@
             "value": "Lúkotta signifie « sans serrure » en finnois, de lukko, une serrure, avec la terminaison -tta qui marque l’absence de quelque chose. L’accent tonique porte sur la première syllabe, comme toujours en finnois."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lúkotta na finskom znači „bez brave”, od lukko, brava, s nastavkom -tta koji označava odsutnost nečega. Naglasak je na prvom slogu, kao uvijek u finskom."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -11437,6 +12031,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Barre des menus"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traka izbornika"
           }
         },
         "hu": {
@@ -11557,6 +12157,12 @@
             "value": "Placement de %@ dans la corbeille"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premještanje %@ u Smeće"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -11673,6 +12279,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Requise"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Potrebno"
           }
         },
         "hu": {
@@ -11793,6 +12405,12 @@
             "value": "Aucun disque chiffré trouvé"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nije pronađen nijedan šifrirani disk"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -11909,6 +12527,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aucune raison n’a été signalée. Les détails ci-dessous en disent peut-être davantage."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nije naveden razlog. Pojedinosti u nastavku možda kažu više."
           }
         },
         "hu": {
@@ -12029,6 +12653,12 @@
             "value": "Absent de cette version."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nije uključeno u ovu verziju."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -12145,6 +12775,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rien n’est installé. Le moteur est intégré à l’app, rien ne quitte votre Mac, et un disque n’est écrit que lorsque vous y écrivez."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ništa se ne instalira. Pogon dolazi unutar aplikacije, ništa ne napušta vaš Mac, a na disk se zapisuje samo kad vi na njega zapisujete."
           }
         },
         "hu": {
@@ -12265,6 +12901,12 @@
             "value": "Une fois l’assistant en arrière-plan configuré, une mise à jour laissera les disques déverrouillés tranquilles."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kad je pomoćnik u pozadini postavljen, ažuriranje neće dirati otključane diskove."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -12381,6 +13023,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ouvrir %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori %@"
           }
         },
         "hu": {
@@ -12501,6 +13149,12 @@
             "value": "Ouvrir la messagerie"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori e-poštu"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -12617,6 +13271,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ouvrez « Confidentialité et sécurité » → « Accès complet au disque »."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvorite „Privatnost i sigurnost” → „Puni pristup disku”."
           }
         },
         "hu": {
@@ -12737,6 +13397,12 @@
             "value": "Ouvrir les réglages de confidentialité"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori postavke privatnosti"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -12853,6 +13519,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ouvrez des disques chiffrés sur macOS"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvarajte šifrirane diskove na macOS-u"
           }
         },
         "hu": {
@@ -12973,6 +13645,12 @@
             "value": "Ouverture de « %@ »"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvaranje „%@”"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -13089,6 +13767,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Phrase secrète"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaporka"
           }
         },
         "hu": {
@@ -13209,6 +13893,12 @@
             "value": "Mot de passe ou clé de récupération"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lozinka ili ključ za oporavak"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -13325,6 +14015,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Autorisations"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dopuštenja"
           }
         },
         "hu": {
@@ -13445,6 +14141,12 @@
             "value": "Quitter"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izađi"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -13561,6 +14263,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quitter %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izađi iz %@"
           }
         },
         "hu": {
@@ -13814,6 +14522,30 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Quitter et laisser %lld disques ouverts ?"
+                }
+              }
+            }
+          }
+        },
+        "hr": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izaći i ostaviti %lld diska otvorenima?"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izaći i ostaviti %lld disk otvorenim?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izaći i ostaviti %lld diskova otvorenima?"
                 }
               }
             }
@@ -14093,6 +14825,12 @@
             "value": "Quitter et laisser « %@ » ouvert ?"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izaći i ostaviti „%@” otvorenim?"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -14209,6 +14947,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Relancer"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokreni ponovno"
           }
         },
         "hu": {
@@ -14329,6 +15073,12 @@
             "value": "Mémoriser cette clé dans mon trousseau"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zapamti ovaj ključ u mom Keychainu"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -14445,6 +15195,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volumes amovibles — demandé par macOS la première fois qu’un disque est lu"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uklonjive jedinice — macOS ih traži pri prvom čitanju diska"
           }
         },
         "hu": {
@@ -14565,6 +15321,12 @@
             "value": "Suppression de %@"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uklanjanje %@"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -14681,6 +15443,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Suppression des réglages"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uklanjanje postavki"
           }
         },
         "hu": {
@@ -14801,6 +15569,12 @@
             "value": "Signaler ce problème"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijavi ovaj problem"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -14917,6 +15691,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Signaler un problème"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijavi problem"
           }
         },
         "hu": {
@@ -15037,6 +15817,12 @@
             "value": "Signaler un problème ou envoyer un rapport de plantage"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijavite problem ili pošaljite izvješće o rušenju"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -15153,6 +15939,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Signaler un problème"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijavi problem"
           }
         },
         "hu": {
@@ -15273,6 +16065,12 @@
             "value": "Signaler un problème…"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijavi problem…"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -15389,6 +16187,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Configuration requise"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zahtjevi"
           }
         },
         "hu": {
@@ -15509,6 +16313,12 @@
             "value": "Rechercher à nouveau"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pretraži ponovno"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -15625,6 +16435,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afficher l’app dans le Finder"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaži aplikaciju u Finderu"
           }
         },
         "hu": {
@@ -15745,6 +16561,12 @@
             "value": "Voir les disques connectés"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaz spojenih diskova"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -15861,6 +16683,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sélectionnez un disque à déverrouiller"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odaberite disk za otključavanje"
           }
         },
         "hu": {
@@ -15981,6 +16809,12 @@
             "value": "Configuration de l’environnement Linux"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priprema Linux okruženja"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -16097,6 +16931,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afficher"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaži"
           }
         },
         "hu": {
@@ -16217,6 +17057,12 @@
             "value": "Afficher %@ dans la barre des menus"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaži %@ u traci izbornika"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -16333,6 +17179,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afficher dans le Finder"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaži u Finderu"
           }
         },
         "hu": {
@@ -16453,6 +17305,12 @@
             "value": "Afficher la saisie"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaži uneseno"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -16569,6 +17427,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afficher à quoi sert chaque autorisation"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaži čemu služi svako dopuštenje"
           }
         },
         "hu": {
@@ -16689,6 +17553,12 @@
             "value": "Certaines autorisations manquent encore"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neka dopuštenja još nedostaju"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -16805,6 +17675,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Code source"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izvorni kod"
           }
         },
         "hu": {
@@ -16925,6 +17801,12 @@
             "value": "Système"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sustav"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -17041,6 +17923,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "« Système » suit la langue de votre Mac."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Sustav” prati jezik vašeg Maca."
           }
         },
         "hu": {
@@ -17161,6 +18049,12 @@
             "value": "« Système » suit le réglage de votre Mac, y compris lorsqu’il change."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Sustav” prati postavku vašeg Maca, i onda kad se promijeni."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -17277,6 +18171,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ce mot de passe ou cette clé de récupération n’a pas déverrouillé ce disque."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta lozinka ili ključ za oporavak nisu otključali ovaj disk."
           }
         },
         "hu": {
@@ -17397,6 +18297,12 @@
             "value": "L’environnement Linux n’est décompressé qu’une seule fois, à la première utilisation."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linux okruženje raspakirava se jednom, pri prvom korištenju."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -17513,6 +18419,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’environnement Linux sera supprimé, libérant environ %lld Mo."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linux okruženje bit će izbrisano i oslobodit će oko %lld MB."
           }
         },
         "hu": {
@@ -17633,6 +18545,12 @@
             "value": "L’assistant en arrière-plan n’est pas configuré : %@ maintient donc le disque ouvert lui-même. Quitter maintenant le déconnecte, et tout ce qui reste à écrire ne serait pas terminé.\n\nUne fois l’assistant configuré, les disques restent ouverts d’eux-mêmes."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomoćnik u pozadini nije postavljen, pa %@ sam drži disk otvorenim. Izlazak sada odspaja disk, a ono što se još zapisuje ne bi se dovršilo.\n\nKad je pomoćnik postavljen, diskovi ostaju otvoreni sami od sebe."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -17749,6 +18667,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’assistant en arrière-plan n’est pas configuré : %@ les maintient donc ouverts lui-même. Quitter maintenant les déconnecte, et tout ce qui reste à écrire ne serait pas terminé.\n\nUne fois l’assistant configuré, les disques restent ouverts d’eux-mêmes."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomoćnik u pozadini nije postavljen, pa ih %@ sam drži otvorenima. Izlazak sada ih odspaja, a ono što se još zapisuje ne bi se dovršilo.\n\nKad je pomoćnik postavljen, diskovi ostaju otvoreni sami od sebe."
           }
         },
         "hu": {
@@ -17869,6 +18793,12 @@
             "value": "L’assistant en arrière-plan sera désenregistré."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registracija pomoćnika u pozadini bit će poništena."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -17985,6 +18915,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le disque apparaît dans la barre latérale du Finder, sous « Emplacements ».\nÉjectez-le ici ou dans le Finder avant de le débrancher."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk se pojavljuje u rubnom stupcu Findera pod „Lokacije”.\nIzbacite ga ovdje ili u Finderu prije odspajanja."
           }
         },
         "hu": {
@@ -18105,6 +19041,12 @@
             "value": "Le disque est occupé. Fermez tout ce qui l’utilise, puis réessayez."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk je zauzet. Zatvorite sve što ga koristi, pa pokušajte ponovno."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -18221,6 +19163,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le disque est transmis au Finder via une connexion réseau locale : il apparaît donc sous « Emplacements » avec une icône de réseau. Il se lit, s’écrit et s’éjecte comme n’importe quel autre disque. macOS n’offre aucun moyen de le présenter comme un disque local."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk se Finderu predaje putem lokalne mrežne veze, pa se prikazuje pod „Lokacije” s mrežnom ikonom. Čita se, zapisuje i izbacuje kao i svaki drugi disk. macOS ne nudi način da ga prikaže kao lokalni disk."
           }
         },
         "hu": {
@@ -18341,6 +19289,12 @@
             "value": "Le disque reste dans le Finder après la fermeture de %@. Éjectez-le depuis le Finder lorsque vous avez terminé."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk ostaje u Finderu nakon što %@ završi. Izbacite ga ondje kad završite."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -18457,6 +19411,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le disque n’a pas été ouvert"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk nije otvoren"
           }
         },
         "hu": {
@@ -18577,6 +19537,12 @@
             "value": "Le disque n’a pas été ouvert. %@"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk nije otvoren. %@"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -18693,6 +19659,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Windows n’a pas arrêté le disque proprement. Désactivez le démarrage rapide dans Windows, ou arrêtez complètement Windows au lieu de le mettre en veille prolongée, puis réessayez."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows nije uredno isključio disk. Isključite brzo pokretanje u Windowsima ili Windows isključite u potpunosti umjesto hibernacije, pa pokušajte ponovno."
           }
         },
         "hu": {
@@ -18813,6 +19785,12 @@
             "value": "Le moteur n’a reconnu aucun système de fichiers sur ce volume. S’il est chiffré, le mot de passe ou la clé de récupération est peut-être incorrect."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogon na ovoj jedinici nije prepoznao datotečni sustav. Ako je šifrirana, lozinka ili ključ za oporavak možda su pogrešni."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -18929,6 +19907,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le moteur n’a rien signalé du tout. Le disque a peut-être été débranché."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogon nije prijavio baš ništa. Disk je možda odspojen."
           }
         },
         "hu": {
@@ -19049,6 +20033,12 @@
             "value": "La langue change au prochain démarrage de %@."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jezik se mijenja kad se %@ ponovno pokrene."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -19165,6 +20155,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le nom"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naziv"
           }
         },
         "hu": {
@@ -19285,6 +20281,12 @@
             "value": "La phrase secrète avec laquelle ce disque a été chiffré."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaporka kojom je ovaj disk šifriran."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -19401,6 +20403,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le mot de passe avec lequel le disque a été verrouillé, ou une clé de récupération BitLocker à 48 chiffres. Les espaces et les traits d’union d’une clé de récupération sont ignorés."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lozinka kojom je disk zaključan ili 48-znamenkasti BitLocker ključ za oporavak. Razmaci i crtice u ključu za oporavak se zanemaruju."
           }
         },
         "hu": {
@@ -19521,6 +20529,12 @@
             "value": "Le moteur de virtualisation n’a pas pu démarrer. Un redémarrage suffit généralement à corriger cela."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogon za virtualizaciju nije se mogao pokrenuti. Ponovno pokretanje obično to rješava."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -19637,6 +20651,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ils restent dans le Finder après la fermeture de %@. Éjectez-les depuis le Finder lorsque vous avez terminé."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ostaju u Finderu nakon što %@ završi. Izbacite ih ondje kad završite."
           }
         },
         "hu": {
@@ -19757,6 +20777,12 @@
             "value": "Mentions relatives aux tiers"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Napomene o softveru trećih strana"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -19873,6 +20899,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ce disque contient plusieurs volumes, et %@ n’a pas pu déterminer lesquels. Le signaler serait utile."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj disk sadrži više jedinica, a %@ nije uspio utvrditi koje. Prijava bi pomogla."
           }
         },
         "hu": {
@@ -19993,6 +21025,12 @@
             "value": "Il s’agit d’un réglage de confidentialité de macOS, pas d’une modification de votre Mac. Vous pouvez le désactiver à tout moment, et rien n’est installé."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovo je postavka privatnosti u macOS-u, a ne promjena na vašem Macu. Možete je isključiti kad god želite i ništa se ne instalira."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -20109,6 +21147,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cette partition n’est pas un volume BitLocker."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ova particija nije BitLocker jedinica."
           }
         },
         "hu": {
@@ -20229,6 +21273,12 @@
             "value": "Cela prend un instant."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovo traje trenutak."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -20345,6 +21395,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cela prend généralement moins d’une minute."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obično traje manje od minute."
           }
         },
         "hu": {
@@ -20465,6 +21521,12 @@
             "value": "Réessayer"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokušaj ponovno"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -20581,6 +21643,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Désinstaller"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deinstaliraj"
           }
         },
         "hu": {
@@ -20701,6 +21769,12 @@
             "value": "Désinstaller %@ ?"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deinstalirati %@?"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -20817,6 +21891,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Désinstaller %@…"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deinstaliraj %@…"
           }
         },
         "hu": {
@@ -20937,6 +22017,12 @@
             "value": "Déverrouiller"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otključaj"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -21053,6 +22139,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Déverrouiller ce disque"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otključaj ovaj disk"
           }
         },
         "hu": {
@@ -21173,6 +22265,12 @@
             "value": "Le déverrouillage l’utilise directement. Oubliez-la pour en saisir une autre."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otključavanje ga koristi izravno. Zaboravite ga kako biste unijeli drugi."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -21289,6 +22387,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Déverrouiller « %@ »"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otključaj „%@”"
           }
         },
         "hu": {
@@ -21409,6 +22513,12 @@
             "value": "Déverrouillé"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otključan"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -21525,6 +22635,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Déverrouillé dans %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otključano u %@"
           }
         },
         "hu": {
@@ -21645,6 +22761,12 @@
             "value": "Désenregistrement de l’assistant en arrière-plan"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poništavanje registracije pomoćnika u pozadini"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -21761,6 +22883,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mises à jour"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ažuriranja"
           }
         },
         "hu": {
@@ -21881,6 +23009,12 @@
             "value": "Une mise à jour n’éjecte pas vos disques. Tout ce qui est déverrouillé le reste et continue de fonctionner."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ažuriranje ne izbacuje vaše diskove. Sve što je otključano ostaje otključano i nastavlja raditi."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -21997,6 +23131,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Utilisation de la clé enregistrée dans votre trousseau"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koristi se ključ spremljen u vašem Keychainu"
           }
         },
         "hu": {
@@ -22117,6 +23257,12 @@
             "value": "Version %@ (%@)"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verzija %@ (%@)"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -22233,6 +23379,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volumes ouverts"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvorene jedinice"
           }
         },
         "hu": {
@@ -22353,6 +23505,12 @@
             "value": "Site web"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Web-stranica"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -22469,6 +23627,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bienvenue dans %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobro došli u %@"
           }
         },
         "hu": {
@@ -22589,6 +23753,12 @@
             "value": "Le contenu d’un disque n’est connu qu’une fois celui-ci déverrouillé."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sadržaj diska poznat je tek nakon što se otključa."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -22705,6 +23875,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Que s’est-il passé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Što se dogodilo"
           }
         },
         "hu": {
@@ -22825,6 +24001,12 @@
             "value": "Que s’est-il passé ?"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Što se dogodilo?"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -22941,6 +24123,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ce qu’il peut ouvrir"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Što može otvoriti"
           }
         },
         "hu": {
@@ -23061,6 +24249,12 @@
             "value": "Ce qu’il ne peut pas ouvrir"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Što ne može otvoriti"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -23177,6 +24371,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Que faire"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Što učiniti"
           }
         },
         "hu": {
@@ -23297,6 +24497,12 @@
             "value": "Pourquoi il apparaît comme un disque réseau"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zašto se prikazuje kao mrežni disk"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -23413,6 +24619,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Les disques NTFS Windows, y compris ceux que Windows a laissés en veille prolongée ou mal arrêtés"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows NTFS diskovi, uključujući one koje je Windows ostavio u hibernaciji ili nije uredno isključio"
           }
         },
         "hu": {
@@ -23533,6 +24745,12 @@
             "value": "Vous pouvez y lire et y écrire des fichiers."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na njemu možete čitati i zapisivati datoteke."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -23649,6 +24867,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vous pouvez toujours vérifier quand vous le souhaitez."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I dalje možete provjeriti kad god želite."
           }
         },
         "hu": {
@@ -23769,6 +24993,12 @@
             "value": "Votre disque n’a pas été modifié. Un déverrouillage qui échoue ne peut pas endommager les données qu’il contient."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaš disk nije izmijenjen. Neuspjelo otključavanje ne može oštetiti podatke na njemu."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -23885,6 +25115,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "terminé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gotovo"
           }
         },
         "hu": {
@@ -24005,6 +25241,12 @@
             "value": "Les systèmes de fichiers ext4, btrfs et XFS qu’ils contiennent"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datotečni sustavi ext4, btrfs i XFS unutar njih"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -24121,6 +25363,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "en cours"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "u tijeku"
           }
         },
         "hu": {
@@ -24241,6 +25489,12 @@
             "value": "verrouillé"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "zaključan"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -24357,6 +25611,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS 15 Sequoia ou ultérieur"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 15 Sequoia ili noviji"
           }
         },
         "hu": {
@@ -24477,6 +25737,12 @@
             "value": "macOS a déjà monté ce disque. Éjectez-le dans le Finder, puis réessayez."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS je ovaj disk već montirao. Izbacite ga u Finderu i pokušajte ponovno."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -24593,6 +25859,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS a bloqué l’accès au disque. %@ a besoin de l’accès complet au disque pour pouvoir lire un disque chiffré."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS je blokirao pristup disku. %@ treba puni pristup disku kako bi mogao čitati šifrirani disk."
           }
         },
         "hu": {
@@ -24713,6 +25985,12 @@
             "value": "macOS a écrit %@. Il n’est envoyé nulle part automatiquement — joignez-le à votre message si vous le pouvez."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS je zapisao %@. Ne šalje se nikamo automatski — priložite ga svojoj poruci ako možete."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -24829,6 +26107,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "non atteint"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nije dosegnuto"
           }
         },
         "hu": {
@@ -24949,6 +26233,12 @@
             "value": "arrêté ici"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "zaustavilo se ovdje"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -25065,6 +26355,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "déverrouillé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "otključan"
           }
         },
         "hu": {
@@ -25185,6 +26481,12 @@
             "value": "en attente"
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "čeka"
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -25303,6 +26605,12 @@
             "value": "« %@ » ne répondait plus et a été déconnecté. Vous pouvez l’ouvrir à nouveau."
           }
         },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” je prestao odgovarati i odspojen je. Možete ga ponovno otvoriti."
+          }
+        },
         "hu": {
           "stringUnit": {
             "state": "translated",
@@ -25419,6 +26727,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "« %@ » est déverrouillé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” je otključan"
           }
         },
         "hu": {
