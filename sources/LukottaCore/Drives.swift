@@ -68,14 +68,25 @@ public enum DriveScanner {
         if ProcessInfo.processInfo.environment["LUKOTTA_INCLUDE_IMAGES"] != "1" {
             argv.append("physical")
         }
-        guard let plist = runPlist(argv),
-            let allDisks = plist["AllDisksAndPartitions"] as? [[String: Any]]
-        else { return [] }
+        guard let plist = runPlist(argv) else { return [] }
+        return drives(inList: plist, info: { info(for: $0) ?? [:] })
+    }
+
+    /// The parsing, with the two `diskutil` calls handed in.
+    ///
+    /// Separated from `scan` so it can be given captured output instead of a
+    /// machine with the right drives plugged into it. Everything that decides
+    /// what appears in the list, and what it is called, is in here.
+    public static func drives(
+        inList plist: [String: Any],
+        info: (String) -> [String: Any]
+    ) -> [Drive] {
+        guard let allDisks = plist["AllDisksAndPartitions"] as? [[String: Any]] else { return [] }
 
         var drives: [Drive] = []
         for disk in allDisks {
             let wholeIdent = disk["DeviceIdentifier"] as? String
-            let wholeInfo = wholeIdent.flatMap { info(for: $0) } ?? [:]
+            let wholeInfo = wholeIdent.map(info) ?? [:]
             // The product name of the physical drive is what a person recognises
             // ("Elements 25A2"), and it is absent from the list plist.
             let product = firstNonEmpty(
@@ -103,7 +114,7 @@ public enum DriveScanner {
                     continue
                 }
 
-                let partInfo = info(for: ident) ?? [:]
+                let partInfo = info(ident)
                 let size =
                     (part["Size"] as? NSNumber)?.int64Value
                     ?? (partInfo["TotalSize"] as? NSNumber)?.int64Value ?? 0
@@ -120,10 +131,17 @@ public enum DriveScanner {
                 connection.append(
                     internalDisk ? appString("Internal") : appString("External"))
 
+                // The list plist carries it too, and is the fallback when
+                // `diskutil info` on a single partition comes back without it.
+                // A drive identified by diskNsM instead is a drive whose saved
+                // passphrase and remembered name are lost the next time it is
+                // plugged into a different port.
                 let uuid =
                     firstNonEmpty(
                         partInfo["DiskUUID"] as? String,
-                        partInfo["VolumeUUID"] as? String) ?? ident
+                        partInfo["VolumeUUID"] as? String,
+                        part["DiskUUID"] as? String,
+                        part["VolumeUUID"] as? String) ?? ident
                 drives.append(
                     Drive(
                         id: ident,

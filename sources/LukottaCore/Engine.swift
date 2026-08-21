@@ -139,28 +139,50 @@ public enum EngineEnvironment {
             .appendingPathComponent(".anylinuxfs/alpine", isDirectory: true)
     }
 
-    public static var isReady: Bool {
+    public static var isReady: Bool { isReady(in: alpineDirectory) }
+
+    public static func isReady(in directory: URL) -> Bool {
         FileManager.default.fileExists(
-            atPath: alpineDirectory.appendingPathComponent("rootfs").path)
+            atPath: directory.appendingPathComponent("rootfs").path)
+    }
+
+    /// How far through the unpacking we are, or nil when there is nothing to
+    /// count against.
+    ///
+    /// Never reaches 100: the last entry out of tar is not the last of the
+    /// work, and a bar that sits full while the app is still busy reads as a
+    /// hang. The count comes from a file written at build time and can be
+    /// wrong, so it is clamped rather than trusted.
+    public static func percentage(seen: Int, expected: Int) -> Int? {
+        guard expected > 0 else { return nil }
+        return min(99, max(0, seen) * 100 / expected)
     }
 
     /// Unpack the bundled Linux environment if it is not already in place.
     /// Returns true when work was done, so the caller can explain the delay.
+    ///
+    /// `into` and `from` exist so the unpacking can be exercised against a
+    /// small archive in a temporary directory. Left alone, it does what it has
+    /// always done.
     @discardableResult
-    public static func prepare(progress: (String) -> Void) throws -> Bool {
-        if isReady { return false }
-        guard let archive = EnginePaths.embeddedRootfsArchive else {
+    public static func prepare(
+        into directory: URL = alpineDirectory,
+        from source: URL? = nil,
+        progress: (String) -> Void
+    ) throws -> Bool {
+        if isReady(in: directory) { return false }
+        guard let archive = source ?? EnginePaths.embeddedRootfsArchive else {
             throw EngineError.missingRootfs
         }
         let fm = FileManager.default
-        try fm.createDirectory(at: alpineDirectory, withIntermediateDirectories: true)
+        try fm.createDirectory(at: directory, withIntermediateDirectories: true)
 
         // Metadata the engine reads alongside the rootfs.
         if let meta = EnginePaths.embeddedAlpineDirectory,
             let entries = try? fm.contentsOfDirectory(atPath: meta.path)
         {
             for entry in entries where entry != "rootfs.tar.gz" {
-                let dest = alpineDirectory.appendingPathComponent(entry)
+                let dest = directory.appendingPathComponent(entry)
                 if !fm.fileExists(atPath: dest.path) {
                     try? fm.copyItem(at: meta.appendingPathComponent(entry), to: dest)
                 }
@@ -183,13 +205,17 @@ public enum EngineEnvironment {
 
         let tar = Process()
         tar.executableURL = URL(fileURLWithPath: "/usr/bin/tar")
-        tar.arguments = ["-xzpvf", archive.path, "-C", alpineDirectory.path]
+        tar.arguments = ["-xzpvf", archive.path, "-C", directory.path]
         let err = Pipe()
         tar.standardError = err
         try tar.run()
 
         var seen = 0
         var pending = ""
+        // tar -v writes the name of every entry to stderr, so whatever went
+        // wrong is buried in tens of thousands of filenames. Keep the last few
+        // lines: an error is the last thing written before it stops.
+        var lastLines: [String] = []
         let handle = err.fileHandleForReading
         while true {
             let chunk = handle.availableData
@@ -197,18 +223,19 @@ public enum EngineEnvironment {
             pending += String(data: chunk, encoding: .utf8) ?? ""
             let lines = pending.components(separatedBy: "\n")
             pending = lines.last ?? ""
-            seen += max(0, lines.count - 1)
-            if expected > 0 {
-                let pct = min(99, seen * 100 / expected)
+            let complete = lines.dropLast()
+            seen += complete.count
+            lastLines.append(contentsOf: complete)
+            if lastLines.count > 5 { lastLines.removeFirst(lastLines.count - 5) }
+            if let pct = percentage(seen: seen, expected: expected) {
                 progress("Setting up the Linux environment — \(pct)%")
             }
         }
         tar.waitUntilExit()
-        let errData = Data()
-        guard tar.terminationStatus == 0, isReady else {
+        guard tar.terminationStatus == 0, isReady(in: directory) else {
             throw EngineError.workspace(
                 "Could not unpack the Linux environment. "
-                    + (String(data: errData, encoding: .utf8) ?? ""))
+                    + lastLines.joined(separator: " "))
         }
         return true
     }

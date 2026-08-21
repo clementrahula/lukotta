@@ -909,6 +909,279 @@ group("theLogIsReadableBack") {
     expect(text.contains("app"), "and carries the category it was written under")
 }
 
+group("driveScannerParsing") {
+    // Shaped like `diskutil list -plist physical`, with invented names: what
+    // matters is which partitions are picked up and what they end up called.
+    let list: [String: Any] = [
+        "AllDisksAndPartitions": [
+            // The internal disk. Nothing on it is ours.
+            [
+                "DeviceIdentifier": "disk0",
+                "Content": "GUID_partition_scheme",
+                "Partitions": [
+                    ["DeviceIdentifier": "disk0s1", "Content": "Apple_APFS_ISC"],
+                    ["DeviceIdentifier": "disk0s2", "Content": "Apple_APFS"],
+                ],
+            ],
+            // A USB drive holding one Windows partition.
+            [
+                "DeviceIdentifier": "disk4",
+                "Content": "GUID_partition_scheme",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk4s1",
+                        "Content": "Microsoft Basic Data",
+                        "Size": NSNumber(value: 500_072_185_856),
+                        "DiskUUID": "AAAAAAAA-0000-0000-0000-000000000001",
+                    ]
+                ],
+            ],
+            // A Linux drive with LVM, and a partition macOS knows nothing about.
+            [
+                "DeviceIdentifier": "disk5",
+                "Content": "GUID_partition_scheme",
+                "Partitions": [
+                    ["DeviceIdentifier": "disk5s1", "Content": "EFI"],
+                    [
+                        "DeviceIdentifier": "disk5s2", "Content": "Linux LVM",
+                        "Size": NSNumber(value: 1_000),
+                    ],
+                ],
+            ],
+            // A disk with no partition list at all, which must not throw.
+            ["DeviceIdentifier": "disk6", "Content": "GUID_partition_scheme"],
+        ]
+    ]
+    let info: [String: [String: Any]] = [
+        "disk4": [
+            "MediaName": "Elements 25A2", "BusProtocol": "USB", "Internal": false,
+        ],
+        "disk5": [
+            "IORegistryEntryName": "Generic Media", "BusProtocol": "USB", "Internal": false,
+        ],
+    ]
+    let found = DriveScanner.drives(inList: list, info: { info[$0] ?? [:] })
+
+    expect("\(found.count)", "2", "only the partitions we can do something with are listed")
+    expect(found.map(\.id).joined(separator: ","), "disk4s1,disk5s2", "in the order they appear")
+
+    let windows = found[0]
+    expect(windows.devicePath, "/dev/disk4s1", "the device path is built from the identifier")
+    expect(windows.name, "Elements 25A2", "an unnamed volume takes the drive's product name")
+    expect("\(windows.kind)", "microsoft", "Microsoft Basic Data is the BitLocker-or-NTFS kind")
+    expect(windows.uuid, "AAAAAAAA-0000-0000-0000-000000000001", "the partition UUID is kept")
+    expect(windows.connection.contains("USB"), "the bus is part of the connection")
+    expect(windows.connection.contains("External"), "and so is where the drive sits")
+
+    let linux = found[1]
+    expect("\(linux.kind)", "linux", "Linux LVM is the LUKS-or-Linux kind")
+    expect(
+        linux.name, "Generic Media", "falling back to the registry name when there is no media name"
+    )
+    // No UUID anywhere, so the identifier stands in — it has to be something,
+    // and a drive with no identity at all cannot be remembered.
+    expect(linux.uuid, "disk5s2", "a partition with no UUID is identified by its device")
+
+    // Every Linux type diskutil reports, in both spellings.
+    for content in [
+        "Linux Filesystem", "Linux_Filesystem", "Linux LVM", "Linux_LVM",
+        "Linux RAID", "Linux_RAID",
+    ] {
+        let one: [String: Any] = [
+            "AllDisksAndPartitions": [
+                [
+                    "DeviceIdentifier": "disk9",
+                    "Partitions": [["DeviceIdentifier": "disk9s1", "Content": content]],
+                ]
+            ]
+        ]
+        let drives = DriveScanner.drives(inList: one, info: { _ in [:] })
+        expect("\(drives.count)", "1", "\(content) is recognised")
+    }
+
+    // The volume's own name wins over the drive's, and the size can come from
+    // either plist — the list omits it for some partitions.
+    let named: [String: Any] = [
+        "AllDisksAndPartitions": [
+            [
+                "DeviceIdentifier": "disk7",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk7s1", "Content": "Microsoft Basic Data",
+                        "VolumeName": "BACKUP",
+                    ]
+                ],
+            ]
+        ]
+    ]
+    let one = DriveScanner.drives(
+        inList: named,
+        info: {
+            $0 == "disk7s1"
+                ? ["TotalSize": NSNumber(value: 42), "VolumeUUID": "BBBB"]
+                : ["MediaName": "Some Drive"]
+        })
+    expect(one[0].name, "BACKUP", "a labelled volume is called what it is called")
+    expect("\(one[0].sizeBytes)", "42", "the size falls back to the partition's own plist")
+    expect(one[0].uuid, "BBBB", "and so does the identity")
+
+    // A whitespace-only name is not a name.
+    let blank: [String: Any] = [
+        "AllDisksAndPartitions": [
+            [
+                "DeviceIdentifier": "disk8",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk8s1", "Content": "Microsoft Basic Data",
+                        "VolumeName": "   ",
+                    ]
+                ],
+            ]
+        ]
+    ]
+    expect(
+        DriveScanner.drives(inList: blank, info: { _ in [:] })[0].name, "disk8s1",
+        "with nothing left to call it, the device identifier is used")
+
+    // Malformed input is empty, not a crash.
+    expect(
+        "\(DriveScanner.drives(inList: [:], info: { _ in [:] }).count)", "0",
+        "a plist without the expected key yields nothing")
+    let noIdent: [String: Any] = [
+        "AllDisksAndPartitions": [
+            ["DeviceIdentifier": "diskA", "Partitions": [["Content": "Microsoft Basic Data"]]]
+        ]
+    ]
+    expect(
+        "\(DriveScanner.drives(inList: noIdent, info: { _ in [:] }).count)", "0",
+        "a partition with no device identifier is skipped")
+}
+
+group("workspaceLifecycle") {
+    let ws = try! Workspace()
+    let fm = FileManager.default
+    expect(fm.fileExists(atPath: ws.root.path), "a workspace is a directory that exists")
+
+    // It holds a credential pipe. Anyone else being able to read it would be
+    // the whole point of the FIFO gone.
+    let attrs = try! fm.attributesOfItem(atPath: ws.root.path)
+    expect(
+        "\((attrs[.posixPermissions] as? NSNumber)?.intValue ?? 0)", "448",
+        "and is readable only by its owner (0700)")
+
+    // Finder names a network mount after the last component of the path the
+    // engine was handed, so the link's name is what the drive ends up called.
+    let link = try! ws.makeDeviceAlias(named: "My Drive", target: "/dev/disk9s1")
+    expect(link.lastPathComponent, "My Drive", "the alias is named after the drive")
+    expect(
+        try! fm.destinationOfSymbolicLink(atPath: link.path), "/dev/disk9s1",
+        "and points at the device")
+
+    // A slash would make a directory, a colon is how Finder writes one.
+    let odd = try! ws.makeDeviceAlias(named: "a/b:c", target: "/dev/disk9s1")
+    expect(odd.lastPathComponent, "a-b-c", "separators in a volume name are replaced")
+
+    let blank = try! ws.makeDeviceAlias(named: "   ", target: "/dev/disk9s1")
+    expect(blank.lastPathComponent, "Encrypted Drive", "a drive with no name still gets one")
+
+    let long = try! ws.makeDeviceAlias(named: String(repeating: "x", count: 100), target: "/dev/x")
+    expect("\(long.lastPathComponent.count)", "40", "and a very long one is cut to fit")
+
+    // Made twice, because a retry after a failed unlock goes through here again.
+    let again = try! ws.makeDeviceAlias(named: "My Drive", target: "/dev/disk9s2")
+    expect(
+        try! fm.destinationOfSymbolicLink(atPath: again.path), "/dev/disk9s2",
+        "making the same alias twice replaces it rather than failing")
+
+    // The credential is handed over through a FIFO so it never reaches a
+    // command line, an exported environment, or a file on disk. A regular file
+    // here would defeat all of that while still working.
+    let fifo = try! ws.makeCredentialPipe()
+    var st = stat()
+    expect(stat(fifo.path, &st) == 0, "the credential pipe is created")
+    expect((st.st_mode & S_IFMT) == S_IFIFO, "as a FIFO, not a file")
+    expect("\(st.st_mode & 0o777)", "384", "readable only by its owner (0600)")
+
+    let root = ws.root
+    ws.destroy()
+    expect(!fm.fileExists(atPath: root.path), "destroying it takes the whole directory")
+    ws.destroy()
+    expect(!fm.fileExists(atPath: root.path), "and destroying it twice is not an error")
+}
+
+group("engineUnpacking") {
+    let fm = FileManager.default
+    let temp = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appendingPathComponent("lukotta-unpack-\(UUID().uuidString)", isDirectory: true)
+    try! fm.createDirectory(at: temp, withIntermediateDirectories: true)
+    defer { try? fm.removeItem(at: temp) }
+
+    // A stand-in for the bundled rootfs: what matters is that unpacking is
+    // driven by whether "rootfs" ends up on disk, not by tar's exit status
+    // alone. The real archive is 95 MB and is not unpacked by a test.
+    let staging = temp.appendingPathComponent("staging", isDirectory: true)
+    try! fm.createDirectory(
+        at: staging.appendingPathComponent("rootfs/etc", isDirectory: true),
+        withIntermediateDirectories: true)
+    try! "hello".write(
+        to: staging.appendingPathComponent("rootfs/etc/hostname"), atomically: true,
+        encoding: .utf8)
+    let archive = temp.appendingPathComponent("rootfs.tar.gz")
+    let tar = Process()
+    tar.executableURL = URL(fileURLWithPath: "/usr/bin/tar")
+    tar.arguments = ["-czf", archive.path, "-C", staging.path, "rootfs"]
+    try! tar.run()
+    tar.waitUntilExit()
+
+    let target = temp.appendingPathComponent("alpine", isDirectory: true)
+    expect(!EngineEnvironment.isReady(in: target), "nothing is unpacked to begin with")
+
+    var messages: [String] = []
+    let worked = try! EngineEnvironment.prepare(into: target, from: archive) { messages.append($0) }
+    expect(worked, "the first run does the work")
+    expect(EngineEnvironment.isReady(in: target), "and leaves a rootfs behind")
+    expect(
+        (try? String(
+            contentsOf: target.appendingPathComponent("rootfs/etc/hostname"), encoding: .utf8))
+            == "hello", "with the contents intact")
+    expect(!messages.isEmpty, "saying what it is doing, because it is the longest wait there is")
+
+    let second = try! EngineEnvironment.prepare(into: target, from: archive) { _ in }
+    expect(!second, "a second run does nothing and says so")
+
+    // A file that is not an archive: tar fails, and the failure is reported
+    // rather than leaving a half-unpacked directory looking ready.
+    let broken = temp.appendingPathComponent("broken", isDirectory: true)
+    let notAnArchive = temp.appendingPathComponent("not-a-tarball.tar.gz")
+    try! "this is not gzip".write(to: notAnArchive, atomically: true, encoding: .utf8)
+    var threw = false
+    do { _ = try EngineEnvironment.prepare(into: broken, from: notAnArchive) { _ in } } catch {
+        threw = true
+        // The message carries what tar said, not an empty string where it
+        // should have been.
+        expect("\(error)".count > 40, "and says what went wrong")
+    }
+    expect(threw, "an archive that will not unpack is an error")
+    expect(!EngineEnvironment.isReady(in: broken), "and nothing is left looking ready")
+}
+
+group("unpackingProgress") {
+    expect(
+        "\(EngineEnvironment.percentage(seen: 0, expected: 100) ?? -1)", "0", "starts at nothing")
+    expect("\(EngineEnvironment.percentage(seen: 50, expected: 100) ?? -1)", "50", "and counts up")
+    // The entry count is written at build time and can be short. A bar that
+    // sits at 100 while the app is still working reads as a hang.
+    expect(
+        "\(EngineEnvironment.percentage(seen: 100, expected: 100) ?? -1)", "99",
+        "but never reaches the end before the work does")
+    expect(
+        "\(EngineEnvironment.percentage(seen: 9999, expected: 100) ?? -1)", "99",
+        "even when the count was badly wrong")
+    expect(
+        EngineEnvironment.percentage(seen: 10, expected: 0) == nil,
+        "with nothing to count against, no percentage is claimed")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")
