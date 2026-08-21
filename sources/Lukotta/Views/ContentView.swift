@@ -92,7 +92,7 @@ struct Header: View {
             }
             .buttonStyle(.plain)
             .help("How \(Brand.name) works, and what it supports")
-            .accessibilityLabel("About \(Brand.name)")
+            .accessibilityLabel("About & Help")
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 14)

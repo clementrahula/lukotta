@@ -49,6 +49,10 @@ struct MountedView: View {
                         Spacer()
                     }
                     .accessibilityElement(children: .combine)
+                    // Combining leaves the role unspecified, and an element of
+                    // no particular kind is not something VoiceOver can describe
+                    // beyond reading it. It is a line of text; say so.
+                    .accessibilityAddTraits(.isStaticText)
                 }
             }
 

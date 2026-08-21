@@ -23,7 +23,7 @@ struct HelpSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("About \(Brand.name)").font(.headline)
+                Text("About & Help").font(.headline)
                     .accessibilityAddTraits(.isHeader)
                 Spacer()
                 Button("Done") { dismiss() }.keyboardShortcut(.defaultAction)

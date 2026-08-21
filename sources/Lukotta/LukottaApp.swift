@@ -189,6 +189,12 @@ struct LukottaApp: App {
 
         .commands {
             CommandGroup(replacing: .newItem) {}
+            // The standard About panel says the version and the licence and
+            // stops there. This one says what the app does, what it can open
+            // and what it cannot, so it is the one the menu should reach.
+            CommandGroup(replacing: .appInfo) {
+                Button("About \(Brand.name)") { model.showHelp = true }
+            }
             CommandGroup(after: .appInfo) {
                 Button("Check for Updates…") { updater.checkForUpdates() }
                     .disabled(!updater.canCheck)
@@ -196,7 +202,10 @@ struct LukottaApp: App {
                 Button("Uninstall \(Brand.name)…") { confirmUninstall(model) }
             }
             CommandGroup(replacing: .help) {
-                Button("\(Brand.name) Help") { model.showHelp = true }
+                // Named for what it opens rather than for the menu it sits in,
+                // so the app menu, the Help menu and the sheet all say the same
+                // thing.
+                Button("About & Help") { model.showHelp = true }
                     .keyboardShortcut("?", modifiers: .command)
                 Button("Report an Issue…") { model.showReport = true }
             }
