@@ -15,6 +15,12 @@
             "value": "%@ se ha eliminado"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ on poistettu"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -59,6 +65,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ es software libre bajo la GPL, versión 3 o posterior. Del montaje se encarga anylinuxfs. El código fuente completo de cada componente se publica con cada versión. El nombre y el logotipo son marcas registradas y no están cubiertos por esa licencia."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ on vapaa ohjelmisto GPL-lisenssin version 3 tai uudemman alaisuudessa. Käyttöönotosta huolehtii anylinuxfs. Jokaisen osan täydellinen lähdekoodi julkaistaan jokaisen version mukana. Nimi ja logo ovat tavaramerkkejä, eikä kyseinen lisenssi kata niitä."
           }
         },
         "fr": {
@@ -107,6 +119,12 @@
             "value": "%@ abre discos BitLocker y Linux que macOS no puede leer por sí solo. Antes hace falta un ajuste.\n\nLeer un disco a nivel de dispositivo requiere Acceso total al disco: una contraseña de administrador no basta, y el permiso de volúmenes extraíbles cubre los archivos de un disco, no el dispositivo en sí. macOS no ofrece a ninguna app forma de solicitarlo, así que debe activarse a mano."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ avaa BitLocker- ja Linux-asemia, joita macOS ei osaa itse lukea. Sitä ennen tarvitaan yksi asetus.\n\nAseman lukeminen laitetasolla vaatii koko levyn käyttöoikeuden — pääkäyttäjän salasana ei riitä, ja siirrettävien taltioiden oikeus koskee aseman tiedostoja, ei itse laitetta. macOS ei anna ohjelman pyytää tätä, joten se on otettava käyttöön käsin."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -153,6 +171,12 @@
             "value": "%@ arranca una pequeña máquina virtual Linux, desbloquea el disco dentro de ella y se lo entrega al Finder. macOS no puede leer sistemas de archivos BitLocker ni de Linux. Linux sí."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ käynnistää pienen Linux-virtuaalikoneen, avaa aseman sen sisällä ja luovuttaa aseman takaisin Finderille. macOS ei osaa lukea BitLocker- eikä Linux-tiedostojärjestelmiä. Linux osaa."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -197,6 +221,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ se moverá a la papelera."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ siirretään roskakoriin."
           }
         },
         "fr": {
@@ -282,6 +312,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld discos habían dejado de responder y se desconectaron. Puedes volver a abrirlos."
+                }
+              }
+            }
+          }
+        },
+        "fi": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld asema lakkasi vastaamasta ja irrotettiin. Voit avata sen uudelleen."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld asemaa lakkasi vastaamasta ja irrotettiin. Voit avata ne uudelleen."
                 }
               }
             }
@@ -447,6 +495,24 @@
             }
           }
         },
+        "fi": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Avattu asema poistetaan käytöstä."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld avattua asemaa poistetaan käytöstä."
+                }
+              }
+            }
+          }
+        },
         "fr": {
           "variations": {
             "plural": {
@@ -565,6 +631,12 @@
             "value": "%lld por ciento"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld prosenttia"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -609,6 +681,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "250 MB de disco: 155 MB para la app y 95 MB para el entorno Linux que descomprime la primera vez"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 Mt levytilaa: 155 Mt ohjelmalle ja 95 Mt Linux-ympäristölle, joka puretaan ensimmäisellä käyttökerralla"
           }
         },
         "fr": {
@@ -657,6 +735,12 @@
             "value": "De 30 a 80 MB de RAM por disco desbloqueado"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30–80 Mt keskusmuistia jokaista avattua asemaa kohti"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -701,6 +785,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Se ha encontrado un informe de fallo"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaatumisraportti löytyi"
           }
         },
         "fr": {
@@ -749,6 +839,12 @@
             "value": "Acerca de %@"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tietoja: %@"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -793,6 +889,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Acerca de y ayuda"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tietoja ja ohjeet"
           }
         },
         "fr": {
@@ -841,6 +943,12 @@
             "value": "Puede haber unos diez discos desbloqueados a la vez"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noin kymmenen asemaa voi olla avattuna yhtä aikaa"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -885,6 +993,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Contraseña de administrador"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pääkäyttäjän salasana"
           }
         },
         "fr": {
@@ -933,6 +1047,12 @@
             "value": "Contraseña de administrador: se pide una sola vez al configurar el asistente en segundo plano y nunca más. %@ no la ve nunca"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pääkäyttäjän salasana — kysytään kerran, kun taustaohjelma otetaan käyttöön, sen jälkeen ei enää. %@ ei näe sitä koskaan"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -979,6 +1099,12 @@
             "value": "Todos los discos"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaikki asemat"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1023,6 +1149,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Todos los permisos necesarios están concedidos"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaikki tarvittavat käyttöoikeudet on myönnetty"
           }
         },
         "fr": {
@@ -1108,6 +1240,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Eliminar también %1$lld frases de contraseña guardadas (%2$@)"
+                }
+              }
+            }
+          }
+        },
+        "fi": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Poista myös kohteen %2$@ tallennettu salauslause"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Poista myös %1$lld tallennettua salauslausetta (%2$@)"
                 }
               }
             }
@@ -1231,6 +1381,12 @@
             "value": "Un Mac con Apple Silicon. Los Mac con Intel no son compatibles"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple silicon -Mac. Intel-Maceja ei tueta"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1275,6 +1431,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hay otro disco abierto y el motor debe ejecutarse solo la primera vez tras cambiar. Expulsa los demás discos, abre este y después podrán estar todos abiertos a la vez de nuevo."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toinen asema on auki, ja moottorin on toimittava yksin ensimmäisellä kerralla muutoksen jälkeen. Poista muut asemat käytöstä, avaa tämä, minkä jälkeen ne voivat taas olla auki yhtä aikaa."
           }
         },
         "fr": {
@@ -1323,6 +1485,12 @@
             "value": "Aspecto"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ulkoasu"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1367,6 +1535,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Solo aparece mientras hay un disco desbloqueado, para expulsarlo."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näkyy vain, kun asema on avattuna, sen käytöstä poistamista varten."
           }
         },
         "fr": {
@@ -1415,6 +1589,12 @@
             "value": "Desarrollador"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kehittäjä"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1459,6 +1639,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Atrás"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Takaisin"
           }
         },
         "fr": {
@@ -1507,6 +1693,12 @@
             "value": "Discos BitLocker, desbloqueados con la contraseña del volumen o una clave de recuperación de 48 dígitos"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker-asemat, avattuna taltion salasanalla tai 48-numeroisella palautusavaimella"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1551,6 +1743,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "BitLocker o NTFS"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker tai NTFS"
           }
         },
         "fr": {
@@ -1599,6 +1797,12 @@
             "value": "Cancelar"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kumoa"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1643,6 +1847,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El bloqueo de mayúsculas está activado"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps Lock on päällä"
           }
         },
         "fr": {
@@ -1691,6 +1901,12 @@
             "value": "Comprobar de nuevo"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tarkista uudelleen"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1735,6 +1951,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Buscar ahora"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tarkista nyt"
           }
         },
         "fr": {
@@ -1783,6 +2005,12 @@
             "value": "Buscar actualizaciones…"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tarkista päivitykset…"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1827,6 +2055,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Buscar actualizaciones automáticamente"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tarkista päivitykset automaattisesti"
           }
         },
         "fr": {
@@ -1875,6 +2109,12 @@
             "value": "Haz clic en «+», añade %@ y actívalo."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Osoita ”+”, lisää %@ ja ota se käyttöön."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1919,6 +2159,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Plegado"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supistettu"
           }
         },
         "fr": {
@@ -1967,6 +2213,12 @@
             "value": "Vuelve aquí y elige «Reiniciar»: un permiso nuevo solo se aplica a una app recién iniciada."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Palaa tänne ja valitse ”Käynnistä uudelleen” — uusi käyttöoikeus koskee vain juuri käynnistettyä ohjelmaa."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2011,6 +2263,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Conecta el disco cifrado y elige «Volver a buscar». Si ya está conectado, es posible que macOS lo haya montado: expúlsalo primero en el Finder."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liitä salattu asema ja valitse ”Etsi uudelleen”. Jos se on jo liitetty, macOS on voinut ottaa sen käyttöön — poista se ensin käytöstä Finderissa."
           }
         },
         "fr": {
@@ -2059,6 +2317,12 @@
             "value": "Copiado"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopioitu"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2105,6 +2369,12 @@
             "value": "Copiar detalles"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopioi tiedot"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2149,6 +2419,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Oscuro"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tumma"
           }
         },
         "fr": {
@@ -2234,6 +2510,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Eliminando %lld frases de contraseña guardadas"
+                }
+              }
+            }
+          }
+        },
+        "fi": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Poistetaan tallennettu salauslause"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Poistetaan %lld tallennettua salauslausetta"
                 }
               }
             }
@@ -2357,6 +2651,12 @@
             "value": "Eliminando el entorno Linux"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poistetaan Linux-ympäristöä"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2401,6 +2701,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Detalles que se incluirán"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mukaan liitettävät tiedot"
           }
         },
         "fr": {
@@ -2449,6 +2755,12 @@
             "value": "OK"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valmis"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2493,6 +2805,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Descargarlas e instalarlas"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lataa ja asenna ne"
           }
         },
         "fr": {
@@ -2541,6 +2859,12 @@
             "value": "Discos sellados a un TPM en vez de a una contraseña, incluido el cifrado por hardware más reciente de Ubuntu"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asemat, jotka on sidottu TPM-piiriin salasanan sijaan, mukaan lukien Ubuntun uudempi laitepohjainen salaus"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2585,6 +2909,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Expulsar"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poista käytöstä"
           }
         },
         "fr": {
@@ -2633,6 +2963,12 @@
             "value": "Expulsar %@"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poista %@ käytöstä"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2677,6 +3013,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Expulsar y salir"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poista käytöstä ja lopeta"
           }
         },
         "fr": {
@@ -2762,6 +3104,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "Expulsando %lld discos abiertos"
+                }
+              }
+            }
+          }
+        },
+        "fi": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Poistetaan avattu asema käytöstä"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Poistetaan %lld avattua asemaa käytöstä"
                 }
               }
             }
@@ -2885,6 +3245,12 @@
             "value": "Expulsando…"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poistetaan käytöstä…"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2929,6 +3295,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Salida del motor"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moottorin tuloste"
           }
         },
         "fr": {
@@ -2977,6 +3349,12 @@
             "value": "Introduce la frase de contraseña del disco."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kirjoita aseman salauslause."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3021,6 +3399,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Introduce la contraseña del disco o su clave de recuperación de 48 dígitos."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kirjoita aseman salasana tai sen 48-numeroinen palautusavain."
           }
         },
         "fr": {
@@ -3069,6 +3453,12 @@
             "value": "Todo lo demás se ha eliminado. %@ en sí no se ha podido mover a la papelera (%@), así que arrástralo tú para terminar."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaikki muu poistettiin. Itse ohjelmaa %@ ei saatu siirrettyä roskakoriin (%@) — vedä se sinne itse viimeistelläksesi."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3113,6 +3503,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desplegado"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laajennettu"
           }
         },
         "fr": {
@@ -3161,6 +3557,12 @@
             "value": "Externo"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ulkoinen"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3205,6 +3607,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Olvidar"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unohda"
           }
         },
         "fr": {
@@ -3253,6 +3661,12 @@
             "value": "Acceso total al disco"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koko levyn käyttö"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3299,6 +3713,12 @@
             "value": "Acceso total al disco: sin él, macOS no deja que ninguna app lea el contenido en bruto de un disco. No se puede solicitar, así que hay que activarlo a mano"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koko levyn käyttö — ilman sitä macOS ei anna minkään ohjelman lukea aseman raakaa sisältöä. Sitä ei voi pyytää, joten se on otettava käyttöön käsin"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3340,6 +3760,12 @@
           }
         },
         "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        },
+        "fi": {
           "stringUnit": {
             "state": "translated",
             "value": "GNU General Public License"
@@ -3391,6 +3817,12 @@
             "value": "Concedido"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Myönnetty"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3435,6 +3867,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ocultar"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kätke"
           }
         },
         "fr": {
@@ -3483,6 +3921,12 @@
             "value": "Ocultar lo escrito"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kätke kirjoitettu teksti"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3527,6 +3971,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ocultar los detalles"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kätke tiedot"
           }
         },
         "fr": {
@@ -3575,6 +4025,12 @@
             "value": "Cómo funciona %@ y qué admite"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miten %@ toimii ja mitä se tukee"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3619,6 +4075,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cómo funciona"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miten se toimii"
           }
         },
         "fr": {
@@ -3667,6 +4129,12 @@
             "value": "Interno"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sisäinen"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3711,6 +4179,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Está en la papelera. No queda nada más de ello en este Mac."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se on roskakorissa. Muuta siitä ei jäänyt tähän Maciin."
           }
         },
         "fr": {
@@ -3759,6 +4233,12 @@
             "value": "Discos LUKS de Linux, tanto LUKS1 como LUKS2"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linuxin LUKS-asemat, sekä LUKS1 että LUKS2"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3803,6 +4283,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LUKS o sistema de archivos Linux"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS tai Linux-tiedostojärjestelmä"
           }
         },
         "fr": {
@@ -3851,6 +4337,12 @@
             "value": "Volúmenes LUKS cuya cabecera se guarda aparte del disco"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS-taltiot, joiden otsake on tallennettu erilleen asemasta"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3895,6 +4387,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LVM dentro de LUKS, tal como lo configuran Ubuntu, Debian, Mint y Fedora. Varios volúmenes de un mismo disco se desbloquean juntos"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM LUKSin sisällä, kuten Ubuntu, Debian, Mint ja Fedora sen määrittävät. Saman aseman useat taltiot avautuvat yhdessä"
           }
         },
         "fr": {
@@ -3943,6 +4441,12 @@
             "value": "Idioma"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kieli"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3987,6 +4491,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Última comprobación: %@"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viimeksi tarkistettu: %@"
           }
         },
         "fr": {
@@ -4035,6 +4545,12 @@
             "value": "Dejar abierto"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jätä auki"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -4079,6 +4595,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permite que %@ lea los datos cifrados directamente."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antaa ohjelman %@ lukea salatut tiedot itse."
           }
         },
         "fr": {
@@ -4127,6 +4649,12 @@
             "value": "Permite que %@ lea los datos cifrados directamente. Sin este permiso macOS lo bloquea, incluso para administradores, y no se puede solicitar: hay que activarlo a mano."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antaa ohjelman %@ lukea salatut tiedot itse. Ilman tätä macOS estää sen myös pääkäyttäjiltä, eikä sitä voi pyytää — se on otettava käyttöön käsin."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -4171,6 +4699,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Licencia"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lisenssi"
           }
         },
         "fr": {
@@ -4219,6 +4753,12 @@
             "value": "Claro"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaalea"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -4263,6 +4803,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ubicación"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sijainti"
           }
         },
         "fr": {
@@ -4311,6 +4857,12 @@
             "value": "Bloqueado"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lukittu"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -4355,6 +4907,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Buscando discos cifrados…"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etsitään salattuja asemia…"
           }
         },
         "fr": {
@@ -4403,6 +4961,12 @@
             "value": "Lúkotta significa «sin cerradura» en finés, de lukko, una cerradura, con la terminación -tta que indica la ausencia de algo. El acento recae en la primera sílaba, como siempre en finés."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lúkotta on suomea ja tarkoittaa ”ilman lukkoa”, sanasta lukko, päätteellä -tta joka ilmaisee jonkin puuttumista. Paino on ensimmäisellä tavulla, kuten suomessa aina."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -4447,6 +5011,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Barra de menús"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valikkorivi"
           }
         },
         "fr": {
@@ -4495,6 +5065,12 @@
             "value": "Moviendo %@ a la papelera"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siirretään %@ roskakoriin"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -4539,6 +5115,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Necesario"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tarvitaan"
           }
         },
         "fr": {
@@ -4587,6 +5169,12 @@
             "value": "No se han encontrado discos cifrados"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salattuja asemia ei löytynyt"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -4631,6 +5219,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se ha indicado ningún motivo. Los detalles de abajo pueden decir más."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syytä ei ilmoitettu. Alla olevat tiedot voivat kertoa enemmän."
           }
         },
         "fr": {
@@ -4679,6 +5273,12 @@
             "value": "No está en esta versión."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ei mukana tässä versiossa."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -4723,6 +5323,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se instala nada. El motor viene dentro de la app, nada sale de tu Mac y solo se escribe en un disco cuando tú escribes en él."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitään ei asenneta. Moottori sisältyy ohjelmaan, mikään ei poistu Macistasi, ja asemalle kirjoitetaan vain silloin, kun itse kirjoitat sille."
           }
         },
         "fr": {
@@ -4771,6 +5377,12 @@
             "value": "Una vez configurado el asistente en segundo plano, actualizar no afectará a los discos desbloqueados."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kun taustaohjelma on otettu käyttöön, päivittäminen ei koske avattuihin asemiin."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -4815,6 +5427,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Abrir %@"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa %@"
           }
         },
         "fr": {
@@ -4863,6 +5481,12 @@
             "value": "Abrir el correo"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa sähköposti"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -4907,6 +5531,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Abre «Privacidad y seguridad» → «Acceso total al disco»."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa ”Tietosuoja ja suojaus” → ”Koko levyn käyttö”."
           }
         },
         "fr": {
@@ -4955,6 +5585,12 @@
             "value": "Abrir los ajustes de privacidad"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa tietosuoja-asetukset"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -4999,6 +5635,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Abre discos cifrados en macOS"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa salattuja asemia macOS:ssä"
           }
         },
         "fr": {
@@ -5047,6 +5689,12 @@
             "value": "Abriendo «%@»"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avataan ”%@”"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -5091,6 +5739,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Frase de contraseña"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salauslause"
           }
         },
         "fr": {
@@ -5139,6 +5793,12 @@
             "value": "Contraseña o clave de recuperación"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salasana tai palautusavain"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -5183,6 +5843,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permisos"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Käyttöoikeudet"
           }
         },
         "fr": {
@@ -5231,6 +5897,12 @@
             "value": "Salir"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lopeta"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -5275,6 +5947,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Salir de %@"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lopeta %@"
           }
         },
         "fr": {
@@ -5360,6 +6038,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "¿Salir y dejar %lld discos abiertos?"
+                }
+              }
+            }
+          }
+        },
+        "fi": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Lopetetaanko ja jätetäänkö %lld asema auki?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Lopetetaanko ja jätetäänkö %lld asemaa auki?"
                 }
               }
             }
@@ -5483,6 +6179,12 @@
             "value": "¿Salir y dejar «%@» abierto?"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lopetetaanko ja jätetäänkö ”%@” auki?"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -5527,6 +6229,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reiniciar"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Käynnistä uudelleen"
           }
         },
         "fr": {
@@ -5575,6 +6283,12 @@
             "value": "Recordar esta clave en mi llavero"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muista tämä avain avainnipussani"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -5619,6 +6333,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volúmenes extraíbles: macOS lo solicita la primera vez que se lee un disco"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siirrettävät taltiot — macOS pyytää tätä, kun asemaa luetaan ensimmäisen kerran"
           }
         },
         "fr": {
@@ -5667,6 +6387,12 @@
             "value": "Eliminando %@"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poistetaan %@"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -5711,6 +6437,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Eliminando los ajustes"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poistetaan asetuksia"
           }
         },
         "fr": {
@@ -5759,6 +6491,12 @@
             "value": "Informar de este problema"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ilmoita tästä ongelmasta"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -5803,6 +6541,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Informar de un problema"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ilmoita ongelmasta"
           }
         },
         "fr": {
@@ -5851,6 +6595,12 @@
             "value": "Informar de un problema o enviar un informe de fallo"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ilmoita ongelmasta tai lähetä kaatumisraportti"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -5895,6 +6645,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Informar de un problema"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ilmoita ongelmasta"
           }
         },
         "fr": {
@@ -5943,6 +6699,12 @@
             "value": "Informar de un problema…"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ilmoita ongelmasta…"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -5987,6 +6749,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Requisitos"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaatimukset"
           }
         },
         "fr": {
@@ -6035,6 +6803,12 @@
             "value": "Volver a buscar"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etsi uudelleen"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -6079,6 +6853,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostrar la app en el Finder"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näytä ohjelma Finderissa"
           }
         },
         "fr": {
@@ -6127,6 +6907,12 @@
             "value": "Ver los discos conectados"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liitettyjen asemien näkeminen"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -6171,6 +6957,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Selecciona un disco para desbloquear"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valitse avattava asema"
           }
         },
         "fr": {
@@ -6219,6 +7011,12 @@
             "value": "Preparando el entorno Linux"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valmistellaan Linux-ympäristöä"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -6263,6 +7061,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostrar"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näytä"
           }
         },
         "fr": {
@@ -6311,6 +7115,12 @@
             "value": "Mostrar %@ en la barra de menús"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näytä %@ valikkorivillä"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -6355,6 +7165,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostrar en el Finder"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näytä Finderissa"
           }
         },
         "fr": {
@@ -6403,6 +7219,12 @@
             "value": "Mostrar lo escrito"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näytä kirjoitettu teksti"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -6447,6 +7269,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostrar para qué sirve cada permiso"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näytä, mihin kutakin oikeutta tarvitaan"
           }
         },
         "fr": {
@@ -6495,6 +7323,12 @@
             "value": "Aún faltan algunos permisos"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Osa käyttöoikeuksista puuttuu yhä"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -6539,6 +7373,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Código fuente"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähdekoodi"
           }
         },
         "fr": {
@@ -6587,6 +7427,12 @@
             "value": "Sistema"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Järjestelmä"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -6631,6 +7477,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "«Sistema» sigue el idioma de tu Mac."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”Järjestelmä” noudattaa Macisi kieltä."
           }
         },
         "fr": {
@@ -6679,6 +7531,12 @@
             "value": "«Sistema» sigue el ajuste de tu Mac, también cuando cambia."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”Järjestelmä” noudattaa Macisi asetusta, myös kun se muuttuu."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -6723,6 +7581,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esa contraseña o clave de recuperación no ha desbloqueado este disco."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tuo salasana tai palautusavain ei avannut tätä asemaa."
           }
         },
         "fr": {
@@ -6771,6 +7635,12 @@
             "value": "El entorno Linux se descomprime una sola vez, la primera vez que se usa."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linux-ympäristö puretaan kerran, ensimmäisellä käyttökerralla."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -6815,6 +7685,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Se eliminará el entorno Linux, liberando unos %lld MB."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linux-ympäristö poistetaan, mikä vapauttaa noin %lld Mt."
           }
         },
         "fr": {
@@ -6863,6 +7739,12 @@
             "value": "El asistente en segundo plano no está configurado, así que es %@ quien mantiene el disco abierto. Salir ahora lo desconecta y lo que quede por escribir no se completaría.\n\nUna vez configurado el asistente, los discos permanecen abiertos por sí solos."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taustaohjelmaa ei ole otettu käyttöön, joten %@ pitää asemaa auki itse. Lopettaminen nyt irrottaa sen, eikä kesken oleva kirjoitus valmistuisi.\n\nKun taustaohjelma on otettu käyttöön, asemat pysyvät auki itsestään."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -6907,6 +7789,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El asistente en segundo plano no está configurado, así que es %@ quien los mantiene abiertos. Salir ahora los desconecta y lo que quede por escribir no se completaría.\n\nUna vez configurado el asistente, los discos permanecen abiertos por sí solos."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taustaohjelmaa ei ole otettu käyttöön, joten %@ pitää niitä auki itse. Lopettaminen nyt irrottaa ne, eikä kesken oleva kirjoitus valmistuisi.\n\nKun taustaohjelma on otettu käyttöön, asemat pysyvät auki itsestään."
           }
         },
         "fr": {
@@ -6955,6 +7843,12 @@
             "value": "Se anulará el registro del asistente en segundo plano."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taustaohjelman rekisteröinti perutaan."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -6999,6 +7893,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El disco aparece en la barra lateral del Finder, en «Ubicaciones».\nExpúlsalo aquí o en el Finder antes de desconectarlo."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asema näkyy Finderin sivupalkissa kohdassa ”Sijainnit”.\nPoista se käytöstä täällä tai Finderissa ennen irrottamista."
           }
         },
         "fr": {
@@ -7047,6 +7947,12 @@
             "value": "El disco está ocupado. Cierra todo lo que lo esté usando y vuelve a intentarlo."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asema on varattu. Sulje kaikki sitä käyttävä ja yritä uudelleen."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -7091,6 +7997,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El disco se entrega al Finder mediante una conexión de red local, por lo que aparece en «Ubicaciones» con un icono de red. Se lee, se escribe y se expulsa como cualquier otro disco. macOS no ofrece ninguna forma de presentarlo como un disco local."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asema välitetään Finderille paikallisen verkkoyhteyden kautta, joten se näkyy kohdassa ”Sijainnit” verkkokuvakkeella. Sitä luetaan, siihen kirjoitetaan ja se poistetaan käytöstä kuten mikä tahansa muu asema. macOS ei tarjoa tapaa esittää sitä paikallisena levynä."
           }
         },
         "fr": {
@@ -7139,6 +8051,12 @@
             "value": "El disco permanece en el Finder después de salir de %@. Expúlsalo allí cuando termines."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asema jää Finderiin sen jälkeen, kun %@ lopetetaan. Poista se sieltä käytöstä, kun olet valmis."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -7183,6 +8101,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El disco no se abrió"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asemaa ei avattu"
           }
         },
         "fr": {
@@ -7231,6 +8155,12 @@
             "value": "El disco no se abrió. %@"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asemaa ei avattu. %@"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -7275,6 +8205,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Windows no apagó el disco correctamente. Desactiva el inicio rápido en Windows, o apaga Windows por completo en vez de hibernarlo, y vuelve a intentarlo."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows ei sammuttanut asemaa siististi. Poista nopea käynnistys käytöstä Windowsissa tai sammuta Windows kokonaan lepotilan sijaan, ja yritä sitten uudelleen."
           }
         },
         "fr": {
@@ -7323,6 +8259,12 @@
             "value": "El motor no ha reconocido ningún sistema de archivos en este volumen. Si está cifrado, puede que la contraseña o la clave de recuperación sean incorrectas."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moottori ei tunnistanut tästä taltiosta tiedostojärjestelmää. Jos se on salattu, salasana tai palautusavain voi olla väärä."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -7367,6 +8309,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El motor no ha indicado nada en absoluto. Puede que el disco se haya desconectado."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moottori ei ilmoittanut mitään. Asema on saatettu irrottaa."
           }
         },
         "fr": {
@@ -7415,6 +8363,12 @@
             "value": "El idioma cambia la próxima vez que se inicie %@."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kieli vaihtuu, kun %@ käynnistyy uudelleen."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -7459,6 +8413,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "El nombre"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nimi"
           }
         },
         "fr": {
@@ -7507,6 +8467,12 @@
             "value": "La frase de contraseña con la que se cifró este disco."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salauslause, jolla tämä asema salattiin."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -7551,6 +8517,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "La contraseña con la que se bloqueó el disco, o una clave de recuperación de BitLocker de 48 dígitos. Los espacios y guiones de una clave de recuperación se ignoran."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salasana, jolla asema lukittiin, tai 48-numeroinen BitLocker-palautusavain. Palautusavaimen välilyönnit ja väliviivat jätetään huomiotta."
           }
         },
         "fr": {
@@ -7599,6 +8571,12 @@
             "value": "El motor de virtualización no ha podido arrancar. Reiniciar suele solucionarlo."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtualisointimoottori ei käynnistynyt. Uudelleenkäynnistys yleensä korjaa tämän."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -7643,6 +8621,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permanecen en el Finder después de salir de %@. Expúlsalos allí cuando termines."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne jäävät Finderiin sen jälkeen, kun %@ lopetetaan. Poista ne sieltä käytöstä, kun olet valmis."
           }
         },
         "fr": {
@@ -7691,6 +8675,12 @@
             "value": "Avisos de terceros"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolmansien osapuolten ilmoitukset"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -7735,6 +8725,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Este disco contiene varios volúmenes y %@ no ha podido determinar cuáles. Informar de ello sería útil."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä asema sisältää useita taltioita, eikä %@ pystynyt selvittämään mitkä. Tästä ilmoittaminen auttaisi."
           }
         },
         "fr": {
@@ -7783,6 +8779,12 @@
             "value": "Es un ajuste de privacidad de macOS, no un cambio en tu Mac. Puedes desactivarlo cuando quieras y no se instala nada."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä on macOS:n tietosuoja-asetus, ei muutos Maciisi. Voit poistaa sen käytöstä milloin tahansa, eikä mitään asenneta."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -7827,6 +8829,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esta partición no es un volumen de BitLocker."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä osio ei ole BitLocker-taltio."
           }
         },
         "fr": {
@@ -7875,6 +8883,12 @@
             "value": "Esto tarda un momento."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä vie hetken."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -7919,6 +8933,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Normalmente tarda menos de un minuto."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tähän menee yleensä alle minuutti."
           }
         },
         "fr": {
@@ -7967,6 +8987,12 @@
             "value": "Reintentar"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yritä uudelleen"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -8011,6 +9037,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desinstalar"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poista asennus"
           }
         },
         "fr": {
@@ -8059,6 +9091,12 @@
             "value": "¿Desinstalar %@?"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poistetaanko %@:n asennus?"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -8103,6 +9141,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desinstalar %@…"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poista %@:n asennus…"
           }
         },
         "fr": {
@@ -8151,6 +9195,12 @@
             "value": "Desbloquear"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -8195,6 +9245,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desbloquear este disco"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa tämä asema"
           }
         },
         "fr": {
@@ -8243,6 +9299,12 @@
             "value": "El desbloqueo la usa directamente. Olvídala para escribir otra."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaaminen käyttää sitä suoraan. Unohda se, jos haluat kirjoittaa toisen."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -8287,6 +9349,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desbloquear «%@»"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa ”%@”"
           }
         },
         "fr": {
@@ -8335,6 +9403,12 @@
             "value": "Desbloqueado"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avattu"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -8379,6 +9453,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desbloqueado en %@"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avattu sijaintiin %@"
           }
         },
         "fr": {
@@ -8427,6 +9507,12 @@
             "value": "Anulando el registro del asistente en segundo plano"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perutaan taustaohjelman rekisteröinti"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -8471,6 +9557,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Actualizaciones"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Päivitykset"
           }
         },
         "fr": {
@@ -8519,6 +9611,12 @@
             "value": "Actualizar no expulsa tus discos. Todo lo que esté desbloqueado sigue desbloqueado y funcionando."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Päivittäminen ei poista asemiasi käytöstä. Kaikki avattu pysyy avattuna ja toimii edelleen."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -8563,6 +9661,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Se usa la clave guardada en tu llavero"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Käytetään avainnippuusi tallennettua avainta"
           }
         },
         "fr": {
@@ -8611,6 +9715,12 @@
             "value": "Versión %@ (%@)"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versio %@ (%@)"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -8655,6 +9765,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volúmenes abiertos"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avatut taltiot"
           }
         },
         "fr": {
@@ -8703,6 +9819,12 @@
             "value": "Sitio web"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verkkosivusto"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -8747,6 +9869,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Te damos la bienvenida a %@"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tervetuloa, tämä on %@"
           }
         },
         "fr": {
@@ -8795,6 +9923,12 @@
             "value": "El contenido de un disco solo se conoce una vez desbloqueado."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aseman sisältö selviää vasta, kun se on avattu."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -8839,6 +9973,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Qué ha pasado"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitä tapahtui"
           }
         },
         "fr": {
@@ -8887,6 +10027,12 @@
             "value": "¿Qué ha pasado?"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitä tapahtui?"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -8931,6 +10077,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Qué puede abrir"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitä se voi avata"
           }
         },
         "fr": {
@@ -8979,6 +10131,12 @@
             "value": "Qué no puede abrir"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitä se ei voi avata"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -9023,6 +10181,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Qué hacer"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitä tehdä"
           }
         },
         "fr": {
@@ -9071,6 +10235,12 @@
             "value": "Por qué aparece como un disco de red"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miksi se näkyy verkkoasemana"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -9115,6 +10285,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Discos NTFS de Windows, incluidos los que Windows dejó hibernados o mal apagados"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windowsin NTFS-asemat, myös ne jotka Windows jätti lepotilaan tai sammutti huonosti"
           }
         },
         "fr": {
@@ -9163,6 +10339,12 @@
             "value": "Puedes leer y escribir archivos en él."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voit lukea ja kirjoittaa siihen tiedostoja."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -9207,6 +10389,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Puedes buscarlas manualmente cuando quieras."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voit silti tarkistaa milloin haluat."
           }
         },
         "fr": {
@@ -9255,6 +10443,12 @@
             "value": "Tu disco no se ha modificado. Un desbloqueo fallido no puede dañar los datos que contiene."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asemaasi ei muutettu. Epäonnistunut avaaminen ei voi vahingoittaa sen tietoja."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -9299,6 +10493,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "hecho"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "valmis"
           }
         },
         "fr": {
@@ -9347,6 +10547,12 @@
             "value": "Sistemas de archivos ext4, btrfs y XFS dentro de ellos"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ext4-, btrfs- ja XFS-tiedostojärjestelmät niiden sisällä"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -9391,6 +10597,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "en curso"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "käynnissä"
           }
         },
         "fr": {
@@ -9439,6 +10651,12 @@
             "value": "bloqueado"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lukittu"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -9483,6 +10701,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS 15 Sequoia o posterior"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 15 Sequoia tai uudempi"
           }
         },
         "fr": {
@@ -9531,6 +10755,12 @@
             "value": "macOS ya tiene este disco montado. Expúlsalo en el Finder y vuelve a intentarlo."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS on jo ottanut tämän aseman käyttöön. Poista se käytöstä Finderissa ja yritä uudelleen."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -9575,6 +10805,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS ha bloqueado el acceso al disco. %@ necesita Acceso total al disco para poder leer un disco cifrado."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS esti pääsyn asemaan. %@ tarvitsee koko levyn käyttöoikeuden, jotta se voi lukea salattua levyä."
           }
         },
         "fr": {
@@ -9623,6 +10859,12 @@
             "value": "macOS ha escrito %@. No se envía a ningún sitio automáticamente: adjúntalo a tu mensaje si puedes."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS kirjoitti tiedoston %@. Sitä ei lähetetä minnekään automaattisesti — liitä se viestiisi, jos voit."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -9667,6 +10909,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "no alcanzado"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ei saavutettu"
           }
         },
         "fr": {
@@ -9715,6 +10963,12 @@
             "value": "se detuvo aquí"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "pysähtyi tähän"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -9759,6 +11013,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "desbloqueado"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avattu"
           }
         },
         "fr": {
@@ -9807,6 +11067,12 @@
             "value": "en espera"
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "odottaa"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -9853,6 +11119,12 @@
             "value": "«%@» había dejado de responder y se desconectó. Puedes volver a abrirlo."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” lakkasi vastaamasta ja irrotettiin. Voit avata sen uudelleen."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -9897,6 +11169,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "«%@» está desbloqueado"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” on avattu"
           }
         },
         "fr": {
