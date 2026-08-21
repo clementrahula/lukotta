@@ -116,21 +116,60 @@ to be decided rather than slipped in.
 
 **Cost:** small in code, medium in judgement.
 
+### qemu in the guest does not work — the kernel has no nbd
+
+Checked. `qemu-nbd` decodes a format and serves it as a block device through the
+kernel's `nbd` driver, and **the guest kernel does not have one**: nothing in
+`/proc/devices`, no module on disk, and `modprobe nbd` answers "not found in
+modules.dep". Adding it means rebuilding libkrunfw — the same blocker that rules
+out FileVault 2, and the same size of job.
+
+Adding the *package* would have been easy. The engine has `anylinuxfs apk add`
+and an `alpine.custom_packages` setting for exactly this, the guest is Alpine
+3.24 with main and community, and Alpine's `qemu-img` package carries `qemu-nbd`
+alongside it. It is the kernel underneath that says no.
+
+For the record, had it worked: `qemu-img` and `qemu-nbd` are userspace tools,
+not a hypervisor. There would have been no second virtual machine and no nested
+virtualisation — one VM, two more binaries inside it.
+
+### The root question dissolves on its own
+
+Also checked, and it changes the shape of this: **the engine mounts a container
+file without root at all.**
+
+An image attached by the user has a device node owned by that user —
+`brw-r----- cr staff` — and the NFS mount it produces is a user mount. Running
+`anylinuxfs mount` as an ordinary user against one works start to finish. The
+helper exists for physical drives, which are `root:operator` and out of reach.
+
+So for container files there is no path-to-root question to answer: do not route
+them through the helper, and passing a path is passing it to a process running
+as the user — the same user who chose the file.
+
+One difference to design around: run as the user, the engine mounts under
+`~/Volumes` rather than `/Volumes`.
+
 ### The right shape for the rest
 
-Rather than teaching the Mac side to read every format, **put the format support
-in the guest**. There is already a Linux VM; it can be given the file and left to
-work out what it is. `qemu-img` and `qemu-nbd` between them read VHD, VHDX, VMDK,
-VDI, qcow2 and more, and adding them to the Alpine image is a package, not a
-port.
+With the guest ruled out, the decoding has to happen on the Mac side — which is
+where it already happens for qcow2. The engine carries its own Rust image layer,
+reads qcow2 in full, and presents the result to the guest as an ordinary virtio
+block device. **VMDK is already implemented in that layer** and simply not
+exposed: the CLI offers only `Raw` and `Qcow2`.
 
-That also settles the licence question in the cleanest possible way. QEMU is
-**GPL-2.0-only**, which cannot be combined with GPL-3 code into one work — but
-running as a separate program inside a virtual machine is not combining. It is
-the same footing as the Linux kernel and busybox already in the bundle.
+So the cheapest real step is an upstream one — ask anylinuxfs to expose the VMDK
+support it already has. VHDX and VDI would be new work in the same layer. No
+kernel change, no qemu, no nbd, and no new licence question.
 
-**Cost:** medium. Days rather than weeks. Adds perhaps 10 MB to a bundle already
-past 150 MB, and one more thing to keep patched.
+The fallback that works today, for anything the engine cannot read, is
+`qemu-img convert -O raw` on the Mac before attaching. It runs as the user and
+needs no privilege — but it copies, so it costs free space equal to the whole
+image, which for a real VM disk is the objection.
+
+**Cost:** small if upstream takes the VMDK patch, medium if we carry it
+ourselves. The convert-first fallback is a day, plus a warning about disk
+space.
 
 The alternative is the libyal libraries — `libvhdi`, `libvmdk`, `libqcow` — which
 are **LGPL-3.0-or-later** and so link cleanly into a GPL-3 application. They are
@@ -146,9 +185,9 @@ Nothing here is a problem, and one thing is worth stating plainly because it
 looks like one and is not.
 
 - **QEMU is GPL-2.0-only.** It cannot be linked into this app. It can be shipped
-  beside it and executed as its own program, which is exactly what the kernel,
-  busybox and apk-tools in the guest already are. Keep it a separate binary and
-  there is no question to answer.
+  beside it and executed as its own program — the footing the kernel, busybox and
+  apk-tools already stand on. It is the fallback now rather than the plan, but
+  the position is unchanged: a separate binary raises no question.
 - **libyal (libvhdi, libvmdk, libqcow, libbde) is LGPL-3.0-or-later** — compatible
   with GPL-3, linkable, no obligation beyond the usual notices.
 - **cryptsetup is GPL-2.0-or-later**, which upgrades to GPL-3. Already shipped.
@@ -167,13 +206,16 @@ looks like one and is not.
 
 1. **Encrypted DMG.** A day, no new dependencies, the format Mac users actually
    have.
-2. **Decide the path-to-root question.** Everything below waits on it, and it is
-   a decision rather than a task.
-3. **qemu-img and qemu-nbd in the guest**, which brings VHD, VHDX, VMDK and VDI
-   at once, and qcow2 without the engine's CLI having to change.
-4. **VeraCrypt**, if anyone asks for it. It is the largest of these because it
-   needs a way for the user to say what a file is, which nothing else here does.
+2. **Open container files without the helper.** They do not need it, and it
+   takes the path-to-root question off the table rather than answering it. Watch
+   the `~/Volumes` difference.
+3. **qcow2**, which then costs almost nothing: the engine already reads it, and
+   an unprivileged engine can be handed the path.
+4. **Ask upstream to expose VMDK.** The code is already in the engine's image
+   layer.
+5. **VHDX and VDI**, either as upstream work in that layer or as
+   `qemu-img convert` first, with a warning about the disk space a copy costs.
 
-Not worth doing: FileVault 2, blocked behind a kernel rebuild for a format Apple
-replaced a decade ago. APFS encryption, which nothing outside Apple reads.
-Windows EFS, which is per-file and needs a domain key.
+Not worth doing: FileVault 2 and qemu-in-the-guest, both blocked behind a kernel
+rebuild. APFS encryption, which nothing outside Apple reads. Windows EFS, which
+is per-file and needs a domain key. VeraCrypt, unless someone asks.
