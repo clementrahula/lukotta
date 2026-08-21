@@ -218,11 +218,15 @@ final class AppModel: ObservableObject {
 
     /// A newly granted permission only applies to a fresh process.
     /// A newly granted permission only applies to a freshly started process.
+    /// Set while quitting in order to come straight back.
+    ///
+    /// Read by the delegate, which starts the replacement only once this copy
+    /// has actually gone. Starting it first meant a cancelled quit left two
+    /// copies running.
+    nonisolated(unsafe) static var wantsRelaunch = false
+
     func relaunch() {
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-        task.arguments = ["-n", Bundle.main.bundleURL.path]
-        try? task.run()
+        AppModel.wantsRelaunch = true
         NSApp.terminate(nil)
     }
 

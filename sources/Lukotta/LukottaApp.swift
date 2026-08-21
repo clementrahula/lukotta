@@ -241,6 +241,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// ejecting would leave it behind, so ask.
     func applicationShouldTerminate(_ app: NSApplication) -> NSApplication.TerminateReply {
         guard !systemIsPoweringOff else { return .terminateNow }
+
+        // Coming straight back is not leaving. The drives are held by the
+        // helper and are still there a second later, so there is nothing to
+        // decide and asking only gets in the way. Without the helper they would
+        // drop, and then the question is a real one.
+        if AppModel.wantsRelaunch, let model, MainActor.assumeIsolated({ model.helper.isReady }) {
+            return .terminateNow
+        }
         guard let model, MainActor.assumeIsolated({ model.hasOpenDrive }) else {
             return .terminateNow
         }
@@ -310,6 +318,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         if survives, answer == .alertFirstButtonReturn { return .terminateNow }
         let eject = answer == ejectButton
+        // Turning the quit down turns the relaunch down with it, or the next
+        // quit would reopen the app for no reason anyone would remember.
+        if !eject { AppModel.wantsRelaunch = false }
         if eject {
             MainActor.assumeIsolated {
                 model.ejectAll { NSApp.reply(toApplicationShouldTerminate: true) }
@@ -322,5 +333,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Remove this session's private workspace so the app leaves nothing behind.
     func applicationWillTerminate(_ notification: Notification) {
         MainActor.assumeIsolated { model?.cleanUp() }
+
+        // Here rather than beside the request, so a quit the user turned down
+        // does not leave a second copy behind.
+        guard AppModel.wantsRelaunch else { return }
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        task.arguments = ["-n", Bundle.main.bundleURL.path]
+        try? task.run()
     }
 }
