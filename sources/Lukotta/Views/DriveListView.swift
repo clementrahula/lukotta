@@ -61,6 +61,11 @@ struct DriveRow: View {
     /// The same facts whether unlocked or not. A drive that is unlocked does not stop
     /// being a 500 GB USB disk, and losing that when it opens made the two rows
     /// look like different kinds of thing.
+    /// Said inside a longer label, so it has to be a string that is already
+    /// translated: what is interpolated into a key is inserted as it stands.
+    private var openWord: String { String(localized: "unlocked") }
+    private var shutWord: String { String(localized: "locked") }
+
     private var details: String {
         var parts = [drive.sizeDescription]
         if !drive.connection.isEmpty { parts.append(drive.connection) }
@@ -78,7 +83,7 @@ struct DriveRow: View {
             Button(action: action) { row }
                 .buttonStyle(.plain)
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("\(drive.name), locked, \(details)")
+                .accessibilityLabel("\(drive.name), \(shutWord), \(details)")
                 .accessibilityHint("Unlock this drive")
         }
     }
@@ -114,7 +119,7 @@ struct DriveRow: View {
             }
             .accessibilityElement(children: .combine)
             .accessibilityLabel(
-                "\(drive.name), \(isMounted ? "unlocked" : "locked"), \(details)")
+                "\(drive.name), \(isMounted ? openWord : shutWord), \(details)")
 
             Spacer(minLength: 8)
 

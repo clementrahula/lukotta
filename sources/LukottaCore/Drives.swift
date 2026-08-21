@@ -12,8 +12,8 @@ public enum VolumeKind: String, Hashable, Sendable {
 
     public var summary: String {
         switch self {
-        case .microsoft: return "BitLocker or NTFS"
-        case .linux: return "LUKS or Linux filesystem"
+        case .microsoft: return appString("BitLocker or NTFS")
+        case .linux: return appString("LUKS or Linux filesystem")
         }
     }
 }

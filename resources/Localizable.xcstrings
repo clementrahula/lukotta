@@ -9,6 +9,12 @@
             "value": "%@ wurde entfernt"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ se ha eliminado"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -23,6 +29,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ ist freie Software unter der GPL, Version 3 oder höher. Das Aktivieren übernimmt anylinuxfs. Der vollständige Quelltext jeder Komponente wird mit jeder Version veröffentlicht. Der Name und das Logo sind Marken und fallen nicht unter diese Lizenz."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ es software libre bajo la GPL, versión 3 o posterior. Del montaje se encarga anylinuxfs. El código fuente completo de cada componente se publica con cada versión. El nombre y el logotipo son marcas registradas y no están cubiertos por esa licencia."
           }
         },
         "fr": {
@@ -41,6 +53,12 @@
             "value": "%@ öffnet BitLocker- und Linux-Laufwerke, die macOS von sich aus nicht lesen kann. Dafür ist zunächst eine Einstellung nötig.\n\nUm ein Laufwerk auf Geräteebene zu lesen, wird Festplattenvollzugriff benötigt — ein Administratorpasswort genügt nicht, und die Berechtigung für entfernbare Volumes umfasst Dateien auf einem Laufwerk, nicht das Gerät selbst. macOS bietet Apps keine Möglichkeit, diese Berechtigung anzufordern, daher muss sie von Hand aktiviert werden."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ abre discos BitLocker y Linux que macOS no puede leer por sí solo. Antes hace falta un ajuste.\n\nLeer un disco a nivel de dispositivo requiere Acceso total al disco: una contraseña de administrador no basta, y el permiso de volúmenes extraíbles cubre los archivos de un disco, no el dispositivo en sí. macOS no ofrece a ninguna app forma de solicitarlo, así que debe activarse a mano."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -55,6 +73,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ startet eine kleine virtuelle Linux-Maschine, entsperrt das Laufwerk darin und übergibt es zurück an den Finder. macOS kann BitLocker- und Linux-Dateisysteme nicht lesen. Linux schon."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ arranca una pequeña máquina virtual Linux, desbloquea el disco dentro de ella y se lo entrega al Finder. macOS no puede leer sistemas de archivos BitLocker ni de Linux. Linux sí."
           }
         },
         "fr": {
@@ -73,26 +97,16 @@
             "value": "%@ wird in den Papierkorb bewegt."
           }
         },
-        "fr": {
+        "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ sera placé dans la corbeille."
-          }
-        }
-      }
-    },
-    "%@, locked, %@": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, gesperrt, %@"
+            "value": "%@ se moverá a la papelera."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@, verrouillé, %@"
+            "value": "%@ sera placé dans la corbeille."
           }
         }
       }
@@ -130,6 +144,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld drives had stopped responding and were disconnected. You can open them again."
+                }
+              }
+            }
+          }
+        },
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld disco había dejado de responder y se desconectó. Puedes volver a abrirlo."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld discos habían dejado de responder y se desconectaron. Puedes volver a abrirlos."
                 }
               }
             }
@@ -193,6 +225,24 @@
             }
           }
         },
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Se expulsará el disco abierto."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Se expulsarán %lld discos abiertos."
+                }
+              }
+            }
+          }
+        },
         "fr": {
           "variations": {
             "plural": {
@@ -221,6 +271,12 @@
             "value": "%lld Prozent"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld por ciento"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -235,6 +291,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "250 MB Speicherplatz: 155 MB für die App, 95 MB für die Linux-Umgebung, die beim ersten Verwenden entpackt wird"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 MB de disco: 155 MB para la app y 95 MB para el entorno Linux que descomprime la primera vez"
           }
         },
         "fr": {
@@ -253,6 +315,12 @@
             "value": "30 bis 80 MB RAM pro entsperrtem Laufwerk"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De 30 a 80 MB de RAM por disco desbloqueado"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -267,6 +335,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ein Absturzbericht wurde gefunden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se ha encontrado un informe de fallo"
           }
         },
         "fr": {
@@ -285,6 +359,12 @@
             "value": "Über %@"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acerca de %@"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -299,6 +379,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Über & Hilfe"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acerca de y ayuda"
           }
         },
         "fr": {
@@ -317,6 +403,12 @@
             "value": "Etwa zehn Laufwerke können gleichzeitig entsperrt bleiben"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puede haber unos diez discos desbloqueados a la vez"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -331,6 +423,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Administratorpasswort"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraseña de administrador"
           }
         },
         "fr": {
@@ -349,6 +447,12 @@
             "value": "Administratorpasswort — wird einmal beim Einrichten des Hintergrund-Helfers abgefragt, danach nicht mehr. %@ sieht es nie"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraseña de administrador: se pide una sola vez al configurar el asistente en segundo plano y nunca más. %@ no la ve nunca"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -365,6 +469,12 @@
             "value": "Alle Laufwerke"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos los discos"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -379,6 +489,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Alle erforderlichen Berechtigungen erteilt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos los permisos necesarios están concedidos"
           }
         },
         "fr": {
@@ -427,6 +543,24 @@
             }
           }
         },
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Eliminar también la frase de contraseña guardada de %2$@"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Eliminar también %1$lld frases de contraseña guardadas (%2$@)"
+                }
+              }
+            }
+          }
+        },
         "fr": {
           "variations": {
             "plural": {
@@ -455,6 +589,12 @@
             "value": "Ein Mac mit Apple Silicon. Intel-Macs werden nicht unterstützt"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un Mac con Apple Silicon. Los Mac con Intel no son compatibles"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -469,6 +609,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ein anderes Laufwerk ist geöffnet, und die Laufwerks-Engine muss nach einer Änderung beim ersten Mal allein laufen. Wirf die anderen Laufwerke aus, öffne dieses, danach können wieder alle gleichzeitig geöffnet sein."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hay otro disco abierto y el motor debe ejecutarse solo la primera vez tras cambiar. Expulsa los demás discos, abre este y después podrán estar todos abiertos a la vez de nuevo."
           }
         },
         "fr": {
@@ -487,6 +633,12 @@
             "value": "Erscheinungsbild"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aspecto"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -501,6 +653,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Erscheint nur, solange ein Laufwerk entsperrt ist, zum Auswerfen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo aparece mientras hay un disco desbloqueado, para expulsarlo."
           }
         },
         "fr": {
@@ -519,6 +677,12 @@
             "value": "Entwickler"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desarrollador"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -533,6 +697,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zurück"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atrás"
           }
         },
         "fr": {
@@ -551,10 +721,38 @@
             "value": "BitLocker-Laufwerke, entsperrt mit dem Volume-Passwort oder einem 48-stelligen Wiederherstellungsschlüssel"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discos BitLocker, desbloqueados con la contraseña del volumen o una clave de recuperación de 48 dígitos"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Les disques BitLocker, déverrouillés avec le mot de passe du volume ou une clé de récupération à 48 chiffres"
+          }
+        }
+      }
+    },
+    "BitLocker or NTFS": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker oder NTFS"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker o NTFS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker ou NTFS"
           }
         }
       }
@@ -565,6 +763,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Abbrechen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
           }
         },
         "fr": {
@@ -583,6 +787,12 @@
             "value": "Feststelltaste ist aktiviert"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El bloqueo de mayúsculas está activado"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -597,6 +807,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Erneut prüfen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprobar de nuevo"
           }
         },
         "fr": {
@@ -615,6 +831,12 @@
             "value": "Jetzt suchen"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar ahora"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -629,6 +851,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nach Updates suchen …"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar actualizaciones…"
           }
         },
         "fr": {
@@ -647,6 +875,12 @@
             "value": "Automatisch nach Updates suchen"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar actualizaciones automáticamente"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -661,6 +895,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Klicke auf „+“, füge %@ hinzu und aktiviere den Schalter."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz clic en «+», añade %@ y actívalo."
           }
         },
         "fr": {
@@ -679,6 +919,12 @@
             "value": "Ausgeblendet"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plegado"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -693,6 +939,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Komm hierher zurück und wähle „Neu starten“ — eine neue Berechtigung gilt erst für eine frisch gestartete App."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuelve aquí y elige «Reiniciar»: un permiso nuevo solo se aplica a una app recién iniciada."
           }
         },
         "fr": {
@@ -711,6 +963,12 @@
             "value": "Schließe das verschlüsselte Laufwerk an und wähle „Erneut suchen“. Falls es bereits angeschlossen ist, hat macOS es möglicherweise aktiviert — wirf es dann zuerst im Finder aus."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conecta el disco cifrado y elige «Volver a buscar». Si ya está conectado, es posible que macOS lo haya montado: expúlsalo primero en el Finder."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -725,6 +983,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kopiert"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiado"
           }
         },
         "fr": {
@@ -743,6 +1007,12 @@
             "value": "Details kopieren"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar detalles"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -757,6 +1027,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dunkel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oscuro"
           }
         },
         "fr": {
@@ -805,6 +1081,24 @@
             }
           }
         },
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Eliminando la frase de contraseña guardada"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Eliminando %lld frases de contraseña guardadas"
+                }
+              }
+            }
+          }
+        },
         "fr": {
           "variations": {
             "plural": {
@@ -833,6 +1127,12 @@
             "value": "Linux-Umgebung wird gelöscht"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminando el entorno Linux"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -847,6 +1147,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Details, die mitgesendet werden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detalles que se incluirán"
           }
         },
         "fr": {
@@ -865,6 +1171,12 @@
             "value": "Fertig"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -879,6 +1191,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Updates laden und installieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descargarlas e instalarlas"
           }
         },
         "fr": {
@@ -897,6 +1215,12 @@
             "value": "Laufwerke, die an ein TPM statt an ein Passwort gebunden sind, einschließlich der neueren hardwaregestützten Verschlüsselung von Ubuntu"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discos sellados a un TPM en vez de a una contraseña, incluido el cifrado por hardware más reciente de Ubuntu"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -911,6 +1235,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Auswerfen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expulsar"
           }
         },
         "fr": {
@@ -929,6 +1259,12 @@
             "value": "%@ auswerfen"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expulsar %@"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -943,6 +1279,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Auswerfen und beenden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expulsar y salir"
           }
         },
         "fr": {
@@ -991,6 +1333,24 @@
             }
           }
         },
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Expulsando el disco abierto"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Expulsando %lld discos abiertos"
+                }
+              }
+            }
+          }
+        },
         "fr": {
           "variations": {
             "plural": {
@@ -1019,6 +1379,12 @@
             "value": "Wird ausgeworfen …"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expulsando…"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1033,6 +1399,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ausgabe der Engine"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salida del motor"
           }
         },
         "fr": {
@@ -1051,6 +1423,12 @@
             "value": "Gib die Passphrase des Laufwerks ein."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduce la frase de contraseña del disco."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1065,6 +1443,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gib das Passwort des Laufwerks ein oder seinen 48-stelligen Wiederherstellungsschlüssel."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduce la contraseña del disco o su clave de recuperación de 48 dígitos."
           }
         },
         "fr": {
@@ -1083,6 +1467,12 @@
             "value": "Alles Übrige wurde entfernt. %@ selbst konnte nicht in den Papierkorb bewegt werden — %@ — bewege es zum Abschluss selbst dorthin."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todo lo demás se ha eliminado. %@ en sí no se ha podido mover a la papelera (%@), así que arrástralo tú para terminar."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1097,6 +1487,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Eingeblendet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desplegado"
           }
         },
         "fr": {
@@ -1115,6 +1511,12 @@
             "value": "Extern"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Externo"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1129,6 +1531,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vergessen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Olvidar"
           }
         },
         "fr": {
@@ -1147,6 +1555,12 @@
             "value": "Festplattenvollzugriff"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acceso total al disco"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1163,6 +1577,12 @@
             "value": "Festplattenvollzugriff — ohne ihn lässt macOS keine App den Rohinhalt eines Laufwerks lesen. Er kann nicht angefordert werden und muss daher von Hand aktiviert werden"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acceso total al disco: sin él, macOS no deja que ninguna app lea el contenido en bruto de un disco. No se puede solicitar, así que hay que activarlo a mano"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1174,6 +1594,12 @@
     "GNU General Public License": {
       "localizations": {
         "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        },
+        "es": {
           "stringUnit": {
             "state": "translated",
             "value": "GNU General Public License"
@@ -1195,6 +1621,12 @@
             "value": "Erteilt"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concedido"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1209,6 +1641,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ausblenden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar"
           }
         },
         "fr": {
@@ -1227,6 +1665,12 @@
             "value": "Eingabe verbergen"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar lo escrito"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1241,6 +1685,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Details ausblenden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar los detalles"
           }
         },
         "fr": {
@@ -1259,6 +1709,12 @@
             "value": "Wie %@ funktioniert und was es unterstützt"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cómo funciona %@ y qué admite"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1273,6 +1729,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Funktionsweise"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cómo funciona"
           }
         },
         "fr": {
@@ -1291,6 +1753,12 @@
             "value": "Intern"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interno"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1305,6 +1773,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Es liegt im Papierkorb. Sonst ist nichts davon auf diesem Mac verblieben."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Está en la papelera. No queda nada más de ello en este Mac."
           }
         },
         "fr": {
@@ -1323,10 +1797,38 @@
             "value": "LUKS-Laufwerke von Linux, LUKS1 und LUKS2"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discos LUKS de Linux, tanto LUKS1 como LUKS2"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Les disques LUKS de Linux, LUKS1 comme LUKS2"
+          }
+        }
+      }
+    },
+    "LUKS or Linux filesystem": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS oder Linux-Dateisystem"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS o sistema de archivos Linux"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS ou système de fichiers Linux"
           }
         }
       }
@@ -1337,6 +1839,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LUKS-Volumes, deren Header getrennt vom Laufwerk gespeichert ist"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volúmenes LUKS cuya cabecera se guarda aparte del disco"
           }
         },
         "fr": {
@@ -1355,6 +1863,12 @@
             "value": "LVM innerhalb von LUKS, wie es Ubuntu, Debian, Mint und Fedora einrichten. Mehrere Volumes auf einem Laufwerk werden gemeinsam entsperrt"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM dentro de LUKS, tal como lo configuran Ubuntu, Debian, Mint y Fedora. Varios volúmenes de un mismo disco se desbloquean juntos"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1369,6 +1883,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sprache"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Idioma"
           }
         },
         "fr": {
@@ -1387,6 +1907,12 @@
             "value": "Zuletzt gesucht: %@"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Última comprobación: %@"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1401,6 +1927,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Geöffnet lassen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dejar abierto"
           }
         },
         "fr": {
@@ -1419,6 +1951,12 @@
             "value": "Ermöglicht %@, die verschlüsselten Daten selbst zu lesen."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite que %@ lea los datos cifrados directamente."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1433,6 +1971,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ermöglicht %@, die verschlüsselten Daten selbst zu lesen. Ohne diese Berechtigung blockiert macOS das selbst für Administratoren, und sie kann nicht angefordert werden — sie muss von Hand aktiviert werden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite que %@ lea los datos cifrados directamente. Sin este permiso macOS lo bloquea, incluso para administradores, y no se puede solicitar: hay que activarlo a mano."
           }
         },
         "fr": {
@@ -1451,6 +1995,12 @@
             "value": "Lizenz"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licencia"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1465,6 +2015,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hell"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claro"
           }
         },
         "fr": {
@@ -1483,6 +2039,12 @@
             "value": "Ort"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ubicación"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1497,6 +2059,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gesperrt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloqueado"
           }
         },
         "fr": {
@@ -1515,6 +2083,12 @@
             "value": "Suche nach verschlüsselten Laufwerken …"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscando discos cifrados…"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1529,6 +2103,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lúkotta ist Finnisch für „ohne Schloss“, von lukko, einem Schloss, mit der Endung -tta, die das Fehlen von etwas bezeichnet. Die Betonung liegt auf der ersten Silbe, wie im Finnischen immer."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lúkotta significa «sin cerradura» en finés, de lukko, una cerradura, con la terminación -tta que indica la ausencia de algo. El acento recae en la primera sílaba, como siempre en finés."
           }
         },
         "fr": {
@@ -1547,6 +2127,12 @@
             "value": "Menüleiste"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barra de menús"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1561,6 +2147,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ wird in den Papierkorb bewegt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moviendo %@ a la papelera"
           }
         },
         "fr": {
@@ -1579,6 +2171,12 @@
             "value": "Erforderlich"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Necesario"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1593,6 +2191,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keine verschlüsselten Laufwerke gefunden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se han encontrado discos cifrados"
           }
         },
         "fr": {
@@ -1611,6 +2215,12 @@
             "value": "Es wurde kein Grund gemeldet. Die Details unten sagen möglicherweise mehr."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se ha indicado ningún motivo. Los detalles de abajo pueden decir más."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1625,6 +2235,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "In dieser Version nicht enthalten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No está en esta versión."
           }
         },
         "fr": {
@@ -1643,6 +2259,12 @@
             "value": "Es wird nichts installiert. Die Engine steckt in der App, nichts verlässt deinen Mac, und auf ein Laufwerk wird nur geschrieben, wenn du darauf schreibst."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se instala nada. El motor viene dentro de la app, nada sale de tu Mac y solo se escribe en un disco cuando tú escribes en él."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1657,6 +2279,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sobald der Hintergrund-Helfer eingerichtet ist, lässt ein Update entsperrte Laufwerke unberührt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una vez configurado el asistente en segundo plano, actualizar no afectará a los discos desbloqueados."
           }
         },
         "fr": {
@@ -1675,6 +2303,12 @@
             "value": "%@ öffnen"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir %@"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1689,6 +2323,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "E-Mail öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir el correo"
           }
         },
         "fr": {
@@ -1707,6 +2347,12 @@
             "value": "Öffne „Datenschutz & Sicherheit“ → „Festplattenvollzugriff“."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre «Privacidad y seguridad» → «Acceso total al disco»."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1721,6 +2367,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Datenschutzeinstellungen öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir los ajustes de privacidad"
           }
         },
         "fr": {
@@ -1739,6 +2391,12 @@
             "value": "Verschlüsselte Laufwerke unter macOS öffnen"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre discos cifrados en macOS"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1753,6 +2411,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„%@“ wird geöffnet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abriendo «%@»"
           }
         },
         "fr": {
@@ -1771,6 +2435,12 @@
             "value": "Passphrase"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frase de contraseña"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1785,6 +2455,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Passwort oder Wiederherstellungsschlüssel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraseña o clave de recuperación"
           }
         },
         "fr": {
@@ -1803,6 +2479,12 @@
             "value": "Berechtigungen"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permisos"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1819,6 +2501,12 @@
             "value": "Beenden"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salir"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1833,6 +2521,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ beenden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salir de %@"
           }
         },
         "fr": {
@@ -1881,6 +2575,24 @@
             }
           }
         },
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "¿Salir y dejar %lld disco abierto?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "¿Salir y dejar %lld discos abiertos?"
+                }
+              }
+            }
+          }
+        },
         "fr": {
           "variations": {
             "plural": {
@@ -1909,6 +2621,12 @@
             "value": "Beenden und „%@“ geöffnet lassen?"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Salir y dejar «%@» abierto?"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1923,6 +2641,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Neu starten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reiniciar"
           }
         },
         "fr": {
@@ -1941,6 +2665,12 @@
             "value": "Diesen Schlüssel in meinem Schlüsselbund sichern"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordar esta clave en mi llavero"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1955,6 +2685,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Entfernbare Volumes — von macOS beim ersten Lesen eines Laufwerks angefordert"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volúmenes extraíbles: macOS lo solicita la primera vez que se lee un disco"
           }
         },
         "fr": {
@@ -1973,6 +2709,12 @@
             "value": "%@ wird entfernt"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminando %@"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -1987,6 +2729,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Einstellungen werden entfernt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminando los ajustes"
           }
         },
         "fr": {
@@ -2005,6 +2753,12 @@
             "value": "Dieses Problem melden"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informar de este problema"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2019,6 +2773,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ein Problem melden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informar de un problema"
           }
         },
         "fr": {
@@ -2037,6 +2797,12 @@
             "value": "Ein Problem melden oder einen Absturzbericht senden"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informar de un problema o enviar un informe de fallo"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2051,6 +2817,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Problem melden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informar de un problema"
           }
         },
         "fr": {
@@ -2069,6 +2841,12 @@
             "value": "Problem melden …"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informar de un problema…"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2083,6 +2861,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Systemvoraussetzungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requisitos"
           }
         },
         "fr": {
@@ -2101,6 +2885,12 @@
             "value": "Erneut suchen"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volver a buscar"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2115,6 +2905,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "App im Finder zeigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar la app en el Finder"
           }
         },
         "fr": {
@@ -2133,6 +2929,12 @@
             "value": "Angeschlossene Laufwerke sehen"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver los discos conectados"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2147,6 +2949,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Wähle ein Laufwerk zum Entsperren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona un disco para desbloquear"
           }
         },
         "fr": {
@@ -2165,6 +2973,12 @@
             "value": "Linux-Umgebung wird eingerichtet"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparando el entorno Linux"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2179,6 +2993,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Einblenden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar"
           }
         },
         "fr": {
@@ -2197,6 +3017,12 @@
             "value": "%@ in der Menüleiste anzeigen"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar %@ en la barra de menús"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2211,6 +3037,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Im Finder zeigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar en el Finder"
           }
         },
         "fr": {
@@ -2229,6 +3061,12 @@
             "value": "Eingabe anzeigen"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar lo escrito"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2243,6 +3081,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zeigen, wofür jede Berechtigung dient"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar para qué sirve cada permiso"
           }
         },
         "fr": {
@@ -2261,6 +3105,12 @@
             "value": "Es fehlen noch Berechtigungen"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún faltan algunos permisos"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2275,6 +3125,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quelltext"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código fuente"
           }
         },
         "fr": {
@@ -2293,6 +3149,12 @@
             "value": "System"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2307,6 +3169,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„System“ folgt der Sprache deines Mac."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Sistema» sigue el idioma de tu Mac."
           }
         },
         "fr": {
@@ -2325,6 +3193,12 @@
             "value": "„System“ folgt der Einstellung deines Mac, auch wenn sie sich ändert."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Sistema» sigue el ajuste de tu Mac, también cuando cambia."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2339,6 +3213,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dieses Passwort bzw. dieser Wiederherstellungsschlüssel hat das Laufwerk nicht entsperrt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esa contraseña o clave de recuperación no ha desbloqueado este disco."
           }
         },
         "fr": {
@@ -2357,6 +3237,12 @@
             "value": "Die Linux-Umgebung wird einmalig beim ersten Verwenden entpackt."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El entorno Linux se descomprime una sola vez, la primera vez que se usa."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2371,6 +3257,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Die Linux-Umgebung wird gelöscht und gibt etwa %lld MB frei."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se eliminará el entorno Linux, liberando unos %lld MB."
           }
         },
         "fr": {
@@ -2389,6 +3281,12 @@
             "value": "Der Hintergrund-Helfer ist nicht eingerichtet, daher hält %@ das Laufwerk selbst offen. Beenden trennt es jetzt, und alles, was noch geschrieben wird, würde nicht abgeschlossen.\n\nSobald der Helfer eingerichtet ist, bleiben Laufwerke von selbst geöffnet."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El asistente en segundo plano no está configurado, así que es %@ quien mantiene el disco abierto. Salir ahora lo desconecta y lo que quede por escribir no se completaría.\n\nUna vez configurado el asistente, los discos permanecen abiertos por sí solos."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2403,6 +3301,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Der Hintergrund-Helfer ist nicht eingerichtet, daher hält %@ sie selbst offen. Beenden trennt sie jetzt, und alles, was noch geschrieben wird, würde nicht abgeschlossen.\n\nSobald der Helfer eingerichtet ist, bleiben Laufwerke von selbst geöffnet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El asistente en segundo plano no está configurado, así que es %@ quien los mantiene abiertos. Salir ahora los desconecta y lo que quede por escribir no se completaría.\n\nUna vez configurado el asistente, los discos permanecen abiertos por sí solos."
           }
         },
         "fr": {
@@ -2421,6 +3325,12 @@
             "value": "Die Registrierung des Hintergrund-Helfers wird aufgehoben."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se anulará el registro del asistente en segundo plano."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2435,6 +3345,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das Laufwerk erscheint in der Finder-Seitenleiste unter „Orte“.\nWirf es hier oder im Finder aus, bevor du es abziehst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El disco aparece en la barra lateral del Finder, en «Ubicaciones».\nExpúlsalo aquí o en el Finder antes de desconectarlo."
           }
         },
         "fr": {
@@ -2453,6 +3369,12 @@
             "value": "Das Laufwerk ist belegt. Schließe alles, was es verwendet, und versuche es erneut."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El disco está ocupado. Cierra todo lo que lo esté usando y vuelve a intentarlo."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2467,6 +3389,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das Laufwerk wird dem Finder über eine lokale Netzwerkverbindung übergeben und erscheint deshalb unter „Orte“ mit einem Netzwerksymbol. Es liest, schreibt und wird ausgeworfen wie jedes andere Laufwerk. macOS bietet keine Möglichkeit, es als lokales Volume darzustellen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El disco se entrega al Finder mediante una conexión de red local, por lo que aparece en «Ubicaciones» con un icono de red. Se lee, se escribe y se expulsa como cualquier otro disco. macOS no ofrece ninguna forma de presentarlo como un disco local."
           }
         },
         "fr": {
@@ -2485,6 +3413,12 @@
             "value": "Das Laufwerk bleibt nach dem Beenden von %@ im Finder. Wirf es dort aus, wenn du fertig bist."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El disco permanece en el Finder después de salir de %@. Expúlsalo allí cuando termines."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2499,6 +3433,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das Laufwerk wurde nicht geöffnet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El disco no se abrió"
           }
         },
         "fr": {
@@ -2517,6 +3457,12 @@
             "value": "Das Laufwerk wurde nicht geöffnet. %@"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El disco no se abrió. %@"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2531,6 +3477,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Windows hat das Laufwerk nicht sauber heruntergefahren. Deaktiviere den Schnellstart in Windows oder fahre Windows vollständig herunter, statt in den Ruhezustand zu wechseln, und versuche es erneut."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows no apagó el disco correctamente. Desactiva el inicio rápido en Windows, o apaga Windows por completo en vez de hibernarlo, y vuelve a intentarlo."
           }
         },
         "fr": {
@@ -2549,6 +3501,12 @@
             "value": "Die Engine hat auf diesem Volume kein Dateisystem erkannt. Falls es verschlüsselt ist, ist möglicherweise das Passwort oder der Wiederherstellungsschlüssel falsch."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El motor no ha reconocido ningún sistema de archivos en este volumen. Si está cifrado, puede que la contraseña o la clave de recuperación sean incorrectas."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2563,6 +3521,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Die Engine hat überhaupt nichts gemeldet. Möglicherweise wurde das Laufwerk abgezogen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El motor no ha indicado nada en absoluto. Puede que el disco se haya desconectado."
           }
         },
         "fr": {
@@ -2581,6 +3545,12 @@
             "value": "Die Sprache ändert sich, wenn %@ neu gestartet wird."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El idioma cambia la próxima vez que se inicie %@."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2595,6 +3565,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Der Name"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El nombre"
           }
         },
         "fr": {
@@ -2613,6 +3589,12 @@
             "value": "Die Passphrase, mit der dieses Laufwerk verschlüsselt wurde."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La frase de contraseña con la que se cifró este disco."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2627,6 +3609,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das Passwort, mit dem das Laufwerk gesperrt wurde, oder ein 48-stelliger BitLocker-Wiederherstellungsschlüssel. Leerzeichen und Bindestriche im Wiederherstellungsschlüssel werden ignoriert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La contraseña con la que se bloqueó el disco, o una clave de recuperación de BitLocker de 48 dígitos. Los espacios y guiones de una clave de recuperación se ignoran."
           }
         },
         "fr": {
@@ -2645,6 +3633,12 @@
             "value": "Die Virtualisierungs-Engine konnte nicht starten. Ein Neustart behebt das meistens."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El motor de virtualización no ha podido arrancar. Reiniciar suele solucionarlo."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2659,6 +3653,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sie bleiben nach dem Beenden von %@ im Finder. Wirf sie dort aus, wenn du fertig bist."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permanecen en el Finder después de salir de %@. Expúlsalos allí cuando termines."
           }
         },
         "fr": {
@@ -2677,6 +3677,12 @@
             "value": "Hinweise zu Drittanbietern"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avisos de terceros"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2691,6 +3697,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dieses Laufwerk enthält mehrere Volumes, und %@ konnte nicht ermitteln, welche. Eine Meldung darüber würde helfen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este disco contiene varios volúmenes y %@ no ha podido determinar cuáles. Informar de ello sería útil."
           }
         },
         "fr": {
@@ -2709,6 +3721,12 @@
             "value": "Das ist eine Datenschutzeinstellung von macOS, keine Änderung an deinem Mac. Du kannst sie jederzeit wieder deaktivieren, und es wird nichts installiert."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es un ajuste de privacidad de macOS, no un cambio en tu Mac. Puedes desactivarlo cuando quieras y no se instala nada."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2723,6 +3741,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Diese Partition ist kein BitLocker-Volume."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta partición no es un volumen de BitLocker."
           }
         },
         "fr": {
@@ -2741,6 +3765,12 @@
             "value": "Das dauert einen Moment."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto tarda un momento."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2755,6 +3785,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Das dauert normalerweise weniger als eine Minute."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Normalmente tarda menos de un minuto."
           }
         },
         "fr": {
@@ -2773,6 +3809,12 @@
             "value": "Erneut versuchen"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reintentar"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2787,6 +3829,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Deinstallieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desinstalar"
           }
         },
         "fr": {
@@ -2805,6 +3853,12 @@
             "value": "%@ deinstallieren?"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Desinstalar %@?"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2819,6 +3873,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ deinstallieren …"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desinstalar %@…"
           }
         },
         "fr": {
@@ -2837,6 +3897,12 @@
             "value": "Entsperren"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquear"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2851,6 +3917,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dieses Laufwerk entsperren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquear este disco"
           }
         },
         "fr": {
@@ -2869,6 +3941,12 @@
             "value": "Er wird direkt zum Entsperren verwendet. Vergiss ihn, um einen anderen einzugeben."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El desbloqueo la usa directamente. Olvídala para escribir otra."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2883,6 +3961,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„%@“ entsperren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquear «%@»"
           }
         },
         "fr": {
@@ -2901,6 +3985,12 @@
             "value": "Entsperrt"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloqueado"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2915,6 +4005,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Entsperrt unter %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloqueado en %@"
           }
         },
         "fr": {
@@ -2933,6 +4029,12 @@
             "value": "Registrierung des Hintergrund-Helfers wird aufgehoben"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anulando el registro del asistente en segundo plano"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2947,6 +4049,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Updates"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualizaciones"
           }
         },
         "fr": {
@@ -2965,6 +4073,12 @@
             "value": "Ein Update wirft deine Laufwerke nicht aus. Alles Entsperrte bleibt entsperrt und funktioniert weiter."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualizar no expulsa tus discos. Todo lo que esté desbloqueado sigue desbloqueado y funcionando."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -2979,6 +4093,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Der im Schlüsselbund gesicherte Schlüssel wird verwendet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se usa la clave guardada en tu llavero"
           }
         },
         "fr": {
@@ -2997,6 +4117,12 @@
             "value": "Version %@ (%@)"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versión %@ (%@)"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3011,6 +4137,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Geöffnete Volumes"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volúmenes abiertos"
           }
         },
         "fr": {
@@ -3029,6 +4161,12 @@
             "value": "Website"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sitio web"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3043,6 +4181,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Willkommen bei %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Te damos la bienvenida a %@"
           }
         },
         "fr": {
@@ -3061,6 +4205,12 @@
             "value": "Was ein Laufwerk enthält, ist erst nach dem Entsperren bekannt."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El contenido de un disco solo se conoce una vez desbloqueado."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3075,6 +4225,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Was ist passiert"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qué ha pasado"
           }
         },
         "fr": {
@@ -3093,6 +4249,12 @@
             "value": "Was ist passiert?"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Qué ha pasado?"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3107,6 +4269,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Was geöffnet werden kann"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qué puede abrir"
           }
         },
         "fr": {
@@ -3125,6 +4293,12 @@
             "value": "Was nicht geöffnet werden kann"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qué no puede abrir"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3139,6 +4313,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Was zu tun ist"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qué hacer"
           }
         },
         "fr": {
@@ -3157,6 +4337,12 @@
             "value": "Warum es als Netzlaufwerk erscheint"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por qué aparece como un disco de red"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3171,6 +4357,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Windows-NTFS-Laufwerke, auch solche, die Windows im Ruhezustand oder nicht ordnungsgemäß heruntergefahren hinterlassen hat"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discos NTFS de Windows, incluidos los que Windows dejó hibernados o mal apagados"
           }
         },
         "fr": {
@@ -3189,6 +4381,12 @@
             "value": "Du kannst Dateien darauf lesen und schreiben."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puedes leer y escribir archivos en él."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3203,6 +4401,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Du kannst weiterhin jederzeit selbst suchen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puedes buscarlas manualmente cuando quieras."
           }
         },
         "fr": {
@@ -3221,6 +4425,12 @@
             "value": "Dein Laufwerk wurde nicht verändert. Ein fehlgeschlagener Entsperrversuch kann den Daten darauf nicht schaden."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu disco no se ha modificado. Un desbloqueo fallido no puede dañar los datos que contiene."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3235,6 +4445,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "erledigt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hecho"
           }
         },
         "fr": {
@@ -3253,6 +4469,12 @@
             "value": "ext4-, btrfs- und XFS-Dateisysteme darin"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistemas de archivos ext4, btrfs y XFS dentro de ellos"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3267,6 +4489,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "läuft"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "en curso"
           }
         },
         "fr": {
@@ -3285,6 +4513,12 @@
             "value": "gesperrt"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bloqueado"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3299,6 +4533,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS 15 Sequoia oder neuer"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 15 Sequoia o posterior"
           }
         },
         "fr": {
@@ -3317,6 +4557,12 @@
             "value": "macOS hat dieses Laufwerk bereits aktiviert. Wirf es im Finder aus und versuche es erneut."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ya tiene este disco montado. Expúlsalo en el Finder y vuelve a intentarlo."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3331,6 +4577,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS hat den Zugriff auf das Laufwerk blockiert. %@ benötigt Festplattenvollzugriff, um eine verschlüsselte Festplatte lesen zu können."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ha bloqueado el acceso al disco. %@ necesita Acceso total al disco para poder leer un disco cifrado."
           }
         },
         "fr": {
@@ -3349,6 +4601,12 @@
             "value": "macOS hat %@ geschrieben. Er wird nirgendwohin automatisch gesendet — hänge ihn deiner Nachricht an, wenn du kannst."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ha escrito %@. No se envía a ningún sitio automáticamente: adjúntalo a tu mensaje si puedes."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3363,6 +4621,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "nicht erreicht"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "no alcanzado"
           }
         },
         "fr": {
@@ -3381,6 +4645,12 @@
             "value": "hier gestoppt"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "se detuvo aquí"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3395,6 +4665,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "entsperrt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "desbloqueado"
           }
         },
         "fr": {
@@ -3413,6 +4689,12 @@
             "value": "wartet"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "en espera"
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3429,6 +4711,12 @@
             "value": "„%@“ hat nicht mehr reagiert und wurde getrennt. Du kannst es erneut öffnen."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» había dejado de responder y se desconectó. Puedes volver a abrirlo."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
@@ -3443,6 +4731,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„%@“ ist entsperrt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» está desbloqueado"
           }
         },
         "fr": {
