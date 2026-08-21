@@ -117,6 +117,12 @@
             "value": "%@ a fost eliminat"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ je odstranjen"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -239,6 +245,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ este software liber sub licența GPL, versiunea 3 sau ulterioară. Montarea este realizată de anylinuxfs. Codul sursă complet al fiecărei componente este publicat cu fiecare versiune. Numele și sigla sunt mărci comerciale și nu sunt acoperite de acea licență."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ je prosto programje pod licenco GPL, različica 3 ali novejša. Priklop opravi anylinuxfs. Popolna izvorna koda vsake komponente je objavljena z vsako izdajo. Ime in logotip sta blagovni znamki in ju ta licenca ne zajema."
           }
         },
         "sv": {
@@ -365,6 +377,12 @@
             "value": "%@ deschide discuri BitLocker și Linux pe care macOS nu le poate citi singur. Mai întâi este nevoie de o configurare.\n\nCitirea unui disc la nivel de dispozitiv necesită acces complet la disc — o parolă de administrator nu este suficientă, iar permisiunea pentru volume amovibile acoperă fișierele de pe un disc, nu dispozitivul în sine. macOS nu permite unei aplicații să o solicite, deci trebuie activată manual."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ odpira pogone BitLocker in Linux, ki jih macOS sam ne zna prebrati. Najprej je potrebna ena nastavitev.\n\nBranje pogona na ravni naprave zahteva poln dostop do diska — geslo skrbnika ne zadošča, dovoljenje za snemljive nosilce pa zajema datoteke na pogonu, ne naprave same. macOS aplikaciji ne omogoča, da bi zanj zaprosila, zato ga je treba vklopiti ročno."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -489,6 +507,12 @@
             "value": "%@ pornește o mică mașină virtuală Linux, deblochează discul în interiorul ei și îl predă înapoi aplicației Finder. macOS nu poate citi sisteme de fișiere BitLocker sau Linux. Linux poate."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ zažene majhen navidezni stroj z Linuxom, v njem odklene pogon in ga preda nazaj Finderju. macOS ne zna brati datotečnih sistemov BitLocker ali Linux. Linux jih zna."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -611,6 +635,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ va fi mutat în Coș."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ bo premaknjen v Koš."
           }
         },
         "sv": {
@@ -1032,6 +1062,36 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld de discuri nu mai răspundeau și au fost deconectate. Le puteți deschide din nou."
+                }
+              }
+            }
+          }
+        },
+        "sl": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld pogoni se niso več odzivali in so bili odklopljeni. Lahko jih znova odprete."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld pogon se ni več odzival in je bil odklopljen. Lahko ga znova odprete."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld pogonov se ni več odzivalo in so bili odklopljeni. Lahko jih znova odprete."
+                }
+              },
+              "two": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld pogona se nista več odzivala in sta bila odklopljena. Lahko ju znova odprete."
                 }
               }
             }
@@ -1473,6 +1533,36 @@
             }
           }
         },
+        "sl": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld odprti pogoni bodo izvrženi."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld odprt pogon bo izvržen."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld odprtih pogonov bo izvrženih."
+                }
+              },
+              "two": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld odprta pogona bosta izvržena."
+                }
+              }
+            }
+          }
+        },
         "sv": {
           "variations": {
             "plural": {
@@ -1609,6 +1699,12 @@
             "value": "%lld la sută"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld odstotkov"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -1731,6 +1827,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "250 MB pe disc: 155 MB pentru aplicație și 95 MB pentru mediul Linux dezarhivat la prima utilizare"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 MB prostora na disku: 155 MB za aplikacijo in 95 MB za okolje Linux, ki se razpakira ob prvi uporabi"
           }
         },
         "sv": {
@@ -1857,6 +1959,12 @@
             "value": "30–80 MB de memorie pentru fiecare disc deblocat"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 do 80 MB pomnilnika na odklenjen pogon"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -1979,6 +2087,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "A fost găsit un raport de blocare"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Najdeno je bilo poročilo o sesutju"
           }
         },
         "sv": {
@@ -2105,6 +2219,12 @@
             "value": "Despre %@"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O aplikaciji %@"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -2227,6 +2347,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Despre și ajutor"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informacije in pomoč"
           }
         },
         "sv": {
@@ -2353,6 +2479,12 @@
             "value": "Aproximativ zece discuri pot rămâne deblocate simultan"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hkrati lahko ostane odklenjenih približno deset pogonov"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -2475,6 +2607,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Parolă de administrator"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skrbniško geslo"
           }
         },
         "sv": {
@@ -2601,6 +2739,12 @@
             "value": "Parolă de administrator — solicitată o singură dată la configurarea asistentului din fundal, apoi niciodată. %@ nu o vede niciodată"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skrbniško geslo — zahtevano je enkrat, ob nastavitvi pomočnika v ozadju, nato nikoli več. %@ ga nikoli ne vidi"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -2725,6 +2869,12 @@
             "value": "Toate discurile"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vsi pogoni"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -2847,6 +2997,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Toate permisiunile necesare au fost acordate"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vsa potrebna dovoljenja so odobrena"
           }
         },
         "sv": {
@@ -3273,6 +3429,36 @@
             }
           }
         },
+        "sl": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izbriši tudi %1$lld shranjena gesla (%2$@)"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izbriši tudi %1$lld shranjeno geslo (%2$@)"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izbriši tudi %1$lld shranjenih gesel (%2$@)"
+                }
+              },
+              "two": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izbriši tudi %1$lld shranjeni gesli (%2$@)"
+                }
+              }
+            }
+          }
+        },
         "sv": {
           "variations": {
             "plural": {
@@ -3409,6 +3595,12 @@
             "value": "Un Mac cu Apple Silicon. Mac-urile cu Intel nu sunt acceptate"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac z Apple Silicon. Maci z Intelom niso podprti"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -3531,6 +3723,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Un alt disc este deschis, iar motorul trebuie să ruleze singur prima dată după o modificare. Ejectați celelalte discuri, deschideți-l pe acesta, iar apoi vor putea fi din nou toate deschise împreună."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odprt je drug pogon, mehanizem pa mora po spremembi prvič teči sam. Izvrzite druge pogone, odprite tega, nato so lahko spet vsi odprti hkrati."
           }
         },
         "sv": {
@@ -3657,6 +3855,12 @@
             "value": "Aspect"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Videz"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -3779,6 +3983,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apare doar cât timp un disc este deblocat, pentru a-l ejecta."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaže se le, dokler je pogon odklenjen, za njegov izmet."
           }
         },
         "sv": {
@@ -3905,6 +4115,12 @@
             "value": "Dezvoltator"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Razvijalec"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -4027,6 +4243,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Înapoi"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazaj"
           }
         },
         "sv": {
@@ -4153,6 +4375,12 @@
             "value": "Discuri BitLocker, deblocate cu parola volumului sau cu o cheie de recuperare din 48 de cifre"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogoni BitLocker, odklenjeni z geslom nosilca ali 48-mestnim obnovitvenim ključem"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -4275,6 +4503,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "BitLocker sau NTFS"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker ali NTFS"
           }
         },
         "sv": {
@@ -4401,6 +4635,12 @@
             "value": "Anulați"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prekliči"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -4523,6 +4763,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Caps Lock este activat"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps Lock je vklopljen"
           }
         },
         "sv": {
@@ -4649,6 +4895,12 @@
             "value": "Verificați din nou"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preveri znova"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -4771,6 +5023,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Căutați acum"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preveri zdaj"
           }
         },
         "sv": {
@@ -4897,6 +5155,12 @@
             "value": "Căutați actualizări…"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preveri posodobitve…"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -5019,6 +5283,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Căutați automat actualizări"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samodejno preverjaj posodobitve"
           }
         },
         "sv": {
@@ -5145,6 +5415,12 @@
             "value": "Faceți clic pe „+”, adăugați %@ și activați-l."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kliknite »+«, dodajte %@ in ga vklopite."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -5267,6 +5543,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Restrâns"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strnjeno"
           }
         },
         "sv": {
@@ -5393,6 +5675,12 @@
             "value": "Reveniți aici și alegeți „Relansați” — o permisiune nouă se aplică doar unei aplicații tocmai pornite."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vrnite se sem in izberite »Znova zaženi« — novo dovoljenje velja šele za pravkar zagnano aplikacijo."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -5515,6 +5803,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Conectați discul criptat și alegeți „Căutați din nou”. Dacă este deja conectat, este posibil ca macOS să-l fi montat — ejectați-l mai întâi în Finder."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priključite šifrirani pogon in izberite »Ponovno poišči«. Če je že priključen, ga je macOS morda priklopil — najprej ga izvrzite v Finderju."
           }
         },
         "sv": {
@@ -5641,6 +5935,12 @@
             "value": "Copiat"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopirano"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -5765,6 +6065,12 @@
             "value": "Copiați detaliile"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopiraj podrobnosti"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -5887,6 +6193,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Întunecat"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temno"
           }
         },
         "sv": {
@@ -6313,6 +6625,36 @@
             }
           }
         },
+        "sl": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Brisanje %lld shranjenih gesel"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Brisanje %lld shranjenega gesla"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Brisanje %lld shranjenih gesel"
+                }
+              },
+              "two": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Brisanje %lld shranjenih gesel"
+                }
+              }
+            }
+          }
+        },
         "sv": {
           "variations": {
             "plural": {
@@ -6449,6 +6791,12 @@
             "value": "Se șterge mediul Linux"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brisanje okolja Linux"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -6571,6 +6919,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Detalii care vor fi incluse"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podrobnosti, ki bodo priložene"
           }
         },
         "sv": {
@@ -6697,6 +7051,12 @@
             "value": "OK"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Končano"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -6819,6 +7179,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Descărcați-le și instalați-le"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prenesi in namesti jih"
           }
         },
         "sv": {
@@ -6945,6 +7311,12 @@
             "value": "Discuri legate de un TPM în loc de o parolă, inclusiv criptarea hardware mai nouă din Ubuntu"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogoni, vezani na TPM namesto na geslo, vključno z novejšim strojnim šifriranjem v Ubuntuju"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -7067,6 +7439,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ejectați"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izvrzi"
           }
         },
         "sv": {
@@ -7193,6 +7571,12 @@
             "value": "Ejectați %@"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izvrzi %@"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -7315,6 +7699,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ejectați și ieșiți"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izvrzi in končaj"
           }
         },
         "sv": {
@@ -7741,6 +8131,36 @@
             }
           }
         },
+        "sl": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izmetavanje %lld odprtih pogonov"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izmetavanje %lld odprtega pogona"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izmetavanje %lld odprtih pogonov"
+                }
+              },
+              "two": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Izmetavanje %lld odprtih pogonov"
+                }
+              }
+            }
+          }
+        },
         "sv": {
           "variations": {
             "plural": {
@@ -7877,6 +8297,12 @@
             "value": "Se ejectează…"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izmetavanje…"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -7999,6 +8425,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ieșirea motorului"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izhod pogona"
           }
         },
         "sv": {
@@ -8125,6 +8557,12 @@
             "value": "Introduceți fraza de acces a discului."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vnesite geslo pogona."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -8247,6 +8685,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Introduceți parola discului sau cheia sa de recuperare din 48 de cifre."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vnesite geslo pogona ali njegov 48-mestni obnovitveni ključ."
           }
         },
         "sv": {
@@ -8373,6 +8817,12 @@
             "value": "Tot restul a fost eliminat. %@ nu a putut fi mutat în Coș (%@) — trageți-l acolo dvs. pentru a finaliza."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vse ostalo je bilo odstranjeno. Samega %@ ni bilo mogoče premakniti v Koš (%@) — za dokončanje ga povlecite tja sami."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -8495,6 +8945,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Extins"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Razširjeno"
           }
         },
         "sv": {
@@ -8621,6 +9077,12 @@
             "value": "Extern"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zunanji"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -8743,6 +9205,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uitați"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pozabi"
           }
         },
         "sv": {
@@ -8869,6 +9337,12 @@
             "value": "Acces complet la disc"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poln dostop do diska"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -8993,6 +9467,12 @@
             "value": "Acces complet la disc — fără el, macOS nu permite niciunei aplicații să citească conținutul brut al unui disc. Nu poate fi solicitat, deci trebuie activat manual"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poln dostop do diska — brez njega macOS nobeni aplikaciji ne dovoli brati surove vsebine pogona. Zanj ni mogoče zaprositi, zato ga je treba vklopiti ročno"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -9112,6 +9592,12 @@
           }
         },
         "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        },
+        "sl": {
           "stringUnit": {
             "state": "translated",
             "value": "GNU General Public License"
@@ -9241,6 +9727,12 @@
             "value": "Acordată"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odobreno"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -9363,6 +9855,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ascundeți"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skrij"
           }
         },
         "sv": {
@@ -9489,6 +9987,12 @@
             "value": "Ascundeți ce tastați"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skrij vneseno"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -9611,6 +10115,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ascundeți detaliile"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skrij podrobnosti"
           }
         },
         "sv": {
@@ -9737,6 +10247,12 @@
             "value": "Cum funcționează %@ și ce acceptă"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kako %@ deluje in kaj podpira"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -9859,6 +10375,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cum funcționează"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kako deluje"
           }
         },
         "sv": {
@@ -9985,6 +10507,12 @@
             "value": "Intern"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notranji"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -10107,6 +10635,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Se află în Coș. Nu a mai rămas nimic altceva din el pe acest Mac."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je v Košu. Ničesar drugega od njega ni ostalo na tem Macu."
           }
         },
         "sv": {
@@ -10233,6 +10767,12 @@
             "value": "Discuri LUKS din Linux, atât LUKS1, cât și LUKS2"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogoni LUKS iz Linuxa, tako LUKS1 kot LUKS2"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -10355,6 +10895,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LUKS sau sistem de fișiere Linux"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS ali datotečni sistem Linux"
           }
         },
         "sv": {
@@ -10481,6 +11027,12 @@
             "value": "Volume LUKS al căror antet este stocat separat de disc"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nosilci LUKS, katerih glava je shranjena ločeno od pogona"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -10603,6 +11155,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LVM în interiorul LUKS, așa cum îl configurează Ubuntu, Debian, Mint și Fedora. Mai multe volume de pe același disc se deblochează împreună"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM znotraj LUKS, kot ga nastavijo Ubuntu, Debian, Mint in Fedora. Več nosilcev na enem pogonu se odklene skupaj"
           }
         },
         "sv": {
@@ -10729,6 +11287,12 @@
             "value": "Limbă"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jezik"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -10851,6 +11415,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ultima verificare: %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zadnjič preverjeno: %@"
           }
         },
         "sv": {
@@ -10977,6 +11547,12 @@
             "value": "Lăsați deschis"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pusti odprto"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -11099,6 +11675,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permite aplicației %@ să citească ea însăși datele criptate."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omogoča, da %@ sam bere šifrirane podatke."
           }
         },
         "sv": {
@@ -11225,6 +11807,12 @@
             "value": "Permite aplicației %@ să citească ea însăși datele criptate. Fără ea, macOS blochează acest lucru chiar și pentru administratori și nu poate fi solicitată — trebuie activată manual."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omogoča, da %@ sam bere šifrirane podatke. Brez tega macOS to zavrne tudi skrbnikom, zanj pa ni mogoče zaprositi — vklopiti ga je treba ročno."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -11347,6 +11935,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Licență"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licenca"
           }
         },
         "sv": {
@@ -11473,6 +12067,12 @@
             "value": "Luminos"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Svetlo"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -11595,6 +12195,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Amplasament"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokacija"
           }
         },
         "sv": {
@@ -11721,6 +12327,12 @@
             "value": "Blocat"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaklenjen"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -11843,6 +12455,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Se caută discuri criptate…"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iskanje šifriranih pogonov…"
           }
         },
         "sv": {
@@ -11969,6 +12587,12 @@
             "value": "Lúkotta înseamnă în finlandeză „fără lacăt”, de la lukko, un lacăt, cu terminația -tta care marchează absența a ceva. Accentul cade pe prima silabă, ca întotdeauna în finlandeză."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lúkotta v finščini pomeni »brez ključavnice«, od lukko, ključavnica, s končnico -tta, ki označuje odsotnost nečesa. Naglas je na prvem zlogu, kot vedno v finščini."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -12091,6 +12715,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bara de meniu"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menijska vrstica"
           }
         },
         "sv": {
@@ -12217,6 +12847,12 @@
             "value": "Se mută %@ în Coș"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premikanje %@ v Koš"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -12339,6 +12975,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Necesară"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Potrebno"
           }
         },
         "sv": {
@@ -12465,6 +13107,12 @@
             "value": "Nu s-au găsit discuri criptate"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ni najdenih šifriranih pogonov"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -12587,6 +13235,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nu a fost raportat niciun motiv. Detaliile de mai jos ar putea spune mai multe."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Razlog ni bil naveden. Spodnje podrobnosti morda povedo več."
           }
         },
         "sv": {
@@ -12713,6 +13367,12 @@
             "value": "Nu există în această versiune."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V tej različici ni vključeno."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -12835,6 +13495,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nu se instalează nimic. Motorul este inclus în aplicație, nimic nu părăsește Mac-ul dvs., iar pe un disc se scrie doar când scrieți dvs."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nič se ne namesti. Mehanizem je v aplikaciji, nič ne zapusti vašega Maca, na pogon pa se zapisuje le, ko nanj zapisujete vi."
           }
         },
         "sv": {
@@ -12961,6 +13627,12 @@
             "value": "După configurarea asistentului din fundal, actualizarea nu va atinge discurile deblocate."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ko je pomočnik v ozadju nastavljen, posodabljanje odklenjenih pogonov ne bo prizadelo."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -13083,6 +13755,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Deschideți %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri %@"
           }
         },
         "sv": {
@@ -13209,6 +13887,12 @@
             "value": "Deschideți e-mailul"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri e-pošto"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -13331,6 +14015,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Deschideți „Intimitate și securitate” → „Acces complet la disc”."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odprite »Zasebnost in varnost« → »Poln dostop do diska«."
           }
         },
         "sv": {
@@ -13457,6 +14147,12 @@
             "value": "Deschideți configurările de intimitate"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri nastavitve zasebnosti"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -13579,6 +14275,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Deschideți discuri criptate pe macOS"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpirajte šifrirane pogone v macOS"
           }
         },
         "sv": {
@@ -13705,6 +14407,12 @@
             "value": "Se deschide „%@”"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpiranje »%@«"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -13827,6 +14535,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Frază de acces"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geslo"
           }
         },
         "sv": {
@@ -13953,6 +14667,12 @@
             "value": "Parolă sau cheie de recuperare"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geslo ali obnovitveni ključ"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -14075,6 +14795,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permisiuni"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dovoljenja"
           }
         },
         "sv": {
@@ -14201,6 +14927,12 @@
             "value": "Ieșiți"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Končaj"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -14323,6 +15055,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ieșiți din %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Končaj %@"
           }
         },
         "sv": {
@@ -14749,6 +15487,36 @@
             }
           }
         },
+        "sl": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Končam in pustim %lld pogone odprte?"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Končam in pustim %lld pogon odprt?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Končam in pustim %lld pogonov odprtih?"
+                }
+              },
+              "two": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Končam in pustim %lld pogona odprta?"
+                }
+              }
+            }
+          }
+        },
         "sv": {
           "variations": {
             "plural": {
@@ -14885,6 +15653,12 @@
             "value": "Ieșiți și lăsați „%@” deschis?"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Končati in pustiti »%@« odprt?"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -15007,6 +15781,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Relansați"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Znova zaženi"
           }
         },
         "sv": {
@@ -15133,6 +15913,12 @@
             "value": "Reține această cheie în Keychain-ul meu"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zapomni si ta ključ v moji Keychain"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -15255,6 +16041,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volume amovibile — solicitată de macOS la prima citire a unui disc"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snemljivi nosilci — macOS zanje vpraša ob prvem branju pogona"
           }
         },
         "sv": {
@@ -15381,6 +16173,12 @@
             "value": "Se elimină %@"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odstranjevanje %@"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -15503,6 +16301,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Se elimină configurările"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odstranjevanje nastavitev"
           }
         },
         "sv": {
@@ -15629,6 +16433,12 @@
             "value": "Raportați această problemă"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijavi to težavo"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -15751,6 +16561,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Raportați o problemă"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijavi težavo"
           }
         },
         "sv": {
@@ -15877,6 +16693,12 @@
             "value": "Raportați o problemă sau trimiteți un raport de blocare"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijavite težavo ali pošljite poročilo o sesutju"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -15999,6 +16821,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Raportați o problemă"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijavi težavo"
           }
         },
         "sv": {
@@ -16125,6 +16953,12 @@
             "value": "Raportați o problemă…"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijavi težavo…"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -16247,6 +17081,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cerințe"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zahteve"
           }
         },
         "sv": {
@@ -16373,6 +17213,12 @@
             "value": "Căutați din nou"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponovno poišči"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -16495,6 +17341,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afișați aplicația în Finder"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaži aplikacijo v Finderju"
           }
         },
         "sv": {
@@ -16621,6 +17473,12 @@
             "value": "Vizualizarea discurilor conectate"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaz priključenih pogonov"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -16743,6 +17601,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Selectați un disc pentru deblocare"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izberite pogon za odklep"
           }
         },
         "sv": {
@@ -16869,6 +17733,12 @@
             "value": "Se pregătește mediul Linux"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pripravljanje okolja Linux"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -16991,6 +17861,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afișați"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaži"
           }
         },
         "sv": {
@@ -17117,6 +17993,12 @@
             "value": "Afișați %@ în bara de meniu"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaži %@ v menijski vrstici"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -17239,6 +18121,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afișați în Finder"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaži v Finderju"
           }
         },
         "sv": {
@@ -17365,6 +18253,12 @@
             "value": "Afișați ce tastați"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaži vneseno"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -17487,6 +18381,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afișați la ce servește fiecare permisiune"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaži, čemu je namenjeno posamezno dovoljenje"
           }
         },
         "sv": {
@@ -17613,6 +18513,12 @@
             "value": "Mai sunt necesare unele permisiuni"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nekatera dovoljenja še manjkajo"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -17735,6 +18641,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cod sursă"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izvorna koda"
           }
         },
         "sv": {
@@ -17861,6 +18773,12 @@
             "value": "Sistem"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistemski"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -17983,6 +18901,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„Sistem” urmează limba Mac-ului dvs."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»Sistemski« sledi jeziku vašega Maca."
           }
         },
         "sv": {
@@ -18109,6 +19033,12 @@
             "value": "„Sistem” urmează configurarea Mac-ului dvs., inclusiv când aceasta se schimbă."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»Sistemski« sledi nastavitvi vašega Maca, tudi ko se ta spremeni."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -18231,6 +19161,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Acea parolă sau cheie de recuperare nu a deblocat acest disc."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To geslo ali obnovitveni ključ ni odklenil tega pogona."
           }
         },
         "sv": {
@@ -18357,6 +19293,12 @@
             "value": "Mediul Linux este dezarhivat o singură dată, la prima utilizare."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Okolje Linux se razpakira enkrat, ob prvi uporabi."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -18479,6 +19421,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mediul Linux va fi șters, eliberând aproximativ %lld MB."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Okolje Linux bo izbrisano in sprostilo približno %lld MB."
           }
         },
         "sv": {
@@ -18605,6 +19553,12 @@
             "value": "Asistentul din fundal nu este configurat, așa că %@ ține discul deschis el însuși. Ieșirea acum îl deconectează, iar ce se mai scrie nu s-ar finaliza.\n\nDupă configurarea asistentului, discurile rămân deschise de la sine."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomočnik v ozadju ni nastavljen, zato %@ sam drži pogon odprt. Če zdaj končate, se pogon odklopi, kar se še zapisuje, pa se ne bi dokončalo.\n\nKo je pomočnik nastavljen, pogoni ostanejo odprti sami."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -18727,6 +19681,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Asistentul din fundal nu este configurat, așa că %@ le ține deschise el însuși. Ieșirea acum le deconectează, iar ce se mai scrie nu s-ar finaliza.\n\nDupă configurarea asistentului, discurile rămân deschise de la sine."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomočnik v ozadju ni nastavljen, zato jih %@ sam drži odprte. Če zdaj končate, se odklopijo, kar se še zapisuje, pa se ne bi dokončalo.\n\nKo je pomočnik nastavljen, pogoni ostanejo odprti sami."
           }
         },
         "sv": {
@@ -18853,6 +19813,12 @@
             "value": "Înregistrarea asistentului din fundal va fi anulată."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registracija pomočnika v ozadju bo preklicana."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -18975,6 +19941,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Discul apare în bara laterală Finder, la „Amplasamente”.\nEjectați-l aici sau în Finder înainte de a-l deconecta."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogon se prikaže v stranski vrstici Finderja pod »Lokacije«.\nPreden ga odklopite, ga izvrzite tukaj ali v Finderju."
           }
         },
         "sv": {
@@ -19101,6 +20073,12 @@
             "value": "Discul este ocupat. Închideți tot ce îl folosește, apoi reîncercați."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogon je zaseden. Zaprite vse, kar ga uporablja, nato poskusite znova."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -19223,6 +20201,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Discul este predat aplicației Finder printr-o conexiune de rețea locală, așa că apare la „Amplasamente” cu o pictogramă de rețea. Se citește, se scrie și se ejectează ca orice alt disc. macOS nu oferă nicio modalitate de a-l prezenta ca disc local."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogon se Finderju preda prek lokalne omrežne povezave, zato se prikaže pod »Lokacije« z omrežno ikono. Bere se, zapisuje in izvrže kot vsak drug pogon. macOS ne ponuja načina, da bi ga prikazal kot lokalni disk."
           }
         },
         "sv": {
@@ -19349,6 +20333,12 @@
             "value": "Discul rămâne în Finder după ce %@ se închide. Ejectați-l de acolo când terminați."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogon ostane v Finderju, potem ko se %@ konča. Izvrzite ga tam, ko končate."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -19471,6 +20461,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Discul nu a fost deschis"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogon ni bil odprt"
           }
         },
         "sv": {
@@ -19597,6 +20593,12 @@
             "value": "Discul nu a fost deschis. %@"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogon ni bil odprt. %@"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -19719,6 +20721,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Windows nu a oprit corect discul. Dezactivați pornirea rapidă în Windows sau opriți complet Windows în loc să-l hibernați, apoi reîncercați."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows pogona ni pravilno zaustavil. Izklopite hitri zagon v Windows ali Windows povsem zaustavite namesto mirovanja, nato poskusite znova."
           }
         },
         "sv": {
@@ -19845,6 +20853,12 @@
             "value": "Motorul nu a recunoscut niciun sistem de fișiere pe acest volum. Dacă este criptat, parola sau cheia de recuperare ar putea fi greșită."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogon na tem nosilcu ni prepoznal datotečnega sistema. Če je šifriran, sta geslo ali obnovitveni ključ morda napačna."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -19967,6 +20981,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Motorul nu a raportat absolut nimic. Este posibil ca discul să fi fost deconectat."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogon ni sporočil ničesar. Morda je bil pogon odklopljen."
           }
         },
         "sv": {
@@ -20093,6 +21113,12 @@
             "value": "Limba se schimbă când %@ pornește din nou."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jezik se spremeni, ko se %@ znova zažene."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -20215,6 +21241,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Numele"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ime"
           }
         },
         "sv": {
@@ -20341,6 +21373,12 @@
             "value": "Fraza de acces cu care a fost criptat acest disc."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geslo, s katerim je bil ta pogon šifriran."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -20463,6 +21501,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Parola cu care a fost blocat discul sau o cheie de recuperare BitLocker din 48 de cifre. Spațiile și cratimele dintr-o cheie de recuperare sunt ignorate."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geslo, s katerim je bil pogon zaklenjen, ali 48-mestni obnovitveni ključ BitLocker. Presledki in vezaji v obnovitvenem ključu se prezrejo."
           }
         },
         "sv": {
@@ -20589,6 +21633,12 @@
             "value": "Motorul de virtualizare nu a putut porni. De obicei o repornire rezolvă problema."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mehanizem za virtualizacijo se ni mogel zagnati. Ponovni zagon to običajno odpravi."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -20711,6 +21761,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rămân în Finder după ce %@ se închide. Ejectați-le de acolo când terminați."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ostanejo v Finderju, potem ko se %@ konča. Izvrzite jih tam, ko končate."
           }
         },
         "sv": {
@@ -20837,6 +21893,12 @@
             "value": "Notificări privind terții"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obvestila tretjih oseb"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -20959,6 +22021,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Acest disc conține mai multe volume, iar %@ nu a putut stabili care anume. Raportarea ar fi de ajutor."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta pogon vsebuje več nosilcev, %@ pa ni mogel ugotoviti, katere. Prijava bi pomagala."
           }
         },
         "sv": {
@@ -21085,6 +22153,12 @@
             "value": "Aceasta este o configurare de intimitate a macOS, nu o modificare a Mac-ului dvs. O puteți dezactiva oricând, iar nimic nu se instalează."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To je nastavitev zasebnosti v macOS, ne sprememba vašega Maca. Kadar koli jo lahko spet izklopite in nič se ne namesti."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -21207,6 +22281,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Această partiție nu este un volum BitLocker."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta razdelek ni nosilec BitLocker."
           }
         },
         "sv": {
@@ -21333,6 +22413,12 @@
             "value": "Durează un moment."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To traja trenutek."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -21455,6 +22541,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "De obicei durează mai puțin de un minut."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Običajno traja manj kot minuto."
           }
         },
         "sv": {
@@ -21581,6 +22673,12 @@
             "value": "Reîncercați"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poskusi znova"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -21703,6 +22801,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dezinstalați"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odstrani"
           }
         },
         "sv": {
@@ -21829,6 +22933,12 @@
             "value": "Dezinstalați %@?"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odstranim %@?"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -21951,6 +23061,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dezinstalați %@…"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odstrani %@…"
           }
         },
         "sv": {
@@ -22077,6 +23193,12 @@
             "value": "Deblocați"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odkleni"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -22199,6 +23321,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Deblocați acest disc"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odkleni ta pogon"
           }
         },
         "sv": {
@@ -22325,6 +23453,12 @@
             "value": "Deblocarea o folosește direct. Uitați-o pentru a introduce alta."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odklep ga uporabi neposredno. Pozabite ga, če želite vnesti drugega."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -22447,6 +23581,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Deblocați „%@”"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odkleni »%@«"
           }
         },
         "sv": {
@@ -22573,6 +23713,12 @@
             "value": "Deblocat"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odklenjen"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -22695,6 +23841,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Deblocat în %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odklenjeno v %@"
           }
         },
         "sv": {
@@ -22821,6 +23973,12 @@
             "value": "Se anulează înregistrarea asistentului din fundal"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preklic registracije pomočnika v ozadju"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -22943,6 +24101,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Actualizări"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posodobitve"
           }
         },
         "sv": {
@@ -23069,6 +24233,12 @@
             "value": "Actualizarea nu vă ejectează discurile. Tot ce este deblocat rămâne deblocat și continuă să funcționeze."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posodabljanje ne izvrže vaših pogonov. Vse, kar je odklenjeno, ostane odklenjeno in deluje naprej."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -23191,6 +24361,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Se folosește cheia salvată în Keychain-ul dvs."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uporablja se ključ, shranjen v vaši Keychain"
           }
         },
         "sv": {
@@ -23317,6 +24493,12 @@
             "value": "Versiunea %@ (%@)"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Različica %@ (%@)"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -23439,6 +24621,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volume deschise"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odprti nosilci"
           }
         },
         "sv": {
@@ -23565,6 +24753,12 @@
             "value": "Site web"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spletno mesto"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -23687,6 +24881,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bine ați venit în %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobrodošli v %@"
           }
         },
         "sv": {
@@ -23813,6 +25013,12 @@
             "value": "Conținutul unui disc se află abia după ce este deblocat."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vsebina pogona je znana šele, ko je ta odklenjen."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -23935,6 +25141,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ce s-a întâmplat"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaj se je zgodilo"
           }
         },
         "sv": {
@@ -24061,6 +25273,12 @@
             "value": "Ce s-a întâmplat?"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaj se je zgodilo?"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -24183,6 +25401,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ce poate deschide"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaj lahko odpre"
           }
         },
         "sv": {
@@ -24309,6 +25533,12 @@
             "value": "Ce nu poate deschide"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Česa ne more odpreti"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -24431,6 +25661,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ce puteți face"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaj storiti"
           }
         },
         "sv": {
@@ -24557,6 +25793,12 @@
             "value": "De ce apare ca disc de rețea"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zakaj se prikaže kot omrežni pogon"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -24679,6 +25921,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Discuri NTFS Windows, inclusiv cele lăsate de Windows în hibernare sau oprite necorespunzător"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogoni NTFS iz Windows, tudi tisti, ki jih je Windows pustil v mirovanju ali jih ni pravilno zaustavil"
           }
         },
         "sv": {
@@ -24805,6 +26053,12 @@
             "value": "Puteți citi și scrie fișiere pe el."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na njem lahko berete in zapisujete datoteke."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -24927,6 +26181,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Puteți căuta oricând și singur."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Še vedno lahko preverite, kadar želite."
           }
         },
         "sv": {
@@ -25053,6 +26313,12 @@
             "value": "Discul dvs. nu a fost modificat. O deblocare eșuată nu poate deteriora datele de pe el."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaš pogon ni bil spremenjen. Neuspel odklep ne more poškodovati podatkov na njem."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -25175,6 +26441,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "gata"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "končano"
           }
         },
         "sv": {
@@ -25301,6 +26573,12 @@
             "value": "Sisteme de fișiere ext4, btrfs și XFS în interiorul lor"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datotečni sistemi ext4, btrfs in XFS v njih"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -25423,6 +26701,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "în curs"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "poteka"
           }
         },
         "sv": {
@@ -25549,6 +26833,12 @@
             "value": "blocat"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "zaklenjen"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -25671,6 +26961,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS 15 Sequoia sau mai recent"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 15 Sequoia ali novejši"
           }
         },
         "sv": {
@@ -25797,6 +27093,12 @@
             "value": "macOS are deja montat acest disc. Ejectați-l în Finder și reîncercați."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS je ta pogon že priklopil. Izvrzite ga v Finderju in poskusite znova."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -25919,6 +27221,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS a blocat accesul la disc. %@ are nevoie de acces complet la disc pentru a putea citi un disc criptat."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS je zavrnil dostop do pogona. %@ potrebuje poln dostop do diska, da lahko prebere šifriran disk."
           }
         },
         "sv": {
@@ -26045,6 +27353,12 @@
             "value": "macOS a scris %@. Nu este trimis nicăieri automat — atașați-l la mesajul dvs. dacă puteți."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS je zapisal %@. Nikamor se ne pošlje samodejno — če lahko, ga priložite svojemu sporočilu."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -26167,6 +27481,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "neatins"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ni doseženo"
           }
         },
         "sv": {
@@ -26293,6 +27613,12 @@
             "value": "s-a oprit aici"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ustavilo se je tu"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -26415,6 +27741,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "deblocat"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "odklenjen"
           }
         },
         "sv": {
@@ -26541,6 +27873,12 @@
             "value": "în așteptare"
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "čaka"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -26665,6 +28003,12 @@
             "value": "„%@” nu mai răspundea și a fost deconectat. Îl puteți deschide din nou."
           }
         },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%@« se ni več odzival in je bil odklopljen. Lahko ga znova odprete."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -26787,6 +28131,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "„%@” este deblocat"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%@« je odklenjen"
           }
         },
         "sv": {
