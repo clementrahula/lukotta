@@ -1,11 +1,21 @@
 <p align="center">
-  <img src="docs/images/lukotta-logo.png" alt="Lukotta" width="360">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/lukotta-logo-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/images/lukotta-logo.png">
+    <img src="docs/images/lukotta-logo.png" alt="Lukotta" width="320">
+  </picture>
 </p>
 
 <p align="center">
   <strong>Open BitLocker and Linux drives on macOS.</strong><br>
   Plug in the drive, type its password, and it appears in Finder — readable and
   writable, like any other disk.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/macOS-15%20Sequoia%2B-111111" alt="macOS 15 Sequoia or later">
+  <img src="https://img.shields.io/badge/Apple%20Silicon-arm64-111111" alt="Apple Silicon">
+  <img src="https://img.shields.io/badge/licence-GPL--3.0--or--later-3b6ea5" alt="GPL-3.0-or-later">
 </p>
 
 <p align="center">
@@ -24,20 +34,22 @@ and a drive is only written to when you write to it.
 
 ## What It Can Open
 
-- **BitLocker** drives, unlocked with the volume password or a 48-digit recovery
-  key
-- **Windows NTFS** drives, including ones Windows left hibernated or not shut
-  down properly
-- **LUKS** drives from Linux, both LUKS1 and LUKS2
-- **LVM inside LUKS**, as Ubuntu, Debian, Mint and Fedora set it up. Several
-  volumes on one drive all unlock together
-- **ext4, btrfs and XFS** filesystems inside them
+| | |
+| --- | --- |
+| **BitLocker** | Unlocked with the volume password or a 48-digit recovery key |
+| **Windows NTFS** | Including ones Windows left hibernated or not shut down properly |
+| **LUKS** | From Linux, both LUKS1 and LUKS2 |
+| **LVM inside LUKS** | As Ubuntu, Debian, Mint and Fedora set it up. Several volumes on one drive all unlock together |
+| **Filesystems** | ext4, btrfs and XFS inside them |
 
-## What It Cannot Open
+<details>
+<summary>What it cannot open</summary>
 
 - Drives sealed to a TPM rather than a password, including Ubuntu's newer
   hardware-backed encryption
 - LUKS volumes whose header is stored separately from the drive
+
+</details>
 
 ## Requirements
 
@@ -50,8 +62,8 @@ and a drive is only written to when you write to it.
 
 ## Installing
 
-Download `Lukotta.app` from [Releases][releases], drag it to Applications, and
-open it. It is signed and notarised, so it opens with a double-click.
+Download Lukotta from [Releases][releases], drag it to Applications, and open
+it. It is signed and notarised, so it opens with a double-click.
 
 ## Permissions
 
@@ -61,8 +73,9 @@ open it. It is signed and notarised, so it opens with a double-click.
 - **Administrator password** — asked for once when the background helper is set
   up, then not again. Lukotta never sees it
 
-Lukotta explains each of these on first run and opens the right page of System
-Settings.
+> [!IMPORTANT]
+> Full Disk Access is the one macOS will not prompt for. Lukotta explains it on
+> first run and opens the right page of System Settings.
 
 ## Using It
 
@@ -74,24 +87,20 @@ Eject it from Lukotta, from the menu bar, or from Finder.
 Lukotta can remember a passphrase in your Keychain. It does not unless you ask
 it to.
 
-## Why It Appears as a Network Drive
-
-The drive is handed to Finder over a local network connection, so it appears
-under Locations with a network icon. It reads, writes and ejects like any other
-drive. macOS offers no way to present it as a local disk.
+> [!NOTE]
+> The drive is handed to Finder over a local network connection, so it appears
+> under Locations with a network icon. It reads, writes and ejects like any
+> other drive. macOS offers no way to present it as a local disk.
 
 ## Uninstalling
 
-Dragging the app to the Bin leaves the privileged helper registered: launchd
-knows about the service, not the folder it came from. To remove everything:
+Drag Lukotta to the Bin, then open **System Settings → General → Login Items &
+Extensions** and switch Lukotta off. That removes the background helper, which
+stays registered with macOS otherwise.
 
-```bash
-./scripts/uninstall.sh            # say what would go, remove nothing
-./scripts/uninstall.sh --remove   # do it
-```
-
-Saved passphrases are left in your Keychain, named so you can remove them
-yourself.
+The Linux environment sits in `~/.anylinuxfs` and is about 95 MB. Delete it to
+reclaim the space. Passphrases you asked Lukotta to remember stay in your
+Keychain under `dev.lukotta.drive-credential` until you remove them.
 
 ## Building
 
@@ -127,13 +136,13 @@ says what that means in practice.
 [Licence][licence] · [Trademarks][trademark] · [Third-party notices][notices] ·
 [Changelog][changelog]
 
-## The Name
+## About the Name
 
 Lúkotta is Finnish for "without a lock", from *lukko*, a lock, with the ending
 *-tta* marking the absence of something. The stress falls on the first syllable,
 as it always does in Finnish.
 
-## Author
+## Credits
 
 Clement Rahula — [lukotta@rahula.dev](mailto:lukotta@rahula.dev) ·
 [rahula.dev](https://rahula.dev)
