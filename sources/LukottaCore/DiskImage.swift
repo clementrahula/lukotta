@@ -153,3 +153,34 @@ public enum DiskImage {
         return (p.terminationStatus, String(data: data, encoding: .utf8) ?? "")
     }
 }
+
+/// Keeping container files in the drive list.
+///
+/// The decisions only, with no state and no interface, so the two rules that
+/// went wrong can be stated and checked: a container the scan cannot see is put
+/// back, and a container is taken out when it is the thing being ejected.
+public enum ImageList {
+
+    /// A scan's results with the container rows the scan cannot produce.
+    ///
+    /// A container with no partition table is reported by `diskutil` as an
+    /// empty disk, so no scan will ever return it. The row is made once, from
+    /// the first sector, and has to be added back whenever the list is rebuilt.
+    public static func merge(found: [Drive], images: [String: Drive]) -> [Drive] {
+        guard !images.isEmpty else { return found }
+        let present = Set(found.map { DriveScanner.wholeDisk(of: $0.id) })
+        return found + images.filter { !present.contains($0.key) }.values
+    }
+
+    /// Which containers should be detached, given the devices just ejected.
+    ///
+    /// Driven by what was ejected rather than by what is missing from the list.
+    /// A container that has been opened and not yet mounted is missing nothing,
+    /// and detaching it because some other drive was ejected would take it away
+    /// from the person who just opened it.
+    public static func detaching(devices: [String], images: [String: Drive]) -> [String] {
+        let ejected = Set(
+            devices.map { DriveScanner.wholeDisk(of: ($0 as NSString).lastPathComponent) })
+        return images.keys.filter { ejected.contains($0) }.sorted()
+    }
+}

@@ -1418,6 +1418,42 @@ group("openingAContainerFile") {
     }
 }
 
+group("aContainerFileStaysInTheList") {
+    // The bug this covers: a container with no partition table is a row the
+    // scan cannot produce, because diskutil reports the disk as empty. It was
+    // added once when the file was opened, and the next refresh — a drive
+    // being plugged in, a mount finishing, anything — rebuilt the list without
+    // it. The app then decided the drive had vanished and announced it as
+    // disconnected, while the mount it was serving carried on working.
+    let image = Drive(
+        id: "disk7", devicePath: "/dev/disk7", name: "backup", sizeBytes: 320,
+        connection: "Disk Image", kind: .linux, uuid: "/Users/someone/backup.img")
+    let physical = Drive(
+        id: "disk4s1", devicePath: "/dev/disk4s1", name: "Elements", sizeBytes: 500,
+        connection: "USB", kind: .microsoft, uuid: "UUID-1")
+
+    // A scan that knows nothing about the container still ends up listing it.
+    let merged = ImageList.merge(found: [physical], images: ["disk7": image])
+    expect("\(merged.count)", "2", "the container is put back into a scan without it")
+    expect(merged.contains { $0.id == "disk7" }, "and it is the one that was opened")
+
+    // Once the scan can see it — a container that does have a partition table,
+    // or the same disk reappearing — it is not added twice.
+    let partition = Drive(
+        id: "disk7s1", devicePath: "/dev/disk7s1", name: "backup", sizeBytes: 320,
+        connection: "Disk Image", kind: .linux, uuid: "UUID-2")
+    let once = ImageList.merge(found: [partition], images: ["disk7": image])
+    expect("\(once.count)", "1", "a container the scan can see is not listed twice")
+
+    // Ejecting is what takes it out, and only the one that was ejected.
+    let ejected = ImageList.detaching(
+        devices: ["/dev/disk7"], images: ["disk7": image, "disk9": physical])
+    expect(ejected.joined(separator: ","), "disk7", "ejecting a container detaches that container")
+    let untouched = ImageList.detaching(
+        devices: ["/dev/disk4s1"], images: ["disk7": image])
+    expect(untouched.isEmpty, "and ejecting something else leaves it alone")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

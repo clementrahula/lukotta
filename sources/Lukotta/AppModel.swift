@@ -112,6 +112,20 @@ final class AppModel: ObservableObject {
     /// attached as. They are in the list exactly as long as they are attached,
     /// and ejecting one detaches it and takes it out again.
     @Published private(set) var openedImages: [String: URL] = [:]
+
+    /// The rows standing in for container files that hold no partition table.
+    ///
+    /// `diskutil` reports such a disk as empty, so no scan will ever return it
+    /// — the entry is made once, from the first sector, and has to be put back
+    /// into the list every time the list is rebuilt. Without that the drive
+    /// vanished on the next refresh and the app announced it as disconnected,
+    /// while the mount it was serving carried on quite happily.
+    private var imageDrives: [String: Drive] = [:]
+
+    /// A scan's results, with those rows added back.
+    private func withImages(_ found: [Drive]) -> [Drive] {
+        ImageList.merge(found: found, images: imageDrives)
+    }
     /// Opening a container file, while it is happening and if it fails.
     ///
     /// Attaching takes a moment and can take much longer — a file on a share
@@ -184,6 +198,12 @@ final class AppModel: ObservableObject {
                 self.imageOpening = .failed(url, message)
             case .success(let attached, let all, _):
                 self.openedImages[attached.identifier] = url
+                // Only when the scan could not see it for itself.
+                if let synthesised = all.first(where: {
+                    $0.id == attached.identifier && $0.uuid == url.path
+                }) {
+                    self.imageDrives[attached.identifier] = synthesised
+                }
                 self.drives = all
                 self.phase = .chooseDrive
                 // Nothing to read, so nothing to dismiss: the drive appearing
@@ -234,13 +254,21 @@ final class AppModel: ObservableObject {
 
     /// Put back any container file whose drive has gone from the list.
     ///
-    /// Called after an eject: the volume is down, so the image can be detached
-    /// and the file is no longer held open.
-    private func detachImagesNoLongerListed() {
-        let attached = Set(drives.map { DriveScanner.wholeDisk(of: $0.id) })
-        let gone = openedImages.keys.filter { !attached.contains($0) }
+    /// Called after an eject, with the device paths whose mounts have gone.
+    /// The volume is down, so the file can go back to being a file.
+    ///
+    /// Driven by what was actually ejected rather than by what is missing from
+    /// the list: a container that has been opened and not yet mounted is
+    /// missing nothing, and detaching it because some other drive was ejected
+    /// would take it out from under the person who just opened it.
+    private func detachImages(forDevices devices: [String]) {
+        let gone = ImageList.detaching(devices: devices, images: imageDrives)
         guard !gone.isEmpty else { return }
-        for identifier in gone { openedImages[identifier] = nil }
+        for identifier in gone {
+            openedImages[identifier] = nil
+            imageDrives[identifier] = nil
+        }
+        Log.drives.notice("detaching \(gone.count, privacy: .public) container files")
         Task.detached(priority: .utility) {
             for identifier in gone { DiskImage.detach("/dev/" + identifier) }
         }
@@ -423,7 +451,7 @@ final class AppModel: ObservableObject {
                         !found.contains { $0.devicePath == drive.devicePath }
                     } ?? false
 
-                self.drives = found
+                self.drives = self.withImages(found)
                 self.openMounts = Dictionary(
                     mounts.map { ($0.devicePath, $0.mountPoint) },
                     uniquingKeysWith: { first, _ in first })
@@ -505,7 +533,7 @@ final class AppModel: ObservableObject {
             let mounts = EngineStatus.current()
             let found = DriveScanner.scan(images: images)
             await MainActor.run {
-                self.drives = found
+                self.drives = self.withImages(found)
                 if let name = abandoned.first.map({ URL(fileURLWithPath: $0).lastPathComponent }) {
                     self.notice =
                         abandoned.count > 1
@@ -611,7 +639,7 @@ final class AppModel: ObservableObject {
             let mounts = EngineStatus.current()
             let found = DriveScanner.scan(images: images)
             await MainActor.run {
-                self.drives = found
+                self.drives = self.withImages(found)
                 self.openMounts = Dictionary(
                     mounts.map { ($0.devicePath, $0.mountPoint) },
                     uniquingKeysWith: { first, _ in first })
@@ -1016,6 +1044,10 @@ final class AppModel: ObservableObject {
         let roots = paths.filter { point in
             !paths.contains { $0 != point && point.hasPrefix($0 + "/") }
         }
+        // Which devices these mounts belong to, read before they are cleared:
+        // afterwards there is nothing left to say which container file was
+        // being served.
+        let devices = openMounts.filter { paths.contains($0.value) }.map(\.key)
         Log.mount.notice("ejecting \(roots.count, privacy: .public) mounts")
         Task.detached(priority: .userInitiated) {
             let result =
@@ -1037,10 +1069,10 @@ final class AppModel: ObservableObject {
                     self.credentialBelongsTo = nil
                     self.credentialProblem = nil
                     self.statusLines = []
+                    // Before the list is rebuilt, so the rebuilt one does not
+                    // put back a row for a file that is going away.
+                    self.detachImages(forDevices: devices)
                     self.showAllDrives()
-                    // The volume is down, so a container file that was opened
-                    // to reach it can go back to being a file.
-                    self.detachImagesNoLongerListed()
                 } else {
                     self.ejectProblem = result.message
                 }
