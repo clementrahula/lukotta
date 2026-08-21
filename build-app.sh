@@ -86,8 +86,16 @@ if [ -z "$SPARKLE_KEY" ]; then
 fi
 cp "$HERE/assets/AppIcon.icns" "$CONTENTS/Resources/AppIcon.icns"
 # The mark the interface draws, as artwork rather than geometry copied from it.
-cp "$HERE/assets/brand/lukotta-mark-light.png" "$CONTENTS/Resources/LukottaMarkLight.png"
-cp "$HERE/assets/brand/lukotta-mark-dark.png"  "$CONTENTS/Resources/LukottaMarkDark.png"
+# Compile the asset catalogue. SwiftPM's command line copies a .xcassets
+# directory rather than building it, and an uncompiled catalogue cannot be
+# loaded, so actool does it — the same tool Xcode would use.
+ACTOOL="$(xcrun --find actool 2>/dev/null || echo /Applications/Xcode.app/Contents/Developer/usr/bin/actool)"
+[ -x "$ACTOOL" ] || { echo "error: actool not found; Xcode is required to build the asset catalogue" >&2; exit 1; }
+"$ACTOOL" "$HERE/sources/Lukotta/Assets.xcassets" \
+  --compile "$CONTENTS/Resources" \
+  --platform macosx --minimum-deployment-target 15.0 \
+  --app-icon AppIcon --output-partial-info-plist /dev/null >/dev/null
+[ -f "$CONTENTS/Resources/Assets.car" ] || { echo "error: actool produced no Assets.car" >&2; exit 1; }
 # The mark, in both renderings. The interface picks by appearance.
 cp "$HERE/assets/brand/mark-light.png" "$CONTENTS/Resources/mark-light.png"
 cp "$HERE/assets/brand/mark-dark.png"  "$CONTENTS/Resources/mark-dark.png"
