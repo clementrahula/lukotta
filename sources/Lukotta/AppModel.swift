@@ -39,6 +39,11 @@ final class AppModel: ObservableObject {
     /// Told when the last drive closes, so an update that was waiting for it can
     /// go ahead.
     var onAllDrivesClosed: (() -> Void)?
+    /// The uninstall in progress, so it can be shown rather than guessed at.
+    @Published var isUninstalling = false
+    @Published var uninstallSteps: [Uninstall.Step] = []
+    @Published var uninstallFinished = false
+    @Published var uninstallFailure: String?
     @Published var isEjecting = false
     @Published var ejectProblem: String?
     /// Explains something that happened before the user was looking, such as a

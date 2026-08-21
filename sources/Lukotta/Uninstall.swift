@@ -18,15 +18,16 @@ enum Uninstall {
         var helperRegistered = false
         var guestSizeMB: Int?
         var hasPreferences = false
-        var savedCredentials = false
+        /// Drives a passphrase is stored for, named where the name is known.
+        var savedPassphrases: [String] = []
     }
 
-    private static var guest: URL {
+    nonisolated private static var guest: URL {
         FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".anylinuxfs", isDirectory: true)
     }
 
-    private static var support: URL? {
+    nonisolated private static var support: URL? {
         try? FileManager.default.url(
             for: .applicationSupportDirectory, in: .userDomainMask,
             appropriateFor: nil, create: false
@@ -45,12 +46,46 @@ enum Uninstall {
         }
         plan.hasPreferences =
             UserDefaults.standard.persistentDomain(forName: bundleIdentifier) != nil
-        plan.savedCredentials = CredentialStore.hasAny
+        plan.savedPassphrases = CredentialStore.savedDrives().map {
+            DriveMemory.knownName(for: $0) ?? "an unnamed drive"
+        }
         return plan
     }
 
-    private static var bundleIdentifier: String {
+    nonisolated private static var bundleIdentifier: String {
         Bundle.main.bundleIdentifier ?? "com.clementrahula.lukotta"
+    }
+
+    /// One line of the uninstall, and whether it has finished.
+    struct Step: Identifiable {
+        let id = UUID()
+        let label: String
+        var done = false
+    }
+
+    static func steps(for plan: Plan, removingPassphrases: Bool) -> [Step] {
+        var steps: [Step] = []
+        if !plan.openDrives.isEmpty {
+            steps.append(
+                Step(
+                    label: plan.openDrives.count == 1
+                        ? "Ejecting the open drive"
+                        : "Ejecting \(plan.openDrives.count) open drives"))
+        }
+        if plan.helperRegistered {
+            steps.append(Step(label: "Unregistering the background helper"))
+        }
+        if plan.guestSizeMB != nil { steps.append(Step(label: "Deleting the Linux environment")) }
+        steps.append(Step(label: "Removing settings"))
+        if removingPassphrases, !plan.savedPassphrases.isEmpty {
+            steps.append(
+                Step(
+                    label: plan.savedPassphrases.count == 1
+                        ? "Deleting the saved passphrase"
+                        : "Deleting \(plan.savedPassphrases.count) saved passphrases"))
+        }
+        steps.append(Step(label: "Moving Lukotta to the Bin"))
+        return steps
     }
 
     /// Eject, unregister, delete, then move the app to the Bin and quit.
@@ -58,23 +93,48 @@ enum Uninstall {
     /// Saved passphrases are deliberately untouched: some are 48-digit recovery
     /// keys that exist nowhere else, and deleting them quietly during an
     /// uninstall would be indefensible.
-    static func perform(_ plan: Plan, completion: @escaping (String?) -> Void) {
+    static func perform(
+        _ plan: Plan,
+        removingPassphrases: Bool,
+        advance: @escaping (Int) -> Void,
+        completion: @escaping (String?) -> Void
+    ) {
         Task.detached(priority: .userInitiated) {
-            for point in plan.openDrives {
-                _ = EngineStatus.unmount(mountPoint: point)
+            var step = 0
+            func finished() { let n = step; step += 1; Task { @MainActor in advance(n) } }
+
+            if !plan.openDrives.isEmpty {
+                for point in plan.openDrives { _ = EngineStatus.unmount(mountPoint: point) }
+                finished()
             }
-            await MainActor.run {
-                if plan.helperRegistered {
+            if plan.helperRegistered {
+                await MainActor.run {
                     try? SMAppService.daemon(plistName: HelperInfo.plistName).unregister()
                 }
+                finished()
+            }
+            if plan.guestSizeMB != nil {
                 EngineConfig.removeGeneratedAction()
                 try? FileManager.default.removeItem(at: guest)
+                finished()
+            }
+            await MainActor.run {
                 if let support { try? FileManager.default.removeItem(at: support) }
                 UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
+                DriveMemory.forgetEverything()
+            }
+            finished()
 
+            if removingPassphrases {
+                for uuid in CredentialStore.savedDrives() { CredentialStore.delete(for: uuid) }
+                finished()
+            }
+
+            await MainActor.run {
                 // recycle() puts it in the Bin rather than deleting it, so a
                 // change of mind costs nothing.
                 NSWorkspace.shared.recycle([Bundle.main.bundleURL]) { _, error in
+                    finished()
                     completion(error?.localizedDescription)
                 }
             }
@@ -85,10 +145,10 @@ enum Uninstall {
 extension FileManager {
     /// Size of a directory tree, for saying how much removing it frees.
     func allocatedSizeOfDirectory(at url: URL) throws -> UInt64 {
-        guard let e = enumerator(at: url, includingPropertiesForKeys: [.fileAllocatedSizeKey])
+        guard let walk = enumerator(at: url, includingPropertiesForKeys: [.fileAllocatedSizeKey])
         else { return 0 }
         var total: UInt64 = 0
-        for case let file as URL in e {
+        for case let file as URL in walk {
             let values = try? file.resourceValues(forKeys: [.fileAllocatedSizeKey])
             total += UInt64(values?.fileAllocatedSize ?? 0)
         }

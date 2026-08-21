@@ -59,6 +59,25 @@ public enum CredentialStore {
 
     public static func has(for uuid: String) -> Bool { load(for: uuid) != nil }
 
+    /// Every drive a passphrase is stored for.
+    ///
+    /// Uninstalling offers to remove them, and an offer to delete "some
+    /// passphrases" is not one anybody can weigh. This is what lets the
+    /// question name the drives.
+    public static func savedDrives() -> [String] {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecReturnAttributes as String: true,
+            kSecMatchLimit as String: kSecMatchLimitAll,
+        ]
+        var items: CFTypeRef?
+        guard SecItemCopyMatching(query as CFDictionary, &items) == errSecSuccess,
+            let entries = items as? [[String: Any]]
+        else { return [] }
+        return entries.compactMap { $0[kSecAttrAccount as String] as? String }
+    }
+
     /// Whether any drive credential is stored at all.
     ///
     /// Used when uninstalling, to say that passphrases are being left behind

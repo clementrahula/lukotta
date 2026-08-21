@@ -49,50 +49,71 @@ private func unregisterHelperIfAsked() {
 }
 
 /// Ask before removing anything, describing this Mac rather than the general
-/// case, then do it.
+/// case, then show the removal happening.
 @MainActor
-private func confirmUninstall() {
+private func confirmUninstall(_ model: AppModel) {
     let plan = Uninstall.survey()
 
-    var detail: [String] = ["Lukotta will be moved to the Bin."]
+    var detail: [String] = []
     if !plan.openDrives.isEmpty {
         detail.append(
             plan.openDrives.count == 1
-                ? "The open drive will be ejected first."
-                : "\(plan.openDrives.count) open drives will be ejected first.")
+                ? "The open drive will be ejected."
+                : "\(plan.openDrives.count) open drives will be ejected.")
     }
-    if plan.helperRegistered {
-        detail.append("The background helper will be unregistered.")
-    }
+    if plan.helperRegistered { detail.append("The background helper will be unregistered.") }
     if let mb = plan.guestSizeMB, mb > 0 {
         detail.append("The Linux environment will be deleted, freeing about \(mb) MB.")
     }
-    if plan.savedCredentials {
-        detail.append(
-            "Passphrases you asked Lukotta to remember are left in your Keychain. "
-                + "Remove them yourself in Keychain Access if you want them gone.")
-    }
+    detail.append("Lukotta will be moved to the Bin.")
 
     let alert = NSAlert()
     alert.messageText = "Uninstall Lukotta?"
-    alert.informativeText = detail.joined(separator: "\n\n")
+    alert.informativeText = detail.joined(separator: "\n")
     alert.alertStyle = .warning
     alert.addButton(withTitle: "Uninstall")
     alert.addButton(withTitle: "Cancel")
+
+    // Passphrases are the one thing worth asking about rather than deciding.
+    // Some are 48-digit recovery keys that exist nowhere else, so the question
+    // names the drives instead of offering to delete "some passphrases".
+    var passphraseBox: NSButton?
+    if !plan.savedPassphrases.isEmpty {
+        let names = plan.savedPassphrases.joined(separator: ", ")
+        let box = NSButton(
+            checkboxWithTitle:
+                plan.savedPassphrases.count == 1
+                ? "Also delete the saved passphrase for \(names)"
+                : "Also delete \(plan.savedPassphrases.count) saved passphrases (\(names))",
+            target: nil, action: nil)
+        box.state = .off
+        let wrap = NSView(frame: NSRect(x: 0, y: 0, width: 380, height: 40))
+        box.frame = NSRect(x: 0, y: 0, width: 380, height: 40)
+        (box.cell as? NSButtonCell)?.wraps = true
+        wrap.addSubview(box)
+        alert.accessoryView = wrap
+        passphraseBox = box
+    }
+
     guard alert.runModal() == .alertFirstButtonReturn else { return }
 
-    Uninstall.perform(plan) { failure in
-        guard let failure else { NSApp.terminate(nil); return }
-        // Everything else is already gone; only the move to the Bin failed, so
-        // say so rather than quitting as though it had worked.
-        let problem = NSAlert()
-        problem.messageText = "Lukotta could not be moved to the Bin"
-        problem.informativeText =
-            failure + "\n\nEverything else has been removed. "
-            + "Drag Lukotta to the Bin yourself to finish."
-        problem.runModal()
-        NSApp.terminate(nil)
-    }
+    let removingPassphrases = passphraseBox?.state == .on
+    model.uninstallSteps = Uninstall.steps(for: plan, removingPassphrases: removingPassphrases)
+    model.uninstallFailure = nil
+    model.isUninstalling = true
+
+    Uninstall.perform(
+        plan,
+        removingPassphrases: removingPassphrases,
+        advance: { index in
+            if model.uninstallSteps.indices.contains(index) {
+                model.uninstallSteps[index].done = true
+            }
+        },
+        completion: { failure in
+            model.uninstallFailure = failure
+            model.uninstallFinished = true
+        })
 }
 
 @main
@@ -172,7 +193,7 @@ struct LukottaApp: App {
                 Button("Check for Updates…") { updater.checkForUpdates() }
                     .disabled(!updater.canCheck)
                 Divider()
-                Button("Uninstall Lukotta…") { confirmUninstall() }
+                Button("Uninstall Lukotta…") { confirmUninstall(model) }
             }
             CommandGroup(replacing: .help) {
                 Button("Lukotta Help") { model.showHelp = true }

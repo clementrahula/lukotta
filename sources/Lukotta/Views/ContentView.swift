@@ -28,6 +28,13 @@ struct ContentView: View {
         .background(Color(nsColor: .windowBackgroundColor))
         .sheet(isPresented: $model.showHelp) { HelpSheet() }
         .sheet(isPresented: $model.showReport) { ReportIssueSheet() }
+        .sheet(isPresented: $model.isUninstalling) {
+            UninstallView()
+                .environmentObject(model)
+                .padding(22)
+                .frame(width: 460, height: 320)
+                .interactiveDismissDisabled(!model.uninstallFinished)
+        }
     }
 }
 
@@ -39,7 +46,7 @@ struct Header: View {
     var body: some View {
         HStack(spacing: 12) {
             LukottaMark()
-                .frame(width: 26, height: 26)
+                .frame(width: 38, height: 38)
             VStack(alignment: .leading, spacing: 1) {
                 Text("Lúkotta").font(.headline)
                 Text("Open encrypted drives on macOS")
