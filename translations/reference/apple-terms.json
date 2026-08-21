@@ -1,0 +1,113 @@
+{
+  "Eject": {
+    "de": "Auswerfen",
+    "es": "Expulsar",
+    "fi": "Poista käytöstä",
+    "fr": "Éjecter",
+    "it": "Espelli",
+    "nl": "Verwijder media",
+    "pl": "Wysuń",
+    "pt_PT": "Ejetar"
+  },
+  "Files & Folders": {
+    "de": "Dateien & Ordner",
+    "es": "Archivos y carpetas",
+    "fi": "Tiedostot ja kansiot",
+    "fr": "Fichiers et dossiers",
+    "it": "File e cartelle",
+    "nl": "Bestanden en mappen",
+    "pl": "Pliki i foldery",
+    "pt_PT": "Ficheiros e pastas"
+  },
+  "Full Disk Access": {
+    "de": "Festplattenvollzugriff",
+    "es": "Acceso total al disco",
+    "fi": "Koko levyn käyttö",
+    "fr": "Accès complet au disque",
+    "it": "Accesso completo al disco",
+    "nl": "Volledige schijftoegang",
+    "pl": "Pełny dostęp do dysku",
+    "pt_PT": "Acesso completo ao disco"
+  },
+  "General": {
+    "de": "Allgemein",
+    "es": "General",
+    "fi": "Yleiset",
+    "fr": "Général",
+    "it": "Generali",
+    "nl": "Algemeen",
+    "pl": "Ogólne",
+    "pt_PT": "Geral"
+  },
+  "Language & Region": {
+    "de": "Sprache & Region",
+    "es": "Idioma y región",
+    "fi": "Kieli ja alue",
+    "fr": "Langue et région",
+    "it": "Lingua e zona",
+    "nl": "Taal en regio",
+    "pl": "Język i region",
+    "pt_PT": "Idioma e região"
+  },
+  "Locations": {
+    "de": "Orte",
+    "es": "Ubicaciones",
+    "fi": "Sijainnit",
+    "fr": "Emplacements",
+    "it": "Posizioni",
+    "nl": "Locaties",
+    "pl": "Miejsca",
+    "pt_PT": "Locais"
+  },
+  "Login Items": {
+    "de": "Anmeldeobjekte",
+    "es": "Ítems de inicio",
+    "fi": "Kirjautumiskohteet",
+    "fr": "Ouverture",
+    "it": "Elementi login",
+    "nl": "Inloggen",
+    "pl": "Logowanie",
+    "pt_PT": "Início de sessão"
+  },
+  "Login Items & Extensions": {
+    "de": "Anmeldeobjekte & Erweiterungen",
+    "es": "Ítems de inicio y extensiones",
+    "fi": "Kirjautumiskohteet ja laajennukset",
+    "fr": "Ouverture et extensions",
+    "it": "Elementi login ed estensioni",
+    "nl": "Inlogonderdelen en extensies",
+    "pl": "Rzeczy i rozszerzenia otwierane podczas logowania",
+    "pt_PT": "Início de sessão e extensões"
+  },
+  "Privacy & Security": {
+    "de": "Datenschutz & Sicherheit",
+    "es": "Privacidad y seguridad",
+    "fi": "Tietosuoja ja suojaus",
+    "fr": "Confidentialité et sécurité",
+    "it": "Privacy e sicurezza",
+    "nl": "Privacy en beveiliging",
+    "pl": "Prywatność i ochrona",
+    "pt_PT": "Privacidade e segurança"
+  },
+  "Removable Volumes": {
+    "de": "Entfernbare Volumes",
+    "es": "Volúmenes extraíbles",
+    "fi": "Siirrettävät taltiot",
+    "fr": "Volumes amovibles",
+    "it": "Volumi rimovibili",
+    "nl": "Verwijderbare volumes",
+    "pl": "Woluminy wymienne",
+    "pt_PT": "Volumes amovíveis"
+  },
+  "Trash": {
+    "de": "Papierkorb",
+    "es": "Papelera",
+    "fi": "Roskakori",
+    "fr": "Corbeille",
+    "it": "Cestino",
+    "nl": "Prullenmand",
+    "pl": "Kosz",
+    "pt_PT": "Lixo"
+  },
+  "_note": "Read from macOS's own tables. Locations, Eject, Sidebar and Trash come from Finder: System Settings uses Locations for network configurations, which is a different word and the wrong one here."
+}

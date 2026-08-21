@@ -1546,7 +1546,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Laufwerk erscheint in der Finder-Seitenleiste unter „Umgebungen“.\nWirf es hier oder im Finder aus, bevor du es abziehst."
+            "value": "Das Laufwerk erscheint in der Finder-Seitenleiste unter „Orte“.\nWirf es hier oder im Finder aus, bevor du es abziehst."
           }
         }
       }
@@ -1566,7 +1566,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Laufwerk wird dem Finder über eine lokale Netzwerkverbindung übergeben und erscheint deshalb unter „Umgebungen“ mit einem Netzwerksymbol. Es liest, schreibt und wird ausgeworfen wie jedes andere Laufwerk. macOS bietet keine Möglichkeit, es als lokales Volume darzustellen."
+            "value": "Das Laufwerk wird dem Finder über eine lokale Netzwerkverbindung übergeben und erscheint deshalb unter „Orte“ mit einem Netzwerksymbol. Es liest, schreibt und wird ausgeworfen wie jedes andere Laufwerk. macOS bietet keine Möglichkeit, es als lokales Volume darzustellen."
           }
         }
       }
