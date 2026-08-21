@@ -6,6 +6,7 @@ struct SettingsView: View {
     @EnvironmentObject var updater: Updater
     @EnvironmentObject var model: AppModel
     @AppStorage(MenuBarPreference.key) private var showMenuBarIcon = true
+    @AppStorage(Appearance.key) private var appearance = Appearance.system.rawValue
 
     private var lastChecked: String {
         guard let date = updater.lastChecked else { return "Not yet" }
@@ -48,11 +49,27 @@ struct SettingsView: View {
             }
 
             Section {
-                Toggle("Show Lukotta in the menu bar", isOn: $showMenuBarIcon)
+                Toggle("Show \(Brand.name) in the menu bar", isOn: $showMenuBarIcon)
                 Text("Appears only while a drive is unlocked, for ejecting it.")
                     .font(.caption).foregroundStyle(.secondary)
             } header: {
                 Text("Menu Bar").font(.headline)
+            }
+
+            Section {
+                Picker("Appearance", selection: $appearance) {
+                    ForEach(Appearance.allCases) { choice in
+                        Text(choice.label).tag(choice.rawValue)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .onChange(of: appearance) { _, new in
+                    (Appearance(rawValue: new) ?? .system).apply()
+                }
+                Text("System follows your Mac's setting, including when it changes.")
+                    .font(.caption).foregroundStyle(.secondary)
+            } header: {
+                Text("Appearance").font(.headline)
             }
         }
         .formStyle(.grouped)

@@ -82,7 +82,7 @@ enum Uninstall {
                         ? "Deleting the saved passphrase"
                         : "Deleting \(plan.savedPassphrases.count) saved passphrases"))
         }
-        steps.append(Step(label: "Moving Lukotta to the Bin"))
+        steps.append(Step(label: "Moving \(Brand.name) to the Bin"))
         return steps
     }
 

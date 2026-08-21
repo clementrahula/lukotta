@@ -23,7 +23,7 @@ struct HelpSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("About Lukotta").font(.headline)
+                Text("About \(Brand.name)").font(.headline)
                 Spacer()
                 Button("Done") { dismiss() }.keyboardShortcut(.defaultAction)
             }
@@ -35,7 +35,7 @@ struct HelpSheet: View {
                 VStack(alignment: .leading, spacing: 22) {
                     HelpSection(title: "How it works") {
                         Text(
-                            "Lukotta starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can."
+                            "\(Brand.name) starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can."
                         )
                         Text(
                             "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it."
@@ -76,7 +76,7 @@ struct HelpSheet: View {
                         Bullet(
                             "Removable volumes — requested by macOS the first time a drive is read")
                         Bullet(
-                            "Administrator password — asked for once when the background helper is set up, then not again. Lukotta never sees it"
+                            "Administrator password — asked for once when the background helper is set up, then not again. \(Brand.name) never sees it"
                         )
                     }
 
@@ -92,7 +92,7 @@ struct HelpSheet: View {
 
                     HelpSection(title: "Licence") {
                         Text(
-                            "Lukotta is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence."
+                            "\(Brand.name) is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence."
                         )
                         HStack(spacing: 10) {
                             Button("Licence") { document = .licence }

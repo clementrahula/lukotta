@@ -16,9 +16,9 @@ struct PermissionView: View {
                             .font(.system(size: 28)).foregroundStyle(.tint)
                             .accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("Welcome to Lukotta").font(.title3.weight(.semibold))
+                            Text("Welcome to \(Brand.name)").font(.title3.weight(.semibold))
                             Text(
-                                "Lukotta opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand."
+                                "\(Brand.name) opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand."
                             )
                             .font(.callout).foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -27,7 +27,7 @@ struct PermissionView: View {
 
                     VStack(alignment: .leading, spacing: 9) {
                         Step(number: 1, text: "Open Privacy & Security → Full Disk Access.")
-                        Step(number: 2, text: "Click + and add Lukotta, then switch it on.")
+                        Step(number: 2, text: "Click + and add \(Brand.name), then switch it on.")
                         Step(
                             number: 3,
                             text:

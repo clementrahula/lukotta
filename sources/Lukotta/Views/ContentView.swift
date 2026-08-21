@@ -26,6 +26,7 @@ struct ContentView: View {
         }
         .frame(minWidth: 580, idealWidth: 640, minHeight: 560, idealHeight: 620)
         .background(Color(nsColor: .windowBackgroundColor))
+        .remembersFrame(as: "dev.lukotta.mainWindowFrame")
         .sheet(isPresented: $model.showHelp) { HelpSheet() }
         .sheet(isPresented: $model.showReport) { ReportIssueSheet() }
         .sheet(isPresented: $model.isUninstalling) {
@@ -75,8 +76,8 @@ struct Header: View {
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
-            .help("How Lukotta works, and what it supports")
-            .accessibilityLabel("About Lukotta")
+            .help("How \(Brand.name) works, and what it supports")
+            .accessibilityLabel("About \(Brand.name)")
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 14)

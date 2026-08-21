@@ -157,9 +157,9 @@ struct PermissionsPanel: View {
             // A bare button into a settings pane is a dead end. Say what to do
             // once it opens.
             return
-                "Was refused. In Files and Folders, switch on Removable Volumes for Lukotta, then come back."
+                "Was refused. In Files and Folders, switch on Removable Volumes for \(Brand.name), then come back."
         }
-        return "Lets Lukotta see the drives you plug in."
+        return "Lets \(Brand.name) see the drives you plug in."
     }
 
     private var removableStatus: PermissionStatus {
@@ -180,10 +180,10 @@ struct PermissionsPanel: View {
                 "Reading a raw disk and mounting a filesystem are actions only an administrator can do."
         case .awaitingApproval:
             return
-                "Reading a raw disk and mounting a filesystem are actions only an administrator can do. Approve Lukotta in Login Items to finish."
+                "Reading a raw disk and mounting a filesystem are actions only an administrator can do. Approve \(Brand.name) in Login Items to finish."
         default:
             return
-                "Reading a raw disk and mounting a filesystem are actions only an administrator can do. Lukotta never sees your password."
+                "Reading a raw disk and mounting a filesystem are actions only an administrator can do. \(Brand.name) never sees your password."
         }
     }
 
@@ -259,8 +259,8 @@ struct PermissionsPanel: View {
                         number: 3,
                         title: "Full Disk Access",
                         detail: fullDiskGranted
-                            ? "Lets Lukotta read the encrypted data itself."
-                            : "Lets Lukotta read the encrypted data itself. macOS blocks this without it, even for administrators, and it cannot be requested — it has to be switched on by hand.",
+                            ? "Lets \(Brand.name) read the encrypted data itself."
+                            : "Lets \(Brand.name) read the encrypted data itself. macOS blocks this without it, even for administrators, and it cannot be requested — it has to be switched on by hand.",
                         status: fullDiskGranted ? .granted : .needed,
                         action: fullDiskGranted
                             ? nil

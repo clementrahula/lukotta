@@ -65,10 +65,10 @@ private func confirmUninstall(_ model: AppModel) {
     if let mb = plan.guestSizeMB, mb > 0 {
         detail.append("The Linux environment will be deleted, freeing about \(mb) MB.")
     }
-    detail.append("Lukotta will be moved to the Bin.")
+    detail.append("\(Brand.name) will be moved to the Bin.")
 
     let alert = NSAlert()
-    alert.messageText = "Uninstall Lukotta?"
+    alert.messageText = "Uninstall \(Brand.name)?"
     alert.informativeText = detail.joined(separator: "\n")
     alert.alertStyle = .warning
     alert.addButton(withTitle: "Uninstall")
@@ -163,7 +163,7 @@ struct LukottaApp: App {
         // view is rendered as-is, without the template treatment and sizing the
         // menu bar applies to a symbol, and comes out heavy and misaligned.
         MenuBarExtra(
-            "Lukotta", systemImage: "externaldrive.fill",
+            Brand.name, systemImage: "externaldrive.fill",
             isInserted: Binding(
                 get: { showMenuBarIcon && !model.openMounts.isEmpty },
                 set: { _ in })
@@ -174,11 +174,11 @@ struct LukottaApp: App {
                 }
             }
             Divider()
-            Button("Open Lukotta") {
+            Button("Open \(Brand.name)") {
                 NSApp.activate(ignoringOtherApps: true)
                 NSApp.windows.first?.makeKeyAndOrderFront(nil)
             }
-            Button("Quit Lukotta") { NSApp.terminate(nil) }
+            Button("Quit \(Brand.name)") { NSApp.terminate(nil) }
         }
 
         Settings {
@@ -193,10 +193,10 @@ struct LukottaApp: App {
                 Button("Check for Updates…") { updater.checkForUpdates() }
                     .disabled(!updater.canCheck)
                 Divider()
-                Button("Uninstall Lukotta…") { confirmUninstall(model) }
+                Button("Uninstall \(Brand.name)…") { confirmUninstall(model) }
             }
             CommandGroup(replacing: .help) {
-                Button("Lukotta Help") { model.showHelp = true }
+                Button("\(Brand.name) Help") { model.showHelp = true }
                     .keyboardShortcut("?", modifiers: .command)
                 Button("Report an Issue…") { model.showReport = true }
             }
@@ -207,11 +207,31 @@ struct LukottaApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     var model: AppModel?
 
+    /// Set once the Mac has started logging out, restarting or shutting down.
+    ///
+    /// macOS asks each app to quit and waits only a moment. An app that raises
+    /// a dialog and answers "cancel" stops the restart and makes the user hunt
+    /// down which app did it. An open drive is never worth that: the helper
+    /// keeps the mount alive on its own, so quitting quietly loses nothing.
+    private var systemIsPoweringOff = false
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // Here rather than in the App's init, where NSApp does not exist yet.
+        Appearance.current.apply()
+
+        NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.willPowerOffNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            self?.systemIsPoweringOff = true
+        }
+    }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool { true }
 
     /// A mounted drive means a microVM is still running. Quitting without
     /// ejecting would leave it behind, so ask.
     func applicationShouldTerminate(_ app: NSApplication) -> NSApplication.TerminateReply {
+        guard !systemIsPoweringOff else { return .terminateNow }
         guard let model, MainActor.assumeIsolated({ model.hasOpenDrive }) else {
             return .terminateNow
         }
@@ -222,26 +242,65 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // when the drive would actually survive.
         let survives = MainActor.assumeIsolated { model.helper.isReady }
 
+        let names = MainActor.assumeIsolated {
+            model.openMounts.values.sorted().map { ($0 as NSString).lastPathComponent }
+        }
+        let subject =
+            names.count == 1 ? "\u{201C}\(names[0])\u{201D}" : "\(names.count) drives"
+
+        let one = names.count == 1
+        let it = one ? "it" : "them"
+
+        var body: String
+        if survives {
+            body =
+                "\(one ? "The drive stays" : "They stay") in Finder after \(Brand.name) quits. "
+                + "Eject \(it) there whenever you are finished."
+        } else {
+            body =
+                "The background helper is not set up, so \(Brand.name) is holding "
+                + "\(one ? "the drive" : it) open itself. Quitting now disconnects \(it), and "
+                + "anything still being written would not finish.\n\n"
+                + "Once the helper is set up, drives stay open on their own."
+        }
+
         let alert = NSAlert()
-        alert.messageText = "A drive is still open"
-        alert.informativeText =
-            survives
-            ? "Ejecting keeps your files safe. Leaving it open keeps the drive available in Finder."
-            : "Ejecting keeps your files safe. Quitting without ejecting will disconnect the drive."
-        alert.addButton(withTitle: "Eject and Quit")
+        alert.messageText = "Quit and leave \(subject) open?"
+        alert.informativeText = body
+
+        // Leaving them open is what most people want when they close a window,
+        // and it is the one choice here that cannot lose anything: the drives
+        // keep working. Ejecting is the deliberate act, so it does not get the
+        // return key.
         if survives { alert.addButton(withTitle: "Leave Open") }
+        alert.addButton(withTitle: "Eject and Quit")
         alert.addButton(withTitle: "Cancel")
-        switch alert.runModal() {
-        case .alertFirstButtonReturn:
+        alert.buttons.last?.keyEquivalent = "\u{1b}"
+
+        // Cancel is not one of the two answers, so it should not sit flush
+        // against them. NSAlert stacks three buttons vertically and offers no
+        // spacing control, so reach the stack it built. If AppKit ever lays
+        // this out differently the alert is merely evenly spaced, as before.
+        alert.layout()
+        if let stack = alert.buttons.first?.superview as? NSStackView,
+            let ejectButton = alert.buttons.dropLast().last
+        {
+            stack.setCustomSpacing(18, after: ejectButton)
+        }
+
+        let ejectButton: NSApplication.ModalResponse =
+            survives ? .alertSecondButtonReturn : .alertFirstButtonReturn
+        let answer = alert.runModal()
+
+        if survives, answer == .alertFirstButtonReturn { return .terminateNow }
+        let eject = answer == ejectButton
+        if eject {
             MainActor.assumeIsolated {
                 model.ejectAll { NSApp.reply(toApplicationShouldTerminate: true) }
             }
             return .terminateLater
-        case .alertSecondButtonReturn:
-            return survives ? .terminateNow : .terminateCancel
-        default:
-            return .terminateCancel
         }
+        return .terminateCancel
     }
 
     /// Remove this session's private workspace so the app leaves nothing behind.

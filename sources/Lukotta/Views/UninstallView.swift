@@ -18,7 +18,7 @@ struct UninstallView: View {
                     .font(.system(size: 28))
                     .foregroundStyle(allDone ? Color.green : Color.secondary)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(allDone ? "Lukotta has been removed" : "Removing Lukotta")
+                    Text(allDone ? "\(Brand.name) has been removed" : "Removing \(Brand.name)")
                         .font(.title3.weight(.semibold))
                     Text(
                         allDone
@@ -51,8 +51,8 @@ struct UninstallView: View {
 
             if let failure = model.uninstallFailure {
                 InfoBox(
-                    text: "Everything else was removed. Lukotta itself could not be moved to the "
-                        + "Bin — \(failure) — so drag it there yourself to finish.")
+                    text: "Everything else was removed. \(Brand.name) itself could not be "
+                        + "moved to the Bin — \(failure) — so drag it there yourself to finish.")
             }
 
             Spacer()
