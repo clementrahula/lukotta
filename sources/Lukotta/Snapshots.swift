@@ -23,11 +23,11 @@ enum Snapshots {
     static func scenes() -> [(name: String, model: AppModel)] {
         let drive = Drive(
             id: "disk4s1", devicePath: "/dev/disk4s1", name: "Elements",
-            sizeBytes: 500_072_185_856, connection: "USB · External",
+            sizeBytes: 500_072_185_856, connection: "USB · \(appString("External"))",
             kind: .microsoft, uuid: "SNAPSHOT-0000-0000-0000-000000000001")
         let linux = Drive(
             id: "disk5s2", devicePath: "/dev/disk5s2", name: "fedora",
-            sizeBytes: 1_000_204_886_016, connection: "USB · External",
+            sizeBytes: 1_000_204_886_016, connection: "USB · \(appString("External"))",
             kind: .linux, uuid: "SNAPSHOT-0000-0000-0000-000000000002")
 
         func model(_ configure: (AppModel) -> Void) -> AppModel {
@@ -67,8 +67,8 @@ enum Snapshots {
                 "unlock-problem",
                 model {
                     $0.phase = .unlock(drive)
-                    $0.credentialProblem =
-                        "That password or recovery key did not unlock this drive."
+                    $0.credentialProblem = appString(
+                        "That password or recovery key did not unlock this drive.")
                 }
             ),
             ("unlock-linux", model { $0.phase = .unlock(linux) }),
@@ -92,9 +92,11 @@ enum Snapshots {
             (
                 "failed",
                 model {
+                    // Through Diagnosis, so the sentence on screen is the
+                    // one the app would really produce.
+                    let transcript = "engine: failed to open encrypted device /dev/disk4s1"
                     $0.phase = .failed(
-                        drive, "That password or recovery key did not unlock this drive.",
-                        "engine: failed to open encrypted device /dev/disk4s1")
+                        drive, Diagnosis.summarise(transcript, fallback: ""), transcript)
                 }
             ),
         ]
