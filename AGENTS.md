@@ -78,6 +78,27 @@ as `<private>`, which is what a drive's name and a path on someone's disk
 should do. Anything meant to be legible says `privacy: .public`. A passphrase
 is never logged at all.
 
+## Snapshots
+
+`./scripts/snapshots.sh` renders every screen from the built **unbranded** app
+and compares it with `tests/snapshots/`. It needs `./build-app.sh` to have run;
+`scripts/run-tests.sh` skips it rather than failing when there is no app.
+
+Baselines belong to one branding — the header draws the app's own name — so
+never record them from an official build.
+
+`--record` replaces the baselines. It is a separate command on purpose: a
+harness that updates its own baselines passes whatever it drew. Look at the
+pictures before recording.
+
+`ImageRenderer` is not used. It draws SwiftUI on its own and comes back with
+the inside of a `ScrollView` empty, which is where the drive list lives. The
+scenes are hosted in an off-screen `NSWindow` instead.
+
+`dynamicTypeSize` does nothing on macOS. Every scene rendered at
+`.accessibility3` came out byte-identical to `.large`, which is why the second
+axis is window size rather than text size.
+
 ## Security Invariants
 
 These are load-bearing. Changing any of them needs a deliberate decision, not

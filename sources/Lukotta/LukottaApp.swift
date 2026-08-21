@@ -126,6 +126,7 @@ struct LukottaApp: App {
     init() {
         runSmokeTestIfAsked()
         unregisterHelperIfAsked()
+        MainActor.assumeIsolated { Snapshots.runIfAsked() }
         // Before anything else: a build that has failed to start twice already
         // does not get a third go at it.
         guard Rollback.evaluateLaunch() else { exit(0) }

@@ -10,6 +10,11 @@ public struct VolumeSpace: Equatable, Sendable {
     public let free: Int64
     public let total: Int64
 
+    public init(free: Int64, total: Int64) {
+        self.free = free
+        self.total = total
+    }
+
     /// nil when the mount point cannot be read, which is the normal answer for
     /// a volume that has just gone away.
     public static func of(_ mountPoint: String) -> VolumeSpace? {
