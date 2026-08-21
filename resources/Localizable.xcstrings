@@ -105,6 +105,12 @@
             "value": "O %@ foi removido"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ a fost eliminat"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -215,6 +221,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O %@ é software livre sob a GPL, versão 3 ou posterior. A montagem é feita pelo anylinuxfs. O código-fonte completo de cada componente é publicado com cada versão. O nome e o logótipo são marcas registadas e não estão abrangidos por essa licença."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ este software liber sub licența GPL, versiunea 3 sau ulterioară. Montarea este realizată de anylinuxfs. Codul sursă complet al fiecărei componente este publicat cu fiecare versiune. Numele și sigla sunt mărci comerciale și nu sunt acoperite de acea licență."
           }
         },
         "sv": {
@@ -329,6 +341,12 @@
             "value": "O %@ abre discos BitLocker e Linux que o macOS não consegue ler sozinho. Antes disso, é necessária uma definição.\n\nLer um disco ao nível do dispositivo exige acesso completo ao disco — uma palavra-passe de administrador não basta, e a permissão para volumes amovíveis abrange os ficheiros de um disco, não o dispositivo em si. O macOS não permite que uma app a solicite, pelo que tem de ser ativada manualmente."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ deschide discuri BitLocker și Linux pe care macOS nu le poate citi singur. Mai întâi este nevoie de o configurare.\n\nCitirea unui disc la nivel de dispozitiv necesită acces complet la disc — o parolă de administrator nu este suficientă, iar permisiunea pentru volume amovibile acoperă fișierele de pe un disc, nu dispozitivul în sine. macOS nu permite unei aplicații să o solicite, deci trebuie activată manual."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -441,6 +459,12 @@
             "value": "O %@ inicia uma pequena máquina virtual Linux, desbloqueia o disco dentro dela e devolve-o ao Finder. O macOS não consegue ler sistemas de ficheiros BitLocker ou Linux. O Linux consegue."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ pornește o mică mașină virtuală Linux, deblochează discul în interiorul ei și îl predă înapoi aplicației Finder. macOS nu poate citi sisteme de fișiere BitLocker sau Linux. Linux poate."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -551,6 +575,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O %@ será movido para o lixo."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ va fi mutat în Coș."
           }
         },
         "sv": {
@@ -924,6 +954,30 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld discos deixaram de responder e foram desligados. Pode abri-los novamente."
+                }
+              }
+            }
+          }
+        },
+        "ro": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld discuri nu mai răspundeau și au fost deconectate. Le puteți deschide din nou."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld disc nu mai răspundea și a fost deconectat. Îl puteți deschide din nou."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld de discuri nu mai răspundeau și au fost deconectate. Le puteți deschide din nou."
                 }
               }
             }
@@ -1317,6 +1371,30 @@
             }
           }
         },
+        "ro": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld discuri deschise vor fi ejectate."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Discul deschis va fi ejectat."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld de discuri deschise vor fi ejectate."
+                }
+              }
+            }
+          }
+        },
         "sv": {
           "variations": {
             "plural": {
@@ -1441,6 +1519,12 @@
             "value": "%lld por cento"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld la sută"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -1551,6 +1635,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "250 MB de disco: 155 MB para a app e 95 MB para o ambiente Linux descompactado na primeira utilização"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 MB pe disc: 155 MB pentru aplicație și 95 MB pentru mediul Linux dezarhivat la prima utilizare"
           }
         },
         "sv": {
@@ -1665,6 +1755,12 @@
             "value": "30 a 80 MB de RAM por disco desbloqueado"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30–80 MB de memorie pentru fiecare disc deblocat"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -1775,6 +1871,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Foi encontrado um relatório de falha"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A fost găsit un raport de blocare"
           }
         },
         "sv": {
@@ -1889,6 +1991,12 @@
             "value": "Acerca do %@"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Despre %@"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -1999,6 +2107,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Acerca e ajuda"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Despre și ajutor"
           }
         },
         "sv": {
@@ -2113,6 +2227,12 @@
             "value": "Cerca de dez discos podem permanecer desbloqueados em simultâneo"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aproximativ zece discuri pot rămâne deblocate simultan"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -2223,6 +2343,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Palavra-passe de administrador"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parolă de administrator"
           }
         },
         "sv": {
@@ -2337,6 +2463,12 @@
             "value": "Palavra-passe de administrador — pedida uma única vez ao configurar o assistente em segundo plano, depois nunca mais. O %@ nunca a vê"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parolă de administrator — solicitată o singură dată la configurarea asistentului din fundal, apoi niciodată. %@ nu o vede niciodată"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -2449,6 +2581,12 @@
             "value": "Todos os discos"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toate discurile"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -2559,6 +2697,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Todas as permissões necessárias foram concedidas"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toate permisiunile necesare au fost acordate"
           }
         },
         "sv": {
@@ -2937,6 +3081,30 @@
             }
           }
         },
+        "ro": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Ștergeți și %1$lld fraze de acces salvate (%2$@)"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Ștergeți și fraza de acces salvată pentru %2$@"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Ștergeți și %1$lld de fraze de acces salvate (%2$@)"
+                }
+              }
+            }
+          }
+        },
         "sv": {
           "variations": {
             "plural": {
@@ -3061,6 +3229,12 @@
             "value": "Um Mac com Apple Silicon. Os Mac com Intel não são suportados"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un Mac cu Apple Silicon. Mac-urile cu Intel nu sunt acceptate"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -3171,6 +3345,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Existe outro disco aberto, e o motor tem de funcionar sozinho na primeira vez após ser alterado. Ejete os outros discos, abra este e depois poderão estar todos abertos em simultâneo novamente."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un alt disc este deschis, iar motorul trebuie să ruleze singur prima dată după o modificare. Ejectați celelalte discuri, deschideți-l pe acesta, iar apoi vor putea fi din nou toate deschise împreună."
           }
         },
         "sv": {
@@ -3285,6 +3465,12 @@
             "value": "Aspeto"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aspect"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -3395,6 +3581,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aparece apenas enquanto houver um disco desbloqueado, para o ejetar."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apare doar cât timp un disc este deblocat, pentru a-l ejecta."
           }
         },
         "sv": {
@@ -3509,6 +3701,12 @@
             "value": "Programador"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dezvoltator"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -3619,6 +3817,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Retroceder"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Înapoi"
           }
         },
         "sv": {
@@ -3733,6 +3937,12 @@
             "value": "Discos BitLocker, desbloqueados com a palavra-passe do volume ou uma chave de recuperação de 48 dígitos"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discuri BitLocker, deblocate cu parola volumului sau cu o cheie de recuperare din 48 de cifre"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -3843,6 +4053,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "BitLocker ou NTFS"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker sau NTFS"
           }
         },
         "sv": {
@@ -3957,6 +4173,12 @@
             "value": "Cancelar"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anulați"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -4067,6 +4289,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "As maiúsculas estão bloqueadas"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps Lock este activat"
           }
         },
         "sv": {
@@ -4181,6 +4409,12 @@
             "value": "Verificar de novo"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verificați din nou"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -4291,6 +4525,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Procurar agora"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Căutați acum"
           }
         },
         "sv": {
@@ -4405,6 +4645,12 @@
             "value": "Procurar atualizações…"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Căutați actualizări…"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -4515,6 +4761,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Procurar atualizações automaticamente"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Căutați automat actualizări"
           }
         },
         "sv": {
@@ -4629,6 +4881,12 @@
             "value": "Clique em «+», adicione o %@ e ative-o."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faceți clic pe „+”, adăugați %@ și activați-l."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -4739,6 +4997,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Recolhido"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restrâns"
           }
         },
         "sv": {
@@ -4853,6 +5117,12 @@
             "value": "Volte aqui e escolha «Reiniciar» — uma nova permissão só se aplica a uma app acabada de iniciar."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reveniți aici și alegeți „Relansați” — o permisiune nouă se aplică doar unei aplicații tocmai pornite."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -4963,6 +5233,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ligue o disco encriptado e escolha «Procurar de novo». Se já estiver ligado, o macOS pode tê-lo montado — ejete-o primeiro no Finder."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectați discul criptat și alegeți „Căutați din nou”. Dacă este deja conectat, este posibil ca macOS să-l fi montat — ejectați-l mai întâi în Finder."
           }
         },
         "sv": {
@@ -5077,6 +5353,12 @@
             "value": "Copiado"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiat"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -5189,6 +5471,12 @@
             "value": "Copiar detalhes"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiați detaliile"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -5299,6 +5587,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Escuro"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Întunecat"
           }
         },
         "sv": {
@@ -5677,6 +5971,30 @@
             }
           }
         },
+        "ro": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Se șterg %lld fraze de acces salvate"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Se șterge fraza de acces salvată"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Se șterg %lld de fraze de acces salvate"
+                }
+              }
+            }
+          }
+        },
         "sv": {
           "variations": {
             "plural": {
@@ -5801,6 +6119,12 @@
             "value": "A eliminar o ambiente Linux"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se șterge mediul Linux"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -5913,6 +6237,12 @@
             "value": "Detalhes que serão incluídos"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detalii care vor fi incluse"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -6020,6 +6350,12 @@
           }
         },
         "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "ro": {
           "stringUnit": {
             "state": "translated",
             "value": "OK"
@@ -6137,6 +6473,12 @@
             "value": "Transferi-las e instalá-las"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descărcați-le și instalați-le"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -6247,6 +6589,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Discos selados a um TPM em vez de a uma palavra-passe, incluindo a encriptação por hardware mais recente do Ubuntu"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discuri legate de un TPM în loc de o parolă, inclusiv criptarea hardware mai nouă din Ubuntu"
           }
         },
         "sv": {
@@ -6361,6 +6709,12 @@
             "value": "Ejetar"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejectați"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -6473,6 +6827,12 @@
             "value": "Ejetar %@"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejectați %@"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -6583,6 +6943,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ejetar e sair"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejectați și ieșiți"
           }
         },
         "sv": {
@@ -6961,6 +7327,30 @@
             }
           }
         },
+        "ro": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Se ejectează %lld discuri deschise"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Se ejectează discul deschis"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Se ejectează %lld de discuri deschise"
+                }
+              }
+            }
+          }
+        },
         "sv": {
           "variations": {
             "plural": {
@@ -7085,6 +7475,12 @@
             "value": "A ejetar…"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se ejectează…"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -7195,6 +7591,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Saída do motor"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ieșirea motorului"
           }
         },
         "sv": {
@@ -7309,6 +7711,12 @@
             "value": "Introduza a frase-passe do disco."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduceți fraza de acces a discului."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -7419,6 +7827,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Introduza a palavra-passe do disco ou a respetiva chave de recuperação de 48 dígitos."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduceți parola discului sau cheia sa de recuperare din 48 de cifre."
           }
         },
         "sv": {
@@ -7533,6 +7947,12 @@
             "value": "Tudo o resto foi removido. O próprio %@ não pôde ser movido para o lixo (%@) — arraste-o para lá para concluir."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tot restul a fost eliminat. %@ nu a putut fi mutat în Coș (%@) — trageți-l acolo dvs. pentru a finaliza."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -7643,6 +8063,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Expandido"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extins"
           }
         },
         "sv": {
@@ -7757,6 +8183,12 @@
             "value": "Externo"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extern"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -7867,6 +8299,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esquecer"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uitați"
           }
         },
         "sv": {
@@ -7981,6 +8419,12 @@
             "value": "Acesso completo ao disco"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acces complet la disc"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -8093,6 +8537,12 @@
             "value": "Acesso completo ao disco — sem ele, o macOS não deixa nenhuma app ler o conteúdo direto de um disco. Não pode ser solicitado, pelo que tem de ser ativado manualmente"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acces complet la disc — fără el, macOS nu permite niciunei aplicații să citească conținutul brut al unui disc. Nu poate fi solicitat, deci trebuie activat manual"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -8200,6 +8650,12 @@
           }
         },
         "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        },
+        "ro": {
           "stringUnit": {
             "state": "translated",
             "value": "GNU General Public License"
@@ -8317,6 +8773,12 @@
             "value": "Concedida"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acordată"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -8427,6 +8889,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ocultar"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ascundeți"
           }
         },
         "sv": {
@@ -8541,6 +9009,12 @@
             "value": "Ocultar o que escreveu"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ascundeți ce tastați"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -8651,6 +9125,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ocultar os detalhes"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ascundeți detaliile"
           }
         },
         "sv": {
@@ -8765,6 +9245,12 @@
             "value": "Como o %@ funciona e o que suporta"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cum funcționează %@ și ce acceptă"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -8875,6 +9361,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Como funciona"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cum funcționează"
           }
         },
         "sv": {
@@ -8989,6 +9481,12 @@
             "value": "Interno"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intern"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -9099,6 +9597,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Está no lixo. Não resta mais nada dele neste Mac."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se află în Coș. Nu a mai rămas nimic altceva din el pe acest Mac."
           }
         },
         "sv": {
@@ -9213,6 +9717,12 @@
             "value": "Discos LUKS do Linux, tanto LUKS1 como LUKS2"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discuri LUKS din Linux, atât LUKS1, cât și LUKS2"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -9323,6 +9833,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LUKS ou sistema de ficheiros Linux"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS sau sistem de fișiere Linux"
           }
         },
         "sv": {
@@ -9437,6 +9953,12 @@
             "value": "Volumes LUKS cujo cabeçalho é guardado separadamente do disco"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume LUKS al căror antet este stocat separat de disc"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -9547,6 +10069,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LVM dentro de LUKS, tal como o Ubuntu, o Debian, o Mint e o Fedora o configuram. Vários volumes num mesmo disco são desbloqueados em conjunto"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM în interiorul LUKS, așa cum îl configurează Ubuntu, Debian, Mint și Fedora. Mai multe volume de pe același disc se deblochează împreună"
           }
         },
         "sv": {
@@ -9661,6 +10189,12 @@
             "value": "Idioma"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limbă"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -9771,6 +10305,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Última procura: %@"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultima verificare: %@"
           }
         },
         "sv": {
@@ -9885,6 +10425,12 @@
             "value": "Deixar aberto"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lăsați deschis"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -9995,6 +10541,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permite ao %@ ler diretamente os dados encriptados."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite aplicației %@ să citească ea însăși datele criptate."
           }
         },
         "sv": {
@@ -10109,6 +10661,12 @@
             "value": "Permite ao %@ ler diretamente os dados encriptados. Sem esta permissão o macOS bloqueia-o, mesmo para administradores, e não pode ser solicitada — tem de ser ativada manualmente."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite aplicației %@ să citească ea însăși datele criptate. Fără ea, macOS blochează acest lucru chiar și pentru administratori și nu poate fi solicitată — trebuie activată manual."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -10219,6 +10777,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Licença"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licență"
           }
         },
         "sv": {
@@ -10333,6 +10897,12 @@
             "value": "Claro"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luminos"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -10443,6 +11013,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Localização"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amplasament"
           }
         },
         "sv": {
@@ -10557,6 +11133,12 @@
             "value": "Bloqueado"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blocat"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -10667,6 +11249,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "A procurar discos encriptados…"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se caută discuri criptate…"
           }
         },
         "sv": {
@@ -10781,6 +11369,12 @@
             "value": "Lúkotta significa «sem fechadura» em finlandês, de lukko, uma fechadura, com a terminação -tta que assinala a ausência de algo. A tónica recai na primeira sílaba, como sempre em finlandês."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lúkotta înseamnă în finlandeză „fără lacăt”, de la lukko, un lacăt, cu terminația -tta care marchează absența a ceva. Accentul cade pe prima silabă, ca întotdeauna în finlandeză."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -10891,6 +11485,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Barra de menus"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bara de meniu"
           }
         },
         "sv": {
@@ -11005,6 +11605,12 @@
             "value": "A mover o %@ para o lixo"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se mută %@ în Coș"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -11115,6 +11721,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Necessária"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Necesară"
           }
         },
         "sv": {
@@ -11229,6 +11841,12 @@
             "value": "Não foram encontrados discos encriptados"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu s-au găsit discuri criptate"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -11339,6 +11957,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Não foi indicado qualquer motivo. Os detalhes abaixo poderão dizer mais."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu a fost raportat niciun motiv. Detaliile de mai jos ar putea spune mai multe."
           }
         },
         "sv": {
@@ -11453,6 +12077,12 @@
             "value": "Não existe nesta versão."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu există în această versiune."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -11563,6 +12193,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nada é instalado. O motor vem dentro da app, nada sai do seu Mac, e só se escreve num disco quando é o utilizador a escrever."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu se instalează nimic. Motorul este inclus în aplicație, nimic nu părăsește Mac-ul dvs., iar pe un disc se scrie doar când scrieți dvs."
           }
         },
         "sv": {
@@ -11677,6 +12313,12 @@
             "value": "Assim que o assistente em segundo plano estiver configurado, atualizar não mexerá nos discos desbloqueados."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "După configurarea asistentului din fundal, actualizarea nu va atinge discurile deblocate."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -11787,6 +12429,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Abrir o %@"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschideți %@"
           }
         },
         "sv": {
@@ -11901,6 +12549,12 @@
             "value": "Abrir o e-mail"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschideți e-mailul"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -12011,6 +12665,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Abra «Privacidade e segurança» → «Acesso completo ao disco»."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschideți „Intimitate și securitate” → „Acces complet la disc”."
           }
         },
         "sv": {
@@ -12125,6 +12785,12 @@
             "value": "Abrir as definições de privacidade"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschideți configurările de intimitate"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -12235,6 +12901,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Abra discos encriptados no macOS"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschideți discuri criptate pe macOS"
           }
         },
         "sv": {
@@ -12349,6 +13021,12 @@
             "value": "A abrir «%@»"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se deschide „%@”"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -12459,6 +13137,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Frase-passe"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frază de acces"
           }
         },
         "sv": {
@@ -12573,6 +13257,12 @@
             "value": "Palavra-passe ou chave de recuperação"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parolă sau cheie de recuperare"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -12683,6 +13373,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permissões"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permisiuni"
           }
         },
         "sv": {
@@ -12797,6 +13493,12 @@
             "value": "Sair"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ieșiți"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -12907,6 +13609,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sair do %@"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ieșiți din %@"
           }
         },
         "sv": {
@@ -13285,6 +13993,30 @@
             }
           }
         },
+        "ro": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Ieșiți și lăsați %lld discuri deschise?"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Ieșiți și lăsați %lld disc deschis?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Ieșiți și lăsați %lld de discuri deschise?"
+                }
+              }
+            }
+          }
+        },
         "sv": {
           "variations": {
             "plural": {
@@ -13409,6 +14141,12 @@
             "value": "Sair e deixar «%@» aberto?"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ieșiți și lăsați „%@” deschis?"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -13519,6 +14257,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reiniciar"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relansați"
           }
         },
         "sv": {
@@ -13633,6 +14377,12 @@
             "value": "Memorizar esta chave no meu porta-chaves"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reține această cheie în Keychain-ul meu"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -13743,6 +14493,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volumes amovíveis — solicitado pelo macOS na primeira vez que um disco é lido"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume amovibile — solicitată de macOS la prima citire a unui disc"
           }
         },
         "sv": {
@@ -13857,6 +14613,12 @@
             "value": "A remover o %@"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se elimină %@"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -13967,6 +14729,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "A remover as definições"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se elimină configurările"
           }
         },
         "sv": {
@@ -14081,6 +14849,12 @@
             "value": "Comunicar este problema"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raportați această problemă"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -14191,6 +14965,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Comunicar um problema"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raportați o problemă"
           }
         },
         "sv": {
@@ -14305,6 +15085,12 @@
             "value": "Comunicar um problema ou enviar um relatório de falha"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raportați o problemă sau trimiteți un raport de blocare"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -14415,6 +15201,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Comunicar um problema"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raportați o problemă"
           }
         },
         "sv": {
@@ -14529,6 +15321,12 @@
             "value": "Comunicar um problema…"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raportați o problemă…"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -14639,6 +15437,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Requisitos"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerințe"
           }
         },
         "sv": {
@@ -14753,6 +15557,12 @@
             "value": "Procurar de novo"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Căutați din nou"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -14863,6 +15673,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostrar a app no Finder"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afișați aplicația în Finder"
           }
         },
         "sv": {
@@ -14977,6 +15793,12 @@
             "value": "Ver os discos ligados"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vizualizarea discurilor conectate"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -15087,6 +15909,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Selecione um disco para desbloquear"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selectați un disc pentru deblocare"
           }
         },
         "sv": {
@@ -15201,6 +16029,12 @@
             "value": "A preparar o ambiente Linux"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se pregătește mediul Linux"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -15311,6 +16145,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostrar"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afișați"
           }
         },
         "sv": {
@@ -15425,6 +16265,12 @@
             "value": "Mostrar o %@ na barra de menus"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afișați %@ în bara de meniu"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -15535,6 +16381,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostrar no Finder"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afișați în Finder"
           }
         },
         "sv": {
@@ -15649,6 +16501,12 @@
             "value": "Mostrar o que escreveu"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afișați ce tastați"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -15759,6 +16617,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostrar para que serve cada permissão"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afișați la ce servește fiecare permisiune"
           }
         },
         "sv": {
@@ -15873,6 +16737,12 @@
             "value": "Faltam ainda algumas permissões"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mai sunt necesare unele permisiuni"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -15983,6 +16853,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Código-fonte"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cod sursă"
           }
         },
         "sv": {
@@ -16097,6 +16973,12 @@
             "value": "Sistema"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistem"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -16207,6 +17089,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "«Sistema» segue o idioma do seu Mac."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Sistem” urmează limba Mac-ului dvs."
           }
         },
         "sv": {
@@ -16321,6 +17209,12 @@
             "value": "«Sistema» segue a definição do seu Mac, incluindo quando esta muda."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Sistem” urmează configurarea Mac-ului dvs., inclusiv când aceasta se schimbă."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -16431,6 +17325,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Essa palavra-passe ou chave de recuperação não desbloqueou este disco."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acea parolă sau cheie de recuperare nu a deblocat acest disc."
           }
         },
         "sv": {
@@ -16545,6 +17445,12 @@
             "value": "O ambiente Linux é descompactado uma única vez, na primeira utilização."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mediul Linux este dezarhivat o singură dată, la prima utilizare."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -16655,6 +17561,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O ambiente Linux será eliminado, libertando cerca de %lld MB."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mediul Linux va fi șters, eliberând aproximativ %lld MB."
           }
         },
         "sv": {
@@ -16769,6 +17681,12 @@
             "value": "O assistente em segundo plano não está configurado, pelo que é o próprio %@ que mantém o disco aberto. Sair agora desliga-o, e o que estiver ainda a ser escrito não seria concluído.\n\nAssim que o assistente estiver configurado, os discos permanecem abertos por si."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asistentul din fundal nu este configurat, așa că %@ ține discul deschis el însuși. Ieșirea acum îl deconectează, iar ce se mai scrie nu s-ar finaliza.\n\nDupă configurarea asistentului, discurile rămân deschise de la sine."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -16879,6 +17797,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O assistente em segundo plano não está configurado, pelo que é o próprio %@ que os mantém abertos. Sair agora desliga-os, e o que estiver ainda a ser escrito não seria concluído.\n\nAssim que o assistente estiver configurado, os discos permanecem abertos por si."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asistentul din fundal nu este configurat, așa că %@ le ține deschise el însuși. Ieșirea acum le deconectează, iar ce se mai scrie nu s-ar finaliza.\n\nDupă configurarea asistentului, discurile rămân deschise de la sine."
           }
         },
         "sv": {
@@ -16993,6 +17917,12 @@
             "value": "O registo do assistente em segundo plano será anulado."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Înregistrarea asistentului din fundal va fi anulată."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -17103,6 +18033,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O disco aparece na barra lateral do Finder, em «Locais».\nEjete-o aqui ou no Finder antes de o desligar."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discul apare în bara laterală Finder, la „Amplasamente”.\nEjectați-l aici sau în Finder înainte de a-l deconecta."
           }
         },
         "sv": {
@@ -17217,6 +18153,12 @@
             "value": "O disco está ocupado. Feche tudo o que o esteja a usar e tente de novo."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discul este ocupat. Închideți tot ce îl folosește, apoi reîncercați."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -17327,6 +18269,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O disco é entregue ao Finder através de uma ligação de rede local, pelo que aparece em «Locais» com um ícone de rede. Lê-se, escreve-se e ejeta-se como qualquer outro disco. O macOS não oferece forma de o apresentar como um disco local."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discul este predat aplicației Finder printr-o conexiune de rețea locală, așa că apare la „Amplasamente” cu o pictogramă de rețea. Se citește, se scrie și se ejectează ca orice alt disc. macOS nu oferă nicio modalitate de a-l prezenta ca disc local."
           }
         },
         "sv": {
@@ -17441,6 +18389,12 @@
             "value": "O disco permanece no Finder depois de o %@ sair. Ejete-o aí quando terminar."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discul rămâne în Finder după ce %@ se închide. Ejectați-l de acolo când terminați."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -17551,6 +18505,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O disco não foi aberto"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discul nu a fost deschis"
           }
         },
         "sv": {
@@ -17665,6 +18625,12 @@
             "value": "O disco não foi aberto. %@"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discul nu a fost deschis. %@"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -17775,6 +18741,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O Windows não encerrou o disco corretamente. Desative o arranque rápido no Windows, ou encerre o Windows por completo em vez de o hibernar, e tente de novo."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows nu a oprit corect discul. Dezactivați pornirea rapidă în Windows sau opriți complet Windows în loc să-l hibernați, apoi reîncercați."
           }
         },
         "sv": {
@@ -17889,6 +18861,12 @@
             "value": "O motor não reconheceu qualquer sistema de ficheiros neste volume. Se estiver encriptado, a palavra-passe ou a chave de recuperação poderão estar erradas."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Motorul nu a recunoscut niciun sistem de fișiere pe acest volum. Dacă este criptat, parola sau cheia de recuperare ar putea fi greșită."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -17999,6 +18977,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O motor não comunicou absolutamente nada. O disco pode ter sido desligado."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Motorul nu a raportat absolut nimic. Este posibil ca discul să fi fost deconectat."
           }
         },
         "sv": {
@@ -18113,6 +19097,12 @@
             "value": "O idioma muda quando o %@ voltar a iniciar."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limba se schimbă când %@ pornește din nou."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -18223,6 +19213,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O nome"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Numele"
           }
         },
         "sv": {
@@ -18337,6 +19333,12 @@
             "value": "A frase-passe com que este disco foi encriptado."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fraza de acces cu care a fost criptat acest disc."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -18447,6 +19449,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "A palavra-passe com que o disco foi bloqueado, ou uma chave de recuperação do BitLocker de 48 dígitos. Os espaços e hífenes de uma chave de recuperação são ignorados."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parola cu care a fost blocat discul sau o cheie de recuperare BitLocker din 48 de cifre. Spațiile și cratimele dintr-o cheie de recuperare sunt ignorate."
           }
         },
         "sv": {
@@ -18561,6 +19569,12 @@
             "value": "O motor de virtualização não conseguiu arrancar. Reiniciar costuma resolver."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Motorul de virtualizare nu a putut porni. De obicei o repornire rezolvă problema."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -18671,6 +19685,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permanecem no Finder depois de o %@ sair. Ejete-os aí quando terminar."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rămân în Finder după ce %@ se închide. Ejectați-le de acolo când terminați."
           }
         },
         "sv": {
@@ -18785,6 +19805,12 @@
             "value": "Avisos de terceiros"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notificări privind terții"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -18895,6 +19921,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Este disco contém vários volumes e o %@ não conseguiu determinar quais. Comunicar isto ajudaria."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acest disc conține mai multe volume, iar %@ nu a putut stabili care anume. Raportarea ar fi de ajutor."
           }
         },
         "sv": {
@@ -19009,6 +20041,12 @@
             "value": "Esta é uma definição de privacidade do macOS, não uma alteração ao seu Mac. Pode desativá-la quando quiser, e nada é instalado."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aceasta este o configurare de intimitate a macOS, nu o modificare a Mac-ului dvs. O puteți dezactiva oricând, iar nimic nu se instalează."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -19119,6 +20157,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esta partição não é um volume BitLocker."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Această partiție nu este un volum BitLocker."
           }
         },
         "sv": {
@@ -19233,6 +20277,12 @@
             "value": "Isto demora um momento."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durează un moment."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -19343,6 +20393,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Normalmente demora menos de um minuto."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De obicei durează mai puțin de un minut."
           }
         },
         "sv": {
@@ -19457,6 +20513,12 @@
             "value": "Tentar de novo"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reîncercați"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -19567,6 +20629,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desinstalar"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dezinstalați"
           }
         },
         "sv": {
@@ -19681,6 +20749,12 @@
             "value": "Desinstalar o %@?"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dezinstalați %@?"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -19791,6 +20865,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desinstalar o %@…"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dezinstalați %@…"
           }
         },
         "sv": {
@@ -19905,6 +20985,12 @@
             "value": "Desbloquear"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deblocați"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -20015,6 +21101,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desbloquear este disco"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deblocați acest disc"
           }
         },
         "sv": {
@@ -20129,6 +21221,12 @@
             "value": "O desbloqueio usa-a diretamente. Esqueça-a para introduzir outra."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deblocarea o folosește direct. Uitați-o pentru a introduce alta."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -20239,6 +21337,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desbloquear «%@»"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deblocați „%@”"
           }
         },
         "sv": {
@@ -20353,6 +21457,12 @@
             "value": "Desbloqueado"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deblocat"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -20463,6 +21573,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desbloqueado em %@"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deblocat în %@"
           }
         },
         "sv": {
@@ -20577,6 +21693,12 @@
             "value": "A anular o registo do assistente em segundo plano"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se anulează înregistrarea asistentului din fundal"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -20687,6 +21809,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Atualizações"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualizări"
           }
         },
         "sv": {
@@ -20801,6 +21929,12 @@
             "value": "Atualizar não ejeta os seus discos. Tudo o que estiver desbloqueado assim permanece e continua a funcionar."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualizarea nu vă ejectează discurile. Tot ce este deblocat rămâne deblocat și continuă să funcționeze."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -20911,6 +22045,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "É usada a chave guardada no seu porta-chaves"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se folosește cheia salvată în Keychain-ul dvs."
           }
         },
         "sv": {
@@ -21025,6 +22165,12 @@
             "value": "Versão %@ (%@)"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versiunea %@ (%@)"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -21135,6 +22281,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Volumes abertos"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume deschise"
           }
         },
         "sv": {
@@ -21249,6 +22401,12 @@
             "value": "Site"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Site web"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -21359,6 +22517,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bem-vindo ao %@"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bine ați venit în %@"
           }
         },
         "sv": {
@@ -21473,6 +22637,12 @@
             "value": "O conteúdo de um disco só é conhecido depois de este ser desbloqueado."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conținutul unui disc se află abia după ce este deblocat."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -21583,6 +22753,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O que aconteceu"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce s-a întâmplat"
           }
         },
         "sv": {
@@ -21697,6 +22873,12 @@
             "value": "O que aconteceu?"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce s-a întâmplat?"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -21807,6 +22989,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O que consegue abrir"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce poate deschide"
           }
         },
         "sv": {
@@ -21921,6 +23109,12 @@
             "value": "O que não consegue abrir"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce nu poate deschide"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -22031,6 +23225,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O que fazer"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce puteți face"
           }
         },
         "sv": {
@@ -22145,6 +23345,12 @@
             "value": "Porque aparece como um disco de rede"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De ce apare ca disc de rețea"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -22255,6 +23461,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Discos NTFS do Windows, incluindo os que o Windows deixou hibernados ou mal encerrados"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discuri NTFS Windows, inclusiv cele lăsate de Windows în hibernare sau oprite necorespunzător"
           }
         },
         "sv": {
@@ -22369,6 +23581,12 @@
             "value": "Pode ler e escrever ficheiros nele."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puteți citi și scrie fișiere pe el."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -22479,6 +23697,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pode continuar a procurar quando quiser."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puteți căuta oricând și singur."
           }
         },
         "sv": {
@@ -22593,6 +23817,12 @@
             "value": "O seu disco não foi modificado. Um desbloqueio falhado não pode danificar os dados que contém."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discul dvs. nu a fost modificat. O deblocare eșuată nu poate deteriora datele de pe el."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -22703,6 +23933,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "concluído"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gata"
           }
         },
         "sv": {
@@ -22817,6 +24053,12 @@
             "value": "Sistemas de ficheiros ext4, btrfs e XFS no seu interior"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sisteme de fișiere ext4, btrfs și XFS în interiorul lor"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -22927,6 +24169,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "em curso"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "în curs"
           }
         },
         "sv": {
@@ -23041,6 +24289,12 @@
             "value": "bloqueado"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "blocat"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -23151,6 +24405,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS 15 Sequoia ou posterior"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 15 Sequoia sau mai recent"
           }
         },
         "sv": {
@@ -23265,6 +24525,12 @@
             "value": "O macOS já tem este disco montado. Ejete-o no Finder e tente de novo."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS are deja montat acest disc. Ejectați-l în Finder și reîncercați."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -23375,6 +24641,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "O macOS bloqueou o acesso ao disco. O %@ precisa de acesso completo ao disco para poder ler um disco encriptado."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS a blocat accesul la disc. %@ are nevoie de acces complet la disc pentru a putea citi un disc criptat."
           }
         },
         "sv": {
@@ -23489,6 +24761,12 @@
             "value": "O macOS escreveu %@. Não é enviado automaticamente para lado nenhum — anexe-o à sua mensagem, se puder."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS a scris %@. Nu este trimis nicăieri automat — atașați-l la mesajul dvs. dacă puteți."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -23599,6 +24877,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "não alcançado"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "neatins"
           }
         },
         "sv": {
@@ -23713,6 +24997,12 @@
             "value": "parou aqui"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "s-a oprit aici"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -23823,6 +25113,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "desbloqueado"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "deblocat"
           }
         },
         "sv": {
@@ -23937,6 +25233,12 @@
             "value": "em espera"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "în așteptare"
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -24049,6 +25351,12 @@
             "value": "«%@» deixou de responder e foi desligado. Pode abri-lo novamente."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” nu mai răspundea și a fost deconectat. Îl puteți deschide din nou."
+          }
+        },
         "sv": {
           "stringUnit": {
             "state": "translated",
@@ -24159,6 +25467,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "«%@» está desbloqueado"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” este deblocat"
           }
         },
         "sv": {
