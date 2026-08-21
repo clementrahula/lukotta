@@ -40,6 +40,7 @@ enum Appearance: String, CaseIterable, Identifiable {
     /// Setting it on NSApp rather than per window covers the sheets, the
     /// Settings window and the menu bar extra together, and leaving it nil
     /// hands control back to the system, including later changes to it.
+    @MainActor
     func apply() {
         NSApp.appearance = nsAppearance
     }

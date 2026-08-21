@@ -40,6 +40,11 @@ struct RememberFrame: NSViewRepresentable {
 
     func updateNSView(_ nsView: NSView, context: Context) {}
 
+    /// Every method here touches a window, and every one of them is reached
+    /// from the main thread: a view discovering its window, and notifications
+    /// asked for on the main queue. The SDK Lukotta is built against does not
+    /// insist, and an older one does.
+    @MainActor
     final class Coordinator {
         private let key: String
         private weak var window: NSWindow?
@@ -60,7 +65,7 @@ struct RememberFrame: NSViewRepresentable {
                 NotificationCenter.default.addObserver(
                     forName: name, object: window, queue: .main
                 ) { [weak self] _ in
-                    self?.save()
+                    MainActor.assumeIsolated { self?.save() }
                 }
             }
         }

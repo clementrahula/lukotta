@@ -45,6 +45,10 @@ struct PopUpRow: NSViewRepresentable {
         var parent: PopUpRow
         init(_ parent: PopUpRow) { self.parent = parent }
 
+        // An action sent by a control, so it arrives on the main thread. The
+        // SDK does not say so, and the older one this is built against on CI
+        // says the opposite.
+        @MainActor
         @objc func pick(_ sender: NSPopUpButton) {
             guard let value = sender.selectedItem?.representedObject as? String else { return }
             parent.selection = value
