@@ -7,59 +7,60 @@ only you have; everything else is unassigned and can be picked up in any order.
 
 ---
 
-## Order of work
+## The eight before release — done
 
-Eight things stand between here and a public release, and they are not
-independent. This is the order they are being done in, and why that order.
+All eight are implemented. What they were, and what came out of them:
 
-**Phase 1 — instruments and safety nets.** Nothing user-visible changes.
-
-1. `os.Logger`, first. Additive, changes no behaviour, and it is the thing that
-   says what happened during everything that follows — including the sleep test,
-   which would otherwise produce an anecdote rather than evidence.
-2. Tests for `DriveScanner`, `EngineEnvironment` and `Workspace`. Fixtures only.
-   These three sit directly under what phases 2 and 3 disturb.
-3. Snapshot tests, with baselines captured from the interface **as it stands**.
-   This is the one item with a hard deadline: capture them after a UI change and
-   the change is what gets enshrined.
-
-**Phase 2 — the structural change, while there is time for it to settle.**
-
-4. The Full Disk Access check, off the main thread. Small, self-contained, and a
-   concurrency change — so it goes immediately before the language-mode switch
-   rather than being reasoned about twice.
-5. Swift 6 language mode. The largest and riskiest item, so it goes as early as
-   the safety nets allow and as far from the release as possible. Everything in
-   phase 3 is then written under the strict rules instead of retrofitted to them.
-
-**Phase 3 — behaviour, on a base that has stopped moving.**
-
-6. Telling plain NTFS from BitLocker before the unlock.
-7. `Diagnosis` without substring matching — after 6, not before. Two of the
-   cases it currently guesses at exist only because the app lets someone try to
-   unlock something that was never encrypted. Fix that first and the replacement
-   is written once, against a smaller problem.
-
-**Phase 4 — polish, checked by phase 1.**
-
-8. Dynamic Type at larger sizes, rendered through the snapshot harness at
-   several text sizes so it stays fixed. Then one translation sweep for whatever
-   strings phase 3 added — new sentences cost twenty-one translations each, so
-   they are written once and translated together.
+1. **`os.Logger`.** Everything is logged under the bundle's identifier, names
+   and paths private, counts and states public. A bug report now carries the
+   last fifteen minutes of what the app was actually doing.
+2. **Tests for `DriveScanner`, `EngineEnvironment` and `Workspace`.** The
+   parsing is separated from the two `diskutil` calls so it can be given
+   captured output. Found that the partition UUID was read from only one of the
+   two plists that carry it, and that a failure to unpack the Linux environment
+   reported an empty string where tar's complaint should have been.
+3. **Snapshot tests.** Twelve scenes × two appearances × two window sizes × two
+   languages. Rendered through an off-screen `NSWindow`, because `ImageRenderer`
+   comes back with the inside of a `ScrollView` empty and the drive list lives
+   in one.
+4. **The Full Disk Access check, off the main thread.** It was read on every
+   switch back to the app, not only at launch. Also moved the healthy-launch
+   mark earlier: a machine without the permission never reached it, so three
+   launches on one would have rolled back a perfectly good version.
+5. **Swift 6.** The real find was `Workspace`: made on the main actor, used by
+   the background task running the mount, destroyed from the main actor on quit,
+   with an unguarded flag.
+6. **Telling NTFS from BitLocker.** The first sector is read by the helper —
+   `/dev/diskNsM` is mode 640 root:operator, which Full Disk Access does not
+   change. An unencrypted drive now says so, drops the password field and offers
+   Open.
+7. **`Diagnosis`.** Still matches text, because the engine exits 0 either way
+   and there is nothing else to match. But the rules record whose words they
+   are, and bumping `vendor/engine.lock` fails a test until someone has checked
+   them — the silent part of the failure is what was wrong.
+8. **Dynamic Type — not a thing on macOS.** See the note under Accessibility.
+   The equivalent, text needing more room than English, is now a snapshot axis,
+   and it immediately found the permission panel untranslated in all twenty-one
+   languages and a truncated button in German.
 
 ### Everything that needs you, in one pass at the end
 
-Nothing here is done piecemeal. The work above is finished first, and then the
-whole of it is tried in a single sitting:
+The work above is finished. None of the following has been tried, and all of it
+wants you at the keyboard with hardware attached. Nothing has been unmounted in
+the meantime.
 
-- **Close the lid with a drive open**, and see whether the microVM survives, the
-  NFS client recovers on its own, and how long it takes.
-- **A plain NTFS drive and a BitLocker drive**, to prove the probe tells them
-  apart rather than merely believing it does.
-- **Anything needing a drive to be ejected.** Nothing is unmounted while the
-  work is going on. Whatever wants an eject waits for this pass and for you to
-  say when.
-- **Notarise, and take the screenshots**, which are Stage 1 anyway.
+- **Close the lid with a drive open.** Does the microVM survive a sleep at all,
+  does the NFS client come back on its own, and how long does it take? The
+  one-minute grace period is a guess until this is done. `log show --predicate
+  'subsystem == "com.clementrahula.lukotta"' --last 30m` says what happened.
+- **A plain NTFS drive and a BitLocker drive**, to prove the first-sector probe
+  tells them apart. Then open the unencrypted one with no password, which is a
+  path that has never run.
+- **An unlock through the helper, end to end**, since the mount path was touched
+  by the Swift 6 work and by the empty-credential route.
+- **Anything wanting a drive ejected.** Nothing was ejected while this was going
+  on; whatever needs it waits for you to say when.
+- **Notarise, and take the screenshots.** Both are Stage 1 anyway.
 
 ---
 
@@ -68,15 +69,8 @@ whole of it is tried in a single sitting:
 Nothing below is optional. Until all of it is done there is no artefact that can
 responsibly be given to anyone.
 
-- **[both] Close the lid with a drive open, and see what happens.** The handling
-  is written: nothing is unmounted for sleep, the free-space poll stops so the
-  wake window is not spent queueing calls at a mount that cannot answer yet, and
-  on waking each mount is asked whether it is alive — from a separate process, so
-  a wedged one cannot take the app with it — every few seconds for a minute
-  before it is treated as gone. What has never been observed is a real sleep. The
-  open questions are whether the microVM survives one at all, whether the NFS
-  client recovers on its own once it does, and how long that takes. Until then
-  the grace period is a guess.
+- **[both] The hardware pass**, listed above. Sleep, the two drive formats, an
+  unlock end to end. Nothing ships before it.
 - **[you] Notarise a build.** `spctl` rejects the installed copy as an
   unnotarised Developer ID build, so a downloader is told macOS cannot check it
   for malicious software. Everything around it is written: the whole sequence is
@@ -131,12 +125,8 @@ responsibly be given to anyone.
 
 ## Correctness and robustness
 
-- **Distinguish plain NTFS from BitLocker before unlocking.** Today the user
-  finds out by failing. Probing the FVE signature once elevated would tell them.
 - **Handle "already mounted by macOS"** rather than only diagnosing it. The
   engine has `--remount`; the app could offer it.
-- **Replace substring matching in `Diagnosis`.** Engine output is matched by
-  text, so an upstream wording change silently degrades to raw output.
 - **A crash with a fallback mount open still produces the system's "server
   connections interrupted" dialog.** Stale mounts are cleared on launch and when
   a drive disappears, so the window for it is small, and mounts made through the
@@ -144,33 +134,32 @@ responsibly be given to anyone.
   and it cannot be intercepted — only avoided by unmounting first.
 - **Check engine log growth.** The engine writes to `~/Library/Logs` and
   `~/.anylinuxfs` regardless of anything the app does. Confirm the logs rotate.
-- **Move the Full Disk Access check off the main thread.** `refreshPermissions`
-  opens the TCC database during launch.
-- **Adopt Swift 6 language mode.** Every target is pinned to `.v5`. Strict
-  concurrency flags real issues in `AppModel`'s detached tasks.
-- **Add structured logging** with `os.Logger`, so support reports contain more
-  than whatever is still in memory.
 - **Port `validate-key.sh` to Swift**, removing a shell dependency and a process
   spawn from the unlock path for thirty lines of logic.
+- **Wire CI back up.** It ran on every push, failed, and sent the failures out
+  as email rather than to anyone who was looking. Turned off until it can be
+  pinned to the toolchain the app is really built with: the errors it found were
+  real ones the newer local SDK does not produce, and they are fixed but
+  unconfirmed against the older one.
 
 ## Testing
 
-- **Cover what is currently untested**: `DriveScanner` plist parsing (needs only
-  fixtures), `EngineEnvironment` unpacking and `Workspace` lifecycle (temp
-  directories). Nothing in `sources/LukottaTests` touches any of the three.
-- **Add snapshot tests for the interface.** Several layout and state regressions
-  reached the screen because nothing checks rendering.
+- **Nothing outstanding.** `DriveScanner`, `EngineEnvironment` and `Workspace`
+  are covered, and `scripts/snapshots.sh` renders every screen in two
+  appearances, two window sizes and two languages.
 
 ## Accessibility and localisation
 
-- **Test Dynamic Type at larger sizes.** The layouts are built for it but have
-  only ever been seen at the default size.
+- **Dynamic Type does not exist on macOS, and this is not a task.** SwiftUI
+  ignores `dynamicTypeSize` there: the same text laid out at `.xSmall`,
+  `.large`, `.accessibility1` and `.accessibility5` comes back the same height
+  to the pixel, and `NSFont.preferredFont(forTextStyle: .body)` is a fixed 13pt.
+  The system's per-app text size reaches a list of Apple's own applications and
+  not this one. What does happen here is text needing more room than English
+  gives it, and the snapshots render in German for exactly that reason.
 - **Checkbox rows report no description** to the accessibility tree — a SwiftUI
   `Form` puts the label and the switch side by side as siblings. The label is
   read, so this is a polish item rather than a barrier.
-- **Watch the step list in another language.** `MountStage.title` is looked up
-  and the translations are present in the compiled tables, but seeing it requires
-  a mount.
 
 ## Interface
 
