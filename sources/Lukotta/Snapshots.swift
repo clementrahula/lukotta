@@ -226,13 +226,17 @@ enum Snapshots {
         let frame = NSRect(origin: .zero, size: size)
         let hosting = NSHostingView(rootView: AnyView(view))
         hosting.frame = frame
-        let window = NSWindow(
+        let window = OffScreenWindow(
             contentRect: frame, styleMask: [.borderless], backing: .buffered, defer: false)
         window.contentView = hosting
         if let appearance { window.appearance = appearance }
-        // Far enough away that nobody sees it. A window that is never brought
-        // on screen at all does not lay out.
+        // Far enough away that nobody sees it, and transparent so that nothing
+        // is seen even if something puts it back. A run draws over a hundred of
+        // these, so one appearing is a window flashing at the edge of the
+        // screen again and again.
+        window.alphaValue = 0
         window.setFrameOrigin(NSPoint(x: -20000, y: -20000))
+        // A window that is never brought on screen at all does not lay out.
         window.orderFrontRegardless()
         hosting.layoutSubtreeIfNeeded()
         window.displayIfNeeded()
@@ -255,5 +259,17 @@ enum Snapshots {
         hosting.cacheDisplay(in: hosting.bounds, to: rep)
         window.orderOut(nil)
         return rep.representation(using: .png, properties: [:])
+    }
+}
+
+/// A window macOS will leave where it is put.
+///
+/// AppKit drags ordinary windows back onto a display, and `constrainFrameRect`
+/// is what does it — which is why an off-screen origin alone was not enough.
+/// The snapshot windows were being pulled to the edge of the screen and shown
+/// there, once per picture.
+private final class OffScreenWindow: NSWindow {
+    override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect {
+        frameRect
     }
 }
