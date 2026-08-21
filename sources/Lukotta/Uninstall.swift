@@ -52,9 +52,7 @@ enum Uninstall {
         return plan
     }
 
-    nonisolated private static var bundleIdentifier: String {
-        Bundle.main.bundleIdentifier ?? "com.clementrahula.lukotta"
-    }
+    nonisolated private static var bundleIdentifier: String { HelperInfo.appIdentifier }
 
     /// One line of the uninstall, and whether it has finished.
     struct Step: Identifiable {

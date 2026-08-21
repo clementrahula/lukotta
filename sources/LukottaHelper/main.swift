@@ -25,6 +25,9 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     }
 
     func run() {
+        if Self.signingTeam == nil {
+            NSLog("lukotta-helper: unsigned or teamless build; every connection will be refused")
+        }
         listener.resume()
         RunLoop.main.run()
     }
@@ -60,15 +63,41 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             let code
         else { return false }
 
+        guard let text = HelperInfo.clientRequirement(team: Self.signingTeam ?? "") else {
+            return false
+        }
+
         var requirement: SecRequirement?
         guard
-            SecRequirementCreateWithString(
-                HelperInfo.clientRequirement as CFString, [], &requirement) == errSecSuccess,
+            SecRequirementCreateWithString(text as CFString, [], &requirement) == errSecSuccess,
             let requirement
         else { return false }
 
         return SecCodeCheckValidity(code, [], requirement) == errSecSuccess
     }
+
+    /// The team that signed this helper.
+    ///
+    /// Whoever built it is who its client has to be, which is what lets a fork
+    /// signed with another certificate work without editing this file. Read
+    /// once: it cannot change while the process is alive, and a daemon that
+    /// re-read it per connection would only widen the window for surprises.
+    private static let signingTeam: String? = {
+        var me: SecCode?
+        guard SecCodeCopySelf([], &me) == errSecSuccess, let me else { return nil }
+
+        var still: SecStaticCode?
+        guard SecCodeCopyStaticCode(me, [], &still) == errSecSuccess, let still else { return nil }
+
+        var info: CFDictionary?
+        guard
+            SecCodeCopySigningInformation(
+                still, SecCSFlags(rawValue: kSecCSSigningInformation), &info) == errSecSuccess,
+            let signing = info as? [String: Any]
+        else { return nil }
+
+        return signing[kSecCodeInfoTeamIdentifier as String] as? String
+    }()
 
     // MARK: Work
 

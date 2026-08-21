@@ -22,6 +22,12 @@ working bundle needs the Linux engine and the compiled asset catalogue:
 ./build-app.sh
 ```
 
+The app it builds is called **Drive Unlocker**, not Lukotta. Builds are
+unbranded by default because the name and logo are trademarks that the GPL does
+not cover; `LUKOTTA_BRANDING=official` is what `scripts/release.sh` uses. Do not
+change that default, and do not hard-code either identity in Swift — the code
+reads the name, identifier, icon and mark from the bundle at run time.
+
 `build-app.sh` needs `actool` from Xcode. The SwiftPM command line copies
 `Assets.xcassets` into the bundle without compiling it, which leaves the app
 with no icon and no mark.

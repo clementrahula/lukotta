@@ -5,6 +5,13 @@
 #   LUKOTTA_INSTALL=0 ./build-app.sh   build only
 #   LUKOTTA_SIGN_ID="..." ./build-app.sh
 #   LUKOTTA_NOTARY_PROFILE="name" ./build-app.sh   also notarise and staple
+#   LUKOTTA_BRANDING=official ./build-app.sh        build as Lukotta
+#
+# Builds are unbranded by default. The Lukotta name, wordmark and logo are
+# trademarks and are not licensed under the GPL, so a build carries them only
+# when asked. Reproducing a published release needs official branding, and
+# doing that is fine; distributing the result under the name is not. The
+# software itself is GPL either way. See TRADEMARKS.txt.
 #
 # Signing proves who built it; notarising is a separate round trip to Apple,
 # and without it Gatekeeper refuses the app on every Mac but the one that built
@@ -17,7 +24,29 @@
 # git commit count, which is monotonic and needs no manual bookkeeping.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-APP_NAME="Lukotta"
+
+# Everything the trademark covers, in one place. The unbranded identifier uses
+# example.com, which RFC 2606 reserves for good, so it can never collide with a
+# real vendor and reads as what it is: change me.
+case "${LUKOTTA_BRANDING:-unbranded}" in
+  official)
+    APP_NAME="Lukotta"
+    BUNDLE_ID="com.clementrahula.lukotta"
+    ICON_SET="AppIcon"
+    MARK_SET="LukottaMark"
+    HELPER_NAME="LukottaHelper"
+    ;;
+  unbranded)
+    APP_NAME="Drive Unlocker"
+    BUNDLE_ID="com.example.driveunlocker"
+    ICON_SET="AppIconUnbranded"
+    MARK_SET="MarkUnbranded"
+    HELPER_NAME="UnlockHelper"
+    ;;
+  *)
+    echo "error: LUKOTTA_BRANDING must be 'official' or 'unbranded'" >&2; exit 1 ;;
+esac
+
 OUT="${1:-$HERE/dist/$APP_NAME.app}"
 CONTENTS="$OUT/Contents"
 
@@ -58,10 +87,11 @@ cp "$(swift build -c release --product Lukotta --show-bin-path)/Lukotta" \
 # an administrator password every time.
 swift build -c release --product LukottaHelper
 cp "$(swift build -c release --product LukottaHelper --show-bin-path)/LukottaHelper" \
-   "$CONTENTS/MacOS/LukottaHelper"
+   "$CONTENTS/MacOS/$HELPER_NAME"
 mkdir -p "$CONTENTS/Library/LaunchDaemons"
-cp "$HERE/resources/helper.plist" \
-   "$CONTENTS/Library/LaunchDaemons/com.clementrahula.lukotta.helper.plist"
+sed -e "s|__BUNDLE_ID__|$BUNDLE_ID|g" -e "s|__HELPER_NAME__|$HELPER_NAME|" \
+  "$HERE/resources/helper.plist" \
+  > "$CONTENTS/Library/LaunchDaemons/$BUNDLE_ID.helper.plist"
 
 # Sparkle ships as a framework and must be embedded and signed inside the
 # bundle. Its XCFramework is resolved by SwiftPM; take the built slice.
@@ -78,13 +108,14 @@ fi
 SPARKLE_KEY="${LUKOTTA_SPARKLE_PUBLIC_KEY:-$(cat "$HERE/.sparkle-public-key" 2>/dev/null || true)}"
 sed -e "s/__VERSION__/$VERSION/" -e "s/__BUILD__/$BUILD/" \
     -e "s|__SPARKLE_PUBLIC_KEY__|${SPARKLE_KEY}|" \
+    -e "s|__APP_NAME__|$APP_NAME|" -e "s|__BUNDLE_ID__|$BUNDLE_ID|" \
+    -e "s|__ICON_SET__|$ICON_SET|" -e "s|__MARK_SET__|$MARK_SET|" \
   "$HERE/sources/Info.plist" > "$CONTENTS/Info.plist"
 if [ -z "$SPARKLE_KEY" ]; then
   /usr/libexec/PlistBuddy -c 'Delete :SUPublicEDKey' "$CONTENTS/Info.plist" >/dev/null 2>&1 || true
   /usr/libexec/PlistBuddy -c 'Delete :SUFeedURL' "$CONTENTS/Info.plist" >/dev/null 2>&1 || true
   printf 'note: no Sparkle key set — updates disabled in this build\n'
 fi
-# The mark the interface draws, as artwork rather than geometry copied from it.
 # Compile the asset catalogue. SwiftPM's command line copies a .xcassets
 # directory rather than building it, and an uncompiled catalogue cannot be
 # loaded, so actool does it — the same tool Xcode would use.
@@ -93,7 +124,7 @@ ACTOOL="$(xcrun --find actool 2>/dev/null || echo /Applications/Xcode.app/Conten
 "$ACTOOL" "$HERE/sources/Lukotta/Assets.xcassets" \
   --compile "$CONTENTS/Resources" \
   --platform macosx --minimum-deployment-target 15.0 \
-  --app-icon AppIcon --output-partial-info-plist /dev/null >/dev/null
+  --app-icon "$ICON_SET" --output-partial-info-plist /dev/null >/dev/null
 [ -f "$CONTENTS/Resources/Assets.car" ] || { echo "error: actool produced no Assets.car" >&2; exit 1; }
 cp "$HERE/resources/helpers/validate-key.sh" "$CONTENTS/Resources/helpers/validate-key.sh"
 chmod 755 "$CONTENTS/Resources/helpers/validate-key.sh"
@@ -146,9 +177,9 @@ if [ -d "$CONTENTS/Frameworks/Sparkle.framework" ]; then
 fi
 
 # The helper is a separate executable and must be signed in its own right.
-if [ -f "$CONTENTS/MacOS/LukottaHelper" ]; then
+if [ -f "$CONTENTS/MacOS/$HELPER_NAME" ]; then
   /usr/bin/codesign --force --options runtime --sign "$SIGN_ID" \
-    "$CONTENTS/MacOS/LukottaHelper" >/dev/null 2>&1 || true
+    "$CONTENTS/MacOS/$HELPER_NAME" >/dev/null 2>&1 || true
 fi
 
 printf 'Signing with: %s\n' "$SIGN_ID"

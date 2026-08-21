@@ -14,6 +14,10 @@ signing. In short:
 ./build-app.sh
 ```
 
+That produces `Drive Unlocker.app`. Builds are unbranded unless you ask for
+`LUKOTTA_BRANDING=official`, because the name and logo are trademarks and the
+GPL does not cover them. It is the same software either way.
+
 ## Verifying Your Work
 
 ```bash

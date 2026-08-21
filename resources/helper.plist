@@ -2,11 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>Label</key><string>com.clementrahula.lukotta.helper</string>
-  <key>BundleProgram</key><string>Contents/MacOS/LukottaHelper</string>
+  <key>Label</key><string>__BUNDLE_ID__.helper</string>
+  <key>BundleProgram</key><string>Contents/MacOS/__HELPER_NAME__</string>
   <key>MachServices</key>
-  <dict><key>com.clementrahula.lukotta.helper</key><true/></dict>
+  <dict><key>__BUNDLE_ID__.helper</key><true/></dict>
   <key>AssociatedBundleIdentifiers</key>
-  <array><string>com.clementrahula.lukotta</string></array>
+  <array><string>__BUNDLE_ID__</string></array>
 </dict>
 </plist>

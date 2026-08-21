@@ -24,7 +24,11 @@ cd lukotta
 ./build-app.sh                 # compile, embed, sign, install
 ```
 
-The result is `dist/Lukotta.app`, and a copy in `/Applications`.
+The result is `dist/Drive Unlocker.app`, and a copy in `/Applications`.
+
+Builds are unbranded by default: the Lukotta name, wordmark and logo are
+trademarks, and the GPL does not license them. Everything else about the build
+is the same. See [Branding](#branding).
 
 ## Where the Engine Comes From
 
@@ -88,6 +92,7 @@ LUKOTTA_INSTALL=0 ./build-app.sh              # build without installing
 LUKOTTA_SKIP_TESTS=1 ./build-app.sh           # for iteration; never ship this
 LUKOTTA_SIGN_ID="Developer ID Application: …" ./build-app.sh
 LUKOTTA_NOTARY_PROFILE="name" ./build-app.sh  # also notarise and staple
+LUKOTTA_BRANDING=official ./build-app.sh      # build as Lukotta
 ```
 
 The version comes from `VERSION`; the build number is the commit count, so it
@@ -127,11 +132,33 @@ find dist/Lukotta.app -type f \( -perm -111 -o -name "*.dylib" \) | while read -
 done | sort -V | tail -1
 ```
 
+## Branding
+
+The build carries one of two identities.
+
+| | Default | `LUKOTTA_BRANDING=official` |
+| --- | --- | --- |
+| Name | Drive Unlocker | Lukotta |
+| Bundle identifier | `com.example.driveunlocker` | `com.clementrahula.lukotta` |
+| Icon and mark | A grey placeholder | The Lukotta artwork |
+
+`example.com` is reserved by RFC 2606, so the unbranded identifier can never
+collide with a real vendor.
+
+The two builds are the same software. The only difference is the artwork, the
+name and the identifier, and the code reads all three from the bundle at run
+time rather than having them written into it.
+
+Use official branding to check a release against its source. Do not distribute
+the result under the name: the GPL grants you everything about the software and
+nothing about the marks. TRADEMARKS.txt sets out what is permitted, and giving
+a fork its own name and artwork is expressly among it.
+
 ## Reproducing a Released Build
 
-Check out the tag and build. The engine comes from the lock rather than from
-your machine, so the same tag produces the same engine on any Apple Silicon
-Mac.
+Check out the tag and build with `LUKOTTA_BRANDING=official`, which is what
+`scripts/release.sh` does. The engine comes from the lock rather than from your
+machine, so the same tag produces the same engine on any Apple Silicon Mac.
 
 Two things will still differ: the signature, which depends on your certificate,
 and the build number, which is the commit count at the tag.

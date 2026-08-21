@@ -2,18 +2,46 @@ import Foundation
 
 /// Names shared by the application and the privileged helper.
 public enum HelperInfo {
-    public static let machServiceName = "com.clementrahula.lukotta.helper"
-    public static let plistName = "com.clementrahula.lukotta.helper.plist"
+    /// The identifier every other name here is built from.
+    ///
+    /// Read from the bundle rather than written down, so an unbranded build
+    /// gets its own service and daemon without a second set of constants to
+    /// keep in step. The helper runs from `Contents/MacOS` of the same bundle,
+    /// so it reads the identifier the app does.
+    public static let appIdentifier =
+        Bundle.main.bundleIdentifier ?? "com.example.driveunlocker"
+
+    public static let machServiceName = "\(appIdentifier).helper"
+    public static let plistName = "\(machServiceName).plist"
+
+    /// Whether a string is safe to paste into a code requirement.
+    ///
+    /// The identifier comes from a signed bundle, so changing it invalidates
+    /// the signature. Checked anyway: a requirement is parsed, and a quote
+    /// smuggled into one would change what it means rather than fail it.
+    public static func isWellFormed(_ value: String) -> Bool {
+        !value.isEmpty
+            && value.count <= 255
+            && value.allSatisfy {
+                $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "." || $0 == "-" || $0 == "_")
+            }
+    }
 
     /// Only a binary satisfying this may talk to the helper.
     ///
     /// Without it, any process on the machine could ask a root daemon to mount
-    /// disks. The requirement pins both the identity and the signing team.
-    public static let clientRequirement = """
-        anchor apple generic \
-        and identifier "com.clementrahula.lukotta" \
-        and certificate leaf[subject.OU] = "A1B2C3D4E5"
-        """
+    /// disks. The team is the one that signed the helper, read from its own
+    /// signature rather than written down here, so a fork that signs with its
+    /// own certificate pins to itself. Returns nil when either half fails to
+    /// check out, and the helper then talks to nobody.
+    public static func clientRequirement(team: String) -> String? {
+        guard isWellFormed(appIdentifier), isWellFormed(team) else { return nil }
+        return """
+            anchor apple generic \
+            and identifier "\(appIdentifier)" \
+            and certificate leaf[subject.OU] = "\(team)"
+            """
+    }
 }
 
 /// What the privileged helper will do on request.

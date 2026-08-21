@@ -98,9 +98,9 @@ Choose **Lukotta → Uninstall Lukotta…** from the menu bar. It says what it w
 remove, then ejects anything open, unregisters the background helper, deletes
 the Linux environment, and moves the app to the Bin.
 
-Passphrases you asked Lukotta to remember are left in your Keychain. Some are
-48-digit recovery keys that exist nowhere else, so removing them is left to you,
-in Keychain Access.
+If you asked Lukotta to remember any passphrases, it offers to delete those too
+and names the drives they belong to. The offer is off by default: some are
+48-digit recovery keys that exist nowhere else.
 
 ## Building
 
@@ -109,6 +109,10 @@ in Keychain Access.
 ./scripts/vendor-engine.sh   # stage it into vendor/
 ./build-app.sh               # compile, embed, sign, install
 ```
+
+That builds `Drive Unlocker.app`. The name and logo are trademarks that the GPL
+does not license, so a build carries them only when asked. The software is the
+same either way — [TRADEMARKS.txt][trademark] says what is permitted.
 
 The whole path, including how to reproduce a released build, is in
 [BUILDING.md][building]. To work on Lukotta, see [CONTRIBUTING.md][contributing].

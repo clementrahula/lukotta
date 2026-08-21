@@ -772,6 +772,42 @@ group("keychainRoundTrip") {
     expect(!CredentialStore.save("x", for: ""), "an empty identifier is refused")
 }
 
+group("clientRequirement") {
+    // The requirement is now built at run time from the helper's own signing
+    // team, so it is code rather than a constant and can be got wrong.
+    let team = "A1B2C3D4E5"
+
+    let text = HelperInfo.clientRequirement(team: team)
+    expect(text != nil, "a well formed team yields a requirement")
+    expect(text?.contains("anchor apple generic") == true, "the anchor is still pinned")
+    expect(
+        text?.contains("certificate leaf[subject.OU] = \"\(team)\"") == true,
+        "the team is pinned")
+    expect(
+        text?.contains("identifier \"\(HelperInfo.appIdentifier)\"") == true,
+        "the identifier is pinned to this bundle")
+
+    // A quote or a space would end the identifier early and change what the
+    // requirement means, so neither may reach the parser.
+    expect(HelperInfo.clientRequirement(team: "AB\" or anything") == nil, "a quote is refused")
+    expect(HelperInfo.clientRequirement(team: "AB CD") == nil, "a space is refused")
+    expect(HelperInfo.clientRequirement(team: "") == nil, "an empty team is refused")
+    expect(
+        HelperInfo.clientRequirement(team: String(repeating: "A", count: 256)) == nil,
+        "an absurdly long team is refused")
+
+    expect(HelperInfo.isWellFormed("com.example.drive-unlocker_1"), "ordinary identifiers pass")
+    expect(!HelperInfo.isWellFormed("com.example/../evil"), "a path separator is refused")
+
+    // Every name the app and the daemon use has to agree on one identifier.
+    expect(
+        HelperInfo.machServiceName == "\(HelperInfo.appIdentifier).helper",
+        "the service name derives from the identifier")
+    expect(
+        HelperInfo.plistName == "\(HelperInfo.machServiceName).plist",
+        "the daemon plist name derives from the service name")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

@@ -32,8 +32,15 @@ this project.
 
   Replacing the name and artwork in a fork is expressly permitted. The
 trademark must never prevent you exercising your rights under the GPL.
-The build takes the app name from sources/Info.plist and the artwork
-from assets/, so a rename is a change to those two.
+Nothing needs replacing: the build is unbranded unless asked otherwise,
+and produces an app called Drive Unlocker carrying a plain placeholder
+icon. Give that your own name and mark by editing sources/Info.plist
+and the asset catalogue, or ship it as it stands.
+
+  Setting LUKOTTA_BRANDING=official builds under the Lukotta name and
+artwork. That exists so a published release can be checked against its
+source, which anyone may do. It grants no right to distribute the
+result.
 
 
   3. Third-Party Trademarks

@@ -32,7 +32,8 @@ SIGN_TOOL="$(find "$HERE/.build" -name sign_update -type f -perm -111 -print -qu
 
 printf '==> Building and notarising %s (build %s)\n' "$VERSION" "$BUILD"
 rm -rf "$HERE/dist"
-LUKOTTA_NOTARY_PROFILE="$PROFILE" "$HERE/build-app.sh" >/dev/null
+# A release is the one build that carries the marks. See TRADEMARKS.txt.
+LUKOTTA_BRANDING=official LUKOTTA_NOTARY_PROFILE="$PROFILE" "$HERE/build-app.sh" >/dev/null
 
 # Refuse to ship something Gatekeeper will refuse to open.
 spctl -a -vv -t install "$APP" 2>&1 | grep -q "source=Notarized Developer ID" || {

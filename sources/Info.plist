@@ -3,19 +3,20 @@
 <plist version="1.0">
 <dict>
   <key>CFBundleDevelopmentRegion</key><string>en</string>
-  <key>CFBundleDisplayName</key><string>Lukotta</string>
-  <key>CFBundleExecutable</key><string>Lukotta</string>
-  <key>CFBundleIconName</key><string>AppIcon</string>
-  <key>CFBundleIdentifier</key><string>com.clementrahula.lukotta</string>
+  <key>CFBundleDisplayName</key><string>__APP_NAME__</string>
+  <key>CFBundleExecutable</key><string>__APP_NAME__</string>
+  <key>CFBundleIconName</key><string>__ICON_SET__</string>
+    <key>LUKMarkAssetName</key><string>__MARK_SET__</string>
+  <key>CFBundleIdentifier</key><string>__BUNDLE_ID__</string>
   <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
-  <key>CFBundleName</key><string>Lukotta</string>
+  <key>CFBundleName</key><string>__APP_NAME__</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>__VERSION__</string>
   <key>CFBundleVersion</key><string>__BUILD__</string>
   <key>LSMinimumSystemVersion</key><string>15.0</string>
   <key>LSArchitecturePriority</key><array><string>arm64</string></array>
   <key>NSHighResolutionCapable</key><true/>
-  <key>NSRemovableVolumesUsageDescription</key><string>Lukotta reads the encrypted drive directly in order to unlock it. It only reads the drive you choose, and it never sends anything anywhere.</string>
+  <key>NSRemovableVolumesUsageDescription</key><string>__APP_NAME__ reads the encrypted drive directly in order to unlock it. It only reads the drive you choose, and it never sends anything anywhere.</string>
   <key>NSPrincipalClass</key><string>NSApplication</string>
   <key>NSHumanReadableCopyright</key><string>Copyright © 2026 Clement Rahula. Licensed under GPL-3.0-or-later.</string>
   <key>SUFeedURL</key><string>https://lukotta-updates.rahula.dev/appcast.xml</string>
