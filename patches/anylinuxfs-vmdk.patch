@@ -1,0 +1,63 @@
+--- a/anylinuxfs/src/devinfo.rs	2026-07-20 19:00:52
++++ b/anylinuxfs/src/devinfo.rs	2026-08-21 23:14:39
+@@ -14,6 +14,7 @@
+     #[default]
+     Raw,
+     Qcow2,
++    Vmdk,
+ }
+ 
+ impl DiskFormat {
+@@ -22,12 +23,21 @@
+         match self {
+             DiskFormat::Raw => 0,
+             DiskFormat::Qcow2 => 1,
++            DiskFormat::Vmdk => 2,
+         }
++    }
++
++    /// Whether the bytes need decoding rather than being read straight
++    /// through: everything but Raw.
++    pub fn is_encoded(self) -> bool {
++        self != DiskFormat::Raw
+     }
+ 
+     pub fn from_path(path: impl AsRef<BStr>) -> Self {
+         if path.as_ref().ends_with(b".qcow2") {
+             DiskFormat::Qcow2
++        } else if path.as_ref().ends_with(b".vmdk") {
++            DiskFormat::Vmdk
+         } else {
+             DiskFormat::Raw
+         }
+--- a/anylinuxfs/src/cmd_mount.rs	2026-07-20 19:00:52
++++ b/anylinuxfs/src/cmd_mount.rs	2026-08-21 23:14:39
+@@ -316,7 +316,7 @@
+         if !Path::new(image_path).exists() {
+             anyhow::bail!("Image file not found: {}", image_path);
+         }
+-        if DiskFormat::from_path(image_path) == DiskFormat::Qcow2 {
++        if DiskFormat::from_path(image_path).is_encoded() {
+             let partition_info = DevInfo::unprobed_image(image_path, Some(part_num))?;
+             let disk = File::open(partition_info.rdisk())
+                 .context("Failed to open image file")?
+@@ -356,7 +356,7 @@
+     let token_path = Path::new(token);
+     if token_path.is_file() {
+         // Whole image file (no partition spec)
+-        let dev_info = if DiskFormat::from_path(token) == DiskFormat::Qcow2 {
++        let dev_info = if DiskFormat::from_path(token).is_encoded() {
+             DevInfo::unprobed_image(token, None)?
+         } else {
+             DevInfo::pv(token, true)?
+--- a/anylinuxfs/src/diskutil/mod.rs	2026-07-20 19:00:52
++++ b/anylinuxfs/src/diskutil/mod.rs	2026-08-21 23:14:39
+@@ -563,7 +563,7 @@
+                 .map(|n| n.to_string_lossy().into_owned())
+                 .unwrap_or_else(|| path.to_string());
+ 
+-            if DiskFormat::from_path(p.as_bytes()) == DiskFormat::Qcow2 {
++            if DiskFormat::from_path(p.as_bytes()).is_encoded() {
+                 // It's a qcow2 image file — will be probed by get_lsblk_info below
+                 qcow2_images.push(Qcow2ListImage {
+                     dev_info: DevInfo::unprobed_image(p.as_bytes(), None)?,
