@@ -181,30 +181,28 @@ enum EndToEnd {
         }
         guard let drive = model.drives.first(where: { $0.uuid == image.path }) else { return }
 
-        // Choosing it reads the first sector. Nothing is asked of the user
-        // while that happens, and what comes back decides whether anything is
-        // asked at all.
-        model.choose(drive)
-        guard
-            waitUntil(
-                "it is recognised without a password", timeout: 30,
-                condition: { model.chosenFormat != nil })
-        else { return }
-        check(model.chosenFormat == .btrfs, "and recognised as the filesystem it is")
-        check(model.chosenDriveIsOpenAlready, "so no password is asked for")
-        check(model.credential.isEmpty, "and none has been typed")
-
-        // Nothing is asked and nothing is pressed: recognising it as
-        // unencrypted is enough to open it.
+        // Nothing is chosen, nothing is typed and nothing is pressed. Opening
+        // the file is the whole of it.
+        //
+        // The password screen is watched for throughout rather than looked at
+        // once: the bug it stands for was a screen that appeared and then went
+        // away by itself, which a single glance at the end would never see.
+        var sawTheQuestion = false
         guard
             waitUntil(
                 "it opens on its own, without being told to", timeout: 180,
                 condition: {
+                    if model.phaseIsUnlock { sawTheQuestion = true }
                     if case .mounted = model.phase { return true }
                     if case .failed = model.phase { return true }
                     return false
                 })
         else { return }
+        check(
+            !sawTheQuestion,
+            "and the password screen never appeared, not even for an instant")
+        check(model.chosenFormat == .btrfs, "it was recognised as the filesystem it is")
+        check(model.chosenDriveIsOpenAlready, "which is why nothing was asked")
         guard case .mounted(_, let mountPoint) = model.phase else {
             if case .failed(_, let summary, _) = model.phase { print("      \(summary)") }
             check(false, "it mounted rather than failing")
@@ -218,6 +216,34 @@ enum EndToEnd {
         waitUntil(
             "the image is detached", timeout: 30,
             condition: { !model.drives.contains { $0.uuid == image.path } })
+
+        // A remembered passphrase must not stop it opening. There is nothing
+        // for one to unlock, and waiting for the field to be empty was what
+        // made this conditional in the first place.
+        model.openImage(image)
+        guard
+            waitUntil(
+                "it opens again", timeout: 60,
+                condition: {
+                    model.imageOpening == nil && model.drives.contains { $0.uuid == image.path }
+                })
+        else { return }
+        guard let again = model.drives.first(where: { $0.uuid == image.path }) else { return }
+        model.credential = "a passphrase it does not need"
+        guard
+            waitUntil(
+                "it opens even with something in the field", timeout: 180,
+                condition: {
+                    if case .mounted = model.phase { return true }
+                    if case .failed = model.phase { return true }
+                    return false
+                })
+        else { return }
+        check(model.phase.isMounted, "and it opened rather than complaining about the passphrase")
+        if case .mounted(_, let point) = model.phase {
+            model.eject(point)
+            waitUntil("it ejects again", timeout: 120, condition: { !model.isEjecting })
+        }
     }
 
     /// Detach anything still attached from these files, whatever happened.
@@ -267,6 +293,14 @@ enum EndToEnd {
 extension AppModel.Phase {
     var isMounted: Bool {
         if case .mounted = self { return true }
+        return false
+    }
+}
+
+extension AppModel {
+    /// Whether the screen asking for a passphrase is up.
+    var phaseIsUnlock: Bool {
+        if case .unlock = phase { return true }
         return false
     }
 }

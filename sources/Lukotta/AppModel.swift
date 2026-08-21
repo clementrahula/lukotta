@@ -262,7 +262,14 @@ final class AppModel: ObservableObject {
                     self.imageDrives[attached.identifier] = synthesised
                 }
                 self.drives = all
-                self.phase = .chooseDrive
+                // Straight to it. Opening a file is choosing it — there is
+                // nothing to pick from — so it either opens or asks for its
+                // passphrase, and never both.
+                if let mine = all.first(where: { $0.uuid == url.path }) {
+                    self.choose(mine)
+                } else {
+                    self.phase = .chooseDrive
+                }
                 // Nothing to read, so nothing to dismiss: the drive appearing
                 // in the list is the whole of the answer.
                 self.imageOpening = nil
@@ -766,8 +773,30 @@ final class AppModel: ObservableObject {
         }
         credentialProblem = nil
         notice = nil
-        phase = .unlock(drive)
-        identify(drive)
+        chosenFormat = nil
+
+        // Whether to ask is decided before anything is shown.
+        //
+        // This used to put the password screen up and then open the drive a
+        // moment later if it turned out there was nothing to unlock — so an
+        // unencrypted drive flashed a demand for a password it does not have.
+        // The reading takes tens of milliseconds; the list simply stays up
+        // until it is in, and then the drive either opens or asks.
+        guard canReadFirstSector(of: drive) else {
+            phase = .unlock(drive)
+            return
+        }
+        identify(drive, thenShowUnlockFor: drive)
+    }
+
+    /// Whether the first sector of this drive can be read before deciding.
+    ///
+    /// A container file was attached by this user, so its device is theirs. A
+    /// physical drive is mode 640 root:operator and needs the helper. Without
+    /// either there is nothing to go on, and the drive is asked about as it
+    /// always was.
+    private func canReadFirstSector(of drive: Drive) -> Bool {
+        openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil || helper.isReady
     }
 
     /// What the chosen partition actually holds, once the helper has read it.
@@ -784,15 +813,22 @@ final class AppModel: ObservableObject {
     /// only way to find out has been to type a password and watch it fail.
     /// Linux partitions are left alone: LUKS announces itself in its own
     /// header, and the engine's own probe already reports it.
-    private func identify(_ drive: Drive) {
-        chosenFormat = nil
+    private func identify(_ drive: Drive, thenShowUnlockFor pending: Drive?) {
         let devicePath = drive.devicePath
         let identifier = drive.id
-        // A container file was attached by this user, so its device can be read
-        // here. A physical drive is mode 640 root:operator and needs the
-        // helper — and without one, nothing is claimed.
         let ours = openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil
-        guard ours || helper.isReady else { return }
+
+        // If the reading is slow — a helper that has gone away, a drive that
+        // will not answer — the click must still do something. Asking is the
+        // safe thing to fall back to.
+        if let pending {
+            Task { [weak self] in
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                guard let self, self.chosenFormat == nil else { return }
+                if case .chooseDrive = self.phase { self.phase = .unlock(pending) }
+            }
+        }
+
         Task { [weak self] in
             guard let self else { return }
             let format: VolumeFormat
@@ -806,17 +842,37 @@ final class AppModel: ObservableObject {
             // The user may have gone somewhere else while the helper read a
             // sector. Answering about a drive nobody is looking at would put a
             // sentence about one drive under the name of another.
-            guard case .unlock(let current) = self.phase, current.id == identifier else { return }
+            // The user may have gone elsewhere while a sector was read.
+            // Answering about a drive nobody is looking at would put a sentence
+            // about one drive under the name of another.
+            let stillWanted: Bool
+            if let pending, case .chooseDrive = self.phase {
+                stillWanted = pending.id == identifier
+            } else if case .unlock(let current) = self.phase {
+                stillWanted = current.id == identifier
+            } else {
+                stillWanted = false
+            }
+            guard stillWanted else { return }
+
             Log.drives.notice("identified as \(format.rawValue, privacy: .public)")
             self.chosenFormat = format == .unknown ? nil : format
 
             // Nothing to unlock, so there is nothing to ask, and a screen
-            // asking anyway is a screen in the way. Only when the field is
-            // still untouched: someone who has started typing has decided
-            // otherwise, whatever the sector says.
-            if format.isUnencrypted, self.credential.isEmpty {
+            // asking anyway is a screen in the way.
+            //
+            // Unconditional. It once waited for the field to be empty, which
+            // read as "unless the user has typed something" and was not that
+            // at all: the sector comes back in tens of milliseconds, long
+            // before anyone could type, and the only thing that ever filled
+            // the field by then was a passphrase remembered in the Keychain —
+            // which means nothing for a drive that has none to give.
+            if format.isUnencrypted {
                 Log.mount.notice("opening without asking, nothing is encrypted")
-                self.unlock(current)
+                self.unlock(drive)
+            } else if pending != nil {
+                // It does need a passphrase, so now the screen that asks.
+                self.phase = .unlock(drive)
             }
         }
     }
@@ -858,9 +914,9 @@ final class AppModel: ObservableObject {
         credentialProblem = nil
         let raw = credential
         // Nothing to unlock: the first sector says it is not encrypted, so the
-        // engine mounts it without asking for anything. Sending it on with an
-        // empty credential is what makes the screen's own sentence true.
-        if raw.isEmpty, chosenDriveIsOpenAlready {
+        // engine mounts it without asking for anything, and whatever is in the
+        // field — a remembered passphrase, most likely — is beside the point.
+        if chosenDriveIsOpenAlready {
             Log.mount.notice("opening an unencrypted drive, no credential needed")
             statusLines = []
             phase = .working(drive)
@@ -1089,6 +1145,11 @@ final class AppModel: ObservableObject {
     /// stopped on is recorded in one place instead of at each of the four
     /// sites that can fail.
     private func fail(_ drive: Drive?, _ summary: String, _ detail: String?) {
+        // Whatever the first sector said, it did not open. Forgetting the
+        // reading is what lets a second attempt ask for a passphrase: a volume
+        // wrongly read as unencrypted would otherwise be retried without one
+        // for ever, with no way to type the password that would have worked.
+        chosenFormat = nil
         failedStage = MountStage.inferred(from: stageLines + statusLines)
         // The stage is ours and safe to read back; the summary can carry
         // engine output, so it goes through the same redaction as the report.
