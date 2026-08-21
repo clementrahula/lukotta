@@ -3,6 +3,12 @@
   "strings": {
     "%@ has been removed": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ е премахнато"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -73,6 +79,12 @@
     },
     "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ е свободен софтуер под лиценза GPL, версия 3 или по-нова. Монтирането се извършва от anylinuxfs. Пълният изходен код на всеки компонент се публикува с всяко издание. Името и логото са търговски марки и не са обхванати от този лиценз."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -143,6 +155,12 @@
     },
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ отваря дискове с BitLocker и Linux, които macOS не може да прочете сама. Преди това е необходима една настройка.\n\nЧетенето на диск на ниво устройство изисква „Full Disk Access“ — паролата на администратор не е достатъчна, а разрешението за преносими томове обхваща файловете на диска, а не самото устройство. macOS не позволява на приложение да го поиска, затова трябва да бъде включено ръчно."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -213,6 +231,12 @@
     },
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ стартира малка виртуална машина с Linux, отключва диска в нея и го предава обратно на Finder. macOS не може да чете файлови системи на BitLocker или Linux. Linux може."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -283,6 +307,12 @@
     },
     "%@ will be moved to the Bin.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ще бъде преместено в кошчето (Trash)."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -353,6 +383,24 @@
     },
     "%lld drives had stopped responding and were disconnected. You can open them again.": {
       "localizations": {
+        "bg": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld диск спря да отговаря и беше изключен. Можете да го отворите отново."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld диска спряха да отговарят и бяха изключени. Можете да ги отворите отново."
+                }
+              }
+            }
+          }
+        },
         "de": {
           "variations": {
             "plural": {
@@ -603,6 +651,24 @@
     },
     "%lld open drives will be ejected.": {
       "localizations": {
+        "bg": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Отвореният диск ще бъде изваден."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld отворени диска ще бъдат извадени."
+                }
+              }
+            }
+          }
+        },
         "de": {
           "variations": {
             "plural": {
@@ -853,6 +919,12 @@
     },
     "%lld percent": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld процента"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -923,6 +995,12 @@
     },
     "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 MB дисково пространство: 155 MB за приложението и 95 MB за средата на Linux, разопакована при първото използване"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -993,6 +1071,12 @@
     },
     "30 to 80 MB of RAM per unlocked drive": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "От 30 до 80 MB оперативна памет за всеки отключен диск"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1063,6 +1147,12 @@
     },
     "A crash report was found": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Намерен е отчет за срив"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1133,6 +1223,12 @@
     },
     "About %@": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Относно %@"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1203,6 +1299,12 @@
     },
     "About & Help": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Информация и помощ"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1273,6 +1375,12 @@
     },
     "About ten drives can stay unlocked at once": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Около десет диска могат да останат отключени едновременно"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1343,6 +1451,12 @@
     },
     "Administrator password": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Парола на администратор"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1413,6 +1527,12 @@
     },
     "Administrator password — asked for once when the background helper is set up, then not again. %@ never sees it": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Парола на администратор — иска се веднъж при настройването на фоновия помощник, след това не. %@ никога не я вижда"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1483,6 +1603,12 @@
     },
     "All Drives": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Всички дискове"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1553,6 +1679,12 @@
     },
     "All required permissions granted": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Всички необходими разрешения са дадени"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1623,6 +1755,24 @@
     },
     "Also delete %lld saved passphrases (%@)": {
       "localizations": {
+        "bg": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Изтрий също запазената парола-фраза за %2$@"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Изтрий също %1$lld запазени пароли-фрази (%2$@)"
+                }
+              }
+            }
+          }
+        },
         "de": {
           "variations": {
             "plural": {
@@ -1873,6 +2023,12 @@
     },
     "An Apple Silicon Mac. Intel Macs are not supported": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac с Apple Silicon. Mac с Intel не се поддържат"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1943,6 +2099,12 @@
     },
     "Another drive is open, and the drive engine has to run on its own the first time after it changes. Eject the other drives, open this one, then they can all be open together again.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отворен е друг диск, а двигателят трябва да работи сам първия път след промяна. Извадете другите дискове, отворете този и след това всички отново могат да бъдат отворени заедно."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2013,6 +2175,12 @@
     },
     "Appearance": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Външен вид"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2083,6 +2251,12 @@
     },
     "Appears only while a drive is unlocked, for ejecting it.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Появява се само докато диск е отключен, за да бъде изваден."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2153,6 +2327,12 @@
     },
     "Author": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разработчик"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2223,6 +2403,12 @@
     },
     "Back": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Назад"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2293,6 +2479,12 @@
     },
     "BitLocker drives, unlocked with the volume password or a 48-digit recovery key": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дискове с BitLocker, отключени с паролата на тома или 48-цифрен ключ за възстановяване"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2363,6 +2555,12 @@
     },
     "BitLocker or NTFS": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker или NTFS"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2433,6 +2631,12 @@
     },
     "Cancel": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отказ"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2503,6 +2707,12 @@
     },
     "Caps Lock is on": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps Lock е включен"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2573,6 +2783,12 @@
     },
     "Check Again": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Провери отново"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2643,6 +2859,12 @@
     },
     "Check Now": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Провери сега"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2713,6 +2935,12 @@
     },
     "Check for Updates…": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Провери за актуализации…"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2783,6 +3011,12 @@
     },
     "Check for updates automatically": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Автоматично проверявай за актуализации"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2853,6 +3087,12 @@
     },
     "Click + and add %@, then switch it on.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щракнете върху „+“, добавете %@ и го включете."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2923,6 +3163,12 @@
     },
     "Collapsed": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Свито"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2993,6 +3239,12 @@
     },
     "Come back here and choose Relaunch — a new permission only applies to a freshly started app.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Върнете се тук и изберете „Рестартирай“ — ново разрешение важи само за току-що стартирано приложение."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3063,6 +3315,12 @@
     },
     "Connect the encrypted drive and choose Rescan. If it is already connected, macOS may have it mounted — eject it in Finder first.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Свържете шифрования диск и изберете „Търсене отново“. Ако вече е свързан, macOS може да го е монтирала — първо го извадете във Finder."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3133,6 +3391,12 @@
     },
     "Copied": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Копирано"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3203,6 +3467,12 @@
     },
     "Copy Details": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Копирай подробностите"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3273,6 +3543,12 @@
     },
     "Dark": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тъмен"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3343,6 +3619,24 @@
     },
     "Deleting %lld saved passphrases": {
       "localizations": {
+        "bg": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Изтриване на запазената парола-фраза"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Изтриване на %lld запазени пароли-фрази"
+                }
+              }
+            }
+          }
+        },
         "de": {
           "variations": {
             "plural": {
@@ -3593,6 +3887,12 @@
     },
     "Deleting the Linux environment": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изтриване на средата на Linux"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3663,6 +3963,12 @@
     },
     "Details that will be included": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подробности, които ще бъдат включени"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3733,6 +4039,12 @@
     },
     "Done": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Готово"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3803,6 +4115,12 @@
     },
     "Download and install them": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изтегляй ги и ги инсталирай"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3873,6 +4191,12 @@
     },
     "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дискове, обвързани с TPM вместо с парола, включително по-новото хардуерно шифроване на Ubuntu"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3943,6 +4267,12 @@
     },
     "Eject": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Извади"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4013,6 +4343,12 @@
     },
     "Eject %@": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Извади %@"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4083,6 +4419,12 @@
     },
     "Eject and Quit": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Извади и излез"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4153,6 +4495,24 @@
     },
     "Ejecting %lld open drives": {
       "localizations": {
+        "bg": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Изваждане на отворения диск"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Изваждане на %lld отворени диска"
+                }
+              }
+            }
+          }
+        },
         "de": {
           "variations": {
             "plural": {
@@ -4403,6 +4763,12 @@
     },
     "Ejecting…": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изваждане…"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4473,6 +4839,12 @@
     },
     "Engine output": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изход на двигателя"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4543,6 +4915,12 @@
     },
     "Enter the drive's passphrase.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Въведете паролата-фраза на диска."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4613,6 +4991,12 @@
     },
     "Enter the drive's password, or its 48-digit recovery key.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Въведете паролата на диска или неговия 48-цифрен ключ за възстановяване."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4683,6 +5067,12 @@
     },
     "Everything else was removed. %@ itself could not be moved to the Bin — %@ — so drag it there yourself to finish.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Всичко останало беше премахнато. Самото %@ не можа да бъде преместено в кошчето (%@) — плъзнете го там сами, за да завършите."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4753,6 +5143,12 @@
     },
     "Expanded": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разгънато"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4823,6 +5219,12 @@
     },
     "External": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Външен"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4893,6 +5295,12 @@
     },
     "Forget": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Забрави"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -4963,6 +5371,12 @@
     },
     "Full Disk Access": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5033,6 +5447,12 @@
     },
     "Full Disk Access — macOS will not let any app read a drive’s raw contents without it. It cannot be requested, so it has to be switched on by hand": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access — без него macOS не позволява на нито едно приложение да чете суровото съдържание на диск. Не може да бъде поискано, затова трябва да се включи ръчно"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5103,6 +5523,12 @@
     },
     "GNU General Public License": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5173,6 +5599,12 @@
     },
     "Granted": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дадено"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5243,6 +5675,12 @@
     },
     "Hide": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрий"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5313,6 +5751,12 @@
     },
     "Hide the credential": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрий въведеното"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5383,6 +5827,12 @@
     },
     "Hide the details": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрий подробностите"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5453,6 +5903,12 @@
     },
     "How %@ works, and what it supports": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Как работи %@ и какво поддържа"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5523,6 +5979,12 @@
     },
     "How it works": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Как работи"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5593,6 +6055,12 @@
     },
     "Internal": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вътрешен"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5663,6 +6131,12 @@
     },
     "It is in the Bin. Nothing else of it is left on this Mac.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Намира се в кошчето. Нищо друго от него не е останало на този Mac."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5733,6 +6207,12 @@
     },
     "LUKS drives from Linux, both LUKS1 and LUKS2": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS дискове от Linux, както LUKS1, така и LUKS2"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5803,6 +6283,12 @@
     },
     "LUKS or Linux filesystem": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS или файлова система на Linux"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5873,6 +6359,12 @@
     },
     "LUKS volumes whose header is stored separately from the drive": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS томове, чиято заглавка се съхранява отделно от диска"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -5943,6 +6435,12 @@
     },
     "LVM inside LUKS, as Ubuntu, Debian, Mint and Fedora set it up. Several volumes on one drive all unlock together": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM вътре в LUKS, както го настройват Ubuntu, Debian, Mint и Fedora. Няколко тома на един диск се отключват заедно"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6013,6 +6511,12 @@
     },
     "Language": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Език"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6083,6 +6587,12 @@
     },
     "Last checked: %@": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Последна проверка: %@"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6153,6 +6663,12 @@
     },
     "Leave Open": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Остави отворен"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6223,6 +6739,12 @@
     },
     "Lets %@ read the encrypted data itself.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Позволява на %@ сама да чете шифрованите данни."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6293,6 +6815,12 @@
     },
     "Lets %@ read the encrypted data itself. macOS blocks this without it, even for administrators, and it cannot be requested — it has to be switched on by hand.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Позволява на %@ сама да чете шифрованите данни. Без него macOS блокира това дори за администратори и не може да бъде поискано — трябва да се включи ръчно."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6363,6 +6891,12 @@
     },
     "Licence": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лиценз"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6433,6 +6967,12 @@
     },
     "Light": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Светъл"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6503,6 +7043,12 @@
     },
     "Location": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Местоположение"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6573,6 +7119,12 @@
     },
     "Locked": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заключен"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6643,6 +7195,12 @@
     },
     "Looking for encrypted drives…": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Търсене на шифровани дискове…"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6713,6 +7271,12 @@
     },
     "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the ending -tta marking the absence of something. The stress falls on the first syllable, as it always does in Finnish.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lúkotta на финландски означава „без ключалка“, от lukko — ключалка — с окончанието -tta, което означава липсата на нещо. Ударението пада върху първата сричка, както винаги във финландския."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6783,6 +7347,12 @@
     },
     "Menu Bar": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лента с менюта"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6853,6 +7423,12 @@
     },
     "Moving %@ to the Bin": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Преместване на %@ в кошчето"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6923,6 +7499,12 @@
     },
     "Needed": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Необходимо"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -6993,6 +7575,12 @@
     },
     "No encrypted drives found": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не са намерени шифровани дискове"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7063,6 +7651,12 @@
     },
     "No reason was reported. The details below may say more.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не беше посочена причина. Подробностите по-долу може да кажат повече."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7133,6 +7727,12 @@
     },
     "Not found in this build.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не е налично в тази версия."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7203,6 +7803,12 @@
     },
     "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нищо не се инсталира. Двигателят е вътре в приложението, нищо не напуска вашия Mac и на диска се записва само когато вие записвате на него."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7273,6 +7879,12 @@
     },
     "Once the background helper is set up, updating will leave unlocked drives alone.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "След като фоновият помощник бъде настроен, актуализирането няма да засяга отключените дискове."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7343,6 +7955,12 @@
     },
     "Open %@": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отвори %@"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7413,6 +8031,12 @@
     },
     "Open Email": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отвори имейла"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7483,6 +8107,12 @@
     },
     "Open Privacy & Security → Full Disk Access.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отворете „Privacy & Security“ → „Full Disk Access“."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7553,6 +8183,12 @@
     },
     "Open Privacy Settings": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отвори настройките за поверителност"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7623,6 +8259,12 @@
     },
     "Open encrypted drives on macOS": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отваряйте шифровани дискове в macOS"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7693,6 +8335,12 @@
     },
     "Opening “%@”": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отваряне на „%@“"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7763,6 +8411,12 @@
     },
     "Passphrase": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Парола-фраза"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7833,6 +8487,12 @@
     },
     "Password or recovery key": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Парола или ключ за възстановяване"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7903,6 +8563,12 @@
     },
     "Permissions": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разрешения"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -7973,6 +8639,12 @@
     },
     "Quit": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изход"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8043,6 +8715,12 @@
     },
     "Quit %@": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изход от %@"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8113,6 +8791,24 @@
     },
     "Quit and leave %lld drives open?": {
       "localizations": {
+        "bg": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Изход и оставяне на %lld диск отворен?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Изход и оставяне на %lld диска отворени?"
+                }
+              }
+            }
+          }
+        },
         "de": {
           "variations": {
             "plural": {
@@ -8363,6 +9059,12 @@
     },
     "Quit and leave “%@” open?": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изход и оставяне на „%@“ отворен?"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8433,6 +9135,12 @@
     },
     "Relaunch": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Рестартирай"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8503,6 +9211,12 @@
     },
     "Remember this key in my Keychain": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запомни този ключ в моя Keychain"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8573,6 +9287,12 @@
     },
     "Removable volumes — requested by macOS the first time a drive is read": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removable Volumes — macOS го изисква при първото четене на диск"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8643,6 +9363,12 @@
     },
     "Removing %@": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Премахване на %@"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8713,6 +9439,12 @@
     },
     "Removing settings": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Премахване на настройките"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8783,6 +9515,12 @@
     },
     "Report This Issue": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Съобщете за този проблем"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8853,6 +9591,12 @@
     },
     "Report a problem": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Съобщи за проблем"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8923,6 +9667,12 @@
     },
     "Report a problem or send a crash report": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Съобщете за проблем или изпратете отчет за срив"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -8993,6 +9743,12 @@
     },
     "Report an Issue": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Съобщи за проблем"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9063,6 +9819,12 @@
     },
     "Report an Issue…": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Съобщи за проблем…"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9133,6 +9895,12 @@
     },
     "Requirements": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изисквания"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9203,6 +9971,12 @@
     },
     "Rescan": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Търсене отново"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9273,6 +10047,12 @@
     },
     "Reveal App": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Покажи приложението във Finder"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9343,6 +10123,12 @@
     },
     "Seeing connected drives": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виждане на свързаните дискове"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9413,6 +10199,12 @@
     },
     "Select a drive to unlock": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изберете диск за отключване"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9483,6 +10275,12 @@
     },
     "Setting up the Linux environment": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подготвяне на средата на Linux"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9553,6 +10351,12 @@
     },
     "Show": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Покажи"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9623,6 +10427,12 @@
     },
     "Show %@ in the menu bar": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показвай %@ в лентата с менюта"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9693,6 +10503,12 @@
     },
     "Show in Finder": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Покажи във Finder"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9763,6 +10579,12 @@
     },
     "Show the credential": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Покажи въведеното"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9833,6 +10655,12 @@
     },
     "Show what each permission is for": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Покажи за какво служи всяко разрешение"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9903,6 +10731,12 @@
     },
     "Some permissions are still needed": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Все още липсват някои разрешения"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -9973,6 +10807,12 @@
     },
     "Source": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изходен код"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10043,6 +10883,12 @@
     },
     "System": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Системен"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10113,6 +10959,12 @@
     },
     "System follows your Mac's language.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Системен“ следва езика на вашия Mac."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10183,6 +11035,12 @@
     },
     "System follows your Mac's setting, including when it changes.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Системен“ следва настройката на вашия Mac, включително когато тя се променя."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10253,6 +11111,12 @@
     },
     "That password or recovery key did not unlock this drive.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тази парола или ключ за възстановяване не отключи този диск."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10323,6 +11187,12 @@
     },
     "The Linux environment is unpacked once, on first use.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Средата на Linux се разопакова веднъж, при първото използване."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10393,6 +11263,12 @@
     },
     "The Linux environment will be deleted, freeing about %lld MB.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Средата на Linux ще бъде изтрита, освобождавайки около %lld MB."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10463,6 +11339,12 @@
     },
     "The background helper is not set up, so %@ is holding the drive open itself. Quitting now disconnects it, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фоновият помощник не е настроен, затова %@ сама държи диска отворен. Изходът сега го изключва и това, което още се записва, няма да завърши.\n\nСлед като помощникът бъде настроен, дисковете остават отворени сами."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10533,6 +11415,12 @@
     },
     "The background helper is not set up, so %@ is holding them open itself. Quitting now disconnects them, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фоновият помощник не е настроен, затова %@ сама ги държи отворени. Изходът сега ги изключва и това, което още се записва, няма да завърши.\n\nСлед като помощникът бъде настроен, дисковете остават отворени сами."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10603,6 +11491,12 @@
     },
     "The background helper will be unregistered.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Регистрацията на фоновия помощник ще бъде отменена."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10673,6 +11567,12 @@
     },
     "The drive appears in the Finder sidebar under Locations.\nEject it here or in Finder before unplugging it.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дискът се появява в страничната лента на Finder в раздела „Locations“.\nИзвадете го тук или във Finder, преди да го изключите."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10743,6 +11643,12 @@
     },
     "The drive is busy. Close anything using it, then try again.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дискът е зает. Затворете всичко, което го използва, и опитайте отново."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10813,6 +11719,12 @@
     },
     "The drive is handed to Finder over a local network connection, so it appears under Locations with a network icon. It reads, writes and ejects like any other drive. macOS offers no way to present it as a local disk.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дискът се предава на Finder през локална мрежова връзка, затова се появява в „Locations“ с мрежова икона. Чете се, записва се и се изважда като всеки друг диск. macOS не предлага начин да бъде показан като локален диск."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10883,6 +11795,12 @@
     },
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дискът остава във Finder, след като %@ приключи. Извадете го оттам, когато сте готови."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -10953,6 +11871,12 @@
     },
     "The drive was not opened": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дискът не беше отворен"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11023,6 +11947,12 @@
     },
     "The drive was not opened. %@": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дискът не беше отворен. %@"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11093,6 +12023,12 @@
     },
     "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows не е изключил диска правилно. Изключете бързото стартиране в Windows или изключете Windows напълно, вместо да го приспивате, и опитайте отново."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11163,6 +12099,12 @@
     },
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Двигателят не разпозна файлова система на този том. Ако е шифрована, паролата или ключът за възстановяване може да са грешни."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11233,6 +12175,12 @@
     },
     "The engine reported nothing at all. The drive may have been unplugged.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Двигателят не съобщи нищо. Възможно е дискът да е бил изключен."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11303,6 +12251,12 @@
     },
     "The language changes when %@ starts again.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Езикът се променя, когато %@ стартира отново."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11373,6 +12327,12 @@
     },
     "The name": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Името"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11443,6 +12403,12 @@
     },
     "The passphrase this drive was encrypted with.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Паролата-фраза, с която този диск е шифрован."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11513,6 +12479,12 @@
     },
     "The password the drive was locked with, or a 48-digit BitLocker recovery key. Spaces and hyphens in a recovery key are ignored.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Паролата, с която дискът е заключен, или 48-цифрен ключ за възстановяване на BitLocker. Интервалите и тиретата в ключа се пренебрегват."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11583,6 +12555,12 @@
     },
     "The virtualisation engine could not start. A restart usually clears this.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Двигателят за виртуализация не можа да стартира. Рестартирането обикновено решава това."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11653,6 +12631,12 @@
     },
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Те остават във Finder, след като %@ приключи. Извадете ги оттам, когато сте готови."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11723,6 +12707,12 @@
     },
     "Third-Party Notices": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Известия за софтуер на трети страни"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11793,6 +12783,12 @@
     },
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Този диск съдържа няколко тома и %@ не успя да определи кои. Съобщаването за това би помогнало."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11863,6 +12859,12 @@
     },
     "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Това е настройка за поверителност на macOS, а не промяна на вашия Mac. Можете да я изключите по всяко време и нищо не се инсталира."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -11933,6 +12935,12 @@
     },
     "This partition is not a BitLocker volume.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Този дял не е том на BitLocker."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12003,6 +13011,12 @@
     },
     "This takes a moment.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Това отнема момент."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12073,6 +13087,12 @@
     },
     "This usually takes under a minute.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обикновено отнема под минута."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12143,6 +13163,12 @@
     },
     "Try Again": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опитайте отново"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12213,6 +13239,12 @@
     },
     "Uninstall": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Деинсталирай"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12283,6 +13315,12 @@
     },
     "Uninstall %@?": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Да се деинсталира ли %@?"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12353,6 +13391,12 @@
     },
     "Uninstall %@…": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Деинсталирай %@…"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12423,6 +13467,12 @@
     },
     "Unlock": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отключи"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12493,6 +13543,12 @@
     },
     "Unlock this drive": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отключване на този диск"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12563,6 +13619,12 @@
     },
     "Unlock uses it directly. Forget it to type a different one.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отключването го използва директно. Забравете го, за да въведете друг."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12633,6 +13695,12 @@
     },
     "Unlock “%@”": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отключване на „%@“"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12703,6 +13771,12 @@
     },
     "Unlocked": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отключен"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12773,6 +13847,12 @@
     },
     "Unlocked at %@": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отключен в %@"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12843,6 +13923,12 @@
     },
     "Unregistering the background helper": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отменяне на регистрацията на фоновия помощник"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12913,6 +13999,12 @@
     },
     "Updates": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Актуализации"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -12983,6 +14075,12 @@
     },
     "Updating does not eject your drives. Anything unlocked stays unlocked and keeps working.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Актуализирането не изважда вашите дискове. Всичко отключено остава отключено и продължава да работи."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13053,6 +14151,12 @@
     },
     "Using the key saved in your Keychain": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Използва се ключът, запазен във вашия Keychain"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13123,6 +14227,12 @@
     },
     "Version %@ (%@)": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Версия %@ (%@)"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13193,6 +14303,12 @@
     },
     "Volumes opened": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отворени томове"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13263,6 +14379,12 @@
     },
     "Website": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уебсайт"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13333,6 +14455,12 @@
     },
     "Welcome to %@": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добре дошли в %@"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13403,6 +14531,12 @@
     },
     "What a drive contains is only known once it is unlocked.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Съдържанието на диска се разбира едва след като бъде отключен."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13473,6 +14607,12 @@
     },
     "What happened": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Какво се случи"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13543,6 +14683,12 @@
     },
     "What happened?": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Какво се случи?"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13613,6 +14759,12 @@
     },
     "What it can open": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Какво може да отваря"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13683,6 +14835,12 @@
     },
     "What it cannot open": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Какво не може да отваря"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13753,6 +14911,12 @@
     },
     "What to do": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Какво да направите"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13823,6 +14987,12 @@
     },
     "Why it appears as a network drive": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Защо се появява като мрежов диск"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13893,6 +15063,12 @@
     },
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NTFS дискове на Windows, включително оставените от Windows в хибернация или неизключени правилно"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -13963,6 +15139,12 @@
     },
     "You can read and write files on it.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Можете да четете и записвате файлове на него."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14033,6 +15215,12 @@
     },
     "You can still check whenever you like.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пак можете да проверявате, когато пожелаете."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14103,6 +15291,12 @@
     },
     "Your drive was not modified. A failed unlock cannot damage the data on it.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вашият диск не беше променен. Неуспешно отключване не може да повреди данните на него."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14173,6 +15367,12 @@
     },
     "done": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "готово"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14243,6 +15443,12 @@
     },
     "ext4, btrfs and XFS filesystems inside them": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файлови системи ext4, btrfs и XFS в тях"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14313,6 +15519,12 @@
     },
     "in progress": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "в ход"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14383,6 +15595,12 @@
     },
     "locked": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "заключен"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14453,6 +15671,12 @@
     },
     "macOS 15 Sequoia or later": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 15 Sequoia или по-нова"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14523,6 +15747,12 @@
     },
     "macOS already has this drive mounted. Eject it in Finder and try again.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS вече е монтирала този диск. Извадете го във Finder и опитайте отново."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14593,6 +15823,12 @@
     },
     "macOS blocked access to the drive. %@ needs Full Disk Access before it can read an encrypted disk.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS блокира достъпа до диска. %@ се нуждае от „Full Disk Access“, за да може да чете шифрован диск."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14663,6 +15899,12 @@
     },
     "macOS wrote %@. It is not sent anywhere automatically — attach it to your message if you can.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS записа %@. Не се изпраща никъде автоматично — прикачете го към съобщението си, ако можете."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14733,6 +15975,12 @@
     },
     "not reached": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "не е достигнато"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14803,6 +16051,12 @@
     },
     "stopped here": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "спря тук"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14873,6 +16127,12 @@
     },
     "unlocked": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "отключен"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -14943,6 +16203,12 @@
     },
     "waiting": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "изчаква"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -15013,6 +16279,12 @@
     },
     "“%@” had stopped responding and was disconnected. You can open it again.": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ спря да отговаря и беше изключен. Можете да го отворите отново."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -15083,6 +16355,12 @@
     },
     "“%@” is unlocked": {
       "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ е отключен"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
