@@ -8,6 +8,22 @@ struct DriveListView: View {
     @EnvironmentObject var model: AppModel
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // A file that would not open is said here whether or not there are
+            // any drives: opening one from the File menu is most likely when
+            // the list is empty, which is the branch that would not have shown
+            // it.
+            if let problem = model.imageProblem {
+                Label(problem, systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            list
+        }
+    }
+
+    @ViewBuilder private var list: some View {
         if model.drives.isEmpty {
             EmptyStateView(
                 icon: "externaldrive.badge.questionmark",

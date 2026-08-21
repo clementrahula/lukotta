@@ -108,6 +108,80 @@ final class AppModel: ObservableObject {
     @Published var uninstallSteps: [Uninstall.Step] = []
     @Published var uninstallFinished = false
     @Published var uninstallFailure: String?
+    /// Container files opened through File, by the whole disk each was
+    /// attached as. They are in the list exactly as long as they are attached,
+    /// and ejecting one detaches it and takes it out again.
+    @Published private(set) var openedImages: [String: URL] = [:]
+    /// A file that could not be opened, and what was found in it.
+    @Published var imageProblem: String?
+
+    /// Open an encrypted container that is a file rather than a drive.
+    ///
+    /// Attached as this user, not by the helper: macOS hands back a device node
+    /// and everything after that — the scan, the probe, the mount — is what it
+    /// always was. The root helper never learns the file name.
+    func openImage(_ url: URL) {
+        imageProblem = nil
+        Log.drives.notice("opening a disk image")
+        Task.detached(priority: .userInitiated) {
+            switch DiskImage.attach(url) {
+            case .failure(let failure):
+                let message: String
+                switch failure {
+                case .notAnImage(let text), .nothingToOpen(let text): message = text
+                }
+                Log.drives.error("the image would not attach")
+                await MainActor.run { self.imageProblem = message }
+            case .success(let attached):
+                var found = DriveScanner.scan(images: [attached.identifier])
+                var mine = found.filter {
+                    DriveScanner.wholeDisk(of: $0.id) == attached.identifier
+                }
+                // A container made with `cryptsetup luksFormat container.img`
+                // has no partition table: it attaches as a whole disk with
+                // nothing in it as far as diskutil is concerned, so the scan
+                // finds nothing. Its first sector says what it is, and the
+                // device belongs to whoever attached it, so it can be read
+                // here without troubling the helper.
+                if mine.isEmpty, let whole = DiskImage.wholeDiskDrive(attached, url: url) {
+                    mine = [whole]
+                    found.append(whole)
+                }
+                guard !mine.isEmpty else {
+                    // Attached, and holding nothing this app can open. Put it
+                    // back rather than leaving a device attached to nothing.
+                    DiskImage.detach(attached.device)
+                    Log.drives.notice("the image held nothing openable")
+                    await MainActor.run {
+                        self.imageProblem = appString(
+                            "There is nothing in “\(url.lastPathComponent)” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
+                        )
+                    }
+                    return
+                }
+                await MainActor.run {
+                    self.openedImages[attached.identifier] = url
+                    self.drives = found
+                    self.phase = .chooseDrive
+                }
+            }
+        }
+    }
+
+    /// Put back any container file whose drive has gone from the list.
+    ///
+    /// Called after an eject: the volume is down, so the image can be detached
+    /// and the file is no longer held open.
+    private func detachImagesNoLongerListed() {
+        let attached = Set(drives.map { DriveScanner.wholeDisk(of: $0.id) })
+        let gone = openedImages.keys.filter { !attached.contains($0) }
+        guard !gone.isEmpty else { return }
+        for identifier in gone { openedImages[identifier] = nil }
+        Task.detached(priority: .utility) {
+            for identifier in gone { DiskImage.detach("/dev/" + identifier) }
+        }
+    }
+
     /// Which mount is being ejected, so the row that was clicked is the row
     /// that shows it happening. A drive list can have several open at once.
     @Published var ejectingPath: String?
@@ -275,8 +349,9 @@ final class AppModel: ObservableObject {
     /// offering to unlock something that is no longer attached, or claiming a
     /// drive is open when it has been pulled out from under the mount.
     private func driveSetChanged() {
+        let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
-            let found = DriveScanner.scan()
+            let found = DriveScanner.scan(images: images)
             let mounts = EngineStatus.current()
             await MainActor.run {
                 let vanished =
@@ -317,6 +392,7 @@ final class AppModel: ObservableObject {
         watcher.start()
         sleepWatch.start()
         phase = .scanning
+        let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
             // First, and off the main thread: both probes read files, and doing
             // that where the interface is drawn stalls the first frame on
@@ -363,7 +439,7 @@ final class AppModel: ObservableObject {
             for point in abandoned { EngineStatus.forceUnmount(mountPoint: point) }
 
             let mounts = EngineStatus.current()
-            let found = DriveScanner.scan()
+            let found = DriveScanner.scan(images: images)
             await MainActor.run {
                 self.drives = found
                 if let name = abandoned.first.map({ URL(fileURLWithPath: $0).lastPathComponent }) {
@@ -466,9 +542,10 @@ final class AppModel: ObservableObject {
     /// Not `start()`: that resumes whatever is already open, which is right on
     /// launch and wrong when the user has asked to see the list.
     func showAllDrives() {
+        let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
             let mounts = EngineStatus.current()
-            let found = DriveScanner.scan()
+            let found = DriveScanner.scan(images: images)
             await MainActor.run {
                 self.drives = found
                 self.openMounts = Dictionary(
@@ -897,6 +974,9 @@ final class AppModel: ObservableObject {
                     self.credentialProblem = nil
                     self.statusLines = []
                     self.showAllDrives()
+                    // The volume is down, so a container file that was opened
+                    // to reach it can go back to being a file.
+                    self.detachImagesNoLongerListed()
                 } else {
                     self.ejectProblem = result.message
                 }

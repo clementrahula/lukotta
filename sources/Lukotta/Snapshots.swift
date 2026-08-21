@@ -73,6 +73,33 @@ enum Snapshots {
                     $0.phase = .chooseDrive
                 }
             ),
+            // A container file in the list beside a physical drive: the same
+            // row, saying where it lives in Disk Utility's words.
+            (
+                "drives-image",
+                model {
+                    $0.drives = [
+                        drive,
+                        Drive(
+                            id: "disk6", devicePath: "/dev/disk6", name: "backup",
+                            sizeBytes: 8_589_934_592,
+                            connection: appString("Disk Image"),
+                            kind: .linux, uuid: "/Users/someone/backup.img"),
+                    ]
+                    $0.phase = .chooseDrive
+                }
+            ),
+            // A file that held nothing openable.
+            (
+                "drives-image-refused",
+                model {
+                    $0.drives = [drive]
+                    $0.imageProblem = appString(
+                        "There is nothing in “notes.txt” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
+                    )
+                    $0.phase = .chooseDrive
+                }
+            ),
             ("unlock", model { $0.phase = .unlock(drive) }),
             (
                 "unlock-problem",

@@ -10,6 +10,10 @@ public enum VolumeFormat: String, Sendable {
     case bitlocker
     case ntfs
     case exfat
+    /// A LUKS container. Recognised on a whole disk with no partition table,
+    /// which is what `cryptsetup luksFormat container.img` makes and what a
+    /// container file almost always is.
+    case luks
     /// Not recognised, and not guessed at.
     case unknown
 }
@@ -36,8 +40,14 @@ public enum BootSector {
     /// reads as plain FAT while being encrypted — and getting that one wrong
     /// is the case that matters most: telling someone their locked drive is
     /// not locked.
+    /// "LUKS" and two bytes, at the very start. Both LUKS1 and LUKS2 write it.
+    public static let luksMagic: [UInt8] = [0x4C, 0x55, 0x4B, 0x53, 0xBA, 0xBE]
+
     public static func identify(_ sector: Data) -> VolumeFormat {
         guard sector.count >= 11 else { return .unknown }
+        // At offset zero, and only there: the bytes are short enough to turn up
+        // by chance in the middle of something else.
+        if Array(sector.prefix(luksMagic.count)) == luksMagic { return .luks }
         if contains(sector, bitlockerIdentifier) { return .bitlocker }
 
         let oem = String(

@@ -6285,6 +6285,136 @@
         }
       }
     },
+    "Choose an encrypted container or disk image to open.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изберете шифрован контейнер или дисков образ за отваряне."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyberte šifrovaný kontejner nebo obraz disku, který chcete otevřít."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vælg en krypteret beholder eller et diskbillede, der skal åbnes."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle einen verschlüsselten Container oder ein Image zum Öffnen aus."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Επιλέξτε έναν κρυπτογραφημένο περιέκτη ή είδωλο δίσκου για άνοιγμα."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige un contenedor cifrado o una imagen de disco para abrir."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vali avamiseks krüptitud konteiner või kettatõmmis."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valitse avattava salattu säiliö tai levytiedosto."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez un conteneur chiffré ou une image disque à ouvrir."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odaberite šifrirani spremnik ili sliku diska za otvaranje."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Válasszon egy titkosított tárolót vagy lemezképet a megnyitáshoz."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli un contenitore cifrato o un’immagine disco da aprire."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasirinkite šifruotą konteinerį arba disko atvaizdį, kurį norite atverti."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izvēlieties šifrētu konteineru vai diska attēlu, ko atvērt."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Velg en kryptert beholder eller et diskbilde som skal åpnes."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kies een versleutelde container of schijfkopie om te openen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wybierz zaszyfrowany kontener lub obraz dysku do otwarcia."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha um contentor encriptado ou uma imagem de disco para abrir."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alegeți un container criptat sau o imagine de disc de deschis."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izberite šifrirano vsebnik ali sliko diska za odprtje."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Välj en krypterad behållare eller skivavbild att öppna."
+          }
+        }
+      }
+    },
     "Click + and add %@, then switch it on.": {
       "localizations": {
         "bg": {
@@ -7917,6 +8047,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uppgifter som tas med"
+          }
+        }
+      }
+    },
+    "Disk Image": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дисков образ"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obraz disku"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskbillede"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Είδωλο δίσκου"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imagen de disco"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kettatõmmis"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levytiedosto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image disque"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slika diska"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lemezkép"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Immagine disco"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disko atvaizdis"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diska attēls"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskbilde"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schijfkopie"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obraz dysku"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imagem de disco"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imagine de disc"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slika diska"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skivavbild"
           }
         }
       }
@@ -15273,6 +15533,266 @@
           "stringUnit": {
             "state": "translated",
             "value": "Öppna %@"
+          }
+        }
+      }
+    },
+    "Open Disk Image": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отвори дисков образ"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otevřít obraz disku"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn diskbillede"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα ειδώλου δίσκου"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir imagen de disco"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava kettatõmmis"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa levytiedosto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir une image disque"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori sliku diska"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lemezkép megnyitása"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri immagine disco"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverti disko atvaizdį"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvērt diska attēlu"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpne diskbilde"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open schijfkopie"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz obraz dysku"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir imagem de disco"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschideți o imagine de disc"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri sliko diska"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öppna skivavbild"
+          }
+        }
+      }
+    },
+    "Open Disk Image…": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отвори дисков образ…"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otevřít obraz disku…"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn diskbillede…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image öffnen…"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα ειδώλου δίσκου…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir imagen de disco…"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava kettatõmmis…"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa levytiedosto…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir une image disque…"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori sliku diska…"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lemezkép megnyitása…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri immagine disco…"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverti disko atvaizdį…"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvērt diska attēlu…"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpne diskbilde…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open schijfkopie…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz obraz dysku…"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir imagem de disco…"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschideți o imagine de disc…"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri sliko diska…"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öppna skivavbild…"
           }
         }
       }
@@ -24453,6 +24973,136 @@
         }
       }
     },
+    "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В „%1$@“ няма нищо, което %2$@ да може да отвори. Той не съдържа том с BitLocker, LUKS, NTFS или Linux."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V „%1$@“ není nic, co by %2$@ dokázal otevřít. Neobsahuje žádný svazek BitLocker, LUKS, NTFS ani Linux."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der er intet i “%1$@”, som %2$@ kan åbne. Den indeholder ingen BitLocker-, LUKS-, NTFS- eller Linux-enhed."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In „%1$@“ ist nichts, was %2$@ öffnen kann. Es enthält kein BitLocker-, LUKS-, NTFS- oder Linux-Volume."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δεν υπάρχει τίποτα στο «%1$@» που να μπορεί να ανοίξει το %2$@. Δεν περιέχει τόμο BitLocker, LUKS, NTFS ή Linux."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay nada en «%1$@» que %2$@ pueda abrir. No contiene ningún volumen BitLocker, LUKS, NTFS ni Linux."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failis „%1$@“ pole midagi, mida %2$@ avada saaks. See ei sisalda BitLockeri, LUKS-i, NTFS-i ega Linuxi köidet."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiedostossa ”%1$@” ei ole mitään, minkä %2$@ voisi avata. Se ei sisällä BitLocker-, LUKS-, NTFS- eikä Linux-taltiota."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %1$@ » ne contient rien que %2$@ puisse ouvrir. Il ne contient aucun volume BitLocker, LUKS, NTFS ou Linux."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "U „%1$@” nema ničega što %2$@ može otvoriti. Ne sadrži BitLocker, LUKS, NTFS ni Linux jedinicu."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%1$@” nem tartalmaz semmit, amit a(z) %2$@ meg tudna nyitni. Nincs benne BitLocker-, LUKS-, NTFS- vagy Linux-kötet."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In «%1$@» non c’è nulla che %2$@ possa aprire. Non contiene volumi BitLocker, LUKS, NTFS o Linux."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faile „%1$@“ nėra nieko, ką %2$@ galėtų atverti. Jame nėra BitLocker, LUKS, NTFS ar Linux tomo."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failā “%1$@” nav nekā, ko %2$@ varētu atvērt. Tajā nav BitLocker, LUKS, NTFS vai Linux sējuma."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det er ingenting i «%1$@» som %2$@ kan åpne. Den inneholder ingen BitLocker-, LUKS-, NTFS- eller Linux-enhet."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er zit niets in ‘%1$@’ dat %2$@ kan openen. Het bevat geen BitLocker-, LUKS-, NTFS- of Linux-volume."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W „%1$@” nie ma niczego, co %2$@ mógłby otworzyć. Nie zawiera woluminu BitLocker, LUKS, NTFS ani Linux."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não há nada em «%1$@» que o %2$@ consiga abrir. Não contém qualquer volume BitLocker, LUKS, NTFS ou Linux."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu există nimic în „%1$@” pe care %2$@ să îl poată deschide. Nu conține niciun volum BitLocker, LUKS, NTFS sau Linux."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V »%1$@« ni ničesar, kar bi %2$@ lahko odprl. Ne vsebuje nosilca BitLocker, LUKS, NTFS ali Linux."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det finns inget i ”%1$@” som %2$@ kan öppna. Den innehåller ingen BitLocker-, LUKS-, NTFS- eller Linux-volym."
+          }
+        }
+      }
+    },
     "They stay in Finder after %@ quits. Eject them there whenever you are finished.": {
       "localizations": {
         "bg": {
@@ -31155,6 +31805,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS blockerade åtkomsten till enheten. %@ behöver full skivtillgång för att kunna läsa en krypterad disk."
+          }
+        }
+      }
+    },
+    "macOS could not open this file as a disk image.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS не можа да отвори този файл като дисков образ."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nedokázal tento soubor otevřít jako obraz disku."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS kunne ikke åbne denne fil som et diskbillede."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS konnte diese Datei nicht als Image öffnen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το macOS δεν μπόρεσε να ανοίξει αυτό το αρχείο ως είδωλο δίσκου."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS no ha podido abrir este archivo como imagen de disco."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ei suutnud seda faili kettatõmmisena avada."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ei voinut avata tätä tiedostoa levytiedostona."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS n’a pas pu ouvrir ce fichier comme image disque."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nije mogao otvoriti ovu datoteku kao sliku diska."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A macOS nem tudta megnyitni ezt a fájlt lemezképként."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS non è riuscito ad aprire questo file come immagine disco."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„macOS“ nepavyko atverti šio failo kaip disko atvaizdžio."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nespēja atvērt šo failu kā diska attēlu."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS kunne ikke åpne denne filen som et diskbilde."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS kon dit bestand niet openen als schijfkopie."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nie mógł otworzyć tego pliku jako obrazu dysku."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O macOS não conseguiu abrir este ficheiro como imagem de disco."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nu a putut deschide acest fișier ca imagine de disc."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS te datoteke ni mogel odpreti kot slike diska."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS kunde inte öppna filen som en skivavbild."
           }
         }
       }

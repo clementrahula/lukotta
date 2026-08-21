@@ -60,16 +60,43 @@ public struct Drive: Identifiable, Hashable, Sendable {
 /// partition type: BitLocker volumes are "Microsoft Basic Data", the same type
 /// plain NTFS uses. The UI is honest about that rather than claiming certainty.
 public enum DriveScanner {
-    public static func scan() -> [Drive] {
-        // Disk images are excluded: a real drive is what this is for. Setting
-        // LUKOTTA_INCLUDE_IMAGES=1 includes them, which is how the interface is
-        // exercised with several drives without owning several drives.
+    /// Every drive worth showing, plus the container files we were asked to
+    /// open.
+    ///
+    /// Disk images are otherwise left out: whatever else is attached — an
+    /// installer, a backup, something the user mounted themselves — is not
+    /// this app's business, and listing it would be a surprise. The ones opened
+    /// through File are named here so they, and only they, come back.
+    ///
+    /// LUKOTTA_INCLUDE_IMAGES=1 lets them all in, which is how the interface is
+    /// exercised with several drives without owning several drives.
+    public static func scan(images: Set<String> = []) -> [Drive] {
+        let all = ProcessInfo.processInfo.environment["LUKOTTA_INCLUDE_IMAGES"] == "1"
         var argv = ["/usr/sbin/diskutil", "list", "-plist"]
-        if ProcessInfo.processInfo.environment["LUKOTTA_INCLUDE_IMAGES"] != "1" {
-            argv.append("physical")
-        }
+        if !all && images.isEmpty { argv.append("physical") }
         guard let plist = runPlist(argv) else { return [] }
-        return drives(inList: plist, info: { info(for: $0) ?? [:] })
+        let found = drives(inList: plist, info: { info(for: $0) ?? [:] })
+        guard !all, !images.isEmpty else { return found }
+        // Everything came back, so the images nobody asked about go now. A
+        // partition of disk6 belongs to disk6.
+        let physical = Set(
+            (runPlist(["/usr/sbin/diskutil", "list", "-plist", "physical"])?["WholeDisks"]
+                as? [String]) ?? [])
+        return found.filter { drive in
+            let whole = wholeDisk(of: drive.id)
+            return physical.contains(whole) || images.contains(whole)
+        }
+    }
+
+    /// "disk6s1" belongs to "disk6".
+    ///
+    /// By taking the digits after "disk" rather than cutting at an "s": the
+    /// word "disk" contains one, and a synthesised volume is named disk3s1s1,
+    /// so cutting at the first or the last would both be wrong.
+    public static func wholeDisk(of identifier: String) -> String {
+        guard identifier.hasPrefix("disk") else { return identifier }
+        let digits = identifier.dropFirst(4).prefix { $0.isNumber }
+        return digits.isEmpty ? identifier : "disk" + digits
     }
 
     /// The parsing, with the two `diskutil` calls handed in.
@@ -94,6 +121,10 @@ public enum DriveScanner {
                 wholeInfo["IORegistryEntryName"] as? String)
             let bus = wholeInfo["BusProtocol"] as? String
             let internalDisk = wholeInfo["Internal"] as? Bool ?? false
+            // diskutil says so twice, and either will do: a bus of "Disk Image"
+            // or a virtual disk.
+            let isImage =
+                bus == "Disk Image" || (wholeInfo["VirtualOrPhysical"] as? String) == "Virtual"
 
             guard let partitions = disk["Partitions"] as? [[String: Any]] else { continue }
             for part in partitions {
@@ -126,10 +157,18 @@ public enum DriveScanner {
                         product,
                         partInfo["IORegistryEntryName"] as? String) ?? ident
 
+                // Where the thing lives, in the words Disk Utility uses for
+                // it: Internal, External, or Disk Image. A container file that
+                // has been attached is a drive in every way that matters here,
+                // so it is listed like one and only named differently.
                 var connection: [String] = []
-                if let bus, !bus.isEmpty { connection.append(bus) }
-                connection.append(
-                    internalDisk ? appString("Internal") : appString("External"))
+                if isImage {
+                    connection.append(appString("Disk Image"))
+                } else {
+                    if let bus, !bus.isEmpty { connection.append(bus) }
+                    connection.append(
+                        internalDisk ? appString("Internal") : appString("External"))
+                }
 
                 // The list plist carries it too, and is the fallback when
                 // `diskutil info` on a single partition comes back without it.

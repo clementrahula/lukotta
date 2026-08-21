@@ -1227,6 +1227,21 @@ group("bootSectorIdentification") {
 
     // Nothing recognised is nothing said. A wrong guess here sends someone
     // looking for a password that does not exist.
+    // A container file made with cryptsetup has no partition table at all, so
+    // this is the only thing that says what it is.
+    var luks = [UInt8](repeating: 0, count: BootSector.length)
+    for (i, b) in BootSector.luksMagic.enumerated() { luks[i] = b }
+    expect("\(BootSector.identify(Data(luks)))", "luks", "a LUKS container names itself first")
+
+    // Only at the start. Six bytes turn up by chance often enough that finding
+    // them anywhere would call other things LUKS.
+    var misplaced = [UInt8](repeating: 0, count: BootSector.length)
+    for (i, b) in BootSector.luksMagic.enumerated() { misplaced[64 + i] = b }
+    for (i, b) in Array("NTFS    ".utf8).enumerated() { misplaced[3 + i] = b }
+    expect(
+        "\(BootSector.identify(Data(misplaced)))", "ntfs",
+        "and those bytes elsewhere in the sector mean nothing")
+
     expect(
         "\(BootSector.identify(sector(oem: "XXXXXXXX")))", "unknown", "an unknown header is unknown"
     )
@@ -1333,6 +1348,74 @@ group("ejectingIsOneAtATime") {
     expect(
         Date().timeIntervalSince(started) < 5,
         "and it comes back at once rather than waiting for the engine")
+}
+
+group("wholeDiskOfAPartition") {
+    expect(DriveScanner.wholeDisk(of: "disk6s1"), "disk6", "a partition belongs to its disk")
+    expect(DriveScanner.wholeDisk(of: "disk12s3"), "disk12", "two-digit disks too")
+    expect(DriveScanner.wholeDisk(of: "disk6"), "disk6", "a whole disk is its own")
+    // The "disk" prefix has an s in it. Cutting at the first one would make
+    // every disk in the list belong to "di".
+    expect(DriveScanner.wholeDisk(of: "disk6s1s2"), "disk6", "and a nested one still belongs to it")
+}
+
+group("openingAContainerFile") {
+    // The real thing, end to end: a file with a LUKS header, attached by
+    // macOS, recognised, and put back. No engine, no root — an attached image
+    // belongs to whoever attached it.
+    let fm = FileManager.default
+    let temp = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appendingPathComponent("lukotta-image-\(UUID().uuidString)", isDirectory: true)
+    try! fm.createDirectory(at: temp, withIntermediateDirectories: true)
+    defer { try? fm.removeItem(at: temp) }
+
+    // Eight megabytes of nothing with a LUKS header on the front, which is
+    // what cryptsetup leaves at the start of a container.
+    let file = temp.appendingPathComponent("container.img")
+    var bytes = [UInt8](repeating: 0, count: 8 * 1024 * 1024)
+    for (i, b) in BootSector.luksMagic.enumerated() { bytes[i] = b }
+    try! Data(bytes).write(to: file)
+
+    switch DiskImage.attach(file) {
+    case .failure:
+        expect(false, "a raw container file attaches")
+    case .success(let attached):
+        expect(attached.device.hasPrefix("/dev/disk"), "and comes back as a device")
+        expect(attached.identifier.hasPrefix("disk"), "named the way diskutil names it")
+
+        // No partition table, so the ordinary scan finds nothing here. This is
+        // the case that would otherwise look like an unopenable file.
+        let listed = DriveScanner.scan(images: [attached.identifier])
+            .filter { DriveScanner.wholeDisk(of: $0.id) == attached.identifier }
+        expect(listed.isEmpty, "a container with no partition table lists nothing on its own")
+
+        let drive = DiskImage.wholeDiskDrive(attached, url: file)
+        expect(drive != nil, "but the whole disk is recognised from its first sector")
+        expect("\(drive?.kind ?? .microsoft)", "linux", "as a Linux container")
+        expect(drive?.name ?? "", "container", "named after the file, without the extension")
+        expect(
+            drive?.uuid ?? "", file.path,
+            "and identified by the file, so a saved passphrase survives reattaching")
+
+        expect(DiskImage.detach(attached.device), "and it detaches again")
+    }
+
+    // A file that is not an image at all still attaches: a raw image is just
+    // bytes, so macOS will treat anything as one. Attaching is therefore not
+    // the test of whether a file is openable — what is in it is, and a text
+    // file holds nothing, so it is recognised as nothing and put back.
+    let text = temp.appendingPathComponent("notes.txt")
+    try! String(repeating: "not a disk image\n", count: 512)
+        .write(to: text, atomically: true, encoding: .utf8)
+    switch DiskImage.attach(text) {
+    case .failure:
+        expect(true, "a file with nothing in it is refused, one way or the other")
+    case .success(let attached):
+        expect(
+            DiskImage.wholeDiskDrive(attached, url: text) == nil,
+            "a file that holds no container is not offered as a drive")
+        DiskImage.detach(attached.device)
+    }
 }
 
 print("\n\(checks - failures)/\(checks) checks passed")

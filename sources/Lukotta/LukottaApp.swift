@@ -61,6 +61,26 @@ private func reinstallHelperIfAsked() {
     exit(0)
 }
 
+/// Ask for a container file and open it.
+///
+/// No file type filter beyond what macOS will attach: a LUKS container has no
+/// extension of its own and is as likely to be called `backup.img` as anything,
+/// so refusing by name would refuse the common case. Whether it holds something
+/// openable is answered by attaching it and looking.
+@MainActor
+private func chooseImage(_ model: AppModel) {
+    let panel = NSOpenPanel()
+    panel.title = String(localized: "Open Disk Image")
+    panel.prompt = String(localized: "Open")
+    panel.message = String(
+        localized: "Choose an encrypted container or disk image to open.")
+    panel.allowsMultipleSelection = false
+    panel.canChooseDirectories = false
+    panel.canChooseFiles = true
+    guard panel.runModal() == .OK, let url = panel.url else { return }
+    model.openImage(url)
+}
+
 /// Talk to the helper and come back, or die trying.
 ///
 /// Both paths: a reply, and an error handler on XPC's own queue. The second is
@@ -269,7 +289,13 @@ struct LukottaApp: App {
         }
 
         .commands {
-            CommandGroup(replacing: .newItem) {}
+            // The File menu is otherwise removed: there are no documents to
+            // make. Opening a container file is the one thing that belongs
+            // there, and it is where anyone would look for it.
+            CommandGroup(replacing: .newItem) {
+                Button("Open Disk Image…") { chooseImage(model) }
+                    .keyboardShortcut("o", modifiers: .command)
+            }
             // The standard About panel says the version and the licence and
             // stops there. This one says what the app does, what it can open
             // and what it cannot, so it is the one the menu should reach.
