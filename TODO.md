@@ -12,34 +12,39 @@ only you have; everything else is unassigned and can be picked up in any order.
 Nothing below is optional. Until all of it is done there is no artefact that can
 responsibly be given to anyone.
 
-- **[you] Notarise the app.** `spctl` currently rejects it as an unnotarised
-  Developer ID build, so a downloader is told macOS cannot check it for
-  malicious software. Needs an Apple ID, an app-specific password and the team
-  identifier, then `notarytool submit --wait` and `stapler staple`.
-- Write the notarisation script so the above is a single command.
-- **Produce a distributable artefact.** The build emits a `.app`; a release
-  needs a signed `.dmg` with a drag-to-Applications layout. The DMG must itself
-  be notarised, not only the app inside it.
+- **[you] Notarise a build.** `spctl` rejects the installed copy as an
+  unnotarised Developer ID build, so a downloader is told macOS cannot check it
+  for malicious software. Everything around it is written: the whole sequence is
+  `LUKOTTA_NOTARY_PROFILE="lukotta" ./scripts/release.sh`, which refuses to
+  finish rather than producing an unnotarised bundle. It needs the login keychain
+  unlocked, so it cannot run from a locked Mac.
+- **[you] Take the screenshots.** The README, the site and every listing in
+  Stage 3 want them and none has one: the drive list, an unlock, and a drive open
+  with several volumes, in both light and dark appearance. The site's download
+  button points at `/releases/latest` and 404s until a release exists.
+- **[both] Choose the first public version number.** `VERSION` says 1.7.0, which
+  reflects development churn rather than a release.
 - **[you] Make the repository public.** GPL-3 binaries entitle recipients to the
   corresponding source. A private repository and a public binary cannot coexist.
-- **[both] Choose the first public version number.** The current number reflects
-  development churn rather than a release.
+- **[you] Back up the Sparkle private key.** It exists in the login keychain and
+  is unrecoverable: lose it and every installed copy becomes permanently
+  unupdatable.
+- **Decide whether to ship a `.dmg`.** The release produces a notarised `.zip`,
+  which is what Sparkle needs and what the GitHub release carries. A DMG with a
+  drag-to-Applications layout is only for the website download, and would have to
+  be notarised in its own right.
 
 ---
 
 ## Stage 2 — Before handing it to strangers
 
-- **[both] Test sleep/wake and drive removal while mounted.** Neither is handled.
-  An NFS mount that hangs after a lid close gives no explanation. Needs someone
-  present to close a lid and pull a cable.
-- **[you] Generate the Sparkle signing keypair** with `scripts/sparkle-keys.sh`
-  and back up the private key. It is unrecoverable: lose it and every installed
-  copy becomes permanently unupdatable.
-- **[both] Decide where the appcast lives.** The feed URL is compiled into every
-  build, so changing it later strands existing installs.
-- **Wire `generate_appcast` into the release flow**, including delta updates.
-  Without them every bug-fix release is a 154 MB download for a few kilobytes of
-  changed code.
+- **[both] Test sleep/wake with a drive mounted.** A drive pulled while mounted
+  is now handled — the mount is cleared and the list says so — but a lid close is
+  not, and an NFS mount that hangs afterwards gives no explanation. Needs someone
+  present to close a lid.
+- **Add delta updates to the release flow.** The appcast is generated and signed;
+  deltas are not, so every bug-fix release is a 154 MB download for a few
+  kilobytes of changed code.
 - **[you] Check whether the US export notification applies** to publishing
   encryption software from a US-hosted repository. Published open source is
   generally exempt in the EU. Not legal advice.
@@ -50,13 +55,19 @@ responsibly be given to anyone.
 
 ## Stage 3 — Reach
 
-- **Enable GitHub Pages** for the site in `docs/` — **[you]** repository
-  settings, source `main` / `docs`. Pages on a private repository needs a paid
-  plan, so this follows the repository going public.
+- **[you] A second repository for the appcast**, served at
+  `lukotta-updates.rahula.dev`. The feed URL is already compiled into every
+  build, so this host is fixed. One Pages site takes one custom domain, so the
+  feed cannot share a host with the website; keeping them apart also keeps the
+  feed off the proxied hostname, where an edge cache could serve a stale version
+  and updates would quietly stop appearing.
+- **[you] Enable GitHub Pages** for the site in `docs/` — repository settings,
+  source `main` / `docs`. Pages on a private repository needs a paid plan, so
+  this follows the repository going public.
 - **[you] Add the DNS record**: `lukotta` CNAME → `clementrahula.github.io`,
   then enforce HTTPS once the certificate is issued.
-- **Add screenshots** to the site and the README. The download button points at
-  `/releases/latest` and will 404 until a release exists.
+- **Look at the site rendered**, in both appearances. Its content is current and
+  its markup parses, but nothing about how it looks has been seen.
 - **Publish a Homebrew cask** so installation is `brew install --cask lukotta`.
   A personal tap first; `homebrew-cask` once there is a release history. Both
   expect a notarised app and a stable versioned download.
@@ -71,25 +82,23 @@ responsibly be given to anyone.
 
 ## Correctness and robustness
 
-- **A drive dropped abruptly produces a macOS dialog we cannot restyle.** When
-  the virtual machine goes away with an NFS mount still active, macOS reports
-  "server connections interrupted". It cannot be intercepted; it can only be
-  avoided by unmounting first. Mounts made through the helper survive the app
-  quitting, so this only affects the fallback path — but a crash still triggers
-  it. Worth checking for a stale mount on launch and offering to clear it.
 - **Distinguish plain NTFS from BitLocker before unlocking.** Today the user
   finds out by failing. Probing the FVE signature once elevated would tell them.
 - **Handle "already mounted by macOS"** rather than only diagnosing it. The
   engine has `--remount`; the app could offer it.
 - **Replace substring matching in `Diagnosis`.** Engine output is matched by
   text, so an upstream wording change silently degrades to raw output.
+- **A crash with a fallback mount open still produces the system's "server
+  connections interrupted" dialog.** Stale mounts are cleared on launch and when
+  a drive disappears, so the window for it is small, and mounts made through the
+  helper survive the app going away entirely. What is left is the crash itself,
+  and it cannot be intercepted — only avoided by unmounting first.
 - **Check engine log growth.** The engine writes to `~/Library/Logs` and
   `~/.anylinuxfs` regardless of anything the app does. Confirm the logs rotate.
-- **Move the Full Disk Access check off the main thread.** It performs file I/O
-  during launch.
-- **Adopt Swift 6 language mode.** Strict concurrency flags real issues in
-  `AppModel`'s detached tasks. Deliberately deferred so that concurrency
-  semantics did not change during a structural refactor.
+- **Move the Full Disk Access check off the main thread.** `refreshPermissions`
+  opens the TCC database during launch.
+- **Adopt Swift 6 language mode.** Every target is pinned to `.v5`. Strict
+  concurrency flags real issues in `AppModel`'s detached tasks.
 - **Add structured logging** with `os.Logger`, so support reports contain more
   than whatever is still in memory.
 - **Port `validate-key.sh` to Swift**, removing a shell dependency and a process
@@ -99,32 +108,40 @@ responsibly be given to anyone.
 
 - **Cover what is currently untested**: `DriveScanner` plist parsing (needs only
   fixtures), `EngineEnvironment` unpacking and `Workspace` lifecycle (temp
-  directories).
+  directories). Nothing in `sources/LukottaTests` touches any of the three.
 - **Add snapshot tests for the interface.** Several layout and state regressions
   reached the screen because nothing checks rendering.
-- LUKS layouts can be exercised without hardware: `scripts/make-test-volumes.sh`
-  builds LUKS1, LUKS2, direct and LVM variants inside the guest, unprivileged.
 - **[you] Test against a real LUKS drive.** Detection, unlock and the LVM path
-  are implemented and verified against volumes built inside the guest, but never
-  against real hardware.
+  are implemented and verified against volumes built inside the guest by
+  `scripts/make-test-volumes.sh`, but never against real hardware.
 
 ## Accessibility and localisation
 
-- **Audit with VoiceOver running** and test Dynamic Type at larger sizes. Labels
-  exist; nothing has been verified with the assistive technology itself.
-- **Extract the strings table** with `genstrings`. Every literal is already a
-  translation key by virtue of SwiftUI, but no table is generated, so nothing can
-  be translated yet.
+- **[you] Have the translations reviewed by native speakers.** Twenty-one
+  languages ship and none has been read by anyone who speaks it. The terminology
+  follows Apple's own macOS tables, which limits how wrong it can be, but not how
+  stilted.
+- **Hear VoiceOver end to end**, and test Dynamic Type at larger sizes. The
+  accessibility tree is verified by `scripts/dump-accessibility.swift`; the
+  assistive technology itself has never been switched on.
+- **Checkbox rows report no description** to the accessibility tree — a SwiftUI
+  `Form` puts the label and the switch side by side as siblings. The label is
+  read, so this is a polish item rather than a barrier.
+- **Watch the step list in another language.** `MountStage.title` is looked up
+  and the translations are present in the compiled tables, but seeing it requires
+  a mount.
 
 ## Interface
 
 - **Read-only unlock**, as a checkbox on the unlock screen rather than a global
-  setting: it is a per-drive decision, and mounting a failing drive without
-  writing to it is a real need.
+  setting: it is a per-drive decision, remembered per drive, and mounting a
+  failing drive without writing to it is a real need. It is also the one route by
+  which several volumes of one container could be opened as separate virtual
+  machines, since the engine takes only a shared lock on the device when mounting
+  read-only.
 - **"Don't ask again" on the eject-on-quit dialog.**
-- **A minimal Settings scene**, once Sparkle needs somewhere for its
-  automatic-update toggle. One pane, two rows.
-- **Remember window size and position**, the last drive used, and offer it first.
+- **Remember the last drive used** and offer it first. Window size and position
+  are already restored; the drive is not.
 - The window leaves vertical slack on its shortest screen. Tolerable.
 
 ---
@@ -167,91 +184,35 @@ Needs both a stored credential and the helper. Worth designing carefully:
 Its companion: run at login, and open remembered drives as they are plugged in.
 The same caution applies, and more so — nobody is watching when it happens.
 
-### Read-only per drive
+### A binary dyld refuses to load
 
-A choice at unlock, remembered per drive. The engine takes only a shared lock
-on the device when mounting read-only, so this is also the one route by which
-several volumes of one container could be opened as separate VMs.
+The app now keeps the outgoing bundle aside across an update and puts it back
+after three launches that never reach a working window, which covers a version
+that starts and fails. It cannot cover a version that never runs its own code at
+all — that needs a watchdog outside the app, which means the privileged helper,
+and a root daemon that can replace the contents of /Applications is a trade
+worth deciding on before building it. The release smoke test already refuses to
+publish a build that will not start here, which leaves only a build that starts
+here and not on someone else's machine.
 
 ---
 
-### Put the old app back when a new one will not start
-
-Sparkle rolls back only a failed *move*: `SUPlainInstaller.m` restores the old
-bundle if the new one cannot be moved into place, and discards it the moment
-that move succeeds. An update that installs correctly and then refuses to launch
-leaves nothing to go back to. That is the case that has actually happened here,
-when the Sparkle framework was not embedded and dyld rejected the binary.
-
-No guard inside the app can cover it: a binary dyld refuses never runs its own
-code. The watchdog has to be something that outlives the app, which means the
-privileged helper.
-
-Shape of it:
-
-- Before installing, the helper copies the running bundle aside as the
-  last-known-good. Costs the size of the app on disk.
-- The app tells the helper it has started successfully — after the window is up,
-  not merely after `main`, so a crash during startup still counts as a failure.
-- If that confirmation does not arrive within a timeout of the update being
-  installed, the helper puts the old bundle back and relaunches it.
-- A restored version must not immediately update to the same broken build:
-  record the rejected build and refuse it until a newer one appears.
-
-The release smoke test already refuses to publish a build that cannot start,
-which addresses the common case. This covers the rest: a build that starts here
-and not on someone else's machine.
-
-Worth deciding first whether a root daemon that can replace the contents of
-/Applications is a trade worth making for it.
-
-## First thing in the morning
-
-These need a Mac that is not locked, and were the only things blocked overnight.
-
-- **Notarise a build.** The login keychain is locked at the login screen, so
-  notarytool cannot read its credential. `LUKOTTA_NOTARY_PROFILE="lukotta"
-  ./build-app.sh` is all it takes once signed in. The build script refuses to
-  finish rather than producing an unnotarised bundle, so nothing silently ships.
-- **Take the screenshots**, for the README and the site: the drive list, an
-  unlock, and a drive open with several volumes, in light and dark appearance.
-- **Look at the site rendered**, in both appearances. Its content is current and
-  its markup parses, but nothing about how it looks has been seen.
-
 ## Waiting on you
 
-- **Screenshots.** The README and the website both want one and neither has one.
-  They cannot be taken while the Mac is locked, so this is the first thing to do
-  at a keyboard: the drive list, an unlock, and a drive open with several
-  volumes, in both light and dark appearance.
-
-- **Make the repository public.** GitHub Pages refuses a private repository on
-  the current plan, so the project page and the appcast have nowhere to live
-  until then, and without the appcast there is no update mechanism at all.
-- **A second repository for the appcast**, served at
-  lukotta-updates.rahula.dev. One Pages site takes one custom domain, so the
-  feed cannot share a host with the website. Keeping them apart also keeps the
-  feed off the proxied hostname, where an edge cache could serve a stale
-  version and updates would quietly stop appearing.
-
-- Approve the helper in Login Items and confirm an unlock runs without a
-  password. The privileged path cannot be exercised here.
-- Supply vector or high-resolution artwork. The source is a JPEG whose mark crops
-  to 448 px, below what an icon needs, so the icon is drawn from measurements
-  rather than derived from the file.
-- Delete the stale privacy entries from earlier names, and the leftover
-  `~/Library/Application Support/BitLocker Mounter/` directory.
+- **Supply vector or high-resolution artwork.** The source is a JPEG whose mark
+  crops to 448 px, below what an icon needs, so the icon is drawn from
+  measurements rather than derived from the file.
+- **Delete the stale privacy entries from earlier names**, and the leftover
+  `~/Library/Application Support/BitLocker Mounter/` directory, which is still
+  there.
 
 ---
 
 ## Documents to write
 
-- `CHANGELOG.md` — needed independently of Sparkle, which uses release notes.
-- `RELEASING.md` — vendor, build, test, bump, notarise, package, appcast, tag,
-  publish. That sequence currently exists only as scattered scripts.
-- `PRIVACY.md`, published at lukotta.rahula.dev and linked from the About sheet.
-  Needed even though nothing is collected: the app handles disk encryption keys,
-  asks for Full Disk Access, and can store a credential in the Keychain.
+- `RELEASING.md` — bump, tag, `scripts/release.sh`, commit the appcast to the
+  updates repository, publish. `release.sh` performs the sequence but nothing
+  states it in the order a person follows.
 - `assets/brand/README.md` — the palette and the mark's construction, so future
   assets stay consistent without reading Swift.
 
@@ -259,6 +220,8 @@ These need a Mac that is not locked, and were the only things blocked overnight.
 
 ## Known limitations
 
+Not tasks. These are properties of the design, worth stating so they are not
+rediscovered as bugs.
 
 - **Encryption nested inside encryption is not opened.** A container holds one
   passphrase and every volume inside it is reached with that one, which is how
@@ -275,16 +238,17 @@ These need a Mac that is not locked, and were the only things blocked overnight.
   outside the app — an FSKit module, or a bundle in /Library/Filesystems — and
   both are a larger commitment than the claim was.
 
-Not tasks. These are properties of the design, worth stating so they are not
-rediscovered as bugs.
-
 - **The volume appears as a network drive.** macOS offers no supported way to
   mark an NFS mount local. Only Stage 4 changes this.
+
 - **Full Disk Access cannot be requested.** No API exists; it is granted by hand.
   The app detects the refusal and explains it.
+
 - **The drive's name in Finder is only correct from the second unlock onward.**
   The label is not knowable until the volume is open, which is after the share
   has been named.
+
 - **Apple Silicon and macOS 15 or later**, and no Mac App Store: sandboxed apps
   cannot read raw devices or elevate, quite apart from the licence.
+
 - **TPM-sealed volumes and detached LUKS headers cannot be opened.**
