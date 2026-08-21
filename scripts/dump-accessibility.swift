@@ -36,9 +36,17 @@ func walk(_ e: AXUIElement, depth: Int) {
     let help = attr(e, kAXHelpAttribute as String)
     let interesting = ["AXTextField", "AXSecureTextField", "AXButton", "AXCheckBox",
                        "AXTextArea", "AXProgressIndicator", "AXRadioGroup", "AXPopUpButton"]
-    if interesting.contains(role) {
+    // Anything that carries a description is something a screen reader will
+    // read out, whatever its role. Controls are listed even without one,
+    // because that absence is the bug worth finding.
+    // Static text carries its words as a value rather than a description, so
+    // both are worth printing: a row can be perfectly readable through one and
+    // look empty through the other.
+    let value = attr(e, kAXValueAttribute as String)
+    if interesting.contains(role) || desc != nil || value != nil {
         var line = "  \(role): title=\(title.map { "\"\($0)\"" } ?? "nil")"
         line += " desc=\(desc.map { "\"\($0)\"" } ?? "nil")"
+        if let value { line += " value=\"\(value.prefix(90))\"" }
         if let help { line += " help=\"\(help)\"" }
         print(line)
     }

@@ -119,7 +119,12 @@ struct DriveRow: View {
             Spacer(minLength: 8)
 
             if isMounted {
+                // Named, because moving between controls alone gives a row of
+                // identical Ejects once several drives are open, and the drive
+                // each one belongs to is in the text beside it rather than in
+                // the button.
                 Button("Eject", action: eject).controlSize(.small)
+                    .accessibilityLabel("Eject \(drive.name)")
             } else {
                 Image(systemName: "chevron.right").foregroundStyle(.tertiary)
                     .accessibilityHidden(true)
