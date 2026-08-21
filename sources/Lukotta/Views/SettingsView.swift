@@ -57,15 +57,23 @@ struct SettingsView: View {
             }
 
             Section {
-                Picker("", selection: $appearance) {
-                    ForEach(Appearance.allCases) { choice in
-                        Text(choice.label).tag(choice.rawValue)
+                // A Form puts a control with no label against the right edge,
+                // away from the words explaining it. Held to the left instead,
+                // at its own width rather than stretched across the row.
+                HStack {
+                    Picker("", selection: $appearance) {
+                        ForEach(Appearance.allCases) { choice in
+                            Text(choice.label).tag(choice.rawValue)
+                        }
                     }
-                }
-                .pickerStyle(.segmented)
-                .accessibilityLabel("Appearance")
-                .onChange(of: appearance) { _, new in
-                    (Appearance(rawValue: new) ?? .system).apply()
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .fixedSize()
+                    .accessibilityLabel("Appearance")
+                    .onChange(of: appearance) { _, new in
+                        (Appearance(rawValue: new) ?? .system).apply()
+                    }
+                    Spacer()
                 }
                 Text("System follows your Mac's setting, including when it changes.")
                     .font(.caption).foregroundStyle(.secondary)
