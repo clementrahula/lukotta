@@ -83,6 +83,18 @@
         "one": "Baigti ir palikti %lld diską atvertą?",
         "other": "Baigti ir palikti %lld diskų atvertų?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "lt": {
+        "one": "Šiame diske yra %lld tomas, ir jo nepavyko atverti.",
+        "few": "Šiame diske yra %lld tomai, ir ne visus pavyko atverti.",
+        "many": "Šiame diske yra %lld tomo, ir ne visus pavyko atverti.",
+        "other": "Šiame diske yra %lld tomų, ir ne visus pavyko atverti."
+      }
     }
   },
   "strings": {
@@ -291,6 +303,7 @@
     "unlocked": "atrakintas",
     "waiting": "laukiama",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ nustojo atsakyti ir buvo atjungtas. Galite jį atverti dar kartą.",
-    "“%@” is unlocked": "„%@“ atrakintas"
+    "“%@” is unlocked": "„%@“ atrakintas",
+    "“%@” was disconnected.": "„%@“ buvo atjungtas."
   }
 }

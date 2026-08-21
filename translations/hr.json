@@ -76,6 +76,17 @@
         "one": "Izaći i ostaviti %lld disk otvorenim?",
         "other": "Izaći i ostaviti %lld diskova otvorenima?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "hr": {
+        "one": "Ovaj disk sadrži %lld jedinicu i nije ju bilo moguće otvoriti.",
+        "few": "Ovaj disk sadrži %lld jedinice i nisu se sve mogle otvoriti.",
+        "other": "Ovaj disk sadrži %lld jedinica i nisu se sve mogle otvoriti."
+      }
     }
   },
   "strings": {
@@ -284,6 +295,7 @@
     "unlocked": "otključan",
     "waiting": "čeka",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” je prestao odgovarati i odspojen je. Možete ga ponovno otvoriti.",
-    "“%@” is unlocked": "„%@” je otključan"
+    "“%@” is unlocked": "„%@” je otključan",
+    "“%@” was disconnected.": "„%@” je odspojen."
   }
 }

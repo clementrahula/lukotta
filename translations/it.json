@@ -69,6 +69,16 @@
         "one": "Uscire e lasciare %lld disco aperto?",
         "other": "Uscire e lasciare %lld dischi aperti?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "it": {
+        "one": "Questo disco contiene %lld volume e non è stato possibile aprirlo.",
+        "other": "Questo disco contiene %lld volumi e non è stato possibile aprirli tutti."
+      }
     }
   },
   "strings": {
@@ -277,6 +287,7 @@
     "unlocked": "sbloccato",
     "waiting": "in attesa",
     "“%@” had stopped responding and was disconnected. You can open it again.": "«%@» non rispondeva più ed è stato scollegato. Puoi aprirlo di nuovo.",
-    "“%@” is unlocked": "«%@» è sbloccato"
+    "“%@” is unlocked": "«%@» è sbloccato",
+    "“%@” was disconnected.": "«%@» è stato scollegato."
   }
 }

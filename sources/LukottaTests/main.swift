@@ -838,6 +838,36 @@ group("guestRuntimeSync") {
     expect(!advice.contains("another instance"), "and does not repeat the engine's wording")
 }
 
+group("wakeRecovery") {
+    // Waking is not one moment: the host comes back before the microVM does,
+    // and the mount cannot answer until the network between them carries
+    // traffic again. Asking once and giving up would call every healthy drive
+    // dead.
+    expect(WakeRecovery.nextDelay(after: 0) != nil, "a mount is asked more than once")
+
+    // Doubling, so a wedged mount is not asked sixty times for sixty seconds.
+    let first = WakeRecovery.nextDelay(after: 0) ?? 0
+    let later = WakeRecovery.nextDelay(after: 20) ?? 0
+    expect(later > first, "the wait grows as the silence goes on")
+    expect(WakeRecovery.nextDelay(after: 100) ?? 0 <= 16, "and stops growing")
+
+    // The grace period is a ceiling, not a suggestion: a delay that runs past
+    // it would leave a dead mount in the list longer than it says.
+    expect(WakeRecovery.nextDelay(after: WakeRecovery.grace) == nil, "and then it gives up")
+    expect(
+        WakeRecovery.nextDelay(after: WakeRecovery.grace - 1) ?? 99 <= 1,
+        "the last wait stops at the grace period rather than overshooting it")
+
+    // Walk it the way the caller does, to prove it terminates.
+    var elapsed: TimeInterval = 0, rounds = 0
+    while let delay = WakeRecovery.nextDelay(after: elapsed), rounds < 1000 {
+        elapsed += delay
+        rounds += 1
+    }
+    expect(rounds < 1000, "the loop ends")
+    expect(elapsed <= WakeRecovery.grace, "having waited no longer than the grace period")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

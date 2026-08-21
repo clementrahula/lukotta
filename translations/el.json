@@ -69,6 +69,16 @@
         "one": "Quit and leave %lld drive open?",
         "other": "Quit and leave %lld drives open?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "el": {
+        "one": "Αυτός ο δίσκος περιέχει %lld τόμο και δεν μπόρεσε να ανοίξει.",
+        "other": "Αυτός ο δίσκος περιέχει %lld τόμους και δεν μπόρεσαν να ανοίξουν όλοι."
+      }
     }
   },
   "strings": {
@@ -277,6 +287,7 @@
     "unlocked": "ξεκλείδωτος",
     "waiting": "αναμονή",
     "“%@” had stopped responding and was disconnected. You can open it again.": "Το «%@» σταμάτησε να αποκρίνεται και αποσυνδέθηκε. Μπορείτε να το ανοίξετε ξανά.",
-    "“%@” is unlocked": "Το «%@» ξεκλειδώθηκε"
+    "“%@” is unlocked": "Το «%@» ξεκλειδώθηκε",
+    "“%@” was disconnected.": "Το «%@» αποσυνδέθηκε."
   }
 }

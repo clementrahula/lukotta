@@ -69,6 +69,16 @@
         "one": "Quit and leave %lld drive open?",
         "other": "Quit and leave %lld drives open?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "da": {
+        "one": "Denne enhed indeholder %lld enhed, og den kunne ikke åbnes.",
+        "other": "Denne enhed indeholder %lld enheder, og ikke alle kunne åbnes."
+      }
     }
   },
   "strings": {
@@ -277,6 +287,7 @@
     "unlocked": "låst op",
     "waiting": "venter",
     "“%@” had stopped responding and was disconnected. You can open it again.": "“%@” svarede ikke længere og blev frakoblet. Du kan åbne den igen.",
-    "“%@” is unlocked": "“%@” er låst op"
+    "“%@” is unlocked": "“%@” er låst op",
+    "“%@” was disconnected.": "“%@” blev frakoblet."
   }
 }

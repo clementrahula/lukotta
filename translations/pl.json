@@ -83,6 +83,18 @@
         "one": "Zakończyć i pozostawić %lld dysk otwarty?",
         "other": "Zakończyć i pozostawić %lld dysku otwartego?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "pl": {
+        "one": "Ten dysk zawiera %lld wolumin i nie udało się go otworzyć.",
+        "few": "Ten dysk zawiera %lld woluminy i nie wszystkie udało się otworzyć.",
+        "many": "Ten dysk zawiera %lld woluminów i nie wszystkie udało się otworzyć.",
+        "other": "Ten dysk zawiera %lld woluminu i nie wszystkie udało się otworzyć."
+      }
     }
   },
   "strings": {
@@ -291,6 +303,7 @@
     "unlocked": "odblokowany",
     "waiting": "oczekiwanie",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” przestał odpowiadać i został odłączony. Możesz otworzyć go ponownie.",
-    "“%@” is unlocked": "„%@” jest odblokowany"
+    "“%@” is unlocked": "„%@” jest odblokowany",
+    "“%@” was disconnected.": "„%@” został odłączony."
   }
 }

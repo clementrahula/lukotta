@@ -12,15 +12,15 @@ only you have; everything else is unassigned and can be picked up in any order.
 Nothing below is optional. Until all of it is done there is no artefact that can
 responsibly be given to anyone.
 
-- **Survive sleep and wake with a drive open.** The drive stays mounted across a
-  lid close, and nothing is asked of the person who closed it. Nothing is done
-  for it today, so what happens now is whatever the NFS client and a virtual
-  machine that lost an hour happen to do — and a mount that hangs afterwards
-  gives no explanation and cannot even be ejected. Wants the mount held across
-  `NSWorkspace.willSleepNotification` and checked silently on
-  `didWakeNotification`, healed without a word if it comes back stale, and then a
-  real lid close with a drive open to prove it. This is the failure most likely
-  to be met by anyone who leaves a drive mounted, which is everyone.
+- **[both] Close the lid with a drive open, and see what happens.** The handling
+  is written: nothing is unmounted for sleep, the free-space poll stops so the
+  wake window is not spent queueing calls at a mount that cannot answer yet, and
+  on waking each mount is asked whether it is alive — from a separate process, so
+  a wedged one cannot take the app with it — every few seconds for a minute
+  before it is treated as gone. What has never been observed is a real sleep. The
+  open questions are whether the microVM survives one at all, whether the NFS
+  client recovers on its own once it does, and how long that takes. Until then
+  the grace period is a guess.
 - **[you] Notarise a build.** `spctl` rejects the installed copy as an
   unnotarised Developer ID build, so a downloader is told macOS cannot check it
   for malicious software. Everything around it is written: the whole sequence is
@@ -104,9 +104,6 @@ responsibly be given to anyone.
   directories). Nothing in `sources/LukottaTests` touches any of the three.
 - **Add snapshot tests for the interface.** Several layout and state regressions
   reached the screen because nothing checks rendering.
-- **[you] Test against a real LUKS drive.** Detection, unlock and the LVM path
-  are implemented and verified against volumes built inside the guest by
-  `scripts/make-test-volumes.sh`, but never against real hardware.
 
 ## Accessibility and localisation
 

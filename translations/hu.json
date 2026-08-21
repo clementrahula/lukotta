@@ -69,6 +69,16 @@
         "one": "Kilép, és nyitva hagy %lld meghajtót?",
         "other": "Kilép, és nyitva hagy %lld meghajtót?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "hu": {
+        "one": "Ez a meghajtó %lld kötetet tartalmaz, és nem sikerült megnyitni.",
+        "other": "Ez a meghajtó %lld kötetet tartalmaz, és nem mindegyiket sikerült megnyitni."
+      }
     }
   },
   "strings": {
@@ -277,6 +287,7 @@
     "unlocked": "feloldott",
     "waiting": "várakozik",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” nem válaszolt, ezért le lett választva. Újra megnyithatja.",
-    "“%@” is unlocked": "„%@” fel van oldva"
+    "“%@” is unlocked": "„%@” fel van oldva",
+    "“%@” was disconnected.": "A(z) „%@” le lett választva."
   }
 }

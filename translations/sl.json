@@ -83,6 +83,18 @@
         "other": "Končam in pustim %lld pogonov odprtih?",
         "two": "Končam in pustim %lld pogona odprta?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "sl": {
+        "one": "Ta pogon vsebuje %lld nosilec in ni ga bilo mogoče odpreti.",
+        "two": "Ta pogon vsebuje %lld nosilca in vseh ni bilo mogoče odpreti.",
+        "few": "Ta pogon vsebuje %lld nosilce in vseh ni bilo mogoče odpreti.",
+        "other": "Ta pogon vsebuje %lld nosilcev in vseh ni bilo mogoče odpreti."
+      }
     }
   },
   "strings": {
@@ -291,6 +303,7 @@
     "unlocked": "odklenjen",
     "waiting": "čaka",
     "“%@” had stopped responding and was disconnected. You can open it again.": "»%@« se ni več odzival in je bil odklopljen. Lahko ga znova odprete.",
-    "“%@” is unlocked": "»%@« je odklenjen"
+    "“%@” is unlocked": "»%@« je odklenjen",
+    "“%@” was disconnected.": "»%@« je bil odklopljen."
   }
 }

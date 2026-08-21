@@ -69,6 +69,16 @@
         "one": "Quit and leave %lld drive open?",
         "other": "Quit and leave %lld drives open?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "bg": {
+        "one": "Този диск съдържа %lld том и той не можа да бъде отворен.",
+        "other": "Този диск съдържа %lld тома и не всички можаха да бъдат отворени."
+      }
     }
   },
   "strings": {
@@ -277,6 +287,7 @@
     "unlocked": "отключен",
     "waiting": "изчаква",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ спря да отговаря и беше изключен. Можете да го отворите отново.",
-    "“%@” is unlocked": "„%@“ е отключен"
+    "“%@” is unlocked": "„%@“ е отключен",
+    "“%@” was disconnected.": "„%@“ беше изключен."
   }
 }

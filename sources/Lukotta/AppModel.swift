@@ -146,6 +146,88 @@ final class AppModel: ObservableObject {
         Task { @MainActor in self?.driveSetChanged() }
     }
 
+    /// Watches for the machine sleeping and waking.
+    private lazy var sleepWatch = SleepWatch(
+        willSleep: { [weak self] in self?.prepareForSleep() },
+        didWake: { [weak self] in self?.recoverFromSleep() })
+
+    /// The machine is going to sleep.
+    ///
+    /// Nothing is unmounted and nothing is asked. The one thing worth doing is
+    /// stopping the free-space poll, so the app does not spend the whole of the
+    /// wake window starting statfs calls against a mount that cannot answer
+    /// yet — each of which would sit in the kernel until it could.
+    private func prepareForSleep() {
+        spaceTimer?.invalidate()
+        spaceTimer = nil
+    }
+
+    /// The machine has woken.
+    ///
+    /// Everything is expected to still be there, so the aim is to confirm that
+    /// quietly and say nothing. The drive list is re-read, because disks can be
+    /// attached and removed while the machine is asleep and DiskArbitration does
+    /// not report what happened while nobody was listening, and each open mount
+    /// is asked whether it is answering until it is — or until the grace period
+    /// runs out and the drive really has gone.
+    private func recoverFromSleep() {
+        driveSetChanged()
+        let points = Array(openMounts.values)
+        guard !points.isEmpty else { return }
+
+        Task.detached(priority: .utility) {
+            var elapsed: TimeInterval = 0
+            while true {
+                let silent = points.filter { !MountProbe.isAnswering($0) }
+                if silent.isEmpty {
+                    // Back as it was. Nothing is said, because from where the
+                    // user is sitting nothing happened.
+                    await MainActor.run { self.refreshSpace() }
+                    return
+                }
+                guard let delay = WakeRecovery.nextDelay(after: elapsed) else { break }
+                try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+                elapsed += delay
+            }
+            // Still silent. Either the microVM is gone, in which case the mount
+            // is a corpse that has to be cleared before macOS starts asking
+            // about a server that will not answer, or it is running and merely
+            // slow — and a running one is left alone.
+            let live = EngineStatus.current().map(\.mountPoint)
+            let dead = points.filter { point in
+                !live.contains(point) && !live.contains { point.hasPrefix($0 + "/") }
+            }
+            guard !dead.isEmpty else {
+                await MainActor.run { self.refreshSpace() }
+                return
+            }
+            for point in EngineStatus.stale() { EngineStatus.forceUnmount(mountPoint: point) }
+            await MainActor.run { self.dropMounts(dead) }
+        }
+    }
+
+    /// Forget mounts that are no longer there, and leave the interface
+    /// somewhere it can be used.
+    private func dropMounts(_ points: [String]) {
+        let names = points.map { ($0 as NSString).lastPathComponent }
+        openVolumes = []
+        openMounts = openMounts.filter { !points.contains($0.value) }
+        space = space.filter { !points.contains($0.key) }
+        volumeCount = volumeCount.filter { !points.contains($0.key) }
+        if let first = names.first {
+            notice =
+                names.count > 1
+                ? appString(
+                    "\(names.count) drives had stopped responding and were disconnected. You can open them again."
+                )
+                : appString(
+                    "“\(first)” had stopped responding and was disconnected. You can open it again."
+                )
+        }
+        if openMounts.isEmpty, case .mounted = phase { phase = .chooseDrive }
+        refreshSpace()
+    }
+
     /// The drive on screen, whichever way it is being shown.
     private var currentDrive: Drive? {
         switch phase {
@@ -188,7 +270,7 @@ final class AppModel: ObservableObject {
                 }
                 self.openVolumes = []
                 self.openMounts = self.openMounts.filter { !$0.key.contains(drive.id) }
-                self.notice = "“\(name)” was disconnected."
+                self.notice = appString("“\(name)” was disconnected.")
                 self.credential = ""
                 self.credentialProblem = nil
                 self.phase = .chooseDrive
@@ -200,6 +282,7 @@ final class AppModel: ObservableObject {
 
     func start() {
         watcher.start()
+        sleepWatch.start()
         refreshPermissions()
         // Say so before any password is typed, rather than after a failed
         // unlock. Full Disk Access cannot be requested, only detected.
@@ -228,8 +311,12 @@ final class AppModel: ObservableObject {
                 if let name = abandoned.first.map({ URL(fileURLWithPath: $0).lastPathComponent }) {
                     self.notice =
                         abandoned.count > 1
-                        ? "\(abandoned.count) drives had stopped responding and were disconnected. You can open them again."
-                        : "“\(name)” had stopped responding and was disconnected. You can open it again."
+                        ? appString(
+                            "\(abandoned.count) drives had stopped responding and were disconnected. You can open them again."
+                        )
+                        : appString(
+                            "“\(name)” had stopped responding and was disconnected. You can open it again."
+                        )
                 }
                 self.openMounts = Dictionary(
                     mounts.map { ($0.devicePath, $0.mountPoint) },
@@ -541,10 +628,13 @@ final class AppModel: ObservableObject {
             let tail = line.components(separatedBy: MountScript.volumesMarker).last
         else { return }
         let parts = tail.trimmingCharacters(in: .whitespaces).split(separator: ":")
-        guard parts.count == 2, let opened = Int(parts[0]), let total = Int(parts[1]),
-            total > opened
+        guard parts.count == 2, let opened = Int(parts[0]), let totalCount = Int(parts[1]),
+            totalCount > opened
         else { return }
-        notice = "This drive holds \(total) volumes and \(opened) could be opened."
+        // One number, not two: a sentence carrying two counts needs both to
+        // agree with the noun, and no two languages agree the same way.
+        notice = appString(
+            "This drive holds \(totalCount) volumes and not all of them could be opened.")
     }
 
     /// Record a successful mount, wherever it came from.

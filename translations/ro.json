@@ -76,6 +76,17 @@
         "one": "Ieșiți și lăsați %lld disc deschis?",
         "other": "Ieșiți și lăsați %lld de discuri deschise?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "ro": {
+        "one": "Acest disc conține %lld volum și nu a putut fi deschis.",
+        "few": "Acest disc conține %lld volume și nu au putut fi deschise toate.",
+        "other": "Acest disc conține %lld de volume și nu au putut fi deschise toate."
+      }
     }
   },
   "strings": {
@@ -284,6 +295,7 @@
     "unlocked": "deblocat",
     "waiting": "în așteptare",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” nu mai răspundea și a fost deconectat. Îl puteți deschide din nou.",
-    "“%@” is unlocked": "„%@” este deblocat"
+    "“%@” is unlocked": "„%@” este deblocat",
+    "“%@” was disconnected.": "„%@” a fost deconectat."
   }
 }

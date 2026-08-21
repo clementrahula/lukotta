@@ -83,6 +83,18 @@
         "one": "Quit and leave %lld drive open?",
         "other": "Quit and leave %lld drives open?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "cs": {
+        "one": "Tento disk obsahuje %lld svazek a nepodařilo se jej otevřít.",
+        "few": "Tento disk obsahuje %lld svazky a ne všechny se podařilo otevřít.",
+        "many": "Tento disk obsahuje %lld svazku a ne všechny se podařilo otevřít.",
+        "other": "Tento disk obsahuje %lld svazků a ne všechny se podařilo otevřít."
+      }
     }
   },
   "strings": {
@@ -291,6 +303,7 @@
     "unlocked": "odemčený",
     "waiting": "čeká",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ přestal odpovídat a byl odpojen. Můžete jej otevřít znovu.",
-    "“%@” is unlocked": "„%@“ je odemčen"
+    "“%@” is unlocked": "„%@“ je odemčen",
+    "“%@” was disconnected.": "„%@“ byl odpojen."
   }
 }

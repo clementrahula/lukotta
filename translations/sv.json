@@ -69,6 +69,16 @@
         "one": "Avsluta och lämna %lld enhet öppen?",
         "other": "Avsluta och lämna %lld enheter öppna?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "sv": {
+        "one": "Enheten innehåller %lld volym och den kunde inte öppnas.",
+        "other": "Enheten innehåller %lld volymer och alla kunde inte öppnas."
+      }
     }
   },
   "strings": {
@@ -277,6 +287,7 @@
     "unlocked": "upplåst",
     "waiting": "väntar",
     "“%@” had stopped responding and was disconnected. You can open it again.": "”%@” slutade svara och kopplades bort. Du kan öppna den igen.",
-    "“%@” is unlocked": "”%@” är upplåst"
+    "“%@” is unlocked": "”%@” är upplåst",
+    "“%@” was disconnected.": "”%@” kopplades bort."
   }
 }

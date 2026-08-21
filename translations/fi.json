@@ -69,6 +69,16 @@
         "one": "Lopetetaanko ja jätetäänkö %lld asema auki?",
         "other": "Lopetetaanko ja jätetäänkö %lld asemaa auki?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "fi": {
+        "one": "Tämä asema sisältää %lld taltion, eikä sitä voitu avata.",
+        "other": "Tämä asema sisältää %lld taltiota, eikä niitä kaikkia voitu avata."
+      }
     }
   },
   "strings": {
@@ -277,6 +287,7 @@
     "unlocked": "avattu",
     "waiting": "odottaa",
     "“%@” had stopped responding and was disconnected. You can open it again.": "”%@” lakkasi vastaamasta ja irrotettiin. Voit avata sen uudelleen.",
-    "“%@” is unlocked": "”%@” on avattu"
+    "“%@” is unlocked": "”%@” on avattu",
+    "“%@” was disconnected.": "”%@” irrotettiin."
   }
 }

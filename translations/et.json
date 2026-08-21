@@ -69,6 +69,16 @@
         "one": "Kas väljuda ja jätta %lld ketas avatuks?",
         "other": "Kas väljuda ja jätta %lld ketast avatuks?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "et": {
+        "one": "See ketas sisaldab %lld köidet ja seda ei õnnestunud avada.",
+        "other": "See ketas sisaldab %lld köidet ja kõiki neist ei õnnestunud avada."
+      }
     }
   },
   "strings": {
@@ -277,6 +287,7 @@
     "unlocked": "avatud",
     "waiting": "ootel",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ ei vastanud enam ja ühendati lahti. Sa saad selle uuesti avada.",
-    "“%@” is unlocked": "„%@“ on avatud"
+    "“%@” is unlocked": "„%@“ on avatud",
+    "“%@” was disconnected.": "„%@“ ühendati lahti."
   }
 }

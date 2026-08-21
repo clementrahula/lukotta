@@ -76,6 +76,17 @@
         "other": "Vai iziet un atstāt %lld diskus atvērtus?",
         "zero": "Vai iziet un atstāt %lld disku atvērtus?"
       }
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
+      },
+      "lv": {
+        "zero": "Šis disks satur %lld sējumu, un ne visus izdevās atvērt.",
+        "one": "Šis disks satur %lld sējumu, un to neizdevās atvērt.",
+        "other": "Šis disks satur %lld sējumus, un ne visus izdevās atvērt."
+      }
     }
   },
   "strings": {
@@ -284,6 +295,7 @@
     "unlocked": "atbloķēts",
     "waiting": "gaida",
     "“%@” had stopped responding and was disconnected. You can open it again.": "“%@” pārstāja atbildēt un tika atvienots. Jūs varat to atvērt vēlreiz.",
-    "“%@” is unlocked": "“%@” ir atbloķēts"
+    "“%@” is unlocked": "“%@” ir atbloķēts",
+    "“%@” was disconnected.": "“%@” tika atvienots."
   }
 }
