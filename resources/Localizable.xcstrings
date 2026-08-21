@@ -26,6 +26,12 @@
             "state": "translated",
             "value": "%@ è stato rimosso"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is verwijderd"
+          }
         }
       }
     },
@@ -53,6 +59,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ è software libero sotto licenza GPL, versione 3 o successiva. Il montaggio è svolto da anylinuxfs. Il codice sorgente completo di ogni componente viene pubblicato a ogni versione. Il nome e il logo sono marchi e non sono coperti da quella licenza."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is vrije software onder de GPL, versie 3 of later. Het activeren gebeurt door anylinuxfs. De volledige broncode van elk onderdeel wordt bij elke versie gepubliceerd. De naam en het logo zijn handelsmerken en vallen niet onder die licentie."
           }
         }
       }
@@ -82,6 +94,12 @@
             "state": "translated",
             "value": "%@ apre dischi BitLocker e Linux che macOS da solo non riesce a leggere. Prima serve un’impostazione.\n\nLeggere un disco a livello di dispositivo richiede l’accesso completo al disco: una password di amministratore non basta, e il permesso per i volumi rimovibili riguarda i file su un disco, non il dispositivo stesso. macOS non permette a nessuna app di richiederlo, quindi va attivato a mano."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ opent BitLocker- en Linux-schijven die macOS zelf niet kan lezen. Daarvoor is eerst één instelling nodig.\n\nEen schijf op apparaatniveau lezen vereist volledige schijftoegang — een beheerderswachtwoord is niet genoeg, en het recht voor verwijderbare volumes geldt voor bestanden op een schijf, niet voor het apparaat zelf. macOS biedt apps geen manier om dit aan te vragen, dus moet het met de hand worden ingeschakeld."
+          }
         }
       }
     },
@@ -110,6 +128,12 @@
             "state": "translated",
             "value": "%@ avvia una piccola macchina virtuale Linux, vi sblocca il disco e lo consegna al Finder. macOS non sa leggere i file system BitLocker o Linux. Linux sì."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ start een kleine virtuele Linux-machine, ontgrendelt de schijf daarbinnen en geeft die terug aan de Finder. macOS kan BitLocker- of Linux-bestandssystemen niet lezen. Linux wel."
+          }
         }
       }
     },
@@ -137,6 +161,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ verrà spostato nel Cestino."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wordt naar de prullenmand verplaatst."
           }
         }
       }
@@ -228,6 +258,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld dischi non rispondevano più e sono stati scollegati. Puoi aprirli di nuovo."
+                }
+              }
+            }
+          }
+        },
+        "nl": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld schijf reageerde niet meer en is losgekoppeld. Je kunt die opnieuw openen."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld schijven reageerden niet meer en zijn losgekoppeld. Je kunt ze opnieuw openen."
                 }
               }
             }
@@ -326,6 +374,24 @@
               }
             }
           }
+        },
+        "nl": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "De geopende schijf wordt verwijderd."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld geopende schijven worden verwijderd."
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -353,6 +419,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld per cento"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld procent"
           }
         }
       }
@@ -382,6 +454,12 @@
             "state": "translated",
             "value": "250 MB di disco: 155 MB per l’app e 95 MB per l’ambiente Linux estratto al primo utilizzo"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 MB schijfruimte: 155 MB voor de app en 95 MB voor de Linux-omgeving die bij het eerste gebruik wordt uitgepakt"
+          }
         }
       }
     },
@@ -409,6 +487,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Da 30 a 80 MB di RAM per disco sbloccato"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 tot 80 MB werkgeheugen per ontgrendelde schijf"
           }
         }
       }
@@ -438,6 +522,12 @@
             "state": "translated",
             "value": "È stato trovato un rapporto di arresto anomalo"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er is een crashrapport gevonden"
+          }
         }
       }
     },
@@ -465,6 +555,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Informazioni su %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Over %@"
           }
         }
       }
@@ -494,6 +590,12 @@
             "state": "translated",
             "value": "Informazioni e aiuto"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Over en hulp"
+          }
         }
       }
     },
@@ -521,6 +623,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Circa dieci dischi possono restare sbloccati contemporaneamente"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ongeveer tien schijven kunnen tegelijk ontgrendeld blijven"
           }
         }
       }
@@ -550,6 +658,12 @@
             "state": "translated",
             "value": "Password di amministratore"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beheerderswachtwoord"
+          }
         }
       }
     },
@@ -577,6 +691,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Password di amministratore: richiesta una sola volta quando si configura l’helper in background, poi mai più. %@ non la vede mai"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beheerderswachtwoord — wordt één keer gevraagd bij het instellen van de achtergrondhelper, daarna niet meer. %@ ziet het nooit"
           }
         }
       }
@@ -606,6 +726,12 @@
             "state": "translated",
             "value": "Tutti i dischi"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle schijven"
+          }
         }
       }
     },
@@ -633,6 +759,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tutti i permessi necessari sono concessi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle vereiste rechten zijn verleend"
           }
         }
       }
@@ -728,6 +860,24 @@
               }
             }
           }
+        },
+        "nl": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Verwijder ook de bewaarde wachtwoordzin voor %2$@"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Verwijder ook %1$lld bewaarde wachtwoordzinnen (%2$@)"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -755,6 +905,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Un Mac con Apple Silicon. I Mac Intel non sono supportati"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een Mac met Apple silicon. Macs met Intel worden niet ondersteund"
           }
         }
       }
@@ -784,6 +940,12 @@
             "state": "translated",
             "value": "Un altro disco è aperto e il motore deve funzionare da solo la prima volta dopo una modifica. Espelli gli altri dischi, apri questo, poi potranno essere di nuovo tutti aperti insieme."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er is een andere schijf geopend, en de engine moet de eerste keer na een wijziging alleen draaien. Verwijder de andere schijven, open deze, daarna kunnen ze weer allemaal tegelijk open zijn."
+          }
         }
       }
     },
@@ -811,6 +973,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aspetto"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weergave"
           }
         }
       }
@@ -840,6 +1008,12 @@
             "state": "translated",
             "value": "Appare solo quando un disco è sbloccato, per espellerlo."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verschijnt alleen zolang een schijf ontgrendeld is, om die te verwijderen."
+          }
         }
       }
     },
@@ -867,6 +1041,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sviluppatore"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ontwikkelaar"
           }
         }
       }
@@ -896,6 +1076,12 @@
             "state": "translated",
             "value": "Indietro"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terug"
+          }
         }
       }
     },
@@ -923,6 +1109,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dischi BitLocker, sbloccati con la password del volume o una chiave di recupero di 48 cifre"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker-schijven, ontgrendeld met het wachtwoord van het volume of een herstelsleutel van 48 cijfers"
           }
         }
       }
@@ -952,6 +1144,12 @@
             "state": "translated",
             "value": "BitLocker o NTFS"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BitLocker of NTFS"
+          }
         }
       }
     },
@@ -979,6 +1177,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Annulla"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuleer"
           }
         }
       }
@@ -1008,6 +1212,12 @@
             "state": "translated",
             "value": "Il blocco maiuscole è attivo"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps Lock staat aan"
+          }
         }
       }
     },
@@ -1035,6 +1245,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Controlla di nuovo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controleer opnieuw"
           }
         }
       }
@@ -1064,6 +1280,12 @@
             "state": "translated",
             "value": "Cerca ora"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoek nu"
+          }
         }
       }
     },
@@ -1091,6 +1313,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cerca aggiornamenti…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoek naar updates…"
           }
         }
       }
@@ -1120,6 +1348,12 @@
             "state": "translated",
             "value": "Cerca aggiornamenti automaticamente"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoek automatisch naar updates"
+          }
         }
       }
     },
@@ -1147,6 +1381,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fai clic su «+», aggiungi %@ e attivalo."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klik op ‘+’, voeg %@ toe en schakel het in."
           }
         }
       }
@@ -1176,6 +1416,12 @@
             "state": "translated",
             "value": "Ridotto"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingeklapt"
+          }
         }
       }
     },
@@ -1203,6 +1449,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Torna qui e scegli «Riavvia»: un nuovo permesso vale solo per un’app appena avviata."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kom hier terug en kies ‘Herstart’ — een nieuw recht geldt alleen voor een net gestarte app."
           }
         }
       }
@@ -1232,6 +1484,12 @@
             "state": "translated",
             "value": "Collega il disco cifrato e scegli «Cerca di nuovo». Se è già collegato, macOS potrebbe averlo montato: espellilo prima nel Finder."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sluit de versleutelde schijf aan en kies ‘Opnieuw zoeken’. Als de schijf al is aangesloten, heeft macOS die mogelijk al geactiveerd — verwijder die dan eerst in de Finder."
+          }
         }
       }
     },
@@ -1259,6 +1517,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copiato"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gekopieerd"
           }
         }
       }
@@ -1288,6 +1552,12 @@
             "state": "translated",
             "value": "Copia i dettagli"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopieer details"
+          }
         }
       }
     },
@@ -1315,6 +1585,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Scuro"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Donker"
           }
         }
       }
@@ -1410,6 +1686,24 @@
               }
             }
           }
+        },
+        "nl": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Bewaarde wachtwoordzin wordt verwijderd"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld bewaarde wachtwoordzinnen worden verwijderd"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1437,6 +1731,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Eliminazione dell’ambiente Linux"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linux-omgeving wordt verwijderd"
           }
         }
       }
@@ -1466,6 +1766,12 @@
             "state": "translated",
             "value": "Dettagli che verranno inclusi"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details die worden meegestuurd"
+          }
         }
       }
     },
@@ -1493,6 +1799,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fine"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gereed"
           }
         }
       }
@@ -1522,6 +1834,12 @@
             "state": "translated",
             "value": "Scaricali e installali"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download en installeer ze"
+          }
         }
       }
     },
@@ -1549,6 +1867,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dischi legati a un TPM anziché a una password, compresa la più recente cifratura basata su hardware di Ubuntu"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schijven die aan een TPM zijn gekoppeld in plaats van aan een wachtwoord, waaronder de nieuwere hardwareversleuteling van Ubuntu"
           }
         }
       }
@@ -1578,6 +1902,12 @@
             "state": "translated",
             "value": "Espelli"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwijder"
+          }
         }
       }
     },
@@ -1606,6 +1936,12 @@
             "state": "translated",
             "value": "Espelli %@"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwijder %@"
+          }
         }
       }
     },
@@ -1633,6 +1969,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Espelli ed esci"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwijder en stop"
           }
         }
       }
@@ -1728,6 +2070,24 @@
               }
             }
           }
+        },
+        "nl": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Geopende schijf wordt verwijderd"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld geopende schijven worden verwijderd"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1755,6 +2115,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Espulsione…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bezig met verwijderen…"
           }
         }
       }
@@ -1784,6 +2150,12 @@
             "state": "translated",
             "value": "Output del motore"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uitvoer van de engine"
+          }
         }
       }
     },
@@ -1811,6 +2183,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Inserisci la passphrase del disco."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voer de wachtwoordzin van de schijf in."
           }
         }
       }
@@ -1840,6 +2218,12 @@
             "state": "translated",
             "value": "Inserisci la password del disco o la sua chiave di recupero di 48 cifre."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voer het wachtwoord van de schijf in, of de herstelsleutel van 48 cijfers."
+          }
         }
       }
     },
@@ -1867,6 +2251,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tutto il resto è stato rimosso. %@ stesso non è stato spostato nel Cestino (%@): trascinalo tu per completare."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al het overige is verwijderd. %@ zelf kon niet naar de prullenmand worden verplaatst (%@) — sleep het er zelf naartoe om af te ronden."
           }
         }
       }
@@ -1896,6 +2286,12 @@
             "state": "translated",
             "value": "Espanso"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uitgeklapt"
+          }
         }
       }
     },
@@ -1923,6 +2319,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esterno"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extern"
           }
         }
       }
@@ -1952,6 +2354,12 @@
             "state": "translated",
             "value": "Dimentica"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vergeet"
+          }
         }
       }
     },
@@ -1979,6 +2387,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Accesso completo al disco"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volledige schijftoegang"
           }
         }
       }
@@ -2008,6 +2422,12 @@
             "state": "translated",
             "value": "Accesso completo al disco: senza di esso macOS non permette a nessuna app di leggere il contenuto grezzo di un disco. Non può essere richiesto, quindi va attivato a mano"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volledige schijftoegang — zonder dit laat macOS geen enkele app de ruwe inhoud van een schijf lezen. Het kan niet worden aangevraagd en moet dus met de hand worden ingeschakeld"
+          }
         }
       }
     },
@@ -2032,6 +2452,12 @@
           }
         },
         "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU General Public License"
+          }
+        },
+        "nl": {
           "stringUnit": {
             "state": "translated",
             "value": "GNU General Public License"
@@ -2064,6 +2490,12 @@
             "state": "translated",
             "value": "Concesso"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verleend"
+          }
         }
       }
     },
@@ -2091,6 +2523,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nascondi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verberg"
           }
         }
       }
@@ -2120,6 +2558,12 @@
             "state": "translated",
             "value": "Nascondi quanto digitato"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verberg de invoer"
+          }
         }
       }
     },
@@ -2147,6 +2591,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nascondi i dettagli"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verberg de details"
           }
         }
       }
@@ -2176,6 +2626,12 @@
             "state": "translated",
             "value": "Come funziona %@ e cosa supporta"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoe %@ werkt en wat het ondersteunt"
+          }
         }
       }
     },
@@ -2203,6 +2659,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Come funziona"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoe het werkt"
           }
         }
       }
@@ -2232,6 +2694,12 @@
             "state": "translated",
             "value": "Interno"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intern"
+          }
         }
       }
     },
@@ -2259,6 +2727,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "È nel Cestino. Non ne resta altro su questo Mac."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Het staat in de prullenmand. Er is verder niets van achtergebleven op deze Mac."
           }
         }
       }
@@ -2288,6 +2762,12 @@
             "state": "translated",
             "value": "Dischi LUKS di Linux, sia LUKS1 sia LUKS2"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS-schijven van Linux, zowel LUKS1 als LUKS2"
+          }
         }
       }
     },
@@ -2315,6 +2795,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LUKS o file system Linux"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS of Linux-bestandssysteem"
           }
         }
       }
@@ -2344,6 +2830,12 @@
             "state": "translated",
             "value": "Volumi LUKS il cui header è conservato separatamente dal disco"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUKS-volumes waarvan de header los van de schijf is opgeslagen"
+          }
         }
       }
     },
@@ -2371,6 +2863,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LVM dentro LUKS, come lo configurano Ubuntu, Debian, Mint e Fedora. Più volumi sullo stesso disco si sbloccano insieme"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LVM binnen LUKS, zoals Ubuntu, Debian, Mint en Fedora het instellen. Meerdere volumes op één schijf worden samen ontgrendeld"
           }
         }
       }
@@ -2400,6 +2898,12 @@
             "state": "translated",
             "value": "Lingua"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taal"
+          }
         }
       }
     },
@@ -2427,6 +2931,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ultimo controllo: %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laatst gezocht: %@"
           }
         }
       }
@@ -2456,6 +2966,12 @@
             "state": "translated",
             "value": "Lascia aperto"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laat open"
+          }
         }
       }
     },
@@ -2483,6 +2999,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Consente a %@ di leggere direttamente i dati cifrati."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiermee leest %@ de versleutelde gegevens zelf."
           }
         }
       }
@@ -2512,6 +3034,12 @@
             "state": "translated",
             "value": "Consente a %@ di leggere direttamente i dati cifrati. Senza questo permesso macOS lo impedisce, anche agli amministratori, e non può essere richiesto: va attivato a mano."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiermee leest %@ de versleutelde gegevens zelf. Zonder dit recht blokkeert macOS dat, ook voor beheerders, en het kan niet worden aangevraagd — het moet met de hand worden ingeschakeld."
+          }
         }
       }
     },
@@ -2539,6 +3067,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Licenza"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licentie"
           }
         }
       }
@@ -2568,6 +3102,12 @@
             "state": "translated",
             "value": "Chiaro"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licht"
+          }
         }
       }
     },
@@ -2595,6 +3135,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Posizione"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locatie"
           }
         }
       }
@@ -2624,6 +3170,12 @@
             "state": "translated",
             "value": "Bloccato"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vergrendeld"
+          }
         }
       }
     },
@@ -2651,6 +3203,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ricerca di dischi cifrati…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bezig met zoeken naar versleutelde schijven…"
           }
         }
       }
@@ -2680,6 +3238,12 @@
             "state": "translated",
             "value": "Lúkotta in finlandese significa «senza serratura», da lukko, serratura, con la desinenza -tta che indica l’assenza di qualcosa. L’accento cade sulla prima sillaba, come sempre in finlandese."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lúkotta is Fins voor ‘zonder slot’, van lukko, een slot, met de uitgang -tta die de afwezigheid van iets aanduidt. De klemtoon ligt op de eerste lettergreep, zoals altijd in het Fins."
+          }
         }
       }
     },
@@ -2707,6 +3271,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Barra dei menu"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menubalk"
           }
         }
       }
@@ -2736,6 +3306,12 @@
             "state": "translated",
             "value": "Spostamento di %@ nel Cestino"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wordt naar de prullenmand verplaatst"
+          }
         }
       }
     },
@@ -2763,6 +3339,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Necessario"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vereist"
           }
         }
       }
@@ -2792,6 +3374,12 @@
             "state": "translated",
             "value": "Nessun disco cifrato trovato"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geen versleutelde schijven gevonden"
+          }
         }
       }
     },
@@ -2819,6 +3407,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Non è stato indicato alcun motivo. I dettagli qui sotto potrebbero dire di più."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er is geen reden gemeld. De details hieronder zeggen mogelijk meer."
           }
         }
       }
@@ -2848,6 +3442,12 @@
             "state": "translated",
             "value": "Non presente in questa versione."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niet aanwezig in deze versie."
+          }
         }
       }
     },
@@ -2875,6 +3475,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Non viene installato nulla. Il motore è incluso nell’app, nulla lascia il tuo Mac e su un disco si scrive solo quando ci scrivi tu."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er wordt niets geïnstalleerd. De engine zit in de app, er verlaat niets je Mac, en er wordt alleen naar een schijf geschreven wanneer jij dat doet."
           }
         }
       }
@@ -2904,6 +3510,12 @@
             "state": "translated",
             "value": "Una volta configurato l’helper in background, l’aggiornamento lascerà stare i dischi sbloccati."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zodra de achtergrondhelper is ingesteld, laat bijwerken ontgrendelde schijven met rust."
+          }
         }
       }
     },
@@ -2931,6 +3543,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apri %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open %@"
           }
         }
       }
@@ -2960,6 +3578,12 @@
             "state": "translated",
             "value": "Apri l’email"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open e-mail"
+          }
         }
       }
     },
@@ -2987,6 +3611,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apri «Privacy e sicurezza» → «Accesso completo al disco»."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open ‘Privacy en beveiliging’ → ‘Volledige schijftoegang’."
           }
         }
       }
@@ -3016,6 +3646,12 @@
             "state": "translated",
             "value": "Apri le impostazioni di privacy"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open privacyinstellingen"
+          }
         }
       }
     },
@@ -3043,6 +3679,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apri dischi cifrati su macOS"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open versleutelde schijven op macOS"
           }
         }
       }
@@ -3072,6 +3714,12 @@
             "state": "translated",
             "value": "Apertura di «%@»"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bezig met openen van ‘%@’"
+          }
         }
       }
     },
@@ -3099,6 +3747,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Passphrase"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wachtwoordzin"
           }
         }
       }
@@ -3128,6 +3782,12 @@
             "state": "translated",
             "value": "Password o chiave di recupero"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wachtwoord of herstelsleutel"
+          }
         }
       }
     },
@@ -3155,6 +3815,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permessi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechten"
           }
         }
       }
@@ -3184,6 +3850,12 @@
             "state": "translated",
             "value": "Esci"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop"
+          }
         }
       }
     },
@@ -3211,6 +3883,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esci da %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop %@"
           }
         }
       }
@@ -3306,6 +3984,24 @@
               }
             }
           }
+        },
+        "nl": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Stoppen en %lld schijf open laten?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Stoppen en %lld schijven open laten?"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -3333,6 +4029,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uscire e lasciare «%@» aperto?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stoppen en ‘%@’ open laten?"
           }
         }
       }
@@ -3362,6 +4064,12 @@
             "state": "translated",
             "value": "Riavvia"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herstart"
+          }
         }
       }
     },
@@ -3389,6 +4097,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ricorda questa chiave nel mio portachiavi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bewaar deze sleutel in mijn sleutelhanger"
           }
         }
       }
@@ -3418,6 +4132,12 @@
             "state": "translated",
             "value": "Volumi rimovibili: richiesto da macOS la prima volta che si legge un disco"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwijderbare volumes — door macOS gevraagd wanneer een schijf voor het eerst wordt gelezen"
+          }
         }
       }
     },
@@ -3445,6 +4165,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rimozione di %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wordt verwijderd"
           }
         }
       }
@@ -3474,6 +4200,12 @@
             "state": "translated",
             "value": "Rimozione delle impostazioni"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instellingen worden verwijderd"
+          }
         }
       }
     },
@@ -3501,6 +4233,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Segnala questo problema"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meld dit probleem"
           }
         }
       }
@@ -3530,6 +4268,12 @@
             "state": "translated",
             "value": "Segnala un problema"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meld een probleem"
+          }
         }
       }
     },
@@ -3557,6 +4301,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Segnala un problema o invia un rapporto di arresto anomalo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meld een probleem of stuur een crashrapport"
           }
         }
       }
@@ -3586,6 +4336,12 @@
             "state": "translated",
             "value": "Segnala un problema"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meld een probleem"
+          }
         }
       }
     },
@@ -3613,6 +4369,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Segnala un problema…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meld een probleem…"
           }
         }
       }
@@ -3642,6 +4404,12 @@
             "state": "translated",
             "value": "Requisiti"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Systeemvereisten"
+          }
         }
       }
     },
@@ -3669,6 +4437,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cerca di nuovo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opnieuw zoeken"
           }
         }
       }
@@ -3698,6 +4472,12 @@
             "state": "translated",
             "value": "Mostra l’app nel Finder"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toon app in Finder"
+          }
         }
       }
     },
@@ -3725,6 +4505,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vedere i dischi collegati"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aangesloten schijven zien"
           }
         }
       }
@@ -3754,6 +4540,12 @@
             "state": "translated",
             "value": "Seleziona un disco da sbloccare"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecteer een schijf om te ontgrendelen"
+          }
         }
       }
     },
@@ -3781,6 +4573,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Preparazione dell’ambiente Linux"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bezig met instellen van de Linux-omgeving"
           }
         }
       }
@@ -3810,6 +4608,12 @@
             "state": "translated",
             "value": "Mostra"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toon"
+          }
         }
       }
     },
@@ -3837,6 +4641,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostra %@ nella barra dei menu"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toon %@ in de menubalk"
           }
         }
       }
@@ -3866,6 +4676,12 @@
             "state": "translated",
             "value": "Mostra nel Finder"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toon in Finder"
+          }
         }
       }
     },
@@ -3893,6 +4709,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostra quanto digitato"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toon de invoer"
           }
         }
       }
@@ -3922,6 +4744,12 @@
             "state": "translated",
             "value": "Mostra a cosa serve ogni permesso"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toon waarvoor elk recht dient"
+          }
         }
       }
     },
@@ -3949,6 +4777,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mancano ancora alcuni permessi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er zijn nog rechten nodig"
           }
         }
       }
@@ -3978,6 +4812,12 @@
             "state": "translated",
             "value": "Codice sorgente"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Broncode"
+          }
         }
       }
     },
@@ -4005,6 +4845,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sistema"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Systeem"
           }
         }
       }
@@ -4034,6 +4880,12 @@
             "state": "translated",
             "value": "«Sistema» segue la lingua del tuo Mac."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘Systeem’ volgt de taal van je Mac."
+          }
         }
       }
     },
@@ -4061,6 +4913,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "«Sistema» segue l’impostazione del tuo Mac, anche quando cambia."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘Systeem’ volgt de instelling van je Mac, ook wanneer die verandert."
           }
         }
       }
@@ -4090,6 +4948,12 @@
             "state": "translated",
             "value": "Quella password o chiave di recupero non ha sbloccato questo disco."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dat wachtwoord of die herstelsleutel heeft deze schijf niet ontgrendeld."
+          }
         }
       }
     },
@@ -4117,6 +4981,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’ambiente Linux viene estratto una sola volta, al primo utilizzo."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De Linux-omgeving wordt eenmalig uitgepakt, bij het eerste gebruik."
           }
         }
       }
@@ -4146,6 +5016,12 @@
             "state": "translated",
             "value": "L’ambiente Linux verrà eliminato, liberando circa %lld MB."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De Linux-omgeving wordt verwijderd, waarmee ongeveer %lld MB vrijkomt."
+          }
         }
       }
     },
@@ -4173,6 +5049,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’helper in background non è configurato, quindi è %@ stesso a tenere aperto il disco. Uscire ora lo scollega e ciò che resta da scrivere non verrebbe completato.\n\nUna volta configurato l’helper, i dischi restano aperti da soli."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De achtergrondhelper is niet ingesteld, dus %@ houdt de schijf zelf open. Nu stoppen koppelt die los, en wat nog geschreven wordt, zou niet worden voltooid.\n\nZodra de helper is ingesteld, blijven schijven vanzelf open."
           }
         }
       }
@@ -4202,6 +5084,12 @@
             "state": "translated",
             "value": "L’helper in background non è configurato, quindi è %@ stesso a tenerli aperti. Uscire ora li scollega e ciò che resta da scrivere non verrebbe completato.\n\nUna volta configurato l’helper, i dischi restano aperti da soli."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De achtergrondhelper is niet ingesteld, dus %@ houdt ze zelf open. Nu stoppen koppelt ze los, en wat nog geschreven wordt, zou niet worden voltooid.\n\nZodra de helper is ingesteld, blijven schijven vanzelf open."
+          }
         }
       }
     },
@@ -4229,6 +5117,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’helper in background verrà deregistrato."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De registratie van de achtergrondhelper wordt ongedaan gemaakt."
           }
         }
       }
@@ -4258,6 +5152,12 @@
             "state": "translated",
             "value": "Il disco appare nella barra laterale del Finder, sotto «Posizioni».\nEspellilo qui o nel Finder prima di scollegarlo."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De schijf verschijnt in de navigatiekolom van de Finder onder ‘Locaties’.\nVerwijder die hier of in de Finder voordat je de schijf loskoppelt."
+          }
         }
       }
     },
@@ -4285,6 +5185,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il disco è occupato. Chiudi tutto ciò che lo sta usando, quindi riprova."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De schijf is bezig. Sluit alles wat die gebruikt en probeer het opnieuw."
           }
         }
       }
@@ -4314,6 +5220,12 @@
             "state": "translated",
             "value": "Il disco viene consegnato al Finder tramite una connessione di rete locale, quindi appare sotto «Posizioni» con un’icona di rete. Si legge, si scrive e si espelle come qualsiasi altro disco. macOS non offre alcun modo di presentarlo come disco locale."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De schijf wordt via een lokale netwerkverbinding aan de Finder doorgegeven en verschijnt daarom onder ‘Locaties’ met een netwerksymbool. Je leest, schrijft en verwijdert die net als elke andere schijf. macOS biedt geen manier om die als lokale schijf te tonen."
+          }
         }
       }
     },
@@ -4341,6 +5253,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il disco resta nel Finder dopo la chiusura di %@. Espellilo da lì quando hai finito."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De schijf blijft in de Finder staan nadat %@ is gestopt. Verwijder die daar wanneer je klaar bent."
           }
         }
       }
@@ -4370,6 +5288,12 @@
             "state": "translated",
             "value": "Il disco non è stato aperto"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De schijf is niet geopend"
+          }
         }
       }
     },
@@ -4397,6 +5321,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il disco non è stato aperto. %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De schijf is niet geopend. %@"
           }
         }
       }
@@ -4426,6 +5356,12 @@
             "state": "translated",
             "value": "Windows non ha spento il disco correttamente. Disattiva l’avvio rapido in Windows, oppure spegni Windows completamente invece di ibernarlo, quindi riprova."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows heeft de schijf niet netjes afgesloten. Schakel snel opstarten uit in Windows, of sluit Windows volledig af in plaats van in slaapstand te zetten, en probeer het opnieuw."
+          }
         }
       }
     },
@@ -4453,6 +5389,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il motore non ha riconosciuto alcun file system su questo volume. Se è cifrato, la password o la chiave di recupero potrebbero essere errate."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De engine heeft op dit volume geen bestandssysteem herkend. Als het versleuteld is, klopt het wachtwoord of de herstelsleutel mogelijk niet."
           }
         }
       }
@@ -4482,6 +5424,12 @@
             "state": "translated",
             "value": "Il motore non ha segnalato nulla. Il disco potrebbe essere stato scollegato."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De engine heeft helemaal niets gemeld. Mogelijk is de schijf losgekoppeld."
+          }
         }
       }
     },
@@ -4509,6 +5457,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "La lingua cambia al prossimo avvio di %@."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De taal verandert wanneer %@ opnieuw start."
           }
         }
       }
@@ -4538,6 +5492,12 @@
             "state": "translated",
             "value": "Il nome"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De naam"
+          }
         }
       }
     },
@@ -4565,6 +5525,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "La passphrase con cui è stato cifrato questo disco."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De wachtwoordzin waarmee deze schijf is versleuteld."
           }
         }
       }
@@ -4594,6 +5560,12 @@
             "state": "translated",
             "value": "La password con cui il disco è stato bloccato, oppure una chiave di recupero BitLocker di 48 cifre. Gli spazi e i trattini nella chiave di recupero vengono ignorati."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Het wachtwoord waarmee de schijf is vergrendeld, of een BitLocker-herstelsleutel van 48 cijfers. Spaties en streepjes in een herstelsleutel worden genegeerd."
+          }
         }
       }
     },
@@ -4621,6 +5593,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il motore di virtualizzazione non è riuscito ad avviarsi. Di solito basta un riavvio."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De virtualisatie-engine kon niet starten. Opnieuw opstarten lost dit meestal op."
           }
         }
       }
@@ -4650,6 +5628,12 @@
             "state": "translated",
             "value": "Restano nel Finder dopo la chiusura di %@. Espellili da lì quando hai finito."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ze blijven in de Finder staan nadat %@ is gestopt. Verwijder ze daar wanneer je klaar bent."
+          }
         }
       }
     },
@@ -4677,6 +5661,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Note su software di terze parti"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kennisgevingen van derden"
           }
         }
       }
@@ -4706,6 +5696,12 @@
             "state": "translated",
             "value": "Questo disco contiene più volumi e %@ non è riuscito a capire quali. Segnalarlo sarebbe utile."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze schijf bevat meerdere volumes en %@ kon niet bepalen welke. Dit melden zou helpen."
+          }
         }
       }
     },
@@ -4733,6 +5729,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "È un’impostazione di privacy di macOS, non una modifica al tuo Mac. Puoi disattivarla quando vuoi e non viene installato nulla."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit is een privacy-instelling van macOS, geen wijziging aan je Mac. Je kunt die op elk moment weer uitschakelen, en er wordt niets geïnstalleerd."
           }
         }
       }
@@ -4762,6 +5764,12 @@
             "state": "translated",
             "value": "Questa partizione non è un volume BitLocker."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze partitie is geen BitLocker-volume."
+          }
         }
       }
     },
@@ -4789,6 +5797,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Richiede un momento."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit duurt even."
           }
         }
       }
@@ -4818,6 +5832,12 @@
             "state": "translated",
             "value": "Di solito richiede meno di un minuto."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit duurt meestal minder dan een minuut."
+          }
         }
       }
     },
@@ -4845,6 +5865,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Riprova"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probeer opnieuw"
           }
         }
       }
@@ -4874,6 +5900,12 @@
             "state": "translated",
             "value": "Disinstalla"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwijder"
+          }
         }
       }
     },
@@ -4901,6 +5933,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Disinstallare %@?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ verwijderen?"
           }
         }
       }
@@ -4930,6 +5968,12 @@
             "state": "translated",
             "value": "Disinstalla %@…"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwijder %@…"
+          }
         }
       }
     },
@@ -4957,6 +6001,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sblocca"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ontgrendel"
           }
         }
       }
@@ -4986,6 +6036,12 @@
             "state": "translated",
             "value": "Sblocca questo disco"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ontgrendel deze schijf"
+          }
         }
       }
     },
@@ -5013,6 +6069,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lo sblocco la usa direttamente. Dimenticala per inserirne un’altra."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ontgrendelen gebruikt die direct. Vergeet die om een andere in te voeren."
           }
         }
       }
@@ -5042,6 +6104,12 @@
             "state": "translated",
             "value": "Sblocca «%@»"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ontgrendel ‘%@’"
+          }
         }
       }
     },
@@ -5069,6 +6137,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sbloccato"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ontgrendeld"
           }
         }
       }
@@ -5098,6 +6172,12 @@
             "state": "translated",
             "value": "Sbloccato in %@"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ontgrendeld in %@"
+          }
         }
       }
     },
@@ -5125,6 +6205,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Deregistrazione dell’helper in background"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registratie van de achtergrondhelper wordt ongedaan gemaakt"
           }
         }
       }
@@ -5154,6 +6240,12 @@
             "state": "translated",
             "value": "Aggiornamenti"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates"
+          }
         }
       }
     },
@@ -5181,6 +6273,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’aggiornamento non espelle i tuoi dischi. Ciò che è sbloccato resta sbloccato e continua a funzionare."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bijwerken verwijdert je schijven niet. Alles wat ontgrendeld is, blijft ontgrendeld en blijft werken."
           }
         }
       }
@@ -5210,6 +6308,12 @@
             "state": "translated",
             "value": "Viene usata la chiave salvata nel tuo portachiavi"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De sleutel uit je sleutelhanger wordt gebruikt"
+          }
         }
       }
     },
@@ -5237,6 +6341,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Versione %@ (%@)"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versie %@ (%@)"
           }
         }
       }
@@ -5266,6 +6376,12 @@
             "state": "translated",
             "value": "Volumi aperti"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geopende volumes"
+          }
         }
       }
     },
@@ -5293,6 +6409,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sito web"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Website"
           }
         }
       }
@@ -5322,6 +6444,12 @@
             "state": "translated",
             "value": "Ti diamo il benvenuto in %@"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welkom bij %@"
+          }
         }
       }
     },
@@ -5349,6 +6477,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il contenuto di un disco si conosce solo dopo averlo sbloccato."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wat een schijf bevat, is pas bekend nadat die is ontgrendeld."
           }
         }
       }
@@ -5378,6 +6512,12 @@
             "state": "translated",
             "value": "Cos’è successo"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wat is er gebeurd"
+          }
         }
       }
     },
@@ -5405,6 +6545,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cos’è successo?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wat is er gebeurd?"
           }
         }
       }
@@ -5434,6 +6580,12 @@
             "state": "translated",
             "value": "Cosa può aprire"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wat het kan openen"
+          }
         }
       }
     },
@@ -5461,6 +6613,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cosa non può aprire"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wat het niet kan openen"
           }
         }
       }
@@ -5490,6 +6648,12 @@
             "state": "translated",
             "value": "Cosa fare"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wat je kunt doen"
+          }
         }
       }
     },
@@ -5517,6 +6681,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Perché appare come disco di rete"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waarom het als netwerkschijf verschijnt"
           }
         }
       }
@@ -5546,6 +6716,12 @@
             "state": "translated",
             "value": "Dischi NTFS di Windows, compresi quelli lasciati da Windows in ibernazione o spenti male"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NTFS-schijven van Windows, ook die Windows in slaapstand of niet correct afgesloten heeft achtergelaten"
+          }
         }
       }
     },
@@ -5573,6 +6749,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Puoi leggere e scrivere file al suo interno."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je kunt er bestanden op lezen en schrijven."
           }
         }
       }
@@ -5602,6 +6784,12 @@
             "state": "translated",
             "value": "Puoi comunque cercarli quando vuoi."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je kunt nog steeds zelf zoeken wanneer je wilt."
+          }
         }
       }
     },
@@ -5629,6 +6817,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il tuo disco non è stato modificato. Uno sblocco non riuscito non può danneggiare i dati che contiene."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je schijf is niet gewijzigd. Een mislukte ontgrendeling kan de gegevens erop niet beschadigen."
           }
         }
       }
@@ -5658,6 +6852,12 @@
             "state": "translated",
             "value": "completato"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gereed"
+          }
         }
       }
     },
@@ -5685,6 +6885,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "File system ext4, btrfs e XFS al loro interno"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ext4-, btrfs- en XFS-bestandssystemen daarbinnen"
           }
         }
       }
@@ -5714,6 +6920,12 @@
             "state": "translated",
             "value": "in corso"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bezig"
+          }
         }
       }
     },
@@ -5741,6 +6953,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "bloccato"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vergrendeld"
           }
         }
       }
@@ -5770,6 +6988,12 @@
             "state": "translated",
             "value": "macOS 15 Sequoia o successivo"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 15 Sequoia of nieuwer"
+          }
         }
       }
     },
@@ -5797,6 +7021,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS ha già montato questo disco. Espellilo nel Finder e riprova."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS heeft deze schijf al geactiveerd. Verwijder die in de Finder en probeer het opnieuw."
           }
         }
       }
@@ -5826,6 +7056,12 @@
             "state": "translated",
             "value": "macOS ha bloccato l’accesso al disco. %@ necessita dell’accesso completo al disco per poter leggere un disco cifrato."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS heeft de toegang tot de schijf geblokkeerd. %@ heeft volledige schijftoegang nodig om een versleutelde schijf te kunnen lezen."
+          }
         }
       }
     },
@@ -5853,6 +7089,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS ha scritto %@. Non viene inviato automaticamente da nessuna parte: allegalo al tuo messaggio se puoi."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS heeft %@ geschreven. Dat wordt nergens automatisch naartoe gestuurd — voeg het bij je bericht als dat kan."
           }
         }
       }
@@ -5882,6 +7124,12 @@
             "state": "translated",
             "value": "non raggiunto"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "niet bereikt"
+          }
         }
       }
     },
@@ -5909,6 +7157,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "interrotto qui"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hier gestopt"
           }
         }
       }
@@ -5938,6 +7192,12 @@
             "state": "translated",
             "value": "sbloccato"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ontgrendeld"
+          }
         }
       }
     },
@@ -5965,6 +7225,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "in attesa"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wachten"
           }
         }
       }
@@ -5994,6 +7260,12 @@
             "state": "translated",
             "value": "«%@» non rispondeva più ed è stato scollegato. Puoi aprirlo di nuovo."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’ reageerde niet meer en is losgekoppeld. Je kunt die opnieuw openen."
+          }
         }
       }
     },
@@ -6021,6 +7293,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "«%@» è sbloccato"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’ is ontgrendeld"
           }
         }
       }
