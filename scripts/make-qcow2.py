@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Wrap a raw disk image in a qcow2 container.
 
-There is no qemu-img on a Mac by default and the guest has none either, so the
-end-to-end test builds its own qcow2 rather than going without one. The mapping
-is linear — every guest cluster points at the next host cluster — which is the
-simplest valid qcow2 there is and exactly what a converted image looks like.
+There is no qemu-img on a Mac by default and none in the guest, so the
+end-to-end test writes its own qcow2. The mapping is linear, every guest cluster
+pointing at the next host cluster, which is the simplest valid qcow2 and what a
+converted image looks like.
 
     ./scripts/make-qcow2.py raw.img out.qcow2
 """

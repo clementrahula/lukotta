@@ -9,14 +9,14 @@
 #
 # Builds are unbranded by default. The Lukotta name, wordmark and logo are
 # trademarks and are not licensed under the GPL, so a build carries them only
-# when asked. Reproducing a published release needs official branding, and
-# doing that is fine; distributing the result under the name is not. The
-# software itself is GPL either way. See TRADEMARKS.txt.
+# when asked. Reproducing a published release requires official branding, which
+# is permitted; distributing the result under that name is not. The software is
+# GPL either way. See TRADEMARKS.txt.
 #
-# Signing proves who built it; notarising is a separate round trip to Apple,
-# and without it Gatekeeper refuses the app on every Mac but the one that built
-# it. Opt-in by naming a notarytool keychain profile, since it needs an Apple ID
-# and an app-specific password stored beforehand:
+# Signing establishes who built it. Notarising is a separate round trip to
+# Apple, without which Gatekeeper refuses the app on every Mac except the one
+# that built it. It is opt-in by naming a notarytool keychain profile, since it
+# needs an Apple ID and an app-specific password stored beforehand:
 #
 #   xcrun notarytool store-credentials "name" --apple-id ID --team-id TEAM
 #
@@ -26,8 +26,8 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
 # Everything the trademark covers, in one place. The unbranded identifier uses
-# example.com, which RFC 2606 reserves for good, so it can never collide with a
-# real vendor and reads as what it is: change me.
+# example.com, reserved by RFC 2606, so it cannot collide with a real vendor and
+# is recognisable as a placeholder.
 case "${LUKOTTA_BRANDING:-unbranded}" in
   official)
     APP_NAME="Lukotta"
@@ -61,8 +61,8 @@ SIGN_ID="${LUKOTTA_SIGN_ID:-$(security find-identity -v -p codesigning 2>/dev/nu
   | awk -F'"' '/Developer ID Application/ {print $2; exit}')}"
 [ -n "$SIGN_ID" ] || SIGN_ID="-"
 
-# Never build a shippable bundle from a failing tree. LUKOTTA_SKIP_TESTS=1 is for
-# fast iteration only.
+# A shippable bundle is never built from a failing tree. LUKOTTA_SKIP_TESTS=1 is
+# for iteration only.
 if [ "${LUKOTTA_SKIP_TESTS:-0}" != "1" ]; then
   printf 'Running tests…\n'
   swift run -c release LukottaTests >/dev/null || {

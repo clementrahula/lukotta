@@ -22,8 +22,8 @@ SKIP = {
     # Formats and separators, which carry no words.
     "%@", "%@, %@", "%@, %@, %@", "%@, %@, %@%@", "%@: %@", "%@ · %@", "%@ · %@ · %@",
     "%@ · %@ · %@ · %@", ", ", "-",
-    # The bug report is read by whoever fixes the bug, so it stays in one
-    # language however the interface is set.
+    # The bug report is read by whoever fixes the fault, so it stays in one
+    # language whatever the interface is set to.
     "yes", "no", "granted", "not granted",
 }
 

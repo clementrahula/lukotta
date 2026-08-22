@@ -3,9 +3,9 @@
 
     ./scripts/make-vhd.py raw.img out.vhd [--dynamic]
 
-A fixed VHD is the raw disk followed by a 512-byte footer, which is why the
-engine opens one with no format support at all. The dynamic form is written too,
-so the test has something that must be refused rather than mounted as gibberish.
+A fixed VHD is the raw disk followed by a 512-byte footer, which any engine
+opens unchanged. The dynamic form is written as well, so that the test has one
+of each.
 """
 
 import os

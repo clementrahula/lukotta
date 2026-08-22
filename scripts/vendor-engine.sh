@@ -7,10 +7,10 @@
 # binaries the engine never invokes on the host.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
-# Staged from artefacts fetched and checksummed against vendor/engine.lock, not
-# from whatever happens to be installed here. Staging from a local install is
-# what made the build unreproducible and what quietly set the app's minimum
-# macOS to that of the build machine.
+# Staged from artefacts fetched and checksummed against vendor/engine.lock
+# rather than from whatever is installed on this machine. Staging from a local
+# install made the build unreproducible and set the app's minimum macOS to that
+# of the build machine.
 UPSTREAM="$HERE/vendor/upstream"
 LOCK="$HERE/vendor/engine.lock"
 lockfield() { /usr/bin/python3 -c "import json;d=json.load(open('$LOCK'));print(d['$1']['$2'])"; }
@@ -44,9 +44,9 @@ ALFS="$SRC_RUNTIME/anylinuxfs/$ALFS_VERSION"
 # The locally built copies of the two patched binaries, when they exist.
 #
 # Everything else stays as the bottle shipped it. Only these two carry changes,
-# and which changes is written down beside them so the app can read it rather
-# than assume: an app built without running scripts/build-engine.sh works, it
-# simply does not have the fixes.
+# and the patch names are recorded beside them for the app to read rather than
+# assume. An app built without running scripts/build-engine.sh works and does
+# not have the fixes.
 BUILT="$HERE/vendor/engine-built"
 if [ -x "$BUILT/anylinuxfs" ] && [ -f "$BUILT/vmproxy" ]; then
   echo "  using our own build of anylinuxfs and vmproxy"
@@ -84,29 +84,30 @@ if [ -n "$WANT_DIGEST" ]; then
 fi
 
 echo "Copying Linux root filesystem…"
-# The rootfs is shipped as a single archive, not a directory tree: it holds ~500
-# symlinks pointing at absolute guest paths, and codesign --verify --strict
-# follows them and fails, which would make the signed app unverifiable.
+# The rootfs is shipped as a single archive rather than a directory tree. It
+# holds about 500 symlinks pointing at absolute guest paths, which
+# codesign --verify --strict follows and fails on, leaving the signed app
+# unverifiable.
 mkdir -p "$OUT/alpine"
 
-# Reduce the guest image to the packages Lukotta can actually reach. The image
-# ships everything anylinuxfs supports (LVM, RAID, btrfs, squashfs, ZFS); we
-# unlock BitLocker and mount NTFS. Every GPL package shipped is also a package
-# whose source must be published with the release, so this shrinks the download
-# and the compliance surface together. Set LUKOTTA_NO_TRIM=1 to ship the full image.
+# Reduce the guest image to the packages Lukotta reaches. The image ships
+# everything anylinuxfs supports, including LVM, RAID, btrfs, squashfs and ZFS.
+# Source for every GPL package shipped must be published with the release, so
+# trimming reduces the download and the compliance surface together. Set
+# LUKOTTA_NO_TRIM=1 to ship the full image.
 STAGE="$(mktemp -d)/rootfs"
 /usr/bin/ditto "$SRC_ROOTFS/rootfs" "$STAGE"
 if [ "${LUKOTTA_NO_TRIM:-0}" != "1" ]; then
   echo "  trimming guest image…"
   /usr/bin/python3 "$HERE/scripts/trim-image.py" "$STAGE"
 fi
-# Keep the resulting package database beside the image so the notices describe
-# what actually ships rather than what upstream installed.
+# Keep the resulting package database beside the image so that the notices
+# describe what ships rather than what upstream installed.
 cp "$STAGE/lib/apk/db/installed" "$OUT/alpine/packages.db"
 [ -f "$(dirname "$STAGE")/removed-packages.txt" ] && \
   cp "$(dirname "$STAGE")/removed-packages.txt" "$OUT/alpine/removed-packages.txt"
-# Number of entries in the archive, so the first-run unpack can show progress
-# rather than a spinner that looks stuck.
+# Number of entries in the archive, so that the first-run unpack shows progress
+# rather than a spinner.
 /usr/bin/find "$STAGE" | wc -l | tr -d ' ' > "$OUT/alpine/rootfs.count"
 
 echo "  packing rootfs (this takes a moment)…"

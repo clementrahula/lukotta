@@ -3,13 +3,13 @@
 
     ./scripts/make-vmdk-sparse.py raw.img out.vmdk
 
-One file holding everything: a header, the text descriptor that a flat VMDK
-keeps in a file of its own, a grain directory, grain tables, and then the grains
-themselves — one per 64 KB of disk that was written to. A grain of nothing is
-left out, which is what keeps the file small.
+One file holding the header, the text descriptor that a flat VMDK keeps
+separately, a grain directory, the grain tables and the grains, one for each
+64 KB of disk written to. A grain of zeroes is left out, which keeps the file
+small.
 
-Written here rather than fetched so the test has one to open without anyone
-needing VMware or qemu-img installed.
+Written here rather than fetched, so that the test has one to open without
+VMware or qemu-img installed.
 """
 
 import os
@@ -85,7 +85,7 @@ def write(source, destination):
         written = 0
         for i in range(grains):
             chunk = src.read(GRAIN * SECTOR)
-            # A grain of nothing is left out of the file entirely.
+            # A grain of zeroes is left out of the file.
             if not chunk.strip(b"\x00"):
                 continue
             grain_tables[i // GTES_PER_GT][i % GTES_PER_GT] = sector

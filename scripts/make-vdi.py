@@ -3,13 +3,13 @@
 
     ./scripts/make-vdi.py raw.img out.vdi
 
-A VDI is a header, a block map, and then the blocks. The map has one 32-bit
-entry per block of the virtual disk holding that block's index in the file;
-0xffffffff means the block was never written and reads as zeroes, which is how a
-mostly-empty disk stays small.
+A VDI is a header, a block map and the blocks. The map holds one 32-bit entry
+per block of the virtual disk, giving that block's index in the file. The value
+0xffffffff marks a block that was never written and reads as zeroes, which keeps
+a mostly-empty disk small.
 
-Written here rather than fetched so the test has a VDI to open without anyone
-needing VirtualBox or qemu-img installed.
+Written here rather than fetched, so that the test has a VDI to open without
+VirtualBox or qemu-img installed.
 """
 
 import os
@@ -52,8 +52,8 @@ def write(source, destination):
         out.write(block_map)                          # rewritten at the end
         for i in range(blocks):
             chunk = src.read(BLOCK)
-            # A block of nothing is left out of the file entirely, which is
-            # what keeps a mostly-empty disk small.
+            # A block of zeroes is left out of the file, which keeps a
+            # mostly-empty disk small.
             if not chunk.strip(b"\x00"):
                 continue
             struct.pack_into("<I", block_map, i * 4, allocated)

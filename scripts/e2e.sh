@@ -5,16 +5,16 @@
 #   ./scripts/e2e.sh
 #
 # Needs Full Disk Access for the app and a registered helper, so it runs on a
-# real Mac rather than in CI. Nothing is drawn — the app exits before its window
-# is ever built — and nothing of the user's is touched: the container is made
-# here, in a cache of its own, and only that is opened.
+# real Mac rather than in CI. Nothing is drawn, the app exiting before its window
+# is built, and nothing belonging to the user is touched: the container is made
+# here in a cache of its own, and only that is opened.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 
 # `anylinuxfs shell` truncates the image file to the last byte written, so an
-# image comes back shorter than it went in — 320 MB in, 69 MB out — and the
-# filesystem inside it then records one size and finds another, and refuses to
-# mount. Putting the length back afterwards is enough: the tail was zeroes.
+# image returns shorter than it went in, 320 MB becoming 69 MB. The filesystem
+# inside then records one size, finds another, and refuses to mount. Restoring
+# the length afterwards is enough, the tail having been zeroes.
 restore_length() {
   /usr/bin/python3 -c 'import os,sys; os.truncate(sys.argv[1], int(sys.argv[2]))' "$1" "$2"
 }
@@ -35,11 +35,11 @@ ENGINE="$APP/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs"
 if [ ! -f "$CONTAINER" ]; then
   echo "==> Building a LUKS container to test against (once)"
   mkdir -p "$CACHE"
-  # Fully allocated, not sparse. A sparse image is one size when the
-  # filesystem is made in it and another afterwards, and btrfs records the
-  # first and refuses to mount against the second:
+  # Fully allocated rather than sparse. A sparse image is one size when the
+  # filesystem is made in it and another afterwards; btrfs records the first and
+  # refuses to mount against the second:
   #   device total_bytes should be at most 72548352 but found 335544320
-  # Large enough for a filesystem too: btrfs refuses anything under ~110 MB.
+  # Also large enough for a filesystem: btrfs refuses anything under ~110 MB.
   dd if=/dev/zero of="$CONTAINER" bs=1m count=320 2>/dev/null
   "$ENGINE" shell "$CONTAINER" -c "
     echo -n '$PASSPHRASE' | cryptsetup luksFormat --type luks2 --batch-mode /dev/vda -
@@ -70,9 +70,9 @@ fi
 if [ ! -f "$EXFAT" ]; then
   echo "==> Building an exFAT image to test against (once)"
   mkdir -p "$CACHE"
-  # A raw image and newfs_exfat, not `hdiutil create -fs ExFAT`: that answers
-  # "Operation not permitted" here, and this shape is the one that matters
-  # in any case: a filesystem with no partition table around it.
+  # A raw image and newfs_exfat rather than `hdiutil create -fs ExFAT`, which
+  # answers "Operation not permitted" here. This is also the shape that matters:
+  # a filesystem with no partition table around it.
   dd if=/dev/zero of="$EXFAT" bs=1m count=40 2>/dev/null
   dev="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$EXFAT" | head -1 | awk '{print $1}')"
   newfs_exfat -v EXFAT "$dev" >/dev/null 2>&1
@@ -85,9 +85,8 @@ fi
 [ -f "$QCOW_PLAIN" ] || "$HERE/scripts/make-qcow2.py" "$PLAIN" "$QCOW_PLAIN" >/dev/null
 [ -f "$QCOW_ENC" ] || "$HERE/scripts/make-qcow2.py" "$CONTAINER" "$QCOW_ENC" >/dev/null
 
-# A real monolithicFlat VMDK: a text descriptor beside a raw extent. That is
-# the only shape it takes: the descriptor is read whole and capped at 2 MB, so
-# the data cannot be stored inside it.
+# A monolithicFlat VMDK: a text descriptor beside a raw extent. The descriptor
+# is read whole and capped at 2 MB, so the data cannot be stored inside it.
 VMDK="$CACHE/plain.vmdk"
 if [ ! -f "$VMDK" ]; then
   echo "==> Building a VMDK to test against (once)"
@@ -104,17 +103,17 @@ fi
 VMDK_BAD="$CACHE/reaches-out.vmdk"
 [ -f "$VMDK_BAD" ] || printf '# Disk DescriptorFile\nversion=1\ncreateType="monolithicFlat"\n\nRW 4096 FLAT "/etc/passwd" 0\n' > "$VMDK_BAD"
 
-# A fixed VHD is the raw disk followed by a 512-byte footer, so the engine reads
-# it as-is. The dynamic one stores its data in blocks listed by an allocation
-# table, so it must be refused rather than served as gibberish.
+# A fixed VHD is the raw disk followed by a 512-byte footer, which the engine
+# reads unchanged. The dynamic form stores its data in blocks listed by an
+# allocation table.
 VHD="$CACHE/plain.vhd"
 VHD_DYNAMIC="$CACHE/dynamic.vhd"
 [ -f "$VHD" ] || "$HERE/scripts/make-vhd.py" "$PLAIN" "$VHD" >/dev/null
 [ -f "$VHD_DYNAMIC" ] || "$HERE/scripts/make-vhd.py" "$PLAIN" "$VHD_DYNAMIC" --dynamic >/dev/null
 
-# A VDI, VirtualBox's format: a header, a block map, and the blocks in whatever
-# order they were written. And one claiming version 0, which laid the header out
-# differently and must be refused rather than read as though it were version 1.
+# A VDI, VirtualBox's format: a header, a block map, and the blocks in the order
+# they were written. Also one claiming version 0, which laid the header out
+# differently and must be refused rather than read as version 1.
 VDI="$CACHE/plain.vdi"
 VDI_BAD="$CACHE/version-zero.vdi"
 [ -f "$VDI" ] || "$HERE/scripts/make-vdi.py" "$PLAIN" "$VDI" >/dev/null
@@ -130,8 +129,8 @@ open(p, 'wb').write(bytes(b))
 fi
 
 # A sparse VMDK: one file holding the header, the descriptor, a grain directory
-# and the grains. And one whose grains are compressed, which is a different
-# thing to read and must be refused rather than served as noise.
+# and the grains. Also one whose grains are deflated, which the driver reads
+# through a separate path.
 VMDK_SPARSE="$CACHE/sparse.vmdk"
 [ -f "$VMDK_SPARSE" ] || "$HERE/scripts/make-vmdk-sparse.py" "$PLAIN" "$VMDK_SPARSE" >/dev/null
 # The streamed form, whose grains are deflated: written by qemu-img, which is
@@ -140,7 +139,7 @@ VMDK_SPARSE="$CACHE/sparse.vmdk"
 VMDK_STREAMED="$CACHE/streamed.vmdk"
 
 # A VHDX: two headers, a region table, a metadata region and an allocation
-# table. Also two that must be refused rather than read: one whose log was not
+# table. Also two that must be refused: one whose log was not
 # emptied, so its most recent state was never written back into it, and one
 # holding only the changes from a disk it names.
 VHDX="$CACHE/plain.vhdx"

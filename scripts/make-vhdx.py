@@ -3,14 +3,14 @@
 
     ./scripts/make-vhdx.py raw.img out.vhdx [--dirty | --parent]
 
-The most involved of the formats: a file signature, two headers of which the
-live one is whichever has the higher sequence number, a region table saying
-where the rest is, a metadata region giving the block and disk sizes, and an
-allocation table with one entry per block.
+The format has several structures: a file signature, two headers of which the
+live one carries the higher sequence number, a region table locating the rest, a
+metadata region giving the block and disk sizes, and an allocation table with one
+entry per block.
 
-`--dirty` writes one whose log is not empty, meaning it was not closed cleanly,
-and `--parent` one that says it holds only the changes from another disk. Both
-must be refused rather than read, which is what the test checks.
+`--dirty` writes one whose log is not empty, meaning it was not closed cleanly.
+`--parent` writes one declaring that it holds only the changes from another disk.
+The test checks that both are refused.
 """
 
 import os
@@ -64,8 +64,8 @@ def header(sequence, dirty):
     struct.pack_into("<Q", b, 8, sequence)
     b[16:32] = uuid.uuid5(uuid.NAMESPACE_URL, "lukotta/file").bytes_le
     b[32:48] = uuid.uuid5(uuid.NAMESPACE_URL, "lukotta/data").bytes_le
-    # Zero means the log holds nothing. Anything else says the image was not
-    # closed cleanly and its newest state is still in the log.
+    # Zero means the log holds nothing. Any other value marks an image that was
+    # not closed cleanly, whose most recent state is still in the log.
     b[48:64] = uuid.uuid5(uuid.NAMESPACE_URL, "lukotta/log").bytes_le if dirty else bytes(16)
     struct.pack_into("<H", b, 64, 0)        # log version
     struct.pack_into("<H", b, 66, 1)        # version
@@ -111,9 +111,9 @@ def metadata(size, parent):
 def write(source, destination, dirty=False, parent=False):
     size = os.path.getsize(source)
     blocks = (size + BLOCK - 1) // BLOCK
-    # Every so many payload entries the table holds one for a sector bitmap,
-    # which only a differencing image uses; they are counted so the payload
-    # ones land where a reader expects them.
+    # Every so many payload entries the table holds one describing a sector
+    # bitmap, which only a differencing image uses. They are counted so that the
+    # payload entries land where a reader expects them.
     chunk_ratio = (1 << 23) * SECTOR // BLOCK
     entries = blocks + (blocks - 1) // chunk_ratio
 
@@ -133,7 +133,7 @@ def write(source, destination, dirty=False, parent=False):
         for i in range(blocks):
             chunk = src.read(BLOCK)
             index = i + i // chunk_ratio
-            # A block of nothing is left out of the file entirely.
+            # A block of zeroes is left out of the file.
             if not chunk.strip(b"\x00"):
                 struct.pack_into("<Q", bat, index * 8, BLOCK_NOT_PRESENT)
                 continue

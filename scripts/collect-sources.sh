@@ -53,10 +53,10 @@ note "anylinuxfs $ANYLINUXFS_VER (GPL-3.0-or-later)"
 fetch "https://github.com/nohajc/anylinuxfs/archive/refs/tags/v${ANYLINUXFS_VER}.tar.gz" \
       "$OUT/anylinuxfs-${ANYLINUXFS_VER}.tar.gz"
 
-# We ship a modified anylinuxfs, so the modification is part of the
-# corresponding source and not merely the original it was made from. The
-# patches are also inside the Lukotta archive above; they are copied out here
-# so they sit beside the tarball they apply to.
+# anylinuxfs is shipped modified, so the modifications form part of the
+# corresponding source along with the original. The patches are also inside the
+# Lukotta archive above and are copied out here so that they sit beside the
+# tarball they apply to.
 if [ -d "$HERE/patches" ]; then
   mkdir -p "$OUT/anylinuxfs-patches"
   cp "$HERE"/patches/*.patch "$HERE/patches/README.md" "$OUT/anylinuxfs-patches/" 2>/dev/null
@@ -68,9 +68,9 @@ if [ -d "$HERE/patches" ]; then
 fi
 note ""
 
-# The two crates the host binary links in that we patch. They are built from
-# source into the shipped binary, so their source and our changes to it are part
-# of the corresponding source as much as anylinuxfs's own.
+# The two patched crates the host binary links in. They are compiled into the
+# shipped binary, so their source and the changes to it belong in the
+# corresponding source as much as anylinuxfs's does.
 for crate in imago krun-devices; do
   cver="$(lockfield "$crate" version)"
   note "$crate $cver ($(lockfield "$crate" licence)), linked into the engine and patched"
@@ -88,9 +88,9 @@ fetch "https://github.com/containers/libkrunfw/archive/refs/heads/main.tar.gz" \
 note ""
 
 # libblkid is the one library the engine links from outside its own build, and
-# it is LGPL: shipping it obliges us to offer its source too. The version comes
-# from the same lock that decides which build is vendored, so this cannot drift
-# from what is actually in the app.
+# it is LGPL, so shipping it obliges an offer of its source. The version comes
+# from the same lock that decides which build is vendored, so it cannot drift
+# from what is in the app.
 UTIL_VER="$(/usr/bin/python3 -c "import json;print(json.load(open('$HERE/vendor/engine.lock'))['util_linux']['version'])" 2>/dev/null || echo "")"
 if [ -n "$UTIL_VER" ]; then
   note "util-linux $UTIL_VER (LGPL-2.1-or-later), source of the bundled libblkid"

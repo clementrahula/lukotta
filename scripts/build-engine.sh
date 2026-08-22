@@ -7,14 +7,14 @@
 # still comes from the checksummed bottle that scripts/fetch-engine.sh
 # downloads. Only these two are built here:
 #
-#   anylinuxfs   the host binary, patched to offer VMDK, VDI and VHD
+#   anylinuxfs   the host binary, patched to offer VMDK, VDI, VHD and VHDX
 #   vmproxy      the guest binary, patched to unlock what it probes
 #
-# The formats themselves are read by two crates the host binary links in,
-# imago and krun-devices, which are fetched here and patched too: imago gains a
-# driver for VDI and one for VHD, and krun-devices learns to ask for them. Both
-# are built from their crates.io source, checksummed like everything else, and
-# put in the build's path with [patch.crates-io].
+# The formats are read by two crates the host binary links in, imago and
+# krun-devices, which are fetched and patched here as well: imago gains drivers
+# for VDI, VHD and VHDX and reads the sparse forms of VMDK, and krun-devices
+# selects them by format number. Both are built from their crates.io source,
+# checksummed like everything else, and compiled in through [patch.crates-io].
 #
 # Every patch is in patches/, with what it does and why.
 #
@@ -77,8 +77,8 @@ else
   echo "  fetch   anylinuxfs-$VERSION source"
   /usr/bin/curl -fsSL --max-time 900 -o "$TARBALL" "$URL"
   got="$(/usr/bin/shasum -a 256 "$TARBALL" | awk '{print $1}')"
-  # The same rule as every other artefact: a mismatch stops the build rather
-  # than compiling something unexamined.
+  # As with every other artefact, a mismatch stops the build rather than
+  # compiling unexamined source.
   [ "$got" = "$WANT" ] || { rm -f "$TARBALL"; echo "error: source checksum mismatch" >&2
     echo "  expected $WANT" >&2; echo "  got      $got" >&2; exit 1; }
   echo "          sha256 verified"
@@ -117,9 +117,9 @@ for patch in "$HERE"/patches/*.patch; do
   APPLIED+=("$name")
 done
 
-# Build against the patched crates rather than the published ones. Cargo keeps
-# resolving versions from the lock; this only changes where the source comes
-# from, which is why the versions here have to be the ones already resolved.
+# Build against the patched crates rather than the published ones. Cargo still
+# resolves versions from the lock and only the source location changes, so the
+# versions here must be the ones already resolved.
 # The manifest already has a [patch.crates-io] section, and a second one is an
 # error, so these go into the one that is there.
 {
