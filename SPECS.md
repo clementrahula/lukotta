@@ -1,11 +1,11 @@
 # Specifications
 
-What Lukotta opens, how, and what it does not open and why.
+What Lukotta opens, how it opens it, and what it does not.
 
 Lukotta hands a drive or a file to a Linux virtual machine, mounts it there, and
-re-exports it over NFS so that Finder sees an ordinary volume. Everything below
-follows from that arrangement: what Linux can mount, Lukotta can open, provided
-the bytes reach Linux in a form it recognises.
+re-exports it over NFS so that Finder sees an ordinary volume. Lukotta can
+therefore open what Linux can mount, provided the bytes reach Linux in a form it
+recognises.
 
 ---
 
@@ -25,7 +25,7 @@ the bytes reach Linux in a form it recognises.
 
 The guest is an Alpine image of 66 packages carrying `ntfs-3g`, `btrfs-progs`,
 `e2fsprogs`, `cryptsetup` and `lvm2`. A filesystem outside that list cannot be
-mounted however the bytes arrive.
+mounted.
 
 ### Encryption
 
@@ -62,15 +62,15 @@ engine.
 | VHDX with a log that is not empty | No | See §6 |
 | Sparse bundles, encrypted DMG | No | macOS opens both natively. See §5 |
 
-The VMDK, VDI, VHD and VHDX drivers are Lukotta's own, written for imago, the
-crate that reads image formats for the engine. See `patches/README.md`.
+The VMDK, VDI, VHD and VHDX drivers were written here for imago, the crate that
+reads image formats for the engine. See `patches/README.md`.
 
 ---
 
 ## 2. How it works
 
-Four layers carry a disk image from a file name to a mounted volume, and all
-four are Lukotta's to change:
+Four layers carry a disk image from a file name to a mounted volume, each of
+them patched here:
 
     file extension  →  anylinuxfs DiskFormat  →  a format number  →  krun_add_disk2
                     →  krun-devices ImageType →  imago driver
@@ -85,12 +85,12 @@ built with cannot open.
 Two paths lead to a mounted volume:
 
 **A physical drive** is unlocked and mounted in the guest, then re-exported over
-NFS. This requires the privileged helper, because reading a raw disk device does.
+NFS. Reading a raw disk device requires the privileged helper.
 
 **A disk image** is opened without privilege. A raw image is attached by macOS
-first; every other format is handed to the engine as a path, and the engine
-reads the format itself. Nothing is attached, and the mount appears under
-`~/Volumes` rather than `/Volumes`, so no part of the operation is elevated.
+first; every other format is handed to the engine as a path, which the engine
+reads itself, attaching nothing. The mount appears under `~/Volumes` rather than
+`/Volumes`.
 
 ---
 
@@ -114,19 +114,18 @@ Every such image is refused before the engine is given the path:
 
 The drivers refuse these images as well, so the rule holds in both layers. Disk
 images are also opened without privilege, which limits the reach of any such
-reference to what the person who opened the file could already read. None of
-that is grounds for relaxing the checks as further formats are added.
+reference to what the person who opened the file could already read. The checks
+are not relaxed as further formats are added.
 
 ---
 
 ## 4. What is handed to macOS instead
 
-An exFAT image is attached by macOS and left mounted there, rather than being
-carried through the virtual machine. macOS reads and writes exFAT natively, so
-routing it through NFS would add a layer that serves no purpose and would take
-the volume out of Finder's hands. The application says so on screen when it
-happens, so that the volume's appearance in `/Volumes` rather than `~/Volumes`
-is not a surprise.
+An exFAT image is attached by macOS and left mounted there rather than carried
+through the virtual machine. macOS reads and writes exFAT natively, so routing
+it through NFS would add a layer that serves no purpose and would remove the
+volume from Finder's control. The application states this on screen, since the
+volume then appears in `/Volumes` rather than `~/Volumes`.
 
 The same reasoning applies to the drive list: a disk macOS already reads is
 listed with that as its verdict rather than offered for opening.
@@ -139,13 +138,11 @@ listed with that as its verdict rather than offered for opening.
 
 macOS opens it natively, and the guest has no HFS+ or APFS driver, so a volume
 unlocked there could not then be mounted. cryptsetup's `fvault2` handler exists
-but leads nowhere without a filesystem driver behind it. There is no version of
-this that is better than what macOS already does.
+and leads nowhere without a filesystem driver behind it.
 
 ### Encrypted DMG and sparse bundles
 
-macOS opens both natively and integrates them with Keychain and Finder. Nothing
-Lukotta could add would improve on that.
+macOS opens both natively and integrates them with Keychain and Finder.
 
 ### VeraCrypt and TrueCrypt
 
@@ -153,9 +150,9 @@ cryptsetup carries an independent `tcrypt` implementation, and it is in the
 guest already. It is not reachable from the application, since the engine
 decides what to unlock from what `blkid` reports, and a TrueCrypt volume has no
 signature to report: the header is indistinguishable from random data by design.
-Opening one requires the user to state that a device is a TrueCrypt volume and
-supply the passphrase. That is a plausible future addition; it needs an
-interface, not a new dependency.
+Opening one requires the person to state that a device holds a TrueCrypt volume
+and to supply the passphrase. Adding it would require an interface for that
+statement. No new dependency is involved.
 
 ### Stream-optimized VMDK inside an OVA
 
@@ -168,9 +165,8 @@ and open that.
 An image that was not shut down cleanly keeps its most recent state in its log.
 Replaying that log is a write, and Lukotta does not write to a disk image.
 Reading the file without replaying it returns data older than the disk last
-held, which is the failure most easily mistaken for corruption. The image is
-therefore refused by name, with the remedy stated: open it once in the virtual
-machine it belongs to, which empties the log.
+held. The image is therefore refused by name, and the message states the remedy:
+open it once in the virtual machine it belongs to, which empties the log.
 
 This could be done without writing to the file. imago's `readv_special()` allows
 a driver to serve bytes itself, so a log could be replayed into memory and
@@ -181,9 +177,9 @@ other.
 
 ### qemu in the guest
 
-Investigated and rejected. The guest kernel has no `nbd` module, the FUSE export
-path is absent, and `nbdfuse` is not packaged for Alpine. This was tested rather
-than assumed, and it is the reason the format drivers live in imago instead.
+The guest kernel has no `nbd` module, the FUSE export path is absent, and
+`nbdfuse` is not packaged for Alpine. Each was tested on the shipped guest. This
+is why the format drivers are in imago.
 
 ---
 

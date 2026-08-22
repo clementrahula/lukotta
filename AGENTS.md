@@ -10,9 +10,9 @@ those for everything this file leaves out.
 
 ## Commands That Report The Wrong Thing
 
-`swift test` prints `no tests found`. There are 178 checks; they are a plain
-executable target, run by `./scripts/run-tests.sh`. Never conclude from
-`swift test` that this project is untested.
+`swift test` prints `no tests found`. The checks are a plain executable target,
+run by `./scripts/run-tests.sh`, which reports the count. `swift test` is not
+evidence that this project is untested.
 
 `swift build` succeeds and produces an app that cannot unlock anything. A
 working bundle needs the Linux engine and the compiled asset catalogue:
@@ -48,11 +48,11 @@ Commit before building anything you intend to compare.
 
 **The engine exits 0 when a mount fails.** Its status describes its own
 shutdown. Judge a mount by the mount table, which is what
-`MountScript.mountedCheck` does. Trusting the exit status silently disables
-every fallback path in the generated script.
+`MountScript.mountedCheck` does. Trusting the exit status disables every fallback path in the generated
+script.
 
-Failures are explained by matching text, because there is nothing else: with
-the exit status meaningless, `Diagnosis.rules` looks for phrases. Each rule
+Failures are explained by matching text, the exit status being meaningless:
+`Diagnosis.rules` looks for phrases. Each rule
 records whether the words are the engine's own or the Linux tooling's, and
 `Diagnosis.enginesChecked` lists the engine versions the rules have been tried
 against. **Bumping `vendor/engine.lock` fails a test until that list is
@@ -68,7 +68,6 @@ carriage returns. Strip `\r` before parsing or comparing.
 The generated script embeds a single-quoted `awk` program. An apostrophe
 anywhere inside it, including inside a comment, closes the quote and breaks the
 whole script. A test runs `sh -n` over the generated output to catch this.
-Keep it.
 
 ## Finding Out What The App Did
 
@@ -82,9 +81,9 @@ helper logs under the same subsystem as the app it came from, so one predicate
 catches both processes and the `category` tells them apart.
 
 A string interpolated into a log message is private by default and reads back
-as `<private>`, which is what a drive's name and a path on someone's disk
-should do. Anything meant to be legible says `privacy: .public`. A passphrase
-is never logged at all.
+as `<private>`, which is correct for a drive's name and for a path on someone's
+disk. Anything meant to be legible says `privacy: .public`. A passphrase is
+never logged.
 
 ## Snapshots
 
@@ -95,17 +94,17 @@ and compares it with `tests/snapshots/`. It needs `./build-app.sh` to have run;
 Baselines belong to one branding, the header drawing the app's own name, so
 never record them from an official build.
 
-`--record` replaces the baselines. It is a separate command on purpose: a
-harness that updates its own baselines passes whatever it drew. Look at the
-pictures before recording.
+`--record` replaces the baselines. It is a separate command because a harness
+that updates its own baselines passes whatever it drew. Look at the pictures
+before recording.
 
 `ImageRenderer` is not used. It draws SwiftUI on its own and comes back with
 the inside of a `ScrollView` empty, which is where the drive list lives. The
 scenes are hosted in an off-screen `NSWindow` instead.
 
 `dynamicTypeSize` does nothing on macOS. Every scene rendered at
-`.accessibility3` came out byte-identical to `.large`, which is why the second
-axis is window size rather than text size.
+`.accessibility3` came out byte-identical to `.large`, so the second axis is
+window size.
 
 ## A Closure Handed To An Objective-C API
 
@@ -114,10 +113,10 @@ isolated, and an Objective-C API that calls it on its own queue traps:
 `dispatch_assert_queue_fail`, SIGTRAP, process gone. Under Swift 5 the same
 code ran, because nothing checked.
 
-This killed build 232: `HelperClient`'s XPC error handler, reached the first
-time a helper too old to answer sent the call to that handler.
+Build 232 crashed on exactly this: `HelperClient`'s XPC error handler, reached
+the first time a helper too old to answer sent the call to that handler.
 
-So a closure destined for `NSXPCConnection`, `NSWorkspace.recycle`,
+A closure destined for `NSXPCConnection`, `NSWorkspace.recycle`,
 `DiskArbitration` or anything else that calls back on an unknown queue must be
 created **outside** any actor, in a `nonisolated` function, usually static. Hop
 back with `Task { @MainActor in … }` once inside. `HelperClient.roundTrip` and
@@ -130,21 +129,22 @@ that proves the plumbing rather than the identification.
 
 `--reinstall-helper` takes the daemon down and puts it back. The helper has no
 KeepAlive and never exits on its own, so **replacing the application leaves the
-old helper resident**, answering with whatever methods it was built with. That
-is what made a hand-installed build look like it had a broken probe. Sparkle
-updates do not need it; hand-installed ones do.
+old helper resident**, answering with whatever methods it was built with. A
+hand-installed build then appears to have a broken probe. Sparkle updates do not
+need this; hand-installed ones do.
 
 ## End-To-End
 
 `./scripts/e2e.sh` drives a whole flow through the built app with no window and
 no person: open a container file, unlock it, rebuild the list underneath it,
 eject it. Real engine, real helper, real hdiutil. It builds its own LUKS
-container once, in a cache of its own, and touches nothing of the user's.
+container once, in a cache of its own, and touches nothing belonging to the
+user.
 
 `anylinuxfs shell` **truncates an image file to the last byte written**, 320 MB
 in and 69 MB out, so a filesystem made that way records one size, later finds
 another, and will not mount. `scripts/e2e.sh` puts the length back afterwards.
-This is why fixtures built through the engine look fine and then fail.
+A fixture built through the engine therefore looks correct and then fails.
 
 `build-app.sh` **runs the tests and refuses to build when they fail**, so
 breaking something on purpose to check a test can fail may leave you running
@@ -159,7 +159,7 @@ thing on purpose and watch the step fail before trusting it.
 
 ## The Engine Is Modified
 
-Two of its binaries are ours: `anylinuxfs` and `vmproxy`, built by
+Two of its binaries are built here: `anylinuxfs` and `vmproxy`, built by
 `scripts/build-engine.sh` from the source tarball pinned in `vendor/engine.lock`
 and checked against the same sha256 the release verifies. Everything else still
 comes from the checksummed bottle. The patches are in `patches/`, with what each
@@ -168,7 +168,7 @@ does and why.
 **Building without that step is fine and produces a working app**, one without
 the fixes. `vendor-engine.sh` writes the applied patch names into
 `engine/anylinuxfs/PATCHES` and `EnginePaths.enginePatches` reads it, so the app
-says what it can do rather than assuming. Do not make the app assume.
+states what it can do rather than assuming it. Keep it that way.
 
 Needs `brew install llvm lld util-linux` and the
 `aarch64-unknown-linux-musl` Rust target.
@@ -176,13 +176,13 @@ Needs `brew install llvm lld util-linux` and the
 **An image can name other files.** From libkrun's header: formats other than raw
 can reference other files, which libkrun then opens. Any qcow2 naming a backing
 file or an external data file is refused before the engine is told anything;
-see `Qcow2Header.namesAnotherFile`. Keep that check ahead of the engine when adding
-formats.
+see `Qcow2Header.namesAnotherFile`. Keep that check ahead of the engine when
+adding formats.
 
 ## Security Invariants
 
-These are load-bearing. Changing any of them needs a deliberate decision, not
-a refactor.
+Each of these is load-bearing. Changing one is a deliberate decision rather
+than a refactor.
 
 - The passphrase reaches root through a FIFO. It never appears in `argv`.
 - Redaction works by value, so a passphrase is removed from a log because it

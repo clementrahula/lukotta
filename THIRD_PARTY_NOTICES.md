@@ -33,8 +33,8 @@ to which they apply.
 | krun-devices | Apache-2.0 | 2026-08-22 | Selection of the VDI, VHD and VHDX drivers by disk-format number |
 
 Files added to imago by these modifications are licensed under the MIT terms of
-that crate and carry a notice to that effect. No part of Lukotta's own source is
-so licensed.
+that crate and carry a notice recording it. Lukotta's own source is not
+licensed under those terms.
 
 ## Host Components
 
@@ -133,9 +133,9 @@ available from the Alpine Linux package archive at
 | zstd-libs | 1.5.7-r2 | BSD-3-Clause OR GPL-2.0-or-later |
 
 The guest image is a reduced subset of Alpine Linux, containing only the
-packages required to unlock and mount the supported filesystems. Notably
-it contains no ZFS components: neither the `zfs` and `zfs-libs` packages
-nor the `zfs.ko` and `spl.ko` kernel modules are distributed with Lukotta.
+packages required to unlock and mount the supported filesystems. It contains
+no ZFS components: neither the `zfs` and `zfs-libs` packages nor the `zfs.ko`
+and `spl.ko` kernel modules are distributed with Lukotta.
 
 ## Notes
 
@@ -160,6 +160,6 @@ must carry its own name and artwork. See TRADEMARKS.txt in the source.
 BitLocker and Windows are trademarks of Microsoft Corporation. Linux is a
 registered trademark of Linus Torvalds. macOS, Finder and Apple Silicon are
 trademarks of Apple Inc. Lukotta is not affiliated with, endorsed by, or
-sponsored by any of them, and names them only to say what it works with.
+sponsored by any of them, and names them to state what it works with.
 
 Generated 2026-08-21.

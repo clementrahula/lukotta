@@ -1,8 +1,8 @@
 # Security Policy
 
 Lukotta reads raw disks, parses disk images it is given, handles disk
-encryption passphrases, and runs part of itself as root. Here is how it does
-those things, and where to report a fault.
+encryption passphrases, and runs part of itself as root. This document states
+how each of those is done, and where to report a fault.
 
 ## Reporting a Vulnerability
 
@@ -15,7 +15,7 @@ bug icon in the app: it removes the passphrase from the engine output and shows
 you the whole report before anything is sent.
 
 One person maintains this, so there is no response window and no bounty.
-Expect a reply within a few days.
+A reply usually follows within a few days.
 
 ## In Scope
 
@@ -23,11 +23,11 @@ Expect a reply within a few days.
   crash file, on disk, or in the interface.
 - Anything that lets a process other than Lukotta ask the privileged helper to
   do something.
-- Anything that lets a drive's contents change during an unlock that was only
-  meant to read it.
+- Anything that changes a drive's contents during an unlock intended only to
+  read it.
 - Anything that makes the app accept an update it should have refused.
-- A disk image that reads a file it was not given: one naming a backing file,
-  an extent, or a parent disk, and having that file opened.
+- A disk image that causes a file it did not receive to be opened: one naming
+  a backing file, an extent or a parent disk.
 - A disk image that makes a format driver read outside the file, allocate
   without bound, or serve one part of the file as another.
 
@@ -35,8 +35,8 @@ Expect a reply within a few days.
 
 - Vulnerabilities in anylinuxfs, libkrun or the Linux packages inside the
   guest image. Report those upstream; tell me as well if Lukotta ships an
-  affected version. The format drivers for VDI, VHD, VHDX and VMDK are the
-  exception: they are written here and are in scope above.
+  affected version. The format drivers for VDI, VHD, VHDX and VMDK are written
+  here and are in scope above.
 - macOS asking for Full Disk Access, or the system's own dialogs.
 - Anything requiring an attacker who is already root on the machine.
 
@@ -51,10 +51,10 @@ is not an argument, so it does not appear in `ps`; the environment of a root
 process can only be read by root.
 
 The engine is driven through a pseudo-terminal, which echoes what is written
-to it, so the passphrase can come back inside the engine's own output.
-Transcripts are therefore scrubbed by value: the exact string is removed
-before anything reaches the screen, a log or a bug report. Matching on shape
-would catch a recovery key and miss an ordinary passphrase.
+to it, so the passphrase can appear in the engine's own output. Transcripts are
+therefore filtered by value: the exact string is removed before anything reaches
+the screen, a log or a bug report. Matching on shape would catch a recovery key
+and miss an ordinary passphrase.
 
 Storing it is optional and off by default. If you turn it on, it goes to the
 login Keychain, reachable only while the Mac is unlocked, and never synced to
@@ -84,30 +84,30 @@ is attached for the formats the engine reads itself, and the volume is mounted
 under the user's own home folder. What an image can reach is therefore bounded
 by what the person who opened it could already read.
 
-That bound is not the whole defence. Every format other than raw can name
-another file, and libkrun opens whatever an image names, so an image could
-otherwise determine which files the virtual machine reads. Each such image is
-refused before the engine is given the path: a qcow2 with a backing or external
-data file, a VMDK extent that is not a plain name beside its descriptor, a
-VMDK snapshot chain, a differencing VHD, and a VHDX naming a parent. The
-drivers refuse them as well, so the rule holds in both layers.
+That bound is not relied on alone. Every format other than raw can name another
+file, and libkrun opens whatever an image names, so an image could otherwise
+determine which files the virtual machine reads. Each such image is refused
+before the engine is given the path: a qcow2 with a backing or external data
+file, a VMDK extent that is not a plain name beside its descriptor, a VMDK
+snapshot chain, a differencing VHD, and a VHDX naming a parent. The drivers
+refuse them as well, so the rule holds in both layers.
 
-The drivers themselves parse a file supplied by whoever opened it. Each is
-read-only and validates every value before relying on it: block sizes must be
-powers of two, maps are bounded to a size a real disk could require, and every
-entry must lie within the file. [SPECS.md](SPECS.md) states what each format
-is and which images are refused.
+The drivers parse a file supplied by whoever opened it. Each is read-only and
+validates every value before relying on it: block sizes must be powers of two,
+maps are bounded to a size a real disk could require, and every entry must lie
+within the file. [SPECS.md](SPECS.md) states what each format is and which
+images are refused.
 
 ## What the App Can Reach
 
 Full Disk Access is required to read a drive. macOS blocks reading a drive's
 raw contents without it, and an encrypted drive is nothing but raw contents
 until it is unlocked. No app can request it; it has to be granted by hand. A
-disk image needs none of this, being an ordinary file.
+disk image is an ordinary file and requires none of this.
 
-Nothing is sent anywhere. The engine is inside the app, so no component is
-downloaded at first run. The only outbound request Lukotta makes on its own is
-the update check, described in [PRIVACY.md](PRIVACY.md).
+The engine is inside the app, so no component is downloaded at first run. The
+only outbound request Lukotta makes on its own is the update check, described in
+[PRIVACY.md](PRIVACY.md).
 
 ## Updates
 
@@ -124,9 +124,9 @@ back after two failed starts.
 - A Mac that is already compromised. A process running as root can read the
   environment of another root process, and can talk to anything.
 - Someone who has your passphrase, or a Mac left unlocked with a drive open.
-- A drive that was already tampered with. Lukotta unlocks what it is given; it
+- A drive that was already tampered with. Lukotta unlocks what it is given and
   cannot tell you whether the contents were altered before you plugged it in.
-  The same holds for a disk image: the checks above stop an image reaching
-  other files, and say nothing about whether its contents are what you expect.
+  The same holds for a disk image: the checks above stop an image reaching other
+  files, and say nothing about whether its contents are what you expect.
 - The initialise dialog when Lukotta is not running. Lukotta suppresses it by
   claiming drives it recognises, and a claim belongs to a running process.

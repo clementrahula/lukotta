@@ -11,8 +11,9 @@ For privacy questions or requests, contact **lukotta@rahula.dev**.
 
 ## Plain-English Summary
 
-Lukotta has no accounts, no analytics and no telemetry. It never sees what is
-on your drives, and your passphrase never leaves your Mac.
+Lukotta has no accounts, no analytics and no telemetry. It does not read what
+is on your drives beyond mounting them, and your passphrase never leaves your
+Mac.
 
 The app makes one network request on its own: a daily check for a newer
 version. That can be turned off in Settings, after which it makes none.
@@ -76,18 +77,18 @@ Neither uses cookies, advertising trackers, visitor profiling or analytics.
 
 Storing a passphrase is off unless you turn it on. It then goes to your login
 Keychain, reachable only while your Mac is unlocked and marked not to sync, so
-it does not travel to iCloud or another device. It stays on your Mac and is
-never transmitted. Forgetting it in the app deletes the entry.
+it does not reach iCloud or another device. It is never transmitted. Forgetting
+it in the app deletes the entry.
 
 ## Files on Your Mac
 
-The Linux environment is unpacked to `~/.anylinuxfs` on first use, about 95
+The Linux environment is unpacked to `~/.anylinuxfs` on first use, about 100
 MB. Anything else an unlock needs is created in a private temporary folder and
 removed when the app quits.
 
-Lukotta remembers the label of a drive you have opened, so it can name it
-correctly next time. That is a volume label and a partition identifier.
-Nothing about the contents is stored.
+Lukotta records the label of a drive you have opened so that it can name the
+drive correctly next time: a volume label and a partition identifier. Nothing
+about the contents is stored.
 
 ## Service Providers
 
@@ -119,7 +120,8 @@ you: access, correction, deletion, restriction, objection and portability. To
 exercise them, contact **lukotta@rahula.dev**.
 
 Because so little is collected, the Developer will usually hold nothing that
-identifies you, and may be unable to link a request to any stored data. If you
+identifies you, and may therefore be unable to link a request to any stored
+data. If you
 believe your personal data has been processed unlawfully, you also have the
 right to lodge a complaint with a data-protection supervisory authority. In
 the Republic of Estonia, this is the Estonian Data Protection Inspectorate

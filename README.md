@@ -9,7 +9,7 @@
 <p align="center">
   <strong>Open BitLocker, Linux and virtual machine disks on macOS.</strong><br>
   Plug in a drive or open a disk image, type the password, and it appears in
-  Finder — readable and writable, like any other disk.
+  Finder, readable and writable, like any other disk.
 </p>
 
 <p align="center">
@@ -26,12 +26,12 @@
 
 ## How It Works
 
-macOS cannot read BitLocker or Linux filesystems. Linux can. So Lukotta starts a
+macOS cannot read BitLocker or Linux filesystems; Linux can. Lukotta starts a
 small Linux virtual machine, unlocks the drive inside it, and hands the drive
 back to Finder.
 
-A disk image opens the same way, and without an administrator password. The
-volume appears in your home folder.
+A disk image opens the same way, without an administrator password. The volume
+appears in your home folder.
 
 ## What It Can Open
 
@@ -54,8 +54,8 @@ volume appears in your home folder.
 | **What is inside them** | A BitLocker or LUKS volume inside any image, which unlocks like one on a drive |
 
 An exFAT image is handed to macOS, which reads and writes that format itself.
-[SPECS.md][specs] is the full specification: every filesystem, encryption
-and image format, how each is read, and what is not supported and why.
+[SPECS.md][specs] specifies every filesystem, encryption and image format, how
+each is read, and what is not supported.
 
 <details>
 <summary>What it cannot open</summary>
@@ -66,7 +66,7 @@ and image format, how each is read, and what is not supported and why.
 - FileVault and encrypted disk images, which macOS opens itself
 - Images that name another file: a VMware snapshot chain, a differencing VHD, a
   VHDX with a parent, or a qcow2 with a backing file. Lukotta opens no image
-  that decides which other files get read
+  that determines which other files are read
 - A VHDX that was not shut down cleanly. Open it once in the virtual machine it
   belongs to, which writes back what it last held
 
@@ -91,7 +91,7 @@ Norwegian (Bokmål) · Polish · Portuguese (Portugal) · Romanian · Slovenian 
 Spanish · Swedish
 
 If a translation reads wrongly, or you want a language that is not listed here,
-write to [lukotta@rahula.dev][email] or to GitHub Issues — corrections and
+write to [lukotta@rahula.dev][email] or to GitHub Issues. Corrections and
 requests are both welcome.
 
 ## Installing
@@ -101,10 +101,10 @@ it. It is signed and notarised, so it opens with a double-click.
 
 ## Permissions
 
-- **Full Disk Access** — macOS will not let any app read a drive's raw contents
+- **Full Disk Access**: macOS will not let any app read a drive's raw contents
   without it. It cannot be requested, so it has to be switched on by hand
-- **Removable volumes** — requested by macOS the first time a drive is read
-- **Administrator password** — asked for once when the background helper is set
+- **Removable volumes**: requested by macOS the first time a drive is read
+- **Administrator password**: asked for once when the background helper is set
   up, then not again. Lukotta never sees it
 
 > [!IMPORTANT]
@@ -155,7 +155,7 @@ it cannot open. [patches/README.md][patches] describes each patch.
 
 That builds `Drive Unlocker.app`. The name and logo are trademarks that the GPL
 does not license, so a build carries them only when asked. The software is the
-same either way — [TRADEMARKS.txt][trademark] says what is permitted.
+same either way, and [TRADEMARKS.txt][trademark] says what is permitted.
 
 The whole path, including how to reproduce a released build, is in
 [BUILDING.md][building]. To work on Lukotta, see [CONTRIBUTING.md][contributing].
@@ -163,7 +163,7 @@ The whole path, including how to reproduce a released build, is in
 ## Privacy and Security
 
 Lukotta collects nothing. It makes one request of its own, a daily check for
-updates, which can be turned off — [PRIVACY.md][privacy] describes it.
+updates, which can be turned off. [PRIVACY.md][privacy] describes it.
 
 Your passphrase is never written to disk in the clear and never appears in a
 command line. [SECURITY.md][security] describes how it is handled, what the
@@ -171,9 +171,8 @@ privileged helper accepts, and where to report a fault.
 
 ## Licence
 
-Lukotta is free software under the GPL, version 3 or later. The mounting is done
-by [anylinuxfs][anylinuxfs]. Complete source for every component is published
-with each release.
+Lukotta is free software under the GPL, version 3 or later. Complete source for
+every component is published with each release.
 
 The name and the logo are trademarks, and are not covered by that licence. Fork
 the code freely; give your version its own name. [TRADEMARKS.txt][trademark]
@@ -190,12 +189,12 @@ as it always does in Finnish.
 
 ## Credits
 
-Clement Rahula — [lukotta@rahula.dev](mailto:lukotta@rahula.dev) ·
+Clement Rahula · [lukotta@rahula.dev](mailto:lukotta@rahula.dev) ·
 [rahula.dev](https://rahula.dev)
 
-Built on [anylinuxfs][anylinuxfs] by nohajc, which does the mounting, and on
-[Sparkle][sparkle] for updates. Lukotta is not affiliated with Microsoft, Apple,
-or the Linux projects it works with.
+The mounting is done by [anylinuxfs][anylinuxfs], written by nohajc. Updates use
+[Sparkle][sparkle]. Lukotta is not affiliated with Microsoft, Apple, or the Linux
+projects it works with.
 
 Lukotta is developed and maintained using GenAI tools, mainly the Opus 5
 and Fable 5 models from Anthropic.

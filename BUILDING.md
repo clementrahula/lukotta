@@ -1,7 +1,7 @@
 # Building Lukotta from Source
 
-Lukotta is GPL-3.0. Anyone who receives the app is entitled to its source and
-to the scripts that build it, so here is the whole path, from a clean
+Lukotta is GPL-3.0. Anyone who receives the app is entitled to its source and to
+the scripts that build it. This document covers the whole path, from a clean
 machine to a signed application.
 
 ## Requirements
@@ -12,7 +12,8 @@ machine to a signed application.
 - Xcode's command line tools, with a Swift 6 toolchain.
 - `shellcheck` and `swift-format`, for the linter only.
 
-No package manager, no kernel extension, nothing installed system-wide.
+No package manager, no kernel extension and nothing installed system-wide are
+required.
 
 ## Quick Start
 
@@ -26,9 +27,9 @@ cd lukotta
 
 The result is `dist/Drive Unlocker.app`, and a copy in `/Applications`.
 
-Builds are unbranded by default: the Lukotta name, wordmark and logo are
-trademarks, and the GPL does not license them. Everything else about the build
-is the same. See [Branding](#branding).
+Builds are unbranded by default, the Lukotta name, wordmark and logo being
+trademarks that the GPL does not license. The software is otherwise identical.
+See [Branding](#branding).
 
 ## Where the Engine Comes From
 
@@ -56,31 +57,30 @@ carries the minimum of the bottle it came from, so `bottle_tag` sets the floor:
 ships the sequoia bottles.
 
 
-### The two binaries we build ourselves
+### The two binaries built here
 
-Two of the engine's binaries carry patches, `anylinuxfs` and `vmproxy`.
-They are built from the source tarball pinned in `vendor/engine.lock`, checked
-against the same sha256 the release verifies, with everything in `patches/`
-applied. Two crates the host binary links in are fetched and patched the same
-way: imago, which reads the image formats, and krun-devices, which asks it for
-one. The build points at those copies rather than the published ones.
-Everything else still comes from the checksummed bottle.
+Two of the engine's binaries carry patches: `anylinuxfs` and `vmproxy`. They are
+built from the source tarball pinned in `vendor/engine.lock`, checked against
+the same sha256 the release verifies, with everything in `patches/` applied. Two
+crates the host binary links in are fetched and patched the same way: imago,
+which reads the image formats, and krun-devices, which requests one of them. The
+build compiles those copies rather than the published ones. Everything else
+comes from the checksummed bottle.
 
     brew install llvm lld util-linux
     rustup target add aarch64-unknown-linux-musl
     ./scripts/build-engine.sh
 
-**This step is optional.** Skip it and the app is built with upstream's binaries
-and works without the fixes, so VMDK, VDI, VHD, VHDX and encryption inside an
-image are refused by name. `vendor-engine.sh` records which patches went
-in, and the app reads that file rather than assuming, so it says what it can do
-either way. A release should always run it.
+**This step is optional.** Skipped, the app is built with upstream's binaries
+and refuses VMDK, VDI, VHD, VHDX and encryption inside an image by name.
+`vendor-engine.sh` records which patches were applied and the app reads that
+record, so it states what it can open either way. A release runs this step.
 
 ## The Guest Image
 
 The Alpine image the virtual machine boots is downloaded by the engine rather
 than shipped in the bottle, so it is the one piece `fetch-engine.sh` does not
-download. Create it once with the engine you just fetched:
+download. Create it once with the engine fetched above:
 
 ```bash
 ./vendor/upstream/anylinuxfs/0.19.0/bin/anylinuxfs init
@@ -90,10 +90,10 @@ That writes `~/.anylinuxfs/alpine`. `vendor-engine.sh` checks it is the image
 the lock names, umoci recording the manifest digest in the name of the mtree
 file beside the image, and refuses to build against a different one.
 
-The image is then trimmed to the packages Lukotta can reach; it arrives
-supporting far more than that. Every GPL package shipped is one whose source
-must be published with the release, so this makes both the download and the
-compliance surface smaller. Set `LUKOTTA_NO_TRIM=1` to keep the whole image.
+The image arrives supporting far more than Lukotta reaches, and is trimmed to
+the packages it uses. Source for every GPL package shipped must be published
+with the release, so trimming reduces both the download and the compliance
+surface. Set `LUKOTTA_NO_TRIM=1` to keep the whole image.
 
 ## Building the App
 
@@ -141,9 +141,9 @@ staples the ticket into the bundle so a first launch works offline.
 ./dist/Lukotta.app/Contents/MacOS/Lukotta --smoke-test
 ```
 
-The smoke test starts the app far enough to prove dyld resolved every library
-and exits. It exists because a build that installs and then refuses to launch
-is the one failure an update cannot undo.
+The smoke test starts the app far enough to prove that dyld resolved every
+library, then exits. A build that installs and then refuses to launch is the one
+failure an update cannot undo.
 
 To see the lowest macOS your build supports:
 
@@ -166,14 +166,14 @@ The build carries one of two identities.
 `example.com` is reserved by RFC 2606, so the unbranded identifier can never
 collide with a real vendor.
 
-The two builds are the same software. The only difference is the artwork, the
-name and the identifier, and the code reads all three from the bundle at run
-time rather than having them written into it.
+The two builds are the same software. They differ in artwork, name and
+identifier, all three of which the code reads from the bundle at run time rather
+than having them compiled in.
 
 Use official branding to check a release against its source. Do not distribute
-the result under the name: the GPL grants you everything about the software and
-nothing about the marks. TRADEMARKS.txt sets out what is permitted, and giving
-a fork its own name and artwork is expressly among it.
+the result under that name: the GPL grants everything about the software and
+nothing about the marks. TRADEMARKS.txt sets out what is permitted, including
+giving a fork its own name and artwork.
 
 ## Reproducing a Released Build
 
@@ -195,5 +195,5 @@ The GPL obliges whoever distributes the app to offer source for its GPL parts.
 That assembles source for the engine and for every package in the guest image
 into `dist/sources`, matched to what is shipped rather than to what upstream
 offers. `THIRD_PARTY_NOTICES.md` records each component and its licence, and is
-generated from the package database of the trimmed image so it cannot drift
+generated from the package database of the trimmed image, so it cannot drift
 from what ships.

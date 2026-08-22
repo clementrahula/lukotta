@@ -68,9 +68,9 @@ corresponding drivers, but the `DiskFormat` enumeration in anylinuxfs ended at
 
 **Change.** Adds the four cases, maps each to its format number, recognises the
 corresponding file extensions, and replaces three `== DiskFormat::Qcow2` tests
-with `is_encoded()`, each of which was in fact establishing whether the image
-required decoding at all. `.vhdx` is tested before `.vhd`, of which it is a
-suffix and a distinct format.
+with `is_encoded()`, each of those tests having asked whether the image required
+decoding at all. `.vhdx` is tested before `.vhd`, which is a suffix of it and a
+separate format.
 
 **Verification.** Images in each format are read, mounted and ejected through
 the application, including a VMDK holding a LUKS container. The end-to-end test
@@ -83,8 +83,8 @@ formats for the engine, and registers them in `Format`.
 
 **VDI.** VirtualBox's format: a header, a map holding one 32-bit entry for each
 block of the virtual disk, and the blocks in the order they were written. Two
-map values denote a block that was never written and reads as zeroes, which is
-how a largely empty disk remains small.
+map values denote a block that was never written and reads as zeroes, which
+keeps a largely empty disk small.
 
 **VHD.** Microsoft's first format, in both forms that hold their own data. A
 fixed VHD is the raw disk followed by a 512-byte footer. A dynamic VHD stores
@@ -92,16 +92,17 @@ the disk in blocks listed by an allocation table, each preceded by a bitmap
 sector. A differencing VHD holds only the changes from a parent disk that it
 names, and is refused: no driver here opens a second file.
 
-**VHDX.** Microsoft's second format, which requires several structures to be
-located before the disk can be read: a file signature, two headers of which the
-live one is whichever carries the higher sequence number together with a sound
-CRC-32C, a region table locating the remainder, a metadata region giving the
-block size and the disk size, and an allocation table whose payload entries are
-interleaved with entries describing sector bitmaps. Two images are refused. One
-that names a parent holds only the changes from another disk. One whose log is
-not empty was not closed cleanly; its most recent state resides in that log,
-replaying the log would require writing, and disregarding it would return data
-older than the disk last held.
+**VHDX.** Microsoft's second format. Several structures must be located before
+the disk can be read: a file signature, two headers of which the live one
+carries the higher sequence number and a sound CRC-32C, a region table locating
+the remainder, a metadata region giving the block size and the disk size, and an
+allocation table whose payload entries are interleaved with entries describing
+sector bitmaps.
+
+Two images are refused. One that names a parent holds only the changes from
+another disk. One whose log is not empty was not closed cleanly: its most recent
+state is in that log, replaying the log requires writing, and disregarding it
+returns data older than the disk last held.
 
 Each driver validates every value it reads before relying on it: block sizes are
 required to be powers of two, maps are bounded to a size any real disk could
@@ -111,14 +112,13 @@ present it as the disk.
 
 **Verification.** Reference images written by `qemu-img` in each of the three
 formats read back byte for byte identical to the raw disk from which they were
-made, and all three mount and eject through the application. In the opposite
-direction, `qemu-img compare` reads the images produced by
-`scripts/make-vdi.py`, `scripts/make-vhd.py` and `scripts/make-vhdx.py` and
-finds each identical to the same raw disk. Readers and writers were therefore
-each verified against an implementation that was not the other. Three further
-VHDX images were constructed by hand: one with a log that is not empty and one
-naming a parent are refused by name, and one whose first header is damaged is
-read correctly through the second.
+made, and all three mount and eject through the application. `qemu-img compare`
+reads the images produced by `scripts/make-vdi.py`, `scripts/make-vhd.py` and
+`scripts/make-vhdx.py` and finds each identical to the same raw disk, so the
+readers and the writers were each checked against a separate implementation.
+Three further VHDX images were constructed by hand: one with a log that is not
+empty and one naming a parent are refused by name, and one whose first header is
+damaged is read correctly through the second.
 
 ## imago-sparse-vmdk.patch
 
@@ -142,14 +142,14 @@ approximately once. A VMDK's tables are proportional to the capacity of the disk
 rather than to the data written to it, so reading them in full would make a
 large sparse image expensive to open.
 
-**Stream-optimized VMDK.** Also read. Every grain in this form is deflated and
-preceded by a marker identifying the part of the disk it holds, so no region of
-the file corresponds to a region of the disk and no mapping can refer to one.
+**Stream-optimized VMDK.** Read as well. Every grain in this form is deflated
+and preceded by a marker identifying the part of the disk it holds, so no region
+of the file corresponds to a region of the disk and no mapping can refer to one.
 Those reads are served through `readv_special()`, each grain being inflated in
 full and retained in a cache of the most recent thirty-two. imago already
-depends on `miniz_oxide` for qcow2's compressed clusters, so no further
-dependency is required, only the zlib-header flag, since VMDK wraps the deflate
-stream where qcow2 does not.
+depends on `miniz_oxide` for qcow2's compressed clusters, so this required no
+further dependency, only the zlib-header flag, VMDK wrapping the deflate stream
+where qcow2 does not.
 
 A file in this form is written in a single pass, so the position of its grain
 directory is fixed only once everything preceding it has been written. The
@@ -202,5 +202,5 @@ VMware writes, and it prevents a descriptor from reaching elsewhere on the disk.
 See `VmdkDescriptor.namesAFileElsewhere`.
 
 Container files are also opened without privilege, which limits the reach of any
-such reference to what the person who opened the file could already read. None
-of this is grounds for relaxing these checks as further formats are added.
+such reference to what the person who opened the file could already read. These
+checks are not relaxed as further formats are added.

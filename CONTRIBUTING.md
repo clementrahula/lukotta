@@ -1,8 +1,8 @@
 # Contributing to Lukotta
 
 Lukotta is GPL-3.0. Anyone receiving the app is entitled to its source and to
-the scripts that build it, so everything needed to produce a working copy is
-in this repository.
+the scripts that build it, so this repository holds everything needed to produce
+a working copy.
 
 ## Building
 
@@ -14,9 +14,9 @@ signing. In short:
 ./build-app.sh
 ```
 
-That produces `Drive Unlocker.app`. Builds are unbranded unless you ask for
-`LUKOTTA_BRANDING=official`, because the name and logo are trademarks and the
-GPL does not cover them. It is the same software either way.
+That produces `Drive Unlocker.app`. Builds are unbranded unless you set
+`LUKOTTA_BRANDING=official`, the name and logo being trademarks the GPL does not
+cover. The software is the same either way.
 
 ## Verifying Your Work
 
@@ -26,12 +26,11 @@ GPL does not cover them. It is the same software either way.
 ```
 
 Both must pass. `build-app.sh` runs the tests itself and refuses to produce a
-bundle from a failing tree, which is deliberate: the app reads raw disks and
-runs part of itself as root.
+bundle from a failing tree, since the app reads raw disks and runs part of
+itself as root.
 
-To check that a built app starts, which is the one failure an update cannot
-undo, ask
-it:
+A build that installs and then refuses to launch is the one failure an update
+cannot undo. To check that a built app starts:
 
 ```bash
 ./dist/Lukotta.app/Contents/MacOS/Lukotta --smoke-test
@@ -43,8 +42,8 @@ To check what a screen reader would find:
 swift scripts/dump-accessibility.swift
 ```
 
-It prints every control the running app exposes. A `desc=nil` is a control
-nobody can use without seeing it.
+It prints every control the running app exposes. A `desc=nil` marks a control
+that cannot be used without seeing it.
 
 ## How It Fits Together
 
@@ -83,9 +82,9 @@ Everything else is in one of these:
 ```
 
 Builds LUKS images covering the layouts Lukotta supports, including one with a
-partition table and three logical volumes inside a single container. The
-passphrase is printed when it finishes. The script also prints how to attach
-one and run the app so that disk images appear alongside real drives.
+partition table and three logical volumes inside a single container. It prints
+the passphrase when it finishes, and how to attach an image and run the app so
+that images appear alongside real drives.
 
 ## Uninstalling a Build
 
@@ -96,17 +95,17 @@ Bin. A development build removes itself the same way a released one does.
 
 ## House Style
 
-- Comments explain **why**, not what. If a line needs saying at all, it is
-  because the obvious thing was wrong.
+- Comments explain why rather than what. A line worth writing is one where the
+  obvious reading is wrong.
 - No historical narration in comments or documents; git remembers.
 - Commit messages describe the reasoning as well as the change.
 - British spelling in prose; Apple's spelling in API names.
 
 ## Reporting a Problem
 
-Use the bug icon in the app: it gathers the version, the environment and the
-engine's own output, shows you exactly what would be sent, and sends nothing
-on its own. Credentials are removed from that output by value, not by pattern.
+Use the bug icon in the app. It gathers the version, the environment and the
+engine's own output, shows what would be sent, and sends nothing on its own.
+Credentials are removed from that output by value rather than by pattern.
 
 Issues and patches: <https://github.com/clementrahula/lukotta>.
 
