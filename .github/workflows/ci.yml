@@ -20,9 +20,12 @@ name: CI
 # differently, so all of them differ and none of the differences mean anything.
 # scripts/snapshots.sh compares them where they were recorded.
 
+# Not on every push. A macOS runner is billed at ten times the rate of a Linux
+# one while this repository is private, and a run for each of eight commits in
+# twenty minutes is most of a month's allowance for nothing anybody read. Pull
+# requests and asking for it are enough until the repository is public, when
+# the minutes stop being counted.
 on:
-  push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 
