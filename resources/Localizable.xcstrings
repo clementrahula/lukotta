@@ -2309,138 +2309,135 @@
         }
       }
     },
-    "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use": {
+    "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB дисково пространство: 155 MB за приложението и 95 MB за средата на Linux, разопакована при първото използване"
+            "value": "260 MB дисково пространство: 160 MB за приложението и 100 MB за средата на Linux, разопакована при първото използване"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB na disku: 155 MB pro aplikaci a 95 MB pro linuxové prostředí rozbalené při prvním použití"
+            "value": "260 MB na disku: 160 MB pro aplikaci a 100 MB pro linuxové prostředí rozbalené při prvním použití"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB diskplads: 155 MB til appen og 95 MB til Linux-miljøet, der pakkes ud første gang"
+            "value": "260 MB diskplads: 160 MB til appen og 100 MB til Linux-miljøet, der pakkes ud første gang"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB Speicherplatz: 155 MB für die App, 95 MB für die Linux-Umgebung, die beim ersten Verwenden entpackt wird"
+            "value": "260 MB Speicherplatz: 160 MB für die App, 100 MB für die Linux-Umgebung, die beim ersten Verwenden entpackt wird"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB στον δίσκο: 155 MB για την εφαρμογή και 95 MB για το περιβάλλον Linux που αποσυμπιέζεται στην πρώτη χρήση"
+            "value": "260 MB στον δίσκο: 160 MB για την εφαρμογή και 100 MB για το περιβάλλον Linux που αποσυμπιέζεται στην πρώτη χρήση"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB de disco: 155 MB para la app y 95 MB para el entorno Linux que descomprime la primera vez"
+            "value": "260 MB de disco: 160 MB para la app y 100 MB para el entorno Linux que descomprime la primera vez"
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB kettaruumi: 155 MB rakendusele ja 95 MB Linuxi keskkonnale, mis pakitakse lahti esimesel kasutamisel"
+            "value": "260 MB kettaruumi: 160 MB rakendusele ja 100 MB Linuxi keskkonnale, mis pakitakse lahti esimesel kasutamisel"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 Mt levytilaa: 155 Mt ohjelmalle ja 95 Mt Linux-ympäristölle, joka puretaan ensimmäisellä käyttökerralla"
+            "value": "260 Mt levytilaa: 160 Mt ohjelmalle ja 100 Mt Linux-ympäristölle, joka puretaan ensimmäisellä käyttökerralla"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 Mo d’espace disque : 155 Mo pour l’app, 95 Mo pour l’environnement Linux décompressé à la première utilisation"
+            "value": "260 Mo d’espace disque : 160 Mo pour l’app, 100 Mo pour l’environnement Linux décompressé à la première utilisation"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB prostora na disku: 155 MB za aplikaciju i 95 MB za Linux okruženje koje se raspakirava pri prvom korištenju"
+            "value": "260 MB prostora na disku: 160 MB za aplikaciju i 100 MB za Linux okruženje koje se raspakirava pri prvom korištenju"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB lemezterület: 155 MB az alkalmazásnak és 95 MB a Linux-környezetnek, amelyet az első használatkor csomagol ki"
+            "value": "260 MB lemezterület: 160 MB az alkalmazásnak és 100 MB a Linux-környezetnek, amelyet az első használatkor csomagol ki"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB di disco: 155 MB per l’app e 95 MB per l’ambiente Linux estratto al primo utilizzo"
+            "value": "260 MB di disco: 160 MB per l’app e 100 MB per l’ambiente Linux estratto al primo utilizzo"
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB disko vietos: 155 MB programai ir 95 MB „Linux“ aplinkai, kuri išpakuojama pirmą kartą naudojant"
+            "value": "260 MB disko vietos: 160 MB programai ir 100 MB „Linux“ aplinkai, kuri išpakuojama pirmą kartą naudojant"
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB diska vietas: 155 MB lietotnei un 95 MB Linux videi, ko tā izpako pirmajā lietošanas reizē"
+            "value": "260 MB diska vietas: 160 MB lietotnei un 100 MB Linux videi, ko tā izpako pirmajā lietošanas reizē"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB diskplass: 155 MB til appen og 95 MB til Linux-miljøet som pakkes ut første gang"
+            "value": "260 MB diskplass: 160 MB til appen og 100 MB til Linux-miljøet som pakkes ut første gang"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB schijfruimte: 155 MB voor de app en 95 MB voor de Linux-omgeving die bij het eerste gebruik wordt uitgepakt"
+            "value": "260 MB schijfruimte: 160 MB voor de app en 100 MB voor de Linux-omgeving die bij het eerste gebruik wordt uitgepakt"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB miejsca na dysku: 155 MB na aplikację i 95 MB na środowisko Linuksa rozpakowywane przy pierwszym użyciu"
+            "value": "260 MB miejsca na dysku: 160 MB na aplikację i 100 MB na środowisko Linuksa rozpakowywane przy pierwszym użyciu"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB de disco: 155 MB para a app e 95 MB para o ambiente Linux descompactado na primeira utilização"
+            "value": "260 MB de disco: 160 MB para a app e 100 MB para o ambiente Linux descompactado na primeira utilização"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB pe disc: 155 MB pentru aplicație și 95 MB pentru mediul Linux dezarhivat la prima utilizare"
+            "value": "260 MB pe disc: 160 MB pentru aplicație și 100 MB pentru mediul Linux dezarhivat la prima utilizare"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB prostora na disku: 155 MB za aplikacijo in 95 MB za okolje Linux, ki se razpakira ob prvi uporabi"
+            "value": "260 MB prostora na disku: 160 MB za aplikacijo in 100 MB za okolje Linux, ki se razpakira ob prvi uporabi"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "250 MB diskutrymme: 155 MB för appen och 95 MB för Linux-miljön som packas upp vid första användningen"
+            "value": "260 MB diskutrymme: 160 MB för appen och 100 MB för Linux-miljön som packas upp vid första användningen"
           }
         }
       }
-    },
-    "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": {
-      "localizations": {}
     },
     "30 to 80 MB of RAM per unlocked drive": {
       "localizations": {
@@ -2573,7 +2570,134 @@
       }
     },
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VHDX, който не е изключен правилно. Отворете го веднъж във виртуалната машина, на която принадлежи, за да запише обратно последното си съдържание"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VHDX, který nebyl řádně vypnut. Otevřete jej jednou ve virtuálním počítači, kterému patří, aby zapsal zpět svůj poslední obsah"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En VHDX, der ikke blev lukket korrekt ned. Åbn den én gang i den virtuelle maskine, den hører til, så den skriver sit seneste indhold tilbage"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine VHDX, die nicht sauber heruntergefahren wurde. Öffne sie einmal in der virtuellen Maschine, zu der sie gehört, damit ihr letzter Stand zurückgeschrieben wird"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VHDX που δεν τερματίστηκε ομαλά. Ανοίξτε το μία φορά στην εικονική μηχανή στην οποία ανήκει, ώστε να γραφτεί πίσω το τελευταίο του περιεχόμενο"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un VHDX que no se apagó correctamente. Ábrelo una vez en la máquina virtual a la que pertenece para que escriba de vuelta su último contenido"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VHDX, mida korralikult ei suletud. Ava see korra virtuaalmasinas, kuhu see kuulub, et viimane sisu faili tagasi kirjutataks"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VHDX, jota ei sammutettu siististi. Avaa se kerran siinä virtuaalikoneessa, johon se kuuluu, jotta sen viimeisin sisältö kirjoitetaan takaisin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un VHDX qui n’a pas été arrêté proprement. Ouvrez-le une fois dans la machine virtuelle à laquelle il appartient, afin que son dernier contenu soit réécrit"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VHDX koji nije uredno isključen. Otvorite ga jednom u virtualnom stroju kojem pripada kako bi zapisao natrag svoj posljednji sadržaj"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nem szabályosan leállított VHDX. Nyissa meg egyszer abban a virtuális gépben, amelyhez tartozik, hogy a legutóbbi tartalma visszaíródjon"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un VHDX che non è stato arrestato correttamente. Aprilo una volta nella macchina virtuale a cui appartiene, così da riscrivere il suo ultimo contenuto"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VHDX, kuris nebuvo tinkamai išjungtas. Atverkite jį kartą virtualioje mašinoje, kuriai jis priklauso, kad naujausias turinys būtų įrašytas atgal"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VHDX, kas netika korekti izslēgts. Atveriet to vienreiz virtuālajā mašīnā, kurai tas pieder, lai tā pēdējais saturs tiktu ierakstīts atpakaļ"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En VHDX som ikke ble avsluttet ordentlig. Åpne den én gang i den virtuelle maskinen den hører til, slik at det siste innholdet skrives tilbake"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een VHDX die niet netjes is afgesloten. Open die één keer in de virtuele machine waar die bij hoort, zodat de laatste inhoud wordt teruggeschreven"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VHDX, który nie został poprawnie zamknięty. Otwórz go raz w maszynie wirtualnej, do której należy, aby zapisała z powrotem jego ostatnią zawartość"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um VHDX que não foi encerrado corretamente. Abra-o uma vez na máquina virtual a que pertence, para que o seu último conteúdo seja escrito de volta"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un VHDX care nu a fost închis corect. Deschideți-l o dată în mașina virtuală căreia îi aparține, pentru ca ultimul său conținut să fie scris înapoi"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VHDX, ki ni bil pravilno zaustavljen. Odprite ga enkrat v navideznem računalniku, ki mu pripada, da se njegova zadnja vsebina zapiše nazaj"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En VHDX som inte stängdes av ordentligt. Öppna den en gång i den virtuella maskin den hör till, så att dess senaste innehåll skrivs tillbaka"
+          }
+        }
+      }
     },
     "A crash report was found": {
       "localizations": {
@@ -4342,10 +4466,264 @@
       }
     },
     "An exFAT image is handed to macOS, which reads and writes that format itself": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Образ с exFAT се предава на macOS, който сам чете и записва този формат"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obraz s exFAT se předá macOS, který tento formát sám čte i zapisuje"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et exFAT-diskbillede overdrages til macOS, som selv læser og skriver det format"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein exFAT-Image wird an macOS übergeben, das dieses Format selbst liest und schreibt"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ένα είδωλο exFAT παραδίδεται στο macOS, το οποίο διαβάζει και γράφει αυτή τη μορφή μόνο του"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una imagen exFAT se entrega a macOS, que lee y escribe ese formato por sí mismo"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "exFAT-tõmmis antakse üle macOS-ile, kes seda vormingut ise loeb ja kirjutab"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "exFAT-levytiedosto luovutetaan macOS:lle, joka lukee ja kirjoittaa tuota muotoa itse"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une image exFAT est confiée à macOS, qui lit et écrit ce format lui-même"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "exFAT slika predaje se macOS-u, koji taj format sam čita i zapisuje"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Az exFAT lemezképet a macOS kapja meg, amely ezt a formátumot maga olvassa és írja"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un’immagine exFAT viene affidata a macOS, che legge e scrive quel formato da sé"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "exFAT atvaizdis perduodamas „macOS“, kuri šį formatą skaito ir rašo pati"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "exFAT attēls tiek nodots macOS, kas šo formātu lasa un raksta pats"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et exFAT-diskbilde overlates til macOS, som leser og skriver det formatet selv"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een exFAT-schijfkopie wordt aan macOS overgelaten, dat die structuur zelf leest en schrijft"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obraz exFAT trafia do macOS, który sam odczytuje i zapisuje ten format"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma imagem exFAT é entregue ao macOS, que lê e escreve esse formato por si"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O imagine exFAT este predată macOS, care citește și scrie singur acest format"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slika exFAT je predana macOS, ki to obliko bere in zapisuje sam"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En exFAT-avbild lämnas över till macOS, som läser och skriver det formatet självt"
+          }
+        }
+      }
     },
     "An image opens without an administrator password, and the volume appears in your home folder": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Образът се отваря без администраторска парола, а томът се появява в личната ви папка"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obraz se otevře bez hesla správce a svazek se objeví ve vaší domovské složce"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et diskbillede åbnes uden administratoradgangskode, og enheden vises i din hjemmemappe"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Image wird ohne Administratorkennwort geöffnet, und das Volume erscheint in deinem Benutzerordner"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ένα είδωλο ανοίγει χωρίς κωδικό διαχειριστή και ο τόμος εμφανίζεται στον προσωπικό σας φάκελο"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una imagen se abre sin contraseña de administrador, y el volumen aparece en tu carpeta de inicio"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tõmmis avaneb administraatori paroolita ja köide ilmub sinu kodukausta"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levytiedosto avautuu ilman ylläpitäjän salasanaa, ja taltio ilmestyy kotikansioosi"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une image s’ouvre sans mot de passe administrateur, et le volume apparaît dans votre dossier de départ"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slika se otvara bez administratorske lozinke, a jedinica se pojavljuje u vašoj korisničkoj mapi"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A lemezkép rendszergazdai jelszó nélkül nyílik meg, a kötet pedig a saját mappájában jelenik meg"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un’immagine si apre senza password di amministratore e il volume compare nella tua cartella Inizio"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvaizdis atveriamas be administratoriaus slaptažodžio, o tomas atsiranda jūsų namų aplanke"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attēls atveras bez administratora paroles, un sējums parādās jūsu mājas mapē"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et diskbilde åpnes uten administratorpassord, og volumet vises i hjemmemappen din"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een schijfkopie wordt geopend zonder beheerderswachtwoord, en het volume verschijnt in je thuismap"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obraz otwiera się bez hasła administratora, a wolumin pojawia się w twoim katalogu domowym"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma imagem abre sem palavra-passe de administrador, e o volume aparece na sua pasta pessoal"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O imagine se deschide fără parolă de administrator, iar volumul apare în dosarul dumneavoastră personal"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slika se odpre brez skrbniškega gesla, nosilec pa se pojavi v vaši domači mapi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En avbild öppnas utan administratörslösenord, och volymen visas i din hemmapp"
+          }
+        }
+      }
     },
     "Another drive is open, and the drive engine has to run on its own the first time after it changes. Eject the other drives, open this one, then they can all be open together again.": {
       "localizations": {
@@ -6558,7 +6936,134 @@
       }
     },
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изберете Файл → Отвори дисков образ или Файл → Отвори диск, за да видите всеки диск, свързан с този Mac, и какво %@ може да направи с него"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zvolte Soubor → Otevřít obraz disku, nebo Soubor → Otevřít disk, kde uvidíte každý disk připojený k tomuto Macu a co s ním %@ zvládne"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vælg Arkiv → Åbn diskbillede, eller Arkiv → Åbn disk for at se alle diske tilsluttet denne Mac, og hvad %@ kan gøre med hver enkelt"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle „Ablage → Image öffnen“ oder „Ablage → Laufwerk öffnen“, um jedes an diesen Mac angeschlossene Laufwerk zu sehen und was %@ damit tun kann"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Επιλέξτε Αρχείο → Άνοιγμα ειδώλου δίσκου ή Αρχείο → Άνοιγμα δίσκου για να δείτε κάθε δίσκο συνδεδεμένο σε αυτόν τον Mac και τι μπορεί να κάνει το %@ με τον καθένα"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige Archivo → Abrir imagen de disco, o Archivo → Abrir disco para ver todos los discos conectados a este Mac y qué puede hacer %@ con cada uno"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vali Fail → Ava kettatõmmis või Fail → Ava ketas, et näha kõiki selle Maciga ühendatud kettaid ja seda, mida %@ igaühega teha saab"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valitse Arkisto → Avaa levytiedosto tai Arkisto → Avaa asema nähdäksesi kaikki tähän Maciin liitetyt levyt ja sen, mitä %@ voi kullekin tehdä"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez Fichier → Ouvrir une image disque, ou Fichier → Ouvrir un disque pour voir chaque disque relié à ce Mac et ce que %@ peut en faire"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odaberite Datoteka → Otvori sliku diska ili Datoteka → Otvori disk kako biste vidjeli svaki disk priključen na ovaj Mac i što %@ može učiniti sa svakim"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Válassza a Fájl → Lemezkép megnyitása vagy a Fájl → Meghajtó megnyitása menüpontot, hogy lássa a Machez csatlakoztatott összes lemezt, és azt, mit tud velük a(z) %@ kezdeni"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli Archivio → Apri immagine disco, oppure Archivio → Apri disco per vedere ogni disco collegato a questo Mac e che cosa %@ può farne"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasirinkite Failas → Atverti disko atvaizdį arba Failas → Atverti diską, kad pamatytumėte kiekvieną prie šio „Mac“ prijungtą diską ir tai, ką %@ gali su kiekvienu padaryti"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izvēlieties Fails → Atvērt diska attēlu vai Fails → Atvērt disku, lai redzētu katru šim Mac pievienoto disku un to, ko %@ ar katru var izdarīt"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Velg Arkiv → Åpne diskbilde, eller Arkiv → Åpne disk for å se hver disk som er koblet til denne Macen, og hva %@ kan gjøre med hver av dem"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kies Archief → Open schijfkopie, of Archief → Open schijf om elke schijf te zien die op deze Mac is aangesloten en wat %@ met elke schijf kan doen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wybierz Plik → Otwórz obraz dysku albo Plik → Otwórz dysk, aby zobaczyć każdy dysk podłączony do tego Maca i to, co %@ może z nim zrobić"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha Ficheiro → Abrir imagem de disco, ou Ficheiro → Abrir disco para ver todos os discos ligados a este Mac e o que o %@ pode fazer com cada um"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alegeți Fișier → Deschide imagine de disc sau Fișier → Deschide disc pentru a vedea fiecare disc conectat la acest Mac și ce poate face %@ cu fiecare"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izberite Datoteka → Odpri sliko diska ali Datoteka → Odpri disk, da vidite vsak disk, priključen na ta Mac, in kaj lahko %@ z vsakim naredi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Välj Arkiv → Öppna skivavbild, eller Arkiv → Öppna disk för att se varje disk som är ansluten till den här datorn och vad %@ kan göra med var och en"
+          }
+        }
+      }
     },
     "Choose a disk image or container file to open.": {
       "localizations": {
@@ -11263,7 +11768,134 @@
       }
     },
     "FileVault and encrypted disk images, which macOS opens itself": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault и шифровани дискови образи, които macOS отваря сам"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault a šifrované obrazy disků, které macOS otevírá sám"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault og krypterede diskbilleder, som macOS selv åbner"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault und verschlüsselte Images, die macOS selbst öffnet"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το FileVault και τα κρυπτογραφημένα είδωλα δίσκων, που τα ανοίγει το ίδιο το macOS"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault y las imágenes de disco cifradas, que macOS abre por sí mismo"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault ja krüptitud kettatõmmised, mille macOS ise avab"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault ja salatut levytiedostot, jotka macOS avaa itse"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault et les images disque chiffrées, que macOS ouvre lui-même"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault i šifrirane slike diskova, koje macOS otvara sam"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A FileVault és a titkosított lemezképek, amelyeket a macOS maga nyit meg"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault e le immagini disco cifrate, che macOS apre da sé"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„FileVault“ ir šifruoti diskų atvaizdžiai, kuriuos „macOS“ atveria pati"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault un šifrētie disku attēli, ko macOS atver pats"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault og krypterte diskbilder, som macOS åpner selv"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault en versleutelde schijfkopieën, die macOS zelf opent"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault i zaszyfrowane obrazy dysków, które macOS otwiera sam"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O FileVault e as imagens de disco encriptadas, que o macOS abre por si"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault și imaginile de disc criptate, pe care macOS le deschide singur"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault in šifrirane slike diskov, ki jih macOS odpre sam"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FileVault och krypterade skivavbilder, som macOS öppnar självt"
+          }
+        }
+      }
     },
     "Forget": {
       "localizations": {
@@ -12696,7 +13328,134 @@
       }
     },
     "Images that name another file: a VMware snapshot chain, a differencing VHD, a VHDX with a parent, or a qcow2 with a backing file. %@ opens no image that decides which other files get read": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Образи, които сочат към друг файл: верига от снимки на VMware, диференциращ VHD, VHDX с родител или qcow2 с базов файл. %@ не отваря образ, който определя кои други файлове да бъдат прочетени"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obrazy odkazující na jiný soubor: řetěz snímků VMware, rozdílový VHD, VHDX s rodičem nebo qcow2 se základním souborem. %@ neotevírá obraz, který určuje, které další soubory se přečtou"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskbilleder, der henviser til en anden fil: en VMware-snapshotkæde, en differencing-VHD, en VHDX med en forælder eller en qcow2 med en backing-fil. %@ åbner ikke diskbilleder, der bestemmer, hvilke andre filer der læses"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Images, die eine andere Datei benennen: eine VMware-Snapshot-Kette, eine differenzierende VHD, eine VHDX mit übergeordnetem Image oder eine qcow2 mit Backing-Datei. %@ öffnet kein Image, das bestimmt, welche anderen Dateien gelesen werden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Είδωλα που παραπέμπουν σε άλλο αρχείο: αλυσίδα στιγμιοτύπων VMware, διαφορικό VHD, VHDX με γονικό είδωλο ή qcow2 με αρχείο υποστήριξης. Το %@ δεν ανοίγει είδωλο που καθορίζει ποια άλλα αρχεία θα διαβαστούν"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imágenes que nombran otro archivo: una cadena de instantáneas de VMware, un VHD diferencial, un VHDX con imagen principal o un qcow2 con archivo base. %@ no abre imágenes que decidan qué otros archivos se leen"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tõmmised, mis nimetavad teist faili: VMware'i tõmmiseahel, vahetõmmisega VHD, vanemtõmmisega VHDX või tugifailiga qcow2. %@ ei ava tõmmist, mis otsustab, milliseid teisi faile loetakse"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levytiedostot, jotka nimeävät toisen tiedoston: VMwaren tilannevedosketju, differencing-VHD, VHDX jolla on ylätaso tai qcow2 jolla on taustatiedosto. %@ ei avaa levytiedostoa, joka määrää mitä muita tiedostoja luetaan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les images qui désignent un autre fichier : une chaîne d’instantanés VMware, un VHD différentiel, un VHDX avec parent ou un qcow2 avec fichier de base. %@ n’ouvre aucune image qui décide quels autres fichiers sont lus"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slike koje imenuju drugu datoteku: lanac VMware snimaka, diferencijalni VHD, VHDX s roditeljem ili qcow2 s pozadinskom datotekom. %@ ne otvara sliku koja određuje koje se druge datoteke čitaju"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Más fájlt megnevező lemezképek: VMware-pillanatképlánc, különbségi VHD, szülővel rendelkező VHDX vagy háttérfájlt használó qcow2. A(z) %@ nem nyit meg olyan lemezképet, amely eldönti, mely más fájlok olvashatók"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Immagini che nominano un altro file: una catena di snapshot VMware, un VHD differenziale, un VHDX con un’immagine padre o un qcow2 con file di base. %@ non apre immagini che decidono quali altri file vengono letti"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvaizdžiai, nurodantys kitą failą: „VMware“ momentinių kopijų grandinė, diferencinis VHD, VHDX su pirminiu atvaizdžiu arba qcow2 su pagrindiniu failu. %@ neatveria atvaizdžio, kuris nusprendžia, kurie kiti failai bus skaitomi"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attēli, kas nosauc citu failu: VMware momentuzņēmumu ķēde, diferencējošs VHD, VHDX ar vecākattēlu vai qcow2 ar pamatfailu. %@ neatver attēlu, kas nosaka, kuri citi faili tiek lasīti"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskbilder som navngir en annen fil: en VMware-øyeblikksbildekjede, en differencing-VHD, en VHDX med et overordnet bilde eller en qcow2 med en backing-fil. %@ åpner ingen diskbilder som bestemmer hvilke andre filer som leses"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schijfkopieën die een ander bestand noemen: een VMware-momentopnamereeks, een differencing-VHD, een VHDX met een bovenliggende schijfkopie of een qcow2 met een backing-bestand. %@ opent geen schijfkopie die bepaalt welke andere bestanden worden gelezen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obrazy wskazujące inny plik: łańcuch migawek VMware, różnicowy VHD, VHDX z obrazem nadrzędnym albo qcow2 z plikiem bazowym. %@ nie otwiera obrazu, który decyduje, jakie inne pliki zostaną odczytane"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imagens que nomeiam outro ficheiro: uma cadeia de instantâneos VMware, um VHD diferencial, um VHDX com imagem-mãe ou um qcow2 com ficheiro de base. O %@ não abre imagens que determinem que outros ficheiros são lidos"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imagini care numesc alt fișier: un lanț de instantanee VMware, un VHD diferențial, un VHDX cu imagine părinte sau un qcow2 cu fișier de bază. %@ nu deschide imagini care stabilesc ce alte fișiere sunt citite"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slike, ki imenujejo drugo datoteko: veriga posnetkov VMware, razlikovalni VHD, VHDX z nadrejeno sliko ali qcow2 s podporno datoteko. %@ ne odpira slik, ki določajo, katere druge datoteke se berejo"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avbilder som namnger en annan fil: en VMware-ögonblicksbildkedja, en differencing-VHD, en VHDX med en överordnad avbild eller en qcow2 med en backing-fil. %@ öppnar inga avbilder som avgör vilka andra filer som läses"
+          }
+        }
+      }
     },
     "Internal": {
       "localizations": {
@@ -17769,7 +18528,134 @@
       }
     },
     "Opening a disk image": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отваряне на дисков образ"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otevření obrazu disku"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbning af et diskbillede"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Image öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα ειδώλου δίσκου"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir una imagen de disco"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kettatõmmise avamine"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levytiedoston avaaminen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir une image disque"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvaranje slike diska"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lemezkép megnyitása"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprire un’immagine disco"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disko atvaizdžio atvėrimas"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diska attēla atvēršana"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpne et diskbilde"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een schijfkopie openen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwieranie obrazu dysku"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir uma imagem de disco"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschiderea unei imagini de disc"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpiranje slike diska"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öppna en skivavbild"
+          }
+        }
+      }
     },
     "Opening “%@”": {
       "localizations": {
@@ -19278,7 +20164,134 @@
       }
     },
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сурови дискови образи, както и том с BitLocker или LUKS във всеки образ, който се отключва като том на диск"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surové obrazy disků a svazek s BitLockerem nebo LUKS uvnitř libovolného obrazu, který se odemkne jako svazek na disku"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rå diskbilleder, og en BitLocker- eller LUKS-enhed inde i et hvilket som helst diskbillede, som låses op ligesom en på en disk"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rohimages sowie ein BitLocker- oder LUKS-Volume in einem beliebigen Image, das sich wie eines auf einem Laufwerk entsperren lässt"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ακατέργαστα είδωλα δίσκων, καθώς και τόμος BitLocker ή LUKS μέσα σε οποιοδήποτε είδωλο, που ξεκλειδώνει όπως ένας τόμος σε δίσκο"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imágenes de disco sin formato, y un volumen BitLocker o LUKS dentro de cualquier imagen, que se desbloquea como uno de un disco"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Töötlemata kettatõmmised ning BitLockeri või LUKS-i köide mis tahes tõmmise sees, mis avaneb nagu kettal olev köide"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raakalevytiedostot sekä BitLocker- tai LUKS-taltio minkä tahansa levytiedoston sisällä, joka avautuu kuten aseman taltio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Images disque brutes, ainsi qu’un volume BitLocker ou LUKS à l’intérieur d’une image, qui se déverrouille comme celui d’un disque"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sirove slike diskova te BitLocker ili LUKS jedinica unutar bilo koje slike, koja se otključava kao ona na disku"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nyers lemezképek, valamint bármely lemezképen belüli BitLocker- vagy LUKS-kötet, amely úgy nyílik meg, mint egy meghajtón lévő"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Immagini disco grezze e un volume BitLocker o LUKS all’interno di qualsiasi immagine, che si sblocca come quello di un disco"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neapdoroti diskų atvaizdžiai ir BitLocker arba LUKS tomas bet kuriame atvaizdyje, kuris atrakinamas kaip esantis diske"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neapstrādāti disku attēli, kā arī BitLocker vai LUKS sējums jebkurā attēlā, kas atveras tāpat kā sējums diskā"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rå diskbilder, og et BitLocker- eller LUKS-volum inne i et hvilket som helst diskbilde, som låses opp som ett på en disk"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onbewerkte schijfkopieën, en een BitLocker- of LUKS-volume in een schijfkopie, dat net zo wordt ontgrendeld als een volume op een schijf"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surowe obrazy dysków oraz wolumin BitLocker lub LUKS wewnątrz dowolnego obrazu, który odblokowuje się tak samo jak na dysku"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imagens de disco em bruto, e um volume BitLocker ou LUKS dentro de qualquer imagem, que se desbloqueia como um de um disco"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imagini de disc brute și un volum BitLocker sau LUKS în interiorul oricărei imagini, care se deblochează ca unul de pe un disc"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surove slike diskov ter nosilec BitLocker ali LUKS znotraj katere koli slike, ki se odklene enako kot tisti na disku"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Råa skivavbilder, och en BitLocker- eller LUKS-volym inuti valfri avbild, som låses upp som en på en disk"
+          }
+        }
+      }
     },
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do.": {
       "localizations": {
@@ -22921,10 +23934,264 @@
       }
     },
     "Specifications": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Спецификации"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikace"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikationer"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spezifikationen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Προδιαγραφές"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Especificaciones"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spetsifikatsioonid"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Määrittelyt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spécifications"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikacije"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikációk"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifiche"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikacijos"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikācijas"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spesifikasjoner"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specificaties"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specyfikacje"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Especificações"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specificații"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikacije"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikationer"
+          }
+        }
+      }
     },
     "Specs": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Спецификации"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikace"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikationer"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spezifikationen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Προδιαγραφές"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Especificaciones"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spetsifikatsioonid"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Määrittelyt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spécifications"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikacije"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikációk"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifiche"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikacijos"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikācijas"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spesifikasjoner"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specificaties"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specyfikacje"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Especificações"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specificații"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikacije"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Specifikationer"
+          }
+        }
+      }
     },
     "System": {
       "localizations": {
@@ -30153,7 +31420,134 @@
       }
     },
     "Virtual machine disks: qcow2, VMDK, VDI, VHD and VHDX, as VMware, VirtualBox, Hyper-V, QEMU and UTM write them": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дискове на виртуални машини: qcow2, VMDK, VDI, VHD и VHDX, както ги записват VMware, VirtualBox, Hyper-V, QEMU и UTM"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disky virtuálních počítačů: qcow2, VMDK, VDI, VHD a VHDX, jak je zapisují VMware, VirtualBox, Hyper-V, QEMU a UTM"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diske fra virtuelle maskiner: qcow2, VMDK, VDI, VHD og VHDX, sådan som VMware, VirtualBox, Hyper-V, QEMU og UTM skriver dem"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Festplatten virtueller Maschinen: qcow2, VMDK, VDI, VHD und VHDX, so wie VMware, VirtualBox, Hyper-V, QEMU und UTM sie schreiben"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δίσκοι εικονικών μηχανών: qcow2, VMDK, VDI, VHD και VHDX, όπως τους γράφουν τα VMware, VirtualBox, Hyper-V, QEMU και UTM"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discos de máquinas virtuales: qcow2, VMDK, VDI, VHD y VHDX, tal como los escriben VMware, VirtualBox, Hyper-V, QEMU y UTM"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtuaalmasinate kettad: qcow2, VMDK, VDI, VHD ja VHDX, nagu neid kirjutavad VMware, VirtualBox, Hyper-V, QEMU ja UTM"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtuaalikoneiden levyt: qcow2, VMDK, VDI, VHD ja VHDX sellaisina kuin VMware, VirtualBox, Hyper-V, QEMU ja UTM ne kirjoittavat"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disques de machines virtuelles : qcow2, VMDK, VDI, VHD et VHDX, tels que les écrivent VMware, VirtualBox, Hyper-V, QEMU et UTM"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskovi virtualnih strojeva: qcow2, VMDK, VDI, VHD i VHDX, onako kako ih zapisuju VMware, VirtualBox, Hyper-V, QEMU i UTM"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtuális gépek lemezei: qcow2, VMDK, VDI, VHD és VHDX, ahogyan a VMware, a VirtualBox, a Hyper-V, a QEMU és az UTM írja őket"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dischi di macchine virtuali: qcow2, VMDK, VDI, VHD e VHDX, così come li scrivono VMware, VirtualBox, Hyper-V, QEMU e UTM"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtualiųjų mašinų diskai: qcow2, VMDK, VDI, VHD ir VHDX, tokie, kokius juos įrašo „VMware“, „VirtualBox“, „Hyper-V“, QEMU ir UTM"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtuālo mašīnu diski: qcow2, VMDK, VDI, VHD un VHDX tādi, kādus tos raksta VMware, VirtualBox, Hyper-V, QEMU un UTM"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disker fra virtuelle maskiner: qcow2, VMDK, VDI, VHD og VHDX, slik VMware, VirtualBox, Hyper-V, QEMU og UTM skriver dem"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schijven van virtuele machines: qcow2, VMDK, VDI, VHD en VHDX, zoals VMware, VirtualBox, Hyper-V, QEMU en UTM ze schrijven"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dyski maszyn wirtualnych: qcow2, VMDK, VDI, VHD i VHDX, w postaci zapisywanej przez VMware, VirtualBox, Hyper-V, QEMU i UTM"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discos de máquinas virtuais: qcow2, VMDK, VDI, VHD e VHDX, tal como o VMware, o VirtualBox, o Hyper-V, o QEMU e o UTM os escrevem"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discuri de mașini virtuale: qcow2, VMDK, VDI, VHD și VHDX, așa cum le scriu VMware, VirtualBox, Hyper-V, QEMU și UTM"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diski navideznih računalnikov: qcow2, VMDK, VDI, VHD in VHDX, kakor jih zapisujejo VMware, VirtualBox, Hyper-V, QEMU in UTM"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskar från virtuella maskiner: qcow2, VMDK, VDI, VHD och VHDX, så som VMware, VirtualBox, Hyper-V, QEMU och UTM skriver dem"
+          }
+        }
+      }
     },
     "Volumes opened": {
       "localizations": {
