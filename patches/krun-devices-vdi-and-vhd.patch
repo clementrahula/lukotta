@@ -1,0 +1,52 @@
+diff -ruN -x target -x Cargo.lock a/src/virtio/block/device.rs b/src/virtio/block/device.rs
+--- a/src/virtio/block/device.rs	2006-07-24 04:21:28
++++ b/src/virtio/block/device.rs	2026-08-22 10:08:15
+@@ -19,8 +19,8 @@
+ use std::thread::JoinHandle;
+ 
+ use imago::{
+-    file::File as ImagoFile, qcow2::Qcow2, raw::Raw, vmdk::Vmdk, DynStorage, FormatDriverBuilder,
+-    PermissiveImplicitOpenGate, Storage, StorageOpenOptions, SyncFormatAccess,
++    file::File as ImagoFile, qcow2::Qcow2, raw::Raw, vdi::Vdi, vhd::Vhd, vmdk::Vmdk, DynStorage,
++    FormatDriverBuilder, PermissiveImplicitOpenGate, Storage, StorageOpenOptions, SyncFormatAccess,
+ };
+ use log::{error, warn};
+ use utils::eventfd::{EventFd, EFD_NONBLOCK};
+@@ -278,6 +278,16 @@
+                 )
+                 .open_sync(PermissiveImplicitOpenGate::default())?;
+                 SyncFormatAccess::new(vmdk)?
++            }
++            // A VDI and a VHD each hold all of their own data, so neither can
++            // name another file to open, and neither is ever writable here.
++            ImageType::Vdi => {
++                let vdi = Vdi::<Box<dyn DynStorage>>::open_image_sync(Box::new(file), false)?;
++                SyncFormatAccess::new(vdi)?
++            }
++            ImageType::Vhd => {
++                let vhd = Vhd::<Box<dyn DynStorage>>::open_image_sync(Box::new(file), false)?;
++                SyncFormatAccess::new(vhd)?
+             }
+         };
+ 
+diff -ruN -x target -x Cargo.lock a/src/virtio/block/mod.rs b/src/virtio/block/mod.rs
+--- a/src/virtio/block/mod.rs	2006-07-24 04:21:28
++++ b/src/virtio/block/mod.rs	2026-08-22 10:08:15
+@@ -41,6 +41,8 @@
+     Raw,
+     Qcow2,
+     Vmdk,
++    Vdi,
++    Vhd,
+ }
+ 
+ impl TryFrom<u32> for ImageType {
+@@ -51,6 +53,8 @@
+             0 => Ok(ImageType::Raw),
+             1 => Ok(ImageType::Qcow2),
+             2 => Ok(ImageType::Vmdk),
++            3 => Ok(ImageType::Vdi),
++            4 => Ok(ImageType::Vhd),
+             _ => {
+                 // Do not continue if the user cannot specify a valid disk format
+                 Err(())

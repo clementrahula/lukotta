@@ -48,6 +48,15 @@ public enum EnginePaths {
         enginePatches.contains("vmproxy-decrypt-what-it-probes")
     }
 
+    /// Whether the engine can read a VDI, and a VHD that is not simply raw.
+    ///
+    /// Both drivers are ours, written for imago and built into the engine here.
+    /// Without them a fixed VHD still opens — it is the raw disk with a footer
+    /// after it — but a dynamic one and every VDI would be read as gibberish.
+    public static var opensVdiAndVhd: Bool {
+        enginePatches.contains("imago-vdi-and-vhd")
+    }
+
     /// Directories holding the bundled dylibs. The engine loads its one external
     /// dependency through @executable_path, so this is belt-and-braces.
     public static func libraryPaths() -> [String] {

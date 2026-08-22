@@ -1836,6 +1836,38 @@ group("aFixedVhdIsAlreadyRaw") {
     expect(VhdFooter.parse(Data(repeating: 0, count: 8)) == nil, "and a short read is not one")
 }
 
+group("aVdiIsNeverRawAtAnyOffset") {
+    // A VDI keeps its blocks in whatever order they were written, so nothing in
+    // it sits where the disk says. What is read here is only enough to tell one
+    // apart from a file that merely ends in .vdi.
+    func header(kind: UInt32, version: UInt32 = 0x0001_0001, size: UInt64 = 1 << 20) -> Data {
+        var bytes = [UInt8](repeating: 0, count: VdiHeader.length)
+        func le(_ value: UInt64, _ at: Int, _ width: Int) {
+            for i in 0..<width { bytes[at + i] = UInt8((value >> (8 * UInt64(i))) & 0xFF) }
+        }
+        le(UInt64(VdiHeader.signature), VdiHeader.signatureOffset, 4)
+        le(UInt64(version), 0x44, 4)
+        le(UInt64(kind), 0x4C, 4)
+        le(size, 0x170, 8)
+        return Data(bytes)
+    }
+
+    let dynamic = VdiHeader.parse(header(kind: 1))
+    expect(dynamic?.kind == .dynamic, "a VDI holding only what was written is recognised")
+    expect("\(dynamic?.diskSize ?? 0)", "1048576", "and says how much disk it stands for")
+    expect(VdiHeader.parse(header(kind: 2))?.kind == .fixed, "and one holding every block")
+    expect(VdiHeader.parse(header(kind: 7))?.kind == nil, "an unknown kind is unknown")
+
+    // Version 0 put everything somewhere else, so reading it as version 1 would
+    // find the block map in the wrong place.
+    expect(VdiHeader.parse(header(kind: 1, version: 0))?.major == 0, "the version is read")
+
+    var wrongMagic = [UInt8](repeating: 0, count: VdiHeader.length)
+    wrongMagic[VdiHeader.signatureOffset] = 0x7f
+    expect(VdiHeader.parse(Data(wrongMagic)) == nil, "no signature, no VDI")
+    expect(VdiHeader.parse(Data(repeating: 0, count: 64)) == nil, "and a short read is not one")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

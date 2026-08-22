@@ -421,6 +421,17 @@ final class AppModel: ObservableObject {
             return engineRead(url)
         }
 
+        // A VDI is never raw at any offset: the header comes first and the
+        // blocks are in whatever order they were written. It is read by the
+        // driver we wrote for the engine, or refused.
+        if DiskImage.isVdi(url) {
+            if let objection = DiskImage.objection(toVdi: url) {
+                Log.drives.error("refused a VDI")
+                return .failure(objection)
+            }
+            return engineRead(url)
+        }
+
         // A VMDK is never attached either: macOS cannot read one and the engine
         // can. Unlike a qcow2 it always names a separate file for its data —
         // the descriptor is read whole and capped at two megabytes, so there is

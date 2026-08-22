@@ -87,7 +87,32 @@ enum EndToEnd {
             if FileManager.default.fileExists(atPath: dynamic.path) {
                 print("")
                 print("dynamic VHD: \(dynamic.lastPathComponent)")
-                refusedByNameFlow(image: dynamic, saying: "dynamic VHD")
+                // Read by the driver we wrote for the engine; a build without
+                // it must say so rather than serve the header as a disk.
+                if EnginePaths.opensVdiAndVhd {
+                    qcow2Flow(image: dynamic, passphrase: nil)
+                } else {
+                    refusedByNameFlow(image: dynamic, saying: "dynamic VHD")
+                }
+            }
+        }
+
+        if arguments.count >= 13 {
+            let vdi = URL(fileURLWithPath: arguments[11])
+            let ancient = URL(fileURLWithPath: arguments[12])
+            if FileManager.default.fileExists(atPath: vdi.path) {
+                print("")
+                print("VDI: \(vdi.lastPathComponent)")
+                if EnginePaths.opensVdiAndVhd {
+                    qcow2Flow(image: vdi, passphrase: nil)
+                } else {
+                    refusedByNameFlow(image: vdi, saying: "VDI")
+                }
+            }
+            if FileManager.default.fileExists(atPath: ancient.path) {
+                print("")
+                print("a VDI written by a format nobody released: \(ancient.lastPathComponent)")
+                refusedByNameFlow(image: ancient, saying: "not a disk image")
             }
         }
 

@@ -4,14 +4,14 @@ import Foundation
 ///
 /// A **fixed** VHD is the raw disk followed by a 512-byte footer: every
 /// partition table and superblock sits at its natural offset, and the footer is
-/// simply past the end. So the engine opens one as-is, with no format support
-/// at all — it reads it as a raw image and never looks at the last sector.
+/// simply past the end. So any engine opens one as-is — it reads it as a raw
+/// image and never looks at the last sector.
 ///
-/// The other two kinds are not raw. A **dynamic** VHD stores its data in blocks
-/// listed by an allocation table, and a **differencing** one holds only what
-/// changed from a parent disk it names. Both would be read as gibberish if
-/// passed through as raw, so both are refused by name rather than mounted as
-/// nonsense.
+/// A **dynamic** VHD stores its data in blocks listed by an allocation table,
+/// which an engine built with our driver reads and one without would serve as
+/// gibberish. A **differencing** VHD holds only what changed from a parent disk
+/// it names, and is refused whatever the engine can do: nothing here opens an
+/// image that names another file.
 public struct VhdFooter: Equatable, Sendable {
     public enum Kind: UInt32, Sendable {
         case fixed = 2
@@ -85,9 +85,13 @@ extension DiskImage {
         case .fixed:
             break
         case .dynamic:
-            return appString(
-                "“\(url.lastPathComponent)” is a dynamic VHD, which \(appName) cannot open yet. A fixed VHD, a raw image or a qcow2 would work."
-            )
+            // Read by the driver we wrote for the engine. A build without it
+            // would take the file as raw and find nothing but the header.
+            guard EnginePaths.opensVdiAndVhd else {
+                return appString(
+                    "“\(url.lastPathComponent)” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work."
+                )
+            }
         case .differencing:
             return appString(
                 "“\(url.lastPathComponent)” holds only the changes from another disk, which it names. \(appName) does not open images that name other files."
@@ -98,9 +102,12 @@ extension DiskImage {
 
         // A fixed VHD is its data and then the footer, and nothing else. If the
         // arithmetic does not agree, passing it through as raw would serve
-        // whatever else is in the file as though it were the disk.
+        // whatever else is in the file as though it were the disk. A dynamic
+        // one is smaller than the disk it stands for — that is the whole point
+        // of it — so only the driver can judge that, and it does.
         guard footer.currentSize > 0,
-            footer.currentSize == UInt64(size) - UInt64(VhdFooter.length)
+            footer.kind != .fixed
+                || footer.currentSize == UInt64(size) - UInt64(VhdFooter.length)
         else {
             return appString(
                 "“\(url.lastPathComponent)” does not hold as much as it says it does, so it may be damaged or unfinished."

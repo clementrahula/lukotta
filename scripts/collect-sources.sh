@@ -16,6 +16,8 @@ VERSION="$(tr -d ' \n' < "$HERE/VERSION")"
 DB="$HERE/vendor/engine/alpine/packages.db"
 
 ANYLINUXFS_VER="0.19.0"
+LOCK="$HERE/vendor/engine.lock"
+lockfield() { /usr/bin/python3 -c "import json;d=json.load(open('$LOCK'));print(d['$1']['$2'])"; }
 ALPINE_TAG="v3.24.1"   # the exact release the image was built from
 
 [ -f "$DB" ] || { echo "error: no $DB — run ./vendor-engine.sh first" >&2; exit 1; }
@@ -62,7 +64,18 @@ if [ -d "$HERE/patches" ]; then
     [ -e "$p" ] && note "  OK   anylinuxfs-patches/$(basename "$p")  <- this repository"
   done
   note "       apply with: patch -p1 -d anylinuxfs-${ANYLINUXFS_VER} < <patch>"
+  note "       the imago- and krun-devices- patches apply to those crates instead"
 fi
+note ""
+
+# The two crates the host binary links in that we patch. They are built from
+# source into the shipped binary, so their source and our changes to it are part
+# of the corresponding source as much as anylinuxfs's own.
+for crate in imago krun-devices; do
+  cver="$(lockfield "$crate" version)"
+  note "$crate $cver ($(lockfield "$crate" licence)), linked into the engine and patched"
+  fetch "$(lockfield "$crate" source_url)" "$OUT/$crate-$cver.crate"
+done
 note ""
 
 # --- 3. libkrun, libkrunfw and the other embedded programs -----------------

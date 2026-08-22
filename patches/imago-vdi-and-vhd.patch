@@ -1,0 +1,925 @@
+diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.rs
+--- a/src/format/builder.rs	2006-07-24 04:21:28
++++ b/src/format/builder.rs	2026-08-22 10:03:34
+@@ -7,6 +7,8 @@
+ use crate::misc_helpers::ResultErrorContext;
+ use crate::qcow2::Qcow2OpenBuilder;
+ use crate::raw::RawOpenBuilder;
++use crate::vdi::VdiOpenBuilder;
++use crate::vhd::VhdOpenBuilder;
+ use crate::vmdk::VmdkOpenBuilder;
+ use crate::{Storage, StorageOpenOptions};
+ use std::io;
+@@ -328,6 +330,12 @@
+ 
+     /// Vmdk image builder
+     VmdkBuilder(Box<VmdkOpenBuilder<S>>),
++
++    /// Vdi image builder
++    VdiBuilder(Box<VdiOpenBuilder<S>>),
++
++    /// Vhd image builder
++    VhdBuilder(Box<VhdOpenBuilder<S>>),
+ }
+ 
+ impl<S: Storage + 'static, F: WrappedFormat<S> + 'static> FormatOrBuilder<S, F> {
+@@ -339,6 +347,8 @@
+             Format::Qcow2 => Self::Qcow2Builder(Box::new(Qcow2OpenBuilder::new_path(path))),
+             Format::Raw => Self::RawBuilder(Box::new(RawOpenBuilder::new_path(path))),
+             Format::Vmdk => Self::VmdkBuilder(Box::new(VmdkOpenBuilder::new_path(path))),
++            Format::Vdi => Self::VdiBuilder(Box::new(VdiOpenBuilder::new_path(path))),
++            Format::Vhd => Self::VhdBuilder(Box::new(VhdOpenBuilder::new_path(path))),
+         }
+     }
+ 
+@@ -359,6 +369,14 @@
+                 gate.open_format(b).await?
+             }
+             FormatOrBuilder::VmdkBuilder(b) => {
++                let b = b.storage_open_options(opts);
++                gate.open_format(b).await?
++            }
++            FormatOrBuilder::VdiBuilder(b) => {
++                let b = b.storage_open_options(opts);
++                gate.open_format(b).await?
++            }
++            FormatOrBuilder::VhdBuilder(b) => {
+                 let b = b.storage_open_options(opts);
+                 gate.open_format(b).await?
+             }
+diff -ruN -x target -x Cargo.lock a/src/format/mod.rs b/src/format/mod.rs
+--- a/src/format/mod.rs	2006-07-24 04:21:28
++++ b/src/format/mod.rs	2026-08-22 10:03:05
+@@ -22,6 +22,12 @@
+ 
+     /// VMDK format
+     Vmdk,
++
++    /// VDI format (VirtualBox)
++    Vdi,
++
++    /// VHD format (fixed or dynamic)
++    Vhd,
+ }
+ 
+ /// Format layer preallocation modes.
+diff -ruN -x target -x Cargo.lock a/src/lib.rs b/src/lib.rs
+--- a/src/lib.rs	2006-07-24 04:21:28
++++ b/src/lib.rs	2026-08-22 10:03:59
+@@ -104,7 +104,9 @@
+ pub mod qcow2;
+ pub mod raw;
+ pub mod storage;
++pub mod vdi;
+ mod vector_select;
++pub mod vhd;
+ pub mod vmdk;
+ 
+ pub use format::access::{FormatAccess, Mapping};
+diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
+--- a/src/vdi/mod.rs	1970-01-01 03:00:00
++++ b/src/vdi/mod.rs	2026-08-22 10:01:53
+@@ -0,0 +1,395 @@
++//! VDI implementation.
++//!
++//! VirtualBox's format, read-only.  A VDI is a header, a block map, and then
++//! the blocks themselves.  The block map has one 32-bit entry per block of the
++//! virtual disk, holding the index of that block in the image; two values are
++//! special, and mean the block was never written and reads as zeroes.
++//!
++//! Nothing here follows a reference to another file, because the format has no
++//! way to name one: a VDI's data is always in the VDI.  (VirtualBox's snapshots
++//! are separate images chained together by the VM's own configuration, not by
++//! anything in the image.)
++
++use crate::format::builder::{FormatDriverBuilder, FormatDriverBuilderBase};
++use crate::format::drivers::FormatDriverInstance;
++use crate::format::gate::ImplicitOpenGate;
++use crate::format::{Format, PreallocateMode};
++use crate::io_buffers::IoBuffer;
++use crate::misc_helpers::invalid_data;
++use crate::storage::ext::StorageExt;
++use crate::{ShallowMapping, Storage, StorageOpenOptions};
++use async_trait::async_trait;
++use std::fmt::{self, Display, Formatter};
++use std::path::{Path, PathBuf};
++use std::{cmp, io};
++
++/// Magic that begins the header proper, after 64 bytes of free text.
++const VDI_SIGNATURE: u32 = 0xbeda_107f;
++/// Where that magic sits.
++const SIGNATURE_OFFSET: u64 = 0x40;
++/// How much of the file the header can occupy, which is all this driver reads
++/// before it knows how much it needs.
++const HEADER_READ: usize = 0x200;
++
++/// The block was never written, and reads as zeroes.
++const BLOCK_FREE: u32 = 0xffff_ffff;
++/// The block was discarded, and reads as zeroes.
++const BLOCK_ZERO: u32 = 0xffff_fffe;
++
++/// A block map with as many entries as this would be larger than any real disk,
++/// and reading it would be the whole of the allocation this driver does.  100
++/// million blocks is a 100 TB disk at the smallest block size anyone uses.
++const MAX_BLOCKS: u32 = 100_000_000;
++
++/// What the header says, once it has been read and found to make sense.
++#[derive(Debug, Clone)]
++struct VdiHeader {
++    /// Where the block map begins.
++    blocks_offset: u64,
++    /// Where the first block's data begins.
++    data_offset: u64,
++    /// How large the virtual disk is.
++    disk_size: u64,
++    /// How much disk one block holds.
++    block_size: u32,
++    /// Padding written before each block's data, normally none.
++    block_extra: u32,
++    /// How many entries the block map has.
++    blocks: u32,
++}
++
++/// VDI disk image format implementation, read-only.
++#[derive(Debug)]
++pub struct Vdi<S: Storage + 'static> {
++    /// The image file.
++    inner: S,
++
++    /// What the header said.
++    header: VdiHeader,
++
++    /// The block map, read once when the image is opened.
++    block_map: Vec<u32>,
++}
++
++/// Read a little-endian `u32` at `offset` in `buf`.
++fn le32(buf: &[u8], offset: usize) -> u32 {
++    u32::from_le_bytes(buf[offset..offset + 4].try_into().unwrap())
++}
++
++/// Read a little-endian `u64` at `offset` in `buf`.
++fn le64(buf: &[u8], offset: usize) -> u64 {
++    u64::from_le_bytes(buf[offset..offset + 8].try_into().unwrap())
++}
++
++impl<S: Storage + 'static> Vdi<S> {
++    /// Create a new [`FormatDriverBuilder`] instance for the given image.
++    pub fn builder(image: S) -> VdiOpenBuilder<S> {
++        VdiOpenBuilder::new(image)
++    }
++
++    /// Create a new [`FormatDriverBuilder`] instance for an image under the given path.
++    pub fn builder_path<P: AsRef<Path>>(image_path: P) -> VdiOpenBuilder<S> {
++        VdiOpenBuilder::new_path(image_path)
++    }
++
++    /// Read the header, check it over, and read the block map.
++    async fn do_open(inner: S) -> io::Result<Self> {
++        let file_size = inner.size()?;
++        if file_size < HEADER_READ as u64 {
++            return Err(invalid_data("VDI image too short to hold a header"));
++        }
++
++        let mut buf = IoBuffer::new(HEADER_READ, inner.mem_align())?;
++        inner.read(buf.as_mut(), 0).await?;
++        let buf = buf.as_ref().into_slice();
++
++        if le32(buf, SIGNATURE_OFFSET as usize) != VDI_SIGNATURE {
++            return Err(invalid_data("Not a VDI image"));
++        }
++        // Only version 1 has ever existed in the wild; version 0 laid the
++        // header out differently and VirtualBox itself no longer writes it.
++        let version = le32(buf, 0x44);
++        if version >> 16 != 1 {
++            return Err(invalid_data(format!(
++                "Unsupported VDI version {}.{}",
++                version >> 16,
++                version & 0xffff
++            )));
++        }
++        // 1 is dynamic and 2 is fixed; both are read the same way here, because
++        // a fixed image is simply one whose block map is already filled in.
++        let image_type = le32(buf, 0x4c);
++        if image_type != 1 && image_type != 2 {
++            return Err(io::Error::new(
++                io::ErrorKind::Unsupported,
++                format!("Unsupported VDI image type {image_type}"),
++            ));
++        }
++
++        let header = VdiHeader {
++            blocks_offset: le32(buf, 0x154) as u64,
++            data_offset: le32(buf, 0x158) as u64,
++            disk_size: le64(buf, 0x170),
++            block_size: le32(buf, 0x178),
++            block_extra: le32(buf, 0x17c),
++            blocks: le32(buf, 0x180),
++        };
++
++        // Everything below is a way for a damaged or hostile image to make this
++        // driver read the wrong part of the file, so all of it is checked
++        // before any of it is used.
++        if header.block_size == 0 || !header.block_size.is_power_of_two() {
++            return Err(invalid_data(format!(
++                "VDI block size {} is not a power of two",
++                header.block_size
++            )));
++        }
++        if header.blocks > MAX_BLOCKS {
++            return Err(invalid_data(format!(
++                "VDI block map has {} entries, which is more than this reads",
++                header.blocks
++            )));
++        }
++        let mapped = (header.blocks as u64)
++            .checked_mul(header.block_size as u64)
++            .ok_or_else(|| invalid_data("VDI block map covers more than any disk could hold"))?;
++        if header.disk_size > mapped {
++            return Err(invalid_data(format!(
++                "VDI says it holds {} bytes but its block map covers only {mapped}",
++                header.disk_size
++            )));
++        }
++        if header.blocks_offset < SIGNATURE_OFFSET || header.data_offset < header.blocks_offset {
++            return Err(invalid_data("VDI header offsets overlap"));
++        }
++
++        let map_bytes = (header.blocks as usize)
++            .checked_mul(4)
++            .ok_or_else(|| invalid_data("VDI block map too large"))?;
++        let mut block_map = vec![0u32; header.blocks as usize];
++        if map_bytes > 0 {
++            if header
++                .blocks_offset
++                .checked_add(map_bytes as u64)
++                .is_none_or(|end| end > file_size)
++            {
++                return Err(invalid_data("VDI block map runs past the end of the file"));
++            }
++            let mut map = IoBuffer::new(map_bytes, inner.mem_align())?;
++            inner.read(map.as_mut(), header.blocks_offset).await?;
++            let map = map.as_ref().into_slice();
++            for (i, entry) in block_map.iter_mut().enumerate() {
++                *entry = le32(map, i * 4);
++            }
++        }
++
++        // A block index that points past the end of the file would be read as
++        // disk contents, so the map is checked here rather than per read.
++        let stride = (header.block_size as u64) + (header.block_extra as u64);
++        for &entry in &block_map {
++            if entry == BLOCK_FREE || entry == BLOCK_ZERO {
++                continue;
++            }
++            let start = (entry as u64)
++                .checked_mul(stride)
++                .and_then(|o| o.checked_add(header.data_offset))
++                .and_then(|o| o.checked_add(header.block_extra as u64));
++            match start {
++                Some(start) if start + (header.block_size as u64) <= file_size => (),
++                _ => {
++                    return Err(invalid_data(
++                        "VDI block map points outside the image file",
++                    ))
++                }
++            }
++        }
++
++        Ok(Vdi {
++            inner,
++            header,
++            block_map,
++        })
++    }
++
++    /// Open a VDI image, read-only.
++    pub async fn open_image(inner: S, writable: bool) -> io::Result<Self> {
++        if writable {
++            return Err(io::Error::new(
++                io::ErrorKind::Unsupported,
++                "No VDI write support",
++            ));
++        }
++        Self::do_open(inner).await
++    }
++
++    /// Synchronous wrapper around [`Vdi::open_image()`].
++    #[cfg(feature = "sync-wrappers")]
++    pub fn open_image_sync(inner: S, writable: bool) -> io::Result<Self> {
++        tokio::runtime::Builder::new_current_thread()
++            .build()?
++            .block_on(Self::open_image(inner, writable))
++    }
++}
++
++impl<S: Storage + 'static> Display for Vdi<S> {
++    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
++        write!(f, "vdi[{}]", self.inner)
++    }
++}
++
++#[async_trait(?Send)]
++impl<S: Storage + 'static> FormatDriverInstance for Vdi<S> {
++    type Storage = S;
++
++    fn format(&self) -> Format {
++        Format::Vdi
++    }
++
++    async unsafe fn probe(storage: &S) -> io::Result<bool>
++    where
++        Self: Sized,
++    {
++        if storage.size()? < HEADER_READ as u64 {
++            return Ok(false);
++        }
++        let mut buf = IoBuffer::new(HEADER_READ, storage.mem_align())?;
++        storage.read(buf.as_mut(), 0).await?;
++        let buf = buf.as_ref().into_slice();
++        Ok(le32(buf, SIGNATURE_OFFSET as usize) == VDI_SIGNATURE)
++    }
++
++    fn size(&self) -> u64 {
++        self.header.disk_size
++    }
++
++    fn collect_storage_dependencies(&self) -> Vec<&S> {
++        vec![&self.inner]
++    }
++
++    fn writable(&self) -> bool {
++        false
++    }
++
++    async fn get_mapping<'a>(
++        &'a self,
++        offset: u64,
++        max_length: u64,
++    ) -> io::Result<(ShallowMapping<'a, S>, u64)> {
++        let remaining = match self.size().checked_sub(offset) {
++            None | Some(0) => return Ok((ShallowMapping::Eof {}, 0)),
++            Some(remaining) => remaining,
++        };
++
++        let block_size = self.header.block_size as u64;
++        let index = (offset / block_size) as usize;
++        let in_block = offset % block_size;
++        // Never longer than what is left of this block: the next one may be
++        // somewhere else in the file, or nowhere at all.
++        let length = cmp::min(cmp::min(max_length, remaining), block_size - in_block);
++
++        let Some(&entry) = self.block_map.get(index) else {
++            return Ok((ShallowMapping::Eof {}, 0));
++        };
++        if entry == BLOCK_FREE || entry == BLOCK_ZERO {
++            return Ok((
++                ShallowMapping::Zero {
++                    explicit: entry == BLOCK_ZERO,
++                },
++                length,
++            ));
++        }
++
++        // Checked when the map was read, so this cannot overflow.
++        let stride = block_size + (self.header.block_extra as u64);
++        let start = self.header.data_offset
++            + (entry as u64) * stride
++            + (self.header.block_extra as u64);
++
++        Ok((
++            ShallowMapping::Raw {
++                storage: &self.inner,
++                offset: start + in_block,
++                writable: false,
++            },
++            length,
++        ))
++    }
++
++    async fn ensure_data_mapping<'a>(
++        &'a self,
++        _offset: u64,
++        _length: u64,
++        _overwrite: bool,
++    ) -> io::Result<(&'a S, u64, u64)> {
++        Err(io::Error::other("Image is read-only"))
++    }
++
++    async fn flush(&self) -> io::Result<()> {
++        Ok(())
++    }
++
++    async fn sync(&self) -> io::Result<()> {
++        Ok(())
++    }
++
++    async unsafe fn invalidate_cache(&self) -> io::Result<()> {
++        Ok(())
++    }
++
++    async fn resize_grow(&self, _new_size: u64, _prealloc_mode: PreallocateMode) -> io::Result<()> {
++        Err(io::Error::other("Image is read-only"))
++    }
++
++    async fn resize_shrink(&mut self, _new_size: u64) -> io::Result<()> {
++        Err(io::Error::other("Image is read-only"))
++    }
++}
++
++/// Options builder for opening a VDI image.
++pub struct VdiOpenBuilder<S: Storage + 'static>(FormatDriverBuilderBase<S>);
++
++impl<S: Storage + 'static> FormatDriverBuilder<S> for VdiOpenBuilder<S> {
++    type Format = Vdi<S>;
++    const FORMAT: Format = Format::Vdi;
++
++    fn new(image: S) -> Self {
++        VdiOpenBuilder(FormatDriverBuilderBase::new(image))
++    }
++
++    fn new_path<P: AsRef<Path>>(image_path: P) -> Self {
++        VdiOpenBuilder(FormatDriverBuilderBase::new_path(image_path))
++    }
++
++    fn write(mut self, writable: bool) -> Self {
++        self.0.set_write(writable);
++        self
++    }
++
++    fn storage_open_options(mut self, options: StorageOpenOptions) -> Self {
++        self.0.set_storage_open_options(options);
++        self
++    }
++
++    async fn open<G: ImplicitOpenGate<S>>(self, mut gate: G) -> io::Result<Self::Format> {
++        if self.0.get_writable() {
++            return Err(io::Error::new(
++                io::ErrorKind::Unsupported,
++                "No VDI write support",
++            ));
++        }
++        let file = self.0.open_image(&mut gate).await?;
++        Vdi::open_image(file, false).await
++    }
++
++    fn get_image_path(&self) -> Option<PathBuf> {
++        self.0.get_image_path()
++    }
++
++    fn get_writable(&self) -> bool {
++        self.0.get_writable()
++    }
++
++    fn get_storage_open_options(&self) -> Option<&StorageOpenOptions> {
++        self.0.get_storage_opts()
++    }
++}
+diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
+--- a/src/vhd/mod.rs	1970-01-01 03:00:00
++++ b/src/vhd/mod.rs	2026-08-22 10:02:51
+@@ -0,0 +1,444 @@
++//! VHD implementation.
++//!
++//! Microsoft's format, read-only, in both the shapes that hold their own data:
++//!
++//! - **fixed**, which is the raw disk followed by a 512-byte footer, and
++//! - **dynamic**, which stores the disk in blocks listed by an allocation
++//!   table, with a bitmap sector before each block.
++//!
++//! The third shape, **differencing**, holds only what changed from a parent
++//! disk it names, and is refused: this driver never opens a second file.
++//!
++//! VHDX shares the name and nothing else, and is not this format.
++
++use crate::format::builder::{FormatDriverBuilder, FormatDriverBuilderBase};
++use crate::format::drivers::FormatDriverInstance;
++use crate::format::gate::ImplicitOpenGate;
++use crate::format::{Format, PreallocateMode};
++use crate::io_buffers::IoBuffer;
++use crate::misc_helpers::invalid_data;
++use crate::storage::ext::StorageExt;
++use crate::{ShallowMapping, Storage, StorageOpenOptions};
++use async_trait::async_trait;
++use std::fmt::{self, Display, Formatter};
++use std::path::{Path, PathBuf};
++use std::{cmp, io};
++
++/// The footer's first eight bytes.
++const FOOTER_COOKIE: &[u8; 8] = b"conectix";
++/// The dynamic header's first eight bytes.
++const DYNAMIC_COOKIE: &[u8; 8] = b"cxsparse";
++/// How long the footer is.
++const FOOTER_LENGTH: u64 = 512;
++/// How long the dynamic header is.
++const DYNAMIC_LENGTH: usize = 1024;
++/// The sector size the format is written in terms of.
++const SECTOR: u64 = 512;
++
++/// The disk is the raw data with the footer after it.
++const TYPE_FIXED: u32 = 2;
++/// The disk is stored in blocks listed by an allocation table.
++const TYPE_DYNAMIC: u32 = 3;
++/// The image holds only what changed from a parent disk it names.
++const TYPE_DIFFERENCING: u32 = 4;
++
++/// A block that was never written, and reads as zeroes.
++const BAT_UNALLOCATED: u32 = 0xffff_ffff;
++
++/// An allocation table with more entries than this would be larger than any
++/// real disk, and reading it is the whole of the allocation this driver does.
++const MAX_BAT_ENTRIES: u32 = 100_000_000;
++
++/// How the image holds its data.
++#[derive(Debug)]
++enum VhdLayout {
++    /// The raw disk, with the footer past the end of it.
++    Fixed,
++    /// Blocks listed by an allocation table.
++    Dynamic {
++        /// How much disk one block holds.
++        block_size: u64,
++        /// How much sits before each block's data: the bitmap, rounded up to a
++        /// whole number of sectors.
++        bitmap_size: u64,
++        /// Where each block's data begins, or `BAT_UNALLOCATED`.
++        bat: Vec<u32>,
++    },
++}
++
++/// VHD disk image format implementation, read-only.
++#[derive(Debug)]
++pub struct Vhd<S: Storage + 'static> {
++    /// The image file.
++    inner: S,
++
++    /// How large the virtual disk is.
++    size: u64,
++
++    /// How the image holds its data.
++    layout: VhdLayout,
++}
++
++/// Read a big-endian `u32` at `offset` in `buf`.
++fn be32(buf: &[u8], offset: usize) -> u32 {
++    u32::from_be_bytes(buf[offset..offset + 4].try_into().unwrap())
++}
++
++/// Read a big-endian `u64` at `offset` in `buf`.
++fn be64(buf: &[u8], offset: usize) -> u64 {
++    u64::from_be_bytes(buf[offset..offset + 8].try_into().unwrap())
++}
++
++impl<S: Storage + 'static> Vhd<S> {
++    /// Create a new [`FormatDriverBuilder`] instance for the given image.
++    pub fn builder(image: S) -> VhdOpenBuilder<S> {
++        VhdOpenBuilder::new(image)
++    }
++
++    /// Create a new [`FormatDriverBuilder`] instance for an image under the given path.
++    pub fn builder_path<P: AsRef<Path>>(image_path: P) -> VhdOpenBuilder<S> {
++        VhdOpenBuilder::new_path(image_path)
++    }
++
++    /// Read the footer, and whatever else the kind of image needs.
++    async fn do_open(inner: S) -> io::Result<Self> {
++        let file_size = inner.size()?;
++        if file_size < FOOTER_LENGTH {
++            return Err(invalid_data("VHD image too short to hold a footer"));
++        }
++
++        let mut buf = IoBuffer::new(FOOTER_LENGTH as usize, inner.mem_align())?;
++        inner.read(buf.as_mut(), file_size - FOOTER_LENGTH).await?;
++        let footer = buf.as_ref().into_slice();
++
++        if &footer[..8] != FOOTER_COOKIE {
++            return Err(invalid_data("Not a VHD image"));
++        }
++        let disk_type = be32(footer, 60);
++        let size = be64(footer, 48);
++        if size == 0 {
++            return Err(invalid_data("VHD says it holds nothing"));
++        }
++
++        let layout = match disk_type {
++            TYPE_FIXED => {
++                if size > file_size - FOOTER_LENGTH {
++                    return Err(invalid_data(
++                        "VHD says it holds more than the file does",
++                    ));
++                }
++                VhdLayout::Fixed
++            }
++            TYPE_DYNAMIC => {
++                Self::read_dynamic(&inner, footer, file_size, size).await?
++            }
++            TYPE_DIFFERENCING => {
++                return Err(io::Error::new(
++                    io::ErrorKind::Unsupported,
++                    "VHD holds only the changes from another disk, which it names",
++                ))
++            }
++            other => {
++                return Err(io::Error::new(
++                    io::ErrorKind::Unsupported,
++                    format!("Unsupported VHD disk type {other}"),
++                ))
++            }
++        };
++
++        Ok(Vhd {
++            inner,
++            size,
++            layout,
++        })
++    }
++
++    /// Read the dynamic disk header and the allocation table after it.
++    async fn read_dynamic(
++        inner: &S,
++        footer: &[u8],
++        file_size: u64,
++        size: u64,
++    ) -> io::Result<VhdLayout> {
++        let header_at = be64(footer, 16);
++        if header_at
++            .checked_add(DYNAMIC_LENGTH as u64)
++            .is_none_or(|end| end > file_size)
++        {
++            return Err(invalid_data("VHD header lies outside the file"));
++        }
++
++        let mut buf = IoBuffer::new(DYNAMIC_LENGTH, inner.mem_align())?;
++        inner.read(buf.as_mut(), header_at).await?;
++        let header = buf.as_ref().into_slice();
++
++        if &header[..8] != DYNAMIC_COOKIE {
++            return Err(invalid_data("VHD header is not where the footer says"));
++        }
++        let table_at = be64(header, 16);
++        let entries = be32(header, 28);
++        let block_size = be32(header, 32) as u64;
++
++        if block_size < SECTOR || !block_size.is_power_of_two() {
++            return Err(invalid_data(format!(
++                "VHD block size {block_size} is not a power of two"
++            )));
++        }
++        if entries > MAX_BAT_ENTRIES {
++            return Err(invalid_data(format!(
++                "VHD allocation table has {entries} entries, which is more than this reads"
++            )));
++        }
++        let covered = (entries as u64)
++            .checked_mul(block_size)
++            .ok_or_else(|| invalid_data("VHD allocation table covers more than any disk could"))?;
++        if size > covered {
++            return Err(invalid_data(format!(
++                "VHD says it holds {size} bytes but its allocation table covers only {covered}"
++            )));
++        }
++
++        let table_bytes = (entries as usize)
++            .checked_mul(4)
++            .ok_or_else(|| invalid_data("VHD allocation table too large"))?;
++        if table_at
++            .checked_add(table_bytes as u64)
++            .is_none_or(|end| end > file_size)
++        {
++            return Err(invalid_data(
++                "VHD allocation table runs past the end of the file",
++            ));
++        }
++
++        // The bitmap says which sectors of a block have been written. It is
++        // rounded up to a whole sector, and sits immediately before the data.
++        let bitmap_size = block_size.div_ceil(SECTOR).div_ceil(8).next_multiple_of(SECTOR);
++
++        let mut bat = vec![0u32; entries as usize];
++        if table_bytes > 0 {
++            let mut table = IoBuffer::new(table_bytes, inner.mem_align())?;
++            inner.read(table.as_mut(), table_at).await?;
++            let table = table.as_ref().into_slice();
++            for (i, entry) in bat.iter_mut().enumerate() {
++                *entry = be32(table, i * 4);
++            }
++        }
++
++        // A block pointing past the end of the file would be read as disk
++        // contents, so the table is checked here rather than per read.
++        for &entry in &bat {
++            if entry == BAT_UNALLOCATED {
++                continue;
++            }
++            let start = (entry as u64)
++                .checked_mul(SECTOR)
++                .and_then(|o| o.checked_add(bitmap_size));
++            match start {
++                Some(start) if start.checked_add(block_size).is_some_and(|e| e <= file_size) => (),
++                _ => {
++                    return Err(invalid_data(
++                        "VHD allocation table points outside the image file",
++                    ))
++                }
++            }
++        }
++
++        Ok(VhdLayout::Dynamic {
++            block_size,
++            bitmap_size,
++            bat,
++        })
++    }
++
++    /// Open a VHD image, read-only.
++    pub async fn open_image(inner: S, writable: bool) -> io::Result<Self> {
++        if writable {
++            return Err(io::Error::new(
++                io::ErrorKind::Unsupported,
++                "No VHD write support",
++            ));
++        }
++        Self::do_open(inner).await
++    }
++
++    /// Synchronous wrapper around [`Vhd::open_image()`].
++    #[cfg(feature = "sync-wrappers")]
++    pub fn open_image_sync(inner: S, writable: bool) -> io::Result<Self> {
++        tokio::runtime::Builder::new_current_thread()
++            .build()?
++            .block_on(Self::open_image(inner, writable))
++    }
++}
++
++impl<S: Storage + 'static> Display for Vhd<S> {
++    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
++        write!(f, "vhd[{}]", self.inner)
++    }
++}
++
++#[async_trait(?Send)]
++impl<S: Storage + 'static> FormatDriverInstance for Vhd<S> {
++    type Storage = S;
++
++    fn format(&self) -> Format {
++        Format::Vhd
++    }
++
++    async unsafe fn probe(storage: &S) -> io::Result<bool>
++    where
++        Self: Sized,
++    {
++        let file_size = storage.size()?;
++        if file_size < FOOTER_LENGTH {
++            return Ok(false);
++        }
++        let mut buf = IoBuffer::new(FOOTER_LENGTH as usize, storage.mem_align())?;
++        storage.read(buf.as_mut(), file_size - FOOTER_LENGTH).await?;
++        Ok(&buf.as_ref().into_slice()[..8] == FOOTER_COOKIE)
++    }
++
++    fn size(&self) -> u64 {
++        self.size
++    }
++
++    fn collect_storage_dependencies(&self) -> Vec<&S> {
++        vec![&self.inner]
++    }
++
++    fn writable(&self) -> bool {
++        false
++    }
++
++    async fn get_mapping<'a>(
++        &'a self,
++        offset: u64,
++        max_length: u64,
++    ) -> io::Result<(ShallowMapping<'a, S>, u64)> {
++        let remaining = match self.size.checked_sub(offset) {
++            None | Some(0) => return Ok((ShallowMapping::Eof {}, 0)),
++            Some(remaining) => remaining,
++        };
++        let max_length = cmp::min(max_length, remaining);
++
++        match &self.layout {
++            // The data is the file, from the start, with the footer past the
++            // end of the disk and so never inside a mapping.
++            VhdLayout::Fixed => Ok((
++                ShallowMapping::Raw {
++                    storage: &self.inner,
++                    offset,
++                    writable: false,
++                },
++                max_length,
++            )),
++
++            VhdLayout::Dynamic {
++                block_size,
++                bitmap_size,
++                bat,
++            } => {
++                let index = (offset / block_size) as usize;
++                let in_block = offset % block_size;
++                // Never longer than what is left of this block: the next one
++                // may be elsewhere in the file, or nowhere at all.
++                let length = cmp::min(max_length, block_size - in_block);
++
++                let Some(&entry) = bat.get(index) else {
++                    return Ok((ShallowMapping::Eof {}, 0));
++                };
++                if entry == BAT_UNALLOCATED {
++                    return Ok((ShallowMapping::Zero { explicit: false }, length));
++                }
++
++                // Checked when the table was read, so this cannot overflow.
++                let start = (entry as u64) * SECTOR + bitmap_size;
++                Ok((
++                    ShallowMapping::Raw {
++                        storage: &self.inner,
++                        offset: start + in_block,
++                        writable: false,
++                    },
++                    length,
++                ))
++            }
++        }
++    }
++
++    async fn ensure_data_mapping<'a>(
++        &'a self,
++        _offset: u64,
++        _length: u64,
++        _overwrite: bool,
++    ) -> io::Result<(&'a S, u64, u64)> {
++        Err(io::Error::other("Image is read-only"))
++    }
++
++    async fn flush(&self) -> io::Result<()> {
++        Ok(())
++    }
++
++    async fn sync(&self) -> io::Result<()> {
++        Ok(())
++    }
++
++    async unsafe fn invalidate_cache(&self) -> io::Result<()> {
++        Ok(())
++    }
++
++    async fn resize_grow(&self, _new_size: u64, _prealloc_mode: PreallocateMode) -> io::Result<()> {
++        Err(io::Error::other("Image is read-only"))
++    }
++
++    async fn resize_shrink(&mut self, _new_size: u64) -> io::Result<()> {
++        Err(io::Error::other("Image is read-only"))
++    }
++}
++
++/// Options builder for opening a VHD image.
++pub struct VhdOpenBuilder<S: Storage + 'static>(FormatDriverBuilderBase<S>);
++
++impl<S: Storage + 'static> FormatDriverBuilder<S> for VhdOpenBuilder<S> {
++    type Format = Vhd<S>;
++    const FORMAT: Format = Format::Vhd;
++
++    fn new(image: S) -> Self {
++        VhdOpenBuilder(FormatDriverBuilderBase::new(image))
++    }
++
++    fn new_path<P: AsRef<Path>>(image_path: P) -> Self {
++        VhdOpenBuilder(FormatDriverBuilderBase::new_path(image_path))
++    }
++
++    fn write(mut self, writable: bool) -> Self {
++        self.0.set_write(writable);
++        self
++    }
++
++    fn storage_open_options(mut self, options: StorageOpenOptions) -> Self {
++        self.0.set_storage_open_options(options);
++        self
++    }
++
++    async fn open<G: ImplicitOpenGate<S>>(self, mut gate: G) -> io::Result<Self::Format> {
++        if self.0.get_writable() {
++            return Err(io::Error::new(
++                io::ErrorKind::Unsupported,
++                "No VHD write support",
++            ));
++        }
++        let file = self.0.open_image(&mut gate).await?;
++        Vhd::open_image(file, false).await
++    }
++
++    fn get_image_path(&self) -> Option<PathBuf> {
++        self.0.get_image_path()
++    }
++
++    fn get_writable(&self) -> bool {
++        self.0.get_writable()
++    }
++
++    fn get_storage_open_options(&self) -> Option<&StorageOpenOptions> {
++        self.0.get_storage_opts()
++    }
++}

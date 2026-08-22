@@ -1,18 +1,25 @@
 # Patches
 
-Changes to upstream anylinuxfs that Lukotta carries. `scripts/build-engine.sh`
-fetches the source pinned in `vendor/engine.lock` — the same checksum the
-release verifies — applies everything here, and builds the two binaries that
-change. Everything else still comes from the checksummed bottle.
+Changes to the engine that Lukotta carries. `scripts/build-engine.sh` fetches
+every source pinned in `vendor/engine.lock` — the same checksums the release
+verifies — applies everything here, and builds the two binaries that change.
+Everything else still comes from the checksummed bottle.
+
+Each patch is applied to whichever source it is named after: `imago-*` to the
+imago crate, `krun-devices-*` to that crate, and everything else to anylinuxfs
+itself. The two crates are the engine's image layer — they are built into the
+host binary rather than loaded beside it — and the build points at the patched
+copies with `[patch.crates-io]`.
 
 `scripts/vendor-engine.sh` writes the names of the applied patches into
 `engine/anylinuxfs/PATCHES`, and the app reads that rather than assuming what it
 can do. **Building without this step produces a working app** — one without
 these fixes, which then says so instead of failing oddly.
 
-Both are GPL-3.0-or-later, like anylinuxfs and like Lukotta. `collect-sources.sh`
-puts them in the corresponding source shipped with every release, so a recipient
-gets the modification as well as the original.
+anylinuxfs is GPL-3.0-or-later, like Lukotta; imago is MIT and krun-devices is
+Apache-2.0, both of which the GPL absorbs. `collect-sources.sh` puts all three
+sources and all of these patches into the corresponding source shipped with
+every release, so a recipient gets the modifications as well as the originals.
 
 ## vmproxy-decrypt-what-it-probes.patch
 
@@ -35,15 +42,16 @@ made from the type the host sent, which for an image is "auto".
 **Verified.** A LUKS2 container inside a qcow2 mounts, and the file written into
 it reads back. The end-to-end test covers it.
 
-## anylinuxfs-vmdk.patch
+## anylinuxfs-image-formats.patch
 
-**What it does.** Exposes VMDK. libkrun already reads the format —
+**What it does.** Exposes VMDK, VDI and VHD. libkrun already reads the format —
 `KRUN_DISK_FORMAT_VMDK = 2` sits in its header beside `RAW` and `QCOW2`, and the
 image layer inside the engine carries VMDK descriptor parsing — but anylinuxfs's
 own `DiskFormat` enum stopped at `Raw` and `Qcow2`, so nothing could ask for it.
 The patch adds the case, maps the constant, recognises `.vmdk`, and replaces
 three `== DiskFormat::Qcow2` tests with `is_encoded()`, since each was really
-asking whether the image needed decoding at all.
+asking whether the image needed decoding at all. `.vdi` and `.vhd` were added
+the same way once the drivers below existed, as formats 3 and 4.
 
 **Tested.** A monolithicFlat VMDK — a text descriptor beside a raw extent, which
 is what VMware writes — is read, mounted and ejected through the app, including
@@ -51,6 +59,44 @@ one holding a LUKS container. The end-to-end test builds one and opens it.
 
 Sparse VMDKs and snapshot chains are not supported by the engine's image layer,
 and the app says so by name rather than letting either fail obscurely.
+
+## imago-vdi-and-vhd.patch
+
+**What it does.** Adds two read-only drivers to imago, the crate that reads
+image formats for the engine, and lists them in `Format` so the rest of the
+crate can name them.
+
+`vdi` reads VirtualBox's format: a header, a map with one 32-bit entry per block
+of the virtual disk, and the blocks in whatever order they were written. Two map
+values mean the block was never written and reads as zeroes, which is how a
+mostly-empty disk stays small.
+
+`vhd` reads Microsoft's, in both shapes that hold their own data — **fixed**,
+which is the raw disk with a 512-byte footer after it, and **dynamic**, which
+stores blocks listed by an allocation table with a bitmap sector before each.
+A **differencing** VHD holds only what changed from a parent disk it names, and
+is refused: neither driver ever opens a second file. VHDX shares the name and
+nothing else, and is not this format.
+
+Both check what they read before they use it — block size a power of two, the
+map no larger than any real disk could need, every entry inside the file — so a
+damaged or hostile image cannot make the driver read some other part of the file
+and serve it as the disk.
+
+**Tested.** Reference images written by `qemu-img` — a VDI, a dynamic VHD and a
+fixed VHD — read back byte for byte identical to the raw disk they were made
+from, and all three mount and eject through the app. In the other direction,
+`qemu-img compare` reads the images `scripts/make-vdi.py` and
+`scripts/make-vhd.py` write and finds them identical to the same raw disk. So
+the readers and the writers were each checked against something that was not the
+other.
+
+## krun-devices-vdi-and-vhd.patch
+
+**What it does.** Adds `ImageType::Vdi` and `ImageType::Vhd`, maps disk formats
+3 and 4 onto them, and opens each with the matching imago driver. libkrun itself
+needs no change: `krun_add_disk2` passes the number straight through to this
+enum.
 
 ## What this costs
 
@@ -68,7 +114,9 @@ which libkrun opens**. A qcow2 backing file, a VMDK descriptor naming its
 extents. So an image can choose which other files the virtual machine reads.
 
 Lukotta refuses any qcow2 that names another file, before the engine is told
-anything about it — see `Qcow2Header.namesAnotherFile`.
+anything about it — see `Qcow2Header.namesAnotherFile`. A VDI cannot name one:
+its data is always its own. A VHD can, but only the differencing kind, which the
+driver refuses and the app refuses again by name before the engine sees it.
 
 A VMDK is different and needs its own rule: it **always** names another file.
 The descriptor is read whole and capped at 2 MB, so the data cannot live inside

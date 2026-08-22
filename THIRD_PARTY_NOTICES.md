@@ -17,10 +17,11 @@ Each release is accompanied by that source. Requests may also be addressed
 to lukotta@rahula.dev.
 
 Two of anylinuxfs's binaries are modified: the host `anylinuxfs`, to offer the
-VMDK format libkrun already reads, and the guest `vmproxy`, to unlock
-encryption it finds inside a disk image. The patches are in `patches/` in
-Lukotta's own source and are included in the corresponding source beside the
-upstream tarball they apply to.
+VMDK, VDI and VHD formats, and the guest `vmproxy`, to unlock encryption it
+finds inside a disk image. Two crates the host binary links in are modified with
+it: imago, which gains a driver for VDI and one for VHD, and krun-devices, which
+learns to ask for them. The patches are in `patches/` in Lukotta's own source
+and are included in the corresponding source beside the tarballs they apply to.
 
 ## Host Components
 
@@ -32,6 +33,8 @@ and `Image-4K` are Linux kernel binaries supplied by libkrunfw.
 | Component | Version | Licence | Source |
 | --- | --- | --- | --- |
 | anylinuxfs | 0.19.0, modified | GPL-3.0-or-later | https://github.com/nohajc/anylinuxfs |
+| imago | 0.2.3, modified | MIT | https://gitlab.com/hreitz/imago |
+| krun-devices | 0.1.0-1.19.3, modified | Apache-2.0 | https://github.com/containers/libkrun |
 | libkrun and libkrunfw | as embedded | GPL-2.0-only AND LGPL-2.1-only | https://github.com/containers/libkrun |
 | Linux kernel | 6.12.62 | GPL-2.0-only | https://www.kernel.org/ |
 | util-linux (libblkid) | as embedded | LGPL-2.1-or-later | https://github.com/util-linux/util-linux |

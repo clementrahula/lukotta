@@ -35449,6 +35449,136 @@
         }
       }
     },
+    "“%@” is a VDI, which this build of the drive engine cannot open. A raw image or a qcow2 would work.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ е VDI, който тази версия на двигателя не може да отвори. Биха работили суров образ или qcow2."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ je VDI, který tato verze enginu neumí otevřít. Fungoval by surový obraz nebo qcow2."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” er en VDI, som denne udgave af drevmotoren ikke kan åbne. Et råt image eller en qcow2 ville virke."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ ist eine VDI, die diese Version des Laufwerk-Moduls nicht öffnen kann. Ein Rohimage oder eine qcow2-Datei würden funktionieren."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%@» είναι VDI, το οποίο αυτή η έκδοση της μηχανής δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα ακατέργαστο είδωλο ή ένα qcow2."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» es un VDI, que esta versión del motor no puede abrir. Funcionaría una imagen sin formato o un qcow2."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ on VDI, mida see mootori versioon avada ei suuda. Toimiks töötlemata tõmmis või qcow2."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” on VDI, jota tämä moottorin versio ei osaa avata. Raakalevykuva tai qcow2 toimisi."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » est un VDI, que cette version du moteur ne sait pas ouvrir. Une image brute ou un qcow2 fonctionneraient."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” je VDI, koji ova verzija pogona ne može otvoriti. Uspjeli bi sirova slika ili qcow2."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%@” egy VDI, amelyet a motor ezen változata nem tud megnyitni. Egy nyers kép vagy egy qcow2 működne."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» è un VDI, che questa versione del motore non sa aprire. Funzionerebbero un’immagine grezza o un qcow2."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ yra VDI, kurio ši variklio versija atverti negali. Tiktų neapdorotas atvaizdis arba qcow2."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” ir VDI, ko šī dzinēja versija nespēj atvērt. Derētu neapstrādāts attēls vai qcow2."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» er en VDI, som denne versjonen av motoren ikke kan åpne. Et råbilde eller en qcow2 ville fungere."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’ is een VDI, die deze versie van de schijfmodule niet kan openen. Een onbewerkte schijfkopie of een qcow2 zou wel werken."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” to VDI, którego ta wersja silnika nie potrafi otworzyć. Zadziałałby surowy obraz albo qcow2."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» é um VDI, que esta versão do motor não consegue abrir. Uma imagem em bruto ou um qcow2 resultariam."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” este un VDI, pe care această versiune a motorului nu îl poate deschide. Ar funcționa o imagine brută sau un qcow2."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%@« je VDI, ki ga ta različica pogona ne zna odpreti. Delovala bi surova slika ali qcow2."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” är en VDI, som den här versionen av motorn inte kan öppna. En råavbild eller en qcow2 skulle fungera."
+          }
+        }
+      }
+    },
     "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": {
       "localizations": {
         "bg": {
@@ -35579,132 +35709,132 @@
         }
       }
     },
-    "“%@” is a dynamic VHD, which %@ cannot open yet. A fixed VHD, a raw image or a qcow2 would work.": {
+    "“%@” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ е динамичен VHD, който %2$@ още не може да отвори. Биха работили фиксиран VHD, суров образ или qcow2."
+            "value": "„%@“ е динамичен VHD, който тази версия на двигателя не може да отвори. Биха работили фиксиран VHD, суров образ или qcow2."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ je dynamický VHD, který %2$@ zatím neumí otevřít. Fungoval by pevný VHD, surový obraz nebo qcow2."
+            "value": "„%@“ je dynamický VHD, který tato verze enginu neumí otevřít. Fungoval by pevný VHD, surový obraz nebo qcow2."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%1$@” er en dynamisk VHD, som %2$@ endnu ikke kan åbne. En fast VHD, et råt image eller en qcow2 ville virke."
+            "value": "“%@” er en dynamisk VHD, som denne udgave af drevmotoren ikke kan åbne. En fast VHD, et råt image eller en qcow2 ville virke."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ ist eine dynamische VHD, die %2$@ noch nicht öffnen kann. Eine feste VHD, ein Rohimage oder eine qcow2-Datei würden funktionieren."
+            "value": "„%@“ ist eine dynamische VHD, die diese Version des Laufwerk-Moduls nicht öffnen kann. Eine feste VHD, ein Rohimage oder eine qcow2-Datei würden funktionieren."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Το «%1$@» είναι δυναμικό VHD, το οποίο το %2$@ δεν μπορεί ακόμη να ανοίξει. Θα λειτουργούσε ένα σταθερό VHD, ένα ακατέργαστο είδωλο ή ένα qcow2."
+            "value": "Το «%@» είναι δυναμικό VHD, το οποίο αυτή η έκδοση της μηχανής δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα σταθερό VHD, ένα ακατέργαστο είδωλο ή ένα qcow2."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%1$@» es un VHD dinámico, que %2$@ todavía no puede abrir. Funcionaría un VHD fijo, una imagen sin formato o un qcow2."
+            "value": "«%@» es un VHD dinámico, que esta versión del motor no puede abrir. Funcionaría un VHD fijo, una imagen sin formato o un qcow2."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ on dünaamiline VHD, mida %2$@ veel avada ei suuda. Toimiks püsimahuline VHD, töötlemata tõmmis või qcow2."
+            "value": "„%@“ on dünaamiline VHD, mida see mootori versioon avada ei suuda. Toimiks püsimahuline VHD, töötlemata tõmmis või qcow2."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%1$@” on dynaaminen VHD, jota %2$@ ei vielä osaa avata. Kiinteä VHD, raakalevykuva tai qcow2 toimisi."
+            "value": "”%@” on dynaaminen VHD, jota tämä moottorin versio ei osaa avata. Kiinteä VHD, raakalevykuva tai qcow2 toimisi."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "« %1$@ » est un VHD dynamique, que %2$@ ne sait pas encore ouvrir. Un VHD fixe, une image brute ou un qcow2 fonctionneraient."
+            "value": "« %@ » est un VHD dynamique, que cette version du moteur ne sait pas ouvrir. Un VHD fixe, une image brute ou un qcow2 fonctionneraient."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@” je dinamički VHD, koji %2$@ još ne može otvoriti. Uspjeli bi fiksni VHD, sirova slika ili qcow2."
+            "value": "„%@” je dinamički VHD, koji ova verzija pogona ne može otvoriti. Uspjeli bi fiksni VHD, sirova slika ili qcow2."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A(z) „%1$@” egy dinamikus VHD, amelyet a(z) %2$@ még nem tud megnyitni. Egy rögzített méretű VHD, egy nyers kép vagy egy qcow2 működne."
+            "value": "A(z) „%@” egy dinamikus VHD, amelyet a motor ezen változata nem tud megnyitni. Egy rögzített méretű VHD, egy nyers kép vagy egy qcow2 működne."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%1$@» è un VHD dinamico, che %2$@ non sa ancora aprire. Funzionerebbero un VHD fisso, un’immagine grezza o un qcow2."
+            "value": "«%@» è un VHD dinamico, che questa versione del motore non sa aprire. Funzionerebbero un VHD fisso, un’immagine grezza o un qcow2."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ yra dinaminis VHD, kurio %2$@ dar negali atverti. Tiktų fiksuoto dydžio VHD, neapdorotas atvaizdis arba qcow2."
+            "value": "„%@“ yra dinaminis VHD, kurio ši variklio versija atverti negali. Tiktų fiksuoto dydžio VHD, neapdorotas atvaizdis arba qcow2."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%1$@” ir dinamisks VHD, ko %2$@ vēl nespēj atvērt. Derētu fiksēts VHD, neapstrādāts attēls vai qcow2."
+            "value": "“%@” ir dinamisks VHD, ko šī dzinēja versija nespēj atvērt. Derētu fiksēts VHD, neapstrādāts attēls vai qcow2."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%1$@» er en dynamisk VHD, som %2$@ ennå ikke kan åpne. En fast VHD, et råbilde eller en qcow2 ville fungere."
+            "value": "«%@» er en dynamisk VHD, som denne versjonen av motoren ikke kan åpne. En fast VHD, et råbilde eller en qcow2 ville fungere."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "‘%1$@’ is een dynamische VHD, die %2$@ nog niet kan openen. Een vaste VHD, een onbewerkte schijfkopie of een qcow2 zou wel werken."
+            "value": "‘%@’ is een dynamische VHD, die deze versie van de schijfmodule niet kan openen. Een vaste VHD, een onbewerkte schijfkopie of een qcow2 zou wel werken."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@” to dynamiczny VHD, którego %2$@ nie potrafi jeszcze otworzyć. Zadziałałby VHD o stałym rozmiarze, surowy obraz albo qcow2."
+            "value": "„%@” to dynamiczny VHD, którego ta wersja silnika nie potrafi otworzyć. Zadziałałby VHD o stałym rozmiarze, surowy obraz albo qcow2."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%1$@» é um VHD dinâmico, que o %2$@ ainda não consegue abrir. Um VHD fixo, uma imagem em bruto ou um qcow2 resultariam."
+            "value": "«%@» é um VHD dinâmico, que esta versão do motor não consegue abrir. Um VHD fixo, uma imagem em bruto ou um qcow2 resultariam."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@” este un VHD dinamic, pe care %2$@ nu îl poate deschide încă. Ar funcționa un VHD fix, o imagine brută sau un qcow2."
+            "value": "„%@” este un VHD dinamic, pe care această versiune a motorului nu îl poate deschide. Ar funcționa un VHD fix, o imagine brută sau un qcow2."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "»%1$@« je dinamični VHD, ki ga %2$@ še ne zna odpreti. Delovali bi VHD s stalno velikostjo, surova slika ali qcow2."
+            "value": "»%@« je dinamični VHD, ki ga ta različica pogona ne zna odpreti. Delovali bi VHD s stalno velikostjo, surova slika ali qcow2."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%1$@” är en dynamisk VHD, som %2$@ inte kan öppna ännu. En fast VHD, en råavbild eller en qcow2 skulle fungera."
+            "value": "”%@” är en dynamisk VHD, som den här versionen av motorn inte kan öppna. En fast VHD, en råavbild eller en qcow2 skulle fungera."
           }
         }
       }

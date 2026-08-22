@@ -61,14 +61,18 @@ ships the sequoia bottles.
 Two of the engine's binaries carry patches of ours — `anylinuxfs` and `vmproxy`.
 They are built from the source tarball pinned in `vendor/engine.lock`, checked
 against the same sha256 the release verifies, with everything in `patches/`
-applied. Everything else still comes from the checksummed bottle.
+applied. Two crates the host binary links in are fetched and patched the same
+way — imago, which reads the image formats, and krun-devices, which asks it for
+one — and the build points at those copies rather than the published ones.
+Everything else still comes from the checksummed bottle.
 
     brew install llvm lld util-linux
     rustup target add aarch64-unknown-linux-musl
     ./scripts/build-engine.sh
 
 **This step is optional.** Skip it and the app is built with upstream's binaries
-and works — without the two fixes. `vendor-engine.sh` records which patches went
+and works — without the fixes, so VMDK, VDI and dynamic VHD are refused by name
+and encryption inside an image is not opened. `vendor-engine.sh` records which patches went
 in, and the app reads that file rather than assuming, so it says what it can do
 either way. A release should always run it.
 

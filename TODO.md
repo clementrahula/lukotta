@@ -193,12 +193,12 @@ Built. [FORMATS.md](FORMATS.md) has the reasoning; what shipped:
 
 Still open, in rough order of worth:
 
-- **VDI and dynamic VHD.** Researched properly in
-  [FORMATS-VM.md](FORMATS-VM.md). Fixed VHD is shipped: it is raw with a footer
-  after it, so the engine reads it as-is. VDI and dynamic VHD are a few hundred
-  lines each in imago, which we build; VHDX is most of the work and all of the
-  risk, and may never be worth it. The guest cannot help — no nbd driver, no
-  FUSE export, no nbdfuse — and that was tested rather than assumed.
+- **VHDX.** The last of the virtual disk formats, and the only one left
+  unopened. It is most of the work and all of the risk — a log that must be
+  replayed, or an image that was not cleanly closed silently reads stale — and
+  it may never be worth it. Everything around it is done: fixed VHD is raw with
+  a footer after it, and VDI and dynamic VHD are read by drivers of ours in
+  imago. See [FORMATS-VM.md](FORMATS-VM.md).
 - **A VM disk holding APFS, FAT or exFAT** should be decoded, attached and
   mounted locally rather than served over NFS — the same rule that sends exFAT
   to macOS.

@@ -112,6 +112,23 @@ VHD_DYNAMIC="$CACHE/dynamic.vhd"
 [ -f "$VHD" ] || "$HERE/scripts/make-vhd.py" "$PLAIN" "$VHD" >/dev/null
 [ -f "$VHD_DYNAMIC" ] || "$HERE/scripts/make-vhd.py" "$PLAIN" "$VHD_DYNAMIC" --dynamic >/dev/null
 
+# A VDI, VirtualBox's format: a header, a block map, and the blocks in whatever
+# order they were written. And one claiming version 0, which laid the header out
+# differently and must be refused rather than read as though it were version 1.
+VDI="$CACHE/plain.vdi"
+VDI_BAD="$CACHE/version-zero.vdi"
+[ -f "$VDI" ] || "$HERE/scripts/make-vdi.py" "$PLAIN" "$VDI" >/dev/null
+if [ ! -f "$VDI_BAD" ]; then
+  head -c 512 "$VDI" > "$VDI_BAD"
+  /usr/bin/python3 -c "
+import sys
+p = sys.argv[1]
+b = bytearray(open(p, 'rb').read())
+b[0x44:0x48] = (0).to_bytes(4, 'little')
+open(p, 'wb').write(bytes(b))
+" "$VDI_BAD"
+fi
+
 # An image that names another file, which must be refused rather than opened.
 HOSTILE="$CACHE/names-another-file.qcow2"
 [ -f "$HOSTILE" ] || "$HERE/scripts/make-qcow2.py" --hostile "$HOSTILE" "$HOME/.ssh/id_rsa" >/dev/null
@@ -124,4 +141,4 @@ done < <(hdiutil info 2>/dev/null | awk -v c="$CONTAINER" -v p="$PLAIN" -v e="$E
   /^image-path/ { path = $3 }
   /^\/dev\/disk[0-9]+\t/ { if (path == c || path == p || path == e) print $1 }')
 
-"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC" "$HOSTILE" "$VMDK" "$VMDK_BAD" "$VHD" "$VHD_DYNAMIC"
+"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC" "$HOSTILE" "$VMDK" "$VMDK_BAD" "$VHD" "$VHD_DYNAMIC" "$VDI" "$VDI_BAD"

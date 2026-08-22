@@ -4,7 +4,8 @@
     "vendor-engine.sh fetches exactly these and refuses anything else, so the",
     "app does not depend on what happens to be installed on the build machine.",
     "bottle_tag sets the lowest macOS the built app can run on: libblkid comes",
-    "from that bottle and carries its minimum."
+    "from that bottle and carries its minimum.",
+    "The two crates under 'imago' and 'krun-devices' are patched by build-engine.sh; their checksums are the ones anylinuxfs's own Cargo.lock records for them."
   ],
   "anylinuxfs": {
     "version": "0.19.0",
@@ -16,6 +17,20 @@
     "bottle_tag": "arm64_sequoia",
     "bottle_url": "https://github.com/nohajc/homebrew-anylinuxfs/releases/download/v0.19.0/anylinuxfs-0.19.0.arm64_sequoia.bottle.tar.gz",
     "bottle_sha256": "723586666ffae512c543546356678f30de45d341595b9028f4058969dfb32dac"
+  },
+  "imago": {
+    "_why": "Reads the image formats. Patched to add VDI and VHD drivers.",
+    "version": "0.2.3",
+    "licence": "MIT",
+    "source_url": "https://static.crates.io/crates/imago/imago-0.2.3.crate",
+    "source_sha256": "ae7cfee876c698a1a2ed9c705ab18f21acbed82110f19b51cc458de73426fe2c"
+  },
+  "krun-devices": {
+    "_why": "libkrun's block device. Patched to ask imago for VDI and VHD.",
+    "version": "0.1.0-1.19.3",
+    "licence": "Apache-2.0",
+    "source_url": "https://static.crates.io/crates/krun-devices/krun-devices-0.1.0-1.19.3.crate",
+    "source_sha256": "78dba5c05da51af1b53fc3eb7cb324f7929707d72641ece0da21216ee7d13f0f"
   },
   "util_linux": {
     "_why": "anylinuxfs links libblkid from it, and nothing else outside the bundle.",
