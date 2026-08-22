@@ -37,11 +37,15 @@ jobs:
           swift --version
           xcodebuild -version
 
-      # Runs the checks itself and refuses to build when they fail, so this is
-      # the unit tests as well as the bundle. Without vendor/engine it warns
-      # and carries on, which is what is wanted here.
-      - name: Build the app, and run the unit checks
-        run: LUKOTTA_INSTALL=0 ./build-app.sh
+      # Run on their own rather than through build-app.sh, so that what they
+      # print is in the log when they fail.
+      - name: Unit checks
+        run: swift run -c release LukottaTests
+
+      # Without vendor/engine it warns and carries on, which is what is wanted
+      # here. The checks have already run above.
+      - name: Build the app
+        run: LUKOTTA_INSTALL=0 LUKOTTA_SKIP_TESTS=1 ./build-app.sh
 
       - name: Smoke test
         run: |
