@@ -34,6 +34,13 @@ def main():
     ap.add_argument("--min-system", default="15.0")
     ap.add_argument("--pubdate", required=True, help="RFC 822")
     ap.add_argument("--notes-link", default="", help="URL of the release notes for this version")
+    ap.add_argument(
+        "--delta",
+        action="append",
+        default=[],
+        metavar="FROM_BUILD:URL:LENGTH:SIGNATURE",
+        help="an update from one earlier build, which Sparkle prefers to the whole archive",
+    )
     args = ap.parse_args()
 
     if not os.path.exists(args.appcast):
@@ -70,6 +77,24 @@ def main():
     enclosure.set(f"{{{SPARKLE}}}edSignature", args.signature)
 
     # Newest first, which is how a person reads it; Sparkle does not care.
+    # What somebody on an earlier build downloads instead of the whole thing.
+    # Sparkle takes the delta matching their build when there is one and falls
+    # back to the enclosure above when there is not, so a missing delta costs
+    # bandwidth rather than correctness.
+    if args.delta:
+        deltas = ET.SubElement(item, f"{{{SPARKLE}}}deltas")
+        for spec in args.delta:
+            # A URL has colons in it, so the fields around it are taken from
+            # each end rather than by splitting the lot.
+            from_build, rest = spec.split(":", 1)
+            url, length, signature = rest.rsplit(":", 2)
+            patch = ET.SubElement(deltas, "enclosure")
+            patch.set("url", url)
+            patch.set("length", length)
+            patch.set("type", "application/octet-stream")
+            patch.set(f"{{{SPARKLE}}}deltaFrom", from_build)
+            patch.set(f"{{{SPARKLE}}}edSignature", signature)
+
     existing = channel.findall("item")
     channel.insert(list(channel).index(existing[0]) if existing else len(list(channel)), item)
 

@@ -102,6 +102,43 @@ print("</body></html>")
 PYEOF
 grep -q "<li>" "$NOTES_FILE" || echo "warning: releases/$VERSION.md is missing or empty" >&2
 
+printf '==> Updates from earlier versions\n'
+# Sparkle can send somebody on an earlier build only what changed, which for
+# this app is a fraction of ninety megabytes. It needs the earlier build to
+# compare against: put the archives of previous releases in dist/previous, or
+# point LUKOTTA_PREVIOUS at a directory of them. With none there this does
+# nothing, which is what the first release wants.
+DELTA_ARGS=()
+PREVIOUS="${LUKOTTA_PREVIOUS:-$HERE/dist/previous}"
+DELTA_TOOL="$(find "$HERE/.build" -name BinaryDelta -type f -perm -111 -print -quit 2>/dev/null || true)"
+if [ -d "$PREVIOUS" ] && [ -n "$DELTA_TOOL" ]; then
+  for archive in "$PREVIOUS"/*.zip; do
+    [ -f "$archive" ] || continue
+    work="$(mktemp -d)"
+    /usr/bin/ditto -x -k "$archive" "$work" 2>/dev/null || { rm -rf "$work"; continue; }
+    old_app="$(find "$work" -maxdepth 1 -name "*.app" -print -quit)"
+    [ -n "$old_app" ] || { rm -rf "$work"; continue; }
+    old_build="$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$old_app/Contents/Info.plist" 2>/dev/null || true)"
+    [ -n "$old_build" ] && [ "$old_build" != "$BUILD" ] || { rm -rf "$work"; continue; }
+
+    delta="$HERE/dist/Lukotta-$old_build-$BUILD.delta"
+    rm -f "$delta"
+    if "$DELTA_TOOL" create "$old_app" "$APP" "$delta" >/dev/null 2>&1; then
+      delta_line="$("$SIGN_TOOL" --account "${LUKOTTA_SPARKLE_ACCOUNT:-lukotta}" "$delta")"
+      delta_sig="$(printf '%s' "$delta_line" | sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p')"
+      delta_len="$(printf '%s' "$delta_line" | sed -n 's/.*length="\([^"]*\)".*/\1/p')"
+      if [ -n "$delta_sig" ] && [ -n "$delta_len" ]; then
+        DELTA_ARGS+=(--delta "$old_build:$BASE_URL/$(basename "$delta"):$delta_len:$delta_sig")
+        printf '    from build %s: %s\n' "$old_build" "$(du -h "$delta" | awk '{print $1}')"
+      fi
+    else
+      printf '    could not build an update from build %s; the whole archive will be sent\n' "$old_build"
+    fi
+    rm -rf "$work"
+  done
+fi
+[ ${#DELTA_ARGS[@]} -gt 0 ] || printf '    none; everyone downloads the whole archive\n'
+
 printf '==> Describing it in the appcast\n'
 mkdir -p "$(dirname "$APPCAST")"
 python3 "$HERE/scripts/appcast.py" \
@@ -113,12 +150,13 @@ python3 "$HERE/scripts/appcast.py" \
   --signature "$SIGNATURE" \
   --min-system "$(/usr/libexec/PlistBuddy -c 'Print LSMinimumSystemVersion' "$APP/Contents/Info.plist")" \
   --notes-link "${LUKOTTA_NOTES_BASE:-https://lukotta-updates.rahula.dev}/notes/$VERSION.html" \
-  --pubdate "$(LC_ALL=C date -u '+%a, %d %b %Y %H:%M:%S +0000')"
+  --pubdate "$(LC_ALL=C date -u '+%a, %d %b %Y %H:%M:%S +0000')" \
+  ${DELTA_ARGS[@]+"${DELTA_ARGS[@]}"}
 
 if [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
   printf '==> Publishing the GitHub release\n'
   if gh release view "v$VERSION" --repo "$REPO" >/dev/null 2>&1; then
-    gh release upload "v$VERSION" "$ZIP" "$SOURCES_ZIP" --repo "$REPO" --clobber
+    gh release upload "v$VERSION" "$ZIP" "$SOURCES_ZIP" "$HERE"/dist/*.delta --repo "$REPO" --clobber
   else
     gh release create "v$VERSION" "$ZIP" "$SOURCES_ZIP" --repo "$REPO" \
       --title "Lukotta $VERSION" \

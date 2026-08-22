@@ -197,6 +197,28 @@ the result under that name: the GPL grants everything about the software and
 nothing about the marks. TRADEMARKS.txt sets out what is permitted, including
 giving a fork its own name and artwork.
 
+## Releasing
+
+```bash
+./scripts/release.sh                      # build, notarise, sign, describe
+LUKOTTA_PUBLISH=1 ./scripts/release.sh    # and create the GitHub release
+```
+
+It builds with official branding, notarises and staples, checks the result
+starts, archives it with `ditto`, signs the archive with the Sparkle key,
+collects the corresponding source the GPL requires, writes the release notes
+from `releases/<version>.md`, and describes the whole lot in the appcast.
+
+Notarisation needs the Mac unlocked. The credential lives in the Local Items
+keychain, which locks with the session, and a locked one is reported as a
+credential that does not exist. `./scripts/notary-status.sh` says which it is.
+
+Updates from earlier versions are built when there is something to compare
+against: put the archives of previous releases in `dist/previous`, or point
+`LUKOTTA_PREVIOUS` at a directory of them. Sparkle then sends somebody on an
+earlier build only what changed rather than ninety megabytes. With none there,
+everybody downloads the whole archive, which is what the first release does.
+
 ## Reproducing a Released Build
 
 Check out the tag and build with `LUKOTTA_BRANDING=official`, which is what
