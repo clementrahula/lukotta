@@ -1,6 +1,14 @@
+diff -ruN a/vmproxy/src/main.rs c/vmproxy/src/main.rs
 --- a/vmproxy/src/main.rs	2026-07-20 19:00:52
-+++ b/vmproxy/src/main.rs	2026-08-22 08:50:18
-@@ -834,6 +834,25 @@
++++ b/vmproxy/src/main.rs	2026-08-22 11:42:08
+@@ -1,3 +1,6 @@
++// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: unlock an
++// encrypted volume detected inside a disk image.
++// SPDX-License-Identifier: GPL-3.0-or-later
+ use anyhow::Context;
+ use bstr::{BString, ByteSlice};
+ use clap::Parser;
+@@ -834,6 +837,25 @@
          Ok(())
      }
  
@@ -26,10 +34,11 @@
      /// Detect filesystem type from the disk using blkid.
      fn detect_fs_type(&mut self) -> anyhow::Result<()> {
          if self.disk_path.is_empty() {
-@@ -1220,6 +1239,24 @@
+@@ -1219,6 +1241,24 @@
+     dsk.activate_volume_managers()?;
  
      dsk.detect_fs_type()?;
- 
++
 +    // An image is probed on the host only far enough to know that it is an
 +    // image: its type arrives as "auto" and nothing is on the decrypt list, so
 +    // an encrypted volume inside one was never unlocked and the mount was asked
@@ -47,7 +56,6 @@
 +        dsk.activate_volume_managers()?;
 +        dsk.detect_fs_type()?;
 +    }
-+
+ 
      if !cli.custom_mount_point {
          dsk.resolve_mount_label()?;
-     }

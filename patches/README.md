@@ -1,193 +1,206 @@
 # Patches
 
-Changes to the engine that Lukotta carries. `scripts/build-engine.sh` fetches
-every source pinned in `vendor/engine.lock` — the same checksums the release
-verifies — applies everything here, and builds the two binaries that change.
-Everything else still comes from the checksummed bottle.
+Modifications to the engine that Lukotta carries. `scripts/build-engine.sh`
+fetches every source pinned in `vendor/engine.lock`, verifies it against the
+checksums the release verifies, applies every patch in this directory, and
+builds the two binaries that change. All other components come from the
+checksummed bottle.
 
-Each patch is applied to whichever source it is named after: `imago-*` to the
-imago crate, `krun-devices-*` to that crate, and everything else to anylinuxfs
-itself. The two crates are the engine's image layer — they are built into the
-host binary rather than loaded beside it — and the build points at the patched
-copies with `[patch.crates-io]`.
+Each patch is applied to the source it is named after: `imago-*` to the imago
+crate, `krun-devices-*` to the krun-devices crate, and the remainder to
+anylinuxfs. Those two crates form the engine's image layer and are compiled into
+the host binary rather than loaded beside it, so the build directs Cargo to the
+patched copies with `[patch.crates-io]`.
 
-`scripts/vendor-engine.sh` writes the names of the applied patches into
-`engine/anylinuxfs/PATCHES`, and the app reads that rather than assuming what it
-can do. **Building without this step produces a working app** — one without
-these fixes, which then says so instead of failing oddly.
+`scripts/vendor-engine.sh` records the names of the applied patches in
+`engine/anylinuxfs/PATCHES`. The application determines from that file which
+formats the engine supports. A build made without this step is fully functional
+without these modifications, and reports the formats it cannot open by name.
 
-anylinuxfs is GPL-3.0-or-later, like Lukotta; imago is MIT and krun-devices is
-Apache-2.0, both of which the GPL absorbs. `collect-sources.sh` puts all three
-sources and all of these patches into the corresponding source shipped with
-every release, so a recipient gets the modifications as well as the originals.
+## Licensing
+
+anylinuxfs is licensed under GPL-3.0-or-later, imago under MIT, and krun-devices
+under Apache-2.0. All three are compatible with the GPL-3.0-or-later terms under
+which Lukotta as a whole is conveyed.
+
+A change to an existing file is made under the licence that file already
+carries. The three files added to imago, `src/vdi/mod.rs`, `src/vhd/mod.rs` and
+`src/vhdx/mod.rs`, are licensed under that crate's MIT terms and carry
+`SPDX-FileCopyrightText` and `SPDX-License-Identifier` tags recording it. Those
+terms are chosen so that the drivers may be offered upstream; the
+GPL-3.0-or-later terms covering Lukotta do not extend to them.
+
+Every file a patch modifies carries a notice of the modification and its date,
+as section 5(a) of the GNU General Public License version 3 and section 4(b) of
+the Apache License 2.0 require. `collect-sources.sh` places all three upstream
+sources and every patch in this directory into the corresponding source
+accompanying each release, so that a recipient receives the modifications
+together with the works they modify.
 
 ## vmproxy-decrypt-what-it-probes.patch
 
-**The bug.** Encryption inside a disk image was never unlocked. The host probes
-an image only far enough to know that it is one — `unprobed_image` sets
-`fs_type: "auto"` — so the list of devices to decrypt, which is built from that
-type, comes out empty. Inside the guest, `blkid` then correctly reports
-`crypto_LUKS`, and that string is passed to `mount` as a filesystem type:
+**Defect.** An encrypted volume inside a disk image was never unlocked. The host
+probes an image only far enough to establish that it is one, so `unprobed_image`
+sets `fs_type: "auto"` and the list of devices to decrypt, which is derived from
+that type, is empty. Within the guest, `blkid` then reports `crypto_LUKS`
+correctly, and that string is passed to `mount` as a filesystem type:
 
     mount args: ["-t", "crypto_LUKS", "/dev/vda", "/mnt/container.qcow2"]
     mount: unknown filesystem type 'crypto_LUKS'
 
-**The fix.** The guest already knows how to unlock — `activate_volume_managers`
-does exactly this when the host said the type. So after `detect_fs_type` has
-found the truth, if it is an encrypted volume and nothing was decrypted already,
-unlock it and look again. `prepare_for_probed_encryption` picks the right tool
-first, because the choice between `cryptsetup open` and `bitlkOpen` is otherwise
-made from the type the host sent, which for an image is "auto".
+**Change.** The guest already contains the necessary logic in
+`activate_volume_managers`, which runs when the host has supplied the type.
+After `detect_fs_type` establishes the true type, an encrypted volume that has
+not already been decrypted is unlocked and probed again.
+`prepare_for_probed_encryption` selects the tool beforehand, because the choice
+between `cryptsetup open` and `bitlkOpen` is otherwise made from the type
+supplied by the host, which for an image is `auto`.
 
-**Verified.** A LUKS2 container inside a qcow2 mounts, and the file written into
-it reads back. The end-to-end test covers it.
+**Verification.** A LUKS2 container within a qcow2 image mounts, and a file
+written into it reads back unchanged. The end-to-end test covers this case.
 
 ## anylinuxfs-image-formats.patch
 
-**What it does.** Exposes VMDK, VDI and VHD. libkrun already reads the format —
-`KRUN_DISK_FORMAT_VMDK = 2` sits in its header beside `RAW` and `QCOW2`, and the
-image layer inside the engine carries VMDK descriptor parsing — but anylinuxfs's
-own `DiskFormat` enum stopped at `Raw` and `Qcow2`, so nothing could ask for it.
-The patch adds the case, maps the constant, recognises `.vmdk`, and replaces
-three `== DiskFormat::Qcow2` tests with `is_encoded()`, since each was really
-asking whether the image needed decoding at all. `.vdi` and `.vhd` were added
-the same way once the drivers below existed, as formats 3 and 4.
+**Purpose.** Exposes the VMDK, VDI, VHD and VHDX formats. libkrun accepts a
+format number in `krun_add_disk2` and the engine's image layer contains the
+corresponding drivers, but the `DiskFormat` enumeration in anylinuxfs ended at
+`Raw` and `Qcow2`, so no other format could be requested.
 
-**Tested.** A monolithicFlat VMDK — a text descriptor beside a raw extent, which
-is what VMware writes — is read, mounted and ejected through the app, including
-one holding a LUKS container. The end-to-end test builds one and opens it.
+**Change.** Adds the four cases, maps each to its format number, recognises the
+corresponding file extensions, and replaces three `== DiskFormat::Qcow2` tests
+with `is_encoded()`, each of which was in fact establishing whether the image
+required decoding at all. `.vhdx` is tested before `.vhd`, of which it is a
+suffix and a distinct format.
 
-Sparse VMDKs and snapshot chains are not supported by the engine's image layer,
-and the app says so by name rather than letting either fail obscurely.
+**Verification.** Images in each format are read, mounted and ejected through
+the application, including a VMDK holding a LUKS container. The end-to-end test
+constructs one of each and opens it.
 
 ## imago-vdi-vhd-and-vhdx.patch
 
-**What it does.** Adds two read-only drivers to imago, the crate that reads
-image formats for the engine, and lists them in `Format` so the rest of the
-crate can name them.
+**Purpose.** Adds three read-only drivers to imago, the crate that reads image
+formats for the engine, and registers them in `Format`.
 
-`vdi` reads VirtualBox's format: a header, a map with one 32-bit entry per block
-of the virtual disk, and the blocks in whatever order they were written. Two map
-values mean the block was never written and reads as zeroes, which is how a
-mostly-empty disk stays small.
+**VDI.** VirtualBox's format: a header, a map holding one 32-bit entry for each
+block of the virtual disk, and the blocks in the order they were written. Two
+map values denote a block that was never written and reads as zeroes, which is
+how a largely empty disk remains small.
 
-`vhd` reads Microsoft's, in both shapes that hold their own data — **fixed**,
-which is the raw disk with a 512-byte footer after it, and **dynamic**, which
-stores blocks listed by an allocation table with a bitmap sector before each.
-A **differencing** VHD holds only what changed from a parent disk it names, and
-is refused: neither driver ever opens a second file. VHDX shares the name and
-nothing else, and is not this format.
+**VHD.** Microsoft's first format, in both forms that hold their own data. A
+fixed VHD is the raw disk followed by a 512-byte footer. A dynamic VHD stores
+the disk in blocks listed by an allocation table, each preceded by a bitmap
+sector. A differencing VHD holds only the changes from a parent disk that it
+names, and is refused: no driver here opens a second file.
 
-Both check what they read before they use it — block size a power of two, the
-map no larger than any real disk could need, every entry inside the file — so a
-damaged or hostile image cannot make the driver read some other part of the file
-and serve it as the disk.
+**VHDX.** Microsoft's second format, which requires several structures to be
+located before the disk can be read: a file signature, two headers of which the
+live one is whichever carries the higher sequence number together with a sound
+CRC-32C, a region table locating the remainder, a metadata region giving the
+block size and the disk size, and an allocation table whose payload entries are
+interleaved with entries describing sector bitmaps. Two images are refused. One
+that names a parent holds only the changes from another disk. One whose log is
+not empty was not closed cleanly; its most recent state resides in that log,
+replaying the log would require writing, and disregarding it would return data
+older than the disk last held.
 
-**Tested.** Reference images written by `qemu-img` — a VDI, a dynamic VHD and a
-fixed VHD — read back byte for byte identical to the raw disk they were made
-from, and all three mount and eject through the app. In the other direction,
-`qemu-img compare` reads the images `scripts/make-vdi.py` and
-`scripts/make-vhd.py` write and finds them identical to the same raw disk. So
-the readers and the writers were each checked against something that was not the
-other.
+Each driver validates every value it reads before relying on it: block sizes are
+required to be powers of two, maps are bounded to a size any real disk could
+require, and every entry must lie within the file. A damaged or hostile image
+therefore cannot direct a driver to read an unrelated part of the file and
+present it as the disk.
+
+**Verification.** Reference images written by `qemu-img` in each of the three
+formats read back byte for byte identical to the raw disk from which they were
+made, and all three mount and eject through the application. In the opposite
+direction, `qemu-img compare` reads the images produced by
+`scripts/make-vdi.py`, `scripts/make-vhd.py` and `scripts/make-vhdx.py` and
+finds each identical to the same raw disk. Readers and writers were therefore
+each verified against an implementation that was not the other. Three further
+VHDX images were constructed by hand: one with a log that is not empty and one
+naming a parent are refused by name, and one whose first header is damaged is
+read correctly through the second.
 
 ## imago-sparse-vmdk.patch
 
-**The gap.** imago's VMDK driver reads the flat form — a text descriptor beside
-a raw extent — and refuses the sparse one outright: *"Unsupported VMDK sparse
-data file"*. But sparse is what a VM writes while it is running, and what most
-people have; flat is what an export produces.
+**Purpose.** imago's VMDK driver read the flat form, a text descriptor beside a
+raw extent, and refused the sparse form with *"Unsupported VMDK sparse data
+file"*. The sparse form is what a virtual machine writes while running; the flat
+form is what an export produces.
 
-**What it does.** Reads the sparse form as well. A sparse VMDK is one file
-holding the header, the descriptor a flat VMDK keeps in a file of its own, a
-grain directory, the grain tables, and then the grains — one per 64 KB of disk
-that was written to. So the descriptor is read from inside the file at the
-offset the header gives, `SPARSE` extents are recognised, and a guest offset is
-mapped through the directory and a table onto a grain. A grain never written, or
-written as zeroes, reads as zeroes.
+**Change.** Reads the sparse form. Such a file holds the header, the descriptor
+that a flat VMDK keeps in a separate file, a grain directory, the grain tables
+and the grains, one for each 64 KB of disk written to. The descriptor is read
+from within the file at the offset the header gives, `SPARSE` extents are
+recognised, and an offset into the disk is resolved through the directory and a
+table onto a grain. A grain that was never written, or was written as zeroes,
+reads as zeroes.
 
-The grain directory is read once, when the image is opened; the tables are read
-as the disk is, and the last sixty-four are kept, because one table covers a
-long stretch of disk and reading an image through touches each about once. That
-keeps a large sparse disk from being a large allocation.
+The grain directory is read once, when the image is opened. The grain tables are
+read as the disk is read, and the most recent sixty-four are retained, since one
+table covers a long stretch of disk and reading an image through refers to each
+approximately once. A VMDK's tables are proportional to the capacity of the disk
+rather than to the data written to it, so reading them in full would make a
+large sparse image expensive to open.
 
-The **stream-optimized** form is read too. Every grain in one is deflated and
-preceded by a marker saying which part of the disk it holds, so nothing in the
-file corresponds to a stretch of disk and no mapping can point at it: those
-grains come back through `readv_special()`, inflated whole and served from a
-cache of the last thirty-two. imago already carried `miniz_oxide` for qcow2's
-compressed clusters, so this needed no new dependency — only the zlib-header
-flag, since VMDK wraps where qcow2 does not.
+**Stream-optimized VMDK.** Also read. Every grain in this form is deflated and
+preceded by a marker identifying the part of the disk it holds, so no region of
+the file corresponds to a region of the disk and no mapping can refer to one.
+Those reads are served through `readv_special()`, each grain being inflated in
+full and retained in a cache of the most recent thirty-two. imago already
+depends on `miniz_oxide` for qcow2's compressed clusters, so no further
+dependency is required, only the zlib-header flag, since VMDK wraps the deflate
+stream where qcow2 does not.
 
-A streamed file is written in one pass, so its grain directory is only placed
-once everything before it exists: the header carries a placeholder and the truth
-is in a copy of the header at the end of the file. Both layouts are read —
-qemu-img writes the offset in the header, VMware writes the placeholder.
+A file in this form is written in a single pass, so the position of its grain
+directory is fixed only once everything preceding it has been written. The
+header then carries a placeholder and a copy of the header at the end of the
+file carries the true offset. Both arrangements are read: `qemu-img` records the
+offset in the header, and VMware records the placeholder.
 
-**Tested.** A sparse VMDK written by `qemu-img` reads back byte for byte
-identical to the raw disk it was made from, and mounts through the app; the one
-`scripts/make-vmdk-sparse.py` writes is read by `qemu-img compare`, which finds
-it identical to the same disk, and by `qemu-img check`, which finds no errors.
-The flat form still reads as it did.
-
-### VHDX, in the same patch
-
-The last of them, and the only one with more than one thing to find: a file
-signature, two headers of which the live one is whichever has the higher
-sequence number **and** a sound CRC-32C, a region table saying where the rest
-is, a metadata region giving the block size and the disk size, and an allocation
-table whose payload entries are interleaved with ones describing sector bitmaps.
-
-Two images are refused rather than read:
-
-- one that **names a parent** holds only what changed from another disk, and
-  nothing here opens a second file;
-- one whose **log is not empty** was not closed cleanly. Its newest state is in
-  that log. Replaying it means writing, which a read-only driver must not do,
-  and ignoring it means quietly serving something older than what the disk last
-  held — the failure that gets mistaken for corruption.
-
-**Tested.** qemu-img's VHDX reads back byte for byte identical to the raw disk
-it was made from and mounts through the app, and `qemu-img compare` says the
-same of the one `scripts/make-vhdx.py` writes. Three awkward variants were made
-by hand: a dirty log and a parent link are each refused by name, and an image
-whose first header is damaged is read through the second.
+**Verification.** A sparse VMDK written by `qemu-img` reads back byte for byte
+identical to the raw disk from which it was made and mounts through the
+application. The image produced by `scripts/make-vmdk-sparse.py` is read by
+`qemu-img compare`, which finds it identical to the same disk, and by `qemu-img
+check`, which reports no errors. The same holds for the stream-optimized form,
+including an image constructed by hand to use the placeholder arrangement, which
+`qemu-img` does not write. The flat form reads as before.
 
 ## krun-devices-image-formats.patch
 
-**What it does.** Adds `ImageType::Vdi` and `ImageType::Vhd`, maps disk formats
-3 and 4 onto them, and opens each with the matching imago driver. libkrun itself
-needs no change: `krun_add_disk2` passes the number straight through to this
-enum.
+**Purpose.** Adds `ImageType::Vdi`, `ImageType::Vhd` and `ImageType::Vhdx`, maps
+disk formats 3, 4 and 5 to them, and opens each with the corresponding imago
+driver. libkrun itself requires no change, as `krun_add_disk2` passes the format
+number directly to this enumeration.
 
-## What this costs
+## Build requirements
 
-Building the engine needs a Rust toolchain and, because vmproxy is a Linux
+Building the engine requires a Rust toolchain and, because vmproxy is a Linux
 binary and libkrun embeds a Linux init, Homebrew's llvm, lld and util-linux:
 
     brew install llvm lld util-linux
     rustup target add aarch64-unknown-linux-musl
     ./scripts/build-engine.sh
 
-## A note that outlives these patches
+## Images that reference other files
 
-From libkrun's own header: formats other than raw **can reference other files,
-which libkrun opens**. A qcow2 backing file, a VMDK descriptor naming its
-extents. So an image can choose which other files the virtual machine reads.
+libkrun's own header records that formats other than raw may reference other
+files, which libkrun opens. A qcow2 backing file and a VMDK descriptor naming
+its extents are both such references, so an image can determine which other
+files the virtual machine reads.
 
-Lukotta refuses any qcow2 that names another file, before the engine is told
-anything about it — see `Qcow2Header.namesAnotherFile`. A VDI cannot name one:
-its data is always its own. A VHD can, but only the differencing kind, which the
-driver refuses and the app refuses again by name before the engine sees it.
+Lukotta refuses any qcow2 that names another file before the engine is given the
+path; see `Qcow2Header.namesAnotherFile`. A VDI cannot name one, its data always
+being its own. A VHD can do so only in the differencing form, and a VHDX only by
+naming a parent; the drivers refuse both, and the application refuses them again
+by name before the engine is given the path.
 
-A VMDK is different and needs its own rule: it **always** names another file.
-The descriptor is read whole and capped at 2 MB, so the data cannot live inside
-it — there is no self-contained form. So the rule there is that every extent
-must be a plain file name sitting beside the descriptor: nothing absolute,
-nothing with a separator, no `..`. That is exactly what VMware writes, and it
-stops a descriptor reaching anywhere else on the disk. See
-`VmdkDescriptor.namesAFileElsewhere`.
+A VMDK requires a rule of its own, since it always names another file. The
+descriptor is read in full and capped at 2 MB, so no self-contained form exists.
+Every extent must therefore be a plain file name situated beside the descriptor:
+nothing absolute, nothing containing a separator, and no `..`. That is what
+VMware writes, and it prevents a descriptor from reaching elsewhere on the disk.
+See `VmdkDescriptor.namesAFileElsewhere`.
 
-Container files also run unprivileged, which bounds the reach to what the person
-who opened it could already read. None of that is a reason to relax the checks
-when more formats are added.
+Container files are also opened without privilege, which limits the reach of any
+such reference to what the person who opened the file could already read. None
+of this is grounds for relaxing these checks as further formats are added.

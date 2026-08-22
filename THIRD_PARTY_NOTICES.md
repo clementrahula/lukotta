@@ -1,27 +1,40 @@
 # Third-Party Notices
 
-Lukotta is licensed under the GNU General Public License, version 3 or
-later. The application embeds the components listed below and redistributes
-them under their respective licences. The full text of the GNU General Public
-License accompanies the application.
+Lukotta is licensed under the GNU General Public License, version 3 or later.
+The application embeds the components listed below and redistributes them under
+their respective licences. The full text of the GNU General Public License
+accompanies the application.
 
 ## Corresponding Source
 
-Lukotta is conveyed over a network. In accordance with section 6(d) of the
-GNU General Public License version 3, and the corresponding provision of
-section 3 of version 2, the complete corresponding source for the
-application and for every GPL-licensed component embedded in it is offered
-from the same location as the application itself, at no additional charge.
+Lukotta is conveyed over a network. In accordance with section 6(d) of the GNU
+General Public License version 3, and the corresponding provision of section 3
+of version 2, the complete corresponding source for the application and for
+every GPL-licensed component embedded in it is offered from the same location as
+the application itself, at no additional charge.
 
-Each release is accompanied by that source. Requests may also be addressed
-to lukotta@rahula.dev.
+Each release is accompanied by that source. Requests may also be addressed to
+lukotta@rahula.dev.
 
-Two of anylinuxfs's binaries are modified: the host `anylinuxfs`, to offer the
-VMDK, VDI, VHD and VHDX formats, and the guest `vmproxy`, to unlock encryption it
-finds inside a disk image. Two crates the host binary links in are modified with
-it: imago, which gains a driver for VDI and one for VHD, and krun-devices, which
-learns to ask for them. The patches are in `patches/` in Lukotta's own source
-and are included in the corresponding source beside the tarballs they apply to.
+## Modifications to Redistributed Components
+
+The components listed below are redistributed in modified form. Each modified
+file carries a notice of that modification and its date, as required by section
+5(a) of the GNU General Public License version 3 and section 4(b) of the Apache
+License 2.0. The modifications are supplied as patches under `patches/`, and are
+included in the corresponding source alongside the unmodified upstream archives
+to which they apply.
+
+| Component | Licence | Date | Modification |
+| --- | --- | --- | --- |
+| anylinuxfs | GPL-3.0-or-later | 2026-08-22 | Recognition of the VMDK, VDI, VHD and VHDX disk-image formats |
+| vmproxy | GPL-3.0-or-later | 2026-08-22 | Unlocking of an encrypted volume detected inside a disk image |
+| imago | MIT | 2026-08-22 | Read-only drivers for VDI, VHD and VHDX; support for the sparse and stream-optimized forms of VMDK |
+| krun-devices | Apache-2.0 | 2026-08-22 | Selection of the VDI, VHD and VHDX drivers by disk-format number |
+
+Files added to imago by these modifications are licensed under the MIT terms of
+that crate and carry a notice to that effect. No part of Lukotta's own source is
+so licensed.
 
 ## Host Components
 

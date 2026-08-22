@@ -1,7 +1,12 @@
 diff -ruN -x target -x Cargo.lock a/src/virtio/block/device.rs b/src/virtio/block/device.rs
 --- a/src/virtio/block/device.rs	2006-07-24 04:21:28
-+++ b/src/virtio/block/device.rs	2026-08-22 10:57:18
-@@ -19,8 +19,8 @@
++++ b/src/virtio/block/device.rs	2026-08-22 11:40:56
+@@ -1,3 +1,4 @@
++// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: opened those image types with the matching imago driver.
+ // Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ // SPDX-License-Identifier: Apache-2.0
+ //
+@@ -19,8 +20,8 @@
  use std::thread::JoinHandle;
  
  use imago::{
@@ -12,7 +17,7 @@ diff -ruN -x target -x Cargo.lock a/src/virtio/block/device.rs b/src/virtio/bloc
  };
  use log::{error, warn};
  use utils::eventfd::{EventFd, EFD_NONBLOCK};
-@@ -278,6 +278,20 @@
+@@ -278,6 +279,20 @@
                  )
                  .open_sync(PermissiveImplicitOpenGate::default())?;
                  SyncFormatAccess::new(vmdk)?
@@ -35,8 +40,13 @@ diff -ruN -x target -x Cargo.lock a/src/virtio/block/device.rs b/src/virtio/bloc
  
 diff -ruN -x target -x Cargo.lock a/src/virtio/block/mod.rs b/src/virtio/block/mod.rs
 --- a/src/virtio/block/mod.rs	2006-07-24 04:21:28
-+++ b/src/virtio/block/mod.rs	2026-08-22 10:57:18
-@@ -41,6 +41,9 @@
++++ b/src/virtio/block/mod.rs	2026-08-22 11:40:56
+@@ -1,3 +1,4 @@
++// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: added the Vdi, Vhd and Vhdx image types.
+ // Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ // SPDX-License-Identifier: Apache-2.0
+ 
+@@ -41,6 +42,9 @@
      Raw,
      Qcow2,
      Vmdk,
@@ -46,7 +56,7 @@ diff -ruN -x target -x Cargo.lock a/src/virtio/block/mod.rs b/src/virtio/block/m
  }
  
  impl TryFrom<u32> for ImageType {
-@@ -51,6 +54,9 @@
+@@ -51,6 +55,9 @@
              0 => Ok(ImageType::Raw),
              1 => Ok(ImageType::Qcow2),
              2 => Ok(ImageType::Vmdk),
