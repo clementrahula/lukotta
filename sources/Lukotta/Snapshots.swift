@@ -220,6 +220,15 @@ enum Snapshots {
                 }
             ),
             ("mounted", model { $0.phase = .mounted(drive, "/Volumes/Elements") }),
+            // The same screen for a drive opened read-only, which must not
+            // promise writing.
+            (
+                "mounted-read-only",
+                model {
+                    $0.phase = .mounted(drive, "/Volumes/Elements")
+                    $0.mountedReadOnly = true
+                }
+            ),
             (
                 "failed",
                 model {

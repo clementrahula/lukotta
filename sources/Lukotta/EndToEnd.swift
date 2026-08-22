@@ -42,6 +42,10 @@ enum EndToEnd {
         print("encrypted container: \(container.lastPathComponent)")
         containerFlow(container: container, passphrase: passphrase)
 
+        print("")
+        print("the same container, opened read-only")
+        readOnlyFlow(container: container, passphrase: passphrase)
+
         if arguments.count >= 6 {
             let plain = URL(fileURLWithPath: arguments[4])
             let encrypted = URL(fileURLWithPath: arguments[5])
@@ -306,6 +310,88 @@ enum EndToEnd {
             "and its device is gone, so the file is a file again")
     }
 
+    /// The same container, opened read-only.
+    ///
+    /// Asserted against the mount itself rather than against the flag that
+    /// asked for it: a script that passed the flag and mounted the drive
+    /// writable anyway would satisfy every check made in Swift.
+    @MainActor
+    private static func readOnlyFlow(container: URL, passphrase: String) {
+        let model = AppModel()
+        model.start()
+        guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
+            return
+        }
+
+        model.openImage(container)
+        guard
+            waitUntil(
+                "the container opens", timeout: 60,
+                condition: {
+                    model.imageOpening == nil
+                        && model.drives.contains { $0.uuid == container.path }
+                })
+        else { return }
+        guard let drive = model.drives.first(where: { $0.uuid == container.path }) else { return }
+
+        model.choose(drive)
+        guard
+            waitUntil(
+                "the container is identified", timeout: 30,
+                condition: { model.chosenFormat != nil })
+        else { return }
+
+        model.credential = passphrase
+        model.unlock(drive, readOnly: true)
+        guard
+            waitUntil(
+                "it unlocks and mounts read-only", timeout: 180,
+                condition: {
+                    if case .mounted = model.phase { return true }
+                    if case .failed = model.phase { return true }
+                    return false
+                })
+        else { return }
+        guard case .mounted(_, let mountPoint) = model.phase else {
+            check(false, "it mounted rather than failing")
+            return
+        }
+        check(model.mountedReadOnly, "the app knows it was opened read-only")
+        check(
+            model.readOnlyMounts.contains(mountPoint),
+            "and marks the mount point, which is what the list reads")
+
+        // What the flag was for. The file is written where anyone opening the
+        // drive would write one, and the mount must refuse it.
+        let probe = URL(fileURLWithPath: mountPoint).appendingPathComponent("lukotta-e2e-write")
+        var refused = false
+        do {
+            try Data("written".utf8).write(to: probe)
+            try? FileManager.default.removeItem(at: probe)
+        } catch {
+            refused = true
+        }
+        check(refused, "and the drive itself refuses to be written to")
+
+        let table = shellOutput("/sbin/mount")
+        check(
+            table.split(separator: "\n").contains {
+                $0.contains(mountPoint) && $0.contains("read-only")
+            },
+            "the mount table calls it read-only, so Finder shows it that way too")
+
+        model.eject(mountPoint)
+        guard waitUntil("it ejects", timeout: 120, condition: { !model.isEjecting }) else {
+            return
+        }
+        check(model.ejectProblem == nil, "ejecting reported no problem")
+        guard
+            waitUntil(
+                "the container is detached", timeout: 30,
+                condition: { !model.drives.contains { $0.uuid == container.path } })
+        else { return }
+    }
+
     /// An image holding an ordinary filesystem, which has no password to ask
     /// for and should not ask for one.
     @MainActor
@@ -331,10 +417,15 @@ enum EndToEnd {
 
         // An image with nothing to unlock still has a choice to make, so the
         // screen appears with no passphrase field and two ways to open it.
+        //
+        // Waited on until the image is identified, not merely until the screen
+        // is up: the screen also appears on its own after a second and a half,
+        // for a reading that has not come back, and neither button can be
+        // pressed until it has.
         guard
             waitUntil(
                 "it asks how to open it", timeout: 60,
-                condition: { model.phaseIsUnlock })
+                condition: { model.phaseIsUnlock && model.chosenFormat != nil })
         else { return }
         check(
             model.chosenDriveIsOpenAlready,
@@ -582,8 +673,11 @@ enum EndToEnd {
             guard
                 waitUntil(
                     "it asks how to open it, nothing in it being encrypted", timeout: 60,
-                    condition: { model.phaseIsUnlock })
+                    condition: { model.phaseIsUnlock && model.chosenFormat != nil })
             else { return }
+            check(
+                model.chosenDriveIsOpenAlready,
+                "and asks nothing else, there being no passphrase to ask for")
             guard let drive = model.drives.first(where: { $0.uuid == image.path }) else { return }
             model.unlock(drive)
         }
@@ -641,6 +735,20 @@ enum EndToEnd {
     }
 
     // MARK: Running the loop
+
+    /// The output of a command, for the checks that read the system rather
+    /// than the app.
+    private static func shellOutput(_ path: String, _ arguments: [String] = []) -> String {
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: path)
+        task.arguments = arguments
+        let pipe = Pipe()
+        task.standardOutput = pipe
+        guard (try? task.run()) != nil else { return "" }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        task.waitUntilExit()
+        return String(decoding: data, as: UTF8.self)
+    }
 
     /// Wait for something to become true, pumping the run loop while it does.
     ///

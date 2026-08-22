@@ -59,6 +59,16 @@ against. **Bumping `vendor/engine.lock` fails a test until that list is
 updated**, so that a rewording upstream cannot silently stop every rule from
 firing.
 
+**A mount that fails leaves the engine's network helper running.** `gvproxy`
+carries the network the NFS connection is made over, and the engine takes it
+down only when a mount it completed is ejected. An attempt that never mounted
+anything leaves one behind holding the image file open, and the next attempt
+then reports the file as locked. `Mounter` records which helpers were running
+before it starts and takes down the ones the attempt added when it fails;
+`EngineProcesses.tidyLeftovers` clears the rest at launch, and only when the
+engine reports no mounts at all. Both match on the running bundle's own engine
+path, so another copy of the app is left alone.
+
 `MountScript` lives in `LukottaCore`, which the privileged helper links.
 After changing it, restart the helper or you are testing the old script.
 

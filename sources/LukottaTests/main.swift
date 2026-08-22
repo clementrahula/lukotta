@@ -2020,6 +2020,28 @@ group("aDocumentWithRulesAndCodeInIt") {
     expect("\(paragraphs)", "2", "the prose around them is still prose")
 }
 
+group("leftoverEngineHelpersAreTakenDown") {
+    // The set arithmetic is the whole of the safety here: a helper that was
+    // already running belongs to a drive somebody has open, and killing it
+    // would take that drive down with it.
+    let before: Set<Int32> = [10, 11]
+    let now: Set<Int32> = [10, 11, 12, 13]
+    expect(
+        now.subtracting(before) == [12, 13],
+        "only what this attempt started is taken down")
+    expect(
+        now.subtracting(now).isEmpty,
+        "an attempt that started nothing takes nothing down")
+
+    // Our own engine, not another copy of the app and not Homebrew's. The
+    // match is on the directory the running bundle's engine lives in.
+    let ours = "/Applications/Lukotta.app/Contents/Resources/engine/anylinuxfs"
+    let mine = "\(ours)/libexec/gvproxy --listen unix:///tmp/network-abc.sock"
+    let theirs = "/opt/homebrew/opt/anylinuxfs/libexec/gvproxy --listen unix:///tmp/n.sock"
+    expect(mine.contains(ours), "a helper from this bundle is recognised")
+    expect(!theirs.contains(ours), "and one from another engine is left alone")
+}
+
 group("readOnlyIsBothSidesOfTheConnection") {
     // The export stops the host writing and `-o ro` makes the mount inside the
     // guest read-only underneath it. Either alone leaves one side able to

@@ -744,6 +744,12 @@ final class AppModel: ObservableObject {
         phase = .scanning
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
+            // A run that ended badly, or a machine that slept through one, can
+            // leave the engine's network helper behind with nothing to eject it.
+            // Taken down here rather than left to accumulate, since one of them
+            // holds a lock on the image file it was opened from.
+            EngineProcesses.tidyLeftovers()
+
             // Off the main thread and before anything else: both probes read
             // files, and doing that where the interface is drawn holds the first
             // frame for as long as the disk takes to answer.
@@ -961,28 +967,23 @@ final class AppModel: ObservableObject {
         notice = nil
         chosenFormat = nil
 
-        // Whether to ask is decided before anything is shown.
+        // What the drive holds is settled before the screen is shown.
         //
-        // Showing the password screen first and opening the drive a moment
-        // later, once nothing turned out to need unlocking, made an unencrypted
-        // drive flash a demand for a password it does not have. The reading takes
-        // tens of milliseconds, so the list stays up until it arrives and the
-        // drive then either opens or asks.
+        // Showing the passphrase field first and taking it away a moment later,
+        // once nothing turned out to need unlocking, made an unencrypted drive
+        // flash a demand for a password it does not have. The reading takes tens
+        // of milliseconds, so the list stays up until it arrives.
+        //
         // The engine has already looked inside a qcow2. No sector read here
         // sees past the container's mapping, so its answer stands.
         if let known = knownFormat, qcow2Drives[drive.id] != nil {
             knownFormat = nil
             chosenFormat = known == .unknown ? nil : known
-            if known.macOSHandlesFully {
-                // Nothing to hand over: macOS cannot read a qcow2 either.
-                phase = .unlock(drive)
-            } else if known.isUnencrypted {
-                Log.mount.notice("opening a qcow2 without asking, nothing is encrypted")
-                phase = .unlock(drive)
-                unlock(drive)
-            } else {
-                phase = .unlock(drive)
-            }
+            // The same screen whatever it holds. An encrypted one asks for the
+            // passphrase; an unencrypted one asks only whether to open it
+            // writable or read-only; and there is nothing to hand to macOS,
+            // which cannot read a container of any of these kinds either.
+            phase = .unlock(drive)
             return
         }
 

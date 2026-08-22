@@ -161,4 +161,22 @@ done < <(hdiutil info 2>/dev/null | awk -v c="$CONTAINER" -v p="$PLAIN" -v e="$E
   /^image-path/ { path = $3 }
   /^\/dev\/disk[0-9]+\t/ { if (path == c || path == p || path == e) print $1 }')
 
+# Whatever this run leaves behind goes with it, however it ends.
+#
+# A mount that failed leaves the engine's network helper running with nothing
+# to eject it, and it holds the image file locked, so the next run finds every
+# fixture in use and fails for a reason that has nothing to do with the code.
+# The app takes down what a failed attempt started; this covers the rest,
+# including a run killed part-way through.
+clean_up() {
+  status=$?
+  while read -r point; do
+    [ -n "$point" ] && umount "$point" >/dev/null 2>&1 || true
+  done < <(/sbin/mount | awk '/ on .*\/Volumes\/LUKOTTA(E2E|PLAIN)/ && /nfs/ {
+      sub(/^.* on /, ""); sub(/ \(.*$/, ""); print }')
+  pkill -f "$APP/Contents/Resources/engine/anylinuxfs" >/dev/null 2>&1 || true
+  return $status
+}
+trap clean_up EXIT
+
 "$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC" "$HOSTILE" "$VMDK" "$VMDK_BAD" "$VHD" "$VHD_DYNAMIC" "$VDI" "$VDI_BAD" "$VMDK_SPARSE" "$VMDK_STREAMED" "$VHDX" "$VHDX_DIRTY" "$VHDX_PARENT"

@@ -102,6 +102,11 @@ public enum Mounter {
         osa.standardOutput = FileHandle.nullDevice
         osa.standardError = osaErr
 
+        // Which engine helpers were already running, so that the ones this
+        // attempt starts can be told apart from the ones serving drives that
+        // are already open. Read before anything is started.
+        let helpersBefore = EngineProcesses.running()
+
         if elevated { progress("Waiting for your administrator approval…") }
         try osa.run()
 
@@ -127,6 +132,7 @@ public enum Mounter {
                 encoding: .utf8) ?? ""
 
         if osa.terminationStatus != 0 {
+            EngineProcesses.stopWhatStartedSince(helpersBefore)
             if osaMessage.contains("-128") || osaMessage.lowercased().contains("user canceled") {
                 throw EngineError.authorisationCancelled
             }
@@ -136,6 +142,10 @@ public enum Mounter {
         }
 
         guard let mountPoint = discoverMountPoint(for: drive, transcript: transcript) else {
+            // Nothing mounted, so nothing will ever eject: the virtual machine
+            // and its network helper would stay until the Mac is restarted, and
+            // one of them keeps the image file locked against the next attempt.
+            EngineProcesses.stopWhatStartedSince(helpersBefore)
             throw EngineError.mountFailed(
                 summary: "The engine reported success but the drive did not appear in Finder.",
                 detail: transcript)
