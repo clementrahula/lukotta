@@ -66,7 +66,7 @@ final class HelperClient: ObservableObject {
                 machServiceName: HelperInfo.machServiceName, options: .privileged)
             new.remoteObjectInterface = NSXPCInterface(with: LukottaHelperProtocol.self)
             new.invalidationHandler = { [weak self] in
-                Task { @MainActor in self?.connection = nil }
+                Task { @MainActor [weak self] in self?.connection = nil }
             }
             new.resume()
             connection = new

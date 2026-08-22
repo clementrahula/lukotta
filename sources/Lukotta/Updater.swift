@@ -119,7 +119,7 @@ final class Updater: ObservableObject {
         // the helper belongs to launchd and survives the app being replaced.
         relay.isHoldingADrive = { [weak self] in self?.holdsADrive?() ?? false }
         relay.onFailure = { [weak self] message in
-            Task { @MainActor in self?.failure = message }
+            Task { @MainActor [weak self] in self?.failure = message }
         }
     }
 

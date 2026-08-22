@@ -108,7 +108,7 @@ final class AppModel: ObservableObject {
             // Frequent enough that a copy in progress moves visibly, and rare
             // enough not to wake a sleeping drive.
             spaceTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
-                Task { @MainActor in self?.refreshSpace() }
+                Task { @MainActor [weak self] in self?.refreshSpace() }
             }
         }
     }
@@ -610,7 +610,7 @@ final class AppModel: ObservableObject {
 
     /// Watches for drives arriving and leaving while the app is open.
     private lazy var watcher = DiskWatcher { [weak self] in
-        Task { @MainActor in self?.driveSetChanged() }
+        Task { @MainActor [weak self] in self?.driveSetChanged() }
     }
 
     /// Watches for the machine sleeping and waking.
