@@ -35,7 +35,8 @@ func expect(_ condition: Bool, _ what: String) {
 func sampleInputs(
     kind: VolumeKind = .microsoft,
     volume: LogicalVolume? = nil,
-    alias: String? = "/tmp/ws/alias/Elements"
+    alias: String? = "/tmp/ws/alias/Elements",
+    readOnly: Bool = false
 ) -> MountScript.Inputs {
     MountScript.Inputs(
         enginePath:
@@ -51,7 +52,7 @@ func sampleInputs(
         expectScriptPath: "/tmp/ws/discover.exp",
         configPath: "/Users/u/.anylinuxfs/config.toml",
         libraryPaths: ["/engine/lib"],
-        uid: 501, gid: 20, cores: 4, ramMiB: 2560)
+        uid: 501, gid: 20, cores: 4, ramMiB: 2560, readOnly: readOnly)
 }
 
 print("LukottaCore")
@@ -2017,6 +2018,36 @@ group("aDocumentWithRulesAndCodeInIt") {
         "and keeps them as written rather than joining them")
     expect(code.last == ["brew install llvm lld"], "a fenced block is taken whole")
     expect("\(paragraphs)", "2", "the prose around them is still prose")
+}
+
+group("readOnlyIsBothSidesOfTheConnection") {
+    // The export stops the host writing and `-o ro` makes the mount inside the
+    // guest read-only underneath it. Either alone leaves one side able to
+    // write, so both are asserted here.
+    let script = MountScript.build(sampleInputs(readOnly: true))
+    expect(script.contains("-o ro"), "the guest mounts the filesystem read-only")
+    expect(
+        script.contains("--nfs-export-opts=ro,no_subtree_check,no_root_squash,insecure"),
+        "and the export is read-only, with the rest of the engine's default kept")
+
+    // Every attempt, not merely the first: the ntfs-3g retry and the LVM
+    // discovery must not quietly mount a drive read-write after the read-only
+    // attempt failed.
+    let attempts = script.components(separatedBy: "mount --ignore-permissions").dropFirst()
+    expect(!attempts.isEmpty, "there is more than one attempt to check")
+    expect(
+        attempts.allSatisfy { $0.contains("-o ro") },
+        "and every one of them asks for read-only")
+
+    let linux = MountScript.build(sampleInputs(kind: .linux, readOnly: true))
+    expect(
+        linux.contains("-v ro='-o ro '"),
+        "the generated multi-volume action mounts each volume read-only")
+
+    // The ordinary case must be untouched by any of this.
+    let plain = MountScript.build(sampleInputs())
+    expect(!plain.contains("-o ro"), "a read-write mount says nothing about ro")
+    expect(!plain.contains("nfs-export-opts"), "and leaves the export as the engine has it")
 }
 
 print("\n\(checks - failures)/\(checks) checks passed")

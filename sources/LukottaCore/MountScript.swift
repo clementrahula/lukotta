@@ -42,6 +42,14 @@ public enum MountScript {
         /// this user needs no privilege at all.
         var elevated = true
 
+        /// Mount the filesystem read-only, and export it read-only.
+        ///
+        /// Both are required. The export stops the host writing, and `-o ro`
+        /// makes the mount inside the guest read-only underneath it, so nothing
+        /// on either side of the NFS connection can modify the drive. A volume
+        /// Windows left dirty also mounts this way where read-write is refused.
+        var readOnly = false
+
         /// macOS negotiates 32 KiB NFS transfers by default and supports 1 MiB,
         /// which matters for sequential throughput over this loopback mount.
         var nfsOptions = "rsize=1048576,wsize=1048576,readahead=128"
@@ -52,8 +60,9 @@ public enum MountScript {
             aliasPath: String? = nil, fifoPath: String, logPath: String,
             discoverLogPath: String, expectScriptPath: String,
             configPath: String, libraryPaths: [String], uid: UInt32, gid: UInt32,
-            cores: Int, ramMiB: Int, elevated: Bool = true
+            cores: Int, ramMiB: Int, elevated: Bool = true, readOnly: Bool = false
         ) {
+            self.readOnly = readOnly
             self.enginePath = enginePath; self.devicePath = devicePath
             self.driveName = driveName; self.kind = kind
             self.volume = volume; self.aliasPath = aliasPath
@@ -211,7 +220,8 @@ public enum MountScript {
                 mountCommand(
                     engineQ: engineQ,
                     target: shellQuoted(volume.mountIdentifier),
-                    driver: nil, options: i.nfsOptions, logQ: logQ)
+                    driver: nil, options: i.nfsOptions, readOnly: i.readOnly,
+                    logQ: logQ)
             ]
         }
 
@@ -230,7 +240,7 @@ public enum MountScript {
             drivers.map {
                 mountCommand(
                     engineQ: engineQ, target: target, driver: $0,
-                    options: i.nfsOptions, logQ: logQ)
+                    options: i.nfsOptions, readOnly: i.readOnly, logQ: logQ)
             }
         }
         if i.kind == .linux {
@@ -262,14 +272,29 @@ public enum MountScript {
         target: String,
         driver: String?,
         options: String,
+        readOnly: Bool,
         logQ: String
     ) -> String {
         let typeFlag = driver.map { " -t \($0)" } ?? ""
         // --nfs-options must use the joined form. The flag is variadic, and the
         // separated form consumes the target that follows it.
         return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
-            + "\(typeFlag) -w false --nfs-options=\(shellQuoted(options))"
+            + "\(typeFlag)\(readOnlyFlags(readOnly)) -w false"
+            + " --nfs-options=\(shellQuoted(options))"
             + " \(target) >> \(logQ) 2>&1 && \(mountedCheck)"
+    }
+
+    /// What makes a mount read-only, on both sides of the NFS connection.
+    ///
+    /// `-o ro` is passed to the mount inside the guest. The export options
+    /// replace the engine's own default of "{rw/ro},no_subtree_check,
+    /// no_root_squash,insecure", which is the only way to make the export
+    /// read-only, and the rest of that default is repeated so that nothing else
+    /// about the export changes.
+    static func readOnlyFlags(_ readOnly: Bool) -> String {
+        readOnly
+            ? " -o ro --nfs-export-opts=ro,no_subtree_check,no_root_squash,insecure"
+            : ""
     }
 
     /// Rows of `list --decrypt=all` that are mountable logical volumes: an
@@ -317,7 +342,7 @@ public enum MountScript {
               else
                 __opened=0
                 for __lv in $__lvs; do
-                  ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(i.nfsOptions)) "lvm:$__lv" >> \(logQ) 2>&1
+                  ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions\(readOnlyFlags(i.readOnly)) -w false --nfs-options=\(shellQuoted(i.nfsOptions)) "lvm:$__lv" >> \(logQ) 2>&1
                   __now=$(\(mountCount))
                   if [ "$__now" -gt "$__mounts" ]; then
                     __opened=$((__opened+1))
@@ -363,7 +388,7 @@ public enum MountScript {
         // nested NFS mount ever fail on the host, the bare tmpfs stub under it
         // must not accept writes the user believes go to the drive.
         return """
-                awk -v s='\(scratch)' -v q="'" '\(lvRow) {
+                awk -v s='\(scratch)' -v q="'" -v ro='\(i.readOnly ? "-o ro " : "")' '\(lvRow) {
                     n++
                     lv = $NF; sub(/^.*:/, "", lv)
                     vg = $NF; sub(/:.*/, "", vg)
@@ -379,8 +404,14 @@ public enum MountScript {
                     cmd = "set -eu; mkdir -p " s "; mount -t tmpfs -o size=1m tmpfs " s "; mkdir"
                     for (f = 1; f <= n; f++) cmd = cmd " " s "/" names[f]
                     cmd = cmd "; mount -o bind \\"$ALFS_VM_MOUNT_POINT\\" " s "/" names[1]
+                    # The primary volume is bound from the mount the engine
+                    # made, so it is already read-only when that one is. The
+                    # rest are mounted here and must say so.
+                    #
+                    # No apostrophes in here: the awk program is single-quoted,
+                    # and one would close the quote and break the script.
                     for (f = 2; f <= n; f++)
-                      cmd = cmd "; mount /dev/" vgs[f] "/" lvs[f] " " s "/" names[f]
+                      cmd = cmd "; mount " ro "/dev/" vgs[f] "/" lvs[f] " " s "/" names[f]
                     # A read-only filesystem, not read-only permissions: the
                     # export ignores permissions by design, so a mode of 555 was
                     # obeyed by nobody and a file copied here still vanished on
@@ -403,7 +434,7 @@ public enum MountScript {
                        !skip' \(configQ) 2>/dev/null; cat \(actionQ); } > \(mergedQ)
                 cat \(mergedQ) > \(configQ)
                 __first=$(printf '%s\\n' "$__lvs" | head -n 1)
-                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions -w false --nfs-options=\(shellQuoted(i.nfsOptions)) -a \(generatedAction) "lvm:$__first" >> \(logQ) 2>&1
+                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions\(readOnlyFlags(i.readOnly)) -w false --nfs-options=\(shellQuoted(i.nfsOptions)) -a \(generatedAction) "lvm:$__first" >> \(logQ) 2>&1
             """
     }
 }
