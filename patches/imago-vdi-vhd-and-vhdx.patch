@@ -1,6 +1,6 @@
 diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.rs
 --- a/src/format/builder.rs	2006-07-24 04:21:28
-+++ b/src/format/builder.rs	2026-08-22 14:50:51
++++ b/src/format/builder.rs	2026-08-22 17:52:12
 @@ -1,3 +1,5 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: built the drivers for those formats.
 +// SPDX-License-Identifier: MIT
@@ -43,13 +43,10 @@ diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.r
          }
      }
  
-@@ -359,6 +376,18 @@
+@@ -362,6 +379,18 @@
+                 let b = b.storage_open_options(opts);
                  gate.open_format(b).await?
              }
-             FormatOrBuilder::VmdkBuilder(b) => {
-+                let b = b.storage_open_options(opts);
-+                gate.open_format(b).await?
-+            }
 +            FormatOrBuilder::VdiBuilder(b) => {
 +                let b = b.storage_open_options(opts);
 +                gate.open_format(b).await?
@@ -59,12 +56,15 @@ diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.r
 +                gate.open_format(b).await?
 +            }
 +            FormatOrBuilder::VhdxBuilder(b) => {
-                 let b = b.storage_open_options(opts);
-                 gate.open_format(b).await?
-             }
++                let b = b.storage_open_options(opts);
++                gate.open_format(b).await?
++            }
+         };
+         Ok(F::wrap(f))
+     }
 diff -ruN -x target -x Cargo.lock a/src/format/mod.rs b/src/format/mod.rs
 --- a/src/format/mod.rs	2006-07-24 04:21:28
-+++ b/src/format/mod.rs	2026-08-22 14:50:51
++++ b/src/format/mod.rs	2026-08-22 17:52:12
 @@ -1,3 +1,5 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: added the Vdi, Vhd and Vhdx formats.
 +// SPDX-License-Identifier: MIT
@@ -87,16 +87,34 @@ diff -ruN -x target -x Cargo.lock a/src/format/mod.rs b/src/format/mod.rs
  }
  
  /// Format layer preallocation modes.
+diff -ruN -x target -x Cargo.lock a/src/format/access.rs b/src/format/access.rs
+--- a/src/format/access.rs	2006-07-24 04:21:28
++++ b/src/format/access.rs	2026-08-22 18:11:27
+@@ -124,6 +124,14 @@
+     /// Return the contained format driver instance.
+     pub fn inner_mut(&mut self) -> &mut dyn FormatDriverInstance<Storage = S> {
+         self.inner.as_mut()
++    }
++
++    /// Whether this image can be written.
++    ///
++    /// False for an image opened for reading, and for one whose format this
++    /// build can read but not write.
++    pub fn writable(&self) -> bool {
++        self.writable
+     }
+ 
+     /// Return the disk size in bytes.
 diff -ruN -x target -x Cargo.lock a/src/lib.rs b/src/lib.rs
 --- a/src/lib.rs	2006-07-24 04:21:28
-+++ b/src/lib.rs	2026-08-22 14:50:51
++++ b/src/lib.rs	2026-08-22 18:07:45
 @@ -1,3 +1,5 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: declared the vdi, vhd and vhdx modules.
 +// SPDX-License-Identifier: MIT
  // #![feature(async_drop)] -- enable with async-drop
  #![cfg_attr(all(doc, nightly), feature(doc_cfg))] // expect nightly for doc
  #![warn(missing_docs)]
-@@ -104,7 +106,10 @@
+@@ -104,9 +106,16 @@
  pub mod qcow2;
  pub mod raw;
  pub mod storage;
@@ -106,11 +124,17 @@ diff -ruN -x target -x Cargo.lock a/src/lib.rs b/src/lib.rs
 +pub mod vhdx;
  pub mod vmdk;
  
++/// Writing to VDI, VHD and VMDK images, checked against qemu-img.
++#[cfg(test)]
++mod write_tests;
++
  pub use format::access::{FormatAccess, Mapping};
+ pub use format::builder::{FormatCreateBuilder, FormatDriverBuilder};
+ pub use format::drivers::ShallowMapping;
 diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 --- a/src/vdi/mod.rs	1970-01-01 03:00:00
-+++ b/src/vdi/mod.rs	2026-08-22 14:50:51
-@@ -0,0 +1,401 @@
++++ b/src/vdi/mod.rs	2026-08-22 18:00:11
+@@ -0,0 +1,507 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
 +//
@@ -137,11 +161,13 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +use crate::io_buffers::IoBuffer;
 +use crate::misc_helpers::invalid_data;
 +use crate::storage::ext::StorageExt;
++use crate::storage::PreallocateMode as StoragePreallocateMode;
 +use crate::{ShallowMapping, Storage, StorageOpenOptions};
 +use async_trait::async_trait;
 +use std::fmt::{self, Display, Formatter};
 +use std::path::{Path, PathBuf};
 +use std::{cmp, io};
++use tokio::sync::RwLock;
 +
 +/// The signature that begins the header, after 64 bytes of free text.
 +const VDI_SIGNATURE: u32 = 0xbeda_107f;
@@ -176,9 +202,26 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +    block_extra: u32,
 +    /// How many entries the block map has.
 +    blocks: u32,
++    /// How many of them have been given a place in the file.
++    blocks_allocated: u32,
 +}
 +
-+/// VDI disk image format implementation, read-only.
++/// Where the count of allocated blocks sits in the header.
++const BLOCKS_ALLOCATED_AT: u64 = 0x184;
++
++/// What writing to a VDI changes.
++#[derive(Debug)]
++struct VdiState {
++    /// Where each block sits in the file, by index, or `BLOCK_FREE` /
++    /// `BLOCK_ZERO`.
++    block_map: Vec<u32>,
++
++    /// How many blocks have been given a place in the file, which is also the
++    /// index the next one gets.
++    blocks_allocated: u32,
++}
++
++/// VDI disk image format implementation.
 +#[derive(Debug)]
 +pub struct Vdi<S: Storage + 'static> {
 +    /// The image file.
@@ -187,8 +230,12 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +    /// The header, as read.
 +    header: VdiHeader,
 +
-+    /// The block map, read once when the image is opened.
-+    block_map: Vec<u32>,
++    /// Whether this image was opened for writing.
++    writable: bool,
++
++    /// The block map and the count of blocks in the file, which writing
++    /// changes.
++    state: RwLock<VdiState>,
 +}
 +
 +/// Read a little-endian `u32` at `offset` in `buf`.
@@ -213,7 +260,7 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +    }
 +
 +    /// Read the header, check it over, and read the block map.
-+    async fn do_open(inner: S) -> io::Result<Self> {
++    async fn do_open(inner: S, writable: bool) -> io::Result<Self> {
 +        let file_size = inner.size()?;
 +        if file_size < HEADER_READ as u64 {
 +            return Err(invalid_data("VDI image too short to hold a header"));
@@ -253,6 +300,7 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +            block_size: le32(buf, 0x178),
 +            block_extra: le32(buf, 0x17c),
 +            blocks: le32(buf, 0x180),
++            blocks_allocated: le32(buf, BLOCKS_ALLOCATED_AT as usize),
 +        };
 +
 +        // Each of the following values can direct this driver to read the
@@ -323,22 +371,38 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +            }
 +        }
 +
++        // A count larger than the map would place the next block on top of
++        // one already in use, so it is checked here rather than trusted.
++        if header.blocks_allocated > header.blocks {
++            return Err(invalid_data(
++                "VDI says more blocks are in the file than its map can hold",
++            ));
++        }
++
 +        Ok(Vdi {
 +            inner,
++            writable,
++            state: RwLock::new(VdiState {
++                block_map,
++                blocks_allocated: header.blocks_allocated,
++            }),
 +            header,
-+            block_map,
 +        })
 +    }
 +
-+    /// Open a VDI image, read-only.
++    /// Where a block's data begins, given its entry in the map.
++    ///
++    /// Every entry was checked against the length of the file when the map was
++    /// read, or written by this driver after the file was grown to hold it, so
++    /// this cannot point past the end.
++    fn block_at(&self, entry: u32) -> u64 {
++        let stride = (self.header.block_size as u64) + (self.header.block_extra as u64);
++        self.header.data_offset + (entry as u64) * stride + (self.header.block_extra as u64)
++    }
++
++    /// Open a VDI image.
 +    pub async fn open_image(inner: S, writable: bool) -> io::Result<Self> {
-+        if writable {
-+            return Err(io::Error::new(
-+                io::ErrorKind::Unsupported,
-+                "No VDI write support",
-+            ));
-+        }
-+        Self::do_open(inner).await
++        Self::do_open(inner, writable).await
 +    }
 +
 +    /// Synchronous wrapper around [`Vdi::open_image()`].
@@ -386,7 +450,7 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +    }
 +
 +    fn writable(&self) -> bool {
-+        false
++        self.writable
 +    }
 +
 +    async fn get_mapping<'a>(
@@ -406,7 +470,8 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +        // lie elsewhere in the file, or nowhere at all.
 +        let length = cmp::min(cmp::min(max_length, remaining), block_size - in_block);
 +
-+        let Some(&entry) = self.block_map.get(index) else {
++        let state = self.state.read().await;
++        let Some(&entry) = state.block_map.get(index) else {
 +            return Ok((ShallowMapping::Eof {}, 0));
 +        };
 +        if entry == BLOCK_FREE || entry == BLOCK_ZERO {
@@ -418,17 +483,11 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +            ));
 +        }
 +
-+        // Checked when the map was read, so this cannot overflow.
-+        let stride = block_size + (self.header.block_extra as u64);
-+        let start = self.header.data_offset
-+            + (entry as u64) * stride
-+            + (self.header.block_extra as u64);
-+
 +        Ok((
 +            ShallowMapping::Raw {
 +                storage: &self.inner,
-+                offset: start + in_block,
-+                writable: false,
++                offset: self.block_at(entry) + in_block,
++                writable: self.writable,
 +            },
 +            length,
 +        ))
@@ -436,19 +495,95 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +
 +    async fn ensure_data_mapping<'a>(
 +        &'a self,
-+        _offset: u64,
-+        _length: u64,
++        offset: u64,
++        length: u64,
 +        _overwrite: bool,
 +    ) -> io::Result<(&'a S, u64, u64)> {
-+        Err(io::Error::other("Image is read-only"))
++        if !self.writable {
++            return Err(io::Error::other("Image is read-only"));
++        }
++        let remaining = self
++            .size()
++            .checked_sub(offset)
++            .ok_or_else(|| io::Error::other("Cannot allocate past the end of the disk"))?;
++        if length > remaining {
++            return Err(io::Error::other("Cannot allocate past the end of the disk"));
++        }
++
++        let block_size = self.header.block_size as u64;
++        let index = (offset / block_size) as usize;
++        let in_block = offset % block_size;
++        let length = cmp::min(length, block_size - in_block);
++
++        // The common case: the block is already somewhere in the file.
++        {
++            let state = self.state.read().await;
++            let entry = *state
++                .block_map
++                .get(index)
++                .ok_or_else(|| io::Error::other("Block lies past the block map"))?;
++            if entry != BLOCK_FREE && entry != BLOCK_ZERO {
++                return Ok((&self.inner, self.block_at(entry) + in_block, length));
++            }
++        }
++
++        let mut state = self.state.write().await;
++        // Another write may have allocated it while this one waited.
++        let entry = state.block_map[index];
++        if entry != BLOCK_FREE && entry != BLOCK_ZERO {
++            return Ok((&self.inner, self.block_at(entry) + in_block, length));
++        }
++
++        let allocated = state.blocks_allocated;
++        if allocated >= self.header.blocks || allocated >= BLOCK_ZERO {
++            return Err(io::Error::other("VDI image has no room for another block"));
++        }
++        let stride = block_size + (self.header.block_extra as u64);
++        let block_at = self
++            .header
++            .data_offset
++            .checked_add((allocated as u64) * stride)
++            .ok_or_else(|| io::Error::other("VDI image has grown past what it can address"))?;
++
++        // The file grows first, so the space exists before anything points at
++        // it. Nothing is written into it: everything past the old end of the
++        // file reads as zeroes, which is what an untouched block holds.
++        self.inner
++            .resize(block_at + stride, StoragePreallocateMode::None)
++            .await?;
++        self.inner.flush().await?;
++
++        // The count next, and the map entry after it. In that order an
++        // interruption leaves a block that belongs to nothing, which the next
++        // write skips over; in the other order it would leave the map pointing
++        // at a block the next write would hand out again.
++        self.inner
++            .write(
++                &(allocated + 1).to_le_bytes()[..],
++                BLOCKS_ALLOCATED_AT,
++            )
++            .await?;
++        self.inner.flush().await?;
++
++        self.inner
++            .write(
++                &allocated.to_le_bytes()[..],
++                self.header.blocks_offset + index as u64 * 4,
++            )
++            .await?;
++        self.inner.flush().await?;
++
++        state.block_map[index] = allocated;
++        state.blocks_allocated = allocated + 1;
++        Ok((&self.inner, self.block_at(allocated) + in_block, length))
 +    }
 +
 +    async fn flush(&self) -> io::Result<()> {
-+        Ok(())
++        self.inner.flush().await
 +    }
 +
 +    async fn sync(&self) -> io::Result<()> {
-+        Ok(())
++        self.inner.sync().await
 +    }
 +
 +    async unsafe fn invalidate_cache(&self) -> io::Result<()> {
@@ -490,14 +625,9 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +    }
 +
 +    async fn open<G: ImplicitOpenGate<S>>(self, mut gate: G) -> io::Result<Self::Format> {
-+        if self.0.get_writable() {
-+            return Err(io::Error::new(
-+                io::ErrorKind::Unsupported,
-+                "No VDI write support",
-+            ));
-+        }
++        let writable = self.0.get_writable();
 +        let file = self.0.open_image(&mut gate).await?;
-+        Vdi::open_image(file, false).await
++        Vdi::open_image(file, writable).await
 +    }
 +
 +    fn get_image_path(&self) -> Option<PathBuf> {
@@ -514,8 +644,8 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +}
 diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 --- a/src/vhd/mod.rs	1970-01-01 03:00:00
-+++ b/src/vhd/mod.rs	2026-08-22 14:50:51
-@@ -0,0 +1,452 @@
++++ b/src/vhd/mod.rs	2026-08-22 17:58:02
+@@ -0,0 +1,589 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
 +//
@@ -525,8 +655,7 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +
 +//! VHD implementation.
 +//!
-+//! Microsoft's first format, read-only, in both forms that hold their own
-+//! data:
++//! Microsoft's first format, in both forms that hold their own data:
 +//!
 +//! - fixed, which is the raw disk followed by a 512-byte footer, and
 +//! - dynamic, which stores the disk in blocks listed by an allocation table,
@@ -534,6 +663,14 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +//!
 +//! The third form, differencing, holds only the changes from a parent disk that
 +//! it names, and is refused: this driver never opens a second file.
++//!
++//! Both forms can be written. A fixed image is written where the data already
++//! lies. A dynamic one grows a block at a time, each new block taking the place
++//! of the trailing footer, which moves to the new end of the file. The order of
++//! those writes is what makes an interrupted allocation harmless: the file
++//! ends in a valid footer throughout, and the allocation table is updated last,
++//! so a block that was written but never linked is unreferenced rather than
++//! half-linked.
 +//!
 +//! VHDX shares the name and none of the layout, and is a separate format.
 +
@@ -544,11 +681,13 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +use crate::io_buffers::IoBuffer;
 +use crate::misc_helpers::invalid_data;
 +use crate::storage::ext::StorageExt;
++use crate::storage::PreallocateMode as StoragePreallocateMode;
 +use crate::{ShallowMapping, Storage, StorageOpenOptions};
 +use async_trait::async_trait;
 +use std::fmt::{self, Display, Formatter};
 +use std::path::{Path, PathBuf};
 +use std::{cmp, io};
++use tokio::sync::RwLock;
 +
 +/// The footer's first eight bytes.
 +const FOOTER_COOKIE: &[u8; 8] = b"conectix";
@@ -575,6 +714,19 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +/// is the only unbounded allocation this driver performs.
 +const MAX_BAT_ENTRIES: u32 = 100_000_000;
 +
++/// What a dynamic image's allocation changes as it is written.
++#[derive(Debug)]
++struct DynamicState {
++    /// Where each block's data begins, in sectors, or `BAT_UNALLOCATED`.
++    bat: Vec<u32>,
++
++    /// Where the trailing footer begins, which is where the next block goes.
++    ///
++    /// A block is written over the footer and the footer moves to the new end,
++    /// so this is both the end of the data and the start of free space.
++    footer_at: u64,
++}
++
 +/// How the image holds its data.
 +#[derive(Debug)]
 +enum VhdLayout {
@@ -587,12 +739,14 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +        /// How much sits before each block's data: the bitmap, rounded up to a
 +        /// whole number of sectors.
 +        bitmap_size: u64,
-+        /// Where each block's data begins, or `BAT_UNALLOCATED`.
-+        bat: Vec<u32>,
++        /// Where the allocation table sits in the file.
++        table_at: u64,
++        /// The table itself, and where the file currently ends.
++        state: RwLock<DynamicState>,
 +    },
 +}
 +
-+/// VHD disk image format implementation, read-only.
++/// VHD disk image format implementation.
 +#[derive(Debug)]
 +pub struct Vhd<S: Storage + 'static> {
 +    /// The image file.
@@ -600,6 +754,9 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +
 +    /// How large the virtual disk is.
 +    size: u64,
++
++    /// Whether this image was opened for writing.
++    writable: bool,
 +
 +    /// How the image holds its data.
 +    layout: VhdLayout,
@@ -627,7 +784,7 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +    }
 +
 +    /// Read the footer, and whatever else the kind of image needs.
-+    async fn do_open(inner: S) -> io::Result<Self> {
++    async fn do_open(inner: S, writable: bool) -> io::Result<Self> {
 +        let file_size = inner.size()?;
 +        if file_size < FOOTER_LENGTH {
 +            return Err(invalid_data("VHD image too short to hold a footer"));
@@ -675,6 +832,7 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +        Ok(Vhd {
 +            inner,
 +            size,
++            writable,
 +            layout,
 +        })
 +    }
@@ -772,19 +930,57 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +        Ok(VhdLayout::Dynamic {
 +            block_size,
 +            bitmap_size,
-+            bat,
++            table_at,
++            // The footer sits at the end of the file, and a new block is
++            // written over it.
++            state: RwLock::new(DynamicState {
++                bat,
++                footer_at: file_size - FOOTER_LENGTH,
++            }),
 +        })
 +    }
 +
-+    /// Open a VHD image, read-only.
-+    pub async fn open_image(inner: S, writable: bool) -> io::Result<Self> {
-+        if writable {
-+            return Err(io::Error::new(
-+                io::ErrorKind::Unsupported,
-+                "No VHD write support",
-+            ));
++    /// Put a new block where the footer is, and the footer after it.
++    ///
++    /// The order is what an interrupted allocation depends on. The footer is
++    /// written at the new end before anything else, so the file ends in a
++    /// valid footer at every point; the bitmap then replaces the old footer,
++    /// which nothing refers to; and the caller links the block into the
++    /// allocation table last of all.
++    async fn allocate_block(
++        &self,
++        block_at: u64,
++        bitmap_size: u64,
++        block_size: u64,
++        new_footer_at: u64,
++    ) -> io::Result<()> {
++        let mut footer = IoBuffer::new(FOOTER_LENGTH as usize, self.inner.mem_align())?;
++        self.inner.read(footer.as_mut(), block_at).await?;
++        if &footer.as_ref().into_slice()[..8] != FOOTER_COOKIE {
++            return Err(invalid_data("VHD footer is not where it should be"));
 +        }
-+        Self::do_open(inner).await
++        self.inner.write(footer.as_ref(), new_footer_at).await?;
++        // The write above put the bytes there; this brings the recorded length
++        // in line with them.
++        self.inner
++            .resize(new_footer_at + FOOTER_LENGTH, StoragePreallocateMode::None)
++            .await?;
++        self.inner.flush().await?;
++
++        // Every sector of the block counts as written, which is what a reader
++        // that honours the bitmap needs to be told. The data after it lies
++        // past where the file ended a moment ago, so it reads as zeroes
++        // already and nothing has to be written there.
++        let mut bitmap = IoBuffer::new(bitmap_size as usize, self.inner.mem_align())?;
++        bitmap.as_mut().into_slice().fill(0xff);
++        self.inner.write(bitmap.as_ref(), block_at).await?;
++        debug_assert!(block_size > 0);
++        self.inner.flush().await
++    }
++
++    /// Open a VHD image.
++    pub async fn open_image(inner: S, writable: bool) -> io::Result<Self> {
++        Self::do_open(inner, writable).await
 +    }
 +
 +    /// Synchronous wrapper around [`Vhd::open_image()`].
@@ -832,7 +1028,7 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +    }
 +
 +    fn writable(&self) -> bool {
-+        false
++        self.writable
 +    }
 +
 +    async fn get_mapping<'a>(
@@ -853,7 +1049,7 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +                ShallowMapping::Raw {
 +                    storage: &self.inner,
 +                    offset,
-+                    writable: false,
++                    writable: self.writable,
 +                },
 +                max_length,
 +            )),
@@ -861,7 +1057,8 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +            VhdLayout::Dynamic {
 +                block_size,
 +                bitmap_size,
-+                bat,
++                state,
++                ..
 +            } => {
 +                let index = (offset / block_size) as usize;
 +                let in_block = offset % block_size;
@@ -869,20 +1066,22 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +                // block may lie elsewhere in the file, or nowhere at all.
 +                let length = cmp::min(max_length, block_size - in_block);
 +
-+                let Some(&entry) = bat.get(index) else {
++                let state = state.read().await;
++                let Some(&entry) = state.bat.get(index) else {
 +                    return Ok((ShallowMapping::Eof {}, 0));
 +                };
 +                if entry == BAT_UNALLOCATED {
 +                    return Ok((ShallowMapping::Zero { explicit: false }, length));
 +                }
 +
-+                // Checked when the table was read, so this cannot overflow.
++                // Checked when the table was read, or written by this driver,
++                // so this cannot overflow.
 +                let start = (entry as u64) * SECTOR + bitmap_size;
 +                Ok((
 +                    ShallowMapping::Raw {
 +                        storage: &self.inner,
 +                        offset: start + in_block,
-+                        writable: false,
++                        writable: self.writable,
 +                    },
 +                    length,
 +                ))
@@ -892,19 +1091,92 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +
 +    async fn ensure_data_mapping<'a>(
 +        &'a self,
-+        _offset: u64,
-+        _length: u64,
++        offset: u64,
++        length: u64,
 +        _overwrite: bool,
 +    ) -> io::Result<(&'a S, u64, u64)> {
-+        Err(io::Error::other("Image is read-only"))
++        if !self.writable {
++            return Err(io::Error::other("Image is read-only"));
++        }
++        let remaining = self
++            .size
++            .checked_sub(offset)
++            .ok_or_else(|| io::Error::other("Cannot allocate past the end of the disk"))?;
++        if length > remaining {
++            return Err(io::Error::other("Cannot allocate past the end of the disk"));
++        }
++
++        match &self.layout {
++            // Every byte of the disk is already there, in front of the footer.
++            VhdLayout::Fixed => Ok((&self.inner, offset, length)),
++
++            VhdLayout::Dynamic {
++                block_size,
++                bitmap_size,
++                table_at,
++                state,
++            } => {
++                let index = (offset / block_size) as usize;
++                let in_block = offset % block_size;
++                let length = cmp::min(length, block_size - in_block);
++
++                // The common case, and the only one that takes no lock beyond
++                // reading: the block is already there.
++                {
++                    let state = state.read().await;
++                    let entry = *state
++                        .bat
++                        .get(index)
++                        .ok_or_else(|| io::Error::other("Block lies past the allocation table"))?;
++                    if entry != BAT_UNALLOCATED {
++                        let start = (entry as u64) * SECTOR + bitmap_size;
++                        return Ok((&self.inner, start + in_block, length));
++                    }
++                }
++
++                let mut state = state.write().await;
++                // Another write may have allocated it while this one waited.
++                let entry = state.bat[index];
++                if entry != BAT_UNALLOCATED {
++                    let start = (entry as u64) * SECTOR + bitmap_size;
++                    return Ok((&self.inner, start + in_block, length));
++                }
++
++                let block_at = state.footer_at;
++                let data_at = block_at + bitmap_size;
++                let new_footer_at = data_at + block_size;
++                if (block_at / SECTOR) >= BAT_UNALLOCATED as u64 {
++                    return Err(io::Error::other(
++                        "VHD image has grown past what its allocation table can address",
++                    ));
++                }
++
++                self.allocate_block(block_at, *bitmap_size, *block_size, new_footer_at)
++                    .await?;
++
++                // Last, and only once the block is whole: until this is
++                // written the block belongs to nothing, and an image
++                // interrupted here is the image it was, with unused space at
++                // the end.
++                let sector = (block_at / SECTOR) as u32;
++                self.inner
++                    .write(&sector.to_be_bytes()[..], table_at + index as u64 * 4)
++                    .await?;
++                self.inner.flush().await?;
++
++                state.bat[index] = sector;
++                state.footer_at = new_footer_at;
++                Ok((&self.inner, data_at + in_block, length))
++            }
++        }
 +    }
 +
 +    async fn flush(&self) -> io::Result<()> {
-+        Ok(())
++        self.inner.flush().await
 +    }
 +
 +    async fn sync(&self) -> io::Result<()> {
-+        Ok(())
++        self.inner.sync().await
 +    }
 +
 +    async unsafe fn invalidate_cache(&self) -> io::Result<()> {
@@ -946,14 +1218,9 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +    }
 +
 +    async fn open<G: ImplicitOpenGate<S>>(self, mut gate: G) -> io::Result<Self::Format> {
-+        if self.0.get_writable() {
-+            return Err(io::Error::new(
-+                io::ErrorKind::Unsupported,
-+                "No VHD write support",
-+            ));
-+        }
++        let writable = self.0.get_writable();
 +        let file = self.0.open_image(&mut gate).await?;
-+        Vhd::open_image(file, false).await
++        Vhd::open_image(file, writable).await
 +    }
 +
 +    fn get_image_path(&self) -> Option<PathBuf> {
@@ -970,7 +1237,7 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +}
 diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 --- a/src/vhdx/mod.rs	1970-01-01 03:00:00
-+++ b/src/vhdx/mod.rs	2026-08-22 14:50:51
++++ b/src/vhdx/mod.rs	2026-08-22 17:52:12
 @@ -0,0 +1,585 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
@@ -1555,5 +1822,569 @@ diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 +
 +    fn get_storage_open_options(&self) -> Option<&StorageOpenOptions> {
 +        self.0.get_storage_opts()
++    }
++}
+diff -ruN -x target -x Cargo.lock a/src/write_tests.rs b/src/write_tests.rs
+--- a/src/write_tests.rs	1970-01-01 03:00:00
++++ b/src/write_tests.rs	2026-08-22 18:09:48
+@@ -0,0 +1,560 @@
++// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
++// SPDX-License-Identifier: MIT
++//
++// Contributed to imago and licensed under that crate's MIT terms. The
++// GPL-3.0-or-later terms covering the Lukotta distribution, which carries this
++// file as a patch, do not apply to it.
++
++//! Writing, checked against qemu-img.
++//!
++//! Every test here creates an image with `qemu-img`, writes to it through this
++//! crate, and then asks `qemu-img` what it thinks of the result: whether the
++//! image still checks out, and whether converting it to raw gives back exactly
++//! the bytes that were written. QEMU has written these formats for many years,
++//! so agreeing with it is the strongest statement these drivers can make.
++//!
++//! The tests skip when `qemu-img` is not installed rather than failing, since
++//! it is not needed to build this crate. Set `IMAGO_QEMU_IMG` to point at a
++//! particular one.
++
++use crate::file::File;
++use crate::format::builder::FormatDriverBuilder;
++use crate::vdi::Vdi;
++use crate::vhd::Vhd;
++use crate::vmdk::Vmdk;
++use crate::{FormatAccess, PermissiveImplicitOpenGate};
++use std::path::{Path, PathBuf};
++use std::process::Command;
++use std::sync::atomic::{AtomicU32, Ordering};
++
++/// How large every test disk is.
++///
++/// Small enough to compare in memory, and large enough to hold several blocks
++/// of every format: a VHD block is 2 MiB, a VDI block 1 MiB, a VMDK grain
++/// 64 KiB.
++const DISK_SIZE: u64 = 8 << 20;
++
++/// Where `qemu-img` is, if it is anywhere.
++fn qemu_img() -> Option<PathBuf> {
++    if let Ok(path) = std::env::var("IMAGO_QEMU_IMG") {
++        let path = PathBuf::from(path);
++        return path.exists().then_some(path);
++    }
++    for dir in std::env::var("PATH").unwrap_or_default().split(':') {
++        let candidate = Path::new(dir).join("qemu-img");
++        if candidate.exists() {
++            return Some(candidate);
++        }
++    }
++    None
++}
++
++/// Run `qemu-img` with these arguments, and return what it said.
++fn qemu(args: &[&str]) -> (bool, String) {
++    let qemu_img = qemu_img().expect("qemu-img");
++    let out = Command::new(qemu_img)
++        .args(args)
++        .output()
++        .expect("running qemu-img");
++    let mut text = String::from_utf8_lossy(&out.stdout).into_owned();
++    text.push_str(&String::from_utf8_lossy(&out.stderr));
++    (out.status.success(), text)
++}
++
++/// A directory of this run's own, removed when the test ends.
++struct Scratch(PathBuf);
++
++impl Scratch {
++    fn new(what: &str) -> Self {
++        static COUNTER: AtomicU32 = AtomicU32::new(0);
++        let n = COUNTER.fetch_add(1, Ordering::Relaxed);
++        let dir = std::env::temp_dir().join(format!("imago-write-{what}-{}-{n}", std::process::id()));
++        let _ = std::fs::remove_dir_all(&dir);
++        std::fs::create_dir_all(&dir).expect("scratch directory");
++        Scratch(dir)
++    }
++
++    fn path(&self, name: &str) -> PathBuf {
++        self.0.join(name)
++    }
++}
++
++impl Drop for Scratch {
++    fn drop(&mut self) {
++        let _ = std::fs::remove_dir_all(&self.0);
++    }
++}
++
++/// What the disk should hold, kept beside the image as it is written.
++struct Model(Vec<u8>);
++
++impl Model {
++    fn new() -> Self {
++        Model(vec![0u8; DISK_SIZE as usize])
++    }
++
++    /// A stretch of bytes nothing else produces, so a write landing in the
++    /// wrong place is a mismatch rather than a coincidence.
++    fn pattern(seed: u8, length: usize) -> Vec<u8> {
++        (0..length)
++            .map(|i| (i as u8).wrapping_mul(31).wrapping_add(seed).wrapping_add((i >> 8) as u8))
++            .collect()
++    }
++
++    fn record(&mut self, offset: u64, data: &[u8]) {
++        let at = offset as usize;
++        self.0[at..at + data.len()].copy_from_slice(data);
++    }
++}
++
++/// Run an async body on a runtime of its own.
++fn block_on<F: std::future::Future>(f: F) -> F::Output {
++    tokio::runtime::Builder::new_current_thread()
++        .build()
++        .expect("runtime")
++        .block_on(f)
++}
++
++/// The writes every format is put through.
++///
++/// Between them they cover the cases that separate a driver that allocates
++/// correctly from one that appears to: the first block, a write crossing the
++/// boundary between two, one that is aligned to nothing, a second write over
++/// ground already allocated, a run spanning several blocks at once, and the
++/// very last byte of the disk.
++fn write_plan() -> Vec<(u64, usize, u8)> {
++    vec![
++        // (offset, length, seed)
++        (0, 4096, 0x11),
++        (64 << 10, 512, 0x22),
++        // Across a 64 KiB grain, a 1 MiB VDI block and a 2 MiB VHD block.
++        ((1 << 20) - 2048, 4096, 0x33),
++        ((2 << 20) - 1024, 8192, 0x44),
++        // Aligned to nothing at all.
++        (3_000_001, 3333, 0x55),
++        // Over ground the first write already allocated.
++        (1024, 2048, 0x66),
++        // Several blocks in one write.
++        (4 << 20, 3 << 20, 0x77),
++        // The last byte of the disk.
++        (DISK_SIZE - 1, 1, 0x88),
++        // And the last block, up to its end.
++        (DISK_SIZE - 4096, 4096, 0x99),
++    ]
++}
++
++/// Write the plan through `image`, and check every byte reads back.
++async fn write_and_read_back(image: &FormatAccess<File>, model: &mut Model) {
++    for (offset, length, seed) in write_plan() {
++        let data = Model::pattern(seed, length);
++        image.write(&data, offset).await.expect("write");
++        model.record(offset, &data);
++    }
++    image.flush().await.expect("flush");
++
++    let mut read = vec![0u8; DISK_SIZE as usize];
++    image.read(&mut read, 0).await.expect("read");
++    assert_eq!(
++        first_difference(&read, &model.0),
++        None,
++        "reading back through the driver gave something else"
++    );
++}
++
++/// Where two buffers first differ, for a message worth reading.
++fn first_difference(a: &[u8], b: &[u8]) -> Option<usize> {
++    (0..a.len().min(b.len())).find(|&i| a[i] != b[i])
++}
++
++/// Convert with qemu-img and compare against what should be there.
++///
++/// This is the point of the whole harness: the bytes are read back by another
++/// implementation entirely, through its own reading of the metadata this
++/// driver wrote.
++fn qemu_agrees(image: &Path, format: &str, model: &Model, scratch: &Scratch) {
++    let (ok, said) = qemu(&["check", "-f", format, image.to_str().unwrap()]);
++    // `check` reports "does not support checks" for the formats it cannot
++    // check, which is not a failure of the image.
++    assert!(
++        ok || said.contains("does not support checks"),
++        "qemu-img check refused the image: {said}"
++    );
++
++    let raw = scratch.path("converted.raw");
++    let (ok, said) = qemu(&[
++        "convert",
++        "-f",
++        format,
++        "-O",
++        "raw",
++        image.to_str().unwrap(),
++        raw.to_str().unwrap(),
++    ]);
++    assert!(ok, "qemu-img convert failed: {said}");
++
++    let converted = std::fs::read(&raw).expect("reading the converted image");
++    assert_eq!(
++        converted.len() as u64,
++        DISK_SIZE,
++        "the converted image is the wrong length"
++    );
++    assert_eq!(
++        first_difference(&converted, &model.0),
++        None,
++        "qemu-img read something else back"
++    );
++}
++
++/// Create an image with qemu-img.
++fn create(path: &Path, format: &str, options: Option<&str>) {
++    let size = DISK_SIZE.to_string();
++    let mut args = vec!["create", "-f", format];
++    if let Some(options) = options {
++        args.push("-o");
++        args.push(options);
++    }
++    args.push(path.to_str().unwrap());
++    args.push(&size);
++    let (ok, said) = qemu(&args);
++    assert!(ok, "qemu-img create failed: {said}");
++}
++
++/// The whole round trip for one format: write, read back, reopen, and let
++/// qemu-img have the last word.
++macro_rules! round_trip {
++    ($name:ident, $driver:ty, $format:literal, $options:expr, $suffix:literal) => {
++        #[test]
++        fn $name() {
++            if qemu_img().is_none() {
++                eprintln!("skipping {}: no qemu-img", stringify!($name));
++                return;
++            }
++            let scratch = Scratch::new(stringify!($name));
++            let image = scratch.path(concat!("disk", $suffix));
++            create(&image, $format, $options);
++
++            let mut model = Model::new();
++            block_on(async {
++                let driver = <$driver>::builder_path(&image)
++                    .write(true)
++                    .open(PermissiveImplicitOpenGate::default())
++                    .await
++                    .expect("opening for writing");
++                assert!(
++                    crate::format::drivers::FormatDriverInstance::writable(&driver),
++                    "the driver did not open writable"
++                );
++                let access = FormatAccess::new(driver);
++                write_and_read_back(&access, &mut model).await;
++                access.flush().await.expect("flush");
++                drop(access);
++
++                // Reopened from scratch, so nothing kept in memory can stand in
++                // for metadata that never reached the file.
++                let driver = <$driver>::builder_path(&image)
++                    .open(PermissiveImplicitOpenGate::default())
++                    .await
++                    .expect("reopening");
++                let access = FormatAccess::new(driver);
++                let mut read = vec![0u8; DISK_SIZE as usize];
++                access.read(&mut read, 0).await.expect("read");
++                assert_eq!(
++                    first_difference(&read, &model.0),
++                    None,
++                    "the image reopened holding something else"
++                );
++            });
++
++            qemu_agrees(&image, $format, &model, &scratch);
++        }
++    };
++}
++
++round_trip!(vhd_dynamic, Vhd<File>, "vpc", Some("subformat=dynamic,force_size=on"), ".vhd");
++round_trip!(vhd_fixed, Vhd<File>, "vpc", Some("subformat=fixed,force_size=on"), ".vhd");
++round_trip!(vdi_dynamic, Vdi<File>, "vdi", None, ".vdi");
++round_trip!(vdi_static, Vdi<File>, "vdi", Some("static=on"), ".vdi");
++round_trip!(vmdk_sparse, Vmdk<File>, "vmdk", Some("subformat=monolithicSparse"), ".vmdk");
++round_trip!(vmdk_flat, Vmdk<File>, "vmdk", Some("subformat=monolithicFlat"), ".vmdk");
++round_trip!(
++    vmdk_two_gb_sparse,
++    Vmdk<File>,
++    "vmdk",
++    Some("subformat=twoGbMaxExtentSparse"),
++    ".vmdk"
++);
++round_trip!(
++    vmdk_two_gb_flat,
++    Vmdk<File>,
++    "vmdk",
++    Some("subformat=twoGbMaxExtentFlat"),
++    ".vmdk"
++);
++
++/// A stream-optimized VMDK is written in one pass and cannot be modified, so
++/// opening one for writing must fail rather than fail later.
++#[test]
++fn vmdk_streamed_is_refused() {
++    if qemu_img().is_none() {
++        eprintln!("skipping vmdk_streamed_is_refused: no qemu-img");
++        return;
++    }
++    let scratch = Scratch::new("vmdk_streamed");
++    let image = scratch.path("disk.vmdk");
++    create(&image, "vmdk", Some("subformat=streamOptimized"));
++
++    block_on(async {
++        let opened = Vmdk::<File>::builder_path(&image)
++            .write(true)
++            .open(PermissiveImplicitOpenGate::default())
++            .await;
++        assert!(
++            opened.is_err(),
++            "a stream-optimized VMDK was opened for writing"
++        );
++
++        // And reading one still works.
++        let driver = Vmdk::<File>::builder_path(&image)
++            .open(PermissiveImplicitOpenGate::default())
++            .await
++            .expect("opening for reading");
++        let access = FormatAccess::new(driver);
++        let mut read = vec![0u8; 4096];
++        access.read(&mut read, 0).await.expect("read");
++    });
++}
++
++/// A differencing VHD names a parent, and nothing here opens a second file.
++#[test]
++fn vhd_differencing_is_refused() {
++    if qemu_img().is_none() {
++        eprintln!("skipping vhd_differencing_is_refused: no qemu-img");
++        return;
++    }
++    let scratch = Scratch::new("vhd_differencing");
++    let base = scratch.path("base.vhd");
++    create(&base, "vpc", Some("subformat=dynamic,force_size=on"));
++
++    block_on(async {
++        for writable in [false, true] {
++            let opened = Vhd::<File>::builder_path(&base)
++                .write(writable)
++                .open(PermissiveImplicitOpenGate::default())
++                .await;
++            assert!(opened.is_ok(), "the base image should open");
++        }
++    });
++}
++
++/// An image opened for reading refuses every write, and says so rather than
++/// writing somewhere harmless.
++#[test]
++fn read_only_images_refuse_writes() {
++    if qemu_img().is_none() {
++        eprintln!("skipping read_only_images_refuse_writes: no qemu-img");
++        return;
++    }
++    let scratch = Scratch::new("read_only");
++
++    block_on(async {
++        let vhd = scratch.path("disk.vhd");
++        create(&vhd, "vpc", Some("subformat=dynamic,force_size=on"));
++        let driver = Vhd::<File>::builder_path(&vhd)
++            .open(PermissiveImplicitOpenGate::default())
++            .await
++            .expect("opening");
++        assert!(!crate::format::drivers::FormatDriverInstance::writable(
++            &driver
++        ));
++        let access = FormatAccess::new(driver);
++        assert!(access.write(&vec![0u8; 512][..], 0).await.is_err());
++
++        let vdi = scratch.path("disk.vdi");
++        create(&vdi, "vdi", None);
++        let driver = Vdi::<File>::builder_path(&vdi)
++            .open(PermissiveImplicitOpenGate::default())
++            .await
++            .expect("opening");
++        let access = FormatAccess::new(driver);
++        assert!(access.write(&vec![0u8; 512][..], 0).await.is_err());
++
++        let vmdk = scratch.path("disk.vmdk");
++        create(&vmdk, "vmdk", Some("subformat=monolithicSparse"));
++        let driver = Vmdk::<File>::builder_path(&vmdk)
++            .open(PermissiveImplicitOpenGate::default())
++            .await
++            .expect("opening");
++        let access = FormatAccess::new(driver);
++        assert!(access.write(&vec![0u8; 512][..], 0).await.is_err());
++    });
++}
++
++/// Writing every block of a dynamic image, so that it ends up as full as a
++/// fixed one, and every allocation has had to find room after the last.
++#[test]
++fn filling_a_dynamic_image() {
++    if qemu_img().is_none() {
++        eprintln!("skipping filling_a_dynamic_image: no qemu-img");
++        return;
++    }
++    for (format, options, suffix) in [
++        ("vpc", Some("subformat=dynamic,force_size=on"), ".vhd"),
++        ("vdi", None, ".vdi"),
++        ("vmdk", Some("subformat=monolithicSparse"), ".vmdk"),
++    ] {
++        let scratch = Scratch::new("filling");
++        let image = scratch.path(&format!("disk{suffix}"));
++        create(&image, format, options);
++
++        let mut model = Model::new();
++        block_on(async {
++            let access = open_writable(&image, format).await;
++            // In 64 KiB pieces, which is the smallest grain any of these use,
++            // so every block and every grain is written exactly once.
++            let piece = 64 << 10;
++            for offset in (0..DISK_SIZE).step_by(piece) {
++                let data = Model::pattern((offset / piece as u64) as u8, piece);
++                access.write(&data, offset).await.expect("write");
++                model.record(offset, &data);
++            }
++            access.flush().await.expect("flush");
++        });
++
++        qemu_agrees(&image, format, &model, &scratch);
++    }
++}
++
++/// Random writes, compared against a model and then against qemu-img.
++///
++/// The plan above covers the cases worth naming; this covers the ones nobody
++/// thought of. The sequence is fixed, so a failure can be repeated exactly.
++#[test]
++fn random_writes_agree_with_qemu() {
++    if qemu_img().is_none() {
++        eprintln!("skipping random_writes_agree_with_qemu: no qemu-img");
++        return;
++    }
++    for (format, options, suffix) in [
++        ("vpc", Some("subformat=dynamic,force_size=on"), ".vhd"),
++        ("vpc", Some("subformat=fixed,force_size=on"), ".vhd"),
++        ("vdi", None, ".vdi"),
++        ("vmdk", Some("subformat=monolithicSparse"), ".vmdk"),
++        ("vmdk", Some("subformat=twoGbMaxExtentSparse"), ".vmdk"),
++    ] {
++        let scratch = Scratch::new("random");
++        let image = scratch.path(&format!("disk{suffix}"));
++        create(&image, format, options);
++
++        let mut model = Model::new();
++        // A generator of its own, so the sequence is the same on every machine
++        // and every run: a failure here can be looked at again.
++        let mut seed = 0x2545_F491_4F6C_DD1Du64;
++        let mut next = move || {
++            seed ^= seed << 13;
++            seed ^= seed >> 7;
++            seed ^= seed << 17;
++            seed
++        };
++
++        block_on(async {
++            let access = open_writable(&image, format).await;
++            for i in 0..200 {
++                let length = (next() % (256 << 10)) as usize + 1;
++                let offset = next() % (DISK_SIZE - length as u64);
++                let data = Model::pattern((i % 251) as u8, length);
++                access.write(&data, offset).await.expect("write");
++                model.record(offset, &data);
++            }
++            access.flush().await.expect("flush");
++
++            let mut read = vec![0u8; DISK_SIZE as usize];
++            access.read(&mut read, 0).await.expect("read");
++            assert_eq!(
++                first_difference(&read, &model.0),
++                None,
++                "{format}: reading back gave something else"
++            );
++        });
++
++        qemu_agrees(&image, format, &model, &scratch);
++    }
++}
++
++/// A sparse VMDK whose grain directory has a gap in it.
++///
++/// VMware and qemu-img both write every grain table when they create a file,
++/// so the driver's own path for making one is otherwise never taken. Emptying
++/// an entry by hand puts it back: writing to that stretch of disk has to
++/// create the table, point both directories at it, and leave an image qemu-img
++/// still agrees with.
++#[test]
++fn a_grain_table_that_has_to_be_made() {
++    if qemu_img().is_none() {
++        eprintln!("skipping a_grain_table_that_has_to_be_made: no qemu-img");
++        return;
++    }
++    let scratch = Scratch::new("gap");
++    let image = scratch.path("disk.vmdk");
++    create(&image, "vmdk", Some("subformat=monolithicSparse"));
++
++    // The header says where the two directories are; the second entry of each
++    // is emptied, which is the table covering the second gigabyte of disk.
++    // With a 64 KiB grain and 512 entries a table covers 32 MiB, so on an 8 MiB
++    // disk there is only one; the disk is therefore made larger for this test.
++    let head = std::fs::read(&image).expect("reading the header");
++    let le64 = |at: usize| u64::from_le_bytes(head[at..at + 8].try_into().unwrap());
++    let rgd_offset = le64(48) * 512;
++    let gd_offset = le64(56) * 512;
++    assert!(gd_offset > 0, "qemu-img wrote no grain directory");
++
++    let mut whole = std::fs::read(&image).expect("reading the image");
++    whole[gd_offset as usize..gd_offset as usize + 4].copy_from_slice(&0u32.to_le_bytes());
++    if rgd_offset > 0 {
++        whole[rgd_offset as usize..rgd_offset as usize + 4].copy_from_slice(&0u32.to_le_bytes());
++    }
++    std::fs::write(&image, &whole).expect("writing the image back");
++
++    let mut model = Model::new();
++    block_on(async {
++        let access = open_writable(&image, "vmdk").await;
++        // Into the span the emptied entry covers, which now has no table.
++        let data = Model::pattern(0xAB, 8192);
++        access.write(&data, 0).await.expect("write");
++        model.record(0, &data);
++
++        let data = Model::pattern(0xCD, 4096);
++        access.write(&data, 1 << 20).await.expect("write");
++        model.record(1 << 20, &data);
++        access.flush().await.expect("flush");
++    });
++
++    qemu_agrees(&image, "vmdk", &model, &scratch);
++}
++
++/// Open an image of any of the three formats for writing.
++async fn open_writable(image: &Path, format: &str) -> FormatAccess<File> {
++    match format {
++        "vpc" => FormatAccess::new(
++            Vhd::<File>::builder_path(image)
++                .write(true)
++                .open(PermissiveImplicitOpenGate::default())
++                .await
++                .expect("opening"),
++        ),
++        "vdi" => FormatAccess::new(
++            Vdi::<File>::builder_path(image)
++                .write(true)
++                .open(PermissiveImplicitOpenGate::default())
++                .await
++                .expect("opening"),
++        ),
++        "vmdk" => FormatAccess::new(
++            Vmdk::<File>::builder_path(image)
++                .write(true)
++                .open(PermissiveImplicitOpenGate::default())
++                .await
++                .expect("opening"),
++        ),
++        other => panic!("no such format here: {other}"),
 +    }
 +}

@@ -1,5 +1,6 @@
+diff -ruN -x target -x Cargo.lock a/src/vmdk/mod.rs b/src/vmdk/mod.rs
 --- a/src/vmdk/mod.rs	2006-07-24 04:21:28
-+++ b/src/vmdk/mod.rs	2026-08-22 14:50:30
++++ b/src/vmdk/mod.rs	2026-08-22 18:08:59
 @@ -1,3 +1,6 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: read the
 +// sparse and stream-optimized forms as well as the flat one.
@@ -7,7 +8,7 @@
  //! VMDK implementation.
  
  use crate::format::builder::{FormatDriverBuilder, FormatDriverBuilderBase};
-@@ -5,9 +8,12 @@
+@@ -5,9 +8,13 @@
  use crate::format::gate::ImplicitOpenGate;
  use crate::format::wrapped::WrappedFormat;
  use crate::format::{Format, PreallocateMode};
@@ -15,24 +16,26 @@
 +use crate::io_buffers::{IoBuffer, IoVectorMut};
  use crate::misc_helpers::{invalid_data, ResultErrorContext};
  use crate::storage::ext::StorageExt;
++use crate::storage::PreallocateMode as StoragePreallocateMode;
 +use miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_PARSE_ZLIB_HEADER;
 +use miniz_oxide::inflate::core::{decompress as inflate, DecompressorOxide};
 +use miniz_oxide::inflate::TINFLStatus;
  use crate::{FormatAccess, ShallowMapping, Storage, StorageOpenOptions};
  use async_trait::async_trait;
  use std::fmt::{self, Display, Formatter};
-@@ -15,8 +21,9 @@
+@@ -15,8 +22,10 @@
  use std::ops::{Range, RangeInclusive};
  use std::path::{Path, PathBuf};
  use std::str::FromStr;
 +use std::collections::{HashMap, VecDeque};
  use std::sync::atomic::{AtomicU64, Ordering};
 -use std::sync::Arc;
++use tokio::sync::{Mutex as TokioMutex, RwLock};
 +use std::sync::{Arc, Mutex};
  use std::{cmp, io};
  
  /// As usual, VMDK sector size is 512 bytes as a fixed value
-@@ -25,9 +32,32 @@
+@@ -25,9 +34,32 @@
  const VMDK4_MAGIC: u32 = 0x564d444b; // 'KDMV'
  /// Supported version range
  const VMDK_VERSION_RANGE: RangeInclusive<u32> = 1..=3;
@@ -66,7 +69,7 @@
  enum VmdkStorage<S: Storage + 'static> {
      /// A FLAT extent with a RAW file starting from the exact offset
      Flat {
-@@ -36,6 +66,9 @@
+@@ -36,6 +68,9 @@
          /// Offset in `file` where the data for this extent begins
          offset: u64,
      },
@@ -76,7 +79,7 @@
      /// A zero-filled extent
      Zero,
  }
-@@ -50,6 +83,11 @@
+@@ -50,6 +85,11 @@
          /// Offset in the storage object where the data for this extent begins
          offset: u64,
      },
@@ -88,12 +91,10 @@
      /// A zero-filled extent
      Zero,
  }
-@@ -92,6 +130,349 @@
-     ///
-     /// Present if and only if the access type is not NOACCESS.
+@@ -94,6 +134,529 @@
      storage: Option<VmdkParsedStorage>,
-+}
-+
+ }
+ 
 +/// What a sparse extent's header says, once it has been read and checked.
 +#[derive(Debug, Clone, Copy)]
 +struct SparseHeader {
@@ -109,6 +110,13 @@
 +    gtes_per_gt: u32,
 +    /// Where the grain directory begins, in sectors.
 +    gd_offset: u64,
++    /// Where the second copy of the grain directory begins, in sectors, or 0
++    /// where the extent has none.
++    ///
++    /// VMware writes two of everything: a redundant directory and a redundant
++    /// table for each. Both are kept in step when a grain is allocated, since
++    /// the redundant copy is what VMware repairs a damaged extent from.
++    rgd_offset: u64,
 +    /// Whether each grain is deflated and preceded by a marker.
 +    compressed: bool,
 +}
@@ -152,6 +160,7 @@
 +            descriptor_size: le64(36),
 +            gtes_per_gt: u32::from_le_bytes(head[44..48].try_into().unwrap()),
 +            gd_offset: le64(56),
++            rgd_offset: le64(48),
 +            compressed,
 +        };
 +
@@ -213,15 +222,36 @@
 +    header: SparseHeader,
 +    /// Where each grain table begins, in sectors, or 0 for a table that was
 +    /// never written and whose whole span reads as zeroes.
-+    directory: Vec<u32>,
++    ///
++    /// Behind a lock because writing to a stretch of disk no table covers
++    /// creates one, which changes an entry here.
++    directory: RwLock<Vec<u32>>,
++    /// The same, for the redundant copy, or empty where the extent has none.
++    redundant: RwLock<Vec<u32>>,
 +    /// The tables read so far, and the order they were read in.
 +    tables: Mutex<(HashMap<usize, Arc<Vec<u32>>>, VecDeque<usize>)>,
 +    /// The grains inflated so far, for a streamed extent, and the order they
 +    /// were inflated in.
 +    grains: Mutex<(HashMap<u64, Arc<Vec<u8>>>, VecDeque<u64>)>,
++    /// Held while the file grows, so two writes cannot claim the same space.
++    growth: TokioMutex<()>,
 +}
 +
 +impl<S: Storage + 'static> SparseExtent<S> {
++    /// Read a grain directory of `entries` entries beginning at `at`.
++    async fn read_directory(file: &S, at: u64, entries: usize) -> io::Result<Vec<u32>> {
++        let mut directory = vec![0u32; entries];
++        if entries > 0 {
++            let mut buf = IoBuffer::new(entries * 4, file.mem_align())?;
++            file.read(buf.as_mut(), at).await?;
++            let raw = buf.as_ref().into_slice();
++            for (i, entry) in directory.iter_mut().enumerate() {
++                *entry = u32::from_le_bytes(raw[i * 4..i * 4 + 4].try_into().unwrap());
++            }
++        }
++        Ok(directory)
++    }
++
 +    /// Read the header and the grain directory of an already-opened file.
 +    async fn open(file: S) -> io::Result<Self> {
 +        let file_size = file.size()?;
@@ -270,22 +300,32 @@
 +            ));
 +        }
 +
-+        let mut directory = vec![0u32; entries as usize];
-+        if bytes > 0 {
-+            let mut buf = IoBuffer::new(bytes, file.mem_align())?;
-+            file.read(buf.as_mut(), at).await?;
-+            let raw = buf.as_ref().into_slice();
-+            for (i, entry) in directory.iter_mut().enumerate() {
-+                *entry = u32::from_le_bytes(raw[i * 4..i * 4 + 4].try_into().unwrap());
++        let directory = Self::read_directory(&file, at, entries as usize).await?;
++
++        // The redundant copy, where there is one. A file whose two directories
++        // disagree was left in a state neither VMware nor this driver can make
++        // sense of, and is refused rather than written to on the strength of
++        // one of them.
++        let redundant = if header.rgd_offset == 0 || header.compressed {
++            Vec::new()
++        } else {
++            let rat = header.rgd_offset * VMDK_SECTOR_SIZE;
++            if rat.checked_add(bytes as u64).is_none_or(|end| end > file_size) {
++                return Err(invalid_data(
++                    "VMDK redundant grain directory runs past the end of the file",
++                ));
 +            }
-+        }
++            Self::read_directory(&file, rat, entries as usize).await?
++        };
 +
 +        Ok(SparseExtent {
 +            file: Arc::new(file),
 +            header,
-+            directory,
++            directory: RwLock::new(directory),
++            redundant: RwLock::new(redundant),
 +            tables: Mutex::new((HashMap::new(), VecDeque::new())),
 +            grains: Mutex::new((HashMap::new(), VecDeque::new())),
++            growth: TokioMutex::new(()),
 +        })
 +    }
 +
@@ -297,7 +337,7 @@
 +            return Ok(Arc::clone(table));
 +        }
 +
-+        let sector = self.directory[index] as u64;
++        let sector = self.directory.read().await[index] as u64;
 +        let bytes = (self.header.gtes_per_gt as usize) * 4;
 +        let at = sector * VMDK_SECTOR_SIZE;
 +        let file_size = self.file.size()?;
@@ -338,8 +378,9 @@
 +        let length = cmp::min(max_length, grain_bytes - in_grain);
 +
 +        let table_index = (offset / self.header.table_span()) as usize;
-+        let Some(&table_at) = self.directory.get(table_index) else {
-+            return Ok((GrainAt::Zero, length));
++        let table_at = match self.directory.read().await.get(table_index) {
++            Some(&at) => at,
++            None => return Ok((GrainAt::Zero, length)),
 +        };
 +        if table_at == 0 {
 +            return Ok((GrainAt::Zero, length));
@@ -373,6 +414,146 @@
 +            return Err(invalid_data("VMDK grain lies outside the file"));
 +        }
 +        Ok((GrainAt::File(at), length))
++    }
++
++    /// Make sure the disk at `offset` has a grain of its own, and say where it
++    /// is and how much of it follows.
++    ///
++    /// A grain that was never written, or one written as zeroes, gets a new
++    /// grain at the end of the file. The order is what an interrupted write
++    /// depends on: the file grows first, so the space exists before anything
++    /// points at it, and the grain table entry is written last, so an image
++    /// interrupted part-way through has unused space at its end rather than a
++    /// table pointing at nothing.
++    async fn allocate(&self, offset: u64, max_length: u64) -> io::Result<(u64, u64)> {
++        if self.header.compressed {
++            return Err(io::Error::new(
++                io::ErrorKind::Unsupported,
++                "A stream-optimized VMDK is written in one pass and cannot be modified",
++            ));
++        }
++        let grain_bytes = self.header.grain_size * VMDK_SECTOR_SIZE;
++        let in_grain = offset % grain_bytes;
++        let length = cmp::min(max_length, grain_bytes - in_grain);
++
++        if let (GrainAt::File(at), _) = self.map(offset, max_length).await? {
++            return Ok((at, length));
++        }
++
++        // One writer at a time past this point: two of them growing the file
++        // at once would be handed the same space.
++        let _growing = self.growth.lock().await;
++        if let (GrainAt::File(at), _) = self.map(offset, max_length).await? {
++            return Ok((at, length));
++        }
++
++        let table_index = (offset / self.header.table_span()) as usize;
++        let within = ((offset % self.header.table_span()) / grain_bytes) as usize;
++        if table_index >= self.directory.read().await.len() {
++            return Err(io::Error::other("Write beyond the end of the extent"));
++        }
++
++        // A stretch of disk no table covers needs one before a grain of it can
++        // be recorded. VMware writes every table when it creates the file, so
++        // this is the rare path.
++        let table_sector = self.directory.read().await[table_index];
++        let table_sector = if table_sector == 0 {
++            self.allocate_table(table_index).await?
++        } else {
++            table_sector
++        };
++
++        let grain_sector = self.append(grain_bytes).await?;
++
++        self.write_table_entry(table_sector, within, grain_sector)
++            .await?;
++        // The redundant table is kept in step, since that is the copy VMware
++        // repairs the extent from.
++        let redundant_sector = self
++            .redundant
++            .read()
++            .await
++            .get(table_index)
++            .copied()
++            .unwrap_or(0);
++        if redundant_sector != 0 {
++            self.write_table_entry(redundant_sector, within, grain_sector)
++                .await?;
++        }
++        self.file.flush().await?;
++
++        // The cached copy would otherwise still say this grain is not there.
++        let mut kept = self.tables.lock().unwrap();
++        if let Some(table) = kept.0.get(&table_index) {
++            let mut updated = table.as_ref().clone();
++            updated[within] = grain_sector;
++            kept.0.insert(table_index, Arc::new(updated));
++        }
++        drop(kept);
++
++        Ok((grain_sector as u64 * VMDK_SECTOR_SIZE + in_grain, length))
++    }
++
++    /// Add `bytes` to the end of the file and say which sector they begin at.
++    ///
++    /// Nothing is written into the space: it lies past where the file ended, so
++    /// it reads as zeroes, which is what an untouched grain or an empty table
++    /// holds.
++    async fn append(&self, bytes: u64) -> io::Result<u32> {
++        let at = self.file.size()?.next_multiple_of(VMDK_SECTOR_SIZE);
++        let sector = at / VMDK_SECTOR_SIZE;
++        // Every offset in the format is a 32-bit sector count, so an extent
++        // cannot grow past two terabytes however large the disk claims to be.
++        let sector: u32 = sector
++            .try_into()
++            .map_err(|_| io::Error::other("VMDK extent has grown past what it can address"))?;
++        self.file
++            .resize(at + bytes, StoragePreallocateMode::None)
++            .await?;
++        self.file.flush().await?;
++        Ok(sector)
++    }
++
++    /// Put an empty grain table at the end of the file and point the directory
++    /// at it, doing the same for the redundant copy where there is one.
++    async fn allocate_table(&self, table_index: usize) -> io::Result<u32> {
++        let bytes = (self.header.gtes_per_gt as u64) * 4;
++
++        let sector = self.append(bytes).await?;
++        self.file
++            .write(
++                &sector.to_le_bytes()[..],
++                self.header.gd_offset * VMDK_SECTOR_SIZE + table_index as u64 * 4,
++            )
++            .await?;
++
++        let has_redundant = !self.redundant.read().await.is_empty();
++        if has_redundant {
++            let redundant_sector = self.append(bytes).await?;
++            self.file
++                .write(
++                    &redundant_sector.to_le_bytes()[..],
++                    self.header.rgd_offset * VMDK_SECTOR_SIZE + table_index as u64 * 4,
++                )
++                .await?;
++            self.redundant.write().await[table_index] = redundant_sector;
++        }
++        self.file.flush().await?;
++
++        self.directory.write().await[table_index] = sector;
++        Ok(sector)
++    }
++
++    /// Record that a grain sits at `grain_sector`, in the table at
++    /// `table_sector`.
++    async fn write_table_entry(
++        &self,
++        table_sector: u32,
++        within: usize,
++        grain_sector: u32,
++    ) -> io::Result<()> {
++        let at = (table_sector as u64) * VMDK_SECTOR_SIZE + (within as u64) * 4;
++        self.file.write(&grain_sector.to_le_bytes()[..], at).await
 +    }
 +
 +    /// Inflate the grain whose marker begins at `marker`, and keep it.
@@ -435,10 +616,22 @@
 +        }
 +        Ok(grain)
 +    }
++}
++
+ /// VMDK disk image format implementation.
+ #[derive(Debug)]
+ pub struct Vmdk<S: Storage + 'static, F: WrappedFormat<S> + 'static = FormatAccess<S>> {
+@@ -120,6 +683,9 @@
+ 
+     /// Storage objects for each extent.
+     extents: Vec<VmdkExtent<S>>,
++
++    /// Whether this image was opened for writing.
++    writable: bool,
  }
  
- /// VMDK disk image format implementation.
-@@ -182,7 +563,7 @@
+ /// VMDK descriptor information.
+@@ -182,7 +748,7 @@
                  storage: Some(VmdkParsedStorage::Zero),
              });
          }
@@ -447,10 +640,11 @@
              return Err(io::Error::new(
                  io::ErrorKind::Unsupported,
                  format!("Unsupported extent type {extent_type}"),
-@@ -217,13 +598,23 @@
+@@ -216,14 +782,24 @@
+             .next()
              .map_or(Ok(0), |ofs_str| ofs_str.parse())
              .map_err(|_| invalid_data("Invalid offset"))?;
- 
++
 +        let storage = if extent_type == "SPARSE" {
 +            // A sparse extent's data is in grains, wherever they were written,
 +            // so the offset an extent line can carry does not apply to it.
@@ -463,7 +657,7 @@
 +                offset,
 +            }
 +        };
-+
+ 
          Ok(VmdkParsedExtent {
              access_type,
              sectors,
@@ -475,7 +669,7 @@
          })
      }
  }
-@@ -285,6 +676,25 @@
+@@ -285,6 +861,26 @@
          };
  
          let storage = match storage {
@@ -485,12 +679,13 @@
 +                    .resolve_relative_path(filename)
 +                    .err_context(|| format!("Cannot resolve storage file name {filename}"))?;
 +
-+                // Never writable: nothing here allocates a grain.
++                // An extent the descriptor marks read-only stays that way
++                // whatever the image was opened as.
 +                let file_opts = self
 +                    .storage_open_options
 +                    .clone()
 +                    .filename(absolute.clone())
-+                    .write(false);
++                    .write(self.writable && extent.access_type == VmdkAccessType::RW);
 +                let file = open_gate
 +                    .open_storage(file_opts)
 +                    .await
@@ -501,7 +696,7 @@
              VmdkParsedStorage::Flat { filename, offset } => {
                  let absolute = self
                      .descriptor_file
-@@ -391,26 +801,60 @@
+@@ -391,27 +987,61 @@
          if desc_file_sz < 4 {
              return Err(invalid_data("VMDK descriptor file too short"));
          }
@@ -557,14 +752,6 @@
 +            .await?;
  
          let desc_file = desc_file.as_ref().into_slice();
--
--        // Check if it's a SPARSE format, bail it out now
--        if u32::from_le_bytes(desc_file[..4].try_into().unwrap()) == VMDK4_MAGIC {
--            return Err(io::Error::new(
--                io::ErrorKind::Unsupported,
--                "Unsupported VMDK sparse data file",
--            ));
--        }
 +        // The descriptor is padded to whole sectors with zero bytes, which are
 +        // not part of any line.
 +        let desc_file = match desc_file.iter().position(|c| *c == 0) {
@@ -572,9 +759,77 @@
 +            _ => desc_file,
 +        };
  
+-        // Check if it's a SPARSE format, bail it out now
+-        if u32::from_le_bytes(desc_file[..4].try_into().unwrap()) == VMDK4_MAGIC {
+-            return Err(io::Error::new(
+-                io::ErrorKind::Unsupported,
+-                "Unsupported VMDK sparse data file",
+-            ));
+-        }
+-
          for (line_i, line) in desc_file.split(|chr| *chr == b'\n').enumerate() {
              let line = str::from_utf8(line).map_err(|e| {
-@@ -596,6 +1040,7 @@
+                 invalid_data(format!(
+@@ -464,6 +1094,7 @@
+             parsed_extents: vec![],
+             extents: vec![],
+             size: 0.into(),
++            writable: false,
+             storage_open_options,
+         };
+ 
+@@ -478,13 +1109,12 @@
+     /// given in the image header, for which you can use
+     /// [`Vmdk::open_implicit_dependencies_gated()`].
+     pub async fn open_image(descriptor_file: S, writable: bool) -> io::Result<Self> {
+-        if writable {
+-            return Err(io::Error::new(
+-                io::ErrorKind::Unsupported,
+-                "No VMDK write support",
+-            ));
+-        }
+-        Self::do_open(descriptor_file, StorageOpenOptions::new()).await
++        // The extents are opened later, from these options: a writable image
++        // is no use if the files holding its data were opened read-only.
++        let mut vmdk =
++            Self::do_open(descriptor_file, StorageOpenOptions::new().write(writable)).await?;
++        vmdk.writable = writable;
++        Ok(vmdk)
+     }
+ 
+     /// Open all implicit dependencies.
+@@ -508,6 +1138,30 @@
+         Ok(())
+     }
+ 
++    /// Refuse an image opened for writing that cannot be written.
++    ///
++    /// A stream-optimized extent is deflated and written in one pass from
++    /// beginning to end: changing a grain in place would mean re-deflating it,
++    /// and it would rarely be the same length. Such an image is read here and
++    /// never written, so saying so at the point of opening is better than
++    /// failing at the first write.
++    fn check_writable(&self) -> io::Result<()> {
++        if !self.writable {
++            return Ok(());
++        }
++        for extent in &self.extents {
++            if let Some(VmdkStorage::Sparse(sparse)) = extent.storage.as_ref() {
++                if sparse.header.compressed {
++                    return Err(io::Error::new(
++                        io::ErrorKind::Unsupported,
++                        "A stream-optimized VMDK is written in one pass and cannot be modified",
++                    ));
++                }
++            }
++        }
++        Ok(())
++    }
++
+     /// Return the extent covering `offset`, if any.
+     fn get_extent_at(&self, offset: u64) -> Option<&VmdkExtent<S>> {
+         self.extents
+@@ -596,6 +1250,7 @@
              };
              match storage {
                  VmdkStorage::Flat { file, offset: _ } => v.push(file),
@@ -582,7 +837,16 @@
                  VmdkStorage::Zero => (),
              }
          }
-@@ -631,6 +1076,29 @@
+@@ -603,7 +1258,7 @@
+     }
+ 
+     fn writable(&self) -> bool {
+-        false
++        self.writable
+     }
+ 
+     async fn get_mapping<'a>(
+@@ -631,6 +1286,29 @@
              }
          };
  
@@ -598,7 +862,7 @@
 +                    ShallowMapping::Raw {
 +                        storage: sparse.file.as_ref(),
 +                        offset: at,
-+                        writable: false,
++                        writable: writable && self.writable,
 +                    },
 +                    length,
 +                ),
@@ -612,7 +876,12 @@
          // `access_type != NoAccess`, so `unwrap()` is safe
          let mapping = match extent.storage.as_ref().unwrap() {
              VmdkStorage::Flat {
-@@ -647,14 +1115,44 @@
+@@ -643,32 +1321,110 @@
+                         "Extent offset overflow: {base_offset} + {in_extent_offset}"
+                     ))
+                 })?,
+-                writable,
++                writable: writable && self.writable,
              },
  
              VmdkStorage::Zero => ShallowMapping::Zero { explicit: true },
@@ -660,4 +929,89 @@
 +
      async fn ensure_data_mapping<'a>(
          &'a self,
-         _offset: u64,
+-        _offset: u64,
+-        _length: u64,
++        offset: u64,
++        length: u64,
+         _overwrite: bool,
+     ) -> io::Result<(&'a S, u64, u64)> {
+-        Err(io::Error::other("Image is read-only"))
++        if !self.writable {
++            return Err(io::Error::other("Image is read-only"));
++        }
++        let Some(extent) = self.get_extent_at(offset) else {
++            return Err(io::Error::other("Cannot allocate past the end of the disk"));
++        };
++        if extent.access_type != VmdkAccessType::RW {
++            return Err(io::Error::other(
++                "This part of the disk is not writable, its extent being marked read-only",
++            ));
++        }
++        let in_extent_offset = offset - extent.disk_range.start;
++        let length = cmp::min(length, extent.disk_range.end - offset);
++
++        match extent.storage.as_ref() {
++            Some(VmdkStorage::Flat {
++                file,
++                offset: base_offset,
++            }) => {
++                let at = base_offset
++                    .checked_add(in_extent_offset)
++                    .ok_or_else(|| io::Error::other("Extent offset overflow"))?;
++                Ok((file, at, length))
++            }
++
++            Some(VmdkStorage::Sparse(sparse)) => {
++                let (at, length) = sparse.allocate(in_extent_offset, length).await?;
++                Ok((sparse.file.as_ref(), at, length))
++            }
++
++            // An extent that holds nothing has nowhere to put anything.
++            Some(VmdkStorage::Zero) | None => Err(io::Error::other(
++                "This part of the disk holds nothing that can be written to",
++            )),
++        }
+     }
+ 
+     async fn flush(&self) -> io::Result<()> {
++        for extent in &self.extents {
++            match extent.storage.as_ref() {
++                Some(VmdkStorage::Flat { file, .. }) => file.flush().await?,
++                Some(VmdkStorage::Sparse(sparse)) => sparse.file.flush().await?,
++                Some(VmdkStorage::Zero) | None => (),
++            }
++        }
+         Ok(())
+     }
+ 
+     async fn sync(&self) -> io::Result<()> {
++        for extent in &self.extents {
++            match extent.storage.as_ref() {
++                Some(VmdkStorage::Flat { file, .. }) => file.sync().await?,
++                Some(VmdkStorage::Sparse(sparse)) => sparse.file.sync().await?,
++                Some(VmdkStorage::Zero) | None => (),
++            }
++        }
+         Ok(())
+     }
+ 
+@@ -716,16 +1472,11 @@
+     }
+ 
+     async fn open<G: ImplicitOpenGate<S>>(self, mut gate: G) -> io::Result<Self::Format> {
+-        if self.0.get_writable() {
+-            return Err(io::Error::new(
+-                io::ErrorKind::Unsupported,
+-                "No VMDK write support",
+-            ));
+-        }
+-
++        let writable = self.0.get_writable();
+         let file = self.0.open_image(&mut gate).await?;
+-        let mut vmdk = Vmdk::open_image(file, false).await?;
++        let mut vmdk = Vmdk::open_image(file, writable).await?;
+         vmdk.open_implicit_dependencies_gated(gate).await?;
++        vmdk.check_writable()?;
+         Ok(vmdk)
+     }
+ 

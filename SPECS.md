@@ -45,25 +45,30 @@ engine.
 
 ### Disk image formats
 
-| Format | Opened | How |
-| --- | --- | --- |
-| Raw (`.img`, `.dmg`, and any unrecognised extension) | Yes | Attached by macOS, then mounted in the guest |
-| qcow2 | Yes | Read by the engine's image layer; nothing is attached |
-| VMDK, flat (`monolithicFlat`) | Yes | A text descriptor beside a raw extent |
-| VMDK, sparse (`monolithicSparse`) | Yes | Grain directory, grain tables, grains |
-| VMDK, stream-optimized | Yes | Deflated grains, each behind a marker. This is what an OVA carries |
-| VDI | Yes | VirtualBox's format |
-| VHD, fixed | Yes | The raw disk with a 512-byte footer after it |
-| VHD, dynamic | Yes | Blocks listed by an allocation table |
-| VHDX | Yes | Header pair, region table, metadata region, allocation table |
-| VMDK snapshot chains | No | Names a parent file. See §3 |
-| VHD, differencing | No | Names a parent file. See §3 |
-| VHDX with a parent | No | Names a parent file. See §3 |
-| VHDX with a log that is not empty | No | See §6 |
-| Sparse bundles, encrypted DMG | No | macOS opens both natively. See §5 |
+| Format | Read | Written | How |
+| --- | --- | --- | --- |
+| Raw (`.img`, `.dmg`, and any unrecognised extension) | Yes | Yes | Attached by macOS, then mounted in the guest |
+| qcow2 | Yes | Yes | Read and written by imago's own qcow2 driver |
+| VMDK, flat (`monolithicFlat`, `twoGbMaxExtentFlat`) | Yes | Yes | A text descriptor beside one or more raw extents |
+| VMDK, sparse (`monolithicSparse`, `twoGbMaxExtentSparse`) | Yes | Yes | Grain directory, grain tables, grains |
+| VMDK, stream-optimized | Yes | No | Deflated grains, each behind a marker. This is what an OVA carries; it is written in one pass and cannot be changed in place |
+| VDI, dynamic and fixed | Yes | Yes | VirtualBox's format |
+| VHD, fixed | Yes | Yes | The raw disk with a 512-byte footer after it |
+| VHD, dynamic | Yes | Yes | Blocks listed by an allocation table |
+| VHDX | Yes | **No** | Header pair, region table, metadata region, allocation table. See §6 |
+| VMDK snapshot chains | No | | Names a parent file. See §3 |
+| VHD, differencing | No | | Names a parent file. See §3 |
+| VHDX with a parent | No | | Names a parent file. See §3 |
+| VHDX with a log that is not empty | No | | See §6 |
+| Sparse bundles, encrypted DMG | No | | macOS opens both natively. See §5 |
 
 The VMDK, VDI, VHD and VHDX drivers were written here for imago, the crate that
 reads image formats for the engine. See `patches/README.md`.
+
+An image that cannot be written is opened read-only, and the guest is told the
+device is read-only, so the mount fails at once rather than part-way through a
+write. The application then mounts it read-only instead, which is what the
+`read-only` stage marker in §2 reports.
 
 ---
 
@@ -172,13 +177,28 @@ The format itself is read. An OVA is a tar archive containing a descriptor and
 one of these images, and Lukotta does not extract archives. Extract the `.vmdk`
 and open that.
 
+### Writing to a VHDX
+
+VHDX is read and never written. The format requires that every change to its
+allocation table or its metadata be written into its log first, so that a writer
+interrupted part-way leaves a file the next reader can repair; a writer must
+also stamp a new write identifier into one of the two headers, each carrying a
+sequence number and a CRC-32C. A writer that skips the log leaves no trace that
+anything was interrupted, which is the one failure that cannot be detected
+afterwards. Writing the log is therefore a precondition for writing a VHDX at
+all, and it is not written here.
+
+The consequence is deliberate and visible: a VHDX opens read-only, the guest is
+told the device is read-only, and the application says so before anything is
+mounted rather than after a write has failed.
+
 ### VHDX with a log that is not empty
 
 An image that was not shut down cleanly keeps its most recent state in its log.
-Replaying that log is a write, and Lukotta does not write to a disk image.
-Reading the file without replaying it returns data older than the disk last
-held. The image is therefore refused by name, and the message states the remedy:
-open it once in the virtual machine it belongs to, which empties the log.
+Replaying that log is a write, which the paragraph above rules out. Reading the
+file without replaying it returns data older than the disk last held. The image
+is therefore refused by name, and the message states the remedy: open it once in
+the virtual machine it belongs to, which empties the log.
 
 This could be done without writing to the file. imago's `readv_special()` allows
 a driver to serve bytes itself, so a log could be replayed into memory and
@@ -189,37 +209,78 @@ other.
 
 ### qemu in the guest
 
-The guest kernel has no `nbd` module, the FUSE export path is absent, and
-`nbdfuse` is not packaged for Alpine. Each was tested on the shipped guest. This
-is why the format drivers are in imago.
+Borrowing QEMU's block layer, which has written all of these formats for many
+years, was measured rather than assumed:
+
+- `CONFIG_BLK_DEV_NBD` is not set in the kernel libkrunfw builds, and it is not
+  available as a module either, so `qemu-nbd` has nothing to attach to. Turning
+  it on means building and shipping a kernel of our own.
+- `CONFIG_FUSE_FS=y` and `CONFIG_BLK_DEV_LOOP=y`, so a FUSE export could be
+  attached with `losetup`. Alpine packages `qemu-storage-daemon` in its
+  `qemu-img` subpackage, but builds it without `fuse3`, so the export type is
+  absent. Using it means building QEMU's tools for aarch64-musl and shipping
+  them in the guest, and exposing the image file to the guest, which never sees
+  it today.
+
+Both remain open. Neither is needed for the formats above, and `qemu-img` is
+used as the oracle the drivers are tested against instead.
 
 ---
 
 ## 6. Where the drivers came from
 
-imago read raw, qcow2 and flat VMDK. Everything else in the table above was
-added as read-only drivers in `patches/imago-*.patch`:
+imago read raw, qcow2 and flat VMDK, and wrote only qcow2 and raw. Everything
+else in the table above was added in `patches/imago-*.patch`:
 
-| Driver | Shape | Size |
+| Driver | Shape | Written |
 | --- | --- | --- |
-| VDI | Header, then a flat block map of 32-bit indices | ~380 lines |
-| VHD | Trailing footer; blocks listed by an allocation table | ~400 lines |
-| VHDX | Header pair, region table, metadata region, allocation table | ~430 lines |
-| VMDK, sparse and streamed | Grain directory, grain tables, deflated grains | ~470 lines |
+| VDI | Header, then a flat block map of 32-bit indices | Yes |
+| VHD | Trailing footer; blocks listed by an allocation table | Yes |
+| VMDK, sparse | Grain directory, grain tables, grains | Yes |
+| VMDK, streamed | The same, deflated behind markers | No, written in one pass |
+| VHDX | Header pair, region table, metadata region, allocation table | No, see §5 |
 
-Every driver is read-only and validates each value before relying on it: block
-sizes must be powers of two, maps are bounded to a size a real disk could
-require, and every entry must lie within the file. A damaged or hostile image
-cannot direct a driver to read an unrelated part of the file and present it as
-the disk.
+Every driver validates each value before relying on it: block sizes must be
+powers of two, maps are bounded to a size a real disk could require, and every
+entry must lie within the file. A damaged or hostile image cannot direct a
+driver to read an unrelated part of the file and present it as the disk.
 
-Each was verified in both directions, since a reader and a writer written by the
-same author agree with each other and with nothing else. Images written by
+### How a write finds room
+
+Each format grows the same way, and the order of the writes is what an
+interrupted one depends on.
+
+| Format | Where a new block goes | Linked in by |
+| --- | --- | --- |
+| VHD, dynamic | Over the trailing footer, which moves to the new end | The allocation table entry, written last |
+| VDI | After the last block in the file | The count of allocated blocks, then the map entry |
+| VMDK, sparse | After the end of the extent | The grain table entry, and the redundant table beside it |
+
+In each case the space exists before anything points at it, so a write
+interrupted part-way leaves an image holding what it held before, with unused
+space at the end. Nothing is written into the new space: it lies past where the
+file ended, so it already reads as zeroes. A fixed VHD, a static VDI and a flat
+VMDK need none of this, every byte of the disk already being in the file.
+
+### How it is checked
+
+`qemu-img` is the oracle. QEMU has written these formats for many years, so
+agreeing with it is the strongest statement these drivers can make. The tests in
+`src/write_tests.rs`, carried by the imago patch, create an image with
+`qemu-img`, write to it through the driver, and then have `qemu-img` check the
+image and convert it to raw, comparing every byte against a model kept beside
+the writes. They cover the first block, a write crossing two, one aligned to
+nothing, a second write over ground already allocated, several blocks at once,
+the last byte of the disk, filling an image completely, a grain directory with a
+gap in it, and two hundred randomly placed writes per format from a fixed seed.
+
+Reading was verified the same way and in both directions: images written by
 `qemu-img` read back byte for byte identical to the raw disk they were made
 from, and `qemu-img compare` reads the images the scripts under `scripts/`
-produce and finds them identical to the same disk. Every format then mounts and
-ejects through the application in the end-to-end run, which uses the images
-those scripts write, so the test suite requires neither qemu nor VirtualBox.
+produce and finds them identical. Every format then mounts and ejects through
+the application in the end-to-end run, which uses the images those scripts
+write, so the application's own test suite requires neither qemu nor
+VirtualBox.
 
 ---
 

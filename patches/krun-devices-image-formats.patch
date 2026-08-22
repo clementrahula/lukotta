@@ -1,6 +1,6 @@
 diff -ruN -x target -x Cargo.lock a/src/virtio/block/device.rs b/src/virtio/block/device.rs
 --- a/src/virtio/block/device.rs	2006-07-24 04:21:28
-+++ b/src/virtio/block/device.rs	2026-08-22 11:40:56
++++ b/src/virtio/block/device.rs	2026-08-22 18:12:36
 @@ -1,3 +1,4 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: opened those image types with the matching imago driver.
  // Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
@@ -17,30 +17,84 @@ diff -ruN -x target -x Cargo.lock a/src/virtio/block/device.rs b/src/virtio/bloc
  };
  use log::{error, warn};
  use utils::eventfd::{EventFd, EFD_NONBLOCK};
-@@ -278,6 +279,20 @@
+@@ -252,6 +253,9 @@
+ 
+         #[cfg(target_os = "macos")]
+         let file_opts = file_opts.relaxed_sync(sync_mode == SyncMode::Relaxed);
++        // Kept for the one format that may have to be opened a second time,
++        // read-only, once it turns out it cannot be written.
++        let read_only_opts = file_opts.clone().write(false);
+         let file = ImagoFile::open_sync(file_opts)?;
+         let discard_alignment = file.discard_align();
+ 
+@@ -273,14 +277,62 @@
+                 SyncFormatAccess::new(raw)?
+             }
+             ImageType::Vmdk => {
+-                let vmdk = Vmdk::<Box<dyn DynStorage>, Arc<imago::FormatAccess<_>>>::builder(
++                // A stream-optimized VMDK is deflated and written in one pass,
++                // so it can be read and not changed. Asked to open one for
++                // writing, imago says so rather than pretending; the image is
++                // then opened again read-only, and the guest is told the device
++                // is read-only below.
++                let opened = Vmdk::<Box<dyn DynStorage>, Arc<imago::FormatAccess<_>>>::builder(
+                     Box::new(file),
                  )
-                 .open_sync(PermissiveImplicitOpenGate::default())?;
+-                .open_sync(PermissiveImplicitOpenGate::default())?;
++                .write(!is_disk_read_only)
++                .open_sync(PermissiveImplicitOpenGate::default());
++                let vmdk = match opened {
++                    Ok(vmdk) => vmdk,
++                    Err(e) if e.kind() == std::io::ErrorKind::Unsupported && !is_disk_read_only => {
++                        let file = ImagoFile::open_sync(read_only_opts)?;
++                        Vmdk::<Box<dyn DynStorage>, Arc<imago::FormatAccess<_>>>::builder(
++                            Box::new(file),
++                        )
++                        .open_sync(PermissiveImplicitOpenGate::default())?
++                    }
++                    Err(e) => return Err(e),
++                };
                  SyncFormatAccess::new(vmdk)?
 +            }
 +            // A VDI and a VHD each hold all of their own data, so neither can
-+            // name another file to open, and neither is ever writable here.
++            // name another file to open.
 +            ImageType::Vdi => {
-+                let vdi = Vdi::<Box<dyn DynStorage>>::open_image_sync(Box::new(file), false)?;
++                let vdi = Vdi::<Box<dyn DynStorage>>::open_image_sync(
++                    Box::new(file),
++                    !is_disk_read_only,
++                )?;
 +                SyncFormatAccess::new(vdi)?
-+            }
+             }
 +            ImageType::Vhd => {
-+                let vhd = Vhd::<Box<dyn DynStorage>>::open_image_sync(Box::new(file), false)?;
++                let vhd = Vhd::<Box<dyn DynStorage>>::open_image_sync(
++                    Box::new(file),
++                    !is_disk_read_only,
++                )?;
 +                SyncFormatAccess::new(vhd)?
 +            }
++            // Read-only, always. Changing a VHDX means journalling the change
++            // in its log first, which this driver does not write, and an image
++            // whose log is not empty is refused rather than replayed.
 +            ImageType::Vhdx => {
 +                let vhdx = Vhdx::<Box<dyn DynStorage>>::open_image_sync(Box::new(file), false)?;
 +                SyncFormatAccess::new(vhdx)?
-             }
++            }
          };
  
++        // What the driver will actually accept, which is not always what was
++        // asked for: a VHDX is never writable, nor is a stream-optimized VMDK
++        // or an extent the descriptor marks read-only. Telling the guest a
++        // device is writable when every write will be refused turns a clean
++        // failure at mount time into an I/O error somewhere inside a
++        // filesystem driver, halfway through whatever it was doing.
++        let is_disk_read_only = is_disk_read_only || !disk_image.inner().writable();
++
+         let disk_image = Arc::new(Mutex::new(disk_image));
+ 
+         let disk_properties =
 diff -ruN -x target -x Cargo.lock a/src/virtio/block/mod.rs b/src/virtio/block/mod.rs
 --- a/src/virtio/block/mod.rs	2006-07-24 04:21:28
-+++ b/src/virtio/block/mod.rs	2026-08-22 11:40:56
++++ b/src/virtio/block/mod.rs	2026-08-22 18:11:27
 @@ -1,3 +1,4 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: added the Vdi, Vhd and Vhdx image types.
  // Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.

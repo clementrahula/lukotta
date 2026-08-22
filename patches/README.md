@@ -78,8 +78,9 @@ constructs one of each and opens it.
 
 ## imago-vdi-vhd-and-vhdx.patch
 
-**Purpose.** Adds three read-only drivers to imago, the crate that reads image
-formats for the engine, and registers them in `Format`.
+**Purpose.** Adds three drivers to imago, the crate that reads image formats for
+the engine, and registers them in `Format`. VDI and VHD are read and written;
+VHDX is read only, for the reason given below.
 
 **VDI.** VirtualBox's format: a header, a map holding one 32-bit entry for each
 block of the virtual disk, and the blocks in the order they were written. Two
@@ -104,13 +105,43 @@ another disk. One whose log is not empty was not closed cleanly: its most recent
 state is in that log, replaying the log requires writing, and disregarding it
 returns data older than the disk last held.
 
+**Why VHDX is not written.** The format requires every change to the allocation
+table or the metadata to be written into the log first, so that a writer
+interrupted part-way leaves a file the next reader can repair, and requires a
+new write identifier in one of the two headers, each carrying a sequence number
+and a CRC-32C. A writer that skips the log leaves no trace that anything was
+interrupted, which is the one failure nobody can detect afterwards. The log is
+therefore a precondition for writing a VHDX at all, and it is not written here.
+The driver reports itself as not writable, and the device the guest is given is
+marked read-only, so a VHDX fails to mount writable rather than failing during
+one.
+
+**Writing VDI and VHD.** A fixed VHD and a static VDI hold every byte of the
+disk already, so a write goes where the data is. The growing forms allocate:
+a dynamic VHD puts a new block over the trailing footer and moves the footer to
+the new end of the file; a VDI puts a new block after the last one. In both the
+space is made before anything points at it, and the table that points at it is
+written last, so an interrupted write leaves the image it was with unused space
+at the end. A VDI's count of allocated blocks is written before its map entry,
+so a block is never handed out twice.
+
 Each driver validates every value it reads before relying on it: block sizes are
 required to be powers of two, maps are bounded to a size any real disk could
 require, and every entry must lie within the file. A damaged or hostile image
 therefore cannot direct a driver to read an unrelated part of the file and
 present it as the disk.
 
-**Verification.** Reference images written by `qemu-img` in each of the three
+**Verification.** `src/write_tests.rs`, added by this patch, creates images with
+`qemu-img`, writes to them through the drivers, and then has `qemu-img` check
+each image and convert it to raw, comparing every byte against a model kept
+beside the writes. The cases are the first block, a write crossing two, one
+aligned to nothing, a second write over ground already allocated, several blocks
+at once, the last byte of the disk, filling an image completely, and two hundred
+randomly placed writes per format from a fixed seed. Each image is reopened from
+scratch before it is checked, so metadata that never reached the file cannot be
+covered by what is still in memory.
+
+Reference images written by `qemu-img` in each of the three
 formats read back byte for byte identical to the raw disk from which they were
 made, and all three mount and eject through the application. `qemu-img compare`
 reads the images produced by `scripts/make-vdi.py`, `scripts/make-vhd.py` and
@@ -157,9 +188,21 @@ header then carries a placeholder and a copy of the header at the end of the
 file carries the true offset. Both arrangements are read: `qemu-img` records the
 offset in the header, and VMware records the placeholder.
 
+**Writing.** A sparse extent grows by putting a new grain after the end of the
+extent and recording it in the grain table, and in the redundant grain table
+beside it where the extent has one, that copy being what VMware repairs an
+extent from. A stretch of disk no table covers gets a table first, in both
+directories. The stream-optimized form is not written: every grain in it is
+deflated, so changing one in place would rarely produce the same number of
+bytes. Opening one for writing fails by name, and the device the guest is given
+is marked read-only.
+
 **Verification.** A sparse VMDK written by `qemu-img` reads back byte for byte
 identical to the raw disk from which it was made and mounts through the
-application. The image produced by `scripts/make-vmdk-sparse.py` is read by
+application. The write tests described above cover `monolithicSparse`,
+`monolithicFlat`, `twoGbMaxExtentSparse` and `twoGbMaxExtentFlat`, and a sparse
+image whose grain directory was emptied by hand, so that the driver has to make
+a grain table rather than fill one in. The image produced by `scripts/make-vmdk-sparse.py` is read by
 `qemu-img compare`, which finds it identical to the same disk, and by `qemu-img
 check`, which reports no errors. The same holds for the stream-optimized form,
 including an image constructed by hand to use the placeholder arrangement, which
@@ -171,6 +214,15 @@ including an image constructed by hand to use the placeholder arrangement, which
 disk formats 3, 4 and 5 to them, and opens each with the corresponding imago
 driver. libkrun itself requires no change, as `krun_add_disk2` passes the format
 number directly to this enumeration.
+
+**Writability.** Each driver is opened for writing when the disk was not
+requested read-only, except VHDX, which is never writable. The device is then
+marked read-only to the guest whenever the driver reports it cannot be written,
+which covers a VHDX, a stream-optimized VMDK and an extent a descriptor marks
+read-only. Without that the guest is told a device is writable while every write
+is refused, and the failure arrives inside a filesystem driver part-way through
+whatever it was doing rather than at `mount`. A stream-optimized VMDK asked for
+read-write is opened a second time read-only rather than failing to open.
 
 ## Build requirements
 
