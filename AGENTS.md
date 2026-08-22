@@ -103,11 +103,17 @@ of stored credential and answers `No Keychain password item found for profile`
 for a profile that exists and works. `security find-generic-password` cannot see
 those credentials either.
 
-**An error from either is not evidence that notarisation is unconfigured.** Ask
-a tool that can read it:
+**An error from either is not evidence that notarisation is unconfigured.**
+Never answer this question by hand. There is a script, and it is the only
+acceptable way to answer it:
 
-    DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-      xcrun notarytool history --keychain-profile "$LUKOTTA_NOTARY_PROFILE"
+    ./scripts/notary-status.sh
+
+It finds a copy of notarytool that can read the credential, and where it cannot
+find one it says `unknown` rather than `no` — because a copy that cannot read a
+credential cannot tell a missing one from one it is unable to see. Treat
+`unknown` as unknown. Do not tell anybody notarisation is missing on the
+strength of it.
 
 `build-app.sh` prefers Xcode's copy for the same reason, so a release notarises
 whatever `xcode-select` is set to.

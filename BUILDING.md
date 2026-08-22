@@ -140,7 +140,18 @@ LUKOTTA_NOTARY_KEY=AuthKey.p8 LUKOTTA_NOTARY_KEY_ID=… LUKOTTA_NOTARY_ISSUER=�
 LUKOTTA_APPLE_ID=you@example.com LUKOTTA_APP_PASSWORD=… LUKOTTA_TEAM_ID=… ./build-app.sh
 ```
 
-The build says which one it used. The build archives it with
+The build says which one it used.
+
+To find out whether this machine has a credential at all:
+
+```bash
+./scripts/notary-status.sh
+```
+
+It answers `yes`, `no`, or `unknown`, and it will not answer `no` unless it
+used a copy of notarytool able to read every kind of stored credential. The one
+that ships with the Command Line Tools is not, and reports working credentials
+as missing. The build archives it with
 `ditto`, which preserves the signature where `zip` does not, submits it, and
 staples the ticket into the bundle so a first launch works offline.
 
