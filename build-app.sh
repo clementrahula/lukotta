@@ -205,15 +205,48 @@ printf 'Signing with: %s\n' "$SIGN_ID"
   || /usr/bin/codesign --force --sign "$SIGN_ID" "$OUT" >/dev/null
 /usr/bin/codesign --verify --strict "$OUT" && printf 'Signature verified\n'
 
-NOTARY_PROFILE="${LUKOTTA_NOTARY_PROFILE:-}"
-if [ -n "$NOTARY_PROFILE" ] && [ "$SIGN_ID" != "-" ]; then
-  printf 'Notarising as profile "%s"…\n' "$NOTARY_PROFILE"
+# How to prove to Apple who is submitting. notarytool takes credentials three
+# ways and this takes whichever is there, since which one a machine has depends
+# on how it was set up rather than on anything about this project:
+#
+#   a keychain profile        LUKOTTA_NOTARY_PROFILE, or "lukotta" if a profile
+#                             of that name exists
+#   an App Store Connect key  LUKOTTA_NOTARY_KEY, _KEY_ID and _ISSUER
+#   an Apple ID               LUKOTTA_APPLE_ID, _APP_PASSWORD and _TEAM_ID
+#
+# Naming any of them turns notarisation on. A build that names none is signed
+# and not notarised, which is enough to run on the machine that built it.
+NOTARY_ARGS=""
+NOTARY_HOW=""
+PROFILE="${LUKOTTA_NOTARY_PROFILE:-}"
+# Named or not, a profile that is actually there is used: the usual case is one
+# stored once and forgotten about.
+if [ -z "$PROFILE" ] \
+  && /usr/bin/xcrun notarytool history --keychain-profile lukotta >/dev/null 2>&1; then
+  PROFILE="lukotta"
+fi
+if [ -n "$PROFILE" ]; then
+  NOTARY_ARGS="--keychain-profile $PROFILE"
+  NOTARY_HOW="the keychain profile \"$PROFILE\""
+elif [ -n "${LUKOTTA_NOTARY_KEY:-}" ] && [ -n "${LUKOTTA_NOTARY_KEY_ID:-}" ] \
+  && [ -n "${LUKOTTA_NOTARY_ISSUER:-}" ]; then
+  NOTARY_ARGS="--key $LUKOTTA_NOTARY_KEY --key-id $LUKOTTA_NOTARY_KEY_ID --issuer $LUKOTTA_NOTARY_ISSUER"
+  NOTARY_HOW="an App Store Connect key"
+elif [ -n "${LUKOTTA_APPLE_ID:-}" ] && [ -n "${LUKOTTA_APP_PASSWORD:-}" ] \
+  && [ -n "${LUKOTTA_TEAM_ID:-}" ]; then
+  NOTARY_ARGS="--apple-id $LUKOTTA_APPLE_ID --password $LUKOTTA_APP_PASSWORD --team-id $LUKOTTA_TEAM_ID"
+  NOTARY_HOW="the Apple ID $LUKOTTA_APPLE_ID"
+fi
+
+if [ -n "$NOTARY_ARGS" ] && [ "$SIGN_ID" != "-" ]; then
+  printf 'Notarising with %s…\n' "$NOTARY_HOW"
   ZIP="$(dirname "$OUT")/$APP_NAME-notarise.zip"
   rm -f "$ZIP"
   # ditto keeps the signature intact; zip(1) does not.
   /usr/bin/ditto -c -k --keepParent "$OUT" "$ZIP"
-  if /usr/bin/xcrun notarytool submit "$ZIP" \
-      --keychain-profile "$NOTARY_PROFILE" --wait; then
+  # Unquoted on purpose: these are several arguments, not one.
+  # shellcheck disable=SC2086
+  if /usr/bin/xcrun notarytool submit "$ZIP" $NOTARY_ARGS --wait; then
     # Stapling puts the ticket inside the bundle, so a first launch works
     # without asking Apple — which matters on a machine that is offline.
     /usr/bin/xcrun stapler staple "$OUT"

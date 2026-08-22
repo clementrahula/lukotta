@@ -123,13 +123,24 @@ moves only when something is committed.
 
 Without a Developer ID the app is signed ad-hoc, which is enough to run on the
 machine that built it. To give it to anyone else it must be notarised, or
-Gatekeeper will refuse it. Store credentials once:
+Gatekeeper will refuse it.
+
+Credentials are taken whichever way you hold them, and naming any of the three
+switches notarisation on:
 
 ```bash
+# a keychain profile, which is used automatically when it is called "lukotta"
 xcrun notarytool store-credentials "lukotta" --apple-id YOU --team-id TEAM
+LUKOTTA_NOTARY_PROFILE="other-name" ./build-app.sh
+
+# an App Store Connect key
+LUKOTTA_NOTARY_KEY=AuthKey.p8 LUKOTTA_NOTARY_KEY_ID=… LUKOTTA_NOTARY_ISSUER=… ./build-app.sh
+
+# an Apple ID and an app-specific password
+LUKOTTA_APPLE_ID=you@example.com LUKOTTA_APP_PASSWORD=… LUKOTTA_TEAM_ID=… ./build-app.sh
 ```
 
-Then build with `LUKOTTA_NOTARY_PROFILE="lukotta"`. The build archives it with
+The build says which one it used. The build archives it with
 `ditto`, which preserves the signature where `zip` does not, submits it, and
 staples the ticket into the bundle so a first launch works offline.
 
