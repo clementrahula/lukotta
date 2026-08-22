@@ -216,13 +216,19 @@ printf 'Signing with: %s\n' "$SIGN_ID"
 #
 # Naming any of them turns notarisation on. A build that names none is signed
 # and not notarised, which is enough to run on the machine that built it.
+# Xcode's notarytool where there is one, rather than whatever xcrun resolves.
+# The Command Line Tools copy cannot read every kind of stored credential, and
+# reports one that works as missing.
+NOTARYTOOL="/Applications/Xcode.app/Contents/Developer/usr/bin/notarytool"
+[ -x "$NOTARYTOOL" ] || NOTARYTOOL="$(/usr/bin/xcrun -f notarytool 2>/dev/null || echo notarytool)"
+
 NOTARY_ARGS=""
 NOTARY_HOW=""
 PROFILE="${LUKOTTA_NOTARY_PROFILE:-}"
 # Named or not, a profile that is actually there is used: the usual case is one
 # stored once and forgotten about.
 if [ -z "$PROFILE" ] \
-  && /usr/bin/xcrun notarytool history --keychain-profile lukotta >/dev/null 2>&1; then
+  && "$NOTARYTOOL" history --keychain-profile lukotta >/dev/null 2>&1; then
   PROFILE="lukotta"
 fi
 if [ -n "$PROFILE" ]; then
@@ -246,7 +252,7 @@ if [ -n "$NOTARY_ARGS" ] && [ "$SIGN_ID" != "-" ]; then
   /usr/bin/ditto -c -k --keepParent "$OUT" "$ZIP"
   # Unquoted on purpose: these are several arguments, not one.
   # shellcheck disable=SC2086
-  if /usr/bin/xcrun notarytool submit "$ZIP" $NOTARY_ARGS --wait; then
+  if "$NOTARYTOOL" submit "$ZIP" $NOTARY_ARGS --wait; then
     # Stapling puts the ticket inside the bundle, so a first launch works
     # without asking Apple — which matters on a machine that is offline.
     /usr/bin/xcrun stapler staple "$OUT"

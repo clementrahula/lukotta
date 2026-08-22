@@ -782,6 +782,10 @@ group("keychainRoundTrip") {
 group("clientRequirement") {
     // The requirement is now built at run time from the helper's own signing
     // team, so it is code rather than a constant and can be got wrong.
+    //
+    // Made up, and shaped like a real one. The team this project signs with is
+    // read from the running bundle; writing it here would put it in the
+    // repository for no reason.
     let team = "A1B2C3D4E5"
 
     let text = HelperInfo.clientRequirement(team: team)

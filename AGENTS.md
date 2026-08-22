@@ -95,6 +95,23 @@ as `<private>`, which is correct for a drive's name and for a path on someone's
 disk. Anything meant to be legible says `privacy: .public`. A passphrase is
 never logged.
 
+## Checking notarisation
+
+`xcrun` resolves through whatever `xcode-select` points at. Pointed at the
+Command Line Tools, it finds a copy of `notarytool` that cannot read every kind
+of stored credential and answers `No Keychain password item found for profile`
+for a profile that exists and works. `security find-generic-password` cannot see
+those credentials either.
+
+**An error from either is not evidence that notarisation is unconfigured.** Ask
+a tool that can read it:
+
+    DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
+      xcrun notarytool history --keychain-profile "$LUKOTTA_NOTARY_PROFILE"
+
+`build-app.sh` prefers Xcode's copy for the same reason, so a release notarises
+whatever `xcode-select` is set to.
+
 ## Snapshots
 
 `./scripts/snapshots.sh` renders every screen from the built **unbranded** app
