@@ -339,7 +339,6 @@
     "“%@” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work.": "“%@” ir VHDX, ko šī dzinēja versija nespēj atvērt. Derētu VHD, neapstrādāts attēls vai qcow2.",
     "“%@” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work.": "“%@” ir dinamisks VHD, ko šī dzinēja versija nespēj atvērt. Derētu fiksēts VHD, neapstrādāts attēls vai qcow2.",
     "“%@” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work.": "“%@” ir rets VMDK, ko šī dzinēja versija nespēj atvērt. Derētu plakans VMDK vai neapstrādāts attēls.",
-    "“%@” is a stream-optimized VMDK, whose contents are compressed. %@ cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work.": "“%1$@” ir stream-optimized VMDK, kura saturs ir saspiests. %2$@ tādu atvērt nespēj. Derētu plakans vai parasts rets VMDK, vai neapstrādāts attēls.",
     "“%@” is marked as damaged. Repair it before opening it.": "“%@” ir atzīmēts kā bojāts. Salabojiet to pirms atvēršanas.",
     "“%@” is not a disk image this app can read.": "“%@” nav diska attēls, ko šī lietotne var nolasīt.",
     "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "“%1$@” ir daļa no momentuzņēmumu ķēdes, ko %2$@ nespēj atvērt. Atveriet disku, no kura tas izveidots.",

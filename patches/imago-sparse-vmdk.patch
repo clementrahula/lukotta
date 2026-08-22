@@ -1,6 +1,20 @@
 --- a/src/vmdk/mod.rs	2006-07-24 04:21:28
-+++ b/src/vmdk/mod.rs	2026-08-22 10:41:14
-@@ -15,8 +15,9 @@
++++ b/src/vmdk/mod.rs	2026-08-22 11:26:12
+@@ -5,9 +5,12 @@
+ use crate::format::gate::ImplicitOpenGate;
+ use crate::format::wrapped::WrappedFormat;
+ use crate::format::{Format, PreallocateMode};
+-use crate::io_buffers::IoBuffer;
++use crate::io_buffers::{IoBuffer, IoVectorMut};
+ use crate::misc_helpers::{invalid_data, ResultErrorContext};
+ use crate::storage::ext::StorageExt;
++use miniz_oxide::inflate::core::inflate_flags::TINFL_FLAG_PARSE_ZLIB_HEADER;
++use miniz_oxide::inflate::core::{decompress as inflate, DecompressorOxide};
++use miniz_oxide::inflate::TINFLStatus;
+ use crate::{FormatAccess, ShallowMapping, Storage, StorageOpenOptions};
+ use async_trait::async_trait;
+ use std::fmt::{self, Display, Formatter};
+@@ -15,8 +18,9 @@
  use std::ops::{Range, RangeInclusive};
  use std::path::{Path, PathBuf};
  use std::str::FromStr;
@@ -11,14 +25,20 @@
  use std::{cmp, io};
  
  /// As usual, VMDK sector size is 512 bytes as a fixed value
-@@ -25,9 +26,26 @@
+@@ -25,9 +29,32 @@
  const VMDK4_MAGIC: u32 = 0x564d444b; // 'KDMV'
  /// Supported version range
  const VMDK_VERSION_RANGE: RangeInclusive<u32> = 1..=3;
-+/// Grains are stored compressed, which this does not read.
++/// Grains are deflated rather than stored as they are.
 +const VMDK_FLAG_COMPRESSED: u32 = 1 << 16;
 +/// Every grain carries a marker before it, which is the streamed form.
 +const VMDK_FLAG_MARKERS: u32 = 1 << 17;
++/// How much of a grain marker comes before the compressed data itself: the
++/// sector this grain covers, and how many bytes were written for it.
++const GRAIN_MARKER: u64 = 12;
++/// How many decompressed grains to keep. Each is a grain's worth of disk, and
++/// a filesystem reads the same one many times over in quick succession.
++const GRAIN_CACHE: usize = 32;
 +/// A grain table entry of 0 means the grain was never written.
 +const GRAIN_UNALLOCATED: u32 = 0;
 +/// And 1 means it was written and is all zeroes.
@@ -39,7 +59,7 @@
  enum VmdkStorage<S: Storage + 'static> {
      /// A FLAT extent with a RAW file starting from the exact offset
      Flat {
-@@ -36,6 +54,9 @@
+@@ -36,6 +63,9 @@
          /// Offset in `file` where the data for this extent begins
          offset: u64,
      },
@@ -49,7 +69,7 @@
      /// A zero-filled extent
      Zero,
  }
-@@ -50,6 +71,11 @@
+@@ -50,6 +80,11 @@
          /// Offset in the storage object where the data for this extent begins
          offset: u64,
      },
@@ -61,12 +81,10 @@
      /// A zero-filled extent
      Zero,
  }
-@@ -92,6 +118,222 @@
-     ///
-     /// Present if and only if the access type is not NOACCESS.
+@@ -94,6 +129,349 @@
      storage: Option<VmdkParsedStorage>,
-+}
-+
+ }
+ 
 +/// What a sparse extent's header says, once it has been read and checked.
 +#[derive(Debug, Clone, Copy)]
 +struct SparseHeader {
@@ -82,6 +100,8 @@
 +    gtes_per_gt: u32,
 +    /// Where the grain directory begins, in sectors.
 +    gd_offset: u64,
++    /// Whether each grain is deflated and preceded by a marker.
++    compressed: bool,
 +}
 +
 +impl SparseHeader {
@@ -96,12 +116,22 @@
 +        }
 +
 +        let flags = u32::from_le_bytes(head[8..12].try_into().unwrap());
-+        // The streamed form stores every grain compressed and behind a marker,
-+        // which is a different thing to read and is not read here.
-+        if flags & (VMDK_FLAG_COMPRESSED | VMDK_FLAG_MARKERS) != 0 {
++        // The streamed form stores every grain deflated and behind a marker
++        // saying which part of the disk it holds. Markers only make sense
++        // together with compression, which is the only pairing anything
++        // writes.
++        let compressed = flags & VMDK_FLAG_COMPRESSED != 0;
++        if compressed != (flags & VMDK_FLAG_MARKERS != 0) {
 +            return Err(io::Error::new(
 +                io::ErrorKind::Unsupported,
-+                "Unsupported compressed (stream-optimized) VMDK extent",
++                "Unsupported VMDK extent: markers without compression, or the reverse",
++            ));
++        }
++        let algorithm = u16::from_le_bytes(head[77..79].try_into().unwrap());
++        if compressed && algorithm != 1 {
++            return Err(io::Error::new(
++                io::ErrorKind::Unsupported,
++                format!("Unsupported VMDK compression {algorithm}"),
 +            ));
 +        }
 +
@@ -113,6 +143,7 @@
 +            descriptor_size: le64(36),
 +            gtes_per_gt: u32::from_le_bytes(head[44..48].try_into().unwrap()),
 +            gd_offset: le64(56),
++            compressed,
 +        };
 +
 +        // All of this decides where the driver reads, so all of it is checked
@@ -132,6 +163,9 @@
 +                header.gtes_per_gt
 +            )));
 +        }
++        // A streamed file is written in one pass, so where its directory
++        // ended up is only known once everything before it has been written:
++        // the header carries a placeholder and the truth is in the footer.
 +        if header.gd_offset == 0 {
 +            return Err(invalid_data("VMDK sparse extent has no grain directory"));
 +        }
@@ -142,6 +176,17 @@
 +    fn table_span(&self) -> u64 {
 +        self.grain_size * VMDK_SECTOR_SIZE * (self.gtes_per_gt as u64)
 +    }
++}
++
++/// Where a stretch of an extent's data is.
++#[derive(Debug, Clone, Copy)]
++enum GrainAt {
++    /// Plainly in the file, at this offset.
++    File(u64),
++    /// Deflated, behind a marker beginning at this sector.
++    Compressed(u64),
++    /// Never written, or written as zeroes.
++    Zero,
 +}
 +
 +/// A sparse extent: the file, its grain directory, and the grain tables read so
@@ -162,6 +207,9 @@
 +    directory: Vec<u32>,
 +    /// The tables read so far, and the order they were read in.
 +    tables: Mutex<(HashMap<usize, Arc<Vec<u32>>>, VecDeque<usize>)>,
++    /// The grains inflated so far, for a streamed extent, and the order they
++    /// were inflated in.
++    grains: Mutex<(HashMap<u64, Arc<Vec<u8>>>, VecDeque<u64>)>,
 +}
 +
 +impl<S: Storage + 'static> SparseExtent<S> {
@@ -173,7 +221,28 @@
 +        }
 +        let mut buf = IoBuffer::new(VMDK_SECTOR_SIZE as usize, file.mem_align())?;
 +        file.read(buf.as_mut(), 0).await?;
-+        let header = SparseHeader::parse(buf.as_ref().into_slice())?;
++        let mut header = SparseHeader::parse(buf.as_ref().into_slice())?;
++
++        // A streamed file is written in one pass, so its grain directory is
++        // only placed once everything before it has been written. The header
++        // then carries a placeholder, and a copy of the header at the end of
++        // the file — two sectors from it, after the marker announcing it —
++        // carries where the directory actually went.
++        if header.compressed && header.gd_offset == u64::MAX {
++            if file_size < 2 * VMDK_SECTOR_SIZE {
++                return Err(invalid_data("VMDK streamed extent has no footer"));
++            }
++            let mut foot = IoBuffer::new(VMDK_SECTOR_SIZE as usize, file.mem_align())?;
++            file.read(foot.as_mut(), file_size - 2 * VMDK_SECTOR_SIZE)
++                .await?;
++            let footer = SparseHeader::parse(foot.as_ref().into_slice())?;
++            if footer.gd_offset == 0 || footer.gd_offset == u64::MAX {
++                return Err(invalid_data(
++                    "VMDK streamed extent does not say where its grain directory is",
++                ));
++            }
++            header.gd_offset = footer.gd_offset;
++        }
 +
 +        let entries = header
 +            .capacity
@@ -207,6 +276,7 @@
 +            header,
 +            directory,
 +            tables: Mutex::new((HashMap::new(), VecDeque::new())),
++            grains: Mutex::new((HashMap::new(), VecDeque::new())),
 +        })
 +    }
 +
@@ -247,44 +317,121 @@
 +        Ok(table)
 +    }
 +
-+    /// Where `offset` into this extent is in the file, and for how long.
++    /// Where `offset` into this extent is, and for how long.
 +    ///
 +    /// A grain that was never written, or one written as zeroes, reads as
-+    /// zeroes; anything else is a plain stretch of the file.
-+    async fn map(&self, offset: u64, max_length: u64) -> io::Result<(Option<u64>, u64)> {
++    /// zeroes. In an ordinary sparse extent anything else is a plain stretch of
++    /// the file; in a streamed one it is deflated behind a marker, and only the
++    /// driver can serve it.
++    async fn map(&self, offset: u64, max_length: u64) -> io::Result<(GrainAt, u64)> {
 +        let grain_bytes = self.header.grain_size * VMDK_SECTOR_SIZE;
 +        let in_grain = offset % grain_bytes;
 +        let length = cmp::min(max_length, grain_bytes - in_grain);
 +
 +        let table_index = (offset / self.header.table_span()) as usize;
 +        let Some(&table_at) = self.directory.get(table_index) else {
-+            return Ok((None, length));
++            return Ok((GrainAt::Zero, length));
 +        };
 +        if table_at == 0 {
-+            return Ok((None, length));
++            return Ok((GrainAt::Zero, length));
 +        }
 +
 +        let table = self.table(table_index).await?;
 +        let within = (offset % self.header.table_span()) / grain_bytes;
 +        let grain = table[within as usize];
 +        if grain == GRAIN_UNALLOCATED || grain == GRAIN_ZERO {
-+            return Ok((None, length));
++            return Ok((GrainAt::Zero, length));
++        }
++
++        let file_size = self.file.size()?;
++        // A streamed grain is deflated, so nothing in the file corresponds to
++        // this stretch of disk and the driver has to serve it itself.
++        if self.header.compressed {
++            let marker = (grain as u64)
++                .checked_mul(VMDK_SECTOR_SIZE)
++                .ok_or_else(|| invalid_data("VMDK grain offset overflow"))?;
++            if marker + GRAIN_MARKER > file_size {
++                return Err(invalid_data("VMDK grain lies outside the file"));
++            }
++            return Ok((GrainAt::Compressed(marker), length));
 +        }
 +
 +        let at = (grain as u64)
 +            .checked_mul(VMDK_SECTOR_SIZE)
 +            .and_then(|at| at.checked_add(in_grain))
 +            .ok_or_else(|| invalid_data("VMDK grain offset overflow"))?;
-+        let file_size = self.file.size()?;
 +        if at.checked_add(length).is_none_or(|end| end > file_size) {
 +            return Err(invalid_data("VMDK grain lies outside the file"));
 +        }
-+        Ok((Some(at), length))
++        Ok((GrainAt::File(at), length))
 +    }
- }
- 
++
++    /// Inflate the grain whose marker begins at `marker`, and keep it.
++    ///
++    /// The marker says which part of the disk the grain holds and how many
++    /// bytes were written for it; the deflated data follows it directly.
++    async fn grain(&self, marker: u64) -> io::Result<Arc<Vec<u8>>> {
++        // The lock is never held across a read.
++        if let Some(grain) = self.grains.lock().unwrap().0.get(&marker) {
++            return Ok(Arc::clone(grain));
++        }
++
++        let mut head = IoBuffer::new(GRAIN_MARKER as usize, self.file.mem_align())?;
++        self.file.read(head.as_mut(), marker).await?;
++        let head = head.as_ref().into_slice();
++        let written = u32::from_le_bytes(head[8..12].try_into().unwrap()) as usize;
++
++        let grain_bytes = (self.header.grain_size * VMDK_SECTOR_SIZE) as usize;
++        // Deflate never grows data by more than a little, so anything larger
++        // than the grain it claims to hold is not a grain.
++        if written == 0 || written > grain_bytes + grain_bytes / 2 + 64 {
++            return Err(invalid_data(format!(
++                "VMDK grain says it holds {written} deflated bytes, which cannot be right"
++            )));
++        }
++        let file_size = self.file.size()?;
++        if marker + GRAIN_MARKER + (written as u64) > file_size {
++            return Err(invalid_data("VMDK grain runs past the end of the file"));
++        }
++
++        let mut deflated = IoBuffer::new(written, self.file.mem_align())?;
++        self.file
++            .read(deflated.as_mut(), marker + GRAIN_MARKER)
++            .await?;
++
++        let mut out = vec![0u8; grain_bytes];
++        let mut state = DecompressorOxide::new();
++        let (status, _read, inflated) = inflate(
++            &mut state,
++            deflated.as_ref().into_slice(),
++            &mut out,
++            0,
++            TINFL_FLAG_PARSE_ZLIB_HEADER,
++        );
++        if status != TINFLStatus::Done || inflated != grain_bytes {
++            return Err(invalid_data(format!(
++                "Failed to inflate VMDK grain at {marker}: {inflated} bytes of {grain_bytes}"
++            )));
++        }
++
++        let grain = Arc::new(out);
++        let mut kept = self.grains.lock().unwrap();
++        if kept.0.insert(marker, Arc::clone(&grain)).is_none() {
++            kept.1.push_back(marker);
++            while kept.1.len() > GRAIN_CACHE {
++                if let Some(oldest) = kept.1.pop_front() {
++                    kept.0.remove(&oldest);
++                }
++            }
++        }
++        Ok(grain)
++    }
++}
++
  /// VMDK disk image format implementation.
-@@ -182,7 +424,7 @@
+ #[derive(Debug)]
+ pub struct Vmdk<S: Storage + 'static, F: WrappedFormat<S> + 'static = FormatAccess<S>> {
+@@ -182,7 +560,7 @@
                  storage: Some(VmdkParsedStorage::Zero),
              });
          }
@@ -293,7 +440,7 @@
              return Err(io::Error::new(
                  io::ErrorKind::Unsupported,
                  format!("Unsupported extent type {extent_type}"),
-@@ -217,13 +459,23 @@
+@@ -217,13 +595,23 @@
              .map_or(Ok(0), |ofs_str| ofs_str.parse())
              .map_err(|_| invalid_data("Invalid offset"))?;
  
@@ -321,7 +468,7 @@
          })
      }
  }
-@@ -285,6 +537,25 @@
+@@ -285,6 +673,25 @@
          };
  
          let storage = match storage {
@@ -347,7 +494,7 @@
              VmdkParsedStorage::Flat { filename, offset } => {
                  let absolute = self
                      .descriptor_file
-@@ -391,27 +662,61 @@
+@@ -391,26 +798,60 @@
          if desc_file_sz < 4 {
              return Err(invalid_data("VMDK descriptor file too short"));
          }
@@ -403,13 +550,7 @@
 +            .await?;
  
          let desc_file = desc_file.as_ref().into_slice();
-+        // The descriptor is padded to whole sectors with zero bytes, which are
-+        // not part of any line.
-+        let desc_file = match desc_file.iter().position(|c| *c == 0) {
-+            Some(end) if descriptor_at > 0 => &desc_file[..end],
-+            _ => desc_file,
-+        };
- 
+-
 -        // Check if it's a SPARSE format, bail it out now
 -        if u32::from_le_bytes(desc_file[..4].try_into().unwrap()) == VMDK4_MAGIC {
 -            return Err(io::Error::new(
@@ -417,11 +558,16 @@
 -                "Unsupported VMDK sparse data file",
 -            ));
 -        }
--
++        // The descriptor is padded to whole sectors with zero bytes, which are
++        // not part of any line.
++        let desc_file = match desc_file.iter().position(|c| *c == 0) {
++            Some(end) if descriptor_at > 0 => &desc_file[..end],
++            _ => desc_file,
++        };
+ 
          for (line_i, line) in desc_file.split(|chr| *chr == b'\n').enumerate() {
              let line = str::from_utf8(line).map_err(|e| {
-                 invalid_data(format!(
-@@ -596,6 +901,7 @@
+@@ -596,6 +1037,7 @@
              };
              match storage {
                  VmdkStorage::Flat { file, offset: _ } => v.push(file),
@@ -429,7 +575,7 @@
                  VmdkStorage::Zero => (),
              }
          }
-@@ -631,6 +937,26 @@
+@@ -631,6 +1073,29 @@
              }
          };
  
@@ -441,7 +587,7 @@
 +        if let Some(VmdkStorage::Sparse(sparse)) = extent.storage.as_ref() {
 +            let (at, length) = sparse.map(in_extent_offset, max_length).await?;
 +            return Ok(match at {
-+                Some(at) => (
++                GrainAt::File(at) => (
 +                    ShallowMapping::Raw {
 +                        storage: sparse.file.as_ref(),
 +                        offset: at,
@@ -449,14 +595,17 @@
 +                    },
 +                    length,
 +                ),
-+                None => (ShallowMapping::Zero { explicit: false }, length),
++                // Deflated: nothing in the file is this stretch of disk, so it
++                // comes back through `readv_special` below instead.
++                GrainAt::Compressed(_) => (ShallowMapping::Special { offset }, length),
++                GrainAt::Zero => (ShallowMapping::Zero { explicit: false }, length),
 +            });
 +        }
 +
          // `access_type != NoAccess`, so `unwrap()` is safe
          let mapping = match extent.storage.as_ref().unwrap() {
              VmdkStorage::Flat {
-@@ -647,12 +973,12 @@
+@@ -647,14 +1112,44 @@
              },
  
              VmdkStorage::Zero => ShallowMapping::Zero { explicit: true },
@@ -472,4 +621,36 @@
 +        Ok((mapping, max_length))
      }
  
++    /// Serve a stretch of disk that is deflated in the file.
++    ///
++    /// Only a streamed extent has any, and `get_mapping()` sends only those
++    /// here. The grain is inflated whole — it has to be, that is what deflate
++    /// is — and the part asked for is copied out of it.
++    async fn readv_special(&self, mut bufv: IoVectorMut<'_>, offset: u64) -> io::Result<()> {
++        let Some(extent) = self.get_extent_at(offset) else {
++            return Err(io::Error::other("Read beyond the end of the disk"));
++        };
++        let Some(VmdkStorage::Sparse(sparse)) = extent.storage.as_ref() else {
++            return Err(io::Error::other("Nothing here is stored compressed"));
++        };
++        let in_extent_offset = offset - extent.disk_range.start;
++
++        let (at, length) = sparse.map(in_extent_offset, bufv.len()).await?;
++        let GrainAt::Compressed(marker) = at else {
++            return Err(io::Error::other("Mapping is not compressed after all"));
++        };
++        if length < bufv.len() {
++            return Err(io::Error::other("Compressed read crosses two grains"));
++        }
++
++        let grain = sparse.grain(marker).await?;
++        let grain_bytes = sparse.header.grain_size * VMDK_SECTOR_SIZE;
++        let in_grain = (in_extent_offset % grain_bytes) as usize;
++        let wanted = bufv.len() as usize;
++        bufv.copy_from_slice(&grain[in_grain..in_grain + wanted]);
++        Ok(())
++    }
++
      async fn ensure_data_mapping<'a>(
+         &'a self,
+         _offset: u64,

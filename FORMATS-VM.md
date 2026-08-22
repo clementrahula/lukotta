@@ -131,9 +131,16 @@ what was written, so a 2 TB disk holding 4 GB would have cost more to open than
 to read. The directory is read once; the tables are read as the disk is, and the
 last sixty-four are kept.
 
-The stream-optimized form — every grain compressed, each behind a marker, which
-is what `ovftool` writes into an OVA — is refused by name. It is a different
-thing to read, and could be added later without disturbing any of this.
+The stream-optimized form — every grain deflated, each behind a marker, which is
+what `ovftool` writes into an OVA — was refused at first and then built, because
+the cost turned out to be much lower than it looked: imago already carried a
+deflate for qcow2's compressed clusters. It is the one format here where nothing
+can be mapped, since a deflated grain is not a stretch of the file; those reads
+go through `readv_special()` instead, which imago provides for exactly this.
+
+It is also the one that reads slowly by nature — any byte costs inflating the
+whole 64 KB grain — so the last thirty-two are kept, and mounting a filesystem
+out of one works at a sensible speed.
 
 ## The rule that keeps applying
 

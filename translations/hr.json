@@ -339,7 +339,6 @@
     "“%@” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work.": "„%@” je VHDX, koji ova verzija pogona ne može otvoriti. Uspjeli bi VHD, sirova slika ili qcow2.",
     "“%@” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work.": "„%@” je dinamički VHD, koji ova verzija pogona ne može otvoriti. Uspjeli bi fiksni VHD, sirova slika ili qcow2.",
     "“%@” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work.": "„%@” je rijetki VMDK, koji ova verzija pogona ne može otvoriti. Uspjeli bi ravni VMDK ili sirova slika.",
-    "“%@” is a stream-optimized VMDK, whose contents are compressed. %@ cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work.": "„%1$@” je stream-optimized VMDK, čiji je sadržaj sažet. %2$@ ne može otvoriti takav. Uspjeli bi ravni ili obični rijetki VMDK, ili sirova slika.",
     "“%@” is marked as damaged. Repair it before opening it.": "„%@” je označen kao oštećen. Popravite ga prije otvaranja.",
     "“%@” is not a disk image this app can read.": "„%@” nije slika diska koju ova aplikacija može pročitati.",
     "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "„%1$@” dio je lanca snimaka koji %2$@ ne može otvoriti. Otvorite disk iz kojeg je nastao.",

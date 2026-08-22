@@ -134,8 +134,9 @@ fi
 # thing to read and must be refused rather than served as noise.
 VMDK_SPARSE="$CACHE/sparse.vmdk"
 [ -f "$VMDK_SPARSE" ] || "$HERE/scripts/make-vmdk-sparse.py" "$PLAIN" "$VMDK_SPARSE" >/dev/null
-# Written by qemu-img, which is the only thing here that writes the compressed
-# form; kept in the cache rather than built, and skipped when it is not there.
+# The streamed form, whose grains are deflated: written by qemu-img, which is
+# the only thing here that writes one. Kept in the cache rather than built, and
+# skipped when it is not there.
 VMDK_STREAMED="$CACHE/streamed.vmdk"
 
 # A VHDX: two headers, a region table, a metadata region and an allocation

@@ -332,7 +332,6 @@
     "“%@” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work.": "« %@ » est un VHDX, que cette version du moteur ne sait pas ouvrir. Un VHD, une image brute ou un qcow2 fonctionneraient.",
     "“%@” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work.": "« %@ » est un VHD dynamique, que cette version du moteur ne sait pas ouvrir. Un VHD fixe, une image brute ou un qcow2 fonctionneraient.",
     "“%@” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work.": "« %@ » est un VMDK creux, que cette version du moteur ne sait pas ouvrir. Un VMDK plat ou une image brute fonctionneraient.",
-    "“%@” is a stream-optimized VMDK, whose contents are compressed. %@ cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work.": "« %1$@ » est un VMDK stream-optimized, dont le contenu est compressé. %2$@ ne sait pas en ouvrir. Un VMDK plat ou creux ordinaire, ou une image brute, fonctionneraient.",
     "“%@” is marked as damaged. Repair it before opening it.": "« %@ » est marqué comme endommagé. Réparez-le avant de l’ouvrir.",
     "“%@” is not a disk image this app can read.": "« %@ » n’est pas une image disque que cette app sait lire.",
     "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "« %1$@ » fait partie d’une chaîne d’instantanés que %2$@ ne sait pas ouvrir. Ouvrez le disque dont il provient.",

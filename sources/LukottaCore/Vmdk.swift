@@ -101,13 +101,17 @@ public struct VmdkDescriptor: Equatable, Sendable {
 /// found through a directory of tables. The text descriptor that a flat VMDK
 /// has as a file of its own sits inside this one, at an offset the header
 /// gives.
+///
+/// The streamed form deflates every grain, which the engine's driver inflates
+/// as it reads; it is recognised here so the difference can be told apart in
+/// tests and in a bug report, not to refuse it.
 public struct SparseVmdkHeader: Equatable, Sendable {
     /// Where the descriptor begins, in sectors.
     public let descriptorOffset: UInt64
     /// How long it is, in sectors.
     public let descriptorSize: UInt64
-    /// Whether every grain is compressed and preceded by a marker, which is the
-    /// streamed form and a different thing to read.
+    /// Whether every grain is deflated and preceded by a marker, which is the
+    /// streamed form — what `ovftool` writes into an OVA.
     public let streamed: Bool
 
     /// The sector size the format is written in terms of.
@@ -163,11 +167,6 @@ extension DiskImage {
             guard let sparse = SparseVmdkHeader.parse(head) else {
                 return appString(
                     "“\(url.lastPathComponent)” is not a disk image this app can read.")
-            }
-            if sparse.streamed {
-                return appString(
-                    "“\(url.lastPathComponent)” is a stream-optimized VMDK, whose contents are compressed. \(appName) cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work."
-                )
             }
             guard EnginePaths.opensSparseVmdk else {
                 return appString(

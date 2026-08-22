@@ -136,8 +136,12 @@ enum EndToEnd {
             }
             if FileManager.default.fileExists(atPath: streamed.path) {
                 print("")
-                print("a VMDK whose grains are compressed: \(streamed.lastPathComponent)")
-                refusedByNameFlow(image: streamed, saying: "stream-optimized")
+                print("a VMDK whose grains are deflated: \(streamed.lastPathComponent)")
+                if EnginePaths.opensSparseVmdk {
+                    qcow2Flow(image: streamed, passphrase: nil)
+                } else {
+                    refusedByNameFlow(image: streamed, saying: "sparse VMDK")
+                }
             }
         }
 

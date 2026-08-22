@@ -111,9 +111,18 @@ as the disk is, and the last sixty-four are kept, because one table covers a
 long stretch of disk and reading an image through touches each about once. That
 keeps a large sparse disk from being a large allocation.
 
-The **stream-optimized** form, whose grains are compressed and preceded by
-markers, is refused by name — the app refuses it too, before the engine is told
-anything.
+The **stream-optimized** form is read too. Every grain in one is deflated and
+preceded by a marker saying which part of the disk it holds, so nothing in the
+file corresponds to a stretch of disk and no mapping can point at it: those
+grains come back through `readv_special()`, inflated whole and served from a
+cache of the last thirty-two. imago already carried `miniz_oxide` for qcow2's
+compressed clusters, so this needed no new dependency — only the zlib-header
+flag, since VMDK wraps where qcow2 does not.
+
+A streamed file is written in one pass, so its grain directory is only placed
+once everything before it exists: the header carries a placeholder and the truth
+is in a copy of the header at the end of the file. Both layouts are read —
+qemu-img writes the offset in the header, VMware writes the placeholder.
 
 **Tested.** A sparse VMDK written by `qemu-img` reads back byte for byte
 identical to the raw disk it was made from, and mounts through the app; the one

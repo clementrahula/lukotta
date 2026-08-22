@@ -193,9 +193,6 @@ Built. [FORMATS.md](FORMATS.md) has the reasoning; what shipped:
 
 Still open, in rough order of worth:
 
-- **Stream-optimized VMDK.** The compressed form, which is what `ovftool` writes
-  into an OVA. Every grain is deflated and preceded by a marker, so it is a
-  different thing to read from the sparse form now supported. Refused by name.
 - **Replaying a VHDX log.** An image that was not shut down cleanly keeps its
   newest state in its log, and is refused by name rather than read stale. Doing
   better means replaying the log, which is a write to somebody's disk image —
