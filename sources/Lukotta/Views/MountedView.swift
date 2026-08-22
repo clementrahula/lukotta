@@ -25,8 +25,16 @@ struct MountedView: View {
                         "“\(drive.name)” is unlocked"
                     ).font(.title3.weight(.semibold))
                         .accessibilityAddTraits(.isHeader)
-                    Text("You can read and write files on it.")
-                        .font(.caption).foregroundStyle(.secondary)
+                    // A drive can be read-only because that was asked for, or
+                    // because it refused to be written to and the mount fell
+                    // back. Either way the screen must not promise writing.
+                    Text(
+                        model.mountedReadOnly
+                            ? "You can read files on it. It was opened read-only, so nothing can be written to it."
+                            : "You can read and write files on it."
+                    )
+                    .font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
                 }
             }
 

@@ -46,6 +46,7 @@ struct DriveListView: View {
                                 mountPoint: point,
                                 space: point.flatMap { model.space[$0] },
                                 volumeCount: point.flatMap { model.volumeCount[$0] } ?? 1,
+                                readOnly: point.map { model.readOnlyMounts.contains($0) } ?? false,
                                 action: { model.choose(drive) },
                                 eject: { model.eject(point ?? "") },
                                 ejecting: point != nil && model.ejectingPath == point,
@@ -77,6 +78,8 @@ struct DriveRow: View {
     /// Only known once the drive is open, and only then worth showing.
     var space: VolumeSpace?
     var volumeCount: Int = 1
+    /// Opened read-only, whether that was asked for or fallen back to.
+    var readOnly = false
     let action: () -> Void
     let eject: () -> Void
     /// This drive is the one being ejected.
@@ -140,6 +143,10 @@ struct DriveRow: View {
                 HStack(spacing: 8) {
                     Text(drive.name).font(.body.weight(.medium))
                     StatePill(open: isMounted)
+                    // Only for a drive that is open: a read-only drive that is
+                    // closed is a drive that has not been opened yet, and how
+                    // it will be opened is not decided until it is.
+                    if isMounted && readOnly { ReadOnlyPill() }
                 }
 
                 Text(details)
@@ -215,6 +222,21 @@ struct StatePill: View {
             .padding(.horizontal, 7).padding(.vertical, 2)
             .background(Capsule().fill((open ? Color.green : Color.orange).opacity(0.15)))
             .foregroundStyle(open ? Color.green : Color.orange)
+    }
+}
+
+/// Beside the state, for a drive opened read-only.
+///
+/// Its own pill rather than a third state of the one before it: a drive is
+/// unlocked or it is not, and read-only says what may be done with it once it
+/// is.
+struct ReadOnlyPill: View {
+    var body: some View {
+        Text("Read-Only")
+            .font(.caption2.weight(.medium))
+            .padding(.horizontal, 7).padding(.vertical, 2)
+            .background(Capsule().fill(Color.blue.opacity(0.15)))
+            .foregroundStyle(Color.blue)
     }
 }
 

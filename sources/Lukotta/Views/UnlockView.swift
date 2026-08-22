@@ -8,6 +8,13 @@ struct UnlockView: View {
     @EnvironmentObject var model: AppModel
     let drive: Drive
     @FocusState private var focused: Bool
+
+    /// Neither button can be pressed until there is something to open with: a
+    /// credential typed, one remembered, or a drive that needs none.
+    private var nothingToOpenWith: Bool {
+        model.credential.isEmpty && !model.usingSavedCredential
+            && !model.chosenDriveIsOpenAlready
+    }
     @State private var capsLockOn = false
     @State private var capsMonitor: Any?
 
@@ -147,14 +154,23 @@ struct UnlockView: View {
             }
             Spacer(minLength: 12)
             HStack {
-                Button("Back", action: model.backToDrives)
+                // A drive with a passphrase to type came from the list, so the
+                // way out is back to it. One with nothing to type is on this
+                // screen only to be asked read-write or read-only, and the way
+                // out of a question is to cancel it.
+                Button(
+                    model.chosenDriveIsOpenAlready ? "Cancel" : "Back", action: model.backToDrives)
                 Spacer()
-                // "Open", not "Unlock", for a drive that was never locked.
+                // "Open", not "Unlock", for a drive that was never locked. The
+                // read-only choice sits beside each, and is never the default:
+                // the drive opens writable unless read-only is chosen.
+                Button(model.chosenDriveIsOpenAlready ? "Open Read-Only" : "Unlock Read-Only") {
+                    model.unlock(drive, readOnly: true)
+                }
+                .disabled(nothingToOpenWith)
                 Button(model.chosenDriveIsOpenAlready ? "Open" : "Unlock") { model.unlock(drive) }
                     .keyboardShortcut(.defaultAction)
-                    .disabled(
-                        model.credential.isEmpty && !model.usingSavedCredential
-                            && !model.chosenDriveIsOpenAlready)
+                    .disabled(nothingToOpenWith)
             }
         }
         .onAppear {
@@ -433,7 +449,7 @@ private struct FormatNote: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.callout.weight(.medium))
                 Text(
-                    "There is no password to enter. Open it anyway to read and write to it, which macOS on its own cannot do."
+                    "There is no password to enter. Open it to read and write to it, which macOS on its own cannot do, or open it read-only to leave it untouched."
                 )
                 .font(.caption).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

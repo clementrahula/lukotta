@@ -329,26 +329,27 @@ enum EndToEnd {
         }
         guard let drive = model.drives.first(where: { $0.uuid == image.path }) else { return }
 
-        // Nothing is chosen, typed or pressed. Opening the file is the whole
-        // interaction.
-        //
-        // The password screen is watched for throughout rather than checked
-        // once, the fault it stands for being a screen that appeared and then
-        // away by itself, which a single check at the end would not see.
-        var sawTheQuestion = false
+        // An image with nothing to unlock still has a choice to make, so the
+        // screen appears with no passphrase field and two ways to open it.
         guard
             waitUntil(
-                "it opens on its own, without being told to", timeout: 180,
+                "it asks how to open it", timeout: 60,
+                condition: { model.phaseIsUnlock })
+        else { return }
+        check(
+            model.chosenDriveIsOpenAlready,
+            "and knows there is nothing to unlock, so no passphrase is asked for")
+
+        model.unlock(drive)
+        guard
+            waitUntil(
+                "it opens", timeout: 180,
                 condition: {
-                    if model.phaseIsUnlock { sawTheQuestion = true }
                     if case .mounted = model.phase { return true }
                     if case .failed = model.phase { return true }
                     return false
                 })
         else { return }
-        check(
-            !sawTheQuestion,
-            "and the password screen never appeared, not even for an instant")
         check(model.chosenFormat == .btrfs, "it was recognised as the filesystem it is")
         check(model.chosenDriveIsOpenAlready, "which is why nothing was asked")
         guard case .mounted(_, let mountPoint) = model.phase else {
@@ -578,7 +579,13 @@ enum EndToEnd {
             guard let drive = model.drives.first(where: { $0.uuid == image.path }) else { return }
             model.unlock(drive)
         } else {
-            check(!sawTheQuestion, "and it is never asked about, nothing in it being encrypted")
+            guard
+                waitUntil(
+                    "it asks how to open it, nothing in it being encrypted", timeout: 60,
+                    condition: { model.phaseIsUnlock })
+            else { return }
+            guard let drive = model.drives.first(where: { $0.uuid == image.path }) else { return }
+            model.unlock(drive)
         }
 
         guard

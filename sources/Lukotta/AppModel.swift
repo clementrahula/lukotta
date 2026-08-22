@@ -661,6 +661,7 @@ final class AppModel: ObservableObject {
         let names = points.map { ($0 as NSString).lastPathComponent }
         openVolumes = []
         openMounts = openMounts.filter { !points.contains($0.value) }
+        readOnlyMounts.subtract(points)
         space = space.filter { !points.contains($0.key) }
         volumeCount = volumeCount.filter { !points.contains($0.key) }
         if let first = names.first {
@@ -1070,8 +1071,11 @@ final class AppModel: ObservableObject {
                 // would hand back a network volume instead.
                 self.handToMacOS(drive)
             } else if format.isUnencrypted {
-                Log.mount.notice("opening without asking, nothing is encrypted")
-                self.unlock(drive)
+                // Nothing to unlock, and still a choice to make: read-write or
+                // read-only. The screen asks that and nothing else, with no
+                // passphrase field, since there is no passphrase.
+                Log.mount.notice("nothing is encrypted, asking how to open it")
+                self.phase = .unlock(drive)
             } else if pending != nil {
                 // It needs a passphrase, so the screen that asks for one.
                 self.phase = .unlock(drive)
@@ -1111,8 +1115,26 @@ final class AppModel: ObservableObject {
         chosenFormat?.isUnencrypted ?? false
     }
 
-    func unlock(_ drive: Drive) {
+    /// Whether the mount being asked for is read-only.
+    ///
+    /// Carried from the button that started it through to the script, and read
+    /// back afterwards so the mounted screen can say which it was.
+    @Published var mountingReadOnly = false
+
+    /// Whether the drive on screen ended up read-only, whether or not that was
+    /// what was asked for. A drive that refused to be written to is mounted
+    /// read-only rather than not at all, and says so.
+    @Published var mountedReadOnly = false
+
+    /// The mount points opened read-only, so the list can mark them.
+    ///
+    /// By mount point rather than by drive, because that is what the row has
+    /// and what survives a rebuild of the list.
+    @Published var readOnlyMounts: Set<String> = []
+
+    func unlock(_ drive: Drive, readOnly: Bool = false) {
         credentialProblem = nil
+        mountingReadOnly = readOnly
         let raw = credential
         // Nothing to unlock: the first sector reports it as unencrypted, so the
         // engine mounts it without a credential and whatever is in the field,
@@ -1204,9 +1226,11 @@ final class AppModel: ObservableObject {
                 }
             }
 
+            let readOnly = mountingReadOnly
             mountTask = Task {
                 let outcome = await helper.mount(
-                    drive: drive, aliasPath: aliasPath, volume: nil, credential: credential)
+                    drive: drive, aliasPath: aliasPath, volume: nil, credential: credential,
+                    readOnly: readOnly)
                 poll.cancel()
                 guard let outcome else {
                     // The helper went away; take the ordinary route.
@@ -1283,6 +1307,13 @@ final class AppModel: ObservableObject {
     private func finishMount(
         drive: Drive, credential: String, mountPoint: String, transcript: String = ""
     ) {
+        // Read-only either because it was asked for, or because the drive
+        // refused to be written to and the script fell back. The second is the
+        // one worth reporting, and both are recorded the same way.
+        mountedReadOnly =
+            mountingReadOnly
+            || transcript.contains(MountScript.stageMarker + "read-only")
+            || statusLines.contains { $0.contains(MountScript.stageMarker + "read-only") }
         if !transcript.isEmpty { noteVolumeCount(transcript) }
         if rememberCredential {
             if !CredentialStore.save(credential, for: drive.uuid) {
@@ -1290,6 +1321,11 @@ final class AppModel: ObservableObject {
             }
         } else {
             CredentialStore.delete(for: drive.uuid)
+        }
+        if mountedReadOnly {
+            readOnlyMounts.insert(mountPoint)
+        } else {
+            readOnlyMounts.remove(mountPoint)
         }
         DriveMemory.remember(mountPoint: mountPoint, for: drive.uuid)
         // Authorisation has just been demonstrated, so the helper is registered
@@ -1309,10 +1345,12 @@ final class AppModel: ObservableObject {
     /// Identical to the authorised route apart from the authorisation: the same
     /// script, progress and failures. Only container files reach it.
     private func runMountAsThisUser(drive: Drive, credential: String, workspace ws: Workspace) {
+        let readOnly = mountingReadOnly
         mountTask = Task.detached(priority: .userInitiated) {
             do {
                 let result = try Mounter.mount(
                     drive: drive, credential: credential, workspace: ws, elevated: false,
+                    readOnly: readOnly,
                     progress: { line in
                         Task { @MainActor in self.appendStatus(line) }
                     })
@@ -1338,6 +1376,7 @@ final class AppModel: ObservableObject {
     private func runMountWithAuthorisation(
         drive: Drive, credential: String, workspace ws: Workspace
     ) {
+        let readOnly = mountingReadOnly
         // Held as the helper's is, so that Cancel reaches this route as well.
         mountTask = Task.detached(priority: .userInitiated) {
             do {
@@ -1345,6 +1384,7 @@ final class AppModel: ObservableObject {
                     drive: drive,
                     credential: credential,
                     workspace: ws,
+                    readOnly: readOnly,
                     progress: { line in
                         Task { @MainActor in self.appendStatus(line) }
                     })
@@ -1364,6 +1404,14 @@ final class AppModel: ObservableObject {
                     // unlock can name the share before mounting.
                     DriveMemory.remember(mountPoint: result.mountPoint, for: drive.uuid)
                     Log.mount.notice("mounted without the helper")
+                    self.mountedReadOnly =
+                        readOnly
+                        || result.transcript.contains(MountScript.stageMarker + "read-only")
+                    if self.mountedReadOnly {
+                        self.readOnlyMounts.insert(result.mountPoint)
+                    } else {
+                        self.readOnlyMounts.remove(result.mountPoint)
+                    }
                     self.openMounts[drive.devicePath] = result.mountPoint
                     self.noteVolumeCount(result.transcript)
                     self.collectVolumes(for: drive, fallback: result.mountPoint)

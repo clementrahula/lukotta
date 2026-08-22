@@ -28,6 +28,7 @@ public enum Mounter {
         volume: LogicalVolume? = nil,
         workspace: Workspace,
         elevated: Bool = true,
+        readOnly: Bool = false,
         progress: @escaping (String) -> Void
     ) throws -> MountResult {
 
@@ -73,7 +74,8 @@ public enum Mounter {
                 gid: getgid(),
                 cores: MountScript.VirtualMachine.cores,
                 ramMiB: MountScript.VirtualMachine.ramMiB,
-                elevated: elevated))
+                elevated: elevated,
+                readOnly: readOnly))
 
         let scriptURL = workspace.root.appendingPathComponent("mount.sh")
         try script.write(to: scriptURL, atomically: true, encoding: .utf8)

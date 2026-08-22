@@ -101,6 +101,21 @@ enum Snapshots {
                     $0.phase = .chooseDrive
                 }
             ),
+            // A drive opened read-only: the pill beside the state, which is the
+            // only place the list says so.
+            (
+                "drives-read-only",
+                model {
+                    $0.phase = .chooseDrive
+                    $0.drives = [drive, linux]
+                    $0.openMounts = ["/dev/disk4s1": "/Users/someone/Volumes/Elements"]
+                    $0.readOnlyMounts = ["/Users/someone/Volumes/Elements"]
+                    $0.space = [
+                        "/Users/someone/Volumes/Elements": VolumeSpace(
+                            free: 122_000_000_000, total: 500_072_185_856)
+                    ]
+                }
+            ),
             // A drive open, with the free space and volume count the list shows
             // once it is. The row is at its widest here.
             (

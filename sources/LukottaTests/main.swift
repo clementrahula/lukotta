@@ -2025,10 +2025,17 @@ group("readOnlyIsBothSidesOfTheConnection") {
     // guest read-only underneath it. Either alone leaves one side able to
     // write, so both are asserted here.
     let script = MountScript.build(sampleInputs(readOnly: true))
-    expect(script.contains("-o ro"), "the guest mounts the filesystem read-only")
+    expect(script.contains(" -o ro"), "the guest mounts the filesystem read-only")
     expect(
-        script.contains("--nfs-export-opts=ro,no_subtree_check,no_root_squash,insecure"),
-        "and the export is read-only, with the rest of the engine's default kept")
+        script.contains("readahead=128,ro"),
+        "and the host's own mount is read-only, which is the half Finder reads")
+
+    // The engine refuses --nfs-export-opts together with --ignore-permissions,
+    // and overriding the export would discard what --ignore-permissions sets,
+    // which is what makes the files readable by whoever opened the drive.
+    expect(
+        !script.contains("nfs-export-opts"),
+        "and the export is left as the engine sets it")
 
     // Every attempt, not merely the first: the ntfs-3g retry and the LVM
     // discovery must not quietly mount a drive read-write after the read-only

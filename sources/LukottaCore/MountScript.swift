@@ -44,10 +44,10 @@ public enum MountScript {
 
         /// Mount the filesystem read-only, and export it read-only.
         ///
-        /// Both are required. The export stops the host writing, and `-o ro`
-        /// makes the mount inside the guest read-only underneath it, so nothing
-        /// on either side of the NFS connection can modify the drive. A volume
-        /// Windows left dirty also mounts this way where read-write is refused.
+        /// Both sides are set. `-o ro` makes the mount inside the guest
+        /// read-only, and `ro` among the NFS options makes the host's own mount
+        /// read-only, which is the half Finder reads. A volume Windows left
+        /// dirty also mounts this way where read-write is refused.
         var readOnly = false
 
         /// macOS negotiates 32 KiB NFS transfers by default and supports 1 MiB,
@@ -234,7 +234,7 @@ public enum MountScript {
                 mountCommand(
                     engineQ: engineQ,
                     target: shellQuoted(volume.mountIdentifier),
-                    driver: nil, options: i.nfsOptions, readOnly: i.readOnly,
+                    driver: nil, options: nfsOptions(i), readOnly: i.readOnly,
                     logQ: logQ)
             ]
         }
@@ -254,7 +254,7 @@ public enum MountScript {
             drivers.map {
                 mountCommand(
                     engineQ: engineQ, target: target, driver: $0,
-                    options: i.nfsOptions, readOnly: i.readOnly, logQ: logQ)
+                    options: nfsOptions(i), readOnly: i.readOnly, logQ: logQ)
             }
         }
         if i.kind == .linux {
@@ -298,17 +298,38 @@ public enum MountScript {
             + " \(target) >> \(logQ) 2>&1 && \(mountedCheck)"
     }
 
-    /// What makes a mount read-only, on both sides of the NFS connection.
+    /// What makes the mount inside the guest read-only.
     ///
-    /// `-o ro` is passed to the mount inside the guest. The export options
-    /// replace the engine's own default of "{rw/ro},no_subtree_check,
-    /// no_root_squash,insecure", which is the only way to make the export
-    /// read-only, and the rest of that default is repeated so that nothing else
-    /// about the export changes.
+    /// The host side is done separately, through the NFS options, because the
+    /// engine refuses `--nfs-export-opts` together with `--ignore-permissions`:
+    /// "the argument '--ignore-permissions' cannot be used with
+    /// '--nfs-export-opts'". Overriding the export would also discard what
+    /// `--ignore-permissions` sets, which is what makes the files readable by
+    /// the person who opened the drive.
     static func readOnlyFlags(_ readOnly: Bool) -> String {
-        readOnly
-            ? " -o ro --nfs-export-opts=ro,no_subtree_check,no_root_squash,insecure"
-            : ""
+        // Not a ternary of two literals: the string extractor reads both halves
+        // of one as text shown to someone, and these are engine flags.
+        guard readOnly else { return "" }
+        return " -o ro"
+    }
+
+    /// What each volume of a container is mounted with inside the guest.
+    ///
+    /// Written as a guard rather than a ternary of two literals, which the
+    /// string extractor reads as text shown to someone.
+    static func perVolumeOptions(_ i: Inputs) -> String {
+        guard i.readOnly else { return "" }
+        return "-o ro "
+    }
+
+    /// The NFS options for a mount, with `ro` added when it is read-only.
+    ///
+    /// This is the half Finder sees. Without it the volume is presented as
+    /// writable and a write fails with "Permission denied" at the moment it is
+    /// attempted; with it the volume is read-only in the mount table, Finder
+    /// marks it so, and a write fails as "Read-only file system".
+    static func nfsOptions(_ i: Inputs) -> String {
+        i.readOnly ? i.nfsOptions + ",ro" : i.nfsOptions
     }
 
     /// Rows of `list --decrypt=all` that are mountable logical volumes: an
@@ -356,7 +377,7 @@ public enum MountScript {
               else
                 __opened=0
                 for __lv in $__lvs; do
-                  ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions\(readOnlyFlags(i.readOnly)) -w false --nfs-options=\(shellQuoted(i.nfsOptions)) "lvm:$__lv" >> \(logQ) 2>&1
+                  ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions\(readOnlyFlags(i.readOnly)) -w false --nfs-options=\(shellQuoted(nfsOptions(i))) "lvm:$__lv" >> \(logQ) 2>&1
                   __now=$(\(mountCount))
                   if [ "$__now" -gt "$__mounts" ]; then
                     __opened=$((__opened+1))
@@ -402,7 +423,7 @@ public enum MountScript {
         // nested NFS mount ever fail on the host, the bare tmpfs stub under it
         // must not accept writes the user believes go to the drive.
         return """
-                awk -v s='\(scratch)' -v q="'" -v ro='\(i.readOnly ? "-o ro " : "")' '\(lvRow) {
+                awk -v s='\(scratch)' -v q="'" -v ro='\(perVolumeOptions(i))' '\(lvRow) {
                     n++
                     lv = $NF; sub(/^.*:/, "", lv)
                     vg = $NF; sub(/:.*/, "", vg)
@@ -448,7 +469,7 @@ public enum MountScript {
                        !skip' \(configQ) 2>/dev/null; cat \(actionQ); } > \(mergedQ)
                 cat \(mergedQ) > \(configQ)
                 __first=$(printf '%s\\n' "$__lvs" | head -n 1)
-                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions\(readOnlyFlags(i.readOnly)) -w false --nfs-options=\(shellQuoted(i.nfsOptions)) -a \(generatedAction) "lvm:$__first" >> \(logQ) 2>&1
+                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions\(readOnlyFlags(i.readOnly)) -w false --nfs-options=\(shellQuoted(nfsOptions(i))) -a \(generatedAction) "lvm:$__first" >> \(logQ) 2>&1
             """
     }
 }
