@@ -13,6 +13,7 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/version-1.8.3-111111" alt="Version 1.8.3">
   <img src="https://img.shields.io/badge/macOS-15%20Sequoia%2B-111111" alt="macOS 15 Sequoia or later">
   <img src="https://img.shields.io/badge/Apple%20Silicon-arm64-111111" alt="Apple Silicon">
   <img src="https://img.shields.io/badge/licence-GPL--3.0--or--later-3b6ea5" alt="GPL-3.0-or-later">
@@ -20,7 +21,8 @@
 
 <p align="center">
   <a href="https://lukotta.rahula.dev">lukotta.rahula.dev</a> ·
-  <a href="https://github.com/clementrahula/lukotta/releases">Download</a>
+  <a href="https://github.com/clementrahula/lukotta/releases">Download</a> ·
+  <a href="FORMATS.md">Formats it opens</a>
 </p>
 
 ## How It Works

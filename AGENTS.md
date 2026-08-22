@@ -209,8 +209,9 @@ committed and its tests pass.
 The first number is the owner's decision. The script refuses to raise it without
 `--approved`, and that flag is not to be used without asking.
 
-Tagging is a separate act, `--tag`, and means a release. There have been no
-releases yet.
+Every bump is tagged `v<version>`, so each version is a point in the history
+that can be checked out and built. `--no-tag` skips it. Push with
+`git push origin main --follow-tags`.
 
 There is no changelog file. git records what changed for anyone working here,
 and each release will carry its own notes under `releases/<version>.md`, which

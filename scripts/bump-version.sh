@@ -6,19 +6,19 @@
 #   ./scripts/bump-version.sh major    1.1.0 -> 2.0.0   (owner's approval only)
 #
 # The version is bumped as work lands, not at release time: patch for a fix,
-# minor for a feature. Add --tag to also tag the commit, which is what a release
-# does; without it the bump is only a bump.
+# minor for a feature. Every bump is tagged, so each version is a point in the
+# history that can be checked out and built; --no-tag skips that.
 #
 # The first number is the owner's decision. This refuses to raise it unless
 # --approved is given, so that it cannot happen as a side effect.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 PART="${1:-patch}"
-TAG=false
+TAG=true
 APPROVED=false
 for arg in "$@"; do
   case "$arg" in
-    --tag) TAG=true ;;
+    --no-tag) TAG=false ;;
     --approved) APPROVED=true ;;
   esac
 done
@@ -38,7 +38,13 @@ NEW="$MA.$MI.$PA"
 [ -z "$(git -C "$HERE" status --porcelain)" ] || {
   echo "error: working tree is dirty; commit first" >&2; exit 1; }
 printf '%s\n' "$NEW" > "$HERE/VERSION"
-git -C "$HERE" add VERSION
+# The README carries the version as a badge, which would otherwise be wrong from
+# the moment this runs.
+/usr/bin/sed -i '' \
+  -e "s|badge/version-[0-9.]*-|badge/version-$NEW-|" \
+  -e "s|alt=\"Version [0-9.]*\"|alt=\"Version $NEW\"|" \
+  "$HERE/README.md"
+git -C "$HERE" add VERSION README.md
 git -C "$HERE" commit -q -m "Version $NEW"
 if [ "$TAG" = true ]; then
   git -C "$HERE" tag -a "v$NEW" -m "Lukotta v$NEW"
