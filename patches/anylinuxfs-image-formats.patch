@@ -21,24 +21,26 @@ diff -ruN a/anylinuxfs/src/cmd_mount.rs b/anylinuxfs/src/cmd_mount.rs
              DevInfo::pv(token, true)?
 diff -ruN a/anylinuxfs/src/devinfo.rs b/anylinuxfs/src/devinfo.rs
 --- a/anylinuxfs/src/devinfo.rs	2026-07-20 19:00:52
-+++ b/anylinuxfs/src/devinfo.rs	2026-08-22 10:09:18
-@@ -14,6 +14,9 @@
++++ b/anylinuxfs/src/devinfo.rs	2026-08-22 10:57:18
+@@ -14,6 +14,10 @@
      #[default]
      Raw,
      Qcow2,
 +    Vmdk,
 +    Vdi,
 +    Vhd,
++    Vhdx,
  }
  
  impl DiskFormat {
-@@ -22,12 +25,30 @@
+@@ -22,12 +26,34 @@
          match self {
              DiskFormat::Raw => 0,
              DiskFormat::Qcow2 => 1,
 +            DiskFormat::Vmdk => 2,
 +            DiskFormat::Vdi => 3,
 +            DiskFormat::Vhd => 4,
++            DiskFormat::Vhdx => 5,
          }
      }
  
@@ -53,6 +55,9 @@ diff -ruN a/anylinuxfs/src/devinfo.rs b/anylinuxfs/src/devinfo.rs
              DiskFormat::Qcow2
 +        } else if path.as_ref().ends_with(b".vmdk") {
 +            DiskFormat::Vmdk
++        } else if path.as_ref().ends_with(b".vhdx") {
++            // Before ".vhd", which is a suffix of it and a different format.
++            DiskFormat::Vhdx
 +        } else if path.as_ref().ends_with(b".vdi") {
 +            DiskFormat::Vdi
 +        } else if path.as_ref().ends_with(b".vhd") {

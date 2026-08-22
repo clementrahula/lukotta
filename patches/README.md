@@ -60,7 +60,7 @@ one holding a LUKS container. The end-to-end test builds one and opens it.
 Sparse VMDKs and snapshot chains are not supported by the engine's image layer,
 and the app says so by name rather than letting either fail obscurely.
 
-## imago-vdi-and-vhd.patch
+## imago-vdi-vhd-and-vhdx.patch
 
 **What it does.** Adds two read-only drivers to imago, the crate that reads
 image formats for the engine, and lists them in `Format` so the rest of the
@@ -121,7 +121,7 @@ identical to the raw disk it was made from, and mounts through the app; the one
 it identical to the same disk, and by `qemu-img check`, which finds no errors.
 The flat form still reads as it did.
 
-## krun-devices-vdi-and-vhd.patch
+## krun-devices-image-formats.patch
 
 **What it does.** Adds `ImageType::Vdi` and `ImageType::Vhd`, maps disk formats
 3 and 4 onto them, and opens each with the matching imago driver. libkrun itself

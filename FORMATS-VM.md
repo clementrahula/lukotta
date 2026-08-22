@@ -85,7 +85,7 @@ VMDK driver is 743 lines and raw is 379.
 1. ~~**Ship fixed VHD now.**~~ *Done.* It works; the app only has to accept
    `.vhd` and pass it through as raw.
 2. ~~**VDI, then dynamic VHD**, as imago drivers.~~ *Done.* Both are in
-   `patches/imago-vdi-and-vhd.patch`, built in through `[patch.crates-io]`
+   `patches/imago-vdi-vhd-and-vhdx.patch`, built in through `[patch.crates-io]`
    alongside the anylinuxfs patch, with `krun-devices` taught to ask for formats
    3 and 4. Worth offering upstream rather than carrying.
 3. **VHDX last, or never.** It is most of the work and all of the risk, and it

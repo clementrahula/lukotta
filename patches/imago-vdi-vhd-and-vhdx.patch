@@ -1,16 +1,17 @@
 diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.rs
 --- a/src/format/builder.rs	2006-07-24 04:21:28
-+++ b/src/format/builder.rs	2026-08-22 10:42:25
-@@ -7,6 +7,8 @@
++++ b/src/format/builder.rs	2026-08-22 10:57:34
+@@ -7,6 +7,9 @@
  use crate::misc_helpers::ResultErrorContext;
  use crate::qcow2::Qcow2OpenBuilder;
  use crate::raw::RawOpenBuilder;
 +use crate::vdi::VdiOpenBuilder;
 +use crate::vhd::VhdOpenBuilder;
++use crate::vhdx::VhdxOpenBuilder;
  use crate::vmdk::VmdkOpenBuilder;
  use crate::{Storage, StorageOpenOptions};
  use std::io;
-@@ -328,6 +330,12 @@
+@@ -328,6 +331,15 @@
  
      /// Vmdk image builder
      VmdkBuilder(Box<VmdkOpenBuilder<S>>),
@@ -20,19 +21,23 @@ diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.r
 +
 +    /// Vhd image builder
 +    VhdBuilder(Box<VhdOpenBuilder<S>>),
++
++    /// Vhdx image builder
++    VhdxBuilder(Box<VhdxOpenBuilder<S>>),
  }
  
  impl<S: Storage + 'static, F: WrappedFormat<S> + 'static> FormatOrBuilder<S, F> {
-@@ -339,6 +347,8 @@
+@@ -339,6 +351,9 @@
              Format::Qcow2 => Self::Qcow2Builder(Box::new(Qcow2OpenBuilder::new_path(path))),
              Format::Raw => Self::RawBuilder(Box::new(RawOpenBuilder::new_path(path))),
              Format::Vmdk => Self::VmdkBuilder(Box::new(VmdkOpenBuilder::new_path(path))),
 +            Format::Vdi => Self::VdiBuilder(Box::new(VdiOpenBuilder::new_path(path))),
 +            Format::Vhd => Self::VhdBuilder(Box::new(VhdOpenBuilder::new_path(path))),
++            Format::Vhdx => Self::VhdxBuilder(Box::new(VhdxOpenBuilder::new_path(path))),
          }
      }
  
-@@ -359,6 +369,14 @@
+@@ -359,6 +374,18 @@
                  gate.open_format(b).await?
              }
              FormatOrBuilder::VmdkBuilder(b) => {
@@ -44,13 +49,17 @@ diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.r
 +                gate.open_format(b).await?
 +            }
 +            FormatOrBuilder::VhdBuilder(b) => {
++                let b = b.storage_open_options(opts);
++                gate.open_format(b).await?
++            }
++            FormatOrBuilder::VhdxBuilder(b) => {
                  let b = b.storage_open_options(opts);
                  gate.open_format(b).await?
              }
 diff -ruN -x target -x Cargo.lock a/src/format/mod.rs b/src/format/mod.rs
 --- a/src/format/mod.rs	2006-07-24 04:21:28
-+++ b/src/format/mod.rs	2026-08-22 10:42:25
-@@ -22,6 +22,12 @@
++++ b/src/format/mod.rs	2026-08-22 10:57:34
+@@ -22,6 +22,15 @@
  
      /// VMDK format
      Vmdk,
@@ -60,25 +69,29 @@ diff -ruN -x target -x Cargo.lock a/src/format/mod.rs b/src/format/mod.rs
 +
 +    /// VHD format (fixed or dynamic)
 +    Vhd,
++
++    /// VHDX format
++    Vhdx,
  }
  
  /// Format layer preallocation modes.
 diff -ruN -x target -x Cargo.lock a/src/lib.rs b/src/lib.rs
 --- a/src/lib.rs	2006-07-24 04:21:28
-+++ b/src/lib.rs	2026-08-22 10:42:25
-@@ -104,7 +104,9 @@
++++ b/src/lib.rs	2026-08-22 10:57:34
+@@ -104,7 +104,10 @@
  pub mod qcow2;
  pub mod raw;
  pub mod storage;
 +pub mod vdi;
  mod vector_select;
 +pub mod vhd;
++pub mod vhdx;
  pub mod vmdk;
  
  pub use format::access::{FormatAccess, Mapping};
 diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 --- a/src/vdi/mod.rs	1970-01-01 03:00:00
-+++ b/src/vdi/mod.rs	2026-08-22 10:42:25
++++ b/src/vdi/mod.rs	2026-08-22 10:57:34
 @@ -0,0 +1,401 @@
 +// SPDX-License-Identifier: MIT
 +// Copyright (c) 2026 Clement Rahula
@@ -483,7 +496,7 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +}
 diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 --- a/src/vhd/mod.rs	1970-01-01 03:00:00
-+++ b/src/vhd/mod.rs	2026-08-22 10:42:25
++++ b/src/vhd/mod.rs	2026-08-22 10:57:34
 @@ -0,0 +1,450 @@
 +// SPDX-License-Identifier: MIT
 +// Copyright (c) 2026 Clement Rahula
@@ -921,6 +934,593 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +        }
 +        let file = self.0.open_image(&mut gate).await?;
 +        Vhd::open_image(file, false).await
++    }
++
++    fn get_image_path(&self) -> Option<PathBuf> {
++        self.0.get_image_path()
++    }
++
++    fn get_writable(&self) -> bool {
++        self.0.get_writable()
++    }
++
++    fn get_storage_open_options(&self) -> Option<&StorageOpenOptions> {
++        self.0.get_storage_opts()
++    }
++}
+diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
+--- a/src/vhdx/mod.rs	1970-01-01 03:00:00
++++ b/src/vhdx/mod.rs	2026-08-22 10:57:34
+@@ -0,0 +1,583 @@
++// SPDX-License-Identifier: MIT
++// Copyright (c) 2026 Clement Rahula
++//
++// Written for Lukotta and offered under imago's own licence rather than
++// Lukotta's, so that it can be taken upstream.
++
++//! VHDX implementation.
++//!
++//! Microsoft's second format, read-only, and the only one here with more than
++//! one thing to find before the disk can be read:
++//!
++//! - two headers, of which the one with the higher sequence number and a sound
++//!   checksum is the live one;
++//! - a region table naming where the allocation table and the metadata are;
++//! - a metadata region giving the block size, the disk size and the sector
++//!   size;
++//! - an allocation table with one entry per block, interleaved with entries
++//!   describing sector bitmaps, which only a differencing image uses.
++//!
++//! Two things are refused rather than read. An image that **names a parent** is
++//! a differencing image, and nothing here opens a second file. An image whose
++//! **log is not empty** was not closed cleanly, and its newest metadata is in
++//! that log rather than in the file proper: replaying it means writing, which a
++//! read-only driver must not do, and ignoring it means quietly serving stale
++//! data — which is the failure that looks like corruption.
++
++use crate::format::builder::{FormatDriverBuilder, FormatDriverBuilderBase};
++use crate::format::drivers::FormatDriverInstance;
++use crate::format::gate::ImplicitOpenGate;
++use crate::format::{Format, PreallocateMode};
++use crate::io_buffers::IoBuffer;
++use crate::misc_helpers::invalid_data;
++use crate::storage::ext::StorageExt;
++use crate::{ShallowMapping, Storage, StorageOpenOptions};
++use async_trait::async_trait;
++use std::fmt::{self, Display, Formatter};
++use std::path::{Path, PathBuf};
++use std::{cmp, io};
++
++/// What the file begins with.
++const FILE_SIGNATURE: &[u8; 8] = b"vhdxfile";
++/// Where the two headers sit, one after the other.
++const HEADER_OFFSETS: [u64; 2] = [0x1_0000, 0x2_0000];
++/// What each header begins with.
++const HEADER_SIGNATURE: &[u8; 4] = b"head";
++/// How long a header is, checksum included.
++const HEADER_LENGTH: usize = 4096;
++/// Where the two region tables sit.
++const REGION_OFFSETS: [u64; 2] = [0x3_0000, 0x4_0000];
++/// What each region table begins with.
++const REGION_SIGNATURE: &[u8; 4] = b"regi";
++/// How long a region table is.
++const REGION_LENGTH: usize = 65536;
++/// What the metadata region begins with.
++const METADATA_SIGNATURE: &[u8; 8] = b"metadata";
++
++/// The region holding the block allocation table.
++const GUID_BAT: [u8; 16] = [
++    0x66, 0x77, 0xC2, 0x2D, 0x23, 0xF6, 0x00, 0x42, 0x9D, 0x64, 0x11, 0x5E, 0x9B, 0xFD, 0x4A, 0x08,
++];
++/// The region holding the metadata table.
++const GUID_METADATA: [u8; 16] = [
++    0x06, 0xA2, 0x7C, 0x8B, 0x90, 0x47, 0x9A, 0x4B, 0xB8, 0xFE, 0x57, 0x5F, 0x05, 0x0F, 0x88, 0x6E,
++];
++/// Block size and whether the image names a parent.
++const GUID_FILE_PARAMETERS: [u8; 16] = [
++    0x37, 0x67, 0xA1, 0xCA, 0x36, 0xFA, 0x43, 0x4D, 0xB3, 0xB6, 0x33, 0xF0, 0xAA, 0x44, 0xE7, 0x6B,
++];
++/// How large the virtual disk is.
++const GUID_VIRTUAL_DISK_SIZE: [u8; 16] = [
++    0x24, 0x42, 0xA5, 0x2F, 0x1B, 0xCD, 0x76, 0x48, 0xB2, 0x11, 0x5D, 0xBE, 0xD8, 0x3B, 0xF4, 0xB8,
++];
++/// The sector size the disk is addressed in.
++const GUID_LOGICAL_SECTOR_SIZE: [u8; 16] = [
++    0x1D, 0xBF, 0x41, 0x81, 0x6F, 0xA9, 0x09, 0x47, 0xBA, 0x47, 0xF2, 0x33, 0xA8, 0xFA, 0xAB, 0x5F,
++];
++
++/// The block was never written, and reads as zeroes.
++const BLOCK_NOT_PRESENT: u64 = 0;
++/// The block holds nothing, and reads as zeroes.
++const BLOCK_UNDEFINED: u64 = 1;
++/// The block was written as zeroes.
++const BLOCK_ZERO: u64 = 2;
++/// The block was discarded, and reads as zeroes.
++const BLOCK_UNMAPPED: u64 = 3;
++/// The block is in the file, whole.
++const BLOCK_FULLY_PRESENT: u64 = 6;
++/// Part of the block is in the file and the rest is in a parent, which only a
++/// differencing image has.
++const BLOCK_PARTIALLY_PRESENT: u64 = 7;
++
++/// An allocation table larger than this would be a disk of some hundreds of
++/// terabytes, and reading it is the only unbounded allocation here.
++const MAX_BAT_ENTRIES: u64 = 1 << 24;
++
++/// CRC-32C, which is what VHDX checksums its headers and tables with.
++///
++/// Done a bit at a time, which is slow and does not matter: it runs over a few
++/// tens of kilobytes, once, when the image is opened.
++fn crc32c(data: &[u8]) -> u32 {
++    let mut crc = 0xFFFF_FFFFu32;
++    for byte in data {
++        crc ^= *byte as u32;
++        for _ in 0..8 {
++            let bit = crc & 1;
++            crc >>= 1;
++            if bit != 0 {
++                crc ^= 0x82F6_3B78; // the Castagnoli polynomial, reversed
++            }
++        }
++    }
++    !crc
++}
++
++/// Whether `block` checksums to the value stored at `at` within it.
++fn checksum_holds(block: &[u8], at: usize) -> bool {
++    let mut copy = block.to_vec();
++    let stored = u32::from_le_bytes(copy[at..at + 4].try_into().unwrap());
++    copy[at..at + 4].fill(0);
++    crc32c(&copy) == stored
++}
++
++/// Read a little-endian `u32` at `offset` in `buf`.
++fn le32(buf: &[u8], offset: usize) -> u32 {
++    u32::from_le_bytes(buf[offset..offset + 4].try_into().unwrap())
++}
++
++/// Read a little-endian `u64` at `offset` in `buf`.
++fn le64(buf: &[u8], offset: usize) -> u64 {
++    u64::from_le_bytes(buf[offset..offset + 8].try_into().unwrap())
++}
++
++/// Where a region of the file is, and how long.
++#[derive(Debug, Clone, Copy)]
++struct Region {
++    /// Where it begins.
++    offset: u64,
++    /// How long it is.
++    length: u64,
++}
++
++/// VHDX disk image format implementation, read-only.
++#[derive(Debug)]
++pub struct Vhdx<S: Storage + 'static> {
++    /// The image file.
++    inner: S,
++
++    /// How large the virtual disk is.
++    size: u64,
++
++    /// How much disk one block holds.
++    block_size: u64,
++
++    /// How many payload blocks share one sector-bitmap entry in the table.
++    chunk_ratio: u64,
++
++    /// The allocation table, read once when the image is opened.
++    bat: Vec<u64>,
++}
++
++impl<S: Storage + 'static> Vhdx<S> {
++    /// Create a new [`FormatDriverBuilder`] instance for the given image.
++    pub fn builder(image: S) -> VhdxOpenBuilder<S> {
++        VhdxOpenBuilder::new(image)
++    }
++
++    /// Create a new [`FormatDriverBuilder`] instance for an image under the given path.
++    pub fn builder_path<P: AsRef<Path>>(image_path: P) -> VhdxOpenBuilder<S> {
++        VhdxOpenBuilder::new_path(image_path)
++    }
++
++    /// Read one block of the file.
++    async fn read_at(inner: &S, offset: u64, length: usize) -> io::Result<Vec<u8>> {
++        let file_size = inner.size()?;
++        if offset
++            .checked_add(length as u64)
++            .is_none_or(|end| end > file_size)
++        {
++            return Err(invalid_data("VHDX structure lies outside the file"));
++        }
++        let mut buf = IoBuffer::new(length, inner.mem_align())?;
++        inner.read(buf.as_mut(), offset).await?;
++        Ok(buf.as_ref().into_slice().to_vec())
++    }
++
++    /// Find the live header: the one with the higher sequence number, of those
++    /// whose checksum holds.
++    async fn read_header(inner: &S) -> io::Result<()> {
++        let mut live: Option<(u64, Vec<u8>)> = None;
++        for at in HEADER_OFFSETS {
++            let Ok(block) = Self::read_at(inner, at, HEADER_LENGTH).await else {
++                continue;
++            };
++            if &block[..4] != HEADER_SIGNATURE || !checksum_holds(&block, 4) {
++                continue;
++            }
++            let sequence = le64(&block, 8);
++            if live.as_ref().is_none_or(|(seen, _)| sequence > *seen) {
++                live = Some((sequence, block));
++            }
++        }
++        let Some((_, header)) = live else {
++            return Err(invalid_data("VHDX has no sound header"));
++        };
++
++        // A log guid of zero means the log holds nothing. Anything else means
++        // the image was not closed cleanly and its newest state is in the log:
++        // replaying it is a write, and skipping it would serve stale data.
++        if header[48..64] != [0u8; 16] {
++            return Err(io::Error::new(
++                io::ErrorKind::Unsupported,
++                "VHDX was not closed cleanly and its log has yet to be replayed",
++            ));
++        }
++        Ok(())
++    }
++
++    /// Read the region table and return where the allocation table and the
++    /// metadata are.
++    async fn read_regions(inner: &S) -> io::Result<(Region, Region)> {
++        let mut sound: Option<Vec<u8>> = None;
++        for at in REGION_OFFSETS {
++            let Ok(block) = Self::read_at(inner, at, REGION_LENGTH).await else {
++                continue;
++            };
++            if &block[..4] == REGION_SIGNATURE && checksum_holds(&block, 4) {
++                sound = Some(block);
++                break;
++            }
++        }
++        let Some(table) = sound else {
++            return Err(invalid_data("VHDX has no sound region table"));
++        };
++
++        let count = le32(&table, 8) as usize;
++        if count > (REGION_LENGTH - 16) / 32 {
++            return Err(invalid_data("VHDX region table claims more entries than fit"));
++        }
++
++        let mut bat = None;
++        let mut metadata = None;
++        for i in 0..count {
++            let at = 16 + i * 32;
++            let guid: [u8; 16] = table[at..at + 16].try_into().unwrap();
++            let region = Region {
++                offset: le64(&table, at + 16),
++                length: le32(&table, at + 24) as u64,
++            };
++            let required = le32(&table, at + 28) & 1 == 1;
++            match guid {
++                GUID_BAT => bat = Some(region),
++                GUID_METADATA => metadata = Some(region),
++                // A region this does not know, which the image says must be
++                // understood to read it at all.
++                _ if required => {
++                    return Err(io::Error::new(
++                        io::ErrorKind::Unsupported,
++                        "VHDX holds a region this does not know and may not skip",
++                    ))
++                }
++                _ => (),
++            }
++        }
++
++        match (bat, metadata) {
++            (Some(bat), Some(metadata)) => Ok((bat, metadata)),
++            _ => Err(invalid_data("VHDX names no allocation table or no metadata")),
++        }
++    }
++
++    /// Read the metadata region: block size, disk size, sector size.
++    async fn read_metadata(inner: &S, region: Region) -> io::Result<(u64, u64, u64)> {
++        let length = cmp::min(region.length, 1 << 20) as usize;
++        let table = Self::read_at(inner, region.offset, length).await?;
++        if &table[..8] != METADATA_SIGNATURE {
++            return Err(invalid_data("VHDX metadata is not where the region says"));
++        }
++
++        let count = u16::from_le_bytes(table[10..12].try_into().unwrap()) as usize;
++        if 32 + count * 32 > length {
++            return Err(invalid_data("VHDX metadata claims more entries than fit"));
++        }
++
++        let mut block_size = None;
++        let mut disk_size = None;
++        let mut sector_size = None;
++        for i in 0..count {
++            let at = 32 + i * 32;
++            let guid: [u8; 16] = table[at..at + 16].try_into().unwrap();
++            let offset = le32(&table, at + 16) as usize;
++            let item_length = le32(&table, at + 20) as usize;
++            if offset.checked_add(item_length).is_none_or(|end| end > length) {
++                return Err(invalid_data("VHDX metadata item lies outside its region"));
++            }
++            match guid {
++                GUID_FILE_PARAMETERS if item_length >= 8 => {
++                    block_size = Some(le32(&table, offset) as u64);
++                    // Bit 1 says the image holds only what changed from a
++                    // parent disk, which it names elsewhere in this region.
++                    if le32(&table, offset + 4) & 2 != 0 {
++                        return Err(io::Error::new(
++                            io::ErrorKind::Unsupported,
++                            "VHDX holds only the changes from another disk, which it names",
++                        ));
++                    }
++                }
++                GUID_VIRTUAL_DISK_SIZE if item_length >= 8 => {
++                    disk_size = Some(le64(&table, offset));
++                }
++                GUID_LOGICAL_SECTOR_SIZE if item_length >= 4 => {
++                    sector_size = Some(le32(&table, offset) as u64);
++                }
++                _ => (),
++            }
++        }
++
++        match (block_size, disk_size, sector_size) {
++            (Some(block), Some(disk), Some(sector)) => Ok((block, disk, sector)),
++            _ => Err(invalid_data("VHDX does not say how large its blocks are")),
++        }
++    }
++
++    /// Read the header, the regions, the metadata and the allocation table.
++    async fn do_open(inner: S) -> io::Result<Self> {
++        let head = Self::read_at(&inner, 0, 8).await?;
++        if head != FILE_SIGNATURE {
++            return Err(invalid_data("Not a VHDX image"));
++        }
++
++        Self::read_header(&inner).await?;
++        let (bat_region, metadata_region) = Self::read_regions(&inner).await?;
++        let (block_size, size, sector_size) = Self::read_metadata(&inner, metadata_region).await?;
++
++        if block_size == 0 || !block_size.is_power_of_two() || block_size < 1 << 20 {
++            return Err(invalid_data(format!(
++                "VHDX block size {block_size} is not one this reads"
++            )));
++        }
++        if sector_size != 512 && sector_size != 4096 {
++            return Err(invalid_data(format!(
++                "VHDX sector size {sector_size} is not one this reads"
++            )));
++        }
++        if size == 0 {
++            return Err(invalid_data("VHDX says it holds nothing"));
++        }
++
++        // Every so many payload blocks the table holds one entry describing a
++        // sector bitmap instead, which only a differencing image uses. They are
++        // counted here so the payload ones can be found.
++        let chunk_ratio = ((1u64 << 23) * sector_size) / block_size;
++        if chunk_ratio == 0 {
++            return Err(invalid_data("VHDX block size does not fit its sector size"));
++        }
++        let blocks = size.div_ceil(block_size);
++        let entries = blocks + (blocks - 1) / chunk_ratio;
++        if entries > MAX_BAT_ENTRIES {
++            return Err(invalid_data(format!(
++                "VHDX allocation table has {entries} entries, which is more than this reads"
++            )));
++        }
++        if entries * 8 > bat_region.length {
++            return Err(invalid_data(
++                "VHDX allocation table is larger than the region holding it",
++            ));
++        }
++
++        let raw = Self::read_at(&inner, bat_region.offset, (entries * 8) as usize).await?;
++        let bat: Vec<u64> = (0..entries as usize).map(|i| le64(&raw, i * 8)).collect();
++
++        // A block pointing past the end of the file would be read as disk
++        // contents, so the table is checked here rather than per read.
++        let file_size = inner.size()?;
++        for entry in &bat {
++            if entry & 7 != BLOCK_FULLY_PRESENT {
++                continue;
++            }
++            let at = entry & !0xF_FFFF;
++            if at
++                .checked_add(block_size)
++                .is_none_or(|end| end > file_size)
++            {
++                return Err(invalid_data(
++                    "VHDX allocation table points outside the image file",
++                ));
++            }
++        }
++
++        Ok(Vhdx {
++            inner,
++            size,
++            block_size,
++            chunk_ratio,
++            bat,
++        })
++    }
++
++    /// Open a VHDX image, read-only.
++    pub async fn open_image(inner: S, writable: bool) -> io::Result<Self> {
++        if writable {
++            return Err(io::Error::new(
++                io::ErrorKind::Unsupported,
++                "No VHDX write support",
++            ));
++        }
++        Self::do_open(inner).await
++    }
++
++    /// Synchronous wrapper around [`Vhdx::open_image()`].
++    #[cfg(feature = "sync-wrappers")]
++    pub fn open_image_sync(inner: S, writable: bool) -> io::Result<Self> {
++        tokio::runtime::Builder::new_current_thread()
++            .build()?
++            .block_on(Self::open_image(inner, writable))
++    }
++}
++
++impl<S: Storage + 'static> Display for Vhdx<S> {
++    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
++        write!(f, "vhdx[{}]", self.inner)
++    }
++}
++
++#[async_trait(?Send)]
++impl<S: Storage + 'static> FormatDriverInstance for Vhdx<S> {
++    type Storage = S;
++
++    fn format(&self) -> Format {
++        Format::Vhdx
++    }
++
++    async unsafe fn probe(storage: &S) -> io::Result<bool>
++    where
++        Self: Sized,
++    {
++        if storage.size()? < 8 {
++            return Ok(false);
++        }
++        Ok(Self::read_at(storage, 0, 8).await? == FILE_SIGNATURE)
++    }
++
++    fn size(&self) -> u64 {
++        self.size
++    }
++
++    fn collect_storage_dependencies(&self) -> Vec<&S> {
++        vec![&self.inner]
++    }
++
++    fn writable(&self) -> bool {
++        false
++    }
++
++    async fn get_mapping<'a>(
++        &'a self,
++        offset: u64,
++        max_length: u64,
++    ) -> io::Result<(ShallowMapping<'a, S>, u64)> {
++        let remaining = match self.size.checked_sub(offset) {
++            None | Some(0) => return Ok((ShallowMapping::Eof {}, 0)),
++            Some(remaining) => remaining,
++        };
++
++        let block = offset / self.block_size;
++        let in_block = offset % self.block_size;
++        // Never longer than what is left of this block: the next one may be
++        // elsewhere in the file, or nowhere at all.
++        let length = cmp::min(
++            cmp::min(max_length, remaining),
++            self.block_size - in_block,
++        );
++
++        // The table holds a sector-bitmap entry after every `chunk_ratio`
++        // payload entries, so the payload ones are not where the block number
++        // alone would put them.
++        let index = block + block / self.chunk_ratio;
++        let Some(&entry) = self.bat.get(index as usize) else {
++            return Ok((ShallowMapping::Eof {}, 0));
++        };
++
++        match entry & 7 {
++            BLOCK_FULLY_PRESENT => Ok((
++                ShallowMapping::Raw {
++                    storage: &self.inner,
++                    offset: (entry & !0xF_FFFF) + in_block,
++                    writable: false,
++                },
++                length,
++            )),
++            BLOCK_ZERO | BLOCK_UNMAPPED => {
++                Ok((ShallowMapping::Zero { explicit: true }, length))
++            }
++            BLOCK_NOT_PRESENT | BLOCK_UNDEFINED => {
++                Ok((ShallowMapping::Zero { explicit: false }, length))
++            }
++            // Only a differencing image has these, and one is refused when it
++            // is opened, so reaching here means the image contradicts itself.
++            BLOCK_PARTIALLY_PRESENT => Err(io::Error::new(
++                io::ErrorKind::Unsupported,
++                "VHDX block is only partly present, which needs a parent disk",
++            )),
++            state => Err(invalid_data(format!("Unknown VHDX block state {state}"))),
++        }
++    }
++
++    async fn ensure_data_mapping<'a>(
++        &'a self,
++        _offset: u64,
++        _length: u64,
++        _overwrite: bool,
++    ) -> io::Result<(&'a S, u64, u64)> {
++        Err(io::Error::other("Image is read-only"))
++    }
++
++    async fn flush(&self) -> io::Result<()> {
++        Ok(())
++    }
++
++    async fn sync(&self) -> io::Result<()> {
++        Ok(())
++    }
++
++    async unsafe fn invalidate_cache(&self) -> io::Result<()> {
++        Ok(())
++    }
++
++    async fn resize_grow(&self, _new_size: u64, _prealloc_mode: PreallocateMode) -> io::Result<()> {
++        Err(io::Error::other("Image is read-only"))
++    }
++
++    async fn resize_shrink(&mut self, _new_size: u64) -> io::Result<()> {
++        Err(io::Error::other("Image is read-only"))
++    }
++}
++
++/// Options builder for opening a VHDX image.
++pub struct VhdxOpenBuilder<S: Storage + 'static>(FormatDriverBuilderBase<S>);
++
++impl<S: Storage + 'static> FormatDriverBuilder<S> for VhdxOpenBuilder<S> {
++    type Format = Vhdx<S>;
++    const FORMAT: Format = Format::Vhdx;
++
++    fn new(image: S) -> Self {
++        VhdxOpenBuilder(FormatDriverBuilderBase::new(image))
++    }
++
++    fn new_path<P: AsRef<Path>>(image_path: P) -> Self {
++        VhdxOpenBuilder(FormatDriverBuilderBase::new_path(image_path))
++    }
++
++    fn write(mut self, writable: bool) -> Self {
++        self.0.set_write(writable);
++        self
++    }
++
++    fn storage_open_options(mut self, options: StorageOpenOptions) -> Self {
++        self.0.set_storage_open_options(options);
++        self
++    }
++
++    async fn open<G: ImplicitOpenGate<S>>(self, mut gate: G) -> io::Result<Self::Format> {
++        if self.0.get_writable() {
++            return Err(io::Error::new(
++                io::ErrorKind::Unsupported,
++                "No VHDX write support",
++            ));
++        }
++        let file = self.0.open_image(&mut gate).await?;
++        Vhdx::open_image(file, false).await
 +    }
 +
 +    fn get_image_path(&self) -> Option<PathBuf> {
