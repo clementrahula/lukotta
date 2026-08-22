@@ -196,12 +196,12 @@ Still open, in rough order of worth:
 - **Stream-optimized VMDK.** The compressed form, which is what `ovftool` writes
   into an OVA. Every grain is deflated and preceded by a marker, so it is a
   different thing to read from the sparse form now supported. Refused by name.
-- **VHDX.** The last of the virtual disk formats, and the only one left
-  unopened. It is most of the work and all of the risk — a log that must be
-  replayed, or an image that was not cleanly closed silently reads stale — and
-  it may never be worth it. Everything around it is done: fixed VHD is raw with
-  a footer after it, and VDI and dynamic VHD are read by drivers of ours in
-  imago. See [FORMATS-VM.md](FORMATS-VM.md).
+- **Replaying a VHDX log.** An image that was not shut down cleanly keeps its
+  newest state in its log, and is refused by name rather than read stale. Doing
+  better means replaying the log, which is a write to somebody's disk image —
+  so it would have to be into a copy, and it is not obvious that is worth it
+  when opening the image once in its own virtual machine fixes it. See
+  [FORMATS-VM.md](FORMATS-VM.md).
 - **A VM disk holding APFS, FAT or exFAT** should be decoded, attached and
   mounted locally rather than served over NFS — the same rule that sends exFAT
   to macOS.

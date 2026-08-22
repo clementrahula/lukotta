@@ -97,6 +97,31 @@ enum EndToEnd {
             }
         }
 
+        if arguments.count >= 18 {
+            let vhdx = URL(fileURLWithPath: arguments[15])
+            let dirty = URL(fileURLWithPath: arguments[16])
+            let differencing = URL(fileURLWithPath: arguments[17])
+            if FileManager.default.fileExists(atPath: vhdx.path) {
+                print("")
+                print("VHDX: \(vhdx.lastPathComponent)")
+                if EnginePaths.opensVdiAndVhd {
+                    qcow2Flow(image: vhdx, passphrase: nil)
+                } else {
+                    refusedByNameFlow(image: vhdx, saying: "VHDX")
+                }
+            }
+            if FileManager.default.fileExists(atPath: dirty.path) {
+                print("")
+                print("a VHDX that was not shut down cleanly: \(dirty.lastPathComponent)")
+                refusedByNameFlow(image: dirty, saying: "not shut down cleanly")
+            }
+            if FileManager.default.fileExists(atPath: differencing.path) {
+                print("")
+                print("a VHDX naming a parent disk: \(differencing.lastPathComponent)")
+                refusedByNameFlow(image: differencing, saying: "another disk")
+            }
+        }
+
         if arguments.count >= 15 {
             let sparse = URL(fileURLWithPath: arguments[13])
             let streamed = URL(fileURLWithPath: arguments[14])

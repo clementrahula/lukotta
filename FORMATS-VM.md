@@ -78,7 +78,7 @@ VMDK driver is 743 lines and raw is 379.
 | **VHD, fixed** | Raw plus a trailing footer | **Done.** Needed no engine change at all |
 | **VDI** | Header, then a flat block map of 4-byte indices | **Done.** 380 lines with the checks and the builder |
 | **VHD, dynamic** | Footer, header, BAT of sector offsets, per-block bitmap | **Done.** 400 lines, in the same driver as the fixed kind |
-| **VHDX** | Header pair, **log that must be replayed**, region table, metadata region, BAT with three states, 1 MB alignment | ~600+ lines and the only one with real risk. Skipping log replay silently returns stale data on an image that was not cleanly closed — the kind of bug that looks like corruption |
+| **VHDX** | Header pair, **log that must be replayed**, region table, metadata region, BAT with three states, 1 MB alignment | **Done.** 430 lines, refusing a dirty log rather than replaying it |
 
 ## What I would do
 
@@ -88,9 +88,13 @@ VMDK driver is 743 lines and raw is 379.
    `patches/imago-vdi-vhd-and-vhdx.patch`, built in through `[patch.crates-io]`
    alongside the anylinuxfs patch, with `krun-devices` taught to ask for formats
    3 and 4. Worth offering upstream rather than carrying.
-3. **VHDX last, or never.** It is most of the work and all of the risk, and it
-   is the format most likely to arrive dirty from a running VM. Refusing it with
-   a clear sentence is a defensible product decision.
+3. ~~**VHDX last, or never.**~~ *Done, and the risk was answered rather than
+   taken.* The log is the whole of it: an image that was not closed cleanly
+   keeps its newest state there, and a reader that skips it serves stale data.
+   Replaying is a write, so this refuses instead — by name, saying to open the
+   image once in the virtual machine it belongs to. That is the honest answer
+   for a read-only driver, and it costs nothing at all for the images people
+   actually have, which were closed cleanly.
 
 ## What it took, in the end
 

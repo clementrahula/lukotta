@@ -328,7 +328,7 @@
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "«%@» inneholder en kryptert enhet som denne versjonen av motoren ikke kan åpne inne i et diskbilde. Åpne disken den ble laget av.",
     "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "«%1$@» inneholder bare endringene fra en annen disk, som den navngir. %2$@ åpner ikke diskbilder som navngir andre filer.",
     "“%@” is a VDI, which this build of the drive engine cannot open. A raw image or a qcow2 would work.": "«%@» er en VDI, som denne versjonen av motoren ikke kan åpne. Et råbilde eller en qcow2 ville fungere.",
-    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "«%1$@» er en VHDX, som %2$@ ikke kan åpne. En VHD, et råbilde eller en qcow2 ville fungere.",
+    "“%@” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work.": "«%@» er en VHDX, som denne versjonen av motoren ikke kan åpne. En VHD, et råbilde eller en qcow2 ville fungere.",
     "“%@” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work.": "«%@» er en dynamisk VHD, som denne versjonen av motoren ikke kan åpne. En fast VHD, et råbilde eller en qcow2 ville fungere.",
     "“%@” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work.": "«%@» er en sparse VMDK, som denne versjonen av motoren ikke kan åpne. En flat VMDK eller et råbilde ville fungere.",
     "“%@” is a stream-optimized VMDK, whose contents are compressed. %@ cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work.": "«%1$@» er en stream-optimized VMDK, med komprimert innhold. %2$@ kan ikke åpne en slik. En flat eller vanlig sparse VMDK, eller et råbilde, ville fungere.",
@@ -339,6 +339,7 @@
     "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "«%1$@» trenger «%2$@», som ikke ligger ved siden av. Diskbilder av denne typen består av flere filer, og alle trengs.",
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "«%1$@» viser til en annen fil på denne Macen, som ville blitt åpnet sammen med den. %2$@ åpner ikke diskbilder som navngir andre filer.",
     "“%@” was disconnected.": "«%@» ble koblet fra.",
-    "“%@” was not opened": "«%@» ble ikke åpnet"
+    "“%@” was not opened": "«%@» ble ikke åpnet",
+    "“%@” was not shut down cleanly, and what it last held has not been written back into it. Open it once in the virtual machine it belongs to, then try again.": "«%@» ble ikke avsluttet ordentlig, og det den sist inneholdt er ikke skrevet tilbake til den. Åpne den én gang i den virtuelle maskinen den hører til, og prøv igjen."
   }
 }

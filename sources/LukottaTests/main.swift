@@ -1905,6 +1905,79 @@ group("aSparseVmdkCarriesItsDescriptorInside") {
     expect(SparseVmdkHeader.parse(Data(repeating: 0, count: 16)) == nil, "nor is a short read")
 }
 
+group("aVhdxSaysWhetherItWasClosedCleanly") {
+    // Of the two headers the live one is whichever counted higher, and what
+    // matters about it here is the log: a log that is not empty means the
+    // image's newest state was never written back into the file itself.
+    func header(sequence: UInt64, dirty: Bool) -> Data {
+        var bytes = [UInt8](repeating: 0, count: VhdxHeader.headerLength)
+        for (i, b) in VhdxHeader.headerSignature.enumerated() { bytes[i] = b }
+        for i in 0..<8 { bytes[8 + i] = UInt8((sequence >> (8 * UInt64(i))) & 0xFF) }
+        if dirty { bytes[48] = 0x01 }
+        return Data(bytes)
+    }
+
+    // The second header counted higher, so it decides — even though the first
+    // one is clean.
+    let live = VhdxHeader.parse(headers: [
+        header(sequence: 1, dirty: false),
+        header(sequence: 2, dirty: true),
+    ])
+    expect(live?.dirty == true, "the header that counted higher decides")
+    expect("\(live?.sequence ?? 0)", "2", "and it is the one that counted higher")
+
+    let other = VhdxHeader.parse(headers: [
+        header(sequence: 9, dirty: false),
+        header(sequence: 2, dirty: true),
+    ])
+    expect(other?.dirty == false, "and the same the other way round")
+
+    // A header that is not one at all is passed over rather than guessed at.
+    expect(
+        VhdxHeader.parse(headers: [
+            Data(repeating: 0, count: VhdxHeader.headerLength),
+            header(sequence: 3, dirty: false),
+        ])?.sequence == 3,
+        "a block that is not a header is passed over")
+    expect(VhdxHeader.parse(headers: []) == nil, "and no headers at all is no answer")
+}
+
+group("aVhdxThatNamesAParent") {
+    // A differencing VHDX holds only what changed from a disk it names, which
+    // is a file this app will not open.
+    func metadata(parent: Bool) -> Data {
+        // The items sit well past the table listing them, as in a real one.
+        var bytes = [UInt8](repeating: 0, count: 65536 + 64)
+        for (i, b) in Array("metadata".utf8).enumerated() { bytes[i] = b }
+        bytes[10] = 1  // one entry: a 16-bit count at 10, not at 8
+        for (i, b) in VhdxHeader.fileParameters.enumerated() { bytes[32 + i] = b }
+        let at = 65536
+        for i in 0..<4 { bytes[32 + 16 + i] = UInt8((at >> (8 * i)) & 0xFF) }
+        bytes[32 + 20] = 8  // length
+        bytes[at] = 0x00
+        bytes[at + 1] = 0x00
+        bytes[at + 2] = 0x80  // block size, 8 MB
+        bytes[at + 4] = parent ? 0x02 : 0x00
+        return Data(bytes)
+    }
+
+    expect(VhdxHeader.namesAParent(metadata: metadata(parent: true)), "a parent is spotted")
+    expect(!VhdxHeader.namesAParent(metadata: metadata(parent: false)), "and its absence")
+    expect(
+        !VhdxHeader.namesAParent(metadata: Data(repeating: 0, count: 64)),
+        "and nonsense is not a parent")
+
+    // The region table says where that metadata is.
+    var table = [UInt8](repeating: 0, count: VhdxHeader.regionLength)
+    for (i, b) in Array("regi".utf8).enumerated() { table[i] = b }
+    table[8] = 1
+    for (i, b) in VhdxHeader.metadataRegion.enumerated() { table[16 + i] = b }
+    table[16 + 16 + 2] = 0x30  // offset 0x300000
+    expect(
+        "\(VhdxHeader.metadataAt(regionTable: Data(table)) ?? 0)", "3145728",
+        "the region table says where the metadata is")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

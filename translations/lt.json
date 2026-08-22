@@ -344,7 +344,7 @@
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@“ turi šifruotą tomą, kurio ši variklio versija negali atverti disko atvaizdyje. Atverkite diską, iš kurio jis sukurtas.",
     "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "„%1$@“ turi tik pakeitimus, palyginti su kitu disku, kurį nurodo. %2$@ neatveria atvaizdžių, nurodančių kitus failus.",
     "“%@” is a VDI, which this build of the drive engine cannot open. A raw image or a qcow2 would work.": "„%@“ yra VDI, kurio ši variklio versija atverti negali. Tiktų neapdorotas atvaizdis arba qcow2.",
-    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "„%1$@“ yra VHDX, kurio %2$@ atverti negali. Tiktų VHD, neapdorotas atvaizdis arba qcow2.",
+    "“%@” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work.": "„%@“ yra VHDX, kurio ši variklio versija atverti negali. Tiktų VHD, neapdorotas atvaizdis arba qcow2.",
     "“%@” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work.": "„%@“ yra dinaminis VHD, kurio ši variklio versija atverti negali. Tiktų fiksuoto dydžio VHD, neapdorotas atvaizdis arba qcow2.",
     "“%@” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work.": "„%@“ yra retas VMDK, kurio ši variklio versija atverti negali. Tiktų plokščias VMDK arba neapdorotas atvaizdis.",
     "“%@” is a stream-optimized VMDK, whose contents are compressed. %@ cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work.": "„%1$@“ yra stream-optimized VMDK, kurio turinys suglaudintas. %2$@ tokio atverti negali. Tiktų plokščias arba įprastas retas VMDK, arba neapdorotas atvaizdis.",
@@ -355,6 +355,7 @@
     "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "„%1$@“ reikia „%2$@“, kurio šalia nėra. Tokie disko atvaizdžiai yra failų rinkinys ir reikalingi visi.",
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "„%1$@“ nurodo kitą failą šiame „Mac“, kuris būtų atvertas kartu. %2$@ neatveria atvaizdžių, nurodančių kitus failus.",
     "“%@” was disconnected.": "„%@“ buvo atjungtas.",
-    "“%@” was not opened": "„%@“ nebuvo atvertas"
+    "“%@” was not opened": "„%@“ nebuvo atvertas",
+    "“%@” was not shut down cleanly, and what it last held has not been written back into it. Open it once in the virtual machine it belongs to, then try again.": "„%@“ nebuvo tinkamai išjungtas ir tai, ką jis paskutinį kartą turėjo, į jį neįrašyta. Atverkite jį kartą virtualioje mašinoje, kuriai jis priklauso, ir bandykite dar kartą."
   }
 }

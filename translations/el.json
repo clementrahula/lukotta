@@ -328,7 +328,7 @@
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "Το «%@» περιέχει κρυπτογραφημένο τόμο τον οποίο αυτή η έκδοση της μηχανής δεν μπορεί να ανοίξει μέσα σε είδωλο δίσκου. Ανοίξτε τον δίσκο από τον οποίο δημιουργήθηκε.",
     "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "Το «%1$@» περιέχει μόνο τις αλλαγές από άλλον δίσκο, τον οποίο κατονομάζει. Το %2$@ δεν ανοίγει είδωλα που παραπέμπουν σε άλλα αρχεία.",
     "“%@” is a VDI, which this build of the drive engine cannot open. A raw image or a qcow2 would work.": "Το «%@» είναι VDI, το οποίο αυτή η έκδοση της μηχανής δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα ακατέργαστο είδωλο ή ένα qcow2.",
-    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "Το «%1$@» είναι VHDX, το οποίο το %2$@ δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα VHD, ένα ακατέργαστο είδωλο ή ένα qcow2.",
+    "“%@” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work.": "Το «%@» είναι VHDX, το οποίο αυτή η έκδοση της μηχανής δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα VHD, ένα ακατέργαστο είδωλο ή ένα qcow2.",
     "“%@” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work.": "Το «%@» είναι δυναμικό VHD, το οποίο αυτή η έκδοση της μηχανής δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα σταθερό VHD, ένα ακατέργαστο είδωλο ή ένα qcow2.",
     "“%@” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work.": "Το «%@» είναι αραιό VMDK, το οποίο αυτή η έκδοση της μηχανής δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα επίπεδο VMDK ή ένα ακατέργαστο είδωλο.",
     "“%@” is a stream-optimized VMDK, whose contents are compressed. %@ cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work.": "Το «%1$@» είναι VMDK τύπου stream-optimized, με συμπιεσμένο περιεχόμενο. Το %2$@ δεν μπορεί να ανοίξει τέτοιο. Θα λειτουργούσε ένα επίπεδο ή συνηθισμένο αραιό VMDK, ή ένα ακατέργαστο είδωλο.",
@@ -339,6 +339,7 @@
     "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "Το «%1$@» χρειάζεται το «%2$@», που δεν βρίσκεται δίπλα του. Τα είδωλα δίσκου αυτού του τύπου αποτελούνται από σύνολο αρχείων και χρειάζονται όλα.",
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "Το «%1$@» παραπέμπει σε άλλο αρχείο σε αυτόν τον Mac, το οποίο θα άνοιγε μαζί του. Το %2$@ δεν ανοίγει είδωλα που παραπέμπουν σε άλλα αρχεία.",
     "“%@” was disconnected.": "Το «%@» αποσυνδέθηκε.",
-    "“%@” was not opened": "Το «%@» δεν άνοιξε"
+    "“%@” was not opened": "Το «%@» δεν άνοιξε",
+    "“%@” was not shut down cleanly, and what it last held has not been written back into it. Open it once in the virtual machine it belongs to, then try again.": "Το «%@» δεν τερματίστηκε ομαλά και όσα περιείχε τελευταία δεν γράφτηκαν πίσω σε αυτό. Ανοίξτε το μία φορά στην εικονική μηχανή στην οποία ανήκει και δοκιμάστε ξανά."
   }
 }

@@ -336,7 +336,7 @@
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@” sadrži šifriranu jedinicu koju ova verzija pogona ne može otvoriti unutar slike diska. Otvorite disk iz kojeg je nastala.",
     "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "„%1$@” sadrži samo promjene u odnosu na drugi disk, koji imenuje. %2$@ ne otvara slike koje imenuju druge datoteke.",
     "“%@” is a VDI, which this build of the drive engine cannot open. A raw image or a qcow2 would work.": "„%@” je VDI, koji ova verzija pogona ne može otvoriti. Uspjeli bi sirova slika ili qcow2.",
-    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "„%1$@” je VHDX, koji %2$@ ne može otvoriti. Uspjeli bi VHD, sirova slika ili qcow2.",
+    "“%@” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work.": "„%@” je VHDX, koji ova verzija pogona ne može otvoriti. Uspjeli bi VHD, sirova slika ili qcow2.",
     "“%@” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work.": "„%@” je dinamički VHD, koji ova verzija pogona ne može otvoriti. Uspjeli bi fiksni VHD, sirova slika ili qcow2.",
     "“%@” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work.": "„%@” je rijetki VMDK, koji ova verzija pogona ne može otvoriti. Uspjeli bi ravni VMDK ili sirova slika.",
     "“%@” is a stream-optimized VMDK, whose contents are compressed. %@ cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work.": "„%1$@” je stream-optimized VMDK, čiji je sadržaj sažet. %2$@ ne može otvoriti takav. Uspjeli bi ravni ili obični rijetki VMDK, ili sirova slika.",
@@ -347,6 +347,7 @@
     "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "„%1$@” treba „%2$@”, koji nije uz njega. Slike diska ove vrste dolaze kao skup datoteka i potrebne su sve.",
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "„%1$@” upućuje na drugu datoteku na ovom Macu, koja bi se otvorila zajedno s njom. %2$@ ne otvara slike koje imenuju druge datoteke.",
     "“%@” was disconnected.": "„%@” je odspojen.",
-    "“%@” was not opened": "„%@” nije otvoren"
+    "“%@” was not opened": "„%@” nije otvoren",
+    "“%@” was not shut down cleanly, and what it last held has not been written back into it. Open it once in the virtual machine it belongs to, then try again.": "„%@” nije uredno isključen i ono što je posljednje sadržavao nije zapisano natrag u njega. Otvorite ga jednom u virtualnom stroju kojem pripada pa pokušajte ponovno."
   }
 }

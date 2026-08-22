@@ -138,6 +138,17 @@ VMDK_SPARSE="$CACHE/sparse.vmdk"
 # form; kept in the cache rather than built, and skipped when it is not there.
 VMDK_STREAMED="$CACHE/streamed.vmdk"
 
+# A VHDX: two headers, a region table, a metadata region and an allocation
+# table. And two that must be refused rather than read — one whose log was not
+# emptied, so its newest state was never written back into it, and one holding
+# only the changes from a disk it names.
+VHDX="$CACHE/plain.vhdx"
+VHDX_DIRTY="$CACHE/dirty.vhdx"
+VHDX_PARENT="$CACHE/differencing.vhdx"
+[ -f "$VHDX" ] || "$HERE/scripts/make-vhdx.py" "$PLAIN" "$VHDX" >/dev/null
+[ -f "$VHDX_DIRTY" ] || "$HERE/scripts/make-vhdx.py" "$PLAIN" "$VHDX_DIRTY" --dirty >/dev/null
+[ -f "$VHDX_PARENT" ] || "$HERE/scripts/make-vhdx.py" "$PLAIN" "$VHDX_PARENT" --parent >/dev/null
+
 # An image that names another file, which must be refused rather than opened.
 HOSTILE="$CACHE/names-another-file.qcow2"
 [ -f "$HOSTILE" ] || "$HERE/scripts/make-qcow2.py" --hostile "$HOSTILE" "$HOME/.ssh/id_rsa" >/dev/null
@@ -150,4 +161,4 @@ done < <(hdiutil info 2>/dev/null | awk -v c="$CONTAINER" -v p="$PLAIN" -v e="$E
   /^image-path/ { path = $3 }
   /^\/dev\/disk[0-9]+\t/ { if (path == c || path == p || path == e) print $1 }')
 
-"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC" "$HOSTILE" "$VMDK" "$VMDK_BAD" "$VHD" "$VHD_DYNAMIC" "$VDI" "$VDI_BAD" "$VMDK_SPARSE" "$VMDK_STREAMED"
+"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC" "$HOSTILE" "$VMDK" "$VMDK_BAD" "$VHD" "$VHD_DYNAMIC" "$VDI" "$VDI_BAD" "$VMDK_SPARSE" "$VMDK_STREAMED" "$VHDX" "$VHDX_DIRTY" "$VHDX_PARENT"

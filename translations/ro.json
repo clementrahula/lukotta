@@ -336,7 +336,7 @@
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@” conține un volum criptat pe care această versiune a motorului nu îl poate deschide într-o imagine de disc. Deschideți discul din care a fost creat.",
     "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "„%1$@” conține doar modificările față de un alt disc, pe care îl numește. %2$@ nu deschide imagini care numesc alte fișiere.",
     "“%@” is a VDI, which this build of the drive engine cannot open. A raw image or a qcow2 would work.": "„%@” este un VDI, pe care această versiune a motorului nu îl poate deschide. Ar funcționa o imagine brută sau un qcow2.",
-    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "„%1$@” este un VHDX, pe care %2$@ nu îl poate deschide. Ar funcționa un VHD, o imagine brută sau un qcow2.",
+    "“%@” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work.": "„%@” este un VHDX, pe care această versiune a motorului nu îl poate deschide. Ar funcționa un VHD, o imagine brută sau un qcow2.",
     "“%@” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work.": "„%@” este un VHD dinamic, pe care această versiune a motorului nu îl poate deschide. Ar funcționa un VHD fix, o imagine brută sau un qcow2.",
     "“%@” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work.": "„%@” este un VMDK rar, pe care această versiune a motorului nu îl poate deschide. Ar funcționa un VMDK plat sau o imagine brută.",
     "“%@” is a stream-optimized VMDK, whose contents are compressed. %@ cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work.": "„%1$@” este un VMDK stream-optimized, al cărui conținut este comprimat. %2$@ nu poate deschide unul. Ar funcționa un VMDK plat sau rar obișnuit, ori o imagine brută.",
@@ -347,6 +347,7 @@
     "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "„%1$@” are nevoie de „%2$@”, care nu se află lângă el. Imaginile de disc de acest tip vin ca un set de fișiere, și toate sunt necesare.",
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "„%1$@” face referire la un alt fișier de pe acest Mac, care ar fi deschis împreună cu el. %2$@ nu deschide imagini care numesc alte fișiere.",
     "“%@” was disconnected.": "„%@” a fost deconectat.",
-    "“%@” was not opened": "„%@” nu a fost deschis"
+    "“%@” was not opened": "„%@” nu a fost deschis",
+    "“%@” was not shut down cleanly, and what it last held has not been written back into it. Open it once in the virtual machine it belongs to, then try again.": "„%@” nu a fost închis corect, iar ceea ce a conținut ultima dată nu a fost scris înapoi în el. Deschideți-l o dată în mașina virtuală căreia îi aparține, apoi încercați din nou."
   }
 }

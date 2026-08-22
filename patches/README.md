@@ -121,6 +121,29 @@ identical to the raw disk it was made from, and mounts through the app; the one
 it identical to the same disk, and by `qemu-img check`, which finds no errors.
 The flat form still reads as it did.
 
+### VHDX, in the same patch
+
+The last of them, and the only one with more than one thing to find: a file
+signature, two headers of which the live one is whichever has the higher
+sequence number **and** a sound CRC-32C, a region table saying where the rest
+is, a metadata region giving the block size and the disk size, and an allocation
+table whose payload entries are interleaved with ones describing sector bitmaps.
+
+Two images are refused rather than read:
+
+- one that **names a parent** holds only what changed from another disk, and
+  nothing here opens a second file;
+- one whose **log is not empty** was not closed cleanly. Its newest state is in
+  that log. Replaying it means writing, which a read-only driver must not do,
+  and ignoring it means quietly serving something older than what the disk last
+  held — the failure that gets mistaken for corruption.
+
+**Tested.** qemu-img's VHDX reads back byte for byte identical to the raw disk
+it was made from and mounts through the app, and `qemu-img compare` says the
+same of the one `scripts/make-vhdx.py` writes. Three awkward variants were made
+by hand: a dirty log and a parent link are each refused by name, and an image
+whose first header is damaged is read through the second.
+
 ## krun-devices-image-formats.patch
 
 **What it does.** Adds `ImageType::Vdi` and `ImageType::Vhd`, maps disk formats

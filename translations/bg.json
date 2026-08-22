@@ -328,7 +328,7 @@
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@“ съдържа шифрован том, който тази версия на двигателя не може да отвори в дисков образ. Отворете диска, от който е направен.",
     "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "„%1$@“ съдържа само промените спрямо друг диск, който назовава. %2$@ не отваря образи, които сочат към други файлове.",
     "“%@” is a VDI, which this build of the drive engine cannot open. A raw image or a qcow2 would work.": "„%@“ е VDI, който тази версия на двигателя не може да отвори. Биха работили суров образ или qcow2.",
-    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "„%1$@“ е VHDX, който %2$@ не може да отвори. Биха работили VHD, суров образ или qcow2.",
+    "“%@” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work.": "„%@“ е VHDX, който тази версия на двигателя не може да отвори. Биха работили VHD, суров образ или qcow2.",
     "“%@” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work.": "„%@“ е динамичен VHD, който тази версия на двигателя не може да отвори. Биха работили фиксиран VHD, суров образ или qcow2.",
     "“%@” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work.": "„%@“ е разреден VMDK, който тази версия на двигателя не може да отвори. Биха работили плосък VMDK или суров образ.",
     "“%@” is a stream-optimized VMDK, whose contents are compressed. %@ cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work.": "„%1$@“ е stream-optimized VMDK, чието съдържание е компресирано. %2$@ не може да отвори такъв. Биха работили плосък или обикновен разреден VMDK, или суров образ.",
@@ -339,6 +339,7 @@
     "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "За „%1$@“ е нужен „%2$@“, който не е до него. Дисковите образи от този вид идват като набор от файлове и всички са нужни.",
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "„%1$@“ сочи към друг файл на този Mac, който би бил отворен заедно с него. %2$@ не отваря образи, които сочат към други файлове.",
     "“%@” was disconnected.": "„%@“ беше изключен.",
-    "“%@” was not opened": "„%@“ не беше отворен"
+    "“%@” was not opened": "„%@“ не беше отворен",
+    "“%@” was not shut down cleanly, and what it last held has not been written back into it. Open it once in the virtual machine it belongs to, then try again.": "„%@“ не е бил изключен правилно и последното му съдържание не е записано обратно в него. Отворете го веднъж във виртуалната машина, на която принадлежи, и опитайте отново."
   }
 }

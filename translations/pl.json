@@ -344,7 +344,7 @@
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@” zawiera zaszyfrowany wolumin, którego ta wersja silnika nie potrafi otworzyć wewnątrz obrazu dysku. Otwórz dysk, z którego powstał.",
     "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "„%1$@” zawiera tylko zmiany względem innego dysku, który wskazuje. %2$@ nie otwiera obrazów wskazujących inne pliki.",
     "“%@” is a VDI, which this build of the drive engine cannot open. A raw image or a qcow2 would work.": "„%@” to VDI, którego ta wersja silnika nie potrafi otworzyć. Zadziałałby surowy obraz albo qcow2.",
-    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "„%1$@” to VHDX, którego %2$@ nie potrafi otworzyć. Zadziałałby VHD, surowy obraz albo qcow2.",
+    "“%@” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work.": "„%@” to VHDX, którego ta wersja silnika nie potrafi otworzyć. Zadziałałby VHD, surowy obraz albo qcow2.",
     "“%@” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work.": "„%@” to dynamiczny VHD, którego ta wersja silnika nie potrafi otworzyć. Zadziałałby VHD o stałym rozmiarze, surowy obraz albo qcow2.",
     "“%@” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work.": "„%@” to rzadki VMDK, którego ta wersja silnika nie potrafi otworzyć. Zadziałałby płaski VMDK albo surowy obraz.",
     "“%@” is a stream-optimized VMDK, whose contents are compressed. %@ cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work.": "„%1$@” to VMDK typu stream-optimized, którego zawartość jest skompresowana. %2$@ nie potrafi otworzyć takiego. Zadziałałby płaski albo zwykły rzadki VMDK, albo surowy obraz.",
@@ -355,6 +355,7 @@
     "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "„%1$@” wymaga „%2$@”, którego nie ma obok. Obrazy dysku tego rodzaju to zestaw plików i potrzebne są wszystkie.",
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "„%1$@” odwołuje się do innego pliku na tym Macu, który zostałby otwarty razem z nim. %2$@ nie otwiera obrazów wskazujących inne pliki.",
     "“%@” was disconnected.": "„%@” został odłączony.",
-    "“%@” was not opened": "Nie otwarto „%@”"
+    "“%@” was not opened": "Nie otwarto „%@”",
+    "“%@” was not shut down cleanly, and what it last held has not been written back into it. Open it once in the virtual machine it belongs to, then try again.": "„%@” nie został poprawnie zamknięty, a to, co ostatnio zawierał, nie zostało do niego zapisane. Otwórz go raz w maszynie wirtualnej, do której należy, i spróbuj ponownie."
   }
 }

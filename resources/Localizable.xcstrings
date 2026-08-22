@@ -35579,132 +35579,132 @@
         }
       }
     },
-    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": {
+    "“%@” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ е VHDX, който %2$@ не може да отвори. Биха работили VHD, суров образ или qcow2."
+            "value": "„%@“ е VHDX, който тази версия на двигателя не може да отвори. Биха работили VHD, суров образ или qcow2."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ je VHDX, který %2$@ neumí otevřít. Fungoval by VHD, surový obraz nebo qcow2."
+            "value": "„%@“ je VHDX, který tato verze enginu neumí otevřít. Fungoval by VHD, surový obraz nebo qcow2."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%1$@” er en VHDX, som %2$@ ikke kan åbne. En VHD, et råt image eller en qcow2 ville virke."
+            "value": "“%@” er en VHDX, som denne udgave af drevmotoren ikke kan åbne. En VHD, et råt image eller en qcow2 ville virke."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ ist eine VHDX, die %2$@ nicht öffnen kann. Eine VHD, ein Rohimage oder eine qcow2-Datei würden funktionieren."
+            "value": "„%@“ ist eine VHDX, die diese Version des Laufwerk-Moduls nicht öffnen kann. Eine VHD, ein Rohimage oder eine qcow2-Datei würden funktionieren."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Το «%1$@» είναι VHDX, το οποίο το %2$@ δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα VHD, ένα ακατέργαστο είδωλο ή ένα qcow2."
+            "value": "Το «%@» είναι VHDX, το οποίο αυτή η έκδοση της μηχανής δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα VHD, ένα ακατέργαστο είδωλο ή ένα qcow2."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%1$@» es un VHDX, que %2$@ no puede abrir. Funcionaría un VHD, una imagen sin formato o un qcow2."
+            "value": "«%@» es un VHDX, que esta versión del motor no puede abrir. Funcionaría un VHD, una imagen sin formato o un qcow2."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ on VHDX, mida %2$@ avada ei suuda. Toimiks VHD, töötlemata tõmmis või qcow2."
+            "value": "„%@“ on VHDX, mida see mootori versioon avada ei suuda. Toimiks VHD, töötlemata tõmmis või qcow2."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%1$@” on VHDX, jota %2$@ ei osaa avata. VHD, raakalevykuva tai qcow2 toimisi."
+            "value": "”%@” on VHDX, jota tämä moottorin versio ei osaa avata. VHD, raakalevykuva tai qcow2 toimisi."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "« %1$@ » est un VHDX, que %2$@ ne sait pas ouvrir. Un VHD, une image brute ou un qcow2 fonctionneraient."
+            "value": "« %@ » est un VHDX, que cette version du moteur ne sait pas ouvrir. Un VHD, une image brute ou un qcow2 fonctionneraient."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@” je VHDX, koji %2$@ ne može otvoriti. Uspjeli bi VHD, sirova slika ili qcow2."
+            "value": "„%@” je VHDX, koji ova verzija pogona ne može otvoriti. Uspjeli bi VHD, sirova slika ili qcow2."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A(z) „%1$@” egy VHDX, amelyet a(z) %2$@ nem tud megnyitni. Egy VHD, egy nyers kép vagy egy qcow2 működne."
+            "value": "A(z) „%@” egy VHDX, amelyet a motor ezen változata nem tud megnyitni. Egy VHD, egy nyers kép vagy egy qcow2 működne."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%1$@» è un VHDX, che %2$@ non sa aprire. Funzionerebbero un VHD, un’immagine grezza o un qcow2."
+            "value": "«%@» è un VHDX, che questa versione del motore non sa aprire. Funzionerebbero un VHD, un’immagine grezza o un qcow2."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ yra VHDX, kurio %2$@ atverti negali. Tiktų VHD, neapdorotas atvaizdis arba qcow2."
+            "value": "„%@“ yra VHDX, kurio ši variklio versija atverti negali. Tiktų VHD, neapdorotas atvaizdis arba qcow2."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%1$@” ir VHDX, ko %2$@ nespēj atvērt. Derētu VHD, neapstrādāts attēls vai qcow2."
+            "value": "“%@” ir VHDX, ko šī dzinēja versija nespēj atvērt. Derētu VHD, neapstrādāts attēls vai qcow2."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%1$@» er en VHDX, som %2$@ ikke kan åpne. En VHD, et råbilde eller en qcow2 ville fungere."
+            "value": "«%@» er en VHDX, som denne versjonen av motoren ikke kan åpne. En VHD, et råbilde eller en qcow2 ville fungere."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "‘%1$@’ is een VHDX, die %2$@ niet kan openen. Een VHD, een onbewerkte schijfkopie of een qcow2 zou wel werken."
+            "value": "‘%@’ is een VHDX, die deze versie van de schijfmodule niet kan openen. Een VHD, een onbewerkte schijfkopie of een qcow2 zou wel werken."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@” to VHDX, którego %2$@ nie potrafi otworzyć. Zadziałałby VHD, surowy obraz albo qcow2."
+            "value": "„%@” to VHDX, którego ta wersja silnika nie potrafi otworzyć. Zadziałałby VHD, surowy obraz albo qcow2."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%1$@» é um VHDX, que o %2$@ não consegue abrir. Um VHD, uma imagem em bruto ou um qcow2 resultariam."
+            "value": "«%@» é um VHDX, que esta versão do motor não consegue abrir. Um VHD, uma imagem em bruto ou um qcow2 resultariam."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@” este un VHDX, pe care %2$@ nu îl poate deschide. Ar funcționa un VHD, o imagine brută sau un qcow2."
+            "value": "„%@” este un VHDX, pe care această versiune a motorului nu îl poate deschide. Ar funcționa un VHD, o imagine brută sau un qcow2."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "»%1$@« je VHDX, ki ga %2$@ ne zna odpreti. Delovali bi VHD, surova slika ali qcow2."
+            "value": "»%@« je VHDX, ki ga ta različica pogona ne zna odpreti. Delovali bi VHD, surova slika ali qcow2."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%1$@” är en VHDX, som %2$@ inte kan öppna. En VHD, en råavbild eller en qcow2 skulle fungera."
+            "value": "”%@” är en VHDX, som den här versionen av motorn inte kan öppna. En VHD, en råavbild eller en qcow2 skulle fungera."
           }
         }
       }
@@ -37135,6 +37135,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "”%@” öppnades inte"
+          }
+        }
+      }
+    },
+    "“%@” was not shut down cleanly, and what it last held has not been written back into it. Open it once in the virtual machine it belongs to, then try again.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ не е бил изключен правилно и последното му съдържание не е записано обратно в него. Отворете го веднъж във виртуалната машина, на която принадлежи, и опитайте отново."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ nebyl řádně vypnut a to, co naposledy obsahoval, do něj nebylo zapsáno zpět. Otevřete jej jednou ve virtuálním počítači, kterému patří, a zkuste to znovu."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” blev ikke lukket ned korrekt, og det, den sidst indeholdt, er ikke skrevet tilbage i den. Åbn den én gang i den virtuelle maskine, den hører til, og prøv igen."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ wurde nicht sauber heruntergefahren, und der zuletzt enthaltene Stand wurde nicht in die Datei zurückgeschrieben. Öffne sie einmal in der virtuellen Maschine, zu der sie gehört, und versuche es dann erneut."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%@» δεν τερματίστηκε ομαλά και όσα περιείχε τελευταία δεν γράφτηκαν πίσω σε αυτό. Ανοίξτε το μία φορά στην εικονική μηχανή στην οποία ανήκει και δοκιμάστε ξανά."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» no se apagó correctamente y lo que contenía por última vez no se ha escrito de vuelta en él. Ábrelo una vez en la máquina virtual a la que pertenece y vuelve a intentarlo."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ ei suletud korralikult ja see, mida ta viimati sisaldas, on faili tagasi kirjutamata. Ava see korra virtuaalmasinas, kuhu see kuulub, ja proovi siis uuesti."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” ei sammunut siististi, eikä sen viimeisintä sisältöä ole kirjoitettu takaisin siihen. Avaa se kerran siinä virtuaalikoneessa, johon se kuuluu, ja yritä sitten uudelleen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » n’a pas été arrêté proprement, et son dernier contenu n’a pas été réécrit dedans. Ouvrez-le une fois dans la machine virtuelle à laquelle il appartient, puis réessayez."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” nije uredno isključen i ono što je posljednje sadržavao nije zapisano natrag u njega. Otvorite ga jednom u virtualnom stroju kojem pripada pa pokušajte ponovno."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%@” nem állt le rendesen, és amit utoljára tartalmazott, nem került vissza a fájlba. Nyissa meg egyszer abban a virtuális gépben, amelyhez tartozik, majd próbálja újra."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» non è stato arrestato correttamente e ciò che conteneva per ultimo non è stato riscritto al suo interno. Aprilo una volta nella macchina virtuale a cui appartiene, poi riprova."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ nebuvo tinkamai išjungtas ir tai, ką jis paskutinį kartą turėjo, į jį neįrašyta. Atverkite jį kartą virtualioje mašinoje, kuriai jis priklauso, ir bandykite dar kartą."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” netika korekti izslēgts, un tas, ko tas pēdējoreiz saturēja, nav ierakstīts atpakaļ tajā. Atveriet to vienreiz virtuālajā mašīnā, kurai tas pieder, un mēģiniet vēlreiz."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» ble ikke avsluttet ordentlig, og det den sist inneholdt er ikke skrevet tilbake til den. Åpne den én gang i den virtuelle maskinen den hører til, og prøv igjen."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’ is niet netjes afgesloten, en wat er als laatste in stond is niet teruggeschreven. Open het één keer in de virtuele machine waar het bij hoort en probeer het opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” nie został poprawnie zamknięty, a to, co ostatnio zawierał, nie zostało do niego zapisane. Otwórz go raz w maszynie wirtualnej, do której należy, i spróbuj ponownie."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» não foi encerrado corretamente e o que continha por último não foi escrito de volta nele. Abra-o uma vez na máquina virtual a que pertence e tente novamente."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” nu a fost închis corect, iar ceea ce a conținut ultima dată nu a fost scris înapoi în el. Deschideți-l o dată în mașina virtuală căreia îi aparține, apoi încercați din nou."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%@« ni bil pravilno zaustavljen in to, kar je nazadnje vseboval, ni bilo zapisano nazaj vanj. Odprite ga enkrat v navideznem računalniku, ki mu pripada, in poskusite znova."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” stängdes inte av ordentligt, och det den senast innehöll har inte skrivits tillbaka till den. Öppna den en gång i den virtuella maskin den hör till och försök igen."
           }
         }
       }

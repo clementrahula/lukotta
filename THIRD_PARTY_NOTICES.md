@@ -17,7 +17,7 @@ Each release is accompanied by that source. Requests may also be addressed
 to lukotta@rahula.dev.
 
 Two of anylinuxfs's binaries are modified: the host `anylinuxfs`, to offer the
-VMDK, VDI and VHD formats, and the guest `vmproxy`, to unlock encryption it
+VMDK, VDI, VHD and VHDX formats, and the guest `vmproxy`, to unlock encryption it
 finds inside a disk image. Two crates the host binary links in are modified with
 it: imago, which gains a driver for VDI and one for VHD, and krun-devices, which
 learns to ask for them. The patches are in `patches/` in Lukotta's own source

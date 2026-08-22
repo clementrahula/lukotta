@@ -51,19 +51,13 @@ public struct VhdFooter: Equatable, Sendable {
 
 extension DiskImage {
     public static func isVhd(_ url: URL) -> Bool {
-        ["vhd", "vhdx"].contains(url.pathExtension.lowercased())
+        // Not "vhdx", which shares four letters with this format and nothing
+        // else, and has a reader of its own.
+        url.pathExtension.lowercased() == "vhd"
     }
 
     /// Whether this VHD may be handed to the engine, or why not.
     public static func objection(toVhd url: URL) -> String? {
-        // VHDX is a different format entirely, sharing only the name: a header
-        // pair, a log to replay, a region table. Nothing here reads it.
-        if url.pathExtension.lowercased() == "vhdx" {
-            return appString(
-                "“\(url.lastPathComponent)” is a VHDX, which \(appName) cannot open. A VHD, a raw image or a qcow2 would work."
-            )
-        }
-
         guard let handle = try? FileHandle(forReadingFrom: url) else {
             return appString("“\(url.lastPathComponent)” could not be read.")
         }

@@ -328,7 +328,7 @@
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "A(z) „%@” titkosított kötetet tartalmaz, amelyet a motor ezen változata nem tud lemezképen belül megnyitni. Nyissa meg azt a meghajtót, amelyből készült.",
     "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "A(z) „%1$@” csak egy másik lemezhez képest történt változásokat tartalmazza, amelyet meg is nevez. A(z) %2$@ nem nyit meg olyan lemezképeket, amelyek más fájlokat neveznek meg.",
     "“%@” is a VDI, which this build of the drive engine cannot open. A raw image or a qcow2 would work.": "A(z) „%@” egy VDI, amelyet a motor ezen változata nem tud megnyitni. Egy nyers kép vagy egy qcow2 működne.",
-    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "A(z) „%1$@” egy VHDX, amelyet a(z) %2$@ nem tud megnyitni. Egy VHD, egy nyers kép vagy egy qcow2 működne.",
+    "“%@” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work.": "A(z) „%@” egy VHDX, amelyet a motor ezen változata nem tud megnyitni. Egy VHD, egy nyers kép vagy egy qcow2 működne.",
     "“%@” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work.": "A(z) „%@” egy dinamikus VHD, amelyet a motor ezen változata nem tud megnyitni. Egy rögzített méretű VHD, egy nyers kép vagy egy qcow2 működne.",
     "“%@” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work.": "A(z) „%@” egy ritka VMDK, amelyet a motor ezen változata nem tud megnyitni. Egy lapos VMDK vagy egy nyers kép működne.",
     "“%@” is a stream-optimized VMDK, whose contents are compressed. %@ cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work.": "A(z) „%1$@” egy stream-optimized VMDK, amelynek tartalma tömörített. A(z) %2$@ ilyet nem tud megnyitni. Egy lapos vagy szokásos ritka VMDK, illetve egy nyers kép működne.",
@@ -339,6 +339,7 @@
     "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "A(z) „%1$@” igényli a(z) „%2$@” fájlt, amely nincs mellette. Az ilyen lemezképek több fájlból állnak, és mindegyikre szükség van.",
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "A(z) „%1$@” egy másik fájlra hivatkozik ezen a Macen, amely vele együtt nyílna meg. A(z) %2$@ nem nyit meg olyan lemezképeket, amelyek más fájlokat neveznek meg.",
     "“%@” was disconnected.": "A(z) „%@” le lett választva.",
-    "“%@” was not opened": "A(z) „%@” nem lett megnyitva"
+    "“%@” was not opened": "A(z) „%@” nem lett megnyitva",
+    "“%@” was not shut down cleanly, and what it last held has not been written back into it. Open it once in the virtual machine it belongs to, then try again.": "A(z) „%@” nem állt le rendesen, és amit utoljára tartalmazott, nem került vissza a fájlba. Nyissa meg egyszer abban a virtuális gépben, amelyhez tartozik, majd próbálja újra."
   }
 }

@@ -421,6 +421,17 @@ final class AppModel: ObservableObject {
             return engineRead(url)
         }
 
+        // A VHDX shares four letters with a VHD and nothing else: two headers,
+        // a region table, a metadata region and an allocation table. It is read
+        // by the driver we wrote for the engine, or refused.
+        if DiskImage.isVhdx(url) {
+            if let objection = DiskImage.objection(toVhdx: url) {
+                Log.drives.error("refused a VHDX")
+                return .failure(objection)
+            }
+            return engineRead(url)
+        }
+
         // A VDI is never raw at any offset: the header comes first and the
         // blocks are in whatever order they were written. It is read by the
         // driver we wrote for the engine, or refused.

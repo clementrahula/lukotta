@@ -328,7 +328,7 @@
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@“ enthält ein verschlüsseltes Volume, das diese Version des Laufwerk-Moduls in einem Image nicht öffnen kann. Öffne das Laufwerk, aus dem es erstellt wurde.",
     "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "„%1$@“ enthält nur die Änderungen gegenüber einer anderen Festplatte, die sie benennt. %2$@ öffnet keine Images, die andere Dateien benennen.",
     "“%@” is a VDI, which this build of the drive engine cannot open. A raw image or a qcow2 would work.": "„%@“ ist eine VDI, die diese Version des Laufwerk-Moduls nicht öffnen kann. Ein Rohimage oder eine qcow2-Datei würden funktionieren.",
-    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "„%1$@“ ist eine VHDX, die %2$@ nicht öffnen kann. Eine VHD, ein Rohimage oder eine qcow2-Datei würden funktionieren.",
+    "“%@” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work.": "„%@“ ist eine VHDX, die diese Version des Laufwerk-Moduls nicht öffnen kann. Eine VHD, ein Rohimage oder eine qcow2-Datei würden funktionieren.",
     "“%@” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work.": "„%@“ ist eine dynamische VHD, die diese Version des Laufwerk-Moduls nicht öffnen kann. Eine feste VHD, ein Rohimage oder eine qcow2-Datei würden funktionieren.",
     "“%@” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work.": "„%@“ ist eine Sparse-VMDK, die diese Version des Laufwerk-Moduls nicht öffnen kann. Eine flache VMDK oder ein Rohimage würden funktionieren.",
     "“%@” is a stream-optimized VMDK, whose contents are compressed. %@ cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work.": "„%1$@“ ist eine stream-optimized VMDK, deren Inhalt komprimiert ist. %2$@ kann eine solche nicht öffnen. Eine flache oder gewöhnliche Sparse-VMDK oder ein Rohimage würden funktionieren.",
@@ -339,6 +339,7 @@
     "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "„%1$@“ benötigt „%2$@“, das nicht daneben liegt. Images dieser Art bestehen aus mehreren Dateien, und alle werden gebraucht.",
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "„%1$@“ verweist auf eine andere Datei auf diesem Mac, die mit geöffnet würde. %2$@ öffnet keine Images, die andere Dateien benennen.",
     "“%@” was disconnected.": "„%@“ wurde getrennt.",
-    "“%@” was not opened": "„%@“ wurde nicht geöffnet"
+    "“%@” was not opened": "„%@“ wurde nicht geöffnet",
+    "“%@” was not shut down cleanly, and what it last held has not been written back into it. Open it once in the virtual machine it belongs to, then try again.": "„%@“ wurde nicht sauber heruntergefahren, und der zuletzt enthaltene Stand wurde nicht in die Datei zurückgeschrieben. Öffne sie einmal in der virtuellen Maschine, zu der sie gehört, und versuche es dann erneut."
   }
 }
