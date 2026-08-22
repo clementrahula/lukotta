@@ -193,6 +193,9 @@ Built. [FORMATS.md](FORMATS.md) has the reasoning; what shipped:
 
 Still open, in rough order of worth:
 
+- **Stream-optimized VMDK.** The compressed form, which is what `ovftool` writes
+  into an OVA. Every grain is deflated and preceded by a marker, so it is a
+  different thing to read from the sparse form now supported. Refused by name.
 - **VHDX.** The last of the virtual disk formats, and the only one left
   unopened. It is most of the work and all of the risk — a log that must be
   replayed, or an image that was not cleanly closed silently reads stale — and

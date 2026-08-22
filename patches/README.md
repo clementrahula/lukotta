@@ -91,6 +91,36 @@ from, and all three mount and eject through the app. In the other direction,
 the readers and the writers were each checked against something that was not the
 other.
 
+## imago-sparse-vmdk.patch
+
+**The gap.** imago's VMDK driver reads the flat form — a text descriptor beside
+a raw extent — and refuses the sparse one outright: *"Unsupported VMDK sparse
+data file"*. But sparse is what a VM writes while it is running, and what most
+people have; flat is what an export produces.
+
+**What it does.** Reads the sparse form as well. A sparse VMDK is one file
+holding the header, the descriptor a flat VMDK keeps in a file of its own, a
+grain directory, the grain tables, and then the grains — one per 64 KB of disk
+that was written to. So the descriptor is read from inside the file at the
+offset the header gives, `SPARSE` extents are recognised, and a guest offset is
+mapped through the directory and a table onto a grain. A grain never written, or
+written as zeroes, reads as zeroes.
+
+The grain directory is read once, when the image is opened; the tables are read
+as the disk is, and the last sixty-four are kept, because one table covers a
+long stretch of disk and reading an image through touches each about once. That
+keeps a large sparse disk from being a large allocation.
+
+The **stream-optimized** form, whose grains are compressed and preceded by
+markers, is refused by name — the app refuses it too, before the engine is told
+anything.
+
+**Tested.** A sparse VMDK written by `qemu-img` reads back byte for byte
+identical to the raw disk it was made from, and mounts through the app; the one
+`scripts/make-vmdk-sparse.py` writes is read by `qemu-img compare`, which finds
+it identical to the same disk, and by `qemu-img check`, which finds no errors.
+The flat form still reads as it did.
+
 ## krun-devices-vdi-and-vhd.patch
 
 **What it does.** Adds `ImageType::Vdi` and `ImageType::Vhd`, maps disk formats

@@ -1,0 +1,475 @@
+--- a/src/vmdk/mod.rs	2006-07-24 04:21:28
++++ b/src/vmdk/mod.rs	2026-08-22 10:41:14
+@@ -15,8 +15,9 @@
+ use std::ops::{Range, RangeInclusive};
+ use std::path::{Path, PathBuf};
+ use std::str::FromStr;
++use std::collections::{HashMap, VecDeque};
+ use std::sync::atomic::{AtomicU64, Ordering};
+-use std::sync::Arc;
++use std::sync::{Arc, Mutex};
+ use std::{cmp, io};
+ 
+ /// As usual, VMDK sector size is 512 bytes as a fixed value
+@@ -25,9 +26,26 @@
+ const VMDK4_MAGIC: u32 = 0x564d444b; // 'KDMV'
+ /// Supported version range
+ const VMDK_VERSION_RANGE: RangeInclusive<u32> = 1..=3;
++/// Grains are stored compressed, which this does not read.
++const VMDK_FLAG_COMPRESSED: u32 = 1 << 16;
++/// Every grain carries a marker before it, which is the streamed form.
++const VMDK_FLAG_MARKERS: u32 = 1 << 17;
++/// A grain table entry of 0 means the grain was never written.
++const GRAIN_UNALLOCATED: u32 = 0;
++/// And 1 means it was written and is all zeroes.
++const GRAIN_ZERO: u32 = 1;
++/// A grain directory larger than this would be a disk of some hundreds of
++/// terabytes, and reading it is the only unbounded allocation here.
++const MAX_GRAIN_DIRECTORY: u64 = 1 << 20;
++/// How many grain tables to keep once read. Each is a few kilobytes, and one
++/// covers a long stretch of the disk, so reading through an image touches each
++/// table once.
++const GRAIN_TABLE_CACHE: usize = 64;
+ 
+ /// Represents the data storage for a VMDK extent
+-#[derive(Debug, Clone)]
++// Not Clone: a sparse extent carries the grain tables it has read, and
++// duplicating those would duplicate the reading too.
++#[derive(Debug)]
+ enum VmdkStorage<S: Storage + 'static> {
+     /// A FLAT extent with a RAW file starting from the exact offset
+     Flat {
+@@ -36,6 +54,9 @@
+         /// Offset in `file` where the data for this extent begins
+         offset: u64,
+     },
++    /// An extent whose data is stored in grains, listed by a directory of
++    /// tables, and which is therefore not raw at any offset
++    Sparse(SparseExtent<S>),
+     /// A zero-filled extent
+     Zero,
+ }
+@@ -50,6 +71,11 @@
+         /// Offset in the storage object where the data for this extent begins
+         offset: u64,
+     },
++    /// A SPARSE extent, whose data is stored in grains
++    Sparse {
++        /// Path to the storage object holding the grains
++        filename: String,
++    },
+     /// A zero-filled extent
+     Zero,
+ }
+@@ -92,6 +118,222 @@
+     ///
+     /// Present if and only if the access type is not NOACCESS.
+     storage: Option<VmdkParsedStorage>,
++}
++
++/// What a sparse extent's header says, once it has been read and checked.
++#[derive(Debug, Clone, Copy)]
++struct SparseHeader {
++    /// How much disk the extent holds, in sectors.
++    capacity: u64,
++    /// How much disk one grain holds, in sectors.
++    grain_size: u64,
++    /// Where the embedded descriptor begins, in sectors, or 0 for none.
++    descriptor_offset: u64,
++    /// How long that descriptor is, in sectors.
++    descriptor_size: u64,
++    /// How many grains one grain table covers.
++    gtes_per_gt: u32,
++    /// Where the grain directory begins, in sectors.
++    gd_offset: u64,
++}
++
++impl SparseHeader {
++    /// Read a sparse extent header, and refuse anything this does not read.
++    fn parse(head: &[u8]) -> io::Result<Self> {
++        if u32::from_le_bytes(head[..4].try_into().unwrap()) != VMDK4_MAGIC {
++            return Err(invalid_data("Not a sparse VMDK extent"));
++        }
++        let version = u32::from_le_bytes(head[4..8].try_into().unwrap());
++        if !VMDK_VERSION_RANGE.contains(&version) {
++            return Err(invalid_data(format!("Unsupported VMDK version {version}")));
++        }
++
++        let flags = u32::from_le_bytes(head[8..12].try_into().unwrap());
++        // The streamed form stores every grain compressed and behind a marker,
++        // which is a different thing to read and is not read here.
++        if flags & (VMDK_FLAG_COMPRESSED | VMDK_FLAG_MARKERS) != 0 {
++            return Err(io::Error::new(
++                io::ErrorKind::Unsupported,
++                "Unsupported compressed (stream-optimized) VMDK extent",
++            ));
++        }
++
++        let le64 = |at: usize| u64::from_le_bytes(head[at..at + 8].try_into().unwrap());
++        let header = SparseHeader {
++            capacity: le64(12),
++            grain_size: le64(20),
++            descriptor_offset: le64(28),
++            descriptor_size: le64(36),
++            gtes_per_gt: u32::from_le_bytes(head[44..48].try_into().unwrap()),
++            gd_offset: le64(56),
++        };
++
++        // All of this decides where the driver reads, so all of it is checked
++        // before any of it is used.
++        if header.grain_size == 0
++            || !header.grain_size.is_power_of_two()
++            || header.grain_size > 1 << 20
++        {
++            return Err(invalid_data(format!(
++                "VMDK grain size of {} sectors is not one this reads",
++                header.grain_size
++            )));
++        }
++        if header.gtes_per_gt == 0 || !header.gtes_per_gt.is_power_of_two() {
++            return Err(invalid_data(format!(
++                "VMDK grain table of {} entries is not one this reads",
++                header.gtes_per_gt
++            )));
++        }
++        if header.gd_offset == 0 {
++            return Err(invalid_data("VMDK sparse extent has no grain directory"));
++        }
++        Ok(header)
++    }
++
++    /// How much disk one grain table covers, in bytes.
++    fn table_span(&self) -> u64 {
++        self.grain_size * VMDK_SECTOR_SIZE * (self.gtes_per_gt as u64)
++    }
++}
++
++/// A sparse extent: the file, its grain directory, and the grain tables read so
++/// far.
++///
++/// The directory is read once, when the image is opened, because it is small —
++/// one entry per grain table. The tables themselves are read as the disk is,
++/// and the last few are kept: one table covers a long stretch of disk, so
++/// reading an image through touches each of them about once.
++#[derive(Debug)]
++struct SparseExtent<S: Storage + 'static> {
++    /// The file holding the grains.
++    file: Arc<S>,
++    /// What its header said.
++    header: SparseHeader,
++    /// Where each grain table begins, in sectors, or 0 for a table that was
++    /// never written and whose whole span reads as zeroes.
++    directory: Vec<u32>,
++    /// The tables read so far, and the order they were read in.
++    tables: Mutex<(HashMap<usize, Arc<Vec<u32>>>, VecDeque<usize>)>,
++}
++
++impl<S: Storage + 'static> SparseExtent<S> {
++    /// Read the header and the grain directory of an already-opened file.
++    async fn open(file: S) -> io::Result<Self> {
++        let file_size = file.size()?;
++        if file_size < VMDK_SECTOR_SIZE {
++            return Err(invalid_data("VMDK sparse extent too short to hold a header"));
++        }
++        let mut buf = IoBuffer::new(VMDK_SECTOR_SIZE as usize, file.mem_align())?;
++        file.read(buf.as_mut(), 0).await?;
++        let header = SparseHeader::parse(buf.as_ref().into_slice())?;
++
++        let entries = header
++            .capacity
++            .div_ceil(header.grain_size)
++            .div_ceil(header.gtes_per_gt as u64);
++        if entries > MAX_GRAIN_DIRECTORY {
++            return Err(invalid_data(format!(
++                "VMDK grain directory has {entries} entries, which is more than this reads"
++            )));
++        }
++        let bytes = (entries as usize) * 4;
++        let at = header.gd_offset * VMDK_SECTOR_SIZE;
++        if at.checked_add(bytes as u64).is_none_or(|end| end > file_size) {
++            return Err(invalid_data(
++                "VMDK grain directory runs past the end of the file",
++            ));
++        }
++
++        let mut directory = vec![0u32; entries as usize];
++        if bytes > 0 {
++            let mut buf = IoBuffer::new(bytes, file.mem_align())?;
++            file.read(buf.as_mut(), at).await?;
++            let raw = buf.as_ref().into_slice();
++            for (i, entry) in directory.iter_mut().enumerate() {
++                *entry = u32::from_le_bytes(raw[i * 4..i * 4 + 4].try_into().unwrap());
++            }
++        }
++
++        Ok(SparseExtent {
++            file: Arc::new(file),
++            header,
++            directory,
++            tables: Mutex::new((HashMap::new(), VecDeque::new())),
++        })
++    }
++
++    /// Return the grain table at `index`, reading it if it has not been read.
++    async fn table(&self, index: usize) -> io::Result<Arc<Vec<u32>>> {
++        // The lock is never held across a read: it is taken to look, dropped to
++        // read, and taken again to keep what was read.
++        if let Some(table) = self.tables.lock().unwrap().0.get(&index) {
++            return Ok(Arc::clone(table));
++        }
++
++        let sector = self.directory[index] as u64;
++        let bytes = (self.header.gtes_per_gt as usize) * 4;
++        let at = sector * VMDK_SECTOR_SIZE;
++        let file_size = self.file.size()?;
++        if at.checked_add(bytes as u64).is_none_or(|end| end > file_size) {
++            return Err(invalid_data("VMDK grain table lies outside the file"));
++        }
++
++        let mut buf = IoBuffer::new(bytes, self.file.mem_align())?;
++        self.file.read(buf.as_mut(), at).await?;
++        let raw = buf.as_ref().into_slice();
++        let table: Arc<Vec<u32>> = Arc::new(
++            (0..self.header.gtes_per_gt as usize)
++                .map(|i| u32::from_le_bytes(raw[i * 4..i * 4 + 4].try_into().unwrap()))
++                .collect(),
++        );
++
++        let mut kept = self.tables.lock().unwrap();
++        if kept.0.insert(index, Arc::clone(&table)).is_none() {
++            kept.1.push_back(index);
++            while kept.1.len() > GRAIN_TABLE_CACHE {
++                if let Some(oldest) = kept.1.pop_front() {
++                    kept.0.remove(&oldest);
++                }
++            }
++        }
++        Ok(table)
++    }
++
++    /// Where `offset` into this extent is in the file, and for how long.
++    ///
++    /// A grain that was never written, or one written as zeroes, reads as
++    /// zeroes; anything else is a plain stretch of the file.
++    async fn map(&self, offset: u64, max_length: u64) -> io::Result<(Option<u64>, u64)> {
++        let grain_bytes = self.header.grain_size * VMDK_SECTOR_SIZE;
++        let in_grain = offset % grain_bytes;
++        let length = cmp::min(max_length, grain_bytes - in_grain);
++
++        let table_index = (offset / self.header.table_span()) as usize;
++        let Some(&table_at) = self.directory.get(table_index) else {
++            return Ok((None, length));
++        };
++        if table_at == 0 {
++            return Ok((None, length));
++        }
++
++        let table = self.table(table_index).await?;
++        let within = (offset % self.header.table_span()) / grain_bytes;
++        let grain = table[within as usize];
++        if grain == GRAIN_UNALLOCATED || grain == GRAIN_ZERO {
++            return Ok((None, length));
++        }
++
++        let at = (grain as u64)
++            .checked_mul(VMDK_SECTOR_SIZE)
++            .and_then(|at| at.checked_add(in_grain))
++            .ok_or_else(|| invalid_data("VMDK grain offset overflow"))?;
++        let file_size = self.file.size()?;
++        if at.checked_add(length).is_none_or(|end| end > file_size) {
++            return Err(invalid_data("VMDK grain lies outside the file"));
++        }
++        Ok((Some(at), length))
++    }
+ }
+ 
+ /// VMDK disk image format implementation.
+@@ -182,7 +424,7 @@
+                 storage: Some(VmdkParsedStorage::Zero),
+             });
+         }
+-        if extent_type != "FLAT" {
++        if extent_type != "FLAT" && extent_type != "SPARSE" {
+             return Err(io::Error::new(
+                 io::ErrorKind::Unsupported,
+                 format!("Unsupported extent type {extent_type}"),
+@@ -217,13 +459,23 @@
+             .map_or(Ok(0), |ofs_str| ofs_str.parse())
+             .map_err(|_| invalid_data("Invalid offset"))?;
+ 
++        let storage = if extent_type == "SPARSE" {
++            // A sparse extent's data is in grains, wherever they were written,
++            // so the offset an extent line can carry does not apply to it.
++            VmdkParsedStorage::Sparse {
++                filename: filename.to_string(),
++            }
++        } else {
++            VmdkParsedStorage::Flat {
++                filename: filename.to_string(),
++                offset,
++            }
++        };
++
+         Ok(VmdkParsedExtent {
+             access_type,
+             sectors,
+-            storage: Some(VmdkParsedStorage::Flat {
+-                filename: filename.to_string(),
+-                offset,
+-            }),
++            storage: Some(storage),
+         })
+     }
+ }
+@@ -285,6 +537,25 @@
+         };
+ 
+         let storage = match storage {
++            VmdkParsedStorage::Sparse { filename } => {
++                let absolute = self
++                    .descriptor_file
++                    .resolve_relative_path(filename)
++                    .err_context(|| format!("Cannot resolve storage file name {filename}"))?;
++
++                // Never writable: nothing here allocates a grain.
++                let file_opts = self
++                    .storage_open_options
++                    .clone()
++                    .filename(absolute.clone())
++                    .write(false);
++                let file = open_gate
++                    .open_storage(file_opts)
++                    .await
++                    .err_context(|| format!("Data storage file {absolute:?}"))?;
++                VmdkStorage::Sparse(SparseExtent::open(file).await?)
++            }
++
+             VmdkParsedStorage::Flat { filename, offset } => {
+                 let absolute = self
+                     .descriptor_file
+@@ -391,27 +662,61 @@
+         if desc_file_sz < 4 {
+             return Err(invalid_data("VMDK descriptor file too short"));
+         }
++
++        // A sparse file carries its descriptor inside itself, at an offset its
++        // header gives, so the file is not read whole: it is the disk.
++        let (descriptor_at, descriptor_len) = if desc_file_sz >= VMDK_SECTOR_SIZE {
++            let mut head = IoBuffer::new(
++                VMDK_SECTOR_SIZE as usize,
++                self.descriptor_file.mem_align(),
++            )?;
++            self.descriptor_file.read(head.as_mut(), 0).await?;
++            let head = head.as_ref().into_slice();
++            if u32::from_le_bytes(head[..4].try_into().unwrap()) == VMDK4_MAGIC {
++                let header = SparseHeader::parse(head)?;
++                if header.descriptor_offset == 0 || header.descriptor_size == 0 {
++                    return Err(invalid_data(
++                        "VMDK sparse extent carries no descriptor of its own",
++                    ));
++                }
++                (
++                    header.descriptor_offset * VMDK_SECTOR_SIZE,
++                    header.descriptor_size * VMDK_SECTOR_SIZE,
++                )
++            } else {
++                (0, desc_file_sz)
++            }
++        } else {
++            (0, desc_file_sz)
++        };
++
+         // Sanity check to avoid unbounded allocation
+-        if desc_file_sz > 2 * 1024 * 1024 {
++        if descriptor_len > 2 * 1024 * 1024 {
+             return Err(invalid_data(
+                 "VMDK descriptor file too long (max. 2 MB supported)",
+             ));
+         }
++        if descriptor_at
++            .checked_add(descriptor_len)
++            .is_none_or(|end| end > desc_file_sz)
++        {
++            return Err(invalid_data("VMDK descriptor lies outside the file"));
++        }
+ 
+-        let desc_file_sz: usize = desc_file_sz.try_into().unwrap();
+-        let mut desc_file = IoBuffer::new(desc_file_sz, self.descriptor_file.mem_align())?;
+-        self.descriptor_file.read(desc_file.as_mut(), 0).await?;
++        let descriptor_len: usize = descriptor_len.try_into().unwrap();
++        let mut desc_file = IoBuffer::new(descriptor_len, self.descriptor_file.mem_align())?;
++        self.descriptor_file
++            .read(desc_file.as_mut(), descriptor_at)
++            .await?;
+ 
+         let desc_file = desc_file.as_ref().into_slice();
++        // The descriptor is padded to whole sectors with zero bytes, which are
++        // not part of any line.
++        let desc_file = match desc_file.iter().position(|c| *c == 0) {
++            Some(end) if descriptor_at > 0 => &desc_file[..end],
++            _ => desc_file,
++        };
+ 
+-        // Check if it's a SPARSE format, bail it out now
+-        if u32::from_le_bytes(desc_file[..4].try_into().unwrap()) == VMDK4_MAGIC {
+-            return Err(io::Error::new(
+-                io::ErrorKind::Unsupported,
+-                "Unsupported VMDK sparse data file",
+-            ));
+-        }
+-
+         for (line_i, line) in desc_file.split(|chr| *chr == b'\n').enumerate() {
+             let line = str::from_utf8(line).map_err(|e| {
+                 invalid_data(format!(
+@@ -596,6 +901,7 @@
+             };
+             match storage {
+                 VmdkStorage::Flat { file, offset: _ } => v.push(file),
++                VmdkStorage::Sparse(sparse) => v.push(sparse.file.as_ref()),
+                 VmdkStorage::Zero => (),
+             }
+         }
+@@ -631,6 +937,26 @@
+             }
+         };
+ 
++        // Never longer than what is left of this extent, whatever it holds.
++        let max_length = cmp::min(max_length, extent.disk_range.end - offset);
++
++        // A sparse extent answers for itself: its data is in grains, wherever
++        // they were written, and a grain that was never written reads as zeroes.
++        if let Some(VmdkStorage::Sparse(sparse)) = extent.storage.as_ref() {
++            let (at, length) = sparse.map(in_extent_offset, max_length).await?;
++            return Ok(match at {
++                Some(at) => (
++                    ShallowMapping::Raw {
++                        storage: sparse.file.as_ref(),
++                        offset: at,
++                        writable: false,
++                    },
++                    length,
++                ),
++                None => (ShallowMapping::Zero { explicit: false }, length),
++            });
++        }
++
+         // `access_type != NoAccess`, so `unwrap()` is safe
+         let mapping = match extent.storage.as_ref().unwrap() {
+             VmdkStorage::Flat {
+@@ -647,12 +973,12 @@
+             },
+ 
+             VmdkStorage::Zero => ShallowMapping::Zero { explicit: true },
++
++            // Answered above, before this match.
++            VmdkStorage::Sparse(_) => unreachable!(),
+         };
+ 
+-        Ok((
+-            mapping,
+-            cmp::min(max_length, extent.disk_range.end - offset),
+-        ))
++        Ok((mapping, max_length))
+     }
+ 
+     async fn ensure_data_mapping<'a>(

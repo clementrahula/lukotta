@@ -129,6 +129,15 @@ open(p, 'wb').write(bytes(b))
 " "$VDI_BAD"
 fi
 
+# A sparse VMDK: one file holding the header, the descriptor, a grain directory
+# and the grains. And one whose grains are compressed, which is a different
+# thing to read and must be refused rather than served as noise.
+VMDK_SPARSE="$CACHE/sparse.vmdk"
+[ -f "$VMDK_SPARSE" ] || "$HERE/scripts/make-vmdk-sparse.py" "$PLAIN" "$VMDK_SPARSE" >/dev/null
+# Written by qemu-img, which is the only thing here that writes the compressed
+# form; kept in the cache rather than built, and skipped when it is not there.
+VMDK_STREAMED="$CACHE/streamed.vmdk"
+
 # An image that names another file, which must be refused rather than opened.
 HOSTILE="$CACHE/names-another-file.qcow2"
 [ -f "$HOSTILE" ] || "$HERE/scripts/make-qcow2.py" --hostile "$HOSTILE" "$HOME/.ssh/id_rsa" >/dev/null
@@ -141,4 +150,4 @@ done < <(hdiutil info 2>/dev/null | awk -v c="$CONTAINER" -v p="$PLAIN" -v e="$E
   /^image-path/ { path = $3 }
   /^\/dev\/disk[0-9]+\t/ { if (path == c || path == p || path == e) print $1 }')
 
-"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC" "$HOSTILE" "$VMDK" "$VMDK_BAD" "$VHD" "$VHD_DYNAMIC" "$VDI" "$VDI_BAD"
+"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC" "$HOSTILE" "$VMDK" "$VMDK_BAD" "$VHD" "$VHD_DYNAMIC" "$VDI" "$VDI_BAD" "$VMDK_SPARSE" "$VMDK_STREAMED"

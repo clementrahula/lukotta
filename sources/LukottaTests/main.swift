@@ -1868,6 +1868,43 @@ group("aVdiIsNeverRawAtAnyOffset") {
     expect(VdiHeader.parse(Data(repeating: 0, count: 64)) == nil, "and a short read is not one")
 }
 
+group("aSparseVmdkCarriesItsDescriptorInside") {
+    // A sparse VMDK is the disk, not a text file about one: the descriptor a
+    // flat VMDK keeps in a file of its own sits inside it, at an offset the
+    // header gives.
+    func header(flags: UInt32, at: UInt64 = 1, sectors: UInt64 = 20) -> Data {
+        var bytes = [UInt8](repeating: 0, count: 512)
+        for (i, b) in [0x4B, 0x44, 0x4D, 0x56].enumerated() { bytes[i] = UInt8(b) }
+        func le(_ value: UInt64, _ at: Int, _ width: Int) {
+            for i in 0..<width { bytes[at + i] = UInt8((value >> (8 * UInt64(i))) & 0xFF) }
+        }
+        le(1, 4, 4)  // version
+        le(UInt64(flags), 8, 4)
+        le(at, 28, 8)
+        le(sectors, 36, 8)
+        return Data(bytes)
+    }
+
+    let plain = SparseVmdkHeader.parse(header(flags: 3))
+    expect("\(plain?.descriptorOffset ?? 0)", "1", "the descriptor is found inside the file")
+    expect("\(plain?.descriptorSize ?? 0)", "20", "and so is its length")
+    expect(plain?.streamed == false, "and an ordinary sparse image is not the streamed form")
+
+    // Compressed grains, each behind a marker: a different thing to read, and
+    // refused rather than served as noise.
+    expect(
+        SparseVmdkHeader.parse(header(flags: 0x0003_0003))?.streamed == true,
+        "compressed grains are recognised")
+    expect(
+        SparseVmdkHeader.parse(header(flags: 1 << 16))?.streamed == true,
+        "so is compression on its own")
+
+    var notSparse = [UInt8](repeating: 0, count: 512)
+    notSparse[0] = 0x23  // '#', as a text descriptor begins
+    expect(SparseVmdkHeader.parse(Data(notSparse)) == nil, "a text descriptor is not this")
+    expect(SparseVmdkHeader.parse(Data(repeating: 0, count: 16)) == nil, "nor is a short read")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

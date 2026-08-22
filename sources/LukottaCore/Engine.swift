@@ -57,6 +57,14 @@ public enum EnginePaths {
         enginePatches.contains("imago-vdi-and-vhd")
     }
 
+    /// Whether the engine can read a sparse VMDK.
+    ///
+    /// Upstream's VMDK driver reads the flat form only and refuses the sparse
+    /// one by name. The driver ours is built on reads both.
+    public static var opensSparseVmdk: Bool {
+        enginePatches.contains("imago-sparse-vmdk")
+    }
+
     /// Directories holding the bundled dylibs. The engine loads its one external
     /// dependency through @executable_path, so this is belt-and-braces.
     public static func libraryPaths() -> [String] {

@@ -113,6 +113,24 @@ misunderstanding agree with each other and nothing else:
 The end-to-end run uses the ones written here, so it needs neither qemu nor
 VirtualBox installed.
 
+## Sparse VMDK, afterwards
+
+Flat was the form the engine could already read, and it is what an export
+writes. Sparse is what a VM writes while it is running, which is what people
+actually have lying about — and imago refused it by name.
+
+It is the same shape of work as the two above: a directory of tables, a table of
+grains, a grain of 64 KB. The one real decision was not to read the whole of the
+directory-and-tables into memory, as the VDI and VHD drivers do with their maps
+— a sparse VMDK's tables are proportional to the disk's capacity rather than to
+what was written, so a 2 TB disk holding 4 GB would have cost more to open than
+to read. The directory is read once; the tables are read as the disk is, and the
+last sixty-four are kept.
+
+The stream-optimized form — every grain compressed, each behind a marker, which
+is what `ovftool` writes into an OVA — is refused by name. It is a different
+thing to read, and could be added later without disturbing any of this.
+
 ## The rule that keeps applying
 
 Every non-raw format can name other files, and libkrun opens them. qcow2 has

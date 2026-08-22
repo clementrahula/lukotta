@@ -97,6 +97,25 @@ enum EndToEnd {
             }
         }
 
+        if arguments.count >= 15 {
+            let sparse = URL(fileURLWithPath: arguments[13])
+            let streamed = URL(fileURLWithPath: arguments[14])
+            if FileManager.default.fileExists(atPath: sparse.path) {
+                print("")
+                print("sparse VMDK: \(sparse.lastPathComponent)")
+                if EnginePaths.opensSparseVmdk {
+                    qcow2Flow(image: sparse, passphrase: nil)
+                } else {
+                    refusedByNameFlow(image: sparse, saying: "sparse VMDK")
+                }
+            }
+            if FileManager.default.fileExists(atPath: streamed.path) {
+                print("")
+                print("a VMDK whose grains are compressed: \(streamed.lastPathComponent)")
+                refusedByNameFlow(image: streamed, saying: "stream-optimized")
+            }
+        }
+
         if arguments.count >= 13 {
             let vdi = URL(fileURLWithPath: arguments[11])
             let ancient = URL(fileURLWithPath: arguments[12])

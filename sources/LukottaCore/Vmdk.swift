@@ -28,7 +28,7 @@ public struct VmdkDescriptor: Equatable, Sendable {
     public let hasDeltaLink: Bool
 
     /// The signature a sparse VMDK starts with, in place of the text
-    /// descriptor. That form is not supported by the engine's image layer.
+    /// descriptor. Such a file carries its descriptor inside itself.
     public static let sparseMagic: [UInt8] = [0x4B, 0x44, 0x4D, 0x56]  // KDMV
 
     /// A name that points somewhere other than beside the descriptor.
@@ -94,6 +94,51 @@ public struct VmdkDescriptor: Equatable, Sendable {
     }
 }
 
+/// The header a sparse VMDK begins with, read far enough to find the descriptor
+/// inside it and to know whether the grains can be read at all.
+///
+/// A sparse VMDK keeps the disk in grains, written wherever there was room and
+/// found through a directory of tables. The text descriptor that a flat VMDK
+/// has as a file of its own sits inside this one, at an offset the header
+/// gives.
+public struct SparseVmdkHeader: Equatable, Sendable {
+    /// Where the descriptor begins, in sectors.
+    public let descriptorOffset: UInt64
+    /// How long it is, in sectors.
+    public let descriptorSize: UInt64
+    /// Whether every grain is compressed and preceded by a marker, which is the
+    /// streamed form and a different thing to read.
+    public let streamed: Bool
+
+    /// The sector size the format is written in terms of.
+    public static let sector: UInt64 = 512
+
+    public static func parse(_ head: Data) -> SparseVmdkHeader? {
+        guard head.count >= 80, Array(head.prefix(4)) == VmdkDescriptor.sparseMagic else {
+            return nil
+        }
+        let flags = le32(head, 8)
+        return SparseVmdkHeader(
+            descriptorOffset: le64(head, 28),
+            descriptorSize: le64(head, 36),
+            streamed: flags & ((1 << 16) | (1 << 17)) != 0)
+    }
+
+    private static func le32(_ d: Data, _ at: Int) -> UInt32 {
+        let i = d.index(d.startIndex, offsetBy: at)
+        return d[i..<d.index(i, offsetBy: 4)].reversed().reduce(UInt32(0)) {
+            $0 << 8 | UInt32($1)
+        }
+    }
+
+    private static func le64(_ d: Data, _ at: Int) -> UInt64 {
+        let i = d.index(d.startIndex, offsetBy: at)
+        return d[i..<d.index(i, offsetBy: 8)].reversed().reduce(UInt64(0)) {
+            $0 << 8 | UInt64($1)
+        }
+    }
+}
+
 extension DiskImage {
     /// The engine decides a VMDK by its name, so this does too.
     public static func isVmdk(_ url: URL) -> Bool {
@@ -111,12 +156,37 @@ extension DiskImage {
         guard let head = try? handle.read(upToCount: 2 * 1024 * 1024), !head.isEmpty else {
             return appString("“\(url.lastPathComponent)” could not be read.")
         }
+        // A sparse VMDK is the disk itself, not a text file about one, so its
+        // descriptor is read from inside it rather than from the front.
+        var text = head
         if Array(head.prefix(4)) == VmdkDescriptor.sparseMagic {
-            return appString(
-                "“\(url.lastPathComponent)” is a sparse VMDK, which \(appName) cannot open. A flat one, or a raw image, would work."
-            )
+            guard let sparse = SparseVmdkHeader.parse(head) else {
+                return appString(
+                    "“\(url.lastPathComponent)” is not a disk image this app can read.")
+            }
+            if sparse.streamed {
+                return appString(
+                    "“\(url.lastPathComponent)” is a stream-optimized VMDK, whose contents are compressed. \(appName) cannot open one. A flat or ordinary sparse VMDK, or a raw image, would work."
+                )
+            }
+            guard EnginePaths.opensSparseVmdk else {
+                return appString(
+                    "“\(url.lastPathComponent)” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work."
+                )
+            }
+            let at = sparse.descriptorOffset * SparseVmdkHeader.sector
+            let length = sparse.descriptorSize * SparseVmdkHeader.sector
+            guard at > 0, length > 0, length <= 2 * 1024 * 1024,
+                (try? handle.seek(toOffset: at)) != nil,
+                let inside = try? handle.read(upToCount: Int(length)), !inside.isEmpty
+            else {
+                return appString(
+                    "“\(url.lastPathComponent)” is not a disk image this app can read.")
+            }
+            // Padded to whole sectors with zero bytes, which are not lines.
+            text = inside.prefix(while: { $0 != 0 })
         }
-        let descriptor = VmdkDescriptor.parse(String(decoding: head, as: UTF8.self))
+        let descriptor = VmdkDescriptor.parse(String(decoding: text, as: UTF8.self))
         if descriptor.hasDeltaLink {
             return appString(
                 "“\(url.lastPathComponent)” is part of a chain of snapshots, which \(appName) cannot open. Open the disk it was made from."
