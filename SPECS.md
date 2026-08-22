@@ -1,4 +1,4 @@
-# Formats
+# Specifications
 
 What Lukotta opens, how, and what it does not open and why.
 

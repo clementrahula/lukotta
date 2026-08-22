@@ -151,6 +151,8 @@ for lproj in "$HERE"/resources/*.lproj; do
   /usr/bin/ditto "$lproj" "$CONTENTS/Resources/$(basename "$lproj")"
 done
 [ -f "$HERE/THIRD_PARTY_NOTICES.md" ] && cp "$HERE/THIRD_PARTY_NOTICES.md" "$CONTENTS/Resources/"
+# Shown in the app beside the notices, so it travels with them.
+[ -f "$HERE/SPECS.md" ] && cp "$HERE/SPECS.md" "$CONTENTS/Resources/"
 printf 'APPL????' > "$CONTENTS/PkgInfo"
 
 if [ -d "$HERE/vendor/engine" ]; then

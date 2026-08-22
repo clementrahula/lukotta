@@ -11,6 +11,11 @@ public enum MarkdownDocument {
         case paragraph(String)
         case bullets([String])
         case table(header: [String], rows: [[String]])
+        /// A horizontal rule, which separates one part of a document from the
+        /// next.
+        case rule
+        /// Lines to be shown as they were written, indented or fenced.
+        case code([String])
     }
 
     public static func parse(_ source: String) -> [Block] {
@@ -18,6 +23,8 @@ public enum MarkdownDocument {
         var paragraph: [String] = []
         var bullets: [String] = []
         var table: [[String]] = []
+        var code: [String] = []
+        var fenced = false
 
         func flushParagraph() {
             if !paragraph.isEmpty {
@@ -39,17 +46,59 @@ public enum MarkdownDocument {
             blocks.append(.table(header: header, rows: rows))
             table = []
         }
+        func flushCode() {
+            // Trailing blank lines belong to the space after the block, not in
+            // it.
+            while code.last?.isEmpty == true { code.removeLast() }
+            if !code.isEmpty {
+                blocks.append(.code(code))
+                code = []
+            }
+        }
         func flushAll() {
             flushParagraph()
             flushBullets()
             flushTable()
+            flushCode()
         }
 
         for raw in source.components(separatedBy: .newlines) {
             let line = raw.trimmingCharacters(in: .whitespaces)
 
-            if line.isEmpty {
+            // Inside a fence every line is content, including blank ones and
+            // ones that would otherwise look like a heading or a list.
+            if fenced {
+                if line.hasPrefix("```") {
+                    fenced = false
+                    flushCode()
+                } else {
+                    code.append(raw)
+                }
+                continue
+            }
+
+            if line.hasPrefix("```") {
                 flushAll()
+                fenced = true
+            } else if line.isEmpty {
+                // A blank line inside an indented block does not end it: the
+                // next indented line continues the same block.
+                if code.isEmpty {
+                    flushAll()
+                } else {
+                    code.append("")
+                }
+            } else if !bullets.isEmpty, raw.hasPrefix("    ") || raw.hasPrefix("\t") {
+                // An indented line under a bullet is that bullet continuing,
+                // which is handled below rather than as code.
+                bullets[bullets.count - 1] += " " + line
+            } else if raw.hasPrefix("    ") || raw.hasPrefix("\t") {
+                flushParagraph()
+                flushTable()
+                code.append(raw)
+            } else if line.hasPrefix("---") || line.hasPrefix("***") || line.hasPrefix("___") {
+                flushAll()
+                blocks.append(.rule)
             } else if line.hasPrefix("#") {
                 flushAll()
                 let level = line.prefix(while: { $0 == "#" }).count
@@ -70,7 +119,7 @@ public enum MarkdownDocument {
                 flushParagraph()
                 flushTable()
                 bullets.append(String(line.dropFirst(2)))
-            } else if !bullets.isEmpty, raw.first == " " || raw.first == "\t" {
+            } else if !bullets.isEmpty, raw.first == " " {
                 // An indented line after a bullet continues that bullet. Treating
                 // it as a new paragraph broke every wrapped list item into a
                 // bullet followed by a stray block of text.
@@ -78,6 +127,7 @@ public enum MarkdownDocument {
             } else {
                 flushBullets()
                 flushTable()
+                flushCode()
                 paragraph.append(line)
             }
         }

@@ -109,7 +109,7 @@ struct HelpSheet: View {
                         Bullet("An Apple Silicon Mac. Intel Macs are not supported")
                         Bullet("macOS 15 Sequoia or later")
                         Bullet(
-                            "250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks on first use"
+                            "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use"
                         )
                         Bullet("30 to 80 MB of RAM per unlocked drive")
                         Bullet("About ten drives can stay unlocked at once")
@@ -122,6 +122,7 @@ struct HelpSheet: View {
                         HStack(spacing: 10) {
                             Button("Licence") { document = .licence }
                             Button("Third-Party Notices") { document = .notices }
+                            Button("Specs") { document = .specs }
                             Button("Website") { model.open("https://lukotta.rahula.dev") }
                             Button("Source") {
                                 model.open("https://github.com/clementrahula/lukotta")
@@ -167,6 +168,7 @@ struct HelpSheet: View {
 enum BundledDocument: String, Identifiable {
     case licence = "LICENSE.txt"
     case notices = "THIRD_PARTY_NOTICES.md"
+    case specs = "SPECS.md"
 
     var id: String { rawValue }
 
@@ -174,6 +176,7 @@ enum BundledDocument: String, Identifiable {
         switch self {
         case .licence: return "GNU General Public License"
         case .notices: return "Third-Party Notices"
+        case .specs: return "Specifications"
         }
     }
 }

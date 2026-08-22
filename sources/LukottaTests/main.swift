@@ -649,6 +649,7 @@ group("markdownRendering") {
         case .bullets(let items):
             bullets += 1
             expect(items == ["First point", "Second point"], "bullets parsed")
+        case .rule, .code: break
         }
     }
     expect(headings == 2, "both headings parsed")
@@ -1976,6 +1977,50 @@ group("aVhdxThatNamesAParent") {
     expect(
         "\(VhdxHeader.metadataAt(regionTable: Data(table)) ?? 0)", "3145728",
         "the region table says where the metadata is")
+}
+
+group("aDocumentWithRulesAndCodeInIt") {
+    // SPECS.md is shown inside the app, and it has both, which the reader
+    // could not previously parse: a rule came out as a paragraph reading "---"
+    // and an indented layout was reflowed into a sentence.
+    let doc = """
+        # Formats
+
+        ---
+
+        Four layers carry a disk image:
+
+            file extension  ->  DiskFormat
+                            ->  imago driver
+
+        Text after it.
+
+        ```
+        brew install llvm lld
+        ```
+        """
+    let blocks = MarkdownDocument.parse(doc)
+
+    var rules = 0
+    var code: [[String]] = []
+    var paragraphs = 0
+    for b in blocks {
+        switch b {
+        case .rule: rules += 1
+        case .code(let lines): code.append(lines)
+        case .paragraph: paragraphs += 1
+        default: break
+        }
+    }
+    expect("\(rules)", "1", "a rule is a rule, not a paragraph of dashes")
+    expect("\(code.count)", "2", "the indented block and the fenced one both come through")
+    expect(
+        code.first?.count == 2, "the indented block keeps both of its lines")
+    expect(
+        code.first?.first?.hasSuffix("DiskFormat") == true,
+        "and keeps them as written rather than joining them")
+    expect(code.last == ["brew install llvm lld"], "a fenced block is taken whole")
+    expect("\(paragraphs)", "2", "the prose around them is still prose")
 }
 
 print("\n\(checks - failures)/\(checks) checks passed")

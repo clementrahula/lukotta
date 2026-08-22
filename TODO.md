@@ -175,7 +175,7 @@ responsibly be given to anyone.
 
 ## More formats
 
-Built. [FORMATS.md](FORMATS.md) has the reasoning; what shipped:
+Built. [SPECS.md](SPECS.md) has the reasoning; what shipped:
 
 - **Container files open with no privilege at all.** The user attached the file,
   so the device is theirs and the mount is a user mount. Neither the helper nor
@@ -198,7 +198,7 @@ Still open, in rough order of worth:
   Replaying the log is a write, so it would have to be applied in memory:
   imago's `readv_special()` allows a driver to serve bytes itself, and the log
   is bounded by a length the header states. The obstacle is verification, since
-  a genuinely dirty image is difficult to obtain. See [FORMATS.md](FORMATS.md).
+  a genuinely dirty image is difficult to obtain. See [SPECS.md](SPECS.md).
 - **VeraCrypt and TrueCrypt volumes.** cryptsetup carries `tcrypt` and it is
   already in the guest. Such a volume has no signature to detect, by design, so
   opening one requires the person to state that a device holds one. That is an

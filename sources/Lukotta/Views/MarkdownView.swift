@@ -50,6 +50,20 @@ struct MarkdownView: View {
                 }
             }
 
+        case .rule:
+            Divider().padding(.vertical, 2)
+
+        case .code(let lines):
+            // Shown as written: these are layouts and commands, where a
+            // reflowed line is a wrong line.
+            Text(lines.joined(separator: "\n"))
+                .font(.system(size: 11, design: .monospaced))
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 6).fill(Color.secondary.opacity(0.08)))
+
         case .table(let header, let rows):
             VStack(spacing: 0) {
                 tableRow(header, isHeader: true)

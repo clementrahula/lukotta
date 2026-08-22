@@ -54,7 +54,7 @@ volume appears in your home folder.
 | **What is inside them** | A BitLocker or LUKS volume inside any image, which unlocks like one on a drive |
 
 An exFAT image is handed to macOS, which reads and writes that format itself.
-[FORMATS.md][formats] is the full specification: every filesystem, encryption
+[SPECS.md][specs] is the full specification: every filesystem, encryption
 and image format, how each is read, and what is not supported and why.
 
 <details>
@@ -180,7 +180,7 @@ the code freely; give your version its own name. [TRADEMARKS.txt][trademark]
 says what that means in practice.
 
 [Licence][licence] · [Trademarks][trademark] · [Third-party notices][notices] ·
-[Formats][formats] · [Releases][releases]
+[Specs][specs] · [Releases][releases]
 
 ## About the Name
 
@@ -209,7 +209,7 @@ and Fable 5 models from Anthropic.
 [licence]: LICENSE.txt
 [trademark]: TRADEMARKS.txt
 [notices]: THIRD_PARTY_NOTICES.md
-[formats]: FORMATS.md
+[specs]: SPECS.md
 [patches]: patches/README.md
 [anylinuxfs]: https://github.com/nohajc/anylinuxfs
 [sparkle]: https://sparkle-project.org
