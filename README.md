@@ -27,10 +27,10 @@
 
 macOS cannot read BitLocker or Linux filesystems. Linux can. So Lukotta starts a
 small Linux virtual machine, unlocks the drive inside it, and hands the drive
-back to Finder. The engine ships inside the app and needs no separate install.
+back to Finder.
 
 A disk image opens the same way, and without an administrator password. The
-volume appears under your own home folder.
+volume appears in your home folder.
 
 ## What It Can Open
 
@@ -50,10 +50,9 @@ volume appears under your own home folder.
 | --- | --- |
 | **Virtual machine disks** | qcow2, VMDK, VDI, VHD and VHDX, as VMware, VirtualBox, Hyper-V, QEMU and UTM write them |
 | **Raw images** | `.img`, `.dmg`, and anything else macOS can attach |
-| **What is inside them** | A BitLocker or LUKS volume in an image unlocks exactly as one on a drive does |
+| **What is inside them** | A BitLocker or LUKS volume inside any image, which unlocks like one on a drive |
 
 An exFAT image is handed to macOS, which reads and writes that format itself.
-Lukotta says so when it happens.
 
 <details>
 <summary>What it cannot open</summary>
@@ -77,7 +76,7 @@ behind each of these.
 
 - An Apple Silicon Mac. Intel Macs are not supported
 - macOS 15 Sequoia or later
-- 250 MB of disk: 155 MB for the app, 95 MB for the Linux environment it unpacks
+- 260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks
   on first use
 - 30 to 80 MB of RAM per unlocked drive
 - About ten drives can stay unlocked at once
@@ -117,10 +116,10 @@ it. It is signed and notarised, so it opens with a double-click.
 Plug in the drive and pick it from the list. Type the password or paste the
 recovery key. It appears in Finder under Locations.
 
-For a disk image, choose **File → Open Disk Image…**. To see every disk attached
-to the Mac, including those Lukotta cannot open and the reason for each, choose
-**File → Open Drive…**. A drive or an image with nothing encrypted on it opens
-straight away, with no password asked for.
+For a disk image, choose **File → Open Disk Image…**, or **File → Open Drive…**
+to see every disk attached to this Mac and what Lukotta can do with each. A
+drive or an image with nothing encrypted on it opens straight away, with no
+password asked for.
 
 Eject it from Lukotta, from the menu bar, or from Finder.
 
@@ -145,9 +144,14 @@ and names the drives they belong to. The offer is off by default: some are
 
 ```bash
 ./scripts/fetch-engine.sh    # download the pinned engine, verify checksums
+./scripts/build-engine.sh    # optional: build the patched engine from source
 ./scripts/vendor-engine.sh   # stage it into vendor/
 ./build-app.sh               # compile, embed, sign, install
 ```
+
+The engine step is optional. Skipping it produces a working app built on
+upstream's binaries, which opens fewer image formats and says by name which ones
+it cannot open. [patches/README.md][patches] describes each patch.
 
 That builds `Drive Unlocker.app`. The name and logo are trademarks that the GPL
 does not license, so a build carries them only when asked. The software is the
@@ -206,5 +210,6 @@ and Fable 5 models from Anthropic.
 [trademark]: TRADEMARKS.txt
 [notices]: THIRD_PARTY_NOTICES.md
 [formats]: FORMATS.md
+[patches]: patches/README.md
 [anylinuxfs]: https://github.com/nohajc/anylinuxfs
 [sparkle]: https://sparkle-project.org
