@@ -1,6 +1,6 @@
 diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.rs
 --- a/src/format/builder.rs	2006-07-24 04:21:28
-+++ b/src/format/builder.rs	2026-08-22 13:42:09
++++ b/src/format/builder.rs	2026-08-22 14:50:51
 @@ -1,3 +1,5 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: built the drivers for those formats.
 +// SPDX-License-Identifier: MIT
@@ -64,7 +64,7 @@ diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.r
              }
 diff -ruN -x target -x Cargo.lock a/src/format/mod.rs b/src/format/mod.rs
 --- a/src/format/mod.rs	2006-07-24 04:21:28
-+++ b/src/format/mod.rs	2026-08-22 13:42:09
++++ b/src/format/mod.rs	2026-08-22 14:50:51
 @@ -1,3 +1,5 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: added the Vdi, Vhd and Vhdx formats.
 +// SPDX-License-Identifier: MIT
@@ -89,7 +89,7 @@ diff -ruN -x target -x Cargo.lock a/src/format/mod.rs b/src/format/mod.rs
  /// Format layer preallocation modes.
 diff -ruN -x target -x Cargo.lock a/src/lib.rs b/src/lib.rs
 --- a/src/lib.rs	2006-07-24 04:21:28
-+++ b/src/lib.rs	2026-08-22 13:42:09
++++ b/src/lib.rs	2026-08-22 14:50:51
 @@ -1,3 +1,5 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: declared the vdi, vhd and vhdx modules.
 +// SPDX-License-Identifier: MIT
@@ -109,7 +109,7 @@ diff -ruN -x target -x Cargo.lock a/src/lib.rs b/src/lib.rs
  pub use format::access::{FormatAccess, Mapping};
 diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 --- a/src/vdi/mod.rs	1970-01-01 03:00:00
-+++ b/src/vdi/mod.rs	2026-08-22 13:42:09
++++ b/src/vdi/mod.rs	2026-08-22 14:50:51
 @@ -0,0 +1,401 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
@@ -120,10 +120,10 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +
 +//! VDI implementation.
 +//!
-+//! VirtualBox's format, read-only.  A VDI is a header, a block map, and then
-+//! the blocks themselves.  The block map has one 32-bit entry per block of the
-+//! virtual disk, holding the index of that block in the image; two values are
-+//! special, and mean the block was never written and reads as zeroes.
++//! VirtualBox's format, read-only. A VDI is a header, a block map and the
++//! blocks. The map holds one 32-bit entry per block of the virtual disk, giving
++//! that block's index in the image. Two values are reserved and mark a block
++//! that was never written and reads as zeroes.
 +//!
 +//! Nothing here follows a reference to another file, because the format cannot
 +//! express one: a VDI's data is always its own. VirtualBox's snapshots are
@@ -143,12 +143,12 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +use std::path::{Path, PathBuf};
 +use std::{cmp, io};
 +
-+/// Magic that begins the header proper, after 64 bytes of free text.
++/// The signature that begins the header, after 64 bytes of free text.
 +const VDI_SIGNATURE: u32 = 0xbeda_107f;
-+/// Where that magic sits.
++/// Where that signature sits.
 +const SIGNATURE_OFFSET: u64 = 0x40;
-+/// How much of the file the header can occupy, which is all this driver reads
-+/// before it knows how much it needs.
++/// How much of the file the header can occupy, and therefore how much is read
++/// before its length is known.
 +const HEADER_READ: usize = 0x200;
 +
 +/// The block was never written, and reads as zeroes.
@@ -184,7 +184,7 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +    /// The image file.
 +    inner: S,
 +
-+    /// What the header said.
++    /// The header, as read.
 +    header: VdiHeader,
 +
 +    /// The block map, read once when the image is opened.
@@ -514,8 +514,8 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +}
 diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 --- a/src/vhd/mod.rs	1970-01-01 03:00:00
-+++ b/src/vhd/mod.rs	2026-08-22 13:42:09
-@@ -0,0 +1,451 @@
++++ b/src/vhd/mod.rs	2026-08-22 14:50:51
+@@ -0,0 +1,452 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
 +//
@@ -525,7 +525,8 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +
 +//! VHD implementation.
 +//!
-+//! Microsoft's format, read-only, in both the shapes that hold their own data:
++//! Microsoft's first format, read-only, in both forms that hold their own
++//! data:
 +//!
 +//! - fixed, which is the raw disk followed by a 512-byte footer, and
 +//! - dynamic, which stores the disk in blocks listed by an allocation table,
@@ -534,7 +535,7 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +//! The third form, differencing, holds only the changes from a parent disk that
 +//! it names, and is refused: this driver never opens a second file.
 +//!
-+//! VHDX shares the name and nothing else, and is not this format.
++//! VHDX shares the name and none of the layout, and is a separate format.
 +
 +use crate::format::builder::{FormatDriverBuilder, FormatDriverBuilderBase};
 +use crate::format::drivers::FormatDriverInstance;
@@ -557,14 +558,14 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +const FOOTER_LENGTH: u64 = 512;
 +/// How long the dynamic header is.
 +const DYNAMIC_LENGTH: usize = 1024;
-+/// The sector size the format is written in terms of.
++/// The sector size the format is defined in.
 +const SECTOR: u64 = 512;
 +
 +/// The disk is the raw data with the footer after it.
 +const TYPE_FIXED: u32 = 2;
 +/// The disk is stored in blocks listed by an allocation table.
 +const TYPE_DYNAMIC: u32 = 3;
-+/// The image holds only what changed from a parent disk it names.
++/// The image holds only the changes from a parent disk that it names.
 +const TYPE_DIFFERENCING: u32 = 4;
 +
 +/// A block that was never written, and reads as zeroes.
@@ -969,8 +970,8 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +}
 diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 --- a/src/vhdx/mod.rs	1970-01-01 03:00:00
-+++ b/src/vhdx/mod.rs	2026-08-22 13:42:09
-@@ -0,0 +1,584 @@
++++ b/src/vhdx/mod.rs	2026-08-22 14:50:51
+@@ -0,0 +1,585 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
 +//
@@ -980,11 +981,11 @@ diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 +
 +//! VHDX implementation.
 +//!
-+//! Microsoft's second format, read-only, and the only one here with more than
-+//! one thing to find before the disk can be read:
++//! Microsoft's second format, read-only. Several structures must be located
++//! before the disk can be read:
 +//!
-+//! - two headers, of which the one with the higher sequence number and a sound
-+//!   checksum is the live one;
++//! - two headers, the live one being whichever carries the higher sequence
++//!   number together with a sound checksum;
 +//! - a region table naming where the allocation table and the metadata are;
 +//! - a metadata region giving the block size, the disk size and the sector
 +//!   size;
@@ -1057,19 +1058,19 @@ diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 +const BLOCK_ZERO: u64 = 2;
 +/// The block was discarded, and reads as zeroes.
 +const BLOCK_UNMAPPED: u64 = 3;
-+/// The block is in the file, whole.
++/// The whole block is in the file.
 +const BLOCK_FULLY_PRESENT: u64 = 6;
 +/// Part of the block is in the file and the rest is in a parent, which only a
 +/// differencing image has.
 +const BLOCK_PARTIALLY_PRESENT: u64 = 7;
 +
-+/// An allocation table larger than this would be a disk of some hundreds of
-+/// terabytes, and reading it is the only unbounded allocation here.
++/// An allocation table larger than this exceeds any real disk, and reading it is
++/// the only unbounded allocation this driver performs.
 +const MAX_BAT_ENTRIES: u64 = 1 << 24;
 +
 +/// CRC-32C, the checksum VHDX uses for its headers and tables.
 +///
-+/// Computed a bit at a time. The cost is irrelevant: it runs over a few tens of
++/// Computed a bit at a time, which costs little: it runs over a few tens of
 +/// kilobytes, once, when the image is opened.
 +fn crc32c(data: &[u8]) -> u32 {
 +    let mut crc = 0xFFFF_FFFFu32;
@@ -1104,7 +1105,7 @@ diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 +    u64::from_le_bytes(buf[offset..offset + 8].try_into().unwrap())
 +}
 +
-+/// Where a region of the file is, and how long.
++/// Where a region of the file begins, and its length.
 +#[derive(Debug, Clone, Copy)]
 +struct Region {
 +    /// Where it begins.
@@ -1157,8 +1158,8 @@ diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 +        Ok(buf.as_ref().into_slice().to_vec())
 +    }
 +
-+    /// Find the live header: the one with the higher sequence number, of those
-+    /// whose checksum holds.
++    /// Find the live header: of those whose checksum holds, the one carrying the
++    /// higher sequence number.
 +    async fn read_header(inner: &S) -> io::Result<()> {
 +        let mut live: Option<(u64, Vec<u8>)> = None;
 +        for at in HEADER_OFFSETS {
@@ -1467,8 +1468,9 @@ diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 +            BLOCK_NOT_PRESENT | BLOCK_UNDEFINED => {
 +                Ok((ShallowMapping::Zero { explicit: false }, length))
 +            }
-+            // Only a differencing image has these, and one is refused when it
-+            // is opened, so reaching here means the image contradicts itself.
++            // Only a differencing image has these, and such an image is refused
++            // when opened, so reaching this point means the image contradicts
++            // itself.
 +            BLOCK_PARTIALLY_PRESENT => Err(io::Error::new(
 +                io::ErrorKind::Unsupported,
 +                "VHDX block is only partly present, which needs a parent disk",

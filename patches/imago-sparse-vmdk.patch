@@ -1,5 +1,5 @@
 --- a/src/vmdk/mod.rs	2006-07-24 04:21:28
-+++ b/src/vmdk/mod.rs	2026-08-22 13:41:48
++++ b/src/vmdk/mod.rs	2026-08-22 14:50:30
 @@ -1,3 +1,6 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: read the
 +// sparse and stream-optimized forms as well as the flat one.
@@ -40,22 +40,22 @@
 +const VMDK_FLAG_COMPRESSED: u32 = 1 << 16;
 +/// Every grain carries a marker before it, which is the streamed form.
 +const VMDK_FLAG_MARKERS: u32 = 1 << 17;
-+/// How much of a grain marker comes before the compressed data itself: the
-+/// sector this grain covers, and how many bytes were written for it.
++/// The length of the marker preceding a grain's deflated data: the sector this
++/// grain covers, and the number of bytes written for it.
 +const GRAIN_MARKER: u64 = 12;
-+/// How many decompressed grains to keep. Each is a grain's worth of disk, and
-+/// a filesystem reads the same one many times over in quick succession.
++/// How many inflated grains to retain. Each holds one grain of disk, and a
++/// filesystem reads the same one repeatedly in quick succession.
 +const GRAIN_CACHE: usize = 32;
 +/// A grain table entry of 0 means the grain was never written.
 +const GRAIN_UNALLOCATED: u32 = 0;
 +/// And 1 means it was written and is all zeroes.
 +const GRAIN_ZERO: u32 = 1;
-+/// A grain directory larger than this would be a disk of some hundreds of
-+/// terabytes, and reading it is the only unbounded allocation here.
++/// A grain directory larger than this exceeds any real disk, and reading it is
++/// the only unbounded allocation this driver performs.
 +const MAX_GRAIN_DIRECTORY: u64 = 1 << 20;
-+/// How many grain tables to keep once read. Each is a few kilobytes, and one
-+/// covers a long stretch of the disk, so reading through an image touches each
-+/// table once.
++/// How many grain tables to retain once read. Each is a few kilobytes and covers
++/// a long stretch of disk, so reading an image through refers to each about
++/// once.
 +const GRAIN_TABLE_CACHE: usize = 64;
  
  /// Represents the data storage for a VMDK extent
@@ -198,7 +198,7 @@
 +    Zero,
 +}
 +
-+/// A sparse extent: the file, its grain directory, and the grain tables read so
++/// A sparse extent: the file, its grain directory and the grain tables read so
 +/// far.
 +///
 +/// The directory is read once, when the image is opened, being small at one
@@ -291,8 +291,8 @@
 +
 +    /// Return the grain table at `index`, reading it if it has not been read.
 +    async fn table(&self, index: usize) -> io::Result<Arc<Vec<u32>>> {
-+        // The lock is never held across a read: it is taken to look, dropped to
-+        // read, and taken again to keep what was read.
++        // As above, the lock is never held across a read. It is taken to look, released to
++        // read, and taken again to retain what was read.
 +        if let Some(table) = self.tables.lock().unwrap().0.get(&index) {
 +            return Ok(Arc::clone(table));
 +        }
