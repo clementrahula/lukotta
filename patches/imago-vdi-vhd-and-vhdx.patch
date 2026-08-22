@@ -1,6 +1,6 @@
 diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.rs
 --- a/src/format/builder.rs	2006-07-24 04:21:28
-+++ b/src/format/builder.rs	2026-08-22 11:42:36
++++ b/src/format/builder.rs	2026-08-22 13:42:09
 @@ -1,3 +1,5 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: built the drivers for those formats.
 +// SPDX-License-Identifier: MIT
@@ -64,7 +64,7 @@ diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.r
              }
 diff -ruN -x target -x Cargo.lock a/src/format/mod.rs b/src/format/mod.rs
 --- a/src/format/mod.rs	2006-07-24 04:21:28
-+++ b/src/format/mod.rs	2026-08-22 11:42:36
++++ b/src/format/mod.rs	2026-08-22 13:42:09
 @@ -1,3 +1,5 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: added the Vdi, Vhd and Vhdx formats.
 +// SPDX-License-Identifier: MIT
@@ -89,7 +89,7 @@ diff -ruN -x target -x Cargo.lock a/src/format/mod.rs b/src/format/mod.rs
  /// Format layer preallocation modes.
 diff -ruN -x target -x Cargo.lock a/src/lib.rs b/src/lib.rs
 --- a/src/lib.rs	2006-07-24 04:21:28
-+++ b/src/lib.rs	2026-08-22 11:42:36
++++ b/src/lib.rs	2026-08-22 13:42:09
 @@ -1,3 +1,5 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: declared the vdi, vhd and vhdx modules.
 +// SPDX-License-Identifier: MIT
@@ -109,8 +109,8 @@ diff -ruN -x target -x Cargo.lock a/src/lib.rs b/src/lib.rs
  pub use format::access::{FormatAccess, Mapping};
 diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 --- a/src/vdi/mod.rs	1970-01-01 03:00:00
-+++ b/src/vdi/mod.rs	2026-08-22 11:42:36
-@@ -0,0 +1,402 @@
++++ b/src/vdi/mod.rs	2026-08-22 13:42:09
+@@ -0,0 +1,401 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
 +//
@@ -125,10 +125,10 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +//! virtual disk, holding the index of that block in the image; two values are
 +//! special, and mean the block was never written and reads as zeroes.
 +//!
-+//! Nothing here follows a reference to another file, because the format has no
-+//! way to name one: a VDI's data is always in the VDI.  (VirtualBox's snapshots
-+//! are separate images chained together by the VM's own configuration, not by
-+//! anything in the image.)
++//! Nothing here follows a reference to another file, because the format cannot
++//! express one: a VDI's data is always its own. VirtualBox's snapshots are
++//! separate images chained together by the virtual machine's configuration
++//! rather than by anything in the image.
 +
 +use crate::format::builder::{FormatDriverBuilder, FormatDriverBuilderBase};
 +use crate::format::drivers::FormatDriverInstance;
@@ -156,12 +156,12 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +/// The block was discarded, and reads as zeroes.
 +const BLOCK_ZERO: u32 = 0xffff_fffe;
 +
-+/// A block map with as many entries as this would be larger than any real disk,
-+/// and reading it would be the whole of the allocation this driver does.  100
-+/// million blocks is a 100 TB disk at the smallest block size anyone uses.
++/// A block map larger than this exceeds any real disk, and reading it is the
++/// only unbounded allocation this driver performs. 100 million blocks is a
++/// 100 TB disk at the smallest block size in use.
 +const MAX_BLOCKS: u32 = 100_000_000;
 +
-+/// What the header says, once it has been read and found to make sense.
++/// The header's contents, once read and validated.
 +#[derive(Debug, Clone)]
 +struct VdiHeader {
 +    /// Where the block map begins.
@@ -226,8 +226,8 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +        if le32(buf, SIGNATURE_OFFSET as usize) != VDI_SIGNATURE {
 +            return Err(invalid_data("Not a VDI image"));
 +        }
-+        // Only version 1 has ever existed in the wild; version 0 laid the
-+        // header out differently and VirtualBox itself no longer writes it.
++        // Only version 1 was released. Version 0 laid the header out
++        // differently and is no longer written.
 +        let version = le32(buf, 0x44);
 +        if version >> 16 != 1 {
 +            return Err(invalid_data(format!(
@@ -236,8 +236,8 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +                version & 0xffff
 +            )));
 +        }
-+        // 1 is dynamic and 2 is fixed; both are read the same way here, because
-+        // a fixed image is simply one whose block map is already filled in.
++        // 1 is dynamic and 2 is fixed. Both are read the same way, a fixed
++        // image being one whose block map is already filled in.
 +        let image_type = le32(buf, 0x4c);
 +        if image_type != 1 && image_type != 2 {
 +            return Err(io::Error::new(
@@ -255,9 +255,8 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +            blocks: le32(buf, 0x180),
 +        };
 +
-+        // Everything below is a way for a damaged or hostile image to make this
-+        // driver read the wrong part of the file, so all of it is checked
-+        // before any of it is used.
++        // Each of the following values can direct this driver to read the
++        // wrong part of the file, so all are validated before any are used.
 +        if header.block_size == 0 || !header.block_size.is_power_of_two() {
 +            return Err(invalid_data(format!(
 +                "VDI block size {} is not a power of two",
@@ -303,8 +302,8 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +            }
 +        }
 +
-+        // A block index that points past the end of the file would be read as
-+        // disk contents, so the map is checked here rather than per read.
++        // A block index past the end of the file would be served as disk
++        // contents, so the map is validated here rather than on every read.
 +        let stride = (header.block_size as u64) + (header.block_extra as u64);
 +        for &entry in &block_map {
 +            if entry == BLOCK_FREE || entry == BLOCK_ZERO {
@@ -403,8 +402,8 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +        let block_size = self.header.block_size as u64;
 +        let index = (offset / block_size) as usize;
 +        let in_block = offset % block_size;
-+        // Never longer than what is left of this block: the next one may be
-+        // somewhere else in the file, or nowhere at all.
++        // Never longer than the remainder of this block. The next block may
++        // lie elsewhere in the file, or nowhere at all.
 +        let length = cmp::min(cmp::min(max_length, remaining), block_size - in_block);
 +
 +        let Some(&entry) = self.block_map.get(index) else {
@@ -515,7 +514,7 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +}
 diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 --- a/src/vhd/mod.rs	1970-01-01 03:00:00
-+++ b/src/vhd/mod.rs	2026-08-22 11:42:36
++++ b/src/vhd/mod.rs	2026-08-22 13:42:09
 @@ -0,0 +1,451 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
@@ -528,12 +527,12 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +//!
 +//! Microsoft's format, read-only, in both the shapes that hold their own data:
 +//!
-+//! - **fixed**, which is the raw disk followed by a 512-byte footer, and
-+//! - **dynamic**, which stores the disk in blocks listed by an allocation
-+//!   table, with a bitmap sector before each block.
++//! - fixed, which is the raw disk followed by a 512-byte footer, and
++//! - dynamic, which stores the disk in blocks listed by an allocation table,
++//!   each preceded by a bitmap sector.
 +//!
-+//! The third shape, **differencing**, holds only what changed from a parent
-+//! disk it names, and is refused: this driver never opens a second file.
++//! The third form, differencing, holds only the changes from a parent disk that
++//! it names, and is refused: this driver never opens a second file.
 +//!
 +//! VHDX shares the name and nothing else, and is not this format.
 +
@@ -571,8 +570,8 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +/// A block that was never written, and reads as zeroes.
 +const BAT_UNALLOCATED: u32 = 0xffff_ffff;
 +
-+/// An allocation table with more entries than this would be larger than any
-+/// real disk, and reading it is the whole of the allocation this driver does.
++/// An allocation table larger than this exceeds any real disk, and reading it
++/// is the only unbounded allocation this driver performs.
 +const MAX_BAT_ENTRIES: u32 = 100_000_000;
 +
 +/// How the image holds its data.
@@ -750,8 +749,8 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +            }
 +        }
 +
-+        // A block pointing past the end of the file would be read as disk
-+        // contents, so the table is checked here rather than per read.
++        // A block past the end of the file would be served as disk contents,
++        // so the table is validated here rather than on every read.
 +        for &entry in &bat {
 +            if entry == BAT_UNALLOCATED {
 +                continue;
@@ -847,8 +846,8 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +        let max_length = cmp::min(max_length, remaining);
 +
 +        match &self.layout {
-+            // The data is the file, from the start, with the footer past the
-+            // end of the disk and so never inside a mapping.
++            // The data is the file from its start, the footer lying past the
++            // end of the disk and so never within a mapping.
 +            VhdLayout::Fixed => Ok((
 +                ShallowMapping::Raw {
 +                    storage: &self.inner,
@@ -865,8 +864,8 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +            } => {
 +                let index = (offset / block_size) as usize;
 +                let in_block = offset % block_size;
-+                // Never longer than what is left of this block: the next one
-+                // may be elsewhere in the file, or nowhere at all.
++                // Never longer than the remainder of this block. The next
++                // block may lie elsewhere in the file, or nowhere at all.
 +                let length = cmp::min(max_length, block_size - in_block);
 +
 +                let Some(&entry) = bat.get(index) else {
@@ -970,7 +969,7 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +}
 diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 --- a/src/vhdx/mod.rs	1970-01-01 03:00:00
-+++ b/src/vhdx/mod.rs	2026-08-22 11:42:36
++++ b/src/vhdx/mod.rs	2026-08-22 13:42:09
 @@ -0,0 +1,584 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
@@ -992,12 +991,12 @@ diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 +//! - an allocation table with one entry per block, interleaved with entries
 +//!   describing sector bitmaps, which only a differencing image uses.
 +//!
-+//! Two things are refused rather than read. An image that **names a parent** is
-+//! a differencing image, and nothing here opens a second file. An image whose
-+//! **log is not empty** was not closed cleanly, and its newest metadata is in
-+//! that log rather than in the file proper: replaying it means writing, which a
-+//! read-only driver must not do, and ignoring it means quietly serving stale
-+//! data — which is the failure that looks like corruption.
++//! Two images are refused rather than read. One that names a parent is a
++//! differencing image, and nothing here opens a second file. One whose log is
++//! not empty was not closed cleanly, so its most recent metadata is in that log
++//! rather than in the file itself. Replaying the log requires writing, which a
++//! read-only driver must not do, and disregarding it returns data older than
++//! the disk last held.
 +
 +use crate::format::builder::{FormatDriverBuilder, FormatDriverBuilderBase};
 +use crate::format::drivers::FormatDriverInstance;
@@ -1068,10 +1067,10 @@ diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 +/// terabytes, and reading it is the only unbounded allocation here.
 +const MAX_BAT_ENTRIES: u64 = 1 << 24;
 +
-+/// CRC-32C, which is what VHDX checksums its headers and tables with.
++/// CRC-32C, the checksum VHDX uses for its headers and tables.
 +///
-+/// Done a bit at a time, which is slow and does not matter: it runs over a few
-+/// tens of kilobytes, once, when the image is opened.
++/// Computed a bit at a time. The cost is irrelevant: it runs over a few tens of
++/// kilobytes, once, when the image is opened.
 +fn crc32c(data: &[u8]) -> u32 {
 +    let mut crc = 0xFFFF_FFFFu32;
 +    for byte in data {
@@ -1438,8 +1437,8 @@ diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 +
 +        let block = offset / self.block_size;
 +        let in_block = offset % self.block_size;
-+        // Never longer than what is left of this block: the next one may be
-+        // elsewhere in the file, or nowhere at all.
++        // Never longer than the remainder of this block. The next block may
++        // lie elsewhere in the file, or nowhere at all.
 +        let length = cmp::min(
 +            cmp::min(max_length, remaining),
 +            self.block_size - in_block,

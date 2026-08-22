@@ -1,5 +1,5 @@
 --- a/src/vmdk/mod.rs	2006-07-24 04:21:28
-+++ b/src/vmdk/mod.rs	2026-08-22 11:40:56
++++ b/src/vmdk/mod.rs	2026-08-22 13:41:48
 @@ -1,3 +1,6 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: read the
 +// sparse and stream-optimized forms as well as the flat one.
@@ -201,10 +201,10 @@
 +/// A sparse extent: the file, its grain directory, and the grain tables read so
 +/// far.
 +///
-+/// The directory is read once, when the image is opened, because it is small —
-+/// one entry per grain table. The tables themselves are read as the disk is,
-+/// and the last few are kept: one table covers a long stretch of disk, so
-+/// reading an image through touches each of them about once.
++/// The directory is read once, when the image is opened, being small at one
++/// entry per grain table. The tables themselves are read as the disk is read,
++/// and the most recent are retained, since one table covers a long stretch of
++/// disk and reading an image through refers to each about once.
 +#[derive(Debug)]
 +struct SparseExtent<S: Storage + 'static> {
 +    /// The file holding the grains.
@@ -233,10 +233,10 @@
 +        let mut header = SparseHeader::parse(buf.as_ref().into_slice())?;
 +
 +        // A streamed file is written in one pass, so its grain directory is
-+        // only placed once everything before it has been written. The header
-+        // then carries a placeholder, and a copy of the header at the end of
-+        // the file — two sectors from it, after the marker announcing it —
-+        // carries where the directory actually went.
++        // positioned only once everything before it has been written. The
++        // header then carries a placeholder, and a copy of the header two
++        // sectors from the end of the file, after the marker announcing it,
++        // carries the true offset.
 +        if header.compressed && header.gd_offset == u64::MAX {
 +            if file_size < 2 * VMDK_SECTOR_SIZE {
 +                return Err(invalid_data("VMDK streamed extent has no footer"));
@@ -630,9 +630,9 @@
  
 +    /// Serve a stretch of disk that is deflated in the file.
 +    ///
-+    /// Only a streamed extent has any, and `get_mapping()` sends only those
-+    /// here. The grain is inflated whole — it has to be, that is what deflate
-+    /// is — and the part asked for is copied out of it.
++    /// Only a streamed extent has any, and `get_mapping()` routes only those
++    /// here. A deflated grain can be inflated only in full, so the whole grain
++    /// is inflated and the requested part copied out of it.
 +    async fn readv_special(&self, mut bufv: IoVectorMut<'_>, offset: u64) -> io::Result<()> {
 +        let Some(extent) = self.get_extent_at(offset) else {
 +            return Err(io::Error::other("Read beyond the end of the disk"));
