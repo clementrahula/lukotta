@@ -65,6 +65,16 @@ enum Snapshots {
                     .background(Color(nsColor: .windowBackgroundColor)))
         }
 
+        /// The help sheet, which is the longest prose in the app and the part
+        /// most easily left saying something that stopped being true.
+        func helpSheet() -> AnyView {
+            AnyView(
+                HelpSheet()
+                    .environmentObject(AppModel())
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(nsColor: .windowBackgroundColor)))
+        }
+
         /// A sheet, rendered on its own. Sheets are separate windows and do not
         /// appear in a picture of the one underneath, so the only way to check
         /// one is to draw it by itself.
@@ -205,6 +215,7 @@ enum Snapshots {
                         drive, Diagnosis.summarise(transcript, fallback: ""), transcript)
                 }
             ),
+            ("help", helpSheet()),
         ]
     }
 
