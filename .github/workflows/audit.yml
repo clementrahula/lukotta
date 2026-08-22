@@ -32,7 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: OSV scanner
-        uses: google/osv-scanner-action/osv-scanner-action@v2.5.1
+        uses: google/osv-scanner-action/osv-scanner-action@6e4298ebc4db23e847df9b2e2de2939d6f066c67 # v2.5.1
         with:
           scan-args: "--lockfile=Package.resolved"
         continue-on-error: false
@@ -97,7 +97,10 @@ jobs:
           echo "guest image: $digest"
 
       - name: Trivy
-        uses: aquasecurity/trivy-action@v0.36.0
+        # Pinned to the commit rather than the tag. The Trivy releases were
+        # briefly compromised (GHSA-69fq-xp46-6x23), and a tag can be moved
+        # where a commit cannot.
+        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
         with:
           scan-type: image
           image-ref: alpine@${{ steps.image.outputs.digest }}
