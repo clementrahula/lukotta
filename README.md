@@ -118,8 +118,12 @@ recovery key. It appears in Finder under Locations.
 
 For a disk image, choose **File → Open Disk Image…**, or **File → Open Drive…**
 to see every disk attached to this Mac and what Lukotta can do with each. A
-drive or an image with nothing encrypted on it opens straight away, with no
-password asked for.
+drive or an image with nothing encrypted on it asks nothing but how to open it.
+
+Beside **Open** and **Unlock** is the same button read-only. Nothing is written
+to a drive opened that way, not even by macOS, and the list marks the row. A
+drive that refuses to be written to is opened read-only rather than left closed,
+and says so.
 
 Eject it from Lukotta, from the menu bar, or from Finder.
 

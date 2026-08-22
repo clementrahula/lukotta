@@ -92,6 +92,18 @@ first; every other format is handed to the engine as a path, which the engine
 reads itself, attaching nothing. The mount appears under `~/Volumes` rather than
 `/Volumes`.
 
+Either can be opened read-only, which is set in two places. `-o ro` mounts the
+filesystem read-only inside the guest, and `ro` among the NFS options mounts it
+read-only on this Mac, which is the half Finder reads. The export itself is left
+as the engine writes it: `--nfs-export-opts` cannot be combined with
+`--ignore-permissions`, and replacing the export would discard what that flag
+sets, which is what makes the files readable by whoever opened the drive.
+
+A drive that refuses to be written to is mounted read-only rather than left
+closed. Every attempt in the generated script is followed by the same attempt
+read-only, and the script writes a `read-only` stage marker when one of those
+succeeds, so a drive is never described as writable when it is not.
+
 ---
 
 ## 3. Images that name other files

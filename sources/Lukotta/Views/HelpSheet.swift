@@ -72,6 +72,15 @@ struct HelpSheet: View {
                         )
                     }
 
+                    HelpSection(title: "Opening read-only") {
+                        Bullet(
+                            "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS"
+                        )
+                        Bullet(
+                            "A drive that refuses to be written to is opened read-only rather than left closed, and says so"
+                        )
+                    }
+
                     HelpSection(title: "What it cannot open") {
                         Bullet(
                             "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption"

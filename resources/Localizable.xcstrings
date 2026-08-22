@@ -392,7 +392,134 @@
       }
     },
     "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access. An administrator password is not enough, and the removable-volumes permission covers files on a drive rather than the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ отваря дискове с BitLocker и Linux, които macOS не може да чете сам. Първо е нужна една настройка.\n\nЧетенето на диск на ниво сурово устройство изисква Full Disk Access. Парола на администратор не е достатъчна, а разрешението за сменяеми носители се отнася за файловете на диск, а не за самото устройство. macOS не дава на приложенията начин да поискат това разрешение, затова се включва ръчно."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ otevírá disky s BitLockerem a Linuxem, které macOS sám přečíst neumí. Nejprve je potřeba jedno nastavení.\n\nČtení disku na úrovni surového zařízení vyžaduje Plný přístup k disku. Heslo správce nestačí a oprávnění pro vyměnitelné svazky se týká souborů na disku, ne surového zařízení. macOS aplikacím nedává možnost si o toto oprávnění říct, takže se zapíná ručně."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ åbner BitLocker- og Linux-diske, som macOS ikke selv kan læse. Først kræves én indstilling.\n\nAt læse en disk på råt enhedsniveau kræver Fuld adgang til disk. En administratoradgangskode er ikke nok, og tilladelsen til flytbare enheder dækker filer på en disk frem for den rå enhed. macOS giver ikke programmer nogen måde at bede om denne tilladelse på, så den skal slås til i hånden."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ öffnet BitLocker- und Linux-Laufwerke, die macOS von sich aus nicht lesen kann. Dafür ist zuerst eine Einstellung nötig.\n\nEin Laufwerk auf der Ebene des rohen Geräts zu lesen erfordert Festplattenvollzugriff. Ein Administratorpasswort genügt nicht, und die Berechtigung für Wechselmedien gilt für Dateien auf einem Laufwerk statt für das rohe Gerät. macOS bietet Apps keine Möglichkeit, diese Berechtigung anzufordern, also muss sie von Hand eingeschaltet werden."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το %@ ανοίγει δίσκους BitLocker και Linux που το macOS δεν μπορεί να διαβάσει από μόνο του. Πρώτα χρειάζεται μία ρύθμιση.\n\nΗ ανάγνωση ενός δίσκου σε επίπεδο ωμής συσκευής απαιτεί Πλήρη πρόσβαση στον δίσκο. Το συνθηματικό διαχειριστή δεν αρκεί, και η άδεια για αφαιρούμενους τόμους αφορά αρχεία σε έναν δίσκο και όχι την ίδια τη συσκευή. Το macOS δεν δίνει στις εφαρμογές τρόπο να ζητήσουν αυτή την άδεια, οπότε ενεργοποιείται με το χέρι."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ abre discos con BitLocker y de Linux que macOS no puede leer por sí solo. Antes hace falta un ajuste.\n\nLeer un disco al nivel del dispositivo en bruto requiere Acceso total al disco. Una contraseña de administrador no basta, y el permiso de volúmenes extraíbles cubre los archivos de un disco, no el dispositivo en bruto. macOS no ofrece a las apps ninguna forma de solicitar este permiso, así que hay que activarlo a mano."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ avab BitLockeri ja Linuxi kettaid, mida macOS ise lugeda ei oska. Selleks on kõigepealt vaja üht seadet.\n\nKetta lugemine toorseadme tasandil nõuab Full Disk Access’i. Administraatori paroolist ei piisa ja eemaldatavate andmekandjate luba puudutab ketta faile, mitte toorseadet. macOS ei anna rakendustele võimalust seda luba küsida, seega tuleb see käsitsi sisse lülitada."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ avaa BitLocker- ja Linux-levyjä, joita macOS ei osaa itse lukea. Ensin tarvitaan yksi asetus.\n\nLevyn lukeminen raakalaitteen tasolla vaatii Koko levyn käytön. Pääkäyttäjän salasana ei riitä, ja irrotettavien taltioiden käyttöoikeus koskee levyllä olevia tiedostoja eikä raakalaitetta. macOS ei anna ohjelmille mitään tapaa pyytää tätä oikeutta, joten se on kytkettävä päälle käsin."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ouvre les disques BitLocker et Linux que macOS ne sait pas lire seul. Un réglage est d’abord nécessaire.\n\nLire un disque au niveau du périphérique brut exige l’Accès complet au disque. Un mot de passe administrateur ne suffit pas, et l’autorisation des volumes amovibles porte sur les fichiers d’un disque, non sur le périphérique brut. macOS n’offre aux apps aucun moyen de demander celle-ci : elle doit être activée à la main."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ otvara BitLocker i Linux diskove koje macOS sam ne može čitati. Prije toga potrebna je jedna postavka.\n\nČitanje diska na razini sirovog uređaja zahtijeva Puni pristup disku. Administratorska lozinka nije dovoljna, a dozvola za uklonjive medije odnosi se na datoteke na disku, a ne na sam uređaj. macOS aplikacijama ne nudi način da je zatraže, pa se uključuje ručno."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ olyan BitLocker- és Linux-lemezeket nyit meg, amelyeket a macOS önmagában nem tud olvasni. Ehhez előbb egy beállítás szükséges.\n\nEgy lemez nyers eszközszintű olvasásához Teljes hozzáférés a lemezhez szükséges. A rendszergazdai jelszó nem elég, a cserélhető kötetekre vonatkozó engedély pedig a lemezen lévő fájlokra vonatkozik, nem a nyers eszközre. A macOS nem ad az alkalmazásoknak módot arra, hogy ezt kérjék, ezért kézzel kell bekapcsolni."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ apre dischi BitLocker e Linux che macOS da solo non sa leggere. Prima serve un’impostazione.\n\nLeggere un disco a livello di dispositivo grezzo richiede l’Accesso completo al disco. Una password di amministratore non basta, e il permesso per i volumi rimovibili riguarda i file su un disco, non il dispositivo grezzo. macOS non offre alle app alcun modo di richiederlo, quindi va attivato a mano."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ atveria „BitLocker“ ir „Linux“ diskus, kurių „macOS“ pati perskaityti negali. Pirmiausia reikia vieno nustatymo.\n\nSkaityti diską neapdoroto įrenginio lygiu galima tik su Full Disk Access. Administratoriaus slaptažodžio nepakanka, o keičiamųjų laikmenų leidimas apima diske esančius failus, o ne patį įrenginį. „macOS“ nesuteikia programoms būdo šio leidimo paprašyti, todėl jį reikia įjungti ranka."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ atver BitLocker un Linux diskus, kurus macOS pats nespēj nolasīt. Vispirms nepieciešams viens iestatījums.\n\nDiska lasīšanai neapstrādātas ierīces līmenī ir vajadzīga Full Disk Access. Administratora parole nav pietiekama, un noņemamo datu nesēju atļauja attiecas uz diskā esošajiem failiem, nevis uz pašu ierīci. macOS nedod lietotnēm iespēju to pieprasīt, tāpēc tā jāieslēdz ar roku."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ åpner BitLocker- og Linux-disker som macOS ikke kan lese på egen hånd. Først trengs én innstilling.\n\nÅ lese en disk på rått enhetsnivå krever Full disktilgang. Et administratorpassord er ikke nok, og tillatelsen for flyttbare medier gjelder filer på en disk, ikke selve enheten. macOS gir ikke programmer noen måte å be om denne på, så den må slås på for hånd."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ opent BitLocker- en Linux-schijven die macOS zelf niet kan lezen. Daarvoor is eerst één instelling nodig.\n\nEen schijf op het niveau van het ruwe apparaat lezen vereist Volledige schijftoegang. Een beheerderswachtwoord is niet genoeg, en de toegang tot verwisselbare volumes gaat over bestanden op een schijf, niet over het ruwe apparaat. macOS biedt apps geen manier om hierom te vragen, dus die moet met de hand worden aangezet."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ otwiera dyski z BitLockerem i dyski linuksowe, których macOS sam nie potrafi odczytać. Najpierw potrzebne jest jedno ustawienie.\n\nOdczyt dysku na poziomie surowego urządzenia wymaga Pełnego dostępu do dysku. Hasło administratora nie wystarczy, a uprawnienie do nośników wymiennych dotyczy plików na dysku, a nie samego urządzenia. macOS nie daje programom żadnego sposobu, by o nie poprosić, więc trzeba włączyć je ręcznie."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O %@ abre discos BitLocker e Linux que o macOS não consegue ler sozinho. Antes disso é preciso uma definição.\n\nLer um disco ao nível do dispositivo em bruto exige Acesso completo ao disco. Uma palavra-passe de administrador não chega, e a autorização para volumes amovíveis abrange os ficheiros de um disco e não o dispositivo em bruto. O macOS não dá às aplicações forma de a pedir, por isso tem de ser ligada à mão."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ deschide discuri BitLocker și Linux pe care macOS nu le poate citi singur. Mai întâi este nevoie de o setare.\n\nCitirea unui disc la nivelul dispozitivului brut necesită Acces complet la disc. O parolă de administrator nu este suficientă, iar permisiunea pentru volume amovibile se referă la fișierele de pe un disc, nu la dispozitivul brut. macOS nu oferă aplicațiilor nicio cale de a o cere, așa că trebuie activată manual."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ odpira diske BitLocker in Linux, ki jih macOS sam ne zna prebrati. Najprej je potrebna ena nastavitev.\n\nBranje diska na ravni surove naprave zahteva Poln dostop do diska. Skrbniško geslo ne zadošča, dovoljenje za izmenljive nosilce pa se nanaša na datoteke na disku in ne na surovo napravo. macOS programom ne omogoča, da bi zanj zaprosili, zato ga je treba vklopiti ročno."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ öppnar BitLocker- och Linux-diskar som macOS inte kan läsa på egen hand. Först krävs en inställning.\n\nAtt läsa en disk på rå enhetsnivå kräver Full skivtillgång. Ett administratörslösenord räcker inte, och behörigheten för flyttbara enheter gäller filer på en disk och inte den råa enheten. macOS ger inte program något sätt att be om den, så den måste slås på för hand."
+          }
+        }
+      }
     },
     "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": {
       "localizations": {
@@ -2182,9 +2309,6 @@
         }
       }
     },
-    "-o ro ": {
-      "localizations": {}
-    },
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": {
       "localizations": {
         "bg": {
@@ -2701,6 +2825,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "En kraschrapport hittades"
+          }
+        }
+      }
+    },
+    "A drive that refuses to be written to is opened read-only rather than left closed, and says so": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Диск, който отказва да бъде записван, се отваря само за четене, вместо да остане затворен, и го отбелязва"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk, který odmítá zápis, se otevře jen ke čtení, místo aby zůstal zavřený, a řekne to"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et drev, der nægter at blive skrevet til, åbnes kun til læsning i stedet for at forblive lukket, og siger det"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Laufwerk, das sich nicht beschreiben lässt, wird nur lesend geöffnet statt geschlossen zu bleiben, und sagt das"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ένας δίσκος που αρνείται να γραφτεί ανοίγει μόνο για ανάγνωση αντί να μείνει κλειστός, και το δηλώνει"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un disco que no admite escritura se abre en solo lectura en lugar de quedarse cerrado, y lo indica"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketas, millele kirjutada ei saa, avatakse ainult lugemiseks, mitte ei jäeta avamata, ja ütleb seda"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levy, johon ei voi kirjoittaa, avataan vain luettavaksi sen sijaan että se jäisi avaamatta, ja kertoo siitä"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un disque qui refuse l’écriture est ouvert en lecture seule plutôt que laissé fermé, et le signale"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk na koji se ne može pisati otvara se samo za čitanje umjesto da ostane zatvoren, i to kaže"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Az a lemez, amelyre nem lehet írni, csak olvasásra nyílik meg ahelyett, hogy zárva maradna, és ezt jelzi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un disco che rifiuta la scrittura viene aperto in sola lettura anziché restare chiuso, e lo dice"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskas, į kurį įrašyti nepavyksta, atveriamas tik skaitymui, o ne paliekamas neatvertas, ir tai pasako"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disks, kurā nevar rakstīt, tiek atvērts tikai lasīšanai, nevis atstāts neatvērts, un to pasaka"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En disk som ikke lar seg skrive til, åpnes kun for lesing i stedet for å bli stående lukket, og sier fra om det"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een schijf waarnaar niet geschreven kan worden, wordt alleen-lezen geopend in plaats van dicht te blijven, en meldt dat"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dysk, na którym nie da się zapisywać, zostaje otwarty tylko do odczytu, zamiast pozostać zamknięty, i mówi o tym"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um disco que recusa a escrita é aberto apenas para leitura em vez de ficar fechado, e diz que o foi"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un disc pe care nu se poate scrie este deschis doar pentru citire în loc să rămână închis, și spune asta"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk, na katerega ni mogoče pisati, se odpre samo za branje, namesto da bi ostal zaprt, in to pove"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En disk som inte går att skriva till öppnas skrivskyddad i stället för att lämnas stängd, och säger det"
           }
         }
       }
@@ -3356,7 +3610,134 @@
       }
     },
     "Administrator password: asked for once when the background helper is set up, then not again. %@ never sees it": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Парола на администратор: пита се веднъж, когато се настройва фоновият помощник, и после вече не. %@ никога не я вижда"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heslo správce: zeptá se jednou, když se nastavuje pomocník na pozadí, a pak už ne. %@ ho nikdy nevidí"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratoradgangskode: spørges om én gang, når baggrundshjælperen sættes op, og derefter ikke igen. %@ ser den aldrig"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratorpasswort: wird einmal abgefragt, wenn der Hintergrunddienst eingerichtet wird, danach nicht mehr. %@ sieht es nie"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Συνθηματικό διαχειριστή: ζητείται μία φορά, όταν στήνεται ο βοηθός παρασκηνίου, και μετά όχι ξανά. Το %@ δεν το βλέπει ποτέ"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraseña de administrador: se pide una vez, al instalar el ayudante en segundo plano, y no vuelve a pedirse. %@ nunca la ve"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administraatori parool: küsitakse korra, kui taustaabiline paigaldatakse, ja siis enam mitte. %@ ei näe seda kunagi"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pääkäyttäjän salasana: kysytään kerran, kun taustapalvelu asennetaan, eikä sen jälkeen enää. %@ ei näe sitä koskaan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe administrateur : demandé une fois, à l’installation de l’assistant en arrière-plan, puis plus jamais. %@ ne le voit jamais"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratorska lozinka: traži se jednom, pri postavljanju pozadinskog pomoćnika, i poslije više ne. %@ je nikada ne vidi"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rendszergazdai jelszó: egyszer kéri, a háttérsegéd beállításakor, utána többé nem. A(z) %@ soha nem látja"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password di amministratore: chiesta una volta, quando si installa l’helper in background, e poi mai più. %@ non la vede mai"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratoriaus slaptažodis: paprašoma vieną kartą, kai diegiamas fone veikiantis pagalbininkas, ir daugiau nebeprašoma. %@ jo niekada nemato"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratora parole: tiek prasīta vienreiz, kad tiek iestatīts fona palīgs, un pēc tam vairs ne. %@ to nekad neredz"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratorpassord: spørres om én gang, når bakgrunnshjelperen settes opp, og så ikke mer. %@ ser det aldri"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beheerderswachtwoord: wordt één keer gevraagd, bij het instellen van de achtergrondhelper, daarna niet meer. %@ ziet het nooit"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hasło administratora: pytane raz, przy instalowaniu pomocnika działającego w tle, i potem już nie. %@ nigdy go nie widzi"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Palavra-passe de administrador: pedida uma vez, ao instalar o auxiliar em segundo plano, e depois nunca mais. O %@ nunca a vê"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parolă de administrator: cerută o dată, la instalarea asistentului din fundal, apoi nu mai este cerută. %@ nu o vede niciodată"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skrbniško geslo: zahtevano enkrat, ko se nastavi pomočnik v ozadju, potem pa nikoli več. %@ ga nikoli ne vidi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administratörslösenord: efterfrågas en gång, när bakgrundshjälpen installeras, och sedan inte mer. %@ ser det aldrig"
+          }
+        }
+      }
     },
     "All Drives": {
       "localizations": {
@@ -7205,10 +7586,264 @@
       }
     },
     "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Върнете се тук и изберете Рестартирай. Ново разрешение важи само за приложение, стартирано след като е било дадено."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vraťte se sem a zvolte Spustit znovu. Nové oprávnění platí jen pro aplikaci spuštěnou poté, co bylo uděleno."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kom tilbage hertil og vælg Start igen. En ny tilladelse gælder kun for et program, der er startet efter, den blev givet."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Komm hierher zurück und wähle Neu starten. Eine neue Berechtigung gilt nur für eine App, die danach gestartet wurde."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Επιστρέψτε εδώ και επιλέξτε Επανεκκίνηση. Μια νέα άδεια ισχύει μόνο για εφαρμογή που ξεκίνησε αφού δόθηκε."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuelve aquí y elige Reiniciar. Un permiso nuevo solo se aplica a una app abierta después de concederlo."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tulge siia tagasi ja valige Käivita uuesti. Uus luba kehtib ainult rakendusele, mis käivitati pärast selle andmist."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Palaa tänne ja valitse Käynnistä uudelleen. Uusi käyttöoikeus koskee vain ohjelmaa, joka on käynnistetty sen myöntämisen jälkeen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revenez ici et choisissez Relancer. Une nouvelle autorisation ne vaut que pour une app lancée après son octroi."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vratite se ovamo i odaberite Pokreni ponovno. Nova dozvola vrijedi samo za aplikaciju pokrenutu nakon što je dana."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Térjen ide vissza, és válassza az Újraindítás lehetőséget. Az új engedély csak a megadása után indított alkalmazásra vonatkozik."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torna qui e scegli Riavvia. Un permesso nuovo vale solo per un’app avviata dopo che è stato concesso."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grįžkite čia ir pasirinkite Paleisti iš naujo. Naujas leidimas galioja tik programai, paleistai po jo suteikimo."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atgriezieties šeit un izvēlieties Palaist no jauna. Jauna atļauja attiecas tikai uz lietotni, kas palaista pēc tās piešķiršanas."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kom tilbake hit og velg Start på nytt. En ny tillatelse gjelder bare for et program som er startet etter at den ble gitt."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kom hier terug en kies Herstart. Een nieuwe toegang geldt alleen voor een app die daarna is gestart."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wróć tutaj i wybierz Uruchom ponownie. Nowe uprawnienie dotyczy tylko programu uruchomionego po jego przyznaniu."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volte aqui e escolha Reiniciar. Uma autorização nova só se aplica a uma aplicação iniciada depois de ter sido concedida."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reveniți aici și alegeți Relansați. O permisiune nouă se aplică doar unei aplicații pornite după ce a fost acordată."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vrnite se sem in izberite Znova zaženi. Novo dovoljenje velja samo za program, zagnan po tem, ko je bilo dano."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kom tillbaka hit och välj Starta om. En ny behörighet gäller bara för ett program som startats efter att den gavs."
+          }
+        }
+      }
     },
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Свържете диска и изберете Търсене отново. Ако вече е свързан, macOS може да го е монтирал — тогава първо го извадете във Finder. За да отворите дисков образ вместо това, изберете Файл → Отвори дисков образ."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Připojte disk a zvolte Hledat znovu. Pokud už připojený je, může ho mít připojený macOS — pak ho nejprve vysuňte ve Finderu. Chcete-li místo toho otevřít obraz disku, zvolte Soubor → Otevřít obraz disku."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tilslut disken og vælg Søg igen. Er den allerede tilsluttet, har macOS den måske monteret — skub den så først ud i Finder. Vil du i stedet åbne et diskbillede, så vælg Arkiv → Åbn diskbillede."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schließe das Laufwerk an und wähle Erneut suchen. Ist es bereits angeschlossen, hat macOS es womöglich eingehängt — wirf es dann zuerst im Finder aus. Um stattdessen ein Image zu öffnen, wähle „Ablage → Image öffnen“."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Συνδέστε τον δίσκο και επιλέξτε Νέα αναζήτηση. Αν είναι ήδη συνδεδεμένος, μπορεί να τον έχει προσαρτήσει το macOS — τότε κάντε πρώτα εξαγωγή από το Finder. Για να ανοίξετε είδωλο δίσκου αντ’ αυτού, επιλέξτε Αρχείο → Άνοιγμα ειδώλου δίσκου."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conecta el disco y elige Volver a buscar. Si ya está conectado, puede que macOS lo tenga montado: en ese caso, expúlsalo primero en el Finder. Para abrir una imagen de disco, elige Archivo → Abrir imagen de disco."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ühendage ketas ja valige Otsi uuesti. Kui see on juba ühendatud, võib macOS olla selle haakinud — siis väljutage see kõigepealt Finderis. Kettatõmmise avamiseks valige hoopis Fail → Ava kettatõmmis."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liitä levy ja valitse Etsi uudelleen. Jos se on jo liitetty, macOS on ehkä liittänyt sen — poista se silloin ensin Finderissa. Jos haluat sen sijaan avata levytiedoston, valitse Arkisto → Avaa levytiedosto."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Branchez le disque et choisissez Rechercher à nouveau. S’il est déjà branché, macOS l’a peut-être monté : éjectez-le d’abord dans le Finder. Pour ouvrir une image disque à la place, choisissez Fichier → Ouvrir une image disque."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priključite disk i odaberite Pretraži ponovno. Ako je već priključen, možda ga je macOS montirao — tada ga najprije izbacite u Finderu. Želite li umjesto toga otvoriti sliku diska, odaberite Datoteka → Otvori sliku diska."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Csatlakoztassa a lemezt, és válassza a Keresés újra lehetőséget. Ha már csatlakoztatva van, lehet, hogy a macOS csatolta — ez esetben előbb adja ki a Finderben. Ha inkább lemezképet nyitna meg, válassza a Fájl → Lemezkép megnyitása menüpontot."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collega il disco e scegli Cerca di nuovo. Se è già collegato, macOS potrebbe averlo montato: in tal caso espellilo prima dal Finder. Per aprire invece un’immagine disco, scegli Archivio → Apri immagine disco."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijunkite diską ir pasirinkite Ieškoti iš naujo. Jei jis jau prijungtas, „macOS“ gali būti jį prijungusi — tada pirmiausia išstumkite jį per „Finder“. Jei norite atverti disko atvaizdį, pasirinkite Failas → Atverti disko atvaizdį."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pievienojiet disku un izvēlieties Meklēt vēlreiz. Ja tas jau ir pievienots, macOS to var būt pievienojis sistēmai — tad vispirms izstumiet to programmā Finder. Lai tā vietā atvērtu diska attēlu, izvēlieties Fails → Atvērt diska attēlu."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koble til disken og velg Søk på nytt. Er den allerede tilkoblet, kan macOS ha montert den — mat den da ut i Finder først. Vil du åpne et diskbilde i stedet, velg Arkiv → Åpne diskbilde."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sluit de schijf aan en kies Opnieuw zoeken. Is die al aangesloten, dan heeft macOS die mogelijk gekoppeld — verwijder die dan eerst in de Finder. Wil je in plaats daarvan een schijfkopie openen, kies dan Archief → Open schijfkopie."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podłącz dysk i wybierz Szukaj ponownie. Jeśli jest już podłączony, macOS mógł go zamontować — wtedy najpierw wysuń go w Finderze. Aby zamiast tego otworzyć obraz dysku, wybierz Plik → Otwórz obraz dysku."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligue o disco e escolha Procurar de novo. Se já estiver ligado, o macOS pode tê-lo montado — nesse caso, ejete-o primeiro no Finder. Para abrir uma imagem de disco em vez disso, escolha Ficheiro → Abrir imagem de disco."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectați discul și alegeți Căutați din nou. Dacă este deja conectat, macOS îl poate avea montat — atunci ejectați-l mai întâi în Finder. Pentru a deschide în schimb o imagine de disc, alegeți Fișier → Deschide imagine de disc."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priključite disk in izberite Ponovno poišči. Če je že priključen, ga je morda priklopil macOS — tedaj ga najprej izvrzite v Finderju. Če želite namesto tega odpreti sliko diska, izberite Datoteka → Odpri sliko diska."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anslut disken och välj Sök igen. Är den redan ansluten kan macOS ha monterat den — mata i så fall ut den i Finder först. Vill du i stället öppna en skivavbild, välj Arkiv → Öppna skivavbild."
+          }
+        }
+      }
     },
     "Copied": {
       "localizations": {
@@ -10612,6 +11247,136 @@
         }
       }
     },
+    "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Всеки диск и образ може да бъде отворен само за четене, от бутона до „Отвори“ или „Отключи“. Върху него не се записва нищо, дори от macOS"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Každý disk i obraz lze otevřít jen ke čtení, tlačítkem vedle Otevřít nebo Odemknout. Nic se na něj nezapíše, ani ze strany macOS"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hvert drev og hvert diskbillede kan åbnes kun til læsning, med knappen ved siden af Åbn eller Lås op. Der skrives intet til det, heller ikke af macOS"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jedes Laufwerk und jedes Abbild lässt sich nur lesend öffnen, über die Taste neben Öffnen oder Entsperren. Darauf wird nichts geschrieben, auch nicht von macOS"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Κάθε δίσκος και κάθε εικόνα μπορεί να ανοίξει μόνο για ανάγνωση, από το κουμπί δίπλα στο Άνοιγμα ή στο Ξεκλείδωμα. Δεν γράφεται τίποτα σε αυτόν, ούτε από το macOS"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cualquier disco o imagen puede abrirse en solo lectura, desde el botón junto a Abrir o Desbloquear. No se escribe nada en él, ni siquiera macOS"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iga ketta ja tõmmise saab avada ainult lugemiseks, nupust Ava või Ava lukust kõrval. Sellele ei kirjutata midagi, ka macOS ise mitte"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jokaisen levyn ja levykuvan voi avata vain luettavaksi painikkeesta Avaa- tai Avaa lukitus -painikkeen vierestä. Siihen ei kirjoiteta mitään, ei edes macOS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque disque et chaque image peut être ouvert en lecture seule, par le bouton voisin d’Ouvrir ou de Déverrouiller. Rien n’y est écrit, pas même par macOS"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Svaki se disk i svaka slika mogu otvoriti samo za čitanje, tipkom uz Otvori ili Otključaj. Na njih se ništa ne zapisuje, ni sam macOS"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minden lemez és lemezkép megnyitható csak olvasásra, a Megnyitás vagy a Feloldás melletti gombbal. Semmi nem íródik rá, még a macOS sem ír rá"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ogni disco e ogni immagine si può aprire in sola lettura, dal pulsante accanto ad Apri o Sblocca. Non vi si scrive nulla, nemmeno macOS"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiekvieną diską ir atvaizdį galima atverti tik skaitymui – mygtuku šalia „Atverti“ arba „Atrakinti“. Į jį nieko neįrašoma, net „macOS“"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ikvienu disku un attēlu var atvērt tikai lasīšanai — ar pogu blakus Atvērt vai Atbloķēt. Tajā netiek ierakstīts nekas, arī macOS neko neieraksta"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle disker og diskbilder kan åpnes kun for lesing, med knappen ved siden av Åpne eller Lås opp. Ingenting skrives til dem, heller ikke av macOS"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elke schijf en elk schijfkopiebestand kan alleen-lezen worden geopend, met de knop naast Open of Ontgrendel. Er wordt niets naar geschreven, ook niet door macOS"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Każdy dysk i każdy obraz można otworzyć tylko do odczytu, przyciskiem obok Otwórz lub Odblokuj. Nic nie jest na nim zapisywane, nawet przez macOS"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qualquer disco ou imagem pode ser aberto apenas para leitura, no botão ao lado de Abrir ou Desbloquear. Nada lhe é escrito, nem sequer pelo macOS"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orice disc și orice imagine pot fi deschise doar pentru citire, cu butonul de lângă Deschideți sau Deblocați. Nu se scrie nimic pe el, nici măcar de către macOS"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vsak disk in vsako sliko je mogoče odpreti samo za branje, z gumbom ob Odpri ali Odkleni. Nanj se ne zapiše nič, niti macOS ne"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Varje disk och skivavbild kan öppnas skrivskyddad, med knappen bredvid Öppna eller Lås upp. Ingenting skrivs till den, inte ens av macOS"
+          }
+        }
+      }
+    },
     "Everything attached to this Mac, whether or not %@ can open it.": {
       "localizations": {
         "bg": {
@@ -10743,7 +11508,134 @@
       }
     },
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Всичко останало беше премахнато. Самото %@ не можа да бъде преместено в Кошчето: %@. Преместете го там сами, за да завършите."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vše ostatní bylo odstraněno. Samotnou aplikaci %@ se nepodařilo přesunout do Koše: %@. Přetáhněte ji tam sami, tím to bude hotové."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alt andet blev fjernet. Selve %@ kunne ikke flyttes til Papirkurven: %@. Træk programmet derover selv for at gøre det færdigt."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles andere wurde entfernt. %@ selbst ließ sich nicht in den Papierkorb bewegen: %@. Zieh die App selbst dorthin, dann ist es erledigt."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Όλα τα υπόλοιπα αφαιρέθηκαν. Το ίδιο το %@ δεν μπόρεσε να μετακινηθεί στον Κάδο απορριμμάτων: %@. Σύρετέ το εκεί εσείς για να ολοκληρωθεί."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todo lo demás se eliminó. La propia app %@ no se pudo mover a la Papelera: %@. Arrástrala allí tú mismo para terminar."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kõik muu eemaldati. %@ ennast ei õnnestunud prügikasti liigutada: %@. Lohistage see ise sinna, siis on kõik tehtud."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaikki muu poistettiin. %@ itseään ei saatu siirrettyä roskakoriin: %@. Vedä se sinne itse, niin homma on valmis."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout le reste a été supprimé. %@ lui-même n’a pas pu être placé dans la Corbeille : %@. Faites-l’y glisser vous-même pour terminer."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sve ostalo je uklonjeno. Sam %@ nije se mogao premjestiti u Smeće: %@. Povucite ga tamo sami kako biste dovršili."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minden más el lett távolítva. Magát a(z) %@ alkalmazást nem sikerült a Kukába helyezni: %@. Húzza oda maga, ezzel készen is van."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutto il resto è stato rimosso. %@ stesso non è stato spostato nel Cestino: %@. Trascinalo lì tu per finire."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visa kita pašalinta. Pačios %@ nepavyko perkelti į šiukšlinę: %@. Nutempkite ją ten patys ir tuo viskas baigsis."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viss pārējais tika noņemts. Pašu %@ neizdevās pārvietot uz miskasti: %@. Ievelciet to tur pats, un viss būs pabeigts."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alt annet ble fjernet. %@ selv kunne ikke flyttes til papirkurven: %@. Dra programmet dit selv for å gjøre det ferdig."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al het andere is verwijderd. %@ zelf kon niet naar de prullenmand worden verplaatst: %@. Sleep de app er zelf naartoe om het af te ronden."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wszystko inne zostało usunięte. Samego programu %@ nie udało się przenieść do Kosza: %@. Przeciągnij go tam sam, aby dokończyć."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tudo o resto foi removido. O próprio %@ não pôde ser movido para o Lixo: %@. Arraste-o para lá para terminar."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restul a fost eliminat. Aplicația %@ nu a putut fi mutată la Coșul de gunoi: %@. Trageți-o acolo dumneavoastră pentru a încheia."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vse drugo je bilo odstranjeno. Programa %@ ni bilo mogoče premakniti v Koš: %@. Povlecite ga tja sami in s tem bo opravljeno."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allt annat togs bort. Själva %@ gick inte att flytta till papperskorgen: %@. Dra dit programmet själv för att bli klar."
+          }
+        }
+      }
     },
     "Examining its contents.": {
       "localizations": {
@@ -11526,7 +12418,134 @@
       }
     },
     "Full Disk Access: macOS will not let any app read a drive’s raw contents without it. It cannot be requested, so it has to be switched on by hand": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access: без него macOS не позволява на никое приложение да чете суровото съдържание на диск. Не може да бъде поискано, затова се включва ръчно"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plný přístup k disku: bez něj macOS nedovolí žádné aplikaci číst surový obsah disku. Nelze si o něj říct, takže se zapíná ručně"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fuld adgang til disk: uden den lader macOS ingen programmer læse en disks rå indhold. Der kan ikke bedes om den, så den skal slås til i hånden"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Festplattenvollzugriff: ohne ihn lässt macOS keine App den rohen Inhalt eines Laufwerks lesen. Er lässt sich nicht anfordern und muss von Hand eingeschaltet werden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Πλήρης πρόσβαση στον δίσκο: χωρίς αυτήν το macOS δεν επιτρέπει σε καμία εφαρμογή να διαβάσει το ωμό περιεχόμενο ενός δίσκου. Δεν μπορεί να ζητηθεί, οπότε ενεργοποιείται με το χέρι"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acceso total al disco: sin él macOS no deja que ninguna app lea el contenido en bruto de un disco. No se puede solicitar, así que hay que activarlo a mano"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access: ilma selleta ei luba macOS ühelgi rakendusel ketta toorest sisu lugeda. Seda ei saa küsida, seega tuleb see käsitsi sisse lülitada"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koko levyn käyttö: ilman sitä macOS ei anna minkään ohjelman lukea levyn raakaa sisältöä. Sitä ei voi pyytää, joten se on kytkettävä päälle käsin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès complet au disque : sans lui, macOS n’autorise aucune app à lire le contenu brut d’un disque. Il ne peut pas être demandé, il faut donc l’activer à la main"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puni pristup disku: bez njega macOS nijednoj aplikaciji ne dopušta čitanje sirovog sadržaja diska. Ne može se zatražiti, pa se uključuje ručno"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teljes hozzáférés a lemezhez: enélkül a macOS egyetlen alkalmazásnak sem engedi olvasni a lemez nyers tartalmát. Nem lehet kérni, ezért kézzel kell bekapcsolni"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accesso completo al disco: senza di esso macOS non lascia leggere a nessuna app il contenuto grezzo di un disco. Non si può richiedere, va attivato a mano"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access: be jo „macOS“ nė vienai programai neleidžia skaityti neapdoroto disko turinio. Jo negalima paprašyti, todėl reikia įjungti ranka"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access: bez tās macOS nevienai lietotnei neļauj lasīt diska neapstrādāto saturu. To nevar pieprasīt, tāpēc jāieslēdz ar roku"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full disktilgang: uten den lar ikke macOS noe program lese det rå innholdet på en disk. Den kan ikke bes om, så den må slås på for hånd"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volledige schijftoegang: zonder deze laat macOS geen enkele app de ruwe inhoud van een schijf lezen. Erom vragen kan niet, dus die moet met de hand worden aangezet"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pełny dostęp do dysku: bez niego macOS nie pozwala żadnemu programowi czytać surowej zawartości dysku. Nie da się o niego poprosić, więc trzeba włączyć go ręcznie"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acesso completo ao disco: sem ele, o macOS não deixa nenhuma aplicação ler o conteúdo em bruto de um disco. Não pode ser pedido, por isso tem de ser ligado à mão"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acces complet la disc: fără el, macOS nu lasă nicio aplicație să citească conținutul brut al unui disc. Nu poate fi cerut, așa că trebuie activat manual"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poln dostop do diska: brez njega macOS nobenemu programu ne dovoli brati surove vsebine diska. Zanj ni mogoče zaprositi, zato ga je treba vklopiti ročno"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full skivtillgång: utan den låter macOS inget program läsa en disks råa innehåll. Den går inte att be om, så den måste slås på för hand"
+          }
+        }
+      }
     },
     "GNU General Public License": {
       "localizations": {
@@ -13999,7 +15018,134 @@
       }
     },
     "Lets %@ read the encrypted data itself. macOS blocks this without it, even for administrators, and it cannot be requested: it has to be switched on by hand.": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Позволява на %@ да чете самите шифровани данни. Без него macOS блокира това дори за администратори и не може да бъде поискано: включва се ръчно."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Umožňuje aplikaci %@ číst samotná zašifrovaná data. Bez toho to macOS blokuje i správcům a nelze si o to říct: zapíná se ručně."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lader %@ læse de krypterede data direkte. Uden den blokerer macOS det, selv for administratorer, og der kan ikke bedes om den: den skal slås til i hånden."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ermöglicht %@, die verschlüsselten Daten selbst zu lesen. Ohne diesen Zugriff blockiert macOS das selbst für Administratoren, und anfordern lässt er sich nicht: er muss von Hand eingeschaltet werden."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Επιτρέπει στο %@ να διαβάζει το ίδιο τα κρυπτογραφημένα δεδομένα. Χωρίς αυτήν το macOS το εμποδίζει ακόμη και για διαχειριστές, και δεν μπορεί να ζητηθεί: ενεργοποιείται με το χέρι."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite a %@ leer los datos cifrados directamente. Sin esto macOS lo bloquea, incluso para administradores, y no se puede solicitar: hay que activarlo a mano."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lubab rakendusel %@ lugeda krüptitud andmeid endid. Ilma selleta blokeerib macOS selle isegi administraatoritele ja seda ei saa küsida: see tuleb käsitsi sisse lülitada."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antaa ohjelman %@ lukea salatut tiedot itse. Ilman sitä macOS estää tämän jopa pääkäyttäjiltä, eikä sitä voi pyytää: se on kytkettävä päälle käsin."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permet à %@ de lire lui-même les données chiffrées. Sans cela, macOS l’interdit, même aux administrateurs, et cela ne peut pas être demandé : il faut l’activer à la main."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omogućuje aplikaciji %@ da sama čita šifrirane podatke. Bez toga macOS to blokira i administratorima, a zatražiti se ne može: uključuje se ručno."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lehetővé teszi a(z) %@ számára, hogy maga olvassa a titkosított adatokat. Enélkül a macOS ezt még a rendszergazdáknak is tiltja, és nem lehet kérni: kézzel kell bekapcsolni."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consente a %@ di leggere direttamente i dati cifrati. Senza, macOS lo impedisce anche agli amministratori, e non si può richiedere: va attivato a mano."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leidžia %@ pačiai skaityti užšifruotus duomenis. Be to „macOS“ tai draudžia net administratoriams, ir to paprašyti negalima: reikia įjungti ranka."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ļauj %@ pašai lasīt šifrētos datus. Bez tās macOS to liedz pat administratoriem, un to nevar pieprasīt: tā jāieslēdz ar roku."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lar %@ lese de krypterte dataene selv. Uten den blokkerer macOS dette, også for administratorer, og den kan ikke bes om: den må slås på for hånd."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laat %@ de versleutelde gegevens zelf lezen. Zonder deze toegang blokkeert macOS dat, ook voor beheerders, en erom vragen kan niet: die moet met de hand worden aangezet."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pozwala programowi %@ czytać same zaszyfrowane dane. Bez tego macOS blokuje to nawet administratorom i nie da się o to poprosić: trzeba włączyć to ręcznie."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite ao %@ ler os próprios dados encriptados. Sem isso, o macOS bloqueia-o mesmo para administradores, e não pode ser pedido: tem de ser ligado à mão."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite aplicației %@ să citească ea însăși datele criptate. Fără acest acces, macOS îl blochează chiar și pentru administratori și nu poate fi cerut: trebuie activat manual."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Programu %@ omogoča, da sam bere šifrirane podatke. Brez tega macOS to prepreči tudi skrbnikom, zaprositi zanj pa ni mogoče: vklopiti ga je treba ročno."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Låter %@ läsa den krypterade datan själv. Utan den blockerar macOS detta, även för administratörer, och den går inte att be om: den måste slås på för hand."
+          }
+        }
+      }
     },
     "Lets %@ see the drives you plug in.": {
       "localizations": {
@@ -15822,7 +16968,134 @@
       }
     },
     "Nothing was written to it. A failed unlock cannot damage the data it holds.": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Върху него не е записано нищо. Неуспешно отключване не може да повреди данните на диска."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nic se na něj nezapsalo. Neúspěšné odemknutí nemůže poškodit data, která jsou na něm."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der blev ikke skrevet noget til den. En mislykket oplåsning kan ikke skade de data, den indeholder."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es wurde nichts darauf geschrieben. Ein fehlgeschlagenes Entsperren kann den Daten darauf nichts anhaben."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δεν γράφτηκε τίποτα σε αυτόν. Ένα ξεκλείδωμα που απέτυχε δεν μπορεί να βλάψει τα δεδομένα που έχει."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se escribió nada en él. Un desbloqueo fallido no puede dañar los datos que contiene."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinna ei kirjutatud midagi. Ebaõnnestunud avamine ei saa kettal olevaid andmeid kahjustada."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sille ei kirjoitettu mitään. Epäonnistunut avaaminen ei voi vahingoittaa sen sisältämiä tietoja."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien n’y a été écrit. Un déverrouillage qui échoue ne peut pas endommager les données qu’il contient."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na njega nije ništa zapisano. Neuspjelo otključavanje ne može oštetiti podatke koje sadrži."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semmi nem íródott rá. A sikertelen feloldás nem tehet kárt a rajta lévő adatokban."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non vi è stato scritto nulla. Uno sblocco fallito non può danneggiare i dati che contiene."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Į jį nieko neįrašyta. Nepavykęs atrakinimas negali sugadinti jame esančių duomenų."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tajā nekas netika ierakstīts. Neizdevusies atbloķēšana nevar sabojāt tajā esošos datus."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingenting ble skrevet til den. En mislykket opplåsing kan ikke skade dataene den inneholder."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er is niets naar geschreven. Een mislukte ontgrendeling kan de gegevens erop niet beschadigen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nic na nim nie zapisano. Nieudane odblokowanie nie może uszkodzić danych, które się na nim znajdują."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não lhe foi escrito nada. Um desbloqueio falhado não pode danificar os dados que contém."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu s-a scris nimic pe el. O deblocare eșuată nu poate deteriora datele pe care le conține."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nanj ni bilo nič zapisano. Neuspelo odklepanje ne more poškodovati podatkov na njem."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingenting skrevs till den. En misslyckad upplåsning kan inte skada de data den innehåller."
+          }
+        }
+      }
     },
     "OK": {
       "localizations": {
@@ -17900,6 +19173,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Öppna en skivavbild"
+          }
+        }
+      }
+    },
+    "Opening read-only": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отваряне само за четене"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otevření jen ke čtení"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbning kun til læsning"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur lesend öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα μόνο για ανάγνωση"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir en solo lectura"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avamine ainult lugemiseks"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaaminen vain luettavaksi"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir en lecture seule"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvaranje samo za čitanje"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Megnyitás csak olvasásra"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprire in sola lettura"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvėrimas tik skaitymui"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvēršana tikai lasīšanai"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpne kun for lesing"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alleen-lezen openen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwieranie tylko do odczytu"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir apenas para leitura"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschiderea doar pentru citire"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpiranje samo za branje"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öppna skrivskyddad"
           }
         }
       }
@@ -20321,7 +21724,134 @@
       }
     },
     "Removable volumes: requested by macOS the first time a drive is read": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сменяеми носители: macOS го иска при първото четене на диск"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyměnitelné svazky: macOS si o ně řekne, když se disk čte poprvé"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flytbare enheder: macOS beder om den, første gang en disk læses"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wechselmedien: macOS fragt danach, wenn ein Laufwerk zum ersten Mal gelesen wird"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αφαιρούμενοι τόμοι: το macOS τη ζητά την πρώτη φορά που διαβάζεται ένας δίσκος"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volúmenes extraíbles: macOS lo pide la primera vez que se lee un disco"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eemaldatavad andmekandjad: macOS küsib seda, kui ketast esimest korda loetakse"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Irrotettavat taltiot: macOS pyytää sitä, kun levy luetaan ensimmäisen kerran"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volumes amovibles : demandé par macOS la première fois qu’un disque est lu"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uklonjivi mediji: macOS to traži kad se disk čita prvi put"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cserélhető kötetek: a macOS akkor kéri, amikor először olvas egy lemezt"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volumi rimovibili: macOS lo chiede la prima volta che legge un disco"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keičiamosios laikmenos: „macOS“ to paprašo, kai diskas skaitomas pirmą kartą"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noņemamie datu nesēji: macOS to pieprasa, kad disks tiek lasīts pirmo reizi"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flyttbare medier: macOS ber om den første gang en disk leses"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwisselbare volumes: macOS vraagt erom zodra een schijf voor het eerst wordt gelezen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nośniki wymienne: macOS prosi o to przy pierwszym odczycie dysku"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volumes amovíveis: pedido pelo macOS na primeira vez que um disco é lido"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume amovibile: macOS îl cere prima dată când citește un disc"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izmenljivi nosilci: macOS to zahteva, ko se disk prvič bere"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flyttbara enheter: macOS ber om den första gången en disk läses"
+          }
+        }
+      }
     },
     "Removing %@": {
       "localizations": {
@@ -24744,7 +26274,134 @@
       }
     },
     "The drive did not finish ejecting. It may still be in use, so try again or eject it in Finder.": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дискът не завърши изваждането. Може още да се използва, затова опитайте отново или го извадете във Finder."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk se nepodařilo vysunout celý. Možná se ještě používá, zkuste to znovu nebo ho vysuňte ve Finderu."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disken blev ikke skubbet helt ud. Den er måske stadig i brug, så prøv igen, eller skub den ud i Finder."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Laufwerk wurde nicht fertig ausgeworfen. Vielleicht ist es noch in Gebrauch: versuch es erneut oder wirf es im Finder aus."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ο δίσκος δεν ολοκλήρωσε την εξαγωγή. Μπορεί να χρησιμοποιείται ακόμη, οπότε δοκιμάστε ξανά ή κάντε εξαγωγή από το Finder."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El disco no terminó de expulsarse. Puede que siga en uso: inténtalo de nuevo o expúlsalo en el Finder."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketas ei väljunud lõpuni. Ehk on see veel kasutusel: proovige uuesti või väljutage see Finderis."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levyn poistaminen ei mennyt loppuun. Se voi olla yhä käytössä, joten yritä uudelleen tai poista se Finderissa."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le disque n’a pas fini d’être éjecté. Il est peut-être encore utilisé : réessayez ou éjectez-le dans le Finder."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk nije dovršio izbacivanje. Možda je još u upotrebi, pa pokušajte ponovno ili ga izbacite u Finderu."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A lemez kiadása nem fejeződött be. Lehet, hogy még használatban van: próbálja újra, vagy adja ki a Finderben."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il disco non ha finito di essere espulso. Potrebbe essere ancora in uso: riprova oppure espellilo dal Finder."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskas nebaigė išsistumti. Gali būti, kad jis dar naudojamas: bandykite dar kartą arba išstumkite jį per „Finder“."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disks netika izstumts līdz galam. Iespējams, tas vēl tiek lietots: mēģiniet vēlreiz vai izstumiet to programmā Finder."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disken ble ikke matet helt ut. Den er kanskje fortsatt i bruk, så prøv igjen eller mat den ut i Finder."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De schijf is niet volledig verwijderd. Mogelijk is die nog in gebruik: probeer het opnieuw of verwijder die in de Finder."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dysk nie został wysunięty do końca. Może być jeszcze w użyciu, więc spróbuj ponownie albo wysuń go w Finderze."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O disco não terminou de ser ejetado. Pode ainda estar em uso, por isso tente de novo ou ejete-o no Finder."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discul nu a terminat de ejectat. Poate fi încă în uz, așa că încercați din nou sau ejectați-l în Finder."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk se ni do konca izvrgel. Morda je še v uporabi, zato poskusite znova ali ga izvrzite v Finderju."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disken matades inte ut helt. Den kanske fortfarande används, så försök igen eller mata ut den i Finder."
+          }
+        }
+      }
     },
     "The drive is busy. Close anything using it, then try again.": {
       "localizations": {
@@ -26432,136 +28089,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Virtualiseringsmotorn kunde inte starta. En omstart brukar lösa det."
-          }
-        }
-      }
-    },
-    "There is no password to enter. Open it anyway to read and write to it, which macOS on its own cannot do.": {
-      "localizations": {
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Няма парола за въвеждане. Отворете го въпреки това, за да четете и пишете по него — нещо, което macOS сам по себе си не може."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Není co zadávat. Přesto jej otevřete, abyste na něj mohli číst i zapisovat, což samotný macOS nedokáže."
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Der er ingen adgangskode at indtaste. Åbn den alligevel for at kunne læse og skrive på den, hvilket macOS ikke kan alene."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Es gibt kein Passwort einzugeben. Öffne es trotzdem, um darauf zu lesen und zu schreiben, was macOS allein nicht kann."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Δεν υπάρχει συνθηματικό για εισαγωγή. Ανοίξτε τον ούτως ή άλλως, για να διαβάζετε και να γράφετε σε αυτόν, κάτι που το macOS από μόνο του δεν μπορεί."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No hay ninguna contraseña que introducir. Ábrelo igualmente para leer y escribir en él, algo que macOS por sí solo no puede hacer."
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sisestada pole midagi. Ava see siiski, et sellelt lugeda ja sellele kirjutada — seda macOS üksi ei suuda."
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salasanaa ei tarvita. Avaa se silti, niin voit lukea ja kirjoittaa sille, mihin macOS ei yksin pysty."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Il n’y a aucun mot de passe à saisir. Ouvrez-le tout de même pour y lire et y écrire, ce que macOS seul ne sait pas faire."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nema lozinke za unijeti. Svejedno ga otvorite kako biste s njega čitali i na njega pisali, što macOS sam ne može."
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nincs mit beírni. Nyissa meg mégis, hogy olvashasson róla és írhasson rá, amire a macOS önmagában nem képes."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Non c’è alcuna password da inserire. Aprilo comunque per leggerlo e scriverci, cosa che macOS da solo non può fare."
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Įvesti nieko nereikia. Vis tiek jį atverkite, kad galėtumėte skaityti ir rašyti — to macOS pats negali."
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nav nekā, ko ievadīt. Atveriet to tik un tā, lai lasītu un rakstītu, ko macOS viens pats nespēj."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Det er ikke noe passord å oppgi. Åpne den likevel for å lese og skrive til den, noe macOS ikke klarer alene."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Er is geen wachtwoord in te voeren. Open die toch om erop te lezen en te schrijven, wat macOS alleen niet kan."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nie ma czego wpisywać. Otwórz go mimo to, aby móc z niego czytać i na nim zapisywać, czego sam macOS nie potrafi."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Não há palavra-passe a introduzir. Abra-o mesmo assim para ler e escrever nele, algo que o macOS sozinho não consegue."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nu aveți nimic de introdus. Deschideți-l oricum pentru a citi și a scrie pe el, lucru pe care macOS singur nu îl poate face."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vnesti ni ničesar. Vseeno ga odprite, da boste z njega brali in nanj pisali, česar macOS sam ne zmore."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Det finns inget lösenord att ange. Öppna den ändå för att läsa och skriva på den, vilket macOS inte klarar på egen hand."
           }
         }
       }
@@ -34703,7 +36230,134 @@
       }
     },
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS записа %@. Той не се изпраща никъде автоматично. Прикачете го към съобщението си, ако можете."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS zapsal %@. Nikam se automaticky neodesílá. Přiložte ho ke své zprávě, pokud můžete."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS skrev %@. Den sendes ikke nogen steder automatisk. Vedhæft den til din besked, hvis du kan."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS hat %@ geschrieben. Der Bericht wird nirgendwohin automatisch gesendet. Häng ihn an deine Nachricht an, wenn du kannst."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το macOS έγραψε το %@. Δεν στέλνεται πουθενά αυτόματα. Επισυνάψτε το στο μήνυμά σας αν μπορείτε."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS escribió %@. No se envía a ningún sitio automáticamente. Adjúntalo a tu mensaje si puedes."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS kirjutas faili %@. Seda ei saadeta kuhugi automaatselt. Lisage see võimaluse korral oma sõnumile."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS kirjoitti tiedoston %@. Sitä ei lähetetä minnekään automaattisesti. Liitä se viestiisi, jos voit."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS a écrit %@. Ce fichier n’est envoyé nulle part automatiquement. Joignez-le à votre message si vous le pouvez."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS je zapisao %@. Ništa se ne šalje automatski. Priložite tu datoteku svojoj poruci ako možete."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A macOS megírta a következőt: %@. Sehová nem küldi el automatikusan. Csatolja az üzenetéhez, ha teheti."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ha scritto %@. Non viene inviato da nessuna parte automaticamente. Allegalo al tuo messaggio, se puoi."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„macOS“ įrašė %@. Automatiškai jis niekur nesiunčiamas. Jei galite, pridėkite jį prie savo žinutės."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ierakstīja %@. Automātiski tas nekur netiek sūtīts. Pievienojiet to savai ziņai, ja varat."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS skrev %@. Den sendes ikke noe sted automatisk. Legg den ved meldingen din hvis du kan."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS heeft %@ geschreven. Dat wordt nergens automatisch naartoe gestuurd. Voeg het bij je bericht als je kunt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS zapisał %@. Nic nie jest wysyłane automatycznie. Dołącz ten plik do swojej wiadomości, jeśli możesz."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O macOS escreveu %@. Não é enviado para lado nenhum automaticamente. Anexe-o à sua mensagem, se puder."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS a scris %@. Nu este trimis nicăieri automat. Atașați-l mesajului dumneavoastră, dacă puteți."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS je zapisal %@. Nikamor se ne pošlje samodejno. Če lahko, ga pripnite svojemu sporočilu."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS skrev %@. Den skickas inte någonstans automatiskt. Bifoga den till ditt meddelande om du kan."
+          }
+        }
+      }
     },
     "not reached": {
       "localizations": {
