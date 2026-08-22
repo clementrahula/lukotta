@@ -2,16 +2,16 @@ import Foundation
 
 /// Reading enough of a qcow2 header to decide whether it is safe to open.
 ///
-/// A qcow2 can name other files — a backing file it was derived from, or an
-/// external data file holding the guest's clusters — and **libkrun opens
-/// them**. Its own header says so: "formats other than raw can reference other
-/// files that libkrun will automatically open". So a file handed to this app
-/// can decide which other files the virtual machine reads.
+/// A qcow2 can name other files: a backing file it was derived from, or an
+/// external data file holding the guest's clusters. libkrun opens them, as its
+/// own header states: "formats other than raw can reference other files that
+/// libkrun will automatically open". A file handed to this application can
+/// therefore determine which other files the virtual machine reads.
 ///
-/// Container files run unprivileged, so the reach is bounded by what the person
-/// who opened it could already read. That is a reason it is not an emergency,
-/// not a reason to allow it: nothing about opening a disk image implies consent
-/// to it naming a path of its own.
+/// Container files are opened without privilege, which limits that reach to
+/// what the person who opened the file could already read. That bounds the
+/// consequence rather than justifying it: opening a disk image does not imply
+/// consent to it naming a path of its own.
 ///
 /// Field offsets are from the qcow2 specification.
 public struct Qcow2Header: Equatable, Sendable {

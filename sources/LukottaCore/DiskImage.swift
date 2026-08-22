@@ -223,11 +223,11 @@ extension DiskImage {
 extension DiskImage {
     /// Let macOS mount this itself, and say where it put it.
     ///
-    /// For the formats macOS reads and writes on its own — exFAT — opening the
-    /// drive here would take a local volume and serve it back as a network one.
-    /// So the attachment is handed over instead: `diskutil` mounts every volume
-    /// on the disk that macOS understands, and it appears in Finder as an
-    /// ordinary disk, ejected there like any other.
+    /// exFAT is read and written by macOS itself, so opening it here would take
+    /// a local volume and serve it back as a network one. The attachment is
+    /// handed over instead: `diskutil` mounts every volume on the disk that
+    /// macOS understands, and it appears in Finder as an ordinary disk, ejected
+    /// there like any other.
     ///
     /// Returns where it landed, or nil if macOS declined after all.
     public static func handToMacOS(device: String) -> String? {
@@ -287,10 +287,10 @@ extension DiskImage {
 extension DiskImage {
     /// Whether this file is a qcow2, by its magic rather than its name.
     ///
-    /// An extension proves nothing and a qcow2 is often called `.img`. The
-    /// engine reads the format natively, so one is never attached — it is
-    /// handed to the engine as a path, which is why it has to be told apart
-    /// from a raw image before anything else happens.
+    /// An extension proves nothing, and a qcow2 is often named `.img`. The
+    /// engine reads the format itself, so such a file is never attached; it is
+    /// handed to the engine as a path. That is why it must be told apart from a
+    /// raw image before anything else happens.
     public static func isQcow2(_ url: URL) -> Bool {
         guard let handle = try? FileHandle(forReadingFrom: url) else { return false }
         defer { try? handle.close() }
@@ -299,7 +299,7 @@ extension DiskImage {
 
     /// What the engine says is inside an image it can read itself.
     ///
-    /// Its own probe, run unprivileged, for the formats no sector of ours can
+    /// Its own probe, run unprivileged, for the formats no sector read here can
     /// answer for: everything in a qcow2 is behind the container's mapping.
     ///
     ///     0:   crypto_LUKS            +335.5 MB   container.qcow2
@@ -323,7 +323,7 @@ extension DiskImage {
         var found: [String] = []
         for line in text.components(separatedBy: .newlines) {
             let fields = line.split(separator: " ", omittingEmptySubsequences: true)
-            // "0:   crypto_LUKS   +335.5 MB   name" — the row number, then the
+            // "0:   crypto_LUKS   +335.5 MB   name": the row number, then the
             // type. The header line has no colon-terminated number.
             guard fields.count >= 2, fields[0].hasSuffix(":"),
                 Int(fields[0].dropLast()) != nil

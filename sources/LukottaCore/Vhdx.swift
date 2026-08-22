@@ -2,17 +2,18 @@ import Foundation
 
 /// A VHDX, read far enough to decide whether the engine should be handed it.
 ///
-/// VHDX shares four letters with VHD and nothing else. What matters here is not
-/// where the disk is — the driver finds that — but the two things that mean it
-/// must not be opened at all:
+/// VHDX shares its name with VHD and none of its layout. Locating the disk is
+/// the driver's work; what is established here are the two conditions under
+/// which the file must not be opened at all.
 ///
-/// - a **log that is not empty**, which means the image was not closed cleanly.
-///   Its newest state is in that log, and reading the file without replaying it
-///   quietly serves something older than what the disk last held. Replaying is
-///   a write, and nothing here writes to anybody's disk image.
-/// - a **parent**, which makes it a differencing image: it holds only what
-///   changed from another disk it names, and this app opens no image that names
-///   another file.
+/// A log that is not empty means the image was not closed cleanly. Its most
+/// recent state is in that log, so reading the file without replaying it
+/// returns data older than the disk last held. Replaying requires writing, and
+/// nothing here writes to a disk image.
+///
+/// A parent makes it a differencing image, holding only the changes from
+/// another disk that it names. This application opens no image that names
+/// another file.
 public struct VhdxHeader: Equatable, Sendable {
     /// Whether the log holds entries yet to be replayed.
     public let dirty: Bool
@@ -28,11 +29,11 @@ public struct VhdxHeader: Equatable, Sendable {
     /// What each header begins with.
     public static let headerSignature = Array("head".utf8)
 
-    /// Read both headers and report on the one that is live.
+    /// Read both headers and report on the live one.
     ///
-    /// The live header is whichever has the higher sequence number. The
-    /// checksum is not weighed here — the driver does that, and a header this
-    /// cannot make sense of is left to it rather than guessed at.
+    /// The live header is whichever carries the higher sequence number. The
+    /// checksum is verified by the driver rather than here; a header this
+    /// cannot parse is left for the driver to reject.
     public static func parse(headers: [Data]) -> VhdxHeader? {
         var live: VhdxHeader?
         for header in headers {
@@ -165,13 +166,13 @@ extension DiskImage {
             )
         }
 
-        // A parent makes it a differencing image, which names another file.
-        // The driver refuses one too; this is so the person is told which file
-        // it was and why, before anything is opened.
+        // The driver refuses a differencing image as well. This check exists
+        // so that the reason names the file, and does so before the engine is
+        // given the path.
         if let table = read(handle, at: VhdxHeader.regionOffset, VhdxHeader.regionLength),
             let metadataAt = VhdxHeader.metadataAt(regionTable: table),
-            // The items themselves sit past the table of them, which is why
-            // this reads well beyond the first 64 KB of the region.
+            // The items are stored past the table that lists them, so this
+            // reads beyond the first 64 KB of the region.
             let metadata = read(handle, at: metadataAt, 128 * 1024),
             VhdxHeader.namesAParent(metadata: metadata)
         {
@@ -180,8 +181,8 @@ extension DiskImage {
             )
         }
 
-        // The driver is ours, and an engine built without it would take the
-        // file as raw and find only the header.
+        // An engine built without the VHDX driver reads the file as raw, which
+        // presents the header as though it were the start of the disk.
         guard EnginePaths.opensVdiAndVhd else {
             return appString(
                 "“\(url.lastPathComponent)” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work."

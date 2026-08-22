@@ -40,7 +40,7 @@ struct ImageOpenSheet: View {
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 4) {
                         Text("macOS opened “\(name)”").font(.headline)
-                        // Why it was handed over, not just that it was. A
+                        // Why it was handed over as well as that it was. A
                         // volume appearing in Finder that the user did not put
                         // there is a surprise worth heading off.
                         Text(

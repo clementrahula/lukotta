@@ -17,7 +17,7 @@ public enum Mounter {
     /// Open a drive with the engine.
     ///
     /// `elevated` is what decides whether macOS is asked to authorise the
-    /// command. A physical drive needs it — `/dev/diskNsM` is mode 640 owned by
+    /// command. A physical drive needs it, `/dev/diskNsM` being mode 640 owned by
     /// root and the operator group. A container file attached by this user does
     /// not: the device node is theirs, and the NFS mount the engine makes is a
     /// user mount. Run unelevated, the engine mounts under `~/Volumes` rather

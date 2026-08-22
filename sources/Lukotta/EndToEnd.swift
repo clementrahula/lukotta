@@ -87,8 +87,8 @@ enum EndToEnd {
             if FileManager.default.fileExists(atPath: dynamic.path) {
                 print("")
                 print("dynamic VHD: \(dynamic.lastPathComponent)")
-                // Read by the driver we wrote for the engine; a build without
-                // it must say so rather than serve the header as a disk.
+                // Read by the engine's VHD driver. A build without it must say
+                // so rather than serve the header as a disk.
                 if EnginePaths.opensVdiAndVhd {
                     qcow2Flow(image: dynamic, passphrase: nil)
                 } else {
@@ -404,8 +404,8 @@ enum EndToEnd {
         }
     }
 
-    /// A format macOS reads on its own. It should not be opened here at all —
-    /// it should be handed over, and the user told why.
+    /// A format macOS reads on its own, which is not opened here at all. It is
+    /// handed over, and the person is told why.
     @MainActor
     private static func handOverFlow(image: URL) {
         let model = AppModel()
@@ -451,10 +451,10 @@ enum EndToEnd {
     }
 
     /// A qcow2, which macOS cannot attach at all. The engine reads the format
-    /// itself and is handed the path — never a device, and never root.
-    /// libkrun opens whatever an image names — a backing file, an external
-    /// data file — so a file handed to this app could otherwise choose which
-    /// other files the virtual machine reads.
+    /// itself and is handed the path, never a device and never root.
+    /// libkrun opens whatever an image names, a backing file or an external
+    /// data file, so an image could otherwise determine which other files the
+    /// virtual machine reads.
     /// An image whose data is not laid out as raw must be refused by name, not
     /// handed to the engine to be read as gibberish.
     @MainActor
@@ -627,7 +627,7 @@ enum EndToEnd {
         check(
             system.allSatisfy { $0.drive == nil },
             "and none of them is offered as something to open")
-        // Everything has a name and a size; a row saying nothing helps nobody.
+        // Every row must carry a name and a size to be of any use.
         check(
             model.survey.allSatisfy { !$0.name.isEmpty && !$0.content.isEmpty },
             "and every row says what it is")

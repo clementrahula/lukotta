@@ -2,10 +2,10 @@ import Foundation
 
 /// Every disk attached to this Mac, and what can be done with each.
 ///
-/// The drive list shows only what this app can open, which is right until it
-/// shows nothing: "no encrypted drives found" is a dead end that says nothing
-/// about the drive sitting on the desk. This is the other view — everything
-/// that is attached, with a plain reason beside the ones that cannot be opened.
+/// The drive list shows only what this application can open, which is correct
+/// until it shows nothing: "no encrypted drives found" says nothing about the
+/// drive on the desk. This is the other view, listing everything attached with
+/// a reason beside each disk that cannot be opened.
 public enum DriveSurvey {
 
     public enum Verdict: Equatable, Sendable {
@@ -51,8 +51,8 @@ public enum DriveSurvey {
         }
     }
 
-    /// Partition types belonging to the running system rather than to anyone's
-    /// data. Listing them invites someone to open their own boot disk.
+    /// Partition types belonging to the running system rather than to user
+    /// data. Offering them would invite someone to open their own boot disk.
     static let systemContent: Set<String> = [
         "Apple_APFS_ISC", "Apple_APFS_Recovery", "Apple_Boot", "EFI",
         "Apple_KernelCoreDump", "Apple_Recovery",
@@ -125,7 +125,7 @@ public enum DriveSurvey {
                         drive: byIdentifier[identifier]))
             }
 
-            // A disk with nothing on it at all — a bare container file, or a
+            // A disk with nothing on it at all: a bare container file, or a
             // drive nothing has written a partition table to.
             if parts.isEmpty && volumes.isEmpty {
                 let size = (disk["Size"] as? NSNumber)?.int64Value ?? 0

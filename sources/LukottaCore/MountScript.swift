@@ -170,7 +170,7 @@ public enum MountScript {
         // SUDO_GID are absent and the engine refuses to start ("must not be run
         // directly by root"); supplying them names the real invoking user. Run
         // as that user in the first place and they are not merely unnecessary
-        // but wrong — the engine would take itself for a sudo session.
+        // but wrong: the engine would take itself for a sudo session.
         if i.elevated {
             lines.append("export SUDO_UID=\(i.uid)")
             lines.append("export SUDO_GID=\(i.gid)")

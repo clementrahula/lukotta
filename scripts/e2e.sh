@@ -72,22 +72,22 @@ if [ ! -f "$EXFAT" ]; then
   mkdir -p "$CACHE"
   # A raw image and newfs_exfat, not `hdiutil create -fs ExFAT`: that answers
   # "Operation not permitted" here, and this shape is the one that matters
-  # anyway — a filesystem with no partition table around it.
+  # in any case: a filesystem with no partition table around it.
   dd if=/dev/zero of="$EXFAT" bs=1m count=40 2>/dev/null
   dev="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$EXFAT" | head -1 | awk '{print $1}')"
   newfs_exfat -v EXFAT "$dev" >/dev/null 2>&1
   hdiutil detach "$dev" -force >/dev/null 2>&1
 fi
 
-# qcow2 wrappers around the two images above. There is no qemu-img on a Mac,
-# so the test writes its own; a linear mapping is what a converted image looks
-# like anyway.
+# qcow2 wrappers around the two images above. There is no qemu-img on a Mac, so
+# the test writes its own, and a linear mapping is what a converted image looks
+# like.
 [ -f "$QCOW_PLAIN" ] || "$HERE/scripts/make-qcow2.py" "$PLAIN" "$QCOW_PLAIN" >/dev/null
 [ -f "$QCOW_ENC" ] || "$HERE/scripts/make-qcow2.py" "$CONTAINER" "$QCOW_ENC" >/dev/null
 
 # A real monolithicFlat VMDK: a text descriptor beside a raw extent. That is
-# the only shape there is — the descriptor is read whole and capped at 2 MB, so
-# the data cannot live inside it.
+# the only shape it takes: the descriptor is read whole and capped at 2 MB, so
+# the data cannot be stored inside it.
 VMDK="$CACHE/plain.vmdk"
 if [ ! -f "$VMDK" ]; then
   echo "==> Building a VMDK to test against (once)"
@@ -140,9 +140,9 @@ VMDK_SPARSE="$CACHE/sparse.vmdk"
 VMDK_STREAMED="$CACHE/streamed.vmdk"
 
 # A VHDX: two headers, a region table, a metadata region and an allocation
-# table. And two that must be refused rather than read — one whose log was not
-# emptied, so its newest state was never written back into it, and one holding
-# only the changes from a disk it names.
+# table. Also two that must be refused rather than read: one whose log was not
+# emptied, so its most recent state was never written back into it, and one
+# holding only the changes from a disk it names.
 VHDX="$CACHE/plain.vhdx"
 VHDX_DIRTY="$CACHE/dirty.vhdx"
 VHDX_PARENT="$CACHE/differencing.vhdx"

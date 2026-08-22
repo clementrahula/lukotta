@@ -3,13 +3,13 @@ import Foundation
 /// A VDI header, read far enough to decide whether the engine should be handed
 /// the file.
 ///
-/// VirtualBox's format: a header, a map with one entry per block of the virtual
-/// disk, and then the blocks themselves, in whatever order they were written.
-/// Nothing in it is laid out where the disk says, so it is read by the driver
-/// we wrote for the engine or not at all.
+/// VirtualBox's format: a header, a map holding one entry per block of the
+/// virtual disk, then the blocks in the order they were written. No part of the
+/// disk lies at the offset the disk gives, so the file is read by the engine's
+/// VDI driver or not at all.
 ///
-/// A VDI names no other file — its data is always its own — so unlike a qcow2
-/// or a VMDK there is nothing here to refuse on that count.
+/// A VDI cannot name another file. Its data is always its own, so the rule
+/// applied to qcow2 and VMDK has nothing to test here.
 public struct VdiHeader: Equatable, Sendable {
     public enum Kind: UInt32, Sendable {
         /// Only the blocks that were written are in the file.
@@ -18,18 +18,18 @@ public struct VdiHeader: Equatable, Sendable {
         case fixed = 2
     }
 
-    /// What the file holds, or nil for a kind nobody has defined.
+    /// What the file holds, or nil for a value the format does not define.
     public let kind: Kind?
     /// How large the virtual disk is.
     public let diskSize: UInt64
-    /// Which version of the format wrote it. Only 1 was ever released.
+    /// The major version that wrote it. Only version 1 was released.
     public let major: UInt32
 
-    /// The magic that begins the header proper, after 64 bytes of free text.
+    /// The signature that begins the header, after 64 bytes of free text.
     public static let signature: UInt32 = 0xbeda_107f
-    /// Where that magic sits.
+    /// Where that signature sits.
     public static let signatureOffset = 0x40
-    /// How much of the file has to be read to find all of the above.
+    /// How much of the file must be read to find all of the above.
     public static let length = 0x200
 
     public static func parse(_ head: Data) -> VdiHeader? {
@@ -72,15 +72,14 @@ extension DiskImage {
             return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }
 
-        // Version 0 laid the header out differently, and VirtualBox has not
-        // written one this century. Reading it as version 1 would find the
-        // block map in the wrong place.
+        // Version 0 laid the header out differently. Reading such a file as
+        // version 1 locates the block map at the wrong offset.
         guard header.major == 1, header.kind != nil, header.diskSize > 0 else {
             return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }
 
-        // The driver is ours, and an engine built without it would take the
-        // file as raw and find only the header.
+        // An engine built without the VDI driver reads the file as raw, which
+        // presents the header as though it were the start of the disk.
         guard EnginePaths.opensVdiAndVhd else {
             return appString(
                 "“\(url.lastPathComponent)” is a VDI, which this build of the drive engine cannot open. A raw image or a qcow2 would work."

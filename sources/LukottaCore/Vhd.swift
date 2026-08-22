@@ -1,17 +1,17 @@
 import Foundation
 
-/// A VHD footer, read far enough to decide what kind of VHD this is.
+/// A VHD footer, read far enough to establish which of the three forms this is.
 ///
-/// A **fixed** VHD is the raw disk followed by a 512-byte footer: every
-/// partition table and superblock sits at its natural offset, and the footer is
-/// simply past the end. So any engine opens one as-is — it reads it as a raw
-/// image and never looks at the last sector.
+/// A fixed VHD is the raw disk followed by a 512-byte footer. Every partition
+/// table and superblock lies at its natural offset and the footer sits past the
+/// end of the disk, so any engine opens one as a raw image without reading the
+/// last sector.
 ///
-/// A **dynamic** VHD stores its data in blocks listed by an allocation table,
-/// which an engine built with our driver reads and one without would serve as
-/// gibberish. A **differencing** VHD holds only what changed from a parent disk
-/// it names, and is refused whatever the engine can do: nothing here opens an
-/// image that names another file.
+/// A dynamic VHD stores its data in blocks listed by an allocation table, which
+/// an engine carrying the VHD driver reads and one without it cannot. A
+/// differencing VHD holds only the changes from a parent disk that it names,
+/// and is refused whatever the engine supports, as is every image that names
+/// another file.
 public struct VhdFooter: Equatable, Sendable {
     public enum Kind: UInt32, Sendable {
         case fixed = 2
@@ -19,7 +19,7 @@ public struct VhdFooter: Equatable, Sendable {
         case differencing = 4
     }
 
-    /// What the disk holds, or nil for a type nobody has defined.
+    /// Which form this is, or nil for a value the format does not define.
     public let kind: Kind?
     /// The virtual disk's size, which for a fixed VHD is the data before the
     /// footer.
@@ -51,8 +51,7 @@ public struct VhdFooter: Equatable, Sendable {
 
 extension DiskImage {
     public static func isVhd(_ url: URL) -> Bool {
-        // Not "vhdx", which shares four letters with this format and nothing
-        // else, and has a reader of its own.
+        // Not "vhdx". That is a separate format with a reader of its own.
         url.pathExtension.lowercased() == "vhd"
     }
 
@@ -79,8 +78,8 @@ extension DiskImage {
         case .fixed:
             break
         case .dynamic:
-            // Read by the driver we wrote for the engine. A build without it
-            // would take the file as raw and find nothing but the header.
+            // An engine built without the VHD driver reads the file as raw,
+            // which presents the header as though it were the disk.
             guard EnginePaths.opensVdiAndVhd else {
                 return appString(
                     "“\(url.lastPathComponent)” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work."
@@ -94,11 +93,10 @@ extension DiskImage {
             return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }
 
-        // A fixed VHD is its data and then the footer, and nothing else. If the
-        // arithmetic does not agree, passing it through as raw would serve
-        // whatever else is in the file as though it were the disk. A dynamic
-        // one is smaller than the disk it stands for — that is the whole point
-        // of it — so only the driver can judge that, and it does.
+        // A fixed VHD holds its data followed by the footer and nothing else.
+        // If the arithmetic disagrees, reading it as raw would serve the rest of
+        // the file as though it were the disk. A dynamic VHD is smaller than the
+        // disk it represents by design, so only the driver can judge its size.
         guard footer.currentSize > 0,
             footer.kind != .fixed
                 || footer.currentSize == UInt64(size) - UInt64(VhdFooter.length)

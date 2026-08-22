@@ -41,7 +41,7 @@ ALFS="$SRC_RUNTIME/anylinuxfs/$ALFS_VERSION"
 /usr/bin/ditto "$ALFS/libexec" "$OUT/anylinuxfs/libexec"
 [ -d "$ALFS/etc" ] && /usr/bin/ditto "$ALFS/etc" "$OUT/anylinuxfs/etc"
 [ -d "$ALFS/share" ] && /usr/bin/ditto "$ALFS/share" "$OUT/anylinuxfs/share"
-# Our own build of the two binaries we patch, when there is one.
+# The locally built copies of the two patched binaries, when they exist.
 #
 # Everything else stays as the bottle shipped it. Only these two carry changes,
 # and which changes is written down beside them so the app can read it rather

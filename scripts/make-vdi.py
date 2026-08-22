@@ -52,8 +52,8 @@ def write(source, destination):
         out.write(block_map)                          # rewritten at the end
         for i in range(blocks):
             chunk = src.read(BLOCK)
-            # A block of nothing is left out of the file entirely, which is the
-            # whole point of the format.
+            # A block of nothing is left out of the file entirely, which is
+            # what keeps a mostly-empty disk small.
             if not chunk.strip(b"\x00"):
                 continue
             struct.pack_into("<I", block_map, i * 4, allocated)

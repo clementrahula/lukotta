@@ -2,16 +2,15 @@ import Foundation
 
 /// A VMDK descriptor, read far enough to decide whether it is safe to open.
 ///
-/// Unlike a qcow2, a VMDK **always** names another file. Its descriptor is a
-/// short text file listing extents, each pointing at the file holding that
-/// slice of the disk, and the engine opens every one of them. There is no
-/// self-contained form: the descriptor is read whole and capped at 2 MB, so the
-/// data cannot live in it.
+/// A VMDK in its flat form always names another file. The descriptor is a short
+/// text file listing extents, each naming the file that holds that slice of the
+/// disk, and the engine opens every one of them. The descriptor is read whole
+/// and capped at 2 MB, so the data cannot be stored within it.
 ///
-/// So the rule cannot be "names nothing else". It is that every extent must be
-/// a plain file name sitting beside the descriptor — no directory separators,
-/// no `..`, nothing absolute. That is exactly what a VMware-written VMDK looks
-/// like, and it stops a descriptor from reaching anywhere else on the disk.
+/// The rule therefore cannot be that it names nothing else. It is that every
+/// extent must be a plain file name situated beside the descriptor: nothing
+/// absolute, nothing containing a separator, no `..`. That is what VMware
+/// writes, and it prevents a descriptor from reaching elsewhere on the disk.
 public struct VmdkDescriptor: Equatable, Sendable {
     public struct Extent: Equatable, Sendable {
         public let access: String
@@ -23,12 +22,12 @@ public struct VmdkDescriptor: Equatable, Sendable {
 
     public let createType: String?
     public let extents: [Extent]
-    /// A differential image pointing at a parent. Not supported, and it would
-    /// name a file elsewhere.
+    /// A differential image naming a parent. Not supported, and the parent
+    /// would be a file elsewhere.
     public let hasDeltaLink: Bool
 
-    /// The signature a sparse VMDK starts with, in place of the text
-    /// descriptor. Such a file carries its descriptor inside itself.
+    /// The signature a sparse VMDK begins with, in place of the text
+    /// descriptor. Such a file carries its descriptor within itself.
     public static let sparseMagic: [UInt8] = [0x4B, 0x44, 0x4D, 0x56]  // KDMV
 
     /// A name that points somewhere other than beside the descriptor.
@@ -81,8 +80,8 @@ public struct VmdkDescriptor: Equatable, Sendable {
         if type == "ZERO" {
             return Extent(access: access, sectors: sectors, type: type, filename: nil)
         }
-        // The name is quoted and may hold spaces, so it is taken from the
-        // quotes rather than from the split.
+        // The name is quoted and may contain spaces, so it is taken from
+        // between the quotes rather than from the whitespace split.
         let parts = line.components(separatedBy: "\"")
         let filename = parts.count >= 2 ? parts[1] : nil
         return Extent(access: access, sectors: sectors, type: type, filename: filename)
@@ -94,24 +93,24 @@ public struct VmdkDescriptor: Equatable, Sendable {
     }
 }
 
-/// The header a sparse VMDK begins with, read far enough to find the descriptor
-/// inside it and to know whether the grains can be read at all.
+/// The header a sparse VMDK begins with, read far enough to locate the
+/// descriptor within it.
 ///
-/// A sparse VMDK keeps the disk in grains, written wherever there was room and
-/// found through a directory of tables. The text descriptor that a flat VMDK
-/// has as a file of its own sits inside this one, at an offset the header
+/// A sparse VMDK holds the disk in grains, written wherever there was room and
+/// located through a directory of tables. The text descriptor that a flat VMDK
+/// keeps in a separate file is stored within this one, at an offset the header
 /// gives.
 ///
 /// The streamed form deflates every grain, which the engine's driver inflates
-/// as it reads; it is recognised here so the difference can be told apart in
-/// tests and in a bug report, not to refuse it.
+/// as it reads. It is identified here so that the two forms can be told apart
+/// in tests and in a bug report, not in order to refuse it.
 public struct SparseVmdkHeader: Equatable, Sendable {
     /// Where the descriptor begins, in sectors.
     public let descriptorOffset: UInt64
     /// How long it is, in sectors.
     public let descriptorSize: UInt64
-    /// Whether every grain is deflated and preceded by a marker, which is the
-    /// streamed form — what `ovftool` writes into an OVA.
+    /// Whether every grain is deflated and preceded by a marker. That is the
+    /// streamed form, which is what `ovftool` writes into an OVA.
     public let streamed: Bool
 
     /// The sector size the format is written in terms of.
@@ -144,7 +143,7 @@ public struct SparseVmdkHeader: Equatable, Sendable {
 }
 
 extension DiskImage {
-    /// The engine decides a VMDK by its name, so this does too.
+    /// The engine identifies a VMDK by its extension, so this does the same.
     public static func isVmdk(_ url: URL) -> Bool {
         url.pathExtension.lowercased() == "vmdk"
     }
@@ -156,12 +155,12 @@ extension DiskImage {
         }
         defer { try? handle.close() }
         // The descriptor is text and small. Anything larger than the engine
-        // itself accepts is not one.
+        // accepts is not a descriptor.
         guard let head = try? handle.read(upToCount: 2 * 1024 * 1024), !head.isEmpty else {
             return appString("“\(url.lastPathComponent)” could not be read.")
         }
-        // A sparse VMDK is the disk itself, not a text file about one, so its
-        // descriptor is read from inside it rather than from the front.
+        // A sparse VMDK is the disk itself rather than a text file describing
+        // one, so its descriptor is read from within it.
         var text = head
         if Array(head.prefix(4)) == VmdkDescriptor.sparseMagic {
             guard let sparse = SparseVmdkHeader.parse(head) else {
@@ -182,7 +181,7 @@ extension DiskImage {
                 return appString(
                     "“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
             }
-            // Padded to whole sectors with zero bytes, which are not lines.
+            // Padded to whole sectors with zero bytes, which are not content.
             text = inside.prefix(while: { $0 != 0 })
         }
         let descriptor = VmdkDescriptor.parse(String(decoding: text, as: UTF8.self))
@@ -199,8 +198,8 @@ extension DiskImage {
                 "“\(url.lastPathComponent)” refers to another file on this Mac, which would be opened along with it. \(appName) does not open images that name other files."
             )
         }
-        // Every extent has to actually be there, or the engine opens what it
-        // can and serves a disk with holes in it.
+        // Every extent must be present. Otherwise the engine opens those it
+        // finds and serves a disk with gaps in it.
         let directory = url.deletingLastPathComponent()
         for extent in descriptor.extents {
             guard let name = extent.filename else { continue }

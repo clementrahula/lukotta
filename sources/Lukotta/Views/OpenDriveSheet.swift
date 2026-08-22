@@ -4,7 +4,7 @@ import SwiftUI
 /// Every disk attached to this Mac, and what can be done with each.
 ///
 /// The drive list shows only what this app can open, which is right until it
-/// shows nothing — and "no encrypted drives found" says nothing at all about
+/// shows nothing, and "no encrypted drives found" says nothing about
 /// the drive sitting on the desk. This is where to look then: everything that
 /// is attached, with a plain reason beside the ones that cannot be opened.
 struct OpenDriveSheet: View {

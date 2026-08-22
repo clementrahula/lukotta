@@ -26,9 +26,9 @@ public enum EnginePaths {
     ///
     /// The engine is normally the checksummed upstream bottle. Two of its
     /// binaries can instead be built from the same pinned source with the
-    /// patches in `patches/`, and `vendor-engine.sh` writes down which — so the
-    /// app can say what it can do rather than assume. A build without them
-    /// works; it simply cannot open some things.
+    /// patches in `patches/` applied, and `vendor-engine.sh` records which.
+    /// The application reads that record rather than assuming. A build made
+    /// without the patches is fully functional, but opens fewer formats.
     public static var enginePatches: Set<String> {
         guard let root = engineRoot?.appendingPathComponent("anylinuxfs/PATCHES"),
             let text = try? String(contentsOf: root, encoding: .utf8)
@@ -51,10 +51,10 @@ public enum EnginePaths {
     /// Whether the engine can read a VDI, a VHD that is not simply raw, and a
     /// VHDX.
     ///
-    /// All three drivers are ours, written for imago and built into the engine
-    /// here. Without them a fixed VHD still opens — it is the raw disk with a
-    /// footer after it — but a dynamic one, every VDI and every VHDX would be
-    /// read as gibberish.
+    /// All three drivers are written for imago and compiled into the engine
+    /// here. Without them a fixed VHD still opens, being the raw disk with a
+    /// footer after it, while a dynamic VHD, a VDI and a VHDX cannot be read at
+    /// all.
     public static var opensVdiAndVhd: Bool {
         enginePatches.contains("imago-vdi-vhd-and-vhdx")
     }
@@ -62,7 +62,7 @@ public enum EnginePaths {
     /// Whether the engine can read a sparse VMDK.
     ///
     /// Upstream's VMDK driver reads the flat form only and refuses the sparse
-    /// one by name. The driver ours is built on reads both.
+    /// one by name. The driver built in here reads both.
     public static var opensSparseVmdk: Bool {
         enginePatches.contains("imago-sparse-vmdk")
     }

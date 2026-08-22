@@ -3,9 +3,9 @@
 #
 #   ./scripts/build-engine.sh
 #
-# Everything else — libraries, the kernel images, the helpers — still comes from
-# the checksummed bottle that scripts/fetch-engine.sh downloads. Only these two
-# are ours:
+# Everything else, meaning the libraries, the kernel images and the helpers,
+# still comes from the checksummed bottle that scripts/fetch-engine.sh
+# downloads. Only these two are built here:
 #
 #   anylinuxfs   the host binary, patched to offer VMDK, VDI and VHD
 #   vmproxy      the guest binary, patched to unlock what it probes
@@ -24,9 +24,9 @@
 #   brew install llvm lld util-linux
 #   rustup target add aarch64-unknown-linux-musl
 #
-# Skipping this is allowed and produces a working app — one without the two
-# fixes. `vendor-engine.sh` records which patches made it in, and the app reads
-# that rather than assuming.
+# Skipping this step is allowed and produces a working app without these
+# fixes. vendor-engine.sh records which patches were applied, and the app reads
+# that record rather than assuming.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 LOCK="$HERE/vendor/engine.lock"
@@ -39,8 +39,8 @@ VERSION="$(field anylinuxfs version)"
 URL="$(field anylinuxfs source_url)"
 WANT="$(field anylinuxfs source_sha256)"
 
-# The crates the host binary links in that we patch. Their checksums are the
-# ones cargo itself records in anylinuxfs's Cargo.lock, so a mismatch means the
+# The crates the host binary links in that carry patches. Their checksums are
+# the ones cargo records in anylinuxfs's Cargo.lock, so a mismatch means the
 # source is not what upstream resolved.
 CRATES=(imago krun-devices)
 

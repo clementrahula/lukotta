@@ -1529,7 +1529,7 @@ group("whatMacOSDoesBetterOnItsOwn") {
 
 group("qcow2ContainersAreReadByTheEngine") {
     // macOS cannot attach a qcow2, so it is never attached: the engine reads
-    // the format itself and is handed the path. Which means no sector of ours
+    // the format itself and is handed the path, so no sector read here
     // can see what is inside, and the engine's own listing is the only answer.
     let listing = """
 
@@ -1666,8 +1666,8 @@ group("aQcow2ThatNamesAnotherFile") {
     // files, and libkrun opens them. So a file handed to this app could choose
     // which other files the virtual machine reads. Container files run
     // unprivileged, which bounds the reach to what the person who opened it
-    // could already read — a reason it is not an emergency, not a reason to
-    // allow it.
+    // could already read, which bounds the consequence rather than
+    // justifying it.
     func header(
         version: UInt32 = 3, backingOffset: UInt64 = 0, backingSize: UInt32 = 0,
         features: UInt64 = 0
@@ -1724,7 +1724,7 @@ group("aQcow2ThatNamesAnotherFile") {
     expect(
         Qcow2Header.parse(header(version: 9)) == nil, "nor a version nobody has defined")
 
-    // The extension area names one too, and the two are meant to agree — a
+    // The extension area names one too, and the two are meant to agree. A
     // file setting one without the other is exactly what to refuse rather than
     // reason about.
     var withExtension = [UInt8](header())
@@ -1744,7 +1744,7 @@ group("aQcow2ThatNamesAnotherFile") {
 group("aVmdkNamesAnotherFileByDesign") {
     // A VMDK always points at a separate file for its data: the descriptor is
     // read whole and capped at two megabytes, so there is no self-contained
-    // form. The rule cannot be "names nothing else" — it is "names only what
+    // form. The rule cannot be "names nothing else"; it is "names only what
     // sits beside it".
     let ordinary = """
         # Disk DescriptorFile
@@ -1765,7 +1765,7 @@ group("aVmdkNamesAnotherFileByDesign") {
     expect(!d.namesAFileElsewhere, "a name beside the descriptor is allowed")
     expect(!d.hasDeltaLink, "and it is not part of a chain")
 
-    // The whole point: a descriptor must not reach anywhere else.
+    // A descriptor must not reach anywhere outside its own folder.
     for reach in ["/etc/passwd", "../../secrets.img", "sub/dir/disk.vmdk", ""] {
         expect(
             VmdkDescriptor.reachesElsewhere(reach), "“\(reach)” is refused as an extent name")
@@ -1827,7 +1827,7 @@ group("aFixedVhdIsAlreadyRaw") {
         VhdFooter.parse(footer(kind: 4, size: 1024))?.kind == .differencing,
         "and differencing, which names a parent disk")
 
-    // A type nobody has defined is not guessed at.
+    // A value the format does not define is not guessed at.
     expect(VhdFooter.parse(footer(kind: 9, size: 1024))?.kind == nil, "an unknown type is unknown")
 
     // Without the cookie it is not a VHD at all, whatever it is called.
@@ -1918,8 +1918,8 @@ group("aVhdxSaysWhetherItWasClosedCleanly") {
         return Data(bytes)
     }
 
-    // The second header counted higher, so it decides — even though the first
-    // one is clean.
+    // The second header counted higher, so it decides, although the first one
+    // is clean.
     let live = VhdxHeader.parse(headers: [
         header(sequence: 1, dirty: false),
         header(sequence: 2, dirty: true),

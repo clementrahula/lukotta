@@ -153,9 +153,9 @@ final class AppModel: ObservableObject {
 
     /// Give the drive to macOS, and say so rather than appearing to do nothing.
     ///
-    /// Silence would be its own surprise: the user asked for the file to be
-    /// opened, and something did open it — just not this app. So the sheet says
-    /// what happened, why, and where the volume went.
+    /// Silence would be its own surprise: the file was opened, and something
+    /// opened it, but not this application. The sheet therefore states what
+    /// happened, why, and where the volume went.
     private func handToMacOS(_ drive: Drive) {
         let identifier = DriveScanner.wholeDisk(of: drive.id)
         let file = openedImages[identifier]
@@ -359,8 +359,8 @@ final class AppModel: ObservableObject {
     /// A container the engine reads for itself: qcow2 or VMDK.
     ///
     /// Nothing is attached, because macOS cannot read either. The engine's own
-    /// listing is the only account of what is inside — no sector of ours can
-    /// see past the container's mapping.
+    /// listing is the only account of what the file contains, since no sector
+    /// read here sees past the container's mapping.
     private nonisolated static func engineRead(_ url: URL) -> ImageOutcome {
         let types = DiskImage.contents(of: url)
         let format = DiskImage.format(fromTypes: types)
@@ -421,9 +421,9 @@ final class AppModel: ObservableObject {
             return engineRead(url)
         }
 
-        // A VHDX shares four letters with a VHD and nothing else: two headers,
-        // a region table, a metadata region and an allocation table. It is read
-        // by the driver we wrote for the engine, or refused.
+        // A VHDX shares its name with a VHD and none of its layout: two
+        // headers, a region table, a metadata region and an allocation table.
+        // The engine's VHDX driver reads it, or it is refused.
         if DiskImage.isVhdx(url) {
             if let objection = DiskImage.objection(toVhdx: url) {
                 Log.drives.error("refused a VHDX")
@@ -433,8 +433,8 @@ final class AppModel: ObservableObject {
         }
 
         // A VDI is never raw at any offset: the header comes first and the
-        // blocks are in whatever order they were written. It is read by the
-        // driver we wrote for the engine, or refused.
+        // blocks follow in the order they were written. The engine's VDI driver
+        // reads it, or it is refused.
         if DiskImage.isVdi(url) {
             if let objection = DiskImage.objection(toVdi: url) {
                 Log.drives.error("refused a VDI")
@@ -443,11 +443,10 @@ final class AppModel: ObservableObject {
             return engineRead(url)
         }
 
-        // A VMDK is never attached either: macOS cannot read one and the engine
-        // can. Unlike a qcow2 it always names a separate file for its data —
-        // the descriptor is read whole and capped at two megabytes, so there is
-        // no self-contained form — and the rule is therefore not "names nothing
-        // else" but "names only what sits beside it".
+        // A VMDK is never attached either: macOS cannot read one and the
+        // engine can. In its flat form it always names a separate file for its
+        // data, the descriptor being read whole and capped at two megabytes.
+        // The rule is therefore that it names only what sits beside it.
         if DiskImage.isVmdk(url) {
             if let objection = DiskImage.objection(toVmdk: url) {
                 Log.drives.error("refused a VMDK")
@@ -456,14 +455,13 @@ final class AppModel: ObservableObject {
             return engineRead(url)
         }
 
-        // A qcow2 is never attached. macOS cannot read one, but the engine can,
-        // so it is handed over as a path — and since a container file needs no
-        // privilege, that path only ever reaches a process running as the user
-        // who chose it.
+        // A qcow2 is never attached. macOS cannot read one and the engine can,
+        // so the path is handed over. A container file needs no privilege, so
+        // that path reaches only a process running as the user who chose it.
         if DiskImage.isQcow2(url) {
-            // Before the engine is told anything. libkrun opens whatever an
-            // image names — a backing file, an external data file — so a file
-            // handed to this app could otherwise choose which other files the
+            // Checked before the engine is told anything. libkrun opens
+            // whatever an image names, a backing file or an external data file,
+            // so an image could otherwise determine which other files the
             // virtual machine reads.
             if let objection = DiskImage.objection(toQcow2: url) {
                 Log.drives.error("refused an image that names another file")
@@ -512,7 +510,7 @@ final class AppModel: ObservableObject {
     /// missing nothing, and detaching it because some other drive was ejected
     /// would take it out from under the person who just opened it.
     /// Forget a container the engine read for itself. There is no device to
-    /// detach — closing it is simply no longer listing it.
+    /// detach; closing it means no longer listing it.
     private func forgetEngineRead(_ paths: [String]) {
         let gone = qcow2Drives.filter { paths.contains($0.value.devicePath) }.map(\.key)
         for id in gone { qcow2Drives[id] = nil }
@@ -979,8 +977,8 @@ final class AppModel: ObservableObject {
         // unencrypted drive flashed a demand for a password it does not have.
         // The reading takes tens of milliseconds; the list simply stays up
         // until it is in, and then the drive either opens or asks.
-        // The engine already looked inside a qcow2 — no sector of ours can see
-        // past the container's mapping, so its answer is the answer.
+        // The engine has already looked inside a qcow2. No sector read here
+        // sees past the container's mapping, so its answer stands.
         if let known = knownFormat, qcow2Drives[drive.id] != nil {
             knownFormat = nil
             chosenFormat = known == .unknown ? nil : known
@@ -1084,8 +1082,8 @@ final class AppModel: ObservableObject {
             // the field by then was a passphrase remembered in the Keychain —
             // which means nothing for a drive that has none to give.
             if format.macOSHandlesFully {
-                // Not ours to open. macOS mounts this locally, read and write,
-                // and doing it here would hand back a network volume instead.
+                // macOS mounts this locally, read and write. Opening it here
+                // would hand back a network volume instead.
                 self.handToMacOS(drive)
             } else if format.isUnencrypted {
                 Log.mount.notice("opening without asking, nothing is encrypted")
@@ -1195,8 +1193,8 @@ final class AppModel: ObservableObject {
         // A container file needs no privilege at all: this user attached it, so
         // the device node is theirs and the NFS mount the engine makes is a
         // user mount. Neither the helper nor an authorisation prompt is
-        // involved — the drive simply mounts, under ~/Volumes rather than
-        // /Volumes, which is the one visible difference.
+        // involved. The drive mounts under ~/Volumes rather than /Volumes,
+        // which is the one visible difference.
         if openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil
             || qcow2Drives[drive.id] != nil
         {
