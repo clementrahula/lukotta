@@ -457,9 +457,9 @@ enum EndToEnd {
             "the image is detached", timeout: 30,
             condition: { !model.drives.contains { $0.uuid == image.path } })
 
-        // A remembered passphrase must not prevent it opening. There is nothing
+        // A remembered passphrase must not stand in the way. There is nothing
         // for one to unlock, and waiting for the field to be empty is what made
-        // this conditional.
+        // the screen conditional on it.
         model.openImage(image)
         guard
             waitUntil(
@@ -470,6 +470,16 @@ enum EndToEnd {
         else { return }
         guard let again = model.drives.first(where: { $0.uuid == image.path }) else { return }
         model.credential = "a passphrase it does not need"
+        guard
+            waitUntil(
+                "it asks how to open it, whatever is in the field", timeout: 60,
+                condition: { model.phaseIsUnlock && model.chosenFormat != nil })
+        else { return }
+        check(
+            model.chosenDriveIsOpenAlready,
+            "and still knows there is nothing for a passphrase to unlock")
+
+        model.unlock(again)
         guard
             waitUntil(
                 "it opens even with something in the field", timeout: 180,
