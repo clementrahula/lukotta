@@ -1,0 +1,25 @@
+version: 2
+
+# What Dependabot can see: the Swift packages this app links, and the actions
+# the workflows use. It opens a pull request when one of them moves, and a
+# security update when one of them has a fix.
+#
+# What it cannot see is vendor/engine.lock, which pins the engine, the two
+# crates built from source and the Alpine guest image. Those are checked by
+# .github/workflows/engine-updates.yml instead.
+updates:
+  - package-ecosystem: swift
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "Update"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "Update"

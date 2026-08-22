@@ -1,41 +1,75 @@
 name: CI
 
-# Manual only, for now. It was running on every push and failing, and the
-# failures were arriving as email rather than as something anyone was looking
-# at. To be wired back up deliberately, with a toolchain pinned to match what
-# the app is actually built with.
+# Every push and every pull request. Everything here is what can be checked
+# without a real drive: the package builds, the checks pass, the bundle is
+# assembled from the pinned engine, every screen is drawn and compared with its
+# baseline, and the binary starts.
+#
+# scripts/e2e.sh is not here. It boots a virtual machine and needs Full Disk
+# Access, and a hosted runner has neither. It runs on a real Mac.
+
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
     runs-on: macos-15
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
-      - name: Swift version
-        run: swift --version
+      - name: Versions
+        run: |
+          swift --version
+          xcodebuild -version
 
-      - name: Build
-        run: swift build
+      # Pinned by checksum, so the same key means the same bytes.
+      - name: Cache the engine
+        uses: actions/cache@v4
+        with:
+          path: |
+            vendor/engine
+            vendor/upstream
+            vendor/.cache
+          key: engine-${{ hashFiles('vendor/engine.lock') }}
 
-      # The suite is a plain executable, not a test target: XCTest and
-      # swift-testing both need a full Xcode install, and the tests should run
-      # anywhere the package builds.
-      - name: Tests
-        run: swift run LukottaTests
+      - name: Fetch and stage the engine
+        run: |
+          ./scripts/fetch-engine.sh
+          ./scripts/vendor-engine.sh
+
+      # Runs the checks itself and refuses to build when they fail, so this is
+      # the unit tests as well as the bundle.
+      - name: Build the app
+        run: LUKOTTA_INSTALL=0 ./build-app.sh
+
+      - name: Smoke test
+        run: './dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker' --smoke-test
+
+      - name: Screens
+        run: ./scripts/snapshots.sh
 
       - name: Recovery-key validator
         run: ./scripts/test-key-validator.sh
 
-      - name: Format
-        run: swift format lint --recursive --strict Sources
-
-      - name: Shell scripts
+      - name: Lint, and whether the checks are keeping up
         run: |
-          brew install shellcheck
-          shellcheck -e SC1091,SC2317 ./*.sh ./scripts/*.sh
+          brew install shellcheck swift-format
+          ./scripts/lint.sh
 
-  # Producing a signed bundle needs the vendored engine and a signing identity,
-  # neither of which exists on a runner. Enable once vendoring is reproducible
-  # from pinned upstream artefacts — see TODO.md section 1.
+      # What was drawn when it did not match, so a difference can be judged
+      # rather than guessed at.
+      - name: Keep the screens that differed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screens
+          path: tests/snapshots
+          retention-days: 7

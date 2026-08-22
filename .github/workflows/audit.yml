@@ -1,0 +1,105 @@
+name: Audit
+
+# What is shipped, checked against what is known to be wrong with it.
+#
+# Three ecosystems end up inside this app and each has its own advisory
+# database:
+#
+#   Swift      the packages the app links, checked by OSV
+#   Rust       the crates the engine is built from, checked by cargo-audit
+#   Alpine     the 66 packages of the Linux guest, checked by Trivy
+#
+# Weekly, because an advisory can be published for code that has not changed,
+# and on demand.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  push:
+    paths:
+      - Package.resolved
+      - vendor/engine.lock
+      - .github/workflows/audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  swift:
+    name: Swift packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: OSV scanner
+        uses: google/osv-scanner-action/osv-scanner-action@v2.2.4
+        with:
+          scan-args: |-
+            --lockfile=Package.resolved
+            --format=table
+
+  rust:
+    name: Engine crates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The crates are pinned in vendor/engine.lock and fetched by checksum, so
+      # what is audited is what is compiled.
+      - name: Fetch the pinned crate sources
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/crates
+          python3 - <<'PY'
+          import json, urllib.request, hashlib, pathlib
+          lock = json.load(open("vendor/engine.lock"))
+          for name in ("imago", "krun-devices"):
+              entry = lock[name]
+              data = urllib.request.urlopen(entry["source_url"]).read()
+              got = hashlib.sha256(data).hexdigest()
+              if got != entry["source_sha256"]:
+                  raise SystemExit(f"{name}: checksum mismatch")
+              path = pathlib.Path("/tmp/crates") / f"{name}.crate"
+              path.write_bytes(data)
+              print(f"{name} {entry['version']} verified")
+          PY
+          cd /tmp/crates && for f in *.crate; do tar xzf "$f"; done
+          ls /tmp/crates
+
+      - name: cargo-audit
+        run: |
+          cargo install cargo-audit --locked
+          # Each crate is audited against its own manifest. A crate without a
+          # lockfile is resolved first, so the advisory check sees versions
+          # rather than ranges.
+          for dir in /tmp/crates/*/; do
+            [ -f "$dir/Cargo.toml" ] || continue
+            echo "== $dir"
+            ( cd "$dir" && cargo generate-lockfile >/dev/null 2>&1 || true
+              cargo audit --deny warnings ) || exit 1
+          done
+
+  guest:
+    name: Alpine guest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The guest is an OCI image pinned by digest. Scanned from the registry
+      # rather than from a running copy, so this needs no macOS and no engine.
+      - name: Read the pinned digest
+        id: image
+        run: |
+          digest=$(python3 -c "import json;print(json.load(open('vendor/engine.lock'))['guest_image']['oci_digest'])")
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "guest image: $digest"
+
+      - name: Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: image
+          image-ref: alpine@${{ steps.image.outputs.digest }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          format: table

@@ -1,0 +1,98 @@
+#!/bin/bash
+# Are the checks keeping up with the app?
+#
+#   ./scripts/check-coverage.sh
+#
+# Tests rot by omission rather than by breaking: a screen is added and no
+# baseline is recorded for it, a rule is written and nothing exercises it, a
+# format is claimed and no end-to-end run opens one. Each of those leaves the
+# suite green and the thing untested, and nobody notices for months.
+#
+# So this looks for the omissions themselves. It is deliberately narrow: every
+# rule here is one where the absence can be established, not guessed at.
+set -euo pipefail
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$HERE"
+
+FAIL=0
+note() { printf '  %s\n' "$1"; }
+bad() { printf '  MISSING  %s\n' "$1"; FAIL=1; }
+
+# 1. Every screen has baselines, in both languages and both sizes.
+printf 'Screens with baselines…\n'
+# From inside scenes() only: the geometries and the appearances are pairs of
+# the same shape further down the file.
+scenes=$(/usr/bin/python3 -c '
+import re
+text = open("sources/Lukotta/Snapshots.swift").read()
+body = text.split("static func scenes()", 1)[1]
+# Only as far as the next function: the geometries and the appearances further
+# down the file are pairs of the same shape.
+body = re.split(r"\n    (?:@MainActor\n    )?(?:private )?static (?:func|let|var) ", body)[0]
+print("\n".join(sorted(set(re.findall(r"\(\s*\n?\s*\"([a-z0-9-]+)\",", body)))))
+')
+for scene in $scenes; do
+  missing=""
+  for lang in "" "de-"; do
+    for size in ideal min; do
+      for mode in light dark; do
+        [ -f "tests/snapshots/${lang}${scene}-${size}-${mode}.png" ] || missing="yes"
+      done
+    done
+  done
+  [ -n "$missing" ] && bad "no baselines for the \"$scene\" screen"
+done
+note "$(printf '%s\n' "$scenes" | wc -l | tr -d ' ') screens"
+
+# 2. Every failure rule is exercised. A rule nobody tests is a rule that stops
+#    firing when upstream rewords its output, and nothing says so.
+printf 'Failure rules with a test…\n'
+rules=$(grep -oE 'name: "[a-z0-9-]+", source:' sources/LukottaCore/Diagnosis.swift \
+  | sed -E 's/name: "([a-z0-9-]+)".*/\1/' | sort -u)
+for rule in $rules; do
+  grep -q "\"$rule\"" sources/LukottaTests/main.swift || bad "nothing tests the \"$rule\" rule"
+done
+note "$(printf '%s\n' "$rules" | wc -l | tr -d ' ') rules"
+
+# 3. Every image format the app claims is opened by the end-to-end run. The
+#    claim is in the format table in SPECS.md; the proof is in e2e.sh's
+#    fixtures.
+printf 'Formats with an end-to-end fixture…\n'
+for fixture in plain.img plain.qcow2 container.qcow2 plain.vmdk sparse.vmdk streamed.vmdk \
+  plain.vhd dynamic.vhd plain.vdi plain.vhdx exfat.img container.img; do
+  grep -q "$fixture" scripts/e2e.sh || bad "the end-to-end run builds no $fixture"
+done
+
+# 4. Every phase of the interface is drawn by some screen. A phase nobody
+#    renders is a screen nobody has looked at since it was written.
+printf 'Interface states with a screen…\n'
+phases=$(sed -n '/enum Phase {/,/^    }/p' sources/Lukotta/AppModel.swift \
+  | grep -oE 'case [a-zA-Z]+' | awk '{print $2}' | sort -u)
+for phase in $phases; do
+  grep -q "\.$phase" sources/Lukotta/Snapshots.swift || bad "no screen draws the .$phase state"
+done
+note "$(printf '%s\n' "$phases" | wc -l | tr -d ' ') states"
+
+# 5. Every language has every string. A half-translated release shows English
+#    to somebody who chose otherwise.
+printf 'Languages fully translated…\n'
+/usr/bin/python3 - <<'PY' || FAIL=1
+import json, pathlib, sys
+catalogue = json.load(open("resources/Localizable.xcstrings"))["strings"]
+langs = sorted(p.stem for p in pathlib.Path("translations").glob("*.json"))
+short = False
+for lang in langs:
+    missing = [k for k, e in catalogue.items() if lang not in e.get("localizations", {})]
+    if missing:
+        print(f"  MISSING  {lang} is short of {len(missing)} strings: {missing[0][:50]}…")
+        short = True
+print(f"  {len(langs)} languages, {len(catalogue)} strings")
+sys.exit(1 if short else 0)
+PY
+
+printf '\n'
+if [ "$FAIL" = "1" ]; then
+  printf 'Something is not covered. Add the missing check rather than the exception.\n'
+  exit 1
+fi
+printf 'The checks are keeping up.\n'

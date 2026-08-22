@@ -1,0 +1,70 @@
+name: Engine updates
+
+# Dependabot cannot see vendor/engine.lock, so this looks instead. Weekly, and
+# on demand. It changes nothing: bumping the engine means reading what changed
+# and looking at Diagnosis.enginesChecked, because the rules that explain a
+# failure match on the words the engine prints.
+
+on:
+  schedule:
+    - cron: "0 7 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: What has moved
+        id: check
+        run: |
+          set +e
+          out="$(./scripts/check-engine-updates.sh 2>&1)"
+          status=$?
+          printf '%s\n' "$out"
+          {
+            echo "status=$status"
+            echo "report<<EOF"
+            printf '%s\n' "$out"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          exit 0
+
+      # One issue, kept up to date, rather than a new one every week.
+      - name: Say so, once
+        if: steps.check.outputs.status == '1'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = "Pinned engine parts have moved";
+            const body = [
+              "```",
+              `${{ steps.check.outputs.report }}`,
+              "```",
+              "",
+              "Bumping means reading what changed upstream and looking at",
+              "`Diagnosis.enginesChecked`: the rules that explain a failure match",
+              "on the words the engine prints, and a rewording upstream stops all",
+              "of them firing silently.",
+            ].join("\n");
+            const open = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: "open", labels: "engine",
+            });
+            const existing = open.data.find(i => i.title === title);
+            if (existing) {
+              await github.rest.issues.update({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: existing.number, body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ["engine"],
+              });
+            }

@@ -19,4 +19,7 @@ else
   printf '  shellcheck not installed — brew install shellcheck\n'
 fi
 
+printf 'coverage…\n'
+"$HERE/scripts/check-coverage.sh" | sed 's/^/  /' || status=1
+
 exit $status
