@@ -199,8 +199,11 @@ Still open, in rough order of worth:
   The app says so plainly when the file is chosen. Fixing it properly is
   upstream work, or a `before_mount` custom action running cryptsetup in the
   guest.
-- **VHDX and VDI.** Nothing in the stack reads them, and converting first costs
-  a full copy, which is not a feature. Left undone deliberately.
+- **VHD, VHDX and VDI.** Researched properly in [FORMATS-VM.md](FORMATS-VM.md).
+  Fixed VHD already works and only needs the app to offer it; VDI and dynamic
+  VHD are a few hundred lines each in imago, which we build; VHDX is most of the
+  work and all of the risk. The guest cannot help — no nbd driver, no FUSE
+  export, no nbdfuse — and that was tested rather than assumed.
 - **A VM disk holding APFS, FAT or exFAT** should be decoded, attached and
   mounted locally rather than served over NFS — the same rule that sends exFAT
   to macOS.
