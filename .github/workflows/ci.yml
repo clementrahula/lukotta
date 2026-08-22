@@ -51,7 +51,8 @@ jobs:
         run: LUKOTTA_INSTALL=0 ./build-app.sh
 
       - name: Smoke test
-        run: './dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker' --smoke-test
+        run: |
+          "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker" --smoke-test
 
       - name: Screens
         run: ./scripts/snapshots.sh
