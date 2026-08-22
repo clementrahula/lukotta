@@ -346,25 +346,42 @@ enum Snapshots {
         window.orderFrontRegardless()
         hosting.layoutSubtreeIfNeeded()
         window.displayIfNeeded()
-        // SwiftUI settles over a turn of the run loop; capturing before it has
-        // gives half-drawn text and missing rows.
-        RunLoop.current.run(until: Date().addingTimeInterval(0.2))
-        hosting.layoutSubtreeIfNeeded()
-        window.displayIfNeeded()
 
         // The bitmap is made at one pixel to the point rather than taken from
         // the display, so a baseline recorded on a Retina Mac matches one
         // recorded anywhere else.
-        guard
-            let rep = NSBitmapImageRep(
-                bitmapDataPlanes: nil,
-                pixelsWide: Int(frame.width), pixelsHigh: Int(frame.height),
-                bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
-                colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)
-        else { return nil }
-        hosting.cacheDisplay(in: hosting.bounds, to: rep)
+        let capture = {
+            guard
+                let rep = NSBitmapImageRep(
+                    bitmapDataPlanes: nil,
+                    pixelsWide: Int(frame.width), pixelsHigh: Int(frame.height),
+                    bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                    colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)
+            else { return Data?.none }
+            hosting.cacheDisplay(in: hosting.bounds, to: rep)
+            return rep.representation(using: .png, properties: [:])
+        }
+
+        // Two captures that agree, rather than one taken after a fixed wait.
+        // SwiftUI settles over a turn of the run loop, and an SF Symbol drawn
+        // for the first time in a process settles later still: the chevron in
+        // the drive list came out drawn in one run and missing in the next,
+        // which made a baseline disagree with itself. Bounded, because a scene
+        // that never settles is worth failing on rather than looping over.
+        var previous: Data?
+        for _ in 0..<8 {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+            hosting.layoutSubtreeIfNeeded()
+            window.displayIfNeeded()
+            let shot = capture()
+            if let shot, shot == previous {
+                window.orderOut(nil)
+                return shot
+            }
+            previous = shot
+        }
         window.orderOut(nil)
-        return rep.representation(using: .png, properties: [:])
+        return previous
     }
 }
 

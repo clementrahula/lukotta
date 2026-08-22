@@ -1117,6 +1117,22 @@ final class AppModel: ObservableObject {
         }
     }
 
+    /// What to say about a mount that fell back to read-only.
+    ///
+    /// The same rules that explain a failure explain this: the writable attempt
+    /// did fail, and its complaint is in the transcript, ahead of the read-only
+    /// attempt that succeeded. Only a rule counts. The engine's own last line
+    /// is what `Diagnosis` falls back on for a failure, and beside a drive that
+    /// did open it would read as though something had gone wrong.
+    private nonisolated static func reasonForFallback(
+        _ transcript: String, _ statusLines: [String]
+    ) -> String? {
+        let text = transcript.isEmpty ? statusLines.joined(separator: "\n") : transcript
+        guard let rule = Diagnosis.rule(for: text) else { return nil }
+        Log.mount.notice("read-only fallback explained by \(rule.name, privacy: .public)")
+        return rule.message()
+    }
+
     func backToDrives() {
         credential = ""
         credentialProblem = nil
@@ -1159,6 +1175,17 @@ final class AppModel: ObservableObject {
     /// what was asked for. A drive that refused to be written to is mounted
     /// read-only rather than not at all, and says so.
     @Published var mountedReadOnly = false
+
+    /// Why the drive on screen ended up read-only, where it was not asked for.
+    ///
+    /// A drive that refuses to be written to is mounted read-only rather than
+    /// left closed, and the reason is in what the engine said while the
+    /// writable attempt failed. Without this the person is shown a drive that
+    /// quietly will not accept writes and nothing about why: for the commonest
+    /// cause, a Windows volume left hibernated or by Fast Startup, the remedy
+    /// is one setting away and used to be stated when the mount failed
+    /// outright.
+    @Published var readOnlyReason: String?
 
     /// The mount points opened read-only, so the list can mark them.
     ///
@@ -1348,10 +1375,11 @@ final class AppModel: ObservableObject {
         // Read-only either because it was asked for, or because the drive
         // refused to be written to and the script fell back. The second is the
         // one worth reporting, and both are recorded the same way.
-        mountedReadOnly =
-            mountingReadOnly
-            || transcript.contains(MountScript.stageMarker + "read-only")
+        let fellBack =
+            transcript.contains(MountScript.stageMarker + "read-only")
             || statusLines.contains { $0.contains(MountScript.stageMarker + "read-only") }
+        mountedReadOnly = mountingReadOnly || fellBack
+        readOnlyReason = fellBack ? Self.reasonForFallback(transcript, statusLines) : nil
         if !transcript.isEmpty { noteVolumeCount(transcript) }
         if rememberCredential {
             if !CredentialStore.save(credential, for: drive.uuid) {
@@ -1442,9 +1470,12 @@ final class AppModel: ObservableObject {
                     // unlock can name the share before mounting.
                     DriveMemory.remember(mountPoint: result.mountPoint, for: drive.uuid)
                     Log.mount.notice("mounted without the helper")
-                    self.mountedReadOnly =
-                        readOnly
-                        || result.transcript.contains(MountScript.stageMarker + "read-only")
+                    let fellBack = result.transcript.contains(
+                        MountScript.stageMarker + "read-only")
+                    self.mountedReadOnly = readOnly || fellBack
+                    self.readOnlyReason =
+                        fellBack
+                        ? Self.reasonForFallback(result.transcript, self.statusLines) : nil
                     if self.mountedReadOnly {
                         self.readOnlyMounts.insert(result.mountPoint)
                     } else {

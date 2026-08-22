@@ -465,6 +465,10 @@ private struct ImageNote: View {
         return String(localized: "Writing to a \(container.name) is new")
     }
 
+    /// Whether this note is the one about a driver built here, as opposed to
+    /// the one about a format that is only read.
+    private var aboutOurOwnWriting: Bool { container.writtenByOurOwnDriver }
+
     private var detail: String {
         if !container.isWritable {
             return String(
@@ -478,11 +482,11 @@ private struct ImageNote: View {
         )
     }
 
-    private var tint: Color { container.isWritable ? .orange : .blue }
+    private var tint: Color { aboutOurOwnWriting ? .orange : .blue }
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: container.isWritable ? "pencil.circle.fill" : "info.circle.fill")
+            Image(systemName: aboutOurOwnWriting ? "pencil.circle.fill" : "info.circle.fill")
                 .foregroundStyle(tint)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {

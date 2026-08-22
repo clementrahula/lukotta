@@ -104,6 +104,13 @@ and compares it with `tests/snapshots/`. It needs `./build-app.sh` to have run;
 Baselines belong to one branding, the header drawing the app's own name, so
 never record them from an official build.
 
+A capture is taken only once two of them agree. SwiftUI settles over a turn of
+the run loop, and an SF Symbol drawn for the first time in a process settles
+later still: captured after a fixed wait, the chevron in the drive list came out
+drawn in one run and missing in the next, and a baseline disagreed with itself
+about once in four runs. If a scene ever fails to settle, its picture is
+whatever the last turn drew.
+
 `--record` replaces the baselines. It is a separate command because a harness
 that updates its own baselines passes whatever it drew. Look at the pictures
 before recording.

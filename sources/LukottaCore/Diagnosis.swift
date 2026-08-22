@@ -75,8 +75,22 @@ public enum Diagnosis {
         // no helper there is no probe, and this is the only thing that says so.
         Rule(
             name: "not-bitlocker", source: .engine,
-            patterns: ["not a valid bitlocker", "no bitlocker"],
+            patterns: ["not a valid bitlocker", "not a valid bitlk", "no bitlocker"],
             message: { appString("This partition is not a BitLocker volume.") }),
+        // cryptsetup refuses a BitLocker volume that Windows is part-way
+        // through encrypting or decrypting: `_activate_check` in `bitlk.c`
+        // stops when the recorded state is anything but normal, so nothing is
+        // written to a volume in that state and nothing can be read from it
+        // either. Worth explaining rather than showing as-is, since the remedy
+        // is to let Windows finish.
+        Rule(
+            name: "bitlocker-mid-conversion", source: .linuxTooling,
+            patterns: ["unsupported state and cannot be activated"],
+            message: {
+                appString(
+                    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again."
+                )
+            }),
         Rule(
             name: "windows-hibernated", source: .linuxTooling,
             patterns: ["hiberfile", "hibernated", "unclean", "dirty"],

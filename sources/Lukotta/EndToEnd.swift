@@ -203,6 +203,7 @@ enum EndToEnd {
         // what is checked is the file on disk rather than anything the first
         // mount still had in memory.
         let writable: [(Int, String)] = [
+            (2, "raw image"),
             (10, "dynamic VHD"),
             (9, "fixed VHD"),
             (11, "VDI"),
@@ -216,6 +217,17 @@ enum EndToEnd {
             print("")
             print("writing to a \(what): \(image.lastPathComponent)")
             writeFlow(image: image)
+        }
+
+        // Writing through encryption: the same drivers underneath, with LUKS
+        // between them and the filesystem. Nothing else here writes to a
+        // volume that had to be unlocked first.
+        for (index, what) in [(5, "qcow2"), (0, "raw image")] where arguments.count > index {
+            let image = URL(fileURLWithPath: arguments[index])
+            guard FileManager.default.fileExists(atPath: image.path) else { continue }
+            print("")
+            print("writing to a LUKS volume inside a \(what): \(image.lastPathComponent)")
+            writeFlow(image: image, passphrase: passphrase)
         }
 
         // And the two that are read and not written: asked for read-write,
@@ -435,7 +447,9 @@ enum EndToEnd {
     /// to survive the mount being torn down, the virtual machine exiting, and
     /// the image being opened again from the file on disk.
     @MainActor
-    private static func writeFlow(image: URL, expectingReadOnly: Bool = false) {
+    private static func writeFlow(
+        image: URL, passphrase: String? = nil, expectingReadOnly: Bool = false
+    ) {
         let contents = "written through \(image.lastPathComponent) at mount time\n"
         let name = "lukotta-write-probe.txt"
 
@@ -468,6 +482,7 @@ enum EndToEnd {
                     condition: { model.phaseIsUnlock && model.chosenFormat != nil })
             else { return }
 
+            if let passphrase { model.credential = passphrase }
             model.unlock(drive)
             guard
                 waitUntil(
@@ -549,6 +564,7 @@ enum EndToEnd {
                 "it is identified again", timeout: 60,
                 condition: { model.phaseIsUnlock && model.chosenFormat != nil })
         else { return }
+        if let passphrase { model.credential = passphrase }
         model.unlock(drive)
         guard
             waitUntil(

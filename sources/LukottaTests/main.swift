@@ -2042,6 +2042,55 @@ group("leftoverEngineHelpersAreTakenDown") {
     expect(!theirs.contains(ours), "and one from another engine is left alone")
 }
 
+group("bitlockerPartWayThroughIsExplained") {
+    // cryptsetup stops before touching a BitLocker volume whose recorded state
+    // is anything but normal, which is what a drive Windows is still
+    // encrypting or decrypting looks like. Nothing is written to one, so the
+    // only thing owed is an explanation.
+    let said = """
+        Command failed with code -1: This BITLK device is in an unsupported \
+        state and cannot be activated.
+        """
+    expect(
+        Diagnosis.rule(for: said)?.name == "bitlocker-mid-conversion",
+        "a drive part-way through conversion is recognised")
+    expect(
+        Diagnosis.rule(for: said)?.message().contains("let BitLocker finish") == true,
+        "and the remedy is to let Windows finish")
+
+    // And it does not swallow the volume that is simply not BitLocker.
+    expect(
+        Diagnosis.rule(for: "Device /dev/disk4s1 is not a valid BITLK device.")?.name
+            == "not-bitlocker",
+        "a partition that is not BitLocker is still reported as that")
+}
+
+group("aFallbackToReadOnlySaysWhy") {
+    // A drive that will not take writes is mounted read-only rather than left
+    // closed. Before the fallback existed the mount failed and the reason was
+    // stated; afterwards the drive opens and the reason has to come from the
+    // same place, or the person is left with a drive that quietly refuses
+    // writes and nothing to act on.
+    let hibernated = """
+        ntfs-3g: Windows is hibernated, refused to mount.
+        LUKOTTA_STAGE:read-only
+        """
+    expect(
+        Diagnosis.rule(for: hibernated)?.name == "windows-hibernated",
+        "a hibernated volume is recognised in the transcript of a fallback")
+    expect(
+        Diagnosis.rule(for: hibernated)?.message().contains("Fast Startup") == true,
+        "and the remedy names the setting to change")
+
+    // Nothing invented where nothing is known: a transcript no rule matches
+    // gives no reason at all, rather than the engine's last line, which beside
+    // a drive that did open would read as a fault.
+    let quiet = "mounted /dev/disk4s1\nLUKOTTA_STAGE:read-only\n"
+    expect(
+        Diagnosis.rule(for: quiet) == nil,
+        "a transcript with nothing to say produces no explanation")
+}
+
 group("theMarkerCannotFireAfterAWritableMount") {
     // `||` and `&&` have equal precedence in the shell and group left to
     // right, so `a || { b ; } && echo m` runs the echo when `a` succeeded.

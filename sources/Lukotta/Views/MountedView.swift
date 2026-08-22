@@ -35,6 +35,16 @@ struct MountedView: View {
                     )
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+                    // Why it is read-only, where that was not what was asked
+                    // for. A drive that will not accept writes and says nothing
+                    // about it leaves the person with nothing to act on, and
+                    // the commonest cause is one Windows setting.
+                    if let reason = model.readOnlyReason {
+                        Text(reason)
+                            .font(.caption).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.top, 2)
+                    }
                 }
             }
 
