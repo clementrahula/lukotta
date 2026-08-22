@@ -183,7 +183,6 @@
     "No reason was reported. The details below may say more.": "Syytä ei ilmoitettu. Alla olevat tiedot voivat kertoa enemmän.",
     "Not a format %@ can open.": "Ei ole muoto, jonka %@ voi avata.",
     "Not found in this build.": "Ei mukana tässä versiossa.",
-    "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Mitään ei asenneta. Moottori sisältyy ohjelmaan, mikään ei poistu Macistasi, ja asemalle kirjoitetaan vain silloin, kun itse kirjoitat sille.",
     "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Kun taustaohjelma on otettu käyttöön, päivittäminen ei koske avattuihin asemiin.",
     "Open": "Avaa",

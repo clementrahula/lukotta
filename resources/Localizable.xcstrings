@@ -4341,10 +4341,7 @@
     "An exFAT image is handed to macOS, which reads and writes that format itself": {
       "localizations": {}
     },
-    "An image opens without an administrator password. It is read in place, nothing is attached to your Mac, and the volume appears in your home folder": {
-      "localizations": {}
-    },
-    "An image opens without an administrator password. It is read where it sits, nothing is attached to your Mac, and the volume appears in your home folder": {
+    "An image opens without an administrator password, and the volume appears in your home folder": {
       "localizations": {}
     },
     "Another drive is open, and the drive engine has to run on its own the first time after it changes. Eject the other drives, open this one, then they can all be open together again.": {
@@ -6558,9 +6555,6 @@
       }
     },
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": {
-      "localizations": {}
-    },
-    "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ makes of each": {
       "localizations": {}
     },
     "Choose a disk image or container file to open.": {
@@ -15951,136 +15945,6 @@
         }
       }
     },
-    "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": {
-      "localizations": {
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Нищо не се инсталира. Двигателят е вътре в приложението, нищо не напуска вашия Mac и на диска се записва само когато вие записвате на него."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nic se neinstaluje. Jádro je součástí aplikace, nic neopouští váš Mac a na disk se zapisuje jen tehdy, když na něj zapisujete vy."
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Der installeres ikke noget. Motoren følger med appen, intet forlader din Mac, og der skrives kun til en enhed, når du selv skriver til den."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Es wird nichts installiert. Die Engine steckt in der App, nichts verlässt deinen Mac, und auf ein Laufwerk wird nur geschrieben, wenn du darauf schreibst."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Δεν εγκαθίσταται τίποτα. Η μηχανή περιέχεται στην εφαρμογή, τίποτα δεν φεύγει από το Mac σας, και σε έναν δίσκο γράφεται μόνο ό,τι γράφετε εσείς."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No se instala nada. El motor viene dentro de la app, nada sale de tu Mac y solo se escribe en un disco cuando tú escribes en él."
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Midagi ei paigaldata. Mootor on rakenduse sees, miski ei lahku sinu Macist ja kettale kirjutatakse ainult siis, kui sa ise sellele kirjutad."
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mitään ei asenneta. Moottori sisältyy ohjelmaan, mikään ei poistu Macistasi, ja asemalle kirjoitetaan vain silloin, kun itse kirjoitat sille."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rien n’est installé. Le moteur est intégré à l’app, rien ne quitte votre Mac, et un disque n’est écrit que lorsque vous y écrivez."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ništa se ne instalira. Pogon dolazi unutar aplikacije, ništa ne napušta vaš Mac, a na disk se zapisuje samo kad vi na njega zapisujete."
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Semmi nem kerül telepítésre. A motor az alkalmazásban van, semmi nem hagyja el a Macet, és a meghajtóra csak akkor ír bármi, ha Ön ír rá."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Non viene installato nulla. Il motore è incluso nell’app, nulla lascia il tuo Mac e su un disco si scrive solo quando ci scrivi tu."
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Niekas nediegiama. Variklis yra programos viduje, niekas neišeina iš jūsų „Mac“, o į diską rašoma tik tada, kai patys į jį rašote."
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nekas netiek instalēts. Dzinējs ir iekļauts lietotnē, nekas neatstāj jūsu Mac datoru, un diskā tiek rakstīts tikai tad, kad jūs pats tajā rakstāt."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ingenting installeres. Motoren følger med appen, ingenting forlater Mac-en din, og det skrives bare til en enhet når du selv skriver til den."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Er wordt niets geïnstalleerd. De engine zit in de app, er verlaat niets je Mac, en er wordt alleen naar een schijf geschreven wanneer jij dat doet."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nic nie jest instalowane. Silnik jest zawarty w aplikacji, nic nie opuszcza Twojego Maca, a na dysk zapisywane jest tylko to, co sam zapiszesz."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nada é instalado. O motor vem dentro da app, nada sai do seu Mac, e só se escreve num disco quando é o utilizador a escrever."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nu se instalează nimic. Motorul este inclus în aplicație, nimic nu părăsește Mac-ul dvs., iar pe un disc se scrie doar când scrieți dvs."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nič se ne namesti. Mehanizem je v aplikaciji, nič ne zapusti vašega Maca, na pogon pa se zapisuje le, ko nanj zapisujete vi."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ingenting installeras. Motorn följer med appen, ingenting lämnar din Mac, och det skrivs bara till en enhet när du själv skriver till den."
-          }
-        }
-      }
-    },
     "OK": {
       "localizations": {
         "bg": {
@@ -19409,9 +19273,6 @@
           }
         }
       }
-    },
-    "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks as one on a drive does": {
-      "localizations": {}
     },
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": {
       "localizations": {}

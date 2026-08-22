@@ -191,7 +191,6 @@
     "No reason was reported. The details below may say more.": "Nu a fost raportat niciun motiv. Detaliile de mai jos ar putea spune mai multe.",
     "Not a format %@ can open.": "Nu este un format pe care %@ îl poate deschide.",
     "Not found in this build.": "Nu există în această versiune.",
-    "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Nu se instalează nimic. Motorul este inclus în aplicație, nimic nu părăsește Mac-ul dvs., iar pe un disc se scrie doar când scrieți dvs.",
     "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "După configurarea asistentului din fundal, actualizarea nu va atinge discurile deblocate.",
     "Open": "Deschideți",

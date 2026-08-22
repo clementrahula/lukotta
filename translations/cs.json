@@ -199,7 +199,6 @@
     "No reason was reported. The details below may say more.": "Nebyl uveden žádný důvod. Podrobnosti níže mohou říct více.",
     "Not a format %@ can open.": "Formát, který %@ neumí otevřít.",
     "Not found in this build.": "V této verzi není obsaženo.",
-    "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Nic se neinstaluje. Jádro je součástí aplikace, nic neopouští váš Mac a na disk se zapisuje jen tehdy, když na něj zapisujete vy.",
     "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Jakmile je pomocník na pozadí nastaven, aktualizace se odemčených disků nedotkne.",
     "Open": "Otevřít",

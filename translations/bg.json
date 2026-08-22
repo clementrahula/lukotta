@@ -183,7 +183,6 @@
     "No reason was reported. The details below may say more.": "Не беше посочена причина. Подробностите по-долу може да кажат повече.",
     "Not a format %@ can open.": "Не е формат, който %@ може да отвори.",
     "Not found in this build.": "Не е налично в тази версия.",
-    "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Нищо не се инсталира. Двигателят е вътре в приложението, нищо не напуска вашия Mac и на диска се записва само когато вие записвате на него.",
     "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "След като фоновият помощник бъде настроен, актуализирането няма да засяга отключените дискове.",
     "Open": "Отвори",

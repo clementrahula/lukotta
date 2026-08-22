@@ -191,7 +191,6 @@
     "No reason was reported. The details below may say more.": "Nije naveden razlog. Pojedinosti u nastavku možda kažu više.",
     "Not a format %@ can open.": "Nije format koji %@ može otvoriti.",
     "Not found in this build.": "Nije uključeno u ovu verziju.",
-    "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Ništa se ne instalira. Pogon dolazi unutar aplikacije, ništa ne napušta vaš Mac, a na disk se zapisuje samo kad vi na njega zapisujete.",
     "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Kad je pomoćnik u pozadini postavljen, ažuriranje neće dirati otključane diskove.",
     "Open": "Otvori",

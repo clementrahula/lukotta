@@ -38,9 +38,6 @@ struct HelpSheet: View {
                         Text(
                             "\(Brand.name) starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can."
                         )
-                        Text(
-                            "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it."
-                        )
                     }
 
                     HelpSection(title: "What it can open") {
@@ -68,7 +65,7 @@ struct HelpSheet: View {
                             "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what \(Brand.name) can do with each"
                         )
                         Bullet(
-                            "An image opens without an administrator password. It is read in place, nothing is attached to your Mac, and the volume appears in your home folder"
+                            "An image opens without an administrator password, and the volume appears in your home folder"
                         )
                         Bullet(
                             "An exFAT image is handed to macOS, which reads and writes that format itself"

@@ -184,7 +184,6 @@
     "No reason was reported. The details below may say more.": "Aucune raison n’a été signalée. Les détails ci-dessous en disent peut-être davantage.",
     "Not a format %@ can open.": "Pas un format que %@ sait ouvrir.",
     "Not found in this build.": "Absent de cette version.",
-    "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Rien n’est installé. Le moteur est intégré à l’app, rien ne quitte votre Mac, et un disque n’est écrit que lorsque vous y écrivez.",
     "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Une fois l’assistant en arrière-plan configuré, une mise à jour laissera les disques déverrouillés tranquilles.",
     "Open": "Ouvrir",

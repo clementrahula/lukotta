@@ -27,14 +27,10 @@
 
 macOS cannot read BitLocker or Linux filesystems. Linux can. So Lukotta starts a
 small Linux virtual machine, unlocks the drive inside it, and hands the drive
-back to Finder.
+back to Finder. The engine ships inside the app and needs no separate install.
 
 A disk image opens the same way, and without an administrator password. The
-image is read where it sits, nothing is attached to your Mac, and the volume
-appears under your own home folder.
-
-Nothing is installed. The engine ships inside the app, nothing leaves your Mac,
-and a drive is only written to when you write to it.
+volume appears under your own home folder.
 
 ## What It Can Open
 
@@ -128,8 +124,7 @@ straight away, with no password asked for.
 
 Eject it from Lukotta, from the menu bar, or from Finder.
 
-Lukotta can remember a passphrase in your Keychain. It does not unless you ask
-it to.
+Lukotta remembers a passphrase in your Keychain when you ask it to.
 
 > [!NOTE]
 > The drive is handed to Finder over a local network connection, so it appears
@@ -163,13 +158,12 @@ The whole path, including how to reproduce a released build, is in
 
 ## Privacy and Security
 
-Nothing is collected. The only request Lukotta makes on its own is a daily check
-for updates, which can be turned off — [PRIVACY.md][privacy] says exactly what
-that involves.
+Lukotta collects nothing. It makes one request of its own, a daily check for
+updates, which can be turned off — [PRIVACY.md][privacy] describes it.
 
-Your passphrase never touches the disk in the clear and never appears in a
+Your passphrase is never written to disk in the clear and never appears in a
 command line. [SECURITY.md][security] describes how it is handled, what the
-privileged helper will and will not accept, and where to report a fault.
+privileged helper accepts, and where to report a fault.
 
 ## Licence
 

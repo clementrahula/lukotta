@@ -183,7 +183,6 @@
     "No reason was reported. The details below may say more.": "Ingen orsak rapporterades. Detaljerna nedan kan säga mer.",
     "Not a format %@ can open.": "Inte ett format som %@ kan öppna.",
     "Not found in this build.": "Finns inte i den här versionen.",
-    "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Ingenting installeras. Motorn följer med appen, ingenting lämnar din Mac, och det skrivs bara till en enhet när du själv skriver till den.",
     "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "När bakgrundshjälpen är konfigurerad lämnar uppdateringar upplåsta enheter i fred.",
     "Open": "Öppna",

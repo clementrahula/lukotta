@@ -183,7 +183,6 @@
     "No reason was reported. The details below may say more.": "Er is geen reden gemeld. De details hieronder zeggen mogelijk meer.",
     "Not a format %@ can open.": "Geen formaat dat %@ kan openen.",
     "Not found in this build.": "Niet aanwezig in deze versie.",
-    "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Er wordt niets geïnstalleerd. De engine zit in de app, er verlaat niets je Mac, en er wordt alleen naar een schijf geschreven wanneer jij dat doet.",
     "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Zodra de achtergrondhelper is ingesteld, laat bijwerken ontgrendelde schijven met rust.",
     "Open": "Open",

@@ -199,7 +199,6 @@
     "No reason was reported. The details below may say more.": "Priežastis nenurodyta. Toliau pateikta informacija gali pasakyti daugiau.",
     "Not a format %@ can open.": "Ne toks formatas, kurį %@ galėtų atverti.",
     "Not found in this build.": "Šioje versijoje nėra.",
-    "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Niekas nediegiama. Variklis yra programos viduje, niekas neišeina iš jūsų „Mac“, o į diską rašoma tik tada, kai patys į jį rašote.",
     "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Kai foninis pagalbininkas nustatytas, naujinimas nepalies atrakintų diskų.",
     "Open": "Atverti",

@@ -183,7 +183,6 @@
     "No reason was reported. The details below may say more.": "Nem érkezett indoklás. Az alábbi részletek többet elárulhatnak.",
     "Not a format %@ can open.": "Nem olyan formátum, amit a(z) %@ meg tud nyitni.",
     "Not found in this build.": "Ebben a verzióban nem található.",
-    "Nothing is installed. The engine ships inside the app, nothing leaves your Mac, and a drive is only written to when you write to it.": "Semmi nem kerül telepítésre. A motor az alkalmazásban van, semmi nem hagyja el a Macet, és a meghajtóra csak akkor ír bármi, ha Ön ír rá.",
     "OK": "OK",
     "Once the background helper is set up, updating will leave unlocked drives alone.": "Ha a háttérsegéd be van állítva, a frissítés nem nyúl a feloldott meghajtókhoz.",
     "Open": "Megnyitás",
