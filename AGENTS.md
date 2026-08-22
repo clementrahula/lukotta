@@ -1,8 +1,5 @@
 # Notes for Coding Agents
 
-**Read the always-loaded notes first.** They are loaded into every session; this file is not.
-What must never be got wrong lives there.
-
 This file lists the things about Lukotta that mislead: commands that report the
 wrong thing, conventions that differ from the default, and rules that look like
 details and are not.
