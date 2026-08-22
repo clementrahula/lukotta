@@ -171,9 +171,6 @@ public enum MountScript {
             lines.append("export DYLD_FALLBACK_LIBRARY_PATH=\(shellQuoted(libs))")
         }
 
-        // `do shell script … with administrator privileges` runs the command
-        // directly as root rather than through sudo, so these are absent and the
-        // engine refuses to start with "must not be run directly by root".
         // Only when elevated. `do shell script ... with administrator
         // privileges` runs as root rather than through sudo, so SUDO_UID and
         // SUDO_GID are absent and the engine refuses to start ("must not be run
@@ -198,9 +195,26 @@ public enum MountScript {
         // The baseline every attempt is judged against.
         lines.append("__mounts=$(\(mountCount))")
 
-        lines.append(
-            attempts(i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
-                .joined(separator: " || "))
+        var chain = attempts(i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
+
+        // A drive that will not mount read-write often mounts read-only: a
+        // volume Windows left hibernated, a card with its write-protect switch
+        // set, an image file on a read-only volume, or a filesystem whose log
+        // needs replaying before it can be written to. Where read-write was
+        // asked for and every attempt at it failed, the same attempts are made
+        // again read-only rather than reporting a drive that cannot be opened.
+        //
+        // The marker says which happened, so the drive is never presented as
+        // writable when it is not.
+        if !i.readOnly {
+            var readOnly = i
+            readOnly.readOnly = true
+            let retry = attempts(readOnly, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
+            chain += retry.map {
+                "{ \($0) ; } && echo \"\(stageMarker)read-only\" >> \(logQ)"
+            }
+        }
+        lines.append(chain.joined(separator: " || "))
         lines.append("__rc=$?")
         lines.append("unset __cred")
         lines.append("exit $__rc")

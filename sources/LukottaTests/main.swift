@@ -461,8 +461,8 @@ group("mountStages") {
     expect(!checked.contains("disk4s1.local:"), "the check does not guess the share's name")
     let checkedMS = MountScript.build(sampleInputs(kind: .microsoft))
     expect(
-        checkedMS.components(separatedBy: "-gt \"$__mounts\"").count - 1 == 2,
-        "both NTFS driver attempts are verified, so the retry can be reached")
+        checkedMS.components(separatedBy: "-gt \"$__mounts\"").count - 1 == 4,
+        "every attempt is verified: both NTFS drivers, then both again read-only")
 
     // A pty echoes what is written to it, so the engine's own output can carry
     // the passphrase back. Shape-matching cannot catch an ordinary one, so the
@@ -2044,10 +2044,28 @@ group("readOnlyIsBothSidesOfTheConnection") {
         linux.contains("-v ro='-o ro '"),
         "the generated multi-volume action mounts each volume read-only")
 
-    // The ordinary case must be untouched by any of this.
+    // Asking for read-only means read-only throughout: no attempt in the chain
+    // may fall back to a writable mount.
+    expect(
+        !script.contains("LUKOTTA_STAGE:read-only"),
+        "a mount asked for read-only needs no marker, being read-only from the start")
+
+    // A read-write mount tries read-write first and only then read-only, so the
+    // order in the chain is what makes the fallback a fallback.
     let plain = MountScript.build(sampleInputs())
-    expect(!plain.contains("-o ro"), "a read-write mount says nothing about ro")
-    expect(!plain.contains("nfs-export-opts"), "and leaves the export as the engine has it")
+    let firstRO = plain.range(of: "-o ro").map {
+        plain.distance(from: plain.startIndex, to: $0.lowerBound)
+    }
+    let firstRW = plain.range(of: "mount --ignore-permissions").map {
+        plain.distance(from: plain.startIndex, to: $0.lowerBound)
+    }
+    expect(firstRO != nil, "a read-write mount carries read-only attempts after its own")
+    expect(
+        (firstRW ?? 0) < (firstRO ?? 0),
+        "and tries writable first, so read-only is reached only when that fails")
+    expect(
+        plain.contains("LUKOTTA_STAGE:read-only"),
+        "a fallback that succeeds says so, so the drive is never called writable when it is not")
 }
 
 print("\n\(checks - failures)/\(checks) checks passed")
