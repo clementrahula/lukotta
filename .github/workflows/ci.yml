@@ -14,6 +14,11 @@ name: CI
 #
 # scripts/e2e.sh is not run. It needs that same virtual machine and Full Disk
 # Access besides. It runs on a real Mac.
+#
+# The screens are not compared here either. A baseline is a picture of what one
+# machine drew: a runner has a different macOS build and draws every screen
+# differently, so all of them differ and none of the differences mean anything.
+# scripts/snapshots.sh compares them where they were recorded.
 
 on:
   push:
@@ -58,9 +63,6 @@ jobs:
         run: |
           "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker" --smoke-test
 
-      - name: Screens
-        run: ./scripts/snapshots.sh
-
       - name: Recovery-key validator
         run: ./scripts/test-key-validator.sh
 
@@ -68,13 +70,3 @@ jobs:
         run: |
           brew install shellcheck swift-format
           ./scripts/lint.sh
-
-      # What was drawn when it did not match, so a difference can be judged
-      # rather than guessed at.
-      - name: Keep the screens that differed
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: screens
-          path: tests/snapshots
-          retention-days: 7
