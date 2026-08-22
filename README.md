@@ -62,6 +62,14 @@ An exFAT image is handed to macOS, which reads and writes that format itself.
 [SPECS.md][specs] specifies every filesystem, encryption and image format, what
 is written and what is not, and how each is read.
 
+> [!WARNING]
+> **Writing to qcow2, VMDK, VDI and VHD images is untested.** These drivers were
+> written for Lukotta and are checked against `qemu-img` on every build, but
+> they have not been in use long enough for anyone to call them proven. Writing
+> to an image is at your own risk: open it read-only to copy files out safely,
+> or make a backup first. Reading has been verified for far longer, and a VHDX
+> is never written at all.
+
 <details>
 <summary>What it cannot open</summary>
 
