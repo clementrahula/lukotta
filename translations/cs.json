@@ -85,15 +85,15 @@
       }
     },
     "This drive holds %lld volumes and not all of them could be opened.": {
+      "cs": {
+        "few": "Tento disk obsahuje %lld svazky a ne všechny se podařilo otevřít.",
+        "many": "Tento disk obsahuje %lld svazku a ne všechny se podařilo otevřít.",
+        "one": "Tento disk obsahuje %lld svazek a nepodařilo se jej otevřít.",
+        "other": "Tento disk obsahuje %lld svazků a ne všechny se podařilo otevřít."
+      },
       "en": {
         "one": "This drive holds %lld volume and it could not be opened.",
         "other": "This drive holds %lld volumes and not all of them could be opened."
-      },
-      "cs": {
-        "one": "Tento disk obsahuje %lld svazek a nepodařilo se jej otevřít.",
-        "few": "Tento disk obsahuje %lld svazky a ne všechny se podařilo otevřít.",
-        "many": "Tento disk obsahuje %lld svazku a ne všechny se podařilo otevřít.",
-        "other": "Tento disk obsahuje %lld svazků a ne všechny se podařilo otevřít."
       }
     }
   },
@@ -339,9 +339,12 @@
     "unlocked": "odemčený",
     "waiting": "čeká",
     "“%@” could not be read.": "„%@“ se nepodařilo přečíst.",
+    "“%@” does not hold as much as it says it does, so it may be damaged or unfinished.": "„%@“ neobsahuje tolik, kolik uvádí, takže může být poškozený nebo nedokončený.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ přestal odpovídat a byl odpojen. Můžete jej otevřít znovu.",
-    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@“ obsahuje šifrovaný svazek uvnitř qcow2, který engine neumí otevřít. Pomohl by převod na surový obraz, případně otevřete disk, ze kterého vznikl.",
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@“ obsahuje šifrovaný svazek, který tato verze enginu neumí otevřít uvnitř obrazu disku. Otevřete disk, ze kterého vznikl.",
+    "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "„%1$@“ obsahuje jen změny oproti jinému disku, který pojmenovává. %2$@ neotevírá obrazy odkazující na jiné soubory.",
+    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "„%1$@“ je VHDX, který %2$@ neumí otevřít. Fungoval by VHD, surový obraz nebo qcow2.",
+    "“%@” is a dynamic VHD, which %@ cannot open yet. A fixed VHD, a raw image or a qcow2 would work.": "„%1$@“ je dynamický VHD, který %2$@ zatím neumí otevřít. Fungoval by pevný VHD, surový obraz nebo qcow2.",
     "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "„%1$@“ je řídký VMDK, který %2$@ neumí otevřít. Fungoval by plochý VMDK nebo surový obraz.",
     "“%@” is marked as damaged. Repair it before opening it.": "„%@“ je označen jako poškozený. Před otevřením jej opravte.",
     "“%@” is not a disk image this app can read.": "„%@“ není obraz disku, který tato aplikace umí přečíst.",

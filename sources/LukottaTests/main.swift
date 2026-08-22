@@ -1804,6 +1804,38 @@ group("aVmdkNamesAnotherFileByDesign") {
     expect(noisy.extents.isEmpty, "a commented-out extent is not an extent")
 }
 
+group("aFixedVhdIsAlreadyRaw") {
+    // A fixed VHD is the raw disk followed by a 512-byte footer, so every
+    // partition table and superblock is at its natural offset and the engine
+    // opens one with no format support at all. The other kinds are not raw and
+    // would be served as gibberish, so they are told apart here.
+    func footer(kind: UInt32, size: UInt64) -> Data {
+        var bytes = [UInt8](repeating: 0, count: 512)
+        for (i, b) in Array("conectix".utf8).enumerated() { bytes[i] = b }
+        for i in 0..<8 { bytes[48 + i] = UInt8((size >> (8 * (7 - UInt64(i)))) & 0xFF) }
+        for i in 0..<4 { bytes[60 + i] = UInt8((kind >> (8 * (3 - UInt32(i)))) & 0xFF) }
+        return Data(bytes)
+    }
+
+    let fixed = VhdFooter.parse(footer(kind: 2, size: 1024))
+    expect(fixed?.kind == .fixed, "a fixed VHD is recognised")
+    expect("\(fixed?.currentSize ?? 0)", "1024", "and says how much disk it holds")
+
+    expect(VhdFooter.parse(footer(kind: 3, size: 1024))?.kind == .dynamic, "dynamic too")
+    expect(
+        VhdFooter.parse(footer(kind: 4, size: 1024))?.kind == .differencing,
+        "and differencing, which names a parent disk")
+
+    // A type nobody has defined is not guessed at.
+    expect(VhdFooter.parse(footer(kind: 9, size: 1024))?.kind == nil, "an unknown type is unknown")
+
+    // Without the cookie it is not a VHD at all, whatever it is called.
+    var noCookie = [UInt8](repeating: 0, count: 512)
+    noCookie[0] = 0x41
+    expect(VhdFooter.parse(Data(noCookie)) == nil, "no cookie, no footer")
+    expect(VhdFooter.parse(Data(repeating: 0, count: 8)) == nil, "and a short read is not one")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

@@ -76,6 +76,21 @@ enum EndToEnd {
             }
         }
 
+        if arguments.count >= 11 {
+            let fixed = URL(fileURLWithPath: arguments[9])
+            let dynamic = URL(fileURLWithPath: arguments[10])
+            if FileManager.default.fileExists(atPath: fixed.path) {
+                print("")
+                print("fixed VHD: \(fixed.lastPathComponent)")
+                qcow2Flow(image: fixed, passphrase: nil)
+            }
+            if FileManager.default.fileExists(atPath: dynamic.path) {
+                print("")
+                print("dynamic VHD: \(dynamic.lastPathComponent)")
+                refusedByNameFlow(image: dynamic, saying: "dynamic VHD")
+            }
+        }
+
         if arguments.count >= 7 {
             let hostile = URL(fileURLWithPath: arguments[6])
             if FileManager.default.fileExists(atPath: hostile.path) {
@@ -367,6 +382,33 @@ enum EndToEnd {
     /// libkrun opens whatever an image names — a backing file, an external
     /// data file — so a file handed to this app could otherwise choose which
     /// other files the virtual machine reads.
+    /// An image whose data is not laid out as raw must be refused by name, not
+    /// handed to the engine to be read as gibberish.
+    @MainActor
+    private static func refusedByNameFlow(image: URL, saying phrase: String) {
+        let model = AppModel()
+        model.start()
+        guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
+            return
+        }
+        model.openImage(image)
+        guard
+            waitUntil(
+                "it is refused", timeout: 60,
+                condition: {
+                    if case .failed = model.imageOpening { return true }
+                    if model.drives.contains(where: { $0.uuid == image.path }) { return true }
+                    return false
+                })
+        else { return }
+        guard case .failed(_, let why) = model.imageOpening else {
+            check(false, "an image that is not laid out as raw is refused, not listed")
+            return
+        }
+        check(why.contains(phrase), "and the reason names it: \(phrase)")
+        check(!model.phaseIsUnlock, "and no passphrase was asked for it")
+    }
+
     @MainActor
     private static func hostileFlow(image: URL) {
         let model = AppModel()
@@ -455,7 +497,7 @@ enum EndToEnd {
 
         check(
             DiskImage.attachedDevices(forImages: [image.path]).isEmpty,
-            "and nothing was attached, because macOS cannot read a qcow2")
+            "and nothing was attached, because macOS cannot read this kind of image")
 
         if let passphrase {
             check(sawTheQuestion || model.phaseIsUnlock, "an encrypted one asks for a passphrase")

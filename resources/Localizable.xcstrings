@@ -34929,6 +34929,136 @@
         }
       }
     },
+    "“%@” does not hold as much as it says it does, so it may be damaged or unfinished.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ не съдържа толкова, колкото твърди, така че може да е повреден или незавършен."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ neobsahuje tolik, kolik uvádí, takže může být poškozený nebo nedokončený."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” indeholder ikke så meget, som den angiver, så den kan være beskadiget eller ufærdig."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ enthält nicht so viel, wie angegeben, und ist daher möglicherweise beschädigt oder unvollständig."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%@» δεν περιέχει όσα δηλώνει, οπότε μπορεί να είναι κατεστραμμένο ή ημιτελές."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» no contiene todo lo que dice contener, así que puede estar dañado o incompleto."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ ei sisalda nii palju, kui väidab, seega võib see olla rikutud või pooleli."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” ei sisällä niin paljon kuin se ilmoittaa, joten se voi olla vaurioitunut tai keskeneräinen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » ne contient pas tout ce qu’il annonce ; il est peut-être endommagé ou incomplet."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” ne sadrži onoliko koliko tvrdi, pa je možda oštećen ili nedovršen."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%@” nem tartalmaz annyit, amennyit állít, ezért sérült vagy befejezetlen lehet."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» non contiene quanto dichiara, quindi potrebbe essere danneggiato o incompleto."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ turi mažiau, nei nurodo, todėl gali būti sugadintas arba nebaigtas."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” nesatur tik daudz, cik norāda, tāpēc tas var būt bojāts vai nepabeigts."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» inneholder ikke så mye som den oppgir, så den kan være skadet eller uferdig."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’ bevat niet zoveel als het aangeeft, dus het is mogelijk beschadigd of onvoltooid."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” nie zawiera tylu danych, ile deklaruje, więc może być uszkodzony lub niedokończony."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» não contém tanto quanto indica, pelo que pode estar danificado ou incompleto."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” nu conține atât cât declară, așa că poate fi deteriorat sau neterminat."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%@« ne vsebuje toliko, kot navaja, zato je morda poškodovan ali nedokončan."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” innehåller inte så mycket som den uppger, så den kan vara skadad eller ofärdig."
+          }
+        }
+      }
+    },
     "“%@” had stopped responding and was disconnected. You can open it again.": {
       "localizations": {
         "bg": {
@@ -35059,136 +35189,6 @@
         }
       }
     },
-    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": {
-      "localizations": {
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@“ съдържа шифрован том в qcow2, който двигателят не може да отвори. Преобразуването в суров образ би помогнало, или отворете диска, от който е направен."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@“ obsahuje šifrovaný svazek uvnitř qcow2, který engine neumí otevřít. Pomohl by převod na surový obraz, případně otevřete disk, ze kterého vznikl."
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "“%@” indeholder en krypteret enhed inde i en qcow2, som drevmotoren ikke kan åbne. En konvertering til et råt image ville virke, eller åbn den disk, den er lavet af."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@“ enthält ein verschlüsseltes Volume in einer qcow2-Datei, die das Laufwerk-Modul nicht öffnen kann. Eine Umwandlung in ein Rohimage würde funktionieren, oder öffne das Laufwerk, aus dem es erstellt wurde."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Το «%@» περιέχει κρυπτογραφημένο τόμο μέσα σε qcow2, το οποίο η μηχανή δεν μπορεί να ανοίξει. Η μετατροπή σε ακατέργαστο είδωλο θα λειτουργούσε, ή ανοίξτε τον δίσκο από τον οποίο δημιουργήθηκε."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» contiene un volumen cifrado dentro de un qcow2, que el motor no puede abrir. Convertirlo a una imagen sin formato funcionaría, o abre el disco del que se creó."
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@“ sisaldab krüptitud köidet qcow2 sees, mida mootor avada ei suuda. Toimiks teisendamine töötlemata tõmmiseks või ava ketas, millest see tehti."
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "”%@” sisältää salatun taltion qcow2-tiedoston sisällä, jota moottori ei osaa avata. Muuntaminen raakalevykuvaksi toimisi, tai avaa asema, josta se on tehty."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "« %@ » contient un volume chiffré dans un qcow2, que le moteur ne sait pas ouvrir. Une conversion en image brute fonctionnerait, ou ouvrez le disque dont il provient."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@” sadrži šifriranu jedinicu unutar qcow2, koju pogon ne može otvoriti. Pretvorba u sirovu sliku bi uspjela, ili otvorite disk iz kojeg je nastala."
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A(z) „%@” egy qcow2-n belüli titkosított kötetet tartalmaz, amelyet a motor nem tud megnyitni. A nyers képpé alakítás működne, vagy nyissa meg azt a meghajtót, amelyből készült."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» contiene un volume cifrato dentro un qcow2, che il motore non sa aprire. Convertirlo in un’immagine grezza funzionerebbe, oppure apri il disco da cui è stato creato."
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@“ turi šifruotą tomą qcow2 viduje, kurio variklis atverti negali. Padėtų konvertavimas į neapdorotą atvaizdį arba atverkite diską, iš kurio jis sukurtas."
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "“%@” satur šifrētu sējumu qcow2 iekšpusē, ko dzinējs nespēj atvērt. Palīdzētu pārveidošana neapstrādātā attēlā vai atveriet disku, no kura tas izveidots."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» inneholder en kryptert enhet inne i en qcow2, som motoren ikke kan åpne. Konvertering til et råbilde ville fungere, eller åpne disken den ble laget av."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "‘%@’ bevat een versleuteld volume in een qcow2, dat de schijfmodule niet kan openen. Omzetten naar een onbewerkte schijfkopie zou werken, of open de schijf waarvan die is gemaakt."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@” zawiera zaszyfrowany wolumin wewnątrz qcow2, którego silnik nie potrafi otworzyć. Pomogłaby konwersja na surowy obraz albo otwarcie dysku, z którego powstał."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» contém um volume encriptado dentro de um qcow2, que o motor não consegue abrir. Converter para uma imagem em bruto resultaria, ou abra o disco a partir do qual foi criado."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@” conține un volum criptat într-un qcow2, pe care motorul nu îl poate deschide. Conversia într-o imagine brută ar funcționa, sau deschideți discul din care a fost creat."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "»%@« vsebuje šifriran nosilec znotraj qcow2, ki ga pogon ne zna odpreti. Pretvorba v surovo sliko bi delovala, ali pa odprite pogon, iz katerega je nastal."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "”%@” innehåller en krypterad volym inuti en qcow2, som motorn inte kan öppna. Konvertering till en råavbild skulle fungera, eller öppna disken den skapades från."
-          }
-        }
-      }
-    },
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": {
       "localizations": {
         "bg": {
@@ -35315,6 +35315,396 @@
           "stringUnit": {
             "state": "translated",
             "value": "”%@” innehåller en krypterad volym som den här versionen av motorn inte kan öppna inuti en skivavbild. Öppna disken den skapades från."
+          }
+        }
+      }
+    },
+    "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ съдържа само промените спрямо друг диск, който назовава. %2$@ не отваря образи, които сочат към други файлове."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ obsahuje jen změny oproti jinému disku, který pojmenovává. %2$@ neotevírá obrazy odkazující na jiné soubory."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” indeholder kun ændringerne fra en anden disk, som den henviser til. %2$@ åbner ikke diskbilleder, der henviser til andre filer."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ enthält nur die Änderungen gegenüber einer anderen Festplatte, die sie benennt. %2$@ öffnet keine Images, die andere Dateien benennen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%1$@» περιέχει μόνο τις αλλαγές από άλλον δίσκο, τον οποίο κατονομάζει. Το %2$@ δεν ανοίγει είδωλα που παραπέμπουν σε άλλα αρχεία."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» solo contiene los cambios respecto a otro disco, al que nombra. %2$@ no abre imágenes que nombren otros archivos."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ sisaldab ainult muudatusi teise ketta suhtes, mille see nimetab. %2$@ ei ava tõmmiseid, mis nimetavad teisi faile."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” sisältää vain muutokset toiseen levyyn nähden, jonka se nimeää. %2$@ ei avaa levytiedostoja, jotka nimeävät muita tiedostoja."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %1$@ » ne contient que les modifications par rapport à un autre disque, qu’il désigne. %2$@ n’ouvre pas les images qui désignent d’autres fichiers."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” sadrži samo promjene u odnosu na drugi disk, koji imenuje. %2$@ ne otvara slike koje imenuju druge datoteke."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%1$@” csak egy másik lemezhez képest történt változásokat tartalmazza, amelyet meg is nevez. A(z) %2$@ nem nyit meg olyan lemezképeket, amelyek más fájlokat neveznek meg."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» contiene solo le modifiche rispetto a un altro disco, che nomina. %2$@ non apre immagini che nominano altri file."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ turi tik pakeitimus, palyginti su kitu disku, kurį nurodo. %2$@ neatveria atvaizdžių, nurodančių kitus failus."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” satur tikai izmaiņas attiecībā pret citu disku, ko tas nosauc. %2$@ neatver attēlus, kas nosauc citus failus."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» inneholder bare endringene fra en annen disk, som den navngir. %2$@ åpner ikke diskbilder som navngir andre filer."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%1$@’ bevat alleen de wijzigingen ten opzichte van een andere schijf, die erin genoemd wordt. %2$@ opent geen schijfkopieën die andere bestanden noemen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” zawiera tylko zmiany względem innego dysku, który wskazuje. %2$@ nie otwiera obrazów wskazujących inne pliki."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» contém apenas as alterações em relação a outro disco, que nomeia. O %2$@ não abre imagens que nomeiem outros ficheiros."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” conține doar modificările față de un alt disc, pe care îl numește. %2$@ nu deschide imagini care numesc alte fișiere."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%1$@« vsebuje samo spremembe glede na drug disk, ki ga imenuje. %2$@ ne odpira slik, ki imenujejo druge datoteke."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” innehåller bara ändringarna från en annan disk, som den namnger. %2$@ öppnar inte avbilder som namnger andra filer."
+          }
+        }
+      }
+    },
+    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ е VHDX, който %2$@ не може да отвори. Биха работили VHD, суров образ или qcow2."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ je VHDX, který %2$@ neumí otevřít. Fungoval by VHD, surový obraz nebo qcow2."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” er en VHDX, som %2$@ ikke kan åbne. En VHD, et råt image eller en qcow2 ville virke."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ ist eine VHDX, die %2$@ nicht öffnen kann. Eine VHD, ein Rohimage oder eine qcow2-Datei würden funktionieren."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%1$@» είναι VHDX, το οποίο το %2$@ δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα VHD, ένα ακατέργαστο είδωλο ή ένα qcow2."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» es un VHDX, que %2$@ no puede abrir. Funcionaría un VHD, una imagen sin formato o un qcow2."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ on VHDX, mida %2$@ avada ei suuda. Toimiks VHD, töötlemata tõmmis või qcow2."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” on VHDX, jota %2$@ ei osaa avata. VHD, raakalevykuva tai qcow2 toimisi."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %1$@ » est un VHDX, que %2$@ ne sait pas ouvrir. Un VHD, une image brute ou un qcow2 fonctionneraient."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” je VHDX, koji %2$@ ne može otvoriti. Uspjeli bi VHD, sirova slika ili qcow2."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%1$@” egy VHDX, amelyet a(z) %2$@ nem tud megnyitni. Egy VHD, egy nyers kép vagy egy qcow2 működne."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» è un VHDX, che %2$@ non sa aprire. Funzionerebbero un VHD, un’immagine grezza o un qcow2."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ yra VHDX, kurio %2$@ atverti negali. Tiktų VHD, neapdorotas atvaizdis arba qcow2."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” ir VHDX, ko %2$@ nespēj atvērt. Derētu VHD, neapstrādāts attēls vai qcow2."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» er en VHDX, som %2$@ ikke kan åpne. En VHD, et råbilde eller en qcow2 ville fungere."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%1$@’ is een VHDX, die %2$@ niet kan openen. Een VHD, een onbewerkte schijfkopie of een qcow2 zou wel werken."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” to VHDX, którego %2$@ nie potrafi otworzyć. Zadziałałby VHD, surowy obraz albo qcow2."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» é um VHDX, que o %2$@ não consegue abrir. Um VHD, uma imagem em bruto ou um qcow2 resultariam."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” este un VHDX, pe care %2$@ nu îl poate deschide. Ar funcționa un VHD, o imagine brută sau un qcow2."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%1$@« je VHDX, ki ga %2$@ ne zna odpreti. Delovali bi VHD, surova slika ali qcow2."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” är en VHDX, som %2$@ inte kan öppna. En VHD, en råavbild eller en qcow2 skulle fungera."
+          }
+        }
+      }
+    },
+    "“%@” is a dynamic VHD, which %@ cannot open yet. A fixed VHD, a raw image or a qcow2 would work.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ е динамичен VHD, който %2$@ още не може да отвори. Биха работили фиксиран VHD, суров образ или qcow2."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ je dynamický VHD, který %2$@ zatím neumí otevřít. Fungoval by pevný VHD, surový obraz nebo qcow2."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” er en dynamisk VHD, som %2$@ endnu ikke kan åbne. En fast VHD, et råt image eller en qcow2 ville virke."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ ist eine dynamische VHD, die %2$@ noch nicht öffnen kann. Eine feste VHD, ein Rohimage oder eine qcow2-Datei würden funktionieren."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%1$@» είναι δυναμικό VHD, το οποίο το %2$@ δεν μπορεί ακόμη να ανοίξει. Θα λειτουργούσε ένα σταθερό VHD, ένα ακατέργαστο είδωλο ή ένα qcow2."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» es un VHD dinámico, que %2$@ todavía no puede abrir. Funcionaría un VHD fijo, una imagen sin formato o un qcow2."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ on dünaamiline VHD, mida %2$@ veel avada ei suuda. Toimiks püsimahuline VHD, töötlemata tõmmis või qcow2."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” on dynaaminen VHD, jota %2$@ ei vielä osaa avata. Kiinteä VHD, raakalevykuva tai qcow2 toimisi."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %1$@ » est un VHD dynamique, que %2$@ ne sait pas encore ouvrir. Un VHD fixe, une image brute ou un qcow2 fonctionneraient."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” je dinamički VHD, koji %2$@ još ne može otvoriti. Uspjeli bi fiksni VHD, sirova slika ili qcow2."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%1$@” egy dinamikus VHD, amelyet a(z) %2$@ még nem tud megnyitni. Egy rögzített méretű VHD, egy nyers kép vagy egy qcow2 működne."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» è un VHD dinamico, che %2$@ non sa ancora aprire. Funzionerebbero un VHD fisso, un’immagine grezza o un qcow2."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ yra dinaminis VHD, kurio %2$@ dar negali atverti. Tiktų fiksuoto dydžio VHD, neapdorotas atvaizdis arba qcow2."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” ir dinamisks VHD, ko %2$@ vēl nespēj atvērt. Derētu fiksēts VHD, neapstrādāts attēls vai qcow2."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» er en dynamisk VHD, som %2$@ ennå ikke kan åpne. En fast VHD, et råbilde eller en qcow2 ville fungere."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%1$@’ is een dynamische VHD, die %2$@ nog niet kan openen. Een vaste VHD, een onbewerkte schijfkopie of een qcow2 zou wel werken."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” to dynamiczny VHD, którego %2$@ nie potrafi jeszcze otworzyć. Zadziałałby VHD o stałym rozmiarze, surowy obraz albo qcow2."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» é um VHD dinâmico, que o %2$@ ainda não consegue abrir. Um VHD fixo, uma imagem em bruto ou um qcow2 resultariam."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” este un VHD dinamic, pe care %2$@ nu îl poate deschide încă. Ar funcționa un VHD fix, o imagine brută sau un qcow2."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%1$@« je dinamični VHD, ki ga %2$@ še ne zna odpreti. Delovali bi VHD s stalno velikostjo, surova slika ali qcow2."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” är en dynamisk VHD, som %2$@ inte kan öppna ännu. En fast VHD, en råavbild eller en qcow2 skulle fungera."
           }
         }
       }

@@ -90,9 +90,9 @@
         "other": "This drive holds %lld volumes and not all of them could be opened."
       },
       "pl": {
-        "one": "Ten dysk zawiera %lld wolumin i nie udało się go otworzyć.",
         "few": "Ten dysk zawiera %lld woluminy i nie wszystkie udało się otworzyć.",
         "many": "Ten dysk zawiera %lld woluminów i nie wszystkie udało się otworzyć.",
+        "one": "Ten dysk zawiera %lld wolumin i nie udało się go otworzyć.",
         "other": "Ten dysk zawiera %lld woluminu i nie wszystkie udało się otworzyć."
       }
     }
@@ -339,9 +339,12 @@
     "unlocked": "odblokowany",
     "waiting": "oczekiwanie",
     "“%@” could not be read.": "Nie udało się odczytać „%@”.",
+    "“%@” does not hold as much as it says it does, so it may be damaged or unfinished.": "„%@” nie zawiera tylu danych, ile deklaruje, więc może być uszkodzony lub niedokończony.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” przestał odpowiadać i został odłączony. Możesz otworzyć go ponownie.",
-    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@” zawiera zaszyfrowany wolumin wewnątrz qcow2, którego silnik nie potrafi otworzyć. Pomogłaby konwersja na surowy obraz albo otwarcie dysku, z którego powstał.",
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@” zawiera zaszyfrowany wolumin, którego ta wersja silnika nie potrafi otworzyć wewnątrz obrazu dysku. Otwórz dysk, z którego powstał.",
+    "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "„%1$@” zawiera tylko zmiany względem innego dysku, który wskazuje. %2$@ nie otwiera obrazów wskazujących inne pliki.",
+    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "„%1$@” to VHDX, którego %2$@ nie potrafi otworzyć. Zadziałałby VHD, surowy obraz albo qcow2.",
+    "“%@” is a dynamic VHD, which %@ cannot open yet. A fixed VHD, a raw image or a qcow2 would work.": "„%1$@” to dynamiczny VHD, którego %2$@ nie potrafi jeszcze otworzyć. Zadziałałby VHD o stałym rozmiarze, surowy obraz albo qcow2.",
     "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "„%1$@” to rzadki VMDK, którego %2$@ nie potrafi otworzyć. Płaski VMDK lub surowy obraz zadziała.",
     "“%@” is marked as damaged. Repair it before opening it.": "„%@” jest oznaczony jako uszkodzony. Napraw go przed otwarciem.",
     "“%@” is not a disk image this app can read.": "„%@” nie jest obrazem dysku, który ta aplikacja potrafi odczytać.",

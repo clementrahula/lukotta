@@ -48,20 +48,23 @@ live, and which we can build.
 
 ---
 
-## Fixed VHD already works
+## Fixed VHD already works — and is now shipped
 
-**No code at all.** A fixed VHD is the raw disk followed by a 512-byte footer.
-Every partition table and superblock sits at its natural offset, and the trailing
-footer is simply ignored.
+**No code in the engine at all.** A fixed VHD is the raw disk followed by a
+512-byte footer. Every partition table and superblock sits at its natural
+offset, and the trailing footer is simply ignored.
 
 Tested: a 320 MB btrfs image with a proper `conectix` footer appended is listed
 and mounted by the engine as it stands.
 
     0:   btrfs LUKOTTAPLAIN   +335.5 MB   fixed.vhd
 
-All that is missing is for the app to accept the extension and hand it over as
-raw. **That is an afternoon, not a project**, and fixed VHDs are what most
-"export this VM" flows produce.
+Shipped in `Vhd.swift`: the footer is read, the disk type checked, and the file
+handed over as raw. A dynamic VHD (type 3) and a differencing one (type 4) are
+refused by name rather than served as gibberish, as is a VHDX, and so is a file
+whose footer claims more disk than the file holds. `scripts/make-vhd.py` writes
+both kinds, and the end-to-end run mounts the fixed one and refuses the dynamic
+one. Fixed VHDs are what most "export this VM" flows produce.
 
 ## What each of the others costs
 
@@ -79,7 +82,7 @@ VMDK driver is 743 lines and raw is 379.
 
 ## What I would do
 
-1. **Ship fixed VHD now.** It works; the app only has to accept `.vhd` and pass
+1. ~~**Ship fixed VHD now.**~~ *Done.* It works; the app only has to accept `.vhd` and pass
    it through as raw. Guard it by checking for the `conectix` footer and a disk
    type of 2, so a dynamic VHD is refused by name rather than mounted as
    nonsense.

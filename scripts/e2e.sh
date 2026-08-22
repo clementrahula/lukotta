@@ -104,6 +104,14 @@ fi
 VMDK_BAD="$CACHE/reaches-out.vmdk"
 [ -f "$VMDK_BAD" ] || printf '# Disk DescriptorFile\nversion=1\ncreateType="monolithicFlat"\n\nRW 4096 FLAT "/etc/passwd" 0\n' > "$VMDK_BAD"
 
+# A fixed VHD is the raw disk followed by a 512-byte footer, so the engine reads
+# it as-is. The dynamic one stores its data in blocks listed by an allocation
+# table, so it must be refused rather than served as gibberish.
+VHD="$CACHE/plain.vhd"
+VHD_DYNAMIC="$CACHE/dynamic.vhd"
+[ -f "$VHD" ] || "$HERE/scripts/make-vhd.py" "$PLAIN" "$VHD" >/dev/null
+[ -f "$VHD_DYNAMIC" ] || "$HERE/scripts/make-vhd.py" "$PLAIN" "$VHD_DYNAMIC" --dynamic >/dev/null
+
 # An image that names another file, which must be refused rather than opened.
 HOSTILE="$CACHE/names-another-file.qcow2"
 [ -f "$HOSTILE" ] || "$HERE/scripts/make-qcow2.py" --hostile "$HOSTILE" "$HOME/.ssh/id_rsa" >/dev/null
@@ -116,4 +124,4 @@ done < <(hdiutil info 2>/dev/null | awk -v c="$CONTAINER" -v p="$PLAIN" -v e="$E
   /^image-path/ { path = $3 }
   /^\/dev\/disk[0-9]+\t/ { if (path == c || path == p || path == e) print $1 }')
 
-"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC" "$HOSTILE" "$VMDK" "$VMDK_BAD"
+"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC" "$HOSTILE" "$VMDK" "$VMDK_BAD" "$VHD" "$VHD_DYNAMIC"

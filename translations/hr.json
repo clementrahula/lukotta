@@ -83,8 +83,8 @@
         "other": "This drive holds %lld volumes and not all of them could be opened."
       },
       "hr": {
-        "one": "Ovaj disk sadrži %lld jedinicu i nije ju bilo moguće otvoriti.",
         "few": "Ovaj disk sadrži %lld jedinice i nisu se sve mogle otvoriti.",
+        "one": "Ovaj disk sadrži %lld jedinicu i nije ju bilo moguće otvoriti.",
         "other": "Ovaj disk sadrži %lld jedinica i nisu se sve mogle otvoriti."
       }
     }
@@ -331,9 +331,12 @@
     "unlocked": "otključan",
     "waiting": "čeka",
     "“%@” could not be read.": "„%@” nije se moglo pročitati.",
+    "“%@” does not hold as much as it says it does, so it may be damaged or unfinished.": "„%@” ne sadrži onoliko koliko tvrdi, pa je možda oštećen ili nedovršen.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” je prestao odgovarati i odspojen je. Možete ga ponovno otvoriti.",
-    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@” sadrži šifriranu jedinicu unutar qcow2, koju pogon ne može otvoriti. Pretvorba u sirovu sliku bi uspjela, ili otvorite disk iz kojeg je nastala.",
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@” sadrži šifriranu jedinicu koju ova verzija pogona ne može otvoriti unutar slike diska. Otvorite disk iz kojeg je nastala.",
+    "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "„%1$@” sadrži samo promjene u odnosu na drugi disk, koji imenuje. %2$@ ne otvara slike koje imenuju druge datoteke.",
+    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "„%1$@” je VHDX, koji %2$@ ne može otvoriti. Uspjeli bi VHD, sirova slika ili qcow2.",
+    "“%@” is a dynamic VHD, which %@ cannot open yet. A fixed VHD, a raw image or a qcow2 would work.": "„%1$@” je dinamički VHD, koji %2$@ još ne može otvoriti. Uspjeli bi fiksni VHD, sirova slika ili qcow2.",
     "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "„%1$@” je rijetki VMDK koji %2$@ ne može otvoriti. Ravni VMDK ili sirova slika bi uspjeli.",
     "“%@” is marked as damaged. Repair it before opening it.": "„%@” je označen kao oštećen. Popravite ga prije otvaranja.",
     "“%@” is not a disk image this app can read.": "„%@” nije slika diska koju ova aplikacija može pročitati.",

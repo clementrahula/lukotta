@@ -83,8 +83,8 @@
         "other": "This drive holds %lld volumes and not all of them could be opened."
       },
       "ro": {
-        "one": "Acest disc conține %lld volum și nu a putut fi deschis.",
         "few": "Acest disc conține %lld volume și nu au putut fi deschise toate.",
+        "one": "Acest disc conține %lld volum și nu a putut fi deschis.",
         "other": "Acest disc conține %lld de volume și nu au putut fi deschise toate."
       }
     }
@@ -331,9 +331,12 @@
     "unlocked": "deblocat",
     "waiting": "în așteptare",
     "“%@” could not be read.": "„%@” nu a putut fi citit.",
+    "“%@” does not hold as much as it says it does, so it may be damaged or unfinished.": "„%@” nu conține atât cât declară, așa că poate fi deteriorat sau neterminat.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” nu mai răspundea și a fost deconectat. Îl puteți deschide din nou.",
-    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@” conține un volum criptat într-un qcow2, pe care motorul nu îl poate deschide. Conversia într-o imagine brută ar funcționa, sau deschideți discul din care a fost creat.",
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@” conține un volum criptat pe care această versiune a motorului nu îl poate deschide într-o imagine de disc. Deschideți discul din care a fost creat.",
+    "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "„%1$@” conține doar modificările față de un alt disc, pe care îl numește. %2$@ nu deschide imagini care numesc alte fișiere.",
+    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "„%1$@” este un VHDX, pe care %2$@ nu îl poate deschide. Ar funcționa un VHD, o imagine brută sau un qcow2.",
+    "“%@” is a dynamic VHD, which %@ cannot open yet. A fixed VHD, a raw image or a qcow2 would work.": "„%1$@” este un VHD dinamic, pe care %2$@ nu îl poate deschide încă. Ar funcționa un VHD fix, o imagine brută sau un qcow2.",
     "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "„%1$@” este un VMDK rar, pe care %2$@ nu îl poate deschide. Unul plat, sau o imagine brută, ar funcționa.",
     "“%@” is marked as damaged. Repair it before opening it.": "„%@” este marcat ca deteriorat. Reparați-l înainte de a-l deschide.",
     "“%@” is not a disk image this app can read.": "„%@” nu este o imagine de disc pe care această aplicație o poate citi.",

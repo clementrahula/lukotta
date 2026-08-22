@@ -71,13 +71,13 @@
       }
     },
     "This drive holds %lld volumes and not all of them could be opened.": {
-      "en": {
-        "one": "This drive holds %lld volume and it could not be opened.",
-        "other": "This drive holds %lld volumes and not all of them could be opened."
-      },
       "de": {
         "one": "Dieses Laufwerk enthält %lld Volume, und es konnte nicht geöffnet werden.",
         "other": "Dieses Laufwerk enthält %lld Volumes, und nicht alle konnten geöffnet werden."
+      },
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
       }
     }
   },
@@ -323,9 +323,12 @@
     "unlocked": "entsperrt",
     "waiting": "wartet",
     "“%@” could not be read.": "„%@“ konnte nicht gelesen werden.",
+    "“%@” does not hold as much as it says it does, so it may be damaged or unfinished.": "„%@“ enthält nicht so viel, wie angegeben, und ist daher möglicherweise beschädigt oder unvollständig.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ hat nicht mehr reagiert und wurde getrennt. Du kannst es erneut öffnen.",
-    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@“ enthält ein verschlüsseltes Volume in einer qcow2-Datei, die das Laufwerk-Modul nicht öffnen kann. Eine Umwandlung in ein Rohimage würde funktionieren, oder öffne das Laufwerk, aus dem es erstellt wurde.",
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@“ enthält ein verschlüsseltes Volume, das diese Version des Laufwerk-Moduls in einem Image nicht öffnen kann. Öffne das Laufwerk, aus dem es erstellt wurde.",
+    "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "„%1$@“ enthält nur die Änderungen gegenüber einer anderen Festplatte, die sie benennt. %2$@ öffnet keine Images, die andere Dateien benennen.",
+    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "„%1$@“ ist eine VHDX, die %2$@ nicht öffnen kann. Eine VHD, ein Rohimage oder eine qcow2-Datei würden funktionieren.",
+    "“%@” is a dynamic VHD, which %@ cannot open yet. A fixed VHD, a raw image or a qcow2 would work.": "„%1$@“ ist eine dynamische VHD, die %2$@ noch nicht öffnen kann. Eine feste VHD, ein Rohimage oder eine qcow2-Datei würden funktionieren.",
     "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "„%1$@“ ist ein Sparse-VMDK, das %2$@ nicht öffnen kann. Ein flaches oder ein Rohimage würde funktionieren.",
     "“%@” is marked as damaged. Repair it before opening it.": "„%@“ ist als beschädigt markiert. Repariere es, bevor du es öffnest.",
     "“%@” is not a disk image this app can read.": "„%@“ ist kein Image, das diese App lesen kann.",

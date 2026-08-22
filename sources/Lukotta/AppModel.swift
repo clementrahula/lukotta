@@ -409,6 +409,18 @@ final class AppModel: ObservableObject {
     /// The part that blocks: attach, look, and put it back if there is nothing
     /// in it. Off the main actor, and knows nothing about the interface.
     private nonisolated static func attachAndList(_ url: URL) -> ImageOutcome {
+        // A fixed VHD is the raw disk with a footer after it, so the engine
+        // opens it as-is: everything sits at its natural offset and the last
+        // sector is simply past the end. The other kinds are not raw at all,
+        // and are refused by name rather than served as gibberish.
+        if DiskImage.isVhd(url) {
+            if let objection = DiskImage.objection(toVhd: url) {
+                Log.drives.error("refused a VHD")
+                return .failure(objection)
+            }
+            return engineRead(url)
+        }
+
         // A VMDK is never attached either: macOS cannot read one and the engine
         // can. Unlike a qcow2 it always names a separate file for its data —
         // the descriptor is read whole and capped at two megabytes, so there is

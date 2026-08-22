@@ -71,13 +71,13 @@
       }
     },
     "This drive holds %lld volumes and not all of them could be opened.": {
-      "en": {
-        "one": "This drive holds %lld volume and it could not be opened.",
-        "other": "This drive holds %lld volumes and not all of them could be opened."
-      },
       "da": {
         "one": "Denne enhed indeholder %lld enhed, og den kunne ikke åbnes.",
         "other": "Denne enhed indeholder %lld enheder, og ikke alle kunne åbnes."
+      },
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
       }
     }
   },
@@ -323,9 +323,12 @@
     "unlocked": "låst op",
     "waiting": "venter",
     "“%@” could not be read.": "“%@” kunne ikke læses.",
+    "“%@” does not hold as much as it says it does, so it may be damaged or unfinished.": "“%@” indeholder ikke så meget, som den angiver, så den kan være beskadiget eller ufærdig.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "“%@” svarede ikke længere og blev frakoblet. Du kan åbne den igen.",
-    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "“%@” indeholder en krypteret enhed inde i en qcow2, som drevmotoren ikke kan åbne. En konvertering til et råt image ville virke, eller åbn den disk, den er lavet af.",
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "“%@” indeholder en krypteret enhed, som denne udgave af drevmotoren ikke kan åbne inde i et diskbillede. Åbn den disk, den er lavet af.",
+    "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "“%1$@” indeholder kun ændringerne fra en anden disk, som den henviser til. %2$@ åbner ikke diskbilleder, der henviser til andre filer.",
+    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "“%1$@” er en VHDX, som %2$@ ikke kan åbne. En VHD, et råt image eller en qcow2 ville virke.",
+    "“%@” is a dynamic VHD, which %@ cannot open yet. A fixed VHD, a raw image or a qcow2 would work.": "“%1$@” er en dynamisk VHD, som %2$@ endnu ikke kan åbne. En fast VHD, et råt image eller en qcow2 ville virke.",
     "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "“%1$@” er et sparse-VMDK, som %2$@ ikke kan åbne. Et fladt VMDK eller et råt image ville virke.",
     "“%@” is marked as damaged. Repair it before opening it.": "“%@” er markeret som beskadiget. Reparer den, før du åbner den.",
     "“%@” is not a disk image this app can read.": "“%@” er ikke et diskbillede, denne app kan læse.",

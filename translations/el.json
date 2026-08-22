@@ -71,13 +71,13 @@
       }
     },
     "This drive holds %lld volumes and not all of them could be opened.": {
-      "en": {
-        "one": "This drive holds %lld volume and it could not be opened.",
-        "other": "This drive holds %lld volumes and not all of them could be opened."
-      },
       "el": {
         "one": "Αυτός ο δίσκος περιέχει %lld τόμο και δεν μπόρεσε να ανοίξει.",
         "other": "Αυτός ο δίσκος περιέχει %lld τόμους και δεν μπόρεσαν να ανοίξουν όλοι."
+      },
+      "en": {
+        "one": "This drive holds %lld volume and it could not be opened.",
+        "other": "This drive holds %lld volumes and not all of them could be opened."
       }
     }
   },
@@ -323,9 +323,12 @@
     "unlocked": "ξεκλείδωτος",
     "waiting": "αναμονή",
     "“%@” could not be read.": "Δεν ήταν δυνατή η ανάγνωση του «%@».",
+    "“%@” does not hold as much as it says it does, so it may be damaged or unfinished.": "Το «%@» δεν περιέχει όσα δηλώνει, οπότε μπορεί να είναι κατεστραμμένο ή ημιτελές.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "Το «%@» σταμάτησε να αποκρίνεται και αποσυνδέθηκε. Μπορείτε να το ανοίξετε ξανά.",
-    "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "Το «%@» περιέχει κρυπτογραφημένο τόμο μέσα σε qcow2, το οποίο η μηχανή δεν μπορεί να ανοίξει. Η μετατροπή σε ακατέργαστο είδωλο θα λειτουργούσε, ή ανοίξτε τον δίσκο από τον οποίο δημιουργήθηκε.",
     "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "Το «%@» περιέχει κρυπτογραφημένο τόμο τον οποίο αυτή η έκδοση της μηχανής δεν μπορεί να ανοίξει μέσα σε είδωλο δίσκου. Ανοίξτε τον δίσκο από τον οποίο δημιουργήθηκε.",
+    "“%@” holds only the changes from another disk, which it names. %@ does not open images that name other files.": "Το «%1$@» περιέχει μόνο τις αλλαγές από άλλον δίσκο, τον οποίο κατονομάζει. Το %2$@ δεν ανοίγει είδωλα που παραπέμπουν σε άλλα αρχεία.",
+    "“%@” is a VHDX, which %@ cannot open. A VHD, a raw image or a qcow2 would work.": "Το «%1$@» είναι VHDX, το οποίο το %2$@ δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα VHD, ένα ακατέργαστο είδωλο ή ένα qcow2.",
+    "“%@” is a dynamic VHD, which %@ cannot open yet. A fixed VHD, a raw image or a qcow2 would work.": "Το «%1$@» είναι δυναμικό VHD, το οποίο το %2$@ δεν μπορεί ακόμη να ανοίξει. Θα λειτουργούσε ένα σταθερό VHD, ένα ακατέργαστο είδωλο ή ένα qcow2.",
     "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "Το «%1$@» είναι αραιό VMDK, το οποίο το %2$@ δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα επίπεδο VMDK ή ένα ακατέργαστο είδωλο.",
     "“%@” is marked as damaged. Repair it before opening it.": "Το «%@» έχει επισημανθεί ως κατεστραμμένο. Επιδιορθώστε το πριν το ανοίξετε.",
     "“%@” is not a disk image this app can read.": "Το «%@» δεν είναι είδωλο δίσκου που μπορεί να διαβάσει αυτή η εφαρμογή.",
