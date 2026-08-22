@@ -9,8 +9,8 @@ import SwiftUI
 /// seconds after File → Open Disk Image, which reads as nothing having
 /// happened at all.
 ///
-/// It closes itself when the drive appears, because the drive appearing is the
-/// whole of the answer. A failure stays until it is read.
+/// It closes when the drive appears, the drive being the answer. A failure
+/// stays until it is read.
 struct ImageOpenSheet: View {
     @EnvironmentObject var model: AppModel
     let state: AppModel.ImageOpening
@@ -41,8 +41,8 @@ struct ImageOpenSheet: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("macOS opened “\(name)”").font(.headline)
                         // Why it was handed over as well as that it was. A
-                        // volume appearing in Finder that the user did not put
-                        // there is a surprise worth heading off.
+                        // volume appearing in Finder that nobody put there is
+                        // worth explaining.
                         Text(
                             "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk."
                         )

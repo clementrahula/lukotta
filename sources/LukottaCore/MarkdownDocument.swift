@@ -2,8 +2,8 @@ import Foundation
 
 /// The small subset of Markdown the bundled documents use.
 ///
-/// Parsing is logic, not presentation, so it lives here where it can be tested
-/// without a running interface.
+/// Parsing is logic rather than presentation, so it lives here and can be
+/// tested without a running interface.
 public enum MarkdownDocument {
 
     public enum Block {
@@ -41,14 +41,15 @@ public enum MarkdownDocument {
         func flushTable() {
             guard !table.isEmpty else { return }
             let header = table.first ?? []
-            // Row two of a Markdown table is the alignment rule, not data.
+            // Row two of a Markdown table is the alignment rule rather than
+            // data.
             let rows = Array(table.dropFirst(2))
             blocks.append(.table(header: header, rows: rows))
             table = []
         }
         func flushCode() {
-            // Trailing blank lines belong to the space after the block, not in
-            // it.
+            // Trailing blank lines belong to the space after the block rather
+            // than to the block.
             while code.last?.isEmpty == true { code.removeLast() }
             if !code.isEmpty {
                 blocks.append(.code(code))
@@ -81,7 +82,7 @@ public enum MarkdownDocument {
                 flushAll()
                 fenced = true
             } else if line.isEmpty {
-                // A blank line inside an indented block does not end it: the
+                // A blank line inside an indented block does not end it. The
                 // next indented line continues the same block.
                 if code.isEmpty {
                     flushAll()

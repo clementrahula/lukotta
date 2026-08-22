@@ -1,7 +1,7 @@
 import Foundation
 import LukottaCore
 
-// A plain executable rather than XCTest or swift-testing: neither ships with
+// A plain executable rather than XCTest or swift-testing. Neither ships with
 // the Command Line Tools, and requiring a full Xcode install to run the tests
 // would put them out of reach of anyone building from source, and of CI.
 var failures = 0, checks = 0, currentGroup = ""
@@ -137,8 +137,8 @@ group("volumeKindsAndTheDirtyVolumePath") {
     expect(d.subtitle.contains("BitLocker or NTFS"), "subtitle states what the volume might be")
     expect(d.subtitle.contains("disk4s1"), "subtitle keeps the device identifier")
 
-    // Windows Fast Startup and hibernation are the most common real-world failure,
-    // and the advice has to be actionable rather than a raw driver error.
+    // Windows Fast Startup and hibernation are the most common cause of failure,
+    // and the message must say what to do rather than repeat a driver error.
     let dirty = Diagnosis.summarise("ntfs3: volume is dirty and mounting is refused", fallback: "")
     expect(dirty.contains("Fast Startup"), "dirty volume explains Fast Startup")
     let hib = Diagnosis.summarise(
@@ -179,9 +179,9 @@ group("lvmDiscoveryFixtureCapturedFromARealLuks2LvmBtrfsVolume") {
 
 group("theElevatedMountScript") {
 
-    // This text becomes a command run as root, and the mistakes it invites are
-    // malformed arguments — none of which is reachable by a test while
-    // generation and execution live in the same function.
+    // This text becomes a command run as root, and the failures it invites are
+    // malformed arguments, none of which a test can reach while generation and
+    // execution live in the same function.
 
     let msScript = MountScript.build(sampleInputs())
 
@@ -218,10 +218,10 @@ group("theElevatedMountScript") {
         !msScript.contains("/usr/bin/expect"),
         "no LVM discovery for a Microsoft volume")
 
-    // An alias cannot stand in for the device: the engine prefixes /dev/ onto
+    // An alias cannot stand in for the device. The engine prefixes /dev/ onto
     // whatever target it is handed, so one under /tmp resolves to /dev//tmp/…
-    // and the mount opens with "disk not found". Friendly names come from
-    // DriveMemory, and only an alias already under /dev is worth passing.
+    // and the mount opens with "disk not found". Names come from DriveMemory,
+    // and only an alias already under /dev is worth passing.
     expect(!msScript.contains("alias/Elements"), "an unresolvable alias is not attempted")
     expect(msScript.contains("'/dev/disk4s1'"), "the device itself is what gets mounted")
 
@@ -243,9 +243,9 @@ group("theElevatedMountScript") {
     expect(!msChosen.contains("/usr/bin/expect"), "no rediscovery once chosen")
     expect(!msChosen.contains("-t ntfs"), "no driver override for a chosen volume")
 
-    // Paths with spaces must survive quoting: they reach a root shell. The
-    // workspace sits under a temporary directory the user does not choose, so
-    // this is not hypothetical.
+    // Paths with spaces must survive quoting, since they reach a root shell.
+    // The workspace sits under a temporary directory that is not chosen here,
+    // so such a path can occur.
     let msSpaces = MountScript.build(
         MountScript.Inputs(
             enginePath: "/eng/any linux fs", devicePath: "/dev/disk4s1", driveName: "D",
@@ -261,11 +261,11 @@ group("theElevatedMountScript") {
 
 group("multiVolumeServing") {
 
-    // All volumes of a container are served from the one microVM: the engine
-    // holds an exclusive lock on the device for read-write mounts, so mounting
-    // each volume in its own VM can never work. The script generates a custom
-    // action that mounts every volume onto tmpfs inside the VM and exports the
-    // lot, and only falls back to one-at-a-time if that combined mount fails.
+    // All volumes of a container are served from one microVM. The engine holds
+    // an exclusive lock on the device for read-write mounts, so mounting each
+    // volume in its own VM cannot work. The script generates a custom action
+    // that mounts every volume onto tmpfs inside the VM and exports them
+    // together, falling back to one volume at a time if that fails.
     let script = MountScript.build(sampleInputs(kind: .linux))
 
     expect(script.contains("-a lukotta"), "the generated action is selected for the mount")
@@ -282,9 +282,9 @@ group("multiVolumeServing") {
         script.contains("LUKOTTA_VOLUMES:$(/sbin/mount"),
         "a combined mount reports how many volumes actually appeared")
     expect(script.contains("\"lvm:$__lv\""), "the one-at-a-time fallback is still present")
-    // Volumes that are not mountable filesystems would sink the combined
-    // mount: its after_mount stops at the first failure, deliberately, so a
-    // half-served drive cannot masquerade as the whole one.
+    // Volumes that are not mountable filesystems would fail the combined mount.
+    // Its after_mount stops at the first failure, so a half-served drive cannot
+    // be presented as the whole one.
     expect(script.contains("|swap|"), "swap volumes are excluded from serving")
     expect(script.contains("crypto_LUKS"), "nested encrypted volumes are excluded")
 
@@ -311,8 +311,8 @@ group("appRollback") {
     let new = "1.7.0"
     let old = "1.6.9"
 
-    // The property that makes a rollback impossible on an ordinary launch, and
-    // it is structural: with nothing kept aside the count is never even read.
+    // What makes a rollback impossible on an ordinary launch: with nothing kept
+    // aside, the count is never read.
     expect(
         AppRollback.decide(record: nil, currentVersion: new, keptAside: nil, now: now)
             == .proceed(nil),
@@ -330,8 +330,8 @@ group("appRollback") {
             == .proceed(nil),
         "nothing to undo when the kept-aside version is the one running")
 
-    // A first failed launch is not evidence: a power cut and a force quit leave
-    // exactly this trace.
+    // A first failed launch proves nothing. A power cut and a force quit leave
+    // the same trace.
     guard
         case .proceed(let first) = AppRollback.decide(
             record: nil, currentVersion: new, keptAside: old, now: now)
@@ -420,8 +420,8 @@ group("nestedVolumeMounts") {
         !EngineStatus.nestedVolumes(under: "/Volumes/T7", in: table).contains("/Volumes/T7ish"),
         "a sibling with a shared prefix is not mistaken for a nested volume")
 
-    // The scratch export lives under /run, so those mounts are the engine's
-    // to clear when their VM dies — but not while it is alive.
+    // The scratch export lives under /run, so those mounts are cleared when
+    // their VM dies and left alone while it is alive.
     let claimed = EngineStatus.engineMountPoints(in: table)
     expect(claimed.contains("/Volumes/T7"), "a multi-volume primary is recognised as ours")
     expect(claimed.contains("/Volumes/T7/HOME"), "and so are its nested volumes")
@@ -438,11 +438,12 @@ group("nestedVolumeMounts") {
 }
 
 group("mountStages") {
-    // The engine exits 0 on a failed mount: the status is its own shutdown, not
-    // the mount's. Every fallback is chained with ||, so a mount attempt has to
-    // be judged by whether a mount appeared, not by what the engine returned.
-    // Without this the first attempt always looked like a success and nothing
-    // after it ever ran — no ntfs-3g retry, no LVM discovery.
+    // The engine exits 0 on a failed mount, the status being its own shutdown
+    // rather than the mount's. Every fallback is chained with ||, so an attempt
+    // is judged by whether a mount appeared rather than by what the engine
+    // returned.
+    // Without this the first attempt always read as a success and nothing after
+    // it ran: no ntfs-3g retry and no LVM discovery.
     let checked = MountScript.build(sampleInputs(kind: .linux))
     expect(
         checked.contains("__mounts=$(/sbin/mount | grep -cE ':/(mnt|run)/')"),
@@ -453,8 +454,9 @@ group("mountStages") {
             2>&1 && [ "$(/sbin/mount | grep -cE ':/(mnt|run)/')" -gt "$__mounts" ]
             """.trimmingCharacters(in: .whitespacesAndNewlines)),
         "an attempt counts as success only if a mount appeared")
-    // Counting, not name matching: the share is named for the device on a plain
-    // volume but for the volume group on an LVM one, so there is no one name.
+    // Counted rather than matched by name. The share is named for the device on
+    // a plain volume and for the volume group on an LVM one, so there is no
+    // single name.
     expect(!checked.contains("disk4s1.local:"), "the check does not guess the share's name")
     let checkedMS = MountScript.build(sampleInputs(kind: .microsoft))
     expect(
@@ -483,9 +485,9 @@ group("mountStages") {
         "a recovery key is still caught by shape")
 
     // The script is assembled from strings, quoted by hand, and run as root. A
-    // single apostrophe inside the awk program once closed its quote and made
-    // every multi-volume mount fail with no output at all, so the shell's own
-    // parser is the judge of whether it is valid.
+    // single apostrophe inside the awk program closed its quote and made every
+    // multi-volume mount fail with no output, so the shell's own parser decides
+    // whether it is valid.
     for kind in [VolumeKind.linux, .microsoft] {
         let generated = MountScript.build(sampleInputs(kind: kind))
         let file = URL(fileURLWithPath: NSTemporaryDirectory())
@@ -513,9 +515,9 @@ group("mountStages") {
     expect(checked.contains("for __lv in $__lvs; do"), "each discovered volume is mounted")
     expect(checked.contains("[ \"$__opened\" -gt 0 ]"), "opening any one of them is a success")
 
-    // Taken from a real failure on a Fedora-style container: LUKS holding LVM
-    // holding three volumes. The engine refuses to mount the container itself,
-    // and the app has to turn that into a question rather than a failure.
+    // Taken from a failure on a Fedora-style container: LUKS holding LVM holding
+    // three volumes. The engine refuses to mount the container itself, and the
+    // app turns that into a question rather than a failure.
     let lvmTranscript = """
         \(MountScript.stageMarker)authorised
         macOS: fs_type: Some("crypto_LUKS")
@@ -563,9 +565,9 @@ group("mountStages") {
     expect(!aliased.contains("/tmp/ws/alias"), "an unresolvable alias is not attempted")
     expect(aliased.contains("'/dev/disk5s1'"), "the device itself still is")
 
-    // A mount left behind by a dead virtual machine has to be recognisable
-    // without touching anything the user mounted themselves: clearing one of
-    // those would be a far worse bug than the one this fixes.
+    // A mount left behind by a dead virtual machine must be recognisable without
+    // matching anything mounted by the person using the Mac, since clearing one
+    // of those would be worse than the fault this addresses.
     let table = """
         /dev/disk1s1 on / (apfs, sealed, local, read-only, journaled)
         disk4s1.local:/mnt/BACKUP on /Volumes/BACKUP (nfs, nodev, nosuid, mounted by someone)
@@ -581,7 +583,7 @@ group("mountStages") {
 
     // Stages come from markers the script writes. The engine prints almost
     // nothing while mounting, so inferring them from its output left the
-    // indicator stuck on one step and then jumping — the bug this replaces.
+    // indicator stuck on one step and then jumping several.
     let marker = MountScript.stageMarker
     expect(MountStage.inferred(from: []) == .preparing, "nothing yet means preparing")
     expect(
@@ -601,9 +603,9 @@ group("mountStages") {
             == .finishing,
         "stages never go backwards")
 
-    // The helper redacts its transcript before handing it back, and the same
-    // text is what drives the step indicator. Redaction that mangled a marker
-    // would leave the steps stuck without anything looking wrong.
+    // The helper redacts its transcript before handing it back, and that text
+    // also drives the step indicator. Redaction that damaged a marker would
+    // leave the steps stuck with nothing else appearing wrong.
     for stage in ["authorised", "working"] {
         expect(
             Diagnostics.redact("\(marker)\(stage)").contains("\(marker)\(stage)"),
@@ -617,8 +619,8 @@ group("mountStages") {
 }
 
 group("markdownRendering") {
-    // The notices are shown in-app; dumping raw Markdown at a reader is what
-    // this replaces, so the parser has to actually handle what the file uses.
+    // The notices are shown in the app, so the parser must handle the constructs
+    // the file uses rather than presenting raw Markdown.
     let doc = """
         # Third-party notices
 
@@ -658,7 +660,8 @@ group("markdownRendering") {
     expect(bullets == 1, "bullet list parsed")
     expect(MarkdownDocument.parse("").isEmpty, "empty document yields no blocks")
 
-    // A wrapped bullet is one bullet, not a bullet plus a loose paragraph.
+    // A wrapped bullet is one bullet rather than a bullet and a loose
+    // paragraph.
     let wrapped = """
         - First item that runs on
           across two source lines
@@ -712,9 +715,9 @@ group("secretRedaction") {
 }
 
 group("crashReportFiltering") {
-    // A crash from an older build, offered beside an unrelated failure, reads
-    // as "this just crashed". That is how a cancelled authorisation came to
-    // look like a crash.
+    // A crash from an older build, offered beside an unrelated failure, reads as
+    // a crash that has just happened. A cancelled authorisation was reported
+    // that way.
     let dir = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Logs/DiagnosticReports")
     if let found = try? FileManager.default.contentsOfDirectory(atPath: dir.path),
@@ -753,8 +756,8 @@ group("driveMemory") {
 }
 
 group("keychainRoundTrip") {
-    // A saved credential that cannot be read back is worse than not offering
-    // to save it: the user believes it is stored.
+    // A saved credential that cannot be read back is worse than not offering to
+    // save one, since it is then believed to be stored.
     let uuid = "lukotta-test-\(UUID().uuidString)"
     let secret = "121121-131131-141141-151151-161161-171171-181181-191191"
 
@@ -815,7 +818,8 @@ group("guestRuntimeSync") {
     let now = Date()
     let older = now.addingTimeInterval(-3600)
 
-    // The engine's own test: size first, then "is the bundled one newer".
+    // The engine's own test: size first, then whether the bundled one is
+    // newer.
     expect(
         GuestRuntime.needsSync(
             bundledSize: 100, bundledModified: older, guestSize: 101, guestModified: now),
@@ -829,8 +833,8 @@ group("guestRuntimeSync") {
             bundledSize: 100, bundledModified: older, guestSize: 100, guestModified: now),
         "an older bundled file leaves the guest copy alone")
 
-    // Copying keeps the timestamp, so the two match exactly afterwards. That
-    // has to read as settled, or every launch would copy again.
+    // Copying keeps the timestamp, so the two match afterwards. That must read
+    // as settled, or every launch would copy again.
     expect(
         !GuestRuntime.needsSync(
             bundledSize: 100, bundledModified: now, guestSize: 100, guestModified: now),
@@ -844,20 +848,21 @@ group("guestRuntimeSync") {
 }
 
 group("wakeRecovery") {
-    // Waking is not one moment: the host comes back before the microVM does,
-    // and the mount cannot answer until the network between them carries
-    // traffic again. Asking once and giving up would call every healthy drive
+    // Waking is not a single moment. The host returns before the microVM does,
+    // and the mount cannot answer until the network between them carries traffic
+    // again, so asking once and giving up would report every healthy drive as
     // dead.
     expect(WakeRecovery.nextDelay(after: 0) != nil, "a mount is asked more than once")
 
-    // Doubling, so a wedged mount is not asked sixty times for sixty seconds.
+    // Doubling, so that a wedged mount is not asked sixty times in sixty
+    // seconds.
     let first = WakeRecovery.nextDelay(after: 0) ?? 0
     let later = WakeRecovery.nextDelay(after: 20) ?? 0
     expect(later > first, "the wait grows as the silence goes on")
     expect(WakeRecovery.nextDelay(after: 100) ?? 0 <= 16, "and stops growing")
 
-    // The grace period is a ceiling, not a suggestion: a delay that runs past
-    // it would leave a dead mount in the list longer than it says.
+    // The grace period is a ceiling. A delay running past it would leave a dead
+    // mount in the list for longer than the period states.
     expect(WakeRecovery.nextDelay(after: WakeRecovery.grace) == nil, "and then it gives up")
     expect(
         WakeRecovery.nextDelay(after: WakeRecovery.grace - 1) ?? 99 <= 1,
@@ -874,8 +879,8 @@ group("wakeRecovery") {
 }
 
 group("reportLogTail") {
-    // A report that silently begins in the middle reads as though nothing
-    // happened before it, so a truncated log says it was truncated.
+    // A report beginning in the middle reads as though nothing preceded it, so
+    // a truncated log records that it was truncated.
     let short = ["one", "two"]
     expect(Diagnostics.tail(of: short, limit: 5), "one\ntwo", "nothing is said when nothing is cut")
 
@@ -885,8 +890,8 @@ group("reportLogTail") {
     expect(cut.hasSuffix("line 8\nline 9\nline 10"), "and the newest lines are the ones kept")
     expect(!cut.contains("line 7"), "the dropped ones are gone")
 
-    // The report carries the log through the same redaction as everything
-    // else: a passphrase echoed by the pty must not reach it by this route.
+    // The report carries the log through the same redaction as everything else.
+    // A passphrase echoed by the pty must not reach it by this route.
     let environment = Diagnostics.environment()
     let body = Diagnostics.report(
         environment: environment,
@@ -895,16 +900,15 @@ group("reportLogTail") {
     expect(!body.contains("hunter2000"), "a labelled secret in the log is redacted")
     expect(!body.contains("123456-123456"), "and so is a recovery key")
 
-    // Nothing to say is not a heading with nothing under it.
+    // Nothing to report produces no heading rather than an empty one.
     let empty = Diagnostics.report(environment: environment, recentLog: "")
     expect(!empty.contains("What the app was doing:"), "an empty log adds no section")
 }
 
 group("theLogIsReadableBack") {
-    // The point of logging is a report that says what happened. That only
-    // works if what was written can be found again, under the same subsystem
-    // it was written to — a report reading one name and the logger writing
-    // another would be silently empty forever.
+    // A report is useful only if what was written can be found again under the
+    // subsystem it was written to. A report reading one name while the logger
+    // writes another is empty and gives no sign of it.
     let marker = "log round trip \(ProcessInfo.processInfo.processIdentifier)"
     Log.app.notice("\(marker, privacy: .public)")
     // The store is written to asynchronously; give it a moment to land.
@@ -915,11 +919,11 @@ group("theLogIsReadableBack") {
 }
 
 group("driveScannerParsing") {
-    // Shaped like `diskutil list -plist physical`, with invented names: what
-    // matters is which partitions are picked up and what they end up called.
+    // Shaped like `diskutil list -plist physical`, with invented names. What is
+    // checked is which partitions are picked up and what they are called.
     let list: [String: Any] = [
         "AllDisksAndPartitions": [
-            // The internal disk. Nothing on it is ours.
+            // The internal disk, none of which is offered.
             [
                 "DeviceIdentifier": "disk0",
                 "Content": "GUID_partition_scheme",
@@ -983,8 +987,8 @@ group("driveScannerParsing") {
     expect(
         linux.name, "Generic Media", "falling back to the registry name when there is no media name"
     )
-    // No UUID anywhere, so the identifier stands in — it has to be something,
-    // and a drive with no identity at all cannot be remembered.
+    // No UUID anywhere, so the identifier stands in. A drive with no identity
+    // cannot be remembered between sessions.
     expect(linux.uuid, "disk5s2", "a partition with no UUID is identified by its device")
 
     // Every Linux type diskutil reports, in both spellings.
@@ -1004,8 +1008,8 @@ group("driveScannerParsing") {
         expect("\(drives.count)", "1", "\(content) is recognised")
     }
 
-    // The volume's own name wins over the drive's, and the size can come from
-    // either plist — the list omits it for some partitions.
+    // The volume's own name takes precedence over the drive's, and the size can
+    // come from either plist, the list omitting it for some partitions.
     let named: [String: Any] = [
         "AllDisksAndPartitions": [
             [
@@ -1067,8 +1071,8 @@ group("workspaceLifecycle") {
     let fm = FileManager.default
     expect(fm.fileExists(atPath: ws.root.path), "a workspace is a directory that exists")
 
-    // It holds a credential pipe. Anyone else being able to read it would be
-    // the whole point of the FIFO gone.
+    // It holds a credential pipe. Readable by anyone else, the FIFO would serve
+    // no purpose.
     let attrs = try! fm.attributesOfItem(atPath: ws.root.path)
     expect(
         "\((attrs[.posixPermissions] as? NSNumber)?.intValue ?? 0)", "448",
@@ -1121,9 +1125,9 @@ group("engineUnpacking") {
     try! fm.createDirectory(at: temp, withIntermediateDirectories: true)
     defer { try? fm.removeItem(at: temp) }
 
-    // A stand-in for the bundled rootfs: what matters is that unpacking is
-    // driven by whether "rootfs" ends up on disk, not by tar's exit status
-    // alone. The real archive is 95 MB and is not unpacked by a test.
+    // A stand-in for the bundled rootfs. Unpacking is judged by whether "rootfs"
+    // ends up on disk rather than by tar's exit status alone. The real archive is
+    // not unpacked by a test.
     let staging = temp.appendingPathComponent("staging", isDirectory: true)
     try! fm.createDirectory(
         at: staging.appendingPathComponent("rootfs/etc", isDirectory: true),
@@ -1213,7 +1217,7 @@ group("bootSectorIdentification") {
     expect("\(BootSector.identify(sector(oem: "EXFAT   ")))", "exfat", "exFAT too")
 
     // BitLocker To Go writes a FAT-looking header. Reading only the name would
-    // call an encrypted drive unencrypted, which is the worst answer available.
+    // report an encrypted drive as unencrypted.
     expect(
         "\(BootSector.identify(sector(oem: "MSWIN4.1", identifierAt: 0x70)))", "bitlocker",
         "a drive that looks like FAT is still BitLocker when it carries the identifier")
@@ -1226,16 +1230,16 @@ group("bootSectorIdentification") {
         "\(BootSector.identify(sector(oem: "NTFS    ", identifierAt: 0x1F0)))", "bitlocker",
         "the identifier outranks the name, wherever in the sector it is")
 
-    // Nothing recognised is nothing said. A wrong guess here sends someone
-    // looking for a password that does not exist.
+    // Nothing recognised produces no statement. A wrong answer here sends
+    // someone looking for a password that does not exist.
     // A container file made with cryptsetup has no partition table at all, so
     // this is the only thing that says what it is.
     var luks = [UInt8](repeating: 0, count: BootSector.length)
     for (i, b) in BootSector.luksMagic.enumerated() { luks[i] = b }
     expect("\(BootSector.identify(Data(luks)))", "luks", "a LUKS container names itself first")
 
-    // Only at the start. Six bytes turn up by chance often enough that finding
-    // them anywhere would call other things LUKS.
+    // Only at the start. Six bytes occur by chance often enough that matching
+    // them anywhere would identify other things as LUKS.
     var misplaced = [UInt8](repeating: 0, count: BootSector.length)
     for (i, b) in BootSector.luksMagic.enumerated() { misplaced[64 + i] = b }
     for (i, b) in Array("NTFS    ".utf8).enumerated() { misplaced[3 + i] = b }
@@ -1258,11 +1262,10 @@ group("bootSectorIdentification") {
 }
 
 group("diagnosisRulesAreTiedToAnEngineVersion") {
-    // The whole of this matches on text, because the engine exits 0 whether or
-    // not the mount worked and there is nothing else to match on. What must not
-    // happen is an upgrade rewording a phrase and every rule quietly ceasing to
-    // fire, with people shown raw output for a release or two before anyone
-    // notices.
+    // All of this matches on text, the engine exiting 0 whether or not the mount
+    // worked and leaving nothing else to match on. The failure to guard against
+    // is an upgrade rewording a phrase, after which every rule stops firing and
+    // raw output is shown for a release or two before anyone notices.
     let lock =
         (try? String(contentsOfFile: "vendor/engine.lock", encoding: .utf8))
         ?? (try? String(
@@ -1279,8 +1282,7 @@ group("diagnosisRulesAreTiedToAnEngineVersion") {
             "the rules have been checked against engine \(version) — if this fails, read the "
                 + "release notes, try the failure paths, then add it to Diagnosis.enginesChecked")
     } else {
-        // Not a silent pass: a test that cannot find what it checks is a test
-        // that is not running.
+        // A test that cannot find what it checks is not running.
         expect(false, "vendor/engine.lock could be read")
     }
 
@@ -1321,8 +1323,7 @@ group("diagnosisRulesAreTiedToAnEngineVersion") {
         expect(Diagnosis.rule(for: line)?.name ?? "none", expected, "\(expected) recognised")
     }
 
-    // Output nobody has a rule for falls through to the engine's own words
-    // rather than to a shrug.
+    // Output with no matching rule falls through to the engine's own words.
     expect(
         Diagnosis.rule(for: "something entirely new went wrong") == nil,
         "an unrecognised failure matches nothing")
@@ -1334,7 +1335,7 @@ group("diagnosisRulesAreTiedToAnEngineVersion") {
 
 group("ejectingIsOneAtATime") {
     // A drive takes seconds to eject and the engine is told to wait thirty for
-    // the virtual machine. Anything past that is the engine not returning, not
+    // the virtual machine. Beyond that the engine is not returning rather than
     // the machine being slow, and the interface needs an answer rather than a
     // spinner that never stops.
     expect(
@@ -1361,9 +1362,9 @@ group("wholeDiskOfAPartition") {
 }
 
 group("openingAContainerFile") {
-    // The real thing, end to end: a file with a LUKS header, attached by
-    // macOS, recognised, and put back. No engine, no root — an attached image
-    // belongs to whoever attached it.
+    // End to end: a file with a LUKS header, attached by macOS, recognised, and
+    // detached again. No engine and no root, an attached image belonging to
+    // whoever attached it.
     let fm = FileManager.default
     let temp = URL(fileURLWithPath: NSTemporaryDirectory())
         .appendingPathComponent("lukotta-image-\(UUID().uuidString)", isDirectory: true)
@@ -1384,8 +1385,8 @@ group("openingAContainerFile") {
         expect(attached.device.hasPrefix("/dev/disk"), "and comes back as a device")
         expect(attached.identifier.hasPrefix("disk"), "named the way diskutil names it")
 
-        // No partition table, so the ordinary scan finds nothing here. This is
-        // the case that would otherwise look like an unopenable file.
+        // No partition table, so the ordinary scan finds nothing here. Without
+        // this the file reads as unopenable.
         let listed = DriveScanner.scan(images: [attached.identifier])
             .filter { DriveScanner.wholeDisk(of: $0.id) == attached.identifier }
         expect(listed.isEmpty, "a container with no partition table lists nothing on its own")
@@ -1401,10 +1402,9 @@ group("openingAContainerFile") {
         expect(DiskImage.detach(attached.device), "and it detaches again")
     }
 
-    // A file that is not an image at all still attaches: a raw image is just
-    // bytes, so macOS will treat anything as one. Attaching is therefore not
-    // the test of whether a file is openable — what is in it is, and a text
-    // file holds nothing, so it is recognised as nothing and put back.
+    // A file that is not an image still attaches, a raw image being only bytes,
+    // so attaching does not establish that a file is openable. Its contents do:
+    // a text file holds nothing recognisable and is detached again.
     let text = temp.appendingPathComponent("notes.txt")
     try! String(repeating: "not a disk image\n", count: 512)
         .write(to: text, atomically: true, encoding: .utf8)
@@ -1420,12 +1420,11 @@ group("openingAContainerFile") {
 }
 
 group("aContainerFileStaysInTheList") {
-    // The bug this covers: a container with no partition table is a row the
-    // scan cannot produce, because diskutil reports the disk as empty. It was
-    // added once when the file was opened, and the next refresh — a drive
-    // being plugged in, a mount finishing, anything — rebuilt the list without
-    // it. The app then decided the drive had vanished and announced it as
-    // disconnected, while the mount it was serving carried on working.
+    // A container with no partition table is a row the scan cannot produce,
+    // diskutil reporting the disk as empty. The row was added once when the file
+    // was opened, and the next refresh, from a drive being plugged in or a mount
+    // finishing, rebuilt the list without it. The app then reported the drive as
+    // disconnected while the mount it was serving continued to work.
     let image = Drive(
         id: "disk7", devicePath: "/dev/disk7", name: "backup", sizeBytes: 320,
         connection: "Disk Image", kind: .linux, uuid: "/Users/someone/backup.img")
@@ -1438,8 +1437,8 @@ group("aContainerFileStaysInTheList") {
     expect("\(merged.count)", "2", "the container is put back into a scan without it")
     expect(merged.contains { $0.id == "disk7" }, "and it is the one that was opened")
 
-    // Once the scan can see it — a container that does have a partition table,
-    // or the same disk reappearing — it is not added twice.
+    // Once the scan can see it, from a container that has a partition table or
+    // the same disk reappearing, it is not added twice.
     let partition = Drive(
         id: "disk7s1", devicePath: "/dev/disk7s1", name: "backup", sizeBytes: 320,
         connection: "Disk Image", kind: .linux, uuid: "UUID-2")
@@ -1456,9 +1455,9 @@ group("aContainerFileStaysInTheList") {
 }
 
 group("unencryptedFilesystemsNeedNoPassword") {
-    // A container or a drive holding an ordinary filesystem has nothing to
-    // unlock, and asking for a passphrase for one is asking for something that
-    // does not exist. Each writes its magic at one place and only there.
+    // A container or drive holding an ordinary filesystem has nothing to unlock,
+    // and asking for its passphrase asks for something that does not exist. Each
+    // filesystem writes its magic at one offset.
     func image(_ bytes: [(Int, [UInt8])]) -> Data {
         var buffer = [UInt8](repeating: 0, count: BootSector.length)
         for (offset, magic) in bytes {
@@ -1471,8 +1470,7 @@ group("unencryptedFilesystemsNeedNoPassword") {
 
     // ext puts its superblock at 1024 and its magic 56 bytes into it.
     expect("\(BootSector.identify(image([(1080, [0x53, 0xEF])])))", "ext", "ext is recognised")
-    // btrfs writes its signature 64 KB in, which is why a single sector was
-    // never going to be enough.
+    // btrfs writes its signature 64 KB in, so a single sector is not enough.
     expect(
         "\(BootSector.identify(image([(65600, Array("_BHRfS_M".utf8))])))", "btrfs",
         "btrfs is recognised, well past the first sector")
@@ -1487,8 +1485,8 @@ group("unencryptedFilesystemsNeedNoPassword") {
         "\(BootSector.identify(image([(1024, Array("_BHRfS_M".utf8))])))", "unknown",
         "and so does btrfs's signature in the wrong place")
 
-    // Encryption wins wherever it appears, because getting this backwards
-    // would tell someone their encrypted drive needs no password.
+    // Encryption takes precedence wherever it appears. The reverse would report
+    // an encrypted drive as needing no password.
     expect(
         "\(BootSector.identify(image([(0, BootSector.luksMagic), (1080, [0x53, 0xEF])])))",
         "luks", "a LUKS container holding ext is still a LUKS container")
@@ -1503,13 +1501,13 @@ group("unencryptedFilesystemsNeedNoPassword") {
 }
 
 group("whatMacOSDoesBetterOnItsOwn") {
-    // The app is worth reaching for only where macOS cannot manage. exFAT it
-    // mounts locally, read and write; opening one here would turn a local
-    // volume into a network one for nothing.
+    // The app is needed only where macOS cannot manage. macOS mounts exFAT
+    // locally, read and write, and opening one here would turn a local volume
+    // into a network one to no purpose.
     expect(VolumeFormat.exfat.macOSHandlesFully, "exFAT is left to macOS")
 
-    // NTFS is not on that list, and the distinction is the point: macOS mounts
-    // it read-only, and writing to it is the whole reason to open it here.
+    // NTFS is not on that list. macOS mounts it read-only, and writing to it is
+    // the reason to open one here.
     expect(!VolumeFormat.ntfs.macOSHandlesFully, "NTFS is not, because macOS only reads it")
     for format in [VolumeFormat.ext, .btrfs, .xfs] {
         expect(!format.macOSHandlesFully, "\(format) is not, because macOS cannot read it at all")
@@ -1518,8 +1516,8 @@ group("whatMacOSDoesBetterOnItsOwn") {
         expect(!format.macOSHandlesFully, "\(format) is not, because it is encrypted")
     }
 
-    // Everything macOS handles fully is by definition unencrypted, and the two
-    // together are what decide whether a drive opens on its own.
+    // Everything macOS handles fully is unencrypted, and the two together decide
+    // whether a drive opens without being asked.
     for format in [VolumeFormat.bitlocker, .luks, .ntfs, .exfat, .ext, .btrfs, .xfs, .unknown] {
         if format.macOSHandlesFully {
             expect(format.isUnencrypted, "\(format) is handled by macOS and so has no password")
@@ -1528,9 +1526,9 @@ group("whatMacOSDoesBetterOnItsOwn") {
 }
 
 group("qcow2ContainersAreReadByTheEngine") {
-    // macOS cannot attach a qcow2, so it is never attached: the engine reads
-    // the format itself and is handed the path, so no sector read here
-    // can see what is inside, and the engine's own listing is the only answer.
+    // macOS cannot attach a qcow2. The engine reads the format itself and is
+    // handed the path, so no sector read here sees inside and the engine's
+    // listing is the only account.
     let listing = """
 
         /Users/someone/vm.qcow2 (disk image):
@@ -1552,8 +1550,8 @@ group("qcow2ContainersAreReadByTheEngine") {
         "\(DiskImage.format(fromTypes: DiskImage.types(inListing: plain)))", "btrfs",
         "and an ordinary filesystem means none is")
 
-    // Several volumes: any encrypted one decides it, because the engine has to
-    // open the container before it can see past it.
+    // With several volumes, any encrypted one decides the answer, the engine
+    // having to open the container before it can see past it.
     expect(
         "\(DiskImage.format(fromTypes: ["ext4", "crypto_LUKS"]))", "luks",
         "one encrypted volume among several still means a passphrase")
@@ -1570,9 +1568,9 @@ group("qcow2ContainersAreReadByTheEngine") {
 }
 
 group("surveyingEveryDisk") {
-    // "No encrypted drives found" says nothing about the drive sitting on the
-    // desk. This is the other view: everything attached, with a reason beside
-    // each thing that cannot be opened.
+    // "No encrypted drives found" says nothing about the drive on the desk. This
+    // is the other view: everything attached, with a reason beside each disk that
+    // cannot be opened.
     let list: [String: Any] = [
         "AllDisksAndPartitions": [
             [
@@ -1640,8 +1638,8 @@ group("surveyingEveryDisk") {
     expect(verdict("disk0s2"), "system", "nor is its APFS container")
     expect(verdict("disk3s1"), "system", "nor Macintosh HD")
 
-    // Every disk is accounted for: the point is that nothing is silently left
-    // out, since a missing drive is exactly what sends someone here.
+    // Every disk is accounted for, a missing drive being what sends someone to
+    // this view in the first place.
     expect("\(entries.count)", "5", "every partition and volume is listed")
     expect(
         entries.first(where: { $0.id == "disk6s1" })?.name ?? "", "STICK",
@@ -1662,11 +1660,11 @@ group("surveyingEveryDisk") {
 }
 
 group("aQcow2ThatNamesAnotherFile") {
-    // libkrun's own header says it: formats other than raw can reference other
-    // files, and libkrun opens them. So a file handed to this app could choose
-    // which other files the virtual machine reads. Container files run
-    // unprivileged, which bounds the reach to what the person who opened it
-    // could already read, which bounds the consequence rather than
+    // libkrun's own header states that formats other than raw can reference
+    // other files, which libkrun opens. A file handed to this app could
+    // therefore determine which other files the virtual machine reads. Container
+    // files run unprivileged, which limits the reach to what the person who
+    // opened it could already read, bounding the consequence rather than
     // justifying it.
     func header(
         version: UInt32 = 3, backingOffset: UInt64 = 0, backingSize: UInt32 = 0,
@@ -1742,10 +1740,9 @@ group("aQcow2ThatNamesAnotherFile") {
 }
 
 group("aVmdkNamesAnotherFileByDesign") {
-    // A VMDK always points at a separate file for its data: the descriptor is
-    // read whole and capped at two megabytes, so there is no self-contained
-    // form. The rule cannot be "names nothing else"; it is "names only what
-    // sits beside it".
+    // A VMDK names a separate file for its data, the descriptor being read whole
+    // and capped at two megabytes, so no self-contained form exists. The rule is
+    // therefore that it names only what sits beside it.
     let ordinary = """
         # Disk DescriptorFile
         version=1
@@ -1786,7 +1783,7 @@ group("aVmdkNamesAnotherFileByDesign") {
     expect(zero.extents.first?.filename == nil, "a ZERO extent names no file")
     expect(!zero.namesAFileElsewhere, "and cannot reach anywhere")
 
-    // Several extents, and one bad apple is enough.
+    // Several extents, of which one bad entry is enough to refuse the file.
     let mixed = VmdkDescriptor.parse(
         """
         RW 100 FLAT "a-flat.vmdk" 0
@@ -1795,8 +1792,8 @@ group("aVmdkNamesAnotherFileByDesign") {
     expect("\(mixed.extents.count)", "2", "both extents are read")
     expect(mixed.namesAFileElsewhere, "and one reaching out condemns the set")
 
-    // A snapshot chain points at a parent elsewhere, and the engine cannot
-    // follow one anyway.
+    // A snapshot chain names a parent elsewhere, which the engine does not
+    // follow.
     let delta = VmdkDescriptor.parse("parentFileNameHint=\"base.vmdk\"")
     expect(delta.hasDeltaLink, "a delta link is seen")
 
@@ -1807,9 +1804,8 @@ group("aVmdkNamesAnotherFileByDesign") {
 
 group("aFixedVhdIsAlreadyRaw") {
     // A fixed VHD is the raw disk followed by a 512-byte footer, so every
-    // partition table and superblock is at its natural offset and the engine
-    // opens one with no format support at all. The other kinds are not raw and
-    // would be served as gibberish, so they are told apart here.
+    // partition table and superblock lies at its natural offset and any engine
+    // opens one. The other forms are not raw, so they are identified here.
     func footer(kind: UInt32, size: UInt64) -> Data {
         var bytes = [UInt8](repeating: 0, count: 512)
         for (i, b) in Array("conectix".utf8).enumerated() { bytes[i] = b }
@@ -1830,7 +1826,7 @@ group("aFixedVhdIsAlreadyRaw") {
     // A value the format does not define is not guessed at.
     expect(VhdFooter.parse(footer(kind: 9, size: 1024))?.kind == nil, "an unknown type is unknown")
 
-    // Without the cookie it is not a VHD at all, whatever it is called.
+    // Without the cookie it is not a VHD, whatever its name.
     var noCookie = [UInt8](repeating: 0, count: 512)
     noCookie[0] = 0x41
     expect(VhdFooter.parse(Data(noCookie)) == nil, "no cookie, no footer")
@@ -1838,9 +1834,9 @@ group("aFixedVhdIsAlreadyRaw") {
 }
 
 group("aVdiIsNeverRawAtAnyOffset") {
-    // A VDI keeps its blocks in whatever order they were written, so nothing in
-    // it sits where the disk says. What is read here is only enough to tell one
-    // apart from a file that merely ends in .vdi.
+    // A VDI holds its blocks in the order they were written, so no part of the
+    // disk lies at the offset the disk gives. What is read here distinguishes
+    // one from a file that merely ends in .vdi.
     func header(kind: UInt32, version: UInt32 = 0x0001_0001, size: UInt64 = 1 << 20) -> Data {
         var bytes = [UInt8](repeating: 0, count: VdiHeader.length)
         func le(_ value: UInt64, _ at: Int, _ width: Int) {
@@ -1859,8 +1855,8 @@ group("aVdiIsNeverRawAtAnyOffset") {
     expect(VdiHeader.parse(header(kind: 2))?.kind == .fixed, "and one holding every block")
     expect(VdiHeader.parse(header(kind: 7))?.kind == nil, "an unknown kind is unknown")
 
-    // Version 0 put everything somewhere else, so reading it as version 1 would
-    // find the block map in the wrong place.
+    // Version 0 laid the header out differently, so reading it as version 1
+    // locates the block map at the wrong offset.
     expect(VdiHeader.parse(header(kind: 1, version: 0))?.major == 0, "the version is read")
 
     var wrongMagic = [UInt8](repeating: 0, count: VdiHeader.length)
@@ -1870,9 +1866,9 @@ group("aVdiIsNeverRawAtAnyOffset") {
 }
 
 group("aSparseVmdkCarriesItsDescriptorInside") {
-    // A sparse VMDK is the disk, not a text file about one: the descriptor a
-    // flat VMDK keeps in a file of its own sits inside it, at an offset the
-    // header gives.
+    // A sparse VMDK is the disk rather than a text file describing one. The
+    // descriptor that a flat VMDK keeps in a separate file is stored within it,
+    // at an offset the header gives.
     func header(flags: UInt32, at: UInt64 = 1, sectors: UInt64 = 20) -> Data {
         var bytes = [UInt8](repeating: 0, count: 512)
         for (i, b) in [0x4B, 0x44, 0x4D, 0x56].enumerated() { bytes[i] = UInt8(b) }
@@ -1891,8 +1887,8 @@ group("aSparseVmdkCarriesItsDescriptorInside") {
     expect("\(plain?.descriptorSize ?? 0)", "20", "and so is its length")
     expect(plain?.streamed == false, "and an ordinary sparse image is not the streamed form")
 
-    // Compressed grains, each behind a marker: a different thing to read, and
-    // refused rather than served as noise.
+    // Compressed grains, each behind a marker, which the sparse reader
+    // identifies as the streamed form.
     expect(
         SparseVmdkHeader.parse(header(flags: 0x0003_0003))?.streamed == true,
         "compressed grains are recognised")
@@ -1907,9 +1903,9 @@ group("aSparseVmdkCarriesItsDescriptorInside") {
 }
 
 group("aVhdxSaysWhetherItWasClosedCleanly") {
-    // Of the two headers the live one is whichever counted higher, and what
-    // matters about it here is the log: a log that is not empty means the
-    // image's newest state was never written back into the file itself.
+    // Of the two headers the live one carries the higher sequence number. What
+    // is read from it here is the log: one that is not empty means the image's
+    // most recent state was never written back into the file.
     func header(sequence: UInt64, dirty: Bool) -> Data {
         var bytes = [UInt8](repeating: 0, count: VhdxHeader.headerLength)
         for (i, b) in VhdxHeader.headerSignature.enumerated() { bytes[i] = b }
@@ -1933,7 +1929,7 @@ group("aVhdxSaysWhetherItWasClosedCleanly") {
     ])
     expect(other?.dirty == false, "and the same the other way round")
 
-    // A header that is not one at all is passed over rather than guessed at.
+    // A block that is not a header is passed over rather than guessed at.
     expect(
         VhdxHeader.parse(headers: [
             Data(repeating: 0, count: VhdxHeader.headerLength),
@@ -1944,8 +1940,8 @@ group("aVhdxSaysWhetherItWasClosedCleanly") {
 }
 
 group("aVhdxThatNamesAParent") {
-    // A differencing VHDX holds only what changed from a disk it names, which
-    // is a file this app will not open.
+    // A differencing VHDX holds only the changes from a disk it names, and this
+    // app opens no image that names another file.
     func metadata(parent: Bool) -> Data {
         // The items sit well past the table listing them, as in a real one.
         var bytes = [UInt8](repeating: 0, count: 65536 + 64)
@@ -1980,9 +1976,9 @@ group("aVhdxThatNamesAParent") {
 }
 
 group("aDocumentWithRulesAndCodeInIt") {
-    // SPECS.md is shown inside the app, and it has both, which the reader
-    // could not previously parse: a rule came out as a paragraph reading "---"
-    // and an indented layout was reflowed into a sentence.
+    // SPECS.md is shown inside the app and contains both. The reader parsed
+    // neither: a rule came out as a paragraph reading "---", and an indented
+    // layout was reflowed into a sentence.
     let doc = """
         # Formats
 

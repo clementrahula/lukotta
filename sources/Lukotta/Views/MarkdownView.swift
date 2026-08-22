@@ -1,11 +1,11 @@
 import LukottaCore
 import SwiftUI
 
-/// Renders the small subset of Markdown the bundled documents actually use:
-/// headings, paragraphs, bullet lists and tables.
+/// Renders the subset of Markdown the bundled documents use: headings,
+/// paragraphs, bullet lists, tables, rules and code blocks.
 ///
-/// A full Markdown engine would be a dependency for one screen, and the raw
-/// source makes a compliance document harder to read than it needs to be.
+/// A full Markdown engine would be a dependency for one screen, and raw source
+/// makes a compliance document harder to read.
 struct MarkdownView: View {
     let source: String
 
@@ -54,8 +54,8 @@ struct MarkdownView: View {
             Divider().padding(.vertical, 2)
 
         case .code(let lines):
-            // Shown as written: these are layouts and commands, where a
-            // reflowed line is a wrong line.
+            // Shown as written. These are layouts and commands, where a
+            // reflowed line is a wrong one.
             Text(lines.joined(separator: "\n"))
                 .font(.system(size: 11, design: .monospaced))
                 .fixedSize(horizontal: false, vertical: true)

@@ -3,10 +3,10 @@ import SwiftUI
 
 /// Every disk attached to this Mac, and what can be done with each.
 ///
-/// The drive list shows only what this app can open, which is right until it
-/// shows nothing, and "no encrypted drives found" says nothing about
-/// the drive sitting on the desk. This is where to look then: everything that
-/// is attached, with a plain reason beside the ones that cannot be opened.
+/// The drive list shows only what this app can open, which is correct until it
+/// shows nothing: "no encrypted drives found" says nothing about the drive on
+/// the desk. This view lists everything attached, with a reason beside each disk
+/// that cannot be opened.
 struct OpenDriveSheet: View {
     @EnvironmentObject var model: AppModel
     @Environment(\.dismiss) private var dismiss
@@ -68,7 +68,7 @@ private struct SurveyRow: View {
         return false
     }
 
-    /// Why this one cannot be opened, in the reader's terms rather than the
+    /// Why this one cannot be opened, in ordinary terms rather than the
     /// partition table's.
     private var reason: String {
         switch entry.verdict {
