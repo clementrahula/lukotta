@@ -911,132 +911,132 @@
         }
       }
     },
-    "%@ writes this format with a driver of its own, checked against qemu-img, which has written these formats for years. It is tested, and it is newer than the rest of the app. If you only need to copy files out, open it read-only and the file cannot change.": {
+    "%@ writes this format with a driver of its own, checked against qemu-img, which has written these formats for years. It is tested, and it is newer than the rest of the app. Close any virtual machine using the file first. If you only need to copy files out, open it read-only and the file cannot change.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ пише в този формат със собствен драйвер, проверен спрямо qemu-img, който пише тези формати от години. Той е изпитан, но е по-нов от останалата част на приложението. Ако само копирате файлове навън, отворете образа само за четене и файлът няма да се промени."
+            "value": "%@ пише в този формат със собствен драйвер, проверен спрямо qemu-img, който пише тези формати от години. Той е изпитан, но е по-нов от останалата част на приложението. Първо затворете всяка виртуална машина, която използва файла. Ако само копирате файлове навън, отворете образа само за четене и файлът няма да се промени."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ do tohoto formátu zapisuje vlastním ovladačem, ověřeným proti qemu-img, který tyto formáty zapisuje léta. Je otestovaný, ale je novější než zbytek aplikace. Pokud jen kopírujete soubory ven, otevřete obraz jen ke čtení a soubor se nezmění."
+            "value": "%@ do tohoto formátu zapisuje vlastním ovladačem, ověřeným proti qemu-img, který tyto formáty zapisuje léta. Je otestovaný, ale je novější než zbytek aplikace. Nejprve zavřete každý virtuální stroj, který soubor používá. Pokud jen kopírujete soubory ven, otevřete obraz jen ke čtení a soubor se nezmění."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ skriver dette format med sin egen driver, efterprøvet mod qemu-img, som har skrevet disse formater i årevis. Den er testet, og den er nyere end resten af programmet. Skal du kun kopiere filer ud, så åbn diskbilledet kun til læsning, og filen kan ikke ændre sig."
+            "value": "%@ skriver dette format med sin egen driver, efterprøvet mod qemu-img, som har skrevet disse formater i årevis. Den er testet, og den er nyere end resten af programmet. Luk først enhver virtuel maskine, der bruger filen. Skal du kun kopiere filer ud, så åbn diskbilledet kun til læsning, og filen kan ikke ændre sig."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ schreibt dieses Format mit einem eigenen Treiber, der gegen qemu-img geprüft ist, das diese Formate seit Jahren schreibt. Er ist getestet und neuer als der Rest der App. Wenn du nur Dateien herauskopieren willst, öffne das Image nur lesend, dann kann sich die Datei nicht ändern."
+            "value": "%@ schreibt dieses Format mit einem eigenen Treiber, der gegen qemu-img geprüft ist, das diese Formate seit Jahren schreibt. Er ist getestet und neuer als der Rest der App. Schließe zuerst jede virtuelle Maschine, die die Datei benutzt. Wenn du nur Dateien herauskopieren willst, öffne das Image nur lesend, dann kann sich die Datei nicht ändern."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Το %@ γράφει αυτή τη μορφή με δικό του πρόγραμμα οδήγησης, ελεγμένο απέναντι στο qemu-img, το οποίο γράφει αυτές τις μορφές εδώ και χρόνια. Είναι δοκιμασμένο, και είναι νεότερο από την υπόλοιπη εφαρμογή. Αν θέλετε μόνο να αντιγράψετε αρχεία έξω, ανοίξτε το είδωλο μόνο για ανάγνωση και το αρχείο δεν μπορεί να αλλάξει."
+            "value": "Το %@ γράφει αυτή τη μορφή με δικό του πρόγραμμα οδήγησης, ελεγμένο απέναντι στο qemu-img, το οποίο γράφει αυτές τις μορφές εδώ και χρόνια. Είναι δοκιμασμένο, και είναι νεότερο από την υπόλοιπη εφαρμογή. Κλείστε πρώτα κάθε εικονική μηχανή που χρησιμοποιεί το αρχείο. Αν θέλετε μόνο να αντιγράψετε αρχεία έξω, ανοίξτε το είδωλο μόνο για ανάγνωση και το αρχείο δεν μπορεί να αλλάξει."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ escribe este formato con un controlador propio, contrastado con qemu-img, que lleva años escribiendo estos formatos. Está probado, y es más nuevo que el resto de la app. Si solo necesitas copiar archivos, abre la imagen en solo lectura y el archivo no podrá cambiar."
+            "value": "%@ escribe este formato con un controlador propio, contrastado con qemu-img, que lleva años escribiendo estos formatos. Está probado, y es más nuevo que el resto de la app. Cierra antes cualquier máquina virtual que esté usando el archivo. Si solo necesitas copiar archivos, abre la imagen en solo lectura y el archivo no podrá cambiar."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ kirjutab seda vormingut oma draiveriga, mida on kontrollitud qemu-img vastu, mis on neid vorminguid kirjutanud aastaid. See on testitud ja uuem kui ülejäänud rakendus. Kui soovid ainult faile välja kopeerida, ava tõmmis ainult lugemiseks, siis fail ei saa muutuda."
+            "value": "%@ kirjutab seda vormingut oma draiveriga, mida on kontrollitud qemu-img vastu, mis on neid vorminguid kirjutanud aastaid. See on testitud ja uuem kui ülejäänud rakendus. Sulge kõigepealt iga virtuaalmasin, mis seda faili kasutab. Kui soovid ainult faile välja kopeerida, ava tõmmis ainult lugemiseks, siis fail ei saa muutuda."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ kirjoittaa tätä muotoa omalla ajurillaan, joka on tarkistettu qemu-imgiä vasten, ja se on kirjoittanut näitä muotoja vuosia. Ajuri on testattu, ja se on uudempi kuin muu sovellus. Jos haluat vain kopioida tiedostoja ulos, avaa levykuva vain luettavaksi, jolloin tiedosto ei voi muuttua."
+            "value": "%@ kirjoittaa tätä muotoa omalla ajurillaan, joka on tarkistettu qemu-imgiä vasten, ja se on kirjoittanut näitä muotoja vuosia. Ajuri on testattu, ja se on uudempi kuin muu sovellus. Sulje ensin jokainen virtuaalikone, joka käyttää tiedostoa. Jos haluat vain kopioida tiedostoja ulos, avaa levykuva vain luettavaksi, jolloin tiedosto ei voi muuttua."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ écrit ce format avec un pilote qui lui est propre, vérifié face à qemu-img, qui écrit ces formats depuis des années. Il est testé, et il est plus récent que le reste de l’app. Si vous voulez seulement copier des fichiers, ouvrez l’image en lecture seule : le fichier ne pourra pas changer."
+            "value": "%@ écrit ce format avec un pilote qui lui est propre, vérifié face à qemu-img, qui écrit ces formats depuis des années. Il est testé, et il est plus récent que le reste de l’app. Fermez d’abord toute machine virtuelle qui utilise le fichier. Si vous voulez seulement copier des fichiers, ouvrez l’image en lecture seule : le fichier ne pourra pas changer."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ u ovaj format piše vlastitim upravljačkim programom, provjerenim naspram qemu-img, koji te formate piše godinama. Ispitan je i noviji je od ostatka aplikacije. Ako samo kopirate datoteke van, otvorite sliku samo za čitanje i datoteka se neće promijeniti."
+            "value": "%@ u ovaj format piše vlastitim upravljačkim programom, provjerenim naspram qemu-img, koji te formate piše godinama. Ispitan je i noviji je od ostatka aplikacije. Najprije zatvorite svaki virtualni stroj koji koristi datoteku. Ako samo kopirate datoteke van, otvorite sliku samo za čitanje i datoteka se neće promijeniti."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A(z) %@ saját illesztőprogrammal ír ebben a formátumban, amelyet a qemu-imghez mérve ellenőriztünk; az évek óta írja ezeket a formátumokat. Tesztelt, de újabb, mint az alkalmazás többi része. Ha csak fájlokat másolna ki, nyissa meg a lemezképet csak olvasásra, és a fájl nem változhat."
+            "value": "A(z) %@ saját illesztőprogrammal ír ebben a formátumban, amelyet a qemu-imghez mérve ellenőriztünk; az évek óta írja ezeket a formátumokat. Tesztelt, de újabb, mint az alkalmazás többi része. Előbb zárja be a fájlt használó összes virtuális gépet. Ha csak fájlokat másolna ki, nyissa meg a lemezképet csak olvasásra, és a fájl nem változhat."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ scrive questo formato con un driver suo, verificato contro qemu-img, che scrive questi formati da anni. È collaudato, ed è più recente del resto dell’app. Se ti basta copiare file fuori, apri l’immagine in sola lettura e il file non potrà cambiare."
+            "value": "%@ scrive questo formato con un driver suo, verificato contro qemu-img, che scrive questi formati da anni. È collaudato, ed è più recente del resto dell’app. Chiudi prima ogni macchina virtuale che sta usando il file. Se ti basta copiare file fuori, apri l’immagine in sola lettura e il file non potrà cambiare."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ į šį formatą rašo savo tvarkykle, patikrinta su „qemu-img“, kuri šiuos formatus rašo jau daugelį metų. Ji išbandyta, tačiau naujesnė nei likusi programos dalis. Jei tik kopijuojate failus, atverkite atvaizdį tik skaitymui – failas nepasikeis."
+            "value": "%@ į šį formatą rašo savo tvarkykle, patikrinta su „qemu-img“, kuri šiuos formatus rašo jau daugelį metų. Ji išbandyta, tačiau naujesnė nei likusi programos dalis. Pirmiausia uždarykite kiekvieną virtualią mašiną, naudojančią šį failą. Jei tik kopijuojate failus, atverkite atvaizdį tik skaitymui – failas nepasikeis."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ šajā formātā raksta ar savu draiveri, kas pārbaudīts pret qemu-img, kurš šos formātus raksta jau gadiem. Tas ir pārbaudīts un ir jaunāks nekā pārējā lietotne. Ja vēlaties tikai izkopēt failus, atveriet attēlu tikai lasīšanai, un fails nevarēs mainīties."
+            "value": "%@ šajā formātā raksta ar savu draiveri, kas pārbaudīts pret qemu-img, kurš šos formātus raksta jau gadiem. Tas ir pārbaudīts un ir jaunāks nekā pārējā lietotne. Vispirms aizveriet katru virtuālo mašīnu, kas izmanto šo failu. Ja vēlaties tikai izkopēt failus, atveriet attēlu tikai lasīšanai, un fails nevarēs mainīties."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ skriver dette formatet med sin egen driver, kontrollert mot qemu-img, som har skrevet disse formatene i årevis. Den er testet, og den er nyere enn resten av programmet. Skal du bare kopiere filer ut, åpne diskbildet kun for lesing, så kan ikke filen endres."
+            "value": "%@ skriver dette formatet med sin egen driver, kontrollert mot qemu-img, som har skrevet disse formatene i årevis. Den er testet, og den er nyere enn resten av programmet. Lukk først enhver virtuell maskin som bruker filen. Skal du bare kopiere filer ut, åpne diskbildet kun for lesing, så kan ikke filen endres."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ schrijft dit formaat met een eigen stuurprogramma, getoetst aan qemu-img, dat deze formaten al jaren schrijft. Het is getest, en het is nieuwer dan de rest van de app. Wil je alleen bestanden kopiëren, open de schijfkopie dan alleen-lezen: het bestand kan dan niet veranderen."
+            "value": "%@ schrijft dit formaat met een eigen stuurprogramma, getoetst aan qemu-img, dat deze formaten al jaren schrijft. Het is getest, en het is nieuwer dan de rest van de app. Sluit eerst elke virtuele machine die het bestand gebruikt. Wil je alleen bestanden kopiëren, open de schijfkopie dan alleen-lezen: het bestand kan dan niet veranderen."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ zapisuje ten format własnym sterownikiem, sprawdzonym względem qemu-img, który zapisuje te formaty od lat. Jest przetestowany, ale nowszy niż reszta programu. Jeśli chcesz tylko skopiować pliki, otwórz obraz tylko do odczytu, a plik się nie zmieni."
+            "value": "%@ zapisuje ten format własnym sterownikiem, sprawdzonym względem qemu-img, który zapisuje te formaty od lat. Jest przetestowany, ale nowszy niż reszta programu. Najpierw zamknij każdą maszynę wirtualną, która używa tego pliku. Jeśli chcesz tylko skopiować pliki, otwórz obraz tylko do odczytu, a plik się nie zmieni."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O %@ escreve este formato com um controlador próprio, verificado contra o qemu-img, que escreve estes formatos há anos. Está testado, e é mais recente do que o resto da aplicação. Se só precisa de copiar ficheiros para fora, abra a imagem apenas para leitura e o ficheiro não poderá mudar."
+            "value": "O %@ escreve este formato com um controlador próprio, verificado contra o qemu-img, que escreve estes formatos há anos. Está testado, e é mais recente do que o resto da aplicação. Feche primeiro qualquer máquina virtual que esteja a usar o ficheiro. Se só precisa de copiar ficheiros para fora, abra a imagem apenas para leitura e o ficheiro não poderá mudar."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ scrie acest format cu un driver propriu, verificat față de qemu-img, care scrie aceste formate de ani de zile. Este testat și este mai nou decât restul aplicației. Dacă doriți doar să copiați fișiere, deschideți imaginea doar pentru citire și fișierul nu se va putea modifica."
+            "value": "%@ scrie acest format cu un driver propriu, verificat față de qemu-img, care scrie aceste formate de ani de zile. Este testat și este mai nou decât restul aplicației. Închideți mai întâi orice mașină virtuală care folosește fișierul. Dacă doriți doar să copiați fișiere, deschideți imaginea doar pentru citire și fișierul nu se va putea modifica."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ v ta zapis piše z lastnim gonilnikom, preverjenim proti qemu-img, ki te zapise piše že leta. Preizkušen je in novejši od preostanka programa. Če želite datoteke le prekopirati ven, odprite sliko samo za branje in datoteka se ne bo spremenila."
+            "value": "%@ v ta zapis piše z lastnim gonilnikom, preverjenim proti qemu-img, ki te zapise piše že leta. Preizkušen je in novejši od preostanka programa. Najprej zaprite vsak navidezni računalnik, ki uporablja to datoteko. Če želite datoteke le prekopirati ven, odprite sliko samo za branje in datoteka se ne bo spremenila."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ skriver det här formatet med en egen drivrutin, kontrollerad mot qemu-img, som har skrivit de här formaten i åratal. Den är testad, och den är nyare än resten av appen. Om du bara behöver kopiera ut filer, öppna skivavbilden skrivskyddad så kan filen inte ändras."
+            "value": "%@ skriver det här formatet med en egen drivrutin, kontrollerad mot qemu-img, som har skrivit de här formaten i åratal. Den är testad, och den är nyare än resten av appen. Stäng först varje virtuell maskin som använder filen. Om du bara behöver kopiera ut filer, öppna skivavbilden skrivskyddad så kan filen inte ändras."
           }
         }
       }

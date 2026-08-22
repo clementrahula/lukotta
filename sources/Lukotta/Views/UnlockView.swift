@@ -478,7 +478,7 @@ private struct ImageNote: View {
         }
         return String(
             localized:
-                "\(Brand.name) writes this format with a driver of its own, checked against qemu-img, which has written these formats for years. It is tested, and it is newer than the rest of the app. If you only need to copy files out, open it read-only and the file cannot change."
+                "\(Brand.name) writes this format with a driver of its own, checked against qemu-img, which has written these formats for years. It is tested, and it is newer than the rest of the app. Close any virtual machine using the file first. If you only need to copy files out, open it read-only and the file cannot change."
         )
     }
 

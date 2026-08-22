@@ -353,9 +353,12 @@ enum EndToEnd {
                 "the container is detached", timeout: 30,
                 condition: { !model.drives.contains { $0.uuid == container.path } })
         else { return }
-        check(
-            !FileManager.default.fileExists(atPath: drive.devicePath),
-            "and its device is gone, so the file is a file again")
+        // Waited for rather than asserted: the drive leaves the app's list when
+        // the engine lets go of it, and macOS takes the device node away a
+        // moment later.
+        waitUntil(
+            "and its device is gone, so the file is a file again", timeout: 30,
+            condition: { !FileManager.default.fileExists(atPath: drive.devicePath) })
     }
 
     /// The same container, opened read-only.
