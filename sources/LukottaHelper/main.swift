@@ -109,7 +109,24 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         credential: String,
         reply: @escaping (Int32, String) -> Void
     ) {
-        Log.helper.notice("mount requested, linux \(isLinux, privacy: .public)")
+        mount(
+            devicePath: devicePath, aliasPath: aliasPath, isLinux: isLinux,
+            volumeIdentifier: volumeIdentifier, credential: credential,
+            readOnly: false, reply: reply)
+    }
+
+    func mount(
+        devicePath: String,
+        aliasPath: String?,
+        isLinux: Bool,
+        volumeIdentifier: String?,
+        credential: String,
+        readOnly: Bool,
+        reply: @escaping (Int32, String) -> Void
+    ) {
+        Log.helper.notice(
+            "mount requested, linux \(isLinux, privacy: .public), read-only \(readOnly, privacy: .public)"
+        )
         guard let engine = EnginePaths.anylinuxfs else {
             Log.helper.error("the mounting engine is missing")
             reply(70, "The mounting engine is missing.")
@@ -147,7 +164,8 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     libraryPaths: EnginePaths.libraryPaths(),
                     uid: invokingUID(), gid: invokingGID(),
                     cores: MountScript.VirtualMachine.cores,
-                    ramMiB: MountScript.VirtualMachine.ramMiB))
+                    ramMiB: MountScript.VirtualMachine.ramMiB,
+                    readOnly: readOnly))
 
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")
             try script.write(to: scriptURL, atomically: true, encoding: .utf8)

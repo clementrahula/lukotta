@@ -143,12 +143,34 @@ final class HelperClient: ObservableObject {
     /// Mount through the helper. Returns nil when it is unavailable, so the
     /// caller can fall back rather than fail.
     func mount(
-        drive: Drive, aliasPath: String?, volume: LogicalVolume?, credential: String
+        drive: Drive, aliasPath: String?, volume: LogicalVolume?, credential: String,
+        readOnly: Bool = false
     ) async -> (status: Int32, transcript: String)? {
         guard isReady, proxy() != nil, let connection else { return nil }
         let devicePath = drive.devicePath
         let isLinux = drive.kind == .linux
         let identifier = volume?.mountIdentifier
+        let answer = await Self.roundTrip(ConnectionBox(connection)) { proxy, done in
+            proxy.mount(
+                devicePath: devicePath,
+                aliasPath: aliasPath,
+                isLinux: isLinux,
+                volumeIdentifier: identifier,
+                credential: credential,
+                readOnly: readOnly
+            ) { status, transcript in
+                done((status: status, transcript: transcript))
+            }
+        }
+        if answer != nil { return answer }
+
+        // A helper older than this method never answers it, and the app may
+        // have been updated while it kept running. A read-write mount can still
+        // be asked for through the selector it does have; a read-only one
+        // cannot, and saying so is better than mounting a drive writable when
+        // read-only was chosen.
+        guard !readOnly, let connection = self.connection else { return answer }
+        Log.helper.notice("falling back to the older mount method")
         return await Self.roundTrip(ConnectionBox(connection)) { proxy, done in
             proxy.mount(
                 devicePath: devicePath,

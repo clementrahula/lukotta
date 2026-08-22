@@ -58,6 +58,22 @@ public enum HelperInfo {
         credential: String,
         reply: @escaping (Int32, String) -> Void)
 
+    /// The same, with a choice of whether the drive may be written to.
+    ///
+    /// A second method rather than a parameter added to the one above, because
+    /// the parameter list is the Objective-C selector: changing it would leave a
+    /// freshly updated app calling a still-running older helper that has no such
+    /// method and never answers. The old selector stays, so an old helper still
+    /// serves a read-write mount, and the app falls back to it.
+    func mount(
+        devicePath: String,
+        aliasPath: String?,
+        isLinux: Bool,
+        volumeIdentifier: String?,
+        credential: String,
+        readOnly: Bool,
+        reply: @escaping (Int32, String) -> Void)
+
     /// The transcript of the mount running right now, as far as it has got.
     ///
     /// Polled rather than pushed back over the connection: the helper stays a
