@@ -38,11 +38,18 @@ jobs:
             vendor/engine
             vendor/upstream
             vendor/.cache
+            ~/.anylinuxfs
           key: engine-${{ hashFiles('vendor/engine.lock') }}
 
       - name: Fetch and stage the engine
         run: |
           ./scripts/fetch-engine.sh
+          # The Alpine image the guest boots is downloaded by the engine rather
+          # than shipped in the bottle, so it is the one piece fetch-engine.sh
+          # does not fetch.
+          if [ ! -d "$HOME/.anylinuxfs/alpine/rootfs" ]; then
+            ./vendor/upstream/anylinuxfs/*/bin/anylinuxfs init
+          fi
           ./scripts/vendor-engine.sh
 
       # Runs the checks itself and refuses to build when they fail, so this is
