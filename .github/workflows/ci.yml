@@ -39,8 +39,15 @@ jobs:
 
       # Run on their own rather than through build-app.sh, so that what they
       # print is in the log when they fail.
+      #
+      # Built and then run, rather than `swift run`: a runner kills the binary
+      # at exec when nothing has signed it, before it prints a word. An ad-hoc
+      # signature is enough to satisfy that.
       - name: Unit checks
-        run: swift run -c release LukottaTests
+        run: |
+          swift build -c release --product LukottaTests
+          codesign --force --sign - .build/release/LukottaTests
+          ./.build/release/LukottaTests
 
       # Without vendor/engine it warns and carries on, which is what is wanted
       # here. The checks have already run above.
