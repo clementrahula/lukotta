@@ -55,6 +55,24 @@ struct HelpSheet: View {
                             "LVM inside LUKS, as Ubuntu, Debian, Mint and Fedora set it up. Several volumes on one drive all unlock together"
                         )
                         Bullet("ext4, btrfs and XFS filesystems inside them")
+                        Bullet(
+                            "Virtual machine disks: qcow2, VMDK, VDI, VHD and VHDX, as VMware, VirtualBox, Hyper-V, QEMU and UTM write them"
+                        )
+                        Bullet(
+                            "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive"
+                        )
+                    }
+
+                    HelpSection(title: "Opening a disk image") {
+                        Bullet(
+                            "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what \(Brand.name) can do with each"
+                        )
+                        Bullet(
+                            "An image opens without an administrator password. It is read in place, nothing is attached to your Mac, and the volume appears in your home folder"
+                        )
+                        Bullet(
+                            "An exFAT image is handed to macOS, which reads and writes that format itself"
+                        )
                     }
 
                     HelpSection(title: "What it cannot open") {
@@ -62,6 +80,15 @@ struct HelpSheet: View {
                             "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption"
                         )
                         Bullet("LUKS volumes whose header is stored separately from the drive")
+                        Bullet(
+                            "FileVault and encrypted disk images, which macOS opens itself"
+                        )
+                        Bullet(
+                            "Images that name another file: a VMware snapshot chain, a differencing VHD, a VHDX with a parent, or a qcow2 with a backing file. \(Brand.name) opens no image that decides which other files get read"
+                        )
+                        Bullet(
+                            "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held"
+                        )
                     }
 
                     HelpSection(title: "Why it appears as a network drive") {

@@ -2569,6 +2569,9 @@
         }
       }
     },
+    "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": {
+      "localizations": {}
+    },
     "A crash report was found": {
       "localizations": {
         "bg": {
@@ -4334,6 +4337,15 @@
           }
         }
       }
+    },
+    "An exFAT image is handed to macOS, which reads and writes that format itself": {
+      "localizations": {}
+    },
+    "An image opens without an administrator password. It is read in place, nothing is attached to your Mac, and the volume appears in your home folder": {
+      "localizations": {}
+    },
+    "An image opens without an administrator password. It is read where it sits, nothing is attached to your Mac, and the volume appears in your home folder": {
+      "localizations": {}
     },
     "Another drive is open, and the drive engine has to run on its own the first time after it changes. Eject the other drives, open this one, then they can all be open together again.": {
       "localizations": {
@@ -6544,6 +6556,12 @@
           }
         }
       }
+    },
+    "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": {
+      "localizations": {}
+    },
+    "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ makes of each": {
+      "localizations": {}
     },
     "Choose a disk image or container file to open.": {
       "localizations": {
@@ -11247,6 +11265,9 @@
         }
       }
     },
+    "FileVault and encrypted disk images, which macOS opens itself": {
+      "localizations": {}
+    },
     "Forget": {
       "localizations": {
         "bg": {
@@ -12676,6 +12697,9 @@
           }
         }
       }
+    },
+    "Images that name another file: a VMware snapshot chain, a differencing VHD, a VHDX with a parent, or a qcow2 with a backing file. %@ opens no image that decides which other files get read": {
+      "localizations": {}
     },
     "Internal": {
       "localizations": {
@@ -17877,6 +17901,9 @@
         }
       }
     },
+    "Opening a disk image": {
+      "localizations": {}
+    },
     "Opening “%@”": {
       "localizations": {
         "bg": {
@@ -19382,6 +19409,12 @@
           }
         }
       }
+    },
+    "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks as one on a drive does": {
+      "localizations": {}
+    },
+    "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": {
+      "localizations": {}
     },
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do.": {
       "localizations": {
@@ -30248,6 +30281,9 @@
           }
         }
       }
+    },
+    "Virtual machine disks: qcow2, VMDK, VDI, VHD and VHDX, as VMware, VirtualBox, Hyper-V, QEMU and UTM write them": {
+      "localizations": {}
     },
     "Volumes opened": {
       "localizations": {

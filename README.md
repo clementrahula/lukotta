@@ -7,9 +7,9 @@
 </p>
 
 <p align="center">
-  <strong>Open BitLocker and Linux drives on macOS.</strong><br>
-  Plug in the drive, type its password, and it appears in Finder — readable and
-  writable, like any other disk.
+  <strong>Open BitLocker, Linux and virtual machine disks on macOS.</strong><br>
+  Plug in a drive or open a disk image, type the password, and it appears in
+  Finder — readable and writable, like any other disk.
 </p>
 
 <p align="center">
@@ -29,10 +29,16 @@ macOS cannot read BitLocker or Linux filesystems. Linux can. So Lukotta starts a
 small Linux virtual machine, unlocks the drive inside it, and hands the drive
 back to Finder.
 
+A disk image opens the same way, and without an administrator password. The
+image is read where it sits, nothing is attached to your Mac, and the volume
+appears under your own home folder.
+
 Nothing is installed. The engine ships inside the app, nothing leaves your Mac,
 and a drive is only written to when you write to it.
 
 ## What It Can Open
+
+**Drives**
 
 | | |
 | --- | --- |
@@ -42,12 +48,32 @@ and a drive is only written to when you write to it.
 | **LVM inside LUKS** | As Ubuntu, Debian, Mint and Fedora set it up. Several volumes on one drive all unlock together |
 | **Filesystems** | ext4, btrfs and XFS inside them |
 
+**Disk images**
+
+| | |
+| --- | --- |
+| **Virtual machine disks** | qcow2, VMDK, VDI, VHD and VHDX, as VMware, VirtualBox, Hyper-V, QEMU and UTM write them |
+| **Raw images** | `.img`, `.dmg`, and anything else macOS can attach |
+| **What is inside them** | A BitLocker or LUKS volume in an image unlocks exactly as one on a drive does |
+
+An exFAT image is handed to macOS, which reads and writes that format itself.
+Lukotta says so when it happens.
+
 <details>
 <summary>What it cannot open</summary>
 
 - Drives sealed to a TPM rather than a password, including Ubuntu's newer
   hardware-backed encryption
 - LUKS volumes whose header is stored separately from the drive
+- FileVault and encrypted disk images, which macOS opens itself
+- Images that name another file: a VMware snapshot chain, a differencing VHD, a
+  VHDX with a parent, or a qcow2 with a backing file. Lukotta opens no image
+  that decides which other files get read
+- A VHDX that was not shut down cleanly. Open it once in the virtual machine it
+  belongs to, which writes back what it last held
+
+[FORMATS.md][formats] lists every format, how each is read, and the reasoning
+behind each of these.
 
 </details>
 
@@ -94,6 +120,11 @@ it. It is signed and notarised, so it opens with a double-click.
 
 Plug in the drive and pick it from the list. Type the password or paste the
 recovery key. It appears in Finder under Locations.
+
+For a disk image, choose **File → Open Disk Image…**. To see every disk attached
+to the Mac, including those Lukotta cannot open and the reason for each, choose
+**File → Open Drive…**. A drive or an image with nothing encrypted on it opens
+straight away, with no password asked for.
 
 Eject it from Lukotta, from the menu bar, or from Finder.
 
@@ -180,6 +211,6 @@ and Fable 5 models from Anthropic.
 [licence]: LICENSE.txt
 [trademark]: TRADEMARKS.txt
 [notices]: THIRD_PARTY_NOTICES.md
-[releases]: https://github.com/clementrahula/lukotta/releases
+[formats]: FORMATS.md
 [anylinuxfs]: https://github.com/nohajc/anylinuxfs
 [sparkle]: https://sparkle-project.org
