@@ -1,7 +1,8 @@
 # Security Policy
 
-Lukotta reads raw disks, handles disk encryption passphrases, and runs part of
-itself as root. Here is how it does those things, and where to report a fault.
+Lukotta reads raw disks, parses disk images it is given, handles disk
+encryption passphrases, and runs part of itself as root. Here is how it does
+those things, and where to report a fault.
 
 ## Reporting a Vulnerability
 
@@ -10,8 +11,8 @@ that could expose someone's passphrase or their data.
 
 Include what you did, what happened, the version from the Help screen, and
 whether the background helper was installed. If a report needs a log, use the
-bug icon in the app — it scrubs the passphrase out of the engine output and
-shows you the whole report before anything is sent.
+bug icon in the app: it removes the passphrase from the engine output and shows
+you the whole report before anything is sent.
 
 One person maintains this, so there is no response window and no bounty.
 Expect a reply within a few days.
@@ -25,12 +26,17 @@ Expect a reply within a few days.
 - Anything that lets a drive's contents change during an unlock that was only
   meant to read it.
 - Anything that makes the app accept an update it should have refused.
+- A disk image that reads a file it was not given: one naming a backing file,
+  an extent, or a parent disk, and having that file opened.
+- A disk image that makes a format driver read outside the file, allocate
+  without bound, or serve one part of the file as another.
 
 ## Out of Scope
 
 - Vulnerabilities in anylinuxfs, libkrun or the Linux packages inside the
   guest image. Report those upstream; tell me as well if Lukotta ships an
-  affected version.
+  affected version. The format drivers for VDI, VHD, VHDX and VMDK are the
+  exception: they are written here and are in scope above.
 - macOS asking for Full Disk Access, or the system's own dialogs.
 - Anything requiring an attacker who is already root on the machine.
 
@@ -71,11 +77,33 @@ or is signed by anyone else, is refused.
 The helper can be removed at any time from Login Items in System Settings.
 Lukotta falls back to asking for an administrator password.
 
+## Disk Images
+
+An image is opened without any privilege. The helper is not involved, no device
+is attached for the formats the engine reads itself, and the volume is mounted
+under the user's own home folder. What an image can reach is therefore bounded
+by what the person who opened it could already read.
+
+That bound is not the whole defence. Every format other than raw can name
+another file, and libkrun opens whatever an image names, so an image could
+otherwise determine which files the virtual machine reads. Each such image is
+refused before the engine is given the path: a qcow2 with a backing or external
+data file, a VMDK extent that is not a plain name beside its descriptor, a
+VMDK snapshot chain, a differencing VHD, and a VHDX naming a parent. The
+drivers refuse them as well, so the rule holds in both layers.
+
+The drivers themselves parse a file supplied by whoever opened it. Each is
+read-only and validates every value before relying on it: block sizes must be
+powers of two, maps are bounded to a size a real disk could require, and every
+entry must lie within the file. [SPECS.md](SPECS.md) states what each format
+is and which images are refused.
+
 ## What the App Can Reach
 
-Full Disk Access is required. macOS blocks reading a drive's raw contents
-without it, and an encrypted drive is nothing but raw contents until it is
-unlocked. No app can request it; it has to be granted by hand.
+Full Disk Access is required to read a drive. macOS blocks reading a drive's
+raw contents without it, and an encrypted drive is nothing but raw contents
+until it is unlocked. No app can request it; it has to be granted by hand. A
+disk image needs none of this, being an ordinary file.
 
 Nothing is sent anywhere. The engine is inside the app, so no component is
 downloaded at first run. The only outbound request Lukotta makes on its own is
@@ -98,5 +126,7 @@ back after two failed starts.
 - Someone who has your passphrase, or a Mac left unlocked with a drive open.
 - A drive that was already tampered with. Lukotta unlocks what it is given; it
   cannot tell you whether the contents were altered before you plugged it in.
+  The same holds for a disk image: the checks above stop an image reaching
+  other files, and say nothing about whether its contents are what you expect.
 - The initialise dialog when Lukotta is not running. Lukotta suppresses it by
   claiming drives it recognises, and a claim belongs to a running process.

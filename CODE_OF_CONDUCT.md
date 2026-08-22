@@ -10,7 +10,7 @@ Not welcome here: harassment, insults directed at who someone is, unwelcome
 personal attention, publishing someone's private information, or continuing to
 argue after an answer has been given.
 
-This applies to issues, pull requests, commit messages and email — anywhere the
+This applies to issues, pull requests, commit messages and email, anywhere the
 project happens.
 
 If someone is behaving this way, email **lukotta@rahula.dev**. One person reads

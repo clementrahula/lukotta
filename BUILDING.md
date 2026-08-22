@@ -1,7 +1,7 @@
 # Building Lukotta from Source
 
 Lukotta is GPL-3.0. Anyone who receives the app is entitled to its source and
-to the scripts that build it, so here is the whole path — from a clean
+to the scripts that build it, so here is the whole path, from a clean
 machine to a signed application.
 
 ## Requirements
@@ -41,7 +41,7 @@ shipped inside the app.
 | | |
 | --- | --- |
 | `anylinuxfs` | version, the tap commit it came from, the bottle URL and its sha256 |
-| `util-linux` | version, bottle URL and sha256 — the engine links `libblkid` from it |
+| `util-linux` | version, bottle URL and sha256; the engine links `libblkid` from it |
 | guest image | the OCI manifest digest of the Alpine image |
 
 `scripts/fetch-engine.sh` downloads those URLs and checks each against the
@@ -58,12 +58,12 @@ ships the sequoia bottles.
 
 ### The two binaries we build ourselves
 
-Two of the engine's binaries carry patches of ours — `anylinuxfs` and `vmproxy`.
+Two of the engine's binaries carry patches, `anylinuxfs` and `vmproxy`.
 They are built from the source tarball pinned in `vendor/engine.lock`, checked
 against the same sha256 the release verifies, with everything in `patches/`
 applied. Two crates the host binary links in are fetched and patched the same
-way — imago, which reads the image formats, and krun-devices, which asks it for
-one — and the build points at those copies rather than the published ones.
+way: imago, which reads the image formats, and krun-devices, which asks it for
+one. The build points at those copies rather than the published ones.
 Everything else still comes from the checksummed bottle.
 
     brew install llvm lld util-linux
@@ -71,8 +71,8 @@ Everything else still comes from the checksummed bottle.
     ./scripts/build-engine.sh
 
 **This step is optional.** Skip it and the app is built with upstream's binaries
-and works — without the fixes, so VMDK, VDI and dynamic VHD are refused by name
-and encryption inside an image is not opened. `vendor-engine.sh` records which patches went
+and works without the fixes, so VMDK, VDI, VHD, VHDX and encryption inside an
+image are refused by name. `vendor-engine.sh` records which patches went
 in, and the app reads that file rather than assuming, so it says what it can do
 either way. A release should always run it.
 
@@ -87,8 +87,8 @@ download. Create it once with the engine you just fetched:
 ```
 
 That writes `~/.anylinuxfs/alpine`. `vendor-engine.sh` checks it is the image
-the lock names — umoci records the manifest digest in the name of the mtree
-file beside the image — and refuses to build against a different one.
+the lock names, umoci recording the manifest digest in the name of the mtree
+file beside the image, and refuses to build against a different one.
 
 The image is then trimmed to the packages Lukotta can reach; it arrives
 supporting far more than that. Every GPL package shipped is one whose source
@@ -103,7 +103,7 @@ compliance surface smaller. Set `LUKOTTA_NO_TRIM=1` to keep the whole image.
 2. Compiles the SwiftPM targets.
 3. Assembles the bundle and copies `vendor/engine` into it.
 4. Embeds the Sparkle framework and sets the runtime search path.
-5. Signs from the inside out — nested code before the code containing it.
+5. Signs from the inside out, nested code before the code containing it.
 6. Verifies the signature, then installs to `/Applications`.
 
 Switches:

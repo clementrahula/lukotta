@@ -1,8 +1,8 @@
 # Notes for Coding Agents
 
-This file lists the things about Lukotta that are misleading — commands that
-report the wrong thing, conventions that differ from the default, and rules
-that look like details and are not.
+This file lists the things about Lukotta that mislead: commands that report the
+wrong thing, conventions that differ from the default, and rules that look like
+details and are not.
 
 [CONTRIBUTING.md](CONTRIBUTING.md) covers house style and how to submit work.
 [BUILDING.md](BUILDING.md) covers requirements, switches, and signing. Read
@@ -25,7 +25,7 @@ working bundle needs the Linux engine and the compiled asset catalogue:
 The app it builds is called **Drive Unlocker**, not Lukotta. Builds are
 unbranded by default because the name and logo are trademarks that the GPL does
 not cover; `LUKOTTA_BRANDING=official` is what `scripts/release.sh` uses. Do not
-change that default, and do not hard-code either identity in Swift — the code
+change that default, and do not hard-code either identity in Swift. The code
 reads the name, identifier, icon and mark from the bundle at run time.
 
 `build-app.sh` needs `actool` from Xcode. The SwiftPM command line copies
@@ -56,8 +56,8 @@ the exit status meaningless, `Diagnosis.rules` looks for phrases. Each rule
 records whether the words are the engine's own or the Linux tooling's, and
 `Diagnosis.enginesChecked` lists the engine versions the rules have been tried
 against. **Bumping `vendor/engine.lock` fails a test until that list is
-updated** — deliberately, so a rewording upstream cannot quietly stop every
-rule from firing.
+updated**, so that a rewording upstream cannot silently stop every rule from
+firing.
 
 `MountScript` lives in `LukottaCore`, which the privileged helper links.
 After changing it, restart the helper or you are testing the old script.
@@ -66,7 +66,7 @@ The engine is driven through a pty by `expect`, so its output arrives with
 carriage returns. Strip `\r` before parsing or comparing.
 
 The generated script embeds a single-quoted `awk` program. An apostrophe
-anywhere inside it — including in a comment — closes the quote and breaks the
+anywhere inside it, including inside a comment, closes the quote and breaks the
 whole script. A test runs `sh -n` over the generated output to catch this.
 Keep it.
 
@@ -78,8 +78,8 @@ which `Log.subsystem` is the only definition of. To read it back:
     log show --predicate 'subsystem == "com.clementrahula.lukotta"' --last 30m
 
 An unbranded build logs under `com.example.driveunlocker`, and the privileged
-helper logs under the same subsystem as the app it came from — one predicate
-catches both processes, and the `category` tells them apart.
+helper logs under the same subsystem as the app it came from, so one predicate
+catches both processes and the `category` tells them apart.
 
 A string interpolated into a log message is private by default and reads back
 as `<private>`, which is what a drive's name and a path on someone's disk
@@ -92,7 +92,7 @@ is never logged at all.
 and compares it with `tests/snapshots/`. It needs `./build-app.sh` to have run;
 `scripts/run-tests.sh` skips it rather than failing when there is no app.
 
-Baselines belong to one branding — the header draws the app's own name — so
+Baselines belong to one branding, the header drawing the app's own name, so
 never record them from an official build.
 
 `--record` replaces the baselines. It is a separate command on purpose: a
@@ -110,7 +110,7 @@ axis is window size rather than text size.
 ## A Closure Handed To An Objective-C API
 
 Under Swift 6 a closure written inside `@MainActor` code **is** main-actor
-isolated, and an Objective-C API that calls it on its own queue traps —
+isolated, and an Objective-C API that calls it on its own queue traps:
 `dispatch_assert_queue_fail`, SIGTRAP, process gone. Under Swift 5 the same
 code ran, because nothing checked.
 
@@ -119,14 +119,14 @@ time a helper too old to answer sent the call to that handler.
 
 So a closure destined for `NSXPCConnection`, `NSWorkspace.recycle`,
 `DiskArbitration` or anything else that calls back on an unknown queue must be
-created **outside** any actor — a `nonisolated` function, usually static. Hop
+created **outside** any actor, in a `nonisolated` function, usually static. Hop
 back with `Task { @MainActor in … }` once inside. `HelperClient.roundTrip` and
 `moveToTheBin` are the two shapes to copy.
 
 `--check-helper [/dev/diskNsM]` exercises both the reply and the error path
 against the real daemon. Without a device it probes the internal disk, which
-answers `unknown` — root cannot read the sealed system partitions, so that
-proves the plumbing rather than the identification.
+answers `unknown`, root being unable to read the sealed system partitions, so
+that proves the plumbing rather than the identification.
 
 `--reinstall-helper` takes the daemon down and puts it back. The helper has no
 KeepAlive and never exits on its own, so **replacing the application leaves the
@@ -141,9 +141,9 @@ no person: open a container file, unlock it, rebuild the list underneath it,
 eject it. Real engine, real helper, real hdiutil. It builds its own LUKS
 container once, in a cache of its own, and touches nothing of the user's.
 
-`anylinuxfs shell` **truncates an image file to the last byte written** — 320 MB
-in, 69 MB out — so a filesystem made that way records one size and later finds
-another and will not mount. `scripts/e2e.sh` puts the length back afterwards.
+`anylinuxfs shell` **truncates an image file to the last byte written**, 320 MB
+in and 69 MB out, so a filesystem made that way records one size, later finds
+another, and will not mount. `scripts/e2e.sh` puts the length back afterwards.
 This is why fixtures built through the engine look fine and then fail.
 
 `build-app.sh` **runs the tests and refuses to build when they fail**, so
@@ -152,8 +152,8 @@ the previous binary and drawing the wrong conclusion. Check the binary's
 timestamp changed.
 
 **Check that a new step can fail.** The first version of the rebuild step passed
-against a deliberately broken build, because it waited on the phase — which a
-rebuild does not change — and asserted against the list as it was before.
+against a deliberately broken build, because it waited on the phase, which a
+rebuild does not change, and asserted against the list as it was before.
 `scanGeneration` exists for that: it counts scans actually applied. Break the
 thing on purpose and watch the step fail before trusting it.
 
@@ -165,7 +165,7 @@ and checked against the same sha256 the release verifies. Everything else still
 comes from the checksummed bottle. The patches are in `patches/`, with what each
 does and why.
 
-**Building without that step is fine and produces a working app** — one without
+**Building without that step is fine and produces a working app**, one without
 the fixes. `vendor-engine.sh` writes the applied patch names into
 `engine/anylinuxfs/PATCHES` and `EnginePaths.enginePatches` reads it, so the app
 says what it can do rather than assuming. Do not make the app assume.
@@ -175,8 +175,8 @@ Needs `brew install llvm lld util-linux` and the
 
 **An image can name other files.** From libkrun's header: formats other than raw
 can reference other files, which libkrun then opens. Any qcow2 naming a backing
-file or an external data file is refused before the engine is told anything —
-`Qcow2Header.namesAnotherFile`. Keep that check ahead of the engine when adding
+file or an external data file is refused before the engine is told anything;
+see `Qcow2Header.namesAnotherFile`. Keep that check ahead of the engine when adding
 formats.
 
 ## Security Invariants

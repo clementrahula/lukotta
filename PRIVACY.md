@@ -22,9 +22,10 @@ you have read and chosen to send.
 
 ## The App
 
-Lukotta unlocks drives on your Mac. Nothing about a drive is transmitted: not
-its contents, not the names or sizes of files on it, not which drives you
-have, not when you unlock them or how often.
+Lukotta unlocks drives and disk images on your Mac. Nothing about either is
+transmitted: not its contents, not the names or sizes of files on it, not which
+drives you have, not which files you opened, not when you unlocked them or how
+often.
 
 Your passphrase is never written to disk in the clear and never appears in a
 command line. [SECURITY.md](SECURITY.md) describes how it is handled.

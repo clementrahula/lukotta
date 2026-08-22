@@ -29,7 +29,8 @@ Both must pass. `build-app.sh` runs the tests itself and refuses to produce a
 bundle from a failing tree, which is deliberate: the app reads raw disks and
 runs part of itself as root.
 
-To check that a built app starts — the one failure an update cannot undo — ask
+To check that a built app starts, which is the one failure an update cannot
+undo, ask
 it:
 
 ```bash
@@ -97,8 +98,8 @@ Bin. A development build removes itself the same way a released one does.
 
 - Comments explain **why**, not what. If a line needs saying at all, it is
   because the obvious thing was wrong.
-- No historical narration in comments or documents — git remembers.
-- Commit messages describe the reasoning, not just the change.
+- No historical narration in comments or documents; git remembers.
+- Commit messages describe the reasoning as well as the change.
 - British spelling in prose; Apple's spelling in API names.
 
 ## Reporting a Problem
@@ -112,8 +113,9 @@ Issues and patches: <https://github.com/clementrahula/lukotta>.
 ## Licence
 
 Contributions are accepted under GPL-3.0, the same licence as the project. The
-name and the logo are trademarks and are not covered by it — see
-[TRADEMARKS.txt](TRADEMARKS.txt) — so a fork is welcome under its own name.
+name and the logo are trademarks and are not covered by it, as
+[TRADEMARKS.txt](TRADEMARKS.txt) sets out, so a fork is welcome under its own
+name.
 The engine and the Linux components it carries are third-party GPL software;
 `THIRD_PARTY_NOTICES.md` records what is shipped and under what terms, and
 `scripts/collect-sources.sh` assembles the corresponding source that must
