@@ -21,8 +21,7 @@
 
 <p align="center">
   <a href="https://lukotta.rahula.dev">lukotta.rahula.dev</a> ·
-  <a href="https://github.com/clementrahula/lukotta/releases">Download</a> ·
-  <a href="FORMATS.md">Formats it opens</a>
+  <a href="https://github.com/clementrahula/lukotta/releases">Download</a>
 </p>
 
 ## How It Works
@@ -55,6 +54,8 @@ volume appears in your home folder.
 | **What is inside them** | A BitLocker or LUKS volume inside any image, which unlocks like one on a drive |
 
 An exFAT image is handed to macOS, which reads and writes that format itself.
+[FORMATS.md][formats] is the full specification: every filesystem, encryption
+and image format, how each is read, and what is not supported and why.
 
 <details>
 <summary>What it cannot open</summary>
@@ -68,9 +69,6 @@ An exFAT image is handed to macOS, which reads and writes that format itself.
   that decides which other files get read
 - A VHDX that was not shut down cleanly. Open it once in the virtual machine it
   belongs to, which writes back what it last held
-
-[FORMATS.md][formats] lists every format, how each is read, and the reasoning
-behind each of these.
 
 </details>
 
@@ -182,7 +180,7 @@ the code freely; give your version its own name. [TRADEMARKS.txt][trademark]
 says what that means in practice.
 
 [Licence][licence] · [Trademarks][trademark] · [Third-party notices][notices] ·
-[Releases][releases]
+[Formats][formats] · [Releases][releases]
 
 ## About the Name
 

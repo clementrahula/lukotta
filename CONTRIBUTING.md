@@ -57,6 +57,12 @@ nobody can use without seeing it.
 Mounting works by handing the drive to a Linux virtual machine, which unlocks
 it and re-exports it over NFS to localhost.
 
+[FORMATS.md](FORMATS.md) specifies what that machine can open: the filesystems,
+the encryption, the disk image formats and how each is read, together with what
+is refused and on what rule. Read it before adding a format or changing how one
+is judged. The engine's own modifications are described in
+[patches/README.md](patches/README.md).
+
 The top level holds the documents, the package manifest and `build-app.sh`.
 Everything else is in one of these:
 
