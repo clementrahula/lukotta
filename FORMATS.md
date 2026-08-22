@@ -1,277 +1,232 @@
-# What Lukotta can open, and what it could
+# Formats
 
-Three separate layers, and every question about "can it open X" is really a
-question about which of them X lands in.
+What Lukotta opens, how, and what it does not open and why.
 
-1. **The wrapper** — how the bytes are stored. A raw file, a DMG, a VM disk.
-2. **The encryption** — LUKS, BitLocker, VeraCrypt, none.
-3. **The filesystem** — ext4, NTFS, btrfs, HFS+.
-
-A format is cheap to add when it lands in a layer that already has the machinery
-and expensive when it does not. Everything below was checked against the engine
-and the guest that ship in the app today, not recalled.
+Lukotta hands a drive or a file to a Linux virtual machine, mounts it there, and
+re-exports it over NFS so that Finder sees an ordinary volume. Everything below
+follows from that arrangement: what Linux can mount, Lukotta can open, provided
+the bytes reach Linux in a form it recognises.
 
 ---
 
-## What works now
+## 1. What can be opened
 
-**Wrappers.** Physical drives; raw image files (`.img`, `.dd`, anything
-`cryptsetup luksFormat` produced); DMG, ISO, sparseimage and sparsebundle — all
-of those because macOS attaches them and Lukotta hands the resulting device to
-the engine.
+### Filesystems
 
-**Encryption.** LUKS1, LUKS2, BitLocker.
+| Filesystem | How it is mounted | Notes |
+| --- | --- | --- |
+| NTFS | `ntfs3`, falling back to `ntfs-3g` | The in-kernel driver refuses a volume Windows left dirty; the userspace one mounts it, so both are attempted in that order |
+| ext2, ext3, ext4 | in-kernel | |
+| btrfs | in-kernel | |
+| XFS | in-kernel | |
+| exFAT | not mounted in the guest | Handed to macOS, which reads and writes it natively. See §4 |
+| FAT | not mounted in the guest | macOS reads it natively |
+| APFS, HFS+ | not mounted in the guest | macOS reads them natively, and the guest has no driver for either |
 
-**Filesystems**, from the guest kernel: ext2, ext3, ext4, XFS, btrfs, F2FS,
-bcachefs, erofs, squashfs, vfat, exFAT, NTFS (ntfs3), and anything through FUSE.
+The guest is an Alpine image of 66 packages carrying `ntfs-3g`, `btrfs-progs`,
+`e2fsprogs`, `cryptsetup` and `lvm2`. A filesystem outside that list cannot be
+mounted however the bytes arrive.
 
----
+### Encryption
 
-## Already in the box, not yet reachable
+| Encryption | Opened | Notes |
+| --- | --- | --- |
+| BitLocker | Yes | Unlocked by `cryptsetup bitlkOpen` in the guest |
+| LUKS1, LUKS2 | Yes | Unlocked by `cryptsetup open` |
+| FileVault 2 | No | macOS opens it natively. See §5 |
+| VeraCrypt, TrueCrypt | No | cryptsetup carries `tcrypt`, which is not currently reachable. See §5 |
+| Encryption applied by an image format | No | qcow2 and VMDK can encrypt their own contents. Encryption *inside* an image, as a LUKS or BitLocker volume, is opened |
 
-The engine's cryptsetup is 2.8.6 and answers to more than we ask it:
+### Volume managers
 
-    luks  luks1  luks2  plain  loopaes  tcrypt  bitlk  fvault2
+LVM volume groups are discovered and their logical volumes opened, including a
+group inside an encrypted container. Linux software RAID is recognised by the
+engine.
 
-Two of those are formats Lukotta does not offer.
+### Disk image formats
 
-### TrueCrypt and VeraCrypt — `tcrypt`
+| Format | Opened | How |
+| --- | --- | --- |
+| Raw (`.img`, `.dmg`, and any unrecognised extension) | Yes | Attached by macOS, then mounted in the guest |
+| qcow2 | Yes | Read by the engine's image layer; nothing is attached |
+| VMDK, flat (`monolithicFlat`) | Yes | A text descriptor beside a raw extent |
+| VMDK, sparse (`monolithicSparse`) | Yes | Grain directory, grain tables, grains |
+| VMDK, stream-optimized | Yes | Deflated grains, each behind a marker. This is what an OVA carries |
+| VDI | Yes | VirtualBox's format |
+| VHD, fixed | Yes | The raw disk with a 512-byte footer after it |
+| VHD, dynamic | Yes | Blocks listed by an allocation table |
+| VHDX | Yes | Header pair, region table, metadata region, allocation table |
+| VMDK snapshot chains | No | Names a parent file. See §3 |
+| VHD, differencing | No | Names a parent file. See §3 |
+| VHDX with a parent | No | Names a parent file. See §3 |
+| VHDX with a log that is not empty | No | See §6 |
+| Sparse bundles, encrypted DMG | No | macOS opens both natively. See §5 |
 
-No new dependency: the code is already in the guest, and cryptsetup's licence
-(GPL-2.0-or-later) upgrades cleanly to this project's GPL-3.
-
-The difficulty is not the decryption, it is that **a VeraCrypt volume cannot be
-recognised**. It has no header signature by design — a volume is meant to be
-indistinguishable from random bytes, which is the whole point of the format. So
-nothing can probe it and say what it is. The user has to assert "this is
-VeraCrypt", and then:
-
-- the passphrase, plus optional keyfiles, plus an optional PIM;
-- outer volume or hidden volume;
-- system-encrypted volumes, which are a separate case again.
-
-That is a screen of its own and a mode the app does not currently have. The
-engine also has to be told to use tcrypt rather than probing, which means either
-a custom action in its config or a change upstream.
-
-**Cost:** medium. A few days. Most of it is interface and wording, not
-plumbing, and it adds a concept — "tell me what this is" — that the app has so
-far avoided needing.
-
-### FileVault 2 — `fvault2`
-
-Supported by cryptsetup since 2.6, and **only** the old Core Storage kind, on
-HFS+. The FileVault that ships on modern macOS is APFS-based and is not covered
-by anything outside Apple.
-
-There is a harder blocker: cryptsetup would decrypt the container and then hand
-back an HFS+ volume, and **the guest kernel has no hfsplus driver**. Adding one
-means rebuilding libkrunfw, which is the kernel the whole app depends on.
-
-**Cost:** large, for a small audience — an external drive encrypted by a Mac
-running 10.7 to 10.12 and never re-encrypted since. Not worth it.
+The VMDK, VDI, VHD and VHDX drivers are Lukotta's own, written for imago, the
+crate that reads image formats for the engine. See `patches/README.md`.
 
 ---
 
-## What macOS already does, and where that leaves us
+## 2. How it works
 
-The app is only worth reaching for where macOS cannot manage on its own. Two
-tests, side by side:
+Four layers carry a disk image from a file name to a mounted volume, and all
+four are Lukotta's to change:
 
-    encrypted DMG holding APFS   →  /Volumes/NATIVETEST  (apfs, local)
-    raw image holding btrfs      →  "no mountable file systems"
+    file extension  →  anylinuxfs DiskFormat  →  a format number  →  krun_add_disk2
+                    →  krun-devices ImageType →  imago driver
 
-The first mounts by double-clicking and typing the password. No app, no virtual
-machine, and — worth noticing — **a local volume rather than a network one**,
-which is better than anything Lukotta can offer.
+libkrun passes the format number straight through, so it needs no modification.
+The engine is built from pinned, checksummed upstream source with the patches in
+`patches/` applied; `scripts/build-engine.sh` does this, and
+`engine/anylinuxfs/PATCHES` records which patches a given build carries. The
+application reads that file and reports by name any format the engine it was
+built with cannot open.
 
-### What macOS handles by itself
+Two paths lead to a mounted volume:
 
-| Layer | Native |
+**A physical drive** is unlocked and mounted in the guest, then re-exported over
+NFS. This requires the privileged helper, because reading a raw disk device does.
+
+**A disk image** is opened without privilege. A raw image is attached by macOS
+first; every other format is handed to the engine as a path, and the engine
+reads the format itself. Nothing is attached, and the mount appears under
+`~/Volumes` rather than `/Volumes`, so no part of the operation is elevated.
+
+---
+
+## 3. Images that name other files
+
+libkrun's own header records that formats other than raw may reference other
+files, which libkrun then opens. A qcow2 backing file, a VMDK descriptor listing
+its extents, a differencing VHD or a VHDX naming its parent are all such
+references. An image can therefore determine which other files the virtual
+machine reads.
+
+Every such image is refused before the engine is given the path:
+
+| Format | Rule |
 | --- | --- |
-| Wrappers | DMG, sparseimage, sparsebundle, ISO, raw |
-| Encryption | DMG's own AES, FileVault, APFS encryption |
-| Filesystems | APFS, HFS+, FAT32, exFAT, NTFS **read-only** |
+| qcow2 | Refused if it names a backing file or an external data file |
+| VMDK | Every extent must be a plain file name situated beside the descriptor: nothing absolute, nothing containing a separator, no `..`. That is what VMware writes. A `parentFileNameHint` is refused |
+| VHD | A differencing image is refused |
+| VHDX | An image naming a parent is refused |
+| VDI | Cannot name another file; its data is always its own |
 
-### What it cannot, at any price
-
-| Layer | Not native |
-| --- | --- |
-| Wrappers | VHD, VHDX, VMDK, VDI, qcow2 |
-| Encryption | LUKS, BitLocker |
-| Filesystems | ext2/3/4, btrfs, XFS, F2FS, bcachefs, erofs — and writing to NTFS |
-
-That second table is the app. Everything in the first should be left alone: for
-those, Lukotta would take something that already works and make it worse.
-
-### So encrypted DMG is off the list
-
-I had it as the first thing to build. That was wrong. An encrypted DMG is the
-native encrypted container of this platform, which is exactly why there is
-nothing to add: macOS opens it, and opens it better. The only version of it
-worth anything is a DMG holding a Linux filesystem, which is not a thing anyone
-makes.
-
-## Virtual machine disks
-
-This is where the question gets interesting, because the engine is further along
-than it looks.
-
-| Format | Where it stands |
-| --- | --- |
-| **qcow2** | Fully supported by the engine, read and write. Its CLI takes `disk.qcow2@s1` directly. |
-| **VMDK** | The engine's image layer reads it — the binary carries VMDK descriptor parsing and a "No VMDK write support" message — but `anylinuxfs` only exposes `Raw` and `Qcow2`, so it cannot be asked for. |
-| **VHD / VHDX** | Nothing anywhere in the stack. |
-| **VDI** | Nothing anywhere in the stack. |
-
-### The obstacle for qcow2, which is ours
-
-macOS cannot attach a qcow2, so there is no device node, and Lukotta's whole
-design is built on handing the helper a device node and never a path. Supporting
-qcow2 means passing a user-chosen file path to a process running as root, which
-is the one thing the current design deliberately avoids.
-
-It is not unsolvable — the path can be validated, and the helper composes its own
-commands — but it is a real widening of what root is asked to do, and it deserves
-to be decided rather than slipped in.
-
-**Cost:** small in code, medium in judgement.
-
-### qemu in the guest does not work — the kernel has no nbd
-
-Checked. `qemu-nbd` decodes a format and serves it as a block device through the
-kernel's `nbd` driver, and **the guest kernel does not have one**: nothing in
-`/proc/devices`, no module on disk, and `modprobe nbd` answers "not found in
-modules.dep". Adding it means rebuilding libkrunfw — the same blocker that rules
-out FileVault 2, and the same size of job.
-
-Adding the *package* would have been easy. The engine has `anylinuxfs apk add`
-and an `alpine.custom_packages` setting for exactly this, the guest is Alpine
-3.24 with main and community, and Alpine's `qemu-img` package carries `qemu-nbd`
-alongside it. It is the kernel underneath that says no.
-
-For the record, had it worked: `qemu-img` and `qemu-nbd` are userspace tools,
-not a hypervisor. There would have been no second virtual machine and no nested
-virtualisation — one VM, two more binaries inside it.
-
-### The root question dissolves on its own
-
-Also checked, and it changes the shape of this: **the engine mounts a container
-file without root at all.**
-
-An image attached by the user has a device node owned by that user —
-`brw-r----- cr staff` — and the NFS mount it produces is a user mount. Running
-`anylinuxfs mount` as an ordinary user against one works start to finish. The
-helper exists for physical drives, which are `root:operator` and out of reach.
-
-So for container files there is no path-to-root question to answer: do not route
-them through the helper, and passing a path is passing it to a process running
-as the user — the same user who chose the file.
-
-One difference to design around: run as the user, the engine mounts under
-`~/Volumes` rather than `/Volumes`.
-
-### The right shape for the rest
-
-With the guest ruled out, the decoding has to happen on the Mac side — which is
-where it already happens for qcow2. The engine carries its own Rust image layer,
-reads qcow2 in full, and presents the result to the guest as an ordinary virtio
-block device. **VMDK is already implemented in that layer** and simply not
-exposed: the CLI offers only `Raw` and `Qcow2`.
-
-So the cheapest real step is an upstream one — ask anylinuxfs to expose the VMDK
-support it already has. VHDX and VDI would be new work in the same layer. No
-kernel change, no qemu, no nbd, and no new licence question.
-
-The fallback that works today, for anything the engine cannot read, is
-`qemu-img convert -O raw` on the Mac before attaching. It runs as the user and
-needs no privilege — but it copies, so it costs free space equal to the whole
-image, which for a real VM disk is the objection.
-
-**Cost:** small if upstream takes the VMDK patch, medium if we carry it
-ourselves. The convert-first fallback is a day, plus a warning about disk
-space.
-
-The alternative is the libyal libraries — `libvhdi`, `libvmdk`, `libqcow` — which
-are **LGPL-3.0-or-later** and so link cleanly into a GPL-3 application. They are
-clean, small C libraries, and they are also **alpha** by their own authors'
-description, and would run in the host process against a file the user chose.
-QEMU in the guest is the safer bet.
+The drivers refuse these images as well, so the rule holds in both layers. Disk
+images are also opened without privilege, which limits the reach of any such
+reference to what the person who opened the file could already read. None of
+that is grounds for relaxing the checks as further formats are added.
 
 ---
 
-## Legally
+## 4. What is handed to macOS instead
 
-Nothing here is a problem, and one thing is worth stating plainly because it
-looks like one and is not.
+An exFAT image is attached by macOS and left mounted there, rather than being
+carried through the virtual machine. macOS reads and writes exFAT natively, so
+routing it through NFS would add a layer that serves no purpose and would take
+the volume out of Finder's hands. The application says so on screen when it
+happens, so that the volume's appearance in `/Volumes` rather than `~/Volumes`
+is not a surprise.
 
-- **QEMU is GPL-2.0-only.** It cannot be linked into this app. It can be shipped
-  beside it and executed as its own program — the footing the kernel, busybox and
-  apk-tools already stand on. It is the fallback now rather than the plan, but
-  the position is unchanged: a separate binary raises no question.
-- **libyal (libvhdi, libvmdk, libqcow, libbde) is LGPL-3.0-or-later** — compatible
-  with GPL-3, linkable, no obligation beyond the usual notices.
-- **cryptsetup is GPL-2.0-or-later**, which upgrades to GPL-3. Already shipped.
-- **VeraCrypt** is dual-licensed Apache-2.0 and TrueCrypt Licence 3.0, and the
-  TrueCrypt half is the awkward one — but none of its code is needed. cryptsetup's
-  `tcrypt` is an independent implementation.
-- **Names.** VeraCrypt, VMware, Microsoft and Apple are other people's
-  trademarks. Saying "opens VMware disks" is nominative use and fine; putting
-  their marks on the app is not.
-- **Export.** More decryption does not change the position. The app already
-  handles encryption and the analysis does not turn on how many formats.
+The same reasoning applies to the drive list: a disk macOS already reads is
+listed with that as its verdict rather than offered for opening.
 
 ---
 
-## If it were up to me
+## 5. What is not supported, and why
 
-**Virtual machine disks are the only thing left worth building.** They are the
-one wrapper macOS cannot open at all — and what is inside one is almost always
-ext4 or NTFS, which it cannot read either. Both layers fail at once, which is
-the only place this app is the sole answer.
+### FileVault 2
 
-1. **Open container files without the helper.** They do not need it, and it
-   takes the path-to-root question off the table rather than answering it. Watch
-   the `~/Volumes` difference.
-2. **qcow2**, which then costs almost nothing: the engine already reads it, and
-   an unprivileged engine can be handed the path.
-3. **Ask upstream to expose VMDK.** The code is already in the engine's image
-   layer.
-4. **VHDX and VDI**, either as upstream work in that layer or as
-   `qemu-img convert` first, with a warning about the disk space a copy costs.
+macOS opens it natively, and the guest has no HFS+ or APFS driver, so a volume
+unlocked there could not then be mounted. cryptsetup's `fvault2` handler exists
+but leads nowhere without a filesystem driver behind it. There is no version of
+this that is better than what macOS already does.
 
-### The same rule applies to something already shipped
+### Encrypted DMG and sparse bundles
 
-Checked, and it did. An exFAT image attached the ordinary way is mounted by
-macOS **locally, read and write**, through FSKit:
+macOS opens both natively and integrates them with Keychain and Finder. Nothing
+Lukotta could add would improve on that.
 
-    /dev/disk5s1 on /Volumes/EXFATTEST (exfat, local, ... fskit)
+### VeraCrypt and TrueCrypt
 
-Lukotta attaches container files with `-nomount` — deliberately, so macOS cannot
-grab an NTFS volume before the engine gets it — and until now the first-sector
-probe would then see exFAT, call it unencrypted, and open it through the virtual
-machine. A local volume turned into a network one for no gain at all.
+cryptsetup carries an independent `tcrypt` implementation, and it is in the
+guest already. It is not reachable from the application, since the engine
+decides what to unlock from what `blkid` reports, and a TrueCrypt volume has no
+signature to report: the header is indistinguishable from random data by design.
+Opening one requires the user to state that a device is a TrueCrypt volume and
+supply the passphrase. That is a plausible future addition; it needs an
+interface, not a new dependency.
 
-So `VolumeFormat.macOSHandlesFully` exists, exFAT is the only thing on it, and
-such a drive is no longer opened on its own. **NTFS is deliberately not on that
-list**: macOS mounts it read-only, and writing to it is the entire reason to open
-one here. That distinction is the rule in miniature — the app earns its place
-only where macOS falls short, and for NTFS it falls short by exactly one verb.
+### Stream-optimized VMDK inside an OVA
 
-**Done, and it says so.** An exFAT image is now handed to macOS to mount, and
-the sheet explains what happened and why — that this one is exFAT, that macOS
-reads and writes it directly, that it is therefore an ordinary disk rather than
-a network one, where it landed, and that Finder is where to eject it. Silence
-would have been its own surprise: a volume appearing that the user did not put
-there.
+The format itself is read. An OVA is a tar archive containing a descriptor and
+one of these images, and Lukotta does not extract archives. Extract the `.vmdk`
+and open that.
 
-The attachment is not detached afterwards. macOS owns it now, and taking it back
-would remove the volume just mounted.
+### VHDX with a log that is not empty
 
-Still open: a VM disk found to hold APFS, FAT or exFAT should get the same
-treatment — decoded, attached, and mounted locally rather than served over NFS.
+An image that was not shut down cleanly keeps its most recent state in its log.
+Replaying that log is a write, and Lukotta does not write to a disk image.
+Reading the file without replaying it returns data older than the disk last
+held, which is the failure most easily mistaken for corruption. The image is
+therefore refused by name, with the remedy stated: open it once in the virtual
+machine it belongs to, which empties the log.
 
-Not worth doing: **encrypted DMG**, native and better left alone. FileVault 2 and
-qemu-in-the-guest, both blocked behind a kernel rebuild. APFS encryption, which
-nothing outside Apple reads. Windows EFS, per-file and needing a domain key.
-VeraCrypt, unless somebody asks.
+This could be done without writing to the file. imago's `readv_special()` allows
+a driver to serve bytes itself, so a log could be replayed into memory and
+applied to the structures the driver has already read. The obstacle is
+verification: a genuinely dirty image is difficult to obtain, and an image
+written by the same author as the reader tests only that they agree with each
+other.
+
+### qemu in the guest
+
+Investigated and rejected. The guest kernel has no `nbd` module, the FUSE export
+path is absent, and `nbdfuse` is not packaged for Alpine. This was tested rather
+than assumed, and it is the reason the format drivers live in imago instead.
+
+---
+
+## 6. Where the drivers came from
+
+imago read raw, qcow2 and flat VMDK. Everything else in the table above was
+added as read-only drivers in `patches/imago-*.patch`:
+
+| Driver | Shape | Size |
+| --- | --- | --- |
+| VDI | Header, then a flat block map of 32-bit indices | ~380 lines |
+| VHD | Trailing footer; blocks listed by an allocation table | ~400 lines |
+| VHDX | Header pair, region table, metadata region, allocation table | ~430 lines |
+| VMDK, sparse and streamed | Grain directory, grain tables, deflated grains | ~470 lines |
+
+Every driver is read-only and validates each value before relying on it: block
+sizes must be powers of two, maps are bounded to a size a real disk could
+require, and every entry must lie within the file. A damaged or hostile image
+cannot direct a driver to read an unrelated part of the file and present it as
+the disk.
+
+Each was verified in both directions, since a reader and a writer written by the
+same author agree with each other and with nothing else. Images written by
+`qemu-img` read back byte for byte identical to the raw disk they were made
+from, and `qemu-img compare` reads the images the scripts under `scripts/`
+produce and finds them identical to the same disk. Every format then mounts and
+ejects through the application in the end-to-end run, which uses the images
+those scripts write, so the test suite requires neither qemu nor VirtualBox.
+
+---
+
+## 7. Licensing
+
+anylinuxfs is GPL-3.0-or-later, as is Lukotta. imago is MIT and krun-devices is
+Apache-2.0, both compatible with it. The three driver files added to imago are
+MIT, so that they may be offered upstream. Modified files carry the notices
+their licences require. `patches/README.md` sets this out in full.
+
+Format specifications are published for implementation. VHD and VHDX are covered
+by Microsoft's Open Specification Promise, VMDK by VMware's published
+specification, and VDI by VirtualBox's source and the documentation derived from
+it. Each driver here is an independent implementation written from published
+documentation.
+
+Names are other parties' trademarks. Describing what Lukotta opens is nominative
+use; putting those marks on the application is not.

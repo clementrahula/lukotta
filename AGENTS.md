@@ -199,3 +199,20 @@ recur when a model edits it:
   Leave those paragraphs alone.
 - A replacement spanning a line break drops the words on the far side of it.
   Match the whole line.
+
+## Versions
+
+`VERSION` is bumped as work lands, not at release time: `patch` for a fix,
+`minor` for a feature. Run `./scripts/bump-version.sh minor` once the work is
+committed and its tests pass.
+
+The first number is the owner's decision. The script refuses to raise it without
+`--approved`, and that flag is not to be used without asking.
+
+Tagging is a separate act, `--tag`, and means a release. There have been no
+releases yet.
+
+There is no changelog file. git records what changed for anyone working here,
+and each release will carry its own notes under `releases/<version>.md`, which
+`scripts/release.sh` turns into the Sparkle description and GitHub shows on the
+release page.

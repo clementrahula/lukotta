@@ -194,11 +194,20 @@ Built. [FORMATS.md](FORMATS.md) has the reasoning; what shipped:
 Still open, in rough order of worth:
 
 - **Replaying a VHDX log.** An image that was not shut down cleanly keeps its
-  newest state in its log, and is refused by name rather than read stale. Doing
-  better means replaying the log, which is a write to somebody's disk image —
-  so it would have to be into a copy, and it is not obvious that is worth it
-  when opening the image once in its own virtual machine fixes it. See
-  [FORMATS-VM.md](FORMATS-VM.md).
+  most recent state in its log, and is refused by name rather than read stale.
+  Replaying the log is a write, so it would have to be applied in memory:
+  imago's `readv_special()` allows a driver to serve bytes itself, and the log
+  is bounded by a length the header states. The obstacle is verification, since
+  a genuinely dirty image is difficult to obtain. See [FORMATS.md](FORMATS.md).
+- **VeraCrypt and TrueCrypt volumes.** cryptsetup carries `tcrypt` and it is
+  already in the guest. Such a volume has no signature to detect, by design, so
+  opening one requires the person to state that a device holds one. That is an
+  interface, not a dependency.
+- **Release notes per release.** `CHANGELOG.md` has been removed: with no
+  releases yet it recorded nothing git does not, and one accumulating file suits
+  neither GitHub nor Sparkle. Each release should carry its own notes, in a form
+  GitHub shows on the release page and `scripts/appcast.py` puts into the
+  Sparkle feed as that version's description.
 - **A VM disk holding APFS, FAT or exFAT** should be decoded, attached and
   mounted locally rather than served over NFS — the same rule that sends exFAT
   to macOS.

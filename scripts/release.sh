@@ -81,14 +81,13 @@ printf '==> Release notes\n'
 NOTES_DIR="$(dirname "$APPCAST")/notes"
 mkdir -p "$NOTES_DIR"
 NOTES_FILE="$NOTES_DIR/$VERSION.html"
-# The section for this version out of CHANGELOG.md, as plain HTML. Anything
-# richer belongs in the changelog itself, not in a converter here.
+# This version's own notes, as plain HTML. Each release carries its own file
+# under releases/, which is also what GitHub shows on the release page.
 python3 - "$VERSION" > "$NOTES_FILE" <<'PYEOF'
-import re, sys
+import pathlib, re, sys
 version = sys.argv[1]
-text = open("CHANGELOG.md").read()
-match = re.search(r"^## " + re.escape(version) + r"\s*\n(.*?)(?=^## |\Z)", text, re.S | re.M)
-body = (match.group(1) if match else "").strip()
+source = pathlib.Path("releases") / f"{version}.md"
+body = source.read_text().strip() if source.exists() else ""
 items = [re.sub(r"\s+", " ", b).strip() for b in re.split(r"\n(?=- )", body) if b.strip()]
 print("<html><body style=\"font: -apple-system-body; margin: 0\">")
 print(f"<h2>Version {version}</h2>")
@@ -101,7 +100,7 @@ else:
     print("<p>No notes were written for this version.</p>")
 print("</body></html>")
 PYEOF
-grep -q "<li>" "$NOTES_FILE" || echo "warning: CHANGELOG.md has no section for $VERSION" >&2
+grep -q "<li>" "$NOTES_FILE" || echo "warning: releases/$VERSION.md is missing or empty" >&2
 
 printf '==> Describing it in the appcast\n'
 mkdir -p "$(dirname "$APPCAST")"

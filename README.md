@@ -151,7 +151,7 @@ the code freely; give your version its own name. [TRADEMARKS.txt][trademark]
 says what that means in practice.
 
 [Licence][licence] · [Trademarks][trademark] · [Third-party notices][notices] ·
-[Changelog][changelog]
+[Releases][releases]
 
 ## About the Name
 
@@ -180,6 +180,6 @@ and Fable 5 models from Anthropic.
 [licence]: LICENSE.txt
 [trademark]: TRADEMARKS.txt
 [notices]: THIRD_PARTY_NOTICES.md
-[changelog]: CHANGELOG.md
+[releases]: https://github.com/clementrahula/lukotta/releases
 [anylinuxfs]: https://github.com/nohajc/anylinuxfs
 [sparkle]: https://sparkle-project.org
