@@ -340,6 +340,7 @@
     "What to do": "Co zrobić",
     "Why it appears as a network drive": "Dlaczego pojawia się jako dysk sieciowy",
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": "Dyski NTFS systemu Windows, także te pozostawione w hibernacji lub niepoprawnie zamknięte",
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": "Windows jest w trakcie szyfrowania lub odszyfrowywania tego dysku. Otwórz go w systemie Windows i pozwól funkcji BitLocker dokończyć, a potem spróbuj ponownie.",
     "Writing to a %@ is new": "Zapis do formatu %@ jest nowością",
     "You can read and write files on it.": "Możesz na nim odczytywać i zapisywać pliki.",
     "You can read files on it. It was opened read-only, so nothing can be written to it.": "Możesz czytać znajdujące się na nim pliki. Został otwarty tylko do odczytu, więc nic nie da się na nim zapisać.",

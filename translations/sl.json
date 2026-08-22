@@ -340,6 +340,7 @@
     "What to do": "Kaj storiti",
     "Why it appears as a network drive": "Zakaj se prikaže kot omrežni pogon",
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": "Pogoni NTFS iz Windows, tudi tisti, ki jih je Windows pustil v mirovanju ali jih ni pravilno zaustavil",
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": "Windows je sredi šifriranja ali dešifriranja tega diska. Odprite ga v Windowsih in pustite BitLockerju, da konča, nato poskusite znova.",
     "Writing to a %@ is new": "Pisanje v %@ je novost",
     "You can read and write files on it.": "Na njem lahko berete in zapisujete datoteke.",
     "You can read files on it. It was opened read-only, so nothing can be written to it.": "Datoteke na njem lahko berete. Odprt je bil samo za branje, zato nanj ni mogoče ničesar zapisati.",

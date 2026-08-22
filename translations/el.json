@@ -324,6 +324,7 @@
     "What to do": "Τι να κάνετε",
     "Why it appears as a network drive": "Γιατί εμφανίζεται ως δίσκος δικτύου",
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": "Δίσκοι NTFS των Windows, ακόμη και όσοι έμειναν σε αδρανοποίηση ή δεν τερματίστηκαν σωστά",
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": "Τα Windows βρίσκονται στη μέση της κρυπτογράφησης ή της αποκρυπτογράφησης αυτού του δίσκου. Ανοίξτε τον στα Windows και αφήστε το BitLocker να τελειώσει, και μετά δοκιμάστε ξανά.",
     "Writing to a %@ is new": "Η εγγραφή σε ένα %@ είναι κάτι καινούριο",
     "You can read and write files on it.": "Μπορείτε να διαβάζετε και να γράφετε αρχεία σε αυτόν.",
     "You can read files on it. It was opened read-only, so nothing can be written to it.": "Μπορείτε να διαβάσετε τα αρχεία του. Άνοιξε μόνο για ανάγνωση, οπότε δεν μπορεί να γραφτεί τίποτα σε αυτό.",

@@ -1826,8 +1826,8 @@ diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 +}
 diff -ruN -x target -x Cargo.lock a/src/write_tests.rs b/src/write_tests.rs
 --- a/src/write_tests.rs	1970-01-01 03:00:00
-+++ b/src/write_tests.rs	2026-08-22 18:09:48
-@@ -0,0 +1,560 @@
++++ b/src/write_tests.rs	2026-08-22 19:02:59
+@@ -0,0 +1,623 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
 +//
@@ -1849,6 +1849,7 @@ diff -ruN -x target -x Cargo.lock a/src/write_tests.rs b/src/write_tests.rs
 +
 +use crate::file::File;
 +use crate::format::builder::FormatDriverBuilder;
++use crate::qcow2::Qcow2;
 +use crate::vdi::Vdi;
 +use crate::vhd::Vhd;
 +use crate::vmdk::Vmdk;
@@ -2251,6 +2252,68 @@ diff -ruN -x target -x Cargo.lock a/src/write_tests.rs b/src/write_tests.rs
 +        });
 +
 +        qemu_agrees(&image, format, &model, &scratch);
++    }
++}
++
++/// qcow2, including one holding an internal snapshot.
++///
++/// This driver is imago's own rather than one added here, but the application
++/// leans on it, and the snapshot case is the one worth stating: clusters shared
++/// with a snapshot must be copied before they are written, not written through.
++/// An image that has been snapshotted and then written to is exactly where that
++/// goes wrong, and qemu-img says whether it did.
++#[test]
++fn qcow2_with_and_without_a_snapshot() {
++    if qemu_img().is_none() {
++        eprintln!("skipping qcow2_with_and_without_a_snapshot: no qemu-img");
++        return;
++    }
++    for snapshot in [false, true] {
++        let scratch = Scratch::new("qcow2");
++        let image = scratch.path("disk.qcow2");
++        create(&image, "qcow2", None);
++
++        let mut model = Model::new();
++        // Written before the snapshot is taken, so the snapshot has clusters
++        // of its own that the writes afterwards must not disturb.
++        block_on(async {
++            let driver = Qcow2::<File>::builder_path(&image)
++                .write(true)
++                .open(PermissiveImplicitOpenGate::default())
++                .await
++                .expect("opening for writing");
++            let access = FormatAccess::new(driver);
++            let data = Model::pattern(0x01, 128 << 10);
++            access.write(&data, 0).await.expect("write");
++            model.record(0, &data);
++            access.flush().await.expect("flush");
++        });
++
++        if snapshot {
++            let (ok, said) = qemu(&["snapshot", "-c", "before", image.to_str().unwrap()]);
++            assert!(ok, "qemu-img snapshot failed: {said}");
++        }
++
++        block_on(async {
++            let driver = Qcow2::<File>::builder_path(&image)
++                .write(true)
++                .open(PermissiveImplicitOpenGate::default())
++                .await
++                .expect("reopening for writing");
++            let access = FormatAccess::new(driver);
++            write_and_read_back(&access, &mut model).await;
++        });
++
++        qemu_agrees(&image, "qcow2", &model, &scratch);
++
++        // And the snapshot still holds what it held, which is the half a
++        // write-through rather than a copy would have destroyed.
++        if snapshot {
++            let (ok, said) = qemu(&["snapshot", "-a", "before", image.to_str().unwrap()]);
++            assert!(ok, "qemu-img could not apply the snapshot back: {said}");
++            let (ok, said) = qemu(&["check", image.to_str().unwrap()]);
++            assert!(ok, "the image no longer checks out after the snapshot: {said}");
++        }
 +    }
 +}
 +

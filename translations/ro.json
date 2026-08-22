@@ -332,6 +332,7 @@
     "What to do": "Ce puteți face",
     "Why it appears as a network drive": "De ce apare ca disc de rețea",
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": "Discuri NTFS Windows, inclusiv cele lăsate de Windows în hibernare sau oprite necorespunzător",
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": "Windows este la jumătatea criptării sau decriptării acestui disc. Deschideți-l în Windows și lăsați BitLocker să termine, apoi încercați din nou.",
     "Writing to a %@ is new": "Scrierea într-un %@ este ceva nou",
     "You can read and write files on it.": "Puteți citi și scrie fișiere pe el.",
     "You can read files on it. It was opened read-only, so nothing can be written to it.": "Puteți citi fișierele de pe el. A fost deschis doar pentru citire, așa că nu se poate scrie nimic pe el.",

@@ -272,7 +272,9 @@ image and convert it to raw, comparing every byte against a model kept beside
 the writes. They cover the first block, a write crossing two, one aligned to
 nothing, a second write over ground already allocated, several blocks at once,
 the last byte of the disk, filling an image completely, a grain directory with a
-gap in it, and two hundred randomly placed writes per format from a fixed seed.
+gap in it, two hundred randomly placed writes per format from a fixed seed, and
+a qcow2 holding an internal snapshot, whose shared clusters have to be copied
+before they are written.
 
 Reading was verified the same way and in both directions: images written by
 `qemu-img` read back byte for byte identical to the raw disk they were made

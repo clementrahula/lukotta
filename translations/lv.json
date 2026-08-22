@@ -332,6 +332,7 @@
     "What to do": "Ko darīt",
     "Why it appears as a network drive": "Kāpēc tas parādās kā tīkla disks",
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": "Windows NTFS diski, tostarp tie, ko Windows atstāja hibernācijā vai neizslēdza pareizi",
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": "Windows pašlaik šifrē vai atšifrē šo disku. Atveriet to Windows vidē un ļaujiet BitLocker pabeigt, pēc tam mēģiniet vēlreiz.",
     "Writing to a %@ is new": "Rakstīšana šajā formātā ir jaunums: %@",
     "You can read and write files on it.": "Jūs varat tajā lasīt un rakstīt failus.",
     "You can read files on it. It was opened read-only, so nothing can be written to it.": "Varat lasīt tajā esošos failus. Tas tika atvērts tikai lasīšanai, tāpēc tajā neko nevar ierakstīt.",

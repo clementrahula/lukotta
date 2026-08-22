@@ -141,6 +141,13 @@ randomly placed writes per format from a fixed seed. Each image is reopened from
 scratch before it is checked, so metadata that never reached the file cannot be
 covered by what is still in memory.
 
+qcow2 is covered as well, though its driver is imago's own rather than one added
+here, since the application leans on it. The case worth stating is a qcow2
+holding an internal snapshot: clusters shared with a snapshot have to be copied
+before they are written rather than written through. The test snapshots an
+image, writes to it, has qemu-img check and convert it, then applies the
+snapshot back and checks the image again.
+
 Reference images written by `qemu-img` in each of the three
 formats read back byte for byte identical to the raw disk from which they were
 made, and all three mount and eject through the application. `qemu-img compare`

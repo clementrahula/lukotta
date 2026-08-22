@@ -332,6 +332,7 @@
     "What to do": "Što učiniti",
     "Why it appears as a network drive": "Zašto se prikazuje kao mrežni disk",
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": "Windows NTFS diskovi, uključujući one koje je Windows ostavio u hibernaciji ili nije uredno isključio",
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": "Windows je usred šifriranja ili dešifriranja ovog diska. Otvorite ga u Windowsima i pustite BitLocker da dovrši, pa pokušajte ponovno.",
     "Writing to a %@ is new": "Pisanje u %@ je novost",
     "You can read and write files on it.": "Na njemu možete čitati i zapisivati datoteke.",
     "You can read files on it. It was opened read-only, so nothing can be written to it.": "Možete čitati datoteke na njemu. Otvoren je samo za čitanje, pa se na njega ništa ne može zapisati.",

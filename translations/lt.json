@@ -340,6 +340,7 @@
     "What to do": "Ką daryti",
     "Why it appears as a network drive": "Kodėl jis rodomas kaip tinklo diskas",
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": "„Windows“ NTFS diskai, įskaitant tuos, kuriuos „Windows“ paliko užmigdytus arba netinkamai išjungė",
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": "„Windows“ šiuo metu šifruoja arba iššifruoja šį diską. Atverkite jį „Windows“ sistemoje ir leiskite „BitLocker“ baigti, tada bandykite dar kartą.",
     "Writing to a %@ is new": "Rašymas į %@ yra naujiena",
     "You can read and write files on it.": "Jame galite skaityti ir rašyti failus.",
     "You can read files on it. It was opened read-only, so nothing can be written to it.": "Galite skaityti jame esančius failus. Jis atvertas tik skaitymui, todėl į jį nieko įrašyti negalima.",

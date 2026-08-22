@@ -324,6 +324,7 @@
     "What to do": "Mida teha",
     "Why it appears as a network drive": "Miks see ilmub võrgukettana",
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": "Windowsi NTFS-kettad, sealhulgas need, mille Windows jättis talveunne või korralikult sulgemata",
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": "Windows on selle ketta krüptimise või dekrüptimise poole peal. Ava see Windowsis ja lase BitLockeril lõpetada, seejärel proovi uuesti.",
     "Writing to a %@ is new": "Sellesse formaati kirjutamine on uus: %@",
     "You can read and write files on it.": "Sa saad sellele faile lugeda ja kirjutada.",
     "You can read files on it. It was opened read-only, so nothing can be written to it.": "Saad selle faile lugeda. See avati ainult lugemiseks, seega sinna kirjutada ei saa.",

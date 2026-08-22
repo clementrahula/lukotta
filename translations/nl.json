@@ -324,6 +324,7 @@
     "What to do": "Wat je kunt doen",
     "Why it appears as a network drive": "Waarom het als netwerkschijf verschijnt",
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": "NTFS-schijven van Windows, ook die Windows in slaapstand of niet correct afgesloten heeft achtergelaten",
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": "Windows is halverwege het versleutelen of ontsleutelen van deze schijf. Open die in Windows en laat BitLocker afmaken, probeer het daarna opnieuw.",
     "Writing to a %@ is new": "Schrijven naar een %@ is nieuw",
     "You can read and write files on it.": "Je kunt er bestanden op lezen en schrijven.",
     "You can read files on it. It was opened read-only, so nothing can be written to it.": "Je kunt de bestanden erop lezen. De schijf is alleen-lezen geopend, dus er kan niets naar worden geschreven.",

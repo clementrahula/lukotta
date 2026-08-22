@@ -324,6 +324,7 @@
     "What to do": "Какво да направите",
     "Why it appears as a network drive": "Защо се появява като мрежов диск",
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": "NTFS дискове на Windows, включително оставените от Windows в хибернация или неизключени правилно",
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": "Windows е по средата на шифроването или дешифроването на този диск. Отворете го в Windows и оставете BitLocker да завърши, след което опитайте отново.",
     "Writing to a %@ is new": "Записът в %@ е нещо ново",
     "You can read and write files on it.": "Можете да четете и записвате файлове на него.",
     "You can read files on it. It was opened read-only, so nothing can be written to it.": "Можете да четете файловете на него. Беше отворен само за четене, така че нищо не може да бъде записано.",

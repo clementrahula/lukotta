@@ -324,6 +324,7 @@
     "What to do": "Vad du kan göra",
     "Why it appears as a network drive": "Varför den visas som en nätverksenhet",
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": "NTFS-enheter från Windows, även sådana som Windows lämnat i viloläge eller inte stängt av ordentligt",
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": "Windows håller på att kryptera eller dekryptera den här disken. Öppna den i Windows och låt BitLocker bli klart, försök sedan igen.",
     "Writing to a %@ is new": "Att skriva till en %@ är nytt",
     "You can read and write files on it.": "Du kan läsa och skriva filer på den.",
     "You can read files on it. It was opened read-only, so nothing can be written to it.": "Du kan läsa filerna på den. Den öppnades skrivskyddad, så ingenting kan skrivas till den.",

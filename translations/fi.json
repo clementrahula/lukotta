@@ -324,6 +324,7 @@
     "What to do": "Mitä tehdä",
     "Why it appears as a network drive": "Miksi se näkyy verkkoasemana",
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": "Windowsin NTFS-asemat, myös ne jotka Windows jätti lepotilaan tai sammutti huonosti",
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": "Windows on kesken tämän levyn salaamisen tai salauksen purkamisen. Avaa levy Windowsissa ja anna BitLockerin tehdä työ loppuun, yritä sitten uudelleen.",
     "Writing to a %@ is new": "Kirjoittaminen tähän muotoon on uutta: %@",
     "You can read and write files on it.": "Voit lukea ja kirjoittaa siihen tiedostoja.",
     "You can read files on it. It was opened read-only, so nothing can be written to it.": "Voit lukea sen tiedostoja. Se avattiin vain luettavaksi, joten siihen ei voi kirjoittaa mitään.",

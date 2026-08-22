@@ -35189,6 +35189,136 @@
         }
       }
     },
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows е по средата на шифроването или дешифроването на този диск. Отворете го в Windows и оставете BitLocker да завърши, след което опитайте отново."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows je uprostřed šifrování nebo dešifrování tohoto disku. Otevřete jej ve Windows a nechte BitLocker dokončit práci, pak to zkuste znovu."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows er midt i at kryptere eller dekryptere denne disk. Åbn den i Windows, og lad BitLocker gøre færdig, og prøv så igen."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows ist mitten dabei, dieses Laufwerk zu verschlüsseln oder zu entschlüsseln. Öffne es in Windows und lass BitLocker fertig werden, dann versuch es erneut."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τα Windows βρίσκονται στη μέση της κρυπτογράφησης ή της αποκρυπτογράφησης αυτού του δίσκου. Ανοίξτε τον στα Windows και αφήστε το BitLocker να τελειώσει, και μετά δοκιμάστε ξανά."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows está a medias cifrando o descifrando este disco. Ábrelo en Windows y deja que BitLocker termine; después inténtalo de nuevo."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows on selle ketta krüptimise või dekrüptimise poole peal. Ava see Windowsis ja lase BitLockeril lõpetada, seejärel proovi uuesti."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows on kesken tämän levyn salaamisen tai salauksen purkamisen. Avaa levy Windowsissa ja anna BitLockerin tehdä työ loppuun, yritä sitten uudelleen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows est en train de chiffrer ou de déchiffrer ce disque. Ouvrez-le dans Windows et laissez BitLocker terminer, puis réessayez."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows je usred šifriranja ili dešifriranja ovog diska. Otvorite ga u Windowsima i pustite BitLocker da dovrši, pa pokušajte ponovno."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Windows épp titkosítja vagy visszafejti ezt a lemezt. Nyissa meg Windowsban, hagyja, hogy a BitLocker befejezze, azután próbálja újra."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows sta cifrando o decifrando questo disco e non ha finito. Aprilo in Windows e lascia che BitLocker completi il lavoro, poi riprova."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Windows“ šiuo metu šifruoja arba iššifruoja šį diską. Atverkite jį „Windows“ sistemoje ir leiskite „BitLocker“ baigti, tada bandykite dar kartą."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows pašlaik šifrē vai atšifrē šo disku. Atveriet to Windows vidē un ļaujiet BitLocker pabeigt, pēc tam mēģiniet vēlreiz."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows er midt i å kryptere eller dekryptere denne disken. Åpne den i Windows og la BitLocker bli ferdig, og prøv så igjen."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows is halverwege het versleutelen of ontsleutelen van deze schijf. Open die in Windows en laat BitLocker afmaken, probeer het daarna opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows jest w trakcie szyfrowania lub odszyfrowywania tego dysku. Otwórz go w systemie Windows i pozwól funkcji BitLocker dokończyć, a potem spróbuj ponownie."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Windows está a meio de cifrar ou decifrar este disco. Abra-o no Windows e deixe o BitLocker terminar, e depois tente de novo."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows este la jumătatea criptării sau decriptării acestui disc. Deschideți-l în Windows și lăsați BitLocker să termine, apoi încercați din nou."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows je sredi šifriranja ali dešifriranja tega diska. Odprite ga v Windowsih in pustite BitLockerju, da konča, nato poskusite znova."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows håller på att kryptera eller dekryptera den här disken. Öppna den i Windows och låt BitLocker bli klart, försök sedan igen."
+          }
+        }
+      }
+    },
     "Writing to a %@ is new": {
       "localizations": {
         "bg": {

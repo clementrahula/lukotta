@@ -340,6 +340,7 @@
     "What to do": "Co dělat",
     "Why it appears as a network drive": "Proč se zobrazuje jako síťový disk",
     "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": "Disky NTFS z Windows, včetně těch, které Windows nechal v režimu spánku nebo řádně nevypnul",
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": "Windows je uprostřed šifrování nebo dešifrování tohoto disku. Otevřete jej ve Windows a nechte BitLocker dokončit práci, pak to zkuste znovu.",
     "Writing to a %@ is new": "Zápis do %@ je novinka",
     "You can read and write files on it.": "Můžete na něm číst a zapisovat soubory.",
     "You can read files on it. It was opened read-only, so nothing can be written to it.": "Můžete číst soubory na tomto disku. Byl otevřen jen ke čtení, takže na něj nelze nic zapsat.",
