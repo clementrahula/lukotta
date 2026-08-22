@@ -9,6 +9,10 @@ struct SettingsView: View {
     @AppStorage(Appearance.key) private var appearance = Appearance.system.rawValue
     @AppStorage(Language.key) private var language = Language.system
     @State private var languageChanged = false
+    @AppStorage(RestorePreference.key) private var restoreAtLogin = false
+    /// What still has to be granted before opening at login can work, shown
+    /// beside the switch rather than as a dialogue nobody reads.
+    @State private var restoreNeeds: String?
 
     private var lastChecked: String {
         guard let date = updater.lastChecked else { return "Not yet" }
@@ -19,6 +23,30 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            Section {
+                Toggle("Open drives again after restarting", isOn: $restoreAtLogin)
+                    .onChange(of: restoreAtLogin) { _, on in
+                        restoreNeeds = LoginItem.apply(on)
+                        if on { model.restoreRememberedMounts() }
+                    }
+                Text(
+                    "\(Brand.name) opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain."
+                )
+                .font(.caption).foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+                if let restoreNeeds {
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                            .accessibilityHidden(true)
+                        Text(restoreNeeds)
+                            .font(.caption)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+
             Section {
                 Toggle("Check for updates automatically", isOn: $updater.checksAutomatically)
                 Toggle(

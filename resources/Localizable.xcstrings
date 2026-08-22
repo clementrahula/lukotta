@@ -521,6 +521,136 @@
         }
       }
     },
+    "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ се отваря на заден план при влизане и връща дисковете и образите, които са били отворени, точно както са били. Диск, който изисква парола, се връща само ако паролата е запазена в Keychain."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ se při přihlášení spustí na pozadí a vrátí disky a obrazy, které byly otevřené, přesně jak byly. Disk vyžadující heslo se vrátí, jen pokud je heslo uložené v Klíčence."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ åbner i baggrunden, når du logger ind, og sætter de diske og diskbilleder tilbage, der var åbne, præcis som de var. En disk, der kræver en adgangskode, kommer kun tilbage, hvis adgangskoden er gemt i din nøglering."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ öffnet sich beim Anmelden im Hintergrund und stellt die Laufwerke und Images wieder her, die offen waren, genau so wie sie waren. Ein Laufwerk mit Passwort kommt nur zurück, wenn das Passwort im Schlüsselbund gespeichert ist."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το %@ ανοίγει στο παρασκήνιο όταν συνδέεστε και επαναφέρει τους δίσκους και τα είδωλα που ήταν ανοιχτά, όπως ήταν. Ένας δίσκος που χρειάζεται συνθηματικό επιστρέφει μόνο αν το συνθηματικό είναι αποθηκευμένο στο Keychain."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ se abre en segundo plano al iniciar sesión y vuelve a montar los discos e imágenes que estaban abiertos, tal como estaban. Un disco que pide contraseña solo vuelve si la contraseña está guardada en tu llavero."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ avaneb sisselogimisel taustal ja taastab kettad ja tõmmised, mis olid avatud, täpselt nagu need olid. Parooli vajav ketas tuleb tagasi ainult siis, kui parool on võtmehoidjas salvestatud."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ avautuu taustalle kirjautuessasi ja palauttaa avoinna olleet levyt ja levykuvat sellaisina kuin ne olivat. Salasanaa vaativa levy palaa vain, jos salasana on tallennettu avainnippuun."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ s’ouvre en arrière-plan à l’ouverture de session et remonte les disques et images qui étaient ouverts, tels qu’ils étaient. Un disque qui demande un mot de passe ne revient que si celui-ci est enregistré dans votre trousseau."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ se pri prijavi otvara u pozadini i vraća diskove i slike koji su bili otvoreni, onakve kakvi su bili. Disk koji traži lozinku vraća se samo ako je lozinka spremljena u Keychainu."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ bejelentkezéskor a háttérben elindul, és visszaállítja a nyitva volt lemezeket és lemezképeket úgy, ahogy voltak. A jelszót kérő lemez csak akkor tér vissza, ha a jelszó a kulcskarikán van mentve."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ si apre in secondo piano quando accedi e rimonta i dischi e le immagini che erano aperti, come erano. Un disco che richiede una password torna solo se la password è salvata nel portachiavi."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ prisijungus atsiveria fone ir grąžina diskus bei atvaizdžius, kurie buvo atverti, tokius, kokie buvo. Slaptažodžio reikalaujantis diskas grįžta tik tada, jei slaptažodis įrašytas raktų grandinėje."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ pieteikšanās brīdī atveras fonā un atjauno diskus un attēlus, kas bija atvērti, tieši tādus, kādi tie bija. Disks, kam vajadzīga parole, atgriežas tikai tad, ja parole ir saglabāta atslēgu saišķī."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ åpnes i bakgrunnen når du logger på, og setter tilbake diskene og diskbildene som var åpne, slik de var. En disk som krever passord kommer bare tilbake hvis passordet er lagret i nøkkelringen."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ opent op de achtergrond wanneer je inlogt en zet de schijven en schijfkopieën terug die open waren, zoals ze waren. Een schijf die een wachtwoord vraagt komt alleen terug als het wachtwoord in je sleutelhanger staat."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ otwiera się w tle po zalogowaniu i przywraca dyski oraz obrazy, które były otwarte, dokładnie tak jak były. Dysk wymagający hasła wraca tylko wtedy, gdy hasło jest zapisane w pęku kluczy."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O %@ abre em segundo plano quando inicia sessão e repõe os discos e imagens que estavam abertos, tal como estavam. Um disco que precisa de palavra-passe só volta se a palavra-passe estiver guardada no seu porta-chaves."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ se deschide în fundal când vă autentificați și readuce discurile și imaginile care erau deschise, așa cum erau. Un disc care cere o parolă revine doar dacă parola este salvată în breloc."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ se ob prijavi odpre v ozadju in povrne diske ter slike, ki so bili odprti, take, kot so bili. Disk, ki zahteva geslo, se vrne le, če je geslo shranjeno v ključevniku."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ öppnas i bakgrunden när du loggar in och sätter tillbaka de diskar och skivavbilder som var öppna, precis som de var. En disk som kräver ett lösenord kommer bara tillbaka om lösenordet är sparat i nyckelringen."
+          }
+        }
+      }
+    },
     "%@ reads this format and does not write it: changing one means writing to its log first, which it does not do. Nothing in the file can change.": {
       "localizations": {
         "bg": {
@@ -4255,6 +4385,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Alla nödvändiga behörigheter är beviljade"
+          }
+        }
+      }
+    },
+    "Allow %@ in the window that just opened, so macOS lets it open at login.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разрешете %@ в прозореца, който току-що се отвори, за да позволи macOS отварянето при влизане."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V okně, které se právě otevřelo, povolte %@, aby ji macOS spouštěl při přihlášení."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tillad %@ i vinduet, der lige åbnede, så macOS lader programmet åbne ved login."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erlaube %@ im gerade geöffneten Fenster, damit macOS die App beim Anmelden öffnet."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Επιτρέψτε το %@ στο παράθυρο που μόλις άνοιξε, ώστε το macOS να το ανοίγει κατά τη σύνδεση."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite %@ en la ventana que acaba de abrirse para que macOS lo abra al iniciar sesión."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luba %@ äsja avanenud aknas, et macOS avaks selle sisselogimisel."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salli %@ juuri avautuneessa ikkunassa, jotta macOS avaa sen kirjautuessa."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorisez %@ dans la fenêtre qui vient de s’ouvrir, pour que macOS l’ouvre à l’ouverture de session."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dopustite %@ u prozoru koji se upravo otvorio kako bi ga macOS pokretao pri prijavi."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Engedélyezze a(z) %@ alkalmazást a most megnyílt ablakban, hogy a macOS bejelentkezéskor elindítsa."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti %@ nella finestra appena aperta, così macOS la aprirà all’accesso."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ką tik atsivėrusiame lange leiskite %@, kad „macOS“ ją atvertų prisijungiant."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tikko atvērtajā logā atļaujiet %@, lai macOS to atvērtu pieteikšanās brīdī."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tillat %@ i vinduet som nettopp åpnet, så macOS åpner den ved pålogging."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sta %@ toe in het venster dat zojuist is geopend, zodat macOS de app bij het inloggen opent."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zezwól programowi %@ w oknie, które właśnie się otworzyło, aby macOS uruchamiał go przy logowaniu."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permita o %@ na janela que acabou de abrir, para que o macOS o abra ao iniciar sessão."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permiteți %@ în fereastra care tocmai s-a deschis, pentru ca macOS să îl deschidă la conectare."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V oknu, ki se je pravkar odprlo, dovolite %@, da ga macOS odpre ob prijavi."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tillåt %@ i fönstret som just öppnades, så att macOS öppnar det vid inloggning."
           }
         }
       }
@@ -19047,6 +19307,136 @@
         }
       }
     },
+    "Open drives again after restarting": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отваряй дисковете отново след рестарт"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Po restartu znovu otevřít disky"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn diskene igen efter genstart"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laufwerke nach einem Neustart wieder öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα των δίσκων ξανά μετά την επανεκκίνηση"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volver a abrir los discos tras reiniciar"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava kettad pärast taaskäivitust uuesti"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa levyt uudelleen käynnistyksen jälkeen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rouvrir les disques après un redémarrage"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponovno otvori diskove nakon pokretanja"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lemezek újranyitása újraindítás után"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riapri i dischi dopo il riavvio"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Po paleidimo iš naujo atverti diskus vėl"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pēc pārstartēšanas atvērt diskus no jauna"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpne diskene igjen etter omstart"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schijven na herstarten opnieuw openen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwieraj dyski ponownie po restarcie"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voltar a abrir os discos depois de reiniciar"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redeschideți discurile după repornire"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Po ponovnem zagonu znova odpri diske"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öppna diskarna igen efter omstart"
+          }
+        }
+      }
+    },
     "Open encrypted drives on macOS": {
       "localizations": {
         "bg": {
@@ -25359,6 +25749,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Specifikationer"
+          }
+        }
+      }
+    },
+    "Switch on Full Disk Access for %@ in the window that just opened. Without it a drive cannot be read, at login or at any other time.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включете Full Disk Access за %@ в прозореца, който току-що се отвори. Без него диск не може да бъде прочетен, нито при влизане, нито по друго време."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V okně, které se právě otevřelo, zapněte pro %@ Plný přístup k disku. Bez něj disk nelze přečíst, ani při přihlášení, ani jindy."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slå Fuld adgang til disk til for %@ i vinduet, der lige åbnede. Uden den kan en disk ikke læses, hverken ved login eller på andre tidspunkter."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schalte im gerade geöffneten Fenster den Festplattenvollzugriff für %@ ein. Ohne ihn lässt sich kein Laufwerk lesen, weder beim Anmelden noch sonst."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ενεργοποιήστε την Πλήρη πρόσβαση στον δίσκο για το %@ στο παράθυρο που μόλις άνοιξε. Χωρίς αυτήν δεν διαβάζεται κανένας δίσκος, ούτε κατά τη σύνδεση ούτε άλλη στιγμή."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activa el Acceso total al disco para %@ en la ventana que acaba de abrirse. Sin él no se puede leer ningún disco, ni al iniciar sesión ni en ningún otro momento."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lülita äsja avanenud aknas rakendusele %@ sisse Full Disk Access. Ilma selleta ei saa ketast lugeda, ei sisselogimisel ega muul ajal."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kytke juuri avautuneessa ikkunassa ohjelmalle %@ päälle Koko levyn käyttö. Ilman sitä levyä ei voi lukea, ei kirjautuessa eikä muulloin."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activez l’Accès complet au disque pour %@ dans la fenêtre qui vient de s’ouvrir. Sans lui, aucun disque ne peut être lu, à l’ouverture de session comme à tout autre moment."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "U prozoru koji se upravo otvorio uključite Puni pristup disku za %@. Bez toga disk se ne može čitati, ni pri prijavi ni bilo kada drugo."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A most megnyílt ablakban kapcsolja be a Teljes hozzáférés a lemezhez beállítást a(z) %@ számára. Enélkül egyetlen lemez sem olvasható, sem bejelentkezéskor, sem máskor."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva l’Accesso completo al disco per %@ nella finestra appena aperta. Senza, nessun disco può essere letto, né all’accesso né in altri momenti."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ką tik atsivėrusiame lange įjunkite %@ Full Disk Access. Be jo disko perskaityti nepavyks nei prisijungiant, nei bet kada kitada."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tikko atvērtajā logā ieslēdziet %@ Full Disk Access. Bez tās disku nevar nolasīt ne pieteikšanās brīdī, ne citreiz."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slå på Full disktilgang for %@ i vinduet som nettopp åpnet. Uten den kan ingen disk leses, verken ved pålogging eller ellers."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zet Volledige schijftoegang aan voor %@ in het venster dat zojuist is geopend. Zonder die toegang kan geen schijf worden gelezen, niet bij het inloggen en niet daarbuiten."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W oknie, które właśnie się otworzyło, włącz Pełny dostęp do dysku dla programu %@. Bez tego żaden dysk nie zostanie odczytany, ani przy logowaniu, ani kiedy indziej."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na janela que acabou de abrir, ative o Acesso completo ao disco para o %@. Sem ele, nenhum disco pode ser lido, nem ao iniciar sessão nem noutra altura."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "În fereastra care tocmai s-a deschis, activați Acces complet la disc pentru %@. Fără el, niciun disc nu poate fi citit, nici la conectare, nici altcândva."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V oknu, ki se je pravkar odprlo, vklopite Poln dostop do diska za %@. Brez tega diska ni mogoče brati, ne ob prijavi ne kdaj drugič."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slå på Full skivtillgång för %@ i fönstret som just öppnades. Utan den kan ingen disk läsas, varken vid inloggning eller annars."
           }
         }
       }
@@ -37525,6 +38045,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS läser det här formatet självt. Avbilden monterades inte och kan redan vara öppnad i Finder."
+          }
+        }
+      }
+    },
+    "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS не добави %@ към елементите за влизане. Отворете System Settings, после General, после Login Items и го добавете там."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nepřidal %@ mezi položky přihlášení. Otevřete Nastavení systému, pak Obecné, pak Položky přihlášení a přidejte ji tam."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ville ikke føje %@ til dine loginemner. Åbn Systemindstillinger, derefter Generelt, derefter Loginemner, og tilføj programmet der."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS hat %@ nicht zu deinen Anmeldeobjekten hinzugefügt. Öffne die Systemeinstellungen, dann Allgemein, dann Anmeldeobjekte, und füge die App dort hinzu."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το macOS δεν πρόσθεσε το %@ στα αντικείμενα σύνδεσης. Ανοίξτε τις Ρυθμίσεις συστήματος, μετά Γενικά, μετά Αντικείμενα σύνδεσης, και προσθέστε το εκεί."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS no añadió %@ a tus ítems de inicio. Abre Ajustes del Sistema, luego General, luego Ítems de inicio, y añádelo ahí."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ei lisanud rakendust %@ sisselogimisüksuste hulka. Ava Süsteemiseaded, siis Üldine, siis Sisselogimisüksused, ja lisa see sinna."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ei lisännyt ohjelmaa %@ kirjautumiskohteisiin. Avaa Järjestelmäasetukset, sitten Yleiset, sitten Kirjautumiskohteet, ja lisää se sinne."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS n’a pas ajouté %@ à vos ouvertures de session. Ouvrez Réglages Système, puis Général, puis Ouverture, et ajoutez-la là."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nije dodao %@ u stavke prijave. Otvorite Postavke sustava, zatim Općenito, zatim Stavke prijave, i dodajte ga ondje."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A macOS nem adta hozzá a(z) %@ alkalmazást a bejelentkezési elemekhez. Nyissa meg a Rendszerbeállításokat, majd az Általános, majd a Bejelentkezési elemek részt, és adja hozzá ott."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS non ha aggiunto %@ agli elementi di login. Apri Impostazioni di Sistema, poi Generali, poi Elementi login, e aggiungila lì."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„macOS“ nepridėjo %@ prie prisijungimo elementų. Atverkite Sistemos nuostatas, tada Bendra, tada Prisijungimo elementai, ir pridėkite ją ten."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nepievienoja %@ pieteikšanās vienumiem. Atveriet Sistēmas iestatījumus, tad Vispārīgi, tad Pieteikšanās vienumi, un pievienojiet to tur."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS la ikke %@ til i påloggingsobjektene. Åpne Systeminnstillinger, så Generelt, så Påloggingsobjekter, og legg den til der."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS heeft %@ niet aan je inlogitems toegevoegd. Open Systeeminstellingen, dan Algemeen, dan Inlogonderdelen, en voeg de app daar toe."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nie dodał programu %@ do elementów logowania. Otwórz Ustawienia systemowe, potem Ogólne, potem Elementy logowania, i dodaj go tam."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O macOS não adicionou o %@ aos itens de início de sessão. Abra as Definições do Sistema, depois Geral, depois Itens de início de sessão, e adicione-o aí."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nu a adăugat %@ la elementele de conectare. Deschideți Configurări sistem, apoi General, apoi Elemente de conectare, și adăugați-l acolo."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ni dodal %@ med prijavne elemente. Odprite Sistemske nastavitve, nato Splošno, nato Prijavni elementi, in ga dodajte tam."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS lade inte till %@ bland dina inloggningsobjekt. Öppna Systeminställningar, sedan Allmänt, sedan Inloggningsobjekt, och lägg till det där."
           }
         }
       }

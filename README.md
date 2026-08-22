@@ -140,6 +140,13 @@ and says so.
 
 Eject it from Lukotta, from the menu bar, or from Finder.
 
+Lukotta can also put back what was open after a restart. Switch on **Open drives
+again after restarting** at the top of Settings: it then opens in the background
+when you log in and mounts the drives and images that were open, as they were,
+read-only ones included. A drive that needs a password comes back only if the
+password is saved in your Keychain, and anything that is not connected is simply
+passed over. It is off until you turn it on.
+
 Lukotta remembers a passphrase in your Keychain when you ask it to.
 
 > [!NOTE]

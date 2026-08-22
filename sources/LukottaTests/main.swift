@@ -2065,6 +2065,46 @@ group("bitlockerPartWayThroughIsExplained") {
         "a partition that is not BitLocker is still reported as that")
 }
 
+group("whatWasOpenIsRememberedForNextTime") {
+    MountMemory.forgetAll()
+    expect(MountMemory.all().isEmpty, "nothing is remembered to begin with")
+
+    MountMemory.remember(
+        MountMemory.Entry(uuid: "UUID-1", readOnly: false, name: "Elements"))
+    MountMemory.remember(
+        MountMemory.Entry(
+            uuid: "/Users/someone/backup.vdi", imagePath: "/Users/someone/backup.vdi",
+            readOnly: true, name: "backup"))
+    expect(MountMemory.all().count == 2, "both are remembered")
+    expect(
+        MountMemory.all().first { $0.uuid == "/Users/someone/backup.vdi" }?.readOnly == true,
+        "and one opened read-only is remembered as read-only")
+
+    // The same volume opened again replaces the earlier record rather than
+    // being remembered twice, which would put it back twice at login.
+    MountMemory.remember(
+        MountMemory.Entry(uuid: "UUID-1", readOnly: true, name: "Elements"))
+    expect(MountMemory.all().count == 2, "opening the same volume again replaces its record")
+    expect(
+        MountMemory.all().first { $0.uuid == "UUID-1" }?.readOnly == true,
+        "with what it was opened as this time")
+
+    // Ejecting is the person saying they are done with it.
+    MountMemory.forget(uuid: "UUID-1")
+    expect(MountMemory.all().count == 1, "ejecting one forgets that one")
+    expect(
+        MountMemory.all().first?.uuid == "/Users/someone/backup.vdi",
+        "and leaves the other alone")
+
+    MountMemory.forgetAll()
+    expect(MountMemory.all().isEmpty, "and everything can be forgotten at once")
+
+    // Off unless it is turned on: nothing is put back for anyone who has not
+    // asked for it.
+    UserDefaults.standard.removeObject(forKey: RestorePreference.key)
+    expect(!RestorePreference.isOn, "putting drives back is off by default")
+}
+
 group("aFallbackToReadOnlySaysWhy") {
     // A drive that will not take writes is mounted read-only rather than left
     // closed. Before the fallback existed the mount failed and the reason was

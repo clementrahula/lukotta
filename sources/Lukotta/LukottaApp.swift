@@ -214,10 +214,24 @@ private func confirmUninstall(_ model: AppModel) {
         })
 }
 
+/// Whether this launch was started by the system rather than by a person.
+///
+/// A login item is a launchd job, and launchd puts the job's name in the
+/// environment; an app opened from the Dock or the Finder is given "0". Started
+/// this way there is nobody looking at the screen, so no window is put on it.
+/// If this ever reads wrongly, clicking the app in the Dock still opens the
+/// window, so the worst case is a window that has to be asked for.
+enum LaunchContext {
+    static let isAtLogin: Bool = {
+        let name = ProcessInfo.processInfo.environment["XPC_SERVICE_NAME"] ?? "0"
+        return !name.isEmpty && name != "0"
+    }()
+}
+
 @main
 struct LukottaApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
-    @StateObject private var model = AppModel()
+    @StateObject private var model = AppModel.shared
     @StateObject private var updater = Updater()
     @AppStorage(MenuBarPreference.key) private var showMenuBarIcon = true
 
@@ -259,6 +273,10 @@ struct LukottaApp: App {
                 }
         }
         .windowResizability(.contentMinSize)
+        // Nothing on screen when the Mac starts. The drives come back by
+        // themselves, the way a disk mounted by macOS does, and the window is
+        // there when it is asked for.
+        .defaultLaunchBehavior(LaunchContext.isAtLogin ? .suppressed : .automatic)
         // Present only while something is open, so it does not clutter the menu
         // bar for a tool used occasionally.
         // The systemImage initialiser, not a custom label: a label built from a
@@ -340,6 +358,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Here rather than in the App's init, where NSApp does not exist yet.
         Appearance.current.apply()
 
+        // Opened at login there is no window, so nothing else starts the scan
+        // that finds the drives to put back.
+        if LaunchContext.isAtLogin {
+            let model = AppModel.shared
+            self.model = model
+            Log.app.notice("opened at login; no window")
+            model.start()
+        }
+
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.willPowerOffNotification, object: nil, queue: .main
         ) { [weak self] _ in
@@ -347,7 +374,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool { true }
+    /// Closing the window quits, as it does for any tool used occasionally —
+    /// unless the drives are meant to come back by themselves, in which case
+    /// the app has to still be here when one is plugged in.
+    func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool {
+        !RestorePreference.isOn
+    }
 
     /// A mounted drive means a microVM is still running. Quitting without
     /// ejecting would leave it behind, so ask.

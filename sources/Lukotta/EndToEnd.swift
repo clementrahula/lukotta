@@ -230,6 +230,17 @@ enum EndToEnd {
             writeFlow(image: image, passphrase: passphrase)
         }
 
+        // Putting back what was open, which is what the setting at the top of
+        // Settings does.
+        if arguments.count > 2 {
+            let plain = URL(fileURLWithPath: arguments[2])
+            if FileManager.default.fileExists(atPath: plain.path) {
+                print("")
+                print("putting back what was open: \(plain.lastPathComponent)")
+                restoreFlow(image: plain, passphrase: nil)
+            }
+        }
+
         // And the two that are read and not written: asked for read-write,
         // each opens read-only rather than failing, and refuses to be written
         // to.
@@ -590,6 +601,105 @@ enum EndToEnd {
         try? FileManager.default.removeItem(at: probe)
         model.eject(mountPoint)
         waitUntil("it ejects", timeout: 120, condition: { !model.isEjecting })
+    }
+
+    /// What was open comes back on its own.
+    ///
+    /// A restart cannot be staged here, so the next best thing is done: the
+    /// image is opened, the mount is torn down behind the app's back the way a
+    /// restart tears it down, and a fresh model is left to put it back with
+    /// nobody typing anything.
+    @MainActor
+    private static func restoreFlow(image: URL, passphrase: String?) {
+        MountMemory.forgetAll()
+        RestorePreference.isOn = true
+        defer {
+            RestorePreference.isOn = false
+            MountMemory.forgetAll()
+        }
+
+        var mountPoint = ""
+        do {
+            let model = AppModel()
+            model.start()
+            guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
+                return
+            }
+            model.openImage(image)
+            guard
+                waitUntil(
+                    "the image opens", timeout: 60,
+                    condition: {
+                        model.imageOpening == nil && model.drives.contains { $0.uuid == image.path }
+                    })
+            else { return }
+            guard let drive = model.drives.first(where: { $0.uuid == image.path }) else { return }
+            guard
+                waitUntil(
+                    "it is identified", timeout: 60,
+                    condition: { model.phaseIsUnlock && model.chosenFormat != nil })
+            else { return }
+            if let passphrase { model.credential = passphrase }
+            // Read-only, so that what comes back has to come back the same way
+            // rather than merely coming back.
+            model.unlock(drive, readOnly: true)
+            guard
+                waitUntil(
+                    "it mounts read-only", timeout: 180,
+                    condition: {
+                        if case .mounted = model.phase { return true }
+                        if case .failed = model.phase { return true }
+                        return false
+                    })
+            else { return }
+            guard case .mounted(_, let point) = model.phase else {
+                check(false, "it mounted rather than failing")
+                return
+            }
+            mountPoint = point
+            check(
+                MountMemory.all().contains { $0.uuid == image.path && $0.readOnly },
+                "what was opened is remembered, read-only and all")
+        }
+
+        // What a restart does: the mount and the machine serving it are gone,
+        // and nothing was ejected, so the record of it stays.
+        _ = EngineStatus.unmount(mountPoint: mountPoint)
+        guard
+            waitUntil(
+                "the mount is gone, as it would be after a restart", timeout: 60,
+                condition: { !FileManager.default.fileExists(atPath: mountPoint) })
+        else { return }
+        check(
+            MountMemory.all().contains { $0.uuid == image.path },
+            "and it is still remembered, because nobody ejected it")
+
+        // A new model, as at the next login. Nothing is typed and nothing is
+        // chosen.
+        let model = AppModel()
+        model.start()
+        guard waitUntil("the app starts again", condition: { !model.isScanning }) else { return }
+        guard
+            waitUntil(
+                "the drive comes back on its own", timeout: 240,
+                condition: { !model.openMounts.isEmpty })
+        else { return }
+        check(
+            !model.phaseIsUnlock,
+            "and nothing was put on screen about it, the way macOS mounts a disk")
+        guard let point = model.openMounts.values.first else { return }
+        check(
+            model.readOnlyMounts.contains(point),
+            "it came back read-only, which is how it was")
+        check(
+            mountTableSaysReadOnly(point),
+            "and the mount table agrees")
+
+        model.eject(point)
+        waitUntil("it ejects", timeout: 120, condition: { !model.isEjecting })
+        check(
+            MountMemory.all().isEmpty,
+            "ejecting it means it does not come back next time")
     }
 
     /// An image holding an ordinary filesystem, which has no password to ask

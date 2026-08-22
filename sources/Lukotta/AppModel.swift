@@ -5,6 +5,16 @@ import SwiftUI
 @MainActor
 final class AppModel: ObservableObject {
 
+    /// The one the application runs on.
+    ///
+    /// Started from the window when there is a window, and from the delegate
+    /// when the app was opened at login and there is none. Both need the same
+    /// instance, and tests and snapshots make their own.
+    static let shared = AppModel()
+
+    /// Whether `start()` has already run, since two places can call it.
+    private var didStart = false
+
     enum Phase {
         case needsPermission
         case scanning
@@ -679,6 +689,9 @@ final class AppModel: ObservableObject {
         openVolumes = []
         openMounts = openMounts.filter { !points.contains($0.value) }
         readOnlyMounts.subtract(points)
+        // Nothing is forgotten here. These mounts went away without anybody
+        // ejecting them: the drive was unplugged, or the Mac slept through it.
+        // Plugged in again, it is one to open again.
         space = space.filter { !points.contains($0.key) }
         volumeCount = volumeCount.filter { !points.contains($0.key) }
         if let first = names.first {
@@ -732,6 +745,8 @@ final class AppModel: ObservableObject {
                     mounts.map { ($0.devicePath, $0.mountPoint) },
                     uniquingKeysWith: { first, _ in first })
                 self.refreshSpace()
+                // A drive that was open before the restart, plugged in now.
+                self.restoreRememberedMounts()
 
                 guard vanished, let drive = self.currentDrive else { return }
                 Log.drives.notice("the drive on screen was unplugged")
@@ -756,6 +771,8 @@ final class AppModel: ObservableObject {
     // MARK: Lifecycle
 
     func start() {
+        guard !didStart else { return }
+        didStart = true
         watcher.start()
         sleepWatch.start()
         phase = .scanning
@@ -1133,6 +1150,129 @@ final class AppModel: ObservableObject {
         return rule.message()
     }
 
+    // MARK: Putting back what was open
+
+    /// Whether a restore is running, so that nothing it does reaches the
+    /// screen. The person did not ask for any of it to be shown: as far as they
+    /// are concerned the drives are simply there, the way macOS mounts a disk.
+    private var restoring = false
+
+    /// What is still to be put back, one at a time. The engine will not have
+    /// two mounts started at once the first time it runs after an update, and
+    /// serially is fast enough for the handful of drives anyone keeps open.
+    private var restoreQueue: [MountMemory.Entry] = []
+
+    /// Record that this drive is open, so that it can be opened again after a
+    /// restart. Kept whether or not the setting is on, so that turning it on
+    /// puts back what is open now rather than waiting for the next mount.
+    private func rememberForRestore(_ drive: Drive, readOnly: Bool) {
+        MountMemory.remember(
+            MountMemory.Entry(
+                uuid: drive.uuid,
+                imagePath: openedImages[DriveScanner.wholeDisk(of: drive.id)]?.path
+                    ?? qcow2Drives[drive.id].map { _ in drive.uuid },
+                volumeIdentifier: nil,
+                readOnly: readOnly,
+                name: drive.name))
+    }
+
+    /// Open again whatever was open, if the setting is on.
+    ///
+    /// Called after every scan, so a drive plugged in an hour after login is
+    /// put back as readily as one already attached at the time.
+    func restoreRememberedMounts() {
+        guard RestorePreference.isOn, !restoring, mountTask == nil else { return }
+        let waiting = MountMemory.all().filter { !isAlreadyOpen($0) }
+        guard !waiting.isEmpty else { return }
+        restoring = true
+        restoreQueue = waiting
+        Log.mount.notice("putting back \(waiting.count, privacy: .public) drives")
+        restoreNext()
+    }
+
+    /// Whether this entry is already open, which is the usual case for
+    /// everything but the first scan after a restart.
+    private func isAlreadyOpen(_ entry: MountMemory.Entry) -> Bool {
+        guard let drive = drives.first(where: { $0.uuid == entry.uuid }) else { return false }
+        return openMounts[drive.devicePath] != nil
+    }
+
+    private func restoreNext() {
+        guard RestorePreference.isOn, !restoreQueue.isEmpty else {
+            restoring = false
+            restoreQueue = []
+            return
+        }
+        let entry = restoreQueue.removeFirst()
+        Task { @MainActor in
+            await self.restore(entry)
+            // Whatever happened, the next one is tried: a drive that is not
+            // plugged in must not hold up one that is.
+            self.restoreNext()
+        }
+    }
+
+    /// Put one drive or image back, silently.
+    ///
+    /// Anything that does not work is passed over: a drive that is not
+    /// connected, an image that has been moved or deleted, a volume whose
+    /// passphrase was never saved. There is nobody sitting there to answer a
+    /// question, so nothing is asked.
+    private func restore(_ entry: MountMemory.Entry) async {
+        var drive = drives.first { $0.uuid == entry.uuid }
+        if drive == nil, let path = entry.imagePath {
+            drive = await openImageQuietly(URL(fileURLWithPath: path))
+        }
+        guard let drive else { return }
+        guard openMounts[drive.devicePath] == nil else { return }
+
+        // A drive that needs a passphrase comes back only if it was saved. The
+        // rest open with nothing.
+        let saved = CredentialStore.load(for: drive.uuid)
+        let credential = saved.flatMap { try? Credential.normalise($0).get() } ?? ""
+
+        let cannotBeWritten = containerFormats[drive.id].map { !$0.isWritable } ?? false
+        mountingReadOnly = entry.readOnly || cannotBeWritten
+        statusLines = []
+        Log.mount.notice(
+            "putting back a drive, read-only \(self.mountingReadOnly, privacy: .public)")
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            restoreFinished = { continuation.resume() }
+            runMount(drive: drive, credential: credential)
+        }
+        restoreFinished = nil
+    }
+
+    /// Called once the mount in flight has ended, however it ended.
+    private var restoreFinished: (() -> Void)?
+
+    /// Attach an image and list what is in it, without any of it being shown.
+    ///
+    /// The ordinary route puts a sheet up and moves the screen to the drive it
+    /// opened. Here the file is opened, the drive it produced is added to the
+    /// list, and nothing else happens.
+    private func openImageQuietly(_ url: URL) async -> Drive? {
+        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+        let outcome = await Task.detached(priority: .utility) {
+            Self.attachAndList(url)
+        }.value
+        switch outcome {
+        case .failure:
+            return nil
+        case .qcow2(let drive, let format, let container):
+            qcow2Drives[drive.id] = drive
+            drives.append(drive)
+            knownFormat = format
+            containerFormats[drive.id] = container
+            return drive
+        case .success(let attached, let all, _):
+            openedImages[attached.identifier] = url
+            containerFormats[attached.identifier] = .raw
+            drives = all
+            return all.first { $0.uuid == url.path }
+        }
+    }
+
     func backToDrives() {
         credential = ""
         credentialProblem = nil
@@ -1394,6 +1534,7 @@ final class AppModel: ObservableObject {
             readOnlyMounts.remove(mountPoint)
         }
         DriveMemory.remember(mountPoint: mountPoint, for: drive.uuid)
+        rememberForRestore(drive, readOnly: mountedReadOnly)
         // Authorisation has just been demonstrated, so the helper is registered
         // and the next unlock does not ask. macOS still requires approval in
         // Login Items, for which the panel then prompts.
@@ -1403,7 +1544,11 @@ final class AppModel: ObservableObject {
         collectVolumes(for: drive, fallback: mountPoint)
         self.credential = ""
         credentialBelongsTo = nil
-        phase = .mounted(drive, mountPoint)
+        if restoring {
+            restoreFinished?()
+        } else {
+            phase = .mounted(drive, mountPoint)
+        }
     }
 
     /// Run the engine as the user who is sitting there.
@@ -1469,6 +1614,7 @@ final class AppModel: ObservableObject {
                     // The label is only knowable now. Remember it so the next
                     // unlock can name the share before mounting.
                     DriveMemory.remember(mountPoint: result.mountPoint, for: drive.uuid)
+                    self.rememberForRestore(drive, readOnly: self.mountedReadOnly)
                     Log.mount.notice("mounted without the helper")
                     let fellBack = result.transcript.contains(
                         MountScript.stageMarker + "read-only")
@@ -1484,7 +1630,11 @@ final class AppModel: ObservableObject {
                     self.openMounts[drive.devicePath] = result.mountPoint
                     self.noteVolumeCount(result.transcript)
                     self.collectVolumes(for: drive, fallback: result.mountPoint)
-                    self.phase = .mounted(drive, result.mountPoint)
+                    if self.restoring {
+                        self.restoreFinished?()
+                    } else {
+                        self.phase = .mounted(drive, result.mountPoint)
+                    }
                 }
             } catch let err as EngineError {
                 await MainActor.run {
@@ -1526,6 +1676,14 @@ final class AppModel: ObservableObject {
             detail
             .map { Diagnostics.redact($0, secret: activeCredential) }
             .map(Diagnostics.withoutMarkers)
+        // A restore that did not work says nothing: there is nobody sitting
+        // there, and a failure screen for a drive nobody asked about would be
+        // the first thing they saw at login.
+        guard !restoring else {
+            Log.mount.notice("a drive could not be put back; leaving it closed")
+            restoreFinished?()
+            return
+        }
         phase = .failed(drive, Diagnostics.redact(summary, secret: activeCredential), clean)
     }
 
@@ -1589,6 +1747,15 @@ final class AppModel: ObservableObject {
                 self.ejectingPath = nil
                 if result.ok {
                     self.openVolumes = []
+                    // Ejecting is the person saying they are done with it, so
+                    // it is not put back at the next login. Unplugging is not:
+                    // a drive that goes away without being ejected is one to
+                    // open again when it comes back.
+                    for uuid in devices.compactMap({ device in
+                        self.drives.first { $0.devicePath == device }?.uuid
+                    }) {
+                        MountMemory.forget(uuid: uuid)
+                    }
                     if self.openMounts.isEmpty { self.onAllDrivesClosed?() }
                     self.openMounts = self.openMounts.filter { !paths.contains($0.value) }
                     // The list, not start(): with a single drive attached that
