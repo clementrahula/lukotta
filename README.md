@@ -54,9 +54,9 @@ appears in your home folder.
 | **What is inside them** | A BitLocker or LUKS volume inside any image, which unlocks like one on a drive |
 
 qcow2, VMDK, VDI and VHD are written as well as read, so files can be copied
-into a virtual machine's disk and not only out of it. Writing these formats is
-new, and the app says so before opening one. A VHDX is read and never written,
-as is the stream-optimized VMDK an OVA carries; both open read-only and say so.
+into a virtual machine's disk. Writing them is untested, and the screen that
+opens one says so. A VHDX is read and never written, as is the stream-optimized
+VMDK an OVA carries; both open read-only.
 
 An exFAT image is handed to macOS, which reads and writes that format itself.
 [SPECS.md][specs] specifies every filesystem, encryption and image format, what
