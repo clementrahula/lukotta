@@ -50,7 +50,7 @@ struct UnlockView: View {
                     // formats, it began calling LUKS containers unencrypted
                     // the moment the probe learned to recognise one.
                     if let format = model.chosenFormat, format.isUnencrypted {
-                        FormatNote(format: format)
+                        FormatNote(format: format, writable: model.chosenIsWritable)
                     }
 
                     // What may be done with the file itself, as opposed to what
@@ -505,6 +505,9 @@ private struct ImageNote: View {
 /// not — so this is worded as an explanation rather than as a refusal.
 private struct FormatNote: View {
     let format: VolumeFormat
+    /// Whether opening it read-write is on offer at all. Where it is not, this
+    /// note must not describe it: the note below says why.
+    var writable = true
 
     /// Exhaustive on purpose. The old `default` said "plain NTFS" for anything
     /// it did not recognise, which is how a LUKS container came to be described
@@ -531,7 +534,9 @@ private struct FormatNote: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.callout.weight(.medium))
                 Text(
-                    "There is no password to enter. Open it to read and write to it, which macOS on its own cannot do, or open it read-only to leave it untouched."
+                    writable
+                        ? "There is no password to enter. Open it to read and write to it, which macOS on its own cannot do, or open it read-only to leave it untouched."
+                        : "There is no password to enter."
                 )
                 .font(.caption).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

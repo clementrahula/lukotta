@@ -24,6 +24,9 @@ public enum ContainerFormat: String, Sendable {
     case raw
     case qcow2
     case vmdk
+    /// The form an OVA carries: every grain deflated, written in one pass, and
+    /// so readable and not changeable.
+    case vmdkStreamed
     case vdi
     case vhd
     case vhdx
@@ -33,7 +36,7 @@ public enum ContainerFormat: String, Sendable {
         switch self {
         case .raw: return appString("raw image")
         case .qcow2: return appString("qcow2")
-        case .vmdk: return appString("VMDK")
+        case .vmdk, .vmdkStreamed: return appString("VMDK")
         case .vdi: return appString("VDI")
         case .vhd: return appString("VHD")
         case .vhdx: return appString("VHDX")
@@ -43,10 +46,10 @@ public enum ContainerFormat: String, Sendable {
     /// Whether anything can be written to an image in this format.
     ///
     /// A VHDX cannot: changing one means writing to its log first, which the
-    /// driver does not do. Everything else here can, though a stream-optimized
-    /// VMDK is the exception within its own format and is discovered only when
-    /// the engine opens it.
-    public var isWritable: Bool { self != .vhdx }
+    /// driver does not do. Nor can a stream-optimized VMDK: every grain in one
+    /// is deflated and written in a single pass, so changing one in place would
+    /// rarely produce the same number of bytes.
+    public var isWritable: Bool { self != .vhdx && self != .vmdkStreamed }
 
     /// Whether writing goes through a driver written for this application.
     ///
@@ -55,7 +58,7 @@ public enum ContainerFormat: String, Sendable {
     /// writes as it writes any disk.
     public var writtenByOurOwnDriver: Bool {
         switch self {
-        case .raw, .vhdx: return false
+        case .raw, .vhdx, .vmdkStreamed: return false
         case .qcow2, .vmdk, .vdi, .vhd: return true
         }
     }

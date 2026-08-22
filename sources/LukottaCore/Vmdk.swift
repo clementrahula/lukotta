@@ -148,6 +148,17 @@ extension DiskImage {
         url.pathExtension.lowercased() == "vmdk"
     }
 
+    /// Whether this VMDK is the streamed form, which is read and not written.
+    ///
+    /// The extension is the same for every form, so the header is what says
+    /// so. A flat VMDK has no sparse header at all and is not this.
+    public static func isStreamedVmdk(_ url: URL) -> Bool {
+        guard let handle = try? FileHandle(forReadingFrom: url) else { return false }
+        defer { try? handle.close() }
+        guard let head = try? handle.read(upToCount: 80) else { return false }
+        return SparseVmdkHeader.parse(head)?.streamed ?? false
+    }
+
     /// Whether this VMDK may be handed to the engine, or why not.
     public static func objection(toVmdk url: URL) -> String? {
         guard let handle = try? FileHandle(forReadingFrom: url) else {

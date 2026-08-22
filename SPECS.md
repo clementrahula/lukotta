@@ -65,10 +65,10 @@ engine.
 The VMDK, VDI, VHD and VHDX drivers were written here for imago, the crate that
 reads image formats for the engine. See `patches/README.md`.
 
-An image that cannot be written is opened read-only, and the guest is told the
-device is read-only, so the mount fails at once rather than part-way through a
-write. The application then mounts it read-only instead, which is what the
-`read-only` stage marker in §2 reports.
+An image that cannot be written is opened read-only from the start: the
+application knows which container it holds before anything is mounted, and asks
+for a read-only mount whatever the person chose. The device the guest is given
+is marked read-only as well, so nothing can reach the file through it either.
 
 ---
 
@@ -188,9 +188,9 @@ anything was interrupted, which is the one failure that cannot be detected
 afterwards. Writing the log is therefore a precondition for writing a VHDX at
 all, and it is not written here.
 
-The consequence is deliberate and visible: a VHDX opens read-only, the guest is
-told the device is read-only, and the application says so before anything is
-mounted rather than after a write has failed.
+The consequence is deliberate and visible: a VHDX opens read-only, the device
+the guest is given is marked read-only, and the screen that offers to open one
+says so before anything is mounted rather than after a write has failed.
 
 ### VHDX with a log that is not empty
 

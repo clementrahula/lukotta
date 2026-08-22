@@ -224,7 +224,7 @@ final class AppModel: ObservableObject {
     /// What may be done with an image depends on it: a VHDX is read and never
     /// written, and the rest are written by drivers built for this application.
     /// The screen that offers to open one says so.
-    private var containerFormats: [String: ContainerFormat] = [:]
+    var containerFormats: [String: ContainerFormat] = [:]
 
     /// What the engine already said is inside the file being opened, so the
     /// first-sector probe is not asked about a container it cannot see into.
@@ -461,7 +461,9 @@ final class AppModel: ObservableObject {
                 Log.drives.error("refused a VMDK")
                 return .failure(objection)
             }
-            return engineRead(url, as: .vmdk)
+            // The streamed form is read and not written, and the extension
+            // does not say which form it is: the header does.
+            return engineRead(url, as: DiskImage.isStreamedVmdk(url) ? .vmdkStreamed : .vmdk)
         }
 
         // A qcow2 is never attached. macOS cannot read one and the engine can,
@@ -1166,6 +1168,10 @@ final class AppModel: ObservableObject {
 
     func unlock(_ drive: Drive, readOnly: Bool = false) {
         credentialProblem = nil
+        // A format that cannot be written is opened read-only whatever was
+        // asked for. Mounting it writable appears to work and then refuses
+        // every write, which is worse than saying so at the start.
+        let readOnly = readOnly || !chosenIsWritable
         mountingReadOnly = readOnly
         let raw = credential
         // Nothing to unlock: the first sector reports it as unencrypted, so the

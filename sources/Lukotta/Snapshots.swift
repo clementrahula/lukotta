@@ -29,6 +29,13 @@ enum Snapshots {
             id: "disk5s2", devicePath: "/dev/disk5s2", name: "fedora",
             sizeBytes: 1_000_204_886_016, connection: "USB · \(appString("External"))",
             kind: .linux, uuid: "SNAPSHOT-0000-0000-0000-000000000002")
+        // An image the engine reads for itself: no device, the file's own path
+        // standing in for one.
+        let image = Drive(
+            id: "/Users/someone/Machines/win11.vhdx",
+            devicePath: "/Users/someone/Machines/win11.vhdx", name: "win11",
+            sizeBytes: 64_424_509_440, connection: appString("Disk Image"),
+            kind: .linux, uuid: "/Users/someone/Machines/win11.vhdx")
 
         /// A whole window in a given state, which is what most scenes are.
         func model(_ configure: (AppModel) -> Void) -> AnyView {
@@ -210,6 +217,26 @@ enum Snapshots {
                 model {
                     $0.phase = .unlock(drive)
                     $0.chosenFormat = .ntfs
+                }
+            ),
+            // An image in a format written by a driver built here, which the
+            // screen says plainly before anything is opened.
+            (
+                "unlock-image-writing-is-new",
+                model {
+                    $0.phase = .unlock(image)
+                    $0.chosenFormat = .ntfs
+                    $0.containerFormats[image.id] = .vdi
+                }
+            ),
+            // And one that is read and never written, which offers a single
+            // way to open it.
+            (
+                "unlock-image-read-only",
+                model {
+                    $0.phase = .unlock(image)
+                    $0.chosenFormat = .ntfs
+                    $0.containerFormats[image.id] = .vhdx
                 }
             ),
             (
