@@ -17,7 +17,7 @@ struct DriveListView: View {
                 icon: "externaldrive.badge.questionmark",
                 title: "No encrypted drives found",
                 message:
-                    "Connect the encrypted drive and choose Rescan. If it is already connected, macOS may have it mounted — eject it in Finder first.",
+                    "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.",
                 actionTitle: "Rescan",
                 action: model.rescan)
         } else {

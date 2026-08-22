@@ -96,12 +96,12 @@ struct HelpSheet: View {
 
                     HelpSection(title: "Permissions") {
                         Bullet(
-                            "Full Disk Access — macOS will not let any app read a drive’s raw contents without it. It cannot be requested, so it has to be switched on by hand"
+                            "Full Disk Access: macOS will not let any app read a drive’s raw contents without it. It cannot be requested, so it has to be switched on by hand"
                         )
                         Bullet(
-                            "Removable volumes — requested by macOS the first time a drive is read")
+                            "Removable volumes: requested by macOS the first time a drive is read")
                         Bullet(
-                            "Administrator password — asked for once when the background helper is set up, then not again. \(Brand.name) never sees it"
+                            "Administrator password: asked for once when the background helper is set up, then not again. \(Brand.name) never sees it"
                         )
                     }
 

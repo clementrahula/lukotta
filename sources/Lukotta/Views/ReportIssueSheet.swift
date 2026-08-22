@@ -74,7 +74,7 @@ struct ReportIssueSheet: View {
                             Text(
                                 """
                                 macOS wrote \(crash.lastPathComponent). It is not sent \
-                                anywhere automatically — attach it to your message if you can.
+                                anywhere automatically. Attach it to your message if you can.
                                 """
                             )
                             .font(.caption).foregroundStyle(.secondary)

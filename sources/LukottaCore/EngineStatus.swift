@@ -174,7 +174,7 @@ public enum EngineStatus {
             return (
                 false,
                 appString(
-                    "The drive did not finish ejecting. It may still be in use — try again, or eject it in Finder."
+                    "The drive did not finish ejecting. It may still be in use, so try again or eject it in Finder."
                 )
             )
         }

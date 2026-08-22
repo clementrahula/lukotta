@@ -47,7 +47,7 @@ struct FailureView: View {
 
                     InfoBox(
                         text:
-                            "Your drive was not modified. A failed unlock cannot damage the data on it."
+                            "Nothing was written to it. A failed unlock cannot damage the data it holds."
                     )
 
                     if let detail, !detail.isEmpty {

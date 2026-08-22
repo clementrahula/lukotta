@@ -19,7 +19,7 @@ struct PermissionView: View {
                             Text("Welcome to \(Brand.name)").font(.title3.weight(.semibold))
                                 .accessibilityAddTraits(.isHeader)
                             Text(
-                                "\(Brand.name) opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access — an administrator password is not enough, and the removable-volumes permission covers files on a drive, not the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand."
+                                "\(Brand.name) opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access. An administrator password is not enough, and the removable-volumes permission covers files on a drive rather than the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand."
                             )
                             .font(.callout).foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -32,7 +32,7 @@ struct PermissionView: View {
                         Step(
                             number: 3,
                             text:
-                                "Come back here and choose Relaunch — a new permission only applies to a freshly started app."
+                                "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted."
                         )
                     }
                     .padding(13)

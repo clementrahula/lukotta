@@ -57,8 +57,8 @@ struct UninstallView: View {
             if let failure = model.uninstallFailure {
                 InfoBox(
                     text: """
-                        Everything else was removed. \(Brand.name) itself could not be moved to \
-                        the Bin — \(failure) — so drag it there yourself to finish.
+                        Everything else was removed. \(Brand.name) itself could not be moved \
+                        to the Bin: \(failure). Drag it there yourself to finish.
                         """)
             }
 

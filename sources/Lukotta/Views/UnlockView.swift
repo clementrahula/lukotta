@@ -301,7 +301,7 @@ struct PermissionsPanel: View {
                         detail: fullDiskGranted
                             ? appString("Lets \(Brand.name) read the encrypted data itself.")
                             : appString(
-                                "Lets \(Brand.name) read the encrypted data itself. macOS blocks this without it, even for administrators, and it cannot be requested — it has to be switched on by hand."
+                                "Lets \(Brand.name) read the encrypted data itself. macOS blocks this without it, even for administrators, and it cannot be requested: it has to be switched on by hand."
                             ),
                         status: fullDiskGranted ? .granted : .needed,
                         action: fullDiskGranted
