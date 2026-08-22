@@ -345,6 +345,7 @@
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS kirjutas faili %@. Seda ei saadeta kuhugi automaatselt. Lisage see võimaluse korral oma sõnumile.",
     "not reached": "ei jõudnud",
     "qcow2": "qcow2",
+    "qcow2, VMDK, VDI and VHD images can be written to as well as read, so files can be copied into a virtual machine's disk. A VHDX is read only": "qcow2-, VMDK-, VDI- ja VHD-tõmmiseid saab lisaks lugemisele ka kirjutada, nii et faile saab kopeerida ka virtuaalmasina kettale. VHDX on ainult loetav",
     "raw image": "toortõmmis",
     "stopped here": "peatus siin",
     "unlocked": "avatud",

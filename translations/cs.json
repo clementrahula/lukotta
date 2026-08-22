@@ -361,6 +361,7 @@
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS zapsal %@. Nikam se automaticky neodesílá. Přiložte ho ke své zprávě, pokud můžete.",
     "not reached": "nedosaženo",
     "qcow2": "qcow2",
+    "qcow2, VMDK, VDI and VHD images can be written to as well as read, so files can be copied into a virtual machine's disk. A VHDX is read only": "Obrazy qcow2, VMDK, VDI a VHD lze nejen číst, ale i zapisovat, takže soubory jde kopírovat i do disku virtuálního stroje. VHDX je jen ke čtení",
     "raw image": "surový obraz",
     "stopped here": "zastavilo se zde",
     "unlocked": "odemčený",

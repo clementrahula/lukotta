@@ -345,6 +345,7 @@
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "Το macOS έγραψε το %@. Δεν στέλνεται πουθενά αυτόματα. Επισυνάψτε το στο μήνυμά σας αν μπορείτε.",
     "not reached": "δεν προσεγγίστηκε",
     "qcow2": "qcow2",
+    "qcow2, VMDK, VDI and VHD images can be written to as well as read, so files can be copied into a virtual machine's disk. A VHDX is read only": "Τα είδωλα qcow2, VMDK, VDI και VHD γράφονται εκτός από ανάγνωση, οπότε αρχεία μπορούν να αντιγραφούν και μέσα στον δίσκο μιας εικονικής μηχανής. Το VHDX μόνο διαβάζεται",
     "raw image": "ωμό είδωλο",
     "stopped here": "σταμάτησε εδώ",
     "unlocked": "ξεκλείδωτος",

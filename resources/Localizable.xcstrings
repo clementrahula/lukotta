@@ -37789,6 +37789,136 @@
         }
       }
     },
+    "qcow2, VMDK, VDI and VHD images can be written to as well as read, so files can be copied into a virtual machine's disk. A VHDX is read only": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Образите qcow2, VMDK, VDI и VHD могат да се записват, не само четат, така че файлове могат да се копират и в диска на виртуална машина. VHDX е само за четене"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obrazy qcow2, VMDK, VDI a VHD lze nejen číst, ale i zapisovat, takže soubory jde kopírovat i do disku virtuálního stroje. VHDX je jen ke čtení"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "qcow2-, VMDK-, VDI- og VHD-diskbilleder kan både læses og skrives, så filer kan kopieres ind i en virtuel maskines disk. En VHDX kan kun læses"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Images in qcow2, VMDK, VDI und VHD lassen sich nicht nur lesen, sondern auch beschreiben, sodass Dateien auch in die Festplatte einer virtuellen Maschine kopiert werden können. Ein VHDX wird nur gelesen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τα είδωλα qcow2, VMDK, VDI και VHD γράφονται εκτός από ανάγνωση, οπότε αρχεία μπορούν να αντιγραφούν και μέσα στον δίσκο μιας εικονικής μηχανής. Το VHDX μόνο διαβάζεται"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las imágenes qcow2, VMDK, VDI y VHD se pueden escribir además de leer, así que se pueden copiar archivos también hacia el disco de una máquina virtual. Un VHDX es de solo lectura"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "qcow2-, VMDK-, VDI- ja VHD-tõmmiseid saab lisaks lugemisele ka kirjutada, nii et faile saab kopeerida ka virtuaalmasina kettale. VHDX on ainult loetav"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "qcow2-, VMDK-, VDI- ja VHD-levykuviin voi myös kirjoittaa, ei vain lukea niitä, joten tiedostoja voi kopioida myös virtuaalikoneen levylle. VHDX on vain luettava"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les images qcow2, VMDK, VDI et VHD s’écrivent autant qu’elles se lisent, de sorte que des fichiers peuvent aussi être copiés dans le disque d’une machine virtuelle. Un VHDX se lit seulement"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slike qcow2, VMDK, VDI i VHD mogu se i zapisivati, ne samo čitati, pa se datoteke mogu kopirati i u disk virtualnog stroja. VHDX se samo čita"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A qcow2, VMDK, VDI és VHD lemezképek nemcsak olvashatók, hanem írhatók is, így fájlok másolhatók egy virtuális gép lemezére is. A VHDX csak olvasható"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le immagini qcow2, VMDK, VDI e VHD si scrivono oltre che leggersi, così i file si possono copiare anche dentro il disco di una macchina virtuale. Un VHDX si legge soltanto"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Į „qcow2“, VMDK, VDI ir VHD atvaizdžius galima ne tik skaityti, bet ir rašyti, tad failus galima nukopijuoti ir į virtualios mašinos diską. VHDX tik skaitomas"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "qcow2, VMDK, VDI un VHD attēlus var ne tikai lasīt, bet arī rakstīt, tāpēc failus var iekopēt arī virtuālās mašīnas diskā. VHDX ir tikai lasāms"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "qcow2-, VMDK-, VDI- og VHD-diskbilder kan både leses og skrives, så filer kan kopieres inn på disken til en virtuell maskin. En VHDX kan bare leses"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "qcow2-, VMDK-, VDI- en VHD-schijfkopieën kunnen behalve gelezen ook beschreven worden, dus je kunt bestanden ook naar de schijf van een virtuele machine kopiëren. Een VHDX is alleen-lezen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obrazy qcow2, VMDK, VDI i VHD można nie tylko czytać, ale i zapisywać, więc pliki da się skopiować także na dysk maszyny wirtualnej. VHDX jest tylko do odczytu"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As imagens qcow2, VMDK, VDI e VHD são escritas além de lidas, pelo que se podem copiar ficheiros também para o disco de uma máquina virtual. Um VHDX é apenas de leitura"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imaginile qcow2, VMDK, VDI și VHD pot fi și scrise, nu doar citite, așa că fișierele pot fi copiate și pe discul unei mașini virtuale. Un VHDX se citește doar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slike qcow2, VMDK, VDI in VHD je mogoče poleg branja tudi zapisovati, tako da je datoteke mogoče kopirati tudi na disk navideznega računalnika. VHDX se samo bere"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skivavbilder i qcow2, VMDK, VDI och VHD går att skriva till och inte bara läsa, så filer kan kopieras även in i en virtuell maskins disk. En VHDX går bara att läsa"
+          }
+        }
+      }
+    },
     "raw image": {
       "localizations": {
         "bg": {

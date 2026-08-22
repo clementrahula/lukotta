@@ -353,6 +353,7 @@
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS a scris %@. Nu este trimis nicăieri automat. Atașați-l mesajului dumneavoastră, dacă puteți.",
     "not reached": "neatins",
     "qcow2": "qcow2",
+    "qcow2, VMDK, VDI and VHD images can be written to as well as read, so files can be copied into a virtual machine's disk. A VHDX is read only": "Imaginile qcow2, VMDK, VDI și VHD pot fi și scrise, nu doar citite, așa că fișierele pot fi copiate și pe discul unei mașini virtuale. Un VHDX se citește doar",
     "raw image": "imagine brută",
     "stopped here": "s-a oprit aici",
     "unlocked": "deblocat",

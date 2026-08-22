@@ -361,6 +361,7 @@
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "„macOS“ įrašė %@. Automatiškai jis niekur nesiunčiamas. Jei galite, pridėkite jį prie savo žinutės.",
     "not reached": "nepasiekta",
     "qcow2": "qcow2",
+    "qcow2, VMDK, VDI and VHD images can be written to as well as read, so files can be copied into a virtual machine's disk. A VHDX is read only": "Į „qcow2“, VMDK, VDI ir VHD atvaizdžius galima ne tik skaityti, bet ir rašyti, tad failus galima nukopijuoti ir į virtualios mašinos diską. VHDX tik skaitomas",
     "raw image": "neapdorotas atvaizdis",
     "stopped here": "sustojo čia",
     "unlocked": "atrakintas",

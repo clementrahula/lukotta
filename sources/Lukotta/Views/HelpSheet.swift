@@ -58,6 +58,9 @@ struct HelpSheet: View {
                         Bullet(
                             "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive"
                         )
+                        Bullet(
+                            "qcow2, VMDK, VDI and VHD images can be written to as well as read, so files can be copied into a virtual machine's disk. A VHDX is read only"
+                        )
                     }
 
                     HelpSection(title: "Opening a disk image") {

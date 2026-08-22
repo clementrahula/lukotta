@@ -344,6 +344,7 @@
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS hat %@ geschrieben. Der Bericht wird nirgendwohin automatisch gesendet. Häng ihn an deine Nachricht an, wenn du kannst.",
     "not reached": "nicht erreicht",
     "qcow2": "qcow2",
+    "qcow2, VMDK, VDI and VHD images can be written to as well as read, so files can be copied into a virtual machine's disk. A VHDX is read only": "Images in qcow2, VMDK, VDI und VHD lassen sich nicht nur lesen, sondern auch beschreiben, sodass Dateien auch in die Festplatte einer virtuellen Maschine kopiert werden können. Ein VHDX wird nur gelesen",
     "raw image": "Rohimage",
     "stopped here": "hier gestoppt",
     "unlocked": "entsperrt",

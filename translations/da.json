@@ -345,6 +345,7 @@
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS skrev %@. Den sendes ikke nogen steder automatisk. Vedhæft den til din besked, hvis du kan.",
     "not reached": "ikke nået",
     "qcow2": "qcow2",
+    "qcow2, VMDK, VDI and VHD images can be written to as well as read, so files can be copied into a virtual machine's disk. A VHDX is read only": "qcow2-, VMDK-, VDI- og VHD-diskbilleder kan både læses og skrives, så filer kan kopieres ind i en virtuel maskines disk. En VHDX kan kun læses",
     "raw image": "råt diskbillede",
     "stopped here": "stoppede her",
     "unlocked": "låst op",
