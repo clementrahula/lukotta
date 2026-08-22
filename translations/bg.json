@@ -322,9 +322,17 @@
     "stopped here": "спря тук",
     "unlocked": "отключен",
     "waiting": "изчаква",
+    "“%@” could not be read.": "„%@“ не можа да бъде прочетен.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ спря да отговаря и беше изключен. Можете да го отворите отново.",
     "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@“ съдържа шифрован том в qcow2, който двигателят не може да отвори. Преобразуването в суров образ би помогнало, или отворете диска, от който е направен.",
+    "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@“ съдържа шифрован том, който тази версия на двигателя не може да отвори в дисков образ. Отворете диска, от който е направен.",
+    "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "„%1$@“ е разреден VMDK, който %2$@ не може да отвори. Плосък VMDK или суров образ биха работили.",
+    "“%@” is marked as damaged. Repair it before opening it.": "„%@“ е отбелязан като повреден. Поправете го, преди да го отворите.",
+    "“%@” is not a disk image this app can read.": "„%@“ не е дисков образ, който това приложение може да прочете.",
+    "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "„%1$@“ е част от верига от снимки, която %2$@ не може да отвори. Отворете диска, от който е направен.",
     "“%@” is unlocked": "„%@“ е отключен",
+    "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "За „%1$@“ е нужен „%2$@“, който не е до него. Дисковите образи от този вид идват като набор от файлове и всички са нужни.",
+    "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "„%1$@“ сочи към друг файл на този Mac, който би бил отворен заедно с него. %2$@ не отваря образи, които сочат към други файлове.",
     "“%@” was disconnected.": "„%@“ беше изключен.",
     "“%@” was not opened": "„%@“ не беше отворен"
   }

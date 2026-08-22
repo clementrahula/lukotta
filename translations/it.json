@@ -322,9 +322,17 @@
     "stopped here": "interrotto qui",
     "unlocked": "sbloccato",
     "waiting": "in attesa",
+    "“%@” could not be read.": "Non è stato possibile leggere «%@».",
     "“%@” had stopped responding and was disconnected. You can open it again.": "«%@» non rispondeva più ed è stato scollegato. Puoi aprirlo di nuovo.",
     "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "«%@» contiene un volume cifrato dentro un qcow2, che il motore non sa aprire. Convertirlo in un’immagine grezza funzionerebbe, oppure apri il disco da cui è stato creato.",
+    "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "«%@» contiene un volume cifrato che questa versione del motore non sa aprire dentro un’immagine disco. Apri il disco da cui è stato creato.",
+    "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "«%1$@» è un VMDK sparso, che %2$@ non sa aprire. Uno piatto, o un’immagine grezza, funzionerebbe.",
+    "“%@” is marked as damaged. Repair it before opening it.": "«%@» è contrassegnato come danneggiato. Riparalo prima di aprirlo.",
+    "“%@” is not a disk image this app can read.": "«%@» non è un’immagine disco che questa app sappia leggere.",
+    "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "«%1$@» fa parte di una catena di snapshot che %2$@ non sa aprire. Apri il disco da cui è stato creato.",
     "“%@” is unlocked": "«%@» è sbloccato",
+    "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "«%1$@» richiede «%2$@», che non si trova accanto. Le immagini disco di questo tipo sono un insieme di file, e servono tutti.",
+    "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "«%1$@» fa riferimento a un altro file su questo Mac, che verrebbe aperto insieme a esso. %2$@ non apre immagini che nominano altri file.",
     "“%@” was disconnected.": "«%@» è stato scollegato.",
     "“%@” was not opened": "«%@» non è stato aperto"
   }

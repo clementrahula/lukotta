@@ -338,9 +338,17 @@
     "stopped here": "sustojo čia",
     "unlocked": "atrakintas",
     "waiting": "laukiama",
+    "“%@” could not be read.": "Nepavyko perskaityti „%@“.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ nustojo atsakyti ir buvo atjungtas. Galite jį atverti dar kartą.",
     "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@“ turi šifruotą tomą qcow2 viduje, kurio variklis atverti negali. Padėtų konvertavimas į neapdorotą atvaizdį arba atverkite diską, iš kurio jis sukurtas.",
+    "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@“ turi šifruotą tomą, kurio ši variklio versija negali atverti disko atvaizdyje. Atverkite diską, iš kurio jis sukurtas.",
+    "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "„%1$@“ yra retas VMDK, kurio %2$@ atverti negali. Pavyktų plokščias VMDK arba neapdorotas atvaizdis.",
+    "“%@” is marked as damaged. Repair it before opening it.": "„%@“ pažymėtas kaip pažeistas. Prieš atverdami jį pataisykite.",
+    "“%@” is not a disk image this app can read.": "„%@“ nėra disko atvaizdis, kurį ši programa galėtų perskaityti.",
+    "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "„%1$@“ yra momentinių kopijų grandinės dalis, kurios %2$@ atverti negali. Atverkite diską, iš kurio jis sukurtas.",
     "“%@” is unlocked": "„%@“ atrakintas",
+    "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "„%1$@“ reikia „%2$@“, kurio šalia nėra. Tokie disko atvaizdžiai yra failų rinkinys ir reikalingi visi.",
+    "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "„%1$@“ nurodo kitą failą šiame „Mac“, kuris būtų atvertas kartu. %2$@ neatveria atvaizdžių, nurodančių kitus failus.",
     "“%@” was disconnected.": "„%@“ buvo atjungtas.",
     "“%@” was not opened": "„%@“ nebuvo atvertas"
   }

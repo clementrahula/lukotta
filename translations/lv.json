@@ -330,9 +330,17 @@
     "stopped here": "apstājās šeit",
     "unlocked": "atbloķēts",
     "waiting": "gaida",
+    "“%@” could not be read.": "“%@” nevarēja nolasīt.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "“%@” pārstāja atbildēt un tika atvienots. Jūs varat to atvērt vēlreiz.",
     "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "“%@” satur šifrētu sējumu qcow2 iekšpusē, ko dzinējs nespēj atvērt. Palīdzētu pārveidošana neapstrādātā attēlā vai atveriet disku, no kura tas izveidots.",
+    "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "“%@” satur šifrētu sējumu, ko šī dzinēja versija nespēj atvērt diska attēlā. Atveriet disku, no kura tas izveidots.",
+    "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "“%1$@” ir rets VMDK, ko %2$@ nespēj atvērt. Darbotos plakans VMDK vai neapstrādāts attēls.",
+    "“%@” is marked as damaged. Repair it before opening it.": "“%@” ir atzīmēts kā bojāts. Salabojiet to pirms atvēršanas.",
+    "“%@” is not a disk image this app can read.": "“%@” nav diska attēls, ko šī lietotne var nolasīt.",
+    "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "“%1$@” ir daļa no momentuzņēmumu ķēdes, ko %2$@ nespēj atvērt. Atveriet disku, no kura tas izveidots.",
     "“%@” is unlocked": "“%@” ir atbloķēts",
+    "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "“%1$@” nepieciešams “%2$@”, kas nav tam līdzās. Šāda veida diska attēli sastāv no vairākiem failiem, un vajadzīgi ir visi.",
+    "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "“%1$@” norāda uz citu failu šajā Mac, kas tiktu atvērts kopā ar to. %2$@ neatver attēlus, kas nosauc citus failus.",
     "“%@” was disconnected.": "“%@” tika atvienots.",
     "“%@” was not opened": "“%@” netika atvērts"
   }

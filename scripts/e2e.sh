@@ -85,6 +85,25 @@ fi
 [ -f "$QCOW_PLAIN" ] || "$HERE/scripts/make-qcow2.py" "$PLAIN" "$QCOW_PLAIN" >/dev/null
 [ -f "$QCOW_ENC" ] || "$HERE/scripts/make-qcow2.py" "$CONTAINER" "$QCOW_ENC" >/dev/null
 
+# A real monolithicFlat VMDK: a text descriptor beside a raw extent. That is
+# the only shape there is — the descriptor is read whole and capped at 2 MB, so
+# the data cannot live inside it.
+VMDK="$CACHE/plain.vmdk"
+if [ ! -f "$VMDK" ]; then
+  echo "==> Building a VMDK to test against (once)"
+  cp "$PLAIN" "$CACHE/plain-flat.vmdk"
+  sectors=$(( $(stat -f%z "$CACHE/plain-flat.vmdk") / 512 ))
+  {
+    printf '# Disk DescriptorFile\nversion=1\nCID=fffffffe\nparentCID=ffffffff\n'
+    printf 'createType="monolithicFlat"\n\nRW %s FLAT "plain-flat.vmdk" 0\n\n' "$sectors"
+    printf 'ddb.geometry.heads = "16"\nddb.geometry.sectors = "63"\n'
+  } > "$VMDK"
+fi
+
+# And one whose descriptor reaches outside its own folder.
+VMDK_BAD="$CACHE/reaches-out.vmdk"
+[ -f "$VMDK_BAD" ] || printf '# Disk DescriptorFile\nversion=1\ncreateType="monolithicFlat"\n\nRW 4096 FLAT "/etc/passwd" 0\n' > "$VMDK_BAD"
+
 # An image that names another file, which must be refused rather than opened.
 HOSTILE="$CACHE/names-another-file.qcow2"
 [ -f "$HOSTILE" ] || "$HERE/scripts/make-qcow2.py" --hostile "$HOSTILE" "$HOME/.ssh/id_rsa" >/dev/null
@@ -97,4 +116,4 @@ done < <(hdiutil info 2>/dev/null | awk -v c="$CONTAINER" -v p="$PLAIN" -v e="$E
   /^image-path/ { path = $3 }
   /^\/dev\/disk[0-9]+\t/ { if (path == c || path == p || path == e) print $1 }')
 
-"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC" "$HOSTILE"
+"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC" "$HOSTILE" "$VMDK" "$VMDK_BAD"

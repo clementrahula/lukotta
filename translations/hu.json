@@ -322,9 +322,17 @@
     "stopped here": "itt állt meg",
     "unlocked": "feloldott",
     "waiting": "várakozik",
+    "“%@” could not be read.": "A(z) „%@” nem volt olvasható.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” nem válaszolt, ezért le lett választva. Újra megnyithatja.",
     "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "A(z) „%@” egy qcow2-n belüli titkosított kötetet tartalmaz, amelyet a motor nem tud megnyitni. A nyers képpé alakítás működne, vagy nyissa meg azt a meghajtót, amelyből készült.",
+    "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "A(z) „%@” titkosított kötetet tartalmaz, amelyet a motor ezen változata nem tud lemezképen belül megnyitni. Nyissa meg azt a meghajtót, amelyből készült.",
+    "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "A(z) „%1$@” ritkás VMDK, amelyet a(z) %2$@ nem tud megnyitni. Egy lapos VMDK vagy nyers kép működne.",
+    "“%@” is marked as damaged. Repair it before opening it.": "A(z) „%@” sérültként van megjelölve. Javítsa meg megnyitás előtt.",
+    "“%@” is not a disk image this app can read.": "A(z) „%@” nem olyan lemezkép, amelyet ez az alkalmazás el tud olvasni.",
+    "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "A(z) „%1$@” pillanatképek láncának része, amelyet a(z) %2$@ nem tud megnyitni. Nyissa meg azt a meghajtót, amelyből készült.",
     "“%@” is unlocked": "„%@” fel van oldva",
+    "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "A(z) „%1$@” igényli a(z) „%2$@” fájlt, amely nincs mellette. Az ilyen lemezképek több fájlból állnak, és mindegyikre szükség van.",
+    "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "A(z) „%1$@” egy másik fájlra hivatkozik ezen a Macen, amely vele együtt nyílna meg. A(z) %2$@ nem nyit meg olyan lemezképeket, amelyek más fájlokat neveznek meg.",
     "“%@” was disconnected.": "A(z) „%@” le lett választva.",
     "“%@” was not opened": "A(z) „%@” nem lett megnyitva"
   }

@@ -322,9 +322,17 @@
     "stopped here": "σταμάτησε εδώ",
     "unlocked": "ξεκλείδωτος",
     "waiting": "αναμονή",
+    "“%@” could not be read.": "Δεν ήταν δυνατή η ανάγνωση του «%@».",
     "“%@” had stopped responding and was disconnected. You can open it again.": "Το «%@» σταμάτησε να αποκρίνεται και αποσυνδέθηκε. Μπορείτε να το ανοίξετε ξανά.",
     "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "Το «%@» περιέχει κρυπτογραφημένο τόμο μέσα σε qcow2, το οποίο η μηχανή δεν μπορεί να ανοίξει. Η μετατροπή σε ακατέργαστο είδωλο θα λειτουργούσε, ή ανοίξτε τον δίσκο από τον οποίο δημιουργήθηκε.",
+    "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "Το «%@» περιέχει κρυπτογραφημένο τόμο τον οποίο αυτή η έκδοση της μηχανής δεν μπορεί να ανοίξει μέσα σε είδωλο δίσκου. Ανοίξτε τον δίσκο από τον οποίο δημιουργήθηκε.",
+    "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "Το «%1$@» είναι αραιό VMDK, το οποίο το %2$@ δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα επίπεδο VMDK ή ένα ακατέργαστο είδωλο.",
+    "“%@” is marked as damaged. Repair it before opening it.": "Το «%@» έχει επισημανθεί ως κατεστραμμένο. Επιδιορθώστε το πριν το ανοίξετε.",
+    "“%@” is not a disk image this app can read.": "Το «%@» δεν είναι είδωλο δίσκου που μπορεί να διαβάσει αυτή η εφαρμογή.",
+    "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "Το «%1$@» ανήκει σε αλυσίδα στιγμιοτύπων, την οποία το %2$@ δεν μπορεί να ανοίξει. Ανοίξτε τον δίσκο από τον οποίο δημιουργήθηκε.",
     "“%@” is unlocked": "Το «%@» ξεκλειδώθηκε",
+    "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "Το «%1$@» χρειάζεται το «%2$@», που δεν βρίσκεται δίπλα του. Τα είδωλα δίσκου αυτού του τύπου αποτελούνται από σύνολο αρχείων και χρειάζονται όλα.",
+    "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "Το «%1$@» παραπέμπει σε άλλο αρχείο σε αυτόν τον Mac, το οποίο θα άνοιγε μαζί του. Το %2$@ δεν ανοίγει είδωλα που παραπέμπουν σε άλλα αρχεία.",
     "“%@” was disconnected.": "Το «%@» αποσυνδέθηκε.",
     "“%@” was not opened": "Το «%@» δεν άνοιξε"
   }

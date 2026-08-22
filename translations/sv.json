@@ -322,9 +322,17 @@
     "stopped here": "stannade här",
     "unlocked": "upplåst",
     "waiting": "väntar",
+    "“%@” could not be read.": "”%@” kunde inte läsas.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "”%@” slutade svara och kopplades bort. Du kan öppna den igen.",
     "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "”%@” innehåller en krypterad volym inuti en qcow2, som motorn inte kan öppna. Konvertering till en råavbild skulle fungera, eller öppna disken den skapades från.",
+    "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "”%@” innehåller en krypterad volym som den här versionen av motorn inte kan öppna inuti en skivavbild. Öppna disken den skapades från.",
+    "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "”%1$@” är en gles VMDK som %2$@ inte kan öppna. En platt VMDK eller en råavbild skulle fungera.",
+    "“%@” is marked as damaged. Repair it before opening it.": "”%@” är markerad som skadad. Reparera den innan du öppnar den.",
+    "“%@” is not a disk image this app can read.": "”%@” är inte en skivavbild som den här appen kan läsa.",
+    "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "”%1$@” ingår i en kedja av ögonblicksbilder som %2$@ inte kan öppna. Öppna disken den skapades från.",
     "“%@” is unlocked": "”%@” är upplåst",
+    "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "”%1$@” behöver ”%2$@”, som inte ligger bredvid. Skivavbilder av det här slaget består av flera filer, och alla behövs.",
+    "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "”%1$@” hänvisar till en annan fil på den här datorn, som skulle öppnas tillsammans med den. %2$@ öppnar inte avbilder som namnger andra filer.",
     "“%@” was disconnected.": "”%@” kopplades bort.",
     "“%@” was not opened": "”%@” öppnades inte"
   }

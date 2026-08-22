@@ -330,9 +330,17 @@
     "stopped here": "zaustavilo se ovdje",
     "unlocked": "otključan",
     "waiting": "čeka",
+    "“%@” could not be read.": "„%@” nije se moglo pročitati.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” je prestao odgovarati i odspojen je. Možete ga ponovno otvoriti.",
     "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@” sadrži šifriranu jedinicu unutar qcow2, koju pogon ne može otvoriti. Pretvorba u sirovu sliku bi uspjela, ili otvorite disk iz kojeg je nastala.",
+    "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@” sadrži šifriranu jedinicu koju ova verzija pogona ne može otvoriti unutar slike diska. Otvorite disk iz kojeg je nastala.",
+    "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "„%1$@” je rijetki VMDK koji %2$@ ne može otvoriti. Ravni VMDK ili sirova slika bi uspjeli.",
+    "“%@” is marked as damaged. Repair it before opening it.": "„%@” je označen kao oštećen. Popravite ga prije otvaranja.",
+    "“%@” is not a disk image this app can read.": "„%@” nije slika diska koju ova aplikacija može pročitati.",
+    "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "„%1$@” dio je lanca snimaka koji %2$@ ne može otvoriti. Otvorite disk iz kojeg je nastao.",
     "“%@” is unlocked": "„%@” je otključan",
+    "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "„%1$@” treba „%2$@”, koji nije uz njega. Slike diska ove vrste dolaze kao skup datoteka i potrebne su sve.",
+    "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "„%1$@” upućuje na drugu datoteku na ovom Macu, koja bi se otvorila zajedno s njom. %2$@ ne otvara slike koje imenuju druge datoteke.",
     "“%@” was disconnected.": "„%@” je odspojen.",
     "“%@” was not opened": "„%@” nije otvoren"
   }

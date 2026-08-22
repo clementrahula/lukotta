@@ -34800,7 +34800,134 @@
       }
     },
     "“%@” could not be read.": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ не можа да бъде прочетен."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ se nepodařilo přečíst."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” kunne ikke læses."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ konnte nicht gelesen werden."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δεν ήταν δυνατή η ανάγνωση του «%@»."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se ha podido leer «%@»."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ ei õnnestunud lugeda."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” ei voitu lukea."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » n’a pas pu être lu."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” nije se moglo pročitati."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%@” nem volt olvasható."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è stato possibile leggere «%@»."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nepavyko perskaityti „%@“."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” nevarēja nolasīt."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» kunne ikke leses."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’ kon niet worden gelezen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się odczytać „%@”."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível ler «%@»."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” nu a putut fi citit."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%@« ni bilo mogoče prebrati."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” kunde inte läsas."
+          }
+        }
+      }
     },
     "“%@” had stopped responding and was disconnected. You can open it again.": {
       "localizations": {
@@ -35062,11 +35189,655 @@
         }
       }
     },
+    "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ съдържа шифрован том, който тази версия на двигателя не може да отвори в дисков образ. Отворете диска, от който е направен."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ obsahuje šifrovaný svazek, který tato verze enginu neumí otevřít uvnitř obrazu disku. Otevřete disk, ze kterého vznikl."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” indeholder en krypteret enhed, som denne udgave af drevmotoren ikke kan åbne inde i et diskbillede. Åbn den disk, den er lavet af."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ enthält ein verschlüsseltes Volume, das diese Version des Laufwerk-Moduls in einem Image nicht öffnen kann. Öffne das Laufwerk, aus dem es erstellt wurde."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%@» περιέχει κρυπτογραφημένο τόμο τον οποίο αυτή η έκδοση της μηχανής δεν μπορεί να ανοίξει μέσα σε είδωλο δίσκου. Ανοίξτε τον δίσκο από τον οποίο δημιουργήθηκε."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» contiene un volumen cifrado que esta versión del motor no puede abrir dentro de una imagen de disco. Abre el disco del que se creó."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ sisaldab krüptitud köidet, mida see mootori versioon kettatõmmise sees avada ei suuda. Ava ketas, millest see tehti."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” sisältää salatun taltion, jota tämä moottorin versio ei osaa avata levytiedoston sisällä. Avaa asema, josta se on tehty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » contient un volume chiffré que cette version du moteur ne sait pas ouvrir dans une image disque. Ouvrez le disque dont il provient."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” sadrži šifriranu jedinicu koju ova verzija pogona ne može otvoriti unutar slike diska. Otvorite disk iz kojeg je nastala."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%@” titkosított kötetet tartalmaz, amelyet a motor ezen változata nem tud lemezképen belül megnyitni. Nyissa meg azt a meghajtót, amelyből készült."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» contiene un volume cifrato che questa versione del motore non sa aprire dentro un’immagine disco. Apri il disco da cui è stato creato."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ turi šifruotą tomą, kurio ši variklio versija negali atverti disko atvaizdyje. Atverkite diską, iš kurio jis sukurtas."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” satur šifrētu sējumu, ko šī dzinēja versija nespēj atvērt diska attēlā. Atveriet disku, no kura tas izveidots."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» inneholder en kryptert enhet som denne versjonen av motoren ikke kan åpne inne i et diskbilde. Åpne disken den ble laget av."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’ bevat een versleuteld volume dat deze versie van de schijfmodule niet in een schijfkopie kan openen. Open de schijf waarvan die is gemaakt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” zawiera zaszyfrowany wolumin, którego ta wersja silnika nie potrafi otworzyć wewnątrz obrazu dysku. Otwórz dysk, z którego powstał."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» contém um volume encriptado que esta versão do motor não consegue abrir dentro de uma imagem de disco. Abra o disco a partir do qual foi criado."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” conține un volum criptat pe care această versiune a motorului nu îl poate deschide într-o imagine de disc. Deschideți discul din care a fost creat."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%@« vsebuje šifriran nosilec, ki ga ta različica pogona ne zna odpreti znotraj slike diska. Odprite pogon, iz katerega je nastal."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” innehåller en krypterad volym som den här versionen av motorn inte kan öppna inuti en skivavbild. Öppna disken den skapades från."
+          }
+        }
+      }
+    },
+    "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ е разреден VMDK, който %2$@ не може да отвори. Плосък VMDK или суров образ биха работили."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ je řídký VMDK, který %2$@ neumí otevřít. Fungoval by plochý VMDK nebo surový obraz."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” er et sparse-VMDK, som %2$@ ikke kan åbne. Et fladt VMDK eller et råt image ville virke."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ ist ein Sparse-VMDK, das %2$@ nicht öffnen kann. Ein flaches oder ein Rohimage würde funktionieren."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%1$@» είναι αραιό VMDK, το οποίο το %2$@ δεν μπορεί να ανοίξει. Θα λειτουργούσε ένα επίπεδο VMDK ή ένα ακατέργαστο είδωλο."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» es un VMDK disperso, que %2$@ no puede abrir. Uno plano, o una imagen sin formato, sí funcionaría."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ on hõre VMDK, mida %2$@ avada ei suuda. Toimiks lame VMDK või töötlemata tõmmis."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” on harva VMDK, jota %2$@ ei voi avata. Litteä VMDK tai raakalevykuva toimisi."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %1$@ » est un VMDK creux, que %2$@ ne sait pas ouvrir. Un VMDK plat, ou une image brute, fonctionnerait."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” je rijetki VMDK koji %2$@ ne može otvoriti. Ravni VMDK ili sirova slika bi uspjeli."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%1$@” ritkás VMDK, amelyet a(z) %2$@ nem tud megnyitni. Egy lapos VMDK vagy nyers kép működne."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» è un VMDK sparso, che %2$@ non sa aprire. Uno piatto, o un’immagine grezza, funzionerebbe."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ yra retas VMDK, kurio %2$@ atverti negali. Pavyktų plokščias VMDK arba neapdorotas atvaizdis."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” ir rets VMDK, ko %2$@ nespēj atvērt. Darbotos plakans VMDK vai neapstrādāts attēls."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» er et sparse-VMDK som %2$@ ikke kan åpne. Et flatt VMDK eller et råbilde ville fungere."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%1$@’ is een sparse VMDK, die %2$@ niet kan openen. Een platte of een onbewerkte schijfkopie zou werken."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” to rzadki VMDK, którego %2$@ nie potrafi otworzyć. Płaski VMDK lub surowy obraz zadziała."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» é um VMDK esparso, que o %2$@ não consegue abrir. Um plano, ou uma imagem em bruto, resultaria."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” este un VMDK rar, pe care %2$@ nu îl poate deschide. Unul plat, sau o imagine brută, ar funcționa."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%1$@« je razpršen VMDK, ki ga %2$@ ne zna odpreti. Delovala bi ploska različica ali surova slika."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” är en gles VMDK som %2$@ inte kan öppna. En platt VMDK eller en råavbild skulle fungera."
+          }
+        }
+      }
+    },
     "“%@” is marked as damaged. Repair it before opening it.": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ е отбелязан като повреден. Поправете го, преди да го отворите."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ je označen jako poškozený. Před otevřením jej opravte."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” er markeret som beskadiget. Reparer den, før du åbner den."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ ist als beschädigt markiert. Repariere es, bevor du es öffnest."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%@» έχει επισημανθεί ως κατεστραμμένο. Επιδιορθώστε το πριν το ανοίξετε."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» está marcado como dañado. Repáralo antes de abrirlo."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ on märgitud kahjustatuks. Paranda see enne avamist."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” on merkitty vioittuneeksi. Korjaa se ennen avaamista."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » est marqué comme endommagé. Réparez-le avant de l’ouvrir."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” je označen kao oštećen. Popravite ga prije otvaranja."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%@” sérültként van megjelölve. Javítsa meg megnyitás előtt."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» è contrassegnato come danneggiato. Riparalo prima di aprirlo."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ pažymėtas kaip pažeistas. Prieš atverdami jį pataisykite."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” ir atzīmēts kā bojāts. Salabojiet to pirms atvēršanas."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» er merket som skadet. Reparer den før du åpner den."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’ is gemarkeerd als beschadigd. Repareer die voordat je die opent."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” jest oznaczony jako uszkodzony. Napraw go przed otwarciem."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» está marcado como danificado. Repare-o antes de o abrir."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” este marcat ca deteriorat. Reparați-l înainte de a-l deschide."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%@« je označen kot poškodovan. Popravite ga pred odpiranjem."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” är markerad som skadad. Reparera den innan du öppnar den."
+          }
+        }
+      }
     },
     "“%@” is not a disk image this app can read.": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ не е дисков образ, който това приложение може да прочете."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ není obraz disku, který tato aplikace umí přečíst."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” er ikke et diskbillede, denne app kan læse."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ ist kein Image, das diese App lesen kann."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%@» δεν είναι είδωλο δίσκου που μπορεί να διαβάσει αυτή η εφαρμογή."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» no es una imagen de disco que esta app pueda leer."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ ei ole kettatõmmis, mida see rakendus lugeda oskab."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” ei ole levytiedosto, jota tämä ohjelma osaa lukea."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » n’est pas une image disque que cette app sait lire."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” nije slika diska koju ova aplikacija može pročitati."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%@” nem olyan lemezkép, amelyet ez az alkalmazás el tud olvasni."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» non è un’immagine disco che questa app sappia leggere."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ nėra disko atvaizdis, kurį ši programa galėtų perskaityti."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” nav diska attēls, ko šī lietotne var nolasīt."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» er ikke et diskbilde denne appen kan lese."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’ is geen schijfkopie die deze app kan lezen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” nie jest obrazem dysku, który ta aplikacja potrafi odczytać."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» não é uma imagem de disco que esta app consiga ler."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” nu este o imagine de disc pe care această aplicație o poate citi."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%@« ni slika diska, ki bi jo ta aplikacija znala prebrati."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” är inte en skivavbild som den här appen kan läsa."
+          }
+        }
+      }
+    },
+    "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ е част от верига от снимки, която %2$@ не може да отвори. Отворете диска, от който е направен."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ je součástí řetězu snímků, který %2$@ neumí otevřít. Otevřete disk, ze kterého vznikl."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” er en del af en kæde af snapshots, som %2$@ ikke kan åbne. Åbn den disk, den er lavet af."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ gehört zu einer Kette von Snapshots, die %2$@ nicht öffnen kann. Öffne das Laufwerk, aus dem es erstellt wurde."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%1$@» ανήκει σε αλυσίδα στιγμιοτύπων, την οποία το %2$@ δεν μπορεί να ανοίξει. Ανοίξτε τον δίσκο από τον οποίο δημιουργήθηκε."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» forma parte de una cadena de instantáneas que %2$@ no puede abrir. Abre el disco del que se creó."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ kuulub hetktõmmiste ahelasse, mida %2$@ avada ei suuda. Ava ketas, millest see tehti."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” kuuluu tilannevedosten ketjuun, jota %2$@ ei voi avata. Avaa asema, josta se on tehty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %1$@ » fait partie d’une chaîne d’instantanés que %2$@ ne sait pas ouvrir. Ouvrez le disque dont il provient."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” dio je lanca snimaka koji %2$@ ne može otvoriti. Otvorite disk iz kojeg je nastao."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%1$@” pillanatképek láncának része, amelyet a(z) %2$@ nem tud megnyitni. Nyissa meg azt a meghajtót, amelyből készült."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» fa parte di una catena di snapshot che %2$@ non sa aprire. Apri il disco da cui è stato creato."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ yra momentinių kopijų grandinės dalis, kurios %2$@ atverti negali. Atverkite diską, iš kurio jis sukurtas."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” ir daļa no momentuzņēmumu ķēdes, ko %2$@ nespēj atvērt. Atveriet disku, no kura tas izveidots."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» er del av en kjede med øyeblikksbilder som %2$@ ikke kan åpne. Åpne disken den ble laget av."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%1$@’ maakt deel uit van een reeks momentopnamen die %2$@ niet kan openen. Open de schijf waarvan die is gemaakt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” jest częścią łańcucha migawek, którego %2$@ nie potrafi otworzyć. Otwórz dysk, z którego powstał."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» faz parte de uma cadeia de instantâneos que o %2$@ não consegue abrir. Abra o disco a partir do qual foi criado."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” face parte dintr-un lanț de instantanee pe care %2$@ nu îl poate deschide. Deschideți discul din care a fost creat."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%1$@« je del verige posnetkov, ki je %2$@ ne zna odpreti. Odprite pogon, iz katerega je nastal."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” ingår i en kedja av ögonblicksbilder som %2$@ inte kan öppna. Öppna disken den skapades från."
+          }
+        }
+      }
     },
     "“%@” is unlocked": {
       "localizations": {
@@ -35198,8 +35969,265 @@
         }
       }
     },
+    "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "За „%1$@“ е нужен „%2$@“, който не е до него. Дисковите образи от този вид идват като набор от файлове и всички са нужни."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ potřebuje „%2$@“, který vedle něj není. Obrazy disku tohoto druhu tvoří sada souborů a potřeba jsou všechny."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” kræver “%2$@”, som ikke ligger ved siden af den. Diskbilleder af denne slags kommer som et sæt filer, og alle er nødvendige."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ benötigt „%2$@“, das nicht daneben liegt. Images dieser Art bestehen aus mehreren Dateien, und alle werden gebraucht."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%1$@» χρειάζεται το «%2$@», που δεν βρίσκεται δίπλα του. Τα είδωλα δίσκου αυτού του τύπου αποτελούνται από σύνολο αρχείων και χρειάζονται όλα."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» necesita «%2$@», que no está junto a él. Las imágenes de disco de este tipo son un conjunto de archivos y hacen falta todos."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ vajab faili „%2$@“, mida selle kõrval ei ole. Seda tüüpi kettatõmmised koosnevad mitmest failist ja vaja on kõiki."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” tarvitsee tiedoston ”%2$@”, jota ei ole sen vieressä. Tämän tyyppiset levytiedostot koostuvat useasta tiedostosta, ja kaikkia tarvitaan."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %1$@ » a besoin de « %2$@ », qui ne se trouve pas à côté. Les images disque de ce type forment un ensemble de fichiers, et tous sont nécessaires."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” treba „%2$@”, koji nije uz njega. Slike diska ove vrste dolaze kao skup datoteka i potrebne su sve."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%1$@” igényli a(z) „%2$@” fájlt, amely nincs mellette. Az ilyen lemezképek több fájlból állnak, és mindegyikre szükség van."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» richiede «%2$@», che non si trova accanto. Le immagini disco di questo tipo sono un insieme di file, e servono tutti."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ reikia „%2$@“, kurio šalia nėra. Tokie disko atvaizdžiai yra failų rinkinys ir reikalingi visi."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” nepieciešams “%2$@”, kas nav tam līdzās. Šāda veida diska attēli sastāv no vairākiem failiem, un vajadzīgi ir visi."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» trenger «%2$@», som ikke ligger ved siden av. Diskbilder av denne typen består av flere filer, og alle trengs."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%1$@’ heeft ‘%2$@’ nodig, dat er niet naast staat. Schijfkopieën van dit type bestaan uit meerdere bestanden, en alle zijn nodig."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” wymaga „%2$@”, którego nie ma obok. Obrazy dysku tego rodzaju to zestaw plików i potrzebne są wszystkie."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» precisa de «%2$@», que não está ao seu lado. As imagens de disco deste tipo são um conjunto de ficheiros, e todos são necessários."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” are nevoie de „%2$@”, care nu se află lângă el. Imaginile de disc de acest tip vin ca un set de fișiere, și toate sunt necesare."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%1$@« potrebuje »%2$@«, ki ni ob njem. Slike diska te vrste so niz datotek in potrebne so vse."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” behöver ”%2$@”, som inte ligger bredvid. Skivavbilder av det här slaget består av flera filer, och alla behövs."
+          }
+        }
+      }
+    },
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": {
-      "localizations": {}
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ сочи към друг файл на този Mac, който би бил отворен заедно с него. %2$@ не отваря образи, които сочат към други файлове."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ odkazuje na jiný soubor v tomto Macu, který by se otevřel spolu s ním. %2$@ neotevírá obrazy odkazující na jiné soubory."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” henviser til en anden fil på denne Mac, som ville blive åbnet sammen med den. %2$@ åbner ikke diskbilleder, der henviser til andre filer."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ verweist auf eine andere Datei auf diesem Mac, die mit geöffnet würde. %2$@ öffnet keine Images, die andere Dateien benennen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%1$@» παραπέμπει σε άλλο αρχείο σε αυτόν τον Mac, το οποίο θα άνοιγε μαζί του. Το %2$@ δεν ανοίγει είδωλα που παραπέμπουν σε άλλα αρχεία."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» hace referencia a otro archivo de este Mac, que se abriría junto con él. %2$@ no abre imágenes que nombren otros archivos."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ viitab teisele failile selles Macis, mis avataks koos sellega. %2$@ ei ava tõmmiseid, mis nimetavad teisi faile."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” viittaa toiseen tiedostoon tässä Macissa, joka avattaisiin sen mukana. %2$@ ei avaa levytiedostoja, jotka nimeävät muita tiedostoja."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %1$@ » fait référence à un autre fichier de ce Mac, qui serait ouvert avec lui. %2$@ n’ouvre pas les images qui désignent d’autres fichiers."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” upućuje na drugu datoteku na ovom Macu, koja bi se otvorila zajedno s njom. %2$@ ne otvara slike koje imenuju druge datoteke."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%1$@” egy másik fájlra hivatkozik ezen a Macen, amely vele együtt nyílna meg. A(z) %2$@ nem nyit meg olyan lemezképeket, amelyek más fájlokat neveznek meg."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» fa riferimento a un altro file su questo Mac, che verrebbe aperto insieme a esso. %2$@ non apre immagini che nominano altri file."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ nurodo kitą failą šiame „Mac“, kuris būtų atvertas kartu. %2$@ neatveria atvaizdžių, nurodančių kitus failus."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” norāda uz citu failu šajā Mac, kas tiktu atvērts kopā ar to. %2$@ neatver attēlus, kas nosauc citus failus."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» viser til en annen fil på denne Macen, som ville blitt åpnet sammen med den. %2$@ åpner ikke diskbilder som navngir andre filer."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%1$@’ verwijst naar een ander bestand op deze Mac, dat samen met die zou worden geopend. %2$@ opent geen schijfkopieën die andere bestanden noemen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” odwołuje się do innego pliku na tym Macu, który zostałby otwarty razem z nim. %2$@ nie otwiera obrazów wskazujących inne pliki."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» refere outro ficheiro neste Mac, que seria aberto juntamente com ele. O %2$@ não abre imagens que nomeiem outros ficheiros."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” face referire la un alt fișier de pe acest Mac, care ar fi deschis împreună cu el. %2$@ nu deschide imagini care numesc alte fișiere."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%1$@« se sklicuje na drugo datoteko v tem Macu, ki bi se odprla skupaj z njo. %2$@ ne odpira slik, ki imenujejo druge datoteke."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%1$@” hänvisar till en annan fil på den här datorn, som skulle öppnas tillsammans med den. %2$@ öppnar inte avbilder som namnger andra filer."
+          }
+        }
+      }
     },
     "“%@” was disconnected.": {
       "localizations": {

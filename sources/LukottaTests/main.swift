@@ -1740,6 +1740,70 @@ group("aQcow2ThatNamesAnotherFile") {
         "and an image without one is not accused of it")
 }
 
+group("aVmdkNamesAnotherFileByDesign") {
+    // A VMDK always points at a separate file for its data: the descriptor is
+    // read whole and capped at two megabytes, so there is no self-contained
+    // form. The rule cannot be "names nothing else" — it is "names only what
+    // sits beside it".
+    let ordinary = """
+        # Disk DescriptorFile
+        version=1
+        CID=fffffffe
+        parentCID=ffffffff
+        createType="monolithicFlat"
+
+        RW 655360 FLAT "disk-flat.vmdk" 0
+
+        ddb.geometry.heads = "16"
+        """
+    let d = VmdkDescriptor.parse(ordinary)
+    expect("\(d.extents.count)", "1", "the extent is read")
+    expect(d.extents.first?.filename ?? "", "disk-flat.vmdk", "with the name it points at")
+    expect("\(d.extents.first?.sectors ?? 0)", "655360", "and its length")
+    expect(d.createType ?? "", "monolithicFlat", "the create type is unquoted")
+    expect(!d.namesAFileElsewhere, "a name beside the descriptor is allowed")
+    expect(!d.hasDeltaLink, "and it is not part of a chain")
+
+    // The whole point: a descriptor must not reach anywhere else.
+    for reach in ["/etc/passwd", "../../secrets.img", "sub/dir/disk.vmdk", ""] {
+        expect(
+            VmdkDescriptor.reachesElsewhere(reach), "“\(reach)” is refused as an extent name")
+    }
+    for beside in ["disk-flat.vmdk", "disk-s001.vmdk", "a file with spaces.vmdk"] {
+        expect(!VmdkDescriptor.reachesElsewhere(beside), "“\(beside)” sits beside it")
+    }
+
+    let elsewhere = VmdkDescriptor.parse("RW 100 FLAT \"/etc/passwd\" 0")
+    expect(elsewhere.namesAFileElsewhere, "a descriptor pointing outside is seen")
+
+    // A name with spaces is taken from the quotes, not from the split.
+    let spaced = VmdkDescriptor.parse("RW 100 FLAT \"my disk-flat.vmdk\" 0")
+    expect(spaced.extents.first?.filename ?? "", "my disk-flat.vmdk", "quoted names survive spaces")
+
+    // ZERO extents hold nothing and name nothing, so they cannot reach out.
+    let zero = VmdkDescriptor.parse("RW 4096 ZERO")
+    expect(zero.extents.first?.filename == nil, "a ZERO extent names no file")
+    expect(!zero.namesAFileElsewhere, "and cannot reach anywhere")
+
+    // Several extents, and one bad apple is enough.
+    let mixed = VmdkDescriptor.parse(
+        """
+        RW 100 FLAT "a-flat.vmdk" 0
+        RW 100 FLAT "../b-flat.vmdk" 0
+        """)
+    expect("\(mixed.extents.count)", "2", "both extents are read")
+    expect(mixed.namesAFileElsewhere, "and one reaching out condemns the set")
+
+    // A snapshot chain points at a parent elsewhere, and the engine cannot
+    // follow one anyway.
+    let delta = VmdkDescriptor.parse("parentFileNameHint=\"base.vmdk\"")
+    expect(delta.hasDeltaLink, "a delta link is seen")
+
+    // Comments and blank lines are not extents.
+    let noisy = VmdkDescriptor.parse("# RW 100 FLAT \"x\" 0\n\n   \n")
+    expect(noisy.extents.isEmpty, "a commented-out extent is not an extent")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

@@ -356,6 +356,48 @@ final class AppModel: ObservableObject {
         }
     }
 
+    /// A container the engine reads for itself: qcow2 or VMDK.
+    ///
+    /// Nothing is attached, because macOS cannot read either. The engine's own
+    /// listing is the only account of what is inside — no sector of ours can
+    /// see past the container's mapping.
+    private nonisolated static func engineRead(_ url: URL) -> ImageOutcome {
+        let types = DiskImage.contents(of: url)
+        let format = DiskImage.format(fromTypes: types)
+
+        // Encryption inside a container is opened only by an engine built with
+        // our patch: without it the host probes the file just far enough to
+        // list what is in it, and the guest is then handed "crypto_LUKS" as
+        // though it were a filesystem. Said plainly here rather than let
+        // through to fail three screens later.
+        if format.isEncrypted, !EnginePaths.opensEncryptionInsideImages {
+            return .failure(
+                appString(
+                    "“\(url.lastPathComponent)” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work."
+                ))
+        }
+        guard !types.isEmpty else {
+            return .failure(
+                appString(
+                    "There is nothing in “\(url.lastPathComponent)” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
+                ))
+        }
+        let linux =
+            format == .luks
+            || types.contains { $0.hasPrefix("ext") || $0 == "btrfs" || $0 == "xfs" }
+        let drive = Drive(
+            id: url.lastPathComponent,
+            // The engine takes the file itself as the disk to open.
+            devicePath: url.path,
+            name: url.deletingPathExtension().lastPathComponent,
+            sizeBytes: (try? FileManager.default.attributesOfItem(atPath: url.path)[.size]
+                as? Int64) as? Int64 ?? 0,
+            connection: appString("Disk Image"),
+            kind: linux ? .linux : .microsoft,
+            uuid: url.path)
+        return .qcow2(drive, format)
+    }
+
     private enum ImageOutcome {
         case success(DiskImage.Attached, [Drive], [Drive])
         /// Read by the engine rather than attached, so there is no device and
@@ -367,6 +409,19 @@ final class AppModel: ObservableObject {
     /// The part that blocks: attach, look, and put it back if there is nothing
     /// in it. Off the main actor, and knows nothing about the interface.
     private nonisolated static func attachAndList(_ url: URL) -> ImageOutcome {
+        // A VMDK is never attached either: macOS cannot read one and the engine
+        // can. Unlike a qcow2 it always names a separate file for its data —
+        // the descriptor is read whole and capped at two megabytes, so there is
+        // no self-contained form — and the rule is therefore not "names nothing
+        // else" but "names only what sits beside it".
+        if DiskImage.isVmdk(url) {
+            if let objection = DiskImage.objection(toVmdk: url) {
+                Log.drives.error("refused a VMDK")
+                return .failure(objection)
+            }
+            return engineRead(url)
+        }
+
         // A qcow2 is never attached. macOS cannot read one, but the engine can,
         // so it is handed over as a path — and since a container file needs no
         // privilege, that path only ever reaches a process running as the user
@@ -380,40 +435,7 @@ final class AppModel: ObservableObject {
                 Log.drives.error("refused an image that names another file")
                 return .failure(objection)
             }
-            let types = DiskImage.contents(of: url)
-            // Encryption inside a qcow2 is opened only by an engine built with
-            // our patch: without it the host probes the container just far
-            // enough to list what is in it, and the guest is then handed
-            // "crypto_LUKS" as though it were a filesystem. Said plainly here
-            // rather than let through to fail three screens later.
-            if DiskImage.format(fromTypes: types).isEncrypted,
-                !EnginePaths.opensEncryptionInsideImages
-            {
-                return .failure(
-                    appString(
-                        "“\(url.lastPathComponent)” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from."
-                    ))
-            }
-            guard !types.isEmpty else {
-                return .failure(
-                    appString(
-                        "There is nothing in “\(url.lastPathComponent)” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
-                    ))
-            }
-            let drive = Drive(
-                id: url.lastPathComponent,
-                // The engine takes the file itself as the disk to open.
-                devicePath: url.path,
-                name: url.deletingPathExtension().lastPathComponent,
-                sizeBytes: (try? FileManager.default.attributesOfItem(atPath: url.path)[.size]
-                    as? Int64) as? Int64 ?? 0,
-                connection: appString("Disk Image"),
-                kind: DiskImage.format(fromTypes: types) == .luks
-                    || types.contains(where: { $0.hasPrefix("ext") || $0 == "btrfs" || $0 == "xfs" }
-                    )
-                    ? .linux : .microsoft,
-                uuid: url.path)
-            return .qcow2(drive, DiskImage.format(fromTypes: types))
+            return engineRead(url)
         }
 
         switch DiskImage.attach(url) {

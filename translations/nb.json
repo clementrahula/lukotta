@@ -322,9 +322,17 @@
     "stopped here": "stoppet her",
     "unlocked": "låst opp",
     "waiting": "venter",
+    "“%@” could not be read.": "«%@» kunne ikke leses.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "«%@» sluttet å svare og ble koblet fra. Du kan åpne den igjen.",
     "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "«%@» inneholder en kryptert enhet inne i en qcow2, som motoren ikke kan åpne. Konvertering til et råbilde ville fungere, eller åpne disken den ble laget av.",
+    "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "«%@» inneholder en kryptert enhet som denne versjonen av motoren ikke kan åpne inne i et diskbilde. Åpne disken den ble laget av.",
+    "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "«%1$@» er et sparse-VMDK som %2$@ ikke kan åpne. Et flatt VMDK eller et råbilde ville fungere.",
+    "“%@” is marked as damaged. Repair it before opening it.": "«%@» er merket som skadet. Reparer den før du åpner den.",
+    "“%@” is not a disk image this app can read.": "«%@» er ikke et diskbilde denne appen kan lese.",
+    "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "«%1$@» er del av en kjede med øyeblikksbilder som %2$@ ikke kan åpne. Åpne disken den ble laget av.",
     "“%@” is unlocked": "«%@» er låst opp",
+    "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "«%1$@» trenger «%2$@», som ikke ligger ved siden av. Diskbilder av denne typen består av flere filer, og alle trengs.",
+    "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "«%1$@» viser til en annen fil på denne Macen, som ville blitt åpnet sammen med den. %2$@ åpner ikke diskbilder som navngir andre filer.",
     "“%@” was disconnected.": "«%@» ble koblet fra.",
     "“%@” was not opened": "«%@» ble ikke åpnet"
   }

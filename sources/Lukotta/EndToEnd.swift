@@ -61,6 +61,21 @@ enum EndToEnd {
             }
         }
 
+        if arguments.count >= 9 {
+            let vmdk = URL(fileURLWithPath: arguments[7])
+            let reaching = URL(fileURLWithPath: arguments[8])
+            if FileManager.default.fileExists(atPath: vmdk.path) {
+                print("")
+                print("VMDK: \(vmdk.lastPathComponent)")
+                qcow2Flow(image: vmdk, passphrase: nil)
+            }
+            if FileManager.default.fileExists(atPath: reaching.path) {
+                print("")
+                print("a VMDK reaching outside its folder: \(reaching.lastPathComponent)")
+                hostileFlow(image: reaching)
+            }
+        }
+
         if arguments.count >= 7 {
             let hostile = URL(fileURLWithPath: arguments[6])
             if FileManager.default.fileExists(atPath: hostile.path) {

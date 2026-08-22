@@ -45,11 +45,12 @@ The patch adds the case, maps the constant, recognises `.vmdk`, and replaces
 three `== DiskFormat::Qcow2` tests with `is_encoded()`, since each was really
 asking whether the image needed decoding at all.
 
-**Untested against a real VMDK.** It compiles and ships; nobody here has a VMDK
-to open. libkrun's own note is that it supports "FLAT/ZERO formats without delta
-links", so a VMDK split across extents or carrying snapshots is not expected to
-work. The app does not offer VMDK in the open panel for that reason — the
-support is present in the engine, waiting on a file to try it against.
+**Tested.** A monolithicFlat VMDK — a text descriptor beside a raw extent, which
+is what VMware writes — is read, mounted and ejected through the app, including
+one holding a LUKS container. The end-to-end test builds one and opens it.
+
+Sparse VMDKs and snapshot chains are not supported by the engine's image layer,
+and the app says so by name rather than letting either fail obscurely.
 
 ## What this costs
 
@@ -67,7 +68,16 @@ which libkrun opens**. A qcow2 backing file, a VMDK descriptor naming its
 extents. So an image can choose which other files the virtual machine reads.
 
 Lukotta refuses any qcow2 that names another file, before the engine is told
-anything about it — see `Qcow2Header.namesAnotherFile`. Container files also run
-unprivileged, which bounds the reach to what the person who opened it could
-already read. Neither of those is a reason to relax the check when more formats
-are added.
+anything about it — see `Qcow2Header.namesAnotherFile`.
+
+A VMDK is different and needs its own rule: it **always** names another file.
+The descriptor is read whole and capped at 2 MB, so the data cannot live inside
+it — there is no self-contained form. So the rule there is that every extent
+must be a plain file name sitting beside the descriptor: nothing absolute,
+nothing with a separator, no `..`. That is exactly what VMware writes, and it
+stops a descriptor reaching anywhere else on the disk. See
+`VmdkDescriptor.namesAFileElsewhere`.
+
+Container files also run unprivileged, which bounds the reach to what the person
+who opened it could already read. None of that is a reason to relax the checks
+when more formats are added.

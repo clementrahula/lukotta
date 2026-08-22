@@ -338,9 +338,17 @@
     "stopped here": "zastavilo se zde",
     "unlocked": "odemčený",
     "waiting": "čeká",
+    "“%@” could not be read.": "„%@“ se nepodařilo přečíst.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@“ přestal odpovídat a byl odpojen. Můžete jej otevřít znovu.",
     "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@“ obsahuje šifrovaný svazek uvnitř qcow2, který engine neumí otevřít. Pomohl by převod na surový obraz, případně otevřete disk, ze kterého vznikl.",
+    "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@“ obsahuje šifrovaný svazek, který tato verze enginu neumí otevřít uvnitř obrazu disku. Otevřete disk, ze kterého vznikl.",
+    "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "„%1$@“ je řídký VMDK, který %2$@ neumí otevřít. Fungoval by plochý VMDK nebo surový obraz.",
+    "“%@” is marked as damaged. Repair it before opening it.": "„%@“ je označen jako poškozený. Před otevřením jej opravte.",
+    "“%@” is not a disk image this app can read.": "„%@“ není obraz disku, který tato aplikace umí přečíst.",
+    "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "„%1$@“ je součástí řetězu snímků, který %2$@ neumí otevřít. Otevřete disk, ze kterého vznikl.",
     "“%@” is unlocked": "„%@“ je odemčen",
+    "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "„%1$@“ potřebuje „%2$@“, který vedle něj není. Obrazy disku tohoto druhu tvoří sada souborů a potřeba jsou všechny.",
+    "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "„%1$@“ odkazuje na jiný soubor v tomto Macu, který by se otevřel spolu s ním. %2$@ neotevírá obrazy odkazující na jiné soubory.",
     "“%@” was disconnected.": "„%@“ byl odpojen.",
     "“%@” was not opened": "„%@“ se nepodařilo otevřít"
   }

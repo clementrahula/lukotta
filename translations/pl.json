@@ -338,9 +338,17 @@
     "stopped here": "zatrzymano tutaj",
     "unlocked": "odblokowany",
     "waiting": "oczekiwanie",
+    "“%@” could not be read.": "Nie udało się odczytać „%@”.",
     "“%@” had stopped responding and was disconnected. You can open it again.": "„%@” przestał odpowiadać i został odłączony. Możesz otworzyć go ponownie.",
     "“%@” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from.": "„%@” zawiera zaszyfrowany wolumin wewnątrz qcow2, którego silnik nie potrafi otworzyć. Pomogłaby konwersja na surowy obraz albo otwarcie dysku, z którego powstał.",
+    "“%@” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work.": "„%@” zawiera zaszyfrowany wolumin, którego ta wersja silnika nie potrafi otworzyć wewnątrz obrazu dysku. Otwórz dysk, z którego powstał.",
+    "“%@” is a sparse VMDK, which %@ cannot open. A flat one, or a raw image, would work.": "„%1$@” to rzadki VMDK, którego %2$@ nie potrafi otworzyć. Płaski VMDK lub surowy obraz zadziała.",
+    "“%@” is marked as damaged. Repair it before opening it.": "„%@” jest oznaczony jako uszkodzony. Napraw go przed otwarciem.",
+    "“%@” is not a disk image this app can read.": "„%@” nie jest obrazem dysku, który ta aplikacja potrafi odczytać.",
+    "“%@” is part of a chain of snapshots, which %@ cannot open. Open the disk it was made from.": "„%1$@” jest częścią łańcucha migawek, którego %2$@ nie potrafi otworzyć. Otwórz dysk, z którego powstał.",
     "“%@” is unlocked": "„%@” jest odblokowany",
+    "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": "„%1$@” wymaga „%2$@”, którego nie ma obok. Obrazy dysku tego rodzaju to zestaw plików i potrzebne są wszystkie.",
+    "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "„%1$@” odwołuje się do innego pliku na tym Macu, który zostałby otwarty razem z nim. %2$@ nie otwiera obrazów wskazujących inne pliki.",
     "“%@” was disconnected.": "„%@” został odłączony.",
     "“%@” was not opened": "Nie otwarto „%@”"
   }
