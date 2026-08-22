@@ -78,8 +78,14 @@ diff -ruN -x target -x Cargo.lock a/src/lib.rs b/src/lib.rs
  pub use format::access::{FormatAccess, Mapping};
 diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 --- a/src/vdi/mod.rs	1970-01-01 03:00:00
-+++ b/src/vdi/mod.rs	2026-08-22 10:01:53
-@@ -0,0 +1,395 @@
++++ b/src/vdi/mod.rs	2026-08-22 10:35:48
+@@ -0,0 +1,401 @@
++// SPDX-License-Identifier: MIT
++// Copyright (c) 2026 Clement Rahula
++//
++// Written for Lukotta and offered under imago's own licence rather than
++// Lukotta's, so that it can be taken upstream.
++
 +//! VDI implementation.
 +//!
 +//! VirtualBox's format, read-only.  A VDI is a header, a block map, and then
@@ -477,8 +483,14 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +}
 diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 --- a/src/vhd/mod.rs	1970-01-01 03:00:00
-+++ b/src/vhd/mod.rs	2026-08-22 10:02:51
-@@ -0,0 +1,444 @@
++++ b/src/vhd/mod.rs	2026-08-22 10:35:48
+@@ -0,0 +1,450 @@
++// SPDX-License-Identifier: MIT
++// Copyright (c) 2026 Clement Rahula
++//
++// Written for Lukotta and offered under imago's own licence rather than
++// Lukotta's, so that it can be taken upstream.
++
 +//! VHD implementation.
 +//!
 +//! Microsoft's format, read-only, in both the shapes that hold their own data:
