@@ -44,6 +44,18 @@ fi
 echo "notarytool: $NOTARYTOOL"
 echo "profile:    $PROFILE"
 
+# A locked screen locks the Local Items keychain with it, and a credential
+# stored there then reads exactly like one that was never stored. This is the
+# same error by a different cause, so it is reported as not knowing.
+LOCKED=0
+if /usr/bin/python3 -c '
+import plistlib, subprocess, sys
+out = subprocess.run(["ioreg", "-n", "Root", "-d1", "-a"], capture_output=True).stdout
+sys.exit(0 if plistlib.loads(out).get("IOConsoleLocked") else 1)
+' 2>/dev/null; then
+  LOCKED=1
+fi
+
 OUT="$("$NOTARYTOOL" history --keychain-profile "$PROFILE" 2>&1 | head -3 || true)"
 
 case "$OUT" in
@@ -52,6 +64,12 @@ case "$OUT" in
     exit 0
     ;;
   *"No Keychain password item"*)
+    if [ "$LOCKED" = "1" ]; then
+      echo "unknown: the screen is locked, and a credential in the Local Items"
+      echo "  keychain cannot be read while it is. This is what a missing"
+      echo "  credential looks like as well. Unlock the Mac and ask again."
+      exit 2
+    fi
     if [ "$CAN_READ_ALL" = "1" ]; then
       echo "configured: no credential named \"$PROFILE\" on this machine."
       echo "  Store one with: $NOTARYTOOL store-credentials \"$PROFILE\" …"

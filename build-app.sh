@@ -258,7 +258,11 @@ if [ -n "$NOTARY_ARGS" ] && [ "$SIGN_ID" != "-" ]; then
     /usr/bin/xcrun stapler staple "$OUT"
     /usr/sbin/spctl -a -vv -t install "$OUT" 2>&1 | sed 's/^/  /'
   else
+    # The commonest cause is a locked screen: the credential lives in the Local
+    # Items keychain, which locks with the session, and reads then exactly like
+    # a credential that was never stored.
     printf 'error: notarisation failed; the build is signed but not notarised\n' >&2
+    printf '  ./scripts/notary-status.sh says whether the credential is there\n' >&2
     rm -f "$ZIP"
     exit 1
   fi
