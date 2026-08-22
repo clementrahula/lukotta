@@ -911,136 +911,6 @@
         }
       }
     },
-    "%@ writes this format with a driver of its own, checked against qemu-img, which has written these formats for years. It is tested, and it is newer than the rest of the app. Close any virtual machine using the file first. If you only need to copy files out, open it read-only and the file cannot change.": {
-      "localizations": {
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ пише в този формат със собствен драйвер, проверен спрямо qemu-img, който пише тези формати от години. Той е изпитан, но е по-нов от останалата част на приложението. Първо затворете всяка виртуална машина, която използва файла. Ако само копирате файлове навън, отворете образа само за четене и файлът няма да се промени."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ do tohoto formátu zapisuje vlastním ovladačem, ověřeným proti qemu-img, který tyto formáty zapisuje léta. Je otestovaný, ale je novější než zbytek aplikace. Nejprve zavřete každý virtuální stroj, který soubor používá. Pokud jen kopírujete soubory ven, otevřete obraz jen ke čtení a soubor se nezmění."
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ skriver dette format med sin egen driver, efterprøvet mod qemu-img, som har skrevet disse formater i årevis. Den er testet, og den er nyere end resten af programmet. Luk først enhver virtuel maskine, der bruger filen. Skal du kun kopiere filer ud, så åbn diskbilledet kun til læsning, og filen kan ikke ændre sig."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ schreibt dieses Format mit einem eigenen Treiber, der gegen qemu-img geprüft ist, das diese Formate seit Jahren schreibt. Er ist getestet und neuer als der Rest der App. Schließe zuerst jede virtuelle Maschine, die die Datei benutzt. Wenn du nur Dateien herauskopieren willst, öffne das Image nur lesend, dann kann sich die Datei nicht ändern."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Το %@ γράφει αυτή τη μορφή με δικό του πρόγραμμα οδήγησης, ελεγμένο απέναντι στο qemu-img, το οποίο γράφει αυτές τις μορφές εδώ και χρόνια. Είναι δοκιμασμένο, και είναι νεότερο από την υπόλοιπη εφαρμογή. Κλείστε πρώτα κάθε εικονική μηχανή που χρησιμοποιεί το αρχείο. Αν θέλετε μόνο να αντιγράψετε αρχεία έξω, ανοίξτε το είδωλο μόνο για ανάγνωση και το αρχείο δεν μπορεί να αλλάξει."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ escribe este formato con un controlador propio, contrastado con qemu-img, que lleva años escribiendo estos formatos. Está probado, y es más nuevo que el resto de la app. Cierra antes cualquier máquina virtual que esté usando el archivo. Si solo necesitas copiar archivos, abre la imagen en solo lectura y el archivo no podrá cambiar."
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ kirjutab seda vormingut oma draiveriga, mida on kontrollitud qemu-img vastu, mis on neid vorminguid kirjutanud aastaid. See on testitud ja uuem kui ülejäänud rakendus. Sulge kõigepealt iga virtuaalmasin, mis seda faili kasutab. Kui soovid ainult faile välja kopeerida, ava tõmmis ainult lugemiseks, siis fail ei saa muutuda."
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ kirjoittaa tätä muotoa omalla ajurillaan, joka on tarkistettu qemu-imgiä vasten, ja se on kirjoittanut näitä muotoja vuosia. Ajuri on testattu, ja se on uudempi kuin muu sovellus. Sulje ensin jokainen virtuaalikone, joka käyttää tiedostoa. Jos haluat vain kopioida tiedostoja ulos, avaa levykuva vain luettavaksi, jolloin tiedosto ei voi muuttua."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ écrit ce format avec un pilote qui lui est propre, vérifié face à qemu-img, qui écrit ces formats depuis des années. Il est testé, et il est plus récent que le reste de l’app. Fermez d’abord toute machine virtuelle qui utilise le fichier. Si vous voulez seulement copier des fichiers, ouvrez l’image en lecture seule : le fichier ne pourra pas changer."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ u ovaj format piše vlastitim upravljačkim programom, provjerenim naspram qemu-img, koji te formate piše godinama. Ispitan je i noviji je od ostatka aplikacije. Najprije zatvorite svaki virtualni stroj koji koristi datoteku. Ako samo kopirate datoteke van, otvorite sliku samo za čitanje i datoteka se neće promijeniti."
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A(z) %@ saját illesztőprogrammal ír ebben a formátumban, amelyet a qemu-imghez mérve ellenőriztünk; az évek óta írja ezeket a formátumokat. Tesztelt, de újabb, mint az alkalmazás többi része. Előbb zárja be a fájlt használó összes virtuális gépet. Ha csak fájlokat másolna ki, nyissa meg a lemezképet csak olvasásra, és a fájl nem változhat."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ scrive questo formato con un driver suo, verificato contro qemu-img, che scrive questi formati da anni. È collaudato, ed è più recente del resto dell’app. Chiudi prima ogni macchina virtuale che sta usando il file. Se ti basta copiare file fuori, apri l’immagine in sola lettura e il file non potrà cambiare."
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ į šį formatą rašo savo tvarkykle, patikrinta su „qemu-img“, kuri šiuos formatus rašo jau daugelį metų. Ji išbandyta, tačiau naujesnė nei likusi programos dalis. Pirmiausia uždarykite kiekvieną virtualią mašiną, naudojančią šį failą. Jei tik kopijuojate failus, atverkite atvaizdį tik skaitymui – failas nepasikeis."
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ šajā formātā raksta ar savu draiveri, kas pārbaudīts pret qemu-img, kurš šos formātus raksta jau gadiem. Tas ir pārbaudīts un ir jaunāks nekā pārējā lietotne. Vispirms aizveriet katru virtuālo mašīnu, kas izmanto šo failu. Ja vēlaties tikai izkopēt failus, atveriet attēlu tikai lasīšanai, un fails nevarēs mainīties."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ skriver dette formatet med sin egen driver, kontrollert mot qemu-img, som har skrevet disse formatene i årevis. Den er testet, og den er nyere enn resten av programmet. Lukk først enhver virtuell maskin som bruker filen. Skal du bare kopiere filer ut, åpne diskbildet kun for lesing, så kan ikke filen endres."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ schrijft dit formaat met een eigen stuurprogramma, getoetst aan qemu-img, dat deze formaten al jaren schrijft. Het is getest, en het is nieuwer dan de rest van de app. Sluit eerst elke virtuele machine die het bestand gebruikt. Wil je alleen bestanden kopiëren, open de schijfkopie dan alleen-lezen: het bestand kan dan niet veranderen."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ zapisuje ten format własnym sterownikiem, sprawdzonym względem qemu-img, który zapisuje te formaty od lat. Jest przetestowany, ale nowszy niż reszta programu. Najpierw zamknij każdą maszynę wirtualną, która używa tego pliku. Jeśli chcesz tylko skopiować pliki, otwórz obraz tylko do odczytu, a plik się nie zmieni."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O %@ escreve este formato com um controlador próprio, verificado contra o qemu-img, que escreve estes formatos há anos. Está testado, e é mais recente do que o resto da aplicação. Feche primeiro qualquer máquina virtual que esteja a usar o ficheiro. Se só precisa de copiar ficheiros para fora, abra a imagem apenas para leitura e o ficheiro não poderá mudar."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ scrie acest format cu un driver propriu, verificat față de qemu-img, care scrie aceste formate de ani de zile. Este testat și este mai nou decât restul aplicației. Închideți mai întâi orice mașină virtuală care folosește fișierul. Dacă doriți doar să copiați fișiere, deschideți imaginea doar pentru citire și fișierul nu se va putea modifica."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ v ta zapis piše z lastnim gonilnikom, preverjenim proti qemu-img, ki te zapise piše že leta. Preizkušen je in novejši od preostanka programa. Najprej zaprite vsak navidezni računalnik, ki uporablja to datoteko. Če želite datoteke le prekopirati ven, odprite sliko samo za branje in datoteka se ne bo spremenila."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ skriver det här formatet med en egen drivrutin, kontrollerad mot qemu-img, som har skrivit de här formaten i åratal. Den är testad, och den är nyare än resten av appen. Stäng först varje virtuell maskin som använder filen. Om du bara behöver kopiera ut filer, öppna skivavbilden skrivskyddad så kan filen inte ändras."
-          }
-        }
-      }
-    },
     "%lld drives had stopped responding and were disconnected. You can open them again.": {
       "localizations": {
         "bg": {
@@ -23543,6 +23413,136 @@
         }
       }
     },
+    "Saving changes to this file could damage it": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Записването на промени може да повреди файла"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uložení změn může tento soubor poškodit"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ændringer kan skade denne fil"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Änderungen können diese Datei beschädigen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η αποθήκευση αλλαγών μπορεί να καταστρέψει το αρχείο"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar cambios podría dañar este archivo"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muudatuste salvestamine võib faili rikkuda"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muutosten tallentaminen voi vahingoittaa tätä tiedostoa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer des modifications peut endommager ce fichier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spremanje promjena može oštetiti ovu datoteku"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A módosítások mentése kárt tehet ebben a fájlban"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvare modifiche potrebbe danneggiare questo file"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pakeitimų įrašymas gali sugadinti šį failą"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izmaiņu saglabāšana var sabojāt šo failu"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Å lagre endringer kan skade denne filen"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wijzigingen bewaren kan dit bestand beschadigen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zapisanie zmian może uszkodzić ten plik"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar alterações pode danificar este ficheiro"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvarea modificărilor poate deteriora acest fișier"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shranjevanje sprememb lahko poškoduje to datoteko"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Att spara ändringar kan skada den här filen"
+          }
+        }
+      }
+    },
     "Seeing connected drives": {
       "localizations": {
         "bg": {
@@ -35319,132 +35319,132 @@
         }
       }
     },
-    "Writing to a %@ is new": {
+    "Writing to this format is untested and may still have faults, so writing to it is at your own risk. Open it read-only to copy files out safely, or make a backup first.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Записът в %@ е нещо ново"
+            "value": "Записът в този формат не е тестван и може да съдържа грешки, затова записвате на свой риск. Отворете файла само за четене, за да копирате от него безопасно, или първо направете резервно копие."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zápis do %@ je novinka"
+            "value": "Zápis do tohoto formátu není otestovaný a může mít chyby, takže píšete na vlastní riziko. Otevřete soubor jen ke čtení, abyste z něj bezpečně kopírovali, nebo si nejdřív udělejte zálohu."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "At skrive til en %@ er nyt"
+            "value": "At skrive til dette format er utestet og kan have fejl, så du skriver på eget ansvar. Åbn filen kun til læsning for at kopiere sikkert fra den, eller tag en sikkerhedskopi først."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Schreiben in ein %@ ist neu"
+            "value": "Das Schreiben in dieses Format ist ungetestet und kann Fehler haben, du schreibst also auf eigenes Risiko. Öffne die Datei nur lesend, um sicher daraus zu kopieren, oder lege zuerst eine Sicherungskopie an."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Η εγγραφή σε ένα %@ είναι κάτι καινούριο"
+            "value": "Η εγγραφή σε αυτή τη μορφή δεν έχει δοκιμαστεί και μπορεί να έχει σφάλματα, οπότε γράφετε με δική σας ευθύνη. Ανοίξτε το αρχείο μόνο για ανάγνωση για να αντιγράψετε με ασφάλεια, ή κρατήστε πρώτα αντίγραφο ασφαλείας."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Escribir en un %@ es algo nuevo"
+            "value": "La escritura en este formato no está probada y puede tener fallos, así que escribes bajo tu propia responsabilidad. Ábrelo en solo lectura para copiar archivos con seguridad, o haz antes una copia de seguridad."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sellesse formaati kirjutamine on uus: %@"
+            "value": "Sellesse vormingusse kirjutamine on testimata ja võib vigu sisaldada, seega kirjutad omal vastutusel. Ava fail ainult lugemiseks, et sellest turvaliselt kopeerida, või tee enne varukoopia."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kirjoittaminen tähän muotoon on uutta: %@"
+            "value": "Tähän muotoon kirjoittamista ei ole testattu ja siinä voi olla vikoja, joten kirjoitat omalla vastuullasi. Avaa tiedosto vain luettavaksi kopioidaksesi siitä turvallisesti, tai ota ensin varmuuskopio."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Écrire dans un %@ est nouveau"
+            "value": "L’écriture dans ce format n’est pas testée et peut comporter des défauts : vous écrivez à vos propres risques. Ouvrez le fichier en lecture seule pour en copier le contenu sans risque, ou faites d’abord une sauvegarde."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pisanje u %@ je novost"
+            "value": "Pisanje u ovaj format nije testirano i može imati greške, pa pišete na vlastitu odgovornost. Otvorite datoteku samo za čitanje kako biste iz nje sigurno kopirali, ili prvo napravite sigurnosnu kopiju."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Az írás új ebben a formátumban: %@"
+            "value": "Az ebbe a formátumba írás nincs tesztelve, és hibái lehetnek, tehát saját felelősségre ír. Nyissa meg a fájlt csak olvasásra a biztonságos másoláshoz, vagy készítsen előbb biztonsági másolatot."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scrivere in un %@ è una novità"
+            "value": "La scrittura in questo formato non è collaudata e può avere difetti, quindi scrivi a tuo rischio. Apri il file in sola lettura per copiarne il contenuto in sicurezza, o fai prima una copia di riserva."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rašymas į %@ yra naujiena"
+            "value": "Rašymas šiuo formatu neišbandytas ir gali turėti klaidų, todėl rašote savo rizika. Atverkite failą tik skaitymui, kad saugiai iš jo nukopijuotumėte, arba pirma pasidarykite atsarginę kopiją."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rakstīšana šajā formātā ir jaunums: %@"
+            "value": "Rakstīšana šajā formātā nav pārbaudīta un var saturēt kļūdas, tāpēc rakstāt uz savu atbildību. Atveriet failu tikai lasīšanai, lai no tā droši kopētu, vai vispirms izveidojiet rezerves kopiju."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Å skrive til en %@ er nytt"
+            "value": "Skriving til dette formatet er utestet og kan ha feil, så du skriver på eget ansvar. Åpne filen kun for lesing for å kopiere trygt fra den, eller ta en sikkerhetskopi først."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Schrijven naar een %@ is nieuw"
+            "value": "Schrijven naar dit formaat is ongetest en kan fouten bevatten, dus je schrijft op eigen risico. Open het bestand alleen-lezen om er veilig uit te kopiëren, of maak eerst een reservekopie."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zapis do formatu %@ jest nowością"
+            "value": "Zapis w tym formacie nie jest przetestowany i może mieć błędy, więc zapisujesz na własne ryzyko. Otwórz plik tylko do odczytu, aby bezpiecznie skopiować z niego dane, albo najpierw zrób kopię zapasową."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Escrever num %@ é novo"
+            "value": "A escrita neste formato não está testada e pode ter falhas, pelo que escreve por sua conta e risco. Abra o ficheiro apenas para leitura para copiar com segurança, ou faça primeiro uma cópia de segurança."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scrierea într-un %@ este ceva nou"
+            "value": "Scrierea în acest format nu este testată și poate avea defecte, așa că scrieți pe propriul risc. Deschideți fișierul doar pentru citire pentru a copia în siguranță, sau faceți mai întâi o copie de siguranță."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pisanje v %@ je novost"
+            "value": "Pisanje v ta zapis ni preizkušeno in ima lahko napake, zato pišete na lastno odgovornost. Datoteko odprite samo za branje, da iz nje varno kopirate, ali pa najprej naredite varnostno kopijo."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Att skriva till en %@ är nytt"
+            "value": "Skrivning till det här formatet är otestad och kan ha fel, så du skriver på egen risk. Öppna filen skrivskyddad för att kopiera ur den säkert, eller ta en säkerhetskopia först."
           }
         }
       }

@@ -462,7 +462,7 @@ private struct ImageNote: View {
         if !container.isWritable {
             return String(localized: "A \(container.name) opens read-only")
         }
-        return String(localized: "Writing to a \(container.name) is new")
+        return String(localized: "Saving changes to this file could damage it")
     }
 
     /// Whether this note is the one about a driver built here, as opposed to
@@ -478,7 +478,7 @@ private struct ImageNote: View {
         }
         return String(
             localized:
-                "\(Brand.name) writes this format with a driver of its own, checked against qemu-img, which has written these formats for years. It is tested, and it is newer than the rest of the app. Close any virtual machine using the file first. If you only need to copy files out, open it read-only and the file cannot change."
+                "Writing to this format is untested and may still have faults, so writing to it is at your own risk. Open it read-only to copy files out safely, or make a backup first."
         )
     }
 
