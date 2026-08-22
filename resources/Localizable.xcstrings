@@ -2182,6 +2182,9 @@
         }
       }
     },
+    "-o ro ": {
+      "localizations": {}
+    },
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": {
       "localizations": {
         "bg": {
@@ -17251,6 +17254,136 @@
         }
       }
     },
+    "Open Read-Only": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отвори само за четене"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otevřít jen ke čtení"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn kun til læsning"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur lesend öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα μόνο για ανάγνωση"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir solo lectura"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava ainult lugemiseks"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa vain luettavaksi"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir en lecture seule"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori samo za čitanje"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Megnyitás csak olvasásra"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri in sola lettura"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverti tik skaitymui"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvērt tikai lasīšanai"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpne kun for lesing"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open alleen-lezen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz tylko do odczytu"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir apenas para leitura"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschideți doar pentru citire"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri samo za branje"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öppna skrivskyddad"
+          }
+        }
+      }
+    },
     "Open Settings": {
       "localizations": {
         "bg": {
@@ -19403,6 +19536,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Råa skivavbilder, och en BitLocker- eller LUKS-volym inuti valfri avbild, som låses upp som en på en disk"
+          }
+        }
+      }
+    },
+    "Read-Only": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Само за четене"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jen ke čtení"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kun læsning"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur Lesen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Μόνο ανάγνωση"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo lectura"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ainult lugemiseks"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vain luku"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture seule"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samo za čitanje"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Csak olvasható"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sola lettura"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tik skaitymui"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tikai lasāms"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kun lesing"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alleen-lezen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tylko do odczytu"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apenas leitura"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Doar citire"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samo za branje"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skrivskyddad"
           }
         }
       }
@@ -26303,6 +26566,136 @@
         }
       }
     },
+    "There is no password to enter. Open it to read and write to it, which macOS on its own cannot do, or open it read-only to leave it untouched.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Няма парола за въвеждане. Отворете го, за да четете и записвате, което macOS сам не може, или го отворете само за четене, за да остане непроменен."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Není co zadávat. Otevřete jej pro čtení i zápis, což macOS sám neumí, nebo jen ke čtení, aby zůstal nedotčený."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der er ingen adgangskode at indtaste. Åbn den for at læse og skrive til den, hvilket macOS ikke selv kan, eller åbn den kun til læsning, så den forbliver urørt."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es gibt kein Passwort einzugeben. Öffne es zum Lesen und Schreiben, was macOS allein nicht kann, oder öffne es nur lesend, damit es unverändert bleibt."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δεν υπάρχει κωδικός για εισαγωγή. Ανοίξτε τον για ανάγνωση και εγγραφή, κάτι που το macOS από μόνο του δεν μπορεί, ή ανοίξτε τον μόνο για ανάγνωση ώστε να μείνει ανέπαφος."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay contraseña que introducir. Ábrelo para leer y escribir en él, algo que macOS por sí solo no puede hacer, o ábrelo en solo lectura para dejarlo intacto."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parooli pole vaja sisestada. Ava see lugemiseks ja kirjutamiseks, mida macOS ise ei suuda, või ava ainult lugemiseks, et see puutumata jääks."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salasanaa ei tarvita. Avaa se luettavaksi ja kirjoitettavaksi, mihin macOS ei yksin pysty, tai avaa se vain luettavaksi, jolloin se säilyy koskemattomana."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il n’y a pas de mot de passe à saisir. Ouvrez-le en lecture et écriture, ce que macOS seul ne sait pas faire, ou en lecture seule pour le laisser intact."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nema lozinke za unijeti. Otvorite ga za čitanje i pisanje, što macOS sam ne može, ili ga otvorite samo za čitanje kako bi ostao netaknut."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nincs beírandó jelszó. Nyissa meg olvasásra és írásra, amire a macOS önmagában nem képes, vagy nyissa meg csak olvasásra, hogy érintetlen maradjon."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non c’è alcuna password da inserire. Aprilo per leggerlo e scriverlo, cosa che macOS da solo non sa fare, oppure aprilo in sola lettura per lasciarlo intatto."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slaptažodžio įvesti nereikia. Atverkite jį skaitymui ir rašymui, ko „macOS“ pati negali, arba atverkite tik skaitymui, kad liktų nepakeistas."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nav jāievada parole. Atveriet to lasīšanai un rakstīšanai, ko macOS pats nespēj, vai atveriet tikai lasīšanai, lai tas paliktu neskarts."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det er ingen adgangskode å skrive inn. Åpne den for å lese og skrive til den, noe macOS ikke kan alene, eller åpne den kun for lesing så den forblir urørt."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er is geen wachtwoord in te voeren. Open de schijf om te lezen en schrijven, wat macOS zelf niet kan, of open die alleen-lezen zodat er niets aan verandert."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie ma hasła do wpisania. Otwórz go do odczytu i zapisu, czego macOS sam nie potrafi, albo otwórz tylko do odczytu, aby pozostał nienaruszony."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não há palavra-passe a introduzir. Abra-o para ler e escrever, o que o macOS por si só não consegue, ou abra-o apenas para leitura para o deixar intacto."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu există nicio parolă de introdus. Deschideți-l pentru citire și scriere, lucru pe care macOS singur nu îl poate face, sau deschideți-l doar pentru citire pentru a-l lăsa neatins."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ni gesla za vnos. Odprite ga za branje in pisanje, česar macOS sam ne zmore, ali pa samo za branje, da ostane nedotaknjen."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det finns inget lösenord att ange. Öppna den för att läsa och skriva till den, vilket macOS inte klarar på egen hand, eller öppna den skrivskyddad så att den lämnas orörd."
+          }
+        }
+      }
+    },
     "There is nothing in “%@” that %@ can open. It holds no BitLocker, LUKS, NTFS or Linux volume.": {
       "localizations": {
         "bg": {
@@ -28845,6 +29238,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lås upp"
+          }
+        }
+      }
+    },
+    "Unlock Read-Only": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отключи само за четене"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odemknout jen ke čtení"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lås op kun til læsning"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur lesend entsperren"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ξεκλείδωμα μόνο για ανάγνωση"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquear solo lectura"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava lukust ainult lugemiseks"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa lukitus vain luettavaksi"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déverrouiller en lecture seule"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otključaj samo za čitanje"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feloldás csak olvasásra"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sblocca in sola lettura"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atrakinti tik skaitymui"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atbloķēt tikai lasīšanai"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lås opp kun for lesing"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ontgrendel alleen-lezen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odblokuj tylko do odczytu"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquear apenas para leitura"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deblocați doar pentru citire"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odkleni samo za branje"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lås upp skrivskyddad"
           }
         }
       }
@@ -32225,6 +32748,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Du kan läsa och skriva filer på den."
+          }
+        }
+      }
+    },
+    "You can read files on it. It was opened read-only, so nothing can be written to it.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Можете да четете файловете на него. Беше отворен само за четене, така че нищо не може да бъде записано."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Můžete číst soubory na tomto disku. Byl otevřen jen ke čtení, takže na něj nelze nic zapsat."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du kan læse filer på den. Den blev åbnet kun til læsning, så der kan ikke skrives noget til den."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du kannst Dateien darauf lesen. Es wurde nur lesend geöffnet, sodass nichts darauf geschrieben werden kann."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Μπορείτε να διαβάσετε τα αρχεία του. Άνοιξε μόνο για ανάγνωση, οπότε δεν μπορεί να γραφτεί τίποτα σε αυτό."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puedes leer los archivos que contiene. Se abrió en solo lectura, así que no se puede escribir nada en él."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saad selle faile lugeda. See avati ainult lugemiseks, seega sinna kirjutada ei saa."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voit lukea sen tiedostoja. Se avattiin vain luettavaksi, joten siihen ei voi kirjoittaa mitään."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous pouvez lire les fichiers qu’il contient. Il a été ouvert en lecture seule, rien ne peut donc y être écrit."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Možete čitati datoteke na njemu. Otvoren je samo za čitanje, pa se na njega ništa ne može zapisati."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Olvashatja a rajta lévő fájlokat. Csak olvasásra nyílt meg, így semmi nem írható rá."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puoi leggere i file che contiene. È stato aperto in sola lettura, quindi non vi si può scrivere nulla."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Galite skaityti jame esančius failus. Jis atvertas tik skaitymui, todėl į jį nieko įrašyti negalima."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Varat lasīt tajā esošos failus. Tas tika atvērts tikai lasīšanai, tāpēc tajā neko nevar ierakstīt."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du kan lese filene på den. Den ble åpnet kun for lesing, så ingenting kan skrives til den."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je kunt de bestanden erop lezen. De schijf is alleen-lezen geopend, dus er kan niets naar worden geschreven."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Możesz czytać znajdujące się na nim pliki. Został otwarty tylko do odczytu, więc nic nie da się na nim zapisać."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pode ler os ficheiros que contém. Foi aberto apenas para leitura, pelo que nada lhe pode ser escrito."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puteți citi fișierele de pe el. A fost deschis doar pentru citire, așa că nu se poate scrie nimic pe el."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datoteke na njem lahko berete. Odprt je bil samo za branje, zato nanj ni mogoče ničesar zapisati."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du kan läsa filerna på den. Den öppnades skrivskyddad, så ingenting kan skrivas till den."
           }
         }
       }
