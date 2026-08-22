@@ -166,7 +166,7 @@ extension DiskImage {
         if Array(head.prefix(4)) == VmdkDescriptor.sparseMagic {
             guard let sparse = SparseVmdkHeader.parse(head) else {
                 return appString(
-                    "“\(url.lastPathComponent)” is not a disk image this app can read.")
+                    "“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
             }
             guard EnginePaths.opensSparseVmdk else {
                 return appString(
@@ -180,7 +180,7 @@ extension DiskImage {
                 let inside = try? handle.read(upToCount: Int(length)), !inside.isEmpty
             else {
                 return appString(
-                    "“\(url.lastPathComponent)” is not a disk image this app can read.")
+                    "“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
             }
             // Padded to whole sectors with zero bytes, which are not lines.
             text = inside.prefix(while: { $0 != 0 })
@@ -192,7 +192,7 @@ extension DiskImage {
             )
         }
         guard !descriptor.extents.isEmpty else {
-            return appString("“\(url.lastPathComponent)” is not a disk image this app can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }
         if descriptor.namesAFileElsewhere {
             return appString(
@@ -207,7 +207,7 @@ extension DiskImage {
             let beside = directory.appendingPathComponent(name)
             if !FileManager.default.fileExists(atPath: beside.path) {
                 return appString(
-                    "“\(url.lastPathComponent)” needs “\(name)”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed."
+                    "“\(url.lastPathComponent)” needs “\(name)”, which is not beside it. A disk image of this kind is a set of files, and every one is required."
                 )
             }
         }

@@ -26,7 +26,7 @@ struct ImageOpenSheet: View {
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Opening “\(name)”").font(.headline)
-                        Text("Looking at what is inside it.")
+                        Text("Examining its contents.")
                             .font(.callout).foregroundStyle(.secondary)
                     }
                 }
@@ -44,7 +44,7 @@ struct ImageOpenSheet: View {
                         // volume appearing in Finder that the user did not put
                         // there is a surprise worth heading off.
                         Text(
-                            "This one is exFAT, which macOS reads and writes on its own — so it has been opened directly, as an ordinary disk rather than a network one."
+                            "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk."
                         )
                         .font(.callout).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)

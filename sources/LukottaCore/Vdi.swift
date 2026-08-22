@@ -69,14 +69,14 @@ extension DiskImage {
         guard let bytes = try? handle.read(upToCount: VdiHeader.length),
             let header = VdiHeader.parse(bytes)
         else {
-            return appString("“\(url.lastPathComponent)” is not a disk image this app can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }
 
         // Version 0 laid the header out differently, and VirtualBox has not
         // written one this century. Reading it as version 1 would find the
         // block map in the wrong place.
         guard header.major == 1, header.kind != nil, header.diskSize > 0 else {
-            return appString("“\(url.lastPathComponent)” is not a disk image this app can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }
 
         // The driver is ours, and an engine built without it would take the

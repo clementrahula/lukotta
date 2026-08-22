@@ -73,7 +73,7 @@ private func chooseImage(_ model: AppModel) {
     panel.title = String(localized: "Open Disk Image")
     panel.prompt = String(localized: "Open")
     panel.message = String(
-        localized: "Choose an encrypted container or disk image to open.")
+        localized: "Choose a disk image or container file to open.")
     panel.allowsMultipleSelection = false
     panel.canChooseDirectories = false
     panel.canChooseFiles = true

@@ -180,7 +180,7 @@ final class AppModel: ObservableObject {
                 self.imageOpening = .failed(
                     file,
                     appString(
-                        "macOS reads this format itself, but would not mount it. It may already be open in Finder."
+                        "macOS reads this format itself. It did not mount this image, which may already be open in Finder."
                     ))
                 return
             }

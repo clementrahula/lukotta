@@ -102,7 +102,7 @@ extension DiskImage {
         guard let bytes = try? handle.read(upToCount: qcow2HeaderLength),
             let header = Qcow2Header.parse(bytes)
         else {
-            return appString("“\(url.lastPathComponent)” is not a disk image this app can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }
         if header.namesAnotherFile || Qcow2Header.hasExternalDataExtension(bytes) {
             return appString(

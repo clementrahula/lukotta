@@ -25,7 +25,7 @@ struct OpenDriveSheet: View {
             if model.survey.isEmpty {
                 VStack(spacing: 10) {
                     ProgressView().controlSize(.small)
-                    Text("Looking at every disk…")
+                    Text("Checking every disk…")
                         .font(.callout).foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -50,7 +50,7 @@ struct OpenDriveSheet: View {
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer()
-                Button("Look Again") { model.surveyDrives() }
+                Button("Check Again") { model.surveyDrives() }
             }
             .padding(.horizontal, 22).padding(.vertical, 14)
         }
@@ -79,7 +79,7 @@ private struct SurveyRow: View {
         case .macOSReadsIt:
             return String(localized: "macOS reads this format itself.")
         case .system:
-            return String(localized: "Part of macOS on this Mac.")
+            return String(localized: "A macOS system volume.")
         case .unreadable:
             return String(localized: "Not a format \(Brand.name) can open.")
         }

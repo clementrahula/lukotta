@@ -144,7 +144,7 @@ extension DiskImage {
         guard let head = try? handle.read(upToCount: VhdxHeader.signature.count),
             Array(head) == VhdxHeader.signature
         else {
-            return appString("“\(url.lastPathComponent)” is not a disk image this app can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }
 
         var headers: [Data] = []
@@ -156,12 +156,12 @@ extension DiskImage {
             headers.append(block)
         }
         guard let header = VhdxHeader.parse(headers: headers) else {
-            return appString("“\(url.lastPathComponent)” is not a disk image this app can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }
 
         if header.dirty {
             return appString(
-                "“\(url.lastPathComponent)” was not shut down cleanly, and what it last held has not been written back into it. Open it once in the virtual machine it belongs to, then try again."
+                "“\(url.lastPathComponent)” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again."
             )
         }
 

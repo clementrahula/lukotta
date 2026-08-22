@@ -66,13 +66,13 @@ extension DiskImage {
             (try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int64)
             .flatMap { $0 } ?? 0
         guard size > Int64(VhdFooter.length) else {
-            return appString("“\(url.lastPathComponent)” is not a disk image this app can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }
         try? handle.seek(toOffset: UInt64(size) - UInt64(VhdFooter.length))
         guard let bytes = try? handle.read(upToCount: VhdFooter.length),
             let footer = VhdFooter.parse(bytes)
         else {
-            return appString("“\(url.lastPathComponent)” is not a disk image this app can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }
 
         switch footer.kind {
@@ -91,7 +91,7 @@ extension DiskImage {
                 "“\(url.lastPathComponent)” holds only the changes from another disk, which it names. \(appName) does not open images that name other files."
             )
         case .none:
-            return appString("“\(url.lastPathComponent)” is not a disk image this app can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }
 
         // A fixed VHD is its data and then the footer, and nothing else. If the
@@ -104,7 +104,7 @@ extension DiskImage {
                 || footer.currentSize == UInt64(size) - UInt64(VhdFooter.length)
         else {
             return appString(
-                "“\(url.lastPathComponent)” does not hold as much as it says it does, so it may be damaged or unfinished."
+                "“\(url.lastPathComponent)” is smaller than its footer states, and may be damaged or incomplete."
             )
         }
         return nil

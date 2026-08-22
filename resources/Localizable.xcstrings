@@ -2699,6 +2699,136 @@
         }
       }
     },
+    "A macOS system volume.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Системен том на macOS."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Systémový svazek macOS."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En macOS-systemenhed."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein macOS-Systemvolume."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τόμος συστήματος macOS."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un volumen del sistema macOS."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS-i süsteemiköide."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS-järjestelmän taltio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un volume système de macOS."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistemska jedinica macOS-a."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS rendszerkötet."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un volume di sistema di macOS."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„macOS“ sistemos tomas."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS sistēmas sējums."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et macOS-systemvolum."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een macOS-systeemvolume."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wolumin systemowy macOS."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um volume de sistema do macOS."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un volum de sistem macOS."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistemski nosilec macOS."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En macOS-systemvolym."
+          }
+        }
+      }
+    },
     "About %@": {
       "localizations": {
         "bg": {
@@ -5782,7 +5912,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tjek igen"
+            "value": "Kontroller igen"
           }
         },
         "de": {
@@ -5812,7 +5942,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tarkista uudelleen"
+            "value": "Tarkasta uudelleen"
           }
         },
         "fr": {
@@ -5854,13 +5984,13 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sjekk på nytt"
+            "value": "Kontroller igjen"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Controleer opnieuw"
+            "value": "Opnieuw controleren"
           }
         },
         "pl": {
@@ -5878,7 +6008,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verificați din nou"
+            "value": "Verifică din nou"
           }
         },
         "sl": {
@@ -6285,132 +6415,262 @@
         }
       }
     },
-    "Choose an encrypted container or disk image to open.": {
+    "Checking every disk…": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Изберете шифрован контейнер или дисков образ за отваряне."
+            "value": "Проверка на всички дискове…"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vyberte šifrovaný kontejner nebo obraz disku, který chcete otevřít."
+            "value": "Kontrola všech disků…"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vælg en krypteret beholder eller et diskbillede, der skal åbnes."
+            "value": "Kontrollerer alle diske…"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wähle einen verschlüsselten Container oder ein Image zum Öffnen aus."
+            "value": "Alle Laufwerke werden geprüft…"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Επιλέξτε έναν κρυπτογραφημένο περιέκτη ή είδωλο δίσκου για άνοιγμα."
+            "value": "Έλεγχος όλων των δίσκων…"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elige un contenedor cifrado o una imagen de disco para abrir."
+            "value": "Comprobando todos los discos…"
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vali avamiseks krüptitud konteiner või kettatõmmis."
+            "value": "Kõikide ketaste kontrollimine…"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Valitse avattava salattu säiliö tai levytiedosto."
+            "value": "Tarkastetaan kaikki levyt…"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choisissez un conteneur chiffré ou une image disque à ouvrir."
+            "value": "Vérification de tous les disques…"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Odaberite šifrirani spremnik ili sliku diska za otvaranje."
+            "value": "Provjera svih diskova…"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Válasszon egy titkosított tárolót vagy lemezképet a megnyitáshoz."
+            "value": "Minden lemez ellenőrzése…"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scegli un contenitore cifrato o un’immagine disco da aprire."
+            "value": "Controllo di tutti i dischi…"
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pasirinkite šifruotą konteinerį arba disko atvaizdį, kurį norite atverti."
+            "value": "Tikrinami visi diskai…"
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izvēlieties šifrētu konteineru vai diska attēlu, ko atvērt."
+            "value": "Notiek visu disku pārbaude…"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velg en kryptert beholder eller et diskbilde som skal åpnes."
+            "value": "Kontrollerer alle disker…"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kies een versleutelde container of schijfkopie om te openen."
+            "value": "Alle schijven worden gecontroleerd…"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wybierz zaszyfrowany kontener lub obraz dysku do otwarcia."
+            "value": "Sprawdzanie wszystkich dysków…"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Escolha um contentor encriptado ou uma imagem de disco para abrir."
+            "value": "A verificar todos os discos…"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alegeți un container criptat sau o imagine de disc de deschis."
+            "value": "Se verifică toate discurile…"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izberite šifrirano vsebnik ali sliko diska za odprtje."
+            "value": "Preverjanje vseh diskov…"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Välj en krypterad behållare eller skivavbild att öppna."
+            "value": "Kontrollerar alla diskar…"
+          }
+        }
+      }
+    },
+    "Choose a disk image or container file to open.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изберете дисков образ или контейнерен файл за отваряне."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyberte obraz disku nebo kontejnerový soubor k otevření."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vælg et diskbillede eller en containerfil, der skal åbnes."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle ein Image oder eine Containerdatei zum Öffnen aus."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Επιλέξτε είδωλο δίσκου ή αρχείο κοντέινερ για άνοιγμα."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una imagen de disco o un archivo contenedor para abrir."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vali avamiseks kettatõmmis või konteinerfail."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valitse avattava levytiedosto tai säilötiedosto."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez une image disque ou un fichier conteneur à ouvrir."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odaberite sliku diska ili datoteku spremnika za otvaranje."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Válasszon megnyitandó lemezképet vagy tárolófájlt."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli un’immagine disco o un file contenitore da aprire."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasirinkite atvertiną disko atvaizdį arba konteinerio failą."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izvēlieties atveramo diska attēlu vai konteinera failu."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Velg et diskbilde eller en beholderfil som skal åpnes."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kies een schijfkopie of containerbestand om te openen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wybierz obraz dysku lub plik kontenera do otwarcia."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha uma imagem de disco ou um ficheiro de contentor para abrir."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alegeți o imagine de disc sau un fișier container pentru deschidere."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izberite sliko diska ali datoteko vsebnika za odprtje."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Välj en skivavbild eller containerfil som ska öppnas."
           }
         }
       }
@@ -10597,6 +10857,136 @@
         }
       }
     },
+    "Examining its contents.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Съдържанието се проверява."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zjišťuje se jeho obsah."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indholdet undersøges."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Inhalt wird geprüft."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ελέγχεται το περιεχόμενό του."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se está comprobando su contenido."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selle sisu vaadatakse üle."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sisältöä tarkastetaan."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Examen de son contenu."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Provjerava se njezin sadržaj."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A tartalmának vizsgálata."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne viene esaminato il contenuto."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tikrinamas jo turinys."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiek pārbaudīts tā saturs."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Innholdet undersøkes."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De inhoud wordt bekeken."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprawdzanie jego zawartości."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A verificar o respetivo conteúdo."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se examinează conținutul."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preverja se njena vsebina."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Innehållet undersöks."
+          }
+        }
+      }
+    },
     "Expanded": {
       "localizations": {
         "bg": {
@@ -14367,396 +14757,6 @@
         }
       }
     },
-    "Look Again": {
-      "localizations": {
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Провери отново"
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zjistit znovu"
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kig igen"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erneut nachsehen"
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Νέος έλεγχος"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Volver a mirar"
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vaata uuesti"
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Katso uudelleen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Regarder à nouveau"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pogledaj ponovno"
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Újranézés"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Guarda di nuovo"
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Peržiūrėti dar kartą"
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Skatīt vēlreiz"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se etter på nytt"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Opnieuw kijken"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sprawdź ponownie"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ver novamente"
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verificați din nou"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Poglej znova"
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Titta igen"
-          }
-        }
-      }
-    },
-    "Looking at every disk…": {
-      "localizations": {
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Проверяват се всички дискове…"
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prohlížejí se všechny disky…"
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kigger på alle enheder…"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alle Laufwerke werden angesehen…"
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Έλεγχος όλων των δίσκων…"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comprobando todos los discos…"
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vaatame kõiki kettaid…"
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Katsotaan kaikkia asemia…"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Examen de tous les disques…"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pregledavaju se svi diskovi…"
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Minden lemez vizsgálata…"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Controllo di tutti i dischi…"
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Peržiūrimi visi diskai…"
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tiek apskatīti visi diski…"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ser på alle enheter…"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alle schijven worden bekeken…"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sprawdzanie wszystkich dysków…"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A ver todos os discos…"
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se verifică toate discurile…"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pregledujemo vse pogone…"
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tittar på alla enheter…"
-          }
-        }
-      }
-    },
-    "Looking at what is inside it.": {
-      "localizations": {
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Проверява се какво има вътре."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zjišťuje se, co je uvnitř."
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ser efter, hvad der er i den."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Es wird nachgesehen, was darin ist."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Γίνεται έλεγχος του περιεχομένου."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comprobando qué contiene."
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vaatame, mis selle sees on."
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Katsotaan, mitä sen sisällä on."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vérification de son contenu."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Provjerava se što je unutra."
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Megnézzük, mi van benne."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Controllo del contenuto."
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tikrinama, kas yra viduje."
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tiek pārbaudīts, kas ir iekšā."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ser etter hva som er i den."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Er wordt gekeken wat erin zit."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sprawdzanie, co jest w środku."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A ver o que está lá dentro."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se verifică ce este înăuntru."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Preverjamo, kaj je notri."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kollar vad som finns i den."
-          }
-        }
-      }
-    },
     "Looking for encrypted drives…": {
       "localizations": {
         "bg": {
@@ -18003,136 +18003,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Öppnar ”%@”"
-          }
-        }
-      }
-    },
-    "Part of macOS on this Mac.": {
-      "localizations": {
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Част от macOS на този Mac."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Součást macOS na tomto Macu."
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En del af macOS på denne Mac."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Teil von macOS auf diesem Mac."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Μέρος του macOS σε αυτόν τον Mac."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parte de macOS en este Mac."
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Osa selle Maci macOS-ist."
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Osa tämän Macin macOS:ää."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fait partie de macOS sur ce Mac."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dio macOS-a na ovom Macu."
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A macOS része ezen a Macen."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fa parte di macOS su questo Mac."
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šio „Mac“ „macOS“ dalis."
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šī Mac macOS daļa."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En del av macOS på denne Macen."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Onderdeel van macOS op deze Mac."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Część systemu macOS na tym Macu."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parte do macOS neste Mac."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Face parte din macOS pe acest Mac."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Del macOS na tem Macu."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En del av macOS på den här datorn."
           }
         }
       }
@@ -27909,136 +27779,6 @@
         }
       }
     },
-    "This one is exFAT, which macOS reads and writes on its own — so it has been opened directly, as an ordinary disk rather than a network one.": {
-      "localizations": {
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Този е exFAT, който macOS чете и записва сам — затова беше отворен директно, като обикновен диск, а не като мрежов."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tento je exFAT, který macOS sám čte i zapisuje — proto byl otevřen přímo, jako běžný disk, nikoli síťový."
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Denne er exFAT, som macOS selv kan læse og skrive — derfor er den åbnet direkte, som en almindelig disk frem for en netværksdisk."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dieses ist exFAT, das macOS selbst lesen und schreiben kann — deshalb wurde es direkt geöffnet, als gewöhnliches Laufwerk statt als Netzlaufwerk."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Αυτό είναι exFAT, το οποίο το macOS διαβάζει και γράφει μόνο του — γι’ αυτό άνοιξε απευθείας, ως συνηθισμένος δίσκος και όχι ως δικτυακός."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Este es exFAT, que macOS lee y escribe por su cuenta, así que se ha abierto directamente, como un disco normal en lugar de uno de red."
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "See on exFAT, mida macOS ise loeb ja kirjutab — nii et see avati otse, tavalise kettana, mitte võrgukettana."
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tämä on exFAT, jota macOS lukee ja kirjoittaa itse — joten se avattiin suoraan, tavallisena levynä eikä verkkolevynä."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Celui-ci est en exFAT, que macOS lit et écrit tout seul — il a donc été ouvert directement, comme un disque ordinaire plutôt qu’un disque réseau."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ovaj je exFAT, koji macOS sam čita i zapisuje — pa je otvoren izravno, kao običan disk, a ne mrežni."
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ez exFAT, amelyet a macOS magától olvas és ír — ezért közvetlenül lett megnyitva, hétköznapi lemezként, nem hálózatiként."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Questo è exFAT, che macOS legge e scrive da sé: è stato quindi aperto direttamente, come un disco normale anziché di rete."
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šis yra exFAT, kurį „macOS“ pati skaito ir įrašo — todėl jis atvertas tiesiogiai, kaip įprastas, o ne tinklo diskas."
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šis ir exFAT, ko macOS pati lasa un raksta — tāpēc tas tika atvērts tieši, kā parasts disks, nevis tīkla disks."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Denne er exFAT, som macOS leser og skriver selv — derfor er den åpnet direkte, som en vanlig disk i stedet for en nettverksdisk."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Deze is exFAT, dat macOS zelf leest en schrijft — daarom is die rechtstreeks geopend, als een gewone schijf in plaats van een netwerkschijf."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ten jest w formacie exFAT, który macOS sam odczytuje i zapisuje — dlatego został otwarty bezpośrednio, jako zwykły dysk, a nie sieciowy."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Este é exFAT, que o macOS lê e escreve sozinho — por isso foi aberto diretamente, como um disco normal em vez de um disco de rede."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Acesta este exFAT, pe care macOS îl citește și scrie singur — așa că a fost deschis direct, ca un disc obișnuit, nu unul de rețea."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ta je exFAT, ki ga macOS sam bere in zapisuje — zato je bil odprt neposredno, kot običajen in ne omrežni pogon."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Den här är exFAT, som macOS läser och skriver på egen hand — därför öppnades den direkt, som en vanlig disk i stället för en nätverksdisk."
-          }
-        }
-      }
-    },
     "This partition is not a BitLocker volume.": {
       "localizations": {
         "bg": {
@@ -33889,132 +33629,132 @@
         }
       }
     },
-    "macOS reads this format itself, but would not mount it. It may already be open in Finder.": {
+    "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS чете този формат сам, но не го монтира. Възможно е вече да е отворен във Finder."
+            "value": "macOS сам чете и записва exFAT, затова този образ беше отворендиректно като обикновен диск."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS tento formát čte sám, ale nepřipojil jej. Možná už je otevřený ve Finderu."
+            "value": "macOS čte a zapisuje exFAT sám, proto byl tento obraz otevřen přímo jako běžný disk."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS kan selv læse dette format, men aktiverede det ikke. Den er måske allerede åben i Finder."
+            "value": "macOS læser og skriver selv exFAT, så dette diskbillede blev åbnet direkte som en almindelig disk."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS liest dieses Format selbst, hat es aber nicht aktiviert. Möglicherweise ist es im Finder bereits geöffnet."
+            "value": "macOS liest und schreibt exFAT selbst, daher wurde dieses Image direkt als gewöhnliches Laufwerk geöffnet."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Το macOS διαβάζει μόνο του αυτή τη μορφή, αλλά δεν την προσάρτησε. Ίσως είναι ήδη ανοιχτή στο Finder."
+            "value": "Το macOS διαβάζει και γράφει exFAT μόνο του, οπότε αυτό το είδωλο άνοιξε απευθείας ως συνηθισμένος δίσκος."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS lee este formato por su cuenta, pero no lo ha montado. Puede que ya esté abierto en el Finder."
+            "value": "macOS lee y escribe exFAT por sí mismo, así que esta imagen se abrió directamente como un disco normal."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS loeb seda vormingut ise, kuid ei haakinud seda. See võib olla juba Finderis avatud."
+            "value": "macOS loeb ja kirjutab exFAT-i ise, seega avati see tõmmis otse tavalise kettana."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS lukee tämän muodon itse, mutta ei ottanut sitä käyttöön. Se voi olla jo auki Finderissa."
+            "value": "macOS lukee ja kirjoittaa exFAT-muotoa itse, joten tämä levytiedosto avattiin suoraan tavallisena asemana."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS lit ce format tout seul, mais ne l’a pas monté. Il est peut-être déjà ouvert dans le Finder."
+            "value": "macOS lit et écrit l’exFAT lui-même, cette image a donc été ouverte directement comme un disque ordinaire."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS sam čita ovaj format, ali ga nije montirao. Možda je već otvoren u Finderu."
+            "value": "macOS sam čita i piše exFAT, pa je ova slika otvorena izravno kao običan disk."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A macOS magától olvassa ezt a formátumot, de nem csatolta. Lehet, hogy már meg van nyitva a Finderben."
+            "value": "A macOS maga olvassa és írja az exFAT-ot, ezért ez a lemezkép közvetlenül, szokásos lemezként nyílt meg."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS legge questo formato da sé, ma non lo ha montato. Potrebbe essere già aperto nel Finder."
+            "value": "macOS legge e scrive exFAT da sé, quindi questa immagine è stata aperta direttamente come un disco ordinario."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "„macOS“ šį formatą skaito pati, bet jo neprijungė. Jis gali būti jau atvertas per „Finder“."
+            "value": "„macOS“ pati skaito ir rašo exFAT, todėl šis atvaizdis buvo atvertas tiesiogiai kaip įprastas diskas."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS pati lasa šo formātu, taču to nemontēja. Iespējams, tas jau ir atvērts programmā Finder."
+            "value": "macOS pats lasa un raksta exFAT, tāpēc šis attēls tika atvērts tieši kā parasts disks."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS leser dette formatet selv, men monterte det ikke. Den er kanskje allerede åpen i Finder."
+            "value": "macOS leser og skriver exFAT selv, så dette diskbildet ble åpnet direkte som en vanlig disk."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS leest dit formaat zelf, maar heeft het niet geactiveerd. Mogelijk is het al open in de Finder."
+            "value": "macOS leest en schrijft exFAT zelf, dus deze schijfkopie is rechtstreeks geopend als een gewone schijf."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS sam odczytuje ten format, ale go nie zamontował. Może być już otwarty w Finderze."
+            "value": "macOS sam odczytuje i zapisuje exFAT, więc ten obraz został otwarty bezpośrednio jako zwykły dysk."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O macOS lê este formato sozinho, mas não o montou. Pode já estar aberto no Finder."
+            "value": "O macOS lê e escreve exFAT por si, pelo que esta imagem foi aberta diretamente como um disco comum."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS citește singur acest format, dar nu l-a montat. Este posibil să fie deja deschis în Finder."
+            "value": "macOS citește și scrie exFAT singur, așa că această imagine a fost deschisă direct, ca un disc obișnuit."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ta zapis bere sam, a ga ni priklopil. Morda je že odprt v Finderju."
+            "value": "macOS exFAT bere in zapisuje sam, zato je bila ta slika odprta neposredno kot običajen disk."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS läser det här formatet på egen hand, men monterade det inte. Den kanske redan är öppen i Finder."
+            "value": "macOS läser och skriver exFAT självt, så den här avbilden öppnades direkt som en vanlig disk."
           }
         }
       }
@@ -34145,6 +33885,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS läser det här formatet själv."
+          }
+        }
+      }
+    },
+    "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS чете този формат сам. Този образ не беше монтиран и може вече да е отворен във Finder."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS čte tento formát sám. Tento obraz nepřipojil a může být již otevřený ve Finderu."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS læser selv dette format. Diskbilledet blev ikke aktiveret og er måske allerede åbnet i Finder."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS liest dieses Format selbst. Dieses Image wurde nicht aktiviert und ist möglicherweise bereits im Finder geöffnet."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το macOS διαβάζει αυτή τη μορφή μόνο του. Δεν προσάρτησε αυτό το είδωλο, το οποίο ίσως είναι ήδη ανοικτό στο Finder."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS lee este formato por sí mismo. No ha montado esta imagen, que puede estar ya abierta en el Finder."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS loeb seda vormingut ise. Seda tõmmist ta ei haakinud ja see võib olla juba Finderis avatud."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS lukee tämän muodon itse. Se ei liittänyt tätä levytiedostoa, joka saattaa olla jo auki Finderissa."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS lit ce format lui-même. Il n’a pas monté cette image, qui est peut-être déjà ouverte dans le Finder."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS sam čita ovaj format. Nije montirao ovu sliku, koja je možda već otvorena u Finderu."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A macOS maga olvassa ezt a formátumot. Ezt a lemezképet nem csatolta, és lehet, hogy már meg van nyitva a Finderben."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS legge questo formato da sé. Non ha montato questa immagine, che potrebbe essere già aperta nel Finder."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„macOS“ šį formatą skaito pati. Šio atvaizdžio ji neprijungė; jis gali būti jau atvertas „Finder“ programoje."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS šo formātu nolasa pats. Šo attēlu tas nepievienoja, un tas, iespējams, jau ir atvērts programmā Finder."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS leser dette formatet selv. Det monterte ikke dette diskbildet, som kanskje allerede er åpnet i Finder."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS leest deze structuur zelf. Deze schijfkopie is niet gekoppeld en is mogelijk al geopend in de Finder."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS sam odczytuje ten format. Nie zamontował tego obrazu, który może być już otwarty w Finderze."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O macOS lê este formato por si. Não montou esta imagem, que pode já estar aberta no Finder."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS citește singur acest format. Nu a montat această imagine, care poate fi deja deschisă în Finder."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS to obliko bere sam. Te slike ni priklopil in morda je že odprta v Finderju."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS läser det här formatet självt. Avbilden monterades inte och kan redan vara öppnad i Finder."
           }
         }
       }
@@ -34925,136 +34795,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "”%@” kunde inte läsas."
-          }
-        }
-      }
-    },
-    "“%@” does not hold as much as it says it does, so it may be damaged or unfinished.": {
-      "localizations": {
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@“ не съдържа толкова, колкото твърди, така че може да е повреден или незавършен."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@“ neobsahuje tolik, kolik uvádí, takže může být poškozený nebo nedokončený."
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "“%@” indeholder ikke så meget, som den angiver, så den kan være beskadiget eller ufærdig."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@“ enthält nicht so viel, wie angegeben, und ist daher möglicherweise beschädigt oder unvollständig."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Το «%@» δεν περιέχει όσα δηλώνει, οπότε μπορεί να είναι κατεστραμμένο ή ημιτελές."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» no contiene todo lo que dice contener, así que puede estar dañado o incompleto."
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@“ ei sisalda nii palju, kui väidab, seega võib see olla rikutud või pooleli."
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "”%@” ei sisällä niin paljon kuin se ilmoittaa, joten se voi olla vaurioitunut tai keskeneräinen."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "« %@ » ne contient pas tout ce qu’il annonce ; il est peut-être endommagé ou incomplet."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@” ne sadrži onoliko koliko tvrdi, pa je možda oštećen ili nedovršen."
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A(z) „%@” nem tartalmaz annyit, amennyit állít, ezért sérült vagy befejezetlen lehet."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» non contiene quanto dichiara, quindi potrebbe essere danneggiato o incompleto."
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@“ turi mažiau, nei nurodo, todėl gali būti sugadintas arba nebaigtas."
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "“%@” nesatur tik daudz, cik norāda, tāpēc tas var būt bojāts vai nepabeigts."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» inneholder ikke så mye som den oppgir, så den kan være skadet eller uferdig."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "‘%@’ bevat niet zoveel als het aangeeft, dus het is mogelijk beschadigd of onvoltooid."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@” nie zawiera tylu danych, ile deklaruje, więc może być uszkodzony lub niedokończony."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» não contém tanto quanto indica, pelo que pode estar danificado ou incompleto."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„%@” nu conține atât cât declară, așa că poate fi deteriorat sau neterminat."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "»%@« ne vsebuje toliko, kot navaja, zato je morda poškodovan ali nedokončan."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "”%@” innehåller inte så mycket som den uppger, så den kan vara skadad eller ofärdig."
           }
         }
       }
@@ -36099,132 +35839,132 @@
         }
       }
     },
-    "“%@” is not a disk image this app can read.": {
+    "“%@” is not a disk image %@ can read.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@“ не е дисков образ, който това приложение може да прочете."
+            "value": "„%1$@“ не е дисков образ, който %2$@ може да прочете."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@“ není obraz disku, který tato aplikace umí přečíst."
+            "value": "„%1$@“ není obraz disku, který %2$@ umí přečíst."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@” er ikke et diskbillede, denne app kan læse."
+            "value": "“%1$@” er ikke et diskbillede, som %2$@ kan læse."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@“ ist kein Image, das diese App lesen kann."
+            "value": "„%1$@“ ist kein Image, das %2$@ lesen kann."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Το «%@» δεν είναι είδωλο δίσκου που μπορεί να διαβάσει αυτή η εφαρμογή."
+            "value": "Το «%1$@» δεν είναι είδωλο δίσκου που μπορεί να διαβάσει το %2$@."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%@» no es una imagen de disco que esta app pueda leer."
+            "value": "«%1$@» no es una imagen de disco que %2$@ pueda leer."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@“ ei ole kettatõmmis, mida see rakendus lugeda oskab."
+            "value": "„%1$@“ ei ole kettatõmmis, mida %2$@ lugeda oskab."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%@” ei ole levytiedosto, jota tämä ohjelma osaa lukea."
+            "value": "”%1$@” ei ole levytiedosto, jota %2$@ osaa lukea."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "« %@ » n’est pas une image disque que cette app sait lire."
+            "value": "« %1$@ » n’est pas une image disque que %2$@ sait lire."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@” nije slika diska koju ova aplikacija može pročitati."
+            "value": "„%1$@” nije slika diska koju %2$@ može pročitati."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A(z) „%@” nem olyan lemezkép, amelyet ez az alkalmazás el tud olvasni."
+            "value": "A(z) „%1$@” nem olyan lemezkép, amelyet a(z) %2$@ olvasni tud."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%@» non è un’immagine disco che questa app sappia leggere."
+            "value": "«%1$@» non è un’immagine disco che %2$@ sa leggere."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@“ nėra disko atvaizdis, kurį ši programa galėtų perskaityti."
+            "value": "„%1$@“ nėra disko atvaizdis, kurį %2$@ gali perskaityti."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@” nav diska attēls, ko šī lietotne var nolasīt."
+            "value": "“%1$@” nav diska attēls, ko %2$@ spēj nolasīt."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%@» er ikke et diskbilde denne appen kan lese."
+            "value": "«%1$@» er ikke et diskbilde som %2$@ kan lese."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "‘%@’ is geen schijfkopie die deze app kan lezen."
+            "value": "‘%1$@’ is geen schijfkopie die %2$@ kan lezen."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@” nie jest obrazem dysku, który ta aplikacja potrafi odczytać."
+            "value": "„%1$@” nie jest obrazem dysku, który %2$@ potrafi odczytać."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%@» não é uma imagem de disco que esta app consiga ler."
+            "value": "«%1$@» não é uma imagem de disco que o %2$@ consiga ler."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@” nu este o imagine de disc pe care această aplicație o poate citi."
+            "value": "„%1$@” nu este o imagine de disc pe care %2$@ o poate citi."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "»%@« ni slika diska, ki bi jo ta aplikacija znala prebrati."
+            "value": "»%1$@« ni slika diska, ki bi jo %2$@ znal prebrati."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%@” är inte en skivavbild som den här appen kan läsa."
+            "value": "”%1$@” är inte en skivavbild som %2$@ kan läsa."
           }
         }
       }
@@ -36359,6 +36099,136 @@
         }
       }
     },
+    "“%@” is smaller than its footer states, and may be damaged or incomplete.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ е по-малък, отколкото посочва долният му колонтитул, и може да е повреден или непълен."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ je menší, než uvádí jeho patička, a může být poškozený nebo neúplný."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” er mindre, end dens egen sidefod angiver, og kan være beskadiget eller ufuldstændig."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ ist kleiner, als seine eigene Fußzeile angibt, und ist möglicherweise beschädigt oder unvollständig."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το «%@» είναι μικρότερο από όσο δηλώνει το υποσέλιδό του και μπορεί να είναι κατεστραμμένο ή ημιτελές."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» es más pequeño de lo que indica su pie de página y puede estar dañado o incompleto."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ on väiksem, kui tema enda jalus väidab, ja võib olla rikutud või poolik."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” on pienempi kuin sen oma alatunniste ilmoittaa, ja se voi olla vaurioitunut tai keskeneräinen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » est plus petit que ne l’indique son pied de page ; il est peut-être endommagé ou incomplet."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” je manji nego što navodi njegovo podnožje i možda je oštećen ili nepotpun."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) „%@” kisebb, mint amit a saját élőlába megad, ezért sérült vagy hiányos lehet."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» è più piccolo di quanto indichi il suo piè di pagina e potrebbe essere danneggiato o incompleto."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ yra mažesnis, nei nurodo jo poraštė, todėl gali būti sugadintas arba nebaigtas."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” ir mazāks, nekā norāda tā kājene, un var būt bojāts vai nepabeigts."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» er mindre enn sin egen bunntekst oppgir, og kan være skadet eller ufullstendig."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’ is kleiner dan de eigen voettekst aangeeft en is mogelijk beschadigd of onvolledig."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” jest mniejszy, niż podaje jego stopka, i może być uszkodzony lub niekompletny."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» é menor do que o seu rodapé indica e pode estar danificado ou incompleto."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” este mai mic decât indică propriul subsol și poate fi deteriorat sau incomplet."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»%@« je manjši, kot navaja njegova noga, in je morda poškodovan ali nepopoln."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”%@” är mindre än vad dess egen sidfot anger och kan vara skadad eller ofullständig."
+          }
+        }
+      }
+    },
     "“%@” is unlocked": {
       "localizations": {
         "bg": {
@@ -36489,132 +36359,132 @@
         }
       }
     },
-    "“%@” needs “%@”, which is not beside it. Disk images of this kind come as a set of files, and all of them are needed.": {
+    "“%@” needs “%@”, which is not beside it. A disk image of this kind is a set of files, and every one is required.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "За „%1$@“ е нужен „%2$@“, който не е до него. Дисковите образи от този вид идват като набор от файлове и всички са нужни."
+            "value": "„%1$@“ се нуждае от „%2$@“, който не е до него. Дисков образ от този вид е набор от файлове и всеки един от тях е задължителен."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ potřebuje „%2$@“, který vedle něj není. Obrazy disku tohoto druhu tvoří sada souborů a potřeba jsou všechny."
+            "value": "„%1$@“ potřebuje „%2$@“, který vedle něj není. Obraz disku tohoto druhu je sada souborů a vyžadován je každý z nich."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%1$@” kræver “%2$@”, som ikke ligger ved siden af den. Diskbilleder af denne slags kommer som et sæt filer, og alle er nødvendige."
+            "value": "“%1$@” har brug for “%2$@”, som ikke ligger ved siden af den. Et diskbillede af denne slags er et sæt filer, og hver enkelt af dem kræves."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ benötigt „%2$@“, das nicht daneben liegt. Images dieser Art bestehen aus mehreren Dateien, und alle werden gebraucht."
+            "value": "„%1$@“ benötigt „%2$@“, das nicht daneben liegt. Ein Image dieser Art besteht aus mehreren Dateien, von denen jede erforderlich ist."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Το «%1$@» χρειάζεται το «%2$@», που δεν βρίσκεται δίπλα του. Τα είδωλα δίσκου αυτού του τύπου αποτελούνται από σύνολο αρχείων και χρειάζονται όλα."
+            "value": "Το «%1$@» χρειάζεται το «%2$@», το οποίο δεν βρίσκεται δίπλα του. Ένα είδωλο δίσκου αυτού του είδους είναι σύνολο αρχείων και απαιτείται κάθε ένα από αυτά."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%1$@» necesita «%2$@», que no está junto a él. Las imágenes de disco de este tipo son un conjunto de archivos y hacen falta todos."
+            "value": "«%1$@» necesita «%2$@», que no está junto a él. Una imagen de disco de este tipo es un conjunto de archivos, y todos ellos son necesarios."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ vajab faili „%2$@“, mida selle kõrval ei ole. Seda tüüpi kettatõmmised koosnevad mitmest failist ja vaja on kõiki."
+            "value": "„%1$@“ vajab faili „%2$@“, mida tema kõrval ei ole. Sellist liiki kettatõmmis on failide kogum ja vaja on neist igaüht."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%1$@” tarvitsee tiedoston ”%2$@”, jota ei ole sen vieressä. Tämän tyyppiset levytiedostot koostuvat useasta tiedostosta, ja kaikkia tarvitaan."
+            "value": "”%1$@” tarvitsee tiedoston ”%2$@”, jota ei ole sen vieressä. Tämänkaltainen levytiedosto on joukko tiedostoja, ja niistä jokainen tarvitaan."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "« %1$@ » a besoin de « %2$@ », qui ne se trouve pas à côté. Les images disque de ce type forment un ensemble de fichiers, et tous sont nécessaires."
+            "value": "« %1$@ » a besoin de « %2$@ », qui ne se trouve pas à côté. Une image disque de ce type est un ensemble de fichiers, et chacun d’eux est requis."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@” treba „%2$@”, koji nije uz njega. Slike diska ove vrste dolaze kao skup datoteka i potrebne su sve."
+            "value": "„%1$@” treba „%2$@”, koja nije pored nje. Slika diska ove vrste skup je datoteka i potrebna je svaka od njih."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A(z) „%1$@” igényli a(z) „%2$@” fájlt, amely nincs mellette. Az ilyen lemezképek több fájlból állnak, és mindegyikre szükség van."
+            "value": "A(z) „%1$@” fájlhoz szükséges a(z) „%2$@”, amely nincs mellette. Az ilyen lemezkép fájlok együttese, és mindegyikre szükség van."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%1$@» richiede «%2$@», che non si trova accanto. Le immagini disco di questo tipo sono un insieme di file, e servono tutti."
+            "value": "«%1$@» richiede «%2$@», che non si trova accanto a esso. Un’immagine disco di questo tipo è un insieme di file, e ciascuno di essi è necessario."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@“ reikia „%2$@“, kurio šalia nėra. Tokie disko atvaizdžiai yra failų rinkinys ir reikalingi visi."
+            "value": "„%1$@“ reikia failo „%2$@“, kurio šalia nėra. Tokio tipo disko atvaizdis yra failų rinkinys ir reikalingas kiekvienas iš jų."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%1$@” nepieciešams “%2$@”, kas nav tam līdzās. Šāda veida diska attēli sastāv no vairākiem failiem, un vajadzīgi ir visi."
+            "value": "“%1$@” ir nepieciešams “%2$@”, kas neatrodas tam blakus. Šāda veida diska attēls ir failu kopa, un nepieciešams ir katrs no tiem."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%1$@» trenger «%2$@», som ikke ligger ved siden av. Diskbilder av denne typen består av flere filer, og alle trengs."
+            "value": "«%1$@» trenger «%2$@», som ikke ligger ved siden av den. Et diskbilde av dette slaget er et sett med filer, og hver enkelt av dem kreves."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "‘%1$@’ heeft ‘%2$@’ nodig, dat er niet naast staat. Schijfkopieën van dit type bestaan uit meerdere bestanden, en alle zijn nodig."
+            "value": "‘%1$@’ heeft ‘%2$@’ nodig, dat er niet naast staat. Een schijfkopie van dit type bestaat uit een reeks bestanden, die alle vereist zijn."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@” wymaga „%2$@”, którego nie ma obok. Obrazy dysku tego rodzaju to zestaw plików i potrzebne są wszystkie."
+            "value": "„%1$@” wymaga pliku „%2$@”, którego nie ma obok. Obraz dysku tego rodzaju to zestaw plików i wymagany jest każdy z nich."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%1$@» precisa de «%2$@», que não está ao seu lado. As imagens de disco deste tipo são um conjunto de ficheiros, e todos são necessários."
+            "value": "«%1$@» necessita de «%2$@», que não se encontra ao seu lado. Uma imagem de disco deste tipo é um conjunto de ficheiros, sendo cada um deles necessário."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%1$@” are nevoie de „%2$@”, care nu se află lângă el. Imaginile de disc de acest tip vin ca un set de fișiere, și toate sunt necesare."
+            "value": "„%1$@” are nevoie de „%2$@”, care nu se află lângă el. O imagine de disc de acest tip este un set de fișiere, iar fiecare dintre ele este necesar."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "»%1$@« potrebuje »%2$@«, ki ni ob njem. Slike diska te vrste so niz datotek in potrebne so vse."
+            "value": "»%1$@« potrebuje »%2$@«, ki ni ob njej. Slika diska te vrste je nabor datotek in potrebna je vsaka od njih."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%1$@” behöver ”%2$@”, som inte ligger bredvid. Skivavbilder av det här slaget består av flera filer, och alla behövs."
+            "value": "”%1$@” behöver ”%2$@”, som inte ligger bredvid den. En skivavbild av det här slaget är en uppsättning filer, och var och en av dem krävs."
           }
         }
       }
@@ -37009,24 +36879,24 @@
         }
       }
     },
-    "“%@” was not shut down cleanly, and what it last held has not been written back into it. Open it once in the virtual machine it belongs to, then try again.": {
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@“ не е бил изключен правилно и последното му съдържание не е записано обратно в него. Отворете го веднъж във виртуалната машина, на която принадлежи, и опитайте отново."
+            "value": "„%@“ не беше изключен правилно и последното му съдържание не е записано обратно във файла. Отворете го веднъж във виртуалната машина, на която принадлежи, и опитайте отново."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@“ nebyl řádně vypnut a to, co naposledy obsahoval, do něj nebylo zapsáno zpět. Otevřete jej jednou ve virtuálním počítači, kterému patří, a zkuste to znovu."
+            "value": "„%@“ nebyl řádně vypnut a jeho poslední obsah nebyl zapsán zpět do souboru. Otevřete jej jednou ve virtuálním počítači, kterému patří, a zkuste to znovu."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@” blev ikke lukket ned korrekt, og det, den sidst indeholdt, er ikke skrevet tilbage i den. Åbn den én gang i den virtuelle maskine, den hører til, og prøv igen."
+            "value": "“%@” blev ikke lukket ned korrekt, og dens seneste indhold er ikke skrevet tilbage til filen. Åbn den én gang i den virtuelle maskine, den hører til, og prøv igen."
           }
         },
         "de": {
@@ -37038,103 +36908,103 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Το «%@» δεν τερματίστηκε ομαλά και όσα περιείχε τελευταία δεν γράφτηκαν πίσω σε αυτό. Ανοίξτε το μία φορά στην εικονική μηχανή στην οποία ανήκει και δοκιμάστε ξανά."
+            "value": "Το «%@» δεν τερματίστηκε ομαλά και το πιο πρόσφατο περιεχόμενό του δεν γράφτηκε πίσω στο αρχείο. Ανοίξτε το μία φορά στην εικονική μηχανή στην οποία ανήκει και δοκιμάστε ξανά."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%@» no se apagó correctamente y lo que contenía por última vez no se ha escrito de vuelta en él. Ábrelo una vez en la máquina virtual a la que pertenece y vuelve a intentarlo."
+            "value": "«%@» no se apagó correctamente y su contenido más reciente no se ha escrito de vuelta en el archivo. Ábrelo una vez en la máquina virtual a la que pertenece y vuelve a intentarlo."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@“ ei suletud korralikult ja see, mida ta viimati sisaldas, on faili tagasi kirjutamata. Ava see korra virtuaalmasinas, kuhu see kuulub, ja proovi siis uuesti."
+            "value": "„%@“ ei suletud korralikult ja tema viimane sisu on faili tagasi kirjutamata. Ava see korra virtuaalmasinas, kuhu see kuulub, ja proovi siis uuesti."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%@” ei sammunut siististi, eikä sen viimeisintä sisältöä ole kirjoitettu takaisin siihen. Avaa se kerran siinä virtuaalikoneessa, johon se kuuluu, ja yritä sitten uudelleen."
+            "value": "”%@” ei sammunut siististi, eikä sen viimeisintä sisältöä ole kirjoitettu takaisin tiedostoon. Avaa se kerran siinä virtuaalikoneessa, johon se kuuluu, ja yritä sitten uudelleen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "« %@ » n’a pas été arrêté proprement, et son dernier contenu n’a pas été réécrit dedans. Ouvrez-le une fois dans la machine virtuelle à laquelle il appartient, puis réessayez."
+            "value": "« %@ » n’a pas été arrêté proprement, et son contenu le plus récent n’a pas été réécrit dans le fichier. Ouvrez-le une fois dans la machine virtuelle à laquelle il appartient, puis réessayez."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@” nije uredno isključen i ono što je posljednje sadržavao nije zapisano natrag u njega. Otvorite ga jednom u virtualnom stroju kojem pripada pa pokušajte ponovno."
+            "value": "„%@” nije uredno isključen i njegov najnoviji sadržaj nije zapisan natrag u datoteku. Otvorite ga jednom u virtualnom stroju kojem pripada pa pokušajte ponovno."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A(z) „%@” nem állt le rendesen, és amit utoljára tartalmazott, nem került vissza a fájlba. Nyissa meg egyszer abban a virtuális gépben, amelyhez tartozik, majd próbálja újra."
+            "value": "A(z) „%@” nem állt le rendesen, és a legutóbbi tartalma nem került vissza a fájlba. Nyissa meg egyszer abban a virtuális gépben, amelyhez tartozik, majd próbálja újra."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%@» non è stato arrestato correttamente e ciò che conteneva per ultimo non è stato riscritto al suo interno. Aprilo una volta nella macchina virtuale a cui appartiene, poi riprova."
+            "value": "«%@» non è stato arrestato correttamente e il suo contenuto più recente non è stato riscritto nel file. Aprilo una volta nella macchina virtuale a cui appartiene, poi riprova."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@“ nebuvo tinkamai išjungtas ir tai, ką jis paskutinį kartą turėjo, į jį neįrašyta. Atverkite jį kartą virtualioje mašinoje, kuriai jis priklauso, ir bandykite dar kartą."
+            "value": "„%@“ nebuvo tinkamai išjungtas ir naujausias jo turinys neįrašytas atgal į failą. Atverkite jį kartą virtualioje mašinoje, kuriai jis priklauso, ir bandykite dar kartą."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@” netika korekti izslēgts, un tas, ko tas pēdējoreiz saturēja, nav ierakstīts atpakaļ tajā. Atveriet to vienreiz virtuālajā mašīnā, kurai tas pieder, un mēģiniet vēlreiz."
+            "value": "“%@” netika korekti izslēgts, un tā jaunākais saturs nav ierakstīts atpakaļ failā. Atveriet to vienreiz virtuālajā mašīnā, kurai tas pieder, un mēģiniet vēlreiz."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%@» ble ikke avsluttet ordentlig, og det den sist inneholdt er ikke skrevet tilbake til den. Åpne den én gang i den virtuelle maskinen den hører til, og prøv igjen."
+            "value": "«%@» ble ikke avsluttet ordentlig, og det siste innholdet er ikke skrevet tilbake til filen. Åpne den én gang i den virtuelle maskinen den hører til, og prøv igjen."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "‘%@’ is niet netjes afgesloten, en wat er als laatste in stond is niet teruggeschreven. Open het één keer in de virtuele machine waar het bij hoort en probeer het opnieuw."
+            "value": "‘%@’ is niet netjes afgesloten en de meest recente inhoud is niet teruggeschreven naar het bestand. Open het één keer in de virtuele machine waar het bij hoort en probeer het opnieuw."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@” nie został poprawnie zamknięty, a to, co ostatnio zawierał, nie zostało do niego zapisane. Otwórz go raz w maszynie wirtualnej, do której należy, i spróbuj ponownie."
+            "value": "„%@” nie został poprawnie zamknięty, a jego najnowsza zawartość nie została zapisana z powrotem do pliku. Otwórz go raz w maszynie wirtualnej, do której należy, i spróbuj ponownie."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%@» não foi encerrado corretamente e o que continha por último não foi escrito de volta nele. Abra-o uma vez na máquina virtual a que pertence e tente novamente."
+            "value": "«%@» não foi encerrado corretamente e o seu conteúdo mais recente não foi escrito de volta no ficheiro. Abra-o uma vez na máquina virtual a que pertence e tente novamente."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@” nu a fost închis corect, iar ceea ce a conținut ultima dată nu a fost scris înapoi în el. Deschideți-l o dată în mașina virtuală căreia îi aparține, apoi încercați din nou."
+            "value": "„%@” nu a fost închis corect, iar conținutul său cel mai recent nu a fost scris înapoi în fișier. Deschideți-l o dată în mașina virtuală căreia îi aparține, apoi încercați din nou."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "»%@« ni bil pravilno zaustavljen in to, kar je nazadnje vseboval, ni bilo zapisano nazaj vanj. Odprite ga enkrat v navideznem računalniku, ki mu pripada, in poskusite znova."
+            "value": "»%@« ni bil pravilno zaustavljen in njegova najnovejša vsebina ni bila zapisana nazaj v datoteko. Odprite ga enkrat v navideznem računalniku, ki mu pripada, in poskusite znova."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%@” stängdes inte av ordentligt, och det den senast innehöll har inte skrivits tillbaka till den. Öppna den en gång i den virtuella maskin den hör till och försök igen."
+            "value": "”%@” stängdes inte av ordentligt, och dess senaste innehåll har inte skrivits tillbaka till filen. Öppna den en gång i den virtuella maskin den hör till och försök igen."
           }
         }
       }
