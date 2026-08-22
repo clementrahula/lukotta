@@ -9,6 +9,19 @@ struct UnlockView: View {
     let drive: Drive
     @FocusState private var focused: Bool
 
+    /// What the button that opens the drive says.
+    ///
+    /// "Open", not "Unlock", for a drive that was never locked; and where the
+    /// format cannot be written, the one button says what it will do.
+    private var openButtonTitle: String {
+        if !model.chosenIsWritable {
+            return model.chosenDriveIsOpenAlready
+                ? String(localized: "Open Read-Only") : String(localized: "Unlock Read-Only")
+        }
+        return model.chosenDriveIsOpenAlready
+            ? String(localized: "Open") : String(localized: "Unlock")
+    }
+
     /// Neither button can be pressed until there is something to open with: a
     /// credential typed, one remembered, or a drive that needs none.
     private var nothingToOpenWith: Bool {
@@ -38,6 +51,13 @@ struct UnlockView: View {
                     // the moment the probe learned to recognise one.
                     if let format = model.chosenFormat, format.isUnencrypted {
                         FormatNote(format: format)
+                    }
+
+                    // What may be done with the file itself, as opposed to what
+                    // is inside it. Only for an image, and only where there is
+                    // something worth saying.
+                    if let container = model.chosenContainer, container != .raw {
+                        ImageNote(container: container)
                     }
 
                     if model.chosenDriveIsOpenAlready {
@@ -164,11 +184,19 @@ struct UnlockView: View {
                 // "Open", not "Unlock", for a drive that was never locked. The
                 // read-only choice sits beside each, and is never the default:
                 // the drive opens writable unless read-only is chosen.
-                Button(model.chosenDriveIsOpenAlready ? "Open Read-Only" : "Unlock Read-Only") {
-                    model.unlock(drive, readOnly: true)
+                //
+                // Where the format cannot be written at all, the read-only
+                // button is the only one: offering to open something writable
+                // that will open read-only anyway is worse than saying so.
+                if model.chosenIsWritable {
+                    Button(
+                        model.chosenDriveIsOpenAlready ? "Open Read-Only" : "Unlock Read-Only"
+                    ) {
+                        model.unlock(drive, readOnly: true)
+                    }
+                    .disabled(nothingToOpenWith)
                 }
-                .disabled(nothingToOpenWith)
-                Button(model.chosenDriveIsOpenAlready ? "Open" : "Unlock") { model.unlock(drive) }
+                Button(openButtonTitle) { model.unlock(drive, readOnly: !model.chosenIsWritable) }
                     .keyboardShortcut(.defaultAction)
                     .disabled(nothingToOpenWith)
             }
@@ -419,6 +447,60 @@ struct PermissionRow: View {
 /// Says what an unencrypted drive is, before anyone looks for a password.
 ///
 /// Only shown for a drive that turned out not to be locked. Lukotta can still
+/// What can be done with the image file itself.
+///
+/// Two things are worth saying before anything is opened. A VHDX is read and
+/// never written here, so a person expecting to save into one should know
+/// before they start. The other formats are written by drivers built for this
+/// application, which is worth saying plainly: they are tested against qemu-img
+/// and they are newer than the rest of the app, and someone who only wants to
+/// copy files out loses nothing by opening the image read-only.
+private struct ImageNote: View {
+    let container: ContainerFormat
+
+    private var title: String {
+        if !container.isWritable {
+            return String(localized: "A \(container.name) opens read-only")
+        }
+        return String(localized: "Writing to a \(container.name) is new")
+    }
+
+    private var detail: String {
+        if !container.isWritable {
+            return String(
+                localized:
+                    "\(Brand.name) reads this format and does not write it: changing one means writing to its log first, which it does not do. Nothing in the file can change."
+            )
+        }
+        return String(
+            localized:
+                "\(Brand.name) writes this format with a driver of its own, checked against qemu-img, which has written these formats for years. It is tested, and it is newer than the rest of the app. If you only need to copy files out, open it read-only and the file cannot change."
+        )
+    }
+
+    private var tint: Color { container.isWritable ? .orange : .blue }
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: container.isWritable ? "pencil.circle.fill" : "info.circle.fill")
+                .foregroundStyle(tint)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.callout.weight(.medium))
+                Text(detail)
+                    .font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+        }
+        .padding(13)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 8).fill(tint.opacity(0.10)))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(tint.opacity(0.25)))
+        .accessibilityElement(children: .combine)
+    }
+}
+
 /// open it — that is what gives a Windows disk read and write access macOS does
 /// not — so this is worded as an explanation rather than as a refusal.
 private struct FormatNote: View {

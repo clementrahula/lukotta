@@ -2042,6 +2042,44 @@ group("leftoverEngineHelpersAreTakenDown") {
     expect(!theirs.contains(ours), "and one from another engine is left alone")
 }
 
+group("theMarkerCannotFireAfterAWritableMount") {
+    // `||` and `&&` have equal precedence in the shell and group left to
+    // right, so `a || { b ; } && echo m` runs the echo when `a` succeeded.
+    // Written that way, every mount that succeeded read-write reported
+    // itself as read-only, and the drive was marked in the list as
+    // something it was not.
+    let shape = { (script: String) -> String in
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/bin/sh")
+        p.arguments = ["-c", script]
+        let out = Pipe()
+        p.standardOutput = out
+        p.standardError = FileHandle.nullDevice
+        try? p.run()
+        let data = out.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        return String(decoding: data, as: UTF8.self)
+    }
+    expect(
+        shape("true || { true ; } && echo marker").contains("marker"),
+        "the shape that was wrong does fire the marker after a writable mount")
+    expect(
+        !shape("true || { true && echo marker ; }").contains("marker"),
+        "and the shape used instead does not")
+    expect(
+        shape("false || { true && echo marker ; }").contains("marker"),
+        "while a mount that had to fall back still says so")
+
+    // And the script itself is the second shape.
+    let script = MountScript.build(sampleInputs())
+    expect(
+        !script.contains("; } && echo"),
+        "the generated script keeps each marker inside the attempt it belongs to")
+    expect(
+        script.contains("&& echo \"\(MountScript.stageMarker)read-only\""),
+        "and still marks a mount that fell back")
+}
+
 group("readOnlyIsBothSidesOfTheConnection") {
     // The export stops the host writing and `-o ro` makes the mount inside the
     // guest read-only underneath it. Either alone leaves one side able to

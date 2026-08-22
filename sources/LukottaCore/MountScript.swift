@@ -210,8 +210,14 @@ public enum MountScript {
             var readOnly = i
             readOnly.readOnly = true
             let retry = attempts(readOnly, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
+            // The echo sits inside the braces, with the attempt it belongs
+            // to. Outside them it would be a separate element of the chain:
+            // `||` and `&&` are of equal precedence in the shell and group
+            // left to right, so `a || { b ; } && echo m` runs the echo when
+            // `a` succeeded, and every writable mount would report itself as
+            // read-only.
             chain += retry.map {
-                "{ \($0) ; } && echo \"\(stageMarker)read-only\" >> \(logQ)"
+                "{ \($0) && echo \"\(stageMarker)read-only\" >> \(logQ) ; }"
             }
         }
         lines.append(chain.joined(separator: " || "))

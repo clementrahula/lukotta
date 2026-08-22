@@ -219,6 +219,13 @@ final class AppModel: ObservableObject {
     /// attached for these, so nothing is detached: closing one is forgetting it.
     private var qcow2Drives: [String: Drive] = [:]
 
+    /// Which container each opened image is, by drive id.
+    ///
+    /// What may be done with an image depends on it: a VHDX is read and never
+    /// written, and the rest are written by drivers built for this application.
+    /// The screen that offers to open one says so.
+    private var containerFormats: [String: ContainerFormat] = [:]
+
     /// What the engine already said is inside the file being opened, so the
     /// first-sector probe is not asked about a container it cannot see into.
     private var knownFormat: VolumeFormat?
@@ -319,15 +326,19 @@ final class AppModel: ObservableObject {
             case .failure(let message):
                 Log.drives.error("the image could not be opened")
                 self.imageOpening = .failed(url, message)
-            case .qcow2(let drive, let format):
-                Log.drives.notice("qcow2 read by the engine: \(format.rawValue, privacy: .public)")
+            case .qcow2(let drive, let format, let container):
+                Log.drives.notice(
+                    "image read by the engine: \(container.rawValue, privacy: .public) holding \(format.rawValue, privacy: .public)"
+                )
                 self.qcow2Drives[drive.id] = drive
                 self.drives.append(drive)
                 self.imageOpening = nil
                 self.knownFormat = format
+                self.containerFormats[drive.id] = container
                 self.choose(drive)
             case .success(let attached, let all, _):
                 self.openedImages[attached.identifier] = url
+                self.containerFormats[attached.identifier] = .raw
                 // Only when the scan could not see it for itself.
                 if let synthesised = all.first(where: {
                     $0.id == attached.identifier && $0.uuid == url.path
@@ -355,7 +366,11 @@ final class AppModel: ObservableObject {
     /// Nothing is attached, because macOS cannot read either. The engine's own
     /// listing is the only account of what the file contains, since no sector
     /// read here sees past the container's mapping.
-    private nonisolated static func engineRead(_ url: URL) -> ImageOutcome {
+    private nonisolated static func engineRead(_ url: URL, as container: ContainerFormat)
+        -> ImageOutcome
+    {
+        // Carried through to the screen that offers to open it: what may be
+        // done with an image depends on which container it is.
         let types = DiskImage.contents(of: url)
         let format = DiskImage.format(fromTypes: types)
 
@@ -389,14 +404,14 @@ final class AppModel: ObservableObject {
             connection: appString("Disk Image"),
             kind: linux ? .linux : .microsoft,
             uuid: url.path)
-        return .qcow2(drive, format)
+        return .qcow2(drive, format, container)
     }
 
     private enum ImageOutcome {
         case success(DiskImage.Attached, [Drive], [Drive])
         /// Read by the engine rather than attached, so there is no device and
         /// nothing to detach afterwards.
-        case qcow2(Drive, VolumeFormat)
+        case qcow2(Drive, VolumeFormat, ContainerFormat)
         case failure(String)
     }
 
@@ -412,7 +427,7 @@ final class AppModel: ObservableObject {
                 Log.drives.error("refused a VHD")
                 return .failure(objection)
             }
-            return engineRead(url)
+            return engineRead(url, as: .vhd)
         }
 
         // A VHDX shares its name with a VHD and none of its layout: two
@@ -423,7 +438,7 @@ final class AppModel: ObservableObject {
                 Log.drives.error("refused a VHDX")
                 return .failure(objection)
             }
-            return engineRead(url)
+            return engineRead(url, as: .vhdx)
         }
 
         // A VDI is never raw at any offset: the header comes first and the
@@ -434,7 +449,7 @@ final class AppModel: ObservableObject {
                 Log.drives.error("refused a VDI")
                 return .failure(objection)
             }
-            return engineRead(url)
+            return engineRead(url, as: .vdi)
         }
 
         // A VMDK is never attached either: macOS cannot read one and the
@@ -446,7 +461,7 @@ final class AppModel: ObservableObject {
                 Log.drives.error("refused a VMDK")
                 return .failure(objection)
             }
-            return engineRead(url)
+            return engineRead(url, as: .vmdk)
         }
 
         // A qcow2 is never attached. macOS cannot read one and the engine can,
@@ -461,7 +476,7 @@ final class AppModel: ObservableObject {
                 Log.drives.error("refused an image that names another file")
                 return .failure(objection)
             }
-            return engineRead(url)
+            return engineRead(url, as: .qcow2)
         }
 
         switch DiskImage.attach(url) {
@@ -1009,6 +1024,22 @@ final class AppModel: ObservableObject {
     /// read, or is read as something unrecognised, leaves this nil and the
     /// screen unchanged.
     @Published var chosenFormat: VolumeFormat?
+
+    /// Which container the drive on screen is, where it is an image.
+    ///
+    /// Nil for a physical drive, and for an image opened before this was
+    /// recorded. What the screen says about writing depends on it.
+    var chosenContainer: ContainerFormat? {
+        guard case .unlock(let drive) = phase else { return nil }
+        return containerFormats[drive.id]
+            ?? containerFormats[DriveScanner.wholeDisk(of: drive.id)]
+    }
+
+    /// Whether the image on screen can be written to at all.
+    ///
+    /// A VHDX cannot: writing one means writing to its log first, which the
+    /// driver does not do. Everything else, including a physical drive, can.
+    var chosenIsWritable: Bool { chosenContainer?.isWritable ?? true }
 
     /// Ask the helper what is on the drive, in the background.
     ///

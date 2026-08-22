@@ -11,6 +11,56 @@ import Foundation
 /// unmodified. The engine also accepts a path, and this route is used instead
 /// because the attach happens as the user: the root helper sees only a device
 /// node, and a file name chosen at the keyboard never reaches it.
+/// Which container an image file is, once it has been recognised.
+///
+/// The formats differ in what can be done with them, not only in how they are
+/// read: a VHDX is read and never written, and the ones written here are
+/// written by drivers built for this application rather than by anything with
+/// a long history behind it. The screen that offers to open an image says so,
+/// which is why this is carried as far as the interface rather than being left
+/// to the engine.
+public enum ContainerFormat: String, Sendable {
+    /// Attached by macOS: an ordinary disk in a file.
+    case raw
+    case qcow2
+    case vmdk
+    case vdi
+    case vhd
+    case vhdx
+
+    /// What to call it on screen.
+    public var name: String {
+        switch self {
+        case .raw: return appString("raw image")
+        case .qcow2: return appString("qcow2")
+        case .vmdk: return appString("VMDK")
+        case .vdi: return appString("VDI")
+        case .vhd: return appString("VHD")
+        case .vhdx: return appString("VHDX")
+        }
+    }
+
+    /// Whether anything can be written to an image in this format.
+    ///
+    /// A VHDX cannot: changing one means writing to its log first, which the
+    /// driver does not do. Everything else here can, though a stream-optimized
+    /// VMDK is the exception within its own format and is discovered only when
+    /// the engine opens it.
+    public var isWritable: Bool { self != .vhdx }
+
+    /// Whether writing goes through a driver written for this application.
+    ///
+    /// True of the formats whose drivers were added here, and of qcow2, which
+    /// imago writes itself. False for a raw image, which macOS attaches and
+    /// writes as it writes any disk.
+    public var writtenByOurOwnDriver: Bool {
+        switch self {
+        case .raw, .vhdx: return false
+        case .qcow2, .vmdk, .vdi, .vhd: return true
+        }
+    }
+}
+
 public enum DiskImage {
 
     public struct Attached: Equatable, Sendable {

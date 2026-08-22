@@ -195,6 +195,42 @@ enum EndToEnd {
             }
         }
 
+        // Writing, for the formats whose drivers were written here. A file put
+        // into a mounted image has to be in the image file afterwards, which no
+        // amount of reading can demonstrate.
+        //
+        // Each is opened for writing and then opened again from scratch, so
+        // what is checked is the file on disk rather than anything the first
+        // mount still had in memory.
+        let writable: [(Int, String)] = [
+            (10, "dynamic VHD"),
+            (9, "fixed VHD"),
+            (11, "VDI"),
+            (13, "sparse VMDK"),
+            (7, "VMDK"),
+            (4, "qcow2"),
+        ]
+        for (index, what) in writable where arguments.count > index {
+            let image = URL(fileURLWithPath: arguments[index])
+            guard FileManager.default.fileExists(atPath: image.path) else { continue }
+            print("")
+            print("writing to a \(what): \(image.lastPathComponent)")
+            writeFlow(image: image)
+        }
+
+        // And the two that are read and not written: asked for read-write,
+        // each opens read-only rather than failing, and refuses to be written
+        // to.
+        for (index, what) in [(15, "VHDX"), (14, "stream-optimized VMDK")]
+        where arguments.count > index {
+            let image = URL(fileURLWithPath: arguments[index])
+            guard FileManager.default.fileExists(atPath: image.path), EnginePaths.opensVdiAndVhd
+            else { continue }
+            print("")
+            print("writing to a \(what), which is read-only: \(image.lastPathComponent)")
+            writeFlow(image: image, expectingReadOnly: true)
+        }
+
         // Nothing stays attached, whatever the outcome. A run that failed
         // halfway left the image behind, and the next run then passed or failed
         // for reasons unrelated to the code.
@@ -390,6 +426,151 @@ enum EndToEnd {
                 "the container is detached", timeout: 30,
                 condition: { !model.drives.contains { $0.uuid == container.path } })
         else { return }
+    }
+
+    /// Write to an image, eject it, and open it again to see what stayed.
+    ///
+    /// The formats are written by drivers added here, so this is where their
+    /// work meets a real filesystem: a file written through a mounted image has
+    /// to survive the mount being torn down, the virtual machine exiting, and
+    /// the image being opened again from the file on disk.
+    @MainActor
+    private static func writeFlow(image: URL, expectingReadOnly: Bool = false) {
+        let contents = "written through \(image.lastPathComponent) at mount time\n"
+        let name = "lukotta-write-probe.txt"
+
+        // 1. Open it and write a file into it.
+        var written = false
+        do {
+            let model = AppModel()
+            model.start()
+            guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
+                return
+            }
+            model.openImage(image)
+            guard
+                waitUntil(
+                    "the image opens", timeout: 60,
+                    condition: {
+                        model.imageOpening == nil && model.drives.contains { $0.uuid == image.path }
+                    })
+            else {
+                if case .failed(_, let why) = model.imageOpening { print("      \(why)") }
+                return
+            }
+            guard let drive = model.drives.first(where: { $0.uuid == image.path }) else { return }
+            // Opening the file is already the choice, and the app has made it:
+            // choosing again would discard what the engine said is inside a
+            // container it alone can read.
+            guard
+                waitUntil(
+                    "it is identified", timeout: 60,
+                    condition: { model.phaseIsUnlock && model.chosenFormat != nil })
+            else { return }
+
+            model.unlock(drive)
+            guard
+                waitUntil(
+                    "it mounts", timeout: 180,
+                    condition: {
+                        if case .mounted = model.phase { return true }
+                        if case .failed = model.phase { return true }
+                        return false
+                    })
+            else { return }
+            guard case .mounted(_, let mountPoint) = model.phase else {
+                if case .failed(_, let summary, _) = model.phase { print("      \(summary)") }
+                check(false, "it mounted rather than failing")
+                return
+            }
+
+            if expectingReadOnly {
+                // A format this build reads and cannot write. The device the
+                // guest is given is marked read-only, so the writable mount
+                // fails and the fallback takes over.
+                check(
+                    model.mountedReadOnly,
+                    "asked for read-write, it opened read-only, which is what this format allows")
+                check(
+                    mountTableSaysReadOnly(mountPoint),
+                    "and the mount table says so too")
+                let probe = URL(fileURLWithPath: mountPoint).appendingPathComponent(name)
+                check(
+                    (try? Data(contents.utf8).write(to: probe)) == nil,
+                    "and the mount refuses to be written to")
+                model.eject(mountPoint)
+                waitUntil("it ejects", timeout: 120, condition: { !model.isEjecting })
+                return
+            }
+
+            check(!model.mountedReadOnly, "it opened read-write, which this format allows")
+            check(
+                !mountTableSaysReadOnly(mountPoint),
+                "and the mount table agrees, which is what Finder reads")
+            let probe = URL(fileURLWithPath: mountPoint).appendingPathComponent(name)
+            do {
+                try Data(contents.utf8).write(to: probe)
+                written = true
+                check(true, "a file can be written to it")
+            } catch {
+                check(false, "a file can be written to it (\(error.localizedDescription))")
+            }
+            if written {
+                let read = try? String(contentsOf: probe, encoding: .utf8)
+                check(read == contents, "and reads back as what was written")
+            }
+
+            model.eject(mountPoint)
+            guard waitUntil("it ejects", timeout: 120, condition: { !model.isEjecting }) else {
+                return
+            }
+            check(model.ejectProblem == nil, "ejecting reported no problem")
+        }
+        guard written else { return }
+
+        // 2. Open it again. Nothing of the first mount survives: a new virtual
+        // machine reads the file as it now stands.
+        let model = AppModel()
+        model.start()
+        guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
+            return
+        }
+        model.openImage(image)
+        guard
+            waitUntil(
+                "it opens again", timeout: 60,
+                condition: {
+                    model.imageOpening == nil && model.drives.contains { $0.uuid == image.path }
+                })
+        else { return }
+        guard let drive = model.drives.first(where: { $0.uuid == image.path }) else { return }
+        guard
+            waitUntil(
+                "it is identified again", timeout: 60,
+                condition: { model.phaseIsUnlock && model.chosenFormat != nil })
+        else { return }
+        model.unlock(drive)
+        guard
+            waitUntil(
+                "it mounts again", timeout: 180,
+                condition: {
+                    if case .mounted = model.phase { return true }
+                    if case .failed = model.phase { return true }
+                    return false
+                })
+        else { return }
+        guard case .mounted(_, let mountPoint) = model.phase else {
+            check(false, "it mounted rather than failing")
+            return
+        }
+        let probe = URL(fileURLWithPath: mountPoint).appendingPathComponent(name)
+        let read = try? String(contentsOf: probe, encoding: .utf8)
+        check(read == contents, "the file written before is in the image, unchanged")
+
+        // Left as it was found, so the fixture can be used again.
+        try? FileManager.default.removeItem(at: probe)
+        model.eject(mountPoint)
+        waitUntil("it ejects", timeout: 120, condition: { !model.isEjecting })
     }
 
     /// An image holding an ordinary filesystem, which has no password to ask
@@ -745,6 +926,15 @@ enum EndToEnd {
     }
 
     // MARK: Running the loop
+
+    /// Whether the system says this mount is read-only, which is the fact the
+    /// app's own belief is checked against.
+    @MainActor
+    private static func mountTableSaysReadOnly(_ mountPoint: String) -> Bool {
+        shellOutput("/sbin/mount")
+            .split(separator: "\n")
+            .contains { $0.contains(mountPoint) && $0.contains("read-only") }
+    }
 
     /// The output of a command, for the checks that read the system rather
     /// than the app.
