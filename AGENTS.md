@@ -183,6 +183,16 @@ states what it can do rather than assuming it. Keep it that way.
 Needs `brew install llvm lld util-linux` and the
 `aarch64-unknown-linux-musl` Rust target.
 
+**The image drivers write now, except VHDX.** VDI, VHD and VMDK (flat and
+sparse) are read and written; VHDX and the stream-optimized form of VMDK are
+read only. `krun-devices` marks the guest device read-only whenever the driver
+reports it cannot be written, so an image that cannot be changed fails to mount
+writable rather than failing during a write. The write path is tested against
+`qemu-img` in `src/write_tests.rs`, carried by the imago patch: `cargo test` in
+the patched crate creates images with qemu-img, writes through the driver, and
+has qemu-img convert them back. Those tests skip when qemu-img is absent, so a
+green run without it proves nothing — `brew install qemu` first.
+
 **An image can name other files.** From libkrun's header: formats other than raw
 can reference other files, which libkrun then opens. Any qcow2 naming a backing
 file or an external data file is refused before the engine is told anything;
