@@ -1,12 +1,19 @@
 name: CI
 
 # Every push and every pull request. Everything here is what can be checked
-# without a real drive: the package builds, the checks pass, the bundle is
-# assembled from the pinned engine, every screen is drawn and compared with its
-# baseline, and the binary starts.
+# without a real drive: the package builds, the unit checks pass, the bundle is
+# assembled, every screen is drawn and compared with its baseline, the binary
+# starts, and the whole lot is linted.
 #
-# scripts/e2e.sh is not here. It boots a virtual machine and needs Full Disk
-# Access, and a hosted runner has neither. It runs on a real Mac.
+# Two things are deliberately not here, and cannot be.
+#
+# The Linux engine is not staged. Finishing the guest image means booting it,
+# and a hosted runner cannot start a virtual machine: `anylinuxfs init` gets as
+# far as `start vm error: Invalid argument`. build-app.sh assembles the bundle
+# without it and says so, which is enough for everything checked here.
+#
+# scripts/e2e.sh is not run. It needs that same virtual machine and Full Disk
+# Access besides. It runs on a real Mac.
 
 on:
   push:
@@ -30,31 +37,10 @@ jobs:
           swift --version
           xcodebuild -version
 
-      # Pinned by checksum, so the same key means the same bytes.
-      - name: Cache the engine
-        uses: actions/cache@v4
-        with:
-          path: |
-            vendor/engine
-            vendor/upstream
-            vendor/.cache
-            ~/.anylinuxfs
-          key: engine-${{ hashFiles('vendor/engine.lock') }}
-
-      - name: Fetch and stage the engine
-        run: |
-          ./scripts/fetch-engine.sh
-          # The Alpine image the guest boots is downloaded by the engine rather
-          # than shipped in the bottle, so it is the one piece fetch-engine.sh
-          # does not fetch.
-          if [ ! -d "$HOME/.anylinuxfs/alpine/rootfs" ]; then
-            ./vendor/upstream/anylinuxfs/*/bin/anylinuxfs init
-          fi
-          ./scripts/vendor-engine.sh
-
       # Runs the checks itself and refuses to build when they fail, so this is
-      # the unit tests as well as the bundle.
-      - name: Build the app
+      # the unit tests as well as the bundle. Without vendor/engine it warns
+      # and carries on, which is what is wanted here.
+      - name: Build the app, and run the unit checks
         run: LUKOTTA_INSTALL=0 ./build-app.sh
 
       - name: Smoke test
