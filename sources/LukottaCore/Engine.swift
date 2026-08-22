@@ -5,9 +5,9 @@ import SQLite3
 /// Everything the app needs to talk to the anylinuxfs runtime.
 ///
 /// The engine is shipped inside the app bundle. Nothing is downloaded at first
-/// run and nothing is installed into the user's home directory: the runtime is
-/// pointed at a private working directory under the system temp area, which is
-/// removed when the app quits.
+/// run and nothing is installed into the home directory: the runtime is pointed
+/// at a private working directory under the system temp area, which is removed
+/// when the app quits.
 public enum EnginePaths {
     /// Embedded engine inside the bundle: Resources/engine/...
     public static var embeddedEngineRoot: URL? {
@@ -22,7 +22,7 @@ public enum EnginePaths {
         engineRoot?.appendingPathComponent("anylinuxfs/bin/anylinuxfs")
     }
 
-    /// Which of our patches the shipped engine was built with.
+    /// Which patches the shipped engine was built with.
     ///
     /// The engine is normally the checksummed upstream bottle. Two of its
     /// binaries can instead be built from the same pinned source with the
@@ -68,7 +68,8 @@ public enum EnginePaths {
     }
 
     /// Directories holding the bundled dylibs. The engine loads its one external
-    /// dependency through @executable_path, so this is belt-and-braces.
+    /// dependency through @executable_path, so this is a second line of
+    /// defence.
     public static func libraryPaths() -> [String] {
         guard let root = engineRoot else { return [] }
         var out: [String] = []
@@ -112,14 +113,14 @@ public enum EnginePaths {
 
 /// A private, self-destructing working directory for one unlock attempt.
 ///
-/// It holds only the credential pipe and this attempt's mount log. The engine
+/// It holds the credential pipe and this attempt's mount log. The engine
 /// resolves its own working directory from the invoking user's password-database
 /// entry rather than from $HOME, so its rootfs and logs cannot be redirected
-/// here; see EngineEnvironment.
-/// Unchecked, and safe: the directory is decided once and never changes, so
-/// the only mutable thing here is whether it has been removed yet — and that is
-/// behind a lock. It has to be: the mount runs on a background task holding
-/// this, while quitting removes it from the main actor.
+/// here. See EngineEnvironment.
+/// Unchecked and safe. The directory is decided once and does not change, so
+/// the only mutable state is whether it has been removed, which is behind a
+/// lock. The lock is required because the mount runs on a background task
+/// holding this while quitting removes it from the main actor.
 public final class Workspace: @unchecked Sendable {
     public let root: URL
     private let lock = NSLock()
@@ -137,8 +138,8 @@ public final class Workspace: @unchecked Sendable {
     /// A symlink to the device, named after the drive.
     ///
     /// Finder labels a network mount with its server name, which the engine
-    /// builds from the last component of the path it is handed. Pointing it at
-    /// a nicely named link is what stops the drive appearing as "disk4s1.local".
+    /// builds from the last component of the path it is handed. Pointing it at a
+    /// named link stops the drive appearing as "disk4s1.local".
     public func makeDeviceAlias(named name: String, target: String) throws -> URL {
         let cleaned =
             name

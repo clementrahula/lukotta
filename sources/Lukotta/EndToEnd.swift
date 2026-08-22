@@ -6,14 +6,14 @@ import SwiftUI
 /// window.
 ///
 /// The unit tests cover decisions and the snapshots cover what is drawn.
-/// Neither covers a sequence: open a container, unlock it, watch the list
-/// rebuild, eject it. Every bug in that flow so far has been a step undoing an
-/// earlier one — a scan dropping a row, a save recording the wrong frame — and
-/// only running the steps in order finds those.
+/// Neither covers a sequence: open a container, unlock it, rebuild the list,
+/// eject it. Every fault found in that flow has been one step undoing an
+/// earlier one, such as a scan dropping a row or a save recording the wrong
+/// frame, and only running the steps in order finds those.
 ///
 /// Runs against the real engine, the real helper and the real hdiutil. Nothing
-/// is stubbed, and nothing is drawn: it exits before the scene is ever built,
-/// so no window appears anywhere.
+/// is stubbed and nothing is drawn: it exits before the scene is built, so no
+/// window appears.
 enum EndToEnd {
 
     @MainActor private static var failures = 0
@@ -191,9 +191,9 @@ enum EndToEnd {
             }
         }
 
-        // However it went, nothing of ours stays attached. A run that fails
-        // halfway used to leave the image behind, and the next run then passed
-        // or failed for reasons that had nothing to do with the code.
+        // Nothing stays attached, whatever the outcome. A run that failed
+        // halfway left the image behind, and the next run then passed or failed
+        // for reasons unrelated to the code.
         detachEverything(
             Array(
                 arguments.prefix(3).enumerated().filter { $0.offset != 1 }
@@ -232,10 +232,10 @@ enum EndToEnd {
 
         // 2. Unlock it.
         //
-        // Checked before anything is typed: a LUKS container was being
-        // described on this screen as "plain NTFS, and is not encrypted",
-        // because the note was shown for anything that was not BitLocker and
-        // its wording fell through to a default.
+        // Checked before anything is typed. A LUKS container was described on
+        // this screen as "plain NTFS, and is not encrypted", because the note
+        // was shown for anything that was not BitLocker and its wording fell
+        // through to a default.
         model.choose(drive)
         guard
             waitUntil(
@@ -270,17 +270,16 @@ enum EndToEnd {
 
         // 3. The list is rebuilt while it is open.
         //
-        // This is where it went wrong: a container with no partition table is a
-        // row no scan can produce, so a rebuild dropped it, the app called the
-        // drive unplugged, and threw the user back to the list from a drive
-        // they had just opened.
+        // A container with no partition table is a row no scan can produce, so
+        // a rebuild dropped it, the app reported the drive as unplugged, and the
+        // person was returned to the list from a drive they had just opened.
         let before = model.phase
         let generation = model.scanGeneration
         model.refreshDrives()
-        // For the results to be applied, not merely for the scan to be asked
-        // for. Waiting on the phase would sail straight past: a rebuild does
-        // not change it, so every assertion below would be about the list as it
-        // was before.
+        // Waits for the results to be applied rather than for the scan to be
+        // requested. Waiting on the phase would pass straight through, a rebuild
+        // not changing it, and every assertion below would then be about the
+        // list as it was before.
         guard
             waitUntil(
                 "the list rebuilds", condition: { model.scanGeneration > generation })
@@ -330,12 +329,12 @@ enum EndToEnd {
         }
         guard let drive = model.drives.first(where: { $0.uuid == image.path }) else { return }
 
-        // Nothing is chosen, nothing is typed and nothing is pressed. Opening
-        // the file is the whole of it.
+        // Nothing is chosen, typed or pressed. Opening the file is the whole
+        // interaction.
         //
-        // The password screen is watched for throughout rather than looked at
-        // once: the bug it stands for was a screen that appeared and then went
-        // away by itself, which a single glance at the end would never see.
+        // The password screen is watched for throughout rather than checked
+        // once, the fault it stands for being a screen that appeared and then
+        // away by itself, which a single check at the end would not see.
         var sawTheQuestion = false
         guard
             waitUntil(
@@ -366,9 +365,9 @@ enum EndToEnd {
             "the image is detached", timeout: 30,
             condition: { !model.drives.contains { $0.uuid == image.path } })
 
-        // A remembered passphrase must not stop it opening. There is nothing
-        // for one to unlock, and waiting for the field to be empty was what
-        // made this conditional in the first place.
+        // A remembered passphrase must not prevent it opening. There is nothing
+        // for one to unlock, and waiting for the field to be empty is what made
+        // this conditional.
         model.openImage(image)
         guard
             waitUntil(
@@ -435,7 +434,7 @@ enum EndToEnd {
         check(!sawTheQuestion, "and no password was ever asked for")
         check(model.chosenFormat == .exfat, "it was recognised as exFAT")
 
-        // The point of all this: a local volume, not one served over NFS.
+        // The volume must be local rather than served over NFS.
         let table = (try? String(contentsOfFile: "/dev/null", encoding: .utf8)) ?? ""
         _ = table
         check(FileManager.default.fileExists(atPath: point), "and macOS mounted it at \(point)")
@@ -444,8 +443,8 @@ enum EndToEnd {
             !model.drives.contains { $0.uuid == image.path },
             "and it is not in this app's list, because it is not this app's to hold")
 
-        // Handed over means handed over: macOS owns the attachment now, so
-        // detaching it here would take away the volume just mounted.
+        // macOS owns the attachment once it is handed over, so detaching it
+        // here would remove the volume just mounted.
         DiskImage.detach("/dev/" + (point as NSString).lastPathComponent)
         _ = DiskImage.attachedDevices(forImages: [image.path]).map { DiskImage.detach($0) }
     }
@@ -514,9 +513,9 @@ enum EndToEnd {
         check(!model.phaseIsUnlock, "and no passphrase was asked for it")
     }
 
-    /// Encryption inside a qcow2 is not something this engine opens. What
-    /// matters is that it is said plainly and at once, rather than failing
-    /// three screens later with a message about filesystems.
+    /// An engine without the vmproxy patch does not open encryption inside a
+    /// qcow2. It must report that at once rather than failing three screens
+    /// later with a message about filesystems.
     @MainActor
     private static func qcow2RefusedFlow(image: URL) {
         let model = AppModel()
@@ -610,7 +609,7 @@ enum EndToEnd {
     }
 
     /// Every disk on this Mac, with a verdict each. Run against the real
-    /// machine, so it says whatever is actually plugged in.
+    /// machine, so the result reflects what is plugged in.
     @MainActor
     private static func surveyFlow() {
         let model = AppModel()
@@ -619,9 +618,9 @@ enum EndToEnd {
         else { return }
 
         check(model.survey.count >= 2, "more than one thing is listed")
-        // The boot disk must be there and must not be offered: a list that
-        // omits it is a list that lost something, and one that offers it is
-        // inviting the user to open their own system.
+        // The boot disk must be listed and must not be offered. A list omitting
+        // it has lost something, and one offering it invites someone to open
+        // their own system.
         let system = model.survey.filter { $0.verdict == .system }
         check(!system.isEmpty, "the running system's own volumes are listed")
         check(
@@ -639,7 +638,7 @@ enum EndToEnd {
     /// Wait for something to become true, pumping the run loop while it does.
     ///
     /// Everything here is asynchronous and lands on the main actor, so the test
-    /// has to let the main actor run rather than blocking it.
+    /// lets the main actor run rather than blocking it.
     @MainActor
     @discardableResult
     private static func waitUntil(

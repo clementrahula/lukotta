@@ -2,14 +2,14 @@ import Foundation
 
 /// Builds the shell script that runs, as root, to unlock and mount a drive.
 ///
-/// Deliberately separate from executing it. This is the highest-risk text in
-/// the application — it becomes a command run with full privileges — and the
-/// mistakes it invites are malformed arguments. The engine's `-n` and
-/// `--decrypt` flags are variadic, so a value placed after one is swallowed by
-/// it and the device path never arrives.
+/// Kept separate from executing it. The text becomes a command run with full
+/// privileges, and the failures it invites are malformed arguments: the engine's
+/// `-n` and `--decrypt` flags are variadic, so a value placed after one is
+/// consumed by it and the device path never arrives.
 ///
-/// Nothing of that shape is reachable by a test while generation and execution
-/// are one function. Keeping this pure means the exact text can be asserted.
+/// A test can reach none of that while generation and execution are one
+/// function. Generating the text separately means the exact text can be
+/// asserted.
 public enum MountScript {
 
     public struct Inputs {
@@ -18,10 +18,10 @@ public enum MountScript {
         var driveName: String
         var kind: VolumeKind
         /// A single volume to mount directly, skipping discovery. Nothing sets
-        /// one — every volume of a container is opened — but the helper's XPC
-        /// method still carries the parameter: renaming that
-        /// selector would leave a freshly updated app calling a still-running
-        /// older helper that never answers.
+        /// one, since every volume of a container is opened, but the helper's
+        /// XPC method still carries the parameter. Renaming that selector would
+        /// leave a freshly updated app calling a still-running older helper that
+        /// never answers.
         var volume: LogicalVolume?
         /// Symlink named after the drive, so Finder shows that rather than
         /// "disk4s1.local". Optional: the real device path is always tried too.
@@ -80,28 +80,28 @@ public enum MountScript {
 
     /// How large a machine to give a mount.
     ///
-    /// Its whole job is to unlock a filesystem and serve it over NFS, so it
-    /// does not need much. libkrun backs guest memory lazily, so an inflated
-    /// figure hides from anyone watching Activity Monitor without being
-    /// harmless: the scratch directory a container's volumes are served from is
-    /// sized from it, and asking for more invents free space that does not
-    /// exist.
+    /// The machine unlocks a filesystem and serves it over NFS, which needs
+    /// little. libkrun backs guest memory lazily, so an inflated figure is
+    /// invisible in Activity Monitor and still harmful: the scratch directory a
+    /// container's volumes are served from is sized from it, and a larger figure
+    /// reports free space that does not exist.
     public enum VirtualMachine {
         public static let ramMiB = 1024
-        /// Half the machine, never more than two: the work is I/O, not compute.
+        /// Half the machine and never more than two, the work being I/O.
         public static var cores: Int {
             max(1, min(2, ProcessInfo.processInfo.activeProcessorCount / 2))
         }
     }
 
     /// Name of the custom action generated into the engine's config.toml. A
-    /// constant rather than per-drive: the engine only reads it at mount time,
-    /// so each mount can safely overwrite it, and cleanup never has to hunt.
+    /// constant rather than one name per drive: the engine reads it only at
+    /// mount time, so each mount overwrites it and cleanup has one name to
+    /// remove.
     public static let generatedAction = "lukotta"
 
-    /// The guest-side scratch directory's name — and therefore the drive's name
-    /// in Finder, because the engine derives the mount point from the last
-    /// component of the exported path.
+    /// The guest-side scratch directory's name, which is also the drive's name
+    /// in Finder, the engine deriving the mount point from the last component of
+    /// the exported path.
     ///
     /// Restricted to characters that are safe unquoted in a shell command, in a
     /// TOML literal string, and in the engine's NFS-export markers, because the
@@ -122,8 +122,8 @@ public enum MountScript {
                 || scalar == "-"
             out.append(safe ? Character(scalar) : "-")
         }
-        // A leading dot would hide the volume in Finder; a leading dash reads
-        // as a flag to any tool later handed the bare name.
+        // A leading dot hides the volume in Finder, and a leading dash reads as
+        // a flag to any tool later handed the bare name.
         while let first = out.first, first == "." || first == "-" {
             out.removeFirst()
         }
@@ -168,17 +168,18 @@ public enum MountScript {
         // Only when elevated. `do shell script ... with administrator
         // privileges` runs as root rather than through sudo, so SUDO_UID and
         // SUDO_GID are absent and the engine refuses to start ("must not be run
-        // directly by root"); supplying them names the real invoking user. Run
-        // as that user in the first place and they are not merely unnecessary
-        // but wrong: the engine would take itself for a sudo session.
+        // directly by root"). Supplying them names the real invoking user. When
+        // the script already runs as that user they are wrong rather than
+        // redundant, since the engine would then take itself for a sudo
+        // session.
         if i.elevated {
             lines.append("export SUDO_UID=\(i.uid)")
             lines.append("export SUDO_GID=\(i.gid)")
         }
 
-        // Read the credential from the pipe once into a variable: a FIFO can
-        // only be consumed once, and re-prompting per attempt would defeat the
-        // single authorisation.
+        // Read the credential from the pipe into a variable. A FIFO can be
+        // consumed once, and prompting again per attempt would defeat the single
+        // authorisation.
         // Reaching this line means authorisation succeeded and the script is
         // running as root.
         lines.append("echo \"\(stageMarker)authorised\" >> \(logQ)")
@@ -214,14 +215,14 @@ public enum MountScript {
             ]
         }
 
-        // ntfs3 is the in-kernel driver and much faster, but refuses a "dirty"
-        // volume — which is what Windows Fast Startup and hibernation leave
-        // behind. ntfs-3g mounts those. A Linux volume gets no override, so the
-        // engine detects ext4, btrfs or xfs itself.
+        // ntfs3 is the in-kernel driver and much faster, and refuses a volume
+        // marked dirty, which is what Windows Fast Startup and hibernation
+        // leave behind. ntfs-3g mounts those. A Linux volume gets no override,
+        // so the engine detects ext4, btrfs or xfs itself.
         let drivers: [String?] = i.kind == .microsoft ? ["ntfs3", "ntfs-3g"] : [nil]
         // The engine resolves whatever target it is handed by prefixing /dev/,
-        // so an alias living anywhere else can never resolve — it only produced
-        // a "disk /dev//var/folders/… not found" line ahead of every mount.
+        // so an alias elsewhere never resolves and produced a
+        // "disk /dev//var/folders/… not found" line ahead of every mount.
         let alias = i.aliasPath.flatMap { $0.hasPrefix("/dev/") ? $0 : nil }
         let targets = [alias.map(shellQuoted), deviceQ].compactMap { $0 }
 
@@ -244,16 +245,16 @@ public enum MountScript {
 
     /// Proof that a mount actually happened.
     ///
-    /// The engine exits 0 when a mount fails — it reports the status of its own
-    /// orderly shutdown, not of the mount. Every fallback here is chained with
-    /// `||`, so without this the shell saw the first attempt succeed and ran
-    /// none of them: no ntfs-3g retry for a dirty volume, and no LVM discovery
-    /// for a container holding several volumes.
+    /// The engine exits 0 when a mount fails, reporting the status of its own
+    /// orderly shutdown rather than of the mount. Every fallback here is chained
+    /// with `||`, so without this the shell treated the first attempt as
+    /// successful and ran none of them: no ntfs-3g retry for a dirty volume, and
+    /// no LVM discovery for a container holding several volumes.
     ///
-    /// Counting rather than matching a name: the share is named after the
-    /// device for a plain volume but after the volume group for an LVM one
-    /// ("lvm-fedoravg.local:"), so there is no one name to look for, and
-    /// guessing wrong reports a mounted drive as a failure.
+    /// Mounts are counted rather than matched by name. The share is named after
+    /// the device for a plain volume and after the volume group for an LVM one
+    /// ("lvm-fedoravg.local:"), so there is no single name to look for and a
+    /// wrong guess reports a mounted drive as a failure.
     private static let mountedCheck = "[ \"$(\(mountCount))\" -gt \"$__mounts\" ]"
 
     private static func mountCommand(
@@ -264,8 +265,8 @@ public enum MountScript {
         logQ: String
     ) -> String {
         let typeFlag = driver.map { " -t \($0)" } ?? ""
-        // --nfs-options MUST use the joined form: the flag is variadic, and the
-        // separated form swallows the target that follows it.
+        // --nfs-options must use the joined form. The flag is variadic, and the
+        // separated form consumes the target that follows it.
         return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
             + "\(typeFlag) -w false --nfs-options=\(shellQuoted(options))"
             + " \(target) >> \(logQ) 2>&1 && \(mountedCheck)"
@@ -273,9 +274,9 @@ public enum MountScript {
 
     /// Rows of `list --decrypt=all` that are mountable logical volumes: an
     /// indexed row whose identifier is vg:disk:lv and whose type is an actual
-    /// filesystem. Must agree with VolumeGroupParser's container list — the
-    /// generated action mounts everything this matches, and one unmountable
-    /// row would sink the whole multi-volume mount.
+    /// filesystem. This must agree with VolumeGroupParser's container list: the
+    /// generated action mounts everything it matches, and one unmountable row
+    /// fails the whole multi-volume mount.
     private static let lvRow =
         "$1 ~ /^[0-9]+:$/ && $NF ~ /^[^:]+:[^:]+:[^:]+$/"
         + " && $2 !~ /^(LVM2_scheme|LVM2_member|crypto_LUKS|swap|linux_raid_member)$/"
@@ -283,12 +284,12 @@ public enum MountScript {
     /// Ubuntu, Debian, Mint and Fedora all put LVM inside the LUKS container,
     /// so unlocking exposes a volume group rather than a filesystem.
     ///
-    /// Several volumes are served together from the one microVM. One VM is a
-    /// constraint, not a convenience: the engine takes an exclusive lock on the
-    /// device for a read-write mount, so a second VM on the same disk can never
-    /// start — which is why mounting each volume separately only ever opened
-    /// the first. If the combined mount fails, the loop below falls back to
-    /// exactly that: one volume open is still better than none.
+    /// Several volumes are served together from one microVM, which is a
+    /// constraint rather than a convenience: the engine takes an exclusive lock
+    /// on the device for a read-write mount, so a second VM on the same disk
+    /// cannot start, and mounting each volume separately opened only the first.
+    /// If the combined mount fails, the loop below falls back to opening one
+    /// volume.
     private static func discovery(
         _ i: Inputs,
         engineQ: String,
@@ -332,15 +333,15 @@ public enum MountScript {
 
     /// Generate the custom action that serves every volume, and mount with it.
     ///
-    /// Inside the VM every volume is already active under /dev/<vg>/<lv> —
-    /// `vgchange -ay` runs before any action — so the generated `after_mount`
-    /// mounts each one onto a scratch directory in the VM's own tmpfs and the
-    /// engine NFS-exports the lot: the primary at the mount point, the rest
+    /// Inside the VM every volume is already active under /dev/<vg>/<lv>, since
+    /// `vgchange -ay` runs before any action, so the generated `after_mount`
+    /// mounts each onto a scratch directory in the VM's own tmpfs and the engine
+    /// NFS-exports them together: the primary at the mount point and the rest
     /// nested inside it.
     ///
-    /// The scratch directory is the load-bearing part. Mounting the extra
-    /// volumes onto directories created inside the primary volume would write
-    /// to the user's data, and Lukotta must never modify a drive it opens.
+    /// The scratch directory is what makes this safe. Mounting the extra volumes
+    /// onto directories created inside the primary volume would write to the
+    /// drive, and Lukotta does not modify a drive it opens.
     /// `override_nfs_export` points the export at /run instead, which is tmpfs
     /// and vanishes with the VM.
     private static func multiVolume(

@@ -6,12 +6,11 @@ import Foundation
 /// common case, and Windows' equivalent is a VHDX with BitLocker switched on
 /// inside it. Both are ordinary files holding what a drive would hold.
 ///
-/// macOS attaches the file and hands back a `/dev/diskN`, and from there
-/// everything else in the app works unmodified: the scan, the first-sector
-/// probe, the claim, the mount, the eject. That is why it is done this way
-/// rather than by handing the path to the engine, which also accepts one — the
-/// attach happens as the user, so the root helper still only ever sees a device
-/// node, and a file name chosen by whoever is at the keyboard never reaches it.
+/// macOS attaches the file and hands back a `/dev/diskN`, after which the scan,
+/// the first-sector probe, the claim, the mount and the eject all work
+/// unmodified. The engine also accepts a path, and this route is used instead
+/// because the attach happens as the user: the root helper sees only a device
+/// node, and a file name chosen at the keyboard never reaches it.
 public enum DiskImage {
 
     public struct Attached: Equatable, Sendable {
@@ -43,28 +42,28 @@ public enum DiskImage {
 
     /// Attach without mounting anything.
     ///
-    /// Nothing is mounted by macOS, deliberately: an NTFS volume it recognises
-    /// would otherwise be mounted read-only behind our back, and the engine
-    /// then cannot have the device.
+    /// macOS mounts nothing. An NTFS volume it recognises would otherwise be
+    /// mounted read-only without being asked, after which the engine cannot have
+    /// the device.
     /// How long macOS is given to attach a file.
     ///
-    /// Attaching is normally instant. A file on a slow or unreachable disk —
-    /// a network share that has gone away — is where it is not, and there the
-    /// alternative is a spinner that never stops.
+    /// Attaching is normally instant. It is not for a file on a slow or
+    /// unreachable disk, such as a network share that has gone away, where the
+    /// alternative to a timeout is a spinner that never stops.
     public static let attachTimeout: TimeInterval = 30
 
     public static func attach(_ url: URL, timeout: TimeInterval = attachTimeout) -> Result<
         Attached, Failure
     > {
-        // Plain first. A raw image — which is what `dd` and cryptsetup produce,
-        // and the common shape for a LUKS container — has no header for macOS
-        // to recognise, and is only attachable when told what it is.
+        // Plain first. A raw image, which is what `dd` and cryptsetup produce
+        // and the usual shape of a LUKS container, has no header for macOS to
+        // recognise and attaches only when told what it is.
         //
-        // Which means almost anything attaches: a raw image is only bytes, so
-        // a text file becomes a very small disk holding nothing. Attaching is
-        // therefore not the question. What is inside is, and that is answered
-        // after this by looking — a file holding nothing recognisable is
-        // detached again and reported as unopenable.
+        // Almost anything therefore attaches: a raw image is only bytes, so a
+        // text file becomes a very small disk holding nothing. What matters is
+        // what the disk contains, which is established afterwards by reading it.
+        // A file holding nothing recognisable is detached again and reported as
+        // unopenable.
         for arguments in [
             ["attach", "-nomount", "-plist", url.path],
             [
@@ -94,8 +93,8 @@ public enum DiskImage {
     /// attached image belongs to the user who attached it, so reading it needs
     /// no privilege.
     ///
-    /// Returns nil for anything not recognised, which is what keeps an
-    /// unopenable file out of the list rather than in it saying "unknown".
+    /// Returns nil for anything unrecognised, which keeps an unopenable file out
+    /// of the list rather than listing it as unknown.
     public static func wholeDiskDrive(_ attached: Attached, url: URL) -> Drive? {
         guard let sector = BootSector.read(devicePath: attached.device) else { return nil }
         let kind: VolumeKind
@@ -109,23 +108,22 @@ public enum DiskImage {
         return Drive(
             id: attached.identifier,
             devicePath: attached.device,
-            // The file's name, without the extension nobody thinks of as part
-            // of it. This is what the drive is called in Finder afterwards.
+            // The file's name without its extension, which is what the drive is
+            // called in Finder afterwards.
             name: url.deletingPathExtension().lastPathComponent,
             sizeBytes: size ?? 0,
             connection: appString("Disk Image"),
             kind: kind,
-            // The file it came from, so a passphrase remembered for this
-            // container is found again next time it is opened — the device it
-            // attaches as changes every time.
+            // The file it came from, so that a passphrase remembered for this
+            // container is found again next time. The device it attaches as
+            // changes on every attach.
             uuid: url.path)
     }
 
     @discardableResult
     public static func detach(_ device: String) -> Bool {
-        // Forced, because the eject that precedes this has already taken the
-        // filesystem down and a lingering reference should not keep the image
-        // file locked afterwards.
+        // Forced: the eject that precedes this has already taken the filesystem
+        // down, and a lingering reference would keep the image file locked.
         run(["detach", device, "-force"]).status == 0
     }
 
@@ -140,8 +138,8 @@ public enum DiskImage {
         p.standardError = FileHandle.nullDevice
         do { try p.run() } catch { return (1, "") }
 
-        // The deadline is watched before the pipe is read: reading to the end
-        // would itself wait for a process that is not going to finish.
+        // The deadline is watched before the pipe is read, since reading to the
+        // end would itself wait on a process that will not finish.
         let finished = DispatchSemaphore(value: 0)
         p.terminationHandler = { _ in finished.signal() }
         if finished.wait(timeout: .now() + timeout) == .timedOut {
@@ -156,16 +154,16 @@ public enum DiskImage {
 
 /// Keeping container files in the drive list.
 ///
-/// The decisions only, with no state and no interface, so the two rules that
-/// went wrong can be stated and checked: a container the scan cannot see is put
-/// back, and a container is taken out when it is the thing being ejected.
+/// The decisions only, with no state and no interface, so that the two rules
+/// can be stated and tested: a container the scan cannot see is reinserted, and
+/// a container is removed when it is the thing being ejected.
 public enum ImageList {
 
     /// A scan's results with the container rows the scan cannot produce.
     ///
-    /// A container with no partition table is reported by `diskutil` as an
-    /// empty disk, so no scan will ever return it. The row is made once, from
-    /// the first sector, and has to be added back whenever the list is rebuilt.
+    /// A container with no partition table is reported by `diskutil` as an empty
+    /// disk, so no scan returns it. The row is made once, from the first sector,
+    /// and reinserted whenever the list is rebuilt.
     public static func merge(found: [Drive], images: [String: Drive]) -> [Drive] {
         guard !images.isEmpty else { return found }
         let present = Set(found.map { DriveScanner.wholeDisk(of: $0.id) })
@@ -174,10 +172,10 @@ public enum ImageList {
 
     /// Which containers should be detached, given the devices just ejected.
     ///
-    /// Driven by what was ejected rather than by what is missing from the list.
-    /// A container that has been opened and not yet mounted is missing nothing,
-    /// and detaching it because some other drive was ejected would take it away
-    /// from the person who just opened it.
+    /// Driven by what was ejected rather than by what is absent from the list. A
+    /// container that has been opened and not yet mounted is absent from
+    /// nothing, and detaching it because another drive was ejected would remove
+    /// it from whoever just opened it.
     public static func detaching(devices: [String], images: [String: Drive]) -> [String] {
         let ejected = Set(
             devices.map { DriveScanner.wholeDisk(of: ($0 as NSString).lastPathComponent) })
@@ -188,9 +186,9 @@ public enum ImageList {
 extension DiskImage {
     /// Which of these disks are still attached.
     ///
-    /// A container file can go away without anything asking us: detached in
-    /// Finder, or on a drive that was unplugged. The device node is the answer,
-    /// and asking is a stat.
+    /// A container file can disappear without notice, detached in Finder or
+    /// carried away on a drive that was unplugged. The device node answers this,
+    /// at the cost of one stat.
     public static func stillAttached(_ identifiers: Set<String>) -> Set<String> {
         identifiers.filter { FileManager.default.fileExists(atPath: "/dev/" + $0) }
     }
@@ -199,7 +197,7 @@ extension DiskImage {
 extension DiskImage {
     /// Which devices these image files are attached as, if any.
     ///
-    /// For clearing up after a run that ended early: an image left attached
+    /// For clearing up after a run that ended early. An image left attached
     /// makes the next run pass or fail for reasons of its own.
     public static func attachedDevices(forImages paths: Set<String>) -> [String] {
         let listing = run(["info"]).out
@@ -211,8 +209,8 @@ extension DiskImage {
                     .joined(separator: ":").trimmingCharacters(in: .whitespaces)
             } else if line.hasPrefix("/dev/disk"), paths.contains(path) {
                 let device = line.components(separatedBy: .whitespaces)[0]
-                // The whole disk, not its partitions: detaching that takes the
-                // rest with it.
+                // The whole disk rather than its partitions: detaching it takes
+                // the rest with it.
                 if !device.dropFirst(9).contains("s") { devices.append(device) }
             }
         }

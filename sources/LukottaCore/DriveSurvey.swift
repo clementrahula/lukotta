@@ -65,8 +65,8 @@ public enum DriveSurvey {
 
     /// Everything attached, with a verdict each.
     ///
-    /// `openable` is asked of the same scanner the main list uses, so the two
-    /// can never disagree about what this app is willing to open.
+    /// `openable` is answered by the scanner the main list uses, so the two
+    /// cannot disagree about what this app will open.
     public static func survey(
         list plist: [String: Any],
         info: (String) -> [String: Any],
@@ -84,8 +84,8 @@ public enum DriveSurvey {
             let product =
                 (wholeInfo["MediaName"] as? String) ?? (wholeInfo["IORegistryEntryName"] as? String)
 
-            // A container's volumes are listed under their own key, and are
-            // always macOS's own.
+            // A container's volumes are listed under their own key and always
+            // belong to macOS.
             let parts = (disk["Partitions"] as? [[String: Any]]) ?? []
             let volumes = (disk["APFSVolumes"] as? [[String: Any]]) ?? []
 

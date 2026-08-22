@@ -19,9 +19,9 @@ final class AppModel: ObservableObject {
 
     /// What just happened, in a sentence, for anyone who is not watching.
     ///
-    /// Unlocking finishes without moving the focus, so a screen reader is given
-    /// nothing to read unless it is told. Only the moments worth interrupting
-    /// for: a drive that opened, one that did not, and one that started.
+    /// Unlocking finishes without moving the focus, so a screen reader has
+    /// nothing to read unless it is told. Announced only for a drive that
+    /// opened, one that failed to open, and one that started.
     var spokenPhase: String? {
         switch phase {
         case .mounted(let drive, _):
@@ -53,16 +53,15 @@ final class AppModel: ObservableObject {
     /// than replacing the steps with a bare sentence.
     @Published var failedStage: MountStage?
     /// Every volume opened for the drive on screen. A container can hold more
-    /// than one, and all of them are opened rather than asking which.
+    /// than one, and all are opened without asking which.
     @Published var openVolumes: [String] = []
     /// Told when the last drive closes, so an update that was waiting for it can
     /// go ahead.
     var onAllDrivesClosed: (() -> Void)?
 
     /// How full each open drive is, by mount point, and how many volumes it
-    /// opened. Kept current rather than read once: the number people want is
-    /// how much room is left now, and copying a file to the drive is exactly
-    /// when they look.
+    /// opened. Re-read rather than measured once, since the figure is looked at
+    /// while files are being copied to the drive.
     @Published var space: [String: VolumeSpace] = [:]
     @Published var volumeCount: [String: Int] = [:]
     private var spaceTimer: Timer?
@@ -96,14 +95,14 @@ final class AppModel: ObservableObject {
             }
         }
         if spaceTimer == nil {
-            // Often enough that a copy in progress is visibly moving, rarely
-            // enough that a sleeping drive is not woken for it.
+            // Frequent enough that a copy in progress moves visibly, and rare
+            // enough not to wake a sleeping drive.
             spaceTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
                 Task { @MainActor in self?.refreshSpace() }
             }
         }
     }
-    /// The uninstall in progress, so it can be shown rather than guessed at.
+    /// The uninstall in progress, so its state can be shown.
     @Published var isUninstalling = false
     @Published var uninstallSteps: [Uninstall.Step] = []
     @Published var uninstallFinished = false
@@ -115,10 +114,9 @@ final class AppModel: ObservableObject {
 
     /// A drive that has just left the list, shown where it was.
     ///
-    /// Said at the top of the screen it moved everything below it down, which
-    /// is both easy to miss and a jolt at the moment something disappeared. In
-    /// the row's own place it is where the eye already is, and it takes the
-    /// space the drive was taking rather than adding more.
+    /// At the top of the screen the message displaced everything below it,
+    /// which is easy to miss and disruptive at the moment something disappears.
+    /// In the row's own place it occupies the space the drive occupied.
     struct Departed: Identifiable, Equatable {
         public let id: String
         let name: String
@@ -129,15 +127,15 @@ final class AppModel: ObservableObject {
     @Published private(set) var departed: [Departed] = []
     private var departedTimer: Timer?
 
-    /// How long the message stays. Long enough to read twice, short enough not
-    /// to be furniture — it describes a moment, and nothing is waiting on it.
+    /// How long the message stays: long enough to read twice, short enough not
+    /// to become part of the layout. Nothing waits on it.
     static let departedLingers: TimeInterval = 8
 
     /// Every disk attached, for the Open Drive sheet.
     @Published var survey: [DriveSurvey.Entry] = []
     @Published var showOpenDrive = false
 
-    /// Look at every disk, not only the ones this app is willing to open.
+    /// Survey every disk, including those this app will not open.
     func surveyDrives() {
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
@@ -211,11 +209,10 @@ final class AppModel: ObservableObject {
 
     /// The rows standing in for container files that hold no partition table.
     ///
-    /// `diskutil` reports such a disk as empty, so no scan will ever return it
-    /// — the entry is made once, from the first sector, and has to be put back
-    /// into the list every time the list is rebuilt. Without that the drive
-    /// vanished on the next refresh and the app announced it as disconnected,
-    /// while the mount it was serving carried on quite happily.
+    /// `diskutil` reports such a disk as empty, so no scan returns it. The entry
+    /// is made once, from the first sector, and reinserted whenever the list is
+    /// rebuilt. Without that the row disappeared on the next refresh and the app
+    /// announced the drive as disconnected while its mount was still serving.
     private var imageDrives: [String: Drive] = [:]
 
     /// Container files the engine reads itself, by drive id. Nothing is
@@ -226,23 +223,23 @@ final class AppModel: ObservableObject {
     /// first-sector probe is not asked about a container it cannot see into.
     private var knownFormat: VolumeFormat?
 
-    /// A scan's results, with the container rows put back — and the ones
-    /// whose device has gone taken out for good.
+    /// A scan's results, with the container rows reinserted and those whose
+    /// device has gone removed.
     ///
     /// A container detached in Finder, or unplugged with the drive it lived on,
     /// should leave the list like anything else. Merging without this would
     /// keep a row for a file that is not there any more.
     private func reconcileImages(_ found: [Drive]) -> [Drive] {
-        // Nothing is attached for a qcow2, so nothing can say whether it is
-        // still there; it stays listed until it is ejected.
+        // Nothing is attached for a qcow2, so nothing reports whether it is
+        // still present. It stays listed until it is ejected.
         let engineRead = qcow2Drives.values.filter { drive in
             !found.contains { $0.uuid == drive.uuid }
         }
-        // Asked here, now, about the containers we are holding this instant —
-        // not from a set captured before the scan began. A scan started while
-        // a file was still opening carried an empty set, every container was
-        // judged detached, and the drive the user had just opened was declared
-        // unplugged. Two stats against /dev, on the main thread, for that.
+        // Asked about the containers held at this moment rather than a set
+        // captured before the scan began. A scan started while a file was still
+        // opening carried an empty set, so every container was
+        // judged detached, and the drive just opened was declared unplugged.
+        // The cost is two stat calls against /dev on the main thread.
         let attached = DiskImage.stillAttached(Set(imageDrives.keys))
         for identifier in imageDrives.keys where !attached.contains(identifier) {
             Log.drives.notice("a container file is no longer attached")
@@ -253,23 +250,21 @@ final class AppModel: ObservableObject {
     }
     /// Opening a container file, while it is happening and if it fails.
     ///
-    /// Attaching takes a moment and can take much longer — a file on a share
-    /// that has gone away — and until this existed the window simply sat there
-    /// with nothing to say. It is a sheet rather than a line on the list
-    /// because it is the answer to something the user just did, and because a
-    /// failure needs somewhere to be read and dismissed rather than a banner
-    /// left behind on a screen about something else.
+    /// Attaching takes a moment, and much longer for a file on a share that has
+    /// gone away, during which the window had nothing to show. It is a sheet
+    /// rather than a row in the list because it answers something the person
+    /// just did, and because a failure needs somewhere to be read and
+    /// dismissed.
     enum ImageOpening: Equatable, Identifiable {
         case opening(URL)
         case failed(URL, String)
         /// macOS opened it instead, and where it put it.
         case handedToMacOS(URL, String)
 
-        /// The file alone, deliberately: going from opening to failed keeps
-        /// the same sheet and changes what is in it. Including the state would
-        /// make those two different sheets, and the first would be dismissed
-        /// and the second presented — a flicker, at the exact moment the user
-        /// is being told something went wrong.
+        /// The file alone: going from opening to failed then keeps the same
+        /// sheet and changes its contents. Including the state would make them
+        /// two sheets, the first dismissed and the second presented, which
+        /// flickers at the moment a failure is being reported.
         var id: String { url.path }
 
         var url: URL {
@@ -298,9 +293,9 @@ final class AppModel: ObservableObject {
 
     /// Open an encrypted container that is a file rather than a drive.
     ///
-    /// Attached as this user, not by the helper: macOS hands back a device node
-    /// and everything after that — the scan, the probe, the mount — is what it
-    /// always was. The root helper never learns the file name.
+    /// Attached as this user rather than by the helper. macOS hands back a
+    /// device node, and the scan, the probe and the mount then proceed as they
+    /// do for any drive. The root helper never learns the file name.
     func openImage(_ url: URL) {
         imageTask?.cancel()
         imageOpening = .opening(url)
@@ -311,8 +306,8 @@ final class AppModel: ObservableObject {
                 Self.attachAndList(url)
             }.value
 
-            // Cancelled while it worked. Whatever attached goes back, because
-            // nothing is going to be shown for it.
+            // Cancelled while it ran. Whatever attached is detached again,
+            // since nothing will be shown for it.
             guard !Task.isCancelled else {
                 if case .success(let attached, _, _) = outcome {
                     DiskImage.detach(attached.device)
@@ -340,16 +335,15 @@ final class AppModel: ObservableObject {
                     self.imageDrives[attached.identifier] = synthesised
                 }
                 self.drives = all
-                // Straight to it. Opening a file is choosing it — there is
-                // nothing to pick from — so it either opens or asks for its
-                // passphrase, and never both.
+                // Opening a file is already the choice, there being nothing to
+                // pick from, so it either opens or asks for its passphrase.
                 if let mine = all.first(where: { $0.uuid == url.path }) {
                     self.choose(mine)
                 } else {
                     self.phase = .chooseDrive
                 }
-                // Nothing to read, so nothing to dismiss: the drive appearing
-                // in the list is the whole of the answer.
+                // Nothing to read and nothing to dismiss: the drive appearing
+                // in the list is the answer.
                 self.imageOpening = nil
             }
             self.imageTask = nil
@@ -365,11 +359,11 @@ final class AppModel: ObservableObject {
         let types = DiskImage.contents(of: url)
         let format = DiskImage.format(fromTypes: types)
 
-        // Encryption inside a container is opened only by an engine built with
-        // our patch: without it the host probes the file just far enough to
-        // list what is in it, and the guest is then handed "crypto_LUKS" as
-        // though it were a filesystem. Said plainly here rather than let
-        // through to fail three screens later.
+        // Encryption inside a container is opened only by an engine carrying
+        // the vmproxy patch. Without it the host probes the file far enough to
+        // list what it holds, and the guest is handed "crypto_LUKS" as though it
+        // were a filesystem. Reported here rather than failing three screens
+        // later.
         if format.isEncrypted, !EnginePaths.opensEncryptionInsideImages {
             return .failure(
                 appString(
@@ -410,9 +404,9 @@ final class AppModel: ObservableObject {
     /// in it. Off the main actor, and knows nothing about the interface.
     private nonisolated static func attachAndList(_ url: URL) -> ImageOutcome {
         // A fixed VHD is the raw disk with a footer after it, so the engine
-        // opens it as-is: everything sits at its natural offset and the last
-        // sector is simply past the end. The other kinds are not raw at all,
-        // and are refused by name rather than served as gibberish.
+        // opens it unchanged: every structure lies at its natural offset and the
+        // last sector is past the end of the disk. The other forms are not raw
+        // and are refused by name.
         if DiskImage.isVhd(url) {
             if let objection = DiskImage.objection(toVhd: url) {
                 Log.drives.error("refused a VHD")
@@ -479,11 +473,10 @@ final class AppModel: ObservableObject {
             var all = DriveScanner.scan(images: [attached.identifier])
             var mine = all.filter { DriveScanner.wholeDisk(of: $0.id) == attached.identifier }
             // A container made with `cryptsetup luksFormat container.img` has
-            // no partition table: it attaches as a whole disk with nothing in
-            // it as far as diskutil is concerned, so the scan finds nothing.
-            // Its first sector says what it is, and the device belongs to
-            // whoever attached it, so it can be read here without troubling
-            // the helper.
+            // no partition table. It attaches as a whole disk that diskutil
+            // reports as empty, so the scan finds nothing. Its first sector
+            // identifies it, and the device belongs to whoever attached it, so
+            // it can be read here without the helper.
             if mine.isEmpty, let whole = DiskImage.wholeDiskDrive(attached, url: url) {
                 mine = [whole]
                 all.append(whole)
@@ -505,10 +498,10 @@ final class AppModel: ObservableObject {
     /// Called after an eject, with the device paths whose mounts have gone.
     /// The volume is down, so the file can go back to being a file.
     ///
-    /// Driven by what was actually ejected rather than by what is missing from
-    /// the list: a container that has been opened and not yet mounted is
-    /// missing nothing, and detaching it because some other drive was ejected
-    /// would take it out from under the person who just opened it.
+    /// Driven by what was ejected rather than by what is absent from the list.
+    /// A container that has been opened and not yet mounted is absent from
+    /// nothing, and detaching it because another drive was ejected would remove
+    /// it from under whoever just opened it.
     /// Forget a container the engine read for itself. There is no device to
     /// detach; closing it means no longer listing it.
     private func forgetEngineRead(_ paths: [String]) {
@@ -552,18 +545,18 @@ final class AppModel: ObservableObject {
     /// nil when it cannot be determined.
     @Published var removableAccess: Bool?
 
-    /// True when nothing is outstanding. Drives the panel's summary, so it
-    /// cannot claim everything is granted while something still needs doing.
+    /// True when nothing is outstanding. The panel's summary reads from this,
+    /// so it cannot report everything granted while something is missing.
     var allPermissionsSettled: Bool {
         hasFullDiskAccess && helper.isReady
     }
 
     /// Look again, off the main thread.
     ///
-    /// Called every time the app comes forward: permissions are granted in
-    /// System Settings, so the reading goes stale the moment the user leaves.
-    /// Reading them on the way back in would mean disk I/O on the main thread
-    /// at every switch between applications.
+    /// Called whenever the app comes forward, since permissions are granted in
+    /// System Settings and the reading goes stale as soon as the app is left.
+    /// Reading them on the way back in would put disk I/O on the main thread at
+    /// every switch between applications.
     func refreshPermissions() {
         Task.detached(priority: .utility) {
             let reading = Permissions.reading()
@@ -573,15 +566,15 @@ final class AppModel: ObservableObject {
 
     /// Take a reading that was made off the main thread.
     ///
-    /// The two probes open files, one of them a SQLite database, so they are
-    /// not done here — `start` reads them on the way to scanning and hands the
-    /// answer back. `helper.refresh` stays: it asks launchd about a service it
-    /// already knows about, and touches no disk.
+    /// The two probes open files, one of them a SQLite database, so they are not
+    /// done here: `start` reads them on the way to scanning and passes the answer
+    /// back. `helper.refresh` remains, asking launchd about a service it already
+    /// knows and touching no disk.
     func applyPermissions(_ reading: Permissions.Reading) {
         hasFullDiskAccess = reading.fullDiskAccess
-        // Prefer the recorded decision; fall back to evidence. Having opened a
-        // drive before is proof the permission was granted, and does not depend
-        // on an undocumented database schema continuing to look the same.
+        // The recorded decision first, then the evidence. Having opened a drive
+        // before establishes that the permission was granted without depending
+        // on an undocumented database schema.
         removableAccess = reading.removableVolumes ?? (DriveMemory.hasAny ? true : nil)
         helper.refresh()
     }
@@ -600,10 +593,9 @@ final class AppModel: ObservableObject {
 
     /// The machine is going to sleep.
     ///
-    /// Nothing is unmounted and nothing is asked. The one thing worth doing is
-    /// stopping the free-space poll, so the app does not spend the whole of the
-    /// wake window starting statfs calls against a mount that cannot answer
-    /// yet — each of which would sit in the kernel until it could.
+    /// Nothing is unmounted and nothing is asked. The free-space poll stops, so
+    /// that the wake window is not spent issuing statfs calls against a mount
+    /// that cannot answer yet, each of which would block in the kernel.
     private func prepareForSleep() {
         Log.sleep.notice("sleeping with \(self.openMounts.count, privacy: .public) mounts open")
         spaceTimer?.invalidate()
@@ -612,12 +604,12 @@ final class AppModel: ObservableObject {
 
     /// The machine has woken.
     ///
-    /// Everything is expected to still be there, so the aim is to confirm that
-    /// quietly and say nothing. The drive list is re-read, because disks can be
-    /// attached and removed while the machine is asleep and DiskArbitration does
-    /// not report what happened while nobody was listening, and each open mount
-    /// is asked whether it is answering until it is — or until the grace period
-    /// runs out and the drive really has gone.
+    /// Everything is expected to still be there, and confirming it silently is
+    /// the whole of the work. The drive list is re-read, since disks can be
+    /// attached and removed while the machine sleeps and DiskArbitration reports
+    /// nothing that happened while nobody was listening. Each open mount is then
+    /// asked whether it answers, until it does or the grace period expires and
+    /// the drive has genuinely gone.
     private func recoverFromSleep() {
         Log.sleep.notice("woke with \(self.openMounts.count, privacy: .public) mounts open")
         driveSetChanged()
@@ -631,8 +623,8 @@ final class AppModel: ObservableObject {
                 if silent.isEmpty {
                     Log.sleep.notice(
                         "every mount answered after \(elapsed, privacy: .public)s")
-                    // Back as it was. Nothing is said, because from where the
-                    // user is sitting nothing happened.
+                    // Back as it was, and nothing is reported: from the
+                    // person's side nothing happened.
                     await MainActor.run { self.refreshSpace() }
                     return
                 }
@@ -643,16 +635,16 @@ final class AppModel: ObservableObject {
                 try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
                 elapsed += delay
             }
-            // Still silent. Either the microVM is gone, in which case the mount
-            // is a corpse that has to be cleared before macOS starts asking
-            // about a server that will not answer, or it is running and merely
-            // slow — and a running one is left alone.
+            // Still silent. Either the microVM has gone, in which case the
+            // mount must be cleared before macOS begins asking about a server
+            // that will not answer, or it is running and slow, and a running one
+            // is left alone.
             let live = EngineStatus.current().map(\.mountPoint)
             let dead = points.filter { point in
                 !live.contains(point) && !live.contains { point.hasPrefix($0 + "/") }
             }
             guard !dead.isEmpty else {
-                // Silent but still running: slow, not gone. Left alone.
+                // Silent and still running: slow rather than gone.
                 Log.sleep.notice("the engine still reports every mount; leaving them")
                 await MainActor.run { self.refreshSpace() }
                 return
@@ -695,10 +687,10 @@ final class AppModel: ObservableObject {
 
     /// A drive was plugged in or pulled out.
     ///
-    /// Refreshes the list in place. A drive the user is looking at that has
-    /// gone away is worth interrupting for — the alternative is a screen
-    /// offering to unlock something that is no longer attached, or claiming a
-    /// drive is open when it has been pulled out from under the mount.
+    /// Refreshes the list in place. A drive being looked at that has gone away
+    /// is worth interrupting for, the alternative being a screen offering to
+    /// unlock something no longer attached, or reporting a drive as open after
+    /// it was pulled out from under the mount.
     private func driveSetChanged() {
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
@@ -706,10 +698,10 @@ final class AppModel: ObservableObject {
             let mounts = EngineStatus.current()
             await MainActor.run {
                 let listed = self.reconcileImages(found)
-                // Against the list as it will be shown, not the raw scan. A
-                // container with no partition table is in one and not the
-                // other, and judging by the scan alone called it unplugged the
-                // moment anything refreshed — which threw the user back to the
+                // Judged against the list as it will be shown rather than the
+                // raw scan. A container with no partition table appears in the
+                // first and not the second, and judging by the scan alone called
+                // it unplugged on the next refresh, returning the person to the
                 // list from a drive they had just opened.
                 let vanished =
                     self.currentDrive.map { drive in
@@ -751,21 +743,21 @@ final class AppModel: ObservableObject {
         phase = .scanning
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
-            // First, and off the main thread: both probes read files, and doing
-            // that where the interface is drawn stalls the first frame on
-            // however long the disk takes to answer.
+            // Off the main thread and before anything else: both probes read
+            // files, and doing that where the interface is drawn holds the first
+            // frame for as long as the disk takes to answer.
             let permissions = Permissions.reading()
             let settled = await MainActor.run { () -> Bool in
                 self.applyPermissions(permissions)
                 Log.app.notice(
                     "starting: full disk access \(self.hasFullDiskAccess, privacy: .public), helper \(String(describing: self.helper.state), privacy: .public)"
                 )
-                // Far enough to count as a working build: dyld resolved
+                // Far enough to establish a working build: dyld resolved
                 // everything, a window is drawn, and the permissions have been
-                // read. Whether the user has granted Full Disk Access is not a
-                // property of the build — waiting for a drive scan that a
-                // machine without the permission never reaches would roll a
-                // perfectly good version back after three launches.
+                // read. Full Disk Access is a property of the machine rather
+                // than the build, and waiting for a drive scan that a machine
+                // without the permission never reaches would roll back a sound
+                // version after three launches.
                 Rollback.confirmHealthy()
                 // Say so before any password is typed, rather than after a
                 // failed unlock. Full Disk Access cannot be requested, only
@@ -778,15 +770,15 @@ final class AppModel: ObservableObject {
             }
             guard settled else { return }
 
-            // Before anything is mounted, while the engine's lock can still be
-            // had. Declines the moment a drive is open, which is the only time
-            // it would matter and the only time it would be unsafe.
+            // Before anything is mounted, while the engine's lock is still
+            // available. It declines once a drive is open, which is both when it
+            // would matter and when it would be unsafe.
             GuestRuntime.syncIfNeeded()
 
             // Clear anything left mounted by a virtual machine that is no
-            // longer running. Until it goes, macOS keeps asking the user about
-            // a server that cannot answer, and the drive cannot be opened
-            // again because its mount point is still occupied.
+            // longer running. Until it is cleared, macOS keeps asking about a
+            // server that cannot answer, and the drive cannot be opened again
+            // while its mount point is occupied.
             let abandoned = EngineStatus.stale()
             if !abandoned.isEmpty {
                 Log.mount.notice(
@@ -814,8 +806,8 @@ final class AppModel: ObservableObject {
                     uniquingKeysWith: { first, _ in first })
                 self.refreshSpace()
                 // Always the list, even when a drive is already open. The list
-                // shows it as open and offers to eject it, so opening straight
-                // into one drive only hides the others.
+                // shows it as open and offers to eject it, whereas opening
+                // straight into one drive hides the others.
                 self.phase = .chooseDrive
             }
         }
@@ -823,9 +815,8 @@ final class AppModel: ObservableObject {
 
     /// True while a drive is open, so quitting can offer to eject first.
     ///
-    /// Reads cached state rather than spawning the engine: this is consulted on
-    /// the main thread while the user is trying to quit, and a subprocess there
-    /// stalls the app at exactly the wrong moment.
+    /// Reads cached state rather than spawning the engine. It is consulted on
+    /// the main thread during a quit, where a subprocess would stall the app.
     var hasOpenDrive: Bool { !openMounts.isEmpty }
 
     /// Re-probe after the user has changed the setting.
@@ -854,8 +845,7 @@ final class AppModel: ObservableObject {
     func forgetSavedCredential(for drive: Drive) {
         CredentialStore.delete(for: drive.uuid)
         credential = ""
-        // Left on: forgetting is how a key gets replaced, not how saving gets
-        // turned off. The toggle is right there for the other meaning.
+        // Left on. Forgetting replaces a key; the toggle turns saving off.
         rememberCredential = true
         usingSavedCredential = false
         credentialProblem = nil
@@ -878,10 +868,10 @@ final class AppModel: ObservableObject {
 
     /// Stop waiting on a mount and go back to the credential.
     ///
-    /// The engine may already be working, and nothing here can reach into it,
-    /// so this gives up watching rather than undoing: a drive that does open
-    /// afterwards shows as open on the next look. Better than a spinner with no
-    /// way out of it.
+    /// The engine may already be working and nothing here can reach into it, so
+    /// this stops watching rather than undoing. A drive that opens afterwards
+    /// shows as open at the next look, which is preferable to a spinner with no
+    /// way out.
     func cancelMount(_ drive: Drive) {
         mountTask?.cancel()
         mountTask = nil
@@ -896,8 +886,8 @@ final class AppModel: ObservableObject {
 
     /// Return to the list of drives without ejecting anything.
     ///
-    /// Not `start()`: that resumes whatever is already open, which is right on
-    /// launch and wrong when the user has asked to see the list.
+    /// Not `start()`, which resumes whatever is already open. That is correct on
+    /// launch and wrong when the list has been asked for.
     func showAllDrives() {
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
@@ -922,14 +912,14 @@ final class AppModel: ObservableObject {
 
     /// Bumped every time a scan's results are applied.
     ///
-    /// A rebuild does not change the phase — the drive on screen stays on
-    /// screen — so there is otherwise nothing that says one has happened, and
-    /// a test waiting on the phase would sail straight past and assert against
-    /// the list as it was before.
+    /// A rebuild does not change the phase, the drive on screen staying on
+    /// screen, so nothing else records that one has happened. A test waiting on
+    /// the phase would pass straight through and assert against the list as it
+    /// was before.
     @Published private(set) var scanGeneration = 0
 
-    /// Rebuild the list without touching anything else. What a drive appearing
-    /// or disappearing does, reachable from a test.
+    /// Rebuild the list without touching anything else: what a drive appearing
+    /// or disappearing triggers, reachable from a test.
     func refreshDrives() {
         driveSetChanged()
     }
@@ -949,12 +939,12 @@ final class AppModel: ObservableObject {
 
     func choose(_ drive: Drive) {
         // Reload for a different drive, and whenever the field is empty. The
-        // second half matters: navigating away clears the value but not this
-        // marker, so without it the saved-key banner outlives the key it
+        // second condition matters because navigating away clears the value and
+        // not this marker: without it the saved-key banner outlives the key it
         // describes, and Unlock then refuses for want of a credential the
-        // interface says it is holding.
+        // interface reports holding.
         if credentialBelongsTo != drive.id || credential.isEmpty {
-            // A stored credential means the user asked us to remember it.
+            // A stored credential is one that was asked to be remembered.
             if let saved = CredentialStore.load(for: drive.uuid) {
                 credential = saved
                 rememberCredential = true
@@ -972,19 +962,18 @@ final class AppModel: ObservableObject {
 
         // Whether to ask is decided before anything is shown.
         //
-        // This used to put the password screen up and then open the drive a
-        // moment later if it turned out there was nothing to unlock — so an
-        // unencrypted drive flashed a demand for a password it does not have.
-        // The reading takes tens of milliseconds; the list simply stays up
-        // until it is in, and then the drive either opens or asks.
+        // Showing the password screen first and opening the drive a moment
+        // later, once nothing turned out to need unlocking, made an unencrypted
+        // drive flash a demand for a password it does not have. The reading takes
+        // tens of milliseconds, so the list stays up until it arrives and the
+        // drive then either opens or asks.
         // The engine has already looked inside a qcow2. No sector read here
         // sees past the container's mapping, so its answer stands.
         if let known = knownFormat, qcow2Drives[drive.id] != nil {
             knownFormat = nil
             chosenFormat = known == .unknown ? nil : known
             if known.macOSHandlesFully {
-                // Nothing to hand over: macOS cannot read a qcow2 either, so
-                // this app is still the only way in.
+                // Nothing to hand over: macOS cannot read a qcow2 either.
                 phase = .unlock(drive)
             } else if known.isUnencrypted {
                 Log.mount.notice("opening a qcow2 without asking, nothing is encrypted")
@@ -1005,19 +994,18 @@ final class AppModel: ObservableObject {
 
     /// Whether the first sector of this drive can be read before deciding.
     ///
-    /// A container file was attached by this user, so its device is theirs. A
-    /// physical drive is mode 640 root:operator and needs the helper. Without
-    /// either there is nothing to go on, and the drive is asked about as it
-    /// always was.
+    /// A container file was attached by this user, so its device belongs to
+    /// them. A physical drive is mode 640 root:operator and needs the helper.
+    /// With neither available the drive is asked about as before.
     private func canReadFirstSector(of drive: Drive) -> Bool {
         openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil || helper.isReady
     }
 
     /// What the chosen partition actually holds, once the helper has read it.
     ///
-    /// Only ever set to something worth saying. A drive whose first sector
-    /// cannot be read, or that is read as something nobody recognises, leaves
-    /// this nil and the screen exactly as it was.
+    /// Set only to a value worth stating. A drive whose first sector cannot be
+    /// read, or is read as something unrecognised, leaves this nil and the
+    /// screen unchanged.
     @Published var chosenFormat: VolumeFormat?
 
     /// Ask the helper what is on the drive, in the background.
@@ -1025,16 +1013,16 @@ final class AppModel: ObservableObject {
     /// A Microsoft Basic Data partition is BitLocker, plain NTFS or exFAT and
     /// the partition type does not say which — so until this comes back the
     /// only way to find out has been to type a password and watch it fail.
-    /// Linux partitions are left alone: LUKS announces itself in its own
-    /// header, and the engine's own probe already reports it.
+    /// Linux partitions are left alone, LUKS announcing itself in its own header
+    /// and the engine's probe already reporting it.
     private func identify(_ drive: Drive, thenShowUnlockFor pending: Drive?) {
         let devicePath = drive.devicePath
         let identifier = drive.id
         let ours = openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil
 
-        // If the reading is slow — a helper that has gone away, a drive that
-        // will not answer — the click must still do something. Asking is the
-        // safe thing to fall back to.
+        // A slow reading, from a helper that has gone away or a drive that will
+        // not answer, must still leave the click with an effect. Asking for the
+        // passphrase is the fallback.
         if let pending {
             Task { [weak self] in
                 try? await Task.sleep(nanoseconds: 1_500_000_000)
@@ -1053,10 +1041,7 @@ final class AppModel: ObservableObject {
             } else {
                 format = await self.helper.identify(devicePath: devicePath)
             }
-            // The user may have gone somewhere else while the helper read a
-            // sector. Answering about a drive nobody is looking at would put a
-            // sentence about one drive under the name of another.
-            // The user may have gone elsewhere while a sector was read.
+            // The screen may have moved on while the helper read a sector.
             // Answering about a drive nobody is looking at would put a sentence
             // about one drive under the name of another.
             let stillWanted: Bool
@@ -1072,15 +1057,14 @@ final class AppModel: ObservableObject {
             Log.drives.notice("identified as \(format.rawValue, privacy: .public)")
             self.chosenFormat = format == .unknown ? nil : format
 
-            // Nothing to unlock, so there is nothing to ask, and a screen
-            // asking anyway is a screen in the way.
+            // Nothing to unlock, so nothing to ask, and a screen that asks
+            // anyway is in the way.
             //
-            // Unconditional. It once waited for the field to be empty, which
-            // read as "unless the user has typed something" and was not that
-            // at all: the sector comes back in tens of milliseconds, long
-            // before anyone could type, and the only thing that ever filled
-            // the field by then was a passphrase remembered in the Keychain —
-            // which means nothing for a drive that has none to give.
+            // Unconditional. Waiting for the field to be empty read as "unless
+            // something has been typed", which it was not: the sector returns in
+            // tens of milliseconds, before anyone could type, and the only thing
+            // that filled the field by then was a passphrase from the Keychain,
+            // which is of no use to a drive that needs none.
             if format.macOSHandlesFully {
                 // macOS mounts this locally, read and write. Opening it here
                 // would hand back a network volume instead.
@@ -1089,7 +1073,7 @@ final class AppModel: ObservableObject {
                 Log.mount.notice("opening without asking, nothing is encrypted")
                 self.unlock(drive)
             } else if pending != nil {
-                // It does need a passphrase, so now the screen that asks.
+                // It needs a passphrase, so the screen that asks for one.
                 self.phase = .unlock(drive)
             }
         }
@@ -1104,17 +1088,17 @@ final class AppModel: ObservableObject {
 
     var credentialHint: String? { Credential.hint(for: credential) }
 
-    /// Where a drive is currently open, if it is. Lets the drive list answer
-    /// "what is going on" without navigating away from it.
+    /// Where a drive is open, if it is, so that the drive list can report its
+    /// state without navigating away.
     @Published var openMounts: [String: String] = [:]
 
     func mountPoint(for drive: Drive) -> String? {
         if let direct = openMounts[drive.devicePath] { return direct }
-        // A volume inside a container is reported against its logical name —
-        // "lvm:<vg>:<disk>:<lv>" — not against the device, so looking the drive
-        // up by its device path finds nothing and the row claims to be closed
-        // while the drive is plainly open in Finder. The disk is in that
-        // identifier, which is what ties the mount back to the drive.
+        // A volume inside a container is reported against its logical name,
+        // "lvm:<vg>:<disk>:<lv>", rather than against the device. Looking the
+        // drive up by device path therefore finds nothing and the row reports it
+        // closed while Finder shows it open. That identifier carries the disk,
+        // which ties the mount back to the drive.
         return openMounts.first { $0.key.contains(drive.id) }?.value
     }
 
@@ -1122,8 +1106,7 @@ final class AppModel: ObservableObject {
 
     /// Whether this drive has already been read and found not to be encrypted.
     ///
-    /// The one case where an empty field is the right answer rather than a
-    /// missing one.
+    /// The one case where an empty field is an answer rather than an omission.
     var chosenDriveIsOpenAlready: Bool {
         chosenFormat?.isUnencrypted ?? false
     }
@@ -1131,9 +1114,9 @@ final class AppModel: ObservableObject {
     func unlock(_ drive: Drive) {
         credentialProblem = nil
         let raw = credential
-        // Nothing to unlock: the first sector says it is not encrypted, so the
-        // engine mounts it without asking for anything, and whatever is in the
-        // field — a remembered passphrase, most likely — is beside the point.
+        // Nothing to unlock: the first sector reports it as unencrypted, so the
+        // engine mounts it without a credential and whatever is in the field,
+        // usually a remembered passphrase, does not apply.
         if chosenDriveIsOpenAlready {
             Log.mount.notice("opening an unencrypted drive, no credential needed")
             statusLines = []
@@ -1142,8 +1125,8 @@ final class AppModel: ObservableObject {
             return
         }
         guard !raw.isEmpty else {
-            // Whatever the interface was claiming, there is no saved key in
-            // hand. Say the true thing before asking for one.
+            // No saved key is held, whatever the interface reported. State that
+            // before asking for one.
             usingSavedCredential = false
             // Try Again can reach this from the failure screen, where there is
             // no field to show the message next to.
@@ -1290,8 +1273,8 @@ final class AppModel: ObservableObject {
         guard parts.count == 2, let opened = Int(parts[0]), let totalCount = Int(parts[1]),
             totalCount > opened
         else { return }
-        // One number, not two: a sentence carrying two counts needs both to
-        // agree with the noun, and no two languages agree the same way.
+        // One number rather than two. A sentence carrying two counts needs both
+        // to agree with the noun, and languages do not agree alike.
         notice = appString(
             "This drive holds \(totalCount) volumes and not all of them could be opened.")
     }
@@ -1309,9 +1292,9 @@ final class AppModel: ObservableObject {
             CredentialStore.delete(for: drive.uuid)
         }
         DriveMemory.remember(mountPoint: mountPoint, for: drive.uuid)
-        // The user has just proved they can authorise this. Register the helper
-        // so the next unlock does not ask again; macOS still requires them to
-        // approve it in Login Items, which the panel then prompts for.
+        // Authorisation has just been demonstrated, so the helper is registered
+        // and the next unlock does not ask. macOS still requires approval in
+        // Login Items, for which the panel then prompts.
         if case .notInstalled = helper.state { helper.install() }
         Log.mount.notice("mounted through the helper")
         openMounts[drive.devicePath] = mountPoint
@@ -1323,8 +1306,8 @@ final class AppModel: ObservableObject {
 
     /// Run the engine as the user who is sitting there.
     ///
-    /// Shares everything with the authorised route but the authorising: same
-    /// script, same progress, same failures. Only container files come here.
+    /// Identical to the authorised route apart from the authorisation: the same
+    /// script, progress and failures. Only container files reach it.
     private func runMountAsThisUser(drive: Drive, credential: String, workspace ws: Workspace) {
         mountTask = Task.detached(priority: .userInitiated) {
             do {
@@ -1355,8 +1338,7 @@ final class AppModel: ObservableObject {
     private func runMountWithAuthorisation(
         drive: Drive, credential: String, workspace ws: Workspace
     ) {
-        // Held like the helper's, so Cancel reaches this route too. A button
-        // that works on one route and not the other is worse than none.
+        // Held as the helper's is, so that Cancel reaches this route as well.
         mountTask = Task.detached(priority: .userInitiated) {
             do {
                 let result = try Mounter.mount(
@@ -1410,14 +1392,16 @@ final class AppModel: ObservableObject {
     /// stopped on is recorded in one place instead of at each of the four
     /// sites that can fail.
     private func fail(_ drive: Drive?, _ summary: String, _ detail: String?) {
-        // Whatever the first sector said, it did not open. Forgetting the
-        // reading is what lets a second attempt ask for a passphrase: a volume
-        // wrongly read as unencrypted would otherwise be retried without one
-        // for ever, with no way to type the password that would have worked.
+        // Whatever the first sector reported, the drive did not open. The
+        // reading is discarded so that a second attempt asks for a passphrase.
+        // A volume wrongly read as unencrypted would otherwise be retried
+        // without one indefinitely, with no way to type the password that would
+        // have worked.
         chosenFormat = nil
         failedStage = MountStage.inferred(from: stageLines + statusLines)
-        // The stage is ours and safe to read back; the summary can carry
-        // engine output, so it goes through the same redaction as the report.
+        // The stage is generated here and safe to read back. The summary can
+        // carry engine output, so it passes through the same redaction as the
+        // report.
         Log.mount.error(
             "mount failed at \(String(describing: self.failedStage), privacy: .public): \(Diagnostics.redact(summary, secret: self.activeCredential))"
         )
@@ -1439,12 +1423,11 @@ final class AppModel: ObservableObject {
     }
 
     private func appendStatus(_ line: String) {
-        // Redact as it arrives: the log is shown in the interface, offered in
-        // bug reports, and written to the workspace. Doing it here means there
-        // is no window in which a credential-shaped string exists in any of
-        // those places.
+        // Redacted as it arrives, since the log is shown in the interface,
+        // offered in bug reports and written to the workspace. There is then no
+        // interval in which a credential exists in any of them.
         statusLines.append(Diagnostics.redact(line, secret: activeCredential))
-        // Stage markers drive the indicator; they are not output worth reading.
+        // Stage markers drive the indicator and are not output to be read.
         if line.contains("LUKOTTA_") { statusLines.removeLast() }
         if line.contains(MountScript.stageMarker) { stageLines.append(line) }
         if statusLines.count > 400 { statusLines.removeFirst(statusLines.count - 400) }

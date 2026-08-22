@@ -6,9 +6,9 @@ import SwiftUI
 /// than on someone's desk.
 ///
 /// Several regressions in this project reached the screen because nothing
-/// checked what was drawn: a window that forgot its frame, an alert that
-/// collapsed to a sliver, a dropdown that would not fill its row. All of them
-/// were visible in a picture and invisible to every other kind of test.
+/// checked what was drawn: a window that lost its frame, an alert collapsed to
+/// a sliver, a dropdown that would not fill its row. Each was visible in a
+/// picture and invisible to every other kind of test.
 ///
 /// Runs inside the app, behind `--snapshots`, because the views live in the
 /// application target and nothing else can see them. `scripts/snapshots.sh`
@@ -17,8 +17,8 @@ enum Snapshots {
 
     /// The states worth a picture, with the interface put into each by hand.
     ///
-    /// Every one of them is a screen someone can arrive at. States that differ
-    /// only in wording are left out — this is a check on layout.
+    /// Each is a screen someone can arrive at. States differing only in wording
+    /// are left out, since this checks layout.
     @MainActor
     static func scenes() -> [(name: String, view: AnyView)] {
         let drive = Drive(
@@ -65,8 +65,8 @@ enum Snapshots {
                     .background(Color(nsColor: .windowBackgroundColor)))
         }
 
-        /// The help sheet, which is the longest prose in the app and the part
-        /// most easily left saying something that stopped being true.
+        /// The help sheet, which holds the longest prose in the app and is the
+        /// part most easily left stating something no longer true.
         func helpSheet() -> AnyView {
             AnyView(
                 HelpSheet()
@@ -82,10 +82,10 @@ enum Snapshots {
             AnyView(
                 ImageOpenSheet(state: state)
                     .environmentObject(AppModel())
-                    // Centred on a window-coloured ground, because a sheet
-                    // drawn on its own otherwise sits in a corner of the frame
-                    // with the rest left blank, and every future comparison is
-                    // then mostly of empty space.
+                    // Centred on a window-coloured ground. A sheet drawn on its
+                    // own otherwise sits in a corner of the frame with the rest
+                    // blank, and every later comparison is then mostly empty
+                    // space.
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color(nsColor: .windowBackgroundColor)))
         }
@@ -102,7 +102,7 @@ enum Snapshots {
                 }
             ),
             // A drive open, with the free space and volume count the list shows
-            // once it is: the row is at its widest here.
+            // once it is. The row is at its widest here.
             (
                 "drives-open",
                 model {
@@ -116,8 +116,8 @@ enum Snapshots {
                     $0.phase = .chooseDrive
                 }
             ),
-            // Mid-eject: the row says what it is doing and cannot be pressed
-            // again while it does it.
+            // Mid-eject: the row reports what it is doing and cannot be pressed
+            // again while it does.
             (
                 "drives-ejecting",
                 model {
@@ -128,7 +128,7 @@ enum Snapshots {
                 }
             ),
             // A container file in the list beside a physical drive: the same
-            // row, saying where it lives in Disk Utility's words.
+            // row, naming its location in Disk Utility's words.
             (
                 "drives-image",
                 model {
@@ -168,7 +168,7 @@ enum Snapshots {
                             "There is nothing in “\(refused.lastPathComponent)” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
                         )))
             ),
-            // A drive that has just gone, said where it was rather than at
+            // A drive that has just gone, reported where it was rather than at
             // the top of the screen.
             (
                 "drives-departed",
@@ -188,8 +188,8 @@ enum Snapshots {
                 }
             ),
             ("unlock-linux", model { $0.phase = .unlock(linux) }),
-            // A drive that turned out not to be encrypted, said before anyone
-            // goes looking for a password.
+            // A drive found not to be encrypted, reported before anyone looks
+            // for a password.
             (
                 "unlock-unencrypted",
                 model {
