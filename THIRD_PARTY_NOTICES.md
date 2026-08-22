@@ -16,6 +16,12 @@ from the same location as the application itself, at no additional charge.
 Each release is accompanied by that source. Requests may also be addressed
 to lukotta@rahula.dev.
 
+Two of anylinuxfs's binaries are modified: the host `anylinuxfs`, to offer the
+VMDK format libkrun already reads, and the guest `vmproxy`, to unlock
+encryption it finds inside a disk image. The patches are in `patches/` in
+Lukotta's own source and are included in the corresponding source beside the
+upstream tarball they apply to.
+
 ## Host Components
 
 The following run on macOS, outside the Linux guest image. `vmproxy`,
@@ -25,7 +31,7 @@ and `Image-4K` are Linux kernel binaries supplied by libkrunfw.
 
 | Component | Version | Licence | Source |
 | --- | --- | --- | --- |
-| anylinuxfs | 0.19.0 | GPL-3.0-or-later | https://github.com/nohajc/anylinuxfs |
+| anylinuxfs | 0.19.0, modified | GPL-3.0-or-later | https://github.com/nohajc/anylinuxfs |
 | libkrun and libkrunfw | as embedded | GPL-2.0-only AND LGPL-2.1-only | https://github.com/containers/libkrun |
 | Linux kernel | 6.12.62 | GPL-2.0-only | https://www.kernel.org/ |
 | util-linux (libblkid) | as embedded | LGPL-2.1-or-later | https://github.com/util-linux/util-linux |

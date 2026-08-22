@@ -1660,6 +1660,86 @@ group("surveyingEveryDisk") {
     expect(one.first?.id ?? "", "disk9", "as the whole disk")
 }
 
+group("aQcow2ThatNamesAnotherFile") {
+    // libkrun's own header says it: formats other than raw can reference other
+    // files, and libkrun opens them. So a file handed to this app could choose
+    // which other files the virtual machine reads. Container files run
+    // unprivileged, which bounds the reach to what the person who opened it
+    // could already read — a reason it is not an emergency, not a reason to
+    // allow it.
+    func header(
+        version: UInt32 = 3, backingOffset: UInt64 = 0, backingSize: UInt32 = 0,
+        features: UInt64 = 0
+    ) -> Data {
+        var bytes = [UInt8](repeating: 0, count: 65536)
+        bytes[0] = 0x51
+        bytes[1] = 0x46
+        bytes[2] = 0x49
+        bytes[3] = 0xFB
+        func put32(_ v: UInt32, _ at: Int) {
+            for i in 0..<4 { bytes[at + i] = UInt8((v >> (8 * (3 - UInt32(i)))) & 0xFF) }
+        }
+        func put64(_ v: UInt64, _ at: Int) {
+            for i in 0..<8 { bytes[at + i] = UInt8((v >> (8 * (7 - UInt64(i)))) & 0xFF) }
+        }
+        put32(version, 4)
+        put64(backingOffset, 8)
+        put32(backingSize, 16)
+        put64(features, 72)
+        put32(104, 100)
+        return Data(bytes)
+    }
+
+    let plain = Qcow2Header.parse(header())
+    expect(plain != nil, "an ordinary qcow2 header parses")
+    expect(!(plain?.namesAnotherFile ?? true), "and names nothing else")
+
+    let backed = Qcow2Header.parse(header(backingOffset: 512, backingSize: 21))
+    expect(backed?.namesABackingFile ?? false, "a backing file is seen")
+    expect(backed?.namesAnotherFile ?? false, "and counts as naming another file")
+
+    let external = Qcow2Header.parse(header(features: 1 << 2))
+    expect(external?.usesExternalDataFile ?? false, "an external data file is seen")
+    expect(external?.namesAnotherFile ?? false, "and counts too")
+
+    let corrupt = Qcow2Header.parse(header(features: 1 << 1))
+    expect(corrupt?.isCorrupt ?? false, "the corrupt bit is read")
+    expect(!(corrupt?.namesAnotherFile ?? true), "and is a different objection")
+
+    // An offset with no length is not a backing file, and the pair is what the
+    // specification calls one.
+    expect(
+        !(Qcow2Header.parse(header(backingOffset: 512))?.namesABackingFile ?? true),
+        "an offset with no name is not a backing file")
+
+    // Version 2 has no feature field at all; reading one would be reading
+    // whatever follows the header.
+    let v2 = Qcow2Header.parse(header(version: 2, features: 1 << 2))
+    expect(v2?.incompatibleFeatures == 0, "version 2 carries no feature bits")
+
+    // Not a qcow2, and a truncated one.
+    expect(Qcow2Header.parse(Data([0x51, 0x46])) == nil, "a couple of bytes is not a header")
+    expect(Qcow2Header.parse(Data(repeating: 0, count: 100)) == nil, "nor is a run of zeroes")
+    expect(
+        Qcow2Header.parse(header(version: 9)) == nil, "nor a version nobody has defined")
+
+    // The extension area names one too, and the two are meant to agree — a
+    // file setting one without the other is exactly what to refuse rather than
+    // reason about.
+    var withExtension = [UInt8](header())
+    withExtension[104] = 0x44
+    withExtension[105] = 0x41
+    withExtension[106] = 0x54
+    withExtension[107] = 0x41
+    withExtension[111] = 8
+    expect(
+        Qcow2Header.hasExternalDataExtension(Data(withExtension)),
+        "an external data file named in the extension area is found")
+    expect(
+        !Qcow2Header.hasExternalDataExtension(header()),
+        "and an image without one is not accused of it")
+}
+
 print("\n\(checks - failures)/\(checks) checks passed")
 if failures > 0 { print("FAILED: \(failures)"); exit(1) }
 print("PASS: LukottaCore")

@@ -55,6 +55,23 @@ carries the minimum of the bottle it came from, so `bottle_tag` sets the floor:
 `arm64_sonoma` is macOS 14, `arm64_sequoia` is 15, `arm64_tahoe` is 26. Lukotta
 ships the sequoia bottles.
 
+
+### The two binaries we build ourselves
+
+Two of the engine's binaries carry patches of ours — `anylinuxfs` and `vmproxy`.
+They are built from the source tarball pinned in `vendor/engine.lock`, checked
+against the same sha256 the release verifies, with everything in `patches/`
+applied. Everything else still comes from the checksummed bottle.
+
+    brew install llvm lld util-linux
+    rustup target add aarch64-unknown-linux-musl
+    ./scripts/build-engine.sh
+
+**This step is optional.** Skip it and the app is built with upstream's binaries
+and works — without the two fixes. `vendor-engine.sh` records which patches went
+in, and the app reads that file rather than assuming, so it says what it can do
+either way. A release should always run it.
+
 ## The Guest Image
 
 The Alpine image the virtual machine boots is downloaded by the engine rather

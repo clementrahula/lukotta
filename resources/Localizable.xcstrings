@@ -34799,6 +34799,9 @@
         }
       }
     },
+    "“%@” could not be read.": {
+      "localizations": {}
+    },
     "“%@” had stopped responding and was disconnected. You can open it again.": {
       "localizations": {
         "bg": {
@@ -35059,6 +35062,12 @@
         }
       }
     },
+    "“%@” is marked as damaged. Repair it before opening it.": {
+      "localizations": {}
+    },
+    "“%@” is not a disk image this app can read.": {
+      "localizations": {}
+    },
     "“%@” is unlocked": {
       "localizations": {
         "bg": {
@@ -35188,6 +35197,9 @@
           }
         }
       }
+    },
+    "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": {
+      "localizations": {}
     },
     "“%@” was disconnected.": {
       "localizations": {

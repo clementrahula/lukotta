@@ -22,6 +22,32 @@ public enum EnginePaths {
         engineRoot?.appendingPathComponent("anylinuxfs/bin/anylinuxfs")
     }
 
+    /// Which of our patches the shipped engine was built with.
+    ///
+    /// The engine is normally the checksummed upstream bottle. Two of its
+    /// binaries can instead be built from the same pinned source with the
+    /// patches in `patches/`, and `vendor-engine.sh` writes down which — so the
+    /// app can say what it can do rather than assume. A build without them
+    /// works; it simply cannot open some things.
+    public static var enginePatches: Set<String> {
+        guard let root = engineRoot?.appendingPathComponent("anylinuxfs/PATCHES"),
+            let text = try? String(contentsOf: root, encoding: .utf8)
+        else { return [] }
+        return Set(
+            text.components(separatedBy: .newlines)
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+                .filter { !$0.isEmpty })
+    }
+
+    /// Whether the guest unlocks encryption it finds inside an image.
+    ///
+    /// Without the patch the host probes an image only far enough to know it is
+    /// one, so nothing is on the decrypt list and the guest is handed
+    /// "crypto_LUKS" as though it were a filesystem.
+    public static var opensEncryptionInsideImages: Bool {
+        enginePatches.contains("vmproxy-decrypt-what-it-probes")
+    }
+
     /// Directories holding the bundled dylibs. The engine loads its one external
     /// dependency through @executable_path, so this is belt-and-braces.
     public static func libraryPaths() -> [String] {

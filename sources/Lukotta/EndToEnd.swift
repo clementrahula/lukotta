@@ -53,7 +53,20 @@ enum EndToEnd {
             if FileManager.default.fileExists(atPath: encrypted.path) {
                 print("")
                 print("qcow2, encrypted: \(encrypted.lastPathComponent)")
-                qcow2RefusedFlow(image: encrypted)
+                if EnginePaths.opensEncryptionInsideImages {
+                    qcow2Flow(image: encrypted, passphrase: passphrase)
+                } else {
+                    qcow2RefusedFlow(image: encrypted)
+                }
+            }
+        }
+
+        if arguments.count >= 7 {
+            let hostile = URL(fileURLWithPath: arguments[6])
+            if FileManager.default.fileExists(atPath: hostile.path) {
+                print("")
+                print("an image naming another file: \(hostile.lastPathComponent)")
+                hostileFlow(image: hostile)
             }
         }
 
@@ -336,6 +349,41 @@ enum EndToEnd {
 
     /// A qcow2, which macOS cannot attach at all. The engine reads the format
     /// itself and is handed the path — never a device, and never root.
+    /// libkrun opens whatever an image names — a backing file, an external
+    /// data file — so a file handed to this app could otherwise choose which
+    /// other files the virtual machine reads.
+    @MainActor
+    private static func hostileFlow(image: URL) {
+        let model = AppModel()
+        model.start()
+        guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
+            return
+        }
+        model.openImage(image)
+        guard
+            waitUntil(
+                "it is refused", timeout: 60,
+                condition: {
+                    if case .failed = model.imageOpening { return true }
+                    if model.drives.contains(where: { $0.uuid == image.path }) { return true }
+                    return false
+                })
+        else { return }
+        guard case .failed(_, let why) = model.imageOpening else {
+            check(false, "an image naming another file is refused, not listed")
+            return
+        }
+        check(
+            why.contains("another file"),
+            "and the reason says it names another file rather than blaming the format")
+        check(
+            DiskImage.attachedDevices(forImages: [image.path]).isEmpty,
+            "and nothing of it was attached")
+        // The engine must never have been told about it: the check has to come
+        // before the path is handed over, not after.
+        check(!model.phaseIsUnlock, "and no passphrase was asked for it")
+    }
+
     /// Encryption inside a qcow2 is not something this engine opens. What
     /// matters is that it is said plainly and at once, rather than failing
     /// three screens later with a message about filesystems.
@@ -394,7 +442,15 @@ enum EndToEnd {
             DiskImage.attachedDevices(forImages: [image.path]).isEmpty,
             "and nothing was attached, because macOS cannot read a qcow2")
 
-        check(!sawTheQuestion, "and it is never asked about, because nothing in it is encrypted")
+        if let passphrase {
+            check(sawTheQuestion || model.phaseIsUnlock, "an encrypted one asks for a passphrase")
+            check(model.chosenFormat == .luks, "recognised as LUKS from the engine's own listing")
+            model.credential = passphrase
+            guard let drive = model.drives.first(where: { $0.uuid == image.path }) else { return }
+            model.unlock(drive)
+        } else {
+            check(!sawTheQuestion, "and it is never asked about, nothing in it being encrypted")
+        }
 
         guard
             waitUntil(

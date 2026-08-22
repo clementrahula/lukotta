@@ -19,6 +19,31 @@ L2_ENTRIES = CLUSTER // 8
 REFCOUNTS_PER_BLOCK = CLUSTER * 8 // (1 << REFCOUNT_ORDER)
 
 
+def hostile(destination, backing=None, external=False, corrupt=False):
+    """Write a qcow2 that names another file, for the tests that refuse one."""
+    image = bytearray(CLUSTER * 3)
+    image[0:4] = b"QFI\xfb"
+    struct.pack_into(">I", image, 4, 3)
+    struct.pack_into(">I", image, 20, CLUSTER_BITS)
+    struct.pack_into(">Q", image, 24, CLUSTER)
+    struct.pack_into(">I", image, 96, REFCOUNT_ORDER)
+    struct.pack_into(">I", image, 100, 104)
+    features = 0
+    if external:
+        features |= 1 << 2
+    if corrupt:
+        features |= 1 << 1
+    struct.pack_into(">Q", image, 72, features)
+    if backing:
+        name = backing.encode()
+        struct.pack_into(">Q", image, 8, 512)
+        struct.pack_into(">I", image, 16, len(name))
+        image[512:512 + len(name)] = name
+    with open(destination, "wb") as f:
+        f.write(image)
+    return destination
+
+
 def main(source, destination):
     with open(source, "rb") as f:
         data = f.read()
@@ -85,6 +110,9 @@ def main(source, destination):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    if len(sys.argv) == 4 and sys.argv[1] == "--hostile":
+        print(hostile(sys.argv[2], backing=sys.argv[3]))
+    elif len(sys.argv) == 3:
+        main(sys.argv[1], sys.argv[2])
+    else:
         sys.exit(__doc__)
-    main(sys.argv[1], sys.argv[2])

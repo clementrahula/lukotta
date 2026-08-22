@@ -85,6 +85,10 @@ fi
 [ -f "$QCOW_PLAIN" ] || "$HERE/scripts/make-qcow2.py" "$PLAIN" "$QCOW_PLAIN" >/dev/null
 [ -f "$QCOW_ENC" ] || "$HERE/scripts/make-qcow2.py" "$CONTAINER" "$QCOW_ENC" >/dev/null
 
+# An image that names another file, which must be refused rather than opened.
+HOSTILE="$CACHE/names-another-file.qcow2"
+[ -f "$HOSTILE" ] || "$HERE/scripts/make-qcow2.py" --hostile "$HOSTILE" "$HOME/.ssh/id_rsa" >/dev/null
+
 # Anything left attached from a run that was interrupted, so a stale device
 # does not make this one pass or fail for the wrong reason.
 while read -r device; do
@@ -93,4 +97,4 @@ done < <(hdiutil info 2>/dev/null | awk -v c="$CONTAINER" -v p="$PLAIN" -v e="$E
   /^image-path/ { path = $3 }
   /^\/dev\/disk[0-9]+\t/ { if (path == c || path == p || path == e) print $1 }')
 
-"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC"
+"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC" "$HOSTILE"

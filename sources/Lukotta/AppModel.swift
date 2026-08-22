@@ -372,14 +372,23 @@ final class AppModel: ObservableObject {
         // privilege, that path only ever reaches a process running as the user
         // who chose it.
         if DiskImage.isQcow2(url) {
+            // Before the engine is told anything. libkrun opens whatever an
+            // image names — a backing file, an external data file — so a file
+            // handed to this app could otherwise choose which other files the
+            // virtual machine reads.
+            if let objection = DiskImage.objection(toQcow2: url) {
+                Log.drives.error("refused an image that names another file")
+                return .failure(objection)
+            }
             let types = DiskImage.contents(of: url)
-            // Encryption inside a qcow2 is not opened by this engine. It probes
-            // the container on the host only far enough to list what is in it,
-            // and then asks the guest to mount that — so the guest is handed
-            // "crypto_LUKS" as though it were a filesystem, and says it has
-            // never heard of it. Said plainly here rather than let through to
-            // fail three screens later.
-            if DiskImage.format(fromTypes: types).isEncrypted {
+            // Encryption inside a qcow2 is opened only by an engine built with
+            // our patch: without it the host probes the container just far
+            // enough to list what is in it, and the guest is then handed
+            // "crypto_LUKS" as though it were a filesystem. Said plainly here
+            // rather than let through to fail three screens later.
+            if DiskImage.format(fromTypes: types).isEncrypted,
+                !EnginePaths.opensEncryptionInsideImages
+            {
                 return .failure(
                     appString(
                         "“\(url.lastPathComponent)” holds an encrypted volume inside a qcow2, which the drive engine cannot open. Converting it to a raw image would work, or open the drive it was made from."

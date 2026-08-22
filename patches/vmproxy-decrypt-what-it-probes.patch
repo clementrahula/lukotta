@@ -1,0 +1,53 @@
+--- a/vmproxy/src/main.rs	2026-07-20 19:00:52
++++ b/vmproxy/src/main.rs	2026-08-22 08:50:18
+@@ -834,6 +834,25 @@
+         Ok(())
+     }
+ 
++    /// Choose the right unlocking tool once blkid has said what this is.
++    ///
++    /// The kind of encryption is picked in `new` from the type the host sent,
++    /// and for an image the host sends "auto" — it cannot see inside one. So
++    /// when the probe here turns out to be encrypted, the choice has to be made
++    /// again, or BitLocker would be opened with `cryptsetup open`.
++    fn prepare_for_probed_encryption(&mut self) {
++        match self.fs_type.as_deref() {
++            Some("BitLocker") => {
++                self.mapper_ident_prefix = "btlk";
++                self.cryptsetup_op = "bitlkOpen";
++            }
++            _ => {
++                self.mapper_ident_prefix = "luks";
++                self.cryptsetup_op = "open";
++            }
++        }
++    }
++
+     /// Detect filesystem type from the disk using blkid.
+     fn detect_fs_type(&mut self) -> anyhow::Result<()> {
+         if self.disk_path.is_empty() {
+@@ -1220,6 +1239,24 @@
+ 
+     dsk.detect_fs_type()?;
+ 
++    // An image is probed on the host only far enough to know that it is an
++    // image: its type arrives as "auto" and nothing is on the decrypt list, so
++    // an encrypted volume inside one was never unlocked and the mount was asked
++    // for a filesystem called "crypto_LUKS". Now that blkid has said what it
++    // really is, unlock it and look again.
++    if cli.decrypt.is_none()
++        && dsk
++            .fs_type
++            .as_deref()
++            .is_some_and(common_utils::is_encrypted_fs)
++    {
++        dsk.prepare_for_probed_encryption();
++        let disk = dsk.disk_path.clone();
++        dsk.decrypt(&disk, cli.reuse_passphrase, &mut deferred)?;
++        dsk.activate_volume_managers()?;
++        dsk.detect_fs_type()?;
++    }
++
+     if !cli.custom_mount_point {
+         dsk.resolve_mount_label()?;
+     }

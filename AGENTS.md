@@ -157,6 +157,28 @@ rebuild does not change — and asserted against the list as it was before.
 `scanGeneration` exists for that: it counts scans actually applied. Break the
 thing on purpose and watch the step fail before trusting it.
 
+## The Engine Is Modified
+
+Two of its binaries are ours: `anylinuxfs` and `vmproxy`, built by
+`scripts/build-engine.sh` from the source tarball pinned in `vendor/engine.lock`
+and checked against the same sha256 the release verifies. Everything else still
+comes from the checksummed bottle. The patches are in `patches/`, with what each
+does and why.
+
+**Building without that step is fine and produces a working app** — one without
+the fixes. `vendor-engine.sh` writes the applied patch names into
+`engine/anylinuxfs/PATCHES` and `EnginePaths.enginePatches` reads it, so the app
+says what it can do rather than assuming. Do not make the app assume.
+
+Needs `brew install llvm lld util-linux` and the
+`aarch64-unknown-linux-musl` Rust target.
+
+**An image can name other files.** From libkrun's header: formats other than raw
+can reference other files, which libkrun then opens. Any qcow2 naming a backing
+file or an external data file is refused before the engine is told anything —
+`Qcow2Header.namesAnotherFile`. Keep that check ahead of the engine when adding
+formats.
+
 ## Security Invariants
 
 These are load-bearing. Changing any of them needs a deliberate decision, not

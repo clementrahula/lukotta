@@ -50,6 +50,19 @@ note ""
 note "anylinuxfs $ANYLINUXFS_VER (GPL-3.0-or-later)"
 fetch "https://github.com/nohajc/anylinuxfs/archive/refs/tags/v${ANYLINUXFS_VER}.tar.gz" \
       "$OUT/anylinuxfs-${ANYLINUXFS_VER}.tar.gz"
+
+# We ship a modified anylinuxfs, so the modification is part of the
+# corresponding source and not merely the original it was made from. The
+# patches are also inside the Lukotta archive above; they are copied out here
+# so they sit beside the tarball they apply to.
+if [ -d "$HERE/patches" ]; then
+  mkdir -p "$OUT/anylinuxfs-patches"
+  cp "$HERE"/patches/*.patch "$HERE/patches/README.md" "$OUT/anylinuxfs-patches/" 2>/dev/null
+  for p in "$OUT"/anylinuxfs-patches/*.patch; do
+    [ -e "$p" ] && note "  OK   anylinuxfs-patches/$(basename "$p")  <- this repository"
+  done
+  note "       apply with: patch -p1 -d anylinuxfs-${ANYLINUXFS_VER} < <patch>"
+fi
 note ""
 
 # --- 3. libkrun, libkrunfw and the other embedded programs -----------------

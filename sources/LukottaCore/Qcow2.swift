@@ -1,0 +1,118 @@
+import Foundation
+
+/// Reading enough of a qcow2 header to decide whether it is safe to open.
+///
+/// A qcow2 can name other files — a backing file it was derived from, or an
+/// external data file holding the guest's clusters — and **libkrun opens
+/// them**. Its own header says so: "formats other than raw can reference other
+/// files that libkrun will automatically open". So a file handed to this app
+/// can decide which other files the virtual machine reads.
+///
+/// Container files run unprivileged, so the reach is bounded by what the person
+/// who opened it could already read. That is a reason it is not an emergency,
+/// not a reason to allow it: nothing about opening a disk image implies consent
+/// to it naming a path of its own.
+///
+/// Field offsets are from the qcow2 specification.
+public struct Qcow2Header: Equatable, Sendable {
+    public let version: UInt32
+    /// Where the name of a backing file is stored, or 0 for none.
+    public let backingFileOffset: UInt64
+    public let backingFileSize: UInt32
+    /// Only present from version 3. Zero when absent.
+    public let incompatibleFeatures: UInt64
+
+    public static let magic: [UInt8] = [0x51, 0x46, 0x49, 0xFB]  // QFI\xfb
+
+    /// Guest clusters live in a separate file this one names.
+    public static let externalDataFileBit: UInt64 = 1 << 2
+    /// The image is marked corrupt and must not be written to.
+    public static let corruptBit: UInt64 = 1 << 1
+
+    /// "External data file name", as a header extension.
+    public static let externalDataExtension: UInt32 = 0x4441_5441
+
+    public var namesABackingFile: Bool { backingFileOffset != 0 && backingFileSize != 0 }
+    public var usesExternalDataFile: Bool { incompatibleFeatures & Self.externalDataFileBit != 0 }
+    public var isCorrupt: Bool { incompatibleFeatures & Self.corruptBit != 0 }
+
+    /// Whether opening this would let the image choose another file to read.
+    public var namesAnotherFile: Bool { namesABackingFile || usesExternalDataFile }
+
+    /// Parse a header from the front of a qcow2. Nil when it is not one.
+    public static func parse(_ bytes: Data) -> Qcow2Header? {
+        guard bytes.count >= 72, Array(bytes.prefix(4)) == magic else { return nil }
+        let version = be32(bytes, 4)
+        guard version == 2 || version == 3 else { return nil }
+        // Version 2 stops at 72 bytes and has no feature fields.
+        let features = version >= 3 && bytes.count >= 80 ? be64(bytes, 72) : 0
+        return Qcow2Header(
+            version: version,
+            backingFileOffset: be64(bytes, 8),
+            backingFileSize: be32(bytes, 16),
+            incompatibleFeatures: features)
+    }
+
+    /// Whether the header extension area names an external data file.
+    ///
+    /// The feature bit and the extension are meant to agree, and a file that
+    /// sets one without the other is exactly the sort of thing to refuse rather
+    /// than reason about.
+    public static func hasExternalDataExtension(_ bytes: Data) -> Bool {
+        // Extensions begin after the header, whose length is at offset 100 in
+        // version 3. Anything shorter has none.
+        guard bytes.count >= 104 else { return false }
+        var offset = Int(be32(bytes, 100))
+        guard offset >= 104 else { return false }
+        while offset + 8 <= bytes.count {
+            let type = be32(bytes, offset)
+            let length = Int(be32(bytes, offset + 4))
+            if type == 0 { return false }  // end of the extension area
+            if type == externalDataExtension { return true }
+            // Each extension is padded to a multiple of eight.
+            offset += 8 + (length + 7) / 8 * 8
+        }
+        return false
+    }
+
+    private static func be32(_ d: Data, _ at: Int) -> UInt32 {
+        let i = d.index(d.startIndex, offsetBy: at)
+        return d[i..<d.index(i, offsetBy: 4)].reduce(UInt32(0)) { $0 << 8 | UInt32($1) }
+    }
+
+    private static func be64(_ d: Data, _ at: Int) -> UInt64 {
+        let i = d.index(d.startIndex, offsetBy: at)
+        return d[i..<d.index(i, offsetBy: 8)].reduce(UInt64(0)) { $0 << 8 | UInt64($1) }
+    }
+}
+
+extension DiskImage {
+    /// How much of a qcow2 to read before deciding. The header and its
+    /// extension area both live in the first cluster.
+    static let qcow2HeaderLength = 65536
+
+    /// Whether this qcow2 may be handed to the engine.
+    ///
+    /// Returns nil when it is fine, or the reason it is not.
+    public static func objection(toQcow2 url: URL) -> String? {
+        guard let handle = try? FileHandle(forReadingFrom: url) else {
+            return appString("“\(url.lastPathComponent)” could not be read.")
+        }
+        defer { try? handle.close() }
+        guard let bytes = try? handle.read(upToCount: qcow2HeaderLength),
+            let header = Qcow2Header.parse(bytes)
+        else {
+            return appString("“\(url.lastPathComponent)” is not a disk image this app can read.")
+        }
+        if header.namesAnotherFile || Qcow2Header.hasExternalDataExtension(bytes) {
+            return appString(
+                "“\(url.lastPathComponent)” refers to another file on this Mac, which would be opened along with it. \(appName) does not open images that name other files."
+            )
+        }
+        if header.isCorrupt {
+            return appString(
+                "“\(url.lastPathComponent)” is marked as damaged. Repair it before opening it.")
+        }
+        return nil
+    }
+}
