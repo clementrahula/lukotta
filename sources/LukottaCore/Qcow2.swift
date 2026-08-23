@@ -89,22 +89,23 @@ extension DiskImage {
     /// Returns nil when it is fine, or the reason it is not.
     public static func objection(toQcow2 url: URL) -> String? {
         guard let handle = try? FileHandle(forReadingFrom: url) else {
-            return appString("“\(url.lastPathComponent)” could not be read.")
+            return appString("“\(isolated(url.lastPathComponent))” could not be read.")
         }
         defer { try? handle.close() }
         guard let bytes = try? handle.read(upToCount: qcow2HeaderLength),
             let header = Qcow2Header.parse(bytes)
         else {
-            return appString("“\(url.lastPathComponent)” is not a disk image.")
+            return appString("“\(isolated(url.lastPathComponent))” is not a disk image.")
         }
         if header.namesAnotherFile || Qcow2Header.hasExternalDataExtension(bytes) {
             return appString(
-                "“\(url.lastPathComponent)” names another file on this Mac, which would be opened along with it."
+                "“\(isolated(url.lastPathComponent))” names another file on this Mac, which would be opened along with it."
             )
         }
         if header.isCorrupt {
             return appString(
-                "“\(url.lastPathComponent)” is marked as damaged. Repair it before opening it.")
+                "“\(isolated(url.lastPathComponent))” is marked as damaged. Repair it before opening it."
+            )
         }
         return nil
     }

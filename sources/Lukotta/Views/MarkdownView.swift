@@ -61,6 +61,7 @@ struct MarkdownView: View {
             // reflowed line is a wrong one.
             Text(lines.joined(separator: "\n"))
                 .font(.system(size: 11, design: .monospaced))
+                .environment(\.layoutDirection, .leftToRight)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)

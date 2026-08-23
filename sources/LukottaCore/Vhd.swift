@@ -51,18 +51,18 @@ extension DiskImage {
     /// Whether this VHD may be handed to the engine, or why not.
     public static func objection(toVhd url: URL) -> String? {
         guard let handle = try? FileHandle(forReadingFrom: url) else {
-            return appString("“\(url.lastPathComponent)” could not be read.")
+            return appString("“\(isolated(url.lastPathComponent))” could not be read.")
         }
         defer { try? handle.close() }
         let size = fileSize(atPath: url.path)
         guard size > Int64(VhdFooter.length) else {
-            return appString("“\(url.lastPathComponent)” is not a disk image.")
+            return appString("“\(isolated(url.lastPathComponent))” is not a disk image.")
         }
         try? handle.seek(toOffset: UInt64(size) - UInt64(VhdFooter.length))
         guard let bytes = try? handle.read(upToCount: VhdFooter.length),
             let footer = VhdFooter.parse(bytes)
         else {
-            return appString("“\(url.lastPathComponent)” is not a disk image.")
+            return appString("“\(isolated(url.lastPathComponent))” is not a disk image.")
         }
 
         switch footer.kind {
@@ -73,15 +73,15 @@ extension DiskImage {
             // which presents the header as though it were the disk.
             guard EnginePaths.opensVdiAndVhd else {
                 return appString(
-                    "“\(url.lastPathComponent)” is a dynamic VHD, and this build’s drive engine has no driver for it. A fixed VHD, a raw image or a qcow2 would open."
+                    "“\(isolated(url.lastPathComponent))” is a dynamic VHD, and this build’s drive engine has no driver for it. A fixed VHD, a raw image or a qcow2 would open."
                 )
             }
         case .differencing:
             return appString(
-                "“\(url.lastPathComponent)” holds only the changes from another disk, and names the disk it changes."
+                "“\(isolated(url.lastPathComponent))” holds only the changes from another disk, and names the disk it changes."
             )
         case .none:
-            return appString("“\(url.lastPathComponent)” is not a disk image.")
+            return appString("“\(isolated(url.lastPathComponent))” is not a disk image.")
         }
 
         // A fixed VHD holds its data followed by the footer and nothing else.
@@ -93,7 +93,7 @@ extension DiskImage {
                 || footer.currentSize == UInt64(size) - UInt64(VhdFooter.length)
         else {
             return appString(
-                "“\(url.lastPathComponent)” is smaller than its footer states, and may be damaged or incomplete."
+                "“\(isolated(url.lastPathComponent))” is smaller than its footer states, and may be damaged or incomplete."
             )
         }
         return nil

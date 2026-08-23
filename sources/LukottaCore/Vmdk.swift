@@ -162,13 +162,13 @@ extension DiskImage {
     /// Whether this VMDK may be handed to the engine, or why not.
     public static func objection(toVmdk url: URL) -> String? {
         guard let handle = try? FileHandle(forReadingFrom: url) else {
-            return appString("“\(url.lastPathComponent)” could not be read.")
+            return appString("“\(isolated(url.lastPathComponent))” could not be read.")
         }
         defer { try? handle.close() }
         // The descriptor is text and small. Anything larger than the engine
         // accepts is not a descriptor.
         guard let head = try? handle.read(upToCount: 2 * 1024 * 1024), !head.isEmpty else {
-            return appString("“\(url.lastPathComponent)” could not be read.")
+            return appString("“\(isolated(url.lastPathComponent))” could not be read.")
         }
         // A sparse VMDK is the disk itself rather than a text file describing
         // one, so its descriptor is read from within it.
@@ -176,11 +176,11 @@ extension DiskImage {
         if Array(head.prefix(4)) == VmdkDescriptor.sparseMagic {
             guard let sparse = SparseVmdkHeader.parse(head) else {
                 return appString(
-                    "“\(url.lastPathComponent)” is not a disk image.")
+                    "“\(isolated(url.lastPathComponent))” is not a disk image.")
             }
             guard EnginePaths.opensSparseVmdk else {
                 return appString(
-                    "“\(url.lastPathComponent)” is a sparse VMDK, and this build’s drive engine reads only the flat form. A flat VMDK or a raw image would open."
+                    "“\(isolated(url.lastPathComponent))” is a sparse VMDK, and this build’s drive engine reads only the flat form. A flat VMDK or a raw image would open."
                 )
             }
             let at = sparse.descriptorOffset * SparseVmdkHeader.sector
@@ -190,7 +190,7 @@ extension DiskImage {
                 let inside = try? handle.read(upToCount: Int(length)), !inside.isEmpty
             else {
                 return appString(
-                    "“\(url.lastPathComponent)” is not a disk image.")
+                    "“\(isolated(url.lastPathComponent))” is not a disk image.")
             }
             // Padded to whole sectors with zero bytes, which are not content.
             text = inside.prefix(while: { $0 != 0 })
@@ -198,18 +198,18 @@ extension DiskImage {
         let descriptor = VmdkDescriptor.parse(String(decoding: text, as: UTF8.self))
         if descriptor.hasDeltaLink {
             return appString(
-                "“\(url.lastPathComponent)” is one of a chain of snapshots. Open the disk it was made from."
+                "“\(isolated(url.lastPathComponent))” is one of a chain of snapshots. Open the disk it was made from."
             )
         }
         guard !descriptor.extents.isEmpty else {
-            return appString("“\(url.lastPathComponent)” is not a disk image.")
+            return appString("“\(isolated(url.lastPathComponent))” is not a disk image.")
         }
         if descriptor.hasAnExtentWithNoFile {
-            return appString("“\(url.lastPathComponent)” is not a disk image.")
+            return appString("“\(isolated(url.lastPathComponent))” is not a disk image.")
         }
         if descriptor.namesAFileElsewhere {
             return appString(
-                "“\(url.lastPathComponent)” names another file on this Mac, which would be opened along with it."
+                "“\(isolated(url.lastPathComponent))” names another file on this Mac, which would be opened along with it."
             )
         }
         // Every extent must be present. Otherwise the engine opens those it
@@ -220,7 +220,7 @@ extension DiskImage {
             let beside = directory.appendingPathComponent(name)
             if !FileManager.default.fileExists(atPath: beside.path) {
                 return appString(
-                    "“\(url.lastPathComponent)” needs “\(name)”, which is not beside it. An image of this kind is a set of files, and all of them are required."
+                    "“\(isolated(url.lastPathComponent))” needs “\(isolated(name))”, which is not beside it. An image of this kind is a set of files, and all of them are required."
                 )
             }
             // A name with no path in it can still be a link to somewhere else.
@@ -232,7 +232,7 @@ extension DiskImage {
                 != directory.resolvingSymlinksInPath().standardizedFileURL
             {
                 return appString(
-                    "“\(url.lastPathComponent)” names another file on this Mac, which would be opened along with it."
+                    "“\(isolated(url.lastPathComponent))” names another file on this Mac, which would be opened along with it."
                 )
             }
         }

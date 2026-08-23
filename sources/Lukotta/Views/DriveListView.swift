@@ -161,6 +161,9 @@ struct DriveRow: View {
                 Text(details)
                     .font(.caption).foregroundStyle(.secondary)
                     .lineLimit(1).truncationMode(.middle)
+                    // A size, a connection and a format name: Latin runs joined by
+                    // separators that belong to neither direction.
+                    .environment(\.layoutDirection, .leftToRight)
                 if let mountPoint {
                     HStack(spacing: 6) {
                         Text("Unlocked at \(mountPoint)")
@@ -208,7 +211,7 @@ struct DriveRow: View {
                         .disabled(otherEjectInFlight)
                 }
             } else {
-                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                Image(systemName: "chevron.forward").foregroundStyle(.tertiary)
                     .accessibilityHidden(true)
             }
         }
@@ -263,7 +266,7 @@ struct DepartedRow: View {
                 .font(.system(size: 22))
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
-            Text("“\(name)” was disconnected.")
+            Text("“\(isolated(name))” was disconnected.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

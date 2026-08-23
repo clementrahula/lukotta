@@ -109,10 +109,12 @@ private struct SurveyRow: View {
                     Text(entry.name).font(.callout.weight(.medium))
                     Text(verbatim: entry.id)
                         .font(.system(.caption2, design: .monospaced))
+                        .environment(\.layoutDirection, .leftToRight)
                         .foregroundStyle(.tertiary)
                 }
                 Text(verbatim: "\(entry.sizeDescription) · \(entry.content)")
                     .font(.caption).foregroundStyle(.secondary)
+                    .environment(\.layoutDirection, .leftToRight)
                 Text(reason)
                     .font(.caption).foregroundStyle(.tertiary)
                     .fixedSize(horizontal: false, vertical: true)

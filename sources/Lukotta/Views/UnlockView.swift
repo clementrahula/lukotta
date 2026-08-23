@@ -41,11 +41,13 @@ struct UnlockView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(
                             model.chosenDriveIsOpenAlready
-                                ? "Open “\(drive.name)”" : "Unlock “\(drive.name)”"
+                                ? "Open “\(isolated(drive.name))”"
+                                : "Unlock “\(isolated(drive.name))”"
                         )
                         .font(.title3.weight(.semibold))
                         Text(verbatim: "\(drive.sizeDescription) · \(drive.devicePath)")
                             .font(.caption).foregroundStyle(.secondary)
+                            .environment(\.layoutDirection, .leftToRight)
                     }
 
                     // A refusal that sent the reader back here rather than to
@@ -122,6 +124,7 @@ struct UnlockView: View {
                                 }
                                 .textFieldStyle(.roundedBorder)
                                 .font(.system(.body, design: .monospaced))
+                                .environment(\.layoutDirection, .leftToRight)
                                 .focused($focused)
                                 .onSubmit { model.unlock(drive) }
                                 .accessibilityLabel(

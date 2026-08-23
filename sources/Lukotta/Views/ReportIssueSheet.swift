@@ -103,6 +103,7 @@ struct ReportIssueSheet: View {
                         ScrollView {
                             Text(reportText)
                                 .font(.system(size: 11, design: .monospaced))
+                                .environment(\.layoutDirection, .leftToRight)
                                 .textSelection(.enabled)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(9)

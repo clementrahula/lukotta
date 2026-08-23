@@ -39,6 +39,7 @@ struct LogView: View {
                     ForEach(Array(lines.enumerated()), id: \.offset) { idx, line in
                         Text(line)
                             .font(.system(size: 11.5, design: .monospaced))
+                            .environment(\.layoutDirection, .leftToRight)
                             .textSelection(.enabled)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .id(idx)

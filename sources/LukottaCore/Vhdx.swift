@@ -121,13 +121,13 @@ extension DiskImage {
     /// Whether this VHDX may be handed to the engine, or why not.
     public static func objection(toVhdx url: URL) -> String? {
         guard let handle = try? FileHandle(forReadingFrom: url) else {
-            return appString("“\(url.lastPathComponent)” could not be read.")
+            return appString("“\(isolated(url.lastPathComponent))” could not be read.")
         }
         defer { try? handle.close() }
         guard let head = try? handle.read(upToCount: VhdxHeader.signature.count),
             Array(head) == VhdxHeader.signature
         else {
-            return appString("“\(url.lastPathComponent)” is not a disk image.")
+            return appString("“\(isolated(url.lastPathComponent))” is not a disk image.")
         }
 
         var headers: [Data] = []
@@ -139,12 +139,12 @@ extension DiskImage {
             headers.append(block)
         }
         guard let header = VhdxHeader.parse(headers: headers) else {
-            return appString("“\(url.lastPathComponent)” is not a disk image.")
+            return appString("“\(isolated(url.lastPathComponent))” is not a disk image.")
         }
 
         if header.dirty {
             return appString(
-                "“\(url.lastPathComponent)” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again."
+                "“\(isolated(url.lastPathComponent))” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again."
             )
         }
 
@@ -159,7 +159,7 @@ extension DiskImage {
             VhdxHeader.namesAParent(metadata: metadata)
         {
             return appString(
-                "“\(url.lastPathComponent)” holds only the changes from another disk, and names the disk it changes."
+                "“\(isolated(url.lastPathComponent))” holds only the changes from another disk, and names the disk it changes."
             )
         }
 
@@ -167,7 +167,7 @@ extension DiskImage {
         // presents the header as though it were the start of the disk.
         guard EnginePaths.opensVdiAndVhd else {
             return appString(
-                "“\(url.lastPathComponent)” is a VHDX, and this build’s drive engine has no VHDX driver. A VHD, a raw image or a qcow2 would open."
+                "“\(isolated(url.lastPathComponent))” is a VHDX, and this build’s drive engine has no VHDX driver. A VHD, a raw image or a qcow2 would open."
             )
         }
         return nil

@@ -25,7 +25,7 @@ struct MountedView: View {
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(
-                        "“\(drive.name)” is unlocked"
+                        "“\(isolated(drive.name))” is unlocked"
                     ).font(.title3.weight(.semibold))
                         .accessibilityAddTraits(.isHeader)
                     // A drive can be read-only because that was asked for, or
@@ -65,6 +65,7 @@ struct MountedView: View {
                             .font(.callout.weight(.medium))
                         Text(path)
                             .font(.system(.caption, design: .monospaced))
+                            .environment(\.layoutDirection, .leftToRight)
                             .foregroundStyle(.tertiary)
                             .textSelection(.enabled)
                         Spacer()

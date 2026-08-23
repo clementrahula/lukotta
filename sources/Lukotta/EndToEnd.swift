@@ -1022,9 +1022,13 @@ enum EndToEnd {
             system.allSatisfy { $0.drive == nil },
             "and none of them is offered as something to open")
         // Every row must carry a name and a size to be of any use.
-        check(
-            model.survey.allSatisfy { !$0.name.isEmpty && !$0.content.isEmpty },
-            "and every row says what it is")
+        let silent = model.survey.filter { $0.name.isEmpty || $0.content.isEmpty }
+        check(silent.isEmpty, "and every row says what it is")
+        // Which row, when there is one. A count says a row is empty; it does
+        // not say which disk to go and look at.
+        for row in silent {
+            print("      \(row.id): name \"\(row.name)\", content \"\(row.content)\"")
+        }
         print("      \(model.survey.count) disks and volumes seen")
     }
 

@@ -28,7 +28,7 @@ struct ImageOpenSheet: View {
                     ProgressView().controlSize(.small)
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Opening “\(name)”").font(.headline)
+                        Text("Opening “\(isolated(name))”").font(.headline)
                         Text("Examining its contents.")
                             .font(.callout).foregroundStyle(.secondary)
                     }
@@ -42,7 +42,7 @@ struct ImageOpenSheet: View {
                         .foregroundStyle(.green)
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("“\(name)” opened in macOS").font(.headline)
+                        Text("“\(isolated(name))” opened in macOS").font(.headline)
                         // Why it was handed over as well as that it was. A
                         // volume appearing in Finder that nobody put there is
                         // worth explaining.
@@ -53,6 +53,7 @@ struct ImageOpenSheet: View {
                         .fixedSize(horizontal: false, vertical: true)
                         Text(verbatim: mountPoint)
                             .font(.system(.caption, design: .monospaced))
+                            .environment(\.layoutDirection, .leftToRight)
                             .foregroundStyle(.tertiary)
                             .textSelection(.enabled)
                             .padding(.top, 2)

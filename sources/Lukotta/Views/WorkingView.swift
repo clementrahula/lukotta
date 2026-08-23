@@ -28,7 +28,7 @@ struct WorkingView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 3) {
-                Text("Opening “\(drive.name)”").font(.title3.weight(.semibold))
+                Text("Opening “\(isolated(drive.name))”").font(.title3.weight(.semibold))
                     .accessibilityAddTraits(.isHeader)
                 Text("This usually takes under a minute.")
                     .font(.caption).foregroundStyle(.secondary)

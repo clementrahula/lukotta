@@ -225,6 +225,7 @@ struct DocumentSheet: View {
                         // reflowing it would be wrong.
                         Text(text)
                             .font(.system(size: 11, design: .monospaced))
+                            .environment(\.layoutDirection, .leftToRight)
                             .textSelection(.enabled)
                     } else {
                         MarkdownView(source: text).textSelection(.enabled)

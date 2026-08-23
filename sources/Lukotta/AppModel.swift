@@ -40,9 +40,9 @@ final class AppModel: ObservableObject {
     var spokenPhase: String? {
         switch phase {
         case .mounted(let drive, _):
-            return String(localized: "“\(drive.name)” is unlocked")
+            return String(localized: "“\(isolated(drive.name))” is unlocked")
         case .working(let drive):
-            return String(localized: "Opening “\(drive.name)”")
+            return String(localized: "Opening “\(isolated(drive.name))”")
         case .failed(_, let summary, _):
             return summary.isEmpty
                 ? String(localized: "The drive was not opened")
@@ -404,13 +404,13 @@ final class AppModel: ObservableObject {
         if format.isEncrypted, !EnginePaths.opensEncryptionInsideImages {
             return .failure(
                 appString(
-                    "“\(url.lastPathComponent)” holds an encrypted volume, and this build’s drive engine cannot open encryption inside an image. Opening the drive it was made from would work."
+                    "“\(isolated(url.lastPathComponent))” holds an encrypted volume, and this build’s drive engine cannot open encryption inside an image. Opening the drive it was made from would work."
                 ))
         }
         guard !types.isEmpty else {
             return .failure(
                 appString(
-                    "There is nothing in “\(url.lastPathComponent)” that \(appName) can open."
+                    "There is nothing in “\(isolated(url.lastPathComponent))” that \(appName) can open."
                 ))
         }
         let linux =
@@ -525,7 +525,7 @@ final class AppModel: ObservableObject {
                 Log.drives.notice("the image held nothing openable")
                 return .failure(
                     appString(
-                        "There is nothing in “\(url.lastPathComponent)” that \(appName) can open."
+                        "There is nothing in “\(isolated(url.lastPathComponent))” that \(appName) can open."
                     ))
             }
             return .success(attached, all, mine)
@@ -766,7 +766,7 @@ final class AppModel: ObservableObject {
                 "\(names.count) drives had stopped responding and were disconnected. You can open them again."
             )
             : appString(
-                "“\(first)” had stopped responding and was disconnected. You can open it again."
+                "“\(isolated(first))” had stopped responding and was disconnected. You can open it again."
             )
     }
 
