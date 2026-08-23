@@ -15,9 +15,15 @@ let package = Package(
         .target(name: "LukottaCore", path: "sources/LukottaCore"),
 
         // The interface. Deliberately thin.
+        //
+        // The asset catalogue is excluded because SwiftPM would copy it rather
+        // than compile it, and an uncompiled catalogue has no icons in it.
+        // build-app.sh runs actool over it. Saying so here also silences the
+        // warning it drew on every single build.
         .executableTarget(name: "Lukotta",
                           dependencies: ["LukottaCore", .product(name: "Sparkle", package: "Sparkle")],
-                          path: "sources/Lukotta"),
+                          path: "sources/Lukotta",
+                          exclude: ["Assets.xcassets"]),
 
         // Runs as root under launchd. Composes commands itself; it never
         // accepts one.

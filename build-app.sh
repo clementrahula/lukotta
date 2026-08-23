@@ -65,6 +65,13 @@ printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || {
 MIN_MACOS="$(/usr/bin/python3 "$HERE/scripts/lowest-macos.py" "$HERE/vendor/engine.lock")" \
   || exit 1
 BUILD="$(git -C "$HERE" rev-list --count HEAD 2>/dev/null || echo 1)"
+# The build number is the commit count, so an uncommitted change produces a
+# second, different binary claiming the number the last one already has. The
+# rollback record keys on that number, and Sparkle compares it. Said out loud
+# rather than left to be discovered by a build that behaves unlike its twin.
+if ! git -C "$HERE" diff --quiet HEAD 2>/dev/null; then
+  printf 'note: uncommitted changes — build %s is already taken by the last build\n' "$BUILD"
+fi
 
 SIGN_ID="${LUKOTTA_SIGN_ID:-$(security find-identity -v -p codesigning 2>/dev/null \
   | awk -F'"' '/Developer ID Application/ {print $2; exit}')}"
