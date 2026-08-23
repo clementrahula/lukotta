@@ -232,18 +232,17 @@ and compares it with `tests/snapshots/`. It needs `./build-app.sh` to have run;
 Baselines belong to one branding, the header drawing the app's own name, so
 never record them from an official build.
 
-Record once, when the interface is settled -- not after each change to it. A
-screen under review changes several times before it is right, and `--record`
-rewrites every baseline the change reaches: a window size rewrites all two
-hundred. During a review, render to a temporary directory and look at the
-picture:
+Looking is not recording. A screen under review changes several times before
+it is right, and recording after each one rewrites baselines nobody has agreed
+to yet. `--look` draws every screen into a temporary directory and leaves the
+baselines alone; `--look hu` draws them in one language, which is how to find
+out whether a layout survives a longer translation than English or German.
 
-    "dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker" --snapshots /tmp/look
-
-Add `-AppleLanguages "(hu)"` to see a language other than the one this Mac is
-set to, which is how to find out whether a layout survives a longer
-translation. Record when the wording and the layout are agreed, and let the
-recorded baselines be the thing that is reviewed once.
+`--record` refuses a change wider than sixteen baselines unless asked with
+`--all`. One screen is eight -- two languages, two sizes, two appearances --
+so more than two screens' worth means the change was not to a screen but to
+something every screen has. That is a real answer sometimes and never an
+accidental one.
 
 A capture is taken only once two of them agree. SwiftUI settles over a turn of
 the run loop, and an SF Symbol drawn for the first time in a process settles
