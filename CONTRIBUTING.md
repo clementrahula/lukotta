@@ -60,6 +60,9 @@ best you have.
   edit that pastes it.
 - Every source file starts with its SPDX identifier and the copyright line. A
   new file gets them; a file under `patches/` gets that project's instead.
+- Running a program, reading the mount table, taking apart one of its lines,
+  reading an endian field, asking a file's size: each is done in one place,
+  listed in [AGENTS.md](AGENTS.md). Call it rather than writing another.
 
 ## Sending a Change
 
@@ -83,9 +86,9 @@ person with the same drive finds the answer.
 The bug icon in the app gathers the version, the environment and the engine's
 own output, removes credentials from it by value rather than by pattern, and
 shows you everything before it sends. That report goes to
-**lukotta@rahula.dev**, and it is the right route when the report carries
-something you would rather not publish — a drive's name, a path, the layout of
-your disks — or when you have no GitHub account.
+**lukotta@rahula.dev**. Use it when the report carries something you would
+rather not publish, such as a drive's name or the layout of your disks, or when
+you have no GitHub account.
 
 Anything that could expose a passphrase, a drive's contents, or the privileged
 helper goes to that address and not to an issue. [SECURITY.md](SECURITY.md) says
@@ -102,7 +105,7 @@ git config core.hooksPath .githooks   # once, per clone
 ./build-app.sh
 ```
 
-The first line turns on a check that keeps anything of yours out of a commit —
+The first line turns on a check that keeps anything of yours out of a commit:
 your account name, a path from your machine, the UUID of a disk you have
 attached. `lint.sh` and CI run the same check.
 

@@ -14,6 +14,11 @@ those for everything this file leaves out.
 run by `./scripts/run-tests.sh`, which reports the count. `swift test` is not
 evidence that this project is untested.
 
+A check belongs to the `group` it is written in, and `group` refuses to nest:
+nested, the inner one takes over the name and never gives it back, so a later
+failure in the outer group is reported under the inner group's name. Two topics
+in one group is the mistake a stack of names would only make comfortable.
+
 `swift build` succeeds and produces an app that cannot unlock anything. A
 working bundle needs the Linux engine and the compiled asset catalogue:
 
@@ -49,6 +54,28 @@ The build number is the git commit count. Rebuilding without committing
 reuses the previous number, so two different binaries claim the same build.
 Commit before building anything you intend to compare; `build-app.sh` says so
 as it starts when the tree is dirty.
+
+Five jobs are done in one place each. Call these rather than writing another:
+
+| Job | Where |
+| --- | --- |
+| Run a program and collect its output | `run(_:_:timeout:)` in `Shell.swift` |
+| Read the mount table | `mountTable()`, same file |
+| Take apart one of its lines | `MountTableEntry`, same file |
+| Read a big- or little-endian field | the `Data` extension in `ByteOrder.swift` |
+| Ask how large a file is | `fileSize(atPath:)` in `DiskImage.swift` |
+
+Three spawns deliberately do not use `run`, and each says so where it is.
+`EngineEnvironment`'s `tar` reads stderr as it arrives, to count entries for the
+progress. `MountProbe`'s `df` collects no output at all, so that a `df` wedged
+inside a syscall can be abandoned with no pipe left open on it. `Mounter.mount`
+drives osascript through a FIFO. Leave all three.
+
+`AppModel` is one file of about eighteen hundred lines, and splitting it costs
+more than it saves. Swift's `private` is file-scoped, so members moved into
+extensions elsewhere must become visible to the whole module, `activeCredential`
+among them, which holds the passphrase while a mount is in flight. Navigate it
+by its marked sections.
 
 ## The Engine
 
@@ -252,6 +279,13 @@ no person: open a container file, unlock it, rebuild the list underneath it,
 eject it. Real engine, real helper, real hdiutil. It builds its own LUKS
 container once, in a cache of its own, and touches nothing belonging to the
 user.
+
+Fixtures are passed as `name=path`. Adding one is a line in `e2e.sh` and a line
+in `EndToEnd.swift`, and `check-coverage.sh` fails when a format named in
+SPECS.md is built but never handed over. A fixture that is handed over and
+missing on disk is a counted failure, not a skipped flow. `openAndChoose` does
+the preamble every flow shares: start, scan, open, find the row. It checks each
+wait, so a flow reads as the steps it exists for.
 
 `anylinuxfs shell` **truncates an image file to the last byte written**, 320 MB
 in and 69 MB out, so a filesystem made that way records one size, later finds
