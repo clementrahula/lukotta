@@ -40,6 +40,17 @@ public struct VmdkDescriptor: Equatable, Sendable {
         extents.contains { $0.filename.map(Self.reachesElsewhere) ?? false }
     }
 
+    /// An extent that holds data but names no file.
+    ///
+    /// Every kind but ZERO lives in a file, and VMware always quotes its name.
+    /// A line without one described part of a disk that is nowhere: it passed
+    /// every objection, because a nil name reads as "names nothing elsewhere"
+    /// and the every-extent-is-present loop skipped it, and the image was
+    /// handed over with a hole in it.
+    public var hasAnExtentWithNoFile: Bool {
+        extents.contains { $0.type != "ZERO" && $0.filename == nil }
+    }
+
     public static func parse(_ text: String) -> VmdkDescriptor {
         var createType: String?
         var extents: [Extent] = []
@@ -204,6 +215,9 @@ extension DiskImage {
         guard !descriptor.extents.isEmpty else {
             return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }
+        if descriptor.hasAnExtentWithNoFile {
+            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
+        }
         if descriptor.namesAFileElsewhere {
             return appString(
                 "“\(url.lastPathComponent)” refers to another file on this Mac, which would be opened along with it. \(appName) does not open images that name other files."
@@ -218,6 +232,18 @@ extension DiskImage {
             if !FileManager.default.fileExists(atPath: beside.path) {
                 return appString(
                     "“\(url.lastPathComponent)” needs “\(name)”, which is not beside it. A disk image of this kind is a set of files, and every one is required."
+                )
+            }
+            // A name with no path in it can still be a link to somewhere else.
+            // The point of refusing paths is that opening this image opens only
+            // what is beside it, and a link that leaves the directory defeats
+            // that as surely as a path would have.
+            let real = beside.resolvingSymlinksInPath().standardizedFileURL
+            if real.deletingLastPathComponent().standardizedFileURL
+                != directory.resolvingSymlinksInPath().standardizedFileURL
+            {
+                return appString(
+                    "“\(url.lastPathComponent)” refers to another file on this Mac, which would be opened along with it. \(appName) does not open images that name other files."
                 )
             }
         }

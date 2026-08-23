@@ -1798,6 +1798,48 @@ group("aVmdkNamesAnotherFileByDesign") {
     expect("\(mixed.extents.count)", "2", "both extents are read")
     expect(mixed.namesAFileElsewhere, "and one reaching out condemns the set")
 
+    // An extent that holds data but names no file. VMware always quotes the
+    // name; without one the line describes part of a disk that is nowhere, and
+    // it used to pass every objection — a missing name reads as naming nothing
+    // elsewhere, and the every-file-is-present check skipped it.
+    let unnamed = VmdkDescriptor.parse("RW 655360 FLAT")
+    expect(unnamed.hasAnExtentWithNoFile, "an extent with no file is seen")
+    expect(!unnamed.namesAFileElsewhere, "which is not the same objection")
+    expect(!VmdkDescriptor.parse("RW 4096 ZERO").hasAnExtentWithNoFile, "a ZERO extent is fine")
+    expect(
+        !VmdkDescriptor.parse("RW 100 FLAT \"a-flat.vmdk\" 0").hasAnExtentWithNoFile,
+        "and so is a named one")
+
+    // Against the whole check, with files on disk: a plain name may still be a
+    // link out of the folder, and following it opens a file the descriptor was
+    // not allowed to name outright.
+    let sandbox = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appendingPathComponent("lukotta-vmdk-\(getpid())", isDirectory: true)
+    try? FileManager.default.createDirectory(
+        at: sandbox, withIntermediateDirectories: true)
+    let descriptorFile = sandbox.appendingPathComponent("disk.vmdk")
+    try? "RW 655360 FLAT \"disk-flat.vmdk\" 0\n".write(
+        to: descriptorFile, atomically: true, encoding: .utf8)
+    let dataFile = sandbox.appendingPathComponent("disk-flat.vmdk")
+    try? Data(count: 512).write(to: dataFile)
+    expect(DiskImage.objection(toVmdk: descriptorFile) == nil, "a set of files beside it opens")
+
+    let outside = sandbox.appendingPathComponent("elsewhere.img")
+    try? Data(count: 512).write(to: outside)
+    let awayFile = sandbox.appendingPathComponent("away", isDirectory: true)
+    try? FileManager.default.createDirectory(at: awayFile, withIntermediateDirectories: true)
+    let target = awayFile.appendingPathComponent("secret.img")
+    try? Data(count: 512).write(to: target)
+    try? FileManager.default.removeItem(at: dataFile)
+    try? FileManager.default.createSymbolicLink(at: dataFile, withDestinationURL: target)
+    expect(
+        DiskImage.objection(toVmdk: descriptorFile)?.contains("another file") ?? false,
+        "a link out of the folder is refused, as a path out of it would be")
+
+    try? "RW 655360 FLAT\n".write(to: descriptorFile, atomically: true, encoding: .utf8)
+    expect(DiskImage.objection(toVmdk: descriptorFile) != nil, "so is an extent naming no file")
+    try? FileManager.default.removeItem(at: sandbox)
+
     // A snapshot chain names a parent elsewhere, which the engine does not
     // follow.
     let delta = VmdkDescriptor.parse("parentFileNameHint=\"base.vmdk\"")
