@@ -759,7 +759,7 @@ final class AppModel: ObservableObject {
                     }
                 }
                 self.openVolumes = []
-                self.openMounts = self.openMounts.filter { !$0.key.contains(drive.id) }
+                self.openMounts = self.openMounts.filter { !drive.owns($0.key) }
                 self.noteDeparted(drive)
                 self.credential = ""
                 self.credentialProblem = nil
@@ -1293,7 +1293,7 @@ final class AppModel: ObservableObject {
         // drive up by device path therefore finds nothing and the row reports it
         // closed while Finder shows it open. That identifier carries the disk,
         // which ties the mount back to the drive.
-        return openMounts.first { $0.key.contains(drive.id) }?.value
+        return openMounts.first { drive.owns($0.key) }?.value
     }
 
     // MARK: Unlock
@@ -1482,7 +1482,7 @@ final class AppModel: ObservableObject {
             let mine =
                 nested.isEmpty
                 ? EngineStatus.current()
-                    .filter { $0.devicePath.contains(drive.id) }
+                    .filter { drive.owns($0.devicePath) }
                     .map(\.mountPoint)
                 : nested
             await MainActor.run {

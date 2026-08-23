@@ -47,6 +47,35 @@ public struct Drive: Identifiable, Hashable, Sendable {
         return f.string(fromByteCount: sizeBytes)
     }
 
+    /// Whether a mount's key or device path belongs to this drive.
+    ///
+    /// A mount is reported either by device path or, for a volume inside a
+    /// container, as "lvm:<vg>:<disk>:<lv>" — so the disk identifier is looked
+    /// for inside the string. Plainly asking whether it is contained is not
+    /// enough: "disk4s1" is contained in "disk4s10", and a disk with ten or
+    /// more partitions then reports one partition's state against another, or
+    /// closes the wrong one.
+    ///
+    /// A digit may not follow, which separates disk4s1 from disk4s10, and a
+    /// letter or digit may not precede. A letter may still follow, so that a
+    /// whole disk still recognises the mounts of its partitions.
+    public func owns(_ identifier: String) -> Bool {
+        guard !id.isEmpty else { return false }
+        var searched = Substring(identifier)
+        while let found = searched.range(of: id) {
+            let beforeOK =
+                found.lowerBound == identifier.startIndex
+                || !identifier[identifier.index(before: found.lowerBound)].isLetter
+                    && !identifier[identifier.index(before: found.lowerBound)].isNumber
+            let afterOK =
+                found.upperBound == identifier.endIndex
+                || !identifier[found.upperBound].isNumber
+            if beforeOK && afterOK { return true }
+            searched = identifier[found.lowerBound...].dropFirst()
+        }
+        return false
+    }
+
     public var subtitle: String {
         connection.isEmpty
             ? "\(sizeDescription) · \(kind.summary) · \(id)"

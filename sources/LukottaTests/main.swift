@@ -2046,6 +2046,29 @@ group("leftoverEngineHelpersAreTakenDown") {
     expect(!theirs.contains(ours), "and one from another engine is left alone")
 }
 
+group("aDriveOwnsOnlyItsOwnMounts") {
+    // "disk4s1" is contained in "disk4s10", so asking plainly whether the
+    // identifier appears reported the tenth partition's mount against the
+    // first, and closed the wrong one.
+    func drive(_ id: String) -> Drive {
+        Drive(
+            id: id, devicePath: "/dev/" + id, name: "", sizeBytes: 0,
+            connection: "", kind: .microsoft, uuid: "")
+    }
+    let first = drive("disk4s1")
+    expect(first.owns("/dev/disk4s1"), "its own device path")
+    expect(first.owns("lvm:vg:disk4s1:root"), "and its own volume inside a container")
+    expect(!first.owns("/dev/disk4s10"), "but not the tenth partition")
+    expect(!first.owns("lvm:vg:disk4s10:root"), "nor a volume inside it")
+    expect(!first.owns("/dev/disk14s1"), "nor a partition of another disk")
+
+    // A whole disk still recognises the mounts of the partitions on it: a
+    // letter may follow where a digit may not.
+    expect(drive("disk4").owns("/dev/disk4s1"), "a whole disk owns its partitions")
+    expect(!drive("disk4").owns("/dev/disk41s1"), "but not the forty-first disk")
+    expect(!drive("").owns("/dev/disk4s1"), "and a drive with no identifier owns nothing")
+}
+
 group("theVolumeNoticeNeedsMoreThanOneVolume") {
     // The sentence the count feeds says "volumes", and no translation of it
     // varies by number, so a single volume that failed to open read as "This

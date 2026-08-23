@@ -160,7 +160,7 @@ public enum Mounter {
         // device path, so match on the disk identifier it carries.
         if let m = EngineStatus.current().first(where: {
             $0.devicePath == drive.devicePath
-                || (!drive.id.isEmpty && $0.devicePath.contains(drive.id))
+                || drive.owns($0.devicePath)
         }) {
             return m.mountPoint
         }
