@@ -1,6 +1,6 @@
 diff -ruN -x target -x Cargo.lock a/src/virtio/block/device.rs b/src/virtio/block/device.rs
---- a/src/virtio/block/device.rs	2006-07-24 04:21:28
-+++ b/src/virtio/block/device.rs	2026-08-22 18:12:36
+--- a/src/virtio/block/device.rs	2026-08-23 09:45:41
++++ b/src/virtio/block/device.rs	2026-08-23 09:45:42
 @@ -1,3 +1,4 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: opened those image types with the matching imago driver.
  // Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
@@ -17,7 +17,52 @@ diff -ruN -x target -x Cargo.lock a/src/virtio/block/device.rs b/src/virtio/bloc
  };
  use log::{error, warn};
  use utils::eventfd::{EventFd, EFD_NONBLOCK};
-@@ -252,6 +253,9 @@
+@@ -223,6 +224,15 @@
+     pub(crate) partuuid: Option<String>,
+ }
+ 
++/// Whether this is the file refusing to be written, rather than something
++/// wrong with the file itself.
++fn refused_the_write(e: &io::Error) -> bool {
++    matches!(
++        e.kind(),
++        io::ErrorKind::PermissionDenied | io::ErrorKind::ReadOnlyFilesystem
++    )
++}
++
+ impl Block {
+     /// Create a new virtio block device that operates on the given file.
+     ///
+@@ -238,10 +248,26 @@
+         direct_io: bool,
+         sync_mode: SyncMode,
+     ) -> io::Result<Block> {
+-        let disk_image = OpenOptions::new()
++        // A file that will not open for writing — an image on a read-only
++        // volume, a locked file, a card with its write-protect switch set — is
++        // opened for reading instead. Failing here leaves no way in at all,
++        // when reading was possible all along; the guest is told the device is
++        // read-only below, so nothing believes it can write to it.
++        let mut is_disk_read_only = is_disk_read_only;
++        let disk_image = match OpenOptions::new()
+             .read(true)
+             .write(!is_disk_read_only)
+-            .open(PathBuf::from(&disk_image_path))?;
++            .open(PathBuf::from(&disk_image_path))
++        {
++            Ok(file) => file,
++            Err(e) if !is_disk_read_only && refused_the_write(&e) => {
++                is_disk_read_only = true;
++                OpenOptions::new()
++                    .read(true)
++                    .open(PathBuf::from(&disk_image_path))?
++            }
++            Err(e) => return Err(e),
++        };
+ 
+         let disk_image_id = DiskProperties::build_disk_image_id(&disk_image);
+ 
+@@ -252,6 +278,9 @@
  
          #[cfg(target_os = "macos")]
          let file_opts = file_opts.relaxed_sync(sync_mode == SyncMode::Relaxed);
@@ -27,7 +72,7 @@ diff -ruN -x target -x Cargo.lock a/src/virtio/block/device.rs b/src/virtio/bloc
          let file = ImagoFile::open_sync(file_opts)?;
          let discard_alignment = file.discard_align();
  
-@@ -273,14 +277,62 @@
+@@ -273,13 +302,80 @@
                  SyncFormatAccess::new(raw)?
              }
              ImageType::Vmdk => {
@@ -55,21 +100,40 @@ diff -ruN -x target -x Cargo.lock a/src/virtio/block/device.rs b/src/virtio/bloc
 +                    Err(e) => return Err(e),
 +                };
                  SyncFormatAccess::new(vmdk)?
-+            }
+             }
 +            // A VDI and a VHD each hold all of their own data, so neither can
 +            // name another file to open.
++            //
++            // Both take the same second chance as a VMDK: a driver that will
++            // not open this image for writing — a subtype it can read and not
++            // change — gives back Unsupported, and the image is opened again
++            // read-only rather than the whole mount failing. Neither driver
++            // refuses writing on its own account today; this is here so that
++            // one that starts to degrades instead of failing.
 +            ImageType::Vdi => {
-+                let vdi = Vdi::<Box<dyn DynStorage>>::open_image_sync(
-+                    Box::new(file),
-+                    !is_disk_read_only,
-+                )?;
++                let opened =
++                    Vdi::<Box<dyn DynStorage>>::open_image_sync(Box::new(file), !is_disk_read_only);
++                let vdi = match opened {
++                    Ok(vdi) => vdi,
++                    Err(e) if e.kind() == std::io::ErrorKind::Unsupported && !is_disk_read_only => {
++                        let file = ImagoFile::open_sync(read_only_opts)?;
++                        Vdi::<Box<dyn DynStorage>>::open_image_sync(Box::new(file), false)?
++                    }
++                    Err(e) => return Err(e),
++                };
 +                SyncFormatAccess::new(vdi)?
-             }
++            }
 +            ImageType::Vhd => {
-+                let vhd = Vhd::<Box<dyn DynStorage>>::open_image_sync(
-+                    Box::new(file),
-+                    !is_disk_read_only,
-+                )?;
++                let opened =
++                    Vhd::<Box<dyn DynStorage>>::open_image_sync(Box::new(file), !is_disk_read_only);
++                let vhd = match opened {
++                    Ok(vhd) => vhd,
++                    Err(e) if e.kind() == std::io::ErrorKind::Unsupported && !is_disk_read_only => {
++                        let file = ImagoFile::open_sync(read_only_opts)?;
++                        Vhd::<Box<dyn DynStorage>>::open_image_sync(Box::new(file), false)?
++                    }
++                    Err(e) => return Err(e),
++                };
 +                SyncFormatAccess::new(vhd)?
 +            }
 +            // Read-only, always. Changing a VHDX means journalling the change
@@ -80,7 +144,7 @@ diff -ruN -x target -x Cargo.lock a/src/virtio/block/device.rs b/src/virtio/bloc
 +                SyncFormatAccess::new(vhdx)?
 +            }
          };
- 
++
 +        // What the driver will actually accept, which is not always what was
 +        // asked for: a VHDX is never writable, nor is a stream-optimized VMDK
 +        // or an extent the descriptor marks read-only. Telling the guest a
@@ -88,13 +152,12 @@ diff -ruN -x target -x Cargo.lock a/src/virtio/block/device.rs b/src/virtio/bloc
 +        // failure at mount time into an I/O error somewhere inside a
 +        // filesystem driver, halfway through whatever it was doing.
 +        let is_disk_read_only = is_disk_read_only || !disk_image.inner().writable();
-+
+ 
          let disk_image = Arc::new(Mutex::new(disk_image));
  
-         let disk_properties =
 diff -ruN -x target -x Cargo.lock a/src/virtio/block/mod.rs b/src/virtio/block/mod.rs
---- a/src/virtio/block/mod.rs	2006-07-24 04:21:28
-+++ b/src/virtio/block/mod.rs	2026-08-22 18:11:27
+--- a/src/virtio/block/mod.rs	2026-08-23 09:45:41
++++ b/src/virtio/block/mod.rs	2026-08-23 09:45:42
 @@ -1,3 +1,4 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: added the Vdi, Vhd and Vhdx image types.
  // Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
