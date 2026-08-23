@@ -1,6 +1,6 @@
 <!--
-One concern per pull request. If this is your first, CONTRIBUTING.md is worth
-five minutes: it says what tends to be accepted, and what tends not to be.
+One concern per pull request. First time here? CONTRIBUTING.md says what tends
+to land and what tends not to.
 -->
 
 ## What this changes, and why
@@ -10,13 +10,13 @@ five minutes: it says what tends to be accepted, and what tends not to be.
 
 ## What you ran it against
 
-<!-- Which drive, which image, which macOS. "Tests pass" is not this.
+<!-- Which drive, which image, which macOS.
      Nothing to run it against? ./scripts/make-test-volumes.sh builds some. -->
 
 - [ ] `./scripts/run-tests.sh` passes
 - [ ] `./scripts/lint.sh` passes
-- [ ] Touches mounting, a format, or the privileged helper — and I say above
-      what I opened with it
+- [ ] If it touches mounting, a format or the privileged helper, I have said
+      above what I opened it with
 
 ## Anything else
 

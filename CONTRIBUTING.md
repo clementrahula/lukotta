@@ -1,51 +1,53 @@
 # Contributing to Lukotta
 
+Contributions are welcome: code, translations, bug reports, or a note that a
+sentence reads badly.
+
 Lukotta is GPL-3.0-or-later. Anyone receiving the app is entitled to its source
 and to the scripts that build it, so this repository holds everything needed to
 produce a working copy.
 
-## Before You Start
+## Where to Start
 
-Open an issue before writing anything substantial.
+For anything substantial, an issue first is worth the five minutes: an approach
+is easier to agree on before the code exists.
 
-PRs are welcome:
+Pull requests are welcome for:
 - Bugs, with a way to reproduce them.
 - A filesystem, encryption scheme or image format that macOS cannot open on its
-  own. [SPECS.md](SPECS.md) governs these: what is supported already, what is out of scope, and the rule behind each. Read it first.
+  own. [SPECS.md](SPECS.md) covers these: what is supported, what is out of
+  scope, and the rule behind each. Worth reading first.
 - Translations, and corrections to existing ones.
 - Accessibility: anything a screen reader cannot reach, or a layout that breaks
   at larger text sizes.
 - Tests for something that is not covered.
 
-What tends not to be:
+Less likely to land:
 - Refactoring for its own sake.
-- Features that belong in another app. Lukotta opens drives macOS cannot. It is
-  not a disk utility.
-  
+- Features outside what the app is for. Lukotta opens drives macOS cannot read;
+  a general disk utility is a different program.
+
 ## AI Use Policy
 
 Lukotta was largely written by AI agents, and the README says so. Use whatever
 tools you like.
 
-The one thing that matters: a contribution should be worth more than the time it
-takes to review. Generating a patch takes seconds; working out whether it is
-right still takes an hour. Sending something you have not looked at moves that
-hour to someone else.
+Generating a patch takes seconds; working out whether it is right still takes
+an hour. So the thing to aim at is that a contribution is worth more than the
+time it takes to review.
 
-- You are the author. Expect questions about your patch, and be able to answer
-  them.
-- Test it. The unit checks and the lint must pass. If it touches mounting, a
-  format or the privileged helper, say what you ran it against.
+- You are the author, so questions come to you rather than to the tool.
+- Tests and lint pass before it is sent. If it touches mounting, a format or
+  the privileged helper, say what you ran it against.
 - Give it more than one pass.
 - No slop: padding, restated code, invented history, a summary of what the diff
   plainly does.
-- Leave the comments and documents around your change in better shape than you
-  found them.
-- Watch what a tool pastes in. If something recognisable came from elsewhere,
-  say where.
+- Comments and documents around the change get the same attention as the code.
+- If a tool pastes in something recognisable from elsewhere, say where it came
+  from.
 
-A frontier model reasoning properly and a cheap one guessing produce visibly
-different diffs. Use the best you have and give it room.
+Better models, given room to reason, produce noticeably better diffs. Use the
+best you have.
 
 ## House Style
 
@@ -58,7 +60,7 @@ different diffs. Use the best you have and give it room.
   edit that pastes it.
 - Every source file starts with its SPDX identifier and the copyright line. A
   new file gets them; a file under `patches/` gets that project's instead.
-  
+
 ## Sending a Change
 
 - Branch from `main`. One concern per pull request; two unrelated fixes are two
@@ -66,18 +68,17 @@ different diffs. Use the best you have and give it room.
 - Commits are self-contained, and the message says why, not what. The diff
   already says what.
 - Rebase rather than merge, so the history stays readable.
-- Say what you tested it against — which drive, which image, which macOS.
-  "Tests pass" is not that.
+- Say what you tested it against: which drive, which image, which macOS.
 - Draft pull requests are fine and useful early.
 
-Expect days rather than hours, and nudge the
-thread if a week goes by. A change that is declined gets a reason.
+One person reviews, so days rather than hours. A nudge after a week is welcome.
+Anything declined comes with a reason.
 
 ## Reporting a Problem
 
 **Open an issue.** <https://github.com/clementrahula/lukotta/issues> — the
-templates ask what is needed to act on it. A public thread means the next person
-with the same drive finds the answer.
+templates ask for what is needed to act on it. A public thread means the next
+person with the same drive finds the answer.
 
 The bug icon in the app gathers the version, the environment and the engine's
 own output, removes credentials from it by value rather than by pattern, and
@@ -100,6 +101,10 @@ git config core.hooksPath .githooks   # once, per clone
 ./scripts/vendor-engine.sh
 ./build-app.sh
 ```
+
+The first line turns on a check that keeps anything of yours out of a commit —
+your account name, a path from your machine, the UUID of a disk you have
+attached. `lint.sh` and CI run the same check.
 
 That produces `Drive Unlocker.app`. Builds are unbranded unless you set
 `LUKOTTA_BRANDING=official`, the name and logo being trademarks the GPL does not
@@ -135,14 +140,12 @@ that cannot be used without seeing it.
 `./scripts/e2e.sh` drives the whole flow against real images and needs Full Disk
 Access and a Mac. It is worth running for anything touching mounting.
 
-
-
 ## Translations
 
-Twenty-one languages live in `translations/`, one JSON file each, built into the
-string catalogue by `scripts/make-catalog.py`. `./scripts/lint.sh` fails when a
-language is short of a string, so a half-finished translation cannot ship
-quietly.
+Twenty-one languages live in `translations/`, one JSON file each, built into
+the string catalogue by `scripts/make-catalog.py`. `./scripts/lint.sh` fails
+when a language is short of a string, so a half-finished translation cannot
+ship quietly.
 
 Corrections are as welcome as new languages. If a phrase reads badly to you as
 a native speaker, it reads badly — say so in an issue if you would rather not
@@ -150,8 +153,6 @@ send a patch.
 
 The English is the source. If a string is awkward in English, fix that first —
 twenty-one translations of a bad sentence is twenty-one problems.
-
-
 
 ## How It Fits Together
 
@@ -167,8 +168,8 @@ it and re-exports it over NFS to localhost.
 
 [SPECS.md](SPECS.md) specifies what that machine can open: the filesystems,
 the encryption, the disk image formats and how each is read, together with what
-is refused and on what rule. Read it before adding a format or changing how one
-is judged. The engine's own modifications are described in
+is refused and on what rule. It is the reference for adding a format, or for
+changing how one is judged. The engine's own modifications are described in
 [patches/README.md](patches/README.md).
 
 The top level holds the documents, the package manifest and `build-app.sh`.
@@ -196,7 +197,7 @@ partition table and three logical volumes inside a single container. It prints
 the passphrase when it finishes, and how to attach an image and run the app so
 that images appear alongside real drives.
 
-Nobody needs an encrypted drive, or a drive at all, to work on this.
+No encrypted drive is needed to work on this, and no drive at all.
 
 ## Uninstalling a Build
 
@@ -204,8 +205,6 @@ The app removes itself from **Lukotta → Uninstall Lukotta…**. It ejects any
 open drives, unregisters the background helper, deletes the Linux environment
 and the settings, offers to delete saved passphrases, and moves itself to the
 Bin. A development build removes itself the same way a released one does.
-
-
 
 ## Licence
 

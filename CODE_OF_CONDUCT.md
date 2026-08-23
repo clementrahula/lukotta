@@ -18,6 +18,6 @@ sends by email, and anywhere else the project happens.
 Write to people yourself. Drafting with a tool is fine; so is asking one to
 review code.
 
-An agent posting on your behalf is not — issues, replies, review comments or
-pull requests that arrive without a person having read them. Accounts that post
-autonomously get blocked and their threads closed.
+An agent posting on your behalf is not: issues, replies, review comments or
+pull requests that arrive without a person having read them. An account that
+posts autonomously will be blocked and its threads closed.
