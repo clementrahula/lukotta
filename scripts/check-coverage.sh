@@ -157,6 +157,51 @@ print(f"  {len(catalogue)} strings")
 sys.exit(1 if missing else 0)
 CATALOGUE
 
+# 7. Every string has context, every screen it names exists, and every
+#    translation keeps the placeholders the English has. A translator reading a
+#    string alone cannot tell a button from a sentence; a placeholder that has
+#    gone puts the wrong value on screen or none at all.
+printf 'Context for every string, placeholders intact…\n'
+/usr/bin/python3 - <<'CONTEXT' || FAIL=1
+import json, pathlib, re, sys
+
+catalogue = json.load(open("resources/Localizable.xcstrings"))["strings"]
+context = json.load(open("translations/context/strings.json"))["strings"]
+screens = set(json.load(open("translations/context/screens.json"))["screens"])
+bad = 0
+
+for key in catalogue:
+    entry = context.get(key)
+    if entry is None:
+        print(f"  MISSING  no context for: {key[:52]}…"); bad += 1; continue
+    if not entry.get("context"):
+        print(f"  MISSING  context is empty for: {key[:48]}…"); bad += 1
+    for screen in entry.get("screens", []):
+        if screen not in screens:
+            print(f"  MISSING  no such screen '{screen}' for: {key[:40]}…"); bad += 1
+for key in context:
+    if key not in catalogue:
+        print(f"  MISSING  context for a string nothing says: {key[:44]}…"); bad += 1
+
+# %@ and %lld, in either the plain or the positional form.
+token = re.compile(r"%(?:\d+\$)?(?:@|lld)")
+def shape(text):
+    return sorted(t.replace("1$", "").replace("2$", "").replace("3$", "")
+                  for t in token.findall(text))
+
+for path in sorted(pathlib.Path("translations").glob("*.json")):
+    language = path.stem
+    data = json.loads(path.read_text())
+    for key, value in data.get("strings", {}).items():
+        if key not in catalogue:
+            continue
+        if shape(key) != shape(value):
+            print(f"  MISSING  {language}: placeholders differ for: {key[:40]}…")
+            bad += 1
+print(f"  {len(context)} strings with context, {len(screens)} screens")
+sys.exit(1 if bad else 0)
+CONTEXT
+
 printf '\n'
 if [ "$FAIL" = "1" ]; then
   printf 'Something is not covered. Add the missing check rather than the exception.\n'

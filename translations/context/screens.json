@@ -1,0 +1,130 @@
+{
+  "$comment": "Every place a string can appear. A translator reading a string alone cannot tell a button from a sentence, or a title from a warning; this says which surface it is on and what a reader is doing when they see it.",
+  "screens": {
+    "welcome": {
+      "name": "Welcome / permission screen",
+      "kind": "main window",
+      "shown": "The first thing a new reader sees, and again whenever Full Disk Access is missing. Also shown when drives set to reopen after a restart could not be opened because the permission has gone.",
+      "purpose": "Explain that macOS will not let any app read a raw disk without Full Disk Access, and walk through granting it in three numbered steps.",
+      "tone": "Plain and unhurried. Nothing has gone wrong; something has to be switched on.",
+      "notes": "Carries a screenshot of the macOS Full Disk Access pane. Step 1 names a System Settings pane: use Apple's own wording for that pane in this language, or leave it in English where macOS is not offered in this language. See terms.json."
+    },
+    "drive-list": {
+      "name": "Drive list",
+      "kind": "main window",
+      "shown": "After scanning, whenever there is at least one drive or disk image to show.",
+      "purpose": "List what can be opened. Each row carries a name, a size, how it is connected, and what the volume may be.",
+      "tone": "Neutral labels. Rows are read at a glance, so short.",
+      "notes": "The subtitle under a row is assembled from untranslated technical parts (size, USB, BitLocker/NTFS, disk4s1) joined by a middle dot. It is not translated."
+    },
+    "unlock": {
+      "name": "Unlock screen",
+      "kind": "main window",
+      "shown": "After choosing a drive or opening a disk image, before it is opened.",
+      "purpose": "Take the passphrase or recovery key, say what is known about the drive, and offer to open it writable or read-only.",
+      "tone": "Direct. This is where somebody types a secret.",
+      "notes": "Holds the blue note for a drive that turns out not to be encrypted, the note about what may be written to an image format, and the panel of outstanding macOS permissions."
+    },
+    "working": {
+      "name": "Opening screen",
+      "kind": "main window",
+      "shown": "While a drive is being unlocked and mounted, which takes several seconds.",
+      "purpose": "Show which step the mount has reached so that a wait does not look like a hang.",
+      "tone": "Progress labels, present participle.",
+      "notes": "The step names are also shown on the failure screen, where one of them is marked as the step it stopped at."
+    },
+    "mounted": {
+      "name": "Opened screen",
+      "kind": "main window",
+      "shown": "Once a drive is open and visible in Finder.",
+      "purpose": "Confirm it worked, say where it is, and offer to show it in Finder.",
+      "tone": "Brief and finished.",
+      "notes": "Names Finder and its sidebar. Finder is a product name; see terms.json."
+    },
+    "failure": {
+      "name": "Failure screen",
+      "kind": "main window",
+      "shown": "When a drive could not be opened.",
+      "purpose": "Say what went wrong in one sentence, mark which step it stopped at, and offer to try again or report it.",
+      "tone": "Factual, never apologetic, never alarming. Most failures are a mistyped passphrase.",
+      "notes": "The one-sentence summary is chosen by matching the engine's own output; those sentences live in diagnosis.*"
+    },
+    "open-image": {
+      "name": "Opening a disk image",
+      "kind": "sheet over the main window",
+      "shown": "After File → Open Disk Image, while a file is examined, and if it cannot be opened.",
+      "purpose": "Report progress, report that macOS opened the image itself, or say why the file cannot be opened.",
+      "tone": "One title, one explaining sentence.",
+      "notes": "The failure title is the same for every reason; the sentence under it is the particular reason."
+    },
+    "open-drive": {
+      "name": "Open Drive sheet",
+      "kind": "sheet over the main window",
+      "shown": "After File → Open Drive.",
+      "purpose": "List every disk on the Mac, including the ones this app will not touch, and say why each is or is not offered.",
+      "tone": "A table. Labels rather than sentences.",
+      "notes": "Rows for the system disk and for disks macOS reads itself are shown but not offered."
+    },
+    "settings": {
+      "name": "Settings",
+      "kind": "separate window",
+      "shown": "From the menu bar or the gear in the header.",
+      "purpose": "Appearance, language, the menu bar icon, saved passphrases, updates.",
+      "tone": "Standard macOS settings labels: short, capitalised as a title.",
+      "notes": "The language picker lists languages in their own language, which macOS supplies; those names are never translated here."
+    },
+    "help": {
+      "name": "Help sheet",
+      "kind": "sheet over the main window",
+      "shown": "From the question mark in the header.",
+      "purpose": "Explain what the app does, what it can open, how it works, what it costs in privacy, and the licence.",
+      "tone": "The longest prose in the app. Explanatory, complete sentences, no marketing.",
+      "notes": "Contains the GPL notice, which is not translated, and format names, which are not translated."
+    },
+    "report": {
+      "name": "Report an Issue sheet",
+      "kind": "sheet over the main window",
+      "shown": "From the ladybird in the header, or from the failure screen.",
+      "purpose": "Collect a description, show exactly what will be sent, and offer to copy it or open an issue.",
+      "tone": "Reassuring about what is and is not included. Nothing is sent without being shown first.",
+      "notes": "The report body itself is English and is not translated: it is read by whoever fixes the fault."
+    },
+    "uninstall": {
+      "name": "Uninstall sheet",
+      "kind": "sheet over the main window",
+      "shown": "From the app menu.",
+      "purpose": "Say what removing the app takes with it, and ask about saved passphrases separately.",
+      "tone": "Careful. This is destructive and irreversible."
+    },
+    "menus": {
+      "name": "Menu bar and app menus",
+      "kind": "menu bar",
+      "shown": "Always, plus a status icon while a drive is open.",
+      "purpose": "File, Window and Help menu items, the eject items in the status menu, and the alerts they raise.",
+      "tone": "macOS menu conventions: title case in English, an ellipsis where a dialogue follows."
+    },
+    "diagnosis": {
+      "name": "Failure sentences",
+      "kind": "text, shown on the failure screen",
+      "shown": "One is chosen when a mount fails, by matching the engine's output.",
+      "purpose": "Turn a technical failure into one sentence a reader can act on.",
+      "tone": "Say what happened and what to do. Never blame the reader, never print an error code.",
+      "notes": "Each carries a rule name in the code. Several mention Windows, hibernation or a filesystem name."
+    },
+    "formats": {
+      "name": "Disk image refusals",
+      "kind": "text, shown in the Opening a disk image sheet",
+      "shown": "When a file cannot be opened, one sentence says why.",
+      "purpose": "Name the format and say what would work instead.",
+      "tone": "Technical but not cryptic. Format names are never translated.",
+      "notes": "VDI, VHD, VHDX, VMDK, qcow2 and raw image are product formats; see terms.json."
+    },
+    "notices": {
+      "name": "Notices and announcements",
+      "kind": "one line, various screens",
+      "shown": "Above a list or under a title, when something happened that is worth one sentence.",
+      "purpose": "A drive that went away, a permission that was refused, a count of volumes.",
+      "tone": "One short sentence, past tense."
+    }
+  }
+}

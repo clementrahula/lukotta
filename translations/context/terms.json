@@ -1,0 +1,135 @@
+{
+  "$comment": "Words that are not free to translate, and why. Each says what it is, what to do with it, and the reason. Where the rule depends on the language, the rule says so.",
+  "policies": {
+    "keep-verbatim": "Write it exactly as in the English, in Latin script, whatever the surrounding language. Do not transliterate.",
+    "apple-term": "Use the words Apple itself uses in this language on macOS. Where macOS is not offered in this language, keep the English, because the reader's own Mac shows the English.",
+    "translate": "An ordinary word. Translate it."
+  },
+  "terms": [
+    {
+      "term": "Lukotta",
+      "policy": "keep-verbatim",
+      "reason": "The name of the application and a trademark. It reaches the interface as a placeholder, never typed into a translation: an unbranded build calls itself Drive Unlocker and the same sentence must serve both.",
+      "appears_as": "%@ in almost every sentence that names the app"
+    },
+    {
+      "term": "macOS",
+      "policy": "keep-verbatim",
+      "reason": "Apple writes it the same way in every language."
+    },
+    {
+      "term": "Finder",
+      "policy": "apple-term",
+      "reason": "Apple's own file manager. Apple translates the name in some languages (Finder stays Finder in most) and the reader is being told to look at a window that carries Apple's word for it, not ours.",
+      "check": "Whatever Finder is called in this language's macOS."
+    },
+    {
+      "term": "System Settings",
+      "policy": "apple-term",
+      "reason": "The app tells the reader to open a pane and switch something on. If the name on the screen and the name in the sentence differ, the instruction fails."
+    },
+    {
+      "term": "Privacy & Security",
+      "policy": "apple-term",
+      "reason": "A pane in System Settings. Same reason.",
+      "note": "Where macOS is not offered in this language, leave it in English: Bulgarian, Estonian, Latvian, Lithuanian and Albanian keep it."
+    },
+    {
+      "term": "Full Disk Access",
+      "policy": "apple-term",
+      "reason": "The permission the reader has to find and switch on, by the name their Mac gives it."
+    },
+    {
+      "term": "Files and Folders",
+      "policy": "apple-term",
+      "reason": "Another pane, reached when the removable-volumes permission was refused."
+    },
+    {
+      "term": "Removable Volumes",
+      "policy": "apple-term",
+      "reason": "The switch inside that pane."
+    },
+    {
+      "term": "Login Items",
+      "policy": "apple-term",
+      "reason": "Where a background item waits to be approved."
+    },
+    {
+      "term": "Locations",
+      "policy": "apple-term",
+      "reason": "The section of the Finder sidebar an opened drive appears under."
+    },
+    {
+      "term": "Applications",
+      "policy": "apple-term",
+      "reason": "The folder the reader selects the app from. Apple translates this folder name in most languages, and Finder shows the translated name."
+    },
+    {
+      "term": "Keychain",
+      "policy": "apple-term",
+      "reason": "Where a saved passphrase is kept."
+    },
+    {
+      "term": "BitLocker",
+      "policy": "keep-verbatim",
+      "reason": "Microsoft's disk encryption. A product name, not a description."
+    },
+    {
+      "term": "LUKS",
+      "policy": "keep-verbatim",
+      "reason": "Linux Unified Key Setup. An acronym with no expansion worth translating."
+    },
+    {
+      "term": "NTFS, exFAT, ext4, Btrfs, XFS, APFS, HFS+",
+      "policy": "keep-verbatim",
+      "reason": "Filesystem names. They are written the same everywhere, including in languages that do not use Latin script."
+    },
+    {
+      "term": "VDI, VHD, VHDX, VMDK, qcow2, raw image",
+      "policy": "keep-verbatim",
+      "reason": "Disk image formats. qcow2 is lowercase; raw image is the odd one -- 'raw' may be translated where a language has a natural word for an unwrapped image, and the sentences that use it say so.",
+      "note": "The word image itself is translated; the format names are not."
+    },
+    {
+      "term": "Linux",
+      "policy": "keep-verbatim",
+      "reason": "The kernel's name."
+    },
+    {
+      "term": "Windows",
+      "policy": "apple-term",
+      "reason": "Microsoft's operating system, named in the sentences about a drive left hibernated. Written as Microsoft writes it in this language."
+    },
+    {
+      "term": "NFS, LVM, RAID, GPT",
+      "policy": "keep-verbatim",
+      "reason": "Protocol and layout acronyms."
+    },
+    {
+      "term": "Sparkle",
+      "policy": "keep-verbatim",
+      "reason": "The update framework, named in the licence notice."
+    },
+    {
+      "term": "GPL, GNU General Public License",
+      "policy": "keep-verbatim",
+      "reason": "The licence is named by its English name everywhere; an unofficial translation of a licence name is not the licence."
+    },
+    {
+      "term": "Relaunch, Eject, Unlock, Open, Cancel, Back, Settings, Quit",
+      "policy": "translate",
+      "reason": "Buttons. Translate them, but translate each one the same way everywhere: a sentence that tells the reader to click Relaunch must use the same word as the button does.",
+      "check": "Compare every sentence naming a button against the button's own string."
+    },
+    {
+      "term": "passphrase / password / recovery key",
+      "policy": "translate",
+      "reason": "A LUKS volume takes a passphrase, a BitLocker volume takes a password or a 48-digit recovery key. Where a language distinguishes the two, keep the distinction: the screen changes its wording depending on which kind of drive it is."
+    },
+    {
+      "term": "drive / volume / disk image / partition",
+      "policy": "translate",
+      "reason": "A drive is the physical thing; a volume is one filesystem on it; a disk image is a file that behaves like a drive; a partition is a division of a drive. The app uses them precisely and a translation that collapses them loses the meaning of several sentences."
+    }
+  ]
+}

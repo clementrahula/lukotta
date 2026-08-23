@@ -1,0 +1,2511 @@
+{
+  "$comment": "One entry per English string: which screens it appears on, what it means, and what each placeholder carries. English is canonical -- a translation is checked against the English, and this against the app.",
+  "strings": {
+    "%@ could not open your drives": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "Title of the permission screen when drives that were set to reopen after a restart could not be opened. States a fact; it is not an apology.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "%@ does not yet support writing to this file format.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Under the title of the blue note about an image format that is only ever read.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "%@ free of %@": {
+      "screens": [
+        "notices"
+      ],
+      "context": "Free space on an open drive: how much is free, of how much there is. Both are already formatted sizes such as 12,4 GB.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the free space"
+        },
+        {
+          "token": "%@",
+          "is": "the total size"
+        }
+      ]
+    },
+    "%@ has been removed": {
+      "screens": [
+        "uninstall"
+      ],
+      "context": "Title shown when uninstalling has finished.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "%@ image can only be opened read-only": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Title of that note. The placeholder is a format name such as VHDX and is never translated.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the format name, e.g. VHDX"
+        }
+      ]
+    },
+    "%@ is free software under the GPL, version 3 or later. The mounting is done by anylinuxfs. Complete source for every component is published with each release. The name and the logo are trademarks, and are not covered by that licence.": {
+      "screens": [
+        "help"
+      ],
+      "context": "The licence paragraph in the help sheet. Legal wording: keep it exact. GPL and anylinuxfs are names.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "%@ is not able to open this file format.": {
+      "screens": [
+        "open-image"
+      ],
+      "context": "The title of every refusal to open a disk image. One title for all of them; the sentence under it says which reason applies.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "The welcome paragraph, in two parts separated by a blank line. The first says what the app is for; the second says why a permission has to be granted by hand rather than asked for. Raw device level means reading the disk directly rather than its files.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "%@ opens in the background when you log in and puts back the drives and images that were open, as they were. A drive that needs a password comes back only if the password is saved in your Keychain.": {
+      "screens": [
+        "settings"
+      ],
+      "context": "The explanation under the setting for reopening drives after a restart.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "%@ starts a small Linux virtual machine, unlocks the drive inside it, and hands the drive back to Finder. macOS cannot read BitLocker or Linux filesystems. Linux can.": {
+      "screens": [
+        "help"
+      ],
+      "context": "The paragraph explaining how the app works. The last two sentences are deliberately short.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "%@ will be moved to the Bin.": {
+      "screens": [
+        "menus"
+      ],
+      "context": "A line in the uninstall confirmation, listing what will happen. Bin is Apple's word in British English; use Apple's word in this language.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "%lld drives had stopped responding and were disconnected. You can open them again.": {
+      "screens": [
+        "notices"
+      ],
+      "context": "A notice after several drives went away at once. Needs the plural forms of this language.",
+      "placeholders": [
+        {
+          "token": "%lld",
+          "is": "how many drives"
+        }
+      ]
+    },
+    "%lld open drives will be ejected.": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Another line in that list. Needs the plural forms of this language.",
+      "placeholders": [
+        {
+          "token": "%lld",
+          "is": "how many drives"
+        }
+      ]
+    },
+    "%lld percent": {
+      "screens": [
+        "working"
+      ],
+      "context": "Progress while the Linux environment is unpacked. The number is a percentage from 0 to 100.",
+      "placeholders": [
+        {
+          "token": "%lld",
+          "is": "the percentage complete"
+        }
+      ]
+    },
+    "%lld volumes": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "A count of volumes inside one container, shown on a row. Needs the plural forms of this language.",
+      "placeholders": [
+        {
+          "token": "%lld",
+          "is": "how many volumes"
+        }
+      ]
+    },
+    "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of requirements. A fragment: no full stop.",
+      "placeholders": []
+    },
+    "30 to 80 MB of RAM per unlocked drive": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of requirements. A fragment: no full stop.",
+      "placeholders": []
+    },
+    "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of what the app cannot open. A fragment: no full stop.",
+      "placeholders": []
+    },
+    "A crash report was found": {
+      "screens": [
+        "report"
+      ],
+      "context": "Title of a note in the report sheet when macOS left a crash log.",
+      "placeholders": []
+    },
+    "A drive that refuses to be written to is opened read-only rather than left closed, and says so": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet under Opening read-only in the help sheet.",
+      "placeholders": []
+    },
+    "A macOS system volume.": {
+      "screens": [
+        "open-drive"
+      ],
+      "context": "A row in the disk list: this volume belongs to the running system and is shown but never offered.",
+      "placeholders": []
+    },
+    "About %@": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Menu item. Opens the help sheet.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "About & Help": {
+      "screens": [
+        "menus"
+      ],
+      "context": "The name of that menu item's group.",
+      "placeholders": []
+    },
+    "About ten drives can stay unlocked at once": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of requirements. A fragment: no full stop.",
+      "placeholders": []
+    },
+    "Administrator password": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Row title in the permissions panel. The permission is to act as an administrator, not a password to type here.",
+      "placeholders": []
+    },
+    "Administrator password: asked for once when the background helper is set up, then not again. %@ never sees it": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of permissions.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "All Drives": {
+      "screens": [
+        "mounted"
+      ],
+      "context": "Button. Goes back to the list of drives, leaving this one open.",
+      "placeholders": []
+    },
+    "Allow %@ in the window that just opened, so macOS lets it open at login.": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Shown after switching that setting on, while macOS asks for approval.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Also delete %lld saved passphrases (%@)": {
+      "screens": [
+        "menus"
+      ],
+      "context": "A checkbox in the uninstall confirmation. Needs plural forms; the bracketed part lists the drives.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "how many passphrases"
+        },
+        {
+          "token": "%lld",
+          "is": "the drive names"
+        }
+      ]
+    },
+    "An Apple Silicon Mac. Intel Macs are not supported": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of requirements. A fragment: no full stop. Apple Silicon and Intel are Apple's own words.",
+      "placeholders": []
+    },
+    "An exFAT image is handed to macOS, which reads and writes that format itself": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet under Opening a disk image in the help sheet.",
+      "placeholders": []
+    },
+    "An image opens without an administrator password, and the volume appears in your home folder": {
+      "screens": [
+        "help"
+      ],
+      "context": "Another bullet in that list.",
+      "placeholders": []
+    },
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": {
+      "screens": [
+        "report"
+      ],
+      "context": "Under the two buttons at the foot of the report sheet. Says which route is faster and when to prefer the other. GitHub is a product name.",
+      "placeholders": []
+    },
+    "Another drive is open, and the drive engine has to run on its own the first time after it changes. Eject the other drives, open this one, then they can all be open together again.": {
+      "screens": [
+        "diagnosis"
+      ],
+      "context": "A failure sentence. After the engine changes, the first run has to be the only one; several drives can be open together again afterwards.",
+      "placeholders": []
+    },
+    "Appearance": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Settings section: light, dark or system.",
+      "placeholders": []
+    },
+    "Appears only while a drive is unlocked, for ejecting it.": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Explanation under the menu bar setting.",
+      "placeholders": []
+    },
+    "Approve": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Button on that row when a background item is waiting to be approved in Login Items.",
+      "placeholders": []
+    },
+    "Asked each time": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Status on that row when there is no background helper, so macOS asks for authorisation at every mount.",
+      "placeholders": []
+    },
+    "Author": {
+      "screens": [
+        "help"
+      ],
+      "context": "A row label in the help sheet's About section.",
+      "placeholders": []
+    },
+    "Back": {
+      "screens": [
+        "failure",
+        "unlock"
+      ],
+      "context": "Button. Returns to the screen the reader came from, which is the passphrase field for this drive rather than the list of drives.",
+      "placeholders": []
+    },
+    "BitLocker drives, unlocked with the volume password or a 48-digit recovery key": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of what the app can open. A fragment, not a sentence: no full stop.",
+      "placeholders": []
+    },
+    "Cancel": {
+      "screens": [
+        "menus",
+        "unlock",
+        "uninstall"
+      ],
+      "context": "Button that abandons a dialogue. The standard macOS word.",
+      "placeholders": []
+    },
+    "Caps Lock is on": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Warning beside the passphrase field. Caps Lock is the key's name on the keyboard.",
+      "placeholders": []
+    },
+    "Check Again": {
+      "screens": [
+        "open-drive"
+      ],
+      "context": "Button. Runs the survey of disks again.",
+      "placeholders": []
+    },
+    "Check Now": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Button. Checks for an update immediately.",
+      "placeholders": []
+    },
+    "Check for Updates…": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Menu item. Ends with an ellipsis character because a dialogue follows.",
+      "placeholders": []
+    },
+    "Check for updates automatically": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Checkbox in the updates section.",
+      "placeholders": []
+    },
+    "Checking every disk…": {
+      "screens": [
+        "open-drive"
+      ],
+      "context": "Shown while the survey runs. Ends with an ellipsis character, not three dots.",
+      "placeholders": []
+    },
+    "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet naming two menu items. The arrows mean: then choose. In a right-to-left language they point the other way.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Choose a disk image or container file to open.": {
+      "screens": [
+        "menus"
+      ],
+      "context": "The prompt in the file chooser opened by File → Open Disk Image.",
+      "placeholders": []
+    },
+    "Click + at the bottom of the list, select %@ in Applications, and switch it on.": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "Step 2 of three. The + is a button at the bottom-left of the Full Disk Access list; Applications is the folder, by Apple's name for it in this language.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Come back to this window and click Relaunch.": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "Step 3 of three. Relaunch is the button on this same screen and must be called exactly what that button is called.",
+      "placeholders": []
+    },
+    "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "Shown when nothing was found. Names the Rescan button and the File menu item. The arrow means: then choose.",
+      "placeholders": []
+    },
+    "Copied": {
+      "screens": [
+        "report"
+      ],
+      "context": "Confirmation shown for a moment after the report was copied.",
+      "placeholders": []
+    },
+    "Copy Details": {
+      "screens": [
+        "report"
+      ],
+      "context": "Button. Puts the whole report on the clipboard.",
+      "placeholders": []
+    },
+    "Dark": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Appearance choice.",
+      "placeholders": []
+    },
+    "Deleting %lld saved passphrases": {
+      "screens": [
+        "uninstall"
+      ],
+      "context": "A step while uninstalling. Needs the plural forms of this language.",
+      "placeholders": [
+        {
+          "token": "%lld",
+          "is": "how many passphrases"
+        }
+      ]
+    },
+    "Deleting the Linux environment": {
+      "screens": [
+        "uninstall"
+      ],
+      "context": "A step while uninstalling: the unpacked Linux system is removed.",
+      "placeholders": []
+    },
+    "Details that will be included": {
+      "screens": [
+        "report"
+      ],
+      "context": "Heading above the report itself. The point is that nothing is sent unseen.",
+      "placeholders": []
+    },
+    "Disk Image": {
+      "screens": [
+        "notices"
+      ],
+      "context": "Shown in a row's subtitle where a physical drive would say USB. Means the row is a file, not hardware.",
+      "placeholders": []
+    },
+    "Done": {
+      "screens": [
+        "help"
+      ],
+      "context": "Button that closes the help sheet.",
+      "placeholders": []
+    },
+    "Download and install them": {
+      "screens": [
+        "settings"
+      ],
+      "context": "The second half of the updates setting: not only check, but install.",
+      "placeholders": []
+    },
+    "Drives sealed to a TPM rather than a password, including Ubuntu's newer hardware-backed encryption": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of what the app cannot open. A fragment: no full stop. TPM is a hardware chip and keeps its acronym.",
+      "placeholders": []
+    },
+    "Eject": {
+      "screens": [
+        "drive-list",
+        "menus"
+      ],
+      "context": "Button on an open drive's row, and in the menu bar. Ejecting is what macOS calls unmounting safely.",
+      "placeholders": []
+    },
+    "Eject %@": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Menu item in the status menu, one per open drive.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the volume's name"
+        }
+      ]
+    },
+    "Eject and Quit": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Button in the dialogue shown when quitting with drives open.",
+      "placeholders": []
+    },
+    "Eject it in Finder when you are finished.": {
+      "screens": [
+        "open-image"
+      ],
+      "context": "Last line of the sheet that reports macOS opened an image itself. The app is not holding it, so the app cannot eject it.",
+      "placeholders": []
+    },
+    "Ejecting %@": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "Read aloud while a drive is being ejected.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the drive name"
+        }
+      ]
+    },
+    "Ejecting %lld open drives": {
+      "screens": [
+        "uninstall"
+      ],
+      "context": "A step while uninstalling. Needs the plural forms of this language.",
+      "placeholders": [
+        {
+          "token": "%lld",
+          "is": "how many drives"
+        }
+      ]
+    },
+    "Ejecting…": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "Shown on the row while it happens. Ends with an ellipsis character.",
+      "placeholders": []
+    },
+    "Encrypted, or a Windows or Linux volume.": {
+      "screens": [
+        "open-drive"
+      ],
+      "context": "A row in the disk list: this is the kind of volume the app exists to open.",
+      "placeholders": []
+    },
+    "Engine output": {
+      "screens": [
+        "notices"
+      ],
+      "context": "Read aloud as the name of the block holding the engine's own text.",
+      "placeholders": []
+    },
+    "Enter the drive's passphrase.": {
+      "screens": [
+        "notices"
+      ],
+      "context": "Said by a screen reader when the unlock screen appears for a Linux drive.",
+      "placeholders": []
+    },
+    "Enter the drive's password, or its 48-digit recovery key.": {
+      "screens": [
+        "notices"
+      ],
+      "context": "The same for a BitLocker drive.",
+      "placeholders": []
+    },
+    "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet under Opening read-only. Names the Open and Unlock buttons.",
+      "placeholders": []
+    },
+    "Everything attached to this Mac, whether or not %@ can open it.": {
+      "screens": [
+        "open-drive"
+      ],
+      "context": "Subtitle of the sheet. Says why disks appear that cannot be opened.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": {
+      "screens": [
+        "uninstall"
+      ],
+      "context": "Shown when everything was removed except the app. Bin is what macOS calls it in British English; use Apple's word in this language.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        },
+        {
+          "token": "%@",
+          "is": "the reason macOS gave"
+        }
+      ]
+    },
+    "Examining its contents.": {
+      "screens": [
+        "open-image"
+      ],
+      "context": "Under the title while a disk image is being opened, which takes a moment.",
+      "placeholders": []
+    },
+    "External": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "Part of a row's subtitle: the drive is plugged in rather than built in.",
+      "placeholders": []
+    },
+    "FileVault and encrypted disk images, which macOS opens itself": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of what the app cannot open. A fragment: no full stop. FileVault is Apple's own encryption.",
+      "placeholders": []
+    },
+    "Forget": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Button. Discards the passphrase saved in the Keychain for this drive.",
+      "placeholders": []
+    },
+    "Full Disk Access": {
+      "screens": [
+        "unlock",
+        "welcome"
+      ],
+      "context": "Row title in the permissions panel, and the name macOS gives the permission.",
+      "placeholders": []
+    },
+    "Full Disk Access: macOS will not let any app read a drive’s raw contents without it. It cannot be requested, so it has to be switched on by hand": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the permissions list.",
+      "placeholders": []
+    },
+    "GNU General Public License": {
+      "screens": [
+        "help"
+      ],
+      "context": "The licence's name, in the About section. Never translated: an unofficial translation of a licence name is not the licence.",
+      "placeholders": []
+    },
+    "Granted permission will only apply once the app is restarted.": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "The note under step 3, in grey. Explains why relaunching is part of the instructions rather than an afterthought.",
+      "placeholders": []
+    },
+    "Handing the drive to Finder": {
+      "screens": [
+        "working",
+        "failure"
+      ],
+      "context": "The last step of opening a drive: the mount is being handed to macOS so it appears in Finder. A step name in a list, present participle.",
+      "placeholders": []
+    },
+    "Hide": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Tooltip on the eye button while the typed passphrase is visible.",
+      "placeholders": []
+    },
+    "Hide the credential": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Read aloud for that button in the same state.",
+      "placeholders": []
+    },
+    "How %@ works, and what it supports": {
+      "screens": [
+        "notices"
+      ],
+      "context": "Tooltip on the help button in the header.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "How it works": {
+      "screens": [
+        "help"
+      ],
+      "context": "A section heading in the help sheet.",
+      "placeholders": []
+    },
+    "If it is already in the list, switch it on instead.": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "The note under step 2, in grey. Covers the case where the app is already listed, which happens after a reinstall.",
+      "placeholders": []
+    },
+    "Images that name another file: a VMware snapshot chain, a differencing VHD, a VHDX with a parent, or a qcow2 with a backing file. %@ opens no image that decides which other files get read": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of what the app cannot open. A fragment: no full stop. The reason is deliberate: an image that names other files chooses what gets read.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Internal": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "Part of a row's subtitle: the drive is inside the Mac.",
+      "placeholders": []
+    },
+    "It is in the Bin. Nothing else of it is left on this Mac.": {
+      "screens": [
+        "uninstall"
+      ],
+      "context": "Under the title when uninstalling finished cleanly.",
+      "placeholders": []
+    },
+    "LUKS drives from Linux, both LUKS1 and LUKS2": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of what the app can open. A fragment, not a sentence: no full stop.",
+      "placeholders": []
+    },
+    "LUKS volumes whose header is stored separately from the drive": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of what the app cannot open. A fragment: no full stop.",
+      "placeholders": []
+    },
+    "LVM inside LUKS, as Ubuntu, Debian, Mint and Fedora set it up. Several volumes on one drive all unlock together": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of what the app can open. A fragment, not a sentence: no full stop. The distribution names are proper nouns.",
+      "placeholders": []
+    },
+    "Language": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Settings section for the interface language.",
+      "placeholders": []
+    },
+    "Last checked: %@": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Under the update buttons. The placeholder is a date and time formatted by macOS.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "when the last check happened"
+        }
+      ]
+    },
+    "Leave Open": {
+      "screens": [
+        "menus"
+      ],
+      "context": "The other button in that dialogue: quit without ejecting.",
+      "placeholders": []
+    },
+    "Lets %@ read the encrypted data itself. macOS blocks this without it, even for administrators, and it cannot be requested: it has to be switched on by hand.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "The explanation on the Full Disk Access row.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Licence": {
+      "screens": [
+        "help"
+      ],
+      "context": "A section heading in the help sheet. British spelling of the noun.",
+      "placeholders": []
+    },
+    "Light": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Appearance choice.",
+      "placeholders": []
+    },
+    "Location": {
+      "screens": [
+        "mounted"
+      ],
+      "context": "Label above the path the drive was mounted at. A noun, not a verb.",
+      "placeholders": []
+    },
+    "Locked": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "A small badge on a row for a drive that has not been opened.",
+      "placeholders": []
+    },
+    "Looking for encrypted drives…": {
+      "screens": [
+        "notices"
+      ],
+      "context": "Shown while the first scan runs. Ends with an ellipsis character.",
+      "placeholders": []
+    },
+    "Lúkotta is Finnish for “without a lock”, from lukko, a lock, with the ending -tta marking the absence of something. The stress falls on the first syllable, as it always does in Finnish.": {
+      "screens": [
+        "help"
+      ],
+      "context": "Explains where the name comes from. The Finnish words lukko and -tta stay as they are; the gloss without a lock is translated.",
+      "placeholders": []
+    },
+    "Menu Bar": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Settings section for the status icon.",
+      "placeholders": []
+    },
+    "Moving %@ to the Bin": {
+      "screens": [
+        "uninstall"
+      ],
+      "context": "The last step while uninstalling.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Needed": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "A small orange badge on a permission row that has not been granted.",
+      "placeholders": []
+    },
+    "No encrypted drives found": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "Title when the scan found nothing to offer.",
+      "placeholders": []
+    },
+    "No reason was reported. The details below may say more.": {
+      "screens": [
+        "diagnosis"
+      ],
+      "context": "A failure sentence for when nothing in the engine's output matched any known reason. Points at the transcript underneath.",
+      "placeholders": []
+    },
+    "Not a format %@ can open.": {
+      "screens": [
+        "open-drive"
+      ],
+      "context": "A row in the disk list: nothing here recognises this volume.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Not found in this build.": {
+      "screens": [
+        "help"
+      ],
+      "context": "Shown in place of the third-party notices when the file is missing from the bundle.",
+      "placeholders": []
+    },
+    "OK": {
+      "screens": [
+        "open-image",
+        "menus"
+      ],
+      "context": "Button that dismisses the sheet. The standard macOS word.",
+      "placeholders": []
+    },
+    "Once the background helper is set up, updating will leave unlocked drives alone.": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Note in the updates section.",
+      "placeholders": []
+    },
+    "Open": {
+      "screens": [
+        "unlock",
+        "menus"
+      ],
+      "context": "Button, and the main action, for a drive that needs no passphrase. Also the confirm button of the file chooser.",
+      "placeholders": []
+    },
+    "Open %@": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Menu item in the status menu. Brings the app's window forward.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Open Disk Image": {
+      "screens": [
+        "menus"
+      ],
+      "context": "The title of the file chooser.",
+      "placeholders": []
+    },
+    "Open Disk Image…": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Menu item. Ends with an ellipsis character because a chooser follows.",
+      "placeholders": []
+    },
+    "Open Drive": {
+      "screens": [
+        "open-drive"
+      ],
+      "context": "Title of the sheet, and the menu item that opens it. Title case in English.",
+      "placeholders": []
+    },
+    "Open Drive…": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Menu item. Same rule about the ellipsis.",
+      "placeholders": []
+    },
+    "Open Email": {
+      "screens": [
+        "report"
+      ],
+      "context": "Button. Opens a new message with the report in it.",
+      "placeholders": []
+    },
+    "Open Privacy & Security → Full Disk Access.": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "Step 1 of three. Both names are panes in System Settings and must match what the reader's Mac shows. The arrow means: then go to. In a right-to-left language it points the other way.",
+      "placeholders": []
+    },
+    "Open Privacy Settings": {
+      "screens": [
+        "failure"
+      ],
+      "context": "Button, shown only when the failure was a missing permission. Opens System Settings at the pane that grants it.",
+      "placeholders": []
+    },
+    "Open Read-Only": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Button. Opens a drive that needs no passphrase without allowing anything to be written.",
+      "placeholders": []
+    },
+    "Open Settings": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Button on the Full Disk Access row. Opens System Settings at that pane.",
+      "placeholders": []
+    },
+    "Open System Settings": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "Button, and the main action on this screen. Opens System Settings directly at Full Disk Access.",
+      "placeholders": []
+    },
+    "Open an Issue": {
+      "screens": [
+        "report"
+      ],
+      "context": "Button. Opens the project's issue tracker in a browser.",
+      "placeholders": []
+    },
+    "Open drives again after restarting": {
+      "screens": [
+        "settings"
+      ],
+      "context": "The setting that reopens drives at login.",
+      "placeholders": []
+    },
+    "Open encrypted drives on macOS": {
+      "screens": [
+        "notices"
+      ],
+      "context": "The line under the app's name in the header. What the app is, in one phrase.",
+      "placeholders": []
+    },
+    "Open it read-only to copy files out, or back it up first.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Under the warning that writing to this image format is untested. Two ways to avoid the risk.",
+      "placeholders": []
+    },
+    "Open “%@”": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Title of the unlock screen for a drive that needs no passphrase.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the drive or image name, in typographic quotes"
+        }
+      ]
+    },
+    "Opening a disk image": {
+      "screens": [
+        "help"
+      ],
+      "context": "A section heading in the help sheet.",
+      "placeholders": []
+    },
+    "Opening read-only": {
+      "screens": [
+        "help"
+      ],
+      "context": "A section heading in the help sheet.",
+      "placeholders": []
+    },
+    "Opening “%@”": {
+      "screens": [
+        "notices"
+      ],
+      "context": "Title of the screen while a drive is being opened.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the drive name, in typographic quotes"
+        }
+      ]
+    },
+    "Passphrase": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Label above the field for a Linux drive. LUKS calls it a passphrase; keep the distinction from password where the language has one.",
+      "placeholders": []
+    },
+    "Password or recovery key": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Label above the field for a BitLocker drive, which accepts either.",
+      "placeholders": []
+    },
+    "Permissions": {
+      "screens": [
+        "help"
+      ],
+      "context": "A section heading in the help sheet.",
+      "placeholders": []
+    },
+    "Preparing": {
+      "screens": [
+        "working",
+        "failure"
+      ],
+      "context": "The first step: the workspace and the environment are being made ready. A step name in a list.",
+      "placeholders": []
+    },
+    "Quit": {
+      "screens": [
+        "uninstall",
+        "menus"
+      ],
+      "context": "Button. Closes the app once it has removed itself.",
+      "placeholders": []
+    },
+    "Quit %@": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Menu item.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Quit App": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "Button. Closes the app.",
+      "placeholders": []
+    },
+    "Quit and leave %lld drives open?": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Title of the dialogue when quitting with several drives open. Needs the plural forms of this language.",
+      "placeholders": [
+        {
+          "token": "%lld",
+          "is": "how many drives"
+        }
+      ]
+    },
+    "Quit and leave “%@” open?": {
+      "screens": [
+        "menus"
+      ],
+      "context": "The same dialogue when one drive is open.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the drive name, in typographic quotes"
+        }
+      ]
+    },
+    "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of what the app can open. A fragment, not a sentence: no full stop.",
+      "placeholders": []
+    },
+    "Read-Only": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "A small badge on a row for a drive opened without write access.",
+      "placeholders": []
+    },
+    "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "The explanation on the administrator row. The last sentence matters: the password goes to macOS, not to this app.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Reading a raw disk and mounting a filesystem are actions only an administrator can do. Approve %@ in Login Items to finish.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "The same row when the helper is registered but still waiting for approval in Login Items.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Relaunch": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "Button. Quits and starts the app again, which is what makes a newly granted permission take effect. Step 3 names this button.",
+      "placeholders": []
+    },
+    "Remember this key in my Keychain": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Checkbox beside the passphrase field. Keychain is Apple's password store.",
+      "placeholders": []
+    },
+    "Removable volumes: requested by macOS the first time a drive is read": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the permissions list. Removable volumes is the name macOS gives the permission.",
+      "placeholders": []
+    },
+    "Removing %@": {
+      "screens": [
+        "uninstall"
+      ],
+      "context": "Title while uninstalling runs.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Removing settings": {
+      "screens": [
+        "uninstall"
+      ],
+      "context": "A step while uninstalling.",
+      "placeholders": []
+    },
+    "Report This Issue": {
+      "screens": [
+        "failure"
+      ],
+      "context": "Button. Opens the report sheet with this failure already filled in.",
+      "placeholders": []
+    },
+    "Report a problem": {
+      "screens": [
+        "notices"
+      ],
+      "context": "Tooltip on the report button in the header.",
+      "placeholders": []
+    },
+    "Report a problem or send a crash report": {
+      "screens": [
+        "notices"
+      ],
+      "context": "The same tooltip when a crash report was found, so there is more to send.",
+      "placeholders": []
+    },
+    "Report an Issue": {
+      "screens": [
+        "report",
+        "menus"
+      ],
+      "context": "Title of the sheet, and the menu item that opens it.",
+      "placeholders": []
+    },
+    "Report an Issue…": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Menu item. Same rule about the ellipsis.",
+      "placeholders": []
+    },
+    "Requirements": {
+      "screens": [
+        "help"
+      ],
+      "context": "A section heading in the help sheet.",
+      "placeholders": []
+    },
+    "Rescan": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "Button. Looks for drives again.",
+      "placeholders": []
+    },
+    "Seeing connected drives": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Row title for the permission that lets the app see drives that are plugged in.",
+      "placeholders": []
+    },
+    "Select a drive to unlock": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "The line above the list.",
+      "placeholders": []
+    },
+    "Set Up": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Button on the administrator row. Registers the background helper so no password is needed again.",
+      "placeholders": []
+    },
+    "Setting up the Linux environment": {
+      "screens": [
+        "working"
+      ],
+      "context": "Shown once, on first use, while the bundled Linux system is unpacked. Takes a while and has its own percentage.",
+      "placeholders": []
+    },
+    "Settings": {
+      "screens": [
+        "settings",
+        "drive-list"
+      ],
+      "context": "Tooltip on the settings button in the header, and the name of that window.",
+      "placeholders": []
+    },
+    "Show": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Tooltip on the eye button while the typed passphrase is hidden.",
+      "placeholders": []
+    },
+    "Show %@ in the menu bar": {
+      "screens": [
+        "settings"
+      ],
+      "context": "The menu bar setting.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Show in Finder": {
+      "screens": [
+        "mounted",
+        "open-image"
+      ],
+      "context": "Button. Opens a Finder window at the volume that was just mounted.",
+      "placeholders": []
+    },
+    "Show the credential": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Read aloud for that button in the same state.",
+      "placeholders": []
+    },
+    "Some permissions are still needed": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Title of the panel listing what macOS still wants. Shown only while something is outstanding.",
+      "placeholders": []
+    },
+    "Source": {
+      "screens": [
+        "help"
+      ],
+      "context": "A row label in the About section, linking to the source code.",
+      "placeholders": []
+    },
+    "Specifications": {
+      "screens": [
+        "help"
+      ],
+      "context": "The title of the specifications sheet.",
+      "placeholders": []
+    },
+    "Specs": {
+      "screens": [
+        "help"
+      ],
+      "context": "A tab or button label leading to the specifications. Short by design.",
+      "placeholders": []
+    },
+    "Switch on Full Disk Access for %@ in the window that just opened. Without it a drive cannot be read, at login or at any other time.": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Shown after switching on reopening at login, when the permission is still missing.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "System": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Appearance and language choice: follow the Mac.",
+      "placeholders": []
+    },
+    "System follows your Mac's language.": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Explanation under the language picker.",
+      "placeholders": []
+    },
+    "System follows your Mac's setting, including when it changes.": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Explanation under the appearance picker.",
+      "placeholders": []
+    },
+    "That password or recovery key did not unlock this drive.": {
+      "screens": [
+        "drive-list",
+        "failure",
+        "diagnosis"
+      ],
+      "context": "Shown under the passphrase field, and as the failure summary, when the credential was refused. The commonest failure there is.",
+      "placeholders": []
+    },
+    "The Full Disk Access list, with an app's switch marked.": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "Read aloud in place of the screenshot on this screen, for somebody who cannot see it.",
+      "placeholders": []
+    },
+    "The Full Disk Access list, with the + button marked.": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "Read aloud in place of the other screenshot on this screen.",
+      "placeholders": []
+    },
+    "The Linux environment is unpacked once, on first use.": {
+      "screens": [
+        "working"
+      ],
+      "context": "Explains why the first open is slower than every one after it.",
+      "placeholders": []
+    },
+    "The Linux environment will be deleted, freeing about %lld MB.": {
+      "screens": [
+        "menus"
+      ],
+      "context": "A line in the uninstall confirmation. Needs plural forms.",
+      "placeholders": [
+        {
+          "token": "%lld",
+          "is": "how many megabytes"
+        }
+      ]
+    },
+    "The background helper is not set up, so %@ is holding the drive open itself. Quitting now disconnects it, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": {
+      "screens": [
+        "menus"
+      ],
+      "context": "The body of the quit dialogue when one drive is open and no helper is registered. Two paragraphs separated by a blank line.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "The background helper is not set up, so %@ is holding them open itself. Quitting now disconnects them, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": {
+      "screens": [
+        "menus"
+      ],
+      "context": "The same, for several drives.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "The background helper will be unregistered.": {
+      "screens": [
+        "menus"
+      ],
+      "context": "A line in the uninstall confirmation.",
+      "placeholders": []
+    },
+    "The drive appears in the Finder sidebar under Locations.\nEject it in Finder before unplugging it.": {
+      "screens": [
+        "mounted"
+      ],
+      "context": "Two lines in an information box. The first says where to find the opened drive; the second is the one instruction that matters, since pulling a drive out without ejecting it can lose data. Locations is the name of a section in Finder's sidebar.",
+      "placeholders": []
+    },
+    "The drive did not finish ejecting. It may still be in use, so try again or eject it in Finder.": {
+      "screens": [
+        "notices"
+      ],
+      "context": "A notice when ejecting failed.",
+      "placeholders": []
+    },
+    "The drive is busy. Close anything using it, then try again.": {
+      "screens": [
+        "diagnosis"
+      ],
+      "context": "A failure sentence: something else on the Mac is holding the drive.",
+      "placeholders": []
+    },
+    "The drive is handed to Finder over a local network connection, so it appears under Locations with a network icon. It reads, writes and ejects like any other drive. macOS offers no way to present it as a local disk.": {
+      "screens": [
+        "help"
+      ],
+      "context": "Explains why an opened drive looks like a network share. Locations is a section of the Finder sidebar.",
+      "placeholders": []
+    },
+    "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": {
+      "screens": [
+        "menus"
+      ],
+      "context": "The body of the quit dialogue when the helper is registered and one drive is open.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "The drive was not opened": {
+      "screens": [
+        "failure",
+        "notices"
+      ],
+      "context": "Title of the failure screen.",
+      "placeholders": []
+    },
+    "The drive was not opened. %@": {
+      "screens": [
+        "notices"
+      ],
+      "context": "Said by a screen reader when that screen appears: the title, then the sentence explaining why.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the sentence explaining the failure"
+        }
+      ]
+    },
+    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": {
+      "screens": [
+        "diagnosis"
+      ],
+      "context": "A failure sentence, and the most common one for an NTFS drive. Fast Startup is a Windows feature and is named as Microsoft names it in this language.",
+      "placeholders": []
+    },
+    "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": {
+      "screens": [
+        "diagnosis"
+      ],
+      "context": "A failure sentence covering two possibilities at once, since they cannot be told apart from the engine's output.",
+      "placeholders": []
+    },
+    "The engine reported nothing at all. The drive may have been unplugged.": {
+      "screens": [
+        "diagnosis"
+      ],
+      "context": "A failure sentence for silence from the engine.",
+      "placeholders": []
+    },
+    "The language changes when %@ starts again.": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Shown after choosing a language, since macOS loads a language table at launch.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "The name": {
+      "screens": [
+        "help"
+      ],
+      "context": "A section heading in the help sheet, above the paragraph about where Lukotta comes from.",
+      "placeholders": []
+    },
+    "The passphrase this drive was encrypted with.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Grey line under the field for a Linux drive.",
+      "placeholders": []
+    },
+    "The password the drive was locked with, or a 48-digit BitLocker recovery key. Spaces and hyphens in a recovery key are ignored.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Grey line under the field for a BitLocker drive. A recovery key is 48 digits in eight groups.",
+      "placeholders": []
+    },
+    "The virtualisation engine could not start. A restart usually clears this.": {
+      "screens": [
+        "diagnosis"
+      ],
+      "context": "A failure sentence: the small Linux virtual machine would not start.",
+      "placeholders": []
+    },
+    "There is no password to enter.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Grey line under the note that a drive is not encrypted.",
+      "placeholders": []
+    },
+    "There is nothing in “%@” that %@ can open.": {
+      "screens": [
+        "notices"
+      ],
+      "context": "Refusal for a file the app read successfully and found nothing openable in.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name, in typographic quotes"
+        },
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "They stay in Finder after %@ quits. Eject them there whenever you are finished.": {
+      "screens": [
+        "menus"
+      ],
+      "context": "The same, for several drives.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Third-Party Notices": {
+      "screens": [
+        "help"
+      ],
+      "context": "A row label in the About section, leading to the licences of everything the app carries.",
+      "placeholders": []
+    },
+    "This drive holds %lld volumes and not all of them could be opened.": {
+      "screens": [
+        "notices"
+      ],
+      "context": "A notice after a container mount where some volumes did not open. Needs the plural forms of this language.",
+      "placeholders": [
+        {
+          "token": "%lld",
+          "is": "how many volumes the drive holds"
+        }
+      ]
+    },
+    "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": {
+      "screens": [
+        "diagnosis"
+      ],
+      "context": "A failure sentence for a container the app could not take apart. Asks for a report because it is a case worth seeing.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "This drive is not encrypted.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Title of the blue note for a drive that turned out to need no passphrase.",
+      "placeholders": []
+    },
+    "This partition is not a BitLocker volume.": {
+      "screens": [
+        "diagnosis"
+      ],
+      "context": "A failure sentence: the partition type suggested BitLocker and the contents did not.",
+      "placeholders": []
+    },
+    "This takes a moment.": {
+      "screens": [
+        "uninstall"
+      ],
+      "context": "Under that title.",
+      "placeholders": []
+    },
+    "This usually takes under a minute.": {
+      "screens": [
+        "working"
+      ],
+      "context": "Reassurance under the progress line, so a wait does not look like a hang.",
+      "placeholders": []
+    },
+    "Try Again": {
+      "screens": [
+        "failure"
+      ],
+      "context": "Button, and the default action. Repeats the same attempt unchanged; Back is the way to change anything.",
+      "placeholders": []
+    },
+    "Uninstall": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Button that starts removing the app.",
+      "placeholders": []
+    },
+    "Uninstall %@?": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Title of the uninstall confirmation.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Uninstall %@…": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Menu item. Same rule about the ellipsis.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Unlock": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Button, and the main action, for a drive that is encrypted.",
+      "placeholders": []
+    },
+    "Unlock Read-Only": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "The same for opening it without allowing anything to be written.",
+      "placeholders": []
+    },
+    "Unlock this drive": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "Read aloud for a row that can be opened.",
+      "placeholders": []
+    },
+    "Unlock uses it directly. Forget it to type a different one.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Grey line under the note that a saved key is being used. Names the Unlock and Forget buttons.",
+      "placeholders": []
+    },
+    "Unlock “%@”": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Title of the unlock screen for an encrypted drive.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the drive or image name, in typographic quotes"
+        }
+      ]
+    },
+    "Unlocked": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "A small badge on a row for a drive that is open.",
+      "placeholders": []
+    },
+    "Unlocked at %@": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "Under an open row: where the volume was mounted.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the mount path, e.g. /Volumes/BACKUP"
+        }
+      ]
+    },
+    "Unlocking and mounting": {
+      "screens": [
+        "working",
+        "failure"
+      ],
+      "context": "The middle step, and the long one: the drive is being unlocked and its filesystem mounted. Where nearly every failure happens.",
+      "placeholders": []
+    },
+    "Unregistering the background helper": {
+      "screens": [
+        "uninstall"
+      ],
+      "context": "A step while uninstalling: the privileged helper is deregistered from macOS.",
+      "placeholders": []
+    },
+    "Updates": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Settings section.",
+      "placeholders": []
+    },
+    "Updating does not eject your drives. Anything unlocked stays unlocked and keeps working.": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Note in the updates section.",
+      "placeholders": []
+    },
+    "Using the key saved in your Keychain": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Title of the green note shown when a passphrase was saved earlier.",
+      "placeholders": []
+    },
+    "VDI": {
+      "screens": [
+        "formats"
+      ],
+      "context": "The name of a disk image format, shown as a label. Never translated, in any script. VirtualBox's format.",
+      "placeholders": []
+    },
+    "VHD": {
+      "screens": [
+        "formats"
+      ],
+      "context": "The name of a disk image format, shown as a label. Never translated, in any script. Microsoft's older virtual disk.",
+      "placeholders": []
+    },
+    "VHDX": {
+      "screens": [
+        "formats"
+      ],
+      "context": "The name of a disk image format, shown as a label. Never translated, in any script. Microsoft's newer one, which this app reads and never writes.",
+      "placeholders": []
+    },
+    "VMDK": {
+      "screens": [
+        "formats"
+      ],
+      "context": "The name of a disk image format, shown as a label. Never translated, in any script. VMware's format.",
+      "placeholders": []
+    },
+    "Version %@ (%@)": {
+      "screens": [
+        "help"
+      ],
+      "context": "A row in the About section: the version, then the build number in brackets.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the version, e.g. 1.15.2"
+        },
+        {
+          "token": "%@",
+          "is": "the build number"
+        }
+      ]
+    },
+    "Virtual machine disks: qcow2, VMDK, VDI, VHD and VHDX, as VMware, VirtualBox, Hyper-V, QEMU and UTM write them": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of what the app can open. A fragment, not a sentence: no full stop. Every name in it is a product.",
+      "placeholders": []
+    },
+    "Volumes opened": {
+      "screens": [
+        "mounted"
+      ],
+      "context": "Label above the count, when a container held more than one volume and several were opened.",
+      "placeholders": []
+    },
+    "Waiting for your approval": {
+      "screens": [
+        "working",
+        "failure"
+      ],
+      "context": "A step shown only when macOS is asking the reader to authorise the operation. Never shown when the background helper is registered.",
+      "placeholders": []
+    },
+    "Was refused. In Files and Folders, switch on Removable Volumes for %@, then come back.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "The explanation on the drives row after the permission was refused. Files and Folders and Removable Volumes are both names on the reader's own Mac.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "Website": {
+      "screens": [
+        "help"
+      ],
+      "context": "A row label in the About section.",
+      "placeholders": []
+    },
+    "Welcome to %@": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "Title of the permission screen on first use.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "What a drive contains is only known once it is unlocked.": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "The footnote under the list. Explains why a row says what a drive may be rather than what it is.",
+      "placeholders": []
+    },
+    "What happened": {
+      "screens": [
+        "report"
+      ],
+      "context": "Read aloud as the name of the box the reader types into.",
+      "placeholders": []
+    },
+    "What happened?": {
+      "screens": [
+        "report"
+      ],
+      "context": "The heading above that box, shown on screen.",
+      "placeholders": []
+    },
+    "What it can open": {
+      "screens": [
+        "help"
+      ],
+      "context": "A section heading in the help sheet.",
+      "placeholders": []
+    },
+    "What it cannot open": {
+      "screens": [
+        "help"
+      ],
+      "context": "A section heading in the help sheet.",
+      "placeholders": []
+    },
+    "What to do": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "Read aloud as the name of the group holding the three numbered steps. Not shown on screen.",
+      "placeholders": []
+    },
+    "Why it appears as a network drive": {
+      "screens": [
+        "help"
+      ],
+      "context": "A section heading in the help sheet.",
+      "placeholders": []
+    },
+    "Windows NTFS drives, including ones Windows left hibernated or not shut down properly": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of what the app can open. A fragment, not a sentence: no full stop.",
+      "placeholders": []
+    },
+    "Windows is part-way through encrypting or decrypting this drive. Open it in Windows and let BitLocker finish, then try again.": {
+      "screens": [
+        "diagnosis"
+      ],
+      "context": "A failure sentence: BitLocker is mid-conversion and the drive cannot be opened until Windows finishes.",
+      "placeholders": []
+    },
+    "Writing to this image format is untested": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Title of the orange note for an image format written by a driver built for this app. It warns about the format, not about the drive inside it.",
+      "placeholders": []
+    },
+    "You can read and write files on it.": {
+      "screens": [
+        "mounted"
+      ],
+      "context": "One line under the title of an opened drive. Says what may be done with it now.",
+      "placeholders": []
+    },
+    "You can read files on it. It was opened read-only, so nothing can be written to it.": {
+      "screens": [
+        "mounted"
+      ],
+      "context": "The same line for a drive opened read-only, either because that was asked for or because writing was refused.",
+      "placeholders": []
+    },
+    "You can still check whenever you like.": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Shown under the updates setting when automatic checking is off.",
+      "placeholders": []
+    },
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": {
+      "screens": [
+        "welcome"
+      ],
+      "context": "Under the title when drives could not be reopened. Says what happened and names the three ordinary causes, so it does not read as a fault.",
+      "placeholders": []
+    },
+    "done": {
+      "screens": [
+        "uninstall"
+      ],
+      "context": "Said by a screen reader for a step that has finished. Lower case, read inside a sentence.",
+      "placeholders": []
+    },
+    "ext4, btrfs and XFS filesystems inside them": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of what the app can open. A fragment, not a sentence: no full stop. Filesystem names, never translated.",
+      "placeholders": []
+    },
+    "in progress": {
+      "screens": [
+        "uninstall"
+      ],
+      "context": "The same for the step running now.",
+      "placeholders": []
+    },
+    "locked": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "Said by a screen reader as part of a row's description. Lower case: it is read inside a sentence.",
+      "placeholders": []
+    },
+    "macOS 15 Sequoia or later": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet in the help sheet's list of requirements. A fragment: no full stop. Sequoia is Apple's name for that release.",
+      "placeholders": []
+    },
+    "macOS already has this drive mounted. Eject it in Finder and try again.": {
+      "screens": [
+        "diagnosis"
+      ],
+      "context": "A failure sentence: macOS is holding the volume, so the engine cannot have it.",
+      "placeholders": []
+    },
+    "macOS blocked access to the drive. %@ needs Full Disk Access before it can read an encrypted disk.": {
+      "screens": [
+        "diagnosis"
+      ],
+      "context": "A failure sentence for a missing permission. Full Disk Access is the name macOS gives it.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "macOS could not open this file as a disk image.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "Refusal when macOS itself declined to attach the file.",
+      "placeholders": []
+    },
+    "macOS has this open at %@.": {
+      "screens": [
+        "open-drive"
+      ],
+      "context": "A row in the disk list: macOS has already mounted this volume, and where.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the mount path, e.g. /Volumes/BACKUP"
+        }
+      ]
+    },
+    "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk.": {
+      "screens": [
+        "open-image"
+      ],
+      "context": "Explains why a volume appeared in Finder that this app is not holding: the image needed nothing this app does, so it was handed straight to macOS.",
+      "placeholders": []
+    },
+    "macOS reads this format itself.": {
+      "screens": [
+        "open-drive"
+      ],
+      "context": "A row in the disk list: nothing is needed from this app for this volume.",
+      "placeholders": []
+    },
+    "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": {
+      "screens": [
+        "notices"
+      ],
+      "context": "A notice for an image macOS handles, which it declined to mount.",
+      "placeholders": []
+    },
+    "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": {
+      "screens": [
+        "notices"
+      ],
+      "context": "A notice at the top of the unlock screen after the removable-volumes permission was refused. Below means the panel further down this screen.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": {
+      "screens": [
+        "settings"
+      ],
+      "context": "Shown when registering the login item failed. Names three panes in order; use Apple's words for each.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
+    "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": {
+      "screens": [
+        "report"
+      ],
+      "context": "Under the crash-report note. The file name is a macOS crash log.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the crash report's file name"
+        }
+      ]
+    },
+    "not reached": {
+      "screens": [
+        "working"
+      ],
+      "context": "Said by a screen reader for a step the mount never got to. Lower case: it is read as part of a sentence, not shown as a label.",
+      "placeholders": []
+    },
+    "qcow2": {
+      "screens": [
+        "formats"
+      ],
+      "context": "The name of a disk image format, shown as a label. Never translated, in any script. QEMU's format. Always lower case.",
+      "placeholders": []
+    },
+    "qcow2, VMDK, VDI and VHD images can be written to as well as read, so files can be copied into a virtual machine's disk. A VHDX is read only": {
+      "screens": [
+        "help"
+      ],
+      "context": "A bullet under Opening a disk image.",
+      "placeholders": []
+    },
+    "raw image": {
+      "screens": [
+        "formats"
+      ],
+      "context": "A disk image with no wrapper at all: the bytes of a disk in a file. The word image is translated; raw may be, where the language has a natural word for unwrapped.",
+      "placeholders": []
+    },
+    "stopped here": {
+      "screens": [
+        "working"
+      ],
+      "context": "Marks the step a failed mount stopped at, beside it on the failure screen. Lower case, small.",
+      "placeholders": []
+    },
+    "unlocked": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "The same, for an open drive.",
+      "placeholders": []
+    },
+    "waiting": {
+      "screens": [
+        "working"
+      ],
+      "context": "Said by a screen reader for the step in progress. Lower case, read as part of a sentence.",
+      "placeholders": []
+    },
+    "“%@” could not be read.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "Refusal when the file could not be opened at all: permissions, or a file that has gone.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name, in typographic quotes"
+        }
+      ]
+    },
+    "“%@” had stopped responding and was disconnected. You can open it again.": {
+      "screens": [
+        "notices"
+      ],
+      "context": "A notice after one drive went away.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the drive name, in typographic quotes"
+        }
+      ]
+    },
+    "“%@” holds an encrypted volume, and this build’s drive engine cannot open encryption inside an image. Opening the drive it was made from would work.": {
+      "screens": [
+        "notices"
+      ],
+      "context": "Refusal on a build whose engine cannot unlock encryption found inside an image file.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name"
+        }
+      ]
+    },
+    "“%@” holds only the changes from another disk, and names the disk it changes.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "Refusal for a differencing image, which is meaningless without its parent.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name"
+        }
+      ]
+    },
+    "“%@” is a VDI, and this build’s drive engine has no VDI driver. A raw image or a qcow2 would open.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "Refusal on a build whose engine was assembled without the VDI driver. Not a common case: it means the app was built without the patches.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name"
+        }
+      ]
+    },
+    "“%@” is a VHDX, and this build’s drive engine has no VHDX driver. A VHD, a raw image or a qcow2 would open.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "The same, for VHDX.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name"
+        }
+      ]
+    },
+    "“%@” is a dynamic VHD, and this build’s drive engine has no driver for it. A fixed VHD, a raw image or a qcow2 would open.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "The same, for a dynamic VHD. A fixed VHD is a disk with a footer after it and needs no driver.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name"
+        }
+      ]
+    },
+    "“%@” is a sparse VMDK, and this build’s drive engine reads only the flat form. A flat VMDK or a raw image would open.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "The same, for a sparse VMDK. Sparse and flat are the two ways a VMDK stores its data.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name"
+        }
+      ]
+    },
+    "“%@” is marked as damaged. Repair it before opening it.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "Refusal for a qcow2 whose header says it was left in a bad state.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name"
+        }
+      ]
+    },
+    "“%@” is not a disk image.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "Refusal when nothing in the file looks like any format the app reads.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name"
+        }
+      ]
+    },
+    "“%@” is one of a chain of snapshots. Open the disk it was made from.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "Refusal for a snapshot, which describes changes to another disk rather than a disk.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name"
+        }
+      ]
+    },
+    "“%@” is smaller than its footer states, and may be damaged or incomplete.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "Refusal for a VHD whose footer claims more than the file holds, which usually means a truncated copy.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name"
+        }
+      ]
+    },
+    "“%@” is unlocked": {
+      "screens": [
+        "notices"
+      ],
+      "context": "Title of the screen for a drive that is now open, and said by a screen reader when it appears.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the drive name, in typographic quotes"
+        }
+      ]
+    },
+    "“%@” names another file on this Mac, which would be opened along with it.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "Refusal for an image that points at a second file. Opening it would open something the reader did not choose.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name"
+        }
+      ]
+    },
+    "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "Refusal for a multi-file image with a piece missing. Two names in one sentence: the image, then the file it wants.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the image's file name"
+        },
+        {
+          "token": "%@",
+          "is": "the missing file's name"
+        }
+      ]
+    },
+    "“%@” opened in macOS": {
+      "screens": [
+        "open-image"
+      ],
+      "context": "Title of that sheet. The image was opened by macOS, not by this app; the word order matters, as it is not the app that opened it.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name, in typographic quotes"
+        }
+      ]
+    },
+    "“%@” was disconnected.": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "A notice above the list when a drive went away while it was open.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the drive name, in typographic quotes"
+        }
+      ]
+    },
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": {
+      "screens": [
+        "formats"
+      ],
+      "context": "Refusal for a VHDX with unwritten changes in its log. Only the virtual machine that made it can replay that.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the file name"
+        }
+      ]
+    }
+  }
+}
