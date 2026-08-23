@@ -15,6 +15,8 @@ final class AppModel: ObservableObject {
     /// instance, and tests and snapshots make their own.
     static let shared = AppModel()
 
+    // MARK: What is on screen
+
     /// Whether `start()` has already run, since two places can call it.
     private var didStart = false
 
@@ -224,6 +226,8 @@ final class AppModel: ObservableObject {
             }
         }
     }
+
+    // MARK: Disk images
 
     /// The rows standing in for container files that hold no partition table.
     ///
@@ -560,6 +564,8 @@ final class AppModel: ObservableObject {
         }
     }
 
+    // MARK: Permissions and the helper
+
     /// Which mount is being ejected, so the row that was clicked is the row
     /// that shows it happening. A drive list can have several open at once.
     @Published var ejectingPath: String?
@@ -628,6 +634,8 @@ final class AppModel: ObservableObject {
     private lazy var watcher = DiskWatcher { [weak self] in
         Task { @MainActor [weak self] in self?.driveSetChanged() }
     }
+
+    // MARK: Sleeping and waking
 
     /// Watches for the machine sleeping and waking.
     private lazy var sleepWatch = SleepWatch(
@@ -714,6 +722,8 @@ final class AppModel: ObservableObject {
         if openMounts.isEmpty, case .mounted = phase { phase = .chooseDrive }
         refreshSpace()
     }
+
+    // MARK: Scanning
 
     /// The drive on screen, whichever way it is being shown.
     private var currentDrive: Drive? {
@@ -1308,7 +1318,7 @@ final class AppModel: ObservableObject {
         return openMounts.first { drive.owns($0.key) }?.value
     }
 
-    // MARK: Unlock
+    // MARK: Choosing a drive, and unlocking it
 
     /// Whether this drive has already been read and found not to be encrypted.
     ///
@@ -1399,6 +1409,8 @@ final class AppModel: ObservableObject {
     /// The credential of the mount in flight, so its output can be scrubbed of
     /// it before it reaches the screen, the log or a report.
     private var activeCredential: String?
+
+    // MARK: The three ways a drive opens
 
     private func runMount(drive: Drive, credential: String) {
         failedStage = nil
