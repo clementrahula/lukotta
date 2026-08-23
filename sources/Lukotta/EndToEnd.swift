@@ -25,14 +25,27 @@ enum EndToEnd {
     @MainActor
     static func runIfAsked() {
         guard let index = CommandLine.arguments.firstIndex(of: "--e2e") else { return }
-        let arguments = Array(CommandLine.arguments.dropFirst(index + 1))
-        guard arguments.count >= 2 else {
+        // Fixtures arrive as name=path. Addressed by position, adding one
+        // meant counting arguments on both sides of the command line, and the
+        // guards protecting indices 15 to 17 were written in a different order
+        // from the hand-over.
+        var fixtures: [String: URL] = [:]
+        var passphrase = ""
+        for argument in CommandLine.arguments.dropFirst(index + 1) {
+            guard let equals = argument.firstIndex(of: "=") else { continue }
+            let key = String(argument[argument.startIndex..<equals])
+            let value = String(argument[argument.index(after: equals)...])
+            if key == "passphrase" {
+                passphrase = value
+            } else {
+                fixtures[key] = URL(fileURLWithPath: value)
+            }
+        }
+        guard let container = fixtures["container"], !passphrase.isEmpty else {
             FileHandle.standardError.write(
-                Data("usage: --e2e <container.img> <passphrase> [plain.img]\n".utf8))
+                Data("usage: --e2e container=<path> passphrase=<word> name=<path>…\n".utf8))
             exit(2)
         }
-        let container = URL(fileURLWithPath: arguments[0])
-        let passphrase = arguments[1]
         guard FileManager.default.fileExists(atPath: container.path) else {
             FileHandle.standardError.write(Data("no container at \(container.path)\n".utf8))
             exit(2)
@@ -41,10 +54,10 @@ enum EndToEnd {
         // Every fixture this was handed has to be there. Each flow below opens
         // its file only if it exists, so one that was never built was skipped
         // in silence and the run still finished by saying everything passed.
-        for (index, path) in arguments.enumerated() where index != 1 {
+        for (name, url) in fixtures.sorted(by: { $0.key < $1.key }) {
             check(
-                FileManager.default.fileExists(atPath: path),
-                "the fixture \(URL(fileURLWithPath: path).lastPathComponent) was built")
+                FileManager.default.fileExists(atPath: url.path),
+                "the fixture \(name) was built")
         }
 
         print("every disk on this Mac")
@@ -58,153 +71,133 @@ enum EndToEnd {
         print("the same container, opened read-only")
         readOnlyFlow(container: container, passphrase: passphrase)
 
-        if arguments.count >= 6 {
-            let plain = URL(fileURLWithPath: arguments[4])
-            let encrypted = URL(fileURLWithPath: arguments[5])
-            if FileManager.default.fileExists(atPath: plain.path) {
-                print("")
-                print("qcow2, unencrypted: \(plain.lastPathComponent)")
-                engineReadFlow(image: plain, passphrase: nil)
-            }
-            if FileManager.default.fileExists(atPath: encrypted.path) {
-                print("")
-                print("qcow2, encrypted: \(encrypted.lastPathComponent)")
-                if EnginePaths.opensEncryptionInsideImages {
-                    engineReadFlow(image: encrypted, passphrase: passphrase)
-                } else {
-                    engineReadRefusedFlow(image: encrypted)
-                }
+        let encrypted = fixtures["qcow2-encrypted"]
+        if let plain = fixtures["qcow2"], FileManager.default.fileExists(atPath: plain.path) {
+            print("")
+            print("qcow2, unencrypted: \(plain.lastPathComponent)")
+            engineReadFlow(image: plain, passphrase: nil)
+        }
+        if let encrypted, FileManager.default.fileExists(atPath: encrypted.path) {
+            print("")
+            print("qcow2, encrypted: \(encrypted.lastPathComponent)")
+            if EnginePaths.opensEncryptionInsideImages {
+                engineReadFlow(image: encrypted, passphrase: passphrase)
+            } else {
+                engineReadRefusedFlow(image: encrypted)
             }
         }
 
-        if arguments.count >= 9 {
-            let vmdk = URL(fileURLWithPath: arguments[7])
-            let reaching = URL(fileURLWithPath: arguments[8])
-            if FileManager.default.fileExists(atPath: vmdk.path) {
-                print("")
-                print("VMDK: \(vmdk.lastPathComponent)")
-                engineReadFlow(image: vmdk, passphrase: nil)
-            }
-            if FileManager.default.fileExists(atPath: reaching.path) {
-                print("")
-                print("a VMDK reaching outside its folder: \(reaching.lastPathComponent)")
-                hostileFlow(image: reaching)
+        let vmdk = fixtures["vmdk"]
+        let reaching = fixtures["vmdk-reaching"]
+        if let vmdk, FileManager.default.fileExists(atPath: vmdk.path) {
+            print("")
+            print("VMDK: \(vmdk.lastPathComponent)")
+            engineReadFlow(image: vmdk, passphrase: nil)
+        }
+        if let reaching, FileManager.default.fileExists(atPath: reaching.path) {
+            print("")
+            print("a VMDK reaching outside its folder: \(reaching.lastPathComponent)")
+            hostileFlow(image: reaching)
+        }
+
+        let fixed = fixtures["vhd"]
+        let dynamic = fixtures["vhd-dynamic"]
+        if let fixed, FileManager.default.fileExists(atPath: fixed.path) {
+            print("")
+            print("fixed VHD: \(fixed.lastPathComponent)")
+            engineReadFlow(image: fixed, passphrase: nil)
+        }
+        if let dynamic, FileManager.default.fileExists(atPath: dynamic.path) {
+            print("")
+            print("dynamic VHD: \(dynamic.lastPathComponent)")
+            // Read by the engine's VHD driver. A build without it must say
+            // so rather than serve the header as a disk.
+            if EnginePaths.opensVdiAndVhd {
+                engineReadFlow(image: dynamic, passphrase: nil)
+            } else {
+                refusedByNameFlow(image: dynamic, saying: "dynamic VHD")
             }
         }
 
-        if arguments.count >= 11 {
-            let fixed = URL(fileURLWithPath: arguments[9])
-            let dynamic = URL(fileURLWithPath: arguments[10])
-            if FileManager.default.fileExists(atPath: fixed.path) {
-                print("")
-                print("fixed VHD: \(fixed.lastPathComponent)")
-                engineReadFlow(image: fixed, passphrase: nil)
+        let vhdx = fixtures["vhdx"]
+        let dirty = fixtures["vhdx-dirty"]
+        let differencing = fixtures["vhdx-parent"]
+        if let vhdx, FileManager.default.fileExists(atPath: vhdx.path) {
+            print("")
+            print("VHDX: \(vhdx.lastPathComponent)")
+            if EnginePaths.opensVdiAndVhd {
+                engineReadFlow(image: vhdx, passphrase: nil)
+            } else {
+                refusedByNameFlow(image: vhdx, saying: "VHDX")
             }
-            if FileManager.default.fileExists(atPath: dynamic.path) {
-                print("")
-                print("dynamic VHD: \(dynamic.lastPathComponent)")
-                // Read by the engine's VHD driver. A build without it must say
-                // so rather than serve the header as a disk.
-                if EnginePaths.opensVdiAndVhd {
-                    engineReadFlow(image: dynamic, passphrase: nil)
-                } else {
-                    refusedByNameFlow(image: dynamic, saying: "dynamic VHD")
-                }
+        }
+        if let dirty, FileManager.default.fileExists(atPath: dirty.path) {
+            print("")
+            print("a VHDX that was not shut down cleanly: \(dirty.lastPathComponent)")
+            refusedByNameFlow(image: dirty, saying: "not shut down cleanly")
+        }
+        if let differencing, FileManager.default.fileExists(atPath: differencing.path) {
+            print("")
+            print("a VHDX naming a parent disk: \(differencing.lastPathComponent)")
+            refusedByNameFlow(image: differencing, saying: "another disk")
+        }
+
+        let sparse = fixtures["vmdk-sparse"]
+        let streamed = fixtures["vmdk-streamed"]
+        if let sparse, FileManager.default.fileExists(atPath: sparse.path) {
+            print("")
+            print("sparse VMDK: \(sparse.lastPathComponent)")
+            if EnginePaths.opensSparseVmdk {
+                engineReadFlow(image: sparse, passphrase: nil)
+            } else {
+                refusedByNameFlow(image: sparse, saying: "sparse VMDK")
+            }
+        }
+        if let streamed, FileManager.default.fileExists(atPath: streamed.path) {
+            print("")
+            print("a VMDK whose grains are deflated: \(streamed.lastPathComponent)")
+            if EnginePaths.opensSparseVmdk {
+                engineReadFlow(image: streamed, passphrase: nil)
+            } else {
+                refusedByNameFlow(image: streamed, saying: "sparse VMDK")
             }
         }
 
-        if arguments.count >= 18 {
-            let vhdx = URL(fileURLWithPath: arguments[15])
-            let dirty = URL(fileURLWithPath: arguments[16])
-            let differencing = URL(fileURLWithPath: arguments[17])
-            if FileManager.default.fileExists(atPath: vhdx.path) {
-                print("")
-                print("VHDX: \(vhdx.lastPathComponent)")
-                if EnginePaths.opensVdiAndVhd {
-                    engineReadFlow(image: vhdx, passphrase: nil)
-                } else {
-                    refusedByNameFlow(image: vhdx, saying: "VHDX")
-                }
-            }
-            if FileManager.default.fileExists(atPath: dirty.path) {
-                print("")
-                print("a VHDX that was not shut down cleanly: \(dirty.lastPathComponent)")
-                refusedByNameFlow(image: dirty, saying: "not shut down cleanly")
-            }
-            if FileManager.default.fileExists(atPath: differencing.path) {
-                print("")
-                print("a VHDX naming a parent disk: \(differencing.lastPathComponent)")
-                refusedByNameFlow(image: differencing, saying: "another disk")
+        let vdi = fixtures["vdi"]
+        let ancient = fixtures["vdi-ancient"]
+        if let vdi, FileManager.default.fileExists(atPath: vdi.path) {
+            print("")
+            print("VDI: \(vdi.lastPathComponent)")
+            if EnginePaths.opensVdiAndVhd {
+                engineReadFlow(image: vdi, passphrase: nil)
+            } else {
+                refusedByNameFlow(image: vdi, saying: "VDI")
             }
         }
-
-        if arguments.count >= 15 {
-            let sparse = URL(fileURLWithPath: arguments[13])
-            let streamed = URL(fileURLWithPath: arguments[14])
-            if FileManager.default.fileExists(atPath: sparse.path) {
-                print("")
-                print("sparse VMDK: \(sparse.lastPathComponent)")
-                if EnginePaths.opensSparseVmdk {
-                    engineReadFlow(image: sparse, passphrase: nil)
-                } else {
-                    refusedByNameFlow(image: sparse, saying: "sparse VMDK")
-                }
-            }
-            if FileManager.default.fileExists(atPath: streamed.path) {
-                print("")
-                print("a VMDK whose grains are deflated: \(streamed.lastPathComponent)")
-                if EnginePaths.opensSparseVmdk {
-                    engineReadFlow(image: streamed, passphrase: nil)
-                } else {
-                    refusedByNameFlow(image: streamed, saying: "sparse VMDK")
-                }
-            }
+        if let ancient, FileManager.default.fileExists(atPath: ancient.path) {
+            print("")
+            print("a VDI written by a format nobody released: \(ancient.lastPathComponent)")
+            refusedByNameFlow(image: ancient, saying: "not a disk image")
         }
 
-        if arguments.count >= 13 {
-            let vdi = URL(fileURLWithPath: arguments[11])
-            let ancient = URL(fileURLWithPath: arguments[12])
-            if FileManager.default.fileExists(atPath: vdi.path) {
-                print("")
-                print("VDI: \(vdi.lastPathComponent)")
-                if EnginePaths.opensVdiAndVhd {
-                    engineReadFlow(image: vdi, passphrase: nil)
-                } else {
-                    refusedByNameFlow(image: vdi, saying: "VDI")
-                }
-            }
-            if FileManager.default.fileExists(atPath: ancient.path) {
-                print("")
-                print("a VDI written by a format nobody released: \(ancient.lastPathComponent)")
-                refusedByNameFlow(image: ancient, saying: "not a disk image")
-            }
+        let hostile = fixtures["hostile"]
+        if let hostile, FileManager.default.fileExists(atPath: hostile.path) {
+            print("")
+            print("an image naming another file: \(hostile.lastPathComponent)")
+            hostileFlow(image: hostile)
         }
 
-        if arguments.count >= 7 {
-            let hostile = URL(fileURLWithPath: arguments[6])
-            if FileManager.default.fileExists(atPath: hostile.path) {
-                print("")
-                print("an image naming another file: \(hostile.lastPathComponent)")
-                hostileFlow(image: hostile)
-            }
+        let exfat = fixtures["exfat"]
+        if let exfat, FileManager.default.fileExists(atPath: exfat.path) {
+            print("")
+            print("exFAT image: \(exfat.lastPathComponent)")
+            handOverFlow(image: exfat)
         }
 
-        if arguments.count >= 4 {
-            let exfat = URL(fileURLWithPath: arguments[3])
-            if FileManager.default.fileExists(atPath: exfat.path) {
-                print("")
-                print("exFAT image: \(exfat.lastPathComponent)")
-                handOverFlow(image: exfat)
-            }
-        }
-
-        if arguments.count >= 3 {
-            let plain = URL(fileURLWithPath: arguments[2])
-            if FileManager.default.fileExists(atPath: plain.path) {
-                print("")
-                print("unencrypted image: \(plain.lastPathComponent)")
-                plainFlow(image: plain)
-            }
+        if let plain = fixtures["plain"], FileManager.default.fileExists(atPath: plain.path) {
+            print("")
+            print("unencrypted image: \(plain.lastPathComponent)")
+            plainFlow(image: plain)
         }
 
         // Writing, for the formats whose drivers were written here. A file put
@@ -214,18 +207,19 @@ enum EndToEnd {
         // Each is opened for writing and then opened again from scratch, so
         // what is checked is the file on disk rather than anything the first
         // mount still had in memory.
-        let writable: [(Int, String)] = [
-            (2, "raw image"),
-            (10, "dynamic VHD"),
-            (9, "fixed VHD"),
-            (11, "VDI"),
-            (13, "sparse VMDK"),
-            (7, "VMDK"),
-            (4, "qcow2"),
+        let writable = [
+            ("plain", "raw image"),
+            ("vhd-dynamic", "dynamic VHD"),
+            ("vhd", "fixed VHD"),
+            ("vdi", "VDI"),
+            ("vmdk-sparse", "sparse VMDK"),
+            ("vmdk", "VMDK"),
+            ("qcow2", "qcow2"),
         ]
-        for (index, what) in writable where arguments.count > index {
-            let image = URL(fileURLWithPath: arguments[index])
-            guard FileManager.default.fileExists(atPath: image.path) else { continue }
+        for (name, what) in writable {
+            guard let image = fixtures[name],
+                FileManager.default.fileExists(atPath: image.path)
+            else { continue }
             print("")
             print("writing to a \(what): \(image.lastPathComponent)")
             writeFlow(image: image)
@@ -234,9 +228,10 @@ enum EndToEnd {
         // Writing through encryption: the same drivers underneath, with LUKS
         // between them and the filesystem. Nothing else here writes to a
         // volume that had to be unlocked first.
-        for (index, what) in [(5, "qcow2"), (0, "raw image")] where arguments.count > index {
-            let image = URL(fileURLWithPath: arguments[index])
-            guard FileManager.default.fileExists(atPath: image.path) else { continue }
+        for (name, what) in [("qcow2-encrypted", "qcow2"), ("container", "raw image")] {
+            guard let image = fixtures[name],
+                FileManager.default.fileExists(atPath: image.path)
+            else { continue }
             print("")
             print("writing to a LUKS volume inside a \(what): \(image.lastPathComponent)")
             writeFlow(image: image, passphrase: passphrase)
@@ -244,22 +239,18 @@ enum EndToEnd {
 
         // Putting back what was open, which is what the setting at the top of
         // Settings does.
-        if arguments.count > 2 {
-            let plain = URL(fileURLWithPath: arguments[2])
-            if FileManager.default.fileExists(atPath: plain.path) {
-                print("")
-                print("putting back what was open: \(plain.lastPathComponent)")
-                restoreFlow(image: plain, passphrase: nil)
-            }
+        if let plain = fixtures["plain"], FileManager.default.fileExists(atPath: plain.path) {
+            print("")
+            print("putting back what was open: \(plain.lastPathComponent)")
+            restoreFlow(image: plain, passphrase: nil)
         }
 
         // And the two that are read and not written: asked for read-write,
         // each opens read-only rather than failing, and refuses to be written
         // to.
-        for (index, what) in [(15, "VHDX"), (14, "stream-optimized VMDK")]
-        where arguments.count > index {
-            let image = URL(fileURLWithPath: arguments[index])
-            guard FileManager.default.fileExists(atPath: image.path), EnginePaths.opensVdiAndVhd
+        for (name, what) in [("vhdx", "VHDX"), ("vmdk-streamed", "stream-optimized VMDK")] {
+            guard let image = fixtures[name],
+                FileManager.default.fileExists(atPath: image.path), EnginePaths.opensVdiAndVhd
             else { continue }
             print("")
             print("writing to a \(what), which is read-only: \(image.lastPathComponent)")
@@ -269,10 +260,7 @@ enum EndToEnd {
         // Nothing stays attached, whatever the outcome. A run that failed
         // halfway left the image behind, and the next run then passed or failed
         // for reasons unrelated to the code.
-        detachEverything(
-            Array(
-                arguments.prefix(3).enumerated().filter { $0.offset != 1 }
-                    .map { URL(fileURLWithPath: $0.element) }))
+        detachEverything(["container", "plain"].compactMap { fixtures[$0] })
 
         print("")
         print("\(checks - failures)/\(checks) steps passed")
@@ -281,28 +269,43 @@ enum EndToEnd {
 
     // MARK: The flow
 
+    /// Start the app, open an image, and find the row it became.
+    ///
+    /// Every flow below begins this way, and the steps that each flow exists
+    /// for start a screen further down. Each wait is still checked here, so a
+    /// preamble that fails is a counted failure and not a flow that quietly
+    /// did nothing.
     @MainActor
-    private static func containerFlow(container: URL, passphrase: String) {
+    private static func openAndChoose(_ image: URL, timeout: TimeInterval = 60) -> (
+        model: AppModel, drive: Drive
+    )? {
         let model = AppModel()
         model.start()
         guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
-            return
+            return nil
         }
-
-        // 1. Open it.
-        model.openImage(container)
+        model.openImage(image)
         guard
             waitUntil(
-                "the container opens", timeout: 60,
+                "the image opens", timeout: timeout,
                 condition: {
                     model.imageOpening == nil
-                        && model.drives.contains { $0.uuid == container.path }
+                        && model.drives.contains { $0.uuid == image.path }
                 })
         else {
             if case .failed(_, let why) = model.imageOpening { print("      \(why)") }
-            return
+            return nil
         }
-        guard let drive = model.drives.first(where: { $0.uuid == container.path }) else { return }
+        guard let drive = model.drives.first(where: { $0.uuid == image.path }) else {
+            check(false, "the image appears in the list")
+            return nil
+        }
+        return (model, drive)
+    }
+
+    @MainActor
+    private static func containerFlow(container: URL, passphrase: String) {
+        guard let (model, drive) = openAndChoose(container) else { return }
         check(drive.connection.contains(appString("Disk Image")), "it is listed as a disk image")
 
         // 2. Unlock it.
@@ -391,22 +394,7 @@ enum EndToEnd {
     /// writable anyway would satisfy every check made in Swift.
     @MainActor
     private static func readOnlyFlow(container: URL, passphrase: String) {
-        let model = AppModel()
-        model.start()
-        guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
-            return
-        }
-
-        model.openImage(container)
-        guard
-            waitUntil(
-                "the container opens", timeout: 60,
-                condition: {
-                    model.imageOpening == nil
-                        && model.drives.contains { $0.uuid == container.path }
-                })
-        else { return }
-        guard let drive = model.drives.first(where: { $0.uuid == container.path }) else { return }
+        guard let (model, drive) = openAndChoose(container) else { return }
 
         model.choose(drive)
         guard
@@ -571,20 +559,7 @@ enum EndToEnd {
 
         // 2. Open it again. Nothing of the first mount survives: a new virtual
         // machine reads the file as it now stands.
-        let model = AppModel()
-        model.start()
-        guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
-            return
-        }
-        model.openImage(image)
-        guard
-            waitUntil(
-                "it opens again", timeout: 60,
-                condition: {
-                    model.imageOpening == nil && model.drives.contains { $0.uuid == image.path }
-                })
-        else { return }
-        guard let drive = model.drives.first(where: { $0.uuid == image.path }) else { return }
+        guard let (model, drive) = openAndChoose(image) else { return }
         guard
             waitUntil(
                 "it is identified again", timeout: 60,
@@ -632,20 +607,7 @@ enum EndToEnd {
 
         var mountPoint = ""
         do {
-            let model = AppModel()
-            model.start()
-            guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
-                return
-            }
-            model.openImage(image)
-            guard
-                waitUntil(
-                    "the image opens", timeout: 60,
-                    condition: {
-                        model.imageOpening == nil && model.drives.contains { $0.uuid == image.path }
-                    })
-            else { return }
-            guard let drive = model.drives.first(where: { $0.uuid == image.path }) else { return }
+            guard let (model, drive) = openAndChoose(image) else { return }
             guard
                 waitUntil(
                     "it is identified", timeout: 60,

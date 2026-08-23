@@ -183,4 +183,24 @@ clean_up() {
 }
 trap clean_up EXIT
 
-"$BINARY" --e2e "$CONTAINER" "$PASSPHRASE" "$PLAIN" "$EXFAT" "$QCOW_PLAIN" "$QCOW_ENC" "$HOSTILE" "$VMDK" "$VMDK_BAD" "$VHD" "$VHD_DYNAMIC" "$VDI" "$VDI_BAD" "$VMDK_SPARSE" "$VMDK_STREAMED" "$VHDX" "$VHDX_DIRTY" "$VHDX_PARENT"
+# Named, not positional. Adding a format is a line here and a line in
+# EndToEnd.swift, rather than a count that has to agree on both sides.
+"$BINARY" --e2e \
+  container="$CONTAINER" \
+  passphrase="$PASSPHRASE" \
+  plain="$PLAIN" \
+  exfat="$EXFAT" \
+  qcow2="$QCOW_PLAIN" \
+  qcow2-encrypted="$QCOW_ENC" \
+  hostile="$HOSTILE" \
+  vmdk="$VMDK" \
+  vmdk-reaching="$VMDK_BAD" \
+  vhd="$VHD" \
+  vhd-dynamic="$VHD_DYNAMIC" \
+  vdi="$VDI" \
+  vdi-ancient="$VDI_BAD" \
+  vmdk-sparse="$VMDK_SPARSE" \
+  vmdk-streamed="$VMDK_STREAMED" \
+  vhdx="$VHDX" \
+  vhdx-dirty="$VHDX_DIRTY" \
+  vhdx-parent="$VHDX_PARENT"

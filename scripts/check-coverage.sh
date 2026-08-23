@@ -76,14 +76,33 @@ FIXTURES = [
     "exfat.img", "container.img",
 ]
 text = open("scripts/e2e.sh").read()
-run = [line for line in text.splitlines() if "--e2e" in line and "$BINARY" in line]
+# The invocation spans several lines now, one fixture to a line. Everything
+# from `--e2e` to the first line that does not continue is the hand-over.
+run = []
+lines = text.splitlines()
+for i, line in enumerate(lines):
+    if "--e2e" not in line or "$BINARY" not in line:
+        continue
+    run.append(line)
+    while line.rstrip().endswith("\\") and i + 1 < len(lines):
+        i += 1
+        line = lines[i]
+        run.append(line)
+    break
 missing = []
 for fixture in FIXTURES:
     named = re.findall(r'^([A-Z_]+)="[^"]*/' + re.escape(fixture) + '"', text, re.M)
     if not named:
         missing.append(f"the end-to-end run builds no {fixture}")
         continue
-    if not any(f"${name}" in line for name in named for line in run):
+    # A variable name must end where it ends: "$VHDX" is a prefix of
+    # "$VHDX_DIRTY", so a plain substring test found a fixture that had been
+    # taken out of the hand-over.
+    if not any(
+        re.search(r"\$" + re.escape(name) + r"(?![A-Za-z0-9_])", line)
+        for name in named
+        for line in run
+    ):
         missing.append(f"{fixture} is built and never handed to the run")
 for line in missing:
     print(f"  MISSING  {line}")
