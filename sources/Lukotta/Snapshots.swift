@@ -295,8 +295,8 @@ enum Snapshots {
     /// room than English is covered by rendering in another language instead,
     /// which is the same failure and one that actually happens here.
     static let geometries: [(name: String, size: NSSize)] = [
-        ("ideal", NSSize(width: 640, height: 620)),
-        ("min", NSSize(width: 580, height: 560)),
+        ("ideal", NSSize(width: 640, height: 640)),
+        ("min", NSSize(width: 580, height: 600)),
     ]
 
     @MainActor

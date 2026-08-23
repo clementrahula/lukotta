@@ -27,7 +27,11 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(24)
         }
-        .frame(minWidth: 580, idealWidth: 640, minHeight: 560, idealHeight: 620)
+        // The permission screen carries a picture of the pane it is talking
+        // about, and it is the tallest thing the window holds. Hungarian needs
+        // 587 points of it at the narrowest width; the smallest window is 600
+        // so that every language shows all three steps without scrolling.
+        .frame(minWidth: 580, idealWidth: 640, minHeight: 600, idealHeight: 640)
         .background(Color(nsColor: .windowBackgroundColor))
         .remembersFrame(as: "dev.lukotta.mainWindowFrame")
         // One place for anything worth saying out loud, rather than each view

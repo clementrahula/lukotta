@@ -232,6 +232,19 @@ and compares it with `tests/snapshots/`. It needs `./build-app.sh` to have run;
 Baselines belong to one branding, the header drawing the app's own name, so
 never record them from an official build.
 
+Record once, when the interface is settled -- not after each change to it. A
+screen under review changes several times before it is right, and `--record`
+rewrites every baseline the change reaches: a window size rewrites all two
+hundred. During a review, render to a temporary directory and look at the
+picture:
+
+    "dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker" --snapshots /tmp/look
+
+Add `-AppleLanguages "(hu)"` to see a language other than the one this Mac is
+set to, which is how to find out whether a layout survives a longer
+translation. Record when the wording and the layout are agreed, and let the
+recorded baselines be the thing that is reviewed once.
+
 A capture is taken only once two of them agree. SwiftUI settles over a turn of
 the run loop, and an SF Symbol drawn for the first time in a process settles
 later still. Captured after a fixed wait instead, the chevron in the drive list
