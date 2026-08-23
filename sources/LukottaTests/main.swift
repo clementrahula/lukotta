@@ -729,6 +729,30 @@ group("secretRedaction") {
     expect(!report.contains("121121"), "the assembled report carries no key")
 }
 
+group("theRestoreRecordCarriesThisMountsReadOnlyState") {
+    // Bookkeeping this mount's success is one function for all three routes.
+    // Written out a second time for the authorised route, the copy recorded the
+    // restore entry before working out whether the mount had fallen back to
+    // read-only, so the entry carried the previous mount's answer.
+    //
+    // The order is what is being pinned: whatever decides mountedReadOnly must
+    // run before whatever reads it.
+    let source = (try? String(
+        contentsOfFile: "sources/Lukotta/AppModel.swift", encoding: .utf8)) ?? ""
+    guard let body = source.range(of: "private func finishMount(") else {
+        return expect(false, "finishMount was found in the file")
+    }
+    let after = String(source[body.upperBound...])
+    guard let decides = after.range(of: "mountedReadOnly = mountingReadOnly || fellBack"),
+        let reads = after.range(of: "rememberForRestore(drive, readOnly: mountedReadOnly)")
+    else {
+        return expect(false, "both statements were found")
+    }
+    expect(
+        decides.lowerBound < reads.lowerBound,
+        "the read-only state is decided before the restore record reads it")
+}
+
 group("aReportBuiltInTwoPartsMatchesOneBuiltAtOnce") {
     // The sheet redacts everything but the typed description once, when it
     // opens, and splices the description in as it is typed. What that produces

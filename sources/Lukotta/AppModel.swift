@@ -1467,7 +1467,8 @@ final class AppModel: ObservableObject {
                         for: drive, transcript: outcome.transcript)
                 {
                     self.noteVolumeCount(outcome.transcript)
-                    self.finishMount(drive: drive, credential: credential, mountPoint: point)
+                    self.finishMount(
+                        drive: drive, credential: credential, mountPoint: point, route: .helper)
                 } else {
                     // The route taken is half the story when something goes
                     // wrong, and it is not in the engine's output.
@@ -1518,8 +1519,23 @@ final class AppModel: ObservableObject {
     }
 
     /// Record a successful mount, wherever it came from.
+    /// Which of the three ways in was taken.
+    ///
+    /// Only the bookkeeping below differs by route, and only in two places: what
+    /// the log says, and whether this is the moment to offer the helper for
+    /// registration.
+    enum MountRoute {
+        /// The resident helper did it; no password was asked for.
+        case helper
+        /// The user authorised this one mount at the panel.
+        case authorised
+        /// A container file, opened with no privilege at all.
+        case unprivileged
+    }
+
     private func finishMount(
-        drive: Drive, credential: String, mountPoint: String, transcript: String = ""
+        drive: Drive, credential: String, mountPoint: String, transcript: String = "",
+        route: MountRoute
     ) {
         // Read-only either because it was asked for, or because the drive
         // refused to be written to and the script fell back. The second is the
@@ -1544,11 +1560,20 @@ final class AppModel: ObservableObject {
         }
         DriveMemory.remember(mountPoint: mountPoint, for: drive.uuid)
         rememberForRestore(drive, readOnly: mountedReadOnly)
-        // Authorisation has just been demonstrated, so the helper is registered
-        // and the next unlock does not ask. macOS still requires approval in
-        // Login Items, for which the panel then prompts.
-        if case .notInstalled = helper.state { helper.install() }
-        Log.mount.notice("mounted through the helper")
+        switch route {
+        case .authorised:
+            // Authorisation has just been demonstrated, so this is the moment to
+            // offer the helper and spare the next unlock the panel. macOS still
+            // wants approval in Login Items, for which the panel then prompts.
+            // Only here: the helper route already has one, and a container file
+            // authorises nothing.
+            if case .notInstalled = helper.state { helper.install() }
+            Log.mount.notice("mounted with authorisation")
+        case .helper:
+            Log.mount.notice("mounted through the helper")
+        case .unprivileged:
+            Log.mount.notice("mounted without the helper")
+        }
         openMounts[drive.devicePath] = mountPoint
         collectVolumes(for: drive, fallback: mountPoint)
         self.credential = ""
@@ -1577,7 +1602,7 @@ final class AppModel: ObservableObject {
                 await MainActor.run {
                     self.finishMount(
                         drive: drive, credential: credential, mountPoint: result.mountPoint,
-                        transcript: result.transcript)
+                        transcript: result.transcript, route: .unprivileged)
                 }
             } catch let err as EngineError {
                 await MainActor.run {
@@ -1609,41 +1634,9 @@ final class AppModel: ObservableObject {
                         Task { @MainActor in self.appendStatus(line) }
                     })
                 await MainActor.run {
-                    // Only store a credential that has actually worked.
-                    if self.rememberCredential {
-                        if !CredentialStore.save(credential, for: drive.uuid) {
-                            self.ejectProblem =
-                                "The drive opened, but the key could not be saved to your Keychain."
-                        }
-                    } else {
-                        CredentialStore.delete(for: drive.uuid)
-                    }
-                    self.credential = ""
-                    self.credentialBelongsTo = nil
-                    // The label is only knowable now. Remember it so the next
-                    // unlock can name the share before mounting.
-                    DriveMemory.remember(mountPoint: result.mountPoint, for: drive.uuid)
-                    self.rememberForRestore(drive, readOnly: self.mountedReadOnly)
-                    Log.mount.notice("mounted without the helper")
-                    let fellBack = result.transcript.contains(
-                        MountScript.stageMarker + "read-only")
-                    self.mountedReadOnly = readOnly || fellBack
-                    self.readOnlyReason =
-                        fellBack
-                        ? Self.reasonForFallback(result.transcript, self.statusLines) : nil
-                    if self.mountedReadOnly {
-                        self.readOnlyMounts.insert(result.mountPoint)
-                    } else {
-                        self.readOnlyMounts.remove(result.mountPoint)
-                    }
-                    self.openMounts[drive.devicePath] = result.mountPoint
-                    self.noteVolumeCount(result.transcript)
-                    self.collectVolumes(for: drive, fallback: result.mountPoint)
-                    if self.restoring {
-                        self.restoreFinished?()
-                    } else {
-                        self.phase = .mounted(drive, result.mountPoint)
-                    }
+                    self.finishMount(
+                        drive: drive, credential: credential, mountPoint: result.mountPoint,
+                        transcript: result.transcript, route: .authorised)
                 }
             } catch let err as EngineError {
                 await MainActor.run {
