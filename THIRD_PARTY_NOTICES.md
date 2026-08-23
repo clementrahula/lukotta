@@ -16,6 +16,50 @@ the application itself, at no additional charge.
 Each release is accompanied by that source. Requests may also be addressed to
 lukotta@rahula.dev.
 
+## Scope of the Corresponding Source
+
+Section 1 of version 3 of the GNU General Public License defines what the
+corresponding source comprises. Two consequences of that definition are
+recorded here.
+
+**Apple's compiler and frameworks.** A Major Component, as that section defines
+it, includes an essential component of the operating system on which the work
+runs and the compiler used to produce the work. The System Libraries of an
+executable include what is packaged with such a component and serves only to
+enable use of the work with it, or to implement a Standard Interface. The
+corresponding source expressly excludes System Libraries.
+
+The Swift and Objective-C toolchains supplied with Xcode are accordingly a
+Major Component, and AppKit, SwiftUI, Foundation and the other frameworks of
+macOS are System Libraries. Neither is conveyed with the application, and
+neither forms part of its corresponding source. Section 3 of version 2 makes
+equivalent provision.
+
+**The Linux guest.** The guest image and the application are not combined into
+a single work. They execute as separate programs in separate address spaces, on
+either side of a virtual machine boundary, and communicate over virtio devices
+and NFS. Storing them on one medium is aggregation, and does not bring either
+under the other's licence.
+
+Components of the guest licensed under GPL-2.0-only, among them the Linux
+kernel and busybox, are therefore distributed alongside an application licensed
+under GPL-3.0-or-later. Nothing of either is linked into the other. Each
+component is conveyed under its own licence, as listed below, and the
+corresponding source for each accompanies every release.
+
+## Conditions of Conveyance
+
+The application is conveyed under the GNU General Public License and under no
+further condition, as section 10 of version 3 requires. It is distributed
+directly, signed with a Developer ID and notarised by Apple. It is not
+distributed through the Mac App Store, whose terms would impose conditions on
+recipients that the same section does not permit.
+
+Signing and notarisation determine how macOS treats the binary the author
+distributes. They restrict neither building, modifying nor running the work:
+the build described in BUILDING.md produces a working application signed ad
+hoc, without a Developer ID and without notarisation.
+
 ## Modifications to Redistributed Components
 
 The components listed below are redistributed in modified form. Each modified
@@ -29,7 +73,7 @@ to which they apply.
 | --- | --- | --- | --- |
 | anylinuxfs | GPL-3.0-or-later | 2026-08-22 | Recognition of the VMDK, VDI, VHD and VHDX disk-image formats |
 | vmproxy | GPL-3.0-or-later | 2026-08-22 | Unlocking of an encrypted volume detected inside a disk image |
-| imago | MIT | 2026-08-22 | Read-only drivers for VDI, VHD and VHDX; support for the sparse and stream-optimized forms of VMDK |
+| imago | MIT | 2026-08-22 | Drivers for VDI, VHD and VHDX, the first two written as well as read; support for the sparse and stream-optimized forms of VMDK |
 | krun-devices | Apache-2.0 | 2026-08-22 | Selection of the VDI, VHD and VHDX drivers by disk-format number |
 
 Files added to imago by these modifications are licensed under the MIT terms of
@@ -162,4 +206,4 @@ registered trademark of Linus Torvalds. macOS, Finder and Apple Silicon are
 trademarks of Apple Inc. Lukotta is not affiliated with, endorsed by, or
 sponsored by any of them, and names them to state what it works with.
 
-Generated 2026-08-21.
+Generated 2026-08-23.
