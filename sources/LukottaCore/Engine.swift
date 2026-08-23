@@ -260,6 +260,8 @@ public enum EngineEnvironment {
             }
             .flatMap { Int($0.trimmingCharacters(in: .whitespacesAndNewlines)) } ?? 0
 
+        // Not the shared runner: this reads stderr as it arrives to count
+        // entries for the progress, rather than collecting output at the end.
         let tar = Process()
         tar.executableURL = URL(fileURLWithPath: "/usr/bin/tar")
         tar.arguments = ["-xzpvf", archive.path, "-C", directory.path]

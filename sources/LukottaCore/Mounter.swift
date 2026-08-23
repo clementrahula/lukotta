@@ -178,16 +178,8 @@ public enum Mounter {
             if FileManager.default.fileExists(atPath: candidate) { return candidate }
         }
         // Fall back to asking the system for NFS mounts under /Volumes.
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/sbin/mount")
-        let pipe = Pipe()
-        p.standardOutput = pipe
-        p.standardError = FileHandle.nullDevice
-        try? p.run()
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        p.waitUntilExit()
-        let text = String(data: data, encoding: .utf8) ?? ""
-        for line in text.components(separatedBy: .newlines) where line.contains(" on /Volumes/") {
+        for line in mountTable().components(separatedBy: .newlines)
+        where line.contains(" on /Volumes/") {
             guard line.contains("nfs") else { continue }
             guard let onRange = line.range(of: " on "),
                 let typeRange = line.range(of: " (", range: onRange.upperBound..<line.endIndex)

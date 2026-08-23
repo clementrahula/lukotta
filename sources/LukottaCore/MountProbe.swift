@@ -23,6 +23,9 @@ public enum MountProbe {
         // df, because it issues a request the server has to serve. Reading the
         // mount point itself proves nothing: the client answers that from its
         // own cache, and a dead mount looks healthy.
+        // Not the shared runner: this deliberately collects no output, so that
+        // a df already inside a wedged syscall can be abandoned without a pipe
+        // still open on it.
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/bin/df")
         p.arguments = ["-k", mountPoint]

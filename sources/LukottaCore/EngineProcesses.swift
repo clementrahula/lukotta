@@ -28,18 +28,10 @@ public enum EngineProcesses {
         guard let engine = EnginePaths.anylinuxfs else { return [] }
         let directory = engine.deletingLastPathComponent().deletingLastPathComponent().path
 
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/bin/ps")
-        p.arguments = ["-axo", "pid=,args="]
-        let out = Pipe()
-        p.standardOutput = out
-        p.standardError = FileHandle.nullDevice
-        do { try p.run() } catch { return [] }
-        let data = out.fileHandleForReading.readDataToEndOfFile()
-        p.waitUntilExit()
+        guard let result = run("/bin/ps", ["-axo", "pid=,args="]) else { return [] }
 
         var found: Set<Int32> = []
-        for line in String(decoding: data, as: UTF8.self).components(separatedBy: .newlines) {
+        for line in result.out.components(separatedBy: .newlines) {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
             guard let space = trimmed.firstIndex(of: " ") else { continue }
             guard let pid = Int32(trimmed[trimmed.startIndex..<space]) else { continue }

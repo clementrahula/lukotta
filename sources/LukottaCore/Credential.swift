@@ -17,29 +17,17 @@ public enum Credential {
             // than blocking the user.
             return .success(raw)
         }
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/bin/bash")
-        p.arguments = [validator.path, raw]
-        let out = Pipe(), err = Pipe()
-        p.standardOutput = out
-        p.standardError = err
-        do { try p.run() } catch {
+        guard let result = run("/bin/bash", [validator.path, raw]) else {
             return .success(raw)
         }
-        let outData = out.fileHandleForReading.readDataToEndOfFile()
-        let errData = err.fileHandleForReading.readDataToEndOfFile()
-        p.waitUntilExit()
 
-        if p.terminationStatus == 0 {
-            let value =
-                String(data: outData, encoding: .utf8)?
-                .trimmingCharacters(in: .newlines) ?? raw
-            return .success(value)
+        if result.ok {
+            let value = result.out.trimmingCharacters(in: .newlines)
+            return .success(value.isEmpty ? raw : value)
         }
-        let reason =
-            String(data: errData, encoding: .utf8)?
-            .trimmingCharacters(in: .whitespacesAndNewlines) ?? "That credential was not accepted."
-        return .failure(.credentialRejected(reason))
+        let reason = result.err.trimmingCharacters(in: .whitespacesAndNewlines)
+        return .failure(
+            .credentialRejected(reason.isEmpty ? "That credential was not accepted." : reason))
     }
 
     /// Live feedback while typing, without validating hard enough to be annoying.

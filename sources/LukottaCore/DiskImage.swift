@@ -192,28 +192,15 @@ public enum DiskImage {
         run(["detach", device, "-force"]).status == 0
     }
 
+    /// hdiutil, with a deadline: attaching an image that is on a network
+    /// share, or a device that has gone away, can otherwise wait for ever.
     static func run(_ arguments: [String], timeout: TimeInterval = 30) -> (
         status: Int32, out: String
     ) {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
-        p.arguments = arguments
-        let out = Pipe()
-        p.standardOutput = out
-        p.standardError = FileHandle.nullDevice
-        do { try p.run() } catch { return (1, "") }
-
-        // The deadline is watched before the pipe is read, since reading to the
-        // end would itself wait on a process that will not finish.
-        let finished = DispatchSemaphore(value: 0)
-        p.terminationHandler = { _ in finished.signal() }
-        if finished.wait(timeout: .now() + timeout) == .timedOut {
-            p.terminate()
+        guard let result = LukottaCore.run("/usr/bin/hdiutil", arguments, timeout: timeout) else {
             return (1, "")
         }
-        let data = out.fileHandleForReading.readDataToEndOfFile()
-        p.waitUntilExit()
-        return (p.terminationStatus, String(data: data, encoding: .utf8) ?? "")
+        return (result.status, result.out)
     }
 }
 
@@ -322,28 +309,9 @@ extension DiskImage {
         return nil
     }
 
-    private static func mountTable() -> String {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/sbin/mount")
-        let out = Pipe()
-        p.standardOutput = out
-        p.standardError = FileHandle.nullDevice
-        do { try p.run() } catch { return "" }
-        let data = out.fileHandleForReading.readDataToEndOfFile()
-        p.waitUntilExit()
-        return String(data: data, encoding: .utf8) ?? ""
-    }
-
     @discardableResult
     private static func diskutil(_ arguments: [String]) -> Int32 {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
-        p.arguments = arguments
-        p.standardOutput = FileHandle.nullDevice
-        p.standardError = FileHandle.nullDevice
-        do { try p.run() } catch { return 1 }
-        p.waitUntilExit()
-        return p.terminationStatus
+        LukottaCore.run("/usr/sbin/diskutil", arguments)?.status ?? 1
     }
 }
 
@@ -368,17 +336,10 @@ extension DiskImage {
     ///     0:   crypto_LUKS            +335.5 MB   container.qcow2
     ///     0:   btrfs LUKOTTAPLAIN     +335.5 MB   plain.qcow2
     public static func contents(of url: URL) -> [String] {
-        guard let engine = EnginePaths.anylinuxfs else { return [] }
-        let p = Process()
-        p.executableURL = engine
-        p.arguments = ["list", url.path]
-        let out = Pipe()
-        p.standardOutput = out
-        p.standardError = FileHandle.nullDevice
-        do { try p.run() } catch { return [] }
-        let data = out.fileHandleForReading.readDataToEndOfFile()
-        p.waitUntilExit()
-        return types(inListing: String(data: data, encoding: .utf8) ?? "")
+        guard let engine = EnginePaths.anylinuxfs,
+            let result = LukottaCore.run(engine.path, ["list", url.path])
+        else { return [] }
+        return types(inListing: result.out)
     }
 
     /// The TYPE column of the engine's listing, in order.

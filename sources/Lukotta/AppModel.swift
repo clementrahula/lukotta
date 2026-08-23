@@ -153,7 +153,7 @@ final class AppModel: ObservableObject {
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
             let plist = DriveSurvey.diskutilList()
-            let table = DriveSurvey.mountTable()
+            let table = mountTable()
             let openable = DriveScanner.scan(images: images)
             let entries = DriveSurvey.survey(
                 list: plist, info: { DriveScanner.info(for: $0) ?? [:] },

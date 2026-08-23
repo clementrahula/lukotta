@@ -239,19 +239,11 @@ public enum DriveScanner {
     }
 
     private static func runPlist(_ argv: [String]) -> [String: Any]? {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: argv[0])
-        p.arguments = Array(argv.dropFirst())
-        let pipe = Pipe()
-        p.standardOutput = pipe
-        p.standardError = FileHandle.nullDevice
-        do { try p.run() } catch { return nil }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        p.waitUntilExit()
-        return
-            (try? PropertyListSerialization.propertyList(
-                from: data,
-                options: [],
-                format: nil)) as? [String: Any]
+        guard let result = run(argv[0], Array(argv.dropFirst())),
+            let data = result.out.data(using: .utf8),
+            let plist = try? PropertyListSerialization.propertyList(
+                from: data, options: [], format: nil)
+        else { return nil }
+        return plist as? [String: Any]
     }
 }

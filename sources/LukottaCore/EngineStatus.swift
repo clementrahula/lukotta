@@ -15,18 +15,10 @@ public struct EngineMount: Equatable, Sendable {
 public enum EngineStatus {
     public static func current() -> [EngineMount] {
         guard let engine = EnginePaths.anylinuxfs,
-            FileManager.default.fileExists(atPath: engine.path)
+            FileManager.default.fileExists(atPath: engine.path),
+            let result = LukottaCore.run(engine.path, ["status"])
         else { return [] }
-        let p = Process()
-        p.executableURL = engine
-        p.arguments = ["status"]
-        let out = Pipe()
-        p.standardOutput = out
-        p.standardError = FileHandle.nullDevice
-        do { try p.run() } catch { return [] }
-        let data = out.fileHandleForReading.readDataToEndOfFile()
-        p.waitUntilExit()
-        return parse(String(data: data, encoding: .utf8) ?? "")
+        return parse(result.out)
     }
 
     /// "/dev/disk4s1 on /Volumes/BACKUP (ntfs3, ...) VM[cpus: 4, ram: 2048 MiB]"
@@ -71,18 +63,6 @@ public enum EngineStatus {
             .sorted {
                 $0.components(separatedBy: "/").count > $1.components(separatedBy: "/").count
             }
-    }
-
-    private static func mountTable() -> String {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/sbin/mount")
-        let out = Pipe()
-        p.standardOutput = out
-        p.standardError = FileHandle.nullDevice
-        do { try p.run() } catch { return "" }
-        let data = out.fileHandleForReading.readDataToEndOfFile()
-        p.waitUntilExit()
-        return String(data: data, encoding: .utf8) ?? ""
     }
 
     /// Which entries of `mount` output this engine is responsible for.
@@ -133,14 +113,7 @@ public enum EngineStatus {
     /// the server to co-operate, which a dead one cannot do.
     @discardableResult
     public static func forceUnmount(mountPoint: String) -> Bool {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/sbin/umount")
-        p.arguments = ["-f", mountPoint]
-        p.standardOutput = FileHandle.nullDevice
-        p.standardError = FileHandle.nullDevice
-        do { try p.run() } catch { return false }
-        p.waitUntilExit()
-        return p.terminationStatus == 0
+        run("/sbin/umount", ["-f", mountPoint])?.ok ?? false
     }
 
     /// How long the engine is given to tear a mount down before it is treated
@@ -159,21 +132,13 @@ public enum EngineStatus {
         ok: Bool, message: String
     ) {
         guard let engine = EnginePaths.anylinuxfs else { return (false, "Engine missing.") }
-        let p = Process()
-        p.executableURL = engine
-        p.arguments = ["unmount", mountPoint, "--wait-for-vm", "30"]
-        let out = Pipe(), err = Pipe()
-        p.standardOutput = out
-        p.standardError = err
-        do { try p.run() } catch { return (false, "Could not run the engine.") }
-
-        // Give up rather than wait for ever. Reading the pipes to the end would
-        // itself block on a process that never finishes, so the deadline is
-        // watched first and the output read after.
-        let finished = DispatchSemaphore(value: 0)
-        p.terminationHandler = { _ in finished.signal() }
-        if finished.wait(timeout: .now() + timeout) == .timedOut {
-            p.terminate()
+        // A deadline, because ejecting a drive that has gone away can otherwise
+        // wait for ever, and nil comes back for both a failure to start and a
+        // deadline passed.
+        guard
+            let result = run(
+                engine.path, ["unmount", mountPoint, "--wait-for-vm", "30"], timeout: timeout)
+        else {
             return (
                 false,
                 appString(
@@ -182,11 +147,8 @@ public enum EngineStatus {
             )
         }
 
-        let o = String(data: out.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-        let e = String(data: err.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-        p.waitUntilExit()
-        let combined = (o + "\n" + e).trimmingCharacters(in: .whitespacesAndNewlines)
-        if p.terminationStatus == 0 { return (true, combined) }
+        let combined = result.combined
+        if result.ok { return (true, combined) }
         // Busy volumes are the common case and deserve a usable sentence.
         if combined.lowercased().contains("busy") || combined.lowercased().contains("in use") {
             return (

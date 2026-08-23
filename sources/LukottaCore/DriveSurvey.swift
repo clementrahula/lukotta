@@ -164,29 +164,12 @@ extension DriveSurvey {
         run(["/usr/sbin/diskutil", "list", "-plist"])
     }
 
-    public static func mountTable() -> String {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/sbin/mount")
-        let out = Pipe()
-        p.standardOutput = out
-        p.standardError = FileHandle.nullDevice
-        do { try p.run() } catch { return "" }
-        let data = out.fileHandleForReading.readDataToEndOfFile()
-        p.waitUntilExit()
-        return String(data: data, encoding: .utf8) ?? ""
-    }
-
     private static func run(_ argv: [String]) -> [String: Any] {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: argv[0])
-        p.arguments = Array(argv.dropFirst())
-        let out = Pipe()
-        p.standardOutput = out
-        p.standardError = FileHandle.nullDevice
-        do { try p.run() } catch { return [:] }
-        let data = out.fileHandleForReading.readDataToEndOfFile()
-        p.waitUntilExit()
-        return (try? PropertyListSerialization.propertyList(from: data, options: [], format: nil))
-            as? [String: Any] ?? [:]
+        guard let result = LukottaCore.run(argv[0], Array(argv.dropFirst())),
+            let data = result.out.data(using: .utf8),
+            let plist = try? PropertyListSerialization.propertyList(
+                from: data, options: [], format: nil)
+        else { return [:] }
+        return plist as? [String: Any] ?? [:]
     }
 }
