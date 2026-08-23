@@ -131,5 +131,35 @@
       "policy": "translate",
       "reason": "A drive is the physical thing; a volume is one filesystem on it; a disk image is a file that behaves like a drive; a partition is a division of a drive. The app uses them precisely and a translation that collapses them loses the meaning of several sentences."
     }
-  ]
+  ],
+  "apple_terms_to_verify": {
+    "$comment": "Apple's own words were used for these languages from knowledge rather than from a machine running that localisation. A reviewer with the language's macOS in front of them should confirm each one; the rest of the translation does not depend on it.",
+    "languages": [
+      "hi",
+      "id",
+      "ms",
+      "th",
+      "vi",
+      "ru",
+      "uk",
+      "tr",
+      "ar",
+      "he"
+    ],
+    "terms": [
+      "Privacy & Security",
+      "Full Disk Access",
+      "System Settings",
+      "Files and Folders",
+      "Removable Volumes",
+      "Login Items",
+      "General",
+      "Finder",
+      "Applications",
+      "Keychain",
+      "Locations",
+      "Bin"
+    ],
+    "rule": "Where macOS is not offered in the language at all -- Albanian, Bulgarian, Estonian, Filipino, Latvian, Lithuanian, Slovenian -- these names stay in English, because that is what the reader's own Mac shows."
+  }
 }

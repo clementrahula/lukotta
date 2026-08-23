@@ -1618,7 +1618,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ BitLocker, Linux और वर्चुअल मशीन की ड्राइव तथा डिस्क इमेज खोलता है, जिन्हें macOS अपने आप नहीं खोल पाता।\n\nकिसी ड्राइव को रॉ डिवाइस स्तर पर पढ़ने के लिए Full Disk Access चाहिए। macOS किसी ऐप को इसे सीधे माँगने का रास्ता नहीं देता, इसलिए इसे हाथ से चालू करना पड़ता है।"
+            "value": "%@ BitLocker, Linux और वर्चुअल मशीन की ड्राइव तथा डिस्क इमेज खोलता है, जिन्हें macOS अपने आप नहीं खोल पाता।\n\nकिसी ड्राइव को रॉ डिवाइस स्तर पर पढ़ने के लिए पूर्ण डिस्क ऐक्सेस चाहिए। macOS किसी ऐप को इसे सीधे माँगने का रास्ता नहीं देता, इसलिए इसे हाथ से चालू करना पड़ता है।"
           }
         },
         "hr": {
@@ -1636,7 +1636,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ membuka drive BitLocker, Linux, dan mesin virtual serta image disk yang tidak dapat dibuka macOS sendiri.\n\nMembaca drive pada tingkat perangkat mentah memerlukan Full Disk Access. macOS tidak menyediakan cara bagi aplikasi untuk memintanya secara langsung, jadi izin itu harus dinyalakan sendiri."
+            "value": "%@ membuka drive BitLocker, Linux, dan mesin virtual serta image disk yang tidak dapat dibuka macOS sendiri.\n\nMembaca drive pada tingkat perangkat mentah memerlukan Akses Disk Penuh. macOS tidak menyediakan cara bagi aplikasi untuk memintanya secara langsung, jadi izin itu harus dinyalakan sendiri."
           }
         },
         "it": {
@@ -1672,7 +1672,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ membuka pemacu BitLocker, Linux dan mesin maya serta imej cakera yang tidak dapat dibuka macOS sendiri.\n\nMembaca pemacu pada peringkat peranti mentah memerlukan Full Disk Access. macOS tidak menyediakan cara untuk aplikasi memintanya secara terus, jadi ia perlu dihidupkan sendiri."
+            "value": "%@ membuka pemacu BitLocker, Linux dan mesin maya serta imej cakera yang tidak dapat dibuka macOS sendiri.\n\nMembaca pemacu pada peringkat peranti mentah memerlukan Akses Cakera Penuh. macOS tidak menyediakan cara untuk aplikasi memintanya secara terus, jadi ia perlu dihidupkan sendiri."
           }
         },
         "nb": {
@@ -1708,13 +1708,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ открывает диски BitLocker, Linux и виртуальных машин, а также образы дисков, которые macOS не открывает сам.\n\nЧтение диска на уровне устройства требует Full Disk Access. macOS не даёт приложению возможности запросить это напрямую, поэтому включить придётся вручную."
+            "value": "%@ открывает диски BitLocker, Linux и виртуальных машин, а также образы дисков, которые macOS не открывает сам.\n\nЧтение диска на уровне устройства требует Полный доступ к диску. macOS не даёт приложению возможности запросить это напрямую, поэтому включить придётся вручную."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ odpira diske BitLocker in Linux, diske navideznih računalnikov ter slike diskov, ki jih macOS sam ne zna odpreti.\n\nBranje diska na ravni surove naprave zahteva Poln dostop do diska. macOS programom ne omogoča, da bi zanj zaprosili neposredno, zato ga je treba vklopiti ročno."
+            "value": "%@ odpira diske BitLocker in Linux, diske navideznih računalnikov ter slike diskov, ki jih macOS sam ne zna odpreti.\n\nBranje diska na ravni surove naprave zahteva Full Disk Access. macOS programom ne omogoča, da bi zanj zaprosili neposredno, zato ga je treba vklopiti ročno."
           }
         },
         "sq": {
@@ -1732,25 +1732,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ เปิดไดรฟ์ BitLocker, Linux และไดรฟ์ของเครื่องเสมือน รวมถึงอิมเมจดิสก์ที่ macOS เปิดเองไม่ได้\n\nการอ่านไดรฟ์ในระดับอุปกรณ์ดิบต้องใช้ Full Disk Access macOS ไม่มีวิธีให้แอปขอสิทธิ์นี้โดยตรง จึงต้องเปิดด้วยมือ"
+            "value": "%@ เปิดไดรฟ์ BitLocker, Linux และไดรฟ์ของเครื่องเสมือน รวมถึงอิมเมจดิสก์ที่ macOS เปิดเองไม่ได้\n\nการอ่านไดรฟ์ในระดับอุปกรณ์ดิบต้องใช้ การเข้าถึงดิสก์เต็มรูปแบบ macOS ไม่มีวิธีให้แอปขอสิทธิ์นี้โดยตรง จึงต้องเปิดด้วยมือ"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@, macOS'in kendi başına açamadığı BitLocker, Linux ve sanal makine sürücülerini ve disk imajlarını açar.\n\nBir sürücüyü ham aygıt düzeyinde okumak Full Disk Access gerektirir. macOS bir uygulamaya bunu doğrudan isteme imkânı vermez, bu yüzden elle açılmalıdır."
+            "value": "%@, macOS'in kendi başına açamadığı BitLocker, Linux ve sanal makine sürücülerini ve disk imajlarını açar.\n\nBir sürücüyü ham aygıt düzeyinde okumak Tam Disk Erişimi gerektirir. macOS bir uygulamaya bunu doğrudan isteme imkânı vermez, bu yüzden elle açılmalıdır."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ відкриває диски BitLocker, Linux і віртуальних машин, а також образи дисків, які macOS не відкриває сам.\n\nЧитання диска на рівні пристрою потребує Full Disk Access. macOS не дає програмі змоги запитати це напряму, тож увімкнути доведеться вручну."
+            "value": "%@ відкриває диски BitLocker, Linux і віртуальних машин, а також образи дисків, які macOS не відкриває сам.\n\nЧитання диска на рівні пристрою потребує Повний доступ до диска. macOS не дає програмі змоги запитати це напряму, тож увімкнути доведеться вручну."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ mở các ổ BitLocker, Linux và ổ máy ảo cùng ảnh đĩa mà macOS không tự mở được.\n\nĐọc một ổ đĩa ở mức thiết bị thô cần Full Disk Access. macOS không cho ứng dụng cách nào để xin quyền này trực tiếp, nên phải bật bằng tay."
+            "value": "%@ mở các ổ BitLocker, Linux và ổ máy ảo cùng ảnh đĩa mà macOS không tự mở được.\n\nĐọc một ổ đĩa ở mức thiết bị thô cần Toàn quyền truy cập đĩa. macOS không cho ứng dụng cách nào để xin quyền này trực tiếp, nên phải bật bằng tay."
           }
         },
         "zh-Hans": {
@@ -21102,7 +21102,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access"
+            "value": "पूर्ण डिस्क ऐक्सेस"
           }
         },
         "hr": {
@@ -21120,7 +21120,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access"
+            "value": "Akses Disk Penuh"
           }
         },
         "it": {
@@ -21156,7 +21156,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access"
+            "value": "Akses Cakera Penuh"
           }
         },
         "nb": {
@@ -21192,13 +21192,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access"
+            "value": "Полный доступ к диску"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poln dostop do diska"
+            "value": "Full Disk Access"
           }
         },
         "sq": {
@@ -21216,25 +21216,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access"
+            "value": "การเข้าถึงดิสก์เต็มรูปแบบ"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access"
+            "value": "Tam Disk Erişimi"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access"
+            "value": "Повний доступ до диска"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access"
+            "value": "Toàn quyền truy cập đĩa"
           }
         },
         "zh-Hans": {
@@ -21322,7 +21322,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access: इसके बिना macOS किसी भी ऐप को ड्राइव की रॉ सामग्री पढ़ने नहीं देता। इसे माँगा नहीं जा सकता, इसलिए हाथ से चालू करना पड़ता है"
+            "value": "पूर्ण डिस्क ऐक्सेस: इसके बिना macOS किसी भी ऐप को ड्राइव की रॉ सामग्री पढ़ने नहीं देता। इसे माँगा नहीं जा सकता, इसलिए हाथ से चालू करना पड़ता है"
           }
         },
         "hr": {
@@ -21340,7 +21340,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access: tanpa itu macOS tidak mengizinkan aplikasi mana pun membaca isi mentah sebuah drive. Izin ini tidak dapat diminta, jadi harus dinyalakan sendiri"
+            "value": "Akses Disk Penuh: tanpa itu macOS tidak mengizinkan aplikasi mana pun membaca isi mentah sebuah drive. Izin ini tidak dapat diminta, jadi harus dinyalakan sendiri"
           }
         },
         "it": {
@@ -21376,7 +21376,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access: tanpanya macOS tidak membenarkan mana-mana aplikasi membaca kandungan mentah sesebuah pemacu. Ia tidak boleh diminta, jadi perlu dihidupkan sendiri"
+            "value": "Akses Cakera Penuh: tanpanya macOS tidak membenarkan mana-mana aplikasi membaca kandungan mentah sesebuah pemacu. Ia tidak boleh diminta, jadi perlu dihidupkan sendiri"
           }
         },
         "nb": {
@@ -21412,13 +21412,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access: без него macOS не позволит ни одному приложению читать содержимое диска напрямую. Его нельзя запросить, поэтому включать нужно вручную"
+            "value": "Полный доступ к диску: без него macOS не позволит ни одному приложению читать содержимое диска напрямую. Его нельзя запросить, поэтому включать нужно вручную"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poln dostop do diska: brez njega macOS nobenemu programu ne dovoli brati surove vsebine diska. Zanj ni mogoče zaprositi, zato ga je treba vklopiti ročno"
+            "value": "Full Disk Access: brez njega macOS nobenemu programu ne dovoli brati surove vsebine diska. Zanj ni mogoče zaprositi, zato ga je treba vklopiti ročno"
           }
         },
         "sq": {
@@ -21436,25 +21436,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access: หากไม่มีสิทธิ์นี้ macOS จะไม่ยอมให้แอปใดอ่านเนื้อหาดิบของไดรฟ์ สิทธิ์นี้ขอไม่ได้ จึงต้องเปิดด้วยมือ"
+            "value": "การเข้าถึงดิสก์เต็มรูปแบบ: หากไม่มีสิทธิ์นี้ macOS จะไม่ยอมให้แอปใดอ่านเนื้อหาดิบของไดรฟ์ สิทธิ์นี้ขอไม่ได้ จึงต้องเปิดด้วยมือ"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access: macOS, bu izin olmadan hiçbir uygulamanın bir sürücünün ham içeriğini okumasına izin vermez. İstenemez, bu yüzden elle açılmalıdır"
+            "value": "Tam Disk Erişimi: macOS, bu izin olmadan hiçbir uygulamanın bir sürücünün ham içeriğini okumasına izin vermez. İstenemez, bu yüzden elle açılmalıdır"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access: без нього macOS не дозволить жодній програмі читати вміст диска напряму. Його не можна запитати, тож умикати треба вручну"
+            "value": "Повний доступ до диска: без нього macOS не дозволить жодній програмі читати вміст диска напряму. Його не можна запитати, тож умикати треба вручну"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access: nếu thiếu, macOS không cho bất kỳ ứng dụng nào đọc nội dung thô của ổ đĩa. Không thể xin quyền này, nên phải bật bằng tay"
+            "value": "Toàn quyền truy cập đĩa: nếu thiếu, macOS không cho bất kỳ ứng dụng nào đọc nội dung thô của ổ đĩa. Không thể xin quyền này, nên phải bật bằng tay"
           }
         },
         "zh-Hans": {
@@ -21542,7 +21542,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU General Public License"
+            "value": "GNU सामान्य Public License"
           }
         },
         "hr": {
@@ -21560,7 +21560,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU General Public License"
+            "value": "GNU Umum Public License"
           }
         },
         "it": {
@@ -21596,7 +21596,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU General Public License"
+            "value": "GNU Umum Public License"
           }
         },
         "nb": {
@@ -21632,7 +21632,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU General Public License"
+            "value": "GNU Основные Public License"
           }
         },
         "sl": {
@@ -21656,25 +21656,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU General Public License"
+            "value": "GNU ทั่วไป Public License"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU General Public License"
+            "value": "GNU Genel Public License"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU General Public License"
+            "value": "GNU Загальні Public License"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU General Public License"
+            "value": "GNU Cài đặt chung Public License"
           }
         },
         "zh-Hans": {
@@ -30342,7 +30342,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Privacy & Security → Full Disk Access खोलें।"
+            "value": "गोपनीयता और सुरक्षा → पूर्ण डिस्क ऐक्सेस खोलें।"
           }
         },
         "hr": {
@@ -30360,7 +30360,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buka Privacy & Security → Full Disk Access."
+            "value": "Buka Privasi & Keamanan → Akses Disk Penuh."
           }
         },
         "it": {
@@ -30396,7 +30396,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buka Privacy & Security → Full Disk Access."
+            "value": "Buka Privasi & Keselamatan → Akses Cakera Penuh."
           }
         },
         "nb": {
@@ -30432,13 +30432,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Откройте Privacy & Security → Full Disk Access."
+            "value": "Откройте Конфиденциальность и безопасность → Полный доступ к диску."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Odprite »Zasebnost in varnost« → »Poln dostop do diska«."
+            "value": "Odprite „Privacy & Security“ → »Full Disk Access«."
           }
         },
         "sq": {
@@ -30456,25 +30456,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "เปิด Privacy & Security → Full Disk Access"
+            "value": "เปิด ความเป็นส่วนตัวและความปลอดภัย → การเข้าถึงดิสก์เต็มรูปแบบ"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Privacy & Security → Full Disk Access açın."
+            "value": "Gizlilik ve Güvenlik → Tam Disk Erişimi açın."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Відкрийте Privacy & Security → Full Disk Access."
+            "value": "Відкрийте Конфіденційність і безпека → Повний доступ до диска."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mở Privacy & Security → Full Disk Access."
+            "value": "Mở Quyền riêng tư & Bảo mật → Toàn quyền truy cập đĩa."
           }
         },
         "zh-Hans": {
@@ -31222,7 +31222,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "System Settings खोलें"
+            "value": "सिस्टम सेटिंग्ज़ खोलें"
           }
         },
         "hr": {
@@ -31240,7 +31240,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buka System Settings"
+            "value": "Buka Pengaturan Sistem"
           }
         },
         "it": {
@@ -31276,7 +31276,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buka System Settings"
+            "value": "Buka Seting Sistem"
           }
         },
         "nb": {
@@ -31312,13 +31312,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Открыть System Settings"
+            "value": "Открыть Системные настройки"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Odpri Sistemske nastavitve"
+            "value": "Odpri System Settings"
           }
         },
         "sq": {
@@ -31336,25 +31336,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "เปิด System Settings"
+            "value": "เปิด การตั้งค่าระบบ"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "System Settings'i Aç"
+            "value": "Sistem Ayarları'i Aç"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Відкрити System Settings"
+            "value": "Відкрити Системні параметри"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mở System Settings"
+            "value": "Mở Cài đặt hệ thống"
           }
         },
         "zh-Hans": {
@@ -36376,7 +36376,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "रॉ डिस्क पढ़ना और फ़ाइल सिस्टम माउंट करना ऐसे काम हैं जो केवल व्यवस्थापक कर सकता है। पूरा करने के लिए Login Items में %@ को स्वीकृत करें।"
+            "value": "रॉ डिस्क पढ़ना और फ़ाइल सिस्टम माउंट करना ऐसे काम हैं जो केवल व्यवस्थापक कर सकता है। पूरा करने के लिए लॉगिन आइटम में %@ को स्वीकृत करें।"
           }
         },
         "hr": {
@@ -36394,7 +36394,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Membaca disk mentah dan memasang sistem berkas hanya dapat dilakukan administrator. Setujui %@ di Login Items untuk menyelesaikannya."
+            "value": "Membaca disk mentah dan memasang sistem berkas hanya dapat dilakukan administrator. Setujui %@ di Item Masuk untuk menyelesaikannya."
           }
         },
         "it": {
@@ -36430,7 +36430,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Membaca cakera mentah dan melekapkan sistem fail ialah tindakan yang hanya pentadbir boleh lakukan. Luluskan %@ dalam Login Items untuk menyelesaikannya."
+            "value": "Membaca cakera mentah dan melekapkan sistem fail ialah tindakan yang hanya pentadbir boleh lakukan. Luluskan %@ dalam Item Log Masuk untuk menyelesaikannya."
           }
         },
         "nb": {
@@ -36466,7 +36466,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Чтение необработанного диска и монтирование файловой системы — действия, доступные только администратору. Разрешите %@ в Login Items, чтобы завершить."
+            "value": "Чтение необработанного диска и монтирование файловой системы — действия, доступные только администратору. Разрешите %@ в Объекты входа, чтобы завершить."
           }
         },
         "sl": {
@@ -36490,25 +36490,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "การอ่านดิสก์ดิบและการเมานต์ระบบไฟล์เป็นสิ่งที่มีเพียงผู้ดูแลระบบทำได้ อนุมัติ %@ ใน Login Items เพื่อให้เสร็จสมบูรณ์"
+            "value": "การอ่านดิสก์ดิบและการเมานต์ระบบไฟล์เป็นสิ่งที่มีเพียงผู้ดูแลระบบทำได้ อนุมัติ %@ ใน รายการเข้าสู่ระบบ เพื่อให้เสร็จสมบูรณ์"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ham bir diski okumak ve bir dosya sistemini bağlamak yalnızca yöneticinin yapabileceği işlerdir. Tamamlamak için Login Items içinde %@ uygulamasını onaylayın."
+            "value": "Ham bir diski okumak ve bir dosya sistemini bağlamak yalnızca yöneticinin yapabileceği işlerdir. Tamamlamak için Giriş Öğeleri içinde %@ uygulamasını onaylayın."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Читання необробленого диска та монтування файлової системи — дії, доступні лише адміністратору. Дозвольте %@ у Login Items, щоб завершити."
+            "value": "Читання необробленого диска та монтування файлової системи — дії, доступні лише адміністратору. Дозвольте %@ у Об’єкти входу, щоб завершити."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đọc đĩa thô và gắn kết hệ thống tệp là những việc chỉ quản trị viên mới làm được. Hãy chấp thuận %@ trong Login Items để hoàn tất."
+            "value": "Đọc đĩa thô và gắn kết hệ thống tệp là những việc chỉ quản trị viên mới làm được. Hãy chấp thuận %@ trong Mục đăng nhập để hoàn tất."
           }
         },
         "zh-Hans": {
@@ -42096,7 +42096,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "अभी खुली विंडो में %@ के लिए Full Disk Access चालू करें। इसके बिना कोई ड्राइव नहीं पढ़ी जा सकती, न लॉग इन पर और न किसी और समय।"
+            "value": "अभी खुली विंडो में %@ के लिए पूर्ण डिस्क ऐक्सेस चालू करें। इसके बिना कोई ड्राइव नहीं पढ़ी जा सकती, न लॉग इन पर और न किसी और समय।"
           }
         },
         "hr": {
@@ -42114,7 +42114,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nyalakan Full Disk Access untuk %@ pada jendela yang baru saja terbuka. Tanpa itu sebuah drive tidak dapat dibaca, baik saat masuk maupun kapan pun."
+            "value": "Nyalakan Akses Disk Penuh untuk %@ pada jendela yang baru saja terbuka. Tanpa itu sebuah drive tidak dapat dibaca, baik saat masuk maupun kapan pun."
           }
         },
         "it": {
@@ -42150,7 +42150,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hidupkan Full Disk Access untuk %@ dalam tetingkap yang baru terbuka. Tanpanya sesebuah pemacu tidak dapat dibaca, sama ada semasa log masuk atau pada bila-bila masa lain."
+            "value": "Hidupkan Akses Cakera Penuh untuk %@ dalam tetingkap yang baru terbuka. Tanpanya sesebuah pemacu tidak dapat dibaca, sama ada semasa log masuk atau pada bila-bila masa lain."
           }
         },
         "nb": {
@@ -42186,13 +42186,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Включите Full Disk Access для %@ в только что открывшемся окне. Без него диск нельзя прочитать — ни при входе в систему, ни в любой другой момент."
+            "value": "Включите Полный доступ к диску для %@ в только что открывшемся окне. Без него диск нельзя прочитать — ни при входе в систему, ни в любой другой момент."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "V oknu, ki se je pravkar odprlo, vklopite Poln dostop do diska za %@. Brez tega diska ni mogoče brati, ne ob prijavi ne kdaj drugič."
+            "value": "V oknu, ki se je pravkar odprlo, vklopite Full Disk Access za %@. Brez tega diska ni mogoče brati, ne ob prijavi ne kdaj drugič."
           }
         },
         "sq": {
@@ -42210,25 +42210,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "เปิด Full Disk Access ให้ %@ ในหน้าต่างที่เพิ่งเปิดขึ้น หากไม่มีสิทธิ์นี้ จะอ่านไดรฟ์ไม่ได้ ไม่ว่าตอนล็อกอินหรือเวลาใดก็ตาม"
+            "value": "เปิด การเข้าถึงดิสก์เต็มรูปแบบ ให้ %@ ในหน้าต่างที่เพิ่งเปิดขึ้น หากไม่มีสิทธิ์นี้ จะอ่านไดรฟ์ไม่ได้ ไม่ว่าตอนล็อกอินหรือเวลาใดก็ตาม"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Az önce açılan pencerede %@ için Full Disk Access iznini açın. Bu izin olmadan bir sürücü ne oturum açılışında ne de başka bir anda okunabilir."
+            "value": "Az önce açılan pencerede %@ için Tam Disk Erişimi iznini açın. Bu izin olmadan bir sürücü ne oturum açılışında ne de başka bir anda okunabilir."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Увімкніть Full Disk Access для %@ у щойно відкритому вікні. Без нього диск не можна прочитати — ані під час входу, ані будь-коли інше."
+            "value": "Увімкніть Повний доступ до диска для %@ у щойно відкритому вікні. Без нього диск не можна прочитати — ані під час входу, ані будь-коли інше."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hãy bật Full Disk Access cho %@ trong cửa sổ vừa mở. Không có nó thì không đọc được ổ đĩa, dù khi đăng nhập hay bất cứ lúc nào khác."
+            "value": "Hãy bật Toàn quyền truy cập đĩa cho %@ trong cửa sổ vừa mở. Không có nó thì không đọc được ổ đĩa, dù khi đăng nhập hay bất cứ lúc nào khác."
           }
         },
         "zh-Hans": {
@@ -43196,7 +43196,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access सूची, जिसमें किसी ऐप का स्विच चिह्नित है।"
+            "value": "पूर्ण डिस्क ऐक्सेस सूची, जिसमें किसी ऐप का स्विच चिह्नित है।"
           }
         },
         "hr": {
@@ -43214,7 +43214,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Daftar Full Disk Access, dengan sakelar sebuah aplikasi ditandai."
+            "value": "Daftar Akses Disk Penuh, dengan sakelar sebuah aplikasi ditandai."
           }
         },
         "it": {
@@ -43250,7 +43250,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Senarai Full Disk Access, dengan suis sesebuah aplikasi ditandakan."
+            "value": "Senarai Akses Cakera Penuh, dengan suis sesebuah aplikasi ditandakan."
           }
         },
         "nb": {
@@ -43286,13 +43286,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Список Full Disk Access с отмеченным переключателем приложения."
+            "value": "Список Полный доступ к диску с отмеченным переключателем приложения."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Seznam Poln dostop do diska z označenim stikalom programa."
+            "value": "Seznam Full Disk Access z označenim stikalom programa."
           }
         },
         "sq": {
@@ -43310,25 +43310,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "รายการ Full Disk Access โดยมีสวิตช์ของแอปหนึ่งถูกทำเครื่องหมายไว้"
+            "value": "รายการ การเข้าถึงดิสก์เต็มรูปแบบ โดยมีสวิตช์ของแอปหนึ่งถูกทำเครื่องหมายไว้"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bir uygulamanın anahtarı işaretlenmiş Full Disk Access listesi."
+            "value": "Bir uygulamanın anahtarı işaretlenmiş Tam Disk Erişimi listesi."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Список Full Disk Access із позначеним перемикачем програми."
+            "value": "Список Повний доступ до диска із позначеним перемикачем програми."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Danh sách Full Disk Access, có đánh dấu công tắc của một ứng dụng."
+            "value": "Danh sách Toàn quyền truy cập đĩa, có đánh dấu công tắc của một ứng dụng."
           }
         },
         "zh-Hans": {
@@ -43416,7 +43416,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access सूची, जिसमें + बटन चिह्नित है।"
+            "value": "पूर्ण डिस्क ऐक्सेस सूची, जिसमें + बटन चिह्नित है।"
           }
         },
         "hr": {
@@ -43434,7 +43434,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Daftar Full Disk Access, dengan tombol + ditandai."
+            "value": "Daftar Akses Disk Penuh, dengan tombol + ditandai."
           }
         },
         "it": {
@@ -43470,7 +43470,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Senarai Full Disk Access, dengan butang + ditandakan."
+            "value": "Senarai Akses Cakera Penuh, dengan butang + ditandakan."
           }
         },
         "nb": {
@@ -43506,13 +43506,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Список Full Disk Access с отмеченной кнопкой +."
+            "value": "Список Полный доступ к диску с отмеченной кнопкой +."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Seznam Poln dostop do diska z označenim gumbom +."
+            "value": "Seznam Full Disk Access z označenim gumbom +."
           }
         },
         "sq": {
@@ -43530,25 +43530,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "รายการ Full Disk Access โดยมีปุ่ม + ถูกทำเครื่องหมายไว้"
+            "value": "รายการ การเข้าถึงดิสก์เต็มรูปแบบ โดยมีปุ่ม + ถูกทำเครื่องหมายไว้"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "+ düğmesi işaretlenmiş Full Disk Access listesi."
+            "value": "+ düğmesi işaretlenmiş Tam Disk Erişimi listesi."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Список Full Disk Access із позначеною кнопкою +."
+            "value": "Список Повний доступ до диска із позначеною кнопкою +."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Danh sách Full Disk Access, có đánh dấu nút +."
+            "value": "Danh sách Toàn quyền truy cập đĩa, có đánh dấu nút +."
           }
         },
         "zh-Hans": {
@@ -56050,7 +56050,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "अस्वीकार कर दिया गया। Files and Folders में %@ के लिए Removable Volumes चालू करें, फिर लौटें।"
+            "value": "अस्वीकार कर दिया गया। फ़ाइलें और फ़ोल्डर में %@ के लिए हटाने योग्य वॉल्यूम चालू करें, फिर लौटें।"
           }
         },
         "hr": {
@@ -56068,7 +56068,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ditolak. Di Files and Folders, nyalakan Removable Volumes untuk %@, lalu kembali."
+            "value": "Ditolak. Di File dan Folder, nyalakan Volume Lepasan untuk %@, lalu kembali."
           }
         },
         "it": {
@@ -56104,7 +56104,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telah ditolak. Dalam Files and Folders, hidupkan Removable Volumes untuk %@, kemudian kembali."
+            "value": "Telah ditolak. Dalam Fail dan Folder, hidupkan Volum Boleh Tanggal untuk %@, kemudian kembali."
           }
         },
         "nb": {
@@ -56140,13 +56140,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Было отклонено. В разделе Files and Folders включите Removable Volumes для %@ и вернитесь."
+            "value": "Было отклонено. В разделе Файлы и папки включите Съемные тома для %@ и вернитесь."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bilo je zavrnjeno. V »Datoteke in mape« vklopite »Snemljivi nosilci« za %@ in se vrnite."
+            "value": "Bilo je zavrnjeno. V „Files and Folders“ vklopite „Removable Volumes“ za %@ in se vrnite."
           }
         },
         "sq": {
@@ -56164,25 +56164,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ถูกปฏิเสธ ใน Files and Folders ให้เปิด Removable Volumes สำหรับ %@ แล้วกลับมา"
+            "value": "ถูกปฏิเสธ ใน ไฟล์และโฟลเดอร์ ให้เปิด โวลุ่มที่ถอดได้ สำหรับ %@ แล้วกลับมา"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reddedildi. Files and Folders içinde %@ için Removable Volumes seçeneğini açın, sonra geri dönün."
+            "value": "Reddedildi. Dosyalar ve Klasörler içinde %@ için Çıkarılabilir Birimler seçeneğini açın, sonra geri dönün."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Було відхилено. У розділі Files and Folders увімкніть Removable Volumes для %@ і поверніться."
+            "value": "Було відхилено. У розділі Файли та папки увімкніть Знімні томи для %@ і поверніться."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đã bị từ chối. Trong Files and Folders, hãy bật Removable Volumes cho %@ rồi quay lại."
+            "value": "Đã bị từ chối. Trong Tệp và thư mục, hãy bật Ổ đĩa tháo lắp được cho %@ rồi quay lại."
           }
         },
         "zh-Hans": {
@@ -59570,7 +59570,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "आपकी ड्राइव पुनः चालू करने के बाद फिर से खुलने के लिए सेट हैं, लेकिन Full Disk Access अब नहीं दिया गया है। macOS का अपडेट, ऐप का स्थान बदलना या दोबारा इंस्टॉल करना इसे हटा सकता है।"
+            "value": "आपकी ड्राइव पुनः चालू करने के बाद फिर से खुलने के लिए सेट हैं, लेकिन पूर्ण डिस्क ऐक्सेस अब नहीं दिया गया है। macOS का अपडेट, ऐप का स्थान बदलना या दोबारा इंस्टॉल करना इसे हटा सकता है।"
           }
         },
         "hr": {
@@ -59588,7 +59588,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drive Anda diatur untuk terbuka lagi setelah dinyalakan ulang, tetapi Full Disk Access tidak lagi diberikan. Pembaruan macOS, pemindahan, atau pemasangan ulang dapat menghapusnya."
+            "value": "Drive Anda diatur untuk terbuka lagi setelah dinyalakan ulang, tetapi Akses Disk Penuh tidak lagi diberikan. Pembaruan macOS, pemindahan, atau pemasangan ulang dapat menghapusnya."
           }
         },
         "it": {
@@ -59624,7 +59624,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pemacu anda ditetapkan untuk dibuka semula selepas dimulakan semula, tetapi Full Disk Access tidak lagi diberikan. Kemas kini macOS, pemindahan atau pemasangan semula boleh menghapuskannya."
+            "value": "Pemacu anda ditetapkan untuk dibuka semula selepas dimulakan semula, tetapi Akses Cakera Penuh tidak lagi diberikan. Kemas kini macOS, pemindahan atau pemasangan semula boleh menghapuskannya."
           }
         },
         "nb": {
@@ -59660,7 +59660,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ваши диски настроены открываться снова после перезагрузки, но Full Disk Access больше не предоставлен. Обновление macOS, перемещение или переустановка могут его снять."
+            "value": "Ваши диски настроены открываться снова после перезагрузки, но Полный доступ к диску больше не предоставлен. Обновление macOS, перемещение или переустановка могут его снять."
           }
         },
         "sl": {
@@ -59684,25 +59684,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ไดรฟ์ของคุณถูกตั้งให้เปิดอีกครั้งหลังเริ่มเครื่องใหม่ แต่ Full Disk Access ไม่ได้ถูกให้ไว้แล้ว การอัปเดต macOS การย้ายแอป หรือการติดตั้งใหม่ อาจทำให้สิทธิ์นี้หายไป"
+            "value": "ไดรฟ์ของคุณถูกตั้งให้เปิดอีกครั้งหลังเริ่มเครื่องใหม่ แต่ การเข้าถึงดิสก์เต็มรูปแบบ ไม่ได้ถูกให้ไว้แล้ว การอัปเดต macOS การย้ายแอป หรือการติดตั้งใหม่ อาจทำให้สิทธิ์นี้หายไป"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sürücüleriniz yeniden başlatmadan sonra yine açılacak biçimde ayarlı, ancak Full Disk Access artık verilmiş değil. Bir macOS güncellemesi, taşıma ya da yeniden kurulum bunu kaldırabilir."
+            "value": "Sürücüleriniz yeniden başlatmadan sonra yine açılacak biçimde ayarlı, ancak Tam Disk Erişimi artık verilmiş değil. Bir macOS güncellemesi, taşıma ya da yeniden kurulum bunu kaldırabilir."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ваші диски налаштовано відкриватися знову після перезавантаження, але Full Disk Access більше не надано. Оновлення macOS, переміщення або перевстановлення можуть його зняти."
+            "value": "Ваші диски налаштовано відкриватися знову після перезавантаження, але Повний доступ до диска більше не надано. Оновлення macOS, переміщення або перевстановлення можуть його зняти."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Các ổ đĩa của bạn được đặt để mở lại sau khi khởi động, nhưng Full Disk Access không còn được cấp. Một bản cập nhật macOS, việc di chuyển hay cài lại đều có thể gỡ bỏ nó."
+            "value": "Các ổ đĩa của bạn được đặt để mở lại sau khi khởi động, nhưng Toàn quyền truy cập đĩa không còn được cấp. Một bản cập nhật macOS, việc di chuyển hay cài lại đều có thể gỡ bỏ nó."
           }
         },
         "zh-Hans": {
@@ -61110,7 +61110,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ने ड्राइव तक पहुँच रोक दी। एन्क्रिप्टेड डिस्क पढ़ने के लिए %@ को Full Disk Access चाहिए।"
+            "value": "macOS ने ड्राइव तक पहुँच रोक दी। एन्क्रिप्टेड डिस्क पढ़ने के लिए %@ को पूर्ण डिस्क ऐक्सेस चाहिए।"
           }
         },
         "hr": {
@@ -61128,7 +61128,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS memblokir akses ke drive. %@ memerlukan Full Disk Access sebelum dapat membaca disk terenkripsi."
+            "value": "macOS memblokir akses ke drive. %@ memerlukan Akses Disk Penuh sebelum dapat membaca disk terenkripsi."
           }
         },
         "it": {
@@ -61164,7 +61164,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS menyekat akses kepada pemacu. %@ memerlukan Full Disk Access sebelum ia boleh membaca cakera bersulit."
+            "value": "macOS menyekat akses kepada pemacu. %@ memerlukan Akses Cakera Penuh sebelum ia boleh membaca cakera bersulit."
           }
         },
         "nb": {
@@ -61200,7 +61200,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS заблокировал доступ к диску. %@ нужен Full Disk Access, чтобы читать зашифрованный диск."
+            "value": "macOS заблокировал доступ к диску. %@ нужен Полный доступ к диску, чтобы читать зашифрованный диск."
           }
         },
         "sl": {
@@ -61224,25 +61224,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ปิดกั้นการเข้าถึงไดรฟ์ %@ ต้องมี Full Disk Access ก่อนจึงจะอ่านดิสก์ที่เข้ารหัสได้"
+            "value": "macOS ปิดกั้นการเข้าถึงไดรฟ์ %@ ต้องมี การเข้าถึงดิสก์เต็มรูปแบบ ก่อนจึงจะอ่านดิสก์ที่เข้ารหัสได้"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS sürücüye erişimi engelledi. %@ şifreli bir diski okuyabilmek için Full Disk Access iznine ihtiyaç duyar."
+            "value": "macOS sürücüye erişimi engelledi. %@ şifreli bir diski okuyabilmek için Tam Disk Erişimi iznine ihtiyaç duyar."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS заблокував доступ до диска. %@ потрібен Full Disk Access, щоб читати зашифрований диск."
+            "value": "macOS заблокував доступ до диска. %@ потрібен Повний доступ до диска, щоб читати зашифрований диск."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS đã chặn truy cập vào ổ đĩa. %@ cần Full Disk Access mới đọc được đĩa mã hóa."
+            "value": "macOS đã chặn truy cập vào ổ đĩa. %@ cần Toàn quyền truy cập đĩa mới đọc được đĩa mã hóa."
           }
         },
         "zh-Hans": {
@@ -62430,7 +62430,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ने %@ को इस ड्राइव तक पहुँच नहीं दी। नीचे Removable Volumes चालू करें, फिर उसे दोबारा खोलें।"
+            "value": "macOS ने %@ को इस ड्राइव तक पहुँच नहीं दी। नीचे हटाने योग्य वॉल्यूम चालू करें, फिर उसे दोबारा खोलें।"
           }
         },
         "hr": {
@@ -62448,7 +62448,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS menolak akses %@ ke drive ini. Nyalakan Removable Volumes di bawah, lalu buka lagi."
+            "value": "macOS menolak akses %@ ke drive ini. Nyalakan Volume Lepasan di bawah, lalu buka lagi."
           }
         },
         "it": {
@@ -62484,7 +62484,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS menolak akses %@ kepada pemacu ini. Hidupkan Removable Volumes di bawah, kemudian bukanya semula."
+            "value": "macOS menolak akses %@ kepada pemacu ini. Hidupkan Volum Boleh Tanggal di bawah, kemudian bukanya semula."
           }
         },
         "nb": {
@@ -62520,13 +62520,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS отказал %@ в доступе к этому диску. Включите Removable Volumes ниже и откройте его снова."
+            "value": "macOS отказал %@ в доступе к этому диску. Включите Съемные тома ниже и откройте его снова."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS je programu %@ zavrnil dostop do tega diska. Spodaj vklopite »Snemljivi nosilci« in ga znova odprite."
+            "value": "macOS je programu %@ zavrnil dostop do tega diska. Spodaj vklopite „Removable Volumes“ in ga znova odprite."
           }
         },
         "sq": {
@@ -62544,25 +62544,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ปฏิเสธไม่ให้ %@ เข้าถึงไดรฟ์นี้ เปิด Removable Volumes ด้านล่าง แล้วเปิดไดรฟ์อีกครั้ง"
+            "value": "macOS ปฏิเสธไม่ให้ %@ เข้าถึงไดรฟ์นี้ เปิด โวลุ่มที่ถอดได้ ด้านล่าง แล้วเปิดไดรฟ์อีกครั้ง"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS, %@ uygulamasının bu sürücüye erişimini reddetti. Aşağıdan Removable Volumes seçeneğini açın ve yeniden açın."
+            "value": "macOS, %@ uygulamasının bu sürücüye erişimini reddetti. Aşağıdan Çıkarılabilir Birimler seçeneğini açın ve yeniden açın."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS відмовив %@ у доступі до цього диска. Увімкніть Removable Volumes нижче й відкрийте його знову."
+            "value": "macOS відмовив %@ у доступі до цього диска. Увімкніть Знімні томи нижче й відкрийте його знову."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS đã từ chối cho %@ truy cập ổ đĩa này. Hãy bật Removable Volumes bên dưới rồi mở lại."
+            "value": "macOS đã từ chối cho %@ truy cập ổ đĩa này. Hãy bật Ổ đĩa tháo lắp được bên dưới rồi mở lại."
           }
         },
         "zh-Hans": {
@@ -62650,7 +62650,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ने %@ को आपके लॉगिन आइटम में नहीं जोड़ा। System Settings, फिर General, फिर Login Items खोलें और उसे वहाँ जोड़ें।"
+            "value": "macOS ने %@ को आपके लॉगिन आइटम में नहीं जोड़ा। सिस्टम सेटिंग्ज़, फिर सामान्य, फिर लॉगिन आइटम खोलें और उसे वहाँ जोड़ें।"
           }
         },
         "hr": {
@@ -62668,7 +62668,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS tidak menambahkan %@ ke item masuk Anda. Buka System Settings, lalu General, lalu Login Items, dan tambahkan di sana."
+            "value": "macOS tidak menambahkan %@ ke item masuk Anda. Buka Pengaturan Sistem, lalu Umum, lalu Item Masuk, dan tambahkan di sana."
           }
         },
         "it": {
@@ -62704,7 +62704,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS tidak menambah %@ pada item log masuk anda. Buka System Settings, kemudian General, kemudian Login Items, dan tambahkannya di sana."
+            "value": "macOS tidak menambah %@ pada item log masuk anda. Buka Seting Sistem, kemudian Umum, kemudian Item Log Masuk, dan tambahkannya di sana."
           }
         },
         "nb": {
@@ -62740,13 +62740,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS не добавил %@ в объекты входа. Откройте System Settings, затем General, затем Login Items, и добавьте его там."
+            "value": "macOS не добавил %@ в объекты входа. Откройте Системные настройки, затем Основные, затем Объекты входа, и добавьте его там."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ni dodal %@ med prijavne elemente. Odprite Sistemske nastavitve, nato Splošno, nato Prijavni elementi, in ga dodajte tam."
+            "value": "macOS ni dodal %@ med prijavne elemente. Odprite System Settings, nato Splošno, nato Prijavni elementi, in ga dodajte tam."
           }
         },
         "sq": {
@@ -62764,25 +62764,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ไม่ได้เพิ่ม %@ ลงในรายการล็อกอินของคุณ เปิด System Settings แล้วไปที่ General จากนั้น Login Items และเพิ่มที่นั่น"
+            "value": "macOS ไม่ได้เพิ่ม %@ ลงในรายการล็อกอินของคุณ เปิด การตั้งค่าระบบ แล้วไปที่ ทั่วไป จากนั้น รายการเข้าสู่ระบบ และเพิ่มที่นั่น"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS, %@ uygulamasını oturum açma ögelerinize eklemedi. System Settings, sonra General, sonra Login Items açın ve oradan ekleyin."
+            "value": "macOS, %@ uygulamasını oturum açma ögelerinize eklemedi. Sistem Ayarları, sonra Genel, sonra Giriş Öğeleri açın ve oradan ekleyin."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS не додав %@ до об’єктів входу. Відкрийте System Settings, потім General, потім Login Items, і додайте його там."
+            "value": "macOS не додав %@ до об’єктів входу. Відкрийте Системні параметри, потім Загальні, потім Об’єкти входу, і додайте його там."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS không thêm %@ vào các mục đăng nhập của bạn. Hãy mở System Settings, rồi General, rồi Login Items, và thêm ở đó."
+            "value": "macOS không thêm %@ vào các mục đăng nhập của bạn. Hãy mở Cài đặt hệ thống, rồi Cài đặt chung, rồi Mục đăng nhập, và thêm ở đó."
           }
         },
         "zh-Hans": {
