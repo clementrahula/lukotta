@@ -27,12 +27,50 @@ FAILED="$OUT/.failed"
 : > "$MANIFEST"; : > "$FAILED"
 
 note() { printf '%s\n' "$1" >> "$MANIFEST"; }
+
+# Half a gigabyte of source, nearly all of it the same bytes as last time: the
+# kernel, gcc, every Alpine tarball. Downloading it again for every release is
+# an hour of somebody's afternoon and other people's bandwidth for nothing.
+#
+# So anything named by a version or a tag — which is nearly all of it — is kept
+# here and taken from here next time. The key is the URL, so a dependency that
+# moves has a new URL and is fetched afresh; nothing else is. What is stored is
+# checked against the digest written beside it when it went in, so a cache entry
+# that was truncated by a full disk is refetched rather than shipped.
+CACHE="${LUKOTTA_SOURCE_CACHE:-$HERE/vendor/.cache/sources}"
+mkdir -p "$CACHE"
+
+# printf, not a here-string: a here-string appends a newline, and the Alpine
+# collector hashes the URL without one. The two halves of the same cache have
+# to agree on the key or each stores what the other cannot find.
+cache_key() { printf '%s' "$1" | /usr/bin/shasum -a 256 | awk '{print $1}'; }
+digest() { /usr/bin/shasum -a 256 "$1" | awk '{print $1}'; }
+
+# fetch <url> <dest> [fresh]
+#
+# "fresh" is for a URL that names a branch rather than a version: its contents
+# change under the same name, so a stored copy would be last release's source
+# claiming to be this one's. Those are the small ones.
 fetch() {
-  url="$1"; dest="$2"
+  url="$1"; dest="$2"; fresh="${3:-}"
+  key="$CACHE/$(cache_key "$url")"
+
+  if [ -z "$fresh" ] && [ -f "$key" ] && [ -f "$key.sha256" ] \
+     && [ "$(digest "$key")" = "$(cat "$key.sha256")" ]; then
+    if /bin/cp "$key" "$dest"; then
+      note "  OK   $(basename "$dest")  <- $url (kept from an earlier release)"
+      return
+    fi
+  fi
+
   if /usr/bin/curl --fail --location --silent --show-error --retry 2 \
        --connect-timeout 20 --output "$dest" "$url"; then
     note "  OK   $(basename "$dest")  <- $url"
+    if [ -z "$fresh" ] && /bin/cp "$dest" "$key.part" 2>/dev/null; then
+      digest "$key.part" > "$key.sha256" && /bin/mv "$key.part" "$key"
+    fi
   else
+    rm -f "$key.part"
     note "  FAIL $(basename "$dest")  <- $url"
     printf '%s\n' "$url" >> "$FAILED"
   fi
@@ -82,9 +120,9 @@ note ""
 # These are distributed inside the engine, so their source travels with it.
 note "libkrun and libkrunfw (GPL-2.0-only AND LGPL-2.1-only)"
 fetch "https://github.com/containers/libkrun/archive/refs/heads/main.tar.gz" \
-      "$OUT/libkrun.tar.gz"
+      "$OUT/libkrun.tar.gz" fresh
 fetch "https://github.com/containers/libkrunfw/archive/refs/heads/main.tar.gz" \
-      "$OUT/libkrunfw.tar.gz"
+      "$OUT/libkrunfw.tar.gz" fresh
 note ""
 
 # libblkid is the one library the engine links from outside its own build, and
@@ -101,9 +139,9 @@ fi
 
 note "gvisor-tap-vsock (gvproxy) and vmnet-helper (Apache-2.0)"
 fetch "https://github.com/containers/gvisor-tap-vsock/archive/refs/heads/main.tar.gz" \
-      "$OUT/gvisor-tap-vsock.tar.gz"
+      "$OUT/gvisor-tap-vsock.tar.gz" fresh
 fetch "https://github.com/nirs/vmnet-helper/archive/refs/heads/main.tar.gz" \
-      "$OUT/vmnet-helper.tar.gz"
+      "$OUT/vmnet-helper.tar.gz" fresh
 note ""
 
 # --- 4. Linux kernel bundled by libkrunfw ---------------------------------
@@ -131,7 +169,7 @@ note "  packages resolve to fewer source packages. For each, the build recipe"
 note "  and the upstream tarballs it names are mirrored here — GPL-2's"
 note "  same-place paragraph has no third-party-server allowance."
 if /usr/bin/python3 "$HERE/scripts/collect_alpine_sources.py" \
-     "$DB" "$OUT/alpine" "$ALPINE_TAG" >> "$MANIFEST" 2>&1; then
+     "$DB" "$OUT/alpine" "$ALPINE_TAG" "$CACHE" >> "$MANIFEST" 2>&1; then
   note "  Alpine sources complete."
 else
   note "  FAIL Alpine source collection reported problems (see above)."

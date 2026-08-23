@@ -6,12 +6,52 @@ package's origin, so 58 shipped packages resolve to a smaller set of APKBUILDs.
 For each origin this fetches the build recipe (the "scripts used to control
 compilation") and the upstream tarballs the recipe names.
 
-    collect_alpine_sources.py <packages.db> <outdir> <alpine-tag>
+    collect_alpine_sources.py <packages.db> <outdir> <alpine-tag> [cachedir]
+
+Given a cache directory, every fetch is kept there under the hash of its URL
+and taken from there next time. These are the bulk of a release's source
+archive and none of them change: the recipes are pinned to an Alpine tag and
+the tarballs to a version, so a URL that is the same names the same bytes. A
+package that moves has a new URL and is fetched afresh.
 """
-import os, re, sys, subprocess
+import hashlib, os, re, shutil, sys, subprocess
 
 db_path, out, tag = sys.argv[1], sys.argv[2], sys.argv[3]
+cache = sys.argv[4] if len(sys.argv) > 4 else None
 os.makedirs(out, exist_ok=True)
+if cache:
+    os.makedirs(cache, exist_ok=True)
+
+
+def cached(url):
+    """The stored copy of this URL, if there is one that is whole."""
+    if not cache:
+        return None
+    key = os.path.join(cache, hashlib.sha256(url.encode()).hexdigest())
+    if not (os.path.exists(key) and os.path.exists(key + ".sha256")):
+        return None
+    data = open(key, "rb").read()
+    if hashlib.sha256(data).hexdigest() != open(key + ".sha256").read().strip():
+        return None
+    return data
+
+
+def keep(url, data):
+    """Store this URL's contents for the next release."""
+    if not cache:
+        return
+    key = os.path.join(cache, hashlib.sha256(url.encode()).hexdigest())
+    tmp = key + ".part"
+    try:
+        with open(tmp, "wb") as f:
+            f.write(data)
+        with open(key + ".sha256", "w") as f:
+            f.write(hashlib.sha256(data).hexdigest())
+        shutil.move(tmp, key)
+    except OSError:
+        # A cache that cannot be written is not a release that cannot be made.
+        if os.path.exists(tmp):
+            os.unlink(tmp)
 
 origins, lic_of, cur_o, cur_l = set(), {}, None, None
 for line in open(db_path, encoding="utf-8", errors="replace"):
@@ -34,19 +74,28 @@ print(f"  {len(origins)} source packages behind the shipped binaries")
 
 BASE = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/{tag}/{repo}/{pkg}/APKBUILD"
 failures, warnings, fetched = [], [], 0
+# How much of this release's source came from the last one's.
+from_cache = 0
 
 class FetchError(Exception):
     pass
 
 def get(url, timeout=30):
-    """Fetch via curl. GitLab answers 418 to unfamiliar User-Agents, so using
-    curl's default identity is more reliable than hand-rolling headers."""
+    """Fetch via curl, or from the cache. GitLab answers 418 to unfamiliar
+    User-Agents, so using curl's default identity is more reliable than
+    hand-rolling headers."""
+    global from_cache
+    stored = cached(url)
+    if stored is not None:
+        from_cache += 1
+        return stored
     r = subprocess.run(
         ["/usr/bin/curl", "--fail", "--location", "--silent", "--show-error",
          "--retry", "2", "--max-time", str(timeout), url],
         capture_output=True)
     if r.returncode != 0:
         raise FetchError(r.stderr.decode("utf-8", "replace").strip() or f"curl exit {r.returncode}")
+    keep(url, r.stdout)
     return r.stdout
 
 def _strip(value, pattern, from_end, longest):
@@ -163,6 +212,11 @@ for pkg in origins:
         name = (alias if sep else os.path.basename(url)) or f"{pkg}-source"
         dest = os.path.join(pdir, name)
         if os.path.exists(dest):
+            # Already here from an earlier pass over the same directory. Put it
+            # in the cache if it is not there yet, so a tree collected before
+            # there was a cache still saves the next release the download.
+            if cached(url) is None:
+                keep(url, open(dest, "rb").read())
             continue
 
         # Upstream first; then Alpine's own distfiles mirror, which holds every
@@ -185,6 +239,8 @@ for pkg in origins:
                 name = stem
                 dest = os.path.join(pdir, name)
                 if os.path.exists(dest):
+                    if not any(cached(c) is not None for c in candidates):
+                        keep(candidates[0], open(dest, "rb").read())
                     continue
 
         if name and "$" not in name:
@@ -209,6 +265,8 @@ for pkg in origins:
             (failures if is_copyleft(pkg) else warnings).append(f"{pkg}: {last}")
 
 print(f"  {fetched}/{len(origins)} recipes fetched")
+if from_cache:
+    print(f"  {from_cache} file(s) kept from an earlier release rather than downloaded")
 if warnings:
     print(f"  {len(warnings)} permissive-licence source(s) unavailable (no obligation):")
     for w in warnings[:10]:

@@ -243,6 +243,21 @@ The GPL obliges whoever distributes the app to offer source for its GPL parts.
 ./scripts/collect-sources.sh
 ```
 
+Nearly half a gigabyte of it, and nearly all of it the same bytes as the last
+release: the kernel, gcc, every Alpine tarball. So each fetch is kept in
+`vendor/.cache/sources` under the hash of the URL it came from and taken from
+there next time — the first collection takes ten minutes, the next takes eight
+seconds. A dependency that moves has a new URL and is fetched afresh; nothing
+else is. What is stored is checked against the digest written beside it, so a
+half-written cache entry is fetched again rather than shipped.
+
+`LUKOTTA_SOURCE_CACHE` points the cache somewhere else. Deleting it costs a
+download, nothing more.
+
+Four of them are always fetched: libkrun, libkrunfw, gvproxy and vmnet-helper
+are named by branch rather than by version, so a stored copy would be the last
+release's source under this release's name. They are also the small ones.
+
 That assembles source for the engine and for every package in the guest image
 into `dist/sources`, matched to what is shipped rather than to what upstream
 offers. `THIRD_PARTY_NOTICES.md` records each component and its licence, and is
