@@ -765,6 +765,31 @@ group("secretRedaction") {
     expect(!report.contains("121121"), "the assembled report carries no key")
 }
 
+group("aLaunchNobodyAskedForIsTheOnlyOneWithoutAWindow") {
+    // The window was suppressed by reading XPC_SERVICE_NAME, which launchd once
+    // set to "0" for a launch from the Dock and to a job name for a login item.
+    // Every launch now gets a job name, so the app started, ran, and put nothing
+    // on screen -- indistinguishable from an app that does not launch.
+    //
+    // The rule is in LukottaApp.swift. Pinned by reading it, the app target not
+    // being linked into these checks.
+    let source =
+        (try? String(contentsOfFile: "sources/Lukotta/LukottaApp.swift", encoding: .utf8)) ?? ""
+
+    expect(
+        !source.contains("environment[\"XPC_SERVICE_NAME\"]"),
+        "nothing decides this from a job name launchd gives every launch")
+    expect(
+        !source.contains(".defaultLaunchBehavior"),
+        "and no scene refuses to open before anyone knows who asked")
+    expect(
+        source.contains("static var nobodyAsked: Bool { !NSApp.isActive }"),
+        "a person opening an app activates it; launchd does not")
+    expect(
+        source.contains("if LaunchContext.nobodyAsked {") && source.contains("NSApp.hide(nil)"),
+        "so a launch nobody asked for hides the window it already has")
+}
+
 group("aRefusalNamesThePermissionThatWasRefused") {
     // Full Disk Access and the removable-volumes permission are refused in the
     // same words by the engine, and the app used to send both to the Full Disk

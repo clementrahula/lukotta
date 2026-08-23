@@ -219,16 +219,20 @@ private func confirmUninstall(_ model: AppModel) {
 
 /// Whether this launch was started by the system rather than by a person.
 ///
-/// A login item is a launchd job, and launchd puts the job's name in the
-/// environment; an app opened from the Dock or the Finder is given "0". Started
-/// this way there is nobody looking at the screen, so no window is put on it.
-/// If this ever reads wrongly, clicking the app in the Dock still opens the
-/// window, so the worst case is a window that has to be asked for.
+/// Whether nobody asked for this launch.
+///
+/// A person opening an app makes it the active application; launchd starting a
+/// login item does not, and that is the difference this reads. It can only be
+/// read once the app has finished launching, which is late enough to have to
+/// put a window away rather than never make one.
+///
+/// Not `XPC_SERVICE_NAME`, which looks like the answer and is not: launchd
+/// gives every launch a job name of the form `application.<bundle id>.<n>.<n>`,
+/// a login item and a double-click alike. Read that way the answer is always
+/// "at login", and an app that suppresses its window at every launch puts
+/// nothing on screen at all.
 enum LaunchContext {
-    static let isAtLogin: Bool = {
-        let name = ProcessInfo.processInfo.environment["XPC_SERVICE_NAME"] ?? "0"
-        return !name.isEmpty && name != "0"
-    }()
+    @MainActor static var nobodyAsked: Bool { !NSApp.isActive }
 }
 
 @main
@@ -276,10 +280,6 @@ struct LukottaApp: App {
                 }
         }
         .windowResizability(.contentMinSize)
-        // Nothing on screen when the Mac starts. The drives come back by
-        // themselves, the way a disk mounted by macOS does, and the window is
-        // there when it is asked for.
-        .defaultLaunchBehavior(LaunchContext.isAtLogin ? .suppressed : .automatic)
         // Present only while something is open, so it does not clutter the menu
         // bar for a tool used occasionally.
         // The systemImage initialiser, not a custom label: a label built from a
@@ -361,12 +361,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Here rather than in the App's init, where NSApp does not exist yet.
         Appearance.current.apply()
 
-        // Opened at login there is no window, so nothing else starts the scan
-        // that finds the drives to put back.
-        if LaunchContext.isAtLogin {
+        // Started at login, the window goes away again: the drives come back
+        // by themselves, the way a disk mounted by macOS does, and nobody
+        // asked to see anything. Clicking the app in the Dock brings it back.
+        //
+        // Hidden rather than never made. Whether a person is behind the launch
+        // is not knowable until the app is up, and a window that appears and
+        // hides is better than a window that never appears at all.
+        if LaunchContext.nobodyAsked {
             let model = AppModel.shared
             self.model = model
-            Log.app.notice("opened at login; no window")
+            Log.app.notice("opened at login; hiding the window")
+            NSApp.hide(nil)
             model.start()
         }
 
