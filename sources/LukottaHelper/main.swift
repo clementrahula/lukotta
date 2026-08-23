@@ -18,6 +18,15 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     /// Held only while a mount runs, so its output can be scrubbed of it.
     private var activeCredential: String?
 
+    /// Who the connected app runs as, recorded when the connection is accepted.
+    ///
+    /// The helper runs as root and has no user of its own. Everything it does
+    /// on somebody's behalf — the engine's home, its config, the ownership the
+    /// mount is exported with — belongs to the account running the app, and the
+    /// connection is the only thing that says which account that is.
+    private var peerUID: uid_t?
+    private var peerGID: gid_t?
+
     override init() {
         listener = NSXPCListener(machServiceName: HelperInfo.machServiceName)
         super.init()
@@ -41,6 +50,12 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             Log.helper.error("rejected a connection failing the code requirement")
             return false
         }
+        // Who the app is running as. This is the user whose drive is being
+        // opened and whose home the engine resolves its paths against, and it
+        // is the only answer that is right for a second user or for anybody
+        // whose account is not the first one on the Mac.
+        peerUID = connection.effectiveUserIdentifier
+        peerGID = connection.effectiveGroupIdentifier
         connection.exportedInterface = NSXPCInterface(with: LukottaHelperProtocol.self)
         connection.exportedObject = self
         connection.resume()
@@ -132,6 +147,15 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             reply(70, "The mounting engine is missing.")
             return
         }
+        // Refused rather than guessed at. Everything below is composed against
+        // somebody's home directory, and building it against root's — or
+        // against whichever account happens to be first on this Mac — either
+        // fails or quietly uses a stranger's settings.
+        guard hasAnInvokingUser(), let home = invokingHome() else {
+            Log.helper.error("no user to mount for; refusing")
+            reply(71, "Could not tell which user this is for.")
+            return
+        }
         do {
             let workspace = try Workspace()
             defer { workspace.destroy() }
@@ -160,7 +184,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     logPath: log.path,
                     discoverLogPath: workspace.root.appendingPathComponent("discover.log").path,
                     expectScriptPath: expect.path,
-                    configPath: invokingHome() + "/.anylinuxfs/config.toml",
+                    configPath: home + "/.anylinuxfs/config.toml",
                     libraryPaths: EnginePaths.libraryPaths(),
                     uid: invokingUID(), gid: invokingGID(),
                     cores: MountScript.VirtualMachine.cores,
@@ -237,33 +261,55 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         reply(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown")
     }
 
-    /// The console user, whose home the engine resolves paths against.
+    /// The user this is being done for, whose home the engine resolves paths
+    /// against.
+    ///
+    /// The connected app is the authority: it runs as that user. The console
+    /// user is asked only if the connection somehow said root, and neither
+    /// answer is replaced by a guess — 501 is the first account on a Mac and
+    /// nothing more, so guessing it sent a second user's mount to somebody
+    /// else's home directory.
     private func invokingUID() -> UInt32 {
+        if let peerUID, peerUID != 0 { return UInt32(peerUID) }
         var uid: uid_t = 0
         var gid: gid_t = 0
         if let name = SCDynamicStoreCopyConsoleUser(nil, &uid, &gid) {
             _ = name
         }
-        return uid == 0 ? 501 : uid
+        return UInt32(uid)
     }
 
     private func invokingGID() -> UInt32 {
+        if let peerUID, peerUID != 0, let peerGID { return UInt32(peerGID) }
         var uid: uid_t = 0
         var gid: gid_t = 0
         if let name = SCDynamicStoreCopyConsoleUser(nil, &uid, &gid) {
             _ = name
         }
-        return gid == 0 ? 20 : gid
+        return UInt32(gid)
+    }
+
+    /// Whether there is a user to do this for at all.
+    ///
+    /// Everything the helper composes is resolved against a home directory. If
+    /// nothing says whose, the mount would be built against root's — or against
+    /// whichever account happened to be first on this Mac — and would either
+    /// fail or, worse, put a config in a stranger's home.
+    private func hasAnInvokingUser() -> Bool {
+        invokingUID() != 0
     }
 
     /// The console user's home, where the engine keeps its config.toml. The
     /// helper runs as root, so NSHomeDirectory would answer /var/root — a
     /// config there is one the engine, resolving against SUDO_UID, never reads.
-    private func invokingHome() -> String {
-        if let entry = getpwuid(invokingUID()), let dir = entry.pointee.pw_dir {
-            return String(cString: dir)
+    private func invokingHome() -> String? {
+        guard let entry = getpwuid(invokingUID()), let dir = entry.pointee.pw_dir else {
+            // No home means nowhere the engine would read a config from.
+            // Answering /Users/Shared put one where nothing reads it, which
+            // looks like the setting being ignored rather than a failure.
+            return nil
         }
-        return "/Users/Shared"
+        return String(cString: dir)
     }
 }
 
