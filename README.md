@@ -96,12 +96,16 @@ is written and what is not, and how each is read.
 
 ## Languages
 
-Lukotta is available in English and 21 other languages:
+Lukotta is available in English and 35 other languages:
 
-Bulgarian · Croatian · Czech · Danish · Dutch · Estonian · Finnish · French ·
-German · Greek · Hungarian · Italian · Latvian · Lithuanian ·
-Norwegian (Bokmål) · Polish · Portuguese (Portugal) · Romanian · Slovenian ·
-Spanish · Swedish
+Albanian · Arabic · Bulgarian · Chinese (Simplified) · Croatian · Czech ·
+Danish · Dutch · Estonian · Filipino · Finnish · French · German · Greek ·
+Hebrew · Hindi · Hungarian · Indonesian · Italian · Japanese · Korean ·
+Latvian · Lithuanian · Malay · Norwegian (Bokmål) · Polish ·
+Portuguese (Portugal) · Romanian · Russian · Slovenian · Spanish · Swedish ·
+Thai · Turkish · Ukrainian · Vietnamese
+
+Arabic and Hebrew read right to left, and the interface turns round with them.
 
 If a translation reads wrongly, or you would like a translation that is not listed here,
 write to [lukotta@rahula.dev][email] or to GitHub Issues. Corrections and

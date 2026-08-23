@@ -142,17 +142,55 @@ Access and a Mac. It is worth running for anything touching mounting.
 
 ## Translations
 
-Twenty-one languages live in `translations/`, one JSON file each, built into
+Thirty-six languages live in `translations/`, one JSON file each, built into
 the string catalogue by `scripts/make-catalog.py`. `./scripts/lint.sh` fails
 when a language is short of a string, so a half-finished translation cannot
 ship quietly.
+
+`translations/context/` says what every string means, and is what makes a
+translation reviewable by somebody who has never seen the app:
+
+| File | What it holds |
+| --- | --- |
+| `strings.json` | One entry per English string: the screens it appears on, what it means, and what each placeholder carries. |
+| `screens.json` | Every screen and sheet: when it is shown, what it is for, the tone it is written in. |
+| `terms.json` | The words that are not free to translate, and the reason for each. |
+| `README.md` | The rules a translation is judged by. |
+
+Two of those rules are worth stating here. **Apple's words for Apple's things**:
+a reader following the steps is looking at System Settings while they read, so
+panes and folders are named as their own Mac names them — and left in English
+where macOS is not offered in that language, because English is then what they
+see. And **a sentence naming a button uses the button's own words**: if the
+button says *Neu starten*, the sentence saying to click it does too.
+
+`./scripts/translation-bundle.sh` zips the languages, the context and the
+canonical English into one archive that refers to no source code, which is how
+a translation goes out for review.
+
+Adding a string means adding its context. `./scripts/context-skeleton.py
+--write` makes the entry; the sentence explaining it is written by hand, and
+the coverage gate fails while it is empty.
 
 Corrections are as welcome as new languages. If a phrase reads badly to you as
 a native speaker, it reads badly — say so in an issue if you would rather not
 send a patch.
 
 The English is the source. If a string is awkward in English, fix that first —
-twenty-one translations of a bad sentence is twenty-one problems.
+thirty-six translations of a bad sentence is thirty-six problems.
+
+### Right to left
+
+Arabic and Hebrew mirror the interface. Three things keep that working, and all
+three are easy to undo by accident:
+
+- `.leading` and `.trailing`, never `.left` and `.right`.
+- `isolated()` around a drive name, a file name or a path inside a translated
+  sentence. Without it the quotation marks and slashes take the paragraph's
+  direction and end up on the wrong side of the name.
+- `.environment(\.layoutDirection, .leftToRight)` on anything monospaced: a
+  path, a device identifier, the engine's own output. Those are read as
+  characters in the order they were written.
 
 ## How It Fits Together
 

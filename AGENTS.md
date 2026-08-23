@@ -239,10 +239,29 @@ baselines alone; `--look hu` draws them in one language, which is how to find
 out whether a layout survives a longer translation than English or German.
 
 `--record` refuses a change wider than sixteen baselines unless asked with
-`--all`. One screen is eight -- two languages, two sizes, two appearances --
-so more than two screens' worth means the change was not to a screen but to
-something every screen has. That is a real answer sometimes and never an
-accidental one.
+`--all`. One screen is eight: English at two sizes in two appearances, and one
+picture each in German, Arabic, Japanese and Hindi. So more than two screens'
+worth means the change was not to a screen but to something every screen has.
+That is a real answer sometimes and never an accidental one.
+
+Those four languages are not a sample. They are the four ways a layout breaks
+-- text that runs long, an interface that turns round, lines that break without
+spaces, and a script taller than its box -- and a fifth language would cost
+twenty-seven pictures to prove nothing new.
+
+## Strings
+
+Every string the interface shows has an entry in
+`translations/context/strings.json` saying what it means and which screens it
+appears on, and the coverage gate fails without one. Adding a string is
+therefore three steps: write it, run `./scripts/context-skeleton.py --write`,
+and fill in the sentence that explains it. `translations/context/terms.json`
+holds the words that are not free to translate and why.
+
+A name, a path or a device identifier interpolated into a translated sentence
+goes through `isolated()`. Monospaced text is pinned left to right. Neither
+changes anything in English, and both are what stop Arabic and Hebrew coming
+out with the pieces in the wrong order.
 
 A capture is taken only once two of them agree. SwiftUI settles over a turn of
 the run loop, and an SF Symbol drawn for the first time in a process settles
