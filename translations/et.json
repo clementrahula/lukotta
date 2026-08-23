@@ -340,6 +340,7 @@
     "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk.": "macOS loeb ja kirjutab exFAT-i ise, seega avati see tõmmis otse tavalise kettana.",
     "macOS reads this format itself.": "macOS loeb seda vormingut ise.",
     "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": "macOS loeb seda vormingut ise. Seda tõmmist ta ei haakinud ja see võib olla juba Finderis avatud.",
+    "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": "macOS keeldus andmast rakendusele %@ juurdepääsu sellele kettale. Lülita allpool sisse „Removable Volumes“ ja ava see uuesti.",
     "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": "macOS ei lisanud rakendust %@ sisselogimisüksuste hulka. Ava Süsteemiseaded, siis Üldine, siis Sisselogimisüksused, ja lisa see sinna.",
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS kirjutas faili %@. Seda ei saadeta kuhugi automaatselt. Lisage see võimaluse korral oma sõnumile.",
     "not reached": "ei jõudnud",

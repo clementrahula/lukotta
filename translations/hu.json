@@ -340,6 +340,7 @@
     "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk.": "A macOS maga olvassa és írja az exFAT-ot, ezért ez a lemezkép közvetlenül, szokásos lemezként nyílt meg.",
     "macOS reads this format itself.": "A macOS magától olvassa ezt a formátumot.",
     "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": "A macOS maga olvassa ezt a formátumot. Ezt a lemezképet nem csatolta, és lehet, hogy már meg van nyitva a Finderben.",
+    "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": "A macOS megtagadta a(z) %@ programtól a hozzáférést ehhez a meghajtóhoz. Kapcsolja be alább a „Cserélhető kötetek” beállítást, majd nyissa meg újra.",
     "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": "A macOS nem adta hozzá a(z) %@ alkalmazást a bejelentkezési elemekhez. Nyissa meg a Rendszerbeállításokat, majd az Általános, majd a Bejelentkezési elemek részt, és adja hozzá ott.",
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "A macOS megírta a következőt: %@. Sehová nem küldi el automatikusan. Csatolja az üzenetéhez, ha teheti.",
     "not reached": "nem érte el",

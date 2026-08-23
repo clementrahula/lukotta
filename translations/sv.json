@@ -340,6 +340,7 @@
     "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk.": "macOS läser och skriver exFAT självt, så den här avbilden öppnades direkt som en vanlig disk.",
     "macOS reads this format itself.": "macOS läser det här formatet själv.",
     "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": "macOS läser det här formatet självt. Avbilden monterades inte och kan redan vara öppnad i Finder.",
+    "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": "macOS nekade %@ åtkomst till den här disken. Slå på ”Borttagbara volymer” nedan och öppna den igen.",
     "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": "macOS lade inte till %@ bland dina inloggningsobjekt. Öppna Systeminställningar, sedan Allmänt, sedan Inloggningsobjekt, och lägg till det där.",
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS skrev %@. Den skickas inte någonstans automatiskt. Bifoga den till ditt meddelande om du kan.",
     "not reached": "inte nådd",

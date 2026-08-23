@@ -1667,7 +1667,7 @@ final class AppModel: ObservableObject {
             } catch let err as EngineError {
                 await MainActor.run {
                     if Permissions.isAccessDenied(err.detail ?? "") {
-                        self.phase = .needsPermission
+                        self.reportRefusal(drive, err)
                     } else {
                         self.fail(
                             drive,
@@ -1678,6 +1678,47 @@ final class AppModel: ObservableObject {
             } catch {
                 await MainActor.run {
                     self.fail(drive, "The drive could not be opened.", "\(error)")
+                }
+            }
+        }
+    }
+
+    /// macOS refused the read. Say which permission it refused.
+    ///
+    /// The engine cannot tell them apart: Full Disk Access and the
+    /// removable-volumes permission both come back as a refusal to read the
+    /// device, in the same words. What can tell them apart is the record macOS
+    /// keeps of what was granted, so it is read again here rather than trusted
+    /// from start-up -- a permission can be withdrawn while the app is running,
+    /// and this is the moment that proves it.
+    ///
+    /// Full Disk Access is asked for by a screen of its own. The
+    /// removable-volumes permission is not: macOS prompts for it once and never
+    /// again, so there is nothing to relaunch into, and the panel on the unlock
+    /// screen already holds the row and the button that opens the right pane.
+    /// Sending that reader to the Full Disk Access screen named a permission
+    /// they had already given and left the one they had not out of it.
+    private func reportRefusal(_ drive: Drive, _ err: EngineError) {
+        Task.detached(priority: .userInitiated) { [weak self] in
+            let reading = Permissions.reading()
+            await MainActor.run {
+                guard let self else { return }
+                self.applyPermissions(reading)
+                if !reading.fullDiskAccess {
+                    self.phase = .needsPermission
+                } else if self.removableAccess == false {
+                    Log.mount.notice("refused: removable volumes")
+                    self.phase = .unlock(drive)
+                    self.notice = appString(
+                        "macOS refused \(appName) access to this drive. Switch on Removable Volumes below, then open it again."
+                    )
+                } else {
+                    // Refused, and nothing recorded says by which permission.
+                    // The failure screen carries the engine's own words, which
+                    // is more than a screen naming the wrong setting would.
+                    self.fail(
+                        drive, err.errorDescription ?? "The drive could not be opened.",
+                        err.detail)
                 }
             }
         }

@@ -37139,6 +37139,136 @@
         }
       }
     },
+    "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS отказа на %@ достъп до този диск. Включете „Removable Volumes“ по-долу и го отворете отново."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS odepřel aplikaci %@ přístup k tomuto disku. Zapněte níže „Výměnné svazky“ a otevřete jej znovu."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS afviste %@ adgang til denne disk. Slå “Udskiftelige enheder” til nedenfor, og åbn den igen."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS hat %@ den Zugriff auf dieses Laufwerk verweigert. Aktiviere unten „Entfernbare Volumes“ und öffne es erneut."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το macOS αρνήθηκε στο %@ την πρόσβαση σε αυτόν τον δίσκο. Ενεργοποιήστε παρακάτω τους «Αφαιρούμενοι τόμοι» και ανοίξτε τον ξανά."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ha denegado a %@ el acceso a este disco. Activa «Volúmenes extraíbles» más abajo y ábrelo de nuevo."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS keeldus andmast rakendusele %@ juurdepääsu sellele kettale. Lülita allpool sisse „Removable Volumes“ ja ava see uuesti."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS epäsi ohjelmalta %@ pääsyn tähän asemaan. Ota alla käyttöön ”Siirrettävät taltiot” ja avaa se uudelleen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS a refusé à %@ l’accès à ce disque. Activez « Volumes amovibles » ci-dessous, puis ouvrez-le à nouveau."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS je aplikaciji %@ odbio pristup ovom disku. Uključite „Uklonjive jedinice” u nastavku pa ga ponovno otvorite."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A macOS megtagadta a(z) %@ programtól a hozzáférést ehhez a meghajtóhoz. Kapcsolja be alább a „Cserélhető kötetek” beállítást, majd nyissa meg újra."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ha negato a %@ l’accesso a questo disco. Attiva «Volumi rimovibili» qui sotto, poi aprilo di nuovo."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„macOS“ neleido programai %@ pasiekti šio disko. Įjunkite toliau „Removable Volumes“ ir atverkite jį dar kartą."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS liedza programmai %@ piekļuvi šim diskam. Ieslēdziet zemāk “Removable Volumes” un atveriet to vēlreiz."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nektet %@ tilgang til denne disken. Slå på «Uttakbare volumer» nedenfor, og åpne den igjen."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS heeft %@ de toegang tot deze schijf geweigerd. Schakel hieronder ‘Verwijderbare volumes’ in en open die opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS odmówił programowi %@ dostępu do tego dysku. Włącz poniżej „Woluminy wymienne” i otwórz go ponownie."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O macOS recusou ao %@ o acesso a este disco. Ative «Volumes amovíveis» abaixo e abra-o novamente."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS a refuzat aplicației %@ accesul la acest disc. Activați mai jos „Volume amovibile”, apoi deschideți-l din nou."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS je programu %@ zavrnil dostop do tega diska. Spodaj vklopite »Snemljivi nosilci« in ga znova odprite."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nekade %@ åtkomst till den här disken. Slå på ”Borttagbara volymer” nedan och öppna den igen."
+          }
+        }
+      }
+    },
     "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": {
       "localizations": {
         "bg": {

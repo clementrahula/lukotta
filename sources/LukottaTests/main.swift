@@ -765,6 +765,38 @@ group("secretRedaction") {
     expect(!report.contains("121121"), "the assembled report carries no key")
 }
 
+group("aRefusalNamesThePermissionThatWasRefused") {
+    // Full Disk Access and the removable-volumes permission are refused in the
+    // same words by the engine, and the app used to send both to the Full Disk
+    // Access screen -- naming, for one of them, a permission already granted.
+    //
+    // The rule is in reportRefusal. Pinned by reading it, the app target not
+    // being linked into these checks.
+    let source =
+        (try? String(contentsOfFile: "sources/Lukotta/AppModel.swift", encoding: .utf8)) ?? ""
+    guard let start = source.range(of: "private func reportRefusal("),
+        let end = source.range(of: "\n    }\n", range: start.upperBound..<source.endIndex)
+    else { return expect(false, "reportRefusal was found") }
+    let body = String(source[start.upperBound..<end.lowerBound])
+
+    expect(
+        body.contains("Permissions.reading()"),
+        "the record is read again rather than trusted from start-up")
+    expect(
+        body.contains("!reading.fullDiskAccess"),
+        "Full Disk Access is what the permission screen is for")
+    expect(body.contains("phase = .needsPermission"), "and that is where it sends them")
+    expect(
+        body.contains("removableAccess == false"),
+        "a refused removable-volumes permission is told apart from it")
+    expect(
+        body.contains("phase = .unlock(drive)"),
+        "and goes back to the screen whose panel holds that setting")
+    expect(
+        body.contains("self.fail("),
+        "a refusal nothing accounts for still reports the engine's own words")
+}
+
 group("aBlockedRestoreExplainsItself") {
     // Restoring runs with nobody watching, so a failure says nothing. A missing
     // permission is the exception: the drives cannot come back at all, and the

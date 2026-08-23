@@ -348,6 +348,7 @@
     "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk.": "macOS sam čita i piše exFAT, pa je ova slika otvorena izravno kao običan disk.",
     "macOS reads this format itself.": "macOS sam čita ovaj format.",
     "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": "macOS sam čita ovaj format. Nije montirao ovu sliku, koja je možda već otvorena u Finderu.",
+    "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": "macOS je aplikaciji %@ odbio pristup ovom disku. Uključite „Uklonjive jedinice” u nastavku pa ga ponovno otvorite.",
     "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": "macOS nije dodao %@ u stavke prijave. Otvorite Postavke sustava, zatim Općenito, zatim Stavke prijave, i dodajte ga ondje.",
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS je zapisao %@. Ništa se ne šalje automatski. Priložite tu datoteku svojoj poruci ako možete.",
     "not reached": "nije dosegnuto",

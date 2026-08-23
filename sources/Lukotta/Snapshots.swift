@@ -222,6 +222,18 @@ enum Snapshots {
                 }
             ),
             ("unlock-linux", model { $0.phase = .unlock(linux) }),
+            // macOS refused the removable-volumes permission: back to this
+            // screen, which holds both the reason and the way to fix it.
+            (
+                "unlock-removable-refused",
+                model {
+                    $0.phase = .unlock(drive)
+                    $0.removableAccess = false
+                    $0.notice = appString(
+                        "macOS refused \(appName) access to this drive. Switch on Removable Volumes below, then open it again."
+                    )
+                }
+            ),
             // The tallest this screen goes: a passphrase to type, a warning
             // about the file's own format, and every permission outstanding.
             // Anything that fits here fits the rest.

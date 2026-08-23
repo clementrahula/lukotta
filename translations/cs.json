@@ -356,6 +356,7 @@
     "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk.": "macOS čte a zapisuje exFAT sám, proto byl tento obraz otevřen přímo jako běžný disk.",
     "macOS reads this format itself.": "Tento formát čte macOS sám.",
     "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": "macOS čte tento formát sám. Tento obraz nepřipojil a může být již otevřený ve Finderu.",
+    "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": "macOS odepřel aplikaci %@ přístup k tomuto disku. Zapněte níže „Výměnné svazky“ a otevřete jej znovu.",
     "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": "macOS nepřidal %@ mezi položky přihlášení. Otevřete Nastavení systému, pak Obecné, pak Položky přihlášení a přidejte ji tam.",
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS zapsal %@. Nikam se automaticky neodesílá. Přiložte ho ke své zprávě, pokud můžete.",
     "not reached": "nedosaženo",

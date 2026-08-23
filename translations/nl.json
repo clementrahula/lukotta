@@ -340,6 +340,7 @@
     "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk.": "macOS leest en schrijft exFAT zelf, dus deze schijfkopie is rechtstreeks geopend als een gewone schijf.",
     "macOS reads this format itself.": "macOS leest dit formaat zelf.",
     "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": "macOS leest deze structuur zelf. Deze schijfkopie is niet gekoppeld en is mogelijk al geopend in de Finder.",
+    "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": "macOS heeft %@ de toegang tot deze schijf geweigerd. Schakel hieronder ‘Verwijderbare volumes’ in en open die opnieuw.",
     "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": "macOS heeft %@ niet aan je inlogitems toegevoegd. Open Systeeminstellingen, dan Algemeen, dan Inlogonderdelen, en voeg de app daar toe.",
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS heeft %@ geschreven. Dat wordt nergens automatisch naartoe gestuurd. Voeg het bij je bericht als je kunt.",
     "not reached": "niet bereikt",

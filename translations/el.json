@@ -340,6 +340,7 @@
     "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk.": "Το macOS διαβάζει και γράφει exFAT μόνο του, οπότε αυτό το είδωλο άνοιξε απευθείας ως συνηθισμένος δίσκος.",
     "macOS reads this format itself.": "Το macOS διαβάζει μόνο του αυτή τη μορφή.",
     "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": "Το macOS διαβάζει αυτή τη μορφή μόνο του. Δεν προσάρτησε αυτό το είδωλο, το οποίο ίσως είναι ήδη ανοικτό στο Finder.",
+    "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": "Το macOS αρνήθηκε στο %@ την πρόσβαση σε αυτόν τον δίσκο. Ενεργοποιήστε παρακάτω τους «Αφαιρούμενοι τόμοι» και ανοίξτε τον ξανά.",
     "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": "Το macOS δεν πρόσθεσε το %@ στα αντικείμενα σύνδεσης. Ανοίξτε τις Ρυθμίσεις συστήματος, μετά Γενικά, μετά Αντικείμενα σύνδεσης, και προσθέστε το εκεί.",
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "Το macOS έγραψε το %@. Δεν στέλνεται πουθενά αυτόματα. Επισυνάψτε το στο μήνυμά σας αν μπορείτε.",
     "not reached": "δεν προσεγγίστηκε",

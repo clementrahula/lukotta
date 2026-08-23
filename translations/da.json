@@ -340,6 +340,7 @@
     "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk.": "macOS læser og skriver selv exFAT, så dette diskbillede blev åbnet direkte som en almindelig disk.",
     "macOS reads this format itself.": "macOS kan selv læse dette format.",
     "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": "macOS læser selv dette format. Diskbilledet blev ikke aktiveret og er måske allerede åbnet i Finder.",
+    "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": "macOS afviste %@ adgang til denne disk. Slå “Udskiftelige enheder” til nedenfor, og åbn den igen.",
     "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": "macOS ville ikke føje %@ til dine loginemner. Åbn Systemindstillinger, derefter Generelt, derefter Loginemner, og tilføj programmet der.",
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS skrev %@. Den sendes ikke nogen steder automatisk. Vedhæft den til din besked, hvis du kan.",
     "not reached": "ikke nået",

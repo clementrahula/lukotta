@@ -348,6 +348,7 @@
     "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk.": "macOS citește și scrie exFAT singur, așa că această imagine a fost deschisă direct, ca un disc obișnuit.",
     "macOS reads this format itself.": "macOS citește singur acest format.",
     "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": "macOS citește singur acest format. Nu a montat această imagine, care poate fi deja deschisă în Finder.",
+    "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": "macOS a refuzat aplicației %@ accesul la acest disc. Activați mai jos „Volume amovibile”, apoi deschideți-l din nou.",
     "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": "macOS nu a adăugat %@ la elementele de conectare. Deschideți Configurări sistem, apoi General, apoi Elemente de conectare, și adăugați-l acolo.",
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS a scris %@. Nu este trimis nicăieri automat. Atașați-l mesajului dumneavoastră, dacă puteți.",
     "not reached": "neatins",

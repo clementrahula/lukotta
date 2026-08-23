@@ -340,6 +340,7 @@
     "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk.": "macOS lit et écrit l’exFAT lui-même, cette image a donc été ouverte directement comme un disque ordinaire.",
     "macOS reads this format itself.": "macOS lit ce format tout seul.",
     "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": "macOS lit ce format lui-même. Il n’a pas monté cette image, qui est peut-être déjà ouverte dans le Finder.",
+    "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": "macOS a refusé à %@ l’accès à ce disque. Activez « Volumes amovibles » ci-dessous, puis ouvrez-le à nouveau.",
     "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": "macOS n’a pas ajouté %@ à vos ouvertures de session. Ouvrez Réglages Système, puis Général, puis Ouverture, et ajoutez-la là.",
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS a écrit %@. Ce fichier n’est envoyé nulle part automatiquement. Joignez-le à votre message si vous le pouvez.",
     "not reached": "non atteint",

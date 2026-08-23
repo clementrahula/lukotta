@@ -48,6 +48,16 @@ struct UnlockView: View {
                             .font(.caption).foregroundStyle(.secondary)
                     }
 
+                    // A refusal that sent the reader back here rather than to
+                    // the permission screen says so, the panel below being
+                    // where the setting is. Drawn as the drive list draws it.
+                    if let notice = model.notice {
+                        Label(notice, systemImage: "bolt.horizontal.circle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
                     // Only for something that really has no password. Written
                     // as "not BitLocker" when those were the only three
                     // formats, it began calling LUKS containers unencrypted

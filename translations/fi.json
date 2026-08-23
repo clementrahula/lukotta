@@ -340,6 +340,7 @@
     "macOS reads and writes exFAT itself, so this image was opened directly as an ordinary disk.": "macOS lukee ja kirjoittaa exFAT-muotoa itse, joten tämä levytiedosto avattiin suoraan tavallisena asemana.",
     "macOS reads this format itself.": "macOS lukee tämän muodon itse.",
     "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": "macOS lukee tämän muodon itse. Se ei liittänyt tätä levytiedostoa, joka saattaa olla jo auki Finderissa.",
+    "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": "macOS epäsi ohjelmalta %@ pääsyn tähän asemaan. Ota alla käyttöön ”Siirrettävät taltiot” ja avaa se uudelleen.",
     "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": "macOS ei lisännyt ohjelmaa %@ kirjautumiskohteisiin. Avaa Järjestelmäasetukset, sitten Yleiset, sitten Kirjautumiskohteet, ja lisää se sinne.",
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "macOS kirjoitti tiedoston %@. Sitä ei lähetetä minnekään automaattisesti. Liitä se viestiisi, jos voit.",
     "not reached": "ei saavutettu",
