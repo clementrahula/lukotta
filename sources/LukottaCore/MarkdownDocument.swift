@@ -92,9 +92,11 @@ public enum MarkdownDocument {
                 } else {
                     code.append("")
                 }
-            } else if !bullets.isEmpty, raw.hasPrefix("    ") || raw.hasPrefix("\t") {
-                // An indented line under a bullet is that bullet continuing,
-                // which is handled below rather than as code.
+            } else if !bullets.isEmpty, raw.first == " " || raw.first == "\t" {
+                // Indented under a bullet, at any depth: that bullet wrapping,
+                // not a code block and not a new paragraph. Treating it as a
+                // paragraph broke every wrapped list item into a bullet
+                // followed by a stray block of text.
                 bullets[bullets.count - 1] += " " + line
             } else if raw.hasPrefix("    ") || raw.hasPrefix("\t") {
                 flushParagraph()
@@ -123,11 +125,6 @@ public enum MarkdownDocument {
                 flushParagraph()
                 flushTable()
                 bullets.append(String(line.dropFirst(2)))
-            } else if !bullets.isEmpty, raw.first == " " {
-                // An indented line after a bullet continues that bullet. Treating
-                // it as a new paragraph broke every wrapped list item into a
-                // bullet followed by a stray block of text.
-                bullets[bullets.count - 1] += " " + line
             } else {
                 flushBullets()
                 flushTable()

@@ -1,6 +1,6 @@
-diff -ruN a/anylinuxfs/src/cmd_mount.rs b/anylinuxfs/src/cmd_mount.rs
---- a/anylinuxfs/src/cmd_mount.rs	2026-07-20 19:00:52
-+++ b/anylinuxfs/src/cmd_mount.rs	2026-08-22 11:40:56
+diff -ruN -x target -x Cargo.lock a/anylinuxfs/src/cmd_mount.rs b/anylinuxfs/src/cmd_mount.rs
+--- a/anylinuxfs/src/cmd_mount.rs	2026-08-23 15:42:33
++++ b/anylinuxfs/src/cmd_mount.rs	2026-08-23 15:42:33
 @@ -1,3 +1,6 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: opened every encoded image format, not qcow2 alone.
 +// SPDX-License-Identifier: GPL-3.0-or-later
@@ -26,9 +26,9 @@ diff -ruN a/anylinuxfs/src/cmd_mount.rs b/anylinuxfs/src/cmd_mount.rs
              DevInfo::unprobed_image(token, None)?
          } else {
              DevInfo::pv(token, true)?
-diff -ruN a/anylinuxfs/src/devinfo.rs b/anylinuxfs/src/devinfo.rs
---- a/anylinuxfs/src/devinfo.rs	2026-07-20 19:00:52
-+++ b/anylinuxfs/src/devinfo.rs	2026-08-22 11:40:56
+diff -ruN -x target -x Cargo.lock a/anylinuxfs/src/devinfo.rs b/anylinuxfs/src/devinfo.rs
+--- a/anylinuxfs/src/devinfo.rs	2026-08-23 15:42:33
++++ b/anylinuxfs/src/devinfo.rs	2026-08-23 15:42:33
 @@ -1,3 +1,6 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: added the VMDK, VDI, VHD and VHDX disk formats.
 +// SPDX-License-Identifier: GPL-3.0-or-later
@@ -47,7 +47,7 @@ diff -ruN a/anylinuxfs/src/devinfo.rs b/anylinuxfs/src/devinfo.rs
  }
  
  impl DiskFormat {
-@@ -22,12 +29,34 @@
+@@ -22,12 +29,37 @@
          match self {
              DiskFormat::Raw => 0,
              DiskFormat::Qcow2 => 1,
@@ -70,9 +70,9 @@ diff -ruN a/anylinuxfs/src/devinfo.rs b/anylinuxfs/src/devinfo.rs
 +        } else if path.as_ref().ends_with(b".vmdk") {
 +            DiskFormat::Vmdk
 +        } else if path.as_ref().ends_with(b".vhdx") {
-+            // Kept above ".vhd" although `ends_with` does not require it: a
-+            // path ending in ".vhdx" does not end in ".vhd". The order is what
-+            // a looser match would need, and the two formats share nothing but
++            // Kept above ".vhd" although `ends_with` does not require it: a path
++            // ending in ".vhdx" does not end in ".vhd". The order is what a
++            // looser match would need, and the two formats share nothing but
 +            // four letters.
 +            DiskFormat::Vhdx
 +        } else if path.as_ref().ends_with(b".vdi") {
@@ -85,9 +85,9 @@ diff -ruN a/anylinuxfs/src/devinfo.rs b/anylinuxfs/src/devinfo.rs
          } else {
              DiskFormat::Raw
          }
-diff -ruN a/anylinuxfs/src/diskutil/mod.rs b/anylinuxfs/src/diskutil/mod.rs
---- a/anylinuxfs/src/diskutil/mod.rs	2026-07-20 19:00:52
-+++ b/anylinuxfs/src/diskutil/mod.rs	2026-08-22 11:40:56
+diff -ruN -x target -x Cargo.lock a/anylinuxfs/src/diskutil/mod.rs b/anylinuxfs/src/diskutil/mod.rs
+--- a/anylinuxfs/src/diskutil/mod.rs	2026-08-23 15:42:33
++++ b/anylinuxfs/src/diskutil/mod.rs	2026-08-23 15:42:33
 @@ -1,3 +1,6 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: opened every encoded image format, not qcow2 alone.
 +// SPDX-License-Identifier: GPL-3.0-or-later
