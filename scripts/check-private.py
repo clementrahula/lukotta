@@ -3,6 +3,7 @@
 
     ./scripts/check-private.py            everything git tracks
     ./scripts/check-private.py --staged   only what is about to be committed
+    ./scripts/check-private.py --forget   drop what this machine has remembered
 
 Run from .githooks/pre-commit before a commit exists, from lint.sh, and from
 CI. The hook is the one that matters: what reaches history costs a rewrite of
@@ -111,6 +112,38 @@ def this_machine() -> list:
     return names
 
 
+def record_path():
+    """Where the digests live: inside .git, and provably outside the work tree.
+
+    Written on demand and never by hand, so there is nothing to ship, nothing
+    to review and nothing to forget about. Anywhere git can see is refused
+    outright rather than trusted not to be committed — a file like this one
+    belongs to the machine, not to the project.
+    """
+    try:
+        git_dir = subprocess.run(
+            ["git", "rev-parse", "--absolute-git-dir"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+        top = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return None
+    record = os.path.join(git_dir, "private-disk-digests")
+    inside = os.path.commonpath([os.path.realpath(record), os.path.realpath(top)])
+    if inside == os.path.realpath(top) and ".git" not in os.path.realpath(record).split(os.sep):
+        # Somewhere git could pick it up. Do without the record rather than
+        # leave one lying in the tree.
+        return None
+    return record
+
+
 def digest(value: str) -> str:
     """A UUID reduced to something that cannot be read back."""
     return hashlib.sha256(value.upper().encode()).hexdigest()
@@ -162,13 +195,9 @@ def remembered_uuids(live: set) -> set:
     a poor joke; a digest compares just as well and is not the thing. The file
     lives inside .git, is never committed, and never leaves the machine.
     """
-    try:
-        git_dir = subprocess.run(
-            ["git", "rev-parse", "--git-dir"], capture_output=True, text=True, check=True
-        ).stdout.strip()
-    except (OSError, subprocess.SubprocessError):
-        return live
-    record = os.path.join(git_dir, "private-disk-digests")
+    record = record_path()
+    if record is None:
+        return {digest(u) for u in live}
     known = {digest(u) for u in live}
     try:
         with open(record) as f:
@@ -268,6 +297,15 @@ def check(path: str, text: str, disks: set, mine: list) -> list:
 
 
 def main(argv: list) -> int:
+    if "--forget" in argv:
+        record = record_path()
+        if record and os.path.exists(record):
+            os.unlink(record)
+            print(f"  forgot every disk this Mac had shown ({record})")
+        else:
+            print("  nothing was remembered")
+        return 0
+
     staged = "--staged" in argv
     paths = staged_files() if staged else tracked_files()
     paths = [p for p in paths if interesting(p)]

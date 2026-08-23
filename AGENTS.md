@@ -114,6 +114,16 @@ directory with an unfamiliar name, an account name inside `mount` output, the
 UUID of any disk this Mac has ever had attached, and anything shaped like a
 signing team. Deliberate lookalikes are listed in `ALLOWED` inside it.
 
+Who to refuse is asked of the system on each run — the account it runs as, the
+name this Mac answers to — and kept nowhere. Disks are the exception, because a
+drive gets unplugged between capturing a fixture and committing it; those are
+remembered as digests, written on demand into `.git`, which git cannot see and
+which never leaves the machine. `--forget` drops them, and the next run builds
+the list again from whatever is attached.
+
+No identifier of any person belongs in that script, in this file, or anywhere
+else in the repository. It is written to work for whoever runs it.
+
 Turn the hook on once per clone; nothing else installs it:
 
     git config core.hooksPath .githooks
