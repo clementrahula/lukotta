@@ -19,3 +19,8 @@ dist/
 
 # Built from resources/Localizable.xcstrings at build time.
 /resources/*.lproj/
+
+# Audit reports. Written for a piece of work and kept on the machine that ran
+# it; the repository holds the fixes rather than the report. Ignored so that a
+# sweeping `git add` cannot take one in, which has happened.
+/AUDIT.md
