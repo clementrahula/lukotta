@@ -404,13 +404,13 @@ final class AppModel: ObservableObject {
         if format.isEncrypted, !EnginePaths.opensEncryptionInsideImages {
             return .failure(
                 appString(
-                    "“\(url.lastPathComponent)” holds an encrypted volume, which this build of the drive engine cannot open inside a disk image. Opening the drive it was made from would work."
+                    "“\(url.lastPathComponent)” holds an encrypted volume, and this build’s drive engine cannot open encryption inside an image. Opening the drive it was made from would work."
                 ))
         }
         guard !types.isEmpty else {
             return .failure(
                 appString(
-                    "There is nothing in “\(url.lastPathComponent)” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
+                    "There is nothing in “\(url.lastPathComponent)” that \(appName) can open."
                 ))
         }
         let linux =
@@ -524,7 +524,7 @@ final class AppModel: ObservableObject {
                 Log.drives.notice("the image held nothing openable")
                 return .failure(
                     appString(
-                        "There is nothing in “\(url.lastPathComponent)” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
+                        "There is nothing in “\(url.lastPathComponent)” that \(appName) can open."
                     ))
             }
             return .success(attached, all, mine)
@@ -1059,6 +1059,9 @@ final class AppModel: ObservableObject {
     /// read, or is read as something unrecognised, leaves this nil and the
     /// screen unchanged.
     @Published var chosenFormat: VolumeFormat?
+    /// What a probe made of each drive it has read, by drive identifier. The
+    /// list says what a volume may be until this says what it is.
+    @Published var knownFormats: [String: VolumeFormat] = [:]
 
     /// Which container the drive on screen is, where it is an image.
     ///
@@ -1122,6 +1125,10 @@ final class AppModel: ObservableObject {
 
             Log.drives.notice("identified as \(format.rawValue, privacy: .public)")
             self.chosenFormat = format == .unknown ? nil : format
+            // Kept for the list as well as for this screen. Going back from
+            // here otherwise showed "BitLocker/NTFS" again for a drive the app
+            // had just read the boot sector of.
+            if format != .unknown { self.knownFormats[identifier] = format }
 
             // Nothing to unlock, so nothing to ask, and a screen that asks
             // anyway is in the way.

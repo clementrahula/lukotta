@@ -56,13 +56,17 @@ public enum ContainerFormat: String, Sendable {
 
     /// Whether writing goes through a driver written for this application.
     ///
-    /// True of the formats whose drivers were added here, and of qcow2, which
-    /// imago writes itself. False for a raw image, which macOS attaches and
-    /// writes as it writes any disk.
+    /// True only of the formats whose drivers were written here. False for a
+    /// raw image, which macOS attaches and writes as it writes any disk, and
+    /// false for qcow2, which imago has written for years: somebody else's
+    /// tested code is not this application's warning to give.
+    ///
+    /// VMDK counts, the sparse form being read and written by the driver added
+    /// here, and nothing at this level tells a sparse one from a flat one.
     public var writtenByOurOwnDriver: Bool {
         switch self {
-        case .raw, .vhdx, .vmdkStreamed: return false
-        case .qcow2, .vmdk, .vdi, .vhd: return true
+        case .raw, .qcow2, .vhdx, .vmdkStreamed: return false
+        case .vmdk, .vdi, .vhd: return true
         }
     }
 }

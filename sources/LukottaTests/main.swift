@@ -141,14 +141,24 @@ group("failureDiagnosis") {
 
 group("volumeKindsAndTheDirtyVolumePath") {
 
-    expect(VolumeKind.microsoft.summary, "BitLocker or NTFS", "microsoft kind summary")
-    expect(VolumeKind.linux.summary, "LUKS or Linux filesystem", "linux kind summary")
+    // What may be there, until a probe says which of them it is.
+    expect(VolumeKind.microsoft.summary, "BitLocker/NTFS", "microsoft kind summary")
+    expect(VolumeKind.linux.summary, "LUKS", "linux kind summary")
+    // And once it has, one name rather than a pair.
+    expect(VolumeKind.microsoft.summary(knowing: .ntfs), "NTFS", "a probed microsoft volume")
+    expect(
+        VolumeKind.microsoft.summary(knowing: .bitlocker), "BitLocker", "a probed BitLocker volume")
+    expect(VolumeKind.linux.summary(knowing: .ext), "ext", "a probed Linux filesystem")
+    expect(VolumeKind.linux.summary(knowing: .luks), "LUKS", "a probed LUKS container")
+    expect(
+        VolumeKind.linux.summary(knowing: .unknown), "LUKS",
+        "an unrecognised probe leaves the pair standing")
 
     let d = Drive(
         id: "disk4s1", devicePath: "/dev/disk4s1", name: "BACKUP",
         sizeBytes: 500_000_000_000, connection: "USB · External", kind: .microsoft,
         uuid: "7A2E4F10-3C58-4D9B-A6E1-2F7C05B34D88")
-    expect(d.subtitle.contains("BitLocker or NTFS"), "subtitle states what the volume might be")
+    expect(d.subtitle.contains("BitLocker/NTFS"), "subtitle states what the volume might be")
     expect(d.subtitle.contains("disk4s1"), "subtitle keeps the device identifier")
 
     // Windows Fast Startup and hibernation are the most common cause of failure,

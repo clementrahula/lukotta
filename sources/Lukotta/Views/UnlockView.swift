@@ -53,7 +53,7 @@ struct UnlockView: View {
                     // formats, it began calling LUKS containers unencrypted
                     // the moment the probe learned to recognise one.
                     if let format = model.chosenFormat, format.isUnencrypted {
-                        FormatNote(format: format, writable: model.chosenIsWritable)
+                        FormatNote()
                     }
 
                     // What may be done with the file itself, as opposed to what
@@ -219,150 +219,92 @@ struct UnlockView: View {
     }
 }
 
-/// What macOS asks for, why, and what still needs doing.
+/// What is still to be done before a drive can be opened, and how to do it.
 ///
-/// Shown open whenever something is outstanding — this is what a user needs
-/// before they hit a wall, not something to go looking for. Once everything is
-/// granted it collapses to a single line.
+/// Only that. A permission already granted is not a step, and a permission
+/// macOS asks for by itself when the moment comes is not one either: neither
+/// leaves the reader anything to do, and a line with an empty space where a
+/// button would be asks a question it does not answer. With nothing
+/// outstanding there is no panel at all.
 struct PermissionsPanel: View {
     @EnvironmentObject var model: AppModel
 
-    private var removableDetail: String {
-        if model.removableAccess == false {
+    private struct Step {
+        let title: String
+        let detail: String
+        let status: PermissionStatus
+        let action: (String, () -> Void)
+    }
+
+    private var removable: Step? {
+        guard model.removableAccess == false else { return nil }
+        return Step(
+            title: appString("Seeing connected drives"),
             // A bare button into a settings pane is a dead end. Say what to do
             // once it opens.
-            return appString(
+            detail: appString(
                 "Was refused. In Files and Folders, switch on Removable Volumes for \(Brand.name), then come back."
-            )
-        }
-        return appString("Lets \(Brand.name) see the drives you plug in.")
+            ),
+            status: .needed,
+            action: (appString("Settings"), { model.openFilesAndFoldersSettings() }))
     }
 
-    private var removableStatus: PermissionStatus {
-        switch model.removableAccess {
-        case true: return .granted
-        case false: return .needed
-        default: return .automatic(appString("Asked when needed"))
-        }
-    }
-
-    /// Only rows that are actually granted show "Granted"; the rest show a
-    /// button or a neutral note, never both.
-
-    private var helperDetail: String {
+    private var administrator: Step? {
         switch model.helper.state {
         case .ready:
-            return appString(
-                "Reading a raw disk and mounting a filesystem are actions only an administrator can do."
-            )
+            return nil
         case .awaitingApproval:
-            return appString(
-                "Reading a raw disk and mounting a filesystem are actions only an administrator can do. Approve \(Brand.name) in Login Items to finish."
-            )
+            return Step(
+                title: appString("Administrator password"),
+                detail: appString(
+                    "Reading a raw disk and mounting a filesystem are actions only an administrator can do. Approve \(Brand.name) in Login Items to finish."
+                ),
+                status: .needed,
+                action: (appString("Approve"), { model.helper.openLoginItemsSettings() }))
         default:
-            return appString(
-                "Reading a raw disk and mounting a filesystem are actions only an administrator can do. \(Brand.name) never sees your password."
-            )
+            return Step(
+                title: appString("Administrator password"),
+                detail: appString(
+                    "Reading a raw disk and mounting a filesystem are actions only an administrator can do. \(Brand.name) never sees your password."
+                ),
+                status: .automatic(appString("Asked each time")),
+                action: (appString("Set Up"), { model.helper.install() }))
         }
     }
 
-    private var helperStatus: PermissionStatus {
-        switch model.helper.state {
-        case .ready: return .granted
-        case .awaitingApproval: return .needed
-        default: return .automatic(appString("Asked each time"))
-        }
+    private var fullDisk: Step? {
+        guard !model.hasFullDiskAccess else { return nil }
+        return Step(
+            title: appString("Full Disk Access"),
+            detail: appString(
+                "Lets \(Brand.name) read the encrypted data itself. macOS blocks this without it, even for administrators, and it cannot be requested: it has to be switched on by hand."
+            ),
+            status: .needed,
+            action: (appString("Open Settings"), { model.openPrivacySettings() }))
     }
 
-    private var helperAction: (String, () -> Void)? {
-        switch model.helper.state {
-        case .ready: return nil
-        case .awaitingApproval:
-            return (appString("Approve"), { model.helper.openLoginItemsSettings() })
-        default: return (appString("Set Up"), { model.helper.install() })
-        }
-    }
-    @State private var expanded: Bool
-
-    init() {
-        _expanded = State(initialValue: true)
-    }
-
-    private var fullDiskGranted: Bool { model.hasFullDiskAccess }
-    private var settled: Bool { model.allPermissionsSettled }
+    private var steps: [Step] { [removable, administrator, fullDisk].compactMap { $0 } }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Button {
-                withAnimation(.easeInOut(duration: 0.18)) { expanded.toggle() }
-            } label: {
-                HStack(spacing: 13) {
-                    Image(systemName: settled ? "checkmark.shield.fill" : "hand.raised.fill")
-                        .font(.system(size: 15))
-                        .foregroundStyle(settled ? Color.green : Color.orange)
-                        .frame(width: 26)
-                        .accessibilityHidden(true)
-                    Text(
-                        settled
-                            ? "All required permissions granted"
-                            : "Some permissions are still needed"
-                    )
-                    .font(.subheadline.weight(.medium))
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.tertiary)
-                        .rotationEffect(.degrees(expanded ? 90 : 0))
-                        .accessibilityHidden(true)
+        // Numbered over what is shown, so the list reads 1, 2, 3 whichever of
+        // them is outstanding.
+        let steps = steps
+        if !steps.isEmpty {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Some permissions are still needed")
+                    .font(.title3.weight(.semibold))
+                    .accessibilityAddTraits(.isHeader)
+                ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
+                    PermissionRow(
+                        number: index + 1, title: step.title, detail: step.detail,
+                        status: step.status, action: step.action)
                 }
-                .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
-            // Which way the chevron points is the only sign of whether this is
-            // open, and a chevron is not something a screen reader can see.
-            .accessibilityValue(expanded ? "Expanded" : "Collapsed")
-            .accessibilityHint(expanded ? "Hide the details" : "Show what each permission is for")
-
-            // Open while anything is outstanding; the user can still collapse it.
-            if expanded || !settled {
-                VStack(alignment: .leading, spacing: 16) {
-                    PermissionRow(
-                        number: 1,
-                        title: appString("Seeing connected drives"),
-                        detail: removableDetail,
-                        status: removableStatus,
-                        action: model.removableAccess == false
-                            ? (appString("Settings"), { model.openFilesAndFoldersSettings() })
-                            : nil)
-
-                    PermissionRow(
-                        number: 2,
-                        title: appString("Administrator password"),
-                        detail: helperDetail,
-                        status: helperStatus,
-                        action: helperAction)
-
-                    PermissionRow(
-                        number: 3,
-                        title: appString("Full Disk Access"),
-                        detail: fullDiskGranted
-                            ? appString("Lets \(Brand.name) read the encrypted data itself.")
-                            : appString(
-                                "Lets \(Brand.name) read the encrypted data itself. macOS blocks this without it, even for administrators, and it cannot be requested: it has to be switched on by hand."
-                            ),
-                        status: fullDiskGranted ? .granted : .needed,
-                        action: fullDiskGranted
-                            ? nil
-                            : (appString("Open Settings"), { model.openPrivacySettings() }))
-                }
-                .padding(.top, 16)
-            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.045)))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.primary.opacity(0.07)))
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .onAppear { if settled { expanded = false } }
-        .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.045)))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.primary.opacity(0.07)))
     }
 }
 
@@ -377,7 +319,7 @@ struct PermissionRow: View {
     let title: String
     let detail: String
     let status: PermissionStatus
-    let action: (String, () -> Void)?
+    let action: (String, () -> Void)
 
     var body: some View {
         HStack(alignment: .top, spacing: 13) {
@@ -404,24 +346,12 @@ struct PermissionRow: View {
 
             Spacer(minLength: 8)
 
-            // Fixed trailing column, so buttons and "Granted" line up down the
-            // list instead of sitting wherever the text happens to end.
-            Group {
-                if let action {
-                    Button(action.0, action: action.1)
-                        .controlSize(.small)
-                        .buttonStyle(.bordered)
-                } else if case .granted = status {
-                    // Sized to sit level with the buttons on the other rows,
-                    // rather than reading as a stray caption.
-                    Label("Granted", systemImage: "checkmark.circle.fill")
-                        .labelStyle(.titleAndIcon)
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.green)
-                        .imageScale(.medium)
-                }
-            }
-            .frame(width: 96, alignment: .trailing)
+            // Fixed trailing column, so the buttons line up down the list
+            // instead of sitting wherever the text happens to end.
+            Button(action.0, action: action.1)
+                .controlSize(.small)
+                .buttonStyle(.bordered)
+                .frame(width: 96, alignment: .trailing)
         }
     }
 
@@ -460,9 +390,9 @@ private struct ImageNote: View {
 
     private var title: String {
         if !container.isWritable {
-            return String(localized: "A \(container.name) opens read-only")
+            return String(localized: "\(container.name) image can only be opened read-only")
         }
-        return String(localized: "Saving changes to this file could damage it")
+        return String(localized: "Writing to this image format is untested")
     }
 
     /// Whether this note is the one about a driver built here, as opposed to
@@ -472,23 +402,22 @@ private struct ImageNote: View {
     private var detail: String {
         if !container.isWritable {
             return String(
-                localized:
-                    "\(Brand.name) reads this format and does not write it: changing one means writing to its log first, which it does not do. Nothing in the file can change."
+                localized: "\(Brand.name) does not yet support writing to this file format."
             )
         }
-        return String(
-            localized:
-                "Writing to this format is untested and may still have faults, so writing to it is at your own risk. Open it read-only to copy files out safely, or make a backup first."
-        )
+        return String(localized: "Open it read-only to copy files out, or back it up first.")
     }
 
     private var tint: Color { aboutOurOwnWriting ? .orange : .blue }
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: aboutOurOwnWriting ? "pencil.circle.fill" : "info.circle.fill")
-                .foregroundStyle(tint)
-                .accessibilityHidden(true)
+            Image(
+                systemName: aboutOurOwnWriting
+                    ? "exclamationmark.triangle.fill" : "info.circle.fill"
+            )
+            .foregroundStyle(tint)
+            .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.callout.weight(.medium))
                 Text(detail)
@@ -511,42 +440,18 @@ private struct ImageNote: View {
 /// open it, which is what gives a Windows disk the read and write access macOS
 /// does not, so this is worded as an explanation and not as a refusal.
 private struct FormatNote: View {
-    let format: VolumeFormat
-    /// Whether opening it read-write is on offer at all. Where it is not, this
-    /// note must not describe it: the note below says why.
-    var writable = true
-
-    /// Exhaustive on purpose. The old `default` said "plain NTFS" for anything
-    /// it did not recognise, which is how a LUKS container came to be described
-    /// as unencrypted NTFS.
-    private var title: String {
-        switch format {
-        case .ntfs: return String(localized: "This drive is plain NTFS, and is not encrypted.")
-        case .exfat: return String(localized: "This drive is exFAT, and is not encrypted.")
-        case .ext, .btrfs, .xfs:
-            return String(localized: "This drive holds a Linux filesystem, and is not encrypted.")
-        case .bitlocker, .luks, .unknown:
-            // Never shown: the note is only put up for a format with nothing to
-            // unlock. Stated rather than defaulted, so adding a format has to
-            // decide which of the two it is.
-            return ""
-        }
-    }
-
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "info.circle.fill")
                 .foregroundStyle(.blue)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.callout.weight(.medium))
-                Text(
-                    writable
-                        ? "There is no password to enter. Open it to read and write to it, which macOS on its own cannot do, or open it read-only to leave it untouched."
-                        : "There is no password to enter."
-                )
-                .font(.caption).foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                // Which filesystem it is has no bearing on what to do next.
+                // The buttons below say what opening it will do.
+                Text("This drive is not encrypted.").font(.callout.weight(.medium))
+                Text("There is no password to enter.")
+                    .font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
         }

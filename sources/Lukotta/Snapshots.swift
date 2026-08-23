@@ -199,7 +199,7 @@ enum Snapshots {
                         // Through the same interpolation the app uses, so the
                         // fixture does not become a catalogue key of its own.
                         appString(
-                            "There is nothing in “\(refused.lastPathComponent)” that \(appName) can open. It holds no BitLocker, LUKS, NTFS or Linux volume."
+                            "There is nothing in “\(refused.lastPathComponent)” that \(appName) can open."
                         )))
             ),
             // A drive that has just gone, reported where it was rather than at
@@ -222,6 +222,16 @@ enum Snapshots {
                 }
             ),
             ("unlock-linux", model { $0.phase = .unlock(linux) }),
+            // The tallest this screen goes: a passphrase to type, a warning
+            // about the file's own format, and every permission outstanding.
+            // Anything that fits here fits the rest.
+            (
+                "unlock-image-encrypted",
+                model {
+                    $0.phase = .unlock(image)
+                    $0.containerFormats[image.id] = .vdi
+                }
+            ),
             // A drive found not to be encrypted, reported before anyone looks
             // for a password.
             (

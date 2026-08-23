@@ -42,7 +42,7 @@ struct ImageOpenSheet: View {
                         .foregroundStyle(.green)
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("macOS opened “\(name)”").font(.headline)
+                        Text("“\(name)” opened in macOS").font(.headline)
                         // Why it was handed over as well as that it was. A
                         // volume appearing in Finder that nobody put there is
                         // worth explaining.
@@ -70,7 +70,7 @@ struct ImageOpenSheet: View {
                         .foregroundStyle(.orange)
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("“\(name)” was not opened").font(.headline)
+                        Text("\(Brand.name) is not able to open this file format.").font(.headline)
                         Text(message)
                             .font(.callout).foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)

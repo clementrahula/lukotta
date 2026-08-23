@@ -24,6 +24,21 @@ public enum VolumeFormat: String, Sendable {
     /// Not recognised, and not guessed at.
     case unknown
 
+    /// What it is called on screen. Product and filesystem names, the same in
+    /// every language, so they are written rather than translated.
+    public var name: String {
+        switch self {
+        case .bitlocker: return "BitLocker"
+        case .ntfs: return "NTFS"
+        case .exfat: return "exFAT"
+        case .luks: return "LUKS"
+        case .ext: return "ext"
+        case .btrfs: return "Btrfs"
+        case .xfs: return "XFS"
+        case .unknown: return ""
+        }
+    }
+
     /// Nothing to unlock: it can be opened without asking for anything.
     public var isUnencrypted: Bool {
         switch self {

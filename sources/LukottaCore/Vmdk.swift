@@ -176,11 +176,11 @@ extension DiskImage {
         if Array(head.prefix(4)) == VmdkDescriptor.sparseMagic {
             guard let sparse = SparseVmdkHeader.parse(head) else {
                 return appString(
-                    "“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
+                    "“\(url.lastPathComponent)” is not a disk image.")
             }
             guard EnginePaths.opensSparseVmdk else {
                 return appString(
-                    "“\(url.lastPathComponent)” is a sparse VMDK, which this build of the drive engine cannot open. A flat one, or a raw image, would work."
+                    "“\(url.lastPathComponent)” is a sparse VMDK, and this build’s drive engine reads only the flat form. A flat VMDK or a raw image would open."
                 )
             }
             let at = sparse.descriptorOffset * SparseVmdkHeader.sector
@@ -190,7 +190,7 @@ extension DiskImage {
                 let inside = try? handle.read(upToCount: Int(length)), !inside.isEmpty
             else {
                 return appString(
-                    "“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
+                    "“\(url.lastPathComponent)” is not a disk image.")
             }
             // Padded to whole sectors with zero bytes, which are not content.
             text = inside.prefix(while: { $0 != 0 })
@@ -198,18 +198,18 @@ extension DiskImage {
         let descriptor = VmdkDescriptor.parse(String(decoding: text, as: UTF8.self))
         if descriptor.hasDeltaLink {
             return appString(
-                "“\(url.lastPathComponent)” is part of a chain of snapshots, which \(appName) cannot open. Open the disk it was made from."
+                "“\(url.lastPathComponent)” is one of a chain of snapshots. Open the disk it was made from."
             )
         }
         guard !descriptor.extents.isEmpty else {
-            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image.")
         }
         if descriptor.hasAnExtentWithNoFile {
-            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image.")
         }
         if descriptor.namesAFileElsewhere {
             return appString(
-                "“\(url.lastPathComponent)” refers to another file on this Mac, which would be opened along with it. \(appName) does not open images that name other files."
+                "“\(url.lastPathComponent)” names another file on this Mac, which would be opened along with it."
             )
         }
         // Every extent must be present. Otherwise the engine opens those it
@@ -220,7 +220,7 @@ extension DiskImage {
             let beside = directory.appendingPathComponent(name)
             if !FileManager.default.fileExists(atPath: beside.path) {
                 return appString(
-                    "“\(url.lastPathComponent)” needs “\(name)”, which is not beside it. A disk image of this kind is a set of files, and every one is required."
+                    "“\(url.lastPathComponent)” needs “\(name)”, which is not beside it. An image of this kind is a set of files, and all of them are required."
                 )
             }
             // A name with no path in it can still be a link to somewhere else.
@@ -232,7 +232,7 @@ extension DiskImage {
                 != directory.resolvingSymlinksInPath().standardizedFileURL
             {
                 return appString(
-                    "“\(url.lastPathComponent)” refers to another file on this Mac, which would be opened along with it. \(appName) does not open images that name other files."
+                    "“\(url.lastPathComponent)” names another file on this Mac, which would be opened along with it."
                 )
             }
         }

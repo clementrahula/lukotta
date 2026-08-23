@@ -13,12 +13,24 @@ public enum VolumeKind: String, Hashable, Sendable {
     /// A Linux partition — LUKS, or an unencrypted Linux filesystem.
     case linux
 
-    public var summary: String {
+    /// What the volume may be, named as precisely as is known.
+    ///
+    /// Before anything is read, a partition type is all there is, and it admits
+    /// two answers: a Microsoft Basic Data partition is BitLocker or NTFS, and
+    /// a Linux one is LUKS or a filesystem not yet identified. Once a probe has
+    /// said which, that one name is the answer and the pair is no longer true.
+    ///
+    /// Written rather than translated: every name in it is a product or a
+    /// filesystem, and those are the same in every language.
+    public func summary(knowing format: VolumeFormat? = nil) -> String {
+        if let format, format != .unknown { return format.name }
         switch self {
-        case .microsoft: return appString("BitLocker or NTFS")
-        case .linux: return appString("LUKS or Linux filesystem")
+        case .microsoft: return "BitLocker/NTFS"
+        case .linux: return "LUKS"
         }
     }
+
+    public var summary: String { summary() }
 }
 
 public struct Drive: Identifiable, Hashable, Sendable {

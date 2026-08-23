@@ -56,13 +56,13 @@ extension DiskImage {
         defer { try? handle.close() }
         let size = fileSize(atPath: url.path)
         guard size > Int64(VhdFooter.length) else {
-            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image.")
         }
         try? handle.seek(toOffset: UInt64(size) - UInt64(VhdFooter.length))
         guard let bytes = try? handle.read(upToCount: VhdFooter.length),
             let footer = VhdFooter.parse(bytes)
         else {
-            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image.")
         }
 
         switch footer.kind {
@@ -73,15 +73,15 @@ extension DiskImage {
             // which presents the header as though it were the disk.
             guard EnginePaths.opensVdiAndVhd else {
                 return appString(
-                    "“\(url.lastPathComponent)” is a dynamic VHD, which this build of the drive engine cannot open. A fixed VHD, a raw image or a qcow2 would work."
+                    "“\(url.lastPathComponent)” is a dynamic VHD, and this build’s drive engine has no driver for it. A fixed VHD, a raw image or a qcow2 would open."
                 )
             }
         case .differencing:
             return appString(
-                "“\(url.lastPathComponent)” holds only the changes from another disk, which it names. \(appName) does not open images that name other files."
+                "“\(url.lastPathComponent)” holds only the changes from another disk, and names the disk it changes."
             )
         case .none:
-            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image.")
         }
 
         // A fixed VHD holds its data followed by the footer and nothing else.

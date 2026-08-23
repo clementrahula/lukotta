@@ -95,11 +95,11 @@ extension DiskImage {
         guard let bytes = try? handle.read(upToCount: qcow2HeaderLength),
             let header = Qcow2Header.parse(bytes)
         else {
-            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image.")
         }
         if header.namesAnotherFile || Qcow2Header.hasExternalDataExtension(bytes) {
             return appString(
-                "“\(url.lastPathComponent)” refers to another file on this Mac, which would be opened along with it. \(appName) does not open images that name other files."
+                "“\(url.lastPathComponent)” names another file on this Mac, which would be opened along with it."
             )
         }
         if header.isCorrupt {

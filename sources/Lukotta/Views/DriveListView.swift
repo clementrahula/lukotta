@@ -47,6 +47,7 @@ struct DriveListView: View {
                             DriveRow(
                                 drive: drive,
                                 mountPoint: point,
+                                knownFormat: model.knownFormats[drive.id],
                                 space: point.flatMap { model.space[$0] },
                                 volumeCount: point.flatMap { model.volumeCount[$0] } ?? 1,
                                 readOnly: point.map { model.readOnlyMounts.contains($0) } ?? false,
@@ -78,6 +79,8 @@ struct DriveListView: View {
 struct DriveRow: View {
     let drive: Drive
     let mountPoint: String?
+    /// What a probe made of it, where one has been made. Nil until then.
+    var knownFormat: VolumeFormat?
     /// Only known once the drive is open, and only then worth showing.
     var space: VolumeSpace?
     var volumeCount: Int = 1
@@ -110,7 +113,7 @@ struct DriveRow: View {
     private var details: String {
         var parts = [drive.sizeDescription]
         if !drive.connection.isEmpty { parts.append(drive.connection) }
-        parts.append(drive.kind.summary)
+        parts.append(drive.kind.summary(knowing: knownFormat))
         return parts.joined(separator: "  ·  ")
     }
 

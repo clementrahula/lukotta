@@ -58,20 +58,20 @@ extension DiskImage {
         guard let bytes = try? handle.read(upToCount: VdiHeader.length),
             let header = VdiHeader.parse(bytes)
         else {
-            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image.")
         }
 
         // Version 0 laid the header out differently. Reading such a file as
         // version 1 locates the block map at the wrong offset.
         guard header.major == 1, header.kind != nil, header.diskSize > 0 else {
-            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image.")
         }
 
         // An engine built without the VDI driver reads the file as raw, which
         // presents the header as though it were the start of the disk.
         guard EnginePaths.opensVdiAndVhd else {
             return appString(
-                "“\(url.lastPathComponent)” is a VDI, which this build of the drive engine cannot open. A raw image or a qcow2 would work."
+                "“\(url.lastPathComponent)” is a VDI, and this build’s drive engine has no VDI driver. A raw image or a qcow2 would open."
             )
         }
         return nil

@@ -64,7 +64,8 @@ struct PermissionView: View {
                             picture: model.restoreBlocked
                                 ? Brand.switchPicture : "FullDiskAccessAdd",
                             pictureDescription: model.restoreBlocked
-                                ? appString("The Full Disk Access list, with an app's switch marked.")
+                                ? appString(
+                                    "The Full Disk Access list, with an app's switch marked.")
                                 : appString("The Full Disk Access list, with the + button marked.")
                         )
                         Step(

@@ -127,7 +127,7 @@ extension DiskImage {
         guard let head = try? handle.read(upToCount: VhdxHeader.signature.count),
             Array(head) == VhdxHeader.signature
         else {
-            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image.")
         }
 
         var headers: [Data] = []
@@ -139,7 +139,7 @@ extension DiskImage {
             headers.append(block)
         }
         guard let header = VhdxHeader.parse(headers: headers) else {
-            return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
+            return appString("“\(url.lastPathComponent)” is not a disk image.")
         }
 
         if header.dirty {
@@ -159,7 +159,7 @@ extension DiskImage {
             VhdxHeader.namesAParent(metadata: metadata)
         {
             return appString(
-                "“\(url.lastPathComponent)” holds only the changes from another disk, which it names. \(appName) does not open images that name other files."
+                "“\(url.lastPathComponent)” holds only the changes from another disk, and names the disk it changes."
             )
         }
 
@@ -167,7 +167,7 @@ extension DiskImage {
         // presents the header as though it were the start of the disk.
         guard EnginePaths.opensVdiAndVhd else {
             return appString(
-                "“\(url.lastPathComponent)” is a VHDX, which this build of the drive engine cannot open. A VHD, a raw image or a qcow2 would work."
+                "“\(url.lastPathComponent)” is a VHDX, and this build’s drive engine has no VHDX driver. A VHD, a raw image or a qcow2 would open."
             )
         }
         return nil
