@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Clement Rahula
 
+import CryptoKit
 import Foundation
 
 /// Opening an encrypted container that is a file rather than a drive.
@@ -336,9 +337,45 @@ extension DiskImage {
     ///     0:   btrfs LUKOTTAPLAIN     +335.5 MB   plain.qcow2
     public static func contents(of url: URL) -> [String] {
         guard let engine = EnginePaths.anylinuxfs,
-            let result = LukottaCore.run(engine.path, ["list", url.path])
+            let result = LukottaCore.run(engine.path, ["list", withoutSpaces(url).path])
         else { return [] }
         return types(inListing: result.out)
+    }
+
+    /// A path to this image with no space in it.
+    ///
+    /// The engine takes a path as far as its first space and no further: asked
+    /// about "Open Drive.vdi" it looks for "/Users/someone/Desktop/Open" and
+    /// reports that there is no such disk. The app then has nothing to show for
+    /// the file and says so -- an image that opens perfectly well under any
+    /// other name. Only the space does this; quotes, ampersands, hashes,
+    /// accented letters and CJK all pass through.
+    ///
+    /// A link stands in. It is named from a digest of the path, so two images
+    /// called the same thing in different folders do not collide, and it is
+    /// replaced each time, so it cannot point at a file that has since moved.
+    /// A file whose path has no space is handed over as it is.
+    public static func withoutSpaces(_ url: URL) -> URL {
+        guard url.path.contains(" ") else { return url }
+        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+        guard
+            let directory = caches?
+                .appendingPathComponent(Bundle.main.bundleIdentifier ?? "dev.lukotta")
+                .appendingPathComponent("images", isDirectory: true)
+        else { return url }
+        try? FileManager.default.createDirectory(
+            at: directory, withIntermediateDirectories: true)
+        var name = SHA256.hash(data: Data(url.path.utf8)).map { String(format: "%02x", $0) }
+            .joined()
+        if !url.pathExtension.isEmpty { name += "." + url.pathExtension }
+        let link = directory.appendingPathComponent(name)
+        try? FileManager.default.removeItem(at: link)
+        do {
+            try FileManager.default.createSymbolicLink(at: link, withDestinationURL: url)
+        } catch {
+            return url
+        }
+        return link
     }
 
     /// The TYPE column of the engine's listing, in order.

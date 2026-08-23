@@ -418,8 +418,9 @@ final class AppModel: ObservableObject {
             || types.contains { $0.hasPrefix("ext") || $0 == "btrfs" || $0 == "xfs" }
         let drive = Drive(
             id: url.lastPathComponent,
-            // The engine takes the file itself as the disk to open.
-            devicePath: url.path,
+            // The engine takes the file itself as the disk to open, by a path
+            // it can read all of.
+            devicePath: DiskImage.withoutSpaces(url).path,
             name: url.deletingPathExtension().lastPathComponent,
             sizeBytes: fileSize(atPath: url.path),
             connection: appString("Disk Image"),

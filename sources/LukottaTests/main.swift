@@ -765,6 +765,29 @@ group("secretRedaction") {
     expect(!report.contains("121121"), "the assembled report carries no key")
 }
 
+group("anImageWithASpaceInItsNameIsStillReadable") {
+    // The engine reads a path as far as its first space, so an image called
+    // "Open Drive.vdi" is reported as a file with nothing in it. A link with no
+    // space stands in for it.
+    let plain = URL(fileURLWithPath: "/tmp/lukotta-check/plain.vdi")
+    expect(DiskImage.withoutSpaces(plain) == plain, "a path with no space is handed over as it is")
+
+    let spaced = URL(fileURLWithPath: "/tmp/lukotta check/Open Drive.vdi")
+    let stand = DiskImage.withoutSpaces(spaced)
+    expect(!stand.path.contains(" "), "one with a space is replaced by a path without one")
+    expect(stand.pathExtension == "vdi", "the extension is kept, formats being told apart by it")
+    expect(
+        (try? FileManager.default.destinationOfSymbolicLink(atPath: stand.path)) == spaced.path,
+        "and the link points at the file itself")
+
+    let other = URL(fileURLWithPath: "/tmp/elsewhere/Open Drive.vdi")
+    expect(
+        DiskImage.withoutSpaces(other).lastPathComponent != stand.lastPathComponent,
+        "two images of the same name in different folders do not collide")
+    try? FileManager.default.removeItem(at: stand)
+    try? FileManager.default.removeItem(at: DiskImage.withoutSpaces(other))
+}
+
 group("theMountScriptIsValidShell") {
     // The script is generated, handed to a privileged helper and run there. A
     // shell that cannot parse it exits 2 before anything happens, which the app
