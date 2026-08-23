@@ -391,3 +391,126 @@ languages are complete against 299 strings (verified by `check-coverage.sh`).
    correctness fix for disks with many partitions.
 10. **Guard the "N volumes" notice to N≥2 (8.1)** and tidy the smaller items
     (2.3, 4.2, 1.5, 1.6, 7.2).
+
+---
+
+## What was done about it
+
+Worked through in the order the list above sets out. Every entry names the
+commit that closed it. The unit checks went from 495 to 545, and each fix that
+could be tested brought its own.
+
+### Build, lint, release, CI
+
+- **1.1 lint linted nothing** — `a6e9a86`. `sources`, lowercase, and the script
+  now fails if the directory is not there rather than linting an empty set.
+- **1.2 the plist promised macOS 15 regardless** — `c683606`.
+  `scripts/lowest-macos.py` reads the floor from the engine's bottle,
+  `build-app.sh` writes it into `LSMinimumSystemVersion`, and the built binary's
+  own `minos` is compared with it. Disagreement fails the build.
+- **1.3 deltas advertised and not uploaded** — `8dabe8e`. Both branches of the
+  release upload exactly the deltas the appcast names, taken from the list built
+  above rather than from a glob that could match an earlier run's leftovers or
+  stay literal.
+- **1.4 delta enclosures carry no version** — checked, nothing to change, and the
+  reason is now in `appcast.py`: Sparkle builds each delta item from a copy of
+  the item, so it inherits `<sparkle:version>`. Read in Sparkle 2.9.6, which is
+  what `Package.resolved` pins.
+- **1.5 actions pinned inconsistently** — `b320901`. All of them carry a commit
+  with the version in a comment, and `lint.sh` fails on any `uses:` that is not
+  a forty-character commit, so it cannot drift back.
+- **1.6 the version glob accepted "1x.2.3"** — `c683606`, alongside 1.2.
+
+### Privileged helper
+
+- **2.1 / 2.3 uid 501 guessed, `/Users/Shared` invented** — `de1c3ba`. The user
+  comes from the XPC peer, with the console user as a second opinion; where
+  neither answers, or the home cannot be resolved, the mount is refused instead
+  of being pointed somewhere arbitrary.
+- **2.2 pid-based client verification** — left as the audit found it. The audit
+  agrees it is correctly bounded; it changes when `NSXPCConnection.auditToken`
+  becomes public API.
+
+### The generated script
+
+- **3.1 a short passphrase survived redaction** — `a6e9a86`. Any non-empty
+  secret is removed by value; a test covers one, two and three characters.
+- **3.2 success proved by counting everything** — `3ccb5d0`. The script lists
+  the engine's mount points by name and looks for one that was not there before,
+  which somebody else's NFS share cannot move.
+- **3.3 the volume listing parsed by counting from the end** — `d2b1c32`. Both
+  readers find the size by its unit instead. The awk is now
+  `MountScript.volumeAction`, public so a test can run it: it and the Swift
+  parser are checked against the same captured listing, including a one-field
+  size and a label of several words.
+
+### Image parsers
+
+- **4.1** — nothing to fix; the audit found the bounds checks sound.
+- **4.2 an extent naming no file** — `01796c0`. Refused rather than skipped.
+- **4.3 a name that is a symlink out of the folder** — `01796c0`. Extents are
+  resolved and must still be beside the descriptor.
+
+### The write paths
+
+- **5.1 what an interrupted write survives** — `6bc1649`. The audit was right:
+  imago's `flush()` is std's, which for a plain file is not a barrier. SPECS now
+  says what holds — ordering against a writer that stops — and where durability
+  across a power cut actually comes from: the guest's own barriers, which reach
+  the device as flush requests and are answered with a sync.
+- **5.2 no read-only fallback outside VMDK** — `d01cef9`. A file that will not
+  open for writing is opened for reading, and the guest is told the device is
+  read-only. VDI and VHD also take the Unsupported → read-only path.
+- **5.3 the shadowed `is_disk_read_only`** — confirmed correct in the generated
+  `device.rs`: the shadow is what sets `VIRTIO_BLK_F_RO`, and `is_read_only()`
+  reads that feature bit.
+
+### Concurrency and lifecycle
+
+- **6.1 disk4s1 matching disk4s10** — `192a45a`. `Drive.owns()` refuses a match a
+  digit follows, so a whole disk still owns its partitions and no partition owns
+  another.
+- **6.2 workspaces left behind** — `0e7f2c6`. Every workspace this session made
+  is removed on quit, not only the last.
+- **6.3** — nothing to fix.
+
+### Permissions
+
+- **7.1 nothing to probe read as granted** — `4b22b75`. The system's own TCC
+  database is probed as well, and it is there on every install.
+- **7.2 the TCC schema read blind** — `4b22b75`. The columns are checked first;
+  an unexpected shape reads as not knowing, and says so in the log.
+
+### Interface
+
+- **8.1 "this drive holds 1 volumes"** — `cad5182`. The notice needs two or more,
+  and the parsing moved to where a test can reach it.
+- **8.2** — nothing to fix.
+
+### Claimed but not proven
+
+- **Streamed VMDK** — `57ebb50`. `scripts/make-vmdk-streamed.py` writes one, so
+  the end-to-end run has one on any Mac. qemu-img converts what it writes back
+  to the original raw image byte for byte, and the driver reads it back byte for
+  byte. The end-to-end run now fails on a fixture it was handed that is not
+  there, rather than skipping the flow and finishing green, and the coverage gate
+  asks that each format reach the run rather than merely appear in the file.
+- **"Checked against qemu-img on every build"** — `57ebb50`. README now says
+  when it happens: building the engine from source.
+- **A rebuild reusing the previous build number** — `dafcbf0`. The build says so
+  when the tree is dirty.
+
+### Still open, deliberately
+
+- The helper's `SecCodeCheckValidity` gate, the FIFO hand-off and redaction under
+  a real pty cannot be exercised from the test binary: there is no signed peer in
+  it. Unchanged, and the reasoning is in SECURITY.md.
+- Snapshots are compared where they were recorded. A hosted runner draws every
+  screen differently, so comparing there would fail on all of them and mean
+  nothing.
+- Sleep and wake, DiskArbitration claiming, eject during a mount, unplug
+  mid-flight: the logic is unit tested where it can be, and the integration paths
+  are still proven by hand.
+- `WakeRecovery.grace` stays at sixty seconds. A drive slower than that after a
+  wake is declared gone; raising it makes every genuinely dead mount take longer
+  to clear.
