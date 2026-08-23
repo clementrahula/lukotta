@@ -18,7 +18,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: What has moved
         id: check
@@ -38,7 +38,7 @@ jobs:
       # One issue, kept up to date, rather than a new one every week.
       - name: Say so, once
         if: steps.check.outputs.status == '1'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
             const title = "Pinned engine parts have moved";

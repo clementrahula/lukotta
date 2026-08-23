@@ -23,6 +23,18 @@ else
   printf '  shellcheck not installed — brew install shellcheck\n'
 fi
 
+printf 'pinned actions…\n'
+# Every action a workflow runs, pinned to a commit. A tag is a name its owner
+# can move, and a moved tag runs somebody else's code with this repository's
+# token. The version it stands for goes in the comment beside it.
+if unpinned=$(grep -nE '^\s*(-\s*)?uses:' "$HERE"/.github/workflows/*.yml \
+    | grep -vE 'uses:\s*\S+@[0-9a-f]{40}\b'); then
+  printf '  not pinned to a commit:\n%s\n' "$unpinned" | sed 's/^/  /'
+  status=1
+else
+  printf '  all pinned\n'
+fi
+
 printf 'coverage…\n'
 "$HERE/scripts/check-coverage.sh" | sed 's/^/  /' || status=1
 
