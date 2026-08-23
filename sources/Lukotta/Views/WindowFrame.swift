@@ -97,6 +97,14 @@ struct RememberFrame: NSViewRepresentable {
         }
 
         private func restore(into window: NSWindow) {
+            // A snapshot window is given the size the scene is meant to be
+            // drawn at. Restoring a remembered frame over it made every
+            // picture the size of whatever this machine last left the app at,
+            // captured into a bitmap of the size that was asked for -- so the
+            // small ones were a crop of the large ones rather than a layout at
+            // the smallest size the window goes to, and the baselines only
+            // matched on the machine that recorded them.
+            guard !CommandLine.arguments.contains("--snapshots") else { return }
             guard let saved = UserDefaults.standard.string(forKey: key) else { return }
             let frame = NSRectFromString(saved)
             guard frame.width > 0, frame.height > 0 else { return }
