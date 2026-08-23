@@ -45,14 +45,14 @@ public struct Qcow2Header: Equatable, Sendable {
     /// Parse a header from the front of a qcow2. Nil when it is not one.
     public static func parse(_ bytes: Data) -> Qcow2Header? {
         guard bytes.count >= 72, Array(bytes.prefix(4)) == magic else { return nil }
-        let version = be32(bytes, 4)
+        let version = bytes.be32(at: 4)
         guard version == 2 || version == 3 else { return nil }
         // Version 2 stops at 72 bytes and has no feature fields.
-        let features = version >= 3 && bytes.count >= 80 ? be64(bytes, 72) : 0
+        let features = version >= 3 && bytes.count >= 80 ? bytes.be64(at: 72) : 0
         return Qcow2Header(
             version: version,
-            backingFileOffset: be64(bytes, 8),
-            backingFileSize: be32(bytes, 16),
+            backingFileOffset: bytes.be64(at: 8),
+            backingFileSize: bytes.be32(at: 16),
             incompatibleFeatures: features)
     }
 
@@ -65,27 +65,17 @@ public struct Qcow2Header: Equatable, Sendable {
         // Extensions begin after the header, whose length is at offset 100 in
         // version 3. Anything shorter has none.
         guard bytes.count >= 104 else { return false }
-        var offset = Int(be32(bytes, 100))
+        var offset = Int(bytes.be32(at: 100))
         guard offset >= 104 else { return false }
         while offset + 8 <= bytes.count {
-            let type = be32(bytes, offset)
-            let length = Int(be32(bytes, offset + 4))
+            let type = bytes.be32(at: offset)
+            let length = Int(bytes.be32(at: offset + 4))
             if type == 0 { return false }  // end of the extension area
             if type == externalDataExtension { return true }
             // Each extension is padded to a multiple of eight.
             offset += 8 + (length + 7) / 8 * 8
         }
         return false
-    }
-
-    private static func be32(_ d: Data, _ at: Int) -> UInt32 {
-        let i = d.index(d.startIndex, offsetBy: at)
-        return d[i..<d.index(i, offsetBy: 4)].reduce(UInt32(0)) { $0 << 8 | UInt32($1) }
-    }
-
-    private static func be64(_ d: Data, _ at: Int) -> UInt64 {
-        let i = d.index(d.startIndex, offsetBy: at)
-        return d[i..<d.index(i, offsetBy: 8)].reduce(UInt64(0)) { $0 << 8 | UInt64($1) }
     }
 }
 

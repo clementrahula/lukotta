@@ -36,25 +36,11 @@ public struct VdiHeader: Equatable, Sendable {
     public static let length = 0x200
 
     public static func parse(_ head: Data) -> VdiHeader? {
-        guard head.count >= length, le32(head, signatureOffset) == signature else { return nil }
+        guard head.count >= length, head.le32(at: signatureOffset) == signature else { return nil }
         return VdiHeader(
-            kind: Kind(rawValue: le32(head, 0x4c)),
-            diskSize: le64(head, 0x170),
-            major: le32(head, 0x44) >> 16)
-    }
-
-    private static func le32(_ d: Data, _ at: Int) -> UInt32 {
-        let i = d.index(d.startIndex, offsetBy: at)
-        return d[i..<d.index(i, offsetBy: 4)].reversed().reduce(UInt32(0)) {
-            $0 << 8 | UInt32($1)
-        }
-    }
-
-    private static func le64(_ d: Data, _ at: Int) -> UInt64 {
-        let i = d.index(d.startIndex, offsetBy: at)
-        return d[i..<d.index(i, offsetBy: 8)].reversed().reduce(UInt64(0)) {
-            $0 << 8 | UInt64($1)
-        }
+            kind: Kind(rawValue: head.le32(at: 0x4c)),
+            diskSize: head.le64(at: 0x170),
+            major: head.le32(at: 0x44) >> 16)
     }
 }
 

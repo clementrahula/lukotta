@@ -43,33 +43,12 @@ public struct VhdxHeader: Equatable, Sendable {
             guard header.count >= headerLength,
                 Array(header.prefix(headerSignature.count)) == headerSignature
             else { continue }
-            let sequence = le64(header, 8)
+            let sequence = header.le64(at: 8)
             let logGuid = header[header.index(header.startIndex, offsetBy: 48)...].prefix(16)
             let candidate = VhdxHeader(dirty: logGuid.contains { $0 != 0 }, sequence: sequence)
             if live.map({ sequence > $0.sequence }) ?? true { live = candidate }
         }
         return live
-    }
-
-    static func le64(_ d: Data, _ at: Int) -> UInt64 {
-        let i = d.index(d.startIndex, offsetBy: at)
-        return d[i..<d.index(i, offsetBy: 8)].reversed().reduce(UInt64(0)) {
-            $0 << 8 | UInt64($1)
-        }
-    }
-
-    static func le16(_ d: Data, _ at: Int) -> UInt16 {
-        let i = d.index(d.startIndex, offsetBy: at)
-        return d[i..<d.index(i, offsetBy: 2)].reversed().reduce(UInt16(0)) {
-            $0 << 8 | UInt16($1)
-        }
-    }
-
-    static func le32(_ d: Data, _ at: Int) -> UInt32 {
-        let i = d.index(d.startIndex, offsetBy: at)
-        return d[i..<d.index(i, offsetBy: 4)].reversed().reduce(UInt32(0)) {
-            $0 << 8 | UInt32($1)
-        }
     }
 
     /// Where the region table sits.
@@ -92,14 +71,14 @@ public struct VhdxHeader: Equatable, Sendable {
         guard regionTable.count >= 16,
             Array(regionTable.prefix(4)) == Array("regi".utf8)
         else { return nil }
-        let count = Int(le32(regionTable, 8))
+        let count = Int(regionTable.le32(at: 8))
         guard count <= (regionLength - 16) / 32 else { return nil }
         for i in 0..<count {
             let at = 16 + i * 32
             guard regionTable.count >= at + 32 else { return nil }
             let start = regionTable.index(regionTable.startIndex, offsetBy: at)
             let guid = Array(regionTable[start..<regionTable.index(start, offsetBy: 16)])
-            if guid == metadataRegion { return le64(regionTable, at + 16) }
+            if guid == metadataRegion { return regionTable.le64(at: at + 16) }
         }
         return nil
     }
@@ -111,16 +90,16 @@ public struct VhdxHeader: Equatable, Sendable {
             Array(metadata.prefix(8)) == Array("metadata".utf8)
         else { return false }
         // The count is a 16-bit field at 10; 8 is reserved and always zero.
-        let count = Int(le16(metadata, 10))
+        let count = Int(metadata.le16(at: 10))
         for i in 0..<count {
             let at = 32 + i * 32
             guard metadata.count >= at + 32 else { return false }
             let start = metadata.index(metadata.startIndex, offsetBy: at)
             let guid = Array(metadata[start..<metadata.index(start, offsetBy: 16)])
             guard guid == fileParameters else { continue }
-            let offset = Int(le32(metadata, at + 16))
+            let offset = Int(metadata.le32(at: at + 16))
             guard metadata.count >= offset + 8 else { return false }
-            return le32(metadata, offset + 4) & 2 != 0
+            return metadata.le32(at: offset + 4) & 2 != 0
         }
         return false
     }

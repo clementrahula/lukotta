@@ -67,6 +67,16 @@ public enum ContainerFormat: String, Sendable {
     }
 }
 
+/// How large a file is, or zero where it cannot be told.
+///
+/// `try?` over an `as?` yields an optional optional, so written out at a call
+/// site this reads as one `?? 0` too many and invites a second that does
+/// nothing. Asked here, it is one question with one answer.
+public func fileSize(atPath path: String) -> Int64 {
+    let attributes = try? FileManager.default.attributesOfItem(atPath: path)
+    return attributes?[.size] as? Int64 ?? 0
+}
+
 public enum DiskImage {
 
     public struct Attached: Equatable, Sendable {
@@ -159,15 +169,14 @@ public enum DiskImage {
         case .bitlocker, .ntfs, .exfat: kind = .microsoft
         case .unknown: return nil
         }
-        let size =
-            (try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
+        let size = fileSize(atPath: url.path)
         return Drive(
             id: attached.identifier,
             devicePath: attached.device,
             // The file's name without its extension, which is what the drive is
             // called in Finder afterwards.
             name: url.deletingPathExtension().lastPathComponent,
-            sizeBytes: size ?? 0,
+            sizeBytes: size,
             connection: appString("Disk Image"),
             kind: kind,
             // The file it came from, so that a passphrase remembered for this

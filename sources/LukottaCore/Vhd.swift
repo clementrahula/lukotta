@@ -37,18 +37,8 @@ public struct VhdFooter: Equatable, Sendable {
             Array(footer.prefix(cookie.count)) == cookie
         else { return nil }
         return VhdFooter(
-            kind: Kind(rawValue: be32(footer, 60)),
-            currentSize: be64(footer, 48))
-    }
-
-    private static func be32(_ d: Data, _ at: Int) -> UInt32 {
-        let i = d.index(d.startIndex, offsetBy: at)
-        return d[i..<d.index(i, offsetBy: 4)].reduce(UInt32(0)) { $0 << 8 | UInt32($1) }
-    }
-
-    private static func be64(_ d: Data, _ at: Int) -> UInt64 {
-        let i = d.index(d.startIndex, offsetBy: at)
-        return d[i..<d.index(i, offsetBy: 8)].reduce(UInt64(0)) { $0 << 8 | UInt64($1) }
+            kind: Kind(rawValue: footer.be32(at: 60)),
+            currentSize: footer.be64(at: 48))
     }
 }
 
@@ -64,9 +54,7 @@ extension DiskImage {
             return appString("“\(url.lastPathComponent)” could not be read.")
         }
         defer { try? handle.close() }
-        let size =
-            (try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int64)
-            .flatMap { $0 } ?? 0
+        let size = fileSize(atPath: url.path)
         guard size > Int64(VhdFooter.length) else {
             return appString("“\(url.lastPathComponent)” is not a disk image \(appName) can read.")
         }

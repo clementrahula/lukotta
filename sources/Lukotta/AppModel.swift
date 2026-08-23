@@ -412,8 +412,7 @@ final class AppModel: ObservableObject {
             // The engine takes the file itself as the disk to open.
             devicePath: url.path,
             name: url.deletingPathExtension().lastPathComponent,
-            sizeBytes: (try? FileManager.default.attributesOfItem(atPath: url.path)[.size]
-                as? Int64) as? Int64 ?? 0,
+            sizeBytes: fileSize(atPath: url.path),
             connection: appString("Disk Image"),
             kind: linux ? .linux : .microsoft,
             uuid: url.path)

@@ -134,25 +134,11 @@ public struct SparseVmdkHeader: Equatable, Sendable {
         guard head.count >= 80, Array(head.prefix(4)) == VmdkDescriptor.sparseMagic else {
             return nil
         }
-        let flags = le32(head, 8)
+        let flags = head.le32(at: 8)
         return SparseVmdkHeader(
-            descriptorOffset: le64(head, 28),
-            descriptorSize: le64(head, 36),
+            descriptorOffset: head.le64(at: 28),
+            descriptorSize: head.le64(at: 36),
             streamed: flags & ((1 << 16) | (1 << 17)) != 0)
-    }
-
-    private static func le32(_ d: Data, _ at: Int) -> UInt32 {
-        let i = d.index(d.startIndex, offsetBy: at)
-        return d[i..<d.index(i, offsetBy: 4)].reversed().reduce(UInt32(0)) {
-            $0 << 8 | UInt32($1)
-        }
-    }
-
-    private static func le64(_ d: Data, _ at: Int) -> UInt64 {
-        let i = d.index(d.startIndex, offsetBy: at)
-        return d[i..<d.index(i, offsetBy: 8)].reversed().reduce(UInt64(0)) {
-            $0 << 8 | UInt64($1)
-        }
     }
 }
 
