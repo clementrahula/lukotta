@@ -60,9 +60,6 @@ best you have.
   edit that pastes it.
 - Every source file starts with its SPDX identifier and the copyright line. A
   new file gets them; a file under `patches/` gets that project's instead.
-- Running a program, reading the mount table, taking apart one of its lines,
-  reading an endian field, asking a file's size: each is done in one place,
-  listed in [AGENTS.md](AGENTS.md). Call it rather than writing another.
 
 ## Sending a Change
 
