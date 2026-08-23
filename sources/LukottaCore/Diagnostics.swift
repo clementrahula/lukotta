@@ -20,7 +20,6 @@ public enum Diagnostics {
     public static let newIssueURL =
         "https://github.com/clementrahula/lukotta/issues/new/choose"
 
-
     public struct Environment: Sendable {
         public var appVersion: String
         public var build: String
@@ -246,9 +245,6 @@ public enum Diagnostics {
         return lines.joined(separator: "\n")
     }
 
-    /// A mailto: URL. The body is kept short deliberately — mail clients and
-    /// the shell both truncate long URLs, so the full detail goes to the
-    /// clipboard and the message asks for it to be pasted.
     private static var currentBuild: String? {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String
     }
@@ -274,6 +270,9 @@ public enum Diagnostics {
             .contentModificationDate
     }
 
+    /// A mailto: URL. The body is kept short on purpose: mail clients and the
+    /// shell both truncate a long URL, so the detail goes to the clipboard and
+    /// the message asks for it to be pasted.
     public static func mailtoURL(address: String, environment: Environment) -> URL? {
         let subject = "Lukotta \(environment.appVersion) — issue report"
         let body = """

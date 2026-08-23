@@ -272,24 +272,24 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     /// answer is replaced by a guess — 501 is the first account on a Mac and
     /// nothing more, so guessing it sent a second user's mount to somebody
     /// else's home directory.
-    private func invokingUID() -> UInt32 {
-        if let peerUID, peerUID != 0 { return UInt32(peerUID) }
+    /// Whoever is logged in at the screen, or zero where nobody is.
+    private func consoleUser() -> (uid: UInt32, gid: UInt32) {
         var uid: uid_t = 0
         var gid: gid_t = 0
-        if let name = SCDynamicStoreCopyConsoleUser(nil, &uid, &gid) {
-            _ = name
-        }
-        return UInt32(uid)
+        // The name is not wanted; the two numbers are written through the
+        // pointers either way.
+        SCDynamicStoreCopyConsoleUser(nil, &uid, &gid)
+        return (UInt32(uid), UInt32(gid))
+    }
+
+    private func invokingUID() -> UInt32 {
+        if let peerUID, peerUID != 0 { return UInt32(peerUID) }
+        return consoleUser().uid
     }
 
     private func invokingGID() -> UInt32 {
         if let peerUID, peerUID != 0, let peerGID { return UInt32(peerGID) }
-        var uid: uid_t = 0
-        var gid: gid_t = 0
-        if let name = SCDynamicStoreCopyConsoleUser(nil, &uid, &gid) {
-            _ = name
-        }
-        return UInt32(gid)
+        return consoleUser().gid
     }
 
     /// Whether there is a user to do this for at all.

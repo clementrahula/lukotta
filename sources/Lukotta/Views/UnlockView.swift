@@ -447,9 +447,6 @@ struct PermissionRow: View {
     }
 }
 
-/// Says what an unencrypted drive is, before anyone looks for a password.
-///
-/// Only shown for a drive that turned out not to be locked. Lukotta can still
 /// What can be done with the image file itself.
 ///
 /// Two things are worth saying before anything is opened. A VHDX is read and
@@ -508,8 +505,11 @@ private struct ImageNote: View {
     }
 }
 
-/// open it — that is what gives a Windows disk read and write access macOS does
-/// not — so this is worded as an explanation rather than as a refusal.
+/// Says what an unencrypted drive is, before anyone looks for a password.
+///
+/// Only shown for a drive that turned out not to be locked. Lukotta can still
+/// open it, which is what gives a Windows disk the read and write access macOS
+/// does not, so this is worded as an explanation and not as a refusal.
 private struct FormatNote: View {
     let format: VolumeFormat
     /// Whether opening it read-write is on offer at all. Where it is not, this

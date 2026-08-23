@@ -162,26 +162,22 @@ def local_disk_uuids() -> set:
     """
     if sys.platform != "darwin":
         return set()
+    # One spawn, not one per device. Asking diskutil about each disk in turn
+    # cost seven seconds of every commit, nearly all of it waiting; `info -all`
+    # prints the same lines in one and a quarter.
     try:
-        listing = subprocess.run(
-            ["/usr/sbin/diskutil", "list"], capture_output=True, text=True, timeout=20
+        info = subprocess.run(
+            ["/usr/sbin/diskutil", "info", "-all"],
+            capture_output=True,
+            text=True,
+            timeout=60,
         ).stdout
     except (OSError, subprocess.SubprocessError):
         return set()
     found = set()
-    for dev in sorted(set(re.findall(r"\bdisk\d+(?:s\d+)?\b", listing))):
-        try:
-            info = subprocess.run(
-                ["/usr/sbin/diskutil", "info", f"/dev/{dev}"],
-                capture_output=True,
-                text=True,
-                timeout=20,
-            ).stdout
-        except (OSError, subprocess.SubprocessError):
-            continue
-        for line in info.splitlines():
-            if "UUID" in line:
-                found.update(UUID.findall(line))
+    for line in info.splitlines():
+        if "UUID" in line:
+            found.update(UUID.findall(line))
     return found
 
 

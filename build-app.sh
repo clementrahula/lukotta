@@ -153,7 +153,7 @@ ACTOOL="$(xcrun --find actool 2>/dev/null || echo /Applications/Xcode.app/Conten
 [ -x "$ACTOOL" ] || { echo "error: actool not found; Xcode is required to build the asset catalogue" >&2; exit 1; }
 "$ACTOOL" "$HERE/sources/Lukotta/Assets.xcassets" \
   --compile "$CONTENTS/Resources" \
-  --platform macosx --minimum-deployment-target 15.0 \
+  --platform macosx --minimum-deployment-target "$MIN_MACOS" \
   --app-icon "$ICON_SET" --output-partial-info-plist /dev/null >/dev/null
 [ -f "$CONTENTS/Resources/Assets.car" ] || { echo "error: actool produced no Assets.car" >&2; exit 1; }
 cp "$HERE/resources/helpers/validate-key.sh" "$CONTENTS/Resources/helpers/validate-key.sh"

@@ -21,6 +21,8 @@ public enum VolumeFormat: String, Sendable {
     case ext
     case btrfs
     case xfs
+    /// Not recognised, and not guessed at.
+    case unknown
 
     /// Nothing to unlock: it can be opened without asking for anything.
     public var isUnencrypted: Bool {
@@ -44,8 +46,6 @@ public enum VolumeFormat: String, Sendable {
     public var macOSHandlesFully: Bool {
         self == .exfat
     }
-    /// Not recognised, and not guessed at.
-    case unknown
 }
 
 public enum BootSector {
@@ -115,12 +115,7 @@ public enum BootSector {
     }
 
     private static func contains(_ haystack: Data, _ needle: [UInt8]) -> Bool {
-        guard haystack.count >= needle.count else { return false }
-        let bytes = [UInt8](haystack)
-        for start in 0...(bytes.count - needle.count) {
-            if Array(bytes[start..<start + needle.count]) == needle { return true }
-        }
-        return false
+        haystack.range(of: Data(needle)) != nil
     }
 
     /// The first sector of a device.

@@ -65,18 +65,24 @@ public enum MountScript {
             configPath: String, libraryPaths: [String], uid: UInt32, gid: UInt32,
             cores: Int, ramMiB: Int, elevated: Bool = true, readOnly: Bool = false
         ) {
-            self.readOnly = readOnly
-            self.enginePath = enginePath; self.devicePath = devicePath
-            self.driveName = driveName; self.kind = kind
-            self.volume = volume; self.aliasPath = aliasPath
-            self.fifoPath = fifoPath; self.logPath = logPath
+            self.enginePath = enginePath
+            self.devicePath = devicePath
+            self.driveName = driveName
+            self.kind = kind
+            self.volume = volume
+            self.aliasPath = aliasPath
+            self.fifoPath = fifoPath
+            self.logPath = logPath
             self.discoverLogPath = discoverLogPath
             self.expectScriptPath = expectScriptPath
             self.configPath = configPath
             self.libraryPaths = libraryPaths
-            self.uid = uid; self.gid = gid
-            self.cores = cores; self.ramMiB = ramMiB
+            self.uid = uid
+            self.gid = gid
+            self.cores = cores
+            self.ramMiB = ramMiB
             self.elevated = elevated
+            self.readOnly = readOnly
         }
     }
 

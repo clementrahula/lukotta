@@ -19,6 +19,13 @@ package that moves has a new URL and is fetched afresh.
 import hashlib, os, re, shutil, sys, subprocess
 
 db_path, out, tag = sys.argv[1], sys.argv[2], sys.argv[3]
+
+# Alpine keeps a mirror directory per release, named for the series: a tag of
+# "v3.24.1" is mirrored under "v3.24". Derived from the tag rather than written
+# out, so the next Alpine bump moves it instead of quietly leaving it behind
+# pointing at a release nothing is built from any more.
+series = ".".join(tag.lstrip("v").split(".")[:2]) if tag.startswith("v") else ""
+
 cache = sys.argv[4] if len(sys.argv) > 4 else None
 os.makedirs(out, exist_ok=True)
 if cache:
@@ -246,8 +253,10 @@ for pkg in origins:
                     continue
 
         if name and "$" not in name:
+            if series:
+                candidates.append(
+                    f"https://distfiles.alpinelinux.org/distfiles/v{series}/{name}")
             candidates += [
-                f"https://distfiles.alpinelinux.org/distfiles/v3.24/{name}",
                 f"https://distfiles.alpinelinux.org/distfiles/edge/{name}",
                 f"https://distfiles.alpinelinux.org/distfiles/{name}",
             ]

@@ -100,8 +100,7 @@ public enum DriveSurvey {
                 let mount = mountPoint(of: identifier, in: mountTable)
 
                 let verdict: Verdict
-                if let drive = byIdentifier[identifier] {
-                    _ = drive
+                if byIdentifier[identifier] != nil {
                     verdict = .openable
                 } else if systemContent.contains(content) || (internalDisk && content.isEmpty) {
                     verdict = .system
