@@ -19,6 +19,12 @@ struct WorkingView: View {
             .flatMap { $0.contains("%") ? $0 : nil }
     }
 
+    /// Only the steps this mount takes: the approval one belongs to a
+    /// single route.
+    private var steps: [MountStage] {
+        MountStage.shown(askingApproval: model.mountAsksApproval)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 3) {
@@ -42,7 +48,7 @@ struct WorkingView: View {
                 }
             } else {
                 VStack(alignment: .leading, spacing: 11) {
-                    ForEach(MountStage.shown(askingApproval: model.mountAsksApproval), id: \.rawValue) { s in
+                    ForEach(steps, id: \.rawValue) { s in
                         StageRow(stage: s, current: stage)
                     }
                 }

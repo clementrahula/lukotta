@@ -1091,6 +1091,9 @@ final class AppModel: ObservableObject {
     /// What a probe made of each drive it has read, by drive identifier. The
     /// list says what a volume may be until this says what it is.
     @Published var knownFormats: [String: VolumeFormat] = [:]
+    /// What an encrypted drive turned out to hold, once it was open. A lock
+    /// says nothing about what is behind it until it is opened.
+    @Published var knownFilesystems: [String: String] = [:]
 
     /// Which container the drive on screen is, where it is an image.
     ///
@@ -1552,16 +1555,27 @@ final class AppModel: ObservableObject {
     /// disk — is the fallback for a drive mounted the ordinary way.
     private func collectVolumes(for drive: Drive, fallback: String) {
         openVolumes = [fallback]
+        let identifier = drive.id
         Task.detached(priority: .userInitiated) {
+            let reported = EngineStatus.current()
             let nested = EngineStatus.nestedVolumes(under: fallback)
             let mine =
                 nested.isEmpty
-                ? EngineStatus.current()
+                ? reported
                     .filter { drive.owns($0.devicePath) }
                     .map(\.mountPoint)
                 : nested
+            // What was behind the lock. Known only now, an encrypted drive
+            // saying nothing about its contents until it is open.
+            let driver =
+                reported.first { drive.owns($0.devicePath) || $0.mountPoint == fallback }?
+                .driver ?? ""
             await MainActor.run {
                 if !mine.isEmpty { self.openVolumes = mine }
+                if !driver.isEmpty {
+                    self.knownFilesystems[identifier] =
+                        VolumeFormat.filesystemName(fromDriver: driver)
+                }
             }
         }
     }

@@ -39,6 +39,25 @@ public enum VolumeFormat: String, Sendable {
         }
     }
 
+    /// What to call the filesystem the engine says it mounted.
+    ///
+    /// It names the driver it used, and two of those are one filesystem:
+    /// ntfs3 is the kernel's and ntfs-3g is not, and a reader looking at a
+    /// drive wants neither name.
+    public static func filesystemName(fromDriver driver: String) -> String {
+        switch driver.lowercased() {
+        case "ntfs", "ntfs3", "ntfs-3g", "lowntfs-3g": return "NTFS"
+        case "exfat": return "exFAT"
+        case "vfat", "msdos": return "FAT"
+        case "btrfs": return "Btrfs"
+        case "xfs": return "XFS"
+        case "f2fs": return "F2FS"
+        case "apfs": return "APFS"
+        case "hfs", "hfsplus": return "HFS+"
+        default: return driver
+        }
+    }
+
     /// Nothing to unlock: it can be opened without asking for anything.
     public var isUnencrypted: Bool {
         switch self {

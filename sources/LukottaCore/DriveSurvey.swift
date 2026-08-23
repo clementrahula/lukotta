@@ -120,9 +120,9 @@ public enum DriveSurvey {
                     Entry(
                         id: identifier,
                         disk: whole,
-                        name: label ?? product ?? identifier,
+                        name: nonEmpty(label) ?? nonEmpty(product) ?? identifier,
                         sizeBytes: size,
-                        content: content.isEmpty ? identifier : content,
+                        content: nonEmpty(content) ?? identifier,
                         verdict: verdict,
                         drive: byIdentifier[identifier]))
             }
@@ -135,14 +135,27 @@ public enum DriveSurvey {
                     Entry(
                         id: whole,
                         disk: whole,
-                        name: product ?? whole,
+                        name: nonEmpty(product) ?? whole,
                         sizeBytes: size,
-                        content: (disk["Content"] as? String) ?? whole,
+                        content: nonEmpty(disk["Content"] as? String) ?? whole,
                         verdict: byIdentifier[whole] != nil ? .openable : .unreadable,
                         drive: byIdentifier[whole]))
             }
         }
         return entries
+    }
+
+    /// What diskutil said, where it said anything.
+    ///
+    /// It answers with an empty string as readily as it leaves a key out, and
+    /// `??` falls through a missing value but not an empty one. A whole disk
+    /// with no partition table reports `Content` as "", which reached the list
+    /// as a row carrying a size and nothing else: no word for what it is and
+    /// none for what it holds.
+    private static func nonEmpty(_ value: String?) -> String? {
+        guard let value, !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        else { return nil }
+        return value
     }
 
     /// "/dev/disk5s1 on /Volumes/NAME (…)"

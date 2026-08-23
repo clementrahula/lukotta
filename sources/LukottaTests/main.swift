@@ -153,6 +153,36 @@ group("volumeKindsAndTheDirtyVolumePath") {
     expect(
         VolumeKind.linux.summary(knowing: .unknown), "LUKS",
         "an unrecognised probe leaves the pair standing")
+    // And once it is open, both halves: the lock and what was behind it.
+    expect(
+        VolumeKind.linux.summary(knowing: .luks, holding: "Btrfs"), "LUKS/Btrfs",
+        "an opened container names what it held")
+    expect(
+        VolumeKind.microsoft.summary(knowing: .bitlocker, holding: "NTFS"), "BitLocker/NTFS",
+        "and so does an opened BitLocker volume")
+    expect(
+        VolumeKind.microsoft.summary(knowing: .ntfs, holding: "NTFS"), "NTFS",
+        "a drive that was never locked is named once, not twice")
+    expect(
+        VolumeFormat.filesystemName(fromDriver: "ntfs3"), "NTFS",
+        "the driver the engine used is not what the filesystem is called")
+    expect(
+        VolumeFormat.filesystemName(fromDriver: "ext4"), "ext4",
+        "and one with no other name keeps the engine's")
+
+    // diskutil answers with an empty string as readily as it omits a key, and
+    // a whole disk with no partition table is where it does.
+    let bare = DriveSurvey.survey(
+        list: [
+            "AllDisksAndPartitions": [
+                ["DeviceIdentifier": "disk9", "Content": "", "Size": NSNumber(value: 1024)]
+            ]
+        ],
+        info: { _ in [:] }, mountTable: "", openable: [])
+    expect(bare.count == 1, "a disk with no partition table is still a row")
+    expect(
+        bare.first.map { !$0.name.isEmpty && !$0.content.isEmpty } ?? false,
+        "and it says what it is rather than carrying two empty fields")
 
     let d = Drive(
         id: "disk4s1", devicePath: "/dev/disk4s1", name: "BACKUP",

@@ -8,6 +8,10 @@ import Foundation
 public struct EngineMount: Equatable, Sendable {
     public let devicePath: String  // /dev/disk4s1
     public let mountPoint: String  // /Volumes/BACKUP
+    /// The driver it was mounted with: ntfs3, btrfs, ext4. What is inside an
+    /// encrypted drive is known only once it is open, and this is where the
+    /// engine says it.
+    public var driver: String = ""
 }
 
 /// What the engine itself reports, rather than what we can infer by parsing
@@ -31,7 +35,13 @@ public enum EngineStatus {
                 (entry.source.hasPrefix("/") || entry.source.hasPrefix("lvm:")
                     || entry.source.hasPrefix("raid:")) && entry.mountPoint.hasPrefix("/")
             }
-            .map { EngineMount(devicePath: $0.source, mountPoint: $0.mountPoint) }
+            .map {
+                EngineMount(
+                    devicePath: $0.source, mountPoint: $0.mountPoint,
+                    driver: $0.options.split(separator: ",").first.map {
+                        $0.trimmingCharacters(in: .whitespaces)
+                    } ?? "")
+            }
     }
 
     /// Mount points macOS still shows for a microVM that is no longer running.

@@ -16,6 +16,12 @@ struct FailureView: View {
     // and hiding it behind a second click asks the user to guess that it exists.
     @State private var showDetail = true
 
+    /// Only the steps this mount takes: the approval one belongs to a
+    /// single route.
+    private var steps: [MountStage] {
+        MountStage.shown(askingApproval: model.mountAsksApproval)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             ScrollView {
@@ -41,7 +47,7 @@ struct FailureView: View {
 
                     if let stopped = model.failedStage {
                         VStack(alignment: .leading, spacing: 11) {
-                            ForEach(MountStage.shown(askingApproval: model.mountAsksApproval), id: \.rawValue) { s in
+                            ForEach(steps, id: \.rawValue) { s in
                                 StageRow(stage: s, current: stopped, stopped: true)
                             }
                         }

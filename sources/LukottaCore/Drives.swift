@@ -22,8 +22,17 @@ public enum VolumeKind: String, Hashable, Sendable {
     ///
     /// Written rather than translated: every name in it is a product or a
     /// filesystem, and those are the same in every language.
-    public func summary(knowing format: VolumeFormat? = nil) -> String {
-        if let format, format != .unknown { return format.name }
+    public func summary(knowing format: VolumeFormat? = nil, holding filesystem: String? = nil)
+        -> String
+    {
+        if let format, format != .unknown {
+            // An encrypted drive is two things, and once it is open both are
+            // known: the lock and what is behind it.
+            guard format.isEncrypted, let filesystem, !filesystem.isEmpty else {
+                return format.name
+            }
+            return format.name + "/" + filesystem
+        }
         switch self {
         case .microsoft: return "BitLocker/NTFS"
         case .linux: return "LUKS"
