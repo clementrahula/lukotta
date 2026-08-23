@@ -231,6 +231,14 @@ is refused, and the failure arrives inside a filesystem driver part-way through
 whatever it was doing rather than at `mount`. A stream-optimized VMDK asked for
 read-write is opened a second time read-only rather than failing to open.
 
+**Three arms, on purpose.** The VMDK, VDI and VHD arms each spell out the same
+open-then-reopen-read-only shape. A generic helper would halve the largest hunk
+here, and is not worth it: this is a diff against somebody else's crate, and
+three explicit arms with a comment each — why VHDX gets no fallback, why the
+VMDK one is reached today and the other two are there for a driver that starts
+refusing — read more plainly to an upstream reviewer than a closure taking an
+opener. Worth revisiting if a fourth format lands.
+
 ## Build requirements
 
 Building the engine requires a Rust toolchain and, because vmproxy is a Linux
