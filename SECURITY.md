@@ -70,11 +70,11 @@ The daemon accepts parameters, never a command, so it cannot be used to run
 arbitrary code as root. It is given a device path, a volume name and a
 passphrase, and composes the command itself.
 
-Whom it is mounting for comes from the connection: the application runs as the
-person whose drive is being opened, and the connection says who that is. Where
-that cannot be established the mount is refused rather than directed at a
-guess, so a second account on the Mac cannot be handed a mount composed against
-somebody else's home directory.
+Which user a mount is for comes from the connection itself: the application
+runs as the person whose drive is being opened. Where that cannot be
+established the mount is refused rather than guessed at, so a second account on
+the Mac is never handed a mount composed against somebody else's home
+directory.
 
 Every connection is checked against a code requirement pinning both the
 application's identifier and the signing team. Anything that is not Lukotta,
@@ -95,29 +95,29 @@ file, and libkrun opens whatever an image names, so an image could otherwise
 determine which files the virtual machine reads. Each such image is refused
 before the engine is given the path: a qcow2 with a backing or external data
 file, a VMDK snapshot chain, a differencing VHD, and a VHDX naming a parent.
-A VMDK's extents must each be a plain name beside the descriptor — nothing
-absolute, nothing with a separator in it, no `..` — and the file that name
-resolves to must still be in that folder, so a link out of it is refused as a
-path out of it would be. An extent naming no file at all is refused too, since
-it describes part of a disk that is nowhere. The drivers refuse all of this as
-well, so the rule holds in both layers.
+A VMDK's extents must each be a plain name beside the descriptor: nothing
+absolute, nothing containing a separator, no `..`. The name is then resolved,
+and the file it leads to must still be in that folder, so a symbolic link out
+of it is refused like any other path out of it. An extent that names no file is
+refused as well, describing as it does part of a disk that does not exist. The
+drivers apply the same rules, so they hold in both layers.
 
 The drivers parse a file supplied by whoever opened it, and validate every
 value before relying on it: block sizes must be powers of two, maps are bounded
 to a size a real disk could require, and every entry must lie within the file.
 [SPECS.md](SPECS.md) states what each format is and which images are refused.
 
-Reading is not all they do. qcow2, VDI, VHD and VMDK are written as well, so a
-driver handed a hostile image also allocates in response to it — growing the
-file, and writing a table entry that points at the new space. The same
-validation governs that path, and the order is fixed so an interrupted write
-leaves unused space rather than a table pointing at nothing. VHDX and the
+The drivers write as well as read: qcow2, VDI, VHD and VMDK. A driver handed a
+hostile image therefore allocates in response to it, growing the file and
+writing a table entry that points at the new space. The same validation governs
+that path, and the order of the writes is fixed, so an interrupted write leaves
+unused space rather than a table pointing at nothing. VHDX and the
 stream-optimized form of VMDK are never written.
 
-A file that will not open for writing — an image on a read-only volume, a
-locked file, a card with its switch set — is opened for reading instead, and
+A file that will not open for writing, such as an image on a read-only volume
+or a card with its write-protect switch set, is opened for reading instead and
 the guest is told the device is read-only. Refusing outright would leave no way
-in at all, when reading was possible throughout.
+into a file that could be read.
 
 ## What the App Can Reach
 

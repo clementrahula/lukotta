@@ -91,10 +91,10 @@ The generated script embeds a single-quoted `awk` program. An apostrophe
 anywhere inside it, including inside a comment, closes the quote and breaks the
 whole script. A test runs `sh -n` over the generated output to catch this.
 
-That program is `MountScript.volumeAction`, public so a test can run it — with
-`awk -v s=… -v q="'" -v ro=…` over a captured listing — because it is the only
-reader of the engine's volume list that decides what actually gets mounted, and
-nothing else can reach it.
+That program is `MountScript.volumeAction`, public so that a test can run it
+with `awk -v s=… -v q="'" -v ro=…` over a captured listing. It is the only
+reader of the engine's volume list that decides what gets mounted, and nothing
+else can reach it.
 
 ## Finding Out What The App Did
 
@@ -121,7 +121,7 @@ Two lines at the top of each Swift, shell and Python file:
 
 After the shebang where there is one, and after `swift-tools-version` in the
 package manifest, since both have to come first. Files under `patches/` belong
-to other projects and carry those projects' identifiers instead — MIT for
+to other projects and carry those projects' identifiers instead: MIT for
 imago, Apache-2.0 for krun-devices, GPL-3.0-or-later for anylinuxfs.
 
 The grant itself is in README's licence section, in full, because "GPL-3.0-or-
@@ -146,8 +146,8 @@ directory with an unfamiliar name, an account name inside `mount` output, the
 UUID of any disk this Mac has ever had attached, and anything shaped like a
 signing team. Deliberate lookalikes are listed in `ALLOWED` inside it.
 
-Who to refuse is asked of the system on each run — the account it runs as, the
-name this Mac answers to — and kept nowhere. Disks are the exception, because a
+Who to refuse is asked of the system on each run, and kept nowhere: the account
+it runs as, and the name this Mac answers to. Disks are the exception, because a
 drive gets unplugged between capturing a fixture and committing it; those are
 remembered as digests, written on demand into `.git`, which git cannot see and
 which never leaves the machine. `--forget` drops them, and the next run builds
@@ -165,8 +165,8 @@ a clone that never installed one is protected by nothing.
 
 If something does get in, it comes out with `git-filter-repo --replace-text`
 over every commit, followed by a force-push of every branch and tag. Budget an
-afternoon, re-cut any release whose source archive carries it, and check for
-fragments as well as whole values — a key survives as its undashed form and as
+afternoon and re-cut any release whose source archive carries it. Search for
+fragments as well as whole values: a key survives as its undashed form, and as
 the six digits somebody quoted in an assertion.
 
 ## Checking notarisation
@@ -178,16 +178,14 @@ for a profile that exists and works. `security find-generic-password` cannot see
 those credentials either.
 
 **An error from either is not evidence that notarisation is unconfigured.**
-Never answer this question by hand. There is a script, and it is the only
-acceptable way to answer it:
+Never answer this question by hand. One script answers it:
 
     ./scripts/notary-status.sh
 
-It finds a copy of notarytool that can read the credential, and where it cannot
-find one it says `unknown` rather than `no` — because a copy that cannot read a
-credential cannot tell a missing one from one it is unable to see. Treat
-`unknown` as unknown. Do not tell anybody notarisation is missing on the
-strength of it.
+It finds a copy of notarytool that can read the credential. Where it cannot
+find one it answers `unknown`, not `no`: a copy that cannot read a credential
+cannot tell a missing one from one it is unable to see. Treat `unknown` as
+unknown, and never report notarisation as missing on the strength of it.
 
 `build-app.sh` prefers Xcode's copy for the same reason, so a release notarises
 whatever `xcode-select` is set to.
@@ -203,16 +201,16 @@ never record them from an official build.
 
 A capture is taken only once two of them agree. SwiftUI settles over a turn of
 the run loop, and an SF Symbol drawn for the first time in a process settles
-later still: captured after a fixed wait, the chevron in the drive list came out
-drawn in one run and missing in the next, and a baseline disagreed with itself
-about once in four runs. If a scene ever fails to settle, its picture is
+later still. Captured after a fixed wait instead, the chevron in the drive list
+came out drawn in one run and missing in the next, and a baseline disagreed
+with itself about once in four runs. If a scene never settles, its picture is
 whatever the last turn drew.
 
 `--record` replaces the baselines. It is a separate command because a harness
 that updates its own baselines passes whatever it drew. Look at the pictures
 before recording.
 
-`ImageRenderer` is not used. It draws SwiftUI on its own and comes back with
+`ImageRenderer` is not used. It draws SwiftUI by itself and comes back with
 the inside of a `ScrollView` empty, which is where the drive list lives. The
 scenes are hosted in an off-screen `NSWindow` instead.
 
@@ -295,7 +293,7 @@ writable rather than failing during a write. The write path is tested against
 `qemu-img` in `src/write_tests.rs`, carried by the imago patch: `cargo test` in
 the patched crate creates images with qemu-img, writes through the driver, and
 has qemu-img convert them back. Those tests skip when qemu-img is absent, so a
-green run without it proves nothing — `brew install qemu` first.
+green run without it proves nothing. Install qemu first.
 
 **An image can name other files.** From libkrun's header: formats other than raw
 can reference other files, which libkrun then opens. Any qcow2 naming a backing

@@ -70,11 +70,11 @@ application knows which container it holds before anything is mounted, and asks
 for a read-only mount whatever the person chose. The device the guest is given
 is marked read-only as well, so nothing can reach the file through it either.
 
-An image whose *file* cannot be written — one on a read-only volume, a locked
-file, a card with its write-protect switch set — takes the same course, decided
-later. The open for writing fails, the file is opened for reading instead, and
+An image whose *file* cannot be written takes the same course, decided later:
+one on a read-only volume, a locked file, a card with its write-protect switch
+set. The open for writing fails, the file is opened for reading instead, and
 the device is marked read-only. Failing the mount outright would leave no way
-into a file that could be read all along.
+into a file that could be read.
 
 ---
 
@@ -144,14 +144,14 @@ are not relaxed as further formats are added.
 
 ## 4. What is handed to macOS instead
 
-An exFAT image is attached by macOS and left mounted there rather than carried
+An exFAT image is attached by macOS and left mounted there instead of carried
 through the virtual machine. macOS reads and writes exFAT natively, so routing
-it through NFS would add a layer that serves no purpose and would remove the
-volume from Finder's control. The application states this on screen, since the
+it through NFS would add a pointless layer and take the volume out of Finder's
+control. The application states this on screen, since the
 volume then appears in `/Volumes` rather than `~/Volumes`.
 
 The same reasoning applies to the drive list: a disk macOS already reads is
-listed with that as its verdict rather than offered for opening.
+listed with that as its verdict, and not offered for opening.
 
 ---
 
@@ -185,11 +185,12 @@ and open that.
 
 ### Writing to a VHDX
 
-VHDX is read and never written. The format requires that every change to its
-allocation table or its metadata be written into its log first, so that a writer
-interrupted part-way leaves a file the next reader can repair; a writer must
-also stamp a new write identifier into one of the two headers, each carrying a
-sequence number and a CRC-32C. A writer that skips the log leaves no trace that
+VHDX is read and never written. The format requires every change to its
+allocation table or its metadata to be written into its log first, so that a
+writer interrupted part-way leaves a file the next reader can repair. A writer
+must also stamp a new write identifier into one of the two headers, each of
+which carries a sequence number and a CRC-32C. A writer that skips the log
+leaves no trace that
 anything was interrupted, which is the one failure that cannot be detected
 afterwards. Writing the log is therefore a precondition for writing a VHDX at
 all, and it is not written here.
@@ -268,18 +269,17 @@ space at the end. Nothing is written into the new space: it lies past where the
 file ended, so it already reads as zeroes. A fixed VHD, a static VDI and a flat
 VMDK need none of this, every byte of the disk already being in the file.
 
-What that survives is the writer stopping: the app quit, the virtual machine
-killed, the engine crashed. It is ordering within the process, not a barrier
-through to the drive — the driver marks each ordering point with a flush, and a
-flush on a plain file has nothing of its own to write out. What macOS has
-already accepted and not yet written it may still write in any order.
+This survives the writer stopping: the app quit, the virtual machine killed,
+the engine crashed. It is ordering within the process rather than a barrier
+through to the drive. Each ordering point is marked with a flush, and a flush
+on a plain file has nothing of its own to write out, so what macOS has accepted
+and not yet written it may still write in any order.
 
-Durability across a power cut comes from the guest instead, and does arrive: a
-filesystem inside the virtual machine issues its own barriers, each one reaching
-the block device as a flush request, and the device answers a flush request by
-syncing the file. So an ext4 or NTFS journal is as durable here as it is on a
-real disk, and the same caveat applies as on a real disk — what was written
-since the last barrier is what a power cut can take.
+Durability across a power cut comes from the guest. A filesystem inside the
+virtual machine issues its own barriers; each reaches the block device as a
+flush request, and the device answers one by syncing the file. An ext4 or NTFS
+journal is therefore as durable here as on a real disk, with the same caveat:
+what was written since the last barrier is what a power cut can take.
 
 ### How it is checked
 
@@ -288,12 +288,14 @@ agreeing with it is the strongest statement these drivers can make. The tests in
 `src/write_tests.rs`, carried by the imago patch, create an image with
 `qemu-img`, write to it through the driver, and then have `qemu-img` check the
 image and convert it to raw, comparing every byte against a model kept beside
-the writes. They cover the first block, a write crossing two, one aligned to
-nothing, a second write over ground already allocated, several blocks at once,
-the last byte of the disk, filling an image completely, a grain directory with a
-gap in it, two hundred randomly placed writes per format from a fixed seed, and
-a qcow2 holding an internal snapshot, whose shared clusters have to be copied
-before they are written.
+the writes.
+
+They cover the first block, a write crossing two, one aligned to nothing, a
+second write over ground already allocated, several blocks at once, the last
+byte of the disk, and filling an image completely. Then the awkward ones: a
+grain directory with a gap in it, two hundred randomly placed writes per format
+from a fixed seed, and a qcow2 holding an internal snapshot, whose shared
+clusters have to be copied before they are written.
 
 Reading was verified the same way and in both directions: images written by
 `qemu-img` read back byte for byte identical to the raw disk they were made

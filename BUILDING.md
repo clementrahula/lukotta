@@ -10,8 +10,7 @@ from a clean machine to a signed application.
   is no Intel build.
 - macOS 15 or later, which the engine's Homebrew bottle decides. Pin a bottle
   built for a newer release and the floor rises with it; `build-app.sh` reads
-  the floor from `vendor/engine.lock` rather than trusting a number in the
-  plist.
+  the floor from `vendor/engine.lock`, not from a number typed into the plist.
 - Xcode's command line tools, with a Swift 6 toolchain.
 - `shellcheck` and `swift-format`, for the linter only. `gitleaks` too, if you
   want the pre-commit hook's second pass; without it the hook runs the rest.
@@ -65,8 +64,8 @@ ships the sequoia bottles.
 writes it into `LSMinimumSystemVersion`, then checks the built binary's own
 `minos` against it and refuses to finish if the two disagree. Changing
 `bottle_tag` to a newer release is therefore a change to `Package.swift`'s
-platform as well; the build says so rather than shipping an app that Software
-Update offers to Macs it cannot load on.
+platform as well, and the build says so instead of shipping an app that
+Software Update would offer to Macs it cannot load on.
 
 
 ### The two binaries built here
@@ -76,7 +75,7 @@ built from the source tarball pinned in `vendor/engine.lock`, checked against
 the same sha256 the release verifies, with everything in `patches/` applied. Two
 crates the host binary links in are fetched and patched the same way: imago,
 which reads the image formats, and krun-devices, which requests one of them. The
-build compiles those copies rather than the published ones. Everything else
+build compiles those copies, not the published ones. Everything else
 comes from the checksummed bottle.
 
     brew install llvm lld util-linux
@@ -104,8 +103,8 @@ file beside the image, and refuses to build against a different one.
 
 The image arrives supporting far more than Lukotta reaches, and is trimmed to
 the packages it uses. Source for every GPL package shipped must be published
-with the release, so trimming reduces both the download and the compliance
-surface. Set `LUKOTTA_NO_TRIM=1` to keep the whole image.
+with the release, so trimming cuts both the download and the work of
+complying. Set `LUKOTTA_NO_TRIM=1` to keep the whole image.
 
 ## Building the App
 
@@ -234,7 +233,7 @@ credential that does not exist. `./scripts/notary-status.sh` says which it is.
 
 The feed itself lives in its own repository,
 [lukotta-appcast](https://github.com/clementrahula/lukotta-appcast), served by
-GitHub Pages at `lukotta-updates.rahula.dev` — one Pages site takes one custom
+GitHub Pages at `lukotta-updates.rahula.dev`. One Pages site takes one custom
 domain, and `lukotta.rahula.dev` is the website's. Point `LUKOTTA_APPCAST` at a
 checkout of it and the release writes the appcast and the notes straight in:
 
@@ -270,17 +269,17 @@ The GPL obliges whoever distributes the app to offer source for its GPL parts.
 ```
 
 Nearly half a gigabyte of it, and nearly all of it the same bytes as the last
-release: the kernel, gcc, every Alpine tarball. So each fetch is kept in
-`vendor/.cache/sources` under the hash of the URL it came from and taken from
-there next time — the first collection takes ten minutes, the next takes eight
-seconds. A dependency that moves has a new URL and is fetched afresh; nothing
-else is. What is stored is checked against the digest written beside it, so a
-half-written cache entry is fetched again rather than shipped.
+release: the kernel, gcc, every Alpine tarball. Each fetch is therefore kept in
+`vendor/.cache/sources` under the hash of the URL it came from, and taken from
+there next time. The first collection takes ten minutes; the next takes eight
+seconds. A dependency that moves has a new URL and is fetched afresh, and
+nothing else is. What is stored is checked against the digest written beside
+it, so a half-written cache entry is fetched again instead of shipped.
 
-`LUKOTTA_SOURCE_CACHE` points the cache somewhere else. Deleting it costs a
-download, nothing more.
+`LUKOTTA_SOURCE_CACHE` puts the cache somewhere else, and deleting it costs one
+download.
 
-Four of them are always fetched: libkrun, libkrunfw, gvproxy and vmnet-helper
+Four components are always fetched: libkrun, libkrunfw, gvproxy and vmnet-helper
 are named by branch rather than by version, so a stored copy would be the last
 release's source under this release's name. They are also the small ones.
 
