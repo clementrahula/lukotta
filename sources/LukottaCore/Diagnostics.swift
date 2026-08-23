@@ -119,8 +119,11 @@ public enum Diagnostics {
         var result = text
         if let secret {
             let trimmed = secret.trimmingCharacters(in: .whitespacesAndNewlines)
-            // Short strings would match far too much ordinary output.
-            if trimmed.count >= 4 {
+            // Any length. Replacing the exact secret cannot match anything but
+            // that secret, so there is nothing to be gained by declining to do
+            // it for a short one — and a passphrase of one or two characters is
+            // legal, so declining left the shortest secrets in the log.
+            if !trimmed.isEmpty {
                 result = result.replacingOccurrences(of: trimmed, with: "[redacted]")
             }
         }

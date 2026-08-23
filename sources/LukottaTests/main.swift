@@ -2046,6 +2046,37 @@ group("leftoverEngineHelpersAreTakenDown") {
     expect(!theirs.contains(ours), "and one from another engine is left alone")
 }
 
+group("aShortPassphraseIsRedactedToo") {
+    // A passphrase of one or two characters is legal, and the engine is driven
+    // through a pty, which echoes what is typed into it. Declining to redact a
+    // short secret left exactly the shortest ones in the transcript that
+    // reaches the screen, the log and a bug report.
+    // None of these appear in the replacement itself, which contains the
+    // letters of "redacted" and would otherwise be mistaken for a survival.
+    for secret in ["q", "xy", "zzz", "hunter2"] {
+        let transcript = "ALFS_PASSPHRASE echoed: \(secret)\nmounted /dev/disk4s1\n"
+        let clean = Diagnostics.redact(transcript, secret: secret)
+        expect(
+            !clean.contains(secret),
+            "a passphrase of \(secret.count) characters does not survive redaction")
+        expect(clean.contains("[redacted]"), "and something says it was there")
+    }
+
+    // Replacing the exact secret cannot touch anything else, whatever its
+    // length: the rest of the line is left as it was.
+    let kept = Diagnostics.redact("mounting q: ok", secret: "q")
+    expect(kept.contains("mounting"), "the words around it are untouched")
+    expect(kept.contains("ok"), "including what follows")
+
+    // Nothing to redact is not the same as everything to redact.
+    expect(
+        Diagnostics.redact("mounted", secret: "") == "mounted",
+        "an empty secret redacts nothing")
+    expect(
+        Diagnostics.redact("mounted", secret: "   ") == "mounted",
+        "and neither does one that is only spaces")
+}
+
 group("bitlockerPartWayThroughIsExplained") {
     // cryptsetup stops before touching a BitLocker volume whose recorded state
     // is anything but normal, which is what a drive Windows is still

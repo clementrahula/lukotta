@@ -5,7 +5,11 @@ HERE="$(cd "$(dirname "$0")/.." && pwd)"
 status=0
 
 printf 'swift-format…\n'
-if swift format lint --recursive --strict "$HERE/Sources" 2>&1 | tee /tmp/lukotta-fmt.log | head -20; then
+# Lowercase, as the directory is and as Package.swift requires. Spelled
+# "Sources" this resolved on a case-insensitive volume and linted nothing at
+# all on a case-sensitive one, where the whole style gate quietly did nothing.
+[ -d "$HERE/sources" ] || { printf 'error: no %s/sources to lint\n' "$HERE" >&2; exit 1; }
+if swift format lint --recursive --strict "$HERE/sources" 2>&1 | tee /tmp/lukotta-fmt.log | head -20; then
   [ -s /tmp/lukotta-fmt.log ] && status=1
 else
   status=1
