@@ -81,6 +81,12 @@ def main():
     # Sparkle takes the delta matching their build when there is one and falls
     # back to the enclosure above when there is not, so a missing delta costs
     # bandwidth rather than correctness.
+    #
+    # These enclosures carry no version of their own, and do not need one:
+    # Sparkle builds each delta as a copy of this item with the delta enclosure
+    # substituted (SUAppcastItem.m), so it inherits the <sparkle:version> and
+    # <sparkle:shortVersionString> written above. Checked against Sparkle 2.9.6,
+    # the version in Package.resolved.
     if args.delta:
         deltas = ET.SubElement(item, f"{{{SPARKLE}}}deltas")
         for spec in args.delta:

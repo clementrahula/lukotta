@@ -109,6 +109,10 @@ printf '==> Updates from earlier versions\n'
 # point LUKOTTA_PREVIOUS at a directory of them. With none there this does
 # nothing, which is what the first release wants.
 DELTA_ARGS=()
+# The files themselves, so the release uploads exactly the deltas this appcast
+# names — rather than globbing dist/, which picks up whatever an earlier run
+# left behind and stays a literal "*.delta" when there is nothing there.
+DELTA_FILES=()
 PREVIOUS="${LUKOTTA_PREVIOUS:-$HERE/dist/previous}"
 DELTA_TOOL="$(find "$HERE/.build" -name BinaryDelta -type f -perm -111 -print -quit 2>/dev/null || true)"
 if [ -d "$PREVIOUS" ] && [ -n "$DELTA_TOOL" ]; then
@@ -129,6 +133,7 @@ if [ -d "$PREVIOUS" ] && [ -n "$DELTA_TOOL" ]; then
       delta_len="$(printf '%s' "$delta_line" | sed -n 's/.*length="\([^"]*\)".*/\1/p')"
       if [ -n "$delta_sig" ] && [ -n "$delta_len" ]; then
         DELTA_ARGS+=(--delta "$old_build:$BASE_URL/$(basename "$delta"):$delta_len:$delta_sig")
+        DELTA_FILES+=("$delta")
         printf '    from build %s: %s\n' "$old_build" "$(du -h "$delta" | awk '{print $1}')"
       fi
     else
@@ -155,10 +160,16 @@ python3 "$HERE/scripts/appcast.py" \
 
 if [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
   printf '==> Publishing the GitHub release\n'
+  # The deltas go up with the archive in both cases. The appcast points at them
+  # on this release, so a first release that skipped them advertised enclosures
+  # that answered 404 — Sparkle recovers by downloading the whole archive, but
+  # the appcast was wrong and the saving was lost.
   if gh release view "v$VERSION" --repo "$REPO" >/dev/null 2>&1; then
-    gh release upload "v$VERSION" "$ZIP" "$SOURCES_ZIP" "$HERE"/dist/*.delta --repo "$REPO" --clobber
+    gh release upload "v$VERSION" "$ZIP" "$SOURCES_ZIP" \
+      ${DELTA_FILES[@]+"${DELTA_FILES[@]}"} --repo "$REPO" --clobber
   else
-    gh release create "v$VERSION" "$ZIP" "$SOURCES_ZIP" --repo "$REPO" \
+    gh release create "v$VERSION" "$ZIP" "$SOURCES_ZIP" \
+      ${DELTA_FILES[@]+"${DELTA_FILES[@]}"} --repo "$REPO" \
       --title "Lukotta $VERSION" \
       --notes "Complete corresponding source for the GPL components is attached as Lukotta-$VERSION-source.zip."
   fi
