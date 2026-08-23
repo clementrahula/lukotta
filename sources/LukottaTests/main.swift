@@ -783,11 +783,12 @@ group("aLaunchNobodyAskedForIsTheOnlyOneWithoutAWindow") {
         !source.contains(".defaultLaunchBehavior"),
         "and no scene refuses to open before anyone knows who asked")
     expect(
-        source.contains("static var nobodyAsked: Bool { !NSApp.isActive }"),
+        source.contains("guard !NSApp.isActive else { return }")
+            && source.contains("NSApp.hide(nil)"),
         "a person opening an app activates it; launchd does not")
     expect(
-        source.contains("if LaunchContext.nobodyAsked {") && source.contains("NSApp.hide(nil)"),
-        "so a launch nobody asked for hides the window it already has")
+        source.contains("asyncAfter(deadline: .now() + LaunchContext.settle)"),
+        "and the question waits, activation not always beating the end of launching")
 }
 
 group("aRefusalNamesThePermissionThatWasRefused") {

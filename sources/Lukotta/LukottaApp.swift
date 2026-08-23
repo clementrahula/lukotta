@@ -219,12 +219,16 @@ private func confirmUninstall(_ model: AppModel) {
 
 /// Whether this launch was started by the system rather than by a person.
 ///
-/// Whether nobody asked for this launch.
+/// Whether anybody asked for this launch.
 ///
 /// A person opening an app makes it the active application; launchd starting a
-/// login item does not, and that is the difference this reads. It can only be
-/// read once the app has finished launching, which is late enough to have to
-/// put a window away rather than never make one.
+/// login item never does. The catch is when to look: activation does not
+/// reliably arrive before launching finishes, and asked at that moment the
+/// answer is "nobody" for a launch somebody plainly asked for.
+///
+/// So the window is made either way and the question is asked again a moment
+/// later. Answered wrongly this hides a window that was wanted, which a click
+/// in the Dock undoes; the other way round is an app that never appears.
 ///
 /// Not `XPC_SERVICE_NAME`, which looks like the answer and is not: launchd
 /// gives every launch a job name of the form `application.<bundle id>.<n>.<n>`,
@@ -232,7 +236,9 @@ private func confirmUninstall(_ model: AppModel) {
 /// "at login", and an app that suppresses its window at every launch puts
 /// nothing on screen at all.
 enum LaunchContext {
-    @MainActor static var nobodyAsked: Bool { !NSApp.isActive }
+    /// Long enough for activation to arrive, short enough that a window nobody
+    /// wanted is gone before it is read.
+    static let settle: TimeInterval = 1.5
 }
 
 @main
@@ -361,19 +367,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Here rather than in the App's init, where NSApp does not exist yet.
         Appearance.current.apply()
 
-        // Started at login, the window goes away again: the drives come back
-        // by themselves, the way a disk mounted by macOS does, and nobody
-        // asked to see anything. Clicking the app in the Dock brings it back.
-        //
-        // Hidden rather than never made. Whether a person is behind the launch
-        // is not knowable until the app is up, and a window that appears and
-        // hides is better than a window that never appears at all.
-        if LaunchContext.nobodyAsked {
-            let model = AppModel.shared
-            self.model = model
-            Log.app.notice("opened at login; hiding the window")
+        // Started at login the window goes away again: the drives come back by
+        // themselves, the way a disk mounted by macOS does, and nobody asked to
+        // see anything. Clicking the app in the Dock brings it back. The scan
+        // is started by the window either way, so there is nothing to start
+        // here.
+        DispatchQueue.main.asyncAfter(deadline: .now() + LaunchContext.settle) {
+            guard !NSApp.isActive else { return }
+            Log.app.notice("nobody asked for this launch; hiding the window")
             NSApp.hide(nil)
-            model.start()
         }
 
         NSWorkspace.shared.notificationCenter.addObserver(
