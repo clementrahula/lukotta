@@ -37,6 +37,17 @@ public enum VolumeGroupParser {
         "linux_raid_member", "swap",
     ]
 
+    /// "MB", "GiB", "B" — a size unit standing on its own, rather than a word
+    /// of the name or a size printed as a single field.
+    private static func isSizeUnit(_ field: String) -> Bool {
+        guard field.count <= 3, field.hasSuffix("B") || field.hasSuffix("b") else { return false }
+        let head = field.dropLast()
+        if head.isEmpty { return true }
+        if head == "i" { return false }
+        let prefix = head.hasSuffix("i") ? head.dropLast() : head
+        return prefix.count == 1 && "KMGTPEZ".contains(prefix.uppercased())
+    }
+
     public static func logicalVolumes(in text: String) -> [LogicalVolume] {
         var found: [LogicalVolume] = []
         for line in text.components(separatedBy: .newlines) {
@@ -52,10 +63,18 @@ public enum VolumeGroupParser {
             let filesystem = fields[1]
             guard !containers.contains(filesystem) else { continue }
 
-            // NAME may be absent when the filesystem carries no label.
-            let sizeIndex = fields.count - 3
-            let label = fields.count >= 5 ? fields[2] : ""
-            let size = "\(fields[sizeIndex]) \(fields[sizeIndex + 1])"
+            // Where the size begins. It is printed as a number and a unit today
+            // ("608.2 MB"), and this counted three fields back from the end on
+            // that basis. A size printed as one field would have shifted every
+            // name by one and taken the type in with it, so the unit is looked
+            // for rather than counted on.
+            let unit = fields.count >= 3 ? fields[fields.count - 2] : ""
+            let sizeStart = isSizeUnit(unit) ? fields.count - 3 : fields.count - 2
+            guard sizeStart >= 2 else { continue }
+            let size = fields[sizeStart..<(fields.count - 1)].joined(separator: " ")
+            // NAME may be absent when the filesystem carries no label, and may
+            // be more than one word when it is not.
+            let label = fields[2..<sizeStart].joined(separator: " ")
             let lvName = identifier.split(separator: ":").last.map(String.init) ?? identifier
             found.append(
                 LogicalVolume(

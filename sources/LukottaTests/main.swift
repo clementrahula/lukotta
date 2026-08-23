@@ -2046,6 +2046,75 @@ group("leftoverEngineHelpersAreTakenDown") {
     expect(!theirs.contains(ours), "and one from another engine is left alone")
 }
 
+group("theVolumeListingIsReadTheSameWayByBothReaders") {
+    // Two readers take apart the engine's `list --decrypt` output: the Swift
+    // parser, which offers the volumes, and the awk inside the mount script,
+    // which decides what actually gets mounted. Neither had been run against a
+    // listing shaped differently from the one captured from a real drive, and
+    // both counted fields from the end.
+    //
+    // Captured from anylinuxfs 0.19.0. If the engine in vendor/engine.lock has
+    // moved past what Diagnosis.enginesChecked names, capture it again: this
+    // fixture is only worth what its resemblance to the real thing is.
+    let captured = """
+        lvm:fedoravg (volume group):
+           #:            TYPE NAME             SIZE       IDENTIFIER
+           0:     LVM2_scheme                  +0.9 GB    fedoravg
+           1:           btrfs FEDORAROOT       252.0 MB   fedoravg:disk5s1:root
+           2:           btrfs                  252.0 MB   fedoravg:disk5s1:home
+           3:            ext4 My Backup Disk   376.0 MB   fedoravg:disk5s1:backup
+           4:           btrfs SINGLETOKEN      376MB      fedoravg:disk5s1:spare
+        """
+
+    let lvs = VolumeGroupParser.logicalVolumes(in: captured)
+    expect(lvs.count == 4, "four mountable volumes; the scheme row is not one")
+    expect(
+        lvs.map(\.identifier) == [
+            "fedoravg:disk5s1:root", "fedoravg:disk5s1:home",
+            "fedoravg:disk5s1:backup", "fedoravg:disk5s1:spare",
+        ], "every identifier is read")
+    expect(lvs[0].size == "252.0 MB", "a size of two fields")
+    expect(lvs[1].label == "home", "a volume with no label falls back to its own name")
+    expect(lvs[2].label == "My Backup Disk", "a label of several words is kept whole")
+    expect(lvs[2].size == "376.0 MB", "and does not eat into the size")
+    expect(lvs[3].size == "376MB", "a size of one field is read as the size")
+    expect(lvs[3].label == "SINGLETOKEN", "and does not shift the label")
+
+    // The awk itself, run over the same listing, since it is what decides what
+    // is mounted and nothing else can check it.
+    let temp = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appendingPathComponent("lukotta-listing-\(getpid()).txt")
+    try? captured.write(to: temp, atomically: true, encoding: .utf8)
+    let awk = Process()
+    awk.executableURL = URL(fileURLWithPath: "/usr/bin/awk")
+    awk.arguments = [
+        "-v", "s=/run/EXPORT", "-v", "q='", "-v", "ro=-o ro ",
+        MountScript.volumeAction, temp.path,
+    ]
+    let pipe = Pipe()
+    awk.standardOutput = pipe
+    awk.standardError = FileHandle.nullDevice
+    try? awk.run()
+    let out = String(
+        data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+    awk.waitUntilExit()
+    try? FileManager.default.removeItem(at: temp)
+
+    expect(awk.terminationStatus == 0, "the generated awk runs")
+    expect(
+        out.contains("nfs_export_subdirs = [\"FEDORAROOT\", \"home\", \"My-Backup-Disk\", \"SINGLETOKEN\"]"),
+        "every volume is exported under a name taken from its label")
+    expect(!out.contains("btrfs"), "the type is never mistaken for part of a name")
+    expect(!out.contains("376MB"), "nor a size for one")
+    for lv in ["root", "home", "backup", "spare"] {
+        expect(out.contains("/dev/fedoravg/\(lv)") || lv == "root", "\(lv) is mounted")
+    }
+    expect(
+        out.contains("mount -o bind \"$ALFS_VM_MOUNT_POINT\" /run/EXPORT/FEDORAROOT"),
+        "the first volume is the one the engine already mounted")
+    expect(out.contains("mount -o remount,ro /run/EXPORT"), "the scratch export stays read-only")
+}
+
 group("aDriveOwnsOnlyItsOwnMounts") {
     // "disk4s1" is contained in "disk4s10", so asking plainly whether the
     // identifier appears reported the tenth partition's mount against the
