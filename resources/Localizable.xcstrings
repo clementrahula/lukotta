@@ -521,132 +521,132 @@
         }
       }
     },
-    "%@ opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access. An administrator password is not enough, and the removable-volumes permission covers files on a drive rather than the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand.": {
+    "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ отваря дискове с BitLocker и Linux, които macOS не може да чете сам. Първо е нужна една настройка.\n\nЧетенето на диск на ниво сурово устройство изисква Full Disk Access. Парола на администратор не е достатъчна, а разрешението за сменяеми носители се отнася за файловете на диск, а не за самото устройство. macOS не дава на приложенията начин да поискат това разрешение, затова се включва ръчно."
+            "value": "%@ отваря дискове с BitLocker и Linux, дискове на виртуални машини и дискови образи, които macOS не може да отвори сам.\n\nЧетенето на диск на ниво сурово устройство изисква Full Disk Access. macOS не дава на приложенията начин да поискат това пряко, затова се включва ръчно."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ otevírá disky s BitLockerem a Linuxem, které macOS sám přečíst neumí. Nejprve je potřeba jedno nastavení.\n\nČtení disku na úrovni surového zařízení vyžaduje Plný přístup k disku. Heslo správce nestačí a oprávnění pro vyměnitelné svazky se týká souborů na disku, ne surového zařízení. macOS aplikacím nedává možnost si o toto oprávnění říct, takže se zapíná ručně."
+            "value": "%@ otevírá disky s BitLockerem a Linuxem, disky virtuálních strojů a diskové obrazy, které macOS sám otevřít neumí.\n\nČtení disku na úrovni surového zařízení vyžaduje Plný přístup k disku. macOS aplikacím nedává možnost si o to říct přímo, takže se zapíná ručně."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ åbner BitLocker- og Linux-diske, som macOS ikke selv kan læse. Først kræves én indstilling.\n\nAt læse en disk på råt enhedsniveau kræver Fuld adgang til disk. En administratoradgangskode er ikke nok, og tilladelsen til flytbare enheder dækker filer på en disk frem for den rå enhed. macOS giver ikke programmer nogen måde at bede om denne tilladelse på, så den skal slås til i hånden."
+            "value": "%@ åbner BitLocker-, Linux- og virtuelle maskiners diske samt diskbilleder, som macOS ikke selv kan åbne.\n\nAt læse en disk på råt enhedsniveau kræver Fuld adgang til disk. macOS giver ikke programmer nogen måde at bede om det direkte, så den skal slås til i hånden."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ öffnet BitLocker- und Linux-Laufwerke, die macOS von sich aus nicht lesen kann. Dafür ist zuerst eine Einstellung nötig.\n\nEin Laufwerk auf der Ebene des rohen Geräts zu lesen erfordert Festplattenvollzugriff. Ein Administratorpasswort genügt nicht, und die Berechtigung für Wechselmedien gilt für Dateien auf einem Laufwerk statt für das rohe Gerät. macOS bietet Apps keine Möglichkeit, diese Berechtigung anzufordern, also muss sie von Hand eingeschaltet werden."
+            "value": "%@ öffnet BitLocker-, Linux- und Laufwerke virtueller Maschinen sowie Festplattenimages, die macOS von sich aus nicht öffnen kann.\n\nEin Laufwerk auf der Ebene des rohen Geräts zu lesen erfordert Festplattenvollzugriff. macOS bietet Apps keine Möglichkeit, dies direkt anzufordern, also muss es von Hand eingeschaltet werden."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Το %@ ανοίγει δίσκους BitLocker και Linux που το macOS δεν μπορεί να διαβάσει από μόνο του. Πρώτα χρειάζεται μία ρύθμιση.\n\nΗ ανάγνωση ενός δίσκου σε επίπεδο ωμής συσκευής απαιτεί Πλήρη πρόσβαση στον δίσκο. Το συνθηματικό διαχειριστή δεν αρκεί, και η άδεια για αφαιρούμενους τόμους αφορά αρχεία σε έναν δίσκο και όχι την ίδια τη συσκευή. Το macOS δεν δίνει στις εφαρμογές τρόπο να ζητήσουν αυτή την άδεια, οπότε ενεργοποιείται με το χέρι."
+            "value": "Το %@ ανοίγει δίσκους BitLocker και Linux, δίσκους εικονικών μηχανών και εικόνες δίσκου που το macOS δεν μπορεί να ανοίξει από μόνο του.\n\nΗ ανάγνωση ενός δίσκου σε επίπεδο ωμής συσκευής απαιτεί Πλήρη πρόσβαση στον δίσκο. Το macOS δεν δίνει στις εφαρμογές τρόπο να το ζητήσουν απευθείας, οπότε ενεργοποιείται με το χέρι."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ abre discos con BitLocker y de Linux que macOS no puede leer por sí solo. Antes hace falta un ajuste.\n\nLeer un disco al nivel del dispositivo en bruto requiere Acceso total al disco. Una contraseña de administrador no basta, y el permiso de volúmenes extraíbles cubre los archivos de un disco, no el dispositivo en bruto. macOS no ofrece a las apps ninguna forma de solicitar este permiso, así que hay que activarlo a mano."
+            "value": "%@ abre discos con BitLocker, discos de Linux, discos de máquinas virtuales e imágenes de disco que macOS no puede abrir por sí solo.\n\nLeer un disco al nivel del dispositivo en bruto requiere Acceso total al disco. macOS no ofrece a las apps ninguna forma de solicitarlo directamente, así que hay que activarlo a mano."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ avab BitLockeri ja Linuxi kettaid, mida macOS ise lugeda ei oska. Selleks on kõigepealt vaja üht seadet.\n\nKetta lugemine toorseadme tasandil nõuab Full Disk Access’i. Administraatori paroolist ei piisa ja eemaldatavate andmekandjate luba puudutab ketta faile, mitte toorseadet. macOS ei anna rakendustele võimalust seda luba küsida, seega tuleb see käsitsi sisse lülitada."
+            "value": "%@ avab BitLockeri, Linuxi ja virtuaalmasinate kettaid ning ketta tõmmiseid, mida macOS ise avada ei oska.\n\nKetta lugemine toorseadme tasandil nõuab Full Disk Access’i. macOS ei anna rakendustele võimalust seda otse küsida, seega tuleb see käsitsi sisse lülitada."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ avaa BitLocker- ja Linux-levyjä, joita macOS ei osaa itse lukea. Ensin tarvitaan yksi asetus.\n\nLevyn lukeminen raakalaitteen tasolla vaatii Koko levyn käytön. Pääkäyttäjän salasana ei riitä, ja irrotettavien taltioiden käyttöoikeus koskee levyllä olevia tiedostoja eikä raakalaitetta. macOS ei anna ohjelmille mitään tapaa pyytää tätä oikeutta, joten se on kytkettävä päälle käsin."
+            "value": "%@ avaa BitLocker- ja Linux-levyjä, virtuaalikoneiden levyjä ja levykuvia, joita macOS ei osaa itse avata.\n\nLevyn lukeminen raakalaitteen tasolla vaatii Koko levyn käytön. macOS ei anna ohjelmille mitään tapaa pyytää sitä suoraan, joten se on kytkettävä päälle käsin."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ouvre les disques BitLocker et Linux que macOS ne sait pas lire seul. Un réglage est d’abord nécessaire.\n\nLire un disque au niveau du périphérique brut exige l’Accès complet au disque. Un mot de passe administrateur ne suffit pas, et l’autorisation des volumes amovibles porte sur les fichiers d’un disque, non sur le périphérique brut. macOS n’offre aux apps aucun moyen de demander celle-ci : elle doit être activée à la main."
+            "value": "%@ ouvre les disques BitLocker, Linux et de machines virtuelles ainsi que les images disque que macOS ne sait pas ouvrir seul.\n\nLire un disque au niveau du périphérique brut exige l’Accès complet au disque. macOS n’offre aux apps aucun moyen de le demander directement : il doit être activé à la main."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ otvara BitLocker i Linux diskove koje macOS sam ne može čitati. Prije toga potrebna je jedna postavka.\n\nČitanje diska na razini sirovog uređaja zahtijeva Puni pristup disku. Administratorska lozinka nije dovoljna, a dozvola za uklonjive medije odnosi se na datoteke na disku, a ne na sam uređaj. macOS aplikacijama ne nudi način da je zatraže, pa se uključuje ručno."
+            "value": "%@ otvara BitLocker i Linux diskove, diskove virtualnih strojeva i slike diskova koje macOS sam ne može otvoriti.\n\nČitanje diska na razini sirovog uređaja zahtijeva Puni pristup disku. macOS aplikacijama ne nudi način da to zatraže izravno, pa se uključuje ručno."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A(z) %@ olyan BitLocker- és Linux-lemezeket nyit meg, amelyeket a macOS önmagában nem tud olvasni. Ehhez előbb egy beállítás szükséges.\n\nEgy lemez nyers eszközszintű olvasásához Teljes hozzáférés a lemezhez szükséges. A rendszergazdai jelszó nem elég, a cserélhető kötetekre vonatkozó engedély pedig a lemezen lévő fájlokra vonatkozik, nem a nyers eszközre. A macOS nem ad az alkalmazásoknak módot arra, hogy ezt kérjék, ezért kézzel kell bekapcsolni."
+            "value": "A(z) %@ olyan BitLocker-, Linux- és virtuálisgép-lemezeket, valamint lemezképeket nyit meg, amelyeket a macOS önmagában nem tud megnyitni.\n\nEgy lemez nyers eszközszintű olvasásához Teljes hozzáférés a lemezhez szükséges. A macOS nem ad az alkalmazásoknak módot arra, hogy ezt közvetlenül kérjék, ezért kézzel kell bekapcsolni."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ apre dischi BitLocker e Linux che macOS da solo non sa leggere. Prima serve un’impostazione.\n\nLeggere un disco a livello di dispositivo grezzo richiede l’Accesso completo al disco. Una password di amministratore non basta, e il permesso per i volumi rimovibili riguarda i file su un disco, non il dispositivo grezzo. macOS non offre alle app alcun modo di richiederlo, quindi va attivato a mano."
+            "value": "%@ apre dischi BitLocker e Linux, dischi di macchine virtuali e immagini disco che macOS da solo non sa aprire.\n\nLeggere un disco a livello di dispositivo grezzo richiede l’Accesso completo al disco. macOS non offre alle app alcun modo di richiederlo direttamente, quindi va attivato a mano."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ atveria „BitLocker“ ir „Linux“ diskus, kurių „macOS“ pati perskaityti negali. Pirmiausia reikia vieno nustatymo.\n\nSkaityti diską neapdoroto įrenginio lygiu galima tik su Full Disk Access. Administratoriaus slaptažodžio nepakanka, o keičiamųjų laikmenų leidimas apima diske esančius failus, o ne patį įrenginį. „macOS“ nesuteikia programoms būdo šio leidimo paprašyti, todėl jį reikia įjungti ranka."
+            "value": "„%@“ atveria „BitLocker“ ir „Linux“ diskus, virtualiųjų mašinų diskus ir disko atvaizdžius, kurių „macOS“ pati atverti negali.\n\nSkaityti diską neapdoroto įrenginio lygiu galima tik su Full Disk Access. „macOS“ nesuteikia programoms būdo šio leidimo paprašyti tiesiogiai, todėl jį reikia įjungti ranka."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ atver BitLocker un Linux diskus, kurus macOS pats nespēj nolasīt. Vispirms nepieciešams viens iestatījums.\n\nDiska lasīšanai neapstrādātas ierīces līmenī ir vajadzīga Full Disk Access. Administratora parole nav pietiekama, un noņemamo datu nesēju atļauja attiecas uz diskā esošajiem failiem, nevis uz pašu ierīci. macOS nedod lietotnēm iespēju to pieprasīt, tāpēc tā jāieslēdz ar roku."
+            "value": "%@ atver BitLocker un Linux diskus, virtuālo mašīnu diskus un disku attēlus, kurus macOS pats nespēj atvērt.\n\nDiska lasīšanai neapstrādātas ierīces līmenī ir vajadzīga Full Disk Access. macOS nedod lietotnēm iespēju to pieprasīt tieši, tāpēc tā jāieslēdz ar roku."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ åpner BitLocker- og Linux-disker som macOS ikke kan lese på egen hånd. Først trengs én innstilling.\n\nÅ lese en disk på rått enhetsnivå krever Full disktilgang. Et administratorpassord er ikke nok, og tillatelsen for flyttbare medier gjelder filer på en disk, ikke selve enheten. macOS gir ikke programmer noen måte å be om denne på, så den må slås på for hånd."
+            "value": "%@ åpner BitLocker-, Linux- og virtuelle maskiners disker samt diskbilder som macOS ikke kan åpne på egen hånd.\n\nÅ lese en disk på rått enhetsnivå krever Full disktilgang. macOS gir ikke programmer noen måte å be om det direkte på, så den må slås på for hånd."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ opent BitLocker- en Linux-schijven die macOS zelf niet kan lezen. Daarvoor is eerst één instelling nodig.\n\nEen schijf op het niveau van het ruwe apparaat lezen vereist Volledige schijftoegang. Een beheerderswachtwoord is niet genoeg, en de toegang tot verwisselbare volumes gaat over bestanden op een schijf, niet over het ruwe apparaat. macOS biedt apps geen manier om hierom te vragen, dus die moet met de hand worden aangezet."
+            "value": "%@ opent BitLocker-, Linux- en virtuelemachineschijven en schijfkopieën die macOS zelf niet kan openen.\n\nEen schijf op het niveau van het ruwe apparaat lezen vereist Volledige schijftoegang. macOS biedt apps geen manier om die rechtstreeks aan te vragen, dus die moet met de hand worden aangezet."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ otwiera dyski z BitLockerem i dyski linuksowe, których macOS sam nie potrafi odczytać. Najpierw potrzebne jest jedno ustawienie.\n\nOdczyt dysku na poziomie surowego urządzenia wymaga Pełnego dostępu do dysku. Hasło administratora nie wystarczy, a uprawnienie do nośników wymiennych dotyczy plików na dysku, a nie samego urządzenia. macOS nie daje programom żadnego sposobu, by o nie poprosić, więc trzeba włączyć je ręcznie."
+            "value": "%@ otwiera dyski z BitLockerem, dyski linuksowe, dyski maszyn wirtualnych i obrazy dysków, których macOS sam nie potrafi otworzyć.\n\nOdczyt dysku na poziomie surowego urządzenia wymaga Pełnego dostępu do dysku. macOS nie daje programom żadnego sposobu, by poprosić o to bezpośrednio, więc trzeba włączyć go ręcznie."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O %@ abre discos BitLocker e Linux que o macOS não consegue ler sozinho. Antes disso é preciso uma definição.\n\nLer um disco ao nível do dispositivo em bruto exige Acesso completo ao disco. Uma palavra-passe de administrador não chega, e a autorização para volumes amovíveis abrange os ficheiros de um disco e não o dispositivo em bruto. O macOS não dá às aplicações forma de a pedir, por isso tem de ser ligada à mão."
+            "value": "O %@ abre discos BitLocker e Linux, discos de máquinas virtuais e imagens de disco que o macOS não consegue abrir sozinho.\n\nLer um disco ao nível do dispositivo em bruto exige Acesso completo ao disco. O macOS não dá às aplicações forma de o pedir diretamente, por isso tem de ser ligado à mão."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ deschide discuri BitLocker și Linux pe care macOS nu le poate citi singur. Mai întâi este nevoie de o setare.\n\nCitirea unui disc la nivelul dispozitivului brut necesită Acces complet la disc. O parolă de administrator nu este suficientă, iar permisiunea pentru volume amovibile se referă la fișierele de pe un disc, nu la dispozitivul brut. macOS nu oferă aplicațiilor nicio cale de a o cere, așa că trebuie activată manual."
+            "value": "%@ deschide discuri BitLocker și Linux, discuri de mașini virtuale și imagini de disc pe care macOS nu le poate deschide singur.\n\nCitirea unui disc la nivelul dispozitivului brut necesită Acces complet la disc. macOS nu oferă aplicațiilor nicio cale de a-l cere direct, așa că trebuie activat manual."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ odpira diske BitLocker in Linux, ki jih macOS sam ne zna prebrati. Najprej je potrebna ena nastavitev.\n\nBranje diska na ravni surove naprave zahteva Poln dostop do diska. Skrbniško geslo ne zadošča, dovoljenje za izmenljive nosilce pa se nanaša na datoteke na disku in ne na surovo napravo. macOS programom ne omogoča, da bi zanj zaprosili, zato ga je treba vklopiti ročno."
+            "value": "%@ odpira diske BitLocker in Linux, diske navideznih računalnikov ter slike diskov, ki jih macOS sam ne zna odpreti.\n\nBranje diska na ravni surove naprave zahteva Poln dostop do diska. macOS programom ne omogoča, da bi zanj zaprosili neposredno, zato ga je treba vklopiti ročno."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ öppnar BitLocker- och Linux-diskar som macOS inte kan läsa på egen hand. Först krävs en inställning.\n\nAtt läsa en disk på rå enhetsnivå kräver Full skivtillgång. Ett administratörslösenord räcker inte, och behörigheten för flyttbara enheter gäller filer på en disk och inte den råa enheten. macOS ger inte program något sätt att be om den, så den måste slås på för hand."
+            "value": "%@ öppnar BitLocker-, Linux- och virtuella maskiners diskar samt skivavbildningar som macOS inte kan öppna på egen hand.\n\nAtt läsa en disk på rå enhetsnivå kräver Full skivtillgång. macOS ger inte program något sätt att be om den direkt, så den måste slås på för hand."
           }
         }
       }
@@ -8105,132 +8105,132 @@
         }
       }
     },
-    "Click + there, select %@ in Applications, and switch it on.": {
+    "Click + at the bottom of the list, select %@ in Applications, and switch it on.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Щракнете + там, изберете %@ в Applications и включете го."
+            "value": "Щракнете + в долния край на списъка, изберете %@ в Applications и го включете."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klepněte tam na +, vyberte %@ ve složce Aplikace a zapněte jej."
+            "value": "Klepněte na + v dolní části seznamu, vyberte %@ ve složce Aplikace a zapněte jej."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klik på + der, vælg %@ i Programmer, og slå den til."
+            "value": "Klik på + nederst i listen, vælg %@ i Programmer, og slå den til."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klicke dort auf +, wähle %@ in „Programme“ und schalte es ein."
+            "value": "Klicke unten in der Liste auf +, wähle %@ in „Programme“ und schalte es ein."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Κάντε κλικ στο + εκεί, επιλέξτε το %@ στις Εφαρμογές και ενεργοποιήστε το."
+            "value": "Κάντε κλικ στο + στο κάτω μέρος της λίστας, επιλέξτε το %@ στις Εφαρμογές και ενεργοποιήστε το."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Haz clic en + ahí, selecciona %@ en Aplicaciones y actívalo."
+            "value": "Haz clic en + al final de la lista, selecciona %@ en Aplicaciones y actívalo."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klõpsa seal +, vali %@ kaustast Rakendused ja lülita see sisse."
+            "value": "Klõpsa loendi allservas +, vali %@ kaustast Rakendused ja lülita see sisse."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Osoita siellä +, valitse %@ Ohjelmat-kansiosta ja kytke se päälle."
+            "value": "Osoita luettelon alareunassa +, valitse %@ Ohjelmat-kansiosta ja kytke se päälle."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cliquez sur + à cet endroit, sélectionnez %@ dans Applications et activez-le."
+            "value": "Cliquez sur + en bas de la liste, sélectionnez %@ dans Applications et activez-le."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ondje kliknite +, odaberite %@ u mapi Aplikacije i uključite ga."
+            "value": "Kliknite + na dnu popisa, odaberite %@ u mapi Aplikacije i uključite ga."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kattintson ott a + gombra, válassza ki a(z) %@ alkalmazást az Alkalmazások mappában, és kapcsolja be."
+            "value": "Kattintson a lista alján a + gombra, válassza ki a(z) %@ alkalmazást az Alkalmazások mappában, és kapcsolja be."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fai clic su + lì, seleziona %@ in Applicazioni e attivalo."
+            "value": "Fai clic su + in fondo all’elenco, seleziona %@ in Applicazioni e attivalo."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ten spustelėkite +, aplanke „Programos“ pasirinkite „%@“ ir įjunkite."
+            "value": "Sąrašo apačioje spustelėkite +, aplanke „Programos“ pasirinkite „%@“ ir įjunkite."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tur noklikšķiniet uz +, mapē Programmas atlasiet %@ un ieslēdziet to."
+            "value": "Noklikšķiniet uz + saraksta apakšā, mapē Programmas atlasiet %@ un ieslēdziet to."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klikk på + der, velg %@ i Programmer, og slå den på."
+            "value": "Klikk på + nederst i listen, velg %@ i Programmer, og slå den på."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klik daar op +, selecteer %@ in Programma's en zet die aan."
+            "value": "Klik onder in de lijst op +, selecteer %@ in Programma's en zet die aan."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kliknij tam +, wybierz %@ w Programach i włącz go."
+            "value": "Kliknij + na dole listy, wybierz %@ w Programach i włącz go."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clique em + aí, selecione o %@ em Aplicações e ative-o."
+            "value": "Clique em + no fim da lista, selecione o %@ em Aplicações e ative-o."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Faceți clic pe + acolo, selectați %@ în Aplicații și activați-l."
+            "value": "Faceți clic pe + în partea de jos a listei, selectați %@ în Aplicații și activați-l."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tam kliknite +, izberite %@ v mapi Programi in ga vklopite."
+            "value": "Kliknite + na dnu seznama, izberite %@ v mapi Programi in ga vklopite."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klicka på + där, välj %@ i Program och slå på den."
+            "value": "Klicka på + längst ned i listan, välj %@ i Program och slå på den."
           }
         }
       }
@@ -8365,132 +8365,132 @@
         }
       }
     },
-    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": {
+    "Come back to this window and click Relaunch.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Върнете се тук и щракнете Рестартиране. Новото разрешение важи само за приложение, стартирано след даването му."
+            "value": "Върнете се в този прозорец и щракнете Рестартирай."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vraťte se sem a klepněte na Restartovat. Nové oprávnění platí jen pro aplikaci spuštěnou poté, co bylo uděleno."
+            "value": "Vraťte se do tohoto okna a klepněte na Spustit znovu."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kom tilbage hertil, og klik på Start igen. En ny tilladelse gælder kun for et program, der er startet, efter at den blev givet."
+            "value": "Kom tilbage til dette vindue, og klik på Start igen."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Komm hierher zurück und klicke auf „Neu starten“. Eine neue Berechtigung gilt nur für ein Programm, das danach gestartet wurde."
+            "value": "Komm zu diesem Fenster zurück und klicke auf „Neu starten“."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Επιστρέψτε εδώ και κάντε κλικ στην Επανεκκίνηση. Μια νέα άδεια ισχύει μόνο για εφαρμογή που ξεκίνησε αφού παραχωρήθηκε."
+            "value": "Επιστρέψτε σε αυτό το παράθυρο και κάντε κλικ στην Επανεκκίνηση."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vuelve aquí y haz clic en Reiniciar. Un permiso nuevo solo se aplica a una app iniciada después de concederlo."
+            "value": "Vuelve a esta ventana y haz clic en Reiniciar."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tule siia tagasi ja klõpsa „Käivita uuesti“. Uus luba kehtib ainult rakendusele, mis käivitati pärast selle andmist."
+            "value": "Tule tagasi sellesse aknasse ja klõpsa „Käivita uuesti“."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Palaa tänne ja osoita Käynnistä uudelleen. Uusi oikeus koskee vain ohjelmaa, joka on käynnistetty sen myöntämisen jälkeen."
+            "value": "Palaa tähän ikkunaan ja osoita Käynnistä uudelleen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Revenez ici et cliquez sur Relancer. Une nouvelle autorisation ne s’applique qu’à une app lancée après son octroi."
+            "value": "Revenez à cette fenêtre et cliquez sur Relancer."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vratite se ovamo i kliknite Ponovno pokreni. Novo dopuštenje vrijedi samo za aplikaciju pokrenutu nakon što je dodijeljeno."
+            "value": "Vratite se u ovaj prozor i kliknite Pokreni ponovno."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Térjen ide vissza, és kattintson az Újraindítás gombra. Az új engedély csak a megadása után indított alkalmazásra vonatkozik."
+            "value": "Térjen vissza ehhez az ablakhoz, és kattintson az Újraindítás gombra."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Torna qui e fai clic su Riavvia. Un nuovo permesso vale solo per un’app avviata dopo che è stato concesso."
+            "value": "Torna a questa finestra e fai clic su Riavvia."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Grįžkite čia ir spustelėkite „Paleisti iš naujo“. Naujas leidimas galioja tik programai, paleistai po jo suteikimo."
+            "value": "Grįžkite į šį langą ir spustelėkite „Paleisti iš naujo“."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Atgriezieties šeit un noklikšķiniet uz Restartēt. Jauna atļauja attiecas tikai uz programmu, kas palaista pēc tās piešķiršanas."
+            "value": "Atgriezieties šajā logā un noklikšķiniet uz Palaist no jauna."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kom tilbake hit og klikk Start på nytt. En ny tillatelse gjelder bare for et program som er startet etter at den ble gitt."
+            "value": "Kom tilbake til dette vinduet og klikk Start på nytt."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kom hier terug en klik op Opnieuw starten. Een nieuwe toestemming geldt alleen voor een programma dat daarna is gestart."
+            "value": "Kom terug naar dit venster en klik op Herstart."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wróć tutaj i kliknij Uruchom ponownie. Nowe uprawnienie dotyczy tylko programu uruchomionego po jego przyznaniu."
+            "value": "Wróć do tego okna i kliknij Uruchom ponownie."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Volte aqui e clique em Reiniciar. Uma permissão nova só se aplica a uma app iniciada depois de ter sido concedida."
+            "value": "Volte a esta janela e clique em Reiniciar."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reveniți aici și faceți clic pe Relansare. O permisiune nouă se aplică doar unei aplicații pornite după acordarea ei."
+            "value": "Reveniți la această fereastră și faceți clic pe Relansați."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vrnite se sem in kliknite Znova zaženi. Novo dovoljenje velja le za program, zagnan po tem, ko je bilo odobreno."
+            "value": "Vrnite se v to okno in kliknite Znova zaženi."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kom tillbaka hit och klicka på Starta om. En ny behörighet gäller bara för ett program som startats efter att den beviljades."
+            "value": "Kom tillbaka till det här fönstret och klicka på Starta om."
           }
         }
       }
@@ -13587,6 +13587,136 @@
         }
       }
     },
+    "Granted permission will only apply once the app is restarted.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дадено разрешение влиза в сила едва след рестартиране на приложението."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Udělené oprávnění se projeví až po restartu aplikace."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En given tilladelse træder først i kraft, når programmet er startet igen."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine erteilte Berechtigung gilt erst, wenn das Programm neu gestartet wurde."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Μια άδεια που παραχωρήθηκε ισχύει μόνο μετά την επανεκκίνηση της εφαρμογής."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un permiso concedido solo se aplica cuando se reinicia la app."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antud luba hakkab kehtima alles pärast rakenduse taaskäivitamist."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Myönnetty oikeus tulee voimaan vasta, kun ohjelma käynnistetään uudelleen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une autorisation accordée ne prend effet qu’après le redémarrage de l’app."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodijeljeno dopuštenje vrijedi tek nakon ponovnog pokretanja aplikacije."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A megadott engedély csak az alkalmazás újraindítása után lép életbe."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un permesso concesso vale solo dopo il riavvio dell’app."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suteiktas leidimas įsigalioja tik iš naujo paleidus programą."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piešķirtā atļauja stājas spēkā tikai pēc programmas atkārtotas palaišanas."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En gitt tillatelse gjelder først når programmet er startet på nytt."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een verleende toestemming geldt pas nadat het programma opnieuw is gestart."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przyznane uprawnienie działa dopiero po ponownym uruchomieniu programu."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma permissão concedida só se aplica depois de a aplicação ser reiniciada."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O permisiune acordată se aplică abia după repornirea aplicației."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odobreno dovoljenje začne veljati šele, ko program znova zaženete."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En beviljad behörighet gäller först när programmet startats om."
+          }
+        }
+      }
+    },
     "Handing the drive to Finder": {
       "localizations": {
         "bg": {
@@ -14363,6 +14493,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Så fungerar det"
+          }
+        }
+      }
+    },
+    "If it is already in the list, switch it on instead.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ако вече е в списъка, просто го включете."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokud už v seznamu je, stačí jej zapnout."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hvis den allerede står på listen, skal du bare slå den til."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steht es schon in der Liste, schalte es einfach ein."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αν βρίσκεται ήδη στη λίστα, απλώς ενεργοποιήστε το."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si ya está en la lista, basta con activarlo."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kui see on juba loendis, lülita see lihtsalt sisse."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jos se on jo luettelossa, kytke se vain päälle."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S’il figure déjà dans la liste, il suffit de l’activer."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ako je već na popisu, samo ga uključite."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ha már szerepel a listán, csak kapcsolja be."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se è già nell’elenco, basta attivarlo."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jei jau yra sąraše, tiesiog jį įjunkite."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ja tā jau ir sarakstā, vienkārši ieslēdziet to."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Står det allerede i listen, er det bare å slå det på."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Staat die er al in, zet die dan gewoon aan."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeśli jest już na liście, po prostu go włącz."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se já estiver na lista, basta ativá-lo."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dacă se află deja în listă, doar activați-l."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Če je že na seznamu, ga samo vklopite."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finns det redan i listan räcker det att slå på det."
           }
         }
       }
@@ -26919,6 +27179,266 @@
           "stringUnit": {
             "state": "translated",
             "value": "Det lösenordet eller den återställningsnyckeln låste inte upp enheten."
+          }
+        }
+      }
+    },
+    "The Full Disk Access list, with an app's switch marked.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Списъкът Full Disk Access с отбелязан превключвател на приложение."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seznam Plný přístup k disku s vyznačeným přepínačem aplikace."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listen Fuld adgang til disk med et programs kontakt markeret."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Liste „Festplattenvollzugriff“ mit markiertem Schalter eines Programms."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η λίστα «Πλήρης πρόσβαση στον δίσκο» με σημειωμένο τον διακόπτη μιας εφαρμογής."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La lista Acceso total al disco, con el conmutador de una app señalado."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Accessi loend, kus on märgitud rakenduse lüliti."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koko levyn käyttö -luettelo, jossa ohjelman kytkin on merkitty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La liste Accès complet au disque, avec le commutateur d’une app signalé."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Popis Puni pristup disku s označenim prekidačem aplikacije."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Teljes hozzáférés a lemezhez lista, egy alkalmazás megjelölt kapcsolójával."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’elenco Accesso completo al disco, con l’interruttore di un’app evidenziato."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access sąrašas su pažymėtu programos jungikliu."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access saraksts ar atzīmētu programmas slēdzi."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listen Full disktilgang med bryteren til et program markert."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De lijst Volledige schijftoegang, met de schakelaar van een programma gemarkeerd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lista Pełny dostęp do dysku z zaznaczonym przełącznikiem programu."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A lista Acesso completo ao disco, com o interruptor de uma aplicação assinalado."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lista Acces complet la disc, cu comutatorul unei aplicații marcat."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seznam Poln dostop do diska z označenim stikalom programa."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listan Full skivtillgång med ett programs reglage markerat."
+          }
+        }
+      }
+    },
+    "The Full Disk Access list, with the + button marked.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Списъкът Full Disk Access с отбелязан бутон +."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seznam Plný přístup k disku s vyznačeným tlačítkem +."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listen Fuld adgang til disk med +-knappen markeret."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Liste „Festplattenvollzugriff“ mit markierter Taste +."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η λίστα «Πλήρης πρόσβαση στον δίσκο» με σημειωμένο το κουμπί +."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La lista Acceso total al disco, con el botón + señalado."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Accessi loend, kus on märgitud nupp +."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koko levyn käyttö -luettelo, jossa +-painike on merkitty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La liste Accès complet au disque, avec le bouton + signalé."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Popis Puni pristup disku s označenim gumbom +."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Teljes hozzáférés a lemezhez lista, megjelölt + gombbal."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’elenco Accesso completo al disco, con il pulsante + evidenziato."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access sąrašas su pažymėtu mygtuku +."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access saraksts ar atzīmētu pogu +."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listen Full disktilgang med +-knappen markert."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De lijst Volledige schijftoegang, met de +-knop gemarkeerd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lista Pełny dostęp do dysku z zaznaczonym przyciskiem +."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A lista Acesso completo ao disco, com o botão + assinalado."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lista Acces complet la disc, cu butonul + marcat."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seznam Poln dostop do diska z označenim gumbom +."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listan Full skivtillgång med +-knappen markerad."
           }
         }
       }

@@ -137,6 +137,26 @@ print(f"  {len(langs)} languages, {len(catalogue)} strings")
 sys.exit(1 if short else 0)
 PY
 
+# 6. Every string the code shows is in the catalogue. Check 5 compares the
+#    catalogue with the translations, so a string that never reaches the
+#    catalogue is invisible to it: untranslatable, shipped in English, and
+#    reported as fully translated.
+printf 'Catalogue holds every string in the code…\n'
+/usr/bin/python3 - <<'CATALOGUE' || FAIL=1
+import importlib.util, json, subprocess, sys
+spec = importlib.util.spec_from_file_location("make_catalog", "scripts/make-catalog.py")
+make_catalog = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(make_catalog)          # main() is guarded, so nothing runs
+found = json.loads(subprocess.run([sys.executable, "scripts/extract-strings.py"],
+                                  capture_output=True, text=True).stdout)
+catalogue = json.load(open("resources/Localizable.xcstrings"))["strings"]
+missing = [k for k in found if k not in catalogue and k not in make_catalog.SKIP]
+for k in missing:
+    print(f"  MISSING  the code says it, the catalogue does not: {k[:52]}…")
+print(f"  {len(catalogue)} strings")
+sys.exit(1 if missing else 0)
+CATALOGUE
+
 printf '\n'
 if [ "$FAIL" = "1" ]; then
   printf 'Something is not covered. Add the missing check rather than the exception.\n'
