@@ -80,16 +80,6 @@ Keychain, reachable only while your Mac is unlocked and marked not to sync, so
 it does not reach iCloud or another device. It is never transmitted. Forgetting
 it in the app deletes the entry.
 
-## Files on Your Mac
-
-The Linux environment is unpacked to `~/.anylinuxfs` on first use, about 100
-MB. Anything else an unlock needs is created in a private temporary folder and
-removed when the app quits.
-
-Lukotta records the label of a drive you have opened so that it can name the
-drive correctly next time: a volume label and a partition identifier. Nothing
-about the contents is stored.
-
 ## Service Providers
 
 - **GitHub** hosts the website, the update feed, the source repository and the

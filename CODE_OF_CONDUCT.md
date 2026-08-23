@@ -4,9 +4,9 @@ This is a small project. The rule is: be decent to people.
 
 In practice that means assuming the other person is reasonable, saying what you
 mean without being unpleasant, and criticising work rather than the person who
-did it. Disagreement is fine and useful. Contempt is not.
+did it. Disagreement is fine and useful, but contempt is not.
 
-Not welcome here: harassment, insults directed at who someone is, unwelcome
+Not welcome here: harassment, personal insults, unwelcome
 personal attention, publishing someone's private information, or continuing to
 argue after an answer has been given.
 

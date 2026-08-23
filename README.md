@@ -30,7 +30,7 @@ macOS cannot read BitLocker or Linux filesystems; Linux can. Lukotta starts a
 small Linux virtual machine, unlocks the drive inside it, and hands the drive
 back to Finder.
 
-A disk image opens the same way, without an administrator password. The volume
+A disk image opens the same way. The volume
 appears in your home folder.
 
 ## What It Can Open
@@ -55,7 +55,7 @@ appears in your home folder.
 
 qcow2, VMDK, VDI and VHD are written as well as read, so files can be copied
 into a virtual machine's disk. Writing them is untested, and the screen that
-opens one says so. A VHDX is read and never written, as is the stream-optimized
+opens one provides a warning. A VHDX is read and never written, as is the stream-optimized
 VMDK an OVA carries; both open read-only.
 
 An exFAT image is handed to macOS, which reads and writes that format itself.
@@ -66,13 +66,12 @@ is written and what is not, and how each is read.
 > **Writing to qcow2, VMDK, VDI and VHD images is untested.** These drivers were
 > written for Lukotta and are checked against `qemu-img` when the engine is
 > built from source, but
-> they have not been in use long enough for anyone to call them proven. Writing
+> they have not been in use long enough for anyone to call them thoroughly tested. Writing
 > to an image is at your own risk: open it read-only to copy files out safely,
-> or make a backup first. Reading has been verified for far longer, and a VHDX
-> is never written at all.
+> or make a backup first.
 
 <details>
-<summary>What it cannot open</summary>
+<summary>What the App Cannot Open</summary>
 
 - Drives sealed to a TPM rather than a password, including Ubuntu's newer
   hardware-backed encryption
@@ -104,14 +103,14 @@ German · Greek · Hungarian · Italian · Latvian · Lithuanian ·
 Norwegian (Bokmål) · Polish · Portuguese (Portugal) · Romanian · Slovenian ·
 Spanish · Swedish
 
-If a translation reads wrongly, or you want a language that is not listed here,
+If a translation reads wrongly, or you would like a translation that is not listed here,
 write to [lukotta@rahula.dev][email] or to GitHub Issues. Corrections and
 requests are both welcome.
 
 ## Installing
 
 Download Lukotta from [Releases][releases], drag it to Applications, and open
-it. It is signed and notarised, so it opens with a double-click.
+it. It is signed and notarised.
 
 ## Permissions
 
@@ -119,32 +118,21 @@ it. It is signed and notarised, so it opens with a double-click.
   without it. It cannot be requested, so it has to be switched on by hand
 - **Removable volumes**: requested by macOS the first time a drive is read
 - **Administrator password**: asked for once when the background helper is set
-  up, then not again. Lukotta never sees it
+  up. Lukotta never sees it
 
-> [!IMPORTANT]
-> Full Disk Access is the one macOS will not prompt for. Lukotta explains it on
-> first run and opens the right page of System Settings.
-
-## Using It
+## Using the App
 
 Plug in the drive and pick it from the list. Type the password or paste the
 recovery key. It appears in Finder under Locations.
 
 For a disk image, choose **File → Open Disk Image…**, or **File → Open Drive…**
-to see every disk attached to this Mac and what Lukotta can do with each. A
-drive or an image with nothing encrypted on it asks nothing but how to open it.
-
-Beside **Open** and **Unlock** is the same button read-only. Nothing is written
-to a drive opened that way, not even by macOS, and the list marks the row. A
-drive that refuses to be written to is opened read-only rather than left closed,
-and says so.
+to see every disk attached to this Mac and what Lukotta can do with each.
 
 Eject it from Lukotta, from the menu bar, or from Finder.
 
-Lukotta can also put back what was open after a restart. Switch on **Open drives
+Lukotta can also auto-mount what was open after a restart. Switch on **Open drives
 again after restarting** at the top of Settings: it then opens in the background
-when you log in and mounts the drives and images that were open, as they were,
-read-only ones included. A drive that needs a password comes back only if the
+when you log in and mounts the drives and images that were open, as they were. A drive that needs a password comes back only if the
 password is saved in your Keychain, and anything that is not connected is simply
 passed over. It is off until you turn it on.
 
