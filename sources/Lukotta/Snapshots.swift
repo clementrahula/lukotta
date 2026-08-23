@@ -364,7 +364,17 @@ enum Snapshots {
     private static func render(_ view: some View, appearance: NSAppearance?, size: NSSize) -> Data?
     {
         let frame = NSRect(origin: .zero, size: size)
-        let hosting = NSHostingView(rootView: AnyView(view))
+        // Which way round the interface goes is a property of the language the
+        // run was given. AppKit works it out once an application has finished
+        // launching, and a snapshot process never does: without this every
+        // language draws left to right, including the two the mirroring exists
+        // for, and the baselines would show Arabic in a Latin layout.
+        let language = Locale.preferredLanguages.first ?? "en"
+        let direction: LayoutDirection =
+            Locale.Language(identifier: language).characterDirection == .rightToLeft
+            ? .rightToLeft : .leftToRight
+        let hosting = NSHostingView(
+            rootView: AnyView(view.environment(\.layoutDirection, direction)))
         hosting.frame = frame
         let window = OffScreenWindow(
             contentRect: frame, styleMask: [.borderless], backing: .buffered, defer: false)

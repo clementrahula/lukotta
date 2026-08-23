@@ -20,7 +20,8 @@ FAIL=0
 note() { printf '  %s\n' "$1"; }
 bad() { printf '  MISSING  %s\n' "$1"; FAIL=1; }
 
-# 1. Every screen has baselines, in both languages and both sizes.
+# 1. Every screen has baselines: English at both sizes in both appearances, and
+#    one picture in each of the four languages that stress a layout differently.
 printf 'Screens with baselines…\n'
 # From inside scenes() only: the geometries and the appearances are pairs of
 # the same shape further down the file.
@@ -35,12 +36,13 @@ print("\n".join(sorted(set(re.findall(r"\(\s*\n?\s*\"([a-z0-9-]+)\",", body)))))
 ')
 for scene in $scenes; do
   missing=""
-  for lang in "" "de-"; do
-    for size in ideal min; do
-      for mode in light dark; do
-        [ -f "tests/snapshots/${lang}${scene}-${size}-${mode}.png" ] || missing="yes"
-      done
+  for size in ideal min; do
+    for mode in light dark; do
+      [ -f "tests/snapshots/${scene}-${size}-${mode}.png" ] || missing="yes"
     done
+  done
+  for lang in de ar ja hi; do
+    [ -f "tests/snapshots/${lang}-${scene}-ideal-light.png" ] || missing="yes"
   done
   [ -n "$missing" ] && bad "no baselines for the \"$scene\" screen"
 done

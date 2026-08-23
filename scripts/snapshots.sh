@@ -41,20 +41,29 @@ OUT="$(mktemp -d)"
 trap 'rm -rf "$OUT"' EXIT
 "$BINARY" --snapshots "$OUT" >/dev/null
 
-# German as well as English. macOS ignores dynamicTypeSize, so the way text
-# outgrowing its room actually shows up here is a translation: German runs a
-# third longer than English and compounds rather than wrapping. Anything that
-# survives it survives the other twenty.
-GERMAN="$OUT/de"
-mkdir -p "$GERMAN"
-"$BINARY" --snapshots "$GERMAN" -AppleLanguages "(de)" >/dev/null
-for f in "$GERMAN"/*.png; do mv "$f" "$OUT/de-$(basename "$f")"; done
-rmdir "$GERMAN"
+# Four languages besides English, each for something it does to a layout that
+# the others do not. German runs a third longer and compounds rather than
+# wrapping; Arabic turns the interface round; Japanese breaks lines anywhere and
+# has no spaces to break at; Hindi stacks marks above and below and is the
+# tallest line in the app. Thirty-six languages cannot each have baselines, and
+# these four fail in the four ways there are to fail.
+#
+# One picture each, at the size the window opens and in the light appearance.
+# English keeps all four combinations, being the one the wording is written in.
+for lang in de ar ja hi; do
+  DIR="$OUT/$lang"
+  mkdir -p "$DIR"
+  "$BINARY" --snapshots "$DIR" -AppleLanguages "($lang)" >/dev/null
+  find "$DIR" -name '*.png' ! -name '*-ideal-light.png' -delete
+  for f in "$DIR"/*.png; do mv "$f" "$OUT/$lang-$(basename "$f")"; done
+  rmdir "$DIR"
+done
 
 if [ "${1:-}" = "--record" ]; then
-  # One screen is eight baselines: two languages, two sizes, two appearances.
-  # More than two screens' worth means the change was not to a screen but to
-  # something every screen has -- a window size, the header, a shared control.
+  # One screen is eight baselines: English at two sizes in two appearances, and
+  # one picture each in the four other languages. More than two screens' worth
+  # means the change was not to a screen but to something every screen has --
+  # a window size, the header, a shared control.
   # That is a real answer sometimes, and it is never an accidental one, so it
   # has to be asked for.
   SPREAD=16
