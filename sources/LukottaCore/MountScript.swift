@@ -431,7 +431,7 @@ public enum MountScript {
             \(multiVolume(i, engineQ: engineQ, logQ: logQ, listQ: listQ, scratch: scratch))
               fi
               if \(mountedCheck); then
-                echo "\(volumesMarker)$(/sbin/mount | grep -cF \(shellQuoted(":" + scratch + "/"))):$__count" >> \(logQ)
+                echo "\(volumesMarker)$(__new_mounts | grep -c .):$__count" >> \(logQ)
               else
                 __opened=0
                 for __lv in $__lvs; do

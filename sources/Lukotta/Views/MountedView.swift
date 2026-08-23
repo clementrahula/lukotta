@@ -79,7 +79,7 @@ struct MountedView: View {
 
             InfoBox(
                 text:
-                    "The drive appears in the Finder sidebar under Locations.\nEject it here or in Finder before unplugging it."
+                    "The drive appears in the Finder sidebar under Locations.\nEject it in Finder before unplugging it."
             )
 
             if let notice = model.notice {
@@ -95,16 +95,20 @@ struct MountedView: View {
             }
 
             Spacer()
+            // The drive is open: what somebody came here to do is look at it.
+            // Ejecting is not on this screen at all -- Finder ejects a volume,
+            // the list here does, and so does the menu bar; a button offering
+            // to undo the thing that has just succeeded is not the one to put
+            // under the pointer.
             HStack {
                 Button("All Drives") { model.showAllDrives() }
-                Button("Show in Finder") { model.revealInFinder(mountPoint) }
                 Spacer()
                 if model.isEjecting {
                     ProgressView().controlSize(.small)
                         .accessibilityHidden(true)
                     Text("Ejecting…").font(.caption).foregroundStyle(.secondary)
                 } else {
-                    Button("Eject") { model.eject(mountPoint) }
+                    Button("Show in Finder") { model.revealInFinder(mountPoint) }
                         .keyboardShortcut(.defaultAction)
                 }
             }

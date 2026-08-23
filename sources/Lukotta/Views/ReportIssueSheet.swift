@@ -156,9 +156,12 @@ struct ReportIssueSheet: View {
                 Diagnostics.recentLog()
             }.value
             recentLog = text
+            // Opened from a failure, the box starts with what went wrong.
+            // Editable: it is the reader's report, not the app's.
+            if problem.isEmpty, let summary = model.reportableSummary { problem = summary }
             fixedPart = Diagnostics.report(
                 environment: environment,
-                engineOutput: model.statusLines.joined(separator: "\n"),
+                engineOutput: model.reportableOutput,
                 crashReport: crashes.first,
                 recentLog: text)
         }

@@ -1037,11 +1037,36 @@ final class AppModel: ObservableObject {
             return
         }
 
+        // Coming from anywhere but the list -- Back on the failure screen is
+        // the way here -- there is no list to hold up while the sector is
+        // read, and both the reading below and its own fallback replace the
+        // list and nothing else. Waiting there left the failure on screen and
+        // Back doing nothing at all.
+        if case .chooseDrive = phase {} else { phase = .unlock(drive) }
+
         guard canReadFirstSector(of: drive) else {
             phase = .unlock(drive)
             return
         }
         identify(drive)
+    }
+
+    /// What a report should carry as the engine's output.
+    ///
+    /// A failure on screen is what the reader is reporting, and the running
+    /// status lines are cleared by then, so a report sent from there arrived
+    /// describing the environment and nothing that happened.
+    var reportableOutput: String {
+        if case .failed(_, let summary, let detail) = phase {
+            return ([summary] + [detail].compactMap { $0 }).joined(separator: "\n\n")
+        }
+        return statusLines.joined(separator: "\n")
+    }
+
+    /// The failure on screen, for a report's description to start from.
+    var reportableSummary: String? {
+        if case .failed(_, let summary, _) = phase { return summary }
+        return nil
     }
 
     /// Whether the first sector of this drive can be read before deciding.

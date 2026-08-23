@@ -303,8 +303,8 @@ group("multiVolumeServing") {
         script.contains("'/Users/u/.anylinuxfs/config.toml'"),
         "the action is merged into the engine's config")
     expect(
-        script.contains("LUKOTTA_VOLUMES:$(/sbin/mount"),
-        "a combined mount reports how many volumes actually appeared")
+        script.contains("LUKOTTA_VOLUMES:$(__new_mounts | grep -c .)"),
+        "a combined mount counts the mounts that were not there before")
     expect(script.contains("\"lvm:$__lv\""), "the one-at-a-time fallback is still present")
     // Volumes that are not mountable filesystems would fail the combined mount.
     // Its after_mount stops at the first failure, so a half-served drive cannot
@@ -763,6 +763,28 @@ group("secretRedaction") {
         environment: env, problem: "tried \(key)",
         engineOutput: "passphrase: \(key)")
     expect(!report.contains("121121"), "the assembled report carries no key")
+}
+
+group("theMountScriptIsValidShell") {
+    // The script is generated, handed to a privileged helper and run there. A
+    // shell that cannot parse it exits 2 before anything happens, which the app
+    // reports as a drive that would not open.
+    let dir = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appendingPathComponent("lukotta-script-check", isDirectory: true)
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    for (name, script) in [
+        ("write, microsoft", MountScript.build(sampleInputs(kind: .microsoft, readOnly: false))),
+        ("read-only, microsoft", MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))),
+        ("write, linux", MountScript.build(sampleInputs(kind: .linux, readOnly: false))),
+        ("read-only, linux", MountScript.build(sampleInputs(kind: .linux, readOnly: true))),
+    ] {
+        let file = dir.appendingPathComponent("check.sh")
+        try? script.write(to: file, atomically: true, encoding: .utf8)
+        let out = run("/bin/sh", ["-n", file.path])
+        expect(out?.status == 0, "\(name): the shell parses it")
+        if out?.status != 0 { print("      \(out?.combined ?? "")") }
+    }
+    try? FileManager.default.removeItem(at: dir)
 }
 
 group("aLaunchNobodyAskedForIsTheOnlyOneWithoutAWindow") {
