@@ -1084,6 +1084,9 @@ final class AppModel: ObservableObject {
     /// Set only to a value worth stating. A drive whose first sector cannot be
     /// read, or is read as something unrecognised, leaves this nil and the
     /// screen unchanged.
+    /// Whether this mount waits for macOS to authorise it, which only the
+    /// route without the helper does. The step list is drawn from it.
+    @Published var mountAsksApproval = false
     @Published var chosenFormat: VolumeFormat?
     /// What a probe made of each drive it has read, by drive identifier. The
     /// list says what a volume may be until this says what it is.
@@ -1478,12 +1481,14 @@ final class AppModel: ObservableObject {
             || engineReadDrives[drive.id] != nil
         {
             Log.mount.notice("opening a container file without any privilege")
+            mountAsksApproval = false
             runMountAsThisUser(drive: drive, credential: credential, workspace: ws)
             return
         }
 
         // With the helper approved, this needs no password at all. Without it,
         // fall back to asking macOS to authorise a single command.
+        mountAsksApproval = !helper.isReady
         if helper.isReady {
             appendStatus("Using the background helper — no password needed")
             let aliasPath = (try? ws.makeDeviceAlias(named: drive.name, target: drive.devicePath))?

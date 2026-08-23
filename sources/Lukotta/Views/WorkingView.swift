@@ -42,7 +42,7 @@ struct WorkingView: View {
                 }
             } else {
                 VStack(alignment: .leading, spacing: 11) {
-                    ForEach(MountStage.allCases, id: \.rawValue) { s in
+                    ForEach(MountStage.shown(askingApproval: model.mountAsksApproval), id: \.rawValue) { s in
                         StageRow(stage: s, current: stage)
                     }
                 }

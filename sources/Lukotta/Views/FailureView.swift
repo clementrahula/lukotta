@@ -41,17 +41,12 @@ struct FailureView: View {
 
                     if let stopped = model.failedStage {
                         VStack(alignment: .leading, spacing: 11) {
-                            ForEach(MountStage.allCases, id: \.rawValue) { s in
+                            ForEach(MountStage.shown(askingApproval: model.mountAsksApproval), id: \.rawValue) { s in
                                 StageRow(stage: s, current: stopped, stopped: true)
                             }
                         }
                         .padding(.leading, 2)
                     }
-
-                    InfoBox(
-                        text:
-                            "Nothing was written to it. A failed unlock cannot damage the data it holds."
-                    )
 
                     if let detail, !detail.isEmpty {
                         DisclosureGroup("Details", isExpanded: $showDetail) {

@@ -16837,136 +16837,6 @@
         }
       }
     },
-    "Nothing was written to it. A failed unlock cannot damage the data it holds.": {
-      "localizations": {
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Върху него не е записано нищо. Неуспешно отключване не може да повреди данните на диска."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nic se na něj nezapsalo. Neúspěšné odemknutí nemůže poškodit data, která jsou na něm."
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Der blev ikke skrevet noget til den. En mislykket oplåsning kan ikke skade de data, den indeholder."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Es wurde nichts darauf geschrieben. Ein fehlgeschlagenes Entsperren kann den Daten darauf nichts anhaben."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Δεν γράφτηκε τίποτα σε αυτόν. Ένα ξεκλείδωμα που απέτυχε δεν μπορεί να βλάψει τα δεδομένα που έχει."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No se escribió nada en él. Un desbloqueo fallido no puede dañar los datos que contiene."
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sinna ei kirjutatud midagi. Ebaõnnestunud avamine ei saa kettal olevaid andmeid kahjustada."
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sille ei kirjoitettu mitään. Epäonnistunut avaaminen ei voi vahingoittaa sen sisältämiä tietoja."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rien n’y a été écrit. Un déverrouillage qui échoue ne peut pas endommager les données qu’il contient."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Na njega nije ništa zapisano. Neuspjelo otključavanje ne može oštetiti podatke koje sadrži."
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Semmi nem íródott rá. A sikertelen feloldás nem tehet kárt a rajta lévő adatokban."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Non vi è stato scritto nulla. Uno sblocco fallito non può danneggiare i dati che contiene."
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Į jį nieko neįrašyta. Nepavykęs atrakinimas negali sugadinti jame esančių duomenų."
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tajā nekas netika ierakstīts. Neizdevusies atbloķēšana nevar sabojāt tajā esošos datus."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ingenting ble skrevet til den. En mislykket opplåsing kan ikke skade dataene den inneholder."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Er is niets naar geschreven. Een mislukte ontgrendeling kan de gegevens erop niet beschadigen."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nic na nim nie zapisano. Nieudane odblokowanie nie może uszkodzić danych, które się na nim znajdują."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Não lhe foi escrito nada. Um desbloqueio falhado não pode danificar os dados que contém."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nu s-a scris nimic pe el. O deblocare eșuată nu poate deteriora datele pe care le conține."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nanj ni bilo nič zapisano. Neuspelo odklepanje ne more poškodovati podatkov na njem."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ingenting skrevs till den. En misslyckad upplåsning kan inte skada de data den innehåller."
-          }
-        }
-      }
-    },
     "OK": {
       "localizations": {
         "bg": {
@@ -26663,132 +26533,132 @@
         }
       }
     },
-    "The drive appears in the Finder sidebar under Locations.\nEject it here or in Finder before unplugging it.": {
+    "The drive appears in the Finder sidebar under Locations.\nEject it in Finder before unplugging it.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Дискът се появява в страничната лента на Finder в раздела „Locations“.\nИзвадете го тук или във Finder, преди да го изключите."
+            "value": "Дискът се появява в страничната лента на Finder в раздела „Locations“.\nИзвадете го във Finder, преди да го изключите."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disk se zobrazí v postranním panelu Finderu v části „Místa“.\nNež jej odpojíte, vysuňte jej zde nebo ve Finderu."
+            "value": "Disk se zobrazí v postranním panelu Finderu v části „Místa“.\nNež jej odpojíte, vysuňte jej ve Finderu."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enheden vises i Finders indholdsoversigt under “Placeringer”.\nSkub den ud her eller i Finder, før du frakobler den."
+            "value": "Enheden vises i Finders indholdsoversigt under “Placeringer”.\nSkub den ud i Finder, før du frakobler den."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Laufwerk erscheint in der Finder-Seitenleiste unter „Orte“.\nWirf es hier oder im Finder aus, bevor du es abziehst."
+            "value": "Das Laufwerk erscheint in der Finder-Seitenleiste unter „Orte“.\nWirf es im Finder aus, bevor du es abziehst."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ο δίσκος εμφανίζεται στην πλαϊνή στήλη του Finder, στην ενότητα «Τοποθεσίες».\nΚάντε εξαγωγή εδώ ή στο Finder πριν τον αποσυνδέσετε."
+            "value": "Ο δίσκος εμφανίζεται στην πλαϊνή στήλη του Finder, στην ενότητα «Τοποθεσίες».\nΚάντε εξαγωγή στο Finder πριν τον αποσυνδέσετε."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El disco aparece en la barra lateral del Finder, en «Ubicaciones».\nExpúlsalo aquí o en el Finder antes de desconectarlo."
+            "value": "El disco aparece en la barra lateral del Finder, en «Ubicaciones».\nExpúlsalo en el Finder antes de desconectarlo."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ketas ilmub Finderi külgribale jaotisse „Locations“.\nVäljuta see siin või Finderis, enne kui selle lahti ühendad."
+            "value": "Ketas ilmub Finderi külgribale jaotisse „Locations“.\nVäljuta see Finderis, enne kui selle lahti ühendad."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Asema näkyy Finderin sivupalkissa kohdassa ”Sijainnit”.\nPoista se käytöstä täällä tai Finderissa ennen irrottamista."
+            "value": "Asema näkyy Finderin sivupalkissa kohdassa ”Sijainnit”.\nPoista se käytöstä Finderissa ennen irrottamista."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le disque apparaît dans la barre latérale du Finder, sous « Emplacements ».\nÉjectez-le ici ou dans le Finder avant de le débrancher."
+            "value": "Le disque apparaît dans la barre latérale du Finder, sous « Emplacements ».\nÉjectez-le dans le Finder avant de le débrancher."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disk se pojavljuje u rubnom stupcu Findera pod „Lokacije”.\nIzbacite ga ovdje ili u Finderu prije odspajanja."
+            "value": "Disk se pojavljuje u rubnom stupcu Findera pod „Lokacije”.\nIzbacite ga u Finderu prije odspajanja."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A meghajtó a Finder oldalsávján, a „Helyek” alatt jelenik meg.\nLeválasztás előtt adja ki itt vagy a Finderben."
+            "value": "A meghajtó a Finder oldalsávján, a „Helyek” alatt jelenik meg.\nLeválasztás előtt adja ki a Finderben."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il disco appare nella barra laterale del Finder, sotto «Posizioni».\nEspellilo qui o nel Finder prima di scollegarlo."
+            "value": "Il disco appare nella barra laterale del Finder, sotto «Posizioni».\nEspellilo nel Finder prima di scollegarlo."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diskas rodomas „Finder“ šoninėje juostoje skiltyje „Locations“.\nIšstumkite jį čia arba „Finder“ programoje prieš atjungdami."
+            "value": "Diskas rodomas „Finder“ šoninėje juostoje skiltyje „Locations“.\nIšstumkite jį „Finder“ programoje prieš atjungdami."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disks parādās programmas Finder sānjoslā sadaļā “Locations”.\nIzstumiet to šeit vai programmā Finder, pirms to atvienojat."
+            "value": "Disks parādās programmas Finder sānjoslā sadaļā “Locations”.\nIzstumiet to programmā Finder, pirms to atvienojat."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enheten vises i sidepanelet i Finder under «Plasseringer».\nMat den ut her eller i Finder før du kobler den fra."
+            "value": "Enheten vises i sidepanelet i Finder under «Plasseringer».\nMat den ut i Finder før du kobler den fra."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "De schijf verschijnt in de navigatiekolom van de Finder onder ‘Locaties’.\nVerwijder die hier of in de Finder voordat je de schijf loskoppelt."
+            "value": "De schijf verschijnt in de navigatiekolom van de Finder onder ‘Locaties’.\nVerwijder die in de Finder voordat je de schijf loskoppelt."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dysk pojawia się na pasku bocznym Findera w sekcji „Miejsca”.\nWysuń go tutaj albo w Finderze, zanim go odłączysz."
+            "value": "Dysk pojawia się na pasku bocznym Findera w sekcji „Miejsca”.\nWysuń go w Finderze, zanim go odłączysz."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O disco aparece na barra lateral do Finder, em «Locais».\nEjete-o aqui ou no Finder antes de o desligar."
+            "value": "O disco aparece na barra lateral do Finder, em «Locais».\nEjete-o no Finder antes de o desligar."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Discul apare în bara laterală Finder, la „Amplasamente”.\nEjectați-l aici sau în Finder înainte de a-l deconecta."
+            "value": "Discul apare în bara laterală Finder, la „Amplasamente”.\nEjectați-l în Finder înainte de a-l deconecta."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pogon se prikaže v stranski vrstici Finderja pod »Lokacije«.\nPreden ga odklopite, ga izvrzite tukaj ali v Finderju."
+            "value": "Pogon se prikaže v stranski vrstici Finderja pod »Lokacije«.\nPreden ga odklopite, ga izvrzite v Finderju."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enheten visas i Finders sidofält under ”Platser”.\nMata ut den här eller i Finder innan du kopplar bort den."
+            "value": "Enheten visas i Finders sidofält under ”Platser”.\nMata ut den i Finder innan du kopplar bort den."
           }
         }
       }

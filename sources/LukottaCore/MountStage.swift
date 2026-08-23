@@ -7,6 +7,17 @@ import Foundation
 public enum MountStage: Int, CaseIterable, Sendable {
     case preparing, authorising, working, finishing
 
+    /// The steps a particular mount actually goes through.
+    ///
+    /// Only one route waits for anything: the one that asks macOS to authorise
+    /// a single command. With the helper registered, or with a container file
+    /// this user attached, nothing is asked for and nothing waits -- a step
+    /// that appears, is marked done in the same instant, and can only be read
+    /// as something the reader failed to do.
+    public static func shown(askingApproval: Bool) -> [MountStage] {
+        askingApproval ? allCases : allCases.filter { $0 != .authorising }
+    }
+
     /// Shown as the step list, so it is looked up rather than returned as
     /// written: Text(String) prints what it is given.
     public var title: String {
