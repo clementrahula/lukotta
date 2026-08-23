@@ -180,5 +180,18 @@ fi
 printf '\nArchive : %s\n' "$ZIP"
 printf 'Appcast : %s\n' "$APPCAST"
 printf 'Download: %s/%s\n' "$BASE_URL" "$(basename "$ZIP")"
-printf '\nCommit the appcast to the updates repository so it is served at\n'
-printf '  %s\n' "$(/usr/libexec/PlistBuddy -c 'Print SUFeedURL' "$APP/Contents/Info.plist")"
+# The feed is served from its own repository — GitHub Pages gives one site one
+# custom domain, and the project's website has the other. Point LUKOTTA_APPCAST
+# at a checkout of it and the appcast and notes are written straight in, ready
+# to commit; without it they land in dist/ and have to be copied across.
+FEED_URL="$(/usr/libexec/PlistBuddy -c 'Print SUFeedURL' "$APP/Contents/Info.plist")"
+if [ -d "$(dirname "$APPCAST")/.git" ]; then
+  printf '\nCommit and push %s so it is served at\n' "$(dirname "$APPCAST")"
+  printf '  %s\n' "$FEED_URL"
+else
+  printf '\nCopy the appcast and dist/notes into the feed repository\n'
+  printf '  git clone https://github.com/clementrahula/lukotta-appcast\n'
+  printf '  LUKOTTA_APPCAST=<that checkout>/appcast.xml %s\n' "$0"
+  printf 'so they are served at\n'
+  printf '  %s\n' "$FEED_URL"
+fi

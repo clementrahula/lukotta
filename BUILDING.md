@@ -220,6 +220,20 @@ Notarisation needs the Mac unlocked. The credential lives in the Local Items
 keychain, which locks with the session, and a locked one is reported as a
 credential that does not exist. `./scripts/notary-status.sh` says which it is.
 
+The feed itself lives in its own repository,
+[lukotta-appcast](https://github.com/clementrahula/lukotta-appcast), served by
+GitHub Pages at `lukotta-updates.rahula.dev` — one Pages site takes one custom
+domain, and `lukotta.rahula.dev` is the website's. Point `LUKOTTA_APPCAST` at a
+checkout of it and the release writes the appcast and the notes straight in:
+
+```bash
+git clone https://github.com/clementrahula/lukotta-appcast ../lukotta-appcast
+LUKOTTA_APPCAST=../lukotta-appcast/appcast.xml LUKOTTA_PUBLISH=1 ./scripts/release.sh
+```
+
+Then commit and push that checkout. Without it the appcast and notes are left in
+`dist/` to be copied across by hand.
+
 Updates from earlier versions are built when there is something to compare
 against: put the archives of previous releases in `dist/previous`, or point
 `LUKOTTA_PREVIOUS` at a directory of them. Sparkle then sends somebody on an
