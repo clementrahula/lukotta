@@ -64,15 +64,15 @@ enum EndToEnd {
             if FileManager.default.fileExists(atPath: plain.path) {
                 print("")
                 print("qcow2, unencrypted: \(plain.lastPathComponent)")
-                qcow2Flow(image: plain, passphrase: nil)
+                engineReadFlow(image: plain, passphrase: nil)
             }
             if FileManager.default.fileExists(atPath: encrypted.path) {
                 print("")
                 print("qcow2, encrypted: \(encrypted.lastPathComponent)")
                 if EnginePaths.opensEncryptionInsideImages {
-                    qcow2Flow(image: encrypted, passphrase: passphrase)
+                    engineReadFlow(image: encrypted, passphrase: passphrase)
                 } else {
-                    qcow2RefusedFlow(image: encrypted)
+                    engineReadRefusedFlow(image: encrypted)
                 }
             }
         }
@@ -83,7 +83,7 @@ enum EndToEnd {
             if FileManager.default.fileExists(atPath: vmdk.path) {
                 print("")
                 print("VMDK: \(vmdk.lastPathComponent)")
-                qcow2Flow(image: vmdk, passphrase: nil)
+                engineReadFlow(image: vmdk, passphrase: nil)
             }
             if FileManager.default.fileExists(atPath: reaching.path) {
                 print("")
@@ -98,7 +98,7 @@ enum EndToEnd {
             if FileManager.default.fileExists(atPath: fixed.path) {
                 print("")
                 print("fixed VHD: \(fixed.lastPathComponent)")
-                qcow2Flow(image: fixed, passphrase: nil)
+                engineReadFlow(image: fixed, passphrase: nil)
             }
             if FileManager.default.fileExists(atPath: dynamic.path) {
                 print("")
@@ -106,7 +106,7 @@ enum EndToEnd {
                 // Read by the engine's VHD driver. A build without it must say
                 // so rather than serve the header as a disk.
                 if EnginePaths.opensVdiAndVhd {
-                    qcow2Flow(image: dynamic, passphrase: nil)
+                    engineReadFlow(image: dynamic, passphrase: nil)
                 } else {
                     refusedByNameFlow(image: dynamic, saying: "dynamic VHD")
                 }
@@ -121,7 +121,7 @@ enum EndToEnd {
                 print("")
                 print("VHDX: \(vhdx.lastPathComponent)")
                 if EnginePaths.opensVdiAndVhd {
-                    qcow2Flow(image: vhdx, passphrase: nil)
+                    engineReadFlow(image: vhdx, passphrase: nil)
                 } else {
                     refusedByNameFlow(image: vhdx, saying: "VHDX")
                 }
@@ -145,7 +145,7 @@ enum EndToEnd {
                 print("")
                 print("sparse VMDK: \(sparse.lastPathComponent)")
                 if EnginePaths.opensSparseVmdk {
-                    qcow2Flow(image: sparse, passphrase: nil)
+                    engineReadFlow(image: sparse, passphrase: nil)
                 } else {
                     refusedByNameFlow(image: sparse, saying: "sparse VMDK")
                 }
@@ -154,7 +154,7 @@ enum EndToEnd {
                 print("")
                 print("a VMDK whose grains are deflated: \(streamed.lastPathComponent)")
                 if EnginePaths.opensSparseVmdk {
-                    qcow2Flow(image: streamed, passphrase: nil)
+                    engineReadFlow(image: streamed, passphrase: nil)
                 } else {
                     refusedByNameFlow(image: streamed, saying: "sparse VMDK")
                 }
@@ -168,7 +168,7 @@ enum EndToEnd {
                 print("")
                 print("VDI: \(vdi.lastPathComponent)")
                 if EnginePaths.opensVdiAndVhd {
-                    qcow2Flow(image: vdi, passphrase: nil)
+                    engineReadFlow(image: vdi, passphrase: nil)
                 } else {
                     refusedByNameFlow(image: vdi, saying: "VDI")
                 }
@@ -941,7 +941,7 @@ enum EndToEnd {
     /// qcow2. It must report that at once rather than failing three screens
     /// later with a message about filesystems.
     @MainActor
-    private static func qcow2RefusedFlow(image: URL) {
+    private static func engineReadRefusedFlow(image: URL) {
         let model = AppModel()
         model.start()
         guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
@@ -966,7 +966,7 @@ enum EndToEnd {
     }
 
     @MainActor
-    private static func qcow2Flow(image: URL, passphrase: String?) {
+    private static func engineReadFlow(image: URL, passphrase: String?) {
         let model = AppModel()
         model.start()
         guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {

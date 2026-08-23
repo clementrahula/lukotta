@@ -235,7 +235,7 @@ final class AppModel: ObservableObject {
 
     /// Container files the engine reads itself, by drive id. Nothing is
     /// attached for these, so nothing is detached: closing one is forgetting it.
-    private var qcow2Drives: [String: Drive] = [:]
+    private var engineReadDrives: [String: Drive] = [:]
 
     /// Which container each opened image is, by drive id.
     ///
@@ -257,7 +257,7 @@ final class AppModel: ObservableObject {
     private func reconcileImages(_ found: [Drive]) -> [Drive] {
         // Nothing is attached for a qcow2, so nothing reports whether it is
         // still present. It stays listed until it is ejected.
-        let engineRead = qcow2Drives.values.filter { drive in
+        let engineRead = engineReadDrives.values.filter { drive in
             !found.contains { $0.uuid == drive.uuid }
         }
         // Asked about the containers held at this moment rather than a set
@@ -348,7 +348,7 @@ final class AppModel: ObservableObject {
                 Log.drives.notice(
                     "image read by the engine: \(container.rawValue, privacy: .public) holding \(format.rawValue, privacy: .public)"
                 )
-                self.qcow2Drives[drive.id] = drive
+                self.engineReadDrives[drive.id] = drive
                 self.drives.append(drive)
                 self.imageOpening = nil
                 self.knownFormat = format
@@ -539,8 +539,8 @@ final class AppModel: ObservableObject {
     /// Forget a container the engine read for itself. There is no device to
     /// detach; closing it means no longer listing it.
     private func forgetEngineRead(_ paths: [String]) {
-        let gone = qcow2Drives.filter { paths.contains($0.value.devicePath) }.map(\.key)
-        for id in gone { qcow2Drives[id] = nil }
+        let gone = engineReadDrives.filter { paths.contains($0.value.devicePath) }.map(\.key)
+        for id in gone { engineReadDrives[id] = nil }
         if !gone.isEmpty {
             drives.removeAll { gone.contains($0.id) }
             Log.drives.notice("closed \(gone.count, privacy: .public) engine-read containers")
@@ -710,16 +710,7 @@ final class AppModel: ObservableObject {
         // Plugged in again, it is one to open again.
         space = space.filter { !points.contains($0.key) }
         volumeCount = volumeCount.filter { !points.contains($0.key) }
-        if let first = names.first {
-            notice =
-                names.count > 1
-                ? appString(
-                    "\(names.count) drives had stopped responding and were disconnected. You can open them again."
-                )
-                : appString(
-                    "“\(first)” had stopped responding and was disconnected. You can open it again."
-                )
-        }
+        if let sentence = stoppedRespondingNotice(names) { notice = sentence }
         if openMounts.isEmpty, case .mounted = phase { phase = .chooseDrive }
         refreshSpace()
     }
@@ -738,6 +729,34 @@ final class AppModel: ObservableObject {
     /// is worth interrupting for, the alternative being a screen offering to
     /// unlock something no longer attached, or reporting a drive as open after
     /// it was pulled out from under the mount.
+    /// Take the result of a scan and make it what the interface shows.
+    ///
+    /// The three callers differ in what they do afterwards, not in this: the
+    /// list, the generation that tells a waiting test a scan was applied, the
+    /// open mounts, and the space they have left.
+    private func applyScan(_ found: [Drive], mounts: [EngineMount]) -> [Drive] {
+        let listed = reconcileImages(found)
+        drives = listed
+        scanGeneration += 1
+        openMounts = Dictionary(
+            mounts.map { ($0.devicePath, $0.mountPoint) },
+            uniquingKeysWith: { first, _ in first })
+        refreshSpace()
+        return listed
+    }
+
+    /// What to say when mounts went away without anybody ejecting them.
+    private func stoppedRespondingNotice(_ names: [String]) -> String? {
+        guard let first = names.first else { return nil }
+        return names.count > 1
+            ? appString(
+                "\(names.count) drives had stopped responding and were disconnected. You can open them again."
+            )
+            : appString(
+                "“\(first)” had stopped responding and was disconnected. You can open it again."
+            )
+    }
+
     private func driveSetChanged() {
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
@@ -755,12 +774,7 @@ final class AppModel: ObservableObject {
                         !listed.contains { $0.devicePath == drive.devicePath }
                     } ?? false
 
-                self.drives = listed
-                self.scanGeneration += 1
-                self.openMounts = Dictionary(
-                    mounts.map { ($0.devicePath, $0.mountPoint) },
-                    uniquingKeysWith: { first, _ in first })
-                self.refreshSpace()
+                _ = self.applyScan(found, mounts: mounts)
                 // A drive that was open before the restart, plugged in now.
                 self.restoreRememberedMounts()
 
@@ -847,21 +861,9 @@ final class AppModel: ObservableObject {
             let mounts = EngineStatus.current()
             let found = DriveScanner.scan(images: images)
             await MainActor.run {
-                self.drives = self.reconcileImages(found)
-                if let name = abandoned.first.map({ URL(fileURLWithPath: $0).lastPathComponent }) {
-                    self.notice =
-                        abandoned.count > 1
-                        ? appString(
-                            "\(abandoned.count) drives had stopped responding and were disconnected. You can open them again."
-                        )
-                        : appString(
-                            "“\(name)” had stopped responding and was disconnected. You can open it again."
-                        )
-                }
-                self.openMounts = Dictionary(
-                    mounts.map { ($0.devicePath, $0.mountPoint) },
-                    uniquingKeysWith: { first, _ in first })
-                self.refreshSpace()
+                _ = self.applyScan(found, mounts: mounts)
+                let names = abandoned.map { URL(fileURLWithPath: $0).lastPathComponent }
+                if let sentence = self.stoppedRespondingNotice(names) { self.notice = sentence }
                 // Always the list, even when a drive is already open. The list
                 // shows it as open and offers to eject it, whereas opening
                 // straight into one drive hides the others.
@@ -951,11 +953,7 @@ final class AppModel: ObservableObject {
             let mounts = EngineStatus.current()
             let found = DriveScanner.scan(images: images)
             await MainActor.run {
-                self.drives = self.reconcileImages(found)
-                self.openMounts = Dictionary(
-                    mounts.map { ($0.devicePath, $0.mountPoint) },
-                    uniquingKeysWith: { first, _ in first })
-                self.refreshSpace()
+                _ = self.applyScan(found, mounts: mounts)
                 self.phase = .chooseDrive
             }
         }
@@ -1026,7 +1024,7 @@ final class AppModel: ObservableObject {
         //
         // The engine has already looked inside a qcow2. No sector read here
         // sees past the container's mapping, so its answer stands.
-        if let known = knownFormat, qcow2Drives[drive.id] != nil {
+        if let known = knownFormat, engineReadDrives[drive.id] != nil {
             knownFormat = nil
             chosenFormat = known == .unknown ? nil : known
             // The same screen whatever it holds. An encrypted one asks for the
@@ -1041,7 +1039,7 @@ final class AppModel: ObservableObject {
             phase = .unlock(drive)
             return
         }
-        identify(drive, thenShowUnlockFor: drive)
+        identify(drive)
     }
 
     /// Whether the first sector of this drive can be read before deciding.
@@ -1083,7 +1081,7 @@ final class AppModel: ObservableObject {
     /// only way to find out has been to type a password and watch it fail.
     /// Linux partitions are left alone, LUKS announcing itself in its own header
     /// and the engine's probe already reporting it.
-    private func identify(_ drive: Drive, thenShowUnlockFor pending: Drive?) {
+    private func identify(_ drive: Drive) {
         let devicePath = drive.devicePath
         let identifier = drive.id
         let ours = openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil
@@ -1091,12 +1089,10 @@ final class AppModel: ObservableObject {
         // A slow reading, from a helper that has gone away or a drive that will
         // not answer, must still leave the click with an effect. Asking for the
         // passphrase is the fallback.
-        if let pending {
-            Task { [weak self] in
-                try? await Task.sleep(nanoseconds: 1_500_000_000)
-                guard let self, self.chosenFormat == nil else { return }
-                if case .chooseDrive = self.phase { self.phase = .unlock(pending) }
-            }
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            guard let self, self.chosenFormat == nil else { return }
+            if case .chooseDrive = self.phase { self.phase = .unlock(drive) }
         }
 
         Task { [weak self] in
@@ -1113,8 +1109,8 @@ final class AppModel: ObservableObject {
             // Answering about a drive nobody is looking at would put a sentence
             // about one drive under the name of another.
             let stillWanted: Bool
-            if let pending, case .chooseDrive = self.phase {
-                stillWanted = pending.id == identifier
+            if case .chooseDrive = self.phase {
+                stillWanted = drive.id == identifier
             } else if case .unlock(let current) = self.phase {
                 stillWanted = current.id == identifier
             } else {
@@ -1143,7 +1139,7 @@ final class AppModel: ObservableObject {
                 // passphrase field, since there is no passphrase.
                 Log.mount.notice("nothing is encrypted, asking how to open it")
                 self.phase = .unlock(drive)
-            } else if pending != nil {
+            } else {
                 // It needs a passphrase, so the screen that asks for one.
                 self.phase = .unlock(drive)
             }
@@ -1186,7 +1182,7 @@ final class AppModel: ObservableObject {
             MountMemory.Entry(
                 uuid: drive.uuid,
                 imagePath: openedImages[DriveScanner.wholeDisk(of: drive.id)]?.path
-                    ?? qcow2Drives[drive.id].map { _ in drive.uuid },
+                    ?? engineReadDrives[drive.id].map { _ in drive.uuid },
                 volumeIdentifier: nil,
                 readOnly: readOnly,
                 name: drive.name))
@@ -1276,7 +1272,7 @@ final class AppModel: ObservableObject {
         case .failure:
             return nil
         case .qcow2(let drive, let format, let container):
-            qcow2Drives[drive.id] = drive
+            engineReadDrives[drive.id] = drive
             drives.append(drive)
             knownFormat = format
             containerFormats[drive.id] = container
@@ -1423,7 +1419,7 @@ final class AppModel: ObservableObject {
         // involved. The drive mounts under ~/Volumes rather than /Volumes,
         // which is the one visible difference.
         if openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil
-            || qcow2Drives[drive.id] != nil
+            || engineReadDrives[drive.id] != nil
         {
             Log.mount.notice("opening a container file without any privilege")
             runMountAsThisUser(drive: drive, credential: credential, workspace: ws)
