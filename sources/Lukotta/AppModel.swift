@@ -607,6 +607,15 @@ final class AppModel: ObservableObject {
     }
 
     private var workspace: Workspace?
+    /// The workspaces earlier mounts were given.
+    ///
+    /// A mount that has been given up on can still have work of its own in
+    /// flight, holding the workspace it was started with, so the folder cannot
+    /// be removed the moment the next mount replaces it. Keeping them here
+    /// means quitting removes all of them; before, quitting removed the last
+    /// one and left the rest in the temporary folder until macOS got round to
+    /// it, each holding that mount's log.
+    private var pastWorkspaces: [Workspace] = []
 
     /// Watches for drives arriving and leaving while the app is open.
     private lazy var watcher = DiskWatcher { [weak self] in
@@ -1398,6 +1407,7 @@ final class AppModel: ObservableObject {
             fail(drive, "Could not create a private working folder.", "\(error)")
             return
         }
+        if let previous = workspace { pastWorkspaces.append(previous) }
         workspace = ws
 
         // A container file needs no privilege at all: this user attached it, so
@@ -1785,6 +1795,8 @@ final class AppModel: ObservableObject {
     func cleanUp() {
         workspace?.destroy()
         workspace = nil
+        for past in pastWorkspaces { past.destroy() }
+        pastWorkspaces = []
         EngineConfig.removeGeneratedAction()
     }
 }
