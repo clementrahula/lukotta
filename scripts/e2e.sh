@@ -133,10 +133,12 @@ fi
 # through a separate path.
 VMDK_SPARSE="$CACHE/sparse.vmdk"
 [ -f "$VMDK_SPARSE" ] || "$HERE/scripts/make-vmdk-sparse.py" "$PLAIN" "$VMDK_SPARSE" >/dev/null
-# The streamed form, whose grains are deflated: written by qemu-img, which is
-# the only thing here that writes one. Kept in the cache rather than built, and
-# skipped when it is not there.
+# The streamed form, whose grains are deflated and carry a marker each, and
+# whose grain directory is at the end because it is written in one pass. Built
+# here too, so the read path for it is exercised on any Mac rather than only
+# where qemu-img happens to be installed.
 VMDK_STREAMED="$CACHE/streamed.vmdk"
+[ -f "$VMDK_STREAMED" ] || "$HERE/scripts/make-vmdk-streamed.py" "$PLAIN" "$VMDK_STREAMED" >/dev/null
 
 # A VHDX: two headers, a region table, a metadata region and an allocation
 # table. Also two that must be refused: one whose log was not

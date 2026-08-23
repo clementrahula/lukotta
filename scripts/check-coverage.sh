@@ -57,11 +57,37 @@ note "$(printf '%s\n' "$rules" | wc -l | tr -d ' ') rules"
 # 3. Every image format the app claims is opened by the end-to-end run. The
 #    claim is in the format table in SPECS.md; the proof is in e2e.sh's
 #    fixtures.
+#
+#    Mentioning the name is not enough — a comment satisfied that, and one
+#    format was "covered" for weeks by a line explaining why it was not built.
+#    The fixture has to be given a variable, and that variable has to reach the
+#    run. Whether the run then opens it is the run's own business: it fails on
+#    a fixture that is not there.
 printf 'Formats with an end-to-end fixture…\n'
-for fixture in plain.img plain.qcow2 container.qcow2 plain.vmdk sparse.vmdk streamed.vmdk \
-  plain.vhd dynamic.vhd plain.vdi plain.vhdx exfat.img container.img; do
-  grep -q "$fixture" scripts/e2e.sh || bad "the end-to-end run builds no $fixture"
-done
+/usr/bin/python3 - <<'PY' || FAIL=1
+import re
+import sys
+
+FIXTURES = [
+    "plain.img", "plain.qcow2", "container.qcow2", "plain.vmdk", "sparse.vmdk",
+    "streamed.vmdk", "plain.vhd", "dynamic.vhd", "plain.vdi", "plain.vhdx",
+    "exfat.img", "container.img",
+]
+text = open("scripts/e2e.sh").read()
+run = [line for line in text.splitlines() if "--e2e" in line and "$BINARY" in line]
+missing = []
+for fixture in FIXTURES:
+    named = re.findall(r'^([A-Z_]+)="[^"]*/' + re.escape(fixture) + '"', text, re.M)
+    if not named:
+        missing.append(f"the end-to-end run builds no {fixture}")
+        continue
+    if not any(f"${name}" in line for name in named for line in run):
+        missing.append(f"{fixture} is built and never handed to the run")
+for line in missing:
+    print(f"  MISSING  {line}")
+print(f"  {len(FIXTURES)} formats")
+sys.exit(1 if missing else 0)
+PY
 
 # 4. Every phase of the interface is drawn by some screen. A phase nobody
 #    renders is a screen nobody has looked at since it was written.

@@ -64,7 +64,8 @@ is written and what is not, and how each is read.
 
 > [!WARNING]
 > **Writing to qcow2, VMDK, VDI and VHD images is untested.** These drivers were
-> written for Lukotta and are checked against `qemu-img` on every build, but
+> written for Lukotta and are checked against `qemu-img` when the engine is
+> built from source, but
 > they have not been in use long enough for anyone to call them proven. Writing
 > to an image is at your own risk: open it read-only to copy files out safely,
 > or make a backup first. Reading has been verified for far longer, and a VHDX

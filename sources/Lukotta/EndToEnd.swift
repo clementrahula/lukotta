@@ -35,6 +35,15 @@ enum EndToEnd {
             exit(2)
         }
 
+        // Every fixture this was handed has to be there. Each flow below opens
+        // its file only if it exists, so one that was never built was skipped
+        // in silence and the run still finished by saying everything passed.
+        for (index, path) in arguments.enumerated() where index != 1 {
+            check(
+                FileManager.default.fileExists(atPath: path),
+                "the fixture \(URL(fileURLWithPath: path).lastPathComponent) was built")
+        }
+
         print("every disk on this Mac")
         surveyFlow()
 
