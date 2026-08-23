@@ -295,18 +295,13 @@ extension DiskImage {
 
     /// "/dev/disk5s1 on /Volumes/EXFATTEST (exfat, local, ...)"
     public static func mountPoint(ofDisk identifier: String, in table: String) -> String? {
-        for line in table.components(separatedBy: .newlines) {
-            guard line.hasPrefix("/dev/") else { continue }
-            let device = String(line.prefix(while: { !$0.isWhitespace }).dropFirst(5))
+        MountTableEntry.all(in: table).first { entry in
+            guard entry.source.hasPrefix("/dev/") else { return false }
+            let device = String(entry.source.dropFirst(5))
             // The disk itself or one of its partitions, and not disk50 when
             // asked about disk5.
-            guard device == identifier || device.hasPrefix(identifier + "s") else { continue }
-            guard let on = line.range(of: " on "),
-                let paren = line.range(of: " (", range: on.upperBound..<line.endIndex)
-            else { continue }
-            return String(line[on.upperBound..<paren.lowerBound])
-        }
-        return nil
+            return device == identifier || device.hasPrefix(identifier + "s")
+        }?.mountPoint
     }
 
     @discardableResult

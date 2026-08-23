@@ -81,6 +81,45 @@ public func run(
     return CommandOutput(status: process.terminationStatus, out: output, err: errors)
 }
 
+/// One line of `mount` output, taken apart once.
+///
+/// Every line has the same shape — `source on point (options)` — and five
+/// places used to find `" on "` and `" ("` for themselves. They differ in which
+/// lines they keep, not in how a line is read.
+public struct MountTableEntry: Sendable {
+    /// What is mounted: a device, an image's path, or one of the engine's own
+    /// `lvm:`/`raid:` identifiers.
+    public let source: String
+    public let mountPoint: String
+    /// What stands between the brackets, `nfs, nodev, nosuid` and the rest.
+    public let options: String
+
+    /// Nil for a line that is not a mount: the header, a blank, anything else
+    /// the table may grow.
+    public init?(line: String) {
+        guard let on = line.range(of: " on "),
+            let open = line.range(of: " (", range: on.upperBound..<line.endIndex)
+        else { return nil }
+        source = String(line[line.startIndex..<on.lowerBound])
+            .trimmingCharacters(in: .whitespaces)
+        mountPoint = String(line[on.upperBound..<open.lowerBound])
+            .trimmingCharacters(in: .whitespaces)
+        let rest = line[open.upperBound...]
+        options = String(rest.prefix(while: { $0 != ")" }))
+    }
+
+    /// Whether this is an NFS mount, which is how every mount the engine makes
+    /// arrives on this Mac.
+    public var isNFS: Bool { options.hasPrefix("nfs") }
+}
+
+extension MountTableEntry {
+    /// Every line of a table that is a mount.
+    public static func all(in table: String) -> [MountTableEntry] {
+        table.components(separatedBy: .newlines).compactMap(MountTableEntry.init(line:))
+    }
+}
+
 /// The mount table as `mount` prints it.
 ///
 /// Three files kept their own copy of this call. What each does with the table

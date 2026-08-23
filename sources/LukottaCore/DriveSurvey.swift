@@ -147,14 +147,8 @@ public enum DriveSurvey {
 
     /// "/dev/disk5s1 on /Volumes/NAME (…)"
     public static func mountPoint(of identifier: String, in table: String) -> String? {
-        for line in table.components(separatedBy: .newlines) {
-            guard line.hasPrefix("/dev/" + identifier + " ") else { continue }
-            guard let on = line.range(of: " on "),
-                let paren = line.range(of: " (", range: on.upperBound..<line.endIndex)
-            else { continue }
-            return String(line[on.upperBound..<paren.lowerBound])
-        }
-        return nil
+        MountTableEntry.all(in: table)
+            .first { $0.source == "/dev/" + identifier }?.mountPoint
     }
 }
 

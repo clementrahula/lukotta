@@ -413,6 +413,32 @@ group("engineConfigCleanup") {
     "a config without the section is untouched")
 }
 
+group("aLineOfTheMountTable") {
+    // Five readers of this table used to find " on " and " (" for themselves.
+    let line =
+        "disk4s1.local:/mnt/BACKUP on /Volumes/BACKUP (nfs, nodev, nosuid, mounted by someone)"
+    guard let entry = MountTableEntry(line: line) else {
+        return expect(false, "an ordinary line is read")
+    }
+    expect(entry.source, "disk4s1.local:/mnt/BACKUP", "the source is what precedes \" on \"")
+    expect(entry.mountPoint, "/Volumes/BACKUP", "the mount point is what follows it")
+    expect(entry.options, "nfs, nodev, nosuid, mounted by someone", "the options are the brackets")
+    expect(entry.isNFS, "an nfs mount says so")
+
+    // A mount point with spaces in it, which Finder allows and this must not
+    // truncate.
+    guard let spaced = MountTableEntry(line: "/dev/disk9s2 on /Volumes/My Backup (ntfs3, local)")
+    else { return expect(false, "a name with spaces is read") }
+    expect(spaced.mountPoint, "/Volumes/My Backup", "spaces in a name survive")
+    expect(!spaced.isNFS, "and a local filesystem is not nfs")
+
+    expect(MountTableEntry(line: "") == nil, "a blank line is not a mount")
+    expect(MountTableEntry(line: "nothing to see here") == nil, "nor is anything else")
+    expect(
+        "\(MountTableEntry.all(in: line + "\n\n" + line).count)", "2",
+        "blank lines are skipped when reading a whole table")
+}
+
 group("nestedVolumeMounts") {
 
     // The engine's status reports only the primary mount of a multi-volume

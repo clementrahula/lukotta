@@ -23,24 +23,15 @@ public enum EngineStatus {
 
     /// "/dev/disk4s1 on /Volumes/BACKUP (ntfs3, ...) VM[cpus: 4, ram: 2048 MiB]"
     public static func parse(_ text: String) -> [EngineMount] {
-        var mounts: [EngineMount] = []
-        for line in text.components(separatedBy: .newlines) {
-            guard let onRange = line.range(of: " on "),
-                let parenRange = line.range(of: " (", range: onRange.upperBound..<line.endIndex)
-            else { continue }
-            let dev = String(line[line.startIndex..<onRange.lowerBound])
-                .trimmingCharacters(in: .whitespaces)
-            let mp = String(line[onRange.upperBound..<parenRange.lowerBound])
-                .trimmingCharacters(in: .whitespaces)
-            // Any absolute source, not only /dev/ — the engine also mounts disk
-            // images — and the lvm:/raid: identifiers it uses for volumes inside
-            // a container. A mount it reports is a mount worth resuming.
-            guard dev.hasPrefix("/") || dev.hasPrefix("lvm:") || dev.hasPrefix("raid:"),
-                mp.hasPrefix("/")
-            else { continue }
-            mounts.append(EngineMount(devicePath: dev, mountPoint: mp))
-        }
-        return mounts
+        // Any absolute source, not only /dev/ — the engine also mounts disk
+        // images — and the lvm:/raid: identifiers it uses for volumes inside a
+        // container. A mount it reports is a mount worth resuming.
+        MountTableEntry.all(in: text)
+            .filter { entry in
+                (entry.source.hasPrefix("/") || entry.source.hasPrefix("lvm:")
+                    || entry.source.hasPrefix("raid:")) && entry.mountPoint.hasPrefix("/")
+            }
+            .map { EngineMount(devicePath: $0.source, mountPoint: $0.mountPoint) }
     }
 
     /// Mount points macOS still shows for a microVM that is no longer running.
@@ -71,18 +62,12 @@ public enum EngineStatus {
     /// themselves is never touched: the engine exports under /mnt, and
     /// Lukotta's multi-volume action exports under /run.
     public static func engineMountPoints(in text: String) -> [String] {
-        var found: [String] = []
-        for line in text.components(separatedBy: .newlines) {
-            guard line.contains("(nfs"),
-                line.contains(":/mnt/") || line.contains(":/run/"),
-                let onRange = line.range(of: " on "),
-                let parenRange = line.range(of: " (", range: onRange.upperBound..<line.endIndex)
-            else { continue }
-            let mp = String(line[onRange.upperBound..<parenRange.lowerBound])
-                .trimmingCharacters(in: .whitespaces)
-            if mp.hasPrefix("/") { found.append(mp) }
-        }
-        return found
+        MountTableEntry.all(in: text)
+            .filter { entry in
+                entry.isNFS && entry.mountPoint.hasPrefix("/")
+                    && (entry.source.contains(":/mnt/") || entry.source.contains(":/run/"))
+            }
+            .map(\.mountPoint)
     }
 
     /// NFS mounts nested under a drive's mount point — one per logical volume
@@ -96,17 +81,9 @@ public enum EngineStatus {
     /// "server:/run/T7/HOME on /Volumes/T7/HOME (nfs, ...)"
     public static func nestedVolumes(under mountPoint: String, in mountText: String) -> [String] {
         let prefix = mountPoint.hasSuffix("/") ? mountPoint : mountPoint + "/"
-        var found: [String] = []
-        for line in mountText.components(separatedBy: .newlines) {
-            guard let onRange = line.range(of: " on "),
-                let parenRange = line.range(of: " (", range: onRange.upperBound..<line.endIndex),
-                line[parenRange.upperBound...].hasPrefix("nfs")
-            else { continue }
-            let mp = String(line[onRange.upperBound..<parenRange.lowerBound])
-                .trimmingCharacters(in: .whitespaces)
-            if mp.hasPrefix(prefix) { found.append(mp) }
-        }
-        return found
+        return MountTableEntry.all(in: mountText)
+            .filter { $0.isNFS && $0.mountPoint.hasPrefix(prefix) }
+            .map(\.mountPoint)
     }
 
     /// Detach a mount whose server is already gone. The ordinary unmount asks
