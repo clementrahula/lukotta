@@ -88,9 +88,9 @@ string catalogue by `scripts/make-catalog.py`. `./scripts/lint.sh` fails when a
 language is short of a string, so a half-finished translation cannot ship
 quietly.
 
-Corrections are as welcome as new languages, and better tested: if a phrase
-reads badly to you as a native speaker, it reads badly. Say so in an issue if
-you would rather not send a patch.
+Corrections are as welcome as new languages. If a phrase reads badly to you as
+a native speaker, it reads badly — say so in an issue if you would rather not
+send a patch.
 
 The English is the source. If a string is awkward in English, fix that first —
 twenty-one translations of a bad sentence is twenty-one problems.
