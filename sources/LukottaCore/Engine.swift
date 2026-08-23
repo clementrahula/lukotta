@@ -339,17 +339,24 @@ public enum Permissions {
     /// a password, instead of failing afterwards.
     public static var hasFullDiskAccess: Bool {
         let home = FileManager.default.homeDirectoryForCurrentUser
-        for rel in [
-            "Library/Application Support/com.apple.TCC/TCC.db",
-            "Library/Safari/CloudTabs.db",
+        for path in [
+            home.appendingPathComponent("Library/Application Support/com.apple.TCC/TCC.db").path,
+            home.appendingPathComponent("Library/Safari/CloudTabs.db").path,
+            // The system's own, which every macOS install has whether or not
+            // this account has ever been asked for a permission. Without it,
+            // an account with neither of the two above — a fresh one, or one
+            // that has never opened Safari — had nothing to probe, and access
+            // was assumed granted: the permission screen was skipped and the
+            // first mount failed instead of the app saying so beforehand.
+            "/Library/Application Support/com.apple.TCC/TCC.db",
         ] {
-            let path = home.appendingPathComponent(rel).path
             guard FileManager.default.fileExists(atPath: path) else { continue }
             guard let fh = FileHandle(forReadingAtPath: path) else { return false }
             try? fh.close()
             return true
         }
-        // Nothing to probe with: do not block on a guess.
+        // Nothing to probe with at all, which means macOS has changed where it
+        // keeps these. Do not block on a guess.
         return true
     }
 
@@ -402,6 +409,17 @@ public enum Permissions {
         }
         defer { sqlite3_close(handle) }
 
+        // The shape of this database is nobody's documented interface, and it
+        // has changed before: the column was called allowed until macOS 10.15.
+        // Renamed again, the query below would fail and read as "not granted"
+        // rather than as "cannot tell", and the app would go on asking for a
+        // permission that had already been given. So the columns are checked
+        // first, and anything unexpected is reported as not knowing.
+        guard hasTheExpectedShape(handle) else {
+            Log.app.notice("the TCC database is not the shape this expects; not reading it")
+            return nil
+        }
+
         let sql = """
             select auth_value from access
             where service = 'kTCCServiceSystemPolicyRemovableVolumes' and client = ?
@@ -414,6 +432,22 @@ public enum Permissions {
 
         guard sqlite3_step(statement) == SQLITE_ROW else { return nil }
         return sqlite3_column_int(statement, 0) == 2
+    }
+
+    /// Whether the access table still has the three columns this reads.
+    private static func hasTheExpectedShape(_ handle: OpaquePointer) -> Bool {
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(handle, "pragma table_info(access)", -1, &statement, nil)
+                == SQLITE_OK
+        else { return false }
+        defer { sqlite3_finalize(statement) }
+        var columns: Set<String> = []
+        while sqlite3_step(statement) == SQLITE_ROW {
+            if let name = sqlite3_column_text(statement, 1) {
+                columns.insert(String(cString: name))
+            }
+        }
+        return columns.isSuperset(of: ["service", "client", "auth_value"])
     }
 
     public static func openFullDiskAccessSettings() {
