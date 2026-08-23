@@ -262,6 +262,19 @@ space at the end. Nothing is written into the new space: it lies past where the
 file ended, so it already reads as zeroes. A fixed VHD, a static VDI and a flat
 VMDK need none of this, every byte of the disk already being in the file.
 
+What that survives is the writer stopping: the app quit, the virtual machine
+killed, the engine crashed. It is ordering within the process, not a barrier
+through to the drive — the driver marks each ordering point with a flush, and a
+flush on a plain file has nothing of its own to write out. What macOS has
+already accepted and not yet written it may still write in any order.
+
+Durability across a power cut comes from the guest instead, and does arrive: a
+filesystem inside the virtual machine issues its own barriers, each one reaching
+the block device as a flush request, and the device answers a flush request by
+syncing the file. So an ext4 or NTFS journal is as durable here as it is on a
+real disk, and the same caveat applies as on a real disk — what was written
+since the last barrier is what a power cut can take.
+
 ### How it is checked
 
 `qemu-img` is the oracle. QEMU has written these formats for many years, so
