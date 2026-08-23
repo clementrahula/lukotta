@@ -27,7 +27,7 @@ LITERAL = re.compile(r'"((?:[^"\\]|\\.)*)"')
 BLOCK = re.compile(r'"""\n(.*?)\n\s*"""', re.S)
 CALL = re.compile(
     r'(?:Text|Button|Label|Toggle|Picker|appString|Bullet)\s*\(\s*"'
-    r'|(?:text|title|message|actionTitle):\s*"'
+    r'|(?:text|note|title|message|actionTitle):\s*"'
     r'|\.(?:help|accessibilityLabel|accessibilityHint|accessibilityValue)\s*\(\s*"'
     r'|localized:\s*"'
     r'|(?:checkboxWithTitle|withTitle):\s*"'
