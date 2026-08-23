@@ -373,6 +373,8 @@
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "A(z) „%1$@” egy másik fájlra hivatkozik ezen a Macen, amely vele együtt nyílna meg. A(z) %2$@ nem nyit meg olyan lemezképeket, amelyek más fájlokat neveznek meg.",
     "“%@” was disconnected.": "A(z) „%@” le lett választva.",
     "“%@” was not opened": "A(z) „%@” nem lett megnyitva",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "A(z) „%@” nem állt le rendesen, és a legutóbbi tartalma nem került vissza a fájlba. Nyissa meg egyszer abban a virtuális gépben, amelyhez tartozik, majd próbálja újra."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "A(z) „%@” nem állt le rendesen, és a legutóbbi tartalma nem került vissza a fájlba. Nyissa meg egyszer abban a virtuális gépben, amelyhez tartozik, majd próbálja újra.",
+    "Open an Issue": "Hibajegy megnyitása",
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "A GitHubon nyitott hibajegyekre hamarabb érkezik válasz. Küldje inkább e-mailben, ha olyasmit tartalmaz, amit inkább nem hozna nyilvánosságra."
   }
 }

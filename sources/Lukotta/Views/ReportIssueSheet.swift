@@ -104,6 +104,17 @@ struct ReportIssueSheet: View {
             }
 
             Divider()
+            Text(
+                """
+                An issue on GitHub is answered sooner. Send it by email instead \
+                if it carries anything you would rather not publish.
+                """
+            )
+            .font(.caption).foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 22).padding(.top, 12)
+
             HStack {
                 Button(copied ? "Copied" : "Copy Details") {
                     NSPasteboard.general.clearContents()
@@ -111,6 +122,17 @@ struct ReportIssueSheet: View {
                     copied = true
                 }
                 Spacer()
+                // The report goes on the clipboard either way, so whichever of
+                // these is pressed, there is something to paste.
+                Button("Open an Issue") {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(reportText, forType: .string)
+                    copied = true
+                    if let url = URL(string: Diagnostics.newIssueURL) {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+                .keyboardShortcut(.defaultAction)
                 Button("Open Email") {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(reportText, forType: .string)
@@ -121,7 +143,6 @@ struct ReportIssueSheet: View {
                         NSWorkspace.shared.open(url)
                     }
                 }
-                .keyboardShortcut(.defaultAction)
             }
             .padding(.horizontal, 22).padding(.vertical, 14)
         }

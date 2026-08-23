@@ -373,6 +373,8 @@
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "”%1$@” viittaa toiseen tiedostoon tässä Macissa, joka avattaisiin sen mukana. %2$@ ei avaa levytiedostoja, jotka nimeävät muita tiedostoja.",
     "“%@” was disconnected.": "”%@” irrotettiin.",
     "“%@” was not opened": "”%@” ei avautunut",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "”%@” ei sammunut siististi, eikä sen viimeisintä sisältöä ole kirjoitettu takaisin tiedostoon. Avaa se kerran siinä virtuaalikoneessa, johon se kuuluu, ja yritä sitten uudelleen."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "”%@” ei sammunut siististi, eikä sen viimeisintä sisältöä ole kirjoitettu takaisin tiedostoon. Avaa se kerran siinä virtuaalikoneessa, johon se kuuluu, ja yritä sitten uudelleen.",
+    "Open an Issue": "Avaa ilmoitus",
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "GitHubiin tehtyihin ilmoituksiin vastataan nopeammin. Lähetä se sähköpostilla, jos siinä on jotain, jota et halua julkaista."
   }
 }

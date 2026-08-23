@@ -9,6 +9,14 @@ import OSLog
 /// ~/Library/Logs/DiagnosticReports as an .ips file, so the app can offer it
 /// directly on the next launch.
 public enum Diagnostics {
+    /// Where a report is best sent: a public issue, with the templates.
+    ///
+    /// One person reads the email, and reads it when they get to it. An issue
+    /// is seen sooner, and the next person with the same drive finds the answer
+    /// instead of writing the same message again.
+    public static let newIssueURL =
+        "https://github.com/clementrahula/lukotta/issues/new/choose"
+
 
     public struct Environment: Sendable {
         public var appVersion: String

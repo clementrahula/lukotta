@@ -389,6 +389,8 @@
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "»%1$@« se sklicuje na drugo datoteko v tem Macu, ki bi se odprla skupaj z njo. %2$@ ne odpira slik, ki imenujejo druge datoteke.",
     "“%@” was disconnected.": "»%@« je bil odklopljen.",
     "“%@” was not opened": "»%@« ni bil odprt",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "»%@« ni bil pravilno zaustavljen in njegova najnovejša vsebina ni bila zapisana nazaj v datoteko. Odprite ga enkrat v navideznem računalniku, ki mu pripada, in poskusite znova."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "»%@« ni bil pravilno zaustavljen in njegova najnovejša vsebina ni bila zapisana nazaj v datoteko. Odprite ga enkrat v navideznem računalniku, ki mu pripada, in poskusite znova.",
+    "Open an Issue": "Odpri prijavo",
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Na prijave na GitHubu odgovor pride prej. Pošljite jo po e-pošti, če vsebuje kaj, česar raje ne objavite."
   }
 }

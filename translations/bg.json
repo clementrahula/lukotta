@@ -373,6 +373,8 @@
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "„%1$@“ сочи към друг файл на този Mac, който би бил отворен заедно с него. %2$@ не отваря образи, които сочат към други файлове.",
     "“%@” was disconnected.": "„%@“ беше изключен.",
     "“%@” was not opened": "„%@“ не беше отворен",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ не беше изключен правилно и последното му съдържание не е записано обратно във файла. Отворете го веднъж във виртуалната машина, на която принадлежи, и опитайте отново."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ не беше изключен правилно и последното му съдържание не е записано обратно във файла. Отворете го веднъж във виртуалната машина, на която принадлежи, и опитайте отново.",
+    "Open an Issue": "Отваряне на сигнал",
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Сигналите в GitHub получават отговор по-бързо. Изпратете го по имейл, ако съдържа нещо, което предпочитате да не публикувате."
   }
 }

@@ -372,6 +372,8 @@
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "„%1$@“ verweist auf eine andere Datei auf diesem Mac, die mit geöffnet würde. %2$@ öffnet keine Images, die andere Dateien benennen.",
     "“%@” was disconnected.": "„%@“ wurde getrennt.",
     "“%@” was not opened": "„%@“ wurde nicht geöffnet",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ wurde nicht sauber heruntergefahren, und der zuletzt enthaltene Stand wurde nicht in die Datei zurückgeschrieben. Öffne sie einmal in der virtuellen Maschine, zu der sie gehört, und versuche es dann erneut."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ wurde nicht sauber heruntergefahren, und der zuletzt enthaltene Stand wurde nicht in die Datei zurückgeschrieben. Öffne sie einmal in der virtuellen Maschine, zu der sie gehört, und versuche es dann erneut.",
+    "Open an Issue": "Issue öffnen",
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Ein Issue auf GitHub wird schneller beantwortet. Schick es per E-Mail, wenn es etwas enthält, das du lieber nicht veröffentlichst."
   }
 }

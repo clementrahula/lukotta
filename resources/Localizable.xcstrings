@@ -5375,6 +5375,136 @@
         }
       }
     },
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сигналите в GitHub получават отговор по-бързо. Изпратете го по имейл, ако съдържа нещо, което предпочитате да не публикувате."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na issue na GitHubu přijde odpověď dříve. Pokud obsahuje něco, co byste raději nezveřejňovali, pošlete jej e-mailem."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En sag på GitHub bliver besvaret hurtigere. Send den med e-mail i stedet, hvis den indeholder noget, du helst ikke vil offentliggøre."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Issue auf GitHub wird schneller beantwortet. Schick es per E-Mail, wenn es etwas enthält, das du lieber nicht veröffentlichst."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τα ζητήματα στο GitHub απαντώνται πιο γρήγορα. Στείλτε το με email αν περιέχει κάτι που προτιμάτε να μη δημοσιευτεί."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las incidencias en GitHub se responden antes. Envíala por correo si contiene algo que prefieras no publicar."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHubi teated saavad vastuse kiiremini. Saada see e-postiga, kui selles on midagi, mida sa pigem ei avaldaks."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHubiin tehtyihin ilmoituksiin vastataan nopeammin. Lähetä se sähköpostilla, jos siinä on jotain, jota et halua julkaista."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un ticket sur GitHub reçoit une réponse plus rapidement. Envoyez-le par e-mail s’il contient quelque chose que vous préférez ne pas publier."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na prijave na GitHubu odgovor stiže brže. Pošaljite je e-poštom ako sadrži nešto što radije ne biste objavili."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A GitHubon nyitott hibajegyekre hamarabb érkezik válasz. Küldje inkább e-mailben, ha olyasmit tartalmaz, amit inkább nem hozna nyilvánosságra."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le segnalazioni su GitHub ricevono risposta prima. Inviala per email se contiene qualcosa che preferisci non pubblicare."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Į pranešimus „GitHub“ atsakoma greičiau. Siųskite jį el. paštu, jei jame yra kas nors, ko nenorėtumėte skelbti viešai."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uz ziņojumiem GitHub atbild ātrāk. Sūtiet to pa e-pastu, ja tajā ir kaut kas, ko labāk nepubliskot."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En sak på GitHub blir besvart raskere. Send den på e-post i stedet hvis den inneholder noe du helst ikke vil offentliggjøre."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een melding op GitHub wordt sneller beantwoord. Stuur die per e-mail als er iets in staat dat je liever niet publiceert."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na zgłoszenia w serwisie GitHub odpowiedź przychodzi szybciej. Wyślij je e-mailem, jeśli zawiera coś, czego wolisz nie publikować."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os problemas no GitHub têm resposta mais depressa. Envie-o por e-mail se contiver algo que prefira não publicar."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sesizările de pe GitHub primesc răspuns mai repede. Trimiteți-o pe e-mail dacă include ceva ce preferați să nu publicați."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na prijave na GitHubu odgovor pride prej. Pošljite jo po e-pošti, če vsebuje kaj, česar raje ne objavite."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ett ärende på GitHub besvaras snabbare. Skicka det med e-post i stället om det innehåller något du helst inte vill publicera."
+          }
+        }
+      }
+    },
     "Another drive is open, and the drive engine has to run on its own the first time after it changes. Eject the other drives, open this one, then they can all be open together again.": {
       "localizations": {
         "bg": {
@@ -19303,6 +19433,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Öppna inställningar"
+          }
+        }
+      }
+    },
+    "Open an Issue": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отваряне на сигнал"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otevřít issue"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn en sag"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Issue öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα ζητήματος"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir una incidencia"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava teade"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa ilmoitus"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir un ticket"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori prijavu"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hibajegy megnyitása"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri una segnalazione"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sukurti pranešimą"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvērt ziņojumu"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpne en sak"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melding openen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz zgłoszenie"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir um problema"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschideți o sesizare"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri prijavo"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öppna ett ärende"
           }
         }
       }

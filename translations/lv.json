@@ -381,6 +381,8 @@
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "“%1$@” norāda uz citu failu šajā Mac, kas tiktu atvērts kopā ar to. %2$@ neatver attēlus, kas nosauc citus failus.",
     "“%@” was disconnected.": "“%@” tika atvienots.",
     "“%@” was not opened": "“%@” netika atvērts",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” netika korekti izslēgts, un tā jaunākais saturs nav ierakstīts atpakaļ failā. Atveriet to vienreiz virtuālajā mašīnā, kurai tas pieder, un mēģiniet vēlreiz."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” netika korekti izslēgts, un tā jaunākais saturs nav ierakstīts atpakaļ failā. Atveriet to vienreiz virtuālajā mašīnā, kurai tas pieder, un mēģiniet vēlreiz.",
+    "Open an Issue": "Atvērt ziņojumu",
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Uz ziņojumiem GitHub atbild ātrāk. Sūtiet to pa e-pastu, ja tajā ir kaut kas, ko labāk nepubliskot."
   }
 }

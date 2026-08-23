@@ -373,6 +373,8 @@
     "“%@” refers to another file on this Mac, which would be opened along with it. %@ does not open images that name other files.": "”%1$@” hänvisar till en annan fil på den här datorn, som skulle öppnas tillsammans med den. %2$@ öppnar inte avbilder som namnger andra filer.",
     "“%@” was disconnected.": "”%@” kopplades bort.",
     "“%@” was not opened": "”%@” öppnades inte",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "”%@” stängdes inte av ordentligt, och dess senaste innehåll har inte skrivits tillbaka till filen. Öppna den en gång i den virtuella maskin den hör till och försök igen."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "”%@” stängdes inte av ordentligt, och dess senaste innehåll har inte skrivits tillbaka till filen. Öppna den en gång i den virtuella maskin den hör till och försök igen.",
+    "Open an Issue": "Öppna ett ärende",
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Ett ärende på GitHub besvaras snabbare. Skicka det med e-post i stället om det innehåller något du helst inte vill publicera."
   }
 }
