@@ -1,0 +1,45 @@
+# Tokens, private keys and cloud credentials — the classes a scanner can know.
+#
+# The things that have actually reached this repository were none of those: a
+# drive's UUID, a home directory with a real name in it, recovery keys. Nothing
+# generic recognises those, which is what scripts/check-private.py is for. This
+# is the second line: it catches the day somebody pastes a token.
+#
+# Run by .githooks/pre-commit over staged content, and by CI over the whole
+# history.
+
+title = "Lukotta"
+
+[extend]
+# Everything gitleaks ships with, which is the point of using it.
+useDefault = true
+
+[allowlist]
+description = "Deliberately in the repository, and none of it anyone's"
+
+paths = [
+  # Sparkle's public key. Public by design: a clone without it builds an app
+  # that trusts no update at all.
+  '''\.sparkle-public-key''',
+  # Rendered screens and artwork: no text, and 192 of them.
+  '''tests/snapshots/.*\.png''',
+  '''assets/.*''',
+  # Twenty-two languages of interface strings.
+  '''resources/Localizable\.xcstrings''',
+  '''translations/.*\.json''',
+]
+
+regexes = [
+  # Invented recovery keys. They satisfy BitLocker's own rules — they have to,
+  # or the validator tests would prove nothing — so they read as genuine.
+  '''110011-220022-330033-440044-550055-660066-700007-711711''',
+  '''121121-131131-141141-151151-161161-171171-181181-191191''',
+  '''110011220022330033440044550055660066700007711711''',
+  '''121121131131141141151151161161171171181181191191''',
+  # An invented signing team. The real one is read from the running bundle.
+  '''A1B2C3D4E5''',
+  # An invented partition UUID.
+  '''7A2E4F10-3C58-4D9B-A6E1-2F7C05B34D88''',
+  # The anonymous ghcr.io token, which is the base64 of "A".
+  '''Authorization: Bearer QQ==''',
+]

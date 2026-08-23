@@ -69,6 +69,15 @@ jobs:
       - name: Recovery-key validator
         run: ./scripts/test-key-validator.sh
 
+      # Before anything is built: what a scanner can know, over the whole
+      # history rather than the tip. The hook that runs the same checks before
+      # a commit exists can be skipped, and on somebody else's clone it may
+      # never have been installed at all.
+      - name: Nothing private, anywhere in the history
+        run: |
+          brew install gitleaks
+          gitleaks detect --redact --no-banner --config .gitleaks.toml
+
       - name: Lint, and whether the checks are keeping up
         run: |
           brew install shellcheck swift-format

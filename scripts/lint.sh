@@ -23,6 +23,12 @@ else
   printf '  shellcheck not installed — brew install shellcheck\n'
 fi
 
+printf 'nothing private…\n'
+# The same check the pre-commit hook runs, over everything git tracks rather
+# than over what is staged. A hook can be skipped and a hook can be uninstalled;
+# this cannot.
+"$HERE/scripts/check-private.py" || status=1
+
 printf 'pinned actions…\n'
 # Every action a workflow runs, pinned to a commit. A tag is a name its owner
 # can move, and a moved tag runs somebody else's code with this repository's

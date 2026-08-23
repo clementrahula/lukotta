@@ -1,0 +1,32 @@
+#!/bin/bash
+# Refuse a commit carrying anything of the owner's.
+#
+# Turn it on once, per clone:
+#
+#     git config core.hooksPath .githooks
+#
+# What reaches a commit is expensive to remove: every commit after it has to be
+# rewritten and force-pushed over whatever anybody had already cloned. Here it
+# costs nothing.
+#
+# The same checks run in lint.sh and in CI, because `git commit --no-verify`
+# walks straight past this and a hook nobody installed protects nobody.
+set -uo pipefail
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+status=0
+
+"$HERE/scripts/check-private.py" --staged || status=1
+
+# Tokens, keys and cloud credentials — the classes a scanner does know. Not
+# installed is not a failure: it is the second line, not the first.
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact --no-banner --config "$HERE/.gitleaks.toml" \
+    || { echo "gitleaks found something staged. See above."; status=1; }
+fi
+
+if [ "$status" != "0" ]; then
+  echo ""
+  echo "Nothing was committed. Fix the lines above, or --no-verify if you are"
+  echo "certain, in which case CI will ask the same question."
+fi
+exit $status

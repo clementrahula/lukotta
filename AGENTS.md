@@ -95,6 +95,38 @@ as `<private>`, which is correct for a drive's name and for a path on someone's
 disk. Anything meant to be legible says `privacy: .public`. A passphrase is
 never logged.
 
+## Fixtures are invented, never captured
+
+Nothing of the owner's goes in this repository: no account name, no path from
+their machine, no identifier of a disk they own, no recovery key that a drive
+would accept. None of it looks like a secret and no scanner recognises it,
+which is why it got in before.
+
+When real output is needed to get a fixture's shape right, sanitise it in the
+same edit that pastes it. `someone` is the account name; `/Users/someone` is
+the home directory; identifiers are made up and shaped like the real thing.
+
+    ./scripts/check-private.py            everything git tracks
+    ./scripts/check-private.py --staged   what is about to be committed
+
+It refuses a recovery key that satisfies BitLocker's own arithmetic, a home
+directory with an unfamiliar name, an account name inside `mount` output, the
+UUID of any disk this Mac has ever had attached, and anything shaped like a
+signing team. Deliberate lookalikes are listed in `ALLOWED` inside it.
+
+Turn the hook on once per clone; nothing else installs it:
+
+    git config core.hooksPath .githooks
+
+`lint.sh` and CI run the same check, because `--no-verify` walks past a hook and
+a clone that never installed one is protected by nothing.
+
+If something does get in, it comes out with `git-filter-repo --replace-text`
+over every commit, followed by a force-push of every branch and tag. Budget an
+afternoon, re-cut any release whose source archive carries it, and check for
+fragments as well as whole values — a key survives as its undashed form and as
+the six digits somebody quoted in an assertion.
+
 ## Checking notarisation
 
 `xcrun` resolves through whatever `xcode-select` points at. Pointed at the

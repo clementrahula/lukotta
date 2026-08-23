@@ -10,9 +10,17 @@ a working copy.
 signing. In short:
 
 ```bash
+git config core.hooksPath .githooks   # once, per clone
 ./scripts/vendor-engine.sh
 ./build-app.sh
 ```
+
+That first line turns on a pre-commit check that refuses anything belonging to
+whoever is at the keyboard: an account name, a path from their machine, the
+UUID of a disk they have attached, a recovery key a drive would accept.
+Fixtures in this repository are invented, and `someone` is the name they use.
+The same check runs in `lint.sh` and in CI, so skipping the hook only moves
+where the answer arrives.
 
 That produces `Drive Unlocker.app`. Builds are unbranded unless you set
 `LUKOTTA_BRANDING=official`, the name and logo being trademarks the GPL does not
