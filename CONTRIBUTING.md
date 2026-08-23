@@ -51,11 +51,11 @@ best you have.
 
 ## House Style
 
+- English is used for code commenting, documentation and all project-related communications exclusively.
 - Comments explain why rather than what. A line worth writing is one where the
   obvious reading is wrong.
 - No historical narration in comments or documents; git remembers.
 - Commit messages describe the reasoning as well as the change.
-- British spelling in prose; Apple's spelling in API names.
 - Fixtures are invented. Real output from your machine is sanitised in the same
   edit that pastes it.
 - Every source file starts with its SPDX identifier and the copyright line. A
