@@ -211,8 +211,10 @@ public enum MountScript {
         lines.append("__cred=\"$(cat \(shellQuoted(i.fifoPath)))\"")
         lines.append("echo \"\(stageMarker)working\" >> \(logQ)")
         lines.append("\(engineQ) config -n \(i.cores) -r \(i.ramMiB) >/dev/null 2>&1 || true")
-        // The baseline every attempt is judged against.
-        lines.append("__mounts=$(\(mountCount))")
+        // The baseline every attempt is judged against: which mounts the
+        // engine had before this one started, by name.
+        lines.append(mountHelpers(baselineQ: shellQuoted(i.discoverLogPath + ".mounts")))
+        lines.append("__rebase")
 
         var chain = attempts(i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
 
@@ -288,9 +290,30 @@ public enum MountScript {
         return result
     }
 
-    /// How many mounts the engine currently has, by its export path: /mnt for
-    /// ordinary mounts, /run for the multi-volume scratch directory.
-    private static let mountCount = "/sbin/mount | grep -cE ':/(mnt|run)/'"
+    /// The shell functions every attempt is judged by.
+    ///
+    /// Which mounts the engine has, by name, rather than how many there are.
+    /// A count is a count of everything: an NFS share the person using the Mac
+    /// mounted themselves, whose server path happens to contain /mnt/ or /run/,
+    /// joins the baseline, and one that comes or goes while a drive is being
+    /// opened moves the number without any drive having been opened. Since the
+    /// count is the only proof a mount worked — the engine exits 0 either way —
+    /// that showed up as a drive that had opened being reported as a failure,
+    /// or the reverse.
+    ///
+    /// Comparing the names cannot be moved by anybody else's mount: what is
+    /// looked for is a mount point that was not there before.
+    private static func mountHelpers(baselineQ: String) -> String {
+        return """
+            __engine_mounts() {
+              /sbin/mount | awk '/\\(nfs/ && /:\\/(mnt|run)\\// \
+                { sub(/^.* on /, ""); sub(/ \\(.*$/, ""); print }' | sort
+            }
+            __rebase() { __engine_mounts > \(baselineQ); }
+            __new_mounts() { __engine_mounts | grep -vxF -f \(baselineQ) || true; }
+            __mounted() { [ -n "$(__new_mounts)" ]; }
+            """
+    }
 
     /// Proof that a mount actually happened.
     ///
@@ -300,11 +323,12 @@ public enum MountScript {
     /// successful and ran none of them: no ntfs-3g retry for a dirty volume, and
     /// no LVM discovery for a container holding several volumes.
     ///
-    /// Mounts are counted rather than matched by name. The share is named after
-    /// the device for a plain volume and after the volume group for an LVM one
-    /// ("lvm-fedoravg.local:"), so there is no single name to look for and a
-    /// wrong guess reports a mounted drive as a failure.
-    private static let mountedCheck = "[ \"$(\(mountCount))\" -gt \"$__mounts\" ]"
+    /// Mounts are compared by name rather than matched against an expected one.
+    /// The share is named after the device for a plain volume and after the
+    /// volume group for an LVM one ("lvm-fedoravg.local:"), so there is no
+    /// single name to look for and a wrong guess reports a mounted drive as a
+    /// failure.
+    private static let mountedCheck = "__mounted"
 
     private static func mountCommand(
         engineQ: String,
@@ -403,10 +427,9 @@ public enum MountScript {
                 __opened=0
                 for __lv in $__lvs; do
                   ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions\(readOnlyFlags(i.readOnly)) -w false --nfs-options=\(shellQuoted(nfsOptions(i))) "lvm:$__lv" >> \(logQ) 2>&1
-                  __now=$(\(mountCount))
-                  if [ "$__now" -gt "$__mounts" ]; then
+                  if __mounted; then
                     __opened=$((__opened+1))
-                    __mounts=$__now
+                    __rebase
                   fi
                 done
                 echo "\(volumesMarker)$__opened:$__count" >> \(logQ)

@@ -446,22 +446,23 @@ group("mountStages") {
     // Without this the first attempt always read as a success and nothing after
     // it ran: no ntfs-3g retry and no LVM discovery.
     let checked = MountScript.build(sampleInputs(kind: .linux))
+    expect(checked.contains("__engine_mounts()"), "the engine's own mounts can be listed")
+    expect(checked.contains("__rebase\n"), "a baseline is taken before anything is attempted")
     expect(
-        checked.contains("__mounts=$(/sbin/mount | grep -cE ':/(mnt|run)/')"),
-        "a baseline is taken")
-    expect(
-        checked.contains(
-            """
-            2>&1 && [ "$(/sbin/mount | grep -cE ':/(mnt|run)/')" -gt "$__mounts" ]
-            """.trimmingCharacters(in: .whitespacesAndNewlines)),
+        checked.contains("2>&1 && __mounted"),
         "an attempt counts as success only if a mount appeared")
-    // Counted rather than matched by name. The share is named for the device on
-    // a plain volume and for the volume group on an LVM one, so there is no
-    // single name.
+    // Compared by name rather than counted. A count is a count of everything,
+    // including an NFS share the person using the Mac mounted themselves, and
+    // one of those coming or going moves the number without a drive having been
+    // opened.
+    expect(!checked.contains("grep -cE"), "mounts are not counted")
+    expect(checked.contains("grep -vxF -f"), "they are compared against the baseline")
+    // The share is named for the device on a plain volume and for the volume
+    // group on an LVM one, so there is no single name to look for either.
     expect(!checked.contains("disk4s1.local:"), "the check does not guess the share's name")
     let checkedMS = MountScript.build(sampleInputs(kind: .microsoft))
     expect(
-        checkedMS.components(separatedBy: "-gt \"$__mounts\"").count - 1 == 4,
+        checkedMS.components(separatedBy: "&& __mounted").count - 1 == 4,
         "every attempt is verified: both NTFS drivers, then both again read-only")
 
     // A pty echoes what is written to it, so the engine's own output can carry
