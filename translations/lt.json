@@ -144,9 +144,7 @@
     "Checking every disk…": "Tikrinami visi diskai…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Pasirinkite Failas → Atverti disko atvaizdį arba Failas → Atverti diską, kad pamatytumėte kiekvieną prie šio „Mac“ prijungtą diską ir tai, ką %@ gali su kiekvienu padaryti",
     "Choose a disk image or container file to open.": "Pasirinkite atvertiną disko atvaizdį arba konteinerio failą.",
-    "Click + and add %@, then switch it on.": "Spustelėkite „+“, pridėkite %@ ir įjunkite.",
     "Collapsed": "Suskleista",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Grįžkite čia ir pasirinkite Paleisti iš naujo. Naujas leidimas galioja tik programai, paleistai po jo suteikimo.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Prijunkite diską ir pasirinkite Ieškoti iš naujo. Jei jis jau prijungtas, „macOS“ gali būti jį prijungusi — tada pirmiausia išstumkite jį per „Finder“. Jei norite atverti disko atvaizdį, pasirinkite Failas → Atverti disko atvaizdį.",
     "Copied": "Nukopijuota",
     "Copy Details": "Kopijuoti informaciją",
@@ -255,7 +253,6 @@
     "Report an Issue…": "Pranešti apie problemą…",
     "Requirements": "Reikalavimai",
     "Rescan": "Ieškoti iš naujo",
-    "Reveal App": "Rodyti programą „Finder“ lange",
     "Saving changes to this file could damage it": "Pakeitimų įrašymas gali sugadinti šį failą",
     "Seeing connected drives": "Prijungtų diskų matymas",
     "Select a drive to unlock": "Pasirinkite diską, kurį atrakinti",
@@ -305,7 +302,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Šiame diske yra keli tomai, o %@ nepavyko nustatyti, kurie. Pranešimas apie tai padėtų.",
     "This drive is exFAT, and is not encrypted.": "Šis diskas yra exFAT ir nėra šifruotas.",
     "This drive is plain NTFS, and is not encrypted.": "Šis diskas yra paprastas NTFS ir nėra šifruotas.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "Tai „macOS“ privatumo nuostata, o ne jūsų „Mac“ pakeitimas. Galite ją bet kada vėl išjungti, ir niekas nediegiama.",
     "This partition is not a BitLocker volume.": "Šis skaidinys nėra „BitLocker“ tomas.",
     "This takes a moment.": "Tai užtruks akimirką.",
     "This usually takes under a minute.": "Paprastai tai trunka mažiau nei minutę.",
@@ -391,6 +387,12 @@
     "“%@” was not opened": "„%@“ nebuvo atvertas",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ nebuvo tinkamai išjungtas ir naujausias jo turinys neįrašytas atgal į failą. Atverkite jį kartą virtualioje mašinoje, kuriai jis priklauso, ir bandykite dar kartą.",
     "Open an Issue": "Sukurti pranešimą",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Į pranešimus „GitHub“ atsakoma greičiau. Siųskite jį el. paštu, jei jame yra kas nors, ko nenorėtumėte skelbti viešai."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Į pranešimus „GitHub“ atsakoma greičiau. Siųskite jį el. paštu, jei jame yra kas nors, ko nenorėtumėte skelbti viešai.",
+    "%@ could not open your drives": "„%@“ negalėjo atverti jūsų diskų",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "Diskai nustatyti atsiverti iš naujo po paleidimo, tačiau visa prieiga prie disko nebesuteikta. „macOS“ naujinys, perkėlimas ar įdiegimas iš naujo gali ją panaikinti.",
+    "Click + there, select %@ in Applications, and switch it on.": "Ten spustelėkite +, aplanke „Programos“ pasirinkite „%@“ ir įjunkite.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Grįžkite čia ir spustelėkite „Paleisti iš naujo“. Naujas leidimas galioja tik programai, paleistai po jo suteikimo.",
+    "Quit App": "Baigti",
+    "Open System Settings": "Atverti sistemos nuostatas"
   }
 }

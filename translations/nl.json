@@ -128,9 +128,7 @@
     "Checking every disk…": "Alle schijven worden gecontroleerd…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Kies Archief → Open schijfkopie, of Archief → Open schijf om elke schijf te zien die op deze Mac is aangesloten en wat %@ met elke schijf kan doen",
     "Choose a disk image or container file to open.": "Kies een schijfkopie of containerbestand om te openen.",
-    "Click + and add %@, then switch it on.": "Klik op ‘+’, voeg %@ toe en schakel het in.",
     "Collapsed": "Ingeklapt",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Kom hier terug en kies Herstart. Een nieuwe toegang geldt alleen voor een app die daarna is gestart.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Sluit de schijf aan en kies Opnieuw zoeken. Is die al aangesloten, dan heeft macOS die mogelijk gekoppeld — verwijder die dan eerst in de Finder. Wil je in plaats daarvan een schijfkopie openen, kies dan Archief → Open schijfkopie.",
     "Copied": "Gekopieerd",
     "Copy Details": "Kopieer details",
@@ -239,7 +237,6 @@
     "Report an Issue…": "Meld een probleem…",
     "Requirements": "Systeemvereisten",
     "Rescan": "Opnieuw zoeken",
-    "Reveal App": "Toon app in Finder",
     "Saving changes to this file could damage it": "Wijzigingen bewaren kan dit bestand beschadigen",
     "Seeing connected drives": "Aangesloten schijven zien",
     "Select a drive to unlock": "Selecteer een schijf om te ontgrendelen",
@@ -289,7 +286,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Deze schijf bevat meerdere volumes en %@ kon niet bepalen welke. Dit melden zou helpen.",
     "This drive is exFAT, and is not encrypted.": "Deze schijf is exFAT en is niet versleuteld.",
     "This drive is plain NTFS, and is not encrypted.": "Deze schijf is gewoon NTFS en is niet versleuteld.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "Dit is een privacy-instelling van macOS, geen wijziging aan je Mac. Je kunt die op elk moment weer uitschakelen, en er wordt niets geïnstalleerd.",
     "This partition is not a BitLocker volume.": "Deze partitie is geen BitLocker-volume.",
     "This takes a moment.": "Dit duurt even.",
     "This usually takes under a minute.": "Dit duurt meestal minder dan een minuut.",
@@ -375,6 +371,12 @@
     "“%@” was not opened": "‘%@’ is niet geopend",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "‘%@’ is niet netjes afgesloten en de meest recente inhoud is niet teruggeschreven naar het bestand. Open het één keer in de virtuele machine waar het bij hoort en probeer het opnieuw.",
     "Open an Issue": "Melding openen",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Een melding op GitHub wordt sneller beantwoord. Stuur die per e-mail als er iets in staat dat je liever niet publiceert."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Een melding op GitHub wordt sneller beantwoord. Stuur die per e-mail als er iets in staat dat je liever niet publiceert.",
+    "%@ could not open your drives": "%@ kon je schijven niet openen",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "Je schijven zijn ingesteld om na een herstart opnieuw te openen, maar volledige schijftoegang is niet meer verleend. Een macOS-update, een verplaatsing of een herinstallatie kan die wegnemen.",
+    "Click + there, select %@ in Applications, and switch it on.": "Klik daar op +, selecteer %@ in Programma's en zet die aan.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Kom hier terug en klik op Opnieuw starten. Een nieuwe toestemming geldt alleen voor een programma dat daarna is gestart.",
+    "Quit App": "Stop",
+    "Open System Settings": "Open Systeeminstellingen"
   }
 }

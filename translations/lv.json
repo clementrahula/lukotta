@@ -136,9 +136,7 @@
     "Checking every disk…": "Notiek visu disku pārbaude…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Izvēlieties Fails → Atvērt diska attēlu vai Fails → Atvērt disku, lai redzētu katru šim Mac pievienoto disku un to, ko %@ ar katru var izdarīt",
     "Choose a disk image or container file to open.": "Izvēlieties atveramo diska attēlu vai konteinera failu.",
-    "Click + and add %@, then switch it on.": "Noklikšķiniet uz “+”, pievienojiet %@ un ieslēdziet to.",
     "Collapsed": "Sakļauts",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Atgriezieties šeit un izvēlieties Palaist no jauna. Jauna atļauja attiecas tikai uz lietotni, kas palaista pēc tās piešķiršanas.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Pievienojiet disku un izvēlieties Meklēt vēlreiz. Ja tas jau ir pievienots, macOS to var būt pievienojis sistēmai — tad vispirms izstumiet to programmā Finder. Lai tā vietā atvērtu diska attēlu, izvēlieties Fails → Atvērt diska attēlu.",
     "Copied": "Nokopēts",
     "Copy Details": "Kopēt informāciju",
@@ -247,7 +245,6 @@
     "Report an Issue…": "Ziņot par problēmu…",
     "Requirements": "Prasības",
     "Rescan": "Meklēt vēlreiz",
-    "Reveal App": "Rādīt lietotni programmā Finder",
     "Saving changes to this file could damage it": "Izmaiņu saglabāšana var sabojāt šo failu",
     "Seeing connected drives": "Pievienoto disku redzēšana",
     "Select a drive to unlock": "Izvēlieties disku, ko atbloķēt",
@@ -297,7 +294,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Šis disks satur vairākus sējumus, un %@ nespēja noskaidrot, kurus. Ziņošana par to palīdzētu.",
     "This drive is exFAT, and is not encrypted.": "Šis disks ir exFAT un nav šifrēts.",
     "This drive is plain NTFS, and is not encrypted.": "Šis disks ir vienkāršs NTFS un nav šifrēts.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "Šis ir macOS privātuma iestatījums, nevis izmaiņas jūsu Mac datorā. Jūs to jebkurā brīdī varat atkal izslēgt, un nekas netiek instalēts.",
     "This partition is not a BitLocker volume.": "Šis nodalījums nav BitLocker sējums.",
     "This takes a moment.": "Tas aizņem brīdi.",
     "This usually takes under a minute.": "Parasti tas aizņem mazāk par minūti.",
@@ -383,6 +379,12 @@
     "“%@” was not opened": "“%@” netika atvērts",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” netika korekti izslēgts, un tā jaunākais saturs nav ierakstīts atpakaļ failā. Atveriet to vienreiz virtuālajā mašīnā, kurai tas pieder, un mēģiniet vēlreiz.",
     "Open an Issue": "Atvērt ziņojumu",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Uz ziņojumiem GitHub atbild ātrāk. Sūtiet to pa e-pastu, ja tajā ir kaut kas, ko labāk nepubliskot."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Uz ziņojumiem GitHub atbild ātrāk. Sūtiet to pa e-pastu, ja tajā ir kaut kas, ko labāk nepubliskot.",
+    "%@ could not open your drives": "%@ nevarēja atvērt jūsu diskus",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "Diski ir iestatīti atvērties no jauna pēc restartēšanas, taču pilna piekļuve diskam vairs nav piešķirta. macOS atjauninājums, pārvietošana vai pārinstalēšana to var atņemt.",
+    "Click + there, select %@ in Applications, and switch it on.": "Tur noklikšķiniet uz +, mapē Programmas atlasiet %@ un ieslēdziet to.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Atgriezieties šeit un noklikšķiniet uz Restartēt. Jauna atļauja attiecas tikai uz programmu, kas palaista pēc tās piešķiršanas.",
+    "Quit App": "Iziet",
+    "Open System Settings": "Atvērt sistēmas iestatījumus"
   }
 }

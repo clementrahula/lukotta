@@ -136,9 +136,7 @@
     "Checking every disk…": "Se verifică toate discurile…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Alegeți Fișier → Deschide imagine de disc sau Fișier → Deschide disc pentru a vedea fiecare disc conectat la acest Mac și ce poate face %@ cu fiecare",
     "Choose a disk image or container file to open.": "Alegeți o imagine de disc sau un fișier container pentru deschidere.",
-    "Click + and add %@, then switch it on.": "Faceți clic pe „+”, adăugați %@ și activați-l.",
     "Collapsed": "Restrâns",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Reveniți aici și alegeți Relansați. O permisiune nouă se aplică doar unei aplicații pornite după ce a fost acordată.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Conectați discul și alegeți Căutați din nou. Dacă este deja conectat, macOS îl poate avea montat — atunci ejectați-l mai întâi în Finder. Pentru a deschide în schimb o imagine de disc, alegeți Fișier → Deschide imagine de disc.",
     "Copied": "Copiat",
     "Copy Details": "Copiați detaliile",
@@ -247,7 +245,6 @@
     "Report an Issue…": "Raportați o problemă…",
     "Requirements": "Cerințe",
     "Rescan": "Căutați din nou",
-    "Reveal App": "Afișați aplicația în Finder",
     "Saving changes to this file could damage it": "Salvarea modificărilor poate deteriora acest fișier",
     "Seeing connected drives": "Vizualizarea discurilor conectate",
     "Select a drive to unlock": "Selectați un disc pentru deblocare",
@@ -297,7 +294,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Acest disc conține mai multe volume, iar %@ nu a putut stabili care anume. Raportarea ar fi de ajutor.",
     "This drive is exFAT, and is not encrypted.": "Acest disc este exFAT și nu este criptat.",
     "This drive is plain NTFS, and is not encrypted.": "Acest disc este NTFS simplu și nu este criptat.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "Aceasta este o configurare de intimitate a macOS, nu o modificare a Mac-ului dvs. O puteți dezactiva oricând, iar nimic nu se instalează.",
     "This partition is not a BitLocker volume.": "Această partiție nu este un volum BitLocker.",
     "This takes a moment.": "Durează un moment.",
     "This usually takes under a minute.": "De obicei durează mai puțin de un minut.",
@@ -383,6 +379,12 @@
     "“%@” was not opened": "„%@” nu a fost deschis",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@” nu a fost închis corect, iar conținutul său cel mai recent nu a fost scris înapoi în fișier. Deschideți-l o dată în mașina virtuală căreia îi aparține, apoi încercați din nou.",
     "Open an Issue": "Deschideți o sesizare",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Sesizările de pe GitHub primesc răspuns mai repede. Trimiteți-o pe e-mail dacă include ceva ce preferați să nu publicați."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Sesizările de pe GitHub primesc răspuns mai repede. Trimiteți-o pe e-mail dacă include ceva ce preferați să nu publicați.",
+    "%@ could not open your drives": "%@ nu a putut deschide discurile dvs.",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "Discurile sunt configurate să se deschidă din nou după repornire, dar accesul complet la disc nu mai este acordat. O actualizare macOS, o mutare sau o reinstalare îl pot retrage.",
+    "Click + there, select %@ in Applications, and switch it on.": "Faceți clic pe + acolo, selectați %@ în Aplicații și activați-l.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Reveniți aici și faceți clic pe Relansare. O permisiune nouă se aplică doar unei aplicații pornite după acordarea ei.",
+    "Quit App": "Ieșire",
+    "Open System Settings": "Deschideți Configurări sistem"
   }
 }

@@ -136,9 +136,7 @@
     "Checking every disk…": "Provjera svih diskova…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Odaberite Datoteka → Otvori sliku diska ili Datoteka → Otvori disk kako biste vidjeli svaki disk priključen na ovaj Mac i što %@ može učiniti sa svakim",
     "Choose a disk image or container file to open.": "Odaberite sliku diska ili datoteku spremnika za otvaranje.",
-    "Click + and add %@, then switch it on.": "Kliknite „+”, dodajte %@ i uključite ga.",
     "Collapsed": "Sažeto",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Vratite se ovamo i odaberite Pokreni ponovno. Nova dozvola vrijedi samo za aplikaciju pokrenutu nakon što je dana.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Priključite disk i odaberite Pretraži ponovno. Ako je već priključen, možda ga je macOS montirao — tada ga najprije izbacite u Finderu. Želite li umjesto toga otvoriti sliku diska, odaberite Datoteka → Otvori sliku diska.",
     "Copied": "Kopirano",
     "Copy Details": "Kopiraj pojedinosti",
@@ -247,7 +245,6 @@
     "Report an Issue…": "Prijavi problem…",
     "Requirements": "Zahtjevi",
     "Rescan": "Pretraži ponovno",
-    "Reveal App": "Prikaži aplikaciju u Finderu",
     "Saving changes to this file could damage it": "Spremanje promjena može oštetiti ovu datoteku",
     "Seeing connected drives": "Prikaz spojenih diskova",
     "Select a drive to unlock": "Odaberite disk za otključavanje",
@@ -297,7 +294,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ovaj disk sadrži više jedinica, a %@ nije uspio utvrditi koje. Prijava bi pomogla.",
     "This drive is exFAT, and is not encrypted.": "Ovaj disk je exFAT i nije šifriran.",
     "This drive is plain NTFS, and is not encrypted.": "Ovaj disk je obični NTFS i nije šifriran.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "Ovo je postavka privatnosti u macOS-u, a ne promjena na vašem Macu. Možete je isključiti kad god želite i ništa se ne instalira.",
     "This partition is not a BitLocker volume.": "Ova particija nije BitLocker jedinica.",
     "This takes a moment.": "Ovo traje trenutak.",
     "This usually takes under a minute.": "Obično traje manje od minute.",
@@ -383,6 +379,12 @@
     "“%@” was not opened": "„%@” nije otvoren",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@” nije uredno isključen i njegov najnoviji sadržaj nije zapisan natrag u datoteku. Otvorite ga jednom u virtualnom stroju kojem pripada pa pokušajte ponovno.",
     "Open an Issue": "Otvori prijavu",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Na prijave na GitHubu odgovor stiže brže. Pošaljite je e-poštom ako sadrži nešto što radije ne biste objavili."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Na prijave na GitHubu odgovor stiže brže. Pošaljite je e-poštom ako sadrži nešto što radije ne biste objavili.",
+    "%@ could not open your drives": "%@ nije mogao otvoriti vaše diskove",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "Diskovi su postavljeni da se nakon pokretanja ponovno otvore, ali puni pristup disku više nije odobren. Ažuriranje macOS-a, premještanje ili ponovna instalacija mogu ga ukloniti.",
+    "Click + there, select %@ in Applications, and switch it on.": "Ondje kliknite +, odaberite %@ u mapi Aplikacije i uključite ga.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Vratite se ovamo i kliknite Ponovno pokreni. Novo dopuštenje vrijedi samo za aplikaciju pokrenutu nakon što je dodijeljeno.",
+    "Quit App": "Zatvori",
+    "Open System Settings": "Otvori Postavke sustava"
   }
 }

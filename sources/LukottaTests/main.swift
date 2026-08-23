@@ -409,8 +409,8 @@ group("engineConfigCleanup") {
     expect(!cleanedEnd.contains("lukotta"), "a trailing section is removed")
     expect(cleanedEnd.contains("num_vcpus = 4"), "what precedes it survives")
     expect(
-    EngineConfig.withoutGeneratedAction("[krun]\nnum_vcpus = 4") == "[krun]\nnum_vcpus = 4",
-    "a config without the section is untouched")
+        EngineConfig.withoutGeneratedAction("[krun]\nnum_vcpus = 4") == "[krun]\nnum_vcpus = 4",
+        "a config without the section is untouched")
 }
 
 group("aLineOfTheMountTable") {
@@ -755,6 +755,32 @@ group("secretRedaction") {
     expect(!report.contains("121121"), "the assembled report carries no key")
 }
 
+group("aBlockedRestoreExplainsItself") {
+    // Restoring runs with nobody watching, so a failure says nothing. A missing
+    // permission is the exception: the drives cannot come back at all, and the
+    // reason is one only the person can fix.
+    //
+    // The rule is in restoreRememberedMounts. Pinned here by reading it, since
+    // the app target is not linked into these checks.
+    let source =
+        (try? String(contentsOfFile: "sources/Lukotta/AppModel.swift", encoding: .utf8)) ?? ""
+    guard let start = source.range(of: "func restoreRememberedMounts()"),
+        let end = source.range(of: "\n    }", range: start.upperBound..<source.endIndex)
+    else { return expect(false, "restoreRememberedMounts was found") }
+    let body = String(source[start.upperBound..<end.lowerBound])
+
+    expect(body.contains("!hasFullDiskAccess"), "it looks at the permission before trying")
+    expect(
+        body.contains("restoreBlocked = true"),
+        "and says why the permission screen is being shown")
+    expect(body.contains("phase = .needsPermission"), "which is the screen it shows")
+    // A container file is opened without any privilege, so a missing
+    // permission must not stop one coming back.
+    expect(
+        body.contains("$0.imagePath == nil"),
+        "only drives needing the raw device are affected")
+}
+
 group("theRestoreRecordCarriesThisMountsReadOnlyState") {
     // Bookkeeping this mount's success is one function for all three routes.
     // Written out a second time for the authorised route, the copy recorded the
@@ -763,8 +789,9 @@ group("theRestoreRecordCarriesThisMountsReadOnlyState") {
     //
     // The order is what is being pinned: whatever decides mountedReadOnly must
     // run before whatever reads it.
-    let source = (try? String(
-        contentsOfFile: "sources/Lukotta/AppModel.swift", encoding: .utf8)) ?? ""
+    let source =
+        (try? String(
+            contentsOfFile: "sources/Lukotta/AppModel.swift", encoding: .utf8)) ?? ""
     guard let body = source.range(of: "private func finishMount(") else {
         return expect(false, "finishMount was found in the file")
     }
@@ -2224,14 +2251,16 @@ group("theVolumeListingIsReadTheSameWayByBothReaders") {
     awk.standardOutput = pipe
     awk.standardError = FileHandle.nullDevice
     try? awk.run()
-    let out = String(
-        data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+    let out =
+        String(
+            data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
     awk.waitUntilExit()
     try? FileManager.default.removeItem(at: temp)
 
     expect(awk.terminationStatus == 0, "the generated awk runs")
     expect(
-        out.contains("nfs_export_subdirs = [\"FEDORAROOT\", \"home\", \"My-Backup-Disk\", \"SINGLETOKEN\"]"),
+        out.contains(
+            "nfs_export_subdirs = [\"FEDORAROOT\", \"home\", \"My-Backup-Disk\", \"SINGLETOKEN\"]"),
         "every volume is exported under a name taken from its label")
     expect(!out.contains("btrfs"), "the type is never mistaken for part of a name")
     expect(!out.contains("376MB"), "nor a size for one")

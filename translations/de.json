@@ -128,9 +128,7 @@
     "Checking every disk…": "Alle Laufwerke werden geprüft…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Wähle „Ablage → Image öffnen“ oder „Ablage → Laufwerk öffnen“, um jedes an diesen Mac angeschlossene Laufwerk zu sehen und was %@ damit tun kann",
     "Choose a disk image or container file to open.": "Wähle ein Image oder eine Containerdatei zum Öffnen aus.",
-    "Click + and add %@, then switch it on.": "Klicke auf „+“, füge %@ hinzu und aktiviere den Schalter.",
     "Collapsed": "Ausgeblendet",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Komm hierher zurück und wähle Neu starten. Eine neue Berechtigung gilt nur für eine App, die danach gestartet wurde.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Schließe das Laufwerk an und wähle Erneut suchen. Ist es bereits angeschlossen, hat macOS es womöglich eingehängt — wirf es dann zuerst im Finder aus. Um stattdessen ein Image zu öffnen, wähle „Ablage → Image öffnen“.",
     "Copied": "Kopiert",
     "Copy Details": "Details kopieren",
@@ -239,7 +237,6 @@
     "Report an Issue…": "Problem melden …",
     "Requirements": "Systemvoraussetzungen",
     "Rescan": "Erneut suchen",
-    "Reveal App": "App im Finder zeigen",
     "Saving changes to this file could damage it": "Änderungen können diese Datei beschädigen",
     "Seeing connected drives": "Angeschlossene Laufwerke sehen",
     "Select a drive to unlock": "Wähle ein Laufwerk zum Entsperren",
@@ -289,7 +286,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Dieses Laufwerk enthält mehrere Volumes, und %@ konnte nicht ermitteln, welche. Eine Meldung darüber würde helfen.",
     "This drive is exFAT, and is not encrypted.": "Dieses Laufwerk ist exFAT und nicht verschlüsselt.",
     "This drive is plain NTFS, and is not encrypted.": "Dieses Laufwerk ist einfaches NTFS und nicht verschlüsselt.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "Das ist eine Datenschutzeinstellung von macOS, keine Änderung an deinem Mac. Du kannst sie jederzeit wieder deaktivieren, und es wird nichts installiert.",
     "This partition is not a BitLocker volume.": "Diese Partition ist kein BitLocker-Volume.",
     "This takes a moment.": "Das dauert einen Moment.",
     "This usually takes under a minute.": "Das dauert normalerweise weniger als eine Minute.",
@@ -374,6 +370,12 @@
     "“%@” was not opened": "„%@“ wurde nicht geöffnet",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ wurde nicht sauber heruntergefahren, und der zuletzt enthaltene Stand wurde nicht in die Datei zurückgeschrieben. Öffne sie einmal in der virtuellen Maschine, zu der sie gehört, und versuche es dann erneut.",
     "Open an Issue": "Issue öffnen",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Ein Issue auf GitHub wird schneller beantwortet. Schick es per E-Mail, wenn es etwas enthält, das du lieber nicht veröffentlichst."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Ein Issue auf GitHub wird schneller beantwortet. Schick es per E-Mail, wenn es etwas enthält, das du lieber nicht veröffentlichst.",
+    "%@ could not open your drives": "%@ konnte deine Laufwerke nicht öffnen",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "Deine Laufwerke sollen nach einem Neustart wieder geöffnet werden, doch der Festplattenvollzugriff ist nicht mehr erteilt. Ein macOS-Update, ein Verschieben oder eine Neuinstallation kann ihn entfernen.",
+    "Click + there, select %@ in Applications, and switch it on.": "Klicke dort auf +, wähle %@ in „Programme“ und schalte es ein.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Komm hierher zurück und klicke auf „Neu starten“. Eine neue Berechtigung gilt nur für ein Programm, das danach gestartet wurde.",
+    "Quit App": "Beenden",
+    "Open System Settings": "Systemeinstellungen öffnen"
   }
 }

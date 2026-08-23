@@ -128,9 +128,7 @@
     "Checking every disk…": "A verificar todos os discos…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Escolha Ficheiro → Abrir imagem de disco, ou Ficheiro → Abrir disco para ver todos os discos ligados a este Mac e o que o %@ pode fazer com cada um",
     "Choose a disk image or container file to open.": "Escolha uma imagem de disco ou um ficheiro de contentor para abrir.",
-    "Click + and add %@, then switch it on.": "Clique em «+», adicione o %@ e ative-o.",
     "Collapsed": "Recolhido",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Volte aqui e escolha Reiniciar. Uma autorização nova só se aplica a uma aplicação iniciada depois de ter sido concedida.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Ligue o disco e escolha Procurar de novo. Se já estiver ligado, o macOS pode tê-lo montado — nesse caso, ejete-o primeiro no Finder. Para abrir uma imagem de disco em vez disso, escolha Ficheiro → Abrir imagem de disco.",
     "Copied": "Copiado",
     "Copy Details": "Copiar detalhes",
@@ -239,7 +237,6 @@
     "Report an Issue…": "Comunicar um problema…",
     "Requirements": "Requisitos",
     "Rescan": "Procurar de novo",
-    "Reveal App": "Mostrar a app no Finder",
     "Saving changes to this file could damage it": "Guardar alterações pode danificar este ficheiro",
     "Seeing connected drives": "Ver os discos ligados",
     "Select a drive to unlock": "Selecione um disco para desbloquear",
@@ -289,7 +286,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Este disco contém vários volumes e o %@ não conseguiu determinar quais. Comunicar isto ajudaria.",
     "This drive is exFAT, and is not encrypted.": "Este disco é exFAT e não está encriptado.",
     "This drive is plain NTFS, and is not encrypted.": "Este disco é NTFS simples e não está encriptado.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "Esta é uma definição de privacidade do macOS, não uma alteração ao seu Mac. Pode desativá-la quando quiser, e nada é instalado.",
     "This partition is not a BitLocker volume.": "Esta partição não é um volume BitLocker.",
     "This takes a moment.": "Isto demora um momento.",
     "This usually takes under a minute.": "Normalmente demora menos de um minuto.",
@@ -375,6 +371,12 @@
     "“%@” was not opened": "«%@» não foi aberto",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "«%@» não foi encerrado corretamente e o seu conteúdo mais recente não foi escrito de volta no ficheiro. Abra-o uma vez na máquina virtual a que pertence e tente novamente.",
     "Open an Issue": "Abrir um problema",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Os problemas no GitHub têm resposta mais depressa. Envie-o por e-mail se contiver algo que prefira não publicar."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Os problemas no GitHub têm resposta mais depressa. Envie-o por e-mail se contiver algo que prefira não publicar.",
+    "%@ could not open your drives": "O %@ não conseguiu abrir os seus discos",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "Os seus discos estão definidos para abrir novamente após reiniciar, mas o acesso total ao disco já não está concedido. Uma atualização do macOS, uma mudança de localização ou uma reinstalação podem retirá-lo.",
+    "Click + there, select %@ in Applications, and switch it on.": "Clique em + aí, selecione o %@ em Aplicações e ative-o.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Volte aqui e clique em Reiniciar. Uma permissão nova só se aplica a uma app iniciada depois de ter sido concedida.",
+    "Quit App": "Sair",
+    "Open System Settings": "Abrir Definições do Sistema"
   }
 }

@@ -442,7 +442,8 @@ public enum Permissions {
     /// Whether the access table still has the three columns this reads.
     private static func hasTheExpectedShape(_ handle: OpaquePointer) -> Bool {
         var statement: OpaquePointer?
-        guard sqlite3_prepare_v2(handle, "pragma table_info(access)", -1, &statement, nil)
+        guard
+            sqlite3_prepare_v2(handle, "pragma table_info(access)", -1, &statement, nil)
                 == SQLITE_OK
         else { return false }
         defer { sqlite3_finalize(statement) }

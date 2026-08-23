@@ -144,9 +144,7 @@
     "Checking every disk…": "Kontrola všech disků…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Zvolte Soubor → Otevřít obraz disku, nebo Soubor → Otevřít disk, kde uvidíte každý disk připojený k tomuto Macu a co s ním %@ zvládne",
     "Choose a disk image or container file to open.": "Vyberte obraz disku nebo kontejnerový soubor k otevření.",
-    "Click + and add %@, then switch it on.": "Klikněte na „+“, přidejte %@ a zapněte přepínač.",
     "Collapsed": "Sbaleno",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Vraťte se sem a zvolte Spustit znovu. Nové oprávnění platí jen pro aplikaci spuštěnou poté, co bylo uděleno.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Připojte disk a zvolte Hledat znovu. Pokud už připojený je, může ho mít připojený macOS — pak ho nejprve vysuňte ve Finderu. Chcete-li místo toho otevřít obraz disku, zvolte Soubor → Otevřít obraz disku.",
     "Copied": "Zkopírováno",
     "Copy Details": "Kopírovat podrobnosti",
@@ -255,7 +253,6 @@
     "Report an Issue…": "Nahlásit problém…",
     "Requirements": "Požadavky",
     "Rescan": "Hledat znovu",
-    "Reveal App": "Zobrazit aplikaci ve Finderu",
     "Saving changes to this file could damage it": "Uložení změn může tento soubor poškodit",
     "Seeing connected drives": "Zobrazení připojených disků",
     "Select a drive to unlock": "Vyberte disk, který chcete odemknout",
@@ -305,7 +302,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Tento disk obsahuje několik svazků a %@ nedokázal určit které. Nahlášení by pomohlo.",
     "This drive is exFAT, and is not encrypted.": "Tento disk je exFAT a není šifrovaný.",
     "This drive is plain NTFS, and is not encrypted.": "Tento disk je běžný NTFS a není šifrovaný.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "Jde o nastavení soukromí v systému macOS, nikoli o změnu vašeho Macu. Můžete je kdykoli zase vypnout a nic se neinstaluje.",
     "This partition is not a BitLocker volume.": "Tento oddíl není svazek BitLocker.",
     "This takes a moment.": "Chvíli to potrvá.",
     "This usually takes under a minute.": "Obvykle to trvá méně než minutu.",
@@ -391,6 +387,12 @@
     "“%@” was not opened": "„%@“ se nepodařilo otevřít",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ nebyl řádně vypnut a jeho poslední obsah nebyl zapsán zpět do souboru. Otevřete jej jednou ve virtuálním počítači, kterému patří, a zkuste to znovu.",
     "Open an Issue": "Otevřít issue",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Na issue na GitHubu přijde odpověď dříve. Pokud obsahuje něco, co byste raději nezveřejňovali, pošlete jej e-mailem."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Na issue na GitHubu přijde odpověď dříve. Pokud obsahuje něco, co byste raději nezveřejňovali, pošlete jej e-mailem.",
+    "%@ could not open your drives": "%@ nemohl otevřít vaše disky",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "Disky se mají po restartu znovu otevřít, ale plný přístup k disku už není udělen. Aktualizace macOS, přesunutí nebo přeinstalace ho mohou odebrat.",
+    "Click + there, select %@ in Applications, and switch it on.": "Klepněte tam na +, vyberte %@ ve složce Aplikace a zapněte jej.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Vraťte se sem a klepněte na Restartovat. Nové oprávnění platí jen pro aplikaci spuštěnou poté, co bylo uděleno.",
+    "Quit App": "Ukončit",
+    "Open System Settings": "Otevřít Nastavení systému"
   }
 }

@@ -128,9 +128,7 @@
     "Checking every disk…": "Проверка на всички дискове…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Изберете Файл → Отвори дисков образ или Файл → Отвори диск, за да видите всеки диск, свързан с този Mac, и какво %@ може да направи с него",
     "Choose a disk image or container file to open.": "Изберете дисков образ или контейнерен файл за отваряне.",
-    "Click + and add %@, then switch it on.": "Щракнете върху „+“, добавете %@ и го включете.",
     "Collapsed": "Свито",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Върнете се тук и изберете Рестартирай. Ново разрешение важи само за приложение, стартирано след като е било дадено.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Свържете диска и изберете Търсене отново. Ако вече е свързан, macOS може да го е монтирал — тогава първо го извадете във Finder. За да отворите дисков образ вместо това, изберете Файл → Отвори дисков образ.",
     "Copied": "Копирано",
     "Copy Details": "Копирай подробностите",
@@ -239,7 +237,6 @@
     "Report an Issue…": "Съобщи за проблем…",
     "Requirements": "Изисквания",
     "Rescan": "Търсене отново",
-    "Reveal App": "Покажи приложението във Finder",
     "Saving changes to this file could damage it": "Записването на промени може да повреди файла",
     "Seeing connected drives": "Виждане на свързаните дискове",
     "Select a drive to unlock": "Изберете диск за отключване",
@@ -289,7 +286,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Този диск съдържа няколко тома и %@ не успя да определи кои. Съобщаването за това би помогнало.",
     "This drive is exFAT, and is not encrypted.": "Този диск е exFAT и не е шифрован.",
     "This drive is plain NTFS, and is not encrypted.": "Този диск е обикновен NTFS и не е шифрован.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "Това е настройка за поверителност на macOS, а не промяна на вашия Mac. Можете да я изключите по всяко време и нищо не се инсталира.",
     "This partition is not a BitLocker volume.": "Този дял не е том на BitLocker.",
     "This takes a moment.": "Това отнема момент.",
     "This usually takes under a minute.": "Обикновено отнема под минута.",
@@ -375,6 +371,12 @@
     "“%@” was not opened": "„%@“ не беше отворен",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ не беше изключен правилно и последното му съдържание не е записано обратно във файла. Отворете го веднъж във виртуалната машина, на която принадлежи, и опитайте отново.",
     "Open an Issue": "Отваряне на сигнал",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Сигналите в GitHub получават отговор по-бързо. Изпратете го по имейл, ако съдържа нещо, което предпочитате да не публикувате."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Сигналите в GitHub получават отговор по-бързо. Изпратете го по имейл, ако съдържа нещо, което предпочитате да не публикувате.",
+    "%@ could not open your drives": "%@ не можа да отвори дисковете ви",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "Дисковете ви са настроени да се отварят отново след рестарт, но пълният достъп до диска вече не е разрешен. Актуализация на macOS, преместване или преинсталиране могат да го премахнат.",
+    "Click + there, select %@ in Applications, and switch it on.": "Щракнете + там, изберете %@ в Applications и включете го.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Върнете се тук и щракнете Рестартиране. Новото разрешение важи само за приложение, стартирано след даването му.",
+    "Quit App": "Затваряне",
+    "Open System Settings": "Отваряне на Системни настройки"
   }
 }

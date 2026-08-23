@@ -611,6 +611,8 @@ final class AppModel: ObservableObject {
     /// back. `helper.refresh` remains, asking launchd about a service it already
     /// knows and touching no disk.
     func applyPermissions(_ reading: Permissions.Reading) {
+        // Granted since, so the screen has nothing left to explain.
+        if reading.fullDiskAccess { restoreBlocked = false }
         hasFullDiskAccess = reading.fullDiskAccess
         // The recorded decision first, then the evidence. Having opened a drive
         // before establishes that the permission was granted without depending
@@ -930,11 +932,6 @@ final class AppModel: ObservableObject {
         NSWorkspace.shared.open(url)
     }
 
-    /// Reveal the app itself so it can be dragged into the Full Disk Access list.
-    func revealApp() {
-        NSWorkspace.shared.activateFileViewerSelecting([Bundle.main.bundleURL])
-    }
-
     /// Stop waiting on a mount and go back to the credential.
     ///
     /// The engine may already be working and nothing here can reach into it, so
@@ -1179,6 +1176,14 @@ final class AppModel: ObservableObject {
     /// are concerned the drives are simply there, the way macOS mounts a disk.
     private var restoring = false
 
+    /// Whether the permission screen is up because a restore could not run,
+    /// rather than because the app has just been installed.
+    ///
+    /// The screen is the same; what it says at the top is not. Somebody who
+    /// switched restoring on has granted the permission once already, and is
+    /// owed the reason they are being asked again.
+    @Published var restoreBlocked = false
+
     /// What is still to be put back, one at a time. The engine will not have
     /// two mounts started at once the first time it runs after an update, and
     /// serially is fast enough for the handful of drives anyone keeps open.
@@ -1206,6 +1211,17 @@ final class AppModel: ObservableObject {
         guard RestorePreference.isOn, !restoring, mountTask == nil else { return }
         let waiting = MountMemory.all().filter { !isAlreadyOpen($0) }
         guard !waiting.isEmpty else { return }
+
+        // A drive that is not a container file is read at the raw device, which
+        // needs Full Disk Access. Anyone who turned this setting on granted it
+        // once; that it has gone since is worth saying, because the alternative
+        // is drives that quietly do not come back.
+        if !hasFullDiskAccess, waiting.contains(where: { $0.imagePath == nil }) {
+            Log.mount.notice("drives cannot be put back: no full disk access")
+            restoreBlocked = true
+            phase = .needsPermission
+            return
+        }
         restoring = true
         restoreQueue = waiting
         Log.mount.notice("putting back \(waiting.count, privacy: .public) drives")

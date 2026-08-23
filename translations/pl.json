@@ -144,9 +144,7 @@
     "Checking every disk…": "Sprawdzanie wszystkich dysków…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Wybierz Plik → Otwórz obraz dysku albo Plik → Otwórz dysk, aby zobaczyć każdy dysk podłączony do tego Maca i to, co %@ może z nim zrobić",
     "Choose a disk image or container file to open.": "Wybierz obraz dysku lub plik kontenera do otwarcia.",
-    "Click + and add %@, then switch it on.": "Kliknij „+”, dodaj %@ i włącz przełącznik.",
     "Collapsed": "Zwinięte",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Wróć tutaj i wybierz Uruchom ponownie. Nowe uprawnienie dotyczy tylko programu uruchomionego po jego przyznaniu.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Podłącz dysk i wybierz Szukaj ponownie. Jeśli jest już podłączony, macOS mógł go zamontować — wtedy najpierw wysuń go w Finderze. Aby zamiast tego otworzyć obraz dysku, wybierz Plik → Otwórz obraz dysku.",
     "Copied": "Skopiowano",
     "Copy Details": "Kopiuj szczegóły",
@@ -255,7 +253,6 @@
     "Report an Issue…": "Zgłoś problem…",
     "Requirements": "Wymagania",
     "Rescan": "Szukaj ponownie",
-    "Reveal App": "Pokaż aplikację w Finderze",
     "Saving changes to this file could damage it": "Zapisanie zmian może uszkodzić ten plik",
     "Seeing connected drives": "Widok podłączonych dysków",
     "Select a drive to unlock": "Wybierz dysk do odblokowania",
@@ -305,7 +302,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ten dysk zawiera kilka woluminów, a %@ nie zdołał ustalić, które. Zgłoszenie tego byłoby pomocne.",
     "This drive is exFAT, and is not encrypted.": "Ten dysk to exFAT i nie jest zaszyfrowany.",
     "This drive is plain NTFS, and is not encrypted.": "Ten dysk to zwykły NTFS i nie jest zaszyfrowany.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "To ustawienie prywatności systemu macOS, a nie zmiana w Twoim Macu. Możesz je wyłączyć w dowolnej chwili, a nic nie jest instalowane.",
     "This partition is not a BitLocker volume.": "Ta partycja nie jest woluminem BitLocker.",
     "This takes a moment.": "To chwilę potrwa.",
     "This usually takes under a minute.": "Zwykle trwa to krócej niż minutę.",
@@ -391,6 +387,12 @@
     "“%@” was not opened": "Nie otwarto „%@”",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@” nie został poprawnie zamknięty, a jego najnowsza zawartość nie została zapisana z powrotem do pliku. Otwórz go raz w maszynie wirtualnej, do której należy, i spróbuj ponownie.",
     "Open an Issue": "Otwórz zgłoszenie",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Na zgłoszenia w serwisie GitHub odpowiedź przychodzi szybciej. Wyślij je e-mailem, jeśli zawiera coś, czego wolisz nie publikować."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Na zgłoszenia w serwisie GitHub odpowiedź przychodzi szybciej. Wyślij je e-mailem, jeśli zawiera coś, czego wolisz nie publikować.",
+    "%@ could not open your drives": "%@ nie mógł otworzyć twoich dysków",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "Dyski mają być otwierane ponownie po restarcie, ale pełny dostęp do dysku nie jest już przyznany. Aktualizacja macOS, przeniesienie lub ponowna instalacja mogą go odebrać.",
+    "Click + there, select %@ in Applications, and switch it on.": "Kliknij tam +, wybierz %@ w Programach i włącz go.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Wróć tutaj i kliknij Uruchom ponownie. Nowe uprawnienie dotyczy tylko programu uruchomionego po jego przyznaniu.",
+    "Quit App": "Zakończ",
+    "Open System Settings": "Otwórz Ustawienia systemowe"
   }
 }

@@ -128,9 +128,7 @@
     "Checking every disk…": "Kõikide ketaste kontrollimine…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Vali Fail → Ava kettatõmmis või Fail → Ava ketas, et näha kõiki selle Maciga ühendatud kettaid ja seda, mida %@ igaühega teha saab",
     "Choose a disk image or container file to open.": "Vali avamiseks kettatõmmis või konteinerfail.",
-    "Click + and add %@, then switch it on.": "Klõpsa „+“, lisa %@ ja lülita see sisse.",
     "Collapsed": "Suletud",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Tulge siia tagasi ja valige Käivita uuesti. Uus luba kehtib ainult rakendusele, mis käivitati pärast selle andmist.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Ühendage ketas ja valige Otsi uuesti. Kui see on juba ühendatud, võib macOS olla selle haakinud — siis väljutage see kõigepealt Finderis. Kettatõmmise avamiseks valige hoopis Fail → Ava kettatõmmis.",
     "Copied": "Kopeeritud",
     "Copy Details": "Kopeeri üksikasjad",
@@ -239,7 +237,6 @@
     "Report an Issue…": "Teata probleemist…",
     "Requirements": "Nõuded",
     "Rescan": "Otsi uuesti",
-    "Reveal App": "Näita rakendust Finderis",
     "Saving changes to this file could damage it": "Muudatuste salvestamine võib faili rikkuda",
     "Seeing connected drives": "Ühendatud ketaste nägemine",
     "Select a drive to unlock": "Vali ketas, mida avada",
@@ -289,7 +286,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "See ketas sisaldab mitut köidet ja %@ ei suutnud tuvastada, milliseid. Sellest teatamine aitaks.",
     "This drive is exFAT, and is not encrypted.": "See ketas on exFAT ega ole krüptitud.",
     "This drive is plain NTFS, and is not encrypted.": "See ketas on tavaline NTFS ega ole krüptitud.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "See on macOS-i privaatsusseade, mitte muudatus sinu Macis. Sa võid selle igal ajal uuesti välja lülitada ja midagi ei paigaldata.",
     "This partition is not a BitLocker volume.": "See partitsioon ei ole BitLockeri köide.",
     "This takes a moment.": "See võtab hetke.",
     "This usually takes under a minute.": "Tavaliselt võtab see alla minuti.",
@@ -375,6 +371,12 @@
     "“%@” was not opened": "„%@“ ei avatud",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ ei suletud korralikult ja tema viimane sisu on faili tagasi kirjutamata. Ava see korra virtuaalmasinas, kuhu see kuulub, ja proovi siis uuesti.",
     "Open an Issue": "Ava teade",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "GitHubi teated saavad vastuse kiiremini. Saada see e-postiga, kui selles on midagi, mida sa pigem ei avaldaks."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "GitHubi teated saavad vastuse kiiremini. Saada see e-postiga, kui selles on midagi, mida sa pigem ei avaldaks.",
+    "%@ could not open your drives": "%@ ei saanud su kettaid avada",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "Su kettad on seatud pärast taaskäivitust uuesti avanema, kuid täielikku kettaligipääsu enam antud ei ole. macOS-i uuendus, teisaldamine või uuesti paigaldamine võib selle eemaldada.",
+    "Click + there, select %@ in Applications, and switch it on.": "Klõpsa seal +, vali %@ kaustast Rakendused ja lülita see sisse.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Tule siia tagasi ja klõpsa „Käivita uuesti“. Uus luba kehtib ainult rakendusele, mis käivitati pärast selle andmist.",
+    "Quit App": "Välju",
+    "Open System Settings": "Ava süsteemiseaded"
   }
 }

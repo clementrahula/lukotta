@@ -15,14 +15,35 @@ struct PermissionView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack(spacing: 12) {
-                        Image(systemName: "hand.wave.fill")
-                            .font(.system(size: 28)).foregroundStyle(.tint)
-                            .accessibilityHidden(true)
+                        // The same screen either way. What differs is whether
+                        // this is the first time or the permission has gone
+                        // since it was granted.
+                        Image(
+                            systemName: model.restoreBlocked
+                                ? "exclamationmark.triangle.fill" : "hand.wave.fill"
+                        )
+                        .font(.system(size: 28))
+                        // Orange, as a permission that has not been granted is
+                        // elsewhere in the app. In the tint it read as
+                        // reassurance, which is the opposite of the message.
+                        .foregroundStyle(.orange)
+                        .accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("Welcome to \(Brand.name)").font(.title3.weight(.semibold))
-                                .accessibilityAddTraits(.isHeader)
                             Text(
-                                "\(Brand.name) opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access. An administrator password is not enough, and the removable-volumes permission covers files on a drive rather than the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand."
+                                model.restoreBlocked
+                                    ? appString("\(Brand.name) could not open your drives")
+                                    : appString("Welcome to \(Brand.name)")
+                            )
+                            .font(.title3.weight(.semibold))
+                            .accessibilityAddTraits(.isHeader)
+                            Text(
+                                model.restoreBlocked
+                                    ? appString(
+                                        "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it."
+                                    )
+                                    : appString(
+                                        "\(Brand.name) opens BitLocker and Linux drives that macOS cannot read on its own. One setting is needed first.\n\nReading a drive at the raw device level needs Full Disk Access. An administrator password is not enough, and the removable-volumes permission covers files on a drive rather than the raw device. macOS has no way for an app to request this one, so it has to be switched on by hand."
+                                    )
                             )
                             .font(.callout).foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -31,11 +52,15 @@ struct PermissionView: View {
 
                     VStack(alignment: .leading, spacing: 9) {
                         Step(number: 1, text: "Open Privacy & Security → Full Disk Access.")
-                        Step(number: 2, text: "Click + and add \(Brand.name), then switch it on.")
+                        Step(
+                            number: 2,
+                            text:
+                                "Click + there, select \(Brand.name) in Applications, and switch it on."
+                        )
                         Step(
                             number: 3,
                             text:
-                                "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted."
+                                "Come back here and click Relaunch. A new permission applies only to an app started after it was granted."
                         )
                     }
                     .padding(13)
@@ -44,11 +69,6 @@ struct PermissionView: View {
                     .accessibilityElement(children: .contain)
                     .accessibilityLabel("What to do")
 
-                    InfoBox(
-                        icon: "hand.raised",
-                        text:
-                            "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed."
-                    )
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -81,7 +101,7 @@ struct PermissionView: View {
     }
 
     private var reveal: some View {
-        Button("Reveal App") { model.revealApp() }
+        Button("Quit App") { NSApp.terminate(nil) }
     }
     private var relaunch: some View {
         Button("Relaunch") { model.relaunch() }
@@ -90,7 +110,10 @@ struct PermissionView: View {
         Button("Check Again") { model.recheckPermission() }
     }
     private var openSettings: some View {
-        Button("Open Privacy Settings") { model.openPrivacySettings() }
+        // The one thing to do here, so it carries the tint and takes Return.
+        Button("Open System Settings") { model.openPrivacySettings() }
+            .buttonStyle(.borderedProminent)
+            .keyboardShortcut(.defaultAction)
             .keyboardShortcut(.defaultAction)
     }
 }
@@ -103,7 +126,7 @@ struct Step: View {
             Text(verbatim: "\(number)")
                 .font(.caption.weight(.bold)).foregroundStyle(.white)
                 .frame(width: 17, height: 17)
-                .background(Circle().fill(.tint))
+                .background(Circle().fill(.orange))
             Text(text).font(.callout).fixedSize(horizontal: false, vertical: true)
         }
     }

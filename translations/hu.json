@@ -128,9 +128,7 @@
     "Checking every disk…": "Minden lemez ellenőrzése…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Válassza a Fájl → Lemezkép megnyitása vagy a Fájl → Meghajtó megnyitása menüpontot, hogy lássa a Machez csatlakoztatott összes lemezt, és azt, mit tud velük a(z) %@ kezdeni",
     "Choose a disk image or container file to open.": "Válasszon megnyitandó lemezképet vagy tárolófájlt.",
-    "Click + and add %@, then switch it on.": "Kattintson a „+” gombra, adja hozzá a(z) %@ programot, majd kapcsolja be.",
     "Collapsed": "Összecsukva",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Térjen ide vissza, és válassza az Újraindítás lehetőséget. Az új engedély csak a megadása után indított alkalmazásra vonatkozik.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Csatlakoztassa a lemezt, és válassza a Keresés újra lehetőséget. Ha már csatlakoztatva van, lehet, hogy a macOS csatolta — ez esetben előbb adja ki a Finderben. Ha inkább lemezképet nyitna meg, válassza a Fájl → Lemezkép megnyitása menüpontot.",
     "Copied": "Másolva",
     "Copy Details": "Adatok másolása",
@@ -239,7 +237,6 @@
     "Report an Issue…": "Probléma jelentése…",
     "Requirements": "Követelmények",
     "Rescan": "Keresés újra",
-    "Reveal App": "Alkalmazás megjelenítése a Finderben",
     "Saving changes to this file could damage it": "A módosítások mentése kárt tehet ebben a fájlban",
     "Seeing connected drives": "Csatlakoztatott meghajtók látása",
     "Select a drive to unlock": "Válasszon egy feloldandó meghajtót",
@@ -289,7 +286,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ez a meghajtó több kötetet tartalmaz, és a(z) %@ nem tudta megállapítani, melyeket. Segítene, ha jelentené.",
     "This drive is exFAT, and is not encrypted.": "Ez a meghajtó exFAT, és nincs titkosítva.",
     "This drive is plain NTFS, and is not encrypted.": "Ez a meghajtó egyszerű NTFS, és nincs titkosítva.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "Ez a macOS egyik adatvédelmi beállítása, nem a Mac módosítása. Bármikor újra kikapcsolhatja, és semmi nem kerül telepítésre.",
     "This partition is not a BitLocker volume.": "Ez a partíció nem BitLocker-kötet.",
     "This takes a moment.": "Ez eltart egy pillanatig.",
     "This usually takes under a minute.": "Ez általában egy percnél kevesebb ideig tart.",
@@ -375,6 +371,12 @@
     "“%@” was not opened": "A(z) „%@” nem lett megnyitva",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "A(z) „%@” nem állt le rendesen, és a legutóbbi tartalma nem került vissza a fájlba. Nyissa meg egyszer abban a virtuális gépben, amelyhez tartozik, majd próbálja újra.",
     "Open an Issue": "Hibajegy megnyitása",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "A GitHubon nyitott hibajegyekre hamarabb érkezik válasz. Küldje inkább e-mailben, ha olyasmit tartalmaz, amit inkább nem hozna nyilvánosságra."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "A GitHubon nyitott hibajegyekre hamarabb érkezik válasz. Küldje inkább e-mailben, ha olyasmit tartalmaz, amit inkább nem hozna nyilvánosságra.",
+    "%@ could not open your drives": "A(z) %@ nem tudta megnyitni a lemezeit",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "A lemezek úgy vannak beállítva, hogy újraindítás után ismét megnyíljanak, de a teljes lemezhozzáférés már nincs megadva. Egy macOS-frissítés, áthelyezés vagy újratelepítés elveheti.",
+    "Click + there, select %@ in Applications, and switch it on.": "Kattintson ott a + gombra, válassza ki a(z) %@ alkalmazást az Alkalmazások mappában, és kapcsolja be.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Térjen ide vissza, és kattintson az Újraindítás gombra. Az új engedély csak a megadása után indított alkalmazásra vonatkozik.",
+    "Quit App": "Kilépés",
+    "Open System Settings": "Rendszerbeállítások megnyitása"
   }
 }

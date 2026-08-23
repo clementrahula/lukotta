@@ -128,9 +128,7 @@
     "Checking every disk…": "Kontrollerar alla diskar…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Välj Arkiv → Öppna skivavbild, eller Arkiv → Öppna disk för att se varje disk som är ansluten till den här datorn och vad %@ kan göra med var och en",
     "Choose a disk image or container file to open.": "Välj en skivavbild eller containerfil som ska öppnas.",
-    "Click + and add %@, then switch it on.": "Klicka på ”+”, lägg till %@ och slå på det.",
     "Collapsed": "Infälld",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Kom tillbaka hit och välj Starta om. En ny behörighet gäller bara för ett program som startats efter att den gavs.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Anslut disken och välj Sök igen. Är den redan ansluten kan macOS ha monterat den — mata i så fall ut den i Finder först. Vill du i stället öppna en skivavbild, välj Arkiv → Öppna skivavbild.",
     "Copied": "Kopierat",
     "Copy Details": "Kopiera uppgifter",
@@ -239,7 +237,6 @@
     "Report an Issue…": "Rapportera ett problem…",
     "Requirements": "Systemkrav",
     "Rescan": "Sök igen",
-    "Reveal App": "Visa appen i Finder",
     "Saving changes to this file could damage it": "Att spara ändringar kan skada den här filen",
     "Seeing connected drives": "Se anslutna enheter",
     "Select a drive to unlock": "Välj en enhet att låsa upp",
@@ -289,7 +286,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Enheten innehåller flera volymer och %@ kunde inte avgöra vilka. Att rapportera det skulle hjälpa.",
     "This drive is exFAT, and is not encrypted.": "Enheten är exFAT och är inte krypterad.",
     "This drive is plain NTFS, and is not encrypted.": "Enheten är vanlig NTFS och är inte krypterad.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "Det här är en integritetsinställning i macOS, inte en ändring av din Mac. Du kan slå av den igen när som helst, och ingenting installeras.",
     "This partition is not a BitLocker volume.": "Den här partitionen är inte en BitLocker-volym.",
     "This takes a moment.": "Det tar ett ögonblick.",
     "This usually takes under a minute.": "Det tar oftast mindre än en minut.",
@@ -375,6 +371,12 @@
     "“%@” was not opened": "”%@” öppnades inte",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "”%@” stängdes inte av ordentligt, och dess senaste innehåll har inte skrivits tillbaka till filen. Öppna den en gång i den virtuella maskin den hör till och försök igen.",
     "Open an Issue": "Öppna ett ärende",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Ett ärende på GitHub besvaras snabbare. Skicka det med e-post i stället om det innehåller något du helst inte vill publicera."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Ett ärende på GitHub besvaras snabbare. Skicka det med e-post i stället om det innehåller något du helst inte vill publicera.",
+    "%@ could not open your drives": "%@ kunde inte öppna dina diskar",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "Dina diskar är inställda att öppnas igen efter en omstart, men full diskåtkomst är inte längre beviljad. En macOS-uppdatering, en flytt eller en ominstallation kan ta bort den.",
+    "Click + there, select %@ in Applications, and switch it on.": "Klicka på + där, välj %@ i Program och slå på den.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Kom tillbaka hit och klicka på Starta om. En ny behörighet gäller bara för ett program som startats efter att den beviljades.",
+    "Quit App": "Avsluta",
+    "Open System Settings": "Öppna Systeminställningar"
   }
 }

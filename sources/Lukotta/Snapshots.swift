@@ -102,6 +102,15 @@ enum Snapshots {
 
         return [
             ("permission", model { $0.phase = .needsPermission }),
+            // The same screen, reached because a drive could not be put back
+            // after a restart rather than because the app is new.
+            (
+                "permission-restore",
+                model {
+                    $0.phase = .needsPermission
+                    $0.restoreBlocked = true
+                }
+            ),
             ("scanning", model { $0.phase = .scanning }),
             ("empty", model { $0.phase = .chooseDrive }),
             (

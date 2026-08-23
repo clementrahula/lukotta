@@ -128,9 +128,7 @@
     "Checking every disk…": "Vérification de tous les disques…",
     "Choose File → Open Disk Image, or File → Open Drive to see every disk attached to this Mac and what %@ can do with each": "Choisissez Fichier → Ouvrir une image disque, ou Fichier → Ouvrir un disque pour voir chaque disque relié à ce Mac et ce que %@ peut en faire",
     "Choose a disk image or container file to open.": "Choisissez une image disque ou un fichier conteneur à ouvrir.",
-    "Click + and add %@, then switch it on.": "Cliquez sur « + », ajoutez %@, puis activez l’option.",
     "Collapsed": "Réduit",
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": "Revenez ici et choisissez Relancer. Une nouvelle autorisation ne vaut que pour une app lancée après son octroi.",
     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.": "Branchez le disque et choisissez Rechercher à nouveau. S’il est déjà branché, macOS l’a peut-être monté : éjectez-le d’abord dans le Finder. Pour ouvrir une image disque à la place, choisissez Fichier → Ouvrir une image disque.",
     "Copied": "Copié",
     "Copy Details": "Copier les détails",
@@ -239,7 +237,6 @@
     "Report an Issue…": "Signaler un problème…",
     "Requirements": "Configuration requise",
     "Rescan": "Rechercher à nouveau",
-    "Reveal App": "Afficher l’app dans le Finder",
     "Saving changes to this file could damage it": "Enregistrer des modifications peut endommager ce fichier",
     "Seeing connected drives": "Voir les disques connectés",
     "Select a drive to unlock": "Sélectionnez un disque à déverrouiller",
@@ -289,7 +286,6 @@
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ce disque contient plusieurs volumes, et %@ n’a pas pu déterminer lesquels. Le signaler serait utile.",
     "This drive is exFAT, and is not encrypted.": "Ce disque est en exFAT et n’est pas chiffré.",
     "This drive is plain NTFS, and is not encrypted.": "Ce disque est en NTFS simple et n’est pas chiffré.",
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": "Il s’agit d’un réglage de confidentialité de macOS, pas d’une modification de votre Mac. Vous pouvez le désactiver à tout moment, et rien n’est installé.",
     "This partition is not a BitLocker volume.": "Cette partition n’est pas un volume BitLocker.",
     "This takes a moment.": "Cela prend un instant.",
     "This usually takes under a minute.": "Cela prend généralement moins d’une minute.",
@@ -375,6 +371,12 @@
     "“%@” was not opened": "« %@ » n’a pas été ouvert",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "« %@ » n’a pas été arrêté proprement, et son contenu le plus récent n’a pas été réécrit dans le fichier. Ouvrez-le une fois dans la machine virtuelle à laquelle il appartient, puis réessayez.",
     "Open an Issue": "Ouvrir un ticket",
-    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Un ticket sur GitHub reçoit une réponse plus rapidement. Envoyez-le par e-mail s’il contient quelque chose que vous préférez ne pas publier."
+    "An issue on GitHub is answered sooner. Send it by email instead if it carries anything you would rather not publish.": "Un ticket sur GitHub reçoit une réponse plus rapidement. Envoyez-le par e-mail s’il contient quelque chose que vous préférez ne pas publier.",
+    "%@ could not open your drives": "%@ n’a pas pu ouvrir vos disques",
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": "Vos disques doivent se rouvrir après un redémarrage, mais l’accès complet au disque n’est plus accordé. Une mise à jour de macOS, un déplacement ou une réinstallation peuvent le retirer.",
+    "Click + there, select %@ in Applications, and switch it on.": "Cliquez sur + à cet endroit, sélectionnez %@ dans Applications et activez-le.",
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": "Revenez ici et cliquez sur Relancer. Une nouvelle autorisation ne s’applique qu’à une app lancée après son octroi.",
+    "Quit App": "Quitter",
+    "Open System Settings": "Ouvrir Réglages Système"
   }
 }

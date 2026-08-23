@@ -1,6 +1,136 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ could not open your drives": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ не можа да отвори дисковете ви"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nemohl otevřít vaše disky"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ kunne ikke åbne dine diske"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ konnte deine Laufwerke nicht öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το %@ δεν μπόρεσε να ανοίξει τους δίσκους σας"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ no ha podido abrir tus discos"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ei saanud su kettaid avada"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ei voinut avata levyjäsi"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ n’a pas pu ouvrir vos disques"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nije mogao otvoriti vaše diskove"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ nem tudta megnyitni a lemezeit"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ non è riuscito ad aprire i tuoi dischi"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ negalėjo atverti jūsų diskų"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nevarēja atvērt jūsu diskus"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ kunne ikke åpne diskene dine"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ kon je schijven niet openen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nie mógł otworzyć twoich dysków"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O %@ não conseguiu abrir os seus discos"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nu a putut deschide discurile dvs."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ni mogel odpreti vaših diskov"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ kunde inte öppna dina diskar"
+          }
+        }
+      }
+    },
     "%@ free of %@": {
       "localizations": {
         "bg": {
@@ -7975,132 +8105,132 @@
         }
       }
     },
-    "Click + and add %@, then switch it on.": {
+    "Click + there, select %@ in Applications, and switch it on.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Щракнете върху „+“, добавете %@ и го включете."
+            "value": "Щракнете + там, изберете %@ в Applications и включете го."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klikněte na „+“, přidejte %@ a zapněte přepínač."
+            "value": "Klepněte tam na +, vyberte %@ ve složce Aplikace a zapněte jej."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klik på “+”, tilføj %@, og slå den til."
+            "value": "Klik på + der, vælg %@ i Programmer, og slå den til."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klicke auf „+“, füge %@ hinzu und aktiviere den Schalter."
+            "value": "Klicke dort auf +, wähle %@ in „Programme“ und schalte es ein."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Κάντε κλικ στο «+», προσθέστε το %@ και ενεργοποιήστε το."
+            "value": "Κάντε κλικ στο + εκεί, επιλέξτε το %@ στις Εφαρμογές και ενεργοποιήστε το."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Haz clic en «+», añade %@ y actívalo."
+            "value": "Haz clic en + ahí, selecciona %@ en Aplicaciones y actívalo."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klõpsa „+“, lisa %@ ja lülita see sisse."
+            "value": "Klõpsa seal +, vali %@ kaustast Rakendused ja lülita see sisse."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Osoita ”+”, lisää %@ ja ota se käyttöön."
+            "value": "Osoita siellä +, valitse %@ Ohjelmat-kansiosta ja kytke se päälle."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cliquez sur « + », ajoutez %@, puis activez l’option."
+            "value": "Cliquez sur + à cet endroit, sélectionnez %@ dans Applications et activez-le."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kliknite „+”, dodajte %@ i uključite ga."
+            "value": "Ondje kliknite +, odaberite %@ u mapi Aplikacije i uključite ga."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kattintson a „+” gombra, adja hozzá a(z) %@ programot, majd kapcsolja be."
+            "value": "Kattintson ott a + gombra, válassza ki a(z) %@ alkalmazást az Alkalmazások mappában, és kapcsolja be."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fai clic su «+», aggiungi %@ e attivalo."
+            "value": "Fai clic su + lì, seleziona %@ in Applicazioni e attivalo."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spustelėkite „+“, pridėkite %@ ir įjunkite."
+            "value": "Ten spustelėkite +, aplanke „Programos“ pasirinkite „%@“ ir įjunkite."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Noklikšķiniet uz “+”, pievienojiet %@ un ieslēdziet to."
+            "value": "Tur noklikšķiniet uz +, mapē Programmas atlasiet %@ un ieslēdziet to."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klikk på «+», legg til %@ og slå den på."
+            "value": "Klikk på + der, velg %@ i Programmer, og slå den på."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klik op ‘+’, voeg %@ toe en schakel het in."
+            "value": "Klik daar op +, selecteer %@ in Programma's en zet die aan."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kliknij „+”, dodaj %@ i włącz przełącznik."
+            "value": "Kliknij tam +, wybierz %@ w Programach i włącz go."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clique em «+», adicione o %@ e ative-o."
+            "value": "Clique em + aí, selecione o %@ em Aplicações e ative-o."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Faceți clic pe „+”, adăugați %@ și activați-l."
+            "value": "Faceți clic pe + acolo, selectați %@ în Aplicații și activați-l."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kliknite »+«, dodajte %@ in ga vklopite."
+            "value": "Tam kliknite +, izberite %@ v mapi Programi in ga vklopite."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klicka på ”+”, lägg till %@ och slå på det."
+            "value": "Klicka på + där, välj %@ i Program och slå på den."
           }
         }
       }
@@ -8235,132 +8365,132 @@
         }
       }
     },
-    "Come back here and choose Relaunch. A new permission applies only to an app started after it was granted.": {
+    "Come back here and click Relaunch. A new permission applies only to an app started after it was granted.": {
       "localizations": {
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Върнете се тук и изберете Рестартирай. Ново разрешение важи само за приложение, стартирано след като е било дадено."
+            "value": "Върнете се тук и щракнете Рестартиране. Новото разрешение важи само за приложение, стартирано след даването му."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vraťte se sem a zvolte Spustit znovu. Nové oprávnění platí jen pro aplikaci spuštěnou poté, co bylo uděleno."
+            "value": "Vraťte se sem a klepněte na Restartovat. Nové oprávnění platí jen pro aplikaci spuštěnou poté, co bylo uděleno."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kom tilbage hertil og vælg Start igen. En ny tilladelse gælder kun for et program, der er startet efter, den blev givet."
+            "value": "Kom tilbage hertil, og klik på Start igen. En ny tilladelse gælder kun for et program, der er startet, efter at den blev givet."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Komm hierher zurück und wähle Neu starten. Eine neue Berechtigung gilt nur für eine App, die danach gestartet wurde."
+            "value": "Komm hierher zurück und klicke auf „Neu starten“. Eine neue Berechtigung gilt nur für ein Programm, das danach gestartet wurde."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Επιστρέψτε εδώ και επιλέξτε Επανεκκίνηση. Μια νέα άδεια ισχύει μόνο για εφαρμογή που ξεκίνησε αφού δόθηκε."
+            "value": "Επιστρέψτε εδώ και κάντε κλικ στην Επανεκκίνηση. Μια νέα άδεια ισχύει μόνο για εφαρμογή που ξεκίνησε αφού παραχωρήθηκε."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vuelve aquí y elige Reiniciar. Un permiso nuevo solo se aplica a una app abierta después de concederlo."
+            "value": "Vuelve aquí y haz clic en Reiniciar. Un permiso nuevo solo se aplica a una app iniciada después de concederlo."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tulge siia tagasi ja valige Käivita uuesti. Uus luba kehtib ainult rakendusele, mis käivitati pärast selle andmist."
+            "value": "Tule siia tagasi ja klõpsa „Käivita uuesti“. Uus luba kehtib ainult rakendusele, mis käivitati pärast selle andmist."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Palaa tänne ja valitse Käynnistä uudelleen. Uusi käyttöoikeus koskee vain ohjelmaa, joka on käynnistetty sen myöntämisen jälkeen."
+            "value": "Palaa tänne ja osoita Käynnistä uudelleen. Uusi oikeus koskee vain ohjelmaa, joka on käynnistetty sen myöntämisen jälkeen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Revenez ici et choisissez Relancer. Une nouvelle autorisation ne vaut que pour une app lancée après son octroi."
+            "value": "Revenez ici et cliquez sur Relancer. Une nouvelle autorisation ne s’applique qu’à une app lancée après son octroi."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vratite se ovamo i odaberite Pokreni ponovno. Nova dozvola vrijedi samo za aplikaciju pokrenutu nakon što je dana."
+            "value": "Vratite se ovamo i kliknite Ponovno pokreni. Novo dopuštenje vrijedi samo za aplikaciju pokrenutu nakon što je dodijeljeno."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Térjen ide vissza, és válassza az Újraindítás lehetőséget. Az új engedély csak a megadása után indított alkalmazásra vonatkozik."
+            "value": "Térjen ide vissza, és kattintson az Újraindítás gombra. Az új engedély csak a megadása után indított alkalmazásra vonatkozik."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Torna qui e scegli Riavvia. Un permesso nuovo vale solo per un’app avviata dopo che è stato concesso."
+            "value": "Torna qui e fai clic su Riavvia. Un nuovo permesso vale solo per un’app avviata dopo che è stato concesso."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Grįžkite čia ir pasirinkite Paleisti iš naujo. Naujas leidimas galioja tik programai, paleistai po jo suteikimo."
+            "value": "Grįžkite čia ir spustelėkite „Paleisti iš naujo“. Naujas leidimas galioja tik programai, paleistai po jo suteikimo."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Atgriezieties šeit un izvēlieties Palaist no jauna. Jauna atļauja attiecas tikai uz lietotni, kas palaista pēc tās piešķiršanas."
+            "value": "Atgriezieties šeit un noklikšķiniet uz Restartēt. Jauna atļauja attiecas tikai uz programmu, kas palaista pēc tās piešķiršanas."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kom tilbake hit og velg Start på nytt. En ny tillatelse gjelder bare for et program som er startet etter at den ble gitt."
+            "value": "Kom tilbake hit og klikk Start på nytt. En ny tillatelse gjelder bare for et program som er startet etter at den ble gitt."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kom hier terug en kies Herstart. Een nieuwe toegang geldt alleen voor een app die daarna is gestart."
+            "value": "Kom hier terug en klik op Opnieuw starten. Een nieuwe toestemming geldt alleen voor een programma dat daarna is gestart."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wróć tutaj i wybierz Uruchom ponownie. Nowe uprawnienie dotyczy tylko programu uruchomionego po jego przyznaniu."
+            "value": "Wróć tutaj i kliknij Uruchom ponownie. Nowe uprawnienie dotyczy tylko programu uruchomionego po jego przyznaniu."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Volte aqui e escolha Reiniciar. Uma autorização nova só se aplica a uma aplicação iniciada depois de ter sido concedida."
+            "value": "Volte aqui e clique em Reiniciar. Uma permissão nova só se aplica a uma app iniciada depois de ter sido concedida."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reveniți aici și alegeți Relansați. O permisiune nouă se aplică doar unei aplicații pornite după ce a fost acordată."
+            "value": "Reveniți aici și faceți clic pe Relansare. O permisiune nouă se aplică doar unei aplicații pornite după acordarea ei."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vrnite se sem in izberite Znova zaženi. Novo dovoljenje velja samo za program, zagnan po tem, ko je bilo dano."
+            "value": "Vrnite se sem in kliknite Znova zaženi. Novo dovoljenje velja le za program, zagnan po tem, ko je bilo odobreno."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kom tillbaka hit och välj Starta om. En ny behörighet gäller bara för ett program som startats efter att den gavs."
+            "value": "Kom tillbaka hit och klicka på Starta om. En ny behörighet gäller bara för ett program som startats efter att den beviljades."
           }
         }
       }
@@ -19437,6 +19567,136 @@
         }
       }
     },
+    "Open System Settings": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отваряне на Системни настройки"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otevřít Nastavení systému"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbn Systemindstillinger"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Systemeinstellungen öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άνοιγμα Ρυθμίσεων συστήματος"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Ajustes del Sistema"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava süsteemiseaded"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa Järjestelmäasetukset"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir Réglages Système"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori Postavke sustava"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rendszerbeállítások megnyitása"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Impostazioni di Sistema"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverti sistemos nuostatas"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvērt sistēmas iestatījumus"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpne Systeminnstillinger"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Systeeminstellingen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz Ustawienia systemowe"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Definições do Sistema"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschideți Configurări sistem"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri Sistemske nastavitve"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öppna Systeminställningar"
+          }
+        }
+      }
+    },
     "Open an Issue": {
       "localizations": {
         "bg": {
@@ -21123,6 +21383,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Avsluta %@"
+          }
+        }
+      }
+    },
+    "Quit App": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Затваряне"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukončit"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slut"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beenden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Τερματισμός"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salir"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Välju"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lopeta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitter"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zatvori"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kilépés"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esci"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baigti"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iziet"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avslutt"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zakończ"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sair"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ieșire"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Končaj"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avsluta"
           }
         }
       }
@@ -23929,136 +24319,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sök igen"
-          }
-        }
-      }
-    },
-    "Reveal App": {
-      "localizations": {
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Покажи приложението във Finder"
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zobrazit aplikaci ve Finderu"
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vis appen i Finder"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "App im Finder zeigen"
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Εμφάνιση εφαρμογής στο Finder"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mostrar la app en el Finder"
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Näita rakendust Finderis"
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Näytä ohjelma Finderissa"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Afficher l’app dans le Finder"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prikaži aplikaciju u Finderu"
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alkalmazás megjelenítése a Finderben"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mostra l’app nel Finder"
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rodyti programą „Finder“ lange"
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rādīt lietotni programmā Finder"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vis appen i Finder"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Toon app in Finder"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pokaż aplikację w Finderze"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mostrar a app no Finder"
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Afișați aplicația în Finder"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pokaži aplikacijo v Finderju"
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Visa appen i Finder"
           }
         }
       }
@@ -30899,136 +31159,6 @@
         }
       }
     },
-    "This is a macOS privacy setting, not a change to your Mac. You can switch it off again at any time, and nothing is installed.": {
-      "localizations": {
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Това е настройка за поверителност на macOS, а не промяна на вашия Mac. Можете да я изключите по всяко време и нищо не се инсталира."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jde o nastavení soukromí v systému macOS, nikoli o změnu vašeho Macu. Můžete je kdykoli zase vypnout a nic se neinstaluje."
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Det er en anonymitetsindstilling i macOS, ikke en ændring af din Mac. Du kan slå den fra igen når som helst, og der installeres ikke noget."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Das ist eine Datenschutzeinstellung von macOS, keine Änderung an deinem Mac. Du kannst sie jederzeit wieder deaktivieren, und es wird nichts installiert."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Πρόκειται για ρύθμιση απορρήτου του macOS, όχι για αλλαγή στο Mac σας. Μπορείτε να την απενεργοποιήσετε όποτε θέλετε και δεν εγκαθίσταται τίποτα."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Es un ajuste de privacidad de macOS, no un cambio en tu Mac. Puedes desactivarlo cuando quieras y no se instala nada."
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "See on macOS-i privaatsusseade, mitte muudatus sinu Macis. Sa võid selle igal ajal uuesti välja lülitada ja midagi ei paigaldata."
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tämä on macOS:n tietosuoja-asetus, ei muutos Maciisi. Voit poistaa sen käytöstä milloin tahansa, eikä mitään asenneta."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Il s’agit d’un réglage de confidentialité de macOS, pas d’une modification de votre Mac. Vous pouvez le désactiver à tout moment, et rien n’est installé."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ovo je postavka privatnosti u macOS-u, a ne promjena na vašem Macu. Možete je isključiti kad god želite i ništa se ne instalira."
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ez a macOS egyik adatvédelmi beállítása, nem a Mac módosítása. Bármikor újra kikapcsolhatja, és semmi nem kerül telepítésre."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "È un’impostazione di privacy di macOS, non una modifica al tuo Mac. Puoi disattivarla quando vuoi e non viene installato nulla."
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tai „macOS“ privatumo nuostata, o ne jūsų „Mac“ pakeitimas. Galite ją bet kada vėl išjungti, ir niekas nediegiama."
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šis ir macOS privātuma iestatījums, nevis izmaiņas jūsu Mac datorā. Jūs to jebkurā brīdī varat atkal izslēgt, un nekas netiek instalēts."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dette er en personverninnstilling i macOS, ikke en endring på Mac-en din. Du kan slå den av igjen når som helst, og ingenting installeres."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dit is een privacy-instelling van macOS, geen wijziging aan je Mac. Je kunt die op elk moment weer uitschakelen, en er wordt niets geïnstalleerd."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "To ustawienie prywatności systemu macOS, a nie zmiana w Twoim Macu. Możesz je wyłączyć w dowolnej chwili, a nic nie jest instalowane."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Esta é uma definição de privacidade do macOS, não uma alteração ao seu Mac. Pode desativá-la quando quiser, e nada é instalado."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aceasta este o configurare de intimitate a macOS, nu o modificare a Mac-ului dvs. O puteți dezactiva oricând, iar nimic nu se instalează."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "To je nastavitev zasebnosti v macOS, ne sprememba vašega Maca. Kadar koli jo lahko spet izklopite in nič se ne namesti."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Det här är en integritetsinställning i macOS, inte en ändring av din Mac. Du kan slå av den igen när som helst, och ingenting installeras."
-          }
-        }
-      }
-    },
     "This partition is not a BitLocker volume.": {
       "localizations": {
         "bg": {
@@ -36615,6 +36745,136 @@
           "stringUnit": {
             "state": "translated",
             "value": "Du kan fortfarande söka själv när du vill."
+          }
+        }
+      }
+    },
+    "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": {
+      "localizations": {
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дисковете ви са настроени да се отварят отново след рестарт, но пълният достъп до диска вече не е разрешен. Актуализация на macOS, преместване или преинсталиране могат да го премахнат."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disky se mají po restartu znovu otevřít, ale plný přístup k disku už není udělen. Aktualizace macOS, přesunutí nebo přeinstalace ho mohou odebrat."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dine diske er indstillet til at åbne igen efter en genstart, men fuld adgang til disk er ikke længere givet. En macOS-opdatering, en flytning eller en geninstallation kan fjerne den."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Laufwerke sollen nach einem Neustart wieder geöffnet werden, doch der Festplattenvollzugriff ist nicht mehr erteilt. Ein macOS-Update, ein Verschieben oder eine Neuinstallation kann ihn entfernen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Οι δίσκοι σας έχουν οριστεί να ανοίγουν ξανά μετά την επανεκκίνηση, αλλά η πλήρης πρόσβαση στον δίσκο δεν παρέχεται πλέον. Μια ενημέρωση του macOS, μια μετακίνηση ή μια επανεγκατάσταση μπορεί να την αφαιρέσει."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus discos están configurados para abrirse de nuevo tras reiniciar, pero el acceso total al disco ya no está concedido. Una actualización de macOS, un traslado o una reinstalación pueden retirarlo."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Su kettad on seatud pärast taaskäivitust uuesti avanema, kuid täielikku kettaligipääsu enam antud ei ole. macOS-i uuendus, teisaldamine või uuesti paigaldamine võib selle eemaldada."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levysi on asetettu avautumaan uudelleen käynnistyksen jälkeen, mutta täyttä levyoikeutta ei ole enää myönnetty. macOS-päivitys, siirto tai uudelleenasennus voi poistaa sen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos disques doivent se rouvrir après un redémarrage, mais l’accès complet au disque n’est plus accordé. Une mise à jour de macOS, un déplacement ou une réinstallation peuvent le retirer."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskovi su postavljeni da se nakon pokretanja ponovno otvore, ali puni pristup disku više nije odobren. Ažuriranje macOS-a, premještanje ili ponovna instalacija mogu ga ukloniti."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A lemezek úgy vannak beállítva, hogy újraindítás után ismét megnyíljanak, de a teljes lemezhozzáférés már nincs megadva. Egy macOS-frissítés, áthelyezés vagy újratelepítés elveheti."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I tuoi dischi sono impostati per riaprirsi dopo un riavvio, ma l’accesso completo al disco non è più concesso. Un aggiornamento di macOS, uno spostamento o una reinstallazione possono revocarlo."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskai nustatyti atsiverti iš naujo po paleidimo, tačiau visa prieiga prie disko nebesuteikta. „macOS“ naujinys, perkėlimas ar įdiegimas iš naujo gali ją panaikinti."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diski ir iestatīti atvērties no jauna pēc restartēšanas, taču pilna piekļuve diskam vairs nav piešķirta. macOS atjauninājums, pārvietošana vai pārinstalēšana to var atņemt."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskene er satt til å åpnes igjen etter omstart, men full disktilgang er ikke lenger gitt. En macOS-oppdatering, en flytting eller en ominstallering kan fjerne den."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je schijven zijn ingesteld om na een herstart opnieuw te openen, maar volledige schijftoegang is niet meer verleend. Een macOS-update, een verplaatsing of een herinstallatie kan die wegnemen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dyski mają być otwierane ponownie po restarcie, ale pełny dostęp do dysku nie jest już przyznany. Aktualizacja macOS, przeniesienie lub ponowna instalacja mogą go odebrać."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os seus discos estão definidos para abrir novamente após reiniciar, mas o acesso total ao disco já não está concedido. Uma atualização do macOS, uma mudança de localização ou uma reinstalação podem retirá-lo."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discurile sunt configurate să se deschidă din nou după repornire, dar accesul complet la disc nu mai este acordat. O actualizare macOS, o mutare sau o reinstalare îl pot retrage."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diski so nastavljeni, da se po ponovnem zagonu znova odprejo, vendar poln dostop do diska ni več odobren. Posodobitev macOS, premik ali ponovna namestitev ga lahko odvzame."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dina diskar är inställda att öppnas igen efter en omstart, men full diskåtkomst är inte längre beviljad. En macOS-uppdatering, en flytt eller en ominstallation kan ta bort den."
           }
         }
       }
