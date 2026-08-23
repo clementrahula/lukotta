@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Clement Rahula
+
 import Foundation
 
 /// A logical volume discovered inside an unlocked container.

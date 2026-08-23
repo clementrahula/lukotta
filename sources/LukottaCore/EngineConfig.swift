@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Clement Rahula
+
 import Foundation
 
 /// The engine's config.toml, which survives across mounts in the user's home.

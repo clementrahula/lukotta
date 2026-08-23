@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 set -e
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 V="$HERE/resources/helpers/validate-key.sh"

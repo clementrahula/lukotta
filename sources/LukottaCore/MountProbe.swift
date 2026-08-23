@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Clement Rahula
+
 import Foundation
 
 /// Asking whether a network mount is still answering, without being taken down

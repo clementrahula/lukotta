@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 """The lowest macOS a build from this lock can run on.
 
     ./scripts/lowest-macos.py vendor/engine.lock

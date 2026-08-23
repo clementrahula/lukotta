@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 """Write a GPT with a single partition into a raw image file.
 
 macOS can only do this with root, and the guest's busybox fdisk has no GPT

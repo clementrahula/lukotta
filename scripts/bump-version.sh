@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Bump the semver in ./VERSION and commit it.
 #
 #   ./scripts/bump-version.sh patch    1.0.0 -> 1.0.1

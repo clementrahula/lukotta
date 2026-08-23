@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Clement Rahula
+
 import Foundation
 
 /// Builds the shell script that runs, as root, to unlock and mount a drive.

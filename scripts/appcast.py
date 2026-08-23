@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 """Add a release to the Sparkle appcast.
 
 Kept apart from release.sh because this is the part that must not go wrong

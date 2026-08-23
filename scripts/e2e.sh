@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Drive a whole flow through the built app: open a container file, unlock it,
 # rebuild the list underneath it, eject it.
 #

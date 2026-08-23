@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Everything that can be checked without a drive attached.
 set -e
 HERE="$(cd "$(dirname "$0")/.." && pwd)"

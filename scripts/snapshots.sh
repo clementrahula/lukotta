@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Render every screen and compare it with what it looked like before.
 #
 #   ./scripts/snapshots.sh            check against the recorded baselines

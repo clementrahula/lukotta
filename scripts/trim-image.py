@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 """Reduce the Alpine guest image to the packages Lukotta can actually reach.
 
 The image ships whatever anylinuxfs installs, which covers every filesystem it

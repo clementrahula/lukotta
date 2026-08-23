@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Clement Rahula
+
 import Foundation
 
 /// A VDI header, read far enough to decide whether the engine should be handed

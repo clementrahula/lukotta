@@ -95,6 +95,21 @@ as `<private>`, which is correct for a drive's name and for a path on someone's
 disk. Anything meant to be legible says `privacy: .public`. A passphrase is
 never logged.
 
+## Every source file says what it is under
+
+Two lines at the top of each Swift, shell and Python file:
+
+    // SPDX-License-Identifier: GPL-3.0-or-later
+    // Copyright (C) 2026 Clement Rahula
+
+After the shebang where there is one, and after `swift-tools-version` in the
+package manifest, since both have to come first. Files under `patches/` belong
+to other projects and carry those projects' identifiers instead — MIT for
+imago, Apache-2.0 for krun-devices, GPL-3.0-or-later for anylinuxfs.
+
+The grant itself is in README's licence section, in full, because "GPL-3.0-or-
+later" is a shorthand for a sentence somebody has to have written.
+
 ## Fixtures are invented, never captured
 
 Nothing of the owner's goes in this repository: no account name, no path from

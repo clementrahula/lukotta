@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Regenerate THIRD_PARTY_NOTICES.md from what is actually shipped.
 # Guest package licences come from the Alpine package database inside the image.
 set -euo pipefail

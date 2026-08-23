@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 """Refuse to let anything of the owner's into the repository.
 
     ./scripts/check-private.py            everything git tracks

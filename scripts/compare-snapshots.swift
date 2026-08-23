@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Clement Rahula
+
 // Compare two directories of PNGs and say which ones changed.
 //
 //   swift scripts/compare-snapshots.swift <baseline> <candidate> [tolerance]

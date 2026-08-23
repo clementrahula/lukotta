@@ -196,8 +196,19 @@ privileged helper accepts, and where to report a fault.
 
 ## Licence
 
-Lukotta is free software under the GPL, version 3 or later. Complete source for
-every component is published with each release.
+Copyright (C) 2026 Clement Rahula.
+
+Lukotta is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. It is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See [the licence][licence] for the details, and
+<https://www.gnu.org/licenses/> for the text of any later version.
+
+Every source file carries `SPDX-License-Identifier: GPL-3.0-or-later`, except
+those under `patches/`, which belong to other projects and carry theirs.
+Complete source for every component is published with each release.
 
 The name and the logo are trademarks, and are not covered by that licence. Fork
 the code freely; give your version its own name. [TRADEMARKS.txt][trademark]

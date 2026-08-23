@@ -21,6 +21,74 @@ What tends not to be:
 - Refactoring for its own sake.
 - Features that belong in another app. Lukotta opens drives macOS cannot. It is
   not a disk utility.
+  
+## AI Use Policy
+
+Lukotta was largely written by AI agents, and the README says so. Use whatever
+tools you like.
+
+The one thing that matters: a contribution should be worth more than the time it
+takes to review. Generating a patch takes seconds; working out whether it is
+right still takes an hour. Sending something you have not looked at moves that
+hour to someone else.
+
+- You are the author. Expect questions about your patch, and be able to answer
+  them.
+- Test it. The unit checks and the lint must pass. If it touches mounting, a
+  format or the privileged helper, say what you ran it against.
+- Give it more than one pass.
+- No slop: padding, restated code, invented history, a summary of what the diff
+  plainly does.
+- Leave the comments and documents around your change in better shape than you
+  found them.
+- Watch what a tool pastes in. If something recognisable came from elsewhere,
+  say where.
+
+A frontier model reasoning properly and a cheap one guessing produce visibly
+different diffs. Use the best you have and give it room.
+
+## House Style
+
+- Comments explain why rather than what. A line worth writing is one where the
+  obvious reading is wrong.
+- No historical narration in comments or documents; git remembers.
+- Commit messages describe the reasoning as well as the change.
+- British spelling in prose; Apple's spelling in API names.
+- Fixtures are invented. Real output from your machine is sanitised in the same
+  edit that pastes it.
+- Every source file starts with its SPDX identifier and the copyright line. A
+  new file gets them; a file under `patches/` gets that project's instead.
+  
+## Sending a Change
+
+- Branch from `main`. One concern per pull request; two unrelated fixes are two
+  pull requests.
+- Commits are self-contained, and the message says why, not what. The diff
+  already says what.
+- Rebase rather than merge, so the history stays readable.
+- Say what you tested it against — which drive, which image, which macOS.
+  "Tests pass" is not that.
+- Draft pull requests are fine and useful early.
+
+Expect days rather than hours, and nudge the
+thread if a week goes by. A change that is declined gets a reason.
+
+## Reporting a Problem
+
+**Open an issue.** <https://github.com/clementrahula/lukotta/issues> — the
+templates ask what is needed to act on it. A public thread means the next person
+with the same drive finds the answer.
+
+The bug icon in the app gathers the version, the environment and the engine's
+own output, removes credentials from it by value rather than by pattern, and
+shows you everything before it sends. That report goes to
+**lukotta@rahula.dev**, and it is the right route when the report carries
+something you would rather not publish — a drive's name, a path, the layout of
+your disks — or when you have no GitHub account.
+
+Anything that could expose a passphrase, a drive's contents, or the privileged
+helper goes to that address and not to an issue. [SECURITY.md](SECURITY.md) says
+what is in scope and what to include.
 
 ## Building
 
@@ -67,19 +135,7 @@ that cannot be used without seeing it.
 `./scripts/e2e.sh` drives the whole flow against real images and needs Full Disk
 Access and a Mac. It is worth running for anything touching mounting.
 
-## Sending a Change
 
-- Branch from `main`. One concern per pull request; two unrelated fixes are two
-  pull requests.
-- Commits are self-contained, and the message says why, not what. The diff
-  already says what.
-- Rebase rather than merge, so the history stays readable.
-- Say what you tested it against — which drive, which image, which macOS.
-  "Tests pass" is not that.
-- Draft pull requests are fine and useful early.
-
-Expect days rather than hours, and nudge the
-thread if a week goes by. A change that is declined gets a reason.
 
 ## Translations
 
@@ -95,31 +151,7 @@ send a patch.
 The English is the source. If a string is awkward in English, fix that first —
 twenty-one translations of a bad sentence is twenty-one problems.
 
-## Using AI
 
-Lukotta was largely written by AI agents, and the README says so. Use whatever
-tools you like.
-
-The one thing that matters: a contribution should be worth more than the time it
-takes to review. Generating a patch takes seconds; working out whether it is
-right still takes an hour. Sending something you have not looked at moves that
-hour to someone else.
-
-- You are the author. Expect questions about your patch, and be able to answer
-  them.
-- Test it. The unit checks and the lint must pass. If it touches mounting, a
-  format or the privileged helper, say what you ran it against.
-- Give it more than one pass. First drafts read like first drafts, in the code
-  and in the commit message.
-- No slop: padding, restated code, invented history, a summary of what the diff
-  plainly does.
-- Leave the comments and documents around your change in better shape than you
-  found them.
-- Watch what a tool pastes in. If something recognisable came from elsewhere,
-  say where.
-
-A frontier model reasoning properly and a cheap one guessing produce visibly
-different diffs. Use the best you have and give it room.
 
 ## How It Fits Together
 
@@ -173,32 +205,7 @@ open drives, unregisters the background helper, deletes the Linux environment
 and the settings, offers to delete saved passphrases, and moves itself to the
 Bin. A development build removes itself the same way a released one does.
 
-## House Style
 
-- Comments explain why rather than what. A line worth writing is one where the
-  obvious reading is wrong.
-- No historical narration in comments or documents; git remembers.
-- Commit messages describe the reasoning as well as the change.
-- British spelling in prose; Apple's spelling in API names.
-- Fixtures are invented. Real output from your machine is sanitised in the same
-  edit that pastes it.
-
-## Reporting a Problem
-
-**Open an issue.** <https://github.com/clementrahula/lukotta/issues> — the
-templates ask what is needed to act on it. A public thread means the next person
-with the same drive finds the answer.
-
-The bug icon in the app gathers the version, the environment and the engine's
-own output, removes credentials from it by value rather than by pattern, and
-shows you everything before it sends. That report goes to
-**lukotta@rahula.dev**, and it is the right route when the report carries
-something you would rather not publish — a drive's name, a path, the layout of
-your disks — or when you have no GitHub account.
-
-Anything that could expose a passphrase, a drive's contents, or the privileged
-helper goes to that address and not to an issue. [SECURITY.md](SECURITY.md) says
-what is in scope and what to include.
 
 ## Licence
 

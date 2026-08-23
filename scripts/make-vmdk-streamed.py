@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 """Wrap a raw disk image in a streamed VMDK, the monolithicStreamOptimized form.
 
     ./scripts/make-vmdk-streamed.py raw.img out.vmdk

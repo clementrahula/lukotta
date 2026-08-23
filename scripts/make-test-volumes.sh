@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Build LUKS test volumes covering the layouts Lukotta supports.
 #
 # The guest shell runs unprivileged, so these can be created without a real

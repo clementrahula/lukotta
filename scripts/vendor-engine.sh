@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Vendor the anylinuxfs runtime into ./vendor/engine so the app can ship it.
 #
 # The app must not download anything on first run, so every host-side component

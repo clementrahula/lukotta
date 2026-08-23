@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 """Wrap a raw disk image in a qcow2 container.
 
 There is no qemu-img on a Mac by default and none in the guest, so the

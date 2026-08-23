@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Validate and normalize a BitLocker unlock credential.
 #
 # Two kinds of credential can unlock a BitLocker volume:

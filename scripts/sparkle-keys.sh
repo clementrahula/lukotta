@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Generate the EdDSA keypair Sparkle uses to sign updates.
 #
 # Run once. The private key is stored in the login keychain and is NOT

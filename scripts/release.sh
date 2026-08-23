@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Cut a release: build, notarise, sign the archive, and describe it in the appcast.
 #
 #   ./scripts/release.sh                 build and prepare everything locally

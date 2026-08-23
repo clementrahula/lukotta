@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Say whether anything the engine is pinned to has moved.
 #
 #   ./scripts/check-engine-updates.sh

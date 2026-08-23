@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Static checks. Nothing here needs a drive, a network, or Xcode.
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"

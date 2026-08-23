@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Are the checks keeping up with the app?
 #
 #   ./scripts/check-coverage.sh

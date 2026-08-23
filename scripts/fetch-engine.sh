@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 # Fetch the engine Lukotta ships, exactly as vendor/engine.lock pins it.
 #
 # Staging the engine from whatever anylinuxfs happens to be installed on the

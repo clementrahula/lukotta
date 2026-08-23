@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Clement Rahula
+
 // Print what a screen reader would find in the running app.
 //
 // Accessibility is easy to get wrong in a way nothing else catches: a control

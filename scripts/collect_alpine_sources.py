@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
 """Fetch the corresponding source for the Alpine packages Lukotta ships.
 
 Binary packages map to fewer source packages: the apk database records each

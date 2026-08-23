@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Clement Rahula
+
 // Draws the placeholder icon and mark that unbranded builds carry.
 //
 // Deliberately dull: a grey rounded square with a keyhole. It has to be
