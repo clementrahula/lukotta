@@ -1,16 +1,20 @@
 # Building Lukotta from Source
 
-Lukotta is GPL-3.0. Anyone who receives the app is entitled to its source and to
-the scripts that build it. This document covers the whole path, from a clean
-machine to a signed application.
+Lukotta is GPL-3.0-or-later. Anyone who receives the app is entitled to its
+source and to the scripts that build it. This document covers the whole path,
+from a clean machine to a signed application.
 
 ## Requirements
 
 - An Apple Silicon Mac. The engine and every bundled library are `arm64`; there
   is no Intel build.
-- macOS 15 or later.
+- macOS 15 or later, which the engine's Homebrew bottle decides. Pin a bottle
+  built for a newer release and the floor rises with it; `build-app.sh` reads
+  the floor from `vendor/engine.lock` rather than trusting a number in the
+  plist.
 - Xcode's command line tools, with a Swift 6 toolchain.
-- `shellcheck` and `swift-format`, for the linter only.
+- `shellcheck` and `swift-format`, for the linter only. `gitleaks` too, if you
+  want the pre-commit hook's second pass; without it the hook runs the rest.
 
 No package manager, no kernel extension and nothing installed system-wide are
 required.
@@ -20,9 +24,10 @@ required.
 ```bash
 git clone https://github.com/clementrahula/lukotta.git
 cd lukotta
-./scripts/fetch-engine.sh      # download the pinned engine, verify checksums
-./scripts/vendor-engine.sh     # stage it into vendor/engine
-./build-app.sh                 # compile, embed, sign, install
+git config core.hooksPath .githooks   # the pre-commit checks
+./scripts/fetch-engine.sh             # download the pinned engine, verify checksums
+./scripts/vendor-engine.sh            # stage it into vendor/engine
+./build-app.sh                        # compile, embed, sign, install
 ```
 
 The result is `dist/Drive Unlocker.app`, and a copy in `/Applications`.
@@ -107,11 +112,13 @@ surface. Set `LUKOTTA_NO_TRIM=1` to keep the whole image.
 `build-app.sh`, in order:
 
 1. Runs the tests, and stops if any fail.
-2. Compiles the SwiftPM targets.
-3. Assembles the bundle and copies `vendor/engine` into it.
-4. Embeds the Sparkle framework and sets the runtime search path.
-5. Signs from the inside out, nested code before the code containing it.
-6. Verifies the signature, then installs to `/Applications`.
+2. Works out the lowest macOS the engine's bottle allows, writes it into
+   `LSMinimumSystemVersion`, and stops if the built binary disagrees with it.
+3. Compiles the SwiftPM targets.
+4. Assembles the bundle and copies `vendor/engine` into it.
+5. Embeds the Sparkle framework and sets the runtime search path.
+6. Signs from the inside out, nested code before the code containing it.
+7. Verifies the signature, then installs to `/Applications`.
 
 Switches:
 
@@ -124,7 +131,9 @@ LUKOTTA_BRANDING=official ./build-app.sh      # build as Lukotta
 ```
 
 The version comes from `VERSION`; the build number is the commit count, so it
-moves only when something is committed.
+moves only when something is committed. Building with uncommitted changes
+produces a second binary carrying the number the last one already has, and the
+build says so as it starts.
 
 ## Signing and Notarising
 
@@ -167,6 +176,7 @@ staples the ticket into the bundle so a first launch works offline.
 ```bash
 ./scripts/run-tests.sh
 ./scripts/lint.sh
+./scripts/e2e.sh          # a real Mac, Full Disk Access, real images
 ./dist/Lukotta.app/Contents/MacOS/Lukotta --smoke-test
 ```
 
@@ -174,7 +184,9 @@ The smoke test starts the app far enough to prove that dyld resolved every
 library, then exits. A build that installs and then refuses to launch is the one
 failure an update cannot undo.
 
-To see the lowest macOS your build supports:
+`build-app.sh` already compares the binary's minimum macOS with the floor the
+engine's bottle sets, and refuses to finish if they disagree. To look at every
+library for yourself:
 
 ```bash
 find dist/Lukotta.app -type f \( -perm -111 -o -name "*.dylib" \) | while read -r f; do

@@ -32,7 +32,12 @@ reads the name, identifier, icon and mark from the bundle at run time.
 `Assets.xcassets` into the bundle without compiling it, which leaves the app
 with no icon and no mark.
 
-Run `./scripts/lint.sh` before committing.
+Run `./scripts/lint.sh` before committing. It is swift-format and shellcheck,
+and also the coverage gate, the check that every workflow action is pinned to a
+commit, and `scripts/check-private.py`.
+
+CI runs on pull requests and on request, not on every push: a macOS runner is
+billed at ten times a Linux one while the repository is private.
 
 ## Layout
 
@@ -42,14 +47,21 @@ case-sensitive volume.
 
 The build number is the git commit count. Rebuilding without committing
 reuses the previous number, so two different binaries claim the same build.
-Commit before building anything you intend to compare.
+Commit before building anything you intend to compare; `build-app.sh` says so
+as it starts when the tree is dirty.
 
 ## The Engine
 
 **The engine exits 0 when a mount fails.** Its status describes its own
 shutdown. Judge a mount by the mount table, which is what
-`MountScript.mountedCheck` does. Trusting the exit status disables every fallback path in the generated
-script.
+`MountScript.mountedCheck` does. Trusting the exit status disables every
+fallback path in the generated script.
+
+It compares the engine's mount points by name against a baseline, and looks for
+one that was not there before. It does **not** count them: a count is a count of
+everything, so an NFS share the person using the Mac had mounted themselves
+joined the baseline, and one coming or going during an attempt moved the number
+on its own.
 
 Failures are explained by matching text, the exit status being meaningless:
 `Diagnosis.rules` looks for phrases. Each rule
@@ -78,6 +90,11 @@ carriage returns. Strip `\r` before parsing or comparing.
 The generated script embeds a single-quoted `awk` program. An apostrophe
 anywhere inside it, including inside a comment, closes the quote and breaks the
 whole script. A test runs `sh -n` over the generated output to catch this.
+
+That program is `MountScript.volumeAction`, public so a test can run it — with
+`awk -v s=… -v q="'" -v ro=…` over a captured listing — because it is the only
+reader of the engine's volume list that decides what actually gets mounted, and
+nothing else can reach it.
 
 ## Finding Out What The App Did
 

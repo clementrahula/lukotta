@@ -19,7 +19,3 @@ dist/
 
 # Built from resources/Localizable.xcstrings at build time.
 /resources/*.lproj/
-
-# The audit and its progress log. Written for this work, kept on the machine
-# it was written on; the repository holds the fixes rather than the report.
-/AUDIT.md

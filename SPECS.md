@@ -55,20 +55,26 @@ engine.
 | VDI, dynamic and fixed | Yes | Yes | VirtualBox's format |
 | VHD, fixed | Yes | Yes | The raw disk with a 512-byte footer after it |
 | VHD, dynamic | Yes | Yes | Blocks listed by an allocation table |
-| VHDX | Yes | **No** | Header pair, region table, metadata region, allocation table. See §6 |
+| VHDX | Yes | **No** | Header pair, region table, metadata region, allocation table. See §5 |
 | VMDK snapshot chains | No | | Names a parent file. See §3 |
 | VHD, differencing | No | | Names a parent file. See §3 |
 | VHDX with a parent | No | | Names a parent file. See §3 |
-| VHDX with a log that is not empty | No | | See §6 |
+| VHDX with a log that is not empty | No | | See §5 |
 | Sparse bundles, encrypted DMG | No | | macOS opens both natively. See §5 |
 
 The VMDK, VDI, VHD and VHDX drivers were written here for imago, the crate that
 reads image formats for the engine. See `patches/README.md`.
 
-An image that cannot be written is opened read-only from the start: the
+An image whose format cannot be written is opened read-only from the start: the
 application knows which container it holds before anything is mounted, and asks
 for a read-only mount whatever the person chose. The device the guest is given
 is marked read-only as well, so nothing can reach the file through it either.
+
+An image whose *file* cannot be written — one on a read-only volume, a locked
+file, a card with its write-protect switch set — takes the same course, decided
+later. The open for writing fails, the file is opened for reading instead, and
+the device is marked read-only. Failing the mount outright would leave no way
+into a file that could be read all along.
 
 ---
 
@@ -124,7 +130,7 @@ Every such image is refused before the engine is given the path:
 | Format | Rule |
 | --- | --- |
 | qcow2 | Refused if it names a backing file or an external data file |
-| VMDK | Every extent must be a plain file name situated beside the descriptor: nothing absolute, nothing containing a separator, no `..`. That is what VMware writes. A `parentFileNameHint` is refused |
+| VMDK | Every extent must be a plain file name situated beside the descriptor: nothing absolute, nothing containing a separator, no `..`. That is what VMware writes. The name is then resolved, and the file it leads to must still be in that folder, so a symbolic link out of it is refused as a path out of it would be. An extent of any type but ZERO that names no file is refused, having described part of a disk that is nowhere. A `parentFileNameHint` is refused |
 | VHD | A differencing image is refused |
 | VHDX | An image naming a parent is refused |
 | VDI | Cannot name another file; its data is always its own |

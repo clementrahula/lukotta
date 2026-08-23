@@ -70,6 +70,12 @@ The daemon accepts parameters, never a command, so it cannot be used to run
 arbitrary code as root. It is given a device path, a volume name and a
 passphrase, and composes the command itself.
 
+Whom it is mounting for comes from the connection: the application runs as the
+person whose drive is being opened, and the connection says who that is. Where
+that cannot be established the mount is refused rather than directed at a
+guess, so a second account on the Mac cannot be handed a mount composed against
+somebody else's home directory.
+
 Every connection is checked against a code requirement pinning both the
 application's identifier and the signing team. Anything that is not Lukotta,
 or is signed by anyone else, is refused.
@@ -88,15 +94,30 @@ That bound is not relied on alone. Every format other than raw can name another
 file, and libkrun opens whatever an image names, so an image could otherwise
 determine which files the virtual machine reads. Each such image is refused
 before the engine is given the path: a qcow2 with a backing or external data
-file, a VMDK extent that is not a plain name beside its descriptor, a VMDK
-snapshot chain, a differencing VHD, and a VHDX naming a parent. The drivers
-refuse them as well, so the rule holds in both layers.
+file, a VMDK snapshot chain, a differencing VHD, and a VHDX naming a parent.
+A VMDK's extents must each be a plain name beside the descriptor — nothing
+absolute, nothing with a separator in it, no `..` — and the file that name
+resolves to must still be in that folder, so a link out of it is refused as a
+path out of it would be. An extent naming no file at all is refused too, since
+it describes part of a disk that is nowhere. The drivers refuse all of this as
+well, so the rule holds in both layers.
 
-The drivers parse a file supplied by whoever opened it. Each is read-only and
-validates every value before relying on it: block sizes must be powers of two,
-maps are bounded to a size a real disk could require, and every entry must lie
-within the file. [SPECS.md](SPECS.md) states what each format is and which
-images are refused.
+The drivers parse a file supplied by whoever opened it, and validate every
+value before relying on it: block sizes must be powers of two, maps are bounded
+to a size a real disk could require, and every entry must lie within the file.
+[SPECS.md](SPECS.md) states what each format is and which images are refused.
+
+Reading is not all they do. qcow2, VDI, VHD and VMDK are written as well, so a
+driver handed a hostile image also allocates in response to it — growing the
+file, and writing a table entry that points at the new space. The same
+validation governs that path, and the order is fixed so an interrupted write
+leaves unused space rather than a table pointing at nothing. VHDX and the
+stream-optimized form of VMDK are never written.
+
+A file that will not open for writing — an image on a read-only volume, a
+locked file, a card with its switch set — is opened for reading instead, and
+the guest is told the device is read-only. Refusing outright would leave no way
+in at all, when reading was possible throughout.
 
 ## What the App Can Reach
 
