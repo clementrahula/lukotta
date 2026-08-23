@@ -57,6 +57,7 @@ struct RememberFrame: NSViewRepresentable {
         func adopt(_ window: NSWindow) {
             guard self.window == nil else { return }
             self.window = window
+            settle(window)
             restore(into: window)
 
             // And again, once SwiftUI has had its turn.
@@ -79,6 +80,23 @@ struct RememberFrame: NSViewRepresentable {
                     self.watch(window)
                 }
             }
+        }
+
+        /// What this window will not do.
+        ///
+        /// There is one window, it holds a column of text and a row of buttons,
+        /// and none of that is better for being the size of a display. Full
+        /// screen is off, and the green button with it, which is how macOS's
+        /// own settings window behaves. Dragging an edge still works for
+        /// anyone who wants it larger.
+        ///
+        /// Here because this is where the window is already in hand. A second
+        /// observer for one line of setup would be a second thing to keep in
+        /// step with the first.
+        private func settle(_ window: NSWindow) {
+            window.collectionBehavior.remove(.fullScreenPrimary)
+            window.collectionBehavior.insert(.fullScreenNone)
+            window.standardWindowButton(.zoomButton)?.isEnabled = false
         }
 
         /// Closing counts too: a window the user never dragged still has a size
