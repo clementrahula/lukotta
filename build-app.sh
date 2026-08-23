@@ -254,13 +254,11 @@ NOTARYTOOL="/Applications/Xcode.app/Contents/Developer/usr/bin/notarytool"
 
 NOTARY_ARGS=""
 NOTARY_HOW=""
+# Named, or not at all. Discovering a stored profile and using it meant every
+# build during an afternoon's work was submitted to Apple and waited on, for a
+# binary that never left the machine. scripts/release.sh names the profile, so
+# a release still notarises; nothing else has to.
 PROFILE="${LUKOTTA_NOTARY_PROFILE:-}"
-# Named or not, a profile that is actually there is used: the usual case is one
-# stored once and forgotten about.
-if [ -z "$PROFILE" ] \
-  && "$NOTARYTOOL" history --keychain-profile lukotta >/dev/null 2>&1; then
-  PROFILE="lukotta"
-fi
 if [ -n "$PROFILE" ]; then
   NOTARY_ARGS="--keychain-profile $PROFILE"
   NOTARY_HOW="the keychain profile \"$PROFILE\""

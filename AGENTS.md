@@ -19,6 +19,12 @@ nested, the inner one takes over the name and never gives it back, so a later
 failure in the outer group is reported under the inner group's name. Two topics
 in one group is the mistake a stack of names would only make comfortable.
 
+**Do not run `./build-app.sh` to check that something compiles.** `swift build
+-c release --product Lukotta` does that in seconds. A bundle is only needed to
+record or compare snapshots, to run `--smoke-test`, or to run the end-to-end
+flow. Notarising is opt-in and belongs to a release: `scripts/release.sh` names
+the profile, and nothing else should.
+
 `swift build` succeeds and produces an app that cannot unlock anything. A
 working bundle needs the Linux engine and the compiled asset catalogue:
 
