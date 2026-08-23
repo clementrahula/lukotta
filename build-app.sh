@@ -36,6 +36,7 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     BUNDLE_ID="com.clementrahula.lukotta"
     ICON_SET="AppIcon"
     MARK_SET="LukottaMark"
+    SWITCH_SET="FullDiskAccessSwitch"
     HELPER_NAME="LukottaHelper"
     ;;
   unbranded)
@@ -43,6 +44,7 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     BUNDLE_ID="com.example.driveunlocker"
     ICON_SET="AppIconUnbranded"
     MARK_SET="MarkUnbranded"
+    SWITCH_SET="FullDiskAccessSwitchUnbranded"
     HELPER_NAME="UnlockHelper"
     ;;
   *)
@@ -140,6 +142,7 @@ sed -e "s/__VERSION__/$VERSION/" -e "s/__BUILD__/$BUILD/" \
     -e "s|__APP_NAME__|$APP_NAME|" -e "s|__BUNDLE_ID__|$BUNDLE_ID|" \
     -e "s|__MIN_MACOS__|$MIN_MACOS|" \
     -e "s|__ICON_SET__|$ICON_SET|" -e "s|__MARK_SET__|$MARK_SET|" \
+    -e "s|__SWITCH_SET__|$SWITCH_SET|" \
   "$HERE/sources/Info.plist" > "$CONTENTS/Info.plist"
 if [ -z "$SPARKLE_KEY" ]; then
   /usr/libexec/PlistBuddy -c 'Delete :SUPublicEDKey' "$CONTENTS/Info.plist" >/dev/null 2>&1 || true

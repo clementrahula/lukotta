@@ -1,0 +1,40 @@
+{
+  "images": [
+    {
+      "filename": "switch-light.png",
+      "idiom": "mac",
+      "scale": "1x"
+    },
+    {
+      "filename": "switch-light@2x.png",
+      "idiom": "mac",
+      "scale": "2x"
+    },
+    {
+      "filename": "switch-dark.png",
+      "idiom": "mac",
+      "scale": "1x",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ]
+    },
+    {
+      "filename": "switch-dark@2x.png",
+      "idiom": "mac",
+      "scale": "2x",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ]
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
+}

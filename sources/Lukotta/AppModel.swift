@@ -890,11 +890,6 @@ final class AppModel: ObservableObject {
     /// the main thread during a quit, where a subprocess would stall the app.
     var hasOpenDrive: Bool { !openMounts.isEmpty }
 
-    /// Re-probe after the user has changed the setting.
-    func recheckPermission() {
-        start()
-    }
-
     func openPrivacySettings() {
         Permissions.openFullDiskAccessSettings()
     }

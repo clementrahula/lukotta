@@ -7,6 +7,7 @@
   <key>CFBundleExecutable</key><string>__APP_NAME__</string>
   <key>CFBundleIconName</key><string>__ICON_SET__</string>
     <key>LUKMarkAssetName</key><string>__MARK_SET__</string>
+    <key>LUKSwitchPictureAssetName</key><string>__SWITCH_SET__</string>
   <key>CFBundleIdentifier</key><string>__BUNDLE_ID__</string>
   <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
   <key>CFBundleName</key><string>__APP_NAME__</string>
