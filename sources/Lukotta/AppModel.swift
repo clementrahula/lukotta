@@ -1493,15 +1493,7 @@ final class AppModel: ObservableObject {
 
     /// Note when a container held more volumes than could be opened.
     private func noteVolumeCount(_ transcript: String) {
-        guard
-            let line = transcript.components(separatedBy: .newlines)
-                .last(where: { $0.contains(MountScript.volumesMarker) }),
-            let tail = line.components(separatedBy: MountScript.volumesMarker).last
-        else { return }
-        let parts = tail.trimmingCharacters(in: .whitespaces).split(separator: ":")
-        guard parts.count == 2, let opened = Int(parts[0]), let totalCount = Int(parts[1]),
-            totalCount > opened
-        else { return }
+        guard let totalCount = MountScript.volumeShortfall(in: transcript) else { return }
         // One number rather than two. A sentence carrying two counts needs both
         // to agree with the noun, and languages do not agree alike.
         notice = appString(

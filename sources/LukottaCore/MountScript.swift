@@ -87,6 +87,25 @@ public enum MountScript {
     /// How many of a container's volumes opened, of how many were found.
     public static let volumesMarker = "LUKOTTA_VOLUMES:"
 
+    /// How many volumes a container held, when not all of them opened.
+    ///
+    /// Nil when they all opened, when nothing said, and when the container held
+    /// a single volume: the sentence this feeds says "volumes", with no plural
+    /// variation in any language it is translated into, so one volume that
+    /// failed to open read as "This drive holds 1 volumes".
+    public static func volumeShortfall(in transcript: String) -> Int? {
+        guard
+            let line = transcript.components(separatedBy: .newlines)
+                .last(where: { $0.contains(volumesMarker) }),
+            let tail = line.components(separatedBy: volumesMarker).last
+        else { return nil }
+        let parts = tail.trimmingCharacters(in: .whitespaces).split(separator: ":")
+        guard parts.count == 2, let opened = Int(parts[0]), let total = Int(parts[1]),
+            total > opened, total >= 2
+        else { return nil }
+        return total
+    }
+
     /// How large a machine to give a mount.
     ///
     /// The machine unlocks a filesystem and serves it over NFS, which needs

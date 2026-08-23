@@ -2046,6 +2046,25 @@ group("leftoverEngineHelpersAreTakenDown") {
     expect(!theirs.contains(ours), "and one from another engine is left alone")
 }
 
+group("theVolumeNoticeNeedsMoreThanOneVolume") {
+    // The sentence the count feeds says "volumes", and no translation of it
+    // varies by number, so a single volume that failed to open read as "This
+    // drive holds 1 volumes".
+    //
+    // The marker carries "opened:total".
+    func shortfall(_ opened: Int, of total: Int) -> Int? {
+        MountScript.volumeShortfall(in: "\(MountScript.volumesMarker)\(opened):\(total)")
+    }
+    expect(shortfall(0, of: 1) == nil, "one volume that did not open says nothing")
+    expect(shortfall(1, of: 3) == 3, "three volumes with one opened names all three")
+    expect(shortfall(2, of: 2) == nil, "nothing is said when they all opened")
+    expect(shortfall(3, of: 2) == nil, "nor when more opened than were found")
+    expect(MountScript.volumeShortfall(in: "nothing here") == nil, "no marker, no notice")
+    expect(
+        MountScript.volumeShortfall(in: "\(MountScript.volumesMarker)one:two") == nil,
+        "and a marker that is not two numbers is ignored")
+}
+
 group("aShortPassphraseIsRedactedToo") {
     // A passphrase of one or two characters is legal, and the engine is driven
     // through a pty, which echoes what is typed into it. Declining to redact a
