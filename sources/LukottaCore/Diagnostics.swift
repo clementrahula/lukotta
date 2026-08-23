@@ -209,6 +209,21 @@ public enum Diagnostics {
     }
 
     /// The body of a report, ready to be copied or pasted into a message.
+    /// Put a typed description into a report built without one.
+    ///
+    /// The rest of a report is fixed while the sheet is open — the engine's
+    /// output, the log, the crash report — so it is redacted once. Only what
+    /// somebody is still typing has to be redacted again as they type. The
+    /// description goes where `report` puts it, above the engine's output.
+    public static func withProblem(_ problem: String, in report: String) -> String {
+        guard !problem.isEmpty else { return report }
+        var lines = report.components(separatedBy: "\n")
+        // After the four header lines, which every report begins with.
+        let after = min(4, lines.count)
+        lines.insert(contentsOf: ["", "What happened:", redact(problem)], at: after)
+        return lines.joined(separator: "\n")
+    }
+
     public static func report(
         environment: Environment,
         problem: String? = nil,

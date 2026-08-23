@@ -729,6 +729,29 @@ group("secretRedaction") {
     expect(!report.contains("121121"), "the assembled report carries no key")
 }
 
+group("aReportBuiltInTwoPartsMatchesOneBuiltAtOnce") {
+    // The sheet redacts everything but the typed description once, when it
+    // opens, and splices the description in as it is typed. What that produces
+    // has to be the report itself, or the two would drift.
+    let env = Diagnostics.environment()
+    let engine = "mount: /dev/disk4s1 on /Volumes/BACKUP"
+    let log = "started"
+    let typed = "it would not open, passphrase: hunter2"
+
+    let atOnce = Diagnostics.report(
+        environment: env, problem: typed, engineOutput: engine, recentLog: log)
+    let inTwoParts = Diagnostics.withProblem(
+        typed,
+        in: Diagnostics.report(environment: env, engineOutput: engine, recentLog: log))
+    expect(inTwoParts == atOnce, "the two ways of building it agree")
+    expect(!inTwoParts.contains("hunter2"), "and the typed part is still redacted")
+
+    let empty = Diagnostics.report(environment: env, engineOutput: engine)
+    expect(
+        Diagnostics.withProblem("", in: empty) == empty,
+        "nothing typed leaves the report as it was")
+}
+
 group("crashReportFiltering") {
     // A crash from an older build, offered beside an unrelated failure, reads as
     // a crash that has just happened. A cancelled authorisation was reported

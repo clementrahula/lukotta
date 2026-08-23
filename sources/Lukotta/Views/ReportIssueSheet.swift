@@ -19,6 +19,11 @@ struct ReportIssueSheet: View {
     /// Read once when the sheet opens, not on every keystroke: the report is
     /// recomputed as the description is typed, and this comes off disk.
     @State private var recentLog = ""
+    /// The report without the typed description, redacted once when the sheet
+    /// opens. Everything in it — the engine's output, the log, the crash
+    /// report — is fixed for as long as the sheet is up, and redacting it is
+    /// two regular expressions over several thousand characters.
+    @State private var fixedPart = ""
 
     private let environment = Diagnostics.environment()
     private let crashes = Diagnostics.crashReports()
@@ -32,13 +37,17 @@ struct ReportIssueSheet: View {
         return formatter.localizedString(for: date, relativeTo: Date())
     }
 
+    /// What the sheet shows and copies: the part that cannot change, with the
+    /// typed description redacted on top of it.
     private var reportText: String {
-        Diagnostics.report(
-            environment: environment,
-            problem: problem,
-            engineOutput: model.statusLines.joined(separator: "\n"),
-            crashReport: crashes.first,
-            recentLog: recentLog)
+        guard !problem.isEmpty else { return fixedPart }
+        return Diagnostics.withProblem(Diagnostics.redact(problem), in: fixedPart)
+    }
+
+    private func copyReport() {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(reportText, forType: .string)
+        copied = true
     }
 
     var body: some View {
@@ -119,27 +128,19 @@ struct ReportIssueSheet: View {
             .padding(.horizontal, 22).padding(.top, 12)
 
             HStack {
-                Button(copied ? "Copied" : "Copy Details") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(reportText, forType: .string)
-                    copied = true
-                }
+                Button(copied ? "Copied" : "Copy Details") { copyReport() }
                 Spacer()
-                // The report goes on the clipboard either way, so whichever of
-                // these is pressed, there is something to paste.
+                // The report goes on the clipboard whichever of these is
+                // pressed, so there is always something to paste.
                 Button("Open an Issue") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(reportText, forType: .string)
-                    copied = true
+                    copyReport()
                     if let url = URL(string: Diagnostics.newIssueURL) {
                         NSWorkspace.shared.open(url)
                     }
                 }
                 .keyboardShortcut(.defaultAction)
                 Button("Open Email") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(reportText, forType: .string)
-                    copied = true
+                    copyReport()
                     if let url = Diagnostics.mailtoURL(
                         address: "lukotta@rahula.dev", environment: environment)
                     {
@@ -155,6 +156,11 @@ struct ReportIssueSheet: View {
                 Diagnostics.recentLog()
             }.value
             recentLog = text
+            fixedPart = Diagnostics.report(
+                environment: environment,
+                engineOutput: model.statusLines.joined(separator: "\n"),
+                crashReport: crashes.first,
+                recentLog: text)
         }
     }
 }

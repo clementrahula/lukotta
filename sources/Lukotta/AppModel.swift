@@ -95,9 +95,14 @@ final class AppModel: ObservableObject {
         Task.detached(priority: .utility) {
             var found: [String: VolumeSpace] = [:]
             var counts: [String: Int] = [:]
+            // One read of the mount table for the whole tick. Asked per drive,
+            // this was the app's only perpetual background spawner: a process
+            // for every open drive, every five seconds, all of them parsing the
+            // same table.
+            let table = mountTable()
             for point in points {
                 if let s = VolumeSpace.of(point) { found[point] = s }
-                let nested = EngineStatus.nestedVolumes(under: point)
+                let nested = EngineStatus.nestedVolumes(under: point, in: table)
                 counts[point] = max(1, nested.count)
             }
             let readings = found
