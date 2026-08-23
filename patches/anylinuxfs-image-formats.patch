@@ -70,7 +70,10 @@ diff -ruN a/anylinuxfs/src/devinfo.rs b/anylinuxfs/src/devinfo.rs
 +        } else if path.as_ref().ends_with(b".vmdk") {
 +            DiskFormat::Vmdk
 +        } else if path.as_ref().ends_with(b".vhdx") {
-+            // Before ".vhd", which is a suffix of it and a different format.
++            // Kept above ".vhd" although `ends_with` does not require it: a
++            // path ending in ".vhdx" does not end in ".vhd". The order is what
++            // a looser match would need, and the two formats share nothing but
++            // four letters.
 +            DiskFormat::Vhdx
 +        } else if path.as_ref().ends_with(b".vdi") {
 +            DiskFormat::Vdi

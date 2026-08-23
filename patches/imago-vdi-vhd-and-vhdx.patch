@@ -1,6 +1,24 @@
+diff -ruN -x target -x Cargo.lock a/src/format/access.rs b/src/format/access.rs
+--- a/src/format/access.rs	2026-08-23 15:40:04
++++ b/src/format/access.rs	2026-08-23 15:40:05
+@@ -126,6 +126,14 @@
+         self.inner.as_mut()
+     }
+ 
++    /// Whether this image can be written.
++    ///
++    /// False for an image opened for reading, and for one whose format this
++    /// build can read but not write.
++    pub fn writable(&self) -> bool {
++        self.writable
++    }
++
+     /// Return the disk size in bytes.
+     pub fn size(&self) -> u64 {
+         self.inner.size()
 diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.rs
---- a/src/format/builder.rs	2006-07-24 04:21:28
-+++ b/src/format/builder.rs	2026-08-22 17:52:12
+--- a/src/format/builder.rs	2026-08-23 15:40:04
++++ b/src/format/builder.rs	2026-08-23 15:40:05
 @@ -1,3 +1,5 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: built the drivers for those formats.
 +// SPDX-License-Identifier: MIT
@@ -43,10 +61,13 @@ diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.r
          }
      }
  
-@@ -362,6 +379,18 @@
-                 let b = b.storage_open_options(opts);
+@@ -359,6 +376,18 @@
                  gate.open_format(b).await?
              }
+             FormatOrBuilder::VmdkBuilder(b) => {
++                let b = b.storage_open_options(opts);
++                gate.open_format(b).await?
++            }
 +            FormatOrBuilder::VdiBuilder(b) => {
 +                let b = b.storage_open_options(opts);
 +                gate.open_format(b).await?
@@ -56,15 +77,12 @@ diff -ruN -x target -x Cargo.lock a/src/format/builder.rs b/src/format/builder.r
 +                gate.open_format(b).await?
 +            }
 +            FormatOrBuilder::VhdxBuilder(b) => {
-+                let b = b.storage_open_options(opts);
-+                gate.open_format(b).await?
-+            }
-         };
-         Ok(F::wrap(f))
-     }
+                 let b = b.storage_open_options(opts);
+                 gate.open_format(b).await?
+             }
 diff -ruN -x target -x Cargo.lock a/src/format/mod.rs b/src/format/mod.rs
---- a/src/format/mod.rs	2006-07-24 04:21:28
-+++ b/src/format/mod.rs	2026-08-22 17:52:12
+--- a/src/format/mod.rs	2026-08-23 15:40:04
++++ b/src/format/mod.rs	2026-08-23 15:40:05
 @@ -1,3 +1,5 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: added the Vdi, Vhd and Vhdx formats.
 +// SPDX-License-Identifier: MIT
@@ -87,34 +105,16 @@ diff -ruN -x target -x Cargo.lock a/src/format/mod.rs b/src/format/mod.rs
  }
  
  /// Format layer preallocation modes.
-diff -ruN -x target -x Cargo.lock a/src/format/access.rs b/src/format/access.rs
---- a/src/format/access.rs	2006-07-24 04:21:28
-+++ b/src/format/access.rs	2026-08-22 18:11:27
-@@ -124,6 +124,14 @@
-     /// Return the contained format driver instance.
-     pub fn inner_mut(&mut self) -> &mut dyn FormatDriverInstance<Storage = S> {
-         self.inner.as_mut()
-+    }
-+
-+    /// Whether this image can be written.
-+    ///
-+    /// False for an image opened for reading, and for one whose format this
-+    /// build can read but not write.
-+    pub fn writable(&self) -> bool {
-+        self.writable
-     }
- 
-     /// Return the disk size in bytes.
 diff -ruN -x target -x Cargo.lock a/src/lib.rs b/src/lib.rs
---- a/src/lib.rs	2006-07-24 04:21:28
-+++ b/src/lib.rs	2026-08-22 18:07:45
+--- a/src/lib.rs	2026-08-23 15:40:04
++++ b/src/lib.rs	2026-08-23 15:40:05
 @@ -1,3 +1,5 @@
 +// Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: declared the vdi, vhd and vhdx modules.
 +// SPDX-License-Identifier: MIT
  // #![feature(async_drop)] -- enable with async-drop
  #![cfg_attr(all(doc, nightly), feature(doc_cfg))] // expect nightly for doc
  #![warn(missing_docs)]
-@@ -104,9 +106,16 @@
+@@ -104,8 +106,15 @@
  pub mod qcow2;
  pub mod raw;
  pub mod storage;
@@ -123,18 +123,17 @@ diff -ruN -x target -x Cargo.lock a/src/lib.rs b/src/lib.rs
 +pub mod vhd;
 +pub mod vhdx;
  pub mod vmdk;
- 
++
 +/// Writing to VDI, VHD and VMDK images, checked against qemu-img.
 +#[cfg(test)]
 +mod write_tests;
-+
+ 
  pub use format::access::{FormatAccess, Mapping};
  pub use format::builder::{FormatCreateBuilder, FormatDriverBuilder};
- pub use format::drivers::ShallowMapping;
 diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 --- a/src/vdi/mod.rs	1970-01-01 03:00:00
-+++ b/src/vdi/mod.rs	2026-08-22 18:00:11
-@@ -0,0 +1,507 @@
++++ b/src/vdi/mod.rs	2026-08-23 15:40:05
+@@ -0,0 +1,520 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
 +//
@@ -144,10 +143,17 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +
 +//! VDI implementation.
 +//!
-+//! VirtualBox's format, read-only. A VDI is a header, a block map and the
-+//! blocks. The map holds one 32-bit entry per block of the virtual disk, giving
-+//! that block's index in the image. Two values are reserved and mark a block
-+//! that was never written and reads as zeroes.
++//! VirtualBox's format. A VDI is a header, a block map and the blocks. The map
++//! holds one 32-bit entry per block of the virtual disk, giving that block's
++//! index in the image. Two values are reserved and mark a block that was never
++//! written and reads as zeroes.
++//!
++//! Both the fixed and the dynamic form can be written. A dynamic image grows a
++//! block at a time, each new block going after the last one in the file. The
++//! order of those writes is what makes an interrupted allocation harmless: the
++//! file grows first, the count of allocated blocks is written next, and the map
++//! entry pointing at the new block is written last, so a block that was written
++//! but never linked is unreferenced rather than half-linked.
 +//!
 +//! Nothing here follows a reference to another file, because the format cannot
 +//! express one: a VDI's data is always its own. VirtualBox's snapshots are
@@ -591,11 +597,17 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +    }
 +
 +    async fn resize_grow(&self, _new_size: u64, _prealloc_mode: PreallocateMode) -> io::Result<()> {
-+        Err(io::Error::other("Image is read-only"))
++        Err(io::Error::new(
++            io::ErrorKind::Unsupported,
++            "VDI images cannot be resized",
++        ))
 +    }
 +
 +    async fn resize_shrink(&mut self, _new_size: u64) -> io::Result<()> {
-+        Err(io::Error::other("Image is read-only"))
++        Err(io::Error::new(
++            io::ErrorKind::Unsupported,
++            "VDI images cannot be resized",
++        ))
 +    }
 +}
 +
@@ -644,8 +656,8 @@ diff -ruN -x target -x Cargo.lock a/src/vdi/mod.rs b/src/vdi/mod.rs
 +}
 diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 --- a/src/vhd/mod.rs	1970-01-01 03:00:00
-+++ b/src/vhd/mod.rs	2026-08-22 17:58:02
-@@ -0,0 +1,589 @@
++++ b/src/vhd/mod.rs	2026-08-23 15:40:05
+@@ -0,0 +1,595 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
 +//
@@ -1184,11 +1196,17 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +    }
 +
 +    async fn resize_grow(&self, _new_size: u64, _prealloc_mode: PreallocateMode) -> io::Result<()> {
-+        Err(io::Error::other("Image is read-only"))
++        Err(io::Error::new(
++            io::ErrorKind::Unsupported,
++            "VHD images cannot be resized",
++        ))
 +    }
 +
 +    async fn resize_shrink(&mut self, _new_size: u64) -> io::Result<()> {
-+        Err(io::Error::other("Image is read-only"))
++        Err(io::Error::new(
++            io::ErrorKind::Unsupported,
++            "VHD images cannot be resized",
++        ))
 +    }
 +}
 +
@@ -1237,7 +1255,7 @@ diff -ruN -x target -x Cargo.lock a/src/vhd/mod.rs b/src/vhd/mod.rs
 +}
 diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 --- a/src/vhdx/mod.rs	1970-01-01 03:00:00
-+++ b/src/vhdx/mod.rs	2026-08-22 17:52:12
++++ b/src/vhdx/mod.rs	2026-08-23 15:40:05
 @@ -0,0 +1,585 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
@@ -1826,7 +1844,7 @@ diff -ruN -x target -x Cargo.lock a/src/vhdx/mod.rs b/src/vhdx/mod.rs
 +}
 diff -ruN -x target -x Cargo.lock a/src/write_tests.rs b/src/write_tests.rs
 --- a/src/write_tests.rs	1970-01-01 03:00:00
-+++ b/src/write_tests.rs	2026-08-22 19:02:59
++++ b/src/write_tests.rs	2026-08-23 15:40:05
 @@ -0,0 +1,623 @@
 +// SPDX-FileCopyrightText: 2026 Clement Rahula <lukotta@rahula.dev>
 +// SPDX-License-Identifier: MIT
