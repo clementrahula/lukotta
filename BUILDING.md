@@ -56,6 +56,13 @@ carries the minimum of the bottle it came from, so `bottle_tag` sets the floor:
 `arm64_sonoma` is macOS 14, `arm64_sequoia` is 15, `arm64_tahoe` is 26. Lukotta
 ships the sequoia bottles.
 
+`build-app.sh` reads that floor from the lock (`scripts/lowest-macos.py`) and
+writes it into `LSMinimumSystemVersion`, then checks the built binary's own
+`minos` against it and refuses to finish if the two disagree. Changing
+`bottle_tag` to a newer release is therefore a change to `Package.swift`'s
+platform as well; the build says so rather than shipping an app that Software
+Update offers to Macs it cannot load on.
+
 
 ### The two binaries built here
 

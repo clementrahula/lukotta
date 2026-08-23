@@ -51,10 +51,19 @@ OUT="${1:-$HERE/dist/$APP_NAME.app}"
 CONTENTS="$OUT/Contents"
 
 VERSION="$(tr -d ' \n' < "$HERE/VERSION")"
-case "$VERSION" in
-  [0-9]*.[0-9]*.[0-9]*) ;;
-  *) echo "error: VERSION must be semver (found '$VERSION')" >&2; exit 1 ;;
-esac
+# Digits and dots only. The shell glob this used to be accepted "1x.2.3" and
+# "1..", because * matches anything, and a version like that reaches the
+# appcast and every installed copy before anybody reads it.
+printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || {
+  echo "error: VERSION must be semver (found '$VERSION')" >&2; exit 1; }
+
+# The lowest macOS this build can run on comes from the engine, not from a
+# number typed into the plist. libblkid is taken from a Homebrew bottle and
+# carries that bottle's own minimum, so a bottle built for a newer macOS makes
+# the app refuse to load on everything below it — while the plist still
+# advertised 15.0 and Software Update still offered it.
+MIN_MACOS="$(/usr/bin/python3 "$HERE/scripts/lowest-macos.py" "$HERE/vendor/engine.lock")" \
+  || exit 1
 BUILD="$(git -C "$HERE" rev-list --count HEAD 2>/dev/null || echo 1)"
 
 SIGN_ID="${LUKOTTA_SIGN_ID:-$(security find-identity -v -p codesigning 2>/dev/null \
@@ -76,6 +85,17 @@ printf 'Building %s %s (build %s)\n' "$APP_NAME" "$VERSION" "$BUILD"
 swift build -c release --product Lukotta
 cp "$(swift build -c release --product Lukotta --show-bin-path)/Lukotta" \
    "$CONTENTS/MacOS/$APP_NAME"
+
+# What the binary will actually load on, against what the plist promises. These
+# come from two places — Package.swift's platform and the engine's bottle — and
+# nothing else notices when they part company.
+BINARY_MIN="$(/usr/bin/otool -l "$CONTENTS/MacOS/$APP_NAME" \
+  | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print $2; exit}')"
+if [ -n "$BINARY_MIN" ] && [ "$BINARY_MIN" != "$MIN_MACOS" ]; then
+  echo "error: the binary loads on macOS $BINARY_MIN but the engine needs $MIN_MACOS." >&2
+  echo "  Set the platform in Package.swift to match vendor/engine.lock's bottle." >&2
+  exit 1
+fi
 
 # SwiftPM links frameworks by @rpath but emits rpaths pointing into its own
 # build tree. Inside a bundle they live in Contents/Frameworks, so the loader
@@ -109,6 +129,7 @@ SPARKLE_KEY="${LUKOTTA_SPARKLE_PUBLIC_KEY:-$(cat "$HERE/.sparkle-public-key" 2>/
 sed -e "s/__VERSION__/$VERSION/" -e "s/__BUILD__/$BUILD/" \
     -e "s|__SPARKLE_PUBLIC_KEY__|${SPARKLE_KEY}|" \
     -e "s|__APP_NAME__|$APP_NAME|" -e "s|__BUNDLE_ID__|$BUNDLE_ID|" \
+    -e "s|__MIN_MACOS__|$MIN_MACOS|" \
     -e "s|__ICON_SET__|$ICON_SET|" -e "s|__MARK_SET__|$MARK_SET|" \
   "$HERE/sources/Info.plist" > "$CONTENTS/Info.plist"
 if [ -z "$SPARKLE_KEY" ]; then
