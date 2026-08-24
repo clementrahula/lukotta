@@ -998,11 +998,44 @@ group("aSynthesisedContainerIsNotAContainerFile") {
     expect(rows.allSatisfy { $0.drive == nil }, "so neither is offered as a drive to open")
 }
 
+group("theListKeepsTheOrderThingsArrivedIn") {
+    // Rows used to come back in whatever order a scan and two dictionaries
+    // produced, so opening a second image moved the first one and a drive
+    // plugged in third arrived in the middle of the list.
+    func drive(_ name: String) -> Drive {
+        Drive(
+            id: name, devicePath: "/dev/" + name, name: name, sizeBytes: 1,
+            connection: "USB", kind: .linux, uuid: "uuid-" + name)
+    }
+    let key: (Drive) -> String = { $0.uuid }
+    var order = DriveOrder()
+
+    let first = order.apply([drive("a"), drive("b")], key: key)
+    expect(first.map(\.id) == ["a", "b"], "the first list is the order it came in")
+
+    // The same two, as a scan might hand them back, plus a third.
+    let second = order.apply([drive("b"), drive("c"), drive("a")], key: key)
+    expect(
+        second.map(\.id) == ["a", "b", "c"],
+        "what was there stays where it was, and the new one goes to the bottom")
+
+    let unplugged = order.apply([drive("a"), drive("c")], key: key)
+    expect(unplugged.map(\.id) == ["a", "c"], "one that has gone leaves a closed gap")
+
+    let backAgain = order.apply([drive("a"), drive("c"), drive("b")], key: key)
+    expect(
+        backAgain.map(\.id) == ["a", "c", "b"],
+        "and comes back at the bottom rather than pushing the others about")
+
+    let twice = order.apply([drive("a"), drive("a")], key: key)
+    expect(twice.count == 1, "the same thing seen twice is one row")
+}
+
 group("anAttachedImageIsNotADrive") {
-    // A disk image is a file, chosen by name in File > Open Disk Image. Listed
-    // among the drives it is a row called "disk8" with no name anybody put on
-    // it, and nothing to say what it is. So an attached image is left out --
-    // unless this app opened it, when it belongs to both lists at once.
+    // A disk image is a file, opened by name from the File menu and listed on
+    // the app's own screen. The sheet lists the drives attached to this Mac,
+    // and no image is one -- not a leftover, not another program's, and not
+    // one this app opened itself.
     let plist: [String: Any] = [
         "AllDisksAndPartitions": [
             [
@@ -1021,15 +1054,14 @@ group("anAttachedImageIsNotADrive") {
     }
     expect(
         DriveSurvey.survey(list: plist, info: asImage, mountTable: "", openable: []).isEmpty,
-        "an image nobody opened here is not a drive")
+        "an attached image is not a drive")
 
     let opened = Drive(
         id: "disk8s1", devicePath: "/dev/disk8s1", name: "backup.img", sizeBytes: 2_000_000_000,
         connection: "Disk Image", kind: .linux, uuid: "/Users/someone/backup.img")
-    let rows = DriveSurvey.survey(
-        list: plist, info: asImage, mountTable: "", openable: [opened])
-    expect(rows.count == 1 && rows.first?.verdict == .openable, "one this app opened is listed")
-    expect(rows.first?.drive?.uuid == opened.uuid, "as the drive it already knows")
+    expect(
+        DriveSurvey.survey(list: plist, info: asImage, mountTable: "", openable: [opened]).isEmpty,
+        "nor is one this app opened itself")
 }
 
 group("theHelperSaysWhichBuildItIs") {
@@ -1998,12 +2030,16 @@ group("aContainerFileStaysInTheList") {
     expect("\(once.count)", "1", "a container the scan can see is not listed twice")
 
     // Ejecting is what takes it out, and only the one that was ejected.
-    let ejected = ImageList.detaching(
-        devices: ["/dev/disk7"], images: ["disk7": image, "disk9": physical])
+    let ejected = ImageList.detaching(devices: ["/dev/disk7"], images: ["disk7", "disk9"])
     expect(ejected.joined(separator: ","), "disk7", "ejecting a container detaches that container")
-    let untouched = ImageList.detaching(
-        devices: ["/dev/disk4s1"], images: ["disk7": image])
+    let untouched = ImageList.detaching(devices: ["/dev/disk4s1"], images: ["disk7"])
     expect(untouched.isEmpty, "and ejecting something else leaves it alone")
+    // A container with a partition table is listed by the scan, so it never
+    // needed a row made for it -- and used to stay attached when it was ejected.
+    let partitioned = ImageList.detaching(devices: ["/dev/disk7s1"], images: ["disk7"])
+    expect(
+        partitioned.joined(separator: ","), "disk7",
+        "and ejecting a volume inside a container puts the file back")
 }
 
 group("unencryptedFilesystemsNeedNoPassword") {

@@ -1366,13 +1366,6 @@
       "context": "Row title for the permission that lets the app see drives that are plugged in.",
       "placeholders": []
     },
-    "Select a drive to open": {
-      "screens": [
-        "drive-list"
-      ],
-      "context": "The line above the list. Says open rather than unlock, since a drive that needs no passphrase is opened rather than unlocked.",
-      "placeholders": []
-    },
     "Set Up": {
       "screens": [
         "unlock"

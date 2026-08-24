@@ -272,24 +272,57 @@ final class AppModel: ObservableObject {
     /// A container detached in Finder, or unplugged with the drive it lived on,
     /// should leave the list like anything else. Merging without this would
     /// keep a row for a file that is not there any more.
-    private func reconcileImages(_ found: [Drive]) -> [Drive] {
+    private func reconcileImages(_ found: [Drive], attachments: [String: String]?) -> [Drive] {
         // Nothing is attached for a qcow2, so nothing reports whether it is
         // still present. It stays listed until it is ejected.
         let engineRead = engineReadDrives.values.filter { drive in
             !found.contains { $0.uuid == drive.uuid }
         }
-        // Asked about the containers held at this moment rather than a set
-        // captured before the scan began. A scan started while a file was still
-        // opening carried an empty set, so every container was
-        // judged detached, and the drive just opened was declared unplugged.
-        // The cost is two stat calls against /dev on the main thread.
-        let attached = DiskImage.stillAttached(Set(imageDrives.keys))
-        for identifier in imageDrives.keys where !attached.contains(identifier) {
-            Log.drives.notice("a container file is no longer attached")
-            imageDrives[identifier] = nil
-            openedImages[identifier] = nil
+        // What each device name means at this moment. A name is handed back out
+        // as soon as it is free, so "disk6" is not a lasting way to refer to a
+        // file: checking only that /dev/disk6 exists said an image was still
+        // there when what was there was a different image altogether.
+        //
+        // Nil means hdiutil could not be asked, which says nothing about what
+        // is attached; the list is left as it was rather than emptied.
+        if let attachments {
+            for (identifier, url) in openedImages where attachments[identifier] != url.path {
+                Log.drives.notice("a container file is no longer attached")
+                openedImages[identifier] = nil
+                imageDrives[identifier] = nil
+                containerFormats[identifier] = nil
+            }
         }
         return ImageList.merge(found: found, images: imageDrives) + engineRead
+    }
+
+    /// What a row is, as against what it is called this time round.
+    ///
+    /// A device identifier is temporary and is reused. An image is the file it
+    /// was opened from, a partition inside one is that file and which partition
+    /// it is, and everything else is the volume's own UUID or the stable name
+    /// the scanner makes for a partition table carrying none.
+    private func rowKey(_ drive: Drive) -> String {
+        let whole = DriveScanner.wholeDisk(of: drive.id)
+        if let file = openedImages[whole] {
+            return file.path + "#" + drive.id.dropFirst(whole.count)
+        }
+        return drive.uuid.isEmpty ? drive.id : drive.uuid
+    }
+
+    /// The order rows are shown in: the order they arrived.
+    ///
+    /// The list used to be whatever a scan and two dictionaries happened to
+    /// produce, and a dictionary has no order at all. So opening a second image
+    /// moved the first one, a drive plugged in third arrived somewhere in the
+    /// middle, and rows changed places on every refresh with nothing having
+    /// happened. A row now keeps its place for as long as it is there, and
+    /// anything new goes to the bottom -- a drive and a file alike, there being
+    /// one list and not two.
+    private var listOrder = DriveOrder()
+
+    private func inArrivalOrder(_ drives: [Drive]) -> [Drive] {
+        listOrder.apply(drives) { self.rowKey($0) }
     }
     /// Opening a container file, while it is happening and if it fails.
     ///
@@ -343,10 +376,11 @@ final class AppModel: ObservableObject {
         imageTask?.cancel()
         imageOpening = .opening(url)
         Log.drives.notice("opening a disk image")
+        let alreadyOpen = Set(openedImages.keys)
         imageTask = Task { [weak self] in
             guard let self else { return }
             let outcome = await Task.detached(priority: .userInitiated) {
-                Self.attachAndList(url)
+                Self.attachAndList(url, alreadyOpen: alreadyOpen)
             }.value
 
             // Cancelled while it ran. Whatever attached is detached again,
@@ -367,9 +401,14 @@ final class AppModel: ObservableObject {
                     "image read by the engine: \(container.rawValue, privacy: .public) holding \(format.rawValue, privacy: .public)"
                 )
                 self.engineReadDrives[drive.id] = drive
-                self.drives.append(drive)
+                self.drives = self.inArrivalOrder(self.drives + [drive])
                 self.imageOpening = nil
                 self.knownFormat = format
+                // The engine looked inside the file before anything was shown,
+                // so the row can say what is in it instead of naming the two
+                // things a Linux partition might be. An unencrypted VDI holding
+                // Btrfs was listed as LUKS.
+                if format != .unknown { self.knownFormats[drive.id] = format }
                 self.containerFormats[drive.id] = container
                 self.choose(drive)
             case .success(let attached, let all, _):
@@ -381,7 +420,8 @@ final class AppModel: ObservableObject {
                 }) {
                     self.imageDrives[attached.identifier] = synthesised
                 }
-                self.drives = all
+                self.drives = self.inArrivalOrder(
+                    self.reconcileImages(all, attachments: nil))
                 // Opening a file is already the choice, there being nothing to
                 // pick from, so it either opens or asks for its passphrase.
                 if let mine = all.first(where: { $0.uuid == url.path }) {
@@ -437,7 +477,10 @@ final class AppModel: ObservableObject {
             devicePath: DiskImage.withoutSpaces(url).path,
             name: url.deletingPathExtension().lastPathComponent,
             sizeBytes: fileSize(atPath: url.path),
-            connection: appString("Disk Image"),
+            // Which container it is, rather than the bare word "image". The
+            // engine has already read the file, so there is no reason for the
+            // row to be vaguer about it than the app is.
+            connection: container.name,
             kind: linux ? .linux : .microsoft,
             uuid: url.path)
         return .qcow2(drive, format, container)
@@ -453,7 +496,9 @@ final class AppModel: ObservableObject {
 
     /// The part that blocks: attach, look, and put it back if there is nothing
     /// in it. Off the main actor, and knows nothing about the interface.
-    private nonisolated static func attachAndList(_ url: URL) -> ImageOutcome {
+    private nonisolated static func attachAndList(_ url: URL, alreadyOpen: Set<String>)
+        -> ImageOutcome
+    {
         // A fixed VHD is the raw disk with a footer after it, so the engine
         // opens it unchanged: every structure lies at its natural offset and the
         // last sector is past the end of the disk. The other forms are not raw
@@ -523,7 +568,11 @@ final class AppModel: ObservableObject {
             case .notAnImage(let text), .nothingToOpen(let text): return .failure(text)
             }
         case .success(let attached):
-            var all = DriveScanner.scan(images: [attached.identifier])
+            // Every image, not just this one. Scanning for the new file alone
+            // returned a list with no row for any image already open, and the
+            // one somebody opened first vanished from the screen until the next
+            // refresh put it back somewhere else.
+            var all = DriveScanner.scan(images: alreadyOpen.union([attached.identifier]))
             var mine = all.filter { DriveScanner.wholeDisk(of: $0.id) == attached.identifier }
             // A container made with `cryptsetup luksFormat container.img` has
             // no partition table. It attaches as a whole disk that diskutil
@@ -567,11 +616,12 @@ final class AppModel: ObservableObject {
     }
 
     private func detachImages(forDevices devices: [String]) {
-        let gone = ImageList.detaching(devices: devices, images: imageDrives)
+        let gone = ImageList.detaching(devices: devices, images: Set(openedImages.keys))
         guard !gone.isEmpty else { return }
         for identifier in gone {
             openedImages[identifier] = nil
             imageDrives[identifier] = nil
+            containerFormats[identifier] = nil
         }
         Log.drives.notice("detaching \(gone.count, privacy: .public) container files")
         Task.detached(priority: .utility) {
@@ -761,15 +811,36 @@ final class AppModel: ObservableObject {
     /// The three callers differ in what they do afterwards, not in this: the
     /// list, the generation that tells a waiting test a scan was applied, the
     /// open mounts, and the space they have left.
-    private func applyScan(_ found: [Drive], mounts: [EngineMount]) -> [Drive] {
-        let listed = reconcileImages(found)
+    private func applyScan(_ sighting: Sighting) -> [Drive] {
+        let listed = inArrivalOrder(
+            reconcileImages(sighting.found, attachments: sighting.attachments))
         drives = listed
         scanGeneration += 1
         openMounts = Dictionary(
-            mounts.map { ($0.devicePath, $0.mountPoint) },
+            sighting.mounts.map { ($0.devicePath, $0.mountPoint) },
             uniquingKeysWith: { first, _ in first })
         refreshSpace()
         return listed
+    }
+
+    /// One look at the machine: what is attached, what is mounted, and which
+    /// file each attached disk came from.
+    ///
+    /// Taken together and off the main thread. Asking for the three separately
+    /// meant they could disagree -- a scan begun before a file finished opening
+    /// carried a set of images that did not include it, and the drive somebody
+    /// had just opened was declared unplugged.
+    struct Sighting: Sendable {
+        var found: [Drive]
+        var mounts: [EngineMount]
+        var attachments: [String: String]?
+    }
+
+    private nonisolated static func look(for images: Set<String>) -> Sighting {
+        Sighting(
+            found: DriveScanner.scan(images: images),
+            mounts: EngineStatus.current(),
+            attachments: DiskImage.attachments())
     }
 
     /// What to say when mounts went away without anybody ejecting them.
@@ -791,10 +862,9 @@ final class AppModel: ObservableObject {
         if showOpenDrive { surveyDrives() }
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
-            let found = DriveScanner.scan(images: images)
-            let mounts = EngineStatus.current()
+            let sighting = Self.look(for: images)
             await MainActor.run {
-                let listed = self.reconcileImages(found)
+                let listed = self.applyScan(sighting)
                 // Judged against the list as it will be shown rather than the
                 // raw scan. A container with no partition table appears in the
                 // first and not the second, and judging by the scan alone called
@@ -805,7 +875,6 @@ final class AppModel: ObservableObject {
                         !listed.contains { $0.devicePath == drive.devicePath }
                     } ?? false
 
-                _ = self.applyScan(found, mounts: mounts)
                 // A drive that was open before the restart, plugged in now.
                 self.restoreRememberedMounts()
 
@@ -897,10 +966,9 @@ final class AppModel: ObservableObject {
             }
             for point in abandoned { EngineStatus.forceUnmount(mountPoint: point) }
 
-            let mounts = EngineStatus.current()
-            let found = DriveScanner.scan(images: images)
+            let sighting = Self.look(for: images)
             await MainActor.run {
-                _ = self.applyScan(found, mounts: mounts)
+                _ = self.applyScan(sighting)
                 let names = abandoned.map { URL(fileURLWithPath: $0).lastPathComponent }
                 if let sentence = self.stoppedRespondingNotice(names) { self.notice = sentence }
                 // Always the list, even when a drive is already open. The list
@@ -1012,12 +1080,12 @@ final class AppModel: ObservableObject {
     /// Not `start()`, which resumes whatever is already open. That is correct on
     /// launch and wrong when the list has been asked for.
     func showAllDrives() {
+        choiceGeneration += 1
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
-            let mounts = EngineStatus.current()
-            let found = DriveScanner.scan(images: images)
+            let sighting = Self.look(for: images)
             await MainActor.run {
-                _ = self.applyScan(found, mounts: mounts)
+                _ = self.applyScan(sighting)
                 self.phase = .chooseDrive
             }
         }
@@ -1044,6 +1112,7 @@ final class AppModel: ObservableObject {
     }
 
     func rescan() {
+        choiceGeneration += 1
         ejectProblem = nil
         credentialBelongsTo = nil
         credential = ""
@@ -1056,7 +1125,13 @@ final class AppModel: ObservableObject {
     /// single mistyped digit in a 48-digit recovery key does not cost all 48.
     private var credentialBelongsTo: String?
 
+    /// Bumped every time the drive being opened changes, including back to no
+    /// drive at all. Anything started for a choice carries the value it was
+    /// started under and does nothing once it has moved on.
+    private var choiceGeneration = 0
+
     func choose(_ drive: Drive) {
+        choiceGeneration += 1
         // Reload for a different drive, and whenever the field is empty. The
         // second condition matters because navigating away clears the value and
         // not this marker: without it the saved-key banner outlives the key it
@@ -1091,6 +1166,7 @@ final class AppModel: ObservableObject {
         if let known = knownFormat, engineReadDrives[drive.id] != nil {
             knownFormat = nil
             chosenFormat = known == .unknown ? nil : known
+            if known != .unknown { knownFormats[drive.id] = known }
             // The same screen whatever it holds. An encrypted one asks for the
             // passphrase; an unencrypted one asks only whether to open it
             // writable or read-only; and there is nothing to hand to macOS,
@@ -1183,13 +1259,21 @@ final class AppModel: ObservableObject {
         let devicePath = drive.devicePath
         let identifier = drive.id
         let ours = openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil
+        let choice = choiceGeneration
 
         // A slow reading, from a helper that has gone away or a drive that will
         // not answer, must still leave the click with an effect. Asking for the
         // passphrase is the fallback.
+        //
+        // Only for as long as that drive is still the one being opened. This
+        // waits a second and a half, which is long enough to press Back, and
+        // the screen it puts up then belongs to a drive nobody is looking at
+        // any more: the list would sit there and turn into a passphrase prompt
+        // on its own.
         Task { [weak self] in
             try? await Task.sleep(nanoseconds: 1_500_000_000)
-            guard let self, self.chosenFormat == nil else { return }
+            guard let self, self.chosenFormat == nil, self.choiceGeneration == choice
+            else { return }
             if case .chooseDrive = self.phase { self.phase = .unlock(drive) }
         }
 
@@ -1207,7 +1291,12 @@ final class AppModel: ObservableObject {
             // Answering about a drive nobody is looking at would put a sentence
             // about one drive under the name of another.
             let stillWanted: Bool
-            if case .chooseDrive = self.phase {
+            if self.choiceGeneration != choice {
+                // Somebody went back, or picked something else, while a sector
+                // was being read. The answer is about a drive that is no longer
+                // on screen, and acting on it would put one there.
+                stillWanted = false
+            } else if case .chooseDrive = self.phase {
                 stillWanted = drive.id == identifier
             } else if case .unlock(let current) = self.phase {
                 stillWanted = current.id == identifier
@@ -1364,6 +1453,15 @@ final class AppModel: ObservableObject {
         let saved = CredentialStore.load(for: identity(of: drive))
         let credential = saved.flatMap { try? Credential.normalise($0).get() } ?? ""
 
+        // With no saved passphrase, a locked volume is left locked rather than
+        // tried with an empty one. The attempt takes a minute, starts a virtual
+        // machine, and ends in a failure nobody asked for and nobody is there
+        // to read.
+        if saved == nil, await probedFormat(of: drive).isEncrypted {
+            Log.mount.notice("a drive was left closed: it is locked and no passphrase was saved")
+            return
+        }
+
         let cannotBeWritten = containerFormats[drive.id].map { !$0.isWritable } ?? false
         mountingReadOnly = entry.readOnly || cannotBeWritten
         statusLines = []
@@ -1379,6 +1477,29 @@ final class AppModel: ObservableObject {
     /// Called once the mount in flight has ended, however it ended.
     private var restoreFinished: (() -> Void)?
 
+    /// What is on a drive, read once and remembered.
+    ///
+    /// The same reading the unlock screen makes, asked for where there is
+    /// nobody to answer a prompt. Unknown where nothing can read it, which is
+    /// treated as unencrypted: a drive that opens with no passphrase is worth
+    /// trying, and one that does not fails silently.
+    private func probedFormat(of drive: Drive) async -> VolumeFormat {
+        if let known = knownFormats[drive.id] { return known }
+        let devicePath = drive.devicePath
+        let format: VolumeFormat
+        if openedImages[DriveScanner.wholeDisk(of: drive.id)] != nil {
+            format = await Task.detached(priority: .utility) {
+                BootSector.read(devicePath: devicePath).map(BootSector.identify) ?? .unknown
+            }.value
+        } else if helper.isReady {
+            format = await helper.identify(devicePath: devicePath)
+        } else {
+            format = .unknown
+        }
+        if format != .unknown { knownFormats[drive.id] = format }
+        return format
+    }
+
     /// Attach an image and list what is in it, without any of it being shown.
     ///
     /// The ordinary route puts a sheet up and moves the screen to the drive it
@@ -1386,27 +1507,30 @@ final class AppModel: ObservableObject {
     /// list, and nothing else happens.
     private func openImageQuietly(_ url: URL) async -> Drive? {
         guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+        let alreadyOpen = Set(openedImages.keys)
         let outcome = await Task.detached(priority: .utility) {
-            Self.attachAndList(url)
+            Self.attachAndList(url, alreadyOpen: alreadyOpen)
         }.value
         switch outcome {
         case .failure:
             return nil
         case .qcow2(let drive, let format, let container):
             engineReadDrives[drive.id] = drive
-            drives.append(drive)
+            drives = inArrivalOrder(drives + [drive])
             knownFormat = format
+            knownFormats[drive.id] = format
             containerFormats[drive.id] = container
             return drive
         case .success(let attached, let all, _):
             openedImages[attached.identifier] = url
             containerFormats[attached.identifier] = .raw
-            drives = all
-            return all.first { $0.uuid == url.path }
+            drives = inArrivalOrder(reconcileImages(all, attachments: nil))
+            return drives.first { $0.uuid == url.path }
         }
     }
 
     func backToDrives() {
+        choiceGeneration += 1
         credential = ""
         credentialProblem = nil
         chosenFormat = nil
@@ -1904,15 +2028,28 @@ final class AppModel: ObservableObject {
         // leave the rest mounted behind an ejected one. Volumes nested inside
         // another go with their parent: the engine tears down everything under
         // the mount it owns, and does not recognise the nested points as its.
-        var paths = openVolumes
+        //
+        // Asked of this drive and no other. `openVolumes` describes whichever
+        // drive was opened last, so ejecting a drive while an image happened
+        // to be the most recent thing opened took that image's mount down as
+        // well and put the file back under somebody who had asked for neither.
+        let owner = drives.first { mountPoint(for: $0) == path }
+        let mine = openMounts.filter { mount in
+            mount.value == path || mount.value.hasPrefix(path + "/")
+                || (owner.map { $0.owns(mount.key) } ?? false)
+        }
+        var paths = Array(Set(mine.values))
         if !paths.contains(path) { paths.append(path) }
+        // A volume nested inside this one is served through it and is nowhere
+        // else: only the system's own mount table sees those.
+        paths += openVolumes.filter { $0.hasPrefix(path + "/") && !paths.contains($0) }
         let roots = paths.filter { point in
             !paths.contains { $0 != point && point.hasPrefix($0 + "/") }
         }
         // Which devices these mounts belong to, read before they are cleared:
         // afterwards there is nothing left to say which container file was
         // being served.
-        let devices = openMounts.filter { paths.contains($0.value) }.map(\.key)
+        let devices = Array(mine.keys) + (owner.map { [$0.devicePath] } ?? [])
         Log.mount.notice("ejecting \(roots.count, privacy: .public) mounts")
         Task.detached(priority: .userInitiated) {
             let result =
@@ -1924,7 +2061,7 @@ final class AppModel: ObservableObject {
             await MainActor.run {
                 self.ejectingPath = nil
                 if result.ok {
-                    self.openVolumes = []
+                    self.openVolumes = self.openVolumes.filter { !paths.contains($0) }
                     // Ejecting is the person saying they are done with it, so
                     // it is not put back at the next login. Unplugging is not:
                     // a drive that goes away without being ejected is one to

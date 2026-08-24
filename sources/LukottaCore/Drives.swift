@@ -69,6 +69,39 @@ public enum VolumeKind: String, Hashable, Sendable {
     public var summary: String { summary() }
 }
 
+/// The order rows are shown in: the order they arrived.
+///
+/// A list rebuilt from a scan and a couple of dictionaries comes back in
+/// whatever order those produced, and a dictionary has none at all. So opening
+/// a second image moved the first, a drive plugged in third landed in the
+/// middle, and rows changed places on a refresh with nothing having happened.
+///
+/// A row keeps its place for as long as it is there, and anything new goes to
+/// the bottom -- a drive and a container file alike, there being one list and
+/// not two. What identifies a row is given by the caller, because a device
+/// name is not it: those are handed back out as soon as they are free.
+public struct DriveOrder: Sendable {
+    private var seen: [String] = []
+
+    public init() {}
+
+    /// The same drives, in the order they were first seen.
+    ///
+    /// Anything gone is forgotten, so a drive that comes back later comes back
+    /// at the bottom rather than reclaiming a place among rows that have been
+    /// there all along.
+    public mutating func apply(_ drives: [Drive], key: (Drive) -> String) -> [Drive] {
+        var byKey: [String: Drive] = [:]
+        for drive in drives {
+            let identity = key(drive)
+            if byKey[identity] == nil { byKey[identity] = drive }
+        }
+        seen = seen.filter { byKey[$0] != nil }
+        for drive in drives where !seen.contains(key(drive)) { seen.append(key(drive)) }
+        return seen.compactMap { byKey[$0] }
+    }
+}
+
 public struct Drive: Identifiable, Hashable, Sendable {
     public let id: String  // disk4s1
     public let devicePath: String  // /dev/disk4s1

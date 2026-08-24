@@ -296,10 +296,14 @@ public enum ImageList {
     /// container that has been opened and not yet mounted is absent from
     /// nothing, and detaching it because another drive was ejected would remove
     /// it from whoever just opened it.
-    public static func detaching(devices: [String], images: [String: Drive]) -> [String] {
+    /// Every container this app attached is a candidate, not only the ones it
+    /// had to make a row for by hand. A container with a partition table is
+    /// listed by the scan like any disk, so it was absent from that shorter
+    /// set, and ejecting one left the file attached with nothing to say so.
+    public static func detaching(devices: [String], images: Set<String>) -> [String] {
         let ejected = Set(
             devices.map { DriveScanner.wholeDisk(of: ($0 as NSString).lastPathComponent) })
-        return images.keys.filter { ejected.contains($0) }.sorted()
+        return images.filter { ejected.contains($0) }.sorted()
     }
 }
 
@@ -311,6 +315,40 @@ extension DiskImage {
     /// at the cost of one stat.
     public static func stillAttached(_ identifiers: Set<String>) -> Set<String> {
         identifiers.filter { FileManager.default.fileExists(atPath: "/dev/" + $0) }
+    }
+}
+
+extension DiskImage {
+    /// Which file each attached disk was made from, by whole-disk identifier.
+    ///
+    /// A device identifier is handed straight back out once it is free: detach
+    /// the image at disk6, attach another, and the second one is disk6 too.
+    /// Anything remembered about an image under its device name is therefore
+    /// about whichever image holds that name now. That is how a passphrase
+    /// saved for one image came to be offered for another, and how ejecting a
+    /// drive detached an image that had nothing to do with it.
+    ///
+    /// So the mapping is not remembered. It is asked for, and this is the only
+    /// thing that answers it.
+    ///
+    /// Nil where `hdiutil` could not be asked at all, which is not the same
+    /// answer as "nothing is attached": treating it as the second detaches
+    /// every image somebody has open.
+    public static func attachments() -> [String: String]? {
+        let listing = run(["info"], timeout: 15)
+        guard listing.status == 0 else { return nil }
+        var map: [String: String] = [:]
+        var path = ""
+        for line in listing.out.components(separatedBy: .newlines) {
+            if line.hasPrefix("image-path") {
+                path = line.components(separatedBy: ":").dropFirst()
+                    .joined(separator: ":").trimmingCharacters(in: .whitespaces)
+            } else if line.hasPrefix("/dev/disk"), !path.isEmpty {
+                let device = line.components(separatedBy: .whitespaces)[0]
+                map[DriveScanner.wholeDisk(of: (device as NSString).lastPathComponent)] = path
+            }
+        }
+        return map
     }
 }
 

@@ -101,21 +101,10 @@ public enum DriveSurvey {
             // Recovery volume to unlock.
             let isImage = (wholeInfo["BusProtocol"] as? String) == "Disk Image"
 
-            // A disk image is a file, and a file is opened through File > Open
-            // Disk Image, where it is chosen by name in a place somebody put
-            // it. Attached and listed here it is a row called "Disk Image"
-            // with a number after it, which names nothing anybody would
-            // recognise: it is either one this app attached and has not yet
-            // put back, or another program's business.
-            //
-            // One this app opened is already in the drive list, and is the
-            // exception: it is listed here too, so both lists agree.
-            let opened =
-                byIdentifier[whole] != nil
-                || (disk["Partitions"] as? [[String: Any]] ?? []).contains {
-                    ($0["DeviceIdentifier"] as? String).map { byIdentifier[$0] != nil } ?? false
-                }
-            if isImage && !opened { continue }
+            // A disk image is a file. It is opened by name from the File
+            // menu, and where it is listed is the app's own screen. Nothing
+            // about one belongs in a list of the drives attached to a Mac.
+            if isImage { continue }
             let product =
                 (wholeInfo["MediaName"] as? String) ?? (wholeInfo["IORegistryEntryName"] as? String)
 

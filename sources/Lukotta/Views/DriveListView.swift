@@ -32,8 +32,6 @@ struct DriveListView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.bottom, 2)
                 }
-                Text("Select a drive to open")
-                    .font(.subheadline).foregroundStyle(.secondary)
                 ScrollView {
                     VStack(spacing: 10) {
                         // A drive that has just gone leaves its message where
