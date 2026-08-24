@@ -47,8 +47,11 @@ struct DriveListView: View {
                     DepartedRow(name: gone.name)
                 }
                 List {
-                    ForEach(Array(model.drives.enumerated()), id: \.element.id) {
-                        position, drive in
+                    // The drives themselves, rather than pairs of index and
+                    // drive: reordering is done by the list, and what it hands
+                    // back are offsets into the collection it was given.
+                    ForEach(model.drives) { drive in
+                        let position = model.drives.firstIndex(of: drive) ?? 0
                         let point = model.mountPoint(for: drive)
                         VStack(spacing: 10) {
                             DriveRow(
