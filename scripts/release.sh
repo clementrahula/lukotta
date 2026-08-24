@@ -15,19 +15,53 @@ cd "$HERE"
 
 VERSION="$(tr -d ' \n' < VERSION)"
 BUILD="$(git rev-list --count HEAD)"
-APP="$HERE/dist/Lukotta.app"
-ZIP="$HERE/dist/Lukotta-$VERSION.zip"
 REPO="${LUKOTTA_REPO:-clementrahula/lukotta}"
 PROFILE="${LUKOTTA_NOTARY_PROFILE:-lukotta}"
+
+# Which channel this release is for.
+#
+# The two are the same software and separate everything else: identifier,
+# daemon, saved passphrases, feed, and the tag a download hangs off. Keeping
+# them apart here is what stops a beta appearing in the released app's feed,
+# which is the one mistake this script could make that cannot be taken back --
+# people would have it installed before anybody noticed.
+case "${LUKOTTA_CHANNEL:-release}" in
+  release)
+    BRANDING="official"
+    APP_NAME="Lukotta"
+    TAG="v$VERSION"
+    APPCAST_DEFAULT="$HERE/dist/appcast.xml"
+    NOTES_BASE_DEFAULT="https://updates.lukotta.com"
+    PRERELEASE=()
+    ;;
+  beta)
+    BRANDING="beta"
+    APP_NAME="Lukotta Beta"
+    TAG="v$VERSION-beta"
+    APPCAST_DEFAULT="$HERE/dist/appcast-beta.xml"
+    NOTES_BASE_DEFAULT="https://updates-beta.lukotta.com"
+    # Marked as such on GitHub, so nobody arrives at it from the front page
+    # believing it is the release.
+    PRERELEASE=(--prerelease)
+    ;;
+  *)
+    echo "error: LUKOTTA_CHANNEL must be 'release' or 'beta'" >&2; exit 1 ;;
+esac
+SLUG="$(printf '%s' "$APP_NAME" | tr ' ' '-')"
+
+APP="$HERE/dist/$APP_NAME.app"
+ZIP="$HERE/dist/$SLUG-$VERSION.zip"
+DMG="$HERE/dist/$SLUG-$VERSION.dmg"
 # Point this at a checkout of the updates repository to update it in place.
-APPCAST="${LUKOTTA_APPCAST:-$HERE/dist/appcast.xml}"
-BASE_URL="${LUKOTTA_DOWNLOAD_BASE:-https://github.com/$REPO/releases/download/v$VERSION}"
+APPCAST="${LUKOTTA_APPCAST:-$APPCAST_DEFAULT}"
+NOTES_BASE="${LUKOTTA_NOTES_BASE:-$NOTES_BASE_DEFAULT}"
+BASE_URL="${LUKOTTA_DOWNLOAD_BASE:-https://github.com/$REPO/releases/download/$TAG}"
 
 # A release built from uncommitted work cannot be reproduced from the tag.
 [ -z "$(git status --porcelain)" ] || {
   echo "error: working tree is dirty; commit before releasing" >&2; exit 1; }
-git rev-parse "v$VERSION" >/dev/null 2>&1 || {
-  echo "error: no tag v$VERSION; run scripts/bump-version.sh first" >&2; exit 1; }
+git rev-parse "$TAG" >/dev/null 2>&1 || git rev-parse "v$VERSION" >/dev/null 2>&1 || {
+  echo "error: no tag $TAG; run scripts/bump-version.sh first" >&2; exit 1; }
 
 SIGN_TOOL="$(find "$HERE/.build" -name sign_update -type f -perm -111 -print -quit 2>/dev/null || true)"
 [ -n "$SIGN_TOOL" ] || { echo "error: sign_update not found; run swift build" >&2; exit 1; }
@@ -35,7 +69,8 @@ SIGN_TOOL="$(find "$HERE/.build" -name sign_update -type f -perm -111 -print -qu
 printf '==> Building and notarising %s (build %s)\n' "$VERSION" "$BUILD"
 rm -rf "$HERE/dist"
 # A release is the one build that carries the marks. See TRADEMARKS.txt.
-LUKOTTA_BRANDING=official LUKOTTA_NOTARY_PROFILE="$PROFILE" "$HERE/build-app.sh" >/dev/null
+LUKOTTA_BRANDING="$BRANDING" LUKOTTA_NOTARY_PROFILE="$PROFILE" \
+  "$HERE/build-app.sh" "$APP" >/dev/null
 
 # Refuse to ship something Gatekeeper will refuse to open.
 spctl -a -vv -t install "$APP" 2>&1 | grep -q "source=Notarized Developer ID" || {
@@ -47,7 +82,7 @@ printf '==> Checking it starts\n'
 # happened once already, when the Sparkle framework was not embedded and dyld
 # refused the binary. Cheaper to find here than on someone else's machine.
 SMOKE_LOG="$HERE/dist/smoke.log"
-if ! "$APP/Contents/MacOS/Lukotta" --smoke-test >"$SMOKE_LOG" 2>&1; then
+if ! "$APP/Contents/MacOS/$APP_NAME" --smoke-test >"$SMOKE_LOG" 2>&1; then
   echo "error: the built app failed to start:" >&2
   sed 's/^/    /' "$SMOKE_LOG" >&2
   exit 1
@@ -72,7 +107,7 @@ printf '==> Corresponding source\n'
 # release without it is a licence breach, so the release builds it rather than
 # leaving it to be remembered.
 SOURCES_DIR="$HERE/dist/sources"
-SOURCES_ZIP="$HERE/dist/Lukotta-$VERSION-source.zip"
+SOURCES_ZIP="$HERE/dist/$SLUG-$VERSION-source.zip"
 "$HERE/scripts/collect-sources.sh" "$SOURCES_DIR" >/dev/null
 [ -d "$SOURCES_DIR" ] || { echo "error: no corresponding source was produced" >&2; exit 1; }
 rm -f "$SOURCES_ZIP"
@@ -127,7 +162,7 @@ if [ -d "$PREVIOUS" ] && [ -n "$DELTA_TOOL" ]; then
     old_build="$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$old_app/Contents/Info.plist" 2>/dev/null || true)"
     [ -n "$old_build" ] && [ "$old_build" != "$BUILD" ] || { rm -rf "$work"; continue; }
 
-    delta="$HERE/dist/Lukotta-$old_build-$BUILD.delta"
+    delta="$HERE/dist/$SLUG-$old_build-$BUILD.delta"
     rm -f "$delta"
     if "$DELTA_TOOL" create "$old_app" "$APP" "$delta" >/dev/null 2>&1; then
       delta_line="$("$SIGN_TOOL" --account "${LUKOTTA_SPARKLE_ACCOUNT:-lukotta}" "$delta")"
@@ -146,6 +181,30 @@ if [ -d "$PREVIOUS" ] && [ -n "$DELTA_TOOL" ]; then
 fi
 [ ${#DELTA_ARGS[@]} -gt 0 ] || printf '    none; everyone downloads the whole archive\n'
 
+printf '==> Building the disk image\n'
+# What a person downloads. Sparkle keeps updating from the zip -- that is the
+# format it installs -- so a release produces both, and the image is notarised
+# and stapled in its own right rather than inheriting it from the app inside:
+# Gatekeeper checks the thing that was downloaded, and that is the image.
+"$HERE/scripts/make-dmg.sh" "$APP" "$DMG" "$APP_NAME" "$VERSION"
+if [ -n "${LUKOTTA_NOTARY_PROFILE:-}" ]; then
+  NOTARYTOOL="/Applications/Xcode.app/Contents/Developer/usr/bin/notarytool"
+  [ -x "$NOTARYTOOL" ] || NOTARYTOOL="$(xcrun --find notarytool 2>/dev/null || true)"
+  if [ -x "$NOTARYTOOL" ]; then
+    if "$NOTARYTOOL" submit "$DMG" --keychain-profile "$PROFILE" --wait >/dev/null; then
+      /usr/bin/xcrun stapler staple "$DMG" >/dev/null \
+        || { echo "error: the notarisation could not be stapled to the image" >&2; exit 1; }
+      printf '    notarised and stapled\n'
+    else
+      echo "error: the disk image was not notarised" >&2
+      exit 1
+    fi
+  fi
+fi
+/usr/bin/hdiutil verify "$DMG" >/dev/null 2>&1 \
+  || { echo "error: the disk image does not verify" >&2; exit 1; }
+printf '    %s\n' "$(du -h "$DMG" | awk '{print $1}')"
+
 printf '==> Describing it in the appcast\n'
 mkdir -p "$(dirname "$APPCAST")"
 python3 "$HERE/scripts/appcast.py" \
@@ -156,7 +215,7 @@ python3 "$HERE/scripts/appcast.py" \
   --length "$LENGTH" \
   --signature "$SIGNATURE" \
   --min-system "$(/usr/libexec/PlistBuddy -c 'Print LSMinimumSystemVersion' "$APP/Contents/Info.plist")" \
-  --notes-link "${LUKOTTA_NOTES_BASE:-https://updates.lukotta.com}/notes/$VERSION.html" \
+  --notes-link "$NOTES_BASE/notes/$VERSION.html" \
   --pubdate "$(LC_ALL=C date -u '+%a, %d %b %Y %H:%M:%S +0000')" \
   ${DELTA_ARGS[@]+"${DELTA_ARGS[@]}"}
 
@@ -166,14 +225,15 @@ if [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
   # on this release, so a first release that skipped them advertised enclosures
   # that answered 404 — Sparkle recovers by downloading the whole archive, but
   # the appcast was wrong and the saving was lost.
-  if gh release view "v$VERSION" --repo "$REPO" >/dev/null 2>&1; then
-    gh release upload "v$VERSION" "$ZIP" "$SOURCES_ZIP" \
+  if gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
+    gh release upload "$TAG" "$ZIP" "$DMG" "$SOURCES_ZIP" \
       ${DELTA_FILES[@]+"${DELTA_FILES[@]}"} --repo "$REPO" --clobber
   else
-    gh release create "v$VERSION" "$ZIP" "$SOURCES_ZIP" \
+    gh release create "$TAG" "$ZIP" "$DMG" "$SOURCES_ZIP" \
       ${DELTA_FILES[@]+"${DELTA_FILES[@]}"} --repo "$REPO" \
-      --title "Lukotta $VERSION" \
-      --notes "Complete corresponding source for the GPL components is attached as Lukotta-$VERSION-source.zip."
+      ${PRERELEASE[@]+"${PRERELEASE[@]}"} \
+      --title "$APP_NAME $VERSION" \
+      --notes "Complete corresponding source for the GPL components is attached as $SLUG-$VERSION-source.zip."
   fi
 else
   printf '==> Not published. Set LUKOTTA_PUBLISH=1 to create the GitHub release.\n'

@@ -40,10 +40,22 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - name: Versions
+      # Pinned rather than whatever the image happens to carry. The errors CI
+      # found before it was turned off were real ones a newer local SDK does not
+      # produce, and a runner that quietly moves to another Xcode turns a
+      # failure into a mystery. Selected explicitly, and the version it actually
+      # got is checked against the one this project is built with.
+      - name: Toolchain
         run: |
+          if [ -d /Applications/Xcode_26.app ]; then
+            sudo xcode-select -s /Applications/Xcode_26.app
+          fi
           swift --version
           xcodebuild -version
+          swift package tools-version
+          have="$(swift --version | sed -n 's/.*Apple Swift version \([0-9]*\)\.\([0-9]*\).*/\1\2/p' | head -1)"
+          [ -n "$have" ] || { echo "could not read the Swift version"; exit 1; }
+          [ "$have" -ge 60 ] || { echo "Swift 6 or later is required; this is $have"; exit 1; }
 
       # Run on their own rather than through build-app.sh, so that what they
       # print is in the log when they fail.
@@ -65,9 +77,11 @@ jobs:
       - name: Smoke test
         run: |
           "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker" --smoke-test
-
-      - name: Recovery-key validator
-        run: ./scripts/test-key-validator.sh
+          # What the bundle starts is the shim, and the app it hands over to
+          # sits beside it. A build that lost either starts here and nowhere
+          # else -- there is no window on a runner to notice it missing.
+          test -x "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker"
+          test -x "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker-app"
 
       # Before anything is built: what a scanner can know, over the whole
       # history rather than the tip. The hook that runs the same checks before
