@@ -186,11 +186,18 @@ clean_up() {
     [ -n "$point" ] && umount "$point" >/dev/null 2>&1 || true
   done < <(/sbin/mount | awk '/ on .*\/Volumes\/LUKOTTA(E2E|PLAIN)/ && /nfs/ {
       sub(/^.* on /, ""); sub(/ \(.*$/, ""); print }')
-  while read -r pid; do
-    [ -n "$pid" ] || continue
-    case "$ENGINES_BEFORE" in *" $pid "*) continue;; esac
-    kill "$pid" >/dev/null 2>&1 || true
-  done < <(pgrep -f "$APP/Contents/Resources/engine/anylinuxfs" 2>/dev/null)
+  # Only where nothing is being served any more. An engine with a live mount
+  # behind it belongs to whoever opened that drive -- which may be somebody
+  # sitting at this Mac using the app while this runs, and killing it takes
+  # their drive away. With no NFS mount left, anything still running is a
+  # leftover of a mount that failed, which is what this is for.
+  if [ -z "$(/sbin/mount | grep nfs || true)" ]; then
+    while read -r pid; do
+      [ -n "$pid" ] || continue
+      case "$ENGINES_BEFORE" in *" $pid "*) continue;; esac
+      kill "$pid" >/dev/null 2>&1 || true
+    done < <(pgrep -f "$APP/Contents/Resources/engine/anylinuxfs" 2>/dev/null)
+  fi
   return $status
 }
 trap clean_up EXIT

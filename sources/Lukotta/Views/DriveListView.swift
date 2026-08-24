@@ -38,12 +38,15 @@ struct DriveListView: View {
                 // place it would land. Everything a list would otherwise impose
                 // -- its background, its separators, its insets -- is taken
                 // back off, so this looks as it did.
+                // A drive that has just gone leaves its message where it was,
+                // in the space it was taking. One that was at the top is above
+                // the list rather than in it: a list holding two of these can
+                // only reorder within one of them, and the row on the boundary
+                // would not pick up at all.
+                ForEach(model.departed.filter { $0.index == 0 }) { gone in
+                    DepartedRow(name: gone.name)
+                }
                 List {
-                    // A drive that has just gone leaves its message where
-                    // it was, in the space it was taking.
-                    ForEach(model.departed.filter { $0.index == 0 }) { gone in
-                        DepartedRow(name: gone.name).plainRow
-                    }
                     ForEach(Array(model.drives.enumerated()), id: \.element.id) {
                         position, drive in
                         let point = model.mountPoint(for: drive)

@@ -1049,6 +1049,16 @@ group("theListKeepsTheOrderThingsArrivedIn") {
     expect(backInPlace.map(\.id) == ["c", "a", "b", "d"], "and returns to it")
 }
 
+group("onlyWhatThisAppAttachedIsPutBack") {
+    // A container left attached by a crash is put back at the next launch.
+    // Read as "every attached image nothing is mounted from", that swept up
+    // other programs' work: attach a raw image in Terminal, open this app, and
+    // the image was detached by an app that had never touched it.
+    expect(
+        DiskImage.strayAttachments(ours: []).isEmpty,
+        "with nothing of ours attached, nothing is put back")
+}
+
 group("anAttachedImageIsNotADrive") {
     // A disk image is a file, opened by name from the File menu and listed on
     // the app's own screen. The sheet lists the drives attached to this Mac,

@@ -199,34 +199,50 @@ public enum DiskImage {
             uuid: url.path)
     }
 
-    /// Devices still attached from a file this app opens, with nothing mounted
+    /// Devices still attached from a file this app opened, with nothing mounted
     /// from them.
     ///
     /// A crash, a forced quit, or a device that would not let go leaves one
     /// behind. It has no volume mounted -- nothing appears in Finder -- so the
     /// only sign of it is a disk in the list that nobody recognises.
     ///
-    /// Judged by two things together: hdiutil says which devices came from a
-    /// file, and the mount table says which are in use. One that is in use
-    /// belongs to whoever is using it and is left alone.
-    public static func strayAttachments() -> [String] {
-        let info = run(["info"], timeout: 15)
-        guard info.status == 0 else { return [] }
+    /// Only files this app opened, which is what `ours` carries. Judged by
+    /// hdiutil for what came from which file and by the mount table for what is
+    /// in use; one that is in use belongs to whoever is using it.
+    ///
+    /// The list matters. Read as "every attached image nothing is mounted
+    /// from", this put back images belonging to other programs: somebody who
+    /// attaches a raw image in Terminal and then opens this app finds their
+    /// image detached, by an app that never touched it.
+    public static func strayAttachments(ours: Set<String>) -> [String] {
+        guard !ours.isEmpty, let attached = attachments() else { return [] }
         let busy = MountTableEntry.all(in: mountTable()).map(\.source)
-
-        var devices: [String] = []
-        for line in info.out.components(separatedBy: .newlines) {
-            // "/dev/disk5s1   \tGUID_partition_scheme          \t"
-            let fields = line.split(separator: "\t", omittingEmptySubsequences: true)
-            guard let first = fields.first?.trimmingCharacters(in: .whitespaces),
-                first.hasPrefix("/dev/disk")
-            else { continue }
-            let whole = "/dev/" + DriveScanner.wholeDisk(of: (first as NSString).lastPathComponent)
-            guard !devices.contains(whole) else { continue }
-            guard !busy.contains(where: { $0.hasPrefix(whole) }) else { continue }
-            devices.append(whole)
+        return attached.compactMap { identifier, path in
+            guard ours.contains(path) else { return nil }
+            let device = "/dev/" + identifier
+            guard !busy.contains(where: { $0.hasPrefix(device) }) else { return nil }
+            return device
         }
-        return devices
+    }
+
+    /// The files this app has attached, kept where it can be read after a crash.
+    ///
+    /// Nothing else can say afterwards which attachment was this app's doing:
+    /// hdiutil reports what is attached, not who asked for it.
+    public enum OpenedFiles {
+        static let key = "attachedByLukotta"
+
+        public static func all() -> Set<String> {
+            Set(UserDefaults.standard.stringArray(forKey: key) ?? [])
+        }
+
+        public static func add(_ path: String) {
+            UserDefaults.standard.set(Array(all().union([path])).sorted(), forKey: key)
+        }
+
+        public static func remove(_ path: String) {
+            UserDefaults.standard.set(Array(all().subtracting([path])).sorted(), forKey: key)
+        }
     }
 
     @discardableResult

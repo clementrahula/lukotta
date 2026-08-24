@@ -440,6 +440,10 @@ final class AppModel: ObservableObject {
                 self.containerFormats[drive.id] = container
                 self.choose(drive)
             case .success(let attached, let all, let mine):
+                // Remembered as this app's doing, so that a crash or a forced
+                // quit leaves something able to say which attachment to put
+                // back. hdiutil says what is attached and not who asked for it.
+                DiskImage.OpenedFiles.add(url.path)
                 self.openedImages[attached.identifier] = url
                 self.containerFormats[attached.identifier] = .raw
                 // Only when the scan could not see it for itself.
@@ -672,6 +676,7 @@ final class AppModel: ObservableObject {
     private func detachImages(forDevices devices: [String]) {
         let gone = ImageList.detaching(devices: devices, images: Set(openedImages.keys))
         guard !gone.isEmpty else { return }
+        let files = gone.compactMap { openedImages[$0]?.path }
         for identifier in gone {
             openedImages[identifier] = nil
             imageDrives[identifier] = nil
@@ -680,6 +685,12 @@ final class AppModel: ObservableObject {
         Log.drives.notice("detaching \(gone.count, privacy: .public) container files")
         Task.detached(priority: .utility) {
             for identifier in gone { DiskImage.detach("/dev/" + identifier) }
+            // Put back, so nothing goes looking for it at the next launch. Kept
+            // where the detach did not work: it is still attached, and still
+            // this app's to put back.
+            for file in files where !(DiskImage.attachments() ?? [:]).values.contains(file) {
+                DiskImage.OpenedFiles.remove(file)
+            }
         }
     }
 
@@ -1067,7 +1078,8 @@ final class AppModel: ObservableObject {
     /// Only what this app itself attached, and only what is not in use.
     private func putBackWhatWasLeftAttached() {
         Task.detached(priority: .utility) {
-            let stale = DiskImage.strayAttachments()
+            let ours = DiskImage.OpenedFiles.all()
+            let stale = DiskImage.strayAttachments(ours: ours)
             guard !stale.isEmpty else { return }
             Log.drives.notice(
                 "putting back \(stale.count, privacy: .public) containers left attached")
@@ -1586,6 +1598,7 @@ final class AppModel: ObservableObject {
             containerFormats[drive.id] = container
             return drive
         case .success(let attached, let all, _):
+            DiskImage.OpenedFiles.add(url.path)
             openedImages[attached.identifier] = url
             containerFormats[attached.identifier] = .raw
             drives = inArrivalOrder(reconcileImages(all, attachments: nil))
@@ -2184,7 +2197,10 @@ final class AppModel: ObservableObject {
             opened: openedImages, mountedDevices: Array(openMounts.keys))
         if !leaving.isEmpty {
             Log.drives.notice("detaching \(leaving.count, privacy: .public) container files")
-            for identifier in leaving { DiskImage.detach("/dev/" + identifier) }
+            for identifier in leaving {
+                DiskImage.detach("/dev/" + identifier)
+                if let file = openedImages[identifier] { DiskImage.OpenedFiles.remove(file.path) }
+            }
         }
         workspace?.destroy()
         workspace = nil
