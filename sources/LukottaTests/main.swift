@@ -139,6 +139,126 @@ group("failureDiagnosis") {
         "empty transcript still yields a sentence")
 }
 
+group("aDiskWithNoPartitionTableIsStillADrive") {
+    // cryptsetup luksFormat /dev/sdb makes one, and so does dd. There is no
+    // partition to describe it and diskutil says nothing about what is inside,
+    // so the disk itself is the volume. Skipping these hid exactly the drives
+    // somebody would reach for this app to open.
+    let plist: [String: Any] = [
+        "AllDisksAndPartitions": [
+            ["DeviceIdentifier": "disk7", "Size": NSNumber(value: 64_000_000_000)],
+            // A disk with a table is described by the table, as before.
+            [
+                "DeviceIdentifier": "disk8",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk8s1", "Content": "Microsoft Basic Data",
+                        "Size": NSNumber(value: 500_000_000_000),
+                    ]
+                ],
+            ],
+            // The system's own container is not offered whole.
+            [
+                "DeviceIdentifier": "disk3",
+                "APFSVolumes": [
+                    [
+                        "DeviceIdentifier": "disk3s1", "Content": "Apple_APFS",
+                        "VolumeName": "Macintosh HD",
+                        "Size": NSNumber(value: 16_000_000_000),
+                    ]
+                ],
+            ],
+        ]
+    ]
+    let found = DriveScanner.drives(inList: plist, info: { _ in [:] })
+    let ids = found.map(\.id)
+    expect(ids.contains("disk7"), "a disk with no partition table is offered whole")
+    expect(ids.contains("disk8s1"), "and a partitioned one is still offered by partition")
+    expect(!ids.contains("disk8"), "but not twice")
+    expect(!ids.contains("disk3"), "an APFS container is not a drive to open")
+    expect(found.first { $0.id == "disk7" }?.devicePath == "/dev/disk7", "the device is the disk")
+
+    // An internal disk with no table is the Mac's own and is left alone.
+    let internalOnly: [String: Any] = [
+        "AllDisksAndPartitions": [
+            ["DeviceIdentifier": "disk9", "Size": NSNumber(value: 500_000_000_000)]
+        ]
+    ]
+    let none = DriveScanner.drives(
+        inList: internalOnly, info: { _ in ["Internal": true] })
+    expect(none.isEmpty, "an internal disk with no table is not offered")
+}
+
+group("theSurveyAgreesWithTheScannerAndHidesTheSystem") {
+    // The survey judged a partition by its own two sets of names and the
+    // scanner judged it by VolumeKind.holding. An MBR BitLocker drive was
+    // therefore listed as "not a format Lukotta can open" while the scanner
+    // would have opened it.
+    let plist: [String: Any] = [
+        "AllDisksAndPartitions": [
+            [
+                "DeviceIdentifier": "disk4", "Content": "FDisk_partition_scheme",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk4s1", "Content": "Windows_NTFS",
+                        "Size": NSNumber(value: 247_630_659_584),
+                    ]
+                ],
+            ],
+            [
+                "DeviceIdentifier": "disk3", "Content": "Apple_APFS_Container",
+                "APFSVolumes": [
+                    [
+                        "DeviceIdentifier": "disk3s1", "Content": "Apple_APFS",
+                        "VolumeName": "Macintosh HD",
+                        "Size": NSNumber(value: 16_000_000_000),
+                    ],
+                    [
+                        "DeviceIdentifier": "disk3s2", "Content": "Apple_APFS",
+                        "VolumeName": "Preboot",
+                        "Size": NSNumber(value: 18_000_000_000),
+                    ],
+                    [
+                        "DeviceIdentifier": "disk3s6", "Content": "Apple_APFS", "VolumeName": "VM",
+                        "Size": NSNumber(value: 34_000_000_000),
+                    ],
+                ],
+            ],
+        ]
+    ]
+    let rows = DriveSurvey.survey(
+        list: plist, info: { _ in [:] }, mountTable: "", openable: [])
+    let by = Dictionary(uniqueKeysWithValues: rows.map { ($0.id, $0) })
+
+    expect(
+        by["disk4s1"]?.verdict == .openable,
+        "an MBR BitLocker drive is offered, not written off")
+    expect(by["disk3s2"]?.verdict == .system, "Preboot belongs to the system")
+    expect(by["disk3s6"]?.verdict == .system, "and so does VM")
+    expect(
+        rows.filter { $0.verdict == .system }.count == 2,
+        "APFS's own volumes are the ones folded away, and only those")
+}
+
+group("aPartitionIsRecognisedWhicheverSchemeWroteIt") {
+    // A GPT disk names the type by its GUID's readable name; an MBR disk gives
+    // the old DOS name. Windows still writes MBR on a USB stick, and BitLocker
+    // To Go leaves one behind, so reading only the GPT names hid exactly the
+    // drives this app exists to open.
+    expect(VolumeKind.holding("Microsoft Basic Data") == .microsoft, "GPT: Microsoft Basic Data")
+    expect(VolumeKind.holding("Windows_NTFS") == .microsoft, "MBR: Windows_NTFS")
+    expect(VolumeKind.holding("Linux Filesystem") == .linux, "GPT: Linux Filesystem")
+    expect(VolumeKind.holding("Linux") == .linux, "MBR: Linux")
+    expect(VolumeKind.holding("Linux_LVM") == .linux, "LVM, either scheme")
+    expect(VolumeKind.holding("Linux_RAID") == .linux, "RAID, either scheme")
+    // Not ours: macOS reads these itself, and offering them would invite
+    // somebody to open their own system disk.
+    expect(VolumeKind.holding("Apple_APFS") == nil, "APFS is macOS's own")
+    expect(VolumeKind.holding("Windows_FAT_32") == nil, "plain FAT is read by macOS")
+    expect(VolumeKind.holding("EFI") == nil, "the EFI partition is nobody's business")
+    expect(VolumeKind.holding("") == nil, "a disk with no partition table at all")
+}
+
 group("volumeKindsAndTheDirtyVolumePath") {
 
     // What may be there, until a probe says which of them it is.
@@ -1219,7 +1339,8 @@ group("driveScannerParsing") {
                     ],
                 ],
             ],
-            // A disk with no partition list at all, which must not throw.
+            // A disk with no partition list at all: one volume filling the
+            // disk, which is what cryptsetup leaves behind.
             ["DeviceIdentifier": "disk6", "Content": "GUID_partition_scheme"],
         ]
     ]
@@ -1233,8 +1354,12 @@ group("driveScannerParsing") {
     ]
     let found = DriveScanner.drives(inList: list, info: { info[$0] ?? [:] })
 
-    expect("\(found.count)", "2", "only the partitions we can do something with are listed")
-    expect(found.map(\.id).joined(separator: ","), "disk4s1,disk5s2", "in the order they appear")
+    expect(
+        "\(found.count)", "3",
+        "only the partitions we can do something with are listed, plus the disk with none")
+    expect(
+        found.map(\.id).joined(separator: ","), "disk4s1,disk5s2,disk6",
+        "in the order they appear, the unpartitioned disk last with its own name")
 
     let windows = found[0]
     expect(windows.devicePath, "/dev/disk4s1", "the device path is built from the identifier")

@@ -68,6 +68,10 @@ enum Snapshots {
                 DriveSurvey.Entry(
                     id: "disk7s2", disk: "disk7", name: "unknown", sizeBytes: 2_000_000_000,
                     content: "Apple_Boot", verdict: .unreadable, drive: nil),
+                // The system's own, which the sheet folds away at the bottom.
+                DriveSurvey.Entry(
+                    id: "disk3s2", disk: "disk3", name: "Preboot", sizeBytes: 18_000_000_000,
+                    content: "Apple_APFS", verdict: .system, drive: nil),
             ]
             return AnyView(
                 OpenDriveSheet().environmentObject(m)

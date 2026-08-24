@@ -5783,7 +5783,7 @@
         }
       }
     },
-    "A drive that refuses to be written to is opened read-only rather than left closed, and says so": {
+    "A drive that refuses to be written to is opened read-only rather than left closed": {
       "localizations": {
         "ar": {
           "stringUnit": {
@@ -5800,19 +5800,19 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disk, který odmítá zápis, se otevře jen ke čtení, místo aby zůstal zavřený, a řekne to"
+            "value": "Disk, který odmítá zápis, se otevře jen ke čtení, místo aby zůstal zavřený"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Et drev, der nægter at blive skrevet til, åbnes kun til læsning i stedet for at forblive lukket, og siger det"
+            "value": "Et drev, der nægter at blive skrevet til, åbnes kun til læsning i stedet for at forblive lukket"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ein Laufwerk, das sich nicht beschreiben lässt, wird nur lesend geöffnet statt geschlossen zu bleiben, und sagt das"
+            "value": "Ein Laufwerk, das sich nicht beschreiben lässt, wird nur lesend geöffnet statt geschlossen zu bleiben"
           }
         },
         "el": {
@@ -5830,7 +5830,7 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ketas, millele kirjutada ei saa, avatakse ainult lugemiseks, mitte ei jäeta avamata, ja ütleb seda"
+            "value": "Ketas, millele kirjutada ei saa, avatakse ainult lugemiseks, mitte ei jäeta avamata"
           }
         },
         "fi": {
@@ -5848,7 +5848,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un disque qui refuse l’écriture est ouvert en lecture seule plutôt que laissé fermé, et le signale"
+            "value": "Un disque qui refuse l’écriture est ouvert en lecture seule plutôt que laissé fermé"
           }
         },
         "he": {
@@ -5872,7 +5872,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Az a lemez, amelyre nem lehet írni, csak olvasásra nyílik meg ahelyett, hogy zárva maradna, és ezt jelzi"
+            "value": "Az a lemez, amelyre nem lehet írni, csak olvasásra nyílik meg ahelyett, hogy zárva maradna"
           }
         },
         "id": {
@@ -5884,7 +5884,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un disco che rifiuta la scrittura viene aperto in sola lettura anziché restare chiuso, e lo dice"
+            "value": "Un disco che rifiuta la scrittura viene aperto in sola lettura anziché restare chiuso"
           }
         },
         "ja": {
@@ -5932,7 +5932,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dysk, na którym nie da się zapisywać, zostaje otwarty tylko do odczytu, zamiast pozostać zamknięty, i mówi o tym"
+            "value": "Dysk, na którym nie da się zapisywać, zostaje otwarty tylko do odczytu, zamiast pozostać zamknięty"
           }
         },
         "pt-PT": {
@@ -5944,7 +5944,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un disc pe care nu se poate scrie este deschis doar pentru citire în loc să rămână închis, și spune asta"
+            "value": "Un disc pe care nu se poate scrie este deschis doar pentru citire în loc să rămână închis"
           }
         },
         "ru": {
@@ -5956,7 +5956,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disk, na katerega ni mogoče pisati, se odpre samo za branje, namesto da bi ostal zaprt, in to pove"
+            "value": "Disk, na katerega ni mogoče pisati, se odpre samo za branje, namesto da bi ostal zaprt"
           }
         },
         "sq": {
@@ -5968,7 +5968,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "En disk som inte går att skriva till öppnas skrivskyddad i stället för att lämnas stängd, och säger det"
+            "value": "En disk som inte går att skriva till öppnas skrivskyddad i stället för att lämnas stängd"
           }
         },
         "th": {
@@ -26305,222 +26305,222 @@
         }
       }
     },
-    "Looking for encrypted drives…": {
+    "Looking for drives…": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يجري البحث عن محرّكات مشفّرة…"
+            "value": "يجري البحث عن محرّكات…"
           }
         },
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Търсене на шифровани дискове…"
+            "value": "Търсене на дискове…"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hledání šifrovaných disků…"
+            "value": "Hledání disků…"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Søger efter krypterede enheder…"
+            "value": "Søger efter enheder…"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suche nach verschlüsselten Laufwerken …"
+            "value": "Laufwerke werden gesucht…"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Αναζήτηση κρυπτογραφημένων δίσκων…"
+            "value": "Αναζήτηση δίσκων…"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buscando discos cifrados…"
+            "value": "Buscando discos…"
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Krüpteeritud ketaste otsimine…"
+            "value": "Ketaste otsimine…"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Etsitään salattuja asemia…"
+            "value": "Etsitään asemia…"
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Naghahanap ng mga naka-encrypt na drive…"
+            "value": "Naghahanap ng mga drive…"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recherche de disques chiffrés…"
+            "value": "Recherche de disques…"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מחפש כוננים מוצפנים…"
+            "value": "מחפש כוננים…"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "एन्क्रिप्टेड ड्राइव खोजी जा रही हैं…"
+            "value": "ड्राइव खोजी जा रही हैं…"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Traženje šifriranih diskova…"
+            "value": "Traženje diskova…"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Titkosított meghajtók keresése…"
+            "value": "Meghajtók keresése…"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mencari drive terenkripsi…"
+            "value": "Mencari drive…"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ricerca di dischi cifrati…"
+            "value": "Ricerca dei dischi…"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "暗号化されたドライブを探しています…"
+            "value": "ドライブを探しています…"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "암호화된 드라이브를 찾는 중…"
+            "value": "드라이브를 찾는 중…"
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ieškoma užšifruotų diskų…"
+            "value": "Ieškoma diskų…"
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notiek šifrētu disku meklēšana…"
+            "value": "Notiek disku meklēšana…"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mencari pemacu bersulit…"
+            "value": "Mencari pemacu…"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Søker etter krypterte enheter…"
+            "value": "Søker etter enheter…"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bezig met zoeken naar versleutelde schijven…"
+            "value": "Bezig met zoeken naar schijven…"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Szukanie zaszyfrowanych dysków…"
+            "value": "Szukanie dysków…"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "A procurar discos encriptados…"
+            "value": "A procurar discos…"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se caută discuri criptate…"
+            "value": "Se caută discuri…"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Поиск зашифрованных дисков…"
+            "value": "Поиск дисков…"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Iskanje šifriranih pogonov…"
+            "value": "Iskanje diskov…"
           }
         },
         "sq": {
           "stringUnit": {
             "state": "translated",
-            "value": "Po kërkohen disqe të enkriptuar…"
+            "value": "Po kërkohen disqe…"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Söker efter krypterade enheter…"
+            "value": "Söker efter enheter…"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "กำลังค้นหาไดรฟ์ที่เข้ารหัส…"
+            "value": "กำลังค้นหาไดรฟ์…"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Şifreli sürücüler aranıyor…"
+            "value": "Sürücüler aranıyor…"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Пошук зашифрованих дисків…"
+            "value": "Пошук дисків…"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đang tìm ổ đĩa được mã hóa…"
+            "value": "Đang tìm ổ đĩa…"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在查找加密驱动器…"
+            "value": "正在查找驱动器…"
           }
         }
       }
@@ -27405,222 +27405,222 @@
         }
       }
     },
-    "No encrypted drives found": {
+    "No drives found": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لم يُعثر على محرّكات مشفّرة"
+            "value": "لم يُعثر على محرّكات"
           }
         },
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Не са намерени шифровани дискове"
+            "value": "Няма намерени дискове"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nebyly nalezeny žádné šifrované disky"
+            "value": "Nenalezeny žádné disky"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der blev ikke fundet nogen krypterede enheder"
+            "value": "Ingen enheder fundet"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine verschlüsselten Laufwerke gefunden"
+            "value": "Keine Laufwerke gefunden"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Δεν βρέθηκαν κρυπτογραφημένοι δίσκοι"
+            "value": "Δεν βρέθηκαν δίσκοι"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se han encontrado discos cifrados"
+            "value": "No se han encontrado discos"
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Krüpteeritud kettaid ei leitud"
+            "value": "Kettaid ei leitud"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Salattuja asemia ei löytynyt"
+            "value": "Asemia ei löytynyt"
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Walang natagpuang naka-encrypt na drive"
+            "value": "Walang natagpuang drive"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun disque chiffré trouvé"
+            "value": "Aucun disque trouvé"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "לא נמצאו כוננים מוצפנים"
+            "value": "לא נמצאו כוננים"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "कोई एन्क्रिप्टेड ड्राइव नहीं मिली"
+            "value": "कोई ड्राइव नहीं मिली"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nije pronađen nijedan šifrirani disk"
+            "value": "Nije pronađen nijedan disk"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nem található titkosított meghajtó"
+            "value": "Nem található meghajtó"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tidak ditemukan drive terenkripsi"
+            "value": "Tidak ada drive ditemukan"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessun disco cifrato trovato"
+            "value": "Nessun disco trovato"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "暗号化されたドライブは見つかりませんでした"
+            "value": "ドライブが見つかりません"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "암호화된 드라이브를 찾지 못했습니다"
+            "value": "드라이브를 찾지 못했습니다"
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Užšifruotų diskų nerasta"
+            "value": "Diskų nerasta"
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Šifrēti diski netika atrasti"
+            "value": "Diski nav atrasti"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tiada pemacu bersulit ditemui"
+            "value": "Tiada pemacu ditemui"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fant ingen krypterte enheter"
+            "value": "Ingen enheter funnet"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geen versleutelde schijven gevonden"
+            "value": "Geen schijven gevonden"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nie znaleziono zaszyfrowanych dysków"
+            "value": "Nie znaleziono dysków"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foram encontrados discos encriptados"
+            "value": "Não foram encontrados discos"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nu s-au găsit discuri criptate"
+            "value": "Nu au fost găsite discuri"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Зашифрованные диски не найдены"
+            "value": "Диски не найдены"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ni najdenih šifriranih pogonov"
+            "value": "Ni najdenih diskov"
           }
         },
         "sq": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nuk u gjetën disqe të enkriptuar"
+            "value": "Nuk u gjetën disqe"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inga krypterade enheter hittades"
+            "value": "Inga enheter hittades"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ไม่พบไดรฟ์ที่เข้ารหัส"
+            "value": "ไม่พบไดรฟ์"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Şifreli sürücü bulunamadı"
+            "value": "Sürücü bulunamadı"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Зашифрованих дисків не знайдено"
+            "value": "Дисків не знайдено"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Không tìm thấy ổ đĩa được mã hóa"
+            "value": "Không tìm thấy ổ đĩa"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未找到加密驱动器"
+            "value": "未找到驱动器"
           }
         }
       }
@@ -39379,7 +39379,7 @@
         }
       }
     },
-    "Select a drive to unlock": {
+    "Select a drive to open": {
       "localizations": {
         "ar": {
           "stringUnit": {
@@ -39390,43 +39390,43 @@
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Изберете диск за отключване"
+            "value": "Изберете диск за отваряне"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vyberte disk, který chcete odemknout"
+            "value": "Vyberte disk k otevření"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vælg en enhed, der skal låses op"
+            "value": "Vælg en enhed, du vil åbne"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wähle ein Laufwerk zum Entsperren"
+            "value": "Wähle ein Laufwerk zum Öffnen"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Επιλέξτε δίσκο για ξεκλείδωμα"
+            "value": "Επιλέξτε δίσκο για άνοιγμα"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Selecciona un disco para desbloquear"
+            "value": "Selecciona un disco para abrirlo"
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vali ketas, mida avada"
+            "value": "Vali avamiseks ketas"
           }
         },
         "fi": {
@@ -39444,157 +39444,157 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sélectionnez un disque à déverrouiller"
+            "value": "Sélectionnez un disque à ouvrir"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "בחרו כונן לביטול נעילה"
+            "value": "בחרו כונן לפתיחה"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "अनलॉक करने के लिए ड्राइव चुनें"
+            "value": "खोलने के लिए ड्राइव चुनें"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Odaberite disk za otključavanje"
+            "value": "Odaberite disk za otvaranje"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Válasszon egy feloldandó meghajtót"
+            "value": "Válasszon megnyitandó meghajtót"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pilih drive untuk dibuka kuncinya"
+            "value": "Pilih drive untuk dibuka"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Seleziona un disco da sbloccare"
+            "value": "Seleziona un disco da aprire"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ロック解除するドライブを選んでください"
+            "value": "開くドライブを選んでください"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "잠금 해제할 드라이브를 선택하십시오"
+            "value": "열 드라이브를 선택하십시오"
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pasirinkite diską, kurį atrakinti"
+            "value": "Pasirinkite diską, kurį atverti"
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izvēlieties disku, ko atbloķēt"
+            "value": "Atlasiet disku, ko atvērt"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pilih pemacu untuk dibuka kunci"
+            "value": "Pilih pemacu untuk dibuka"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velg en enhet som skal låses opp"
+            "value": "Velg en enhet du vil åpne"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Selecteer een schijf om te ontgrendelen"
+            "value": "Selecteer een schijf om te openen"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wybierz dysk do odblokowania"
+            "value": "Wybierz dysk do otwarcia"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Selecione um disco para desbloquear"
+            "value": "Selecione um disco para abrir"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Selectați un disc pentru deblocare"
+            "value": "Selectați un disc de deschis"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выберите диск для разблокировки"
+            "value": "Выберите диск для открытия"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izberite pogon za odklep"
+            "value": "Izberite disk za odpiranje"
           }
         },
         "sq": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zgjidh një disk për ta shkyçur"
+            "value": "Zgjidh një disk për ta hapur"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Välj en enhet att låsa upp"
+            "value": "Välj en enhet att öppna"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "เลือกไดรฟ์ที่จะปลดล็อก"
+            "value": "เลือกไดรฟ์ที่จะเปิด"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kilidini açmak için bir sürücü seçin"
+            "value": "Açılacak bir sürücü seçin"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Виберіть диск для розблокування"
+            "value": "Виберіть диск для відкриття"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chọn một ổ đĩa để mở khóa"
+            "value": "Chọn một ổ đĩa để mở"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "选择要解锁的驱动器"
+            "value": "选择要打开的驱动器"
           }
         }
       }
@@ -48835,6 +48835,226 @@
           "stringUnit": {
             "state": "translated",
             "value": "第三方声明"
+          }
+        }
+      }
+    },
+    "This Mac's own volumes": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وحدات التخزين الخاصة بهذا الـ Mac"
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Собствените дискове на този Mac"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vlastní svazky tohoto Macu"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne Macs egne enheder"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die eigenen Volumes dieses Macs"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Οι δικοί του τόμοι αυτού του Mac"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los volúmenes propios de este Mac"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selle Maci enda köited"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämän Macin omat taltiot"
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mga sariling volume ng Mac na ito"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les volumes propres à ce Mac"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "אמצעי האחסון של ה‑Mac הזה"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इस Mac के अपने वॉल्यूम"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vlastiti volumeni ovog Maca"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Mac saját kötetei"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume milik Mac ini sendiri"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I volumi di questo Mac"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この Mac 自身のボリューム"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 Mac의 자체 볼륨"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šio „Mac“ nuosavi tomai"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šī Mac datora paša sējumi"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volum milik Mac ini sendiri"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne Mac-ens egne volumer"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De eigen volumes van deze Mac"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Własne woluminy tego Maca"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os volumes do próprio Mac"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volumele proprii ale acestui Mac"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Собственные тома этого Mac"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lastni nosilci tega Maca"
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volumet e vetë këtij Mac-u"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den här Mac-datorns egna volymer"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โวลุ่มของ Mac เครื่องนี้เอง"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu Mac'in kendi birimleri"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Власні томи цього Mac"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Các ổ của chính máy Mac này"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这台 Mac 自己的宗卷"
           }
         }
       }

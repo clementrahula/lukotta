@@ -61,6 +61,17 @@ public enum DriveSurvey {
         "Apple_KernelCoreDump", "Apple_Recovery",
     ]
 
+    /// Volumes APFS makes for its own purposes inside every container.
+    ///
+    /// Disk Utility hides these, and a list that shows them buries the one
+    /// drive somebody plugged in under a dozen rows nobody can act on. They
+    /// belong to the system whatever disk they are on: an external disk with
+    /// macOS installed has its own Preboot and Recovery.
+    static let systemVolumeNames: Set<String> = [
+        "Preboot", "Recovery", "VM", "Update", "xART", "Hardware", "iSCPreboot",
+        "iSCRecovery",
+    ]
+
     /// Types macOS reads for itself.
     static let macOSContent: Set<String> = [
         "Apple_APFS", "Apple_HFS", "Apple_CoreStorage", "Apple_APFS_Container",
@@ -102,10 +113,18 @@ public enum DriveSurvey {
                 let verdict: Verdict
                 if byIdentifier[identifier] != nil {
                     verdict = .openable
-                } else if systemContent.contains(content) || (internalDisk && content.isEmpty) {
+                } else if systemContent.contains(content) || (internalDisk && content.isEmpty)
+                    || systemVolumeNames.contains(label ?? "")
+                {
                     verdict = .system
                 } else if let mount {
                     verdict = .macOSHasIt(mount)
+                } else if VolumeKind.holding(content) != nil {
+                    // The scanner would offer this if the drive were readable
+                    // from here: an unmounted partition of a type this app
+                    // opens. Saying "not a format Lukotta can open" of a
+                    // BitLocker drive was the same disagreement twice.
+                    verdict = .openable
                 } else if macOSContent.contains(content)
                     || volumes.contains(where: {
                         ($0["DeviceIdentifier"] as? String) == identifier

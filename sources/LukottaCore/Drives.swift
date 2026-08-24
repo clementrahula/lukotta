@@ -13,6 +13,33 @@ public enum VolumeKind: String, Hashable, Sendable {
     /// A Linux partition — LUKS, or an unencrypted Linux filesystem.
     case linux
 
+    /// Whether a partition of this type is one this app exists to open, and
+    /// what it may hold.
+    ///
+    /// The name is what `diskutil` prints for the partition's type, and it
+    /// depends on the scheme the disk was partitioned with. A GPT disk gives
+    /// the readable name of the type GUID; an MBR disk -- which is what
+    /// Windows still writes on a USB stick, and what BitLocker To Go leaves
+    /// behind -- gives the old DOS name instead. Reading only the GPT names
+    /// meant a BitLocker drive from a Windows machine was filtered out before
+    /// anything looked at it, and the app reported no encrypted drives on a
+    /// Mac with one plugged in.
+    ///
+    /// Nothing finer can be told apart here. Microsoft Basic Data and
+    /// Windows_NTFS each cover BitLocker, NTFS and exFAT alike, and only the
+    /// boot sector says which.
+    public static func holding(_ content: String) -> VolumeKind? {
+        switch content {
+        case "Microsoft Basic Data", "Windows_NTFS":
+            return .microsoft
+        case "Linux Filesystem", "Linux_Filesystem", "Linux",
+            "Linux LVM", "Linux_LVM", "Linux RAID", "Linux_RAID":
+            return .linux
+        default:
+            return nil
+        }
+    }
+
     /// What the volume may be, named as precisely as is known.
     ///
     /// Before anything is read, a partition type is all there is, and it admits
@@ -179,24 +206,42 @@ public enum DriveScanner {
             let isImage =
                 bus == "Disk Image" || (wholeInfo["VirtualOrPhysical"] as? String) == "Virtual"
 
-            guard let partitions = disk["Partitions"] as? [[String: Any]] else { continue }
-            for part in partitions {
+            let partitions = disk["Partitions"] as? [[String: Any]]
+            let apfs = disk["APFSVolumes"] as? [[String: Any]]
+
+            // A disk with no partition table at all is one volume filling the
+            // whole disk: a stick somebody ran cryptsetup over, a raw image, a
+            // BitLocker volume written without a table. diskutil has nothing to
+            // say about what is inside one -- an encrypted disk and an empty
+            // disk look alike from out here -- so it is offered, and the boot
+            // sector settles it when it is chosen. Skipped before, which made
+            // exactly those drives invisible.
+            // Not an image: one opened through File is described by the
+            // engine's own probe, which knows what is inside it, and listing
+            // it here as well would replace that answer with a guess.
+            let unpartitioned =
+                partitions == nil && apfs == nil && !internalDisk && !isImage
+                ? [
+                    [
+                        "DeviceIdentifier": wholeIdent ?? "", "Content": "",
+                        "Size": disk["Size"] ?? 0,
+                    ]
+                ]
+                : []
+
+            for part in (partitions ?? []) + unpartitioned {
                 guard let ident = part["DeviceIdentifier"] as? String else { continue }
                 // "Microsoft Basic Data" covers BitLocker and plain NTFS alike;
                 // Linux types cover LUKS and unencrypted Linux filesystems.
                 // Nothing can be distinguished further without reading the
                 // header, which needs root, so the UI stays honest about it.
                 let content = (part["Content"] as? String) ?? ""
-                let kind: VolumeKind
-                switch content {
-                case "Microsoft Basic Data":
-                    kind = .microsoft
-                case "Linux Filesystem", "Linux_Filesystem",
-                    "Linux LVM", "Linux_LVM", "Linux RAID", "Linux_RAID":
-                    kind = .linux
-                default:
-                    continue
-                }
+                let isWholeDisk = ident == wholeIdent
+                // An unpartitioned disk has no type to go by. Linux, because a
+                // whole disk handed to cryptsetup is what makes one, and the
+                // probe corrects it either way.
+                guard let kind = isWholeDisk ? VolumeKind.linux : VolumeKind.holding(content)
+                else { continue }
 
                 let partInfo = info(ident)
                 let size =

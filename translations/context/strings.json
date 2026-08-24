@@ -213,11 +213,11 @@
       "context": "Title of a note in the report sheet when macOS left a crash log.",
       "placeholders": []
     },
-    "A drive that refuses to be written to is opened read-only rather than left closed, and says so": {
+    "A drive that refuses to be written to is opened read-only rather than left closed": {
       "screens": [
         "help"
       ],
-      "context": "A bullet under Opening read-only in the help sheet.",
+      "context": "A bullet under Opening read-only in the help sheet. A fragment, not a sentence: no full stop.",
       "placeholders": []
     },
     "A macOS system volume.": {
@@ -909,7 +909,7 @@
       "context": "A small badge on a row for a drive that has not been opened.",
       "placeholders": []
     },
-    "Looking for encrypted drives…": {
+    "Looking for drives…": {
       "screens": [
         "notices"
       ],
@@ -949,11 +949,11 @@
       "context": "A small orange badge on a permission row that has not been granted.",
       "placeholders": []
     },
-    "No encrypted drives found": {
+    "No drives found": {
       "screens": [
         "drive-list"
       ],
-      "context": "Title when the scan found nothing to offer.",
+      "context": "Title when the scan found nothing to offer. Not \"encrypted\": the list carries every drive this app can open, encrypted or not.",
       "placeholders": []
     },
     "No reason was reported. The details below may say more.": {
@@ -1368,11 +1368,11 @@
       "context": "Row title for the permission that lets the app see drives that are plugged in.",
       "placeholders": []
     },
-    "Select a drive to unlock": {
+    "Select a drive to open": {
       "screens": [
         "drive-list"
       ],
-      "context": "The line above the list.",
+      "context": "The line above the list. Says open rather than unlock, since a drive that needs no passphrase is opened rather than unlocked.",
       "placeholders": []
     },
     "Set Up": {
@@ -1726,6 +1726,13 @@
         "help"
       ],
       "context": "A row label in the About section, leading to the licences of everything the app carries.",
+      "placeholders": []
+    },
+    "This Mac's own volumes": {
+      "screens": [
+        "open-drive"
+      ],
+      "context": "The label of the collapsed group at the foot of the disk list, holding the system's own volumes. APFS makes a dozen of them on any Mac and none is a thing to open.",
       "placeholders": []
     },
     "This drive holds %lld volumes and not all of them could be opened.": {

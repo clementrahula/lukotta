@@ -131,7 +131,7 @@ struct ScanningView: View {
         VStack(spacing: 14) {
             ProgressView().controlSize(.large)
                 .accessibilityHidden(true)
-            Text("Looking for encrypted drives…").foregroundStyle(.secondary)
+            Text("Looking for drives…").foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .combine)
     }

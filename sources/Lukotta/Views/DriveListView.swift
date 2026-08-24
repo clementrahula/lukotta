@@ -18,7 +18,7 @@ struct DriveListView: View {
         if model.drives.isEmpty {
             EmptyStateView(
                 icon: "externaldrive.badge.questionmark",
-                title: "No encrypted drives found",
+                title: "No drives found",
                 message:
                     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.",
                 actionTitle: "Rescan",
@@ -32,7 +32,7 @@ struct DriveListView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.bottom, 2)
                 }
-                Text("Select a drive to unlock")
+                Text("Select a drive to open")
                     .font(.subheadline).foregroundStyle(.secondary)
                 ScrollView {
                     VStack(spacing: 10) {

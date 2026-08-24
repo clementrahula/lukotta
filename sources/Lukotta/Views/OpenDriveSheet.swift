@@ -13,6 +13,23 @@ import SwiftUI
 struct OpenDriveSheet: View {
     @EnvironmentObject var model: AppModel
     @Environment(\.dismiss) private var dismiss
+    @State private var showSystem = false
+
+    /// The disks somebody might act on: anything that is not part of the
+    /// running system, whether or not this app can open it.
+    private var theirs: [DriveSurvey.Entry] {
+        model.survey.filter { $0.verdict != .system }
+    }
+
+    private var system: [DriveSurvey.Entry] {
+        model.survey.filter { $0.verdict == .system }
+    }
+
+    private func open(_ entry: DriveSurvey.Entry) {
+        guard let drive = entry.drive else { return }
+        dismiss()
+        model.choose(drive)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -34,15 +51,32 @@ struct OpenDriveSheet: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
-                    VStack(spacing: 8) {
-                        ForEach(model.survey) { entry in
-                            SurveyRow(entry: entry) {
-                                guard let drive = entry.drive else { return }
-                                dismiss()
-                                model.choose(drive)
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(theirs) { entry in
+                            SurveyRow(entry: entry) { open(entry) }
+                        }
+                        // The system's own volumes are last and folded away.
+                        // There are a dozen of them on any Mac -- APFS makes
+                        // Preboot, Recovery, VM and the rest inside every
+                        // container -- and none is a thing to open. Shown
+                        // above the drive somebody plugged in, they bury it.
+                        if !system.isEmpty {
+                            DisclosureGroup(isExpanded: $showSystem) {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    ForEach(system) { entry in
+                                        SurveyRow(entry: entry) { open(entry) }
+                                    }
+                                }
+                                .padding(.top, 8)
+                            } label: {
+                                Text("This Mac's own volumes")
+                                    .font(.subheadline.weight(.medium))
+                                    .foregroundStyle(.secondary)
                             }
+                            .padding(.top, theirs.isEmpty ? 0 : 6)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(22)
                 }
             }

@@ -25,7 +25,8 @@ public final class DiskWatcher {
         "0FC63DAF-8483-4772-8E79-3D69D8477DE4",  // Linux filesystem
         "E6D6D379-F507-44C2-A23C-238F2A3DF928",  // Linux LVM
         "A19D880F-05FC-4D3B-A006-743F0F84911E",  // Linux RAID
-        "Windows_NTFS",
+        "Windows_NTFS",  // the MBR name, which is what Windows writes on a stick
+        "Linux",  // likewise, for an MBR Linux partition
     ]
 
     public init(onChange: @escaping () -> Void) {
