@@ -1172,6 +1172,53 @@ group("uninstallingTakesEverythingWithIt") {
     }
 }
 
+group("anUpdatedLinuxEnvironmentActuallyArrives") {
+    // The environment was unpacked once, on the first run, and never again --
+    // so an update that changed the guest reached nobody who already had the
+    // app. The version file was written by the build, shipped in the bundle,
+    // and read by nothing.
+    let base = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        .appendingPathComponent("guest-check-\(UUID().uuidString)", isDirectory: true)
+    let fm = FileManager.default
+    defer { try? fm.removeItem(at: base) }
+    try? fm.createDirectory(
+        at: base.appendingPathComponent("rootfs"), withIntermediateDirectories: true)
+
+    func setVersion(_ text: String?) {
+        let file = base.appendingPathComponent("rootfs.ver")
+        try? fm.removeItem(at: file)
+        if let text { try? text.write(to: file, atomically: true, encoding: .utf8) }
+    }
+
+    setVersion("1.5.1")
+    expect(EngineEnvironment.isReady(in: base), "an unpacked environment is ready")
+    expect(
+        !EngineEnvironment.needsRefresh(in: base, shipped: "1.5.1"),
+        "the same version is left alone")
+    expect(
+        EngineEnvironment.needsRefresh(in: base, shipped: "1.6.0"),
+        "a different one is replaced")
+    expect(
+        EngineEnvironment.versionOfGuest(in: base) == "1.5.1",
+        "and the version is read from beside the rootfs")
+
+    // Evidence or nothing: this replaces a working environment.
+    setVersion(nil)
+    expect(
+        !EngineEnvironment.needsRefresh(in: base, shipped: "1.6.0"),
+        "an environment from before the version file is left alone")
+    setVersion("1.5.1")
+    expect(
+        !EngineEnvironment.needsRefresh(in: base, shipped: nil),
+        "and so is one this app cannot state a version for")
+
+    // Nothing unpacked at all is a first run, not a refresh.
+    try? fm.removeItem(at: base.appendingPathComponent("rootfs"))
+    expect(
+        !EngineEnvironment.needsRefresh(in: base, shipped: "1.6.0"),
+        "with nothing unpacked there is nothing to refresh")
+}
+
 group("nothingIsLeftLyingAboutOnSomebodysMac") {
     // The three rules: only what this app made, only when it is finished with,
     // and never anything in use.
@@ -2028,6 +2075,24 @@ group("engineUnpacking") {
     }
     expect(threw, "an archive that will not unpack is an error")
     expect(!EngineEnvironment.isReady(in: broken), "and nothing is left looking ready")
+    expect(
+        !fm.fileExists(atPath: broken.path + ".unpacking"),
+        "nor half-unpacked beside it")
+
+    // What a crash, a forced quit or a Mac going to sleep leaves: a directory
+    // with a rootfs in it and nothing finished. Unpacking happens beside the
+    // real one, so the environment in use is never the half-made one.
+    let interrupted = temp.appendingPathComponent("alpine", isDirectory: true)
+        .deletingLastPathComponent().appendingPathComponent("alpine.unpacking", isDirectory: true)
+    try! fm.createDirectory(
+        at: interrupted.appendingPathComponent("rootfs"), withIntermediateDirectories: true)
+    try! "half".write(
+        to: target.appendingPathComponent("rootfs/etc/hostname"), atomically: true, encoding: .utf8)
+    _ = try? EngineEnvironment.prepare(into: target, from: archive) { _ in }
+    expect(
+        !fm.fileExists(atPath: interrupted.path),
+        "and what an interrupted run left is cleared rather than used")
+    expect(EngineEnvironment.isReady(in: target), "the environment in use is untouched by it")
 }
 
 group("unpackingProgress") {

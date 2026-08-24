@@ -213,6 +213,40 @@ public enum EngineEnvironment {
             atPath: directory.appendingPathComponent("rootfs").path)
     }
 
+    /// Which Linux environment is unpacked, and which one this app carries.
+    ///
+    /// Written beside the rootfs by the build, and shipped in the bundle. The
+    /// file has been there all along and nothing read it: the environment was
+    /// unpacked once, on the first run, and never again. So an update that
+    /// changed the guest -- a kernel, a filesystem tool, an Alpine security fix
+    /// -- reached nobody who already had the app. They kept the environment
+    /// from the day they installed it and ran the new engine against it.
+    public static func versionOfGuest(in directory: URL) -> String? {
+        version(at: directory.appendingPathComponent("rootfs.ver"))
+    }
+
+    public static var versionShipped: String? {
+        EnginePaths.embeddedAlpineDirectory
+            .flatMap { version(at: $0.appendingPathComponent("rootfs.ver")) }
+    }
+
+    private static func version(at url: URL) -> String? {
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
+    /// Whether what is unpacked is not what this app carries.
+    ///
+    /// Only when both versions can be read. A guest from before the version
+    /// file existed, or a bundle without one, is left exactly as it is: this
+    /// replaces a working environment, so it does it on evidence or not at all.
+    public static func needsRefresh(in directory: URL, shipped: String? = versionShipped) -> Bool {
+        guard isReady(in: directory), let shipped, let have = versionOfGuest(in: directory)
+        else { return false }
+        return have != shipped
+    }
+
     /// How far through the unpacking we are, or nil when there is nothing to
     /// count against.
     ///
@@ -237,22 +271,49 @@ public enum EngineEnvironment {
         from source: URL? = nil,
         progress: (String) -> Void
     ) throws -> Bool {
-        if isReady(in: directory) { return false }
+        // A directory half-unpacked by a run that was interrupted -- a crash, a
+        // forced quit, a Mac going to sleep -- has a rootfs in it and no
+        // version file, so it would be taken for ready and never repaired.
+        // Unpacking happens beside the real one and is moved into place at the
+        // end, so what is there is either complete or not there at all.
+        let staging = directory.deletingLastPathComponent()
+            .appendingPathComponent(directory.lastPathComponent + ".unpacking", isDirectory: true)
+        try? FileManager.default.removeItem(at: staging)
+
+        if isReady(in: directory) {
+            guard needsRefresh(in: directory) else { return false }
+            // The environment is replaced, not merged: files the last version
+            // had and this one does not would otherwise stay for ever. Only
+            // while nothing is being served from it -- a running machine reads
+            // this filesystem, and the engine takes an exclusive lock to write
+            // here for exactly that reason. Left for the next launch otherwise,
+            // which is where the old environment goes on working meanwhile.
+            guard !mountTable().contains("nfs") else {
+                Log.app.notice("the Linux environment is out of date; a drive is open, so later")
+                return false
+            }
+            Log.app.notice(
+                "replacing the Linux environment: \(versionOfGuest(in: directory) ?? "unknown", privacy: .public) -> \(versionShipped ?? "unknown", privacy: .public)"
+            )
+            // The whole environment, not just the rootfs: the image metadata
+            // beside it -- config.json, the OCI layout, the mtree -- describes
+            // that rootfs and not this one. Taken away only once the new one
+            // has been unpacked, below.
+        }
         guard let archive = source ?? EnginePaths.embeddedRootfsArchive else {
             throw EngineError.missingRootfs
         }
         let fm = FileManager.default
-        try fm.createDirectory(at: directory, withIntermediateDirectories: true)
+        try fm.createDirectory(at: staging, withIntermediateDirectories: true)
 
         // Metadata the engine reads alongside the rootfs.
         if let meta = EnginePaths.embeddedAlpineDirectory,
             let entries = try? fm.contentsOfDirectory(atPath: meta.path)
         {
             for entry in entries where entry != "rootfs.tar.gz" {
-                let dest = directory.appendingPathComponent(entry)
-                if !fm.fileExists(atPath: dest.path) {
-                    try? fm.copyItem(at: meta.appendingPathComponent(entry), to: dest)
-                }
+                try? fm.copyItem(
+                    at: meta.appendingPathComponent(entry),
+                    to: staging.appendingPathComponent(entry))
             }
         }
 
@@ -274,7 +335,7 @@ public enum EngineEnvironment {
         // entries for the progress, rather than collecting output at the end.
         let tar = Process()
         tar.executableURL = URL(fileURLWithPath: "/usr/bin/tar")
-        tar.arguments = ["-xzpvf", archive.path, "-C", directory.path]
+        tar.arguments = ["-xzpvf", archive.path, "-C", staging.path]
         let err = Pipe()
         tar.standardError = err
         try tar.run()
@@ -301,10 +362,22 @@ public enum EngineEnvironment {
             }
         }
         tar.waitUntilExit()
-        guard tar.terminationStatus == 0, isReady(in: directory) else {
+        guard tar.terminationStatus == 0, isReady(in: staging) else {
+            try? fm.removeItem(at: staging)
             throw EngineError.workspace(
                 "Could not unpack the Linux environment. "
                     + lastLines.joined(separator: " "))
+        }
+
+        // The one moment the old environment stops existing and the new one
+        // starts, with nothing in between that could be taken for either.
+        try? fm.removeItem(at: directory)
+        do {
+            try fm.moveItem(at: staging, to: directory)
+        } catch {
+            try? fm.removeItem(at: staging)
+            throw EngineError.workspace(
+                "Could not put the Linux environment in place. \(error.localizedDescription)")
         }
         return true
     }
