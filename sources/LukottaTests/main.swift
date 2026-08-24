@@ -1172,6 +1172,61 @@ group("uninstallingTakesEverythingWithIt") {
     }
 }
 
+group("theEnginesOwnLogsDoNotPileUpForEver") {
+    // Three files a mount, nineteen kilobytes, written into ~/Library/Logs by
+    // the engine itself and never rotated. They cannot be recognised by name:
+    // a Mac running anylinuxfs on its own writes files called exactly the same,
+    // and deleting those would be reaching into somebody else's work.
+    let fm = FileManager.default
+    let logs = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        .appendingPathComponent("logs-check-\(UUID().uuidString)", isDirectory: true)
+    try? fm.createDirectory(at: logs, withIntermediateDirectories: true)
+    defer {
+        try? fm.removeItem(at: logs)
+        UserDefaults.standard.removeObject(forKey: Housekeeping.EngineLogs.key)
+    }
+    UserDefaults.standard.removeObject(forKey: Housekeeping.EngineLogs.key)
+
+    func write(_ name: String, agedByDays days: Double) {
+        let file = logs.appendingPathComponent(name)
+        try? "log".write(to: file, atomically: true, encoding: .utf8)
+        try? fm.setAttributes(
+            [.modificationDate: Date().addingTimeInterval(-days * 24 * 60 * 60)],
+            ofItemAtPath: file.path)
+    }
+
+    // Somebody else's, already there before this app ran.
+    write("anylinuxfs-THEIRS01.log", agedByDays: 30)
+    let before = Housekeeping.EngineLogs.present(in: logs)
+    expect(before.count == 1, "what is already there is seen")
+
+    // What a mount of ours writes.
+    write("anylinuxfs-OURS0001.log", agedByDays: 30)
+    write("anylinuxfs_kernel-OURS0001.log", agedByDays: 30)
+    write("anylinuxfs_nethelper-OURS0001.log", agedByDays: 30)
+    write("anylinuxfs-OURS0002.log", agedByDays: 1)
+    write("something-else.txt", agedByDays: 30)
+    let claimed = Housekeeping.EngineLogs.claimAppeared(since: before, in: logs)
+    expect(claimed.count == 4, "the four the engine wrote are claimed")
+    expect(
+        !claimed.contains("something-else.txt"),
+        "and nothing that is not one of the engine's logs")
+
+    let removed = Housekeeping.EngineLogs.removeOld(in: logs)
+    expect(removed == 3, "ours, once old, are taken away")
+    expect(
+        fm.fileExists(atPath: logs.appendingPathComponent("anylinuxfs-THEIRS01.log").path),
+        "and a log this app never wrote is left alone, however old")
+    expect(
+        fm.fileExists(atPath: logs.appendingPathComponent("anylinuxfs-OURS0002.log").path),
+        "as is one recent enough to be wanted for a bug report")
+    expect(
+        UserDefaults.standard.stringArray(forKey: Housekeeping.EngineLogs.key) == [
+            "anylinuxfs-OURS0002.log"
+        ],
+        "and the list shrinks to what is still there, rather than growing for ever")
+}
+
 group("aRecoveryKeyIsCheckedBeforeTheDriveIsAskedAboutIt") {
     // Every case the shell validator carried, now that the logic is Swift.
     // A recovery key is eight groups of six digits, each group a 16-bit value

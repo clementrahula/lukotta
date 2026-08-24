@@ -1882,7 +1882,11 @@ final class AppModel: ObservableObject {
             }
 
             let readOnly = mountingReadOnly
+            // Mounted by the helper, but the engine's logs are written into
+            // this user's Library either way, so they are noted the same way.
+            let logsBefore = Housekeeping.EngineLogs.present()
             mountTask = Task {
+                defer { Housekeeping.EngineLogs.claimAppeared(since: logsBefore) }
                 let outcome = await helper.mount(
                     drive: drive, aliasPath: aliasPath, volume: nil, credential: credential,
                     readOnly: readOnly)

@@ -41,6 +41,12 @@ public enum Mounter {
             throw EngineError.missingEngine
         }
         try EngineEnvironment.prepare(progress: progress)
+        // The engine writes three logs per mount into ~/Library/Logs and never
+        // takes them back. Which ones it wrote is knowable only by looking
+        // before and after: a Mac with anylinuxfs of its own writes files named
+        // exactly the same, and those are not ours to remove.
+        let logsBefore = Housekeeping.EngineLogs.present()
+        defer { Housekeeping.EngineLogs.claimAppeared(since: logsBefore) }
         let fifo = try workspace.makeCredentialPipe()
         let log = workspace.root.appendingPathComponent("mount.log")
         FileManager.default.createFile(atPath: log.path, contents: nil)

@@ -37,12 +37,13 @@ public enum Housekeeping {
     public struct Result: Equatable, Sendable {
         public var workspaces = 0
         public var mountPoints = 0
+        public var engineLogs = 0
         public var rememberedFiles = 0
         public var rememberedNames = 0
         public var arrangedRows = 0
 
         public var isEmpty: Bool {
-            workspaces == 0 && mountPoints == 0 && rememberedFiles == 0
+            workspaces == 0 && mountPoints == 0 && engineLogs == 0 && rememberedFiles == 0
                 && rememberedNames == 0 && arrangedRows == 0
         }
     }
@@ -58,13 +59,14 @@ public enum Housekeeping {
         var result = Result()
         result.workspaces = removeFinishedWorkspaces(now: now)
         result.mountPoints = removeEmptyMountPoints(in: mountTable)
+        result.engineLogs = EngineLogs.removeOld(now: now)
         let (files, names, rows) = forgetWhatIsGone(attached: attached)
         result.rememberedFiles = files
         result.rememberedNames = names
         result.arrangedRows = rows
         if !result.isEmpty {
             Log.app.notice(
-                "swept \(result.workspaces, privacy: .public) workspaces, \(result.mountPoints, privacy: .public) mount points, \(result.rememberedFiles + result.rememberedNames + result.arrangedRows, privacy: .public) remembered things"
+                "swept \(result.workspaces, privacy: .public) workspaces, \(result.mountPoints, privacy: .public) mount points, \(result.engineLogs, privacy: .public) engine logs, \(result.rememberedFiles + result.rememberedNames + result.arrangedRows, privacy: .public) remembered things"
             )
         }
         return result
@@ -120,6 +122,93 @@ public enum Housekeeping {
             if rmdir(point.path) == 0 { removed += 1 }
         }
         return removed
+    }
+
+    // MARK: The engine's own logs
+
+    /// The logs the engine writes for every mount, and how we know which are
+    /// ours.
+    ///
+    /// Three files per mount -- the engine's, the guest kernel's, the network
+    /// helper's -- written straight into ~/Library/Logs with a random suffix,
+    /// about nineteen kilobytes a mount, and never rotated or removed. The
+    /// engine hard-codes the directory and offers no way to redirect it.
+    ///
+    /// They cannot be recognised by name: a Mac with anylinuxfs installed on
+    /// its own writes files called exactly the same thing, and those are not
+    /// ours to delete. So each mount notes which files appeared while it ran,
+    /// and only those are ever removed.
+    public enum EngineLogs {
+        /// Where the names of the ones we wrote are kept. Public so a test can
+        /// assert the list shrinks rather than growing for ever.
+        public static let key = "engineLogsWeMade"
+
+        public static var directory: URL {
+            FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent("Library/Logs", isDirectory: true)
+        }
+
+        /// How long one is kept. Long enough to be in a bug report written the
+        /// week after the fault, short enough not to accumulate.
+        public static let keepFor: TimeInterval = 7 * 24 * 60 * 60
+
+        static let prefixes = ["anylinuxfs-", "anylinuxfs_kernel-", "anylinuxfs_nethelper-"]
+
+        static func isEngineLog(_ name: String) -> Bool {
+            name.hasSuffix(".log") && prefixes.contains { name.hasPrefix($0) }
+        }
+
+        /// What the engine has written in there at this moment, ours or not.
+        public static func present(in directory: URL? = nil) -> Set<String> {
+            let base = directory ?? Self.directory
+            let names = (try? FileManager.default.contentsOfDirectory(atPath: base.path)) ?? []
+            return Set(names.filter(isEngineLog))
+        }
+
+        /// Note whatever appeared since the snapshot as ours.
+        @discardableResult
+        public static func claimAppeared(since before: Set<String>, in directory: URL? = nil)
+            -> [String]
+        {
+            let fresh = present(in: directory).subtracting(before).sorted()
+            guard !fresh.isEmpty else { return [] }
+            var mine = Set(UserDefaults.standard.stringArray(forKey: key) ?? [])
+            mine.formUnion(fresh)
+            UserDefaults.standard.set(mine.sorted(), forKey: key)
+            return fresh
+        }
+
+        /// Take away ours that are old, and forget the ones already gone.
+        @discardableResult
+        public static func removeOld(
+            now: Date = Date(), in directory: URL? = nil, keepFor: TimeInterval = keepFor
+        ) -> Int {
+            let base = directory ?? Self.directory
+            let manager = FileManager.default
+            let mine = UserDefaults.standard.stringArray(forKey: key) ?? []
+            guard !mine.isEmpty else { return 0 }
+
+            var kept: [String] = []
+            var removed = 0
+            for name in mine {
+                let file = base.appendingPathComponent(name)
+                guard manager.fileExists(atPath: file.path) else { continue }  // already gone
+                let written =
+                    (try? file.resourceValues(forKeys: [.contentModificationDateKey]))?
+                    .contentModificationDate
+                if let written, now.timeIntervalSince(written) < keepFor {
+                    kept.append(name)
+                    continue
+                }
+                if (try? manager.removeItem(at: file)) != nil {
+                    removed += 1
+                } else {
+                    kept.append(name)
+                }
+            }
+            if kept.count != mine.count { UserDefaults.standard.set(kept, forKey: key) }
+            return removed
+        }
     }
 
     // MARK: What the settings remember
