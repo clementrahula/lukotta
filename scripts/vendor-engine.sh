@@ -99,6 +99,57 @@ mkdir -p "$OUT/alpine"
 # LUKOTTA_NO_TRIM=1 to ship the full image.
 STAGE="$(mktemp -d)/rootfs"
 /usr/bin/ditto "$SRC_ROOTFS/rootfs" "$STAGE"
+
+# Put the guest's own permissions back on the files.
+#
+# Most of this image is not unpacked from the OCI layer: "anylinuxfs init" boots
+# the machine and installs the packages inside it, so those files are written
+# back out through virtiofs. What macOS then stores is mode 0600 with the real
+# mode kept beside it in an extended attribute -- uid:gid:mode -- which the
+# engine reads and hands to the guest. The archive carries no extended
+# attributes, so without this every binary in the image arrives unexecutable and
+# the guest boots far enough to answer every question with nothing.
+/usr/bin/python3 - "$STAGE" <<'PY'
+import ctypes, ctypes.util, os, sys
+
+# getxattr(2) itself: macOS has no os.getxattr, and the xattr module is not in
+# the system Python.
+libc = ctypes.CDLL(ctypes.util.find_library("c"), use_errno=True)
+libc.getxattr.argtypes = [
+    ctypes.c_char_p, ctypes.c_char_p, ctypes.c_void_p,
+    ctypes.c_size_t, ctypes.c_uint32, ctypes.c_int,
+]
+libc.getxattr.restype = ctypes.c_ssize_t
+XATTR_NOFOLLOW = 0x0001
+
+def recorded_mode(path):
+    buf = ctypes.create_string_buffer(64)
+    size = libc.getxattr(
+        path.encode(), b"user.containers.override_stat", buf, len(buf), 0, XATTR_NOFOLLOW)
+    if size <= 0:
+        return None
+    # uid:gid:mode, the mode in octal with the file type in it.
+    parts = buf.raw[:size].decode(errors="replace").split(":")
+    if len(parts) < 3:
+        return None
+    try:
+        return int(parts[2], 8) & 0o7777
+    except ValueError:
+        return None
+
+root = sys.argv[1]
+fixed = 0
+for base, dirs, files in os.walk(root):
+    for name in dirs + files:
+        path = os.path.join(base, name)
+        if os.path.islink(path):
+            continue
+        mode = recorded_mode(path)
+        if mode and mode != (os.stat(path).st_mode & 0o7777):
+            os.chmod(path, mode)
+            fixed += 1
+print(f"  restored guest permissions on {fixed} files")
+PY
 if [ "${LUKOTTA_NO_TRIM:-0}" != "1" ]; then
   echo "  trimming guest image…"
   /usr/bin/python3 "$HERE/scripts/trim-image.py" "$STAGE"
@@ -113,8 +164,32 @@ cp "$STAGE/lib/apk/db/installed" "$OUT/alpine/packages.db"
 /usr/bin/find "$STAGE" | wc -l | tr -d ' ' > "$OUT/alpine/rootfs.count"
 
 echo "  packing rootfs (this takes a moment)…"
-/usr/bin/tar --format ustar -czf "$OUT/alpine/rootfs.tar.gz" -C "$(dirname "$STAGE")" rootfs
+# pax rather than ustar: the guest's real owner and mode are kept in an extended
+# attribute beside each file, which ustar cannot carry and pax can. Without them
+# the engine hands the guest a filesystem owned by whoever installed the app,
+# and nothing that needs root inside the machine will run.
+/usr/bin/tar --format pax -czf "$OUT/alpine/rootfs.tar.gz" -C "$(dirname "$STAGE")" rootfs
 rm -rf "$(dirname "$STAGE")"
+
+# Prove the archive still describes a working machine. Everything above is
+# silent when it goes wrong: an archive format that drops the attribute, a
+# source image assembled by something other than "anylinuxfs init", a trim that
+# takes a directory the kernel needs. All three shipped at once, and the app
+# unpacked none of it until now, so nothing said a word.
+CHECK="$(mktemp -d)"
+/usr/bin/tar -xzpf "$OUT/alpine/rootfs.tar.gz" -C "$CHECK" 2>/dev/null
+fault=""
+for d in proc sys dev tmp run; do
+  [ -d "$CHECK/rootfs/$d" ] || fault="$fault /$d"
+done
+[ -x "$CHECK/rootfs/bin/lsblk" ] || fault="$fault bin/lsblk-not-executable"
+/usr/bin/xattr -p user.containers.override_stat "$CHECK/rootfs/bin/lsblk" >/dev/null 2>&1   || fault="$fault bin/lsblk-has-no-guest-owner"
+rm -rf "$CHECK"
+if [ -n "$fault" ]; then
+  echo "error: the packed guest would not boot -- missing:$fault" >&2
+  exit 1
+fi
+echo "  the packed guest keeps its mount points, its permissions and its owner"
 # The engine also reads the OCI image metadata that sits beside the rootfs.
 for extra in rootfs.ver config.json umoci.json oci; do
   [ -e "$SRC_ROOTFS/$extra" ] && /usr/bin/ditto "$SRC_ROOTFS/$extra" "$OUT/alpine/$extra"

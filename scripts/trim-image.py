@@ -89,6 +89,14 @@ def main():
     keep, by_name = closure(pkgs)
     drop = sorted(set(by_name) - keep)
 
+    # Which directories are empty before anything is removed. A guest rootfs
+    # ships /proc, /sys, /dev, /tmp and /run empty on purpose: the kernel and
+    # the init mount them at boot. Only what the removal below empties may be
+    # taken away, so they must be known apart beforehand.
+    empty_already = {
+        d for d, subdirs, files in os.walk(rootfs) if not subdirs and not files
+    }
+
     freed, removed = 0, 0
     for name in drop:
         for d, files in by_name[name].get("_files", []):
@@ -132,11 +140,14 @@ def main():
         kept_records.append(rec.strip("\n"))
     open(db_path, "w", encoding="utf-8").write("\n\n".join(kept_records) + "\n\n")
 
-    # Drop directories left empty by the removal.
+    # Drop directories left empty by the removal -- and only those. Removing
+    # every empty directory takes the mount points with it, and a guest with no
+    # /proc and no /sys boots far enough to answer questions with nothing.
     for d, _, files in os.walk(rootfs, topdown=False):
-        if not files and not os.listdir(d):
-            try: os.rmdir(d)
-            except OSError: pass
+        if d in empty_already or files or os.listdir(d):
+            continue
+        try: os.rmdir(d)
+        except OSError: pass
 
 if __name__ == "__main__":
     main()
