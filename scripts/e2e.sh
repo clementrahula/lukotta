@@ -176,7 +176,9 @@ done < <(hdiutil info 2>/dev/null | awk -v c="$CONTAINER" -v p="$PLAIN" -v e="$E
 # somebody's drives, on the machine this is being run on, and killing them
 # unmounts drives that have nothing to do with the test: the cleanup used to
 # take down every engine started from the bundle, this run's and theirs alike.
-ENGINES_BEFORE=" $(pgrep -f "$APP/Contents/Resources/engine/anylinuxfs" 2>/dev/null | tr '\n' ' ') "
+# `|| true` because pgrep with nothing to find exits non-zero, and this script
+# stops on any failure -- which it did, before the first fixture was built.
+ENGINES_BEFORE=" $( (pgrep -f "$APP/Contents/Resources/engine/anylinuxfs" || true) 2>/dev/null | tr '\n' ' ') "
 
 clean_up() {
   status=$?

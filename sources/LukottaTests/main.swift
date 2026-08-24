@@ -2040,6 +2040,19 @@ group("aContainerFileStaysInTheList") {
     let once = ImageList.merge(found: [partition], images: ["disk7": image])
     expect("\(once.count)", "1", "a container the scan can see is not listed twice")
 
+    // A container with no partition table is offered by the scan as the disk
+    // itself, under the name of the device it was attached on. The row built
+    // from the file says the same thing in terms that outlive the attachment,
+    // and takes its place.
+    let asTheDevice = Drive(
+        id: "disk7", devicePath: "/dev/disk7", name: "disk7", sizeBytes: 320,
+        connection: "Disk Image", kind: .linux, uuid: "disk7")
+    let replaced = ImageList.merge(found: [physical, asTheDevice], images: ["disk7": image])
+    expect("\(replaced.count)", "2", "it is one row and not two")
+    expect(
+        replaced.contains { $0.uuid == image.uuid },
+        "and it is the row that knows which file it came from")
+
     // Ejecting is what takes it out, and only the one that was ejected.
     let ejected = ImageList.detaching(devices: ["/dev/disk7"], images: ["disk7", "disk9"])
     expect(ejected.joined(separator: ","), "disk7", "ejecting a container detaches that container")
@@ -3004,6 +3017,17 @@ group("readOnlyIsBothSidesOfTheConnection") {
     expect(
         plain.contains("LUKOTTA_STAGE:read-only"),
         "a fallback that succeeds says so, so the drive is never called writable when it is not")
+
+    // And the host's own mount is marked afterwards, which is the half Finder
+    // reads. Both sides behind the NFS server are read-only, so the volume
+    // arrived here presented as writable and refused a write at the moment one
+    // was made rather than when it was opened.
+    expect(
+        script.contains("/sbin/mount -u -o ro"),
+        "and the mount somebody sees is updated to say read-only")
+    expect(
+        plain.contains("grep -q \"LUKOTTA_STAGE:read-only\""),
+        "a read-write mount marks it only where the fallback was what opened it")
 }
 
 print("\n\(checks - failures)/\(checks) checks passed")

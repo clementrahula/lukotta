@@ -252,6 +252,35 @@ public enum MountScript {
         }
         lines.append(chain.joined(separator: " || "))
         lines.append("__rc=$?")
+        // Mark the host's own mount read-only, which is the half Finder reads.
+        //
+        // The engine will not be asked for a read-only export and given
+        // --ignore-permissions in the same breath, so read-only is carried by
+        // the export options and by the guest's own mount. Both of those are
+        // behind the NFS server: the volume arrives here presented as writable,
+        // Finder offers to write to it, and the refusal comes at the moment
+        // something is written rather than when it is opened.
+        //
+        // Updating the mount afterwards says it in the one place Finder looks.
+        // Tolerant of failure: a mount that will not take the flag is the
+        // volume as it was, refusing writes a moment later than it might have.
+        let readOnlyAgain = """
+            __read_only() {
+              __new_mounts | while read -r __p; do
+                [ -n "$__p" ] && /sbin/mount -u -o ro "$__p" >/dev/null 2>&1 || true
+              done
+            }
+            """
+        lines.append(readOnlyAgain)
+        if i.readOnly {
+            lines.append("[ \"$__rc\" = 0 ] && __read_only")
+        } else {
+            // Only where the read-write attempts failed and the fallback took
+            // it read-only, which is what the marker records.
+            lines.append(
+                "[ \"$__rc\" = 0 ] && grep -q \"\(stageMarker)read-only\" \(logQ) 2>/dev/null "
+                    + "&& __read_only")
+        }
         lines.append("unset __cred")
         lines.append("exit $__rc")
         return lines.joined(separator: "\n")

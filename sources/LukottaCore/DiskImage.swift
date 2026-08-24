@@ -270,8 +270,23 @@ public enum ImageList {
     /// and reinserted whenever the list is rebuilt.
     public static func merge(found: [Drive], images: [String: Drive]) -> [Drive] {
         guard !images.isEmpty else { return found }
+        // A container with no partition table is offered by the scan as the
+        // disk itself, named after the device it was attached on. The row made
+        // from the file is that same volume said in terms that outlive the
+        // attachment -- the file's name, and the file as what a passphrase is
+        // remembered against -- so it takes the scan's place rather than being
+        // dropped beside it as a duplicate.
+        var listed: [Drive] = []
+        for drive in found {
+            let whole = DriveScanner.wholeDisk(of: drive.id)
+            if drive.id == whole, let image = images[whole] {
+                listed.append(image)
+            } else {
+                listed.append(drive)
+            }
+        }
         let present = Set(found.map { DriveScanner.wholeDisk(of: $0.id) })
-        return found + images.filter { !present.contains($0.key) }.values
+        return listed + images.filter { !present.contains($0.key) }.values
     }
 
     /// Which containers to detach when the app is quitting.
