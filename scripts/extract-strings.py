@@ -33,7 +33,7 @@ CALL = re.compile(
     r'|(?:checkboxWithTitle|withTitle):\s*"'
 )
 
-COUNTISH = re.compile(r"[Cc]ount\b|\bmb\b|Int\(")
+COUNTISH = re.compile(r"[Cc]ount\b|[Nn]umber\b|\bmb\b|Int\(")
 
 # Both halves of a choice are shown to someone, so both are keys. The ones
 # naming an SF Symbol are not text at all, and are recognised by the call they

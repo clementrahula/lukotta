@@ -769,6 +769,15 @@
       "context": "The note under step 3, in grey. Explains why relaunching is part of the instructions rather than an afterthought.",
       "placeholders": []
     },
+    "Group %lld of the recovery key is not valid. Recheck those six digits.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Shown when a BitLocker recovery key has 48 digits but one group of six fails the checksum Windows uses, which usually means those six were mistyped. The placeholder is which group, counting from 1.",
+      "placeholders": [
+        "which group of six, counting from 1"
+      ]
+    },
     "Handing the drive to Finder": {
       "screens": [
         "working",
@@ -1505,6 +1514,15 @@
       ],
       "context": "Explanation under the appearance picker.",
       "placeholders": []
+    },
+    "That looks like a recovery key, but it has %lld of the 48 digits. Check for a missing or repeated group.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Shown when what was typed is clearly an attempt at a BitLocker recovery key -- only digits, spaces and hyphens -- but the wrong number of digits. A genuine key is 48 digits in 8 groups of 6. The placeholder is how many digits were actually typed.",
+      "placeholders": [
+        "the number of digits typed"
+      ]
     },
     "That password or recovery key did not unlock this drive.": {
       "screens": [

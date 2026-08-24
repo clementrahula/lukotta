@@ -91,11 +91,6 @@ public enum EnginePaths {
         return out
     }
 
-    /// The recovery-key / password validator shipped in Resources.
-    public static var validator: URL? {
-        Bundle.main.resourceURL?.appendingPathComponent("helpers/validate-key.sh")
-    }
-
     /// Rootfs archive that ships with the app, if present.
     public static var embeddedRootfsArchive: URL? {
         guard let a = engineRoot?.appendingPathComponent("alpine/rootfs.tar.gz"),

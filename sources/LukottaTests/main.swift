@@ -1172,6 +1172,66 @@ group("uninstallingTakesEverythingWithIt") {
     }
 }
 
+group("aRecoveryKeyIsCheckedBeforeTheDriveIsAskedAboutIt") {
+    // Every case the shell validator carried, now that the logic is Swift.
+    // A recovery key is eight groups of six digits, each group a 16-bit value
+    // multiplied by eleven -- so a mistyped one can be named exactly here
+    // rather than coming back from cryptsetup half a minute later as a plain
+    // refusal.
+    func value(_ raw: String) -> String? {
+        guard case .success(let out) = Credential.normalise(raw) else { return nil }
+        return out
+    }
+    func refusal(_ raw: String) -> String? {
+        guard case .failure(.credentialRejected(let why)) = Credential.normalise(raw) else {
+            return nil
+        }
+        return why
+    }
+
+    let key = "110011-220022-330033-440044-550055-660066-700007-711711"
+    expect(value(key) == key, "a valid key comes back as it was")
+    expect(
+        value("110011220022330033440044550055660066700007711711") == key,
+        "one typed without separators is put into groups")
+    expect(
+        value("110011 220022 330033 440044 550055 660066 700007 711711") == key,
+        "and so is one typed with spaces")
+
+    expect(
+        refusal("110011-220022-330033-440044-550055-660066-700007-711712") != nil,
+        "a group that fails the checksum is refused")
+    expect(
+        refusal("110011-220022-330033-440044-550055-660066-700007-711712")?.contains("8") == true,
+        "and the refusal says which group, since that is the one to retype")
+    expect(
+        refusal("999999-220022-330033-440044-550055-660066-700007-711711") != nil,
+        "a group above what sixteen bits can hold is refused")
+    expect(
+        refusal("110011-220022-330033-440044-550055-660066-700007-71171")?.contains("47") == true,
+        "a key of the wrong length says how many digits were typed")
+
+    // A password is not a key, and is never touched: spaces and punctuation
+    // are all significant in one.
+    for password in [
+        "Correct Horse Battery!", "12000008", "p@ss-word 42", "ÜmlautPass",
+        "110011-220022-330033-440044-550055-660066-700007-AAAAAA",
+    ] {
+        expect(value(password) == password, "a password passes through exactly: \(password)")
+    }
+
+    expect(refusal("") != nil, "nothing typed is refused")
+    expect(
+        refusal("")?.contains("48") == true,
+        "with the sentence that says what may be typed instead")
+
+    // The hint while typing, which must not nag at a password.
+    expect(Credential.hint(for: "hunter2") == nil, "a password gets no hint")
+    expect(
+        Credential.hint(for: "110011-220022-330033-440044")?.contains("24") == true,
+        "a part-typed key counts what is there so far")
+}
+
 group("everyMovingPartStatesItsOwnVersion") {
     // The app is not one program, and "which version" has more than one answer.
     // A part that is installed rather than carried -- the Linux environment in

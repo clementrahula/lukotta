@@ -22089,6 +22089,226 @@
         }
       }
     },
+    "Group %lld of the recovery key is not valid. Recheck those six digits.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المجموعة %lld من مفتاح الاسترداد غير صالحة. أعد التحقق من هذه الأرقام الستة."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Група %lld от ключа за възстановяване не е валидна. Проверете отново тези шест цифри."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skupina %lld obnovovacího klíče není platná. Zkontrolujte znovu těchto šest číslic."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gruppe %lld i genoprettelsesnøglen er ikke gyldig. Tjek de seks cifre igen."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gruppe %lld des Wiederherstellungsschlüssels ist ungültig. Prüfe diese sechs Ziffern noch einmal."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η ομάδα %lld του κλειδιού ανάκτησης δεν είναι έγκυρη. Ελέγξτε ξανά αυτά τα έξι ψηφία."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El grupo %lld de la clave de recuperación no es válido. Vuelve a comprobar esos seis dígitos."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taastevõtme %lld. rühm ei ole korrektne. Kontrolli need kuus numbrit üle."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Palautusavaimen ryhmä %lld ei kelpaa. Tarkista nämä kuusi numeroa."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hindi wasto ang grupo %lld ng recovery key. Suriing muli ang anim na digit na iyon."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le groupe %lld de la clé de récupération n'est pas valide. Vérifiez à nouveau ces six chiffres."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "קבוצה %lld במפתח השחזור אינה תקינה. בדקו שוב את שש הספרות האלה."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रिकवरी कुंजी का समूह %lld मान्य नहीं है। उन छह अंकों की दोबारा जाँच करें।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skupina %lld ključa za oporavak nije valjana. Ponovno provjerite tih šest znamenki."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A helyreállítási kulcs %lld. csoportja érvénytelen. Ellenőrizze újra ezt a hat számjegyet."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kelompok %lld pada kunci pemulihan tidak valid. Periksa kembali enam digit tersebut."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il gruppo %lld della chiave di recupero non è valido. Ricontrolla quelle sei cifre."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回復キーの %lld 番目のグループが正しくありません。その 6 桁を確認してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "복구 키의 %lld번째 그룹이 올바르지 않습니다. 해당 여섯 자리를 다시 확인하십시오."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld grupė atkūrimo rakte netinkama. Dar kartą patikrinkite tuos šešis skaitmenis."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atkopšanas atslēgas %lld. grupa nav derīga. Pārbaudiet šos sešus ciparus vēlreiz."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kumpulan %lld kunci pemulihan tidak sah. Periksa semula enam digit itu."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gruppe %lld i gjenopprettingsnøkkelen er ikke gyldig. Sjekk de seks sifrene på nytt."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groep %lld van de herstelsleutel is niet geldig. Controleer die zes cijfers opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupa %lld klucza odzyskiwania jest nieprawidłowa. Sprawdź ponownie te sześć cyfr."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O grupo %lld da chave de recuperação não é válido. Verifique novamente esses seis dígitos."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupul %lld al cheii de recuperare nu este valid. Verificați din nou acele șase cifre."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Группа %lld ключа восстановления неверна. Проверьте эти шесть цифр ещё раз."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skupina %lld obnovitvenega ključa ni veljavna. Znova preverite teh šest števk."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupi %lld i çelësit të rikuperimit nuk është i vlefshëm. Rikontrollo ato gjashtë shifra."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupp %lld i återställningsnyckeln är inte giltig. Kontrollera de sex siffrorna igen."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กลุ่มที่ %lld ของคีย์กู้คืนไม่ถูกต้อง ตรวจสอบตัวเลขหกหลักนั้นอีกครั้ง"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kurtarma anahtarının %lld. grubu geçerli değil. Bu altı haneyi yeniden denetleyin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Група %lld ключа відновлення неправильна. Перевірте ці шість цифр ще раз."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhóm %lld của khóa khôi phục không hợp lệ. Hãy kiểm tra lại sáu chữ số đó."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复密钥的第 %lld 组无效。请重新检查这六位数字。"
+          }
+        }
+      }
+    },
     "Handing the drive to Finder": {
       "localizations": {
         "ar": {
@@ -42853,6 +43073,226 @@
           "stringUnit": {
             "state": "translated",
             "value": "“系统”跟随你的 Mac 设置，包括设置发生变化时。"
+          }
+        }
+      }
+    },
+    "That looks like a recovery key, but it has %lld of the 48 digits. Check for a missing or repeated group.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يبدو أن هذا مفتاح استرداد، لكنه يحتوي على %lld رقمًا من أصل 48. تحقق من وجود مجموعة ناقصة أو مكررة."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Това прилича на ключ за възстановяване, но има %lld от 48-те цифри. Проверете за липсваща или повторена група."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vypadá to jako obnovovací klíč, ale má %lld ze 48 číslic. Zkontrolujte, zda nechybí nebo se neopakuje některá skupina."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det ligner en genoprettelsesnøgle, men den har %lld af de 48 cifre. Tjek, om en gruppe mangler eller er gentaget."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das sieht nach einem Wiederherstellungsschlüssel aus, hat aber %lld der 48 Ziffern. Prüfe, ob eine Gruppe fehlt oder doppelt vorkommt."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτό μοιάζει με κλειδί ανάκτησης, αλλά έχει %lld από τα 48 ψηφία. Ελέγξτε μήπως λείπει ή επαναλαμβάνεται κάποια ομάδα."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parece una clave de recuperación, pero tiene %lld de los 48 dígitos. Comprueba si falta un grupo o está repetido."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See näeb välja nagu taastevõti, kuid selles on %lld numbrit 48-st. Kontrolli, kas mõni rühm on puudu või kordub."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä näyttää palautusavaimelta, mutta siinä on %lld numeroa 48:sta. Tarkista, puuttuuko jokin ryhmä tai toistuuko se."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mukhang recovery key ito, pero %lld sa 48 na digit ang mayroon. Tingnan kung may nawawala o naulit na grupo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cela ressemble à une clé de récupération, mais elle comporte %lld des 48 chiffres. Vérifiez qu'aucun groupe ne manque ou n'est répété."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "זה נראה כמו מפתח שחזור, אבל יש בו %lld מתוך 48 הספרות. בדקו אם חסרה קבוצה או שאחת חוזרת פעמיים."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यह रिकवरी कुंजी जैसी लगती है, लेकिन इसमें 48 में से %lld अंक हैं। देखें कि कोई समूह छूट गया है या दोहरा गया है।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovo izgleda kao ključ za oporavak, ali ima %lld od 48 znamenki. Provjerite nedostaje li koja skupina ili se ponavlja."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez helyreállítási kulcsnak tűnik, de %lld számjegy van benne a 48-ból. Ellenőrizze, nem hiányzik-e vagy nem ismétlődik-e egy csoport."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ini tampak seperti kunci pemulihan, tetapi berisi %lld dari 48 digit. Periksa apakah ada kelompok yang hilang atau terulang."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sembra una chiave di recupero, ma ha %lld delle 48 cifre. Controlla se manca un gruppo o se è ripetuto."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回復キーのようですが、48 桁のうち %lld 桁です。グループの抜けや重複がないか確認してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "복구 키처럼 보이지만 48자리 중 %lld자리입니다. 빠지거나 중복된 그룹이 있는지 확인하십시오."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tai panašu į atkūrimo raktą, bet jame yra %lld iš 48 skaitmenų. Patikrinkite, ar netrūksta grupės ir ar kuri nors nesikartoja."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tas izskatās pēc atkopšanas atslēgas, bet tajā ir %lld no 48 cipariem. Pārbaudiet, vai kāda grupa netrūkst vai neatkārtojas."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ini kelihatan seperti kunci pemulihan, tetapi mengandungi %lld daripada 48 digit. Periksa sama ada ada kumpulan yang hilang atau berulang."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette ser ut som en gjenopprettingsnøkkel, men den har %lld av de 48 sifrene. Sjekk om en gruppe mangler eller er gjentatt."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit lijkt op een herstelsleutel, maar heeft %lld van de 48 cijfers. Controleer of er een groep ontbreekt of dubbel staat."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To wygląda na klucz odzyskiwania, ale ma %lld z 48 cyfr. Sprawdź, czy nie brakuje grupy albo czy któraś się nie powtarza."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isto parece uma chave de recuperação, mas tem %lld dos 48 dígitos. Verifique se falta um grupo ou se está repetido."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aceasta pare o cheie de recuperare, dar are %lld din cele 48 de cifre. Verificați dacă lipsește un grup sau dacă se repetă."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Похоже на ключ восстановления, но в нём %lld из 48 цифр. Проверьте, не пропущена ли группа и не повторяется ли какая-то."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To je videti kot obnovitveni ključ, vendar ima %lld od 48 števk. Preverite, ali katera skupina manjka ali se ponavlja."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kjo duket si çelës rikuperimi, por ka %lld nga 48 shifrat. Kontrollo nëse mungon ose përsëritet ndonjë grup."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det här ser ut som en återställningsnyckel, men den har %lld av de 48 siffrorna. Kontrollera om en grupp saknas eller upprepas."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ดูเหมือนคีย์กู้คืน แต่มี %lld หลักจาก 48 หลัก ตรวจสอบว่ามีกลุ่มใดขาดหายหรือซ้ำกันหรือไม่"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu bir kurtarma anahtarına benziyor ama 48 hanenin %lld tanesi var. Eksik veya yinelenen bir grup olup olmadığını denetleyin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Схоже на ключ відновлення, але в ньому %lld із 48 цифр. Перевірте, чи не пропущено групу й чи не повторюється якась."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đây trông giống khóa khôi phục, nhưng chỉ có %lld trong 48 chữ số. Hãy kiểm tra xem có nhóm nào bị thiếu hoặc lặp lại không."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这看起来像恢复密钥，但只有 48 位中的 %lld 位。请检查是否有分组缺失或重复。"
           }
         }
       }

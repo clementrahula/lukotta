@@ -183,8 +183,6 @@ ACTOOL="$(xcrun --find actool 2>/dev/null || echo /Applications/Xcode.app/Conten
   --platform macosx --minimum-deployment-target "$MIN_MACOS" \
   --app-icon "$ICON_SET" --output-partial-info-plist /dev/null >/dev/null
 [ -f "$CONTENTS/Resources/Assets.car" ] || { echo "error: actool produced no Assets.car" >&2; exit 1; }
-cp "$HERE/resources/helpers/validate-key.sh" "$CONTENTS/Resources/helpers/validate-key.sh"
-chmod 755 "$CONTENTS/Resources/helpers/validate-key.sh"
 cp "$HERE/LICENSE.txt" "$CONTENTS/Resources/LICENSE.txt"
 # Localisation. The catalogue is the source; xcstringstool turns it into the
 # .lproj tables macOS looks for, one per language. macOS then picks by the
