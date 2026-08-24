@@ -7,20 +7,10 @@ hardware only you have.
 
 ## Next
 
-- [ ] **Finish the beta channel.** An icon that tells the two apart in the
-  Dock; a `release.sh` path publishing to the beta appcast with the same key;
-  one real beta-to-beta update, applied and relaunched, proved against a local
-  feed. **[you]** the DNS record for updates-beta.lukotta.com.
-
-- [ ] **A harness for installs and updates.** Fresh install on a Mac that has
-  never had anylinuxfs, and an update applied over each earlier state, checked
-  for the helper replaced, the guest refreshed, passphrases and settings kept,
-  mounts restored, and rollback. Run against beta before anything reaches prod.
-
-- [ ] **Harmonise the end-to-end tests.** Every flow, not only the ones that
-  succeed: a wrong passphrase, a drive unplugged mid-mount, a refused
-  permission, a full ceiling, an eject that will not complete. On real screens.
-  Beta gets the same set; a local build can do with less.
+- [ ] **[you] The DNS record for updates-beta.lukotta.com.** Everything else on
+  the beta channel is built and proved: its own icon, its own appcast path in
+  `release.sh`, and a real beta-to-beta update applied against a local feed.
+  `scripts/update-test.sh` runs the whole thing.
 
 ---
 
@@ -33,27 +23,6 @@ hardware only you have.
 - [ ] **[you] Screenshots** — the drive list, an unlock, a drive open with
   several volumes, in both appearances. The README, the site and every listing
   in Stage 2 want them.
-- [ ] **Survive a build that will not start at all.** Rollback covers a version
-  that starts and fails: three launches with no working window and the previous
-  bundle comes back. It cannot cover one whose own code never runs, since
-  nothing of ours is there to notice it. That wants a watcher outside the app --
-  in practice the privileged helper, which can replace what is in /Applications.
-- [ ] **Finish the release flow.** A `.dmg`, notarised and stapled in its own
-  right, drag-to-Applications, with the site's download button pointing at it;
-  delta updates, so a fix is not a 154 MB download for a few kilobytes; and CI
-  wired back up, pinned to the toolchain the app is really built with. Sparkle
-  keeps updating from the `.zip`.
-
-## Correctness
-
-- [ ] **A drive is not always identified again after being ejected and
-  re-added** — the end-to-end run gives up after 60 seconds on it.
-- [ ] **Handle "already mounted by macOS"** rather than only diagnosing it. The
-  engine has `--remount`.
-- [ ] **Check engine log growth.** The engine writes to `~/Library/Logs` and
-  `~/.anylinuxfs` whatever the app does. Confirm the logs rotate.
-- [ ] **Port `validate-key.sh` to Swift** — thirty lines, and it removes a
-  shell dependency and a process spawn from the unlock path.
 
 ## Stage 3 — larger bets
 
