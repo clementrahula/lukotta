@@ -179,14 +179,6 @@ send a patch.
 The English is the source. If a string is awkward in English, fix that first —
 thirty-six translations of a bad sentence is thirty-six problems.
 
-A file is named the way Apple names that locale — `pt-PT`, `zh-Hans`, `nb` —
-because macOS matches the reader's own setting against those names. Nobody's Mac
-is set to plain Spanish: it is set to Spanish (Mexico), and macOS finds `es` from
-that on its own. It finds `pt-PT` from Brazilian Portuguese, `fil` from Tagalog,
-`he` from Hebrew's old code, and where it finds nothing it moves to the next
-language that reader asked for. A name in some other style breaks all of it
-quietly, which is why there is a check for it.
-
 ### Right to left
 
 Arabic and Hebrew mirror the interface. Three things keep that working, and all
