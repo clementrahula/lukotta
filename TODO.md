@@ -33,6 +33,11 @@ hardware only you have.
 - [ ] **[you] Screenshots** — the drive list, an unlock, a drive open with
   several volumes, in both appearances. The README, the site and every listing
   in Stage 2 want them.
+- [ ] **Survive a build that will not start at all.** Rollback covers a version
+  that starts and fails: three launches with no working window and the previous
+  bundle comes back. It cannot cover one whose own code never runs, since
+  nothing of ours is there to notice it. That wants a watcher outside the app --
+  in practice the privileged helper, which can replace what is in /Applications.
 - [ ] **Finish the release flow.** A `.dmg`, notarised and stapled in its own
   right, drag-to-Applications, with the site's download button pointing at it;
   delta updates, so a fix is not a 154 MB download for a few kilobytes; and CI
@@ -49,19 +54,6 @@ hardware only you have.
   `~/.anylinuxfs` whatever the app does. Confirm the logs rotate.
 - [ ] **Port `validate-key.sh` to Swift** — thirty lines, and it removes a
   shell dependency and a process spawn from the unlock path.
-
-## Interface
-
-- [ ] **"Don't ask again" on the eject-on-quit dialog.**
-- [ ] **Remember the last drive used** and offer it first. Window size and
-  position already come back; the drive does not.
-
-## Formats
-
-- [ ] **libkrun opens files an image names.** A qcow2 backing file or a VMDK
-  descriptor's extents are opened by libkrun itself, so a hostile image can make
-  the guest read what the user can read. Worth a look before accepting more
-  formats.
 
 ## Stage 3 — larger bets
 
@@ -85,19 +77,7 @@ transport fixes it.
 NTFS read/write dominates the cost either way. Going native also removes the GPL
 constraint, so this and a proprietary product are the same project.
 
-### A binary dyld refuses to load
-
-Rollback covers a version that starts and fails. A version that never runs its
-own code needs a watchdog outside the app, which means the privileged helper —
-and a root daemon that can replace the contents of /Applications is a trade to
-decide on before building it.
-
 ---
-
-## Waiting on you
-
-- [ ] **Delete the stale privacy entries from earlier names**, and the leftover
-  `~/Library/Application Support/BitLocker Mounter/`.
 
 ## Untried
 
