@@ -126,6 +126,13 @@ struct DriveListView: View {
                     // the mark would sit on whatever took its position.
                     .onChange(of: model.drives.map(\.id)) { dropping = nil }
                 }
+                // The line under the header, mirrored. Without it the list runs
+                // straight into the footer and the two read as one block. The
+                // negative inset takes it out to the window's edges, where the
+                // header's line is: everything on this screen is inside a
+                // 24-point margin, and a line stopping short of the edge looks
+                // like a mistake rather than a division.
+                Divider().opacity(0.5).padding(.horizontal, -24)
                 HStack {
                     Text("What a drive contains is only known once it is unlocked.")
                         .font(.caption).foregroundStyle(.secondary)
