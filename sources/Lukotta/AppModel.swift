@@ -59,6 +59,20 @@ final class AppModel: ObservableObject {
     @Published var credentialProblem: String?
     @Published var showHelp = false
     @Published var showReport = false
+    /// The recent log, read before anybody asks for it.
+    ///
+    /// Reading it walks the system's log store and takes seconds. Done when the
+    /// report sheet opens, the sheet sat blank for that long, which reads as a
+    /// sheet that is broken -- so it is kept here and refreshed in the
+    /// background, and the sheet has it the moment it appears.
+    @Published var recentLog = ""
+
+    func refreshRecentLog() {
+        Task.detached(priority: .utility) { [weak self] in
+            let text = Diagnostics.recentLog()
+            await MainActor.run { self?.recentLog = text }
+        }
+    }
     /// Whether to keep this drive's credential in the Keychain. Opt-in.
     @Published var rememberCredential = false
     /// Set when a stored credential was found and filled in, so the interface
@@ -818,6 +832,9 @@ final class AppModel: ObservableObject {
         didStart = true
         watcher.start()
         sleepWatch.start()
+        // Read now, so the report sheet is filled in before anybody asks for
+        // it rather than several seconds after.
+        refreshRecentLog()
         phase = .scanning
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
@@ -908,9 +925,25 @@ final class AppModel: ObservableObject {
         NSApp.terminate(nil)
     }
 
-    /// Discard a stored credential and return to entering one.
+    /// What this app remembers a drive by.
+    ///
+    /// A container file is the file, wherever it is attached and whatever the
+    /// device is called this time: attaching gives it a fresh device
+    /// identifier every time, so a passphrase saved for one attachment was
+    /// looked for under a name that no longer existed. The path is the thing
+    /// that does not change.
+    ///
+    /// Everything else is the volume's own UUID, or the stable name the
+    /// scanner makes for a partition table that carries none.
+    func identity(of drive: Drive) -> String {
+        if let file = openedImages[DriveScanner.wholeDisk(of: drive.id)] { return file.path }
+        if let file = engineReadDrives[drive.id] { return file.uuid }
+        return drive.uuid
+    }
+
+    /// Discard a stored credential and return to entering one.    /// Discard a stored credential and return to entering one.
     func forgetSavedCredential(for drive: Drive) {
-        CredentialStore.delete(for: drive.uuid)
+        CredentialStore.delete(for: identity(of: drive))
         credential = ""
         // Left on. Forgetting replaces a key; the toggle turns saving off.
         rememberCredential = true
@@ -1003,7 +1036,7 @@ final class AppModel: ObservableObject {
         // interface reports holding.
         if credentialBelongsTo != drive.id || credential.isEmpty {
             // A stored credential is one that was asked to be remembered.
-            if let saved = CredentialStore.load(for: drive.uuid) {
+            if let saved = CredentialStore.load(for: identity(of: drive)) {
                 credential = saved
                 rememberCredential = true
                 usingSavedCredential = true
@@ -1300,7 +1333,7 @@ final class AppModel: ObservableObject {
 
         // A drive that needs a passphrase comes back only if it was saved. The
         // rest open with nothing.
-        let saved = CredentialStore.load(for: drive.uuid)
+        let saved = CredentialStore.load(for: identity(of: drive))
         let credential = saved.flatMap { try? Credential.normalise($0).get() } ?? ""
 
         let cannotBeWritten = containerFormats[drive.id].map { !$0.isWritable } ?? false
@@ -1618,11 +1651,11 @@ final class AppModel: ObservableObject {
         readOnlyReason = fellBack ? Self.reasonForFallback(transcript, statusLines) : nil
         if !transcript.isEmpty { noteVolumeCount(transcript) }
         if rememberCredential {
-            if !CredentialStore.save(credential, for: drive.uuid) {
+            if !CredentialStore.save(credential, for: identity(of: drive)) {
                 ejectProblem = "The drive opened, but the key could not be saved to your Keychain."
             }
         } else {
-            CredentialStore.delete(for: drive.uuid)
+            CredentialStore.delete(for: identity(of: drive))
         }
         if mountedReadOnly {
             readOnlyMounts.insert(mountPoint)
@@ -1773,6 +1806,9 @@ final class AppModel: ObservableObject {
     /// stopped on is recorded in one place instead of at each of the four
     /// sites that can fail.
     private func fail(_ drive: Drive?, _ summary: String, _ detail: String?) {
+        // A failure is when somebody reaches for the report, so the log is
+        // fetched again here rather than when the sheet is opened.
+        refreshRecentLog()
         // Whatever the first sector reported, the drive did not open. The
         // reading is discarded so that a second attempt asks for a passphrase.
         // A volume wrongly read as unencrypted would otherwise be retried

@@ -153,13 +153,26 @@ struct ReportIssueSheet: View {
         }
         .frame(width: 600, height: 620)
         .task {
-            let text = await Task.detached(priority: .userInitiated) {
-                Diagnostics.recentLog()
-            }.value
-            recentLog = text
             // Opened from a failure, the box starts with what went wrong.
             // Editable: it is the reader's report, not the app's.
             if problem.isEmpty, let summary = model.reportableSummary { problem = summary }
+
+            // Everything already in hand goes up at once. Reading the log
+            // walks the system's log store and takes seconds, and a sheet that
+            // sits blank meanwhile reads as one that is broken -- so the report
+            // is written twice: what is known now, then again with the log.
+            fixedPart = Diagnostics.report(
+                environment: environment,
+                engineOutput: model.reportableOutput,
+                crashReport: crashes.first,
+                recentLog: model.recentLog.isEmpty ? nil : model.recentLog)
+            // Read on the way in and after every failure, so it is nearly
+            // always here already; fetched now only if it is not.
+            let text =
+                model.recentLog.isEmpty
+                ? await Task.detached(priority: .userInitiated) { Diagnostics.recentLog() }.value
+                : model.recentLog
+            recentLog = text
             fixedPart = Diagnostics.report(
                 environment: environment,
                 engineOutput: model.reportableOutput,

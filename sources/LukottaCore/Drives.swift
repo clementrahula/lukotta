@@ -168,7 +168,27 @@ public enum DriveScanner {
         }
     }
 
-    /// "disk6s1" belongs to "disk6".
+    /// A name for a volume whose partition table carries no UUID.
+    ///
+    /// The medium's own name, the volume's size and where it begins on the
+    /// disk: none of the three changes when the drive is unplugged and put back
+    /// into another port, which is what the device identifier does. Two
+    /// identical drives of the same make and size, partitioned identically,
+    /// would share a name -- and would also be indistinguishable to anything
+    /// else that looked.
+    ///
+    /// Nil when there is not enough to go on, so the caller falls back to the
+    /// device identifier rather than to a name several drives would share.
+    public static func stableName(media: String?, size: Int64, offset: Int64?)
+        -> String?
+    {
+        guard let media, !media.isEmpty, size > 0 else { return nil }
+        let cleaned = media.trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: " ", with: "-")
+        return "media:\(cleaned):\(size):\(offset ?? 0)"
+    }
+
+    /// "disk6s1" belongs to "disk6".    /// "disk6s1" belongs to "disk6".
     ///
     /// By taking the digits after "disk" rather than cutting at an "s": the
     /// word "disk" contains one, and a synthesised volume is named disk3s1s1,
@@ -265,17 +285,37 @@ public enum DriveScanner {
                         internalDisk ? appString("Internal") : appString("External"))
                 }
 
-                // The list plist carries it too, and is the fallback when
+                // What this volume is, across ports and replugging. The list
+                // plist carries the UUID too, and is the fallback when
                 // `diskutil info` on a single partition comes back without it.
-                // A drive identified by diskNsM instead is a drive whose saved
-                // passphrase and remembered name are lost the next time it is
-                // plugged into a different port.
+                //
+                // A partition table written by Windows has no UUID in it at
+                // all: MBR predates the idea. Such a drive was identified by
+                // diskNsM, which macOS hands out in the order things are
+                // plugged in -- so a saved passphrase was stored against
+                // disk4s1 and looked for under disk5s1 after the drive was
+                // taken out and put back, and the app asked for it again.
+                //
+                // Where there is no UUID, the drive is named by what does not
+                // change: the medium's own name, its size, and where the
+                // partition begins on it.
                 let uuid =
                     firstNonEmpty(
                         partInfo["DiskUUID"] as? String,
                         partInfo["VolumeUUID"] as? String,
                         part["DiskUUID"] as? String,
-                        part["VolumeUUID"] as? String) ?? ident
+                        part["VolumeUUID"] as? String)
+                    ?? (isImage
+                        ? nil
+                        : stableName(
+                            media: firstNonEmpty(
+                                wholeInfo["MediaName"] as? String,
+                                wholeInfo["IORegistryEntryName"] as? String),
+                            size: size,
+                            offset: (partInfo["PartitionMapPartitionOffset"] as? NSNumber)?
+                                .int64Value
+                                ?? (part["PartitionMapPartitionOffset"] as? NSNumber)?.int64Value))
+                    ?? ident
                 drives.append(
                     Drive(
                         id: ident,

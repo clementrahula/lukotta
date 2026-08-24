@@ -1400,9 +1400,23 @@ group("driveScannerParsing") {
     expect(
         linux.name, "Generic Media", "falling back to the registry name when there is no media name"
     )
-    // No UUID anywhere, so the identifier stands in. A drive with no identity
-    // cannot be remembered between sessions.
-    expect(linux.uuid, "disk5s2", "a partition with no UUID is identified by its device")
+    // No UUID anywhere -- an MBR table carries none -- so the drive is named by
+    // what does not change when it is unplugged and put back somewhere else.
+    // Named by its device instead, a saved passphrase was stored against
+    // disk4s1 and looked for under disk5s1.
+    expect(
+        linux.uuid, "media:Generic-Media:1000:0",
+        "a partition with no UUID is named by its medium, size and offset")
+    expect(
+        DriveScanner.stableName(media: "Patriot Memory", size: 247_630_659_584, offset: 1_048_576)
+            ?? "",
+        "media:Patriot-Memory:247630659584:1048576", "the parts that do not change, joined")
+    expect(
+        DriveScanner.stableName(media: nil, size: 1_000, offset: 0) == nil,
+        "and nothing at all when there is not enough to tell one drive from another")
+    expect(
+        DriveScanner.stableName(media: "Disk Image", size: 0, offset: 0) == nil,
+        "a size of zero is not an identity")
 
     // Every Linux type diskutil reports, in both spellings.
     for content in [
