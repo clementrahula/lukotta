@@ -126,6 +126,15 @@ public enum DiskImage {
     public static func attach(_ url: URL, timeout: TimeInterval = attachTimeout) -> Result<
         Attached, Failure
     > {
+        // Already attached is already attached. A file this app put back a
+        // moment ago can still be held by the machine that was serving it, and
+        // attaching it a second time either fails or produces a second device
+        // for one file. Opening something twice should be opening it, so the
+        // attachment that exists is the answer.
+        if let device = (attachments() ?? [:]).first(where: { $0.value == url.path })?.key {
+            return .success(Attached(device: "/dev/" + device, url: url))
+        }
+
         // Plain first. A raw image, which is what `dd` and cryptsetup produce
         // and the usual shape of a LUKS container, has no header for macOS to
         // recognise and attaches only when told what it is.

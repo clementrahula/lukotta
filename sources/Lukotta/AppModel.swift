@@ -618,12 +618,24 @@ final class AppModel: ObservableObject {
             // built from the file replaces it. Its first sector identifies it,
             // and the device belongs to whoever attached it, so it can be read
             // here without the helper.
-            if mine.count <= 1, mine.first.map({ $0.id == attached.identifier }) ?? true,
-                let whole = DiskImage.wholeDiskDrive(attached, url: url)
-            {
+            if mine.count <= 1, mine.first.map({ $0.id == attached.identifier }) ?? true {
+                // The first sector says what is in it, and where it cannot be
+                // read -- a device the last mount has not finished letting go
+                // of -- the row is still made. What it is can be found out
+                // again on the way to opening it; which file it is cannot be
+                // found out anywhere else, and is what everything else here
+                // hangs on.
+                let row =
+                    DiskImage.wholeDiskDrive(attached, url: url)
+                    ?? Drive(
+                        id: attached.identifier, devicePath: attached.device,
+                        name: url.deletingPathExtension().lastPathComponent,
+                        sizeBytes: fileSize(atPath: url.path),
+                        connection: appString("Disk Image"),
+                        kind: mine.first?.kind ?? .linux, uuid: url.path)
                 all.removeAll { $0.id == attached.identifier }
-                all.append(whole)
-                mine = [whole]
+                all.append(row)
+                mine = [row]
             }
             guard !mine.isEmpty else {
                 DiskImage.detach(attached.device)
@@ -2118,10 +2130,16 @@ final class AppModel: ObservableObject {
                     // it is not put back at the next login. Unplugging is not:
                     // a drive that goes away without being ejected is one to
                     // open again when it comes back.
-                    for uuid in devices.compactMap({ device in
-                        self.drives.first { $0.devicePath == device }?.uuid
-                    }) {
-                        MountMemory.forget(uuid: uuid)
+                    // By both names it could have been remembered under: what
+                    // the row calls itself, and what this app knows it as. A
+                    // drive whose row was made before its file was recognised
+                    // is remembered under the one and ejected under the other,
+                    // and came back at the next login having been ejected.
+                    let ejected = devices.compactMap { device in
+                        self.drives.first { $0.devicePath == device }
+                    }
+                    for name in Set(ejected.flatMap { [$0.uuid, self.identity(of: $0)] }) {
+                        MountMemory.forget(uuid: name)
                     }
                     if self.openMounts.isEmpty { self.onAllDrivesClosed?() }
                     self.openMounts = self.openMounts.filter { !paths.contains($0.value) }
