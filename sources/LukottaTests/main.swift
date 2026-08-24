@@ -958,6 +958,28 @@ group("anImageWithASpaceInItsNameIsStillReadable") {
     try? FileManager.default.removeItem(at: DiskImage.withoutSpaces(other))
 }
 
+group("theHelperSaysWhichBuildItIs") {
+    // launchd keeps a registered daemon running across an app update, and the
+    // helper is what builds the mount -- so a fixed app went on behaving as the
+    // broken one had, with nothing to say so. The app asks the helper what it
+    // is and registers it again when the answer does not match, which needs
+    // both halves to exist.
+    let helper =
+        (try? String(contentsOfFile: "sources/LukottaHelper/main.swift", encoding: .utf8)) ?? ""
+    let client =
+        (try? String(contentsOfFile: "sources/Lukotta/HelperClient.swift", encoding: .utf8)) ?? ""
+    expect(helper.contains("func helperVersion("), "the helper can say which build it is")
+    expect(client.contains("func replaceIfStale()"), "and the app asks")
+    expect(
+        client.contains("try? self.service.unregister()")
+            && client.contains("try? self.service.register()"),
+        "and registers it again when the answer does not match")
+
+    let model =
+        (try? String(contentsOfFile: "sources/Lukotta/AppModel.swift", encoding: .utf8)) ?? ""
+    expect(model.contains("helper.replaceIfStale()"), "on the way in, before anything is mounted")
+}
+
 group("aReadOnlyMountAsksForItInOneFlag") {
     // --ignore-permissions and a read-only export are the same job to the
     // engine -- taking charge of the NFS export -- so it refuses the two

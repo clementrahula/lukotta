@@ -837,6 +837,10 @@ final class AppModel: ObservableObject {
         watcher.start()
         sleepWatch.start()
         putBackWhatWasLeftAttached()
+        // An app update replaces the binary inside the bundle and leaves the
+        // running daemon alone, so a fix to the mount can land and change
+        // nothing at all.
+        helper.replaceIfStale()
         // Read now, so the report sheet is filled in before anybody asks for
         // it rather than several seconds after.
         refreshRecentLog()

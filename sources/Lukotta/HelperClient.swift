@@ -37,7 +37,61 @@ final class HelperClient: ObservableObject {
         }
     }
 
+    /// Replace the running daemon when it is not the one in this app.
+    ///
+    /// launchd keeps a registered daemon running across an app update: the
+    /// binary inside the bundle is replaced and the job is not. So a fixed app
+    /// went on behaving exactly as the broken one had -- the helper builds the
+    /// mount itself, and it was still building it the old way. Nothing said so,
+    /// because from the outside the app was the new version and the fault was
+    /// the old one.
+    ///
+    /// The helper is asked what it is. An answer that does not match, or no
+    /// answer at all -- an older helper that does not know the question --
+    /// means the job is stale, and it is registered again. Silent: the daemon
+    /// is already approved, and this is not something to make anybody read.
+    func replaceIfStale() {
+        guard case .ready = state else { return }
+        let mine = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+        guard !mine.isEmpty else { return }
+        askVersion { [weak self] theirs in
+            guard let self, theirs != mine else { return }
+            Log.app.notice(
+                "the running helper is build \(theirs.isEmpty ? "unknown" : theirs, privacy: .public), this is \(mine, privacy: .public); registering it again"
+            )
+            self.connection?.invalidate()
+            self.connection = nil
+            try? self.service.unregister()
+            // launchd takes a moment to tear the job down; registering into one
+            // that is still going away leaves it notRegistered.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+                guard let self else { return }
+                try? self.service.register()
+                self.refresh()
+            }
+        }
+    }
+
+    private func askVersion(_ done: @escaping (String) -> Void) {
+        guard let proxy = proxy() else { return done("") }
+        var answered = false
+        proxy.helperVersion { version in
+            DispatchQueue.main.async {
+                guard !answered else { return }
+                answered = true
+                done(version)
+            }
+        }
+        // An older helper does not know the question and never replies.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            guard !answered else { return }
+            answered = true
+            done("")
+        }
+    }
+
     /// Register the daemon. macOS then asks the user to approve it in Login
+    /// Items; until they do, the status is requiresApproval.    /// Register the daemon. macOS then asks the user to approve it in Login
     /// Items; until they do, the status is requiresApproval.
     func install() {
         do {
