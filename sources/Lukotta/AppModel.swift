@@ -1001,15 +1001,6 @@ final class AppModel: ObservableObject {
         watcher.start()
         sleepWatch.start()
         putBackWhatWasLeftAttached()
-        // An app update replaces the binary inside the bundle and leaves the
-        // running daemon alone, so a fix to the mount can land and change
-        // nothing at all.
-        helper.replaceIfStale()
-        // Room for a dozen drives at once. Three loopback addresses is what
-        // macOS provides and the fourth drive has nowhere to be served from,
-        // so the helper adds the rest. Asked for at every start: they last
-        // until the Mac is restarted.
-        helper.makeRoomForDrives()
         // Read now, so the report sheet is filled in before anybody asks for
         // it rather than several seconds after.
         refreshRecentLog()
@@ -1027,7 +1018,19 @@ final class AppModel: ObservableObject {
             // frame for as long as the disk takes to answer.
             let permissions = Permissions.reading()
             let settled = await MainActor.run { () -> Bool in
+                // Reads the helper's state, which everything below depends on:
+                // asked any earlier, both of the calls after it see a helper
+                // whose state is still unknown and quietly do nothing.
                 self.applyPermissions(permissions)
+                // An app update replaces the binary inside the bundle and
+                // leaves the running daemon alone, so a fix to the mount can
+                // land and change nothing at all.
+                self.helper.replaceIfStale()
+                // Room for a dozen drives at once. Three loopback addresses is
+                // what macOS provides, and the fourth drive has nowhere to be
+                // served from. They last until the Mac is restarted, so this is
+                // asked at every start.
+                self.helper.makeRoomForDrives()
                 Log.app.notice(
                     "starting: full disk access \(self.hasFullDiskAccess, privacy: .public), helper \(String(describing: self.helper.state), privacy: .public)"
                 )

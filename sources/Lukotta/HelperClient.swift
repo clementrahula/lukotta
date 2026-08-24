@@ -68,6 +68,9 @@ final class HelperClient: ObservableObject {
                 guard let self else { return }
                 try? self.service.register()
                 self.refresh()
+                // The one just registered is the one that knows how to make
+                // room; the one that was running when this started may not.
+                self.makeRoomForDrives()
             }
         }
     }
