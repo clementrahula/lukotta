@@ -136,7 +136,9 @@
         func showUpdateInstalledAndRelaunched(
             _ relaunched: Bool, acknowledgement: @escaping () -> Void
         ) {
-            UpdateHarness.say(relaunched ? "installed and relaunched" : "installed")
+            var what = "installed"
+            if relaunched { what += " and relaunched" }
+            UpdateHarness.say(what)
             acknowledgement()
             exit(0)
         }
