@@ -269,6 +269,20 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     /// (fe80::), which is what the engine itself creates when it runs as root,
     /// and they reach nothing outside this Mac.
     func makeRoom(forDrives count: Int, reply: @escaping (Int) -> Void) {
+        // Zero means the opposite: take back the ones this app added, which is
+        // what uninstalling asks for. Written as a count rather than a second
+        // method so that no helper is ever too old to understand it.
+        if count <= 0 {
+            var released = 0
+            for last in 2...13 {
+                let address = "127.0.0.\(last)"
+                guard Capacity.addresses().contains(address) else { continue }
+                _ = LukottaCore.run("/sbin/ifconfig", ["lo0", "-alias", address])
+                released += 1
+            }
+            Log.helper.notice("released \(released, privacy: .public) loopback addresses")
+            return reply(Capacity.addresses().count)
+        }
         let wanted = min(max(count, 1), 32)
         var have = Capacity.addresses().count
         // 127.0.0.2 upwards, which are loopback by definition and reach nothing

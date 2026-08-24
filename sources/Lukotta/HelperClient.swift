@@ -100,6 +100,17 @@ final class HelperClient: ObservableObject {
         }
     }
 
+    /// Give back the loopback addresses, for uninstalling. Waits, because the
+    /// daemon is unregistered next.
+    func releaseRoom() async {
+        guard case .ready = state, proxy() != nil, let connection else { return }
+        let box = ConnectionBox(connection)
+        let left: Int? = await Self.roundTrip(box) { proxy, done in
+            proxy.makeRoom(forDrives: 0) { done($0) }
+        }
+        Log.app.notice("loopback addresses left: \(left ?? -1, privacy: .public)")
+    }
+
     private func askVersion(_ done: @escaping @MainActor (String) -> Void) {
         guard proxy() != nil, let connection else { return done("") }
         // The same rule as everything else that talks to the helper: the reply

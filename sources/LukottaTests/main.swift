@@ -1150,6 +1150,28 @@ group("oneScrubberAndNothingGoesRoundIt") {
     }
 }
 
+group("uninstallingTakesEverythingWithIt") {
+    // What the uninstall touches, checked against what the app writes. A thing
+    // added to one and not the other is how an app comes to leave a folder
+    // behind for years.
+    let uninstall =
+        (try? String(contentsOfFile: "sources/Lukotta/Uninstall.swift", encoding: .utf8)) ?? ""
+    expect(!uninstall.isEmpty, "the uninstall is where this expects it")
+    for what in [
+        ".anylinuxfs",  // the Linux environment
+        "applicationSupportDirectory",  // what the app kept
+        "cachesDirectory",  // what Sparkle kept, in this app's name
+        "removePersistentDomain",  // every setting, including the ones added since
+        "CredentialStore.delete",  // the saved passphrases, when asked
+        "releaseRoom",  // the loopback addresses the helper added
+        "Housekeeping.sweep",  // the scratch directories and mount points
+        "unregister",  // the daemon
+        "moveToTheBin",  // and the app itself
+    ] {
+        expect(uninstall.contains(what), "uninstalling deals with \(what)")
+    }
+}
+
 group("nothingIsLeftLyingAboutOnSomebodysMac") {
     // The three rules: only what this app made, only when it is finished with,
     // and never anything in use.

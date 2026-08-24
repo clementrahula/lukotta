@@ -30,6 +30,15 @@ enum Uninstall {
             .appendingPathComponent(".anylinuxfs", isDirectory: true)
     }
 
+    /// Sparkle's own cache: the feed it fetched and the icons in it. Nothing
+    /// of the drive app, but it is in this app's name and would outlive it.
+    nonisolated private static var caches: URL? {
+        try? FileManager.default.url(
+            for: .cachesDirectory, in: .userDomainMask,
+            appropriateFor: nil, create: false
+        ).appendingPathComponent(bundleIdentifier, isDirectory: true)
+    }
+
     nonisolated private static var support: URL? {
         try? FileManager.default.url(
             for: .applicationSupportDirectory, in: .userDomainMask,
@@ -109,6 +118,11 @@ enum Uninstall {
                 finished()
             }
             if plan.helperRegistered {
+                // The addresses the helper added for serving drives, while it
+                // is still there to take them back. They would go at the next
+                // restart anyway; leaving somebody to restart before their Mac
+                // is as they left it is not uninstalling.
+                await AppModel.shared.helper.releaseRoom()
                 await MainActor.run {
                     try? SMAppService.daemon(plistName: HelperInfo.plistName).unregister()
                 }
@@ -121,9 +135,13 @@ enum Uninstall {
             }
             await MainActor.run {
                 if let support { try? FileManager.default.removeItem(at: support) }
+                if let caches { try? FileManager.default.removeItem(at: caches) }
                 UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
                 DriveMemory.forgetEverything()
             }
+            // The scratch directories, the empty mount points, everything.
+            // After this there is no app to do it at the next launch.
+            Housekeeping.sweep()
             finished()
 
             if removingPassphrases {
