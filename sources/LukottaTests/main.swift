@@ -1080,6 +1080,30 @@ group("aLanguageSpokenInAnotherCountryFindsItsTranslation") {
     expect(chosen(["fa-IR", "en-US"]), "en", "and English where there is nothing nearer")
 }
 
+group("nothingTalksToTheHelperOffTheSafePath") {
+    // XPC calls the reply and the error handler on its own queue. A closure
+    // written inside a @MainActor method carries that isolation, and running it
+    // anywhere else traps under Swift 6 and takes the app down. It has happened
+    // twice: once on a mount, and once on the first launch after a method the
+    // running helper did not have yet.
+    //
+    // roundTrip is the one path that is safe to answer from that queue, so what
+    // is checked is that nothing calls the proxy directly.
+    let client =
+        (try? String(contentsOfFile: "sources/Lukotta/HelperClient.swift", encoding: .utf8)) ?? ""
+    expect(!client.isEmpty, "the client is where this expects it")
+    // The shape that crashed, twice: take the proxy in a main-actor method,
+    // hold it in a variable, and call a method on it. The reply and the error
+    // both then run a main-actor closure on XPC's queue. Inside roundTrip the
+    // proxy is a parameter, never a variable taken here.
+    expect(
+        !client.contains("let proxy = proxy()"),
+        "no call into the helper is made on a proxy held in a variable")
+    expect(
+        client.contains("private nonisolated static func roundTrip"),
+        "and the one safe path is still here")
+}
+
 group("howManyDrivesThisMacCanServeAtOnce") {
     // Every open drive is a virtual machine serving NFS, and NFS has one port,
     // so each one needs a loopback address of its own. That, and nothing about

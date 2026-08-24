@@ -79,27 +79,39 @@ final class HelperClient: ObservableObject {
     /// open at once. Idempotent, and silent where there is no helper: the app
     /// then runs on the three addresses macOS provides and says so.
     func makeRoomForDrives(_ count: Int = Capacity.wanted) {
-        guard case .ready = state, let proxy = proxy() else { return }
-        proxy.makeRoom(forDrives: count) { have in
+        guard case .ready = state, proxy() != nil, let connection else { return }
+        // Through roundTrip, and not through the proxy directly. A helper too
+        // old to know this method never replies: XPC calls the error handler
+        // instead, on its own queue, and a closure written in a @MainActor
+        // method carries that isolation with it. Running it anywhere else traps
+        // under Swift 6 and takes the app down -- which is exactly what
+        // happened here, on the first launch after this method was added, with
+        // the previous helper still running.
+        let box = ConnectionBox(connection)
+        Task.detached {
+            let have: Int? = await Self.roundTrip(box) { proxy, done in
+                proxy.makeRoom(forDrives: count) { done($0) }
+            }
+            guard let have else {
+                Log.app.notice("this helper cannot make room; three drives at once")
+                return
+            }
             Log.app.notice("room for \(have, privacy: .public) drives at once")
         }
     }
 
-    private func askVersion(_ done: @escaping (String) -> Void) {
-        guard let proxy = proxy() else { return done("") }
-        var answered = false
-        proxy.helperVersion { version in
-            DispatchQueue.main.async {
-                guard !answered else { return }
-                answered = true
-                done(version)
+    private func askVersion(_ done: @escaping @MainActor (String) -> Void) {
+        guard proxy() != nil, let connection else { return done("") }
+        // The same rule as everything else that talks to the helper: the reply
+        // and the error both arrive on XPC's own queue, so the call is made
+        // from nowhere in particular and the answer is carried back to the main
+        // actor by hand.
+        let box = ConnectionBox(connection)
+        Task.detached {
+            let version: String? = await Self.roundTrip(box) { proxy, reply in
+                proxy.helperVersion { reply($0) }
             }
-        }
-        // An older helper does not know the question and never replies.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            guard !answered else { return }
-            answered = true
-            done("")
+            await MainActor.run { done(version ?? "") }
         }
     }
 
