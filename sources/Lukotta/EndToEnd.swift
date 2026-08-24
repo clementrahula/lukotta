@@ -257,6 +257,25 @@ enum EndToEnd {
             writeFlow(image: image, expectingReadOnly: true)
         }
 
+        // Several at once, which is where the list itself is tested rather
+        // than any one format: what arrives, what stays, what goes, and what a
+        // passphrase is remembered against.
+        let together = [
+            ("a raw image", "plain"), ("a LUKS container", "container"),
+            ("a VDI", "vdi"), ("a qcow2", "qcow2"),
+        ].compactMap { what, name -> (String, URL)? in
+            guard let url = fixtures[name], FileManager.default.fileExists(atPath: url.path)
+            else { return nil }
+            return (what, url)
+        }
+        if together.count > 1 {
+            print("")
+            print(
+                "several images at once: \(together.map { $0.1.lastPathComponent }.joined(separator: ", "))"
+            )
+            manyFlow(together, passphrase: passphrase)
+        }
+
         // Nothing stays attached, whatever the outcome. A run that failed
         // halfway left the image behind, and the next run then passed or failed
         // for reasons unrelated to the code.
@@ -385,6 +404,186 @@ enum EndToEnd {
         waitUntil(
             "and its device is gone, so the file is a file again", timeout: 30,
             condition: { !FileManager.default.fileExists(atPath: drive.devicePath) })
+    }
+
+    /// Several files open at once, and everything that can be done to them.
+    ///
+    /// Each of these was a report. Opening a second image made the first one
+    /// vanish and come back somewhere else. Ejecting one drive detached an
+    /// image that had nothing to do with it. Going back to the list opened a
+    /// passphrase screen on its own. A saved passphrase came back for the
+    /// wrong file, because what it was saved under was a device name that had
+    /// since been handed to another image.
+    ///
+    /// So this opens them together and keeps them together: there is one list,
+    /// rows arrive at the bottom, and what is done to one is done to none of
+    /// the others.
+    @MainActor
+    private static func manyFlow(_ images: [(String, URL)], passphrase: String) {
+        let model = AppModel()
+        model.start()
+        guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
+            return
+        }
+        // Whatever is attached before the first file is opened. A physical
+        // drive plugged into this Mac is one of these, and it must not move.
+        let before = model.drives.map(\.uuid)
+
+        var arrived: [String] = []
+        for (what, url) in images {
+            model.openImage(url)
+            guard
+                waitUntil(
+                    "\(what) opens", timeout: 120,
+                    condition: {
+                        model.imageOpening == nil && model.drives.contains { $0.uuid == url.path }
+                    })
+            else {
+                if case .failed(_, let why) = model.imageOpening { print("      \(why)") }
+                return
+            }
+            arrived.append(url.path)
+            check(
+                model.drives.filter { arrived.contains($0.uuid) }.map(\.uuid) == arrived,
+                "and joins the list at the bottom, with the ones before it where they were")
+            check(
+                before.allSatisfy { uuid in model.drives.contains { $0.uuid == uuid } },
+                "and nothing that was already there has gone")
+            // Back to the list, as somebody who opened a file and then thought
+            // better of it would.
+            model.backToDrives()
+        }
+
+        // Nothing may put a passphrase screen up on its own. The reading of a
+        // first sector answers in tens of milliseconds and its fallback fires
+        // after a second and a half, so two seconds on the list is long enough
+        // for anything left over to arrive.
+        let settled = Date().addingTimeInterval(2)
+        while Date() < settled {
+            RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+        }
+        check(!model.phaseIsUnlock, "the list stays the list, and asks for nothing on its own")
+
+        // A rebuild is the list being drawn again from scratch. Nothing about
+        // it may move.
+        let order = model.drives.map(\.uuid)
+        let generation = model.scanGeneration
+        model.refreshDrives()
+        guard waitUntil("the list rebuilds", condition: { model.scanGeneration > generation })
+        else { return }
+        check(model.drives.map(\.uuid) == order, "and comes back in the same order, unchanged")
+
+        // Two of them open at once: one that asks for nothing, and one that
+        // asks for a passphrase and is told to remember it.
+        guard let plain = images.first(where: { $0.0.contains("raw") })?.1,
+            let locked = images.first(where: { $0.0.contains("LUKS") })?.1,
+            let plainDrive = model.drives.first(where: { $0.uuid == plain.path }),
+            let lockedDrive = model.drives.first(where: { $0.uuid == locked.path })
+        else {
+            check(false, "both the images this flow needs are listed")
+            return
+        }
+
+        guard let plainPoint = open(model, plainDrive, credential: nil, remember: false) else {
+            return
+        }
+        model.backToDrives()
+        guard
+            let lockedPoint = open(model, lockedDrive, credential: passphrase, remember: true)
+        else { return }
+        check(
+            model.mountPoint(for: plainDrive) == plainPoint,
+            "the first drive is still open while the second one opens")
+
+        // The report: ejecting one took the other down with it.
+        model.eject(lockedPoint)
+        guard waitUntil("the second drive ejects", timeout: 120, condition: { !model.isEjecting })
+        else { return }
+        check(model.ejectProblem == nil, "and reports no problem")
+        check(
+            model.mountPoint(for: plainDrive) == plainPoint,
+            "and the other drive is still open, which is the whole point")
+        check(
+            FileManager.default.fileExists(atPath: plainDrive.devicePath),
+            "and its file is still attached")
+        guard
+            waitUntil(
+                "the ejected file is put back", timeout: 60,
+                condition: { !model.drives.contains { $0.uuid == locked.path } })
+        else { return }
+
+        // Opened again, from nothing. The passphrase was saved, so it is
+        // offered -- and it has to be the one saved for this file rather than
+        // for whatever last held its device name.
+        model.openImage(locked)
+        guard
+            waitUntil(
+                "the file opens again", timeout: 120,
+                condition: {
+                    model.imageOpening == nil && model.drives.contains { $0.uuid == locked.path }
+                })
+        else { return }
+        guard let again = model.drives.first(where: { $0.uuid == locked.path }) else { return }
+        model.backToDrives()
+        model.choose(again)
+        guard
+            waitUntil(
+                "it is identified again", timeout: 60, condition: { model.chosenFormat != nil })
+        else { return }
+        check(model.credential == passphrase, "and its saved passphrase comes back with it")
+        check(model.usingSavedCredential, "and says that is where it came from")
+
+        // Forgotten, and it stays forgotten across an open and a close.
+        model.forgetSavedCredential(for: again)
+        check(model.credential.isEmpty, "forgetting it empties the field")
+        model.backToDrives()
+        model.choose(again)
+        guard
+            waitUntil(
+                "it is identified once more", timeout: 60,
+                condition: { model.chosenFormat != nil })
+        else { return }
+        check(model.credential.isEmpty, "and it is not offered again")
+        check(!model.usingSavedCredential, "with nothing claiming to be saved")
+
+        // And the drive that was never touched is still open through all of it.
+        check(
+            model.mountPoint(for: plainDrive) == plainPoint,
+            "the drive nobody touched is still open at the end of it")
+        model.eject(plainPoint)
+        waitUntil("it ejects too", timeout: 120, condition: { !model.isEjecting })
+    }
+
+    /// Open one drive from the list and hand back where it landed.
+    @MainActor
+    private static func open(
+        _ model: AppModel, _ drive: Drive, credential: String?, remember: Bool
+    ) -> String? {
+        model.choose(drive)
+        guard
+            waitUntil(
+                "\(drive.name) is identified", timeout: 60,
+                condition: { model.chosenFormat != nil })
+        else { return nil }
+        if let credential {
+            model.credential = credential
+            model.rememberCredential = remember
+        }
+        model.unlock(drive)
+        guard
+            waitUntil(
+                "\(drive.name) opens", timeout: 240,
+                condition: {
+                    if case .mounted = model.phase { return true }
+                    if case .failed = model.phase { return true }
+                    return false
+                })
+        else { return nil }
+        guard case .mounted(_, let point) = model.phase else {
+            check(false, "it opened rather than failing")
+            return nil
+        }
+        return point
     }
 
     /// The same container, opened read-only.

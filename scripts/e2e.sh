@@ -172,13 +172,23 @@ done < <(hdiutil info 2>/dev/null | awk -v c="$CONTAINER" -v p="$PLAIN" -v e="$E
 # fixture in use and fails for a reason that has nothing to do with the code.
 # The app takes down what a failed attempt started; this covers the rest,
 # including a run killed part-way through.
+# Which engines were already running before this started. They are serving
+# somebody's drives, on the machine this is being run on, and killing them
+# unmounts drives that have nothing to do with the test: the cleanup used to
+# take down every engine started from the bundle, this run's and theirs alike.
+ENGINES_BEFORE=" $(pgrep -f "$APP/Contents/Resources/engine/anylinuxfs" 2>/dev/null | tr '\n' ' ') "
+
 clean_up() {
   status=$?
   while read -r point; do
     [ -n "$point" ] && umount "$point" >/dev/null 2>&1 || true
   done < <(/sbin/mount | awk '/ on .*\/Volumes\/LUKOTTA(E2E|PLAIN)/ && /nfs/ {
       sub(/^.* on /, ""); sub(/ \(.*$/, ""); print }')
-  pkill -f "$APP/Contents/Resources/engine/anylinuxfs" >/dev/null 2>&1 || true
+  while read -r pid; do
+    [ -n "$pid" ] || continue
+    case "$ENGINES_BEFORE" in *" $pid "*) continue;; esac
+    kill "$pid" >/dev/null 2>&1 || true
+  done < <(pgrep -f "$APP/Contents/Resources/engine/anylinuxfs" 2>/dev/null)
   return $status
 }
 trap clean_up EXIT

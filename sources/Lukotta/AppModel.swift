@@ -1034,7 +1034,10 @@ final class AppModel: ObservableObject {
     func identity(of drive: Drive) -> String {
         if let file = openedImages[DriveScanner.wholeDisk(of: drive.id)] { return file.path }
         if let file = engineReadDrives[drive.id] { return file.uuid }
-        return drive.uuid
+        // A partition table carrying no UUID at all leaves nothing to tell one
+        // drive from another, and an empty string would make every such drive
+        // the same drive. The device name is at least this drive, now.
+        return drive.uuid.isEmpty ? drive.id : drive.uuid
     }
 
     /// Discard a stored credential and return to entering one.    /// Discard a stored credential and return to entering one.
@@ -1045,7 +1048,7 @@ final class AppModel: ObservableObject {
         rememberCredential = true
         usingSavedCredential = false
         credentialProblem = nil
-        credentialBelongsTo = drive.id
+        credentialBelongsTo = identity(of: drive)
     }
 
     func openFilesAndFoldersSettings() {
@@ -1123,6 +1126,13 @@ final class AppModel: ObservableObject {
 
     /// Selecting a drive keeps whatever was typed for that same drive, so a
     /// single mistyped digit in a 48-digit recovery key does not cost all 48.
+    ///
+    /// Which drive that is, by what it is rather than by what it is called.
+    /// Held as a device identifier, it named the slot and not the drive: eject
+    /// one image and open another, the second lands on the identifier the
+    /// first had, and the passphrase typed for the first was still sitting in
+    /// the field. The engine then said what it says to a wrong passphrase, and
+    /// the file looked as though it would not open.
     private var credentialBelongsTo: String?
 
     /// Bumped every time the drive being opened changes, including back to no
@@ -1137,7 +1147,7 @@ final class AppModel: ObservableObject {
         // not this marker: without it the saved-key banner outlives the key it
         // describes, and Unlock then refuses for want of a credential the
         // interface reports holding.
-        if credentialBelongsTo != drive.id || credential.isEmpty {
+        if credentialBelongsTo != identity(of: drive) || credential.isEmpty {
             // A stored credential is one that was asked to be remembered.
             if let saved = CredentialStore.load(for: identity(of: drive)) {
                 credential = saved
@@ -1148,7 +1158,7 @@ final class AppModel: ObservableObject {
                 rememberCredential = false
                 usingSavedCredential = false
             }
-            credentialBelongsTo = drive.id
+            credentialBelongsTo = identity(of: drive)
         }
         credentialProblem = nil
         notice = nil
