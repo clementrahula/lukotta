@@ -22,6 +22,11 @@ private func runSmokeTestIfAsked() {
         FileHandle.standardError.write(Data("no Sparkle public key embedded\n".utf8))
         exit(1)
     }
+    // Starting is what the shim in front of the app is waiting to hear: it
+    // counts launches and has no way of its own to tell a working one from a
+    // window that never appeared. The release script runs this against every
+    // build, so an update proves itself here before anybody receives it.
+    Rollback.confirmHealthy()
     print("Lukotta \(version) (\(build)) started, update key present")
     exit(0)
 }
@@ -256,6 +261,7 @@ struct LukottaApp: App {
         #if DEVTOOLS
             MainActor.assumeIsolated { EndToEnd.runIfAsked() }
             MainActor.assumeIsolated { Snapshots.runIfAsked() }
+            MainActor.assumeIsolated { UpdateHarness.runIfAsked() }
         #endif
         // Before anything else: a build that has failed to start twice already
         // does not get a third go at it.

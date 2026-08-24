@@ -49,7 +49,9 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     # people will receive.
     APP_NAME="Lukotta Beta"
     BUNDLE_ID="com.lukotta.beta"
-    ICON_SET="AppIcon"
+    # The mark with a band across its foot: the two sit in the same Dock, and
+    # a fault reported against the wrong one costs an evening.
+    ICON_SET="AppIconBeta"
     MARK_SET="LukottaMark"
     SWITCH_SET="FullDiskAccessSwitch"
     HELPER_NAME="LukottaBetaHelper"
@@ -85,7 +87,10 @@ printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || {
 # advertised 15.0 and Software Update still offered it.
 MIN_MACOS="$(/usr/bin/python3 "$HERE/scripts/lowest-macos.py" "$HERE/vendor/engine.lock")" \
   || exit 1
-BUILD="$(git -C "$HERE" rev-list --count HEAD 2>/dev/null || echo 1)"
+# LUKOTTA_BUILD overrides it, which only the update harness does: proving an
+# update works needs two builds of the same tree, and the commit count cannot
+# tell them apart.
+BUILD="${LUKOTTA_BUILD:-$(git -C "$HERE" rev-list --count HEAD 2>/dev/null || echo 1)}"
 # The build number is the commit count, so an uncommitted change produces a
 # second, different binary claiming the number the last one already has. The
 # rollback record keys on that number, and Sparkle compares it. Said out loud
@@ -119,12 +124,21 @@ fi
 
 swift build -c release --product Lukotta ${DEVTOOLS[@]+"${DEVTOOLS[@]}"}
 cp "$(swift build -c release --product Lukotta ${DEVTOOLS[@]+"${DEVTOOLS[@]}"} --show-bin-path)/Lukotta" \
+   "$CONTENTS/MacOS/$APP_NAME-app"
+
+# What the bundle actually starts is a few lines of C, which records that a
+# launch was attempted and hands over to the app. It is the only thing able to
+# notice a version that never runs at all -- a binary the system refuses to
+# load takes the app's own rollback with it, since none of its code runs to
+# count the attempt. See sources/LukottaLaunch/main.c.
+swift build -c release --product LukottaLaunch >/dev/null
+cp "$(swift build -c release --product LukottaLaunch --show-bin-path)/LukottaLaunch" \
    "$CONTENTS/MacOS/$APP_NAME"
 
 # What the binary will actually load on, against what the plist promises. These
 # come from two places — Package.swift's platform and the engine's bottle — and
 # nothing else notices when they part company.
-BINARY_MIN="$(/usr/bin/otool -l "$CONTENTS/MacOS/$APP_NAME" \
+BINARY_MIN="$(/usr/bin/otool -l "$CONTENTS/MacOS/$APP_NAME-app" \
   | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print $2; exit}')"
 if [ -n "$BINARY_MIN" ] && [ "$BINARY_MIN" != "$MIN_MACOS" ]; then
   echo "error: the binary loads on macOS $BINARY_MIN but the engine needs $MIN_MACOS." >&2
@@ -136,7 +150,15 @@ fi
 # build tree. Inside a bundle they live in Contents/Frameworks, so the loader
 # needs to be told. Without this the app fails to launch at all.
 /usr/bin/install_name_tool -add_rpath "@executable_path/../Frameworks" \
-  "$CONTENTS/MacOS/$APP_NAME" 2>/dev/null || true
+  "$CONTENTS/MacOS/$APP_NAME-app" 2>/dev/null || true
+
+# And the loader has to find them from the real binary, whose name is not the
+# bundle's. Checked rather than assumed: without the rpath the app does not
+# start at all, and the shim in front of it would put the previous version back
+# three launches later, which reads as an update that undoes itself.
+/usr/bin/otool -l "$CONTENTS/MacOS/$APP_NAME-app" \
+  | grep -q "@executable_path/../Frameworks" || {
+    echo "error: the app binary cannot find Contents/Frameworks" >&2; exit 1; }
 
 # The privileged helper, registered with SMAppService so unlocking does not need
 # an administrator password every time.
@@ -278,6 +300,16 @@ if [ -d "$CONTENTS/Frameworks/Sparkle.framework" ]; then
   done
   /usr/bin/codesign --force --options runtime --sign "$SIGN_ID" \
     "$CONTENTS/Frameworks/Sparkle.framework" >/dev/null 2>&1 || true
+fi
+
+# The app's real binary is no longer the bundle's executable, so it is signed in
+# its own right like any other Mach-O inside.
+if [ -f "$CONTENTS/MacOS/$APP_NAME-app" ]; then
+  /usr/bin/codesign --force --options runtime \
+    --entitlements "$HERE/lukotta.entitlements" \
+    --sign "$SIGN_ID" "$CONTENTS/MacOS/$APP_NAME-app" >/dev/null 2>&1 \
+    || /usr/bin/codesign --force --sign "$SIGN_ID" "$CONTENTS/MacOS/$APP_NAME-app" >/dev/null 2>&1 \
+    || true
 fi
 
 # The helper is a separate executable and must be signed in its own right.

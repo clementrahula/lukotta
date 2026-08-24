@@ -32,6 +32,10 @@ let package = Package(
         .executableTarget(name: "LukottaHelper", dependencies: ["LukottaCore"],
                           path: "sources/LukottaHelper"),
 
+        // The bundle's executable: plain C, and the only thing able to notice
+        // a version of the app that never runs at all. See its own file.
+        .executableTarget(name: "LukottaLaunch", path: "sources/LukottaLaunch"),
+
         // Run with `swift run LukottaTests`. Not a .testTarget: XCTest and
         // swift-testing both require a full Xcode installation, and the tests
         // should run anywhere the app can be built.

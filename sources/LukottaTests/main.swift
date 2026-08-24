@@ -1815,8 +1815,15 @@ group("crashReportFiltering") {
     // that way.
     let dir = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Logs/DiagnosticReports")
+    // Any report of ours that records a build. A process that died before it
+    // finished loading has a header with the fields empty -- there was no
+    // application yet to have a version -- and that is the report saying so
+    // rather than the reading being wrong.
     if let found = try? FileManager.default.contentsOfDirectory(atPath: dir.path),
-        let sample = found.first(where: { $0.hasPrefix("Lukotta") && $0.hasSuffix(".ips") })
+        let sample = found.sorted().reversed().first(where: {
+            $0.hasPrefix("Lukotta") && $0.hasSuffix(".ips")
+                && Diagnostics.buildRecorded(in: dir.appendingPathComponent($0))?.isEmpty == false
+        })
     {
         let url = dir.appendingPathComponent(sample)
         let build = Diagnostics.buildRecorded(in: url)

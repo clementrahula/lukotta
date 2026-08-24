@@ -13,15 +13,29 @@ import LukottaCore
 enum Rollback {
     private static let recordKey = "com.lukotta.launchRecord"
 
+    /// The bundle's own name, so a beta and a release keep their copies apart
+    /// -- and so this agrees with the shim in front of the app, which has only
+    /// the path to go on. Both wrote to a directory called "Lukotta" before,
+    /// which is one directory for two applications that replace each other.
+    private static var bundleName: String {
+        Bundle.main.bundleURL.deletingPathExtension().lastPathComponent
+    }
+
     private static var support: URL? {
         try? FileManager.default.url(
             for: .applicationSupportDirectory, in: .userDomainMask,
             appropriateFor: nil, create: true
-        ).appendingPathComponent("Lukotta", isDirectory: true)
+        ).appendingPathComponent(bundleName, isDirectory: true)
     }
 
     private static var keptAside: URL? {
-        support?.appendingPathComponent("previous/Lukotta.app", isDirectory: true)
+        support?.appendingPathComponent("previous/\(bundleName).app", isDirectory: true)
+    }
+
+    /// Where the shim counts launches. Cleared from here, because this is the
+    /// place that knows a launch worked.
+    private static var launchAttempts: URL? {
+        support?.appendingPathComponent("launch-attempts")
     }
 
     static var currentVersion: String {
@@ -81,6 +95,9 @@ enum Rollback {
     /// until the next update arms it again.
     static func confirmHealthy() {
         write(nil)
+        // The shim counts every launch and cannot tell whether any of them
+        // worked; this is the answer it is waiting for.
+        if let launchAttempts { try? FileManager.default.removeItem(at: launchAttempts) }
         if keptAsideVersion() != nil {
             Log.updates.notice("this build started; the kept-aside copy is no longer needed")
         }
