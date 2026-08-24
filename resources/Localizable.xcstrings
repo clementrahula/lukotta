@@ -2212,7 +2212,7 @@
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ще бъде преместено в кошчето (Trash)."
+            "value": "%@ ще бъде преместено в Bin."
           }
         },
         "cs": {
@@ -2248,7 +2248,7 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ teisaldatakse prügikasti (Trash)."
+            "value": "%@ teisaldatakse kausta Bin."
           }
         },
         "fi": {
@@ -2260,7 +2260,7 @@
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ilalagay ang %@ sa Basurahan."
+            "value": "Ilalagay ang %@ sa Bin."
           }
         },
         "fr": {
@@ -2320,13 +2320,13 @@
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ bus perkelta į šiukšlinę (Trash)."
+            "value": "%@ bus perkelta į „Bin“."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ tiks pārvietota uz atkritni (Trash)."
+            "value": "%@ tiks pārvietota uz “Bin”."
           }
         },
         "ms": {
@@ -13160,7 +13160,7 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klõpsa loendi allservas +, vali %@ kaustast Rakendused ja lülita see sisse."
+            "value": "Klõpsa loendi allservas +, vali %@ kaustast Applications ja lülita see sisse."
           }
         },
         "fi": {
@@ -13232,13 +13232,13 @@
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sąrašo apačioje spustelėkite +, aplanke „Programos“ pasirinkite „%@“ ir įjunkite."
+            "value": "Sąrašo apačioje spustelėkite +, aplanke „Applications“ pasirinkite „%@“ ir įjunkite."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Noklikšķiniet uz + saraksta apakšā, mapē Programmas atlasiet %@ un ieslēdziet to."
+            "value": "Noklikšķiniet uz + saraksta apakšā, mapē Applications atlasiet %@ un ieslēdziet to."
           }
         },
         "ms": {
@@ -19680,7 +19680,7 @@
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Всичко останало беше премахнато. Самото %@ не можа да бъде преместено в Кошчето: %@. Преместете го там сами, за да завършите."
+            "value": "Всичко останало беше премахнато. Самото %@ не можа да бъде преместено в Bin: %@. Преместете го там сами, за да завършите."
           }
         },
         "cs": {
@@ -19716,7 +19716,7 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kõik muu eemaldati. %@ ennast ei õnnestunud prügikasti liigutada: %@. Lohistage see ise sinna, siis on kõik tehtud."
+            "value": "Kõik muu eemaldati. %@ ennast ei õnnestunud kausta Bin liigutada: %@. Lohistage see ise sinna, siis on kõik tehtud."
           }
         },
         "fi": {
@@ -19728,7 +19728,7 @@
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Naalis na ang lahat ng iba pa. Ang %@ mismo ay hindi mailipat sa Basurahan: %@. I-drag ito roon nang mag-isa para matapos."
+            "value": "Naalis na ang lahat ng iba pa. Ang %@ mismo ay hindi mailipat sa Bin: %@. I-drag ito roon nang mag-isa para matapos."
           }
         },
         "fr": {
@@ -19788,13 +19788,13 @@
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Visa kita pašalinta. Pačios %@ nepavyko perkelti į šiukšlinę: %@. Nutempkite ją ten patys ir tuo viskas baigsis."
+            "value": "Visa kita pašalinta. Pačios %@ nepavyko perkelti į „Bin“: %@. Nutempkite ją ten patys ir tuo viskas baigsis."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Viss pārējais tika noņemts. Pašu %@ neizdevās pārvietot uz miskasti: %@. Ievelciet to tur pats, un viss būs pabeigts."
+            "value": "Viss pārējais tika noņemts. Pašu %@ neizdevās pārvietot uz “Bin”: %@. Ievelciet to tur pats, un viss būs pabeigts."
           }
         },
         "ms": {
@@ -23420,7 +23420,7 @@
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Намира се в кошчето. Нищо друго от него не е останало на този Mac."
+            "value": "Намира се в Bin. Нищо друго от него не е останало на този Mac."
           }
         },
         "cs": {
@@ -23456,7 +23456,7 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "See on prügikastis. Muud sellest siia Maci ei jäänud."
+            "value": "See on kaustas Bin. Muud sellest siia Maci ei jäänud."
           }
         },
         "fi": {
@@ -23468,7 +23468,7 @@
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nasa Basurahan ito. Wala nang ibang natira nito sa Mac na ito."
+            "value": "Nasa Bin ito. Wala nang ibang natira nito sa Mac na ito."
           }
         },
         "fr": {
@@ -23528,13 +23528,13 @@
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ji yra šiukšlinėje. Daugiau nieko iš jos šiame „Mac“ neliko."
+            "value": "Ji yra „Bin“. Daugiau nieko iš jos šiame „Mac“ neliko."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tā ir atkritnē. Nekas cits no tās šajā Mac datorā nav palicis."
+            "value": "Tā ir “Bin”. Nekas cits no tās šajā Mac datorā nav palicis."
           }
         },
         "ms": {
@@ -26720,7 +26720,7 @@
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Преместване на %@ в кошчето"
+            "value": "Преместване на %@ в Bin"
           }
         },
         "cs": {
@@ -26756,7 +26756,7 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ teisaldamine prügikasti"
+            "value": "%@ teisaldamine kausta Bin"
           }
         },
         "fi": {
@@ -26768,7 +26768,7 @@
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inililipat ang %@ sa Basurahan"
+            "value": "Inililipat ang %@ sa Bin"
           }
         },
         "fr": {
@@ -26828,13 +26828,13 @@
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ perkeliama į šiukšlinę"
+            "value": "%@ perkeliama į „Bin“"
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notiek %@ pārvietošana uz atkritni"
+            "value": "Notiek %@ pārvietošana uz “Bin”"
           }
         },
         "ms": {
