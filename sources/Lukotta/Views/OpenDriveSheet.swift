@@ -123,6 +123,7 @@ struct OpenDriveSheet: View {
 }
 
 private struct SurveyRow: View {
+    @EnvironmentObject var model: AppModel
     let entry: DriveSurvey.Entry
     let open: () -> Void
 
@@ -191,6 +192,7 @@ private struct SurveyRow: View {
             if openable {
                 Button("Open", action: open).controlSize(.small)
                     .accessibilityLabel("Open \(entry.name)")
+                    .disabled(!model.canOpenAnother)
             }
         }
         .padding(13)

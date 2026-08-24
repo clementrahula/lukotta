@@ -1080,6 +1080,28 @@ group("aLanguageSpokenInAnotherCountryFindsItsTranslation") {
     expect(chosen(["fa-IR", "en-US"]), "en", "and English where there is nothing nearer")
 }
 
+group("howManyDrivesThisMacCanServeAtOnce") {
+    // Every open drive is a virtual machine serving NFS, and NFS has one port,
+    // so each one needs a loopback address of its own. That, and nothing about
+    // memory or processors, is what limits how many can be open.
+    let addresses = Capacity.addresses()
+    expect(addresses.contains("127.0.0.1"), "the loopback interface is read from the machine")
+    expect(addresses.count >= 3, "a Mac has at least three loopback addresses")
+
+    // The limit is what the machine has, never a number written down here: the
+    // helper adds addresses, and a Mac where it never arrived has three.
+    expect(Capacity.now(mounts: 0).limit == addresses.count, "the limit is what is there")
+    expect(Capacity.now(mounts: 2).open == 2, "and what is open is what is mounted")
+    expect(Capacity.hasRoom(limit: 12, open: 11), "room below the limit")
+    expect(!Capacity.hasRoom(limit: 12, open: 12), "and none at it")
+    expect(!Capacity.hasRoom(limit: 3, open: 4), "nor past it, however that happened")
+    expect(Capacity.wanted == 12, "a dozen is what the helper is asked to prepare")
+
+    // A machine that answers nothing still has to be usable.
+    expect(Capacity.now(mounts: 0).limit >= 1, "the limit is never zero")
+    expect(Capacity.addresses(of: "nx99").isEmpty, "an interface that is not there has none")
+}
+
 group("theListKeepsTheOrderThingsArrivedIn") {
     // Rows used to come back in whatever order a scan and two dictionaries
     // produced, so opening a second image moved the first one and a drive

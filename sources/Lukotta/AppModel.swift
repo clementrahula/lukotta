@@ -414,6 +414,10 @@ final class AppModel: ObservableObject {
     /// device node, and the scan, the probe and the mount then proceed as they
     /// do for any drive. The root helper never learns the file name.
     func openImage(_ url: URL) {
+        guard canOpenAnother else {
+            Log.drives.notice("not opening a file: as many drives are open as this Mac can serve")
+            return
+        }
         imageTask?.cancel()
         imageOpening = .opening(url)
         Log.drives.notice("opening a disk image")
@@ -907,6 +911,9 @@ final class AppModel: ObservableObject {
         openMounts = Dictionary(
             sighting.mounts.map { ($0.devicePath, $0.mountPoint) },
             uniquingKeysWith: { first, _ in first })
+        // Counted from the engine's own mounts rather than from the rows: a
+        // drive serving several volumes is one machine on one address.
+        refreshCapacity(mounts: Set(sighting.mounts.map(\.devicePath)).count)
         refreshSpace()
         return listed
     }
@@ -998,6 +1005,11 @@ final class AppModel: ObservableObject {
         // running daemon alone, so a fix to the mount can land and change
         // nothing at all.
         helper.replaceIfStale()
+        // Room for a dozen drives at once. Three loopback addresses is what
+        // macOS provides and the fourth drive has nowhere to be served from,
+        // so the helper adds the rest. Asked for at every start: they last
+        // until the Mac is restarted.
+        helper.makeRoomForDrives()
         // Read now, so the report sheet is filled in before anybody asks for
         // it rather than several seconds after.
         refreshRecentLog()
@@ -1189,6 +1201,19 @@ final class AppModel: ObservableObject {
         return false
     }
 
+    /// How many drives can be open at once, and how many are.
+    ///
+    /// Read from the machine rather than assumed: the answer moves when the
+    /// helper adds addresses, and it would be wrong to promise a dozen on a Mac
+    /// where the helper never arrived.
+    @Published var capacity: (limit: Int, open: Int) = (Capacity.wanted, 0)
+
+    var canOpenAnother: Bool { Capacity.hasRoom(limit: capacity.limit, open: capacity.open) }
+
+    private func refreshCapacity(mounts: Int) {
+        capacity = Capacity.now(mounts: mounts)
+    }
+
     /// Bumped every time a scan's results are applied.
     ///
     /// A rebuild does not change the phase, the drive on screen staying on
@@ -1230,6 +1255,8 @@ final class AppModel: ObservableObject {
     private var choiceGeneration = 0
 
     func choose(_ drive: Drive) {
+        refreshCapacity(mounts: Set(openMounts.keys).count)
+        guard canOpenAnother || mountPoint(for: drive) != nil else { return }
         choiceGeneration += 1
         // Reload for a different drive, and whenever the field is empty. The
         // second condition matters because navigating away clears the value and
@@ -1754,6 +1781,16 @@ final class AppModel: ObservableObject {
     // MARK: The three ways a drive opens
 
     private func runMount(drive: Drive, credential: String) {
+        // The ceiling is hard. Every way of reaching this is shut while the
+        // machine is full -- the rows, both File menu items, the Open Drive
+        // sheet -- and this is the backstop: a mount is never started with
+        // nowhere to serve it from, because that ends in a minute of work and
+        // the engine's own words about sudo.
+        guard canOpenAnother || openMounts[drive.devicePath] != nil else {
+            Log.mount.notice("not opening: as many drives are open as this Mac can serve")
+            phase = .chooseDrive
+            return
+        }
         failedStage = nil
         activeCredential = credential
         let ws: Workspace

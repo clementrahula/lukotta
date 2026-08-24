@@ -29,6 +29,30 @@ struct DriveListView: View {
                 action: model.rescan)
         } else {
             VStack(alignment: .leading, spacing: 14) {
+                // Nothing more can be opened, and every way of trying is shut
+                // rather than left to fail at the end of a minute's work.
+                if !model.canOpenAnother {
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                            .accessibilityHidden(true)
+                        Text(
+                            "\(model.capacity.open) drives or images are open. You can only have \(model.capacity.limit) open at the same time. Eject one to open another."
+                        )
+                        .font(.callout)
+                        .fixedSize(horizontal: false, vertical: true)
+                        Spacer(minLength: 0)
+                    }
+                    .padding(11)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8).fill(Color.orange.opacity(0.12))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8).stroke(Color.orange.opacity(0.35))
+                    )
+                    .accessibilityElement(children: .combine)
+                }
                 if let notice = model.notice {
                     Label(notice, systemImage: "bolt.horizontal.circle.fill")
                         .font(.caption)
@@ -69,7 +93,10 @@ struct DriveListView: View {
                                 // first is running is how a drive ends up half
                                 // ejected.
                                 otherEjectInFlight: model.isEjecting,
-                                dropping: dropping == drive.id
+                                dropping: dropping == drive.id,
+                                // A locked row does nothing while there is
+                                // nowhere to serve another drive from.
+                                unopenable: !model.canOpenAnother
                             )
                             .draggable(drive.id) {
                                 // What is carried under the pointer: the row's
@@ -134,6 +161,8 @@ struct DriveRow: View {
     var otherEjectInFlight = false
     /// A row being dragged is over this one, and would land here.
     var dropping = false
+    /// Nothing more can be opened, so this row cannot be either.
+    var unopenable = false
 
     private var isMounted: Bool { mountPoint != nil }
 

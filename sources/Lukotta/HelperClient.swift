@@ -72,6 +72,16 @@ final class HelperClient: ObservableObject {
         }
     }
 
+    /// Ask the helper for enough loopback addresses that a dozen drives can be
+    /// open at once. Idempotent, and silent where there is no helper: the app
+    /// then runs on the three addresses macOS provides and says so.
+    func makeRoomForDrives(_ count: Int = Capacity.wanted) {
+        guard case .ready = state, let proxy = proxy() else { return }
+        proxy.makeRoom(forDrives: count) { have in
+            Log.app.notice("room for \(have, privacy: .public) drives at once")
+        }
+    }
+
     private func askVersion(_ done: @escaping (String) -> Void) {
         guard let proxy = proxy() else { return done("") }
         var answered = false

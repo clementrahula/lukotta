@@ -329,10 +329,17 @@ struct LukottaApp: App {
             CommandGroup(replacing: .newItem) {
                 Button("Open Disk Image…") { chooseImage(model) }
                     .keyboardShortcut("o", modifiers: .command)
+                    .disabled(!model.canOpenAnother)
                 // Where to look when the list is empty and the drive is
                 // plainly plugged in.
                 Button("Open Drive…") { model.showOpenDrive = true }
                     .keyboardShortcut("o", modifiers: [.command, .shift])
+                    .disabled(!model.canOpenAnother)
+                // Said once, where both are greyed out, rather than as a
+                // failure after a minute of work.
+                if !model.canOpenAnother {
+                    Text("Eject a drive or an image before opening another.")
+                }
             }
             // The standard About panel says the version and the licence and
             // stops there. This one says what the app does, what it can open

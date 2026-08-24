@@ -447,3 +447,61 @@ public enum DriveScanner {
         return plist as? [String: Any]
     }
 }
+
+/// How many drives this Mac can serve at once, and why that is the number.
+///
+/// Every open drive is a small virtual machine serving NFS to this Mac, and NFS
+/// has one port. Two servers cannot share it, so each machine needs an address
+/// of its own -- and the addresses are the loopback interface's. A Mac has
+/// three out of the box: 127.0.0.1, ::1 and fe80::1. That is the whole limit,
+/// and nothing else comes close: an open drive costs about 30 MB of memory and
+/// three processes, so memory would not object until there were hundreds.
+///
+/// More addresses can be added to the loopback interface, which is what the
+/// privileged helper does on the app's behalf. They cost nothing -- a kernel
+/// entry each, no process and no memory -- so the number is a decision rather
+/// than a constraint.
+public enum Capacity {
+    /// What the app asks the helper to prepare for.
+    ///
+    /// A dozen. Nobody plugs in twelve encrypted drives at once, and the room
+    /// costs nothing, so the number is chosen to be past where anybody will go
+    /// rather than close to it.
+    public static let wanted = 12
+
+    /// The loopback addresses a drive's virtual machine can be served on.
+    ///
+    /// Read from the interface rather than remembered, because the answer moves:
+    /// the engine adds an address when it mounts as root and leaves it there, so
+    /// the same Mac allows three one day and four the next.
+    public static func addresses(of interface: String = "lo0") -> [String] {
+        var found: [String] = []
+        var list: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&list) == 0, let first = list else { return found }
+        defer { freeifaddrs(list) }
+        for entry in sequence(first: first, next: { $0.pointee.ifa_next }) {
+            guard let name = entry.pointee.ifa_name, String(cString: name) == interface,
+                let address = entry.pointee.ifa_addr
+            else { continue }
+            let family = address.pointee.sa_family
+            guard family == UInt8(AF_INET) || family == UInt8(AF_INET6) else { continue }
+            var host = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+            guard
+                getnameinfo(
+                    address, socklen_t(address.pointee.sa_len), &host, socklen_t(host.count),
+                    nil, 0, NI_NUMERICHOST) == 0
+            else { continue }
+            let text = String(cString: host)
+            if !found.contains(text) { found.append(text) }
+        }
+        return found
+    }
+
+    /// How many drives can be open at once, and how many are.
+    public static func now(mounts: Int) -> (limit: Int, open: Int) {
+        (limit: max(1, addresses().count), open: max(0, mounts))
+    }
+
+    /// Whether another drive can be opened at all.
+    public static func hasRoom(limit: Int, open: Int) -> Bool { open < limit }
+}

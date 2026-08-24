@@ -95,4 +95,15 @@ public enum HelperInfo {
     func identify(devicePath: String, reply: @escaping (String) -> Void)
 
     func helperVersion(reply: @escaping (String) -> Void)
+
+    /// Add loopback addresses, so more than three drives can be open at once.
+    ///
+    /// Every open drive is a virtual machine serving NFS, and NFS has one port,
+    /// so each machine needs an address of its own. A Mac has three loopback
+    /// addresses out of the box and adding more needs root, which is why it is
+    /// asked of the helper. Each is a kernel entry: no process, no memory.
+    ///
+    /// Replies with how many the interface has afterwards. Idempotent, and safe
+    /// to call whenever: addresses already there are left alone.
+    func makeRoom(forDrives count: Int, reply: @escaping (Int) -> Void)
 }

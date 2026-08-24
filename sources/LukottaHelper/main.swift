@@ -260,6 +260,34 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         reply(result.ok ? 0 : 1, result.message)
     }
 
+    /// Add link-local loopback addresses until there are enough for `count`
+    /// drives to be open at once.
+    ///
+    /// The engine picks a free loopback address for each drive it serves and
+    /// creates one when none is free -- which it cannot do as the user, so
+    /// without this the third drive is the last. The addresses are link-local
+    /// (fe80::), which is what the engine itself creates when it runs as root,
+    /// and they reach nothing outside this Mac.
+    func makeRoom(forDrives count: Int, reply: @escaping (Int) -> Void) {
+        let wanted = min(max(count, 1), 32)
+        var have = Capacity.addresses().count
+        // 127.0.0.2 upwards, which are loopback by definition and reach nothing
+        // outside this Mac. Numbered from a fixed base so calling this again
+        // lands on the same addresses rather than filling the interface with
+        // new ones, and skipped where they are already there.
+        var last = 1
+        while have < wanted, last < 64 {
+            last += 1
+            let address = "127.0.0.\(last)"
+            guard !Capacity.addresses().contains(address) else { continue }
+            _ = LukottaCore.run(
+                "/sbin/ifconfig", ["lo0", "alias", address, "netmask", "255.255.255.255"])
+            have = Capacity.addresses().count
+        }
+        Log.helper.notice("loopback addresses: \(have, privacy: .public)")
+        reply(have)
+    }
+
     func helperVersion(reply: @escaping (String) -> Void) {
         reply(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown")
     }
