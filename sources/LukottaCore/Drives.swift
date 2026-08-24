@@ -503,12 +503,19 @@ public enum Capacity {
     /// exercised without opening a dozen drives to get to it. Never read from
     /// anything a person can set by accident: an environment variable set for a
     /// test run, and nothing in the settings.
-    public static func now(mounts: Int) -> (limit: Int, open: Int) {
+    /// Named as counts because that is what they are, and because the string
+    /// extractor reads the specifier from the name while Foundation reads it
+    /// from the type. Where those two disagree the key in the catalogue is not
+    /// the key the app looks up, and every translation of it is skipped in
+    /// silence -- the English shows, because the key is the English.
+    public static func now(mounts: Int) -> (limitCount: Int, openCount: Int) {
         let real = max(1, addresses().count)
         let pinned = ProcessInfo.processInfo.environment["LUKOTTA_CAPACITY"].flatMap(Int.init)
-        return (limit: pinned.map { max(1, min($0, real)) } ?? real, open: max(0, mounts))
+        return (limitCount: pinned.map { max(1, min($0, real)) } ?? real, openCount: max(0, mounts))
     }
 
     /// Whether another drive can be opened at all.
-    public static func hasRoom(limit: Int, open: Int) -> Bool { open < limit }
+    public static func hasRoom(limitCount: Int, openCount: Int) -> Bool {
+        openCount < limitCount
+    }
 }

@@ -1209,9 +1209,11 @@ final class AppModel: ObservableObject {
     /// Read from the machine rather than assumed: the answer moves when the
     /// helper adds addresses, and it would be wrong to promise a dozen on a Mac
     /// where the helper never arrived.
-    @Published var capacity: (limit: Int, open: Int) = (Capacity.wanted, 0)
+    @Published var capacity: (limitCount: Int, openCount: Int) = (Capacity.wanted, 0)
 
-    var canOpenAnother: Bool { Capacity.hasRoom(limit: capacity.limit, open: capacity.open) }
+    var canOpenAnother: Bool {
+        Capacity.hasRoom(limitCount: capacity.limitCount, openCount: capacity.openCount)
+    }
 
     private func refreshCapacity(mounts: Int) {
         capacity = Capacity.now(mounts: mounts)

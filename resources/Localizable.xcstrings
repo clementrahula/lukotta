@@ -3169,6 +3169,226 @@
         }
       }
     },
+    "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مفتوح الآن %lld من محركات الأقراص والصور. لا يمكن أن يبقى مفتوحًا أكثر من %lld في وقت واحد. أخرج واحدًا لفتح غيره."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отворени са %lld диска или образа. Едновременно може да имате само %lld отворени. Извадете един, за да отворите друг."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otevřeno je %lld disků nebo obrazů. Současně jich můžete mít otevřených jen %lld. Jeden vysuňte, abyste mohli otevřít další."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld enheder eller diskbilleder er åbne. Du kan kun have %lld åbne samtidig. Skub én ud for at åbne en anden."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Laufwerke oder Images sind geöffnet. Es können nur %lld gleichzeitig geöffnet sein. Wirf eines aus, um ein anderes zu öffnen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Είναι ανοιχτοί %lld δίσκοι ή είδωλα. Μπορείτε να έχετε ανοιχτά μόνο %lld ταυτόχρονα. Κάντε εξαγωγή ενός για να ανοίξετε άλλο."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hay %lld discos o imágenes abiertos. Solo puedes tener %lld abiertos a la vez. Expulsa uno para abrir otro."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avatud on %lld ketast või tõmmist. Korraga saab avatud olla ainult %lld. Väljuta üks, et avada teine."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avoinna on %lld asemaa tai levytiedostoa. Niitä voi olla avoinna vain %lld kerrallaan. Poista yksi käytöstä avataksesi toisen."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "May %lld drive o disk image na nakabukas. %lld lang ang puwedeng nakabukas nang sabay. Mag-eject ng isa para makapagbukas ng iba."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld disques ou images sont ouverts. Vous ne pouvez en avoir que %lld ouverts en même temps. Éjectez-en un pour en ouvrir un autre."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‏%lld כוננים או דמויות כונן פתוחים. אפשר להשאיר פתוחים %lld בלבד בו-זמנית. הוציאו אחד כדי לפתוח אחר."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ड्राइव या डिस्क इमेज खुली हैं। एक साथ सिर्फ़ %lld खुली रह सकती हैं। दूसरी खोलने के लिए एक निकालें।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvoreno je %lld diskova ili slika diska. Istodobno ih može biti otvoreno samo %lld. Izbacite jedan da biste otvorili drugi."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld meghajtó vagy lemezkép van megnyitva. Egyszerre csak %lld lehet nyitva. Adjon ki egyet, hogy másikat nyithasson meg."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld drive atau image disk terbuka. Anda hanya dapat membuka %lld sekaligus. Keluarkan satu untuk membuka yang lain."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ci sono %lld dischi o immagini aperti. Puoi averne aperti solo %lld alla volta. Espelline uno per aprirne un altro."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 台のドライブまたはディスクイメージが開いています。同時に開けるのは %lld までです。別のものを開くには、どれかを取り出してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld개의 드라이브 또는 디스크 이미지가 열려 있습니다. 동시에 %lld개까지만 열 수 있습니다. 다른 것을 열려면 하나를 추출하십시오."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atverta %lld diskų arba disko atvaizdžių. Vienu metu jų gali būti atverta tik %lld. Išstumkite vieną, kad atvertumėte kitą."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvērti ir %lld diski vai diska attēli. Vienlaikus var būt atvērti tikai %lld. Izstumiet vienu, lai atvērtu citu."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld pemacu atau imej cakera dibuka. Anda hanya boleh membuka %lld pada satu masa. Keluarkan satu untuk membuka yang lain."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld enheter eller diskbilder er åpne. Du kan bare ha %lld åpne samtidig. Mat ut én for å åpne en annen."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er zijn %lld schijven of schijfkopieën geopend. Je kunt er maar %lld tegelijk geopend hebben. Verwijder er een om een andere te openen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwartych jest %lld dysków lub obrazów dysku. Jednocześnie możesz mieć otwarte tylko %lld. Wysuń jeden, aby otworzyć kolejny."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estão abertos %lld discos ou imagens de disco. Só pode ter %lld abertos ao mesmo tempo. Ejete um para abrir outro."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sunt deschise %lld discuri sau imagini de disc. Puteți avea deschise doar %lld în același timp. Ejectați unul pentru a deschide altul."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыто %lld дисков или образов диска. Одновременно можно держать открытыми только %lld. Извлеките один, чтобы открыть другой."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odprtih je %lld pogonov ali slik diska. Hkrati jih je lahko odprtih le %lld. Izvrzite enega, da odprete drugega."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Janë hapur %lld disqe ose imazhe disku. Mund të keni vetëm %lld të hapur njëkohësisht. Nxirr një për të hapur një tjetër."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld enheter eller skivavbilder är öppna. Du kan bara ha %lld öppna samtidigt. Mata ut en för att öppna en annan."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดไดรฟ์หรืออิมเมจดิสก์อยู่ %lld รายการ เปิดพร้อมกันได้เพียง %lld รายการ ดันออกหนึ่งรายการเพื่อเปิดรายการอื่น"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sürücü veya disk imajı açık. Aynı anda yalnızca %lld tanesi açık olabilir. Başkasını açmak için birini çıkarın."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрито %lld дисків або образів диска. Одночасно можна тримати відкритими лише %lld. Вилучіть один, щоб відкрити інший."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang mở %lld ổ đĩa hoặc ảnh đĩa. Bạn chỉ có thể mở %lld cùng lúc. Hãy tháo một cái để mở cái khác."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已打开 %lld 个驱动器或磁盘映像。同时最多只能打开 %lld 个。推出一个才能再打开一个。"
+          }
+        }
+      }
+    },
     "%lld open drives will be ejected.": {
       "localizations": {
         "ar": {
@@ -16937,6 +17157,226 @@
           "stringUnit": {
             "state": "translated",
             "value": "推出 %@"
+          }
+        }
+      }
+    },
+    "Eject a drive or an image before opening another.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أخرج محرك أقراص أو صورة قبل فتح غيرهما."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Извадете диск или образ, преди да отворите друг."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Před otevřením dalšího vysuňte disk nebo obraz."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skub en enhed eller et diskbillede ud, før du åbner en anden."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wirf ein Laufwerk oder ein Image aus, bevor du ein weiteres öffnest."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Κάντε εξαγωγή ενός δίσκου ή ειδώλου πριν ανοίξετε άλλο."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expulsa un disco o una imagen antes de abrir otro."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Väljuta ketas või tõmmis, enne kui avad uue."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poista asema tai levytiedosto käytöstä ennen uuden avaamista."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mag-eject ng drive o disk image bago magbukas ng iba."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éjectez un disque ou une image avant d’en ouvrir un autre."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "הוציאו כונן או דמות כונן לפני פתיחת אחר."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "दूसरी खोलने से पहले कोई ड्राइव या डिस्क इमेज निकालें।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izbacite disk ili sliku diska prije otvaranja drugog."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjon ki egy meghajtót vagy lemezképet, mielőtt másikat nyit meg."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keluarkan drive atau image disk sebelum membuka yang lain."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Espelli un disco o un’immagine prima di aprirne un altro."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "別のものを開く前に、ドライブかディスクイメージを取り出してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다른 것을 열기 전에 드라이브나 디스크 이미지를 추출하십시오."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prieš atverdami kitą, išstumkite diską arba disko atvaizdį."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pirms cita atvēršanas izstumiet disku vai diska attēlu."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keluarkan pemacu atau imej cakera sebelum membuka yang lain."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mat ut en enhet eller et diskbilde før du åpner et annet."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwijder een schijf of schijfkopie voordat je een andere opent."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wysuń dysk lub obraz dysku przed otwarciem kolejnego."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejete um disco ou uma imagem de disco antes de abrir outro."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejectați un disc sau o imagine de disc înainte de a deschide altul."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Извлеките диск или образ диска, прежде чем открывать другой."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pred odpiranjem drugega izvrzite pogon ali sliko diska."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nxirr një disk ose një imazh disku para se të hapësh një tjetër."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mata ut en enhet eller en skivavbild innan du öppnar en annan."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ดันไดรฟ์หรืออิมเมจดิสก์ออกก่อนเปิดรายการอื่น"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Başkasını açmadan önce bir sürücüyü veya disk imajını çıkarın."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вилучіть диск або образ диска, перш ніж відкривати інший."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hãy tháo một ổ đĩa hoặc ảnh đĩa trước khi mở cái khác."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开另一个前，请先推出一个驱动器或磁盘映像。"
           }
         }
       }
@@ -53061,6 +53501,226 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在取消注册后台助手"
+          }
+        }
+      }
+    },
+    "Up to %lld drives can stay unlocked at once": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يمكن أن يبقى حتى %lld محرك أقراص غير مقفل في آن واحد"
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "До %lld диска могат да останат отключени едновременно"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Současně může zůstat odemčeno až %lld disků"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Op til %lld enheder kan være låst op samtidig"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bis zu %lld Laufwerke können gleichzeitig entsperrt bleiben"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Έως %lld δίσκοι μπορούν να μένουν ξεκλείδωτοι ταυτόχρονα"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hasta %lld discos pueden estar desbloqueados a la vez"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Korraga võib lukust avatuna olla kuni %lld ketast"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enintään %lld asemaa voi olla auki yhtä aikaa"
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hanggang %lld drive ang puwedeng manatiling naka-unlock nang sabay"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jusqu’à %lld disques peuvent rester déverrouillés en même temps"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "עד %lld כוננים יכולים להישאר פתוחים בו-זמנית"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "एक साथ %lld ड्राइव तक अनलॉक रह सकती हैं"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Istodobno može ostati otključano do %lld diskova"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Egyszerre legfeljebb %lld meghajtó maradhat feloldva"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hingga %lld drive dapat tetap terbuka sekaligus"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fino a %lld dischi possono restare sbloccati contemporaneamente"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同時に %lld 台までロック解除したままにできます"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "동시에 최대 %lld개의 드라이브를 잠금 해제한 채로 둘 수 있음"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vienu metu atrakinti gali likti iki %lld diskų"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vienlaikus atslēgti var palikt līdz %lld diskiem"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sehingga %lld pemacu boleh kekal dibuka pada satu masa"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opptil %lld enheter kan være låst opp samtidig"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximaal %lld schijven kunnen tegelijk ontgrendeld blijven"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jednocześnie odblokowanych może pozostać do %lld dysków"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Até %lld discos podem ficar desbloqueados ao mesmo tempo"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Până la %lld discuri pot rămâne deblocate în același timp"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Одновременно разблокированными могут оставаться до %lld дисков"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hkrati lahko ostane odklenjenih do %lld pogonov"
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deri në %lld disqe mund të rrinë të shkyçur njëkohësisht"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upp till %lld enheter kan vara upplåsta samtidigt"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปลดล็อคพร้อมกันได้สูงสุด %lld ไดรฟ์"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aynı anda en fazla %lld sürücü kilidi açık kalabilir"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Одночасно розблокованими можуть залишатися до %lld дисків"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tối đa %lld ổ đĩa có thể mở cùng lúc"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最多可同时解锁 %lld 个驱动器"
           }
         }
       }

@@ -149,6 +149,22 @@
         }
       ]
     },
+    "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": {
+      "screens": [
+        "drive-list"
+      ],
+      "context": "Warning across the top of the drive list, and of the unlock and failure screens, when as many drives are open as this Mac can serve at once. Every drive is served over a network connection to this Mac, and there are only so many addresses to serve them on. Drives and disk images count alike.",
+      "placeholders": [
+        {
+          "token": "%lld",
+          "is": "how many drives and images are open"
+        },
+        {
+          "token": "%lld",
+          "is": "how many can be open at once, twelve on most Macs"
+        }
+      ]
+    },
     "%lld open drives will be ejected.": {
       "screens": [
         "menus"
@@ -587,6 +603,13 @@
           "is": "the volume's name"
         }
       ]
+    },
+    "Eject a drive or an image before opening another.": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Shown in the File menu under the two greyed-out items for opening a drive or a disk image, saying why they cannot be used. Not a button.",
+      "placeholders": []
     },
     "Eject and Quit": {
       "screens": [
@@ -1882,6 +1905,18 @@
       ],
       "context": "A step while uninstalling: the privileged helper is deregistered from macOS.",
       "placeholders": []
+    },
+    "Up to %lld drives can stay unlocked at once": {
+      "screens": [
+        "help"
+      ],
+      "context": "A line in the requirements list of the About sheet, beside the memory a drive costs. Says how many drives can be unlocked at the same time.",
+      "placeholders": [
+        {
+          "token": "%lld",
+          "is": "how many drives can be open at once, twelve"
+        }
+      ]
     },
     "Updates": {
       "screens": [

@@ -13,6 +13,12 @@
 #                  fixture inside a partition, so it is the one the app's own
 #                  drive list can see)
 #
+# With --crowd it also builds thirteen plain NTFS volumes under crowd/, which
+# is one more than a Mac can serve at once. That is the fixture for the
+# ceiling: how the app behaves as the last place is taken, and what it does
+# when there is none. Pair it with LUKOTTA_CAPACITY to reach the ceiling on
+# three instead of twelve.
+#
 # Passphrase for all of them: lukotta-test-pass
 #
 # Every filesystem here is btrfs because that is the only mkfs the trimmed
@@ -91,6 +97,27 @@ mkfs.btrfs -f -L FEDORAHOME /dev/fedoravg/home >/dev/null 2>&1
 mkfs.btrfs -f -L FEDORABACKUP /dev/fedoravg/backup >/dev/null 2>&1
 vgchange -an fedoravg >/dev/null 2>&1
 cryptsetup luksClose d" 2>&1 | grep -vE '^macOS:' || true
+fi
+
+# A crowd of them, for the one thing a single fixture cannot show: what the app
+# does as the number of open drives approaches what this Mac can serve at once.
+# Reaching that by hand means attaching a dozen images one at a time, so it is
+# made here instead. Small and plain: the ceiling is about how many can be
+# served, not about what is in them.
+if [ "${1:-}" = "--crowd" ] || [ "${2:-}" = "--crowd" ]; then
+  COUNT="${LUKOTTA_CROWD:-13}"
+  echo "Building $COUNT plain volumes for the ceiling (crowd/)…"
+  mkdir -p "$OUT/crowd"
+  for i in $(seq 1 "$COUNT"); do
+    f="$OUT/crowd/drive$i.img"
+    [ -f "$f" ] && continue
+    dd if=/dev/zero of="$f" bs=1m count=0 seek=64 2>/dev/null
+    "$ENGINE" shell "$f" -c "mkfs.ntfs -f -F -L CROWD$i /dev/vda" >/dev/null 2>&1
+  done
+  printf '%s volumes in %s/crowd\n' "$COUNT" "$OUT"
+  printf '\nTo watch the ceiling arrive without opening a dozen drives, pin it:\n'
+  printf '  LUKOTTA_CAPACITY=3 /Applications/Lukotta.app/Contents/MacOS/Lukotta\n'
+  printf 'Then open crowd/drive1.img and crowd/drive2.img and crowd/drive3.img.\n\n'
 fi
 
 printf 'Test volumes in %s\n' "$OUT"

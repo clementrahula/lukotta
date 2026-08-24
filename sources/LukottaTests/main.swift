@@ -1114,15 +1114,15 @@ group("howManyDrivesThisMacCanServeAtOnce") {
 
     // The limit is what the machine has, never a number written down here: the
     // helper adds addresses, and a Mac where it never arrived has three.
-    expect(Capacity.now(mounts: 0).limit == addresses.count, "the limit is what is there")
-    expect(Capacity.now(mounts: 2).open == 2, "and what is open is what is mounted")
-    expect(Capacity.hasRoom(limit: 12, open: 11), "room below the limit")
-    expect(!Capacity.hasRoom(limit: 12, open: 12), "and none at it")
-    expect(!Capacity.hasRoom(limit: 3, open: 4), "nor past it, however that happened")
+    expect(Capacity.now(mounts: 0).limitCount == addresses.count, "the limit is what is there")
+    expect(Capacity.now(mounts: 2).openCount == 2, "and what is open is what is mounted")
+    expect(Capacity.hasRoom(limitCount: 12, openCount: 11), "room below the limit")
+    expect(!Capacity.hasRoom(limitCount: 12, openCount: 12), "and none at it")
+    expect(!Capacity.hasRoom(limitCount: 3, openCount: 4), "nor past it, however that happened")
     expect(Capacity.wanted == 12, "a dozen is what the helper is asked to prepare")
 
     // A machine that answers nothing still has to be usable.
-    expect(Capacity.now(mounts: 0).limit >= 1, "the limit is never zero")
+    expect(Capacity.now(mounts: 0).limitCount >= 1, "the limit is never zero")
     expect(Capacity.addresses(of: "nx99").isEmpty, "an interface that is not there has none")
 }
 

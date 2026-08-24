@@ -37,7 +37,7 @@ struct DriveListView: View {
                             .foregroundStyle(.orange)
                             .accessibilityHidden(true)
                         Text(
-                            "\(model.capacity.open) drives or images are open. You can only have \(model.capacity.limit) open at the same time. Eject one to open another."
+                            "\(model.capacity.openCount) drives or images are open. You can only have \(model.capacity.limitCount) open at the same time. Eject one to open another."
                         )
                         .font(.callout)
                         .fixedSize(horizontal: false, vertical: true)

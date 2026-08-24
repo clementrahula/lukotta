@@ -121,13 +121,16 @@ struct HelpSheet: View {
                     }
 
                     HelpSection(title: "Requirements") {
+                        // Named a count so the extracted key carries %lld, as
+                        // Foundation will.
+                        let wantedCount = Capacity.wanted
                         Bullet("An Apple Silicon Mac. Intel Macs are not supported")
                         Bullet("macOS 15 Sequoia or later")
                         Bullet(
                             "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use"
                         )
                         Bullet("30 to 80 MB of RAM per unlocked drive")
-                        Bullet("Up to \(Capacity.wanted) drives can stay unlocked at once")
+                        Bullet("Up to \(wantedCount) drives can stay unlocked at once")
                     }
 
                     HelpSection(title: "Licence") {

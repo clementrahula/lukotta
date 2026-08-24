@@ -244,6 +244,26 @@ that images appear alongside real drives.
 
 No encrypted drive is needed to work on this, and no drive at all.
 
+```bash
+./scripts/make-test-volumes.sh ~/.lukotta-testvols --crowd
+```
+
+Adds thirteen plain volumes under `crowd/`, one more than a Mac can serve at
+once. Every open drive is a virtual machine serving NFS, and NFS has one port,
+so each needs a loopback address of its own; the helper adds enough for a
+dozen. That fixture is how the ceiling gets tested — what the app does as the
+last place is taken, and what it does when there is none.
+
+Reaching it honestly takes twelve mounts and ten minutes, so the ceiling can be
+pinned instead:
+
+```bash
+LUKOTTA_CAPACITY=3 /Applications/Lukotta.app/Contents/MacOS/Lukotta
+```
+
+Only ever downward from what the machine can really do, and only from the
+environment: it is a way to test a screen, not a setting.
+
 ## Uninstalling a Build
 
 The app removes itself from **Lukotta → Uninstall Lukotta…**. It ejects any
