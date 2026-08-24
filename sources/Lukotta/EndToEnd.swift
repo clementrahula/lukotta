@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Clement Rahula
 
+// The test harnesses are built into the pre-release and into a plain local
+// build, and out of the app people are given: nobody running Lukotta has a use
+// for a flag that renders every screen or opens every fixture, and what is not
+// compiled in cannot be reached by passing one.
+#if DEVTOOLS
+
 import AppKit
 import LukottaCore
 import SwiftUI
@@ -1303,3 +1309,5 @@ extension AppModel {
         return false
     }
 }
+
+#endif

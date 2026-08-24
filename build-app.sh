@@ -8,6 +8,7 @@
 #   LUKOTTA_SIGN_ID="..." ./build-app.sh
 #   LUKOTTA_NOTARY_PROFILE="name" ./build-app.sh   also notarise and staple
 #   LUKOTTA_BRANDING=official ./build-app.sh        build as Lukotta
+#   LUKOTTA_BRANDING=beta ./build-app.sh            build the pre-release
 #
 # Builds are unbranded by default. The Lukotta name, wordmark and logo are
 # trademarks and are not licensed under the GPL, so a build carries them only
@@ -38,6 +39,21 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     MARK_SET="LukottaMark"
     SWITCH_SET="FullDiskAccessSwitch"
     HELPER_NAME="LukottaHelper"
+    FEED_URL="https://updates.lukotta.com/appcast.xml"
+    ;;
+  beta)
+    # The release everybody else will get, a week early. Its own identifier,
+    # its own daemon, its own saved passphrases and its own feed, so it can sit
+    # beside the released app without either one standing on the other -- and
+    # everything else about it, including the name and the mark, is the app
+    # people will receive.
+    APP_NAME="Lukotta Beta"
+    BUNDLE_ID="com.clementrahula.lukotta.beta"
+    ICON_SET="AppIcon"
+    MARK_SET="LukottaMark"
+    SWITCH_SET="FullDiskAccessSwitch"
+    HELPER_NAME="LukottaBetaHelper"
+    FEED_URL="https://updates-beta.lukotta.com/appcast.xml"
     ;;
   unbranded)
     APP_NAME="Drive Unlocker"
@@ -46,9 +62,10 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     MARK_SET="MarkUnbranded"
     SWITCH_SET="FullDiskAccessSwitchUnbranded"
     HELPER_NAME="UnlockHelper"
+    FEED_URL="https://updates.lukotta.com/appcast.xml"
     ;;
   *)
-    echo "error: LUKOTTA_BRANDING must be 'official' or 'unbranded'" >&2; exit 1 ;;
+    echo "error: LUKOTTA_BRANDING must be 'official', 'beta' or 'unbranded'" >&2; exit 1 ;;
 esac
 
 OUT="${1:-$HERE/dist/$APP_NAME.app}"
@@ -93,8 +110,15 @@ rm -rf "$OUT"
 mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources/helpers"
 
 printf 'Building %s %s (build %s)\n' "$APP_NAME" "$VERSION" "$BUILD"
-swift build -c release --product Lukotta
-cp "$(swift build -c release --product Lukotta --show-bin-path)/Lukotta" \
+# The harnesses go into everything except the app people are given.
+if [ "${LUKOTTA_BRANDING:-unbranded}" = "official" ]; then
+  DEVTOOLS=()
+else
+  DEVTOOLS=(-Xswiftc -DDEVTOOLS)
+fi
+
+swift build -c release --product Lukotta ${DEVTOOLS[@]+"${DEVTOOLS[@]}"}
+cp "$(swift build -c release --product Lukotta ${DEVTOOLS[@]+"${DEVTOOLS[@]}"} --show-bin-path)/Lukotta" \
    "$CONTENTS/MacOS/$APP_NAME"
 
 # What the binary will actually load on, against what the plist promises. These
@@ -140,7 +164,7 @@ SPARKLE_KEY="${LUKOTTA_SPARKLE_PUBLIC_KEY:-$(cat "$HERE/.sparkle-public-key" 2>/
 sed -e "s/__VERSION__/$VERSION/" -e "s/__BUILD__/$BUILD/" \
     -e "s|__SPARKLE_PUBLIC_KEY__|${SPARKLE_KEY}|" \
     -e "s|__APP_NAME__|$APP_NAME|" -e "s|__BUNDLE_ID__|$BUNDLE_ID|" \
-    -e "s|__MIN_MACOS__|$MIN_MACOS|" \
+    -e "s|__MIN_MACOS__|$MIN_MACOS|" -e "s|__FEED_URL__|$FEED_URL|" \
     -e "s|__ICON_SET__|$ICON_SET|" -e "s|__MARK_SET__|$MARK_SET|" \
     -e "s|__SWITCH_SET__|$SWITCH_SET|" \
   "$HERE/sources/Info.plist" > "$CONTENTS/Info.plist"

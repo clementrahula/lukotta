@@ -20,7 +20,7 @@
   <key>NSRemovableVolumesUsageDescription</key><string>__APP_NAME__ reads the encrypted drive directly in order to unlock it. It only reads the drive you choose, and it never sends anything anywhere.</string>
   <key>NSPrincipalClass</key><string>NSApplication</string>
   <key>NSHumanReadableCopyright</key><string>Copyright © 2026 Clement Rahula. Licensed under GPL-3.0-or-later.</string>
-  <key>SUFeedURL</key><string>https://updates.lukotta.com/appcast.xml</string>
+  <key>SUFeedURL</key><string>__FEED_URL__</string>
   <key>SUPublicEDKey</key><string>__SPARKLE_PUBLIC_KEY__</string>
   <key>SUEnableInstallerLauncherService</key><false/>
   <!-- Checking is on by default, and there is no first-run question about it.

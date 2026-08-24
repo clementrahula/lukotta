@@ -14,7 +14,17 @@ import Security
 /// Entries are keyed by the partition's UUID rather than its device path, so
 /// they survive the drive being replugged as a different diskNsM.
 public enum CredentialStore {
-    private static let service = "dev.lukotta.drive-credential"
+    /// Where these are kept in the Keychain.
+    ///
+    /// The released app's name is left exactly as it was: changing it would
+    /// lose every passphrase anybody has saved. A pre-release adds its own
+    /// suffix, so it cannot read or overwrite them -- it is a different app,
+    /// and somebody testing one should not find the other's keys in it.
+    private static let service: String = {
+        let base = "dev.lukotta.drive-credential"
+        let identifier = Bundle.main.bundleIdentifier ?? ""
+        return identifier.hasSuffix(".beta") ? base + ".beta" : base
+    }()
 
     public static func save(_ credential: String, for uuid: String) -> Bool {
         guard !uuid.isEmpty, let data = credential.data(using: .utf8) else { return false }
