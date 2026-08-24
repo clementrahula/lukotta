@@ -189,7 +189,13 @@ public enum MountScript {
         let deviceQ = shellQuoted(i.devicePath)
         let logQ = shellQuoted(i.logPath)
 
-        var lines: [String] = ["#!/bin/sh"]
+        // The script is generated, so it has no version of its own to read
+        // unless it says one. It writes the engine's log, and a log line means
+        // different things either side of a change to the script that produced
+        // it -- so the version that wrote it is in the file, and in the report.
+        var lines: [String] = [
+            "#!/bin/sh", "# lukotta mount script v\(Components.mountScriptVersion)",
+        ]
 
         // DYLD_* must be set inside the elevated shell: macOS strips those
         // variables across a privilege boundary.

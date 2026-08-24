@@ -212,6 +212,37 @@ done
 [ -f "$HERE/SPECS.md" ] && cp "$HERE/SPECS.md" "$CONTENTS/Resources/"
 printf 'APPL????' > "$CONTENTS/PkgInfo"
 
+# What this copy of the app is made of, part by part.
+#
+# The app is not one program: it carries an engine, a Linux image, the crates
+# the engine reads disk formats with, and our own patches to two of them. Each
+# moves on its own schedule and each has already gone out of step with what was
+# installed on somebody's Mac without anything noticing. The versions are stated
+# here, once, from the lock the build is pinned to -- so a part added to the
+# lock appears here without anybody remembering to add it.
+/usr/bin/python3 - "$HERE" "$CONTENTS/Resources/components.json" <<'PARTS'
+import json, os, sys
+here, out = sys.argv[1], sys.argv[2]
+lock = json.load(open(os.path.join(here, "vendor/engine.lock")))
+parts = {}
+for name, held in lock.items():
+    if name.startswith("_") or not isinstance(held, dict):
+        continue
+    stated = held.get("version") or held.get("oci_digest")
+    if stated:
+        parts[name] = stated
+# Our own changes to the engine and its crates. An app built without
+# scripts/build-engine.sh runs the upstream binaries and says so here rather
+# than claiming fixes it does not have.
+patches = os.path.join(here, "vendor/engine/anylinuxfs/PATCHES")
+if os.path.exists(patches):
+    parts["engine_patches"] = " ".join(sorted(open(patches).read().split()))
+else:
+    parts["engine_patches"] = "none"
+json.dump(parts, open(out, "w"), indent=2, sort_keys=True)
+print(f"  {len(parts)} parts recorded")
+PARTS
+
 if [ -d "$HERE/vendor/engine" ]; then
   printf 'Embedding engine…\n'
   /usr/bin/ditto "$HERE/vendor/engine" "$CONTENTS/Resources/engine"

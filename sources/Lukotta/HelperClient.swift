@@ -23,6 +23,14 @@ final class HelperClient: ObservableObject {
 
     @Published private(set) var state: State = .notInstalled
 
+    /// The build of the daemon actually running, as it last answered.
+    ///
+    /// launchd keeps a registered daemon across an app update, so this is not
+    /// always the build in the bundle -- which is the whole reason the question
+    /// is asked. A report that states both is answerable; one that states the
+    /// app's own version twice is not.
+    @Published private(set) var installedVersion: String?
+
     private var connection: NSXPCConnection?
     private var service: SMAppService {
         SMAppService.daemon(plistName: HelperInfo.plistName)
@@ -122,7 +130,10 @@ final class HelperClient: ObservableObject {
             let version: String? = await Self.roundTrip(box) { proxy, reply in
                 proxy.helperVersion { reply($0) }
             }
-            await MainActor.run { done(version ?? "") }
+            await MainActor.run { [weak self] in
+                self?.installedVersion = (version?.isEmpty ?? true) ? nil : version
+                done(version ?? "")
+            }
         }
     }
 

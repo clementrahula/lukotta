@@ -1172,6 +1172,73 @@ group("uninstallingTakesEverythingWithIt") {
     }
 }
 
+group("everyMovingPartStatesItsOwnVersion") {
+    // The app is not one program, and "which version" has more than one answer.
+    // A part that is installed rather than carried -- the Linux environment in
+    // the home directory, the daemon launchd keeps running across an update --
+    // can be older than the app in front of it, and both have been.
+    let shipped = Component(id: "guest_rootfs", shipped: "1.5.1", installed: "1.5.1")
+    expect(!shipped.isStale, "what is installed matching what ships is not stale")
+    let old = Component(id: "guest_rootfs", shipped: "1.6.0", installed: "1.5.1")
+    expect(old.isStale, "an older one installed is")
+    expect(
+        old.line == "guest_rootfs 1.6.0 (installed: 1.5.1)",
+        "and the line says both, rather than only the one that is easy to read")
+
+    // Evidence or nothing. A part this app cannot read a version for is a
+    // question, and a question reported as agreement is how the environment
+    // went unrefreshed for every release so far.
+    expect(
+        !Component(id: "helper", shipped: "412", installed: nil).isStale,
+        "a part that did not answer is not called stale")
+    expect(
+        !Component(id: "engine", shipped: nil, installed: "0.19.0").isStale,
+        "nor one this app states no version for")
+    expect(
+        Component(id: "helper", shipped: nil, installed: "301").line
+            == "helper installed 301, this app states none",
+        "which the line says outright")
+
+    // The summary is what goes into a bug report, and the disagreement has to
+    // be in it: a reader scanning a dozen lines will not diff them by eye.
+    let summary = Components.summary([
+        Component(id: "app", shipped: "1.4.0 (build 412)"),
+        old,
+        Component(id: "helper", shipped: "412", installed: "301"),
+    ])
+    expect(summary.contains("guest_rootfs 1.6.0 (installed: 1.5.1)"), "the summary lists the parts")
+    expect(
+        summary.contains("installed and shipped disagree: guest_rootfs, helper"),
+        "and names every one that disagrees")
+    expect(
+        Components.stale([shipped, old]).map(\.id) == ["guest_rootfs"],
+        "and the same judgment is available on its own")
+
+    // The wiring, not only the arithmetic: the version of the environment out
+    // there is read from the environment out there. Asserted against a
+    // directory made for it, because the one on this Mac is whatever the last
+    // run left and would pass while reading nothing.
+    let fm = FileManager.default
+    let guest = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        .appendingPathComponent("parts-check-\(UUID().uuidString)", isDirectory: true)
+    try? fm.createDirectory(
+        at: guest.appendingPathComponent("rootfs"), withIntermediateDirectories: true)
+    defer { try? fm.removeItem(at: guest) }
+    try? "9.9.9-fixture".write(
+        to: guest.appendingPathComponent("rootfs.ver"), atomically: true, encoding: .utf8)
+    let installed = Components.all(guestDirectory: guest).first { $0.id == "guest_rootfs" }
+    expect(
+        installed?.installed == "9.9.9-fixture",
+        "the environment's own version is read from where it is installed")
+
+    // The script is generated rather than shipped, so it states its version in
+    // its own text or nowhere.
+    expect(
+        MountScript.build(sampleInputs()).contains(
+            "# lukotta mount script v\(Components.mountScriptVersion)"),
+        "the script says which version of itself wrote the log")
+}
+
 group("anUpdatedLinuxEnvironmentActuallyArrives") {
     // The environment was unpacked once, on the first run, and never again --
     // so an update that changed the guest reached nobody who already had the

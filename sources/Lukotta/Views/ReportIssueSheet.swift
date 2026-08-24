@@ -165,7 +165,10 @@ struct ReportIssueSheet: View {
                 environment: environment,
                 engineOutput: model.reportableOutput,
                 crashReport: crashes.first,
-                recentLog: model.recentLog.isEmpty ? nil : model.recentLog)
+                recentLog: model.recentLog.isEmpty ? nil : model.recentLog,
+                // The daemon actually running, which after an update is not
+                // always the one in the bundle.
+                parts: Components.all(helperInstalled: model.helper.installedVersion))
             // Kept fresh from now on too: the sheet can be left open while the
             // thing being reported is tried again.
             recentLog = model.recentLog

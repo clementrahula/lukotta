@@ -276,7 +276,8 @@ public enum Diagnostics {
         problem: String? = nil,
         engineOutput: String? = nil,
         crashReport: URL? = nil,
-        recentLog: String? = nil
+        recentLog: String? = nil,
+        parts: [Component]? = nil
     ) -> String {
         var lines = [
             "Lukotta \(environment.appVersion) (build \(environment.build))",
@@ -288,6 +289,16 @@ public enum Diagnostics {
             lines.append("")
             lines.append("What happened:")
             lines.append(scrubbed(problem))
+        }
+        // What the app is made of. The version at the top says which release
+        // this is; it does not say which engine, which Linux image or which
+        // helper is actually running, and those go out of step with it. A
+        // report that leaves them out cannot distinguish a fault in this
+        // release from one in an environment installed a year ago.
+        let made = parts ?? Components.all()
+        if !made.isEmpty {
+            lines.append("")
+            lines.append(Components.summary(made))
         }
         if let engineOutput, !engineOutput.isEmpty {
             lines.append("")

@@ -1027,6 +1027,17 @@ final class AppModel: ObservableObject {
         // Read now, so the report sheet is filled in before anybody asks for
         // it rather than several seconds after.
         refreshRecentLog()
+        // Say what this launch is made of, once. The parts move separately and
+        // two of them live outside the bundle, so "which version" is not one
+        // question with one answer -- and when a log is read back later, this
+        // is the line that says which pieces produced the rest of it.
+        let parts = Components.all(helperInstalled: helper.installedVersion)
+        Log.app.notice("parts: \(parts.map(\.line).joined(separator: "; "), privacy: .public)")
+        for part in Components.stale(parts) {
+            Log.app.notice(
+                "\(part.id, privacy: .public) installed is \(part.installed ?? "unknown", privacy: .public), this app ships \(part.shipped ?? "unknown", privacy: .public)"
+            )
+        }
         phase = .scanning
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
