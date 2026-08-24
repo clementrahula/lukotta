@@ -193,6 +193,10 @@
                 hostileFlow(image: hostile)
             }
 
+            print("")
+            print("when things go wrong: \(container.lastPathComponent)")
+            whenThingsGoWrongFlow(container: container, passphrase: passphrase)
+
             let exfat = fixtures["exfat"]
             if let exfat, FileManager.default.fileExists(atPath: exfat.path) {
                 print("")
@@ -1229,6 +1233,207 @@
             waitUntil(
                 "and it leaves the list", timeout: 30,
                 condition: { !model.drives.contains { $0.uuid == image.path } })
+        }
+
+        /// The flows that do not succeed.
+        ///
+        /// Everything else here opens a drive and checks that it opened. What a
+        /// person actually meets is a mistyped passphrase, a drive pulled out
+        /// while it is being opened, a ceiling reached, and an eject that will
+        /// not go through because something has a file open. Each of those has
+        /// exactly one right behaviour, and none of them was checked anywhere.
+        @MainActor
+        private static func whenThingsGoWrongFlow(container: URL, passphrase: String) {
+            // 1. A passphrase that is wrong.
+            guard let (model, drive) = openAndChoose(container) else { return }
+            model.choose(drive)
+            guard
+                waitUntil(
+                    "it is identified", timeout: 30, condition: { model.chosenFormat != nil })
+            else { return }
+
+            model.credential = passphrase + "-wrong"
+            model.unlock(drive)
+            guard
+                waitUntil(
+                    "a wrong passphrase is refused", timeout: 180,
+                    condition: {
+                        if case .failed = model.phase { return true }
+                        if case .mounted = model.phase { return true }
+                        return false
+                    })
+            else { return }
+            if case .mounted = model.phase {
+                check(false, "a wrong passphrase is refused rather than opening the drive")
+                return
+            }
+            guard case .failed(_, let summary, _) = model.phase else { return }
+            check(!summary.isEmpty, "and the screen says why rather than going blank")
+            check(
+                model.chosenFormat == nil,
+                "and what the drive holds is read again next time, not assumed")
+
+            // 2. And the right one, straight afterwards, still works. A refusal
+            //    that leaves the app unable to try again is worse than the
+            //    refusal.
+            model.choose(drive)
+            guard
+                waitUntil(
+                    "it can be tried again", timeout: 30, condition: { model.chosenFormat != nil })
+            else { return }
+            model.credential = passphrase
+            model.unlock(drive)
+            guard
+                waitUntil(
+                    "the right passphrase then opens it", timeout: 180,
+                    condition: {
+                        if case .mounted = model.phase { return true }
+                        if case .failed = model.phase { return true }
+                        return false
+                    })
+            else { return }
+            guard case .mounted(_, let mountPoint) = model.phase else {
+                check(false, "the right passphrase then opens it")
+                if case .failed(_, let why, let detail) = model.phase {
+                    print("      \(why)")
+                    if let detail { print("      \(detail.suffix(400))") }
+                }
+                return
+            }
+
+            // 3. An eject that cannot go through, because something is reading
+            //    from the mount. It must be reported, and the drive must still
+            //    be open afterwards rather than half gone.
+            let held = URL(fileURLWithPath: mountPoint)
+            let handle = try? FileHandle(forReadingFrom: held.appendingPathComponent("."))
+            if handle != nil {
+                // A directory handle is not enough to make NFS refuse on every
+                // Mac, so this checks the reporting rather than forcing it.
+                model.eject(mountPoint)
+                _ = waitUntil("the eject finishes", timeout: 120, condition: { !model.isEjecting })
+                let refused = model.ejectProblem != nil
+                let gone = model.openMounts.isEmpty
+                check(
+                    refused != gone,
+                    "an eject either completes or says why, and never both or neither")
+                try? handle?.close()
+            }
+            if !model.openMounts.isEmpty {
+                model.eject(mountPoint)
+                _ = waitUntil("it ejects", timeout: 120, condition: { !model.isEjecting })
+            }
+            check(model.openMounts.isEmpty, "and once nothing holds it, it ejects")
+
+            // 4. The ceiling. Each open drive needs a loopback address of its
+            //    own, and there is a fixed number of them: the app has to
+            //    refuse rather than start a machine that cannot be served.
+            //
+            //    The limit cannot be lowered from in here -- Foundation reads
+            //    the environment once, at launch, so LUKOTTA_CAPACITY only
+            //    counts when it is set before the app starts. What is checked
+            //    is therefore the wiring: that what the interface offers agrees
+            //    with what the addresses on this Mac actually allow, with a
+            //    drive open and again with none.
+            let limited = AppModel()
+            limited.start()
+            guard waitUntil("the app finishes scanning", condition: { !limited.isScanning }) else {
+                return
+            }
+            limited.openImage(container)
+            guard
+                waitUntil(
+                    "one drive opens", timeout: 60,
+                    condition: {
+                        limited.imageOpening == nil
+                            && limited.drives.contains { $0.uuid == container.path }
+                    })
+            else { return }
+            guard let only = limited.drives.first(where: { $0.uuid == container.path }) else {
+                return
+            }
+            limited.choose(only)
+            guard
+                waitUntil(
+                    "it is identified", timeout: 30, condition: { limited.chosenFormat != nil })
+            else { return }
+            limited.credential = passphrase
+            limited.unlock(only)
+            guard
+                waitUntil(
+                    "it opens", timeout: 180,
+                    condition: {
+                        if case .mounted = limited.phase { return true }
+                        if case .failed = limited.phase { return true }
+                        return false
+                    })
+            else { return }
+            guard case .mounted(_, let onlyMount) = limited.phase else { return }
+            let withOneOpen = Capacity.now(mounts: limited.openMounts.count)
+            check(
+                limited.canOpenAnother
+                    == Capacity.hasRoom(
+                        limitCount: withOneOpen.limitCount, openCount: withOneOpen.openCount),
+                "with a drive open, what is offered is what this Mac can serve")
+            check(
+                withOneOpen.openCount >= 1,
+                "and the drive that is open is counted against the limit")
+
+            limited.eject(onlyMount)
+            _ = waitUntil("it ejects", timeout: 120, condition: { !limited.isEjecting })
+            check(limited.canOpenAnother, "and ejecting one makes room again")
+            check(
+                Capacity.now(mounts: limited.openMounts.count).openCount == 0,
+                "with nothing open, nothing is counted against it")
+
+            // 5. A drive that goes away while it is being opened. Somebody
+            //    pulls the cable, or the file is detached from underneath: the
+            //    attempt has to end and say so, rather than sit on a screen
+            //    that never changes.
+            let vanishing = AppModel()
+            vanishing.start()
+            guard waitUntil("the app finishes scanning", condition: { !vanishing.isScanning })
+            else { return }
+            vanishing.openImage(container)
+            guard
+                waitUntil(
+                    "a drive opens", timeout: 60,
+                    condition: {
+                        vanishing.imageOpening == nil
+                            && vanishing.drives.contains { $0.uuid == container.path }
+                    })
+            else { return }
+            guard let going = vanishing.drives.first(where: { $0.uuid == container.path }) else {
+                return
+            }
+            vanishing.choose(going)
+            guard
+                waitUntil(
+                    "it is identified", timeout: 30, condition: { vanishing.chosenFormat != nil })
+            else { return }
+            vanishing.credential = passphrase
+            vanishing.unlock(going)
+            // Detached from under the mount as it runs, which is exactly what
+            // unplugging a drive does to the app.
+            let device = DriveScanner.wholeDisk(of: going.id)
+            Thread.sleep(forTimeInterval: 2)
+            DiskImage.detach("/dev/" + device)
+            let ended = waitUntil(
+                "an attempt on a drive that goes away ends", timeout: 240,
+                condition: {
+                    if case .failed = vanishing.phase { return true }
+                    if case .mounted = vanishing.phase { return true }
+                    return false
+                })
+            check(ended, "and does not sit there for ever")
+            if case .failed(_, let why, _) = vanishing.phase {
+                check(!why.isEmpty, "with something said about why")
+            }
+            if case .mounted(_, let point) = vanishing.phase {
+                // It got there first. Ejected, so nothing is left open.
+                vanishing.eject(point)
+                _ = waitUntil("it ejects", timeout: 120, condition: { !vanishing.isEjecting })
+            }
+            _ = EngineProcesses.tidyWhatServesNothing()
         }
 
         /// Every disk on this Mac, with a verdict each. Run against the real

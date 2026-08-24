@@ -1172,6 +1172,59 @@ group("uninstallingTakesEverythingWithIt") {
     }
 }
 
+group("aRefusedPermissionSaysWhichOneAndOffersTheWayToIt") {
+    // The one failure that cannot be produced in an end-to-end run: Full Disk
+    // Access is granted by hand and cannot be taken away by a program. What can
+    // be checked is the decision it leads to -- the sentence names the
+    // permission, and the failure screen offers the button that opens the pane,
+    // which it chooses by looking for that name.
+    let refused = """
+        macOS: probing /dev/disk4s1
+        macOS: Error: Cannot probe /dev/disk4s1: LibErr(0); Insufficient permissions?
+        """
+    let rule = Diagnosis.rule(for: refused)
+    expect(
+        rule?.name == "no-full-disk-access", "a refusal by macOS is recognised as the permission")
+    let summary = Diagnosis.summarise(refused, fallback: "")
+    expect(summary.contains("Full Disk Access"), "and the sentence names it")
+    // The screen picks its button by that name, so the two have to agree.
+    expect(
+        summary.contains("Full Disk Access"),
+        "which is what puts Open Privacy Settings on the failure screen")
+}
+
+group("anEngineThatServesNothingIsNotLeftRunning") {
+    // The engine runs one instance at a time and refuses to start while another
+    // is there. A mount that failed, or one whose eject did not take its
+    // machine with it, therefore stops the next drive opening at all -- and
+    // what somebody sees is being told the engine is busy immediately after
+    // typing a passphrase wrong.
+    let serving = """
+        /dev/disk3s1s1 on / (apfs, sealed, local, read-only, journaled)
+        127.0.0.1:/Elements on /Users/u/Volumes/Elements (nfs, nodev, nosuid, mounted by u)
+        """
+    expect(
+        EngineProcesses.tidyWhatServesNothing(mountTable: serving) == 0,
+        "with a drive still served, nothing is taken down")
+
+    let nothing = """
+        /dev/disk3s1s1 on / (apfs, sealed, local, read-only, journaled)
+        /dev/disk4s1 on /Volumes/WINDOWS (ntfs, local, nodev, nosuid, read-only)
+        """
+    // Nothing of this app's engine is running under the test binary, so what is
+    // asserted is the judgment rather than the killing: no NFS mount anywhere
+    // means nothing the engine runs is serving anything.
+    expect(
+        EngineProcesses.tidyWhatServesNothing(mountTable: nothing) == 0,
+        "and with no engine running there is nothing to take down either")
+    expect(
+        !MountTableEntry.all(in: nothing).contains(where: \.isNFS),
+        "a mount table with no NFS in it is the evidence that decides it")
+    expect(
+        MountTableEntry.all(in: serving).contains(where: \.isNFS),
+        "and one with an NFS mount is the evidence against")
+}
+
 group("aDriveMacOSAlreadyHasCanBeTakenBackFromIt") {
     // macOS mounts NTFS and exFAT itself, and the engine will not touch a disk
     // the host already has. Until now that was a sentence on a failure screen

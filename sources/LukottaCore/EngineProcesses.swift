@@ -66,6 +66,29 @@ public enum EngineProcesses {
         stop(running().subtracting(before))
     }
 
+    /// Take down anything of the engine's that is serving nothing.
+    ///
+    /// The engine runs one instance at a time, and refuses to start while
+    /// another is there: "another instance is already running". A mount that
+    /// failed, or one whose eject did not take its machine with it, therefore
+    /// stops the next drive from opening at all -- somebody who mistypes a
+    /// passphrase is told the engine is busy when they type the right one.
+    ///
+    /// The evidence used is the system's own mount table rather than the
+    /// engine's record of itself, which is what goes stale: with no NFS mount
+    /// anywhere on this Mac, nothing the engine is running is serving anything.
+    /// Only processes started from this bundle are touched.
+    public static func tidyWhatServesNothing(mountTable table: String = LukottaCore.mountTable())
+        -> Int
+    {
+        guard !MountTableEntry.all(in: table).contains(where: \.isNFS) else { return 0 }
+        let idle = running()
+        guard !idle.isEmpty else { return 0 }
+        Log.mount.notice("taking down \(idle.count, privacy: .public) engines serving nothing")
+        stop(idle)
+        return idle.count
+    }
+
     /// Take down helpers left over from a previous run.
     ///
     /// Only when the engine reports no mounts at all: with nothing mounted,

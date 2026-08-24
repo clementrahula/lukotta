@@ -2232,6 +2232,13 @@ final class AppModel: ObservableObject {
         // Everything worth keeping from the attempt is in the summary and the
         // detail by now, both scrubbed. The scratch directory is not.
         tidyUpAfterMounting()
+        // Nor is what the attempt left running. A mount that fails leaves the
+        // engine's network helper behind with nothing to take it down, and the
+        // engine will not start a second time while one is there: a mistyped
+        // passphrase was answered by "another instance is already running" when
+        // the right one was typed straight afterwards. Only ever when nothing
+        // is mounted, which is what the sweep itself insists on.
+        Task.detached(priority: .userInitiated) { _ = EngineProcesses.tidyWhatServesNothing() }
         // Whatever the first sector reported, the drive did not open. The
         // reading is discarded so that a second attempt asks for a passphrase.
         // A volume wrongly read as unencrypted would otherwise be retried
@@ -2420,6 +2427,12 @@ final class AppModel: ObservableObject {
                         )
                     }
                     if self.openMounts.isEmpty { self.onAllDrivesClosed?() }
+                    // With the last mount gone, anything of the engine's still
+                    // running is serving nothing -- and while it runs, the next
+                    // drive cannot be opened at all.
+                    Task.detached(priority: .utility) {
+                        _ = EngineProcesses.tidyWhatServesNothing()
+                    }
                     self.openMounts = self.openMounts.filter { !paths.contains($0.value) }
                     // The list, not start(): with a single drive attached that
                     // selects it again and reopens the unlock screen, which is
