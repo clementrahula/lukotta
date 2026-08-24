@@ -81,58 +81,59 @@ public enum VolumeKind: String, Hashable, Sendable {
 /// not two. What identifies a row is given by the caller, because a device
 /// name is not it: those are handed back out as soon as they are free.
 public struct DriveOrder: Sendable {
+    /// The order the rows are in now.
     private var seen: [String]
 
+    /// The places somebody gave the rows themselves.
+    ///
+    /// These are kept whether the row is there or not, and they are the part
+    /// that outlives the session. An order nobody arranged is the order things
+    /// turned up in, and a drive plugged in again is a drive turning up: it
+    /// goes to the bottom with the rest of the new arrivals rather than
+    /// reappearing in the middle of a list from a fortnight ago.
+    private var arranged: [String]
+
     /// How many places to remember. Enough for every drive and file somebody
-    /// opens over a long time, and not enough to grow without end.
+    /// arranges, and not enough to grow without end.
     private static let limit = 200
 
-    public init(remembering: [String] = []) { seen = remembering }
+    public init(arrangement: [String] = []) {
+        arranged = arrangement
+        seen = arrangement
+    }
 
-    /// The places, to be kept somewhere that outlives the app. An order
-    /// somebody arranged by hand and lost at the next launch would be worse
-    /// than not being able to arrange it.
-    public var remembered: [String] { seen }
+    /// The arrangement, to be kept somewhere that outlives the app. An order
+    /// somebody made by hand and lost at the next launch would be worse than
+    /// not being able to make one.
+    public var arrangement: [String] { arranged }
 
-    /// The same drives, in the order they were first seen.
-    ///
-    /// A place is kept for a drive that is not there. Unplug one and plug it in
-    /// again and it comes back where it was, rather than at the bottom, which
-    /// matters more once the order is somebody's own arrangement and not just
-    /// the order things turned up in.
+    /// The same drives, in the order they were first seen -- or in the order
+    /// somebody put them in, where they did.
     public mutating func apply(_ drives: [Drive], key: (Drive) -> String) -> [Drive] {
         var byKey: [String: Drive] = [:]
         for drive in drives {
             let identity = key(drive)
             if byKey[identity] == nil { byKey[identity] = drive }
         }
+        let kept = Set(arranged)
+        seen = seen.filter { byKey[$0] != nil || kept.contains($0) }
         for drive in drives where !seen.contains(key(drive)) { seen.append(key(drive)) }
-        // Over the limit, the places given up are the ones nothing is standing
-        // in any more, oldest first. Trimming from the front regardless would
-        // take the place of a drive that is right there at the top of the list.
-        var index = 0
-        while seen.count > Self.limit, index < seen.count {
-            if byKey[seen[index]] == nil {
-                seen.remove(at: index)
-            } else {
-                index += 1
-            }
-        }
         return seen.compactMap { byKey[$0] }
     }
 
     /// Take an order somebody arranged themselves.
     ///
-    /// What they arranged comes first, in the order they left it. Anything not
-    /// in it is a row they could not see and did not move, and keeps its place
-    /// behind the rest.
+    /// Every row they could see is part of it, whether they dragged that one or
+    /// not: what they arranged is the order they left the list in.
     public mutating func adopt(_ keys: [String]) {
-        let arranged = Set(keys)
-        seen = keys + seen.filter { !arranged.contains($0) }
+        let moved = Set(keys)
+        seen = keys + seen.filter { !moved.contains($0) }
+        arranged = seen
+        if arranged.count > Self.limit { arranged.removeLast(arranged.count - Self.limit) }
     }
 }
 
-/// Where the order of the list is kept between launches.
+/// Where an arrangement of the list is kept between launches.
 ///
 /// Beside the rest of the app's settings. What it holds is what each row is --
 /// a volume's own UUID, or the path of a file somebody opened -- so it says

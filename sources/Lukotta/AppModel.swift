@@ -335,12 +335,10 @@ final class AppModel: ObservableObject {
     /// happened. A row now keeps its place for as long as it is there, and
     /// anything new goes to the bottom -- a drive and a file alike, there being
     /// one list and not two.
-    private var listOrder = DriveOrder(remembering: ListOrderMemory.read())
+    private var listOrder = DriveOrder(arrangement: ListOrderMemory.read())
 
     private func inArrivalOrder(_ drives: [Drive]) -> [Drive] {
-        let ordered = listOrder.apply(drives) { self.rowKey($0) }
-        ListOrderMemory.write(listOrder.remembered)
-        return ordered
+        listOrder.apply(drives) { self.rowKey($0) }
     }
 
     /// Somebody dragged a row somewhere else.
@@ -352,7 +350,7 @@ final class AppModel: ObservableObject {
         moved.move(fromOffsets: source, toOffset: destination)
         drives = moved
         listOrder.adopt(moved.map { self.rowKey($0) })
-        ListOrderMemory.write(listOrder.remembered)
+        ListOrderMemory.write(listOrder.arrangement)
     }
     /// Opening a container file, while it is happening and if it fails.
     ///

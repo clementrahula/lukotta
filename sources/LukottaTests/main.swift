@@ -1024,8 +1024,8 @@ group("theListKeepsTheOrderThingsArrivedIn") {
 
     let backAgain = order.apply([drive("a"), drive("c"), drive("b")], key: key)
     expect(
-        backAgain.map(\.id) == ["a", "b", "c"],
-        "and comes back where it was, its place having been kept")
+        backAgain.map(\.id) == ["a", "c", "b"],
+        "and comes back at the bottom, a drive plugged in again being a drive arriving")
 
     let twice = order.apply([drive("a"), drive("a")], key: key)
     expect(twice.count == 1, "the same thing seen twice is one row")
@@ -1035,11 +1035,18 @@ group("theListKeepsTheOrderThingsArrivedIn") {
     order.adopt(["uuid-c", "uuid-a", "uuid-b"])
     let arranged = order.apply([drive("a"), drive("b"), drive("c")], key: key)
     expect(arranged.map(\.id) == ["c", "a", "b"], "an order arranged by hand is kept")
-    var later = DriveOrder(remembering: order.remembered)
+    var later = DriveOrder(arrangement: order.arrangement)
     let afterRestart = later.apply([drive("b"), drive("a"), drive("c")], key: key)
     expect(afterRestart.map(\.id) == ["c", "a", "b"], "and is still there at the next launch")
     let andNew = later.apply([drive("a"), drive("b"), drive("c"), drive("d")], key: key)
     expect(andNew.map(\.id) == ["c", "a", "b", "d"], "with anything new below it")
+    // A place somebody gave a row is kept for it while the drive is away,
+    // which is the difference between an arrangement and an order things
+    // happened to arrive in.
+    let oneAway = later.apply([drive("a"), drive("c"), drive("d")], key: key)
+    expect(oneAway.map(\.id) == ["c", "a", "d"], "an arranged row keeps its place while unplugged")
+    let backInPlace = later.apply([drive("d"), drive("b"), drive("a"), drive("c")], key: key)
+    expect(backInPlace.map(\.id) == ["c", "a", "b", "d"], "and returns to it")
 }
 
 group("anAttachedImageIsNotADrive") {
