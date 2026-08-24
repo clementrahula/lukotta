@@ -139,6 +139,26 @@ group("failureDiagnosis") {
         "empty transcript still yields a sentence")
 }
 
+group("whatWasAttachedIsPutBack") {
+    // Attaching is this app's business. A container left attached after a quit
+    // comes back next time as a disk with no name and no explanation, which is
+    // how two turned up in somebody's list days later.
+    let opened = [
+        "disk5": URL(fileURLWithPath: "/Users/someone/Desktop/one.img"),
+        "disk6": URL(fileURLWithPath: "/Users/someone/Desktop/two.img"),
+    ]
+    expect(
+        ImageList.detachingOnQuit(opened: opened, mountedDevices: []) == ["disk5", "disk6"],
+        "with nothing open, everything attached is put back")
+    // Quitting with a drive left open keeps the device that serves it.
+    expect(
+        ImageList.detachingOnQuit(opened: opened, mountedDevices: ["/dev/disk5s1"]) == ["disk6"],
+        "except the one still serving a mount somebody asked to keep")
+    expect(
+        ImageList.detachingOnQuit(opened: [:], mountedDevices: []).isEmpty,
+        "and nothing at all when nothing was attached")
+}
+
 group("aDiskWithNoPartitionTableIsStillADrive") {
     // cryptsetup luksFormat /dev/sdb makes one, and so does dd. There is no
     // partition to describe it and diskutil says nothing about what is inside,
@@ -1772,11 +1792,12 @@ group("openingAContainerFile") {
         expect(attached.device.hasPrefix("/dev/disk"), "and comes back as a device")
         expect(attached.identifier.hasPrefix("disk"), "named the way diskutil names it")
 
-        // No partition table, so the ordinary scan finds nothing here. Without
-        // this the file reads as unopenable.
+        // No partition table, so the disk itself is the volume -- listed the
+        // same way a stick that cryptsetup was given whole is listed.
         let listed = DriveScanner.scan(images: [attached.identifier])
             .filter { DriveScanner.wholeDisk(of: $0.id) == attached.identifier }
-        expect(listed.isEmpty, "a container with no partition table lists nothing on its own")
+        expect(listed.count == 1, "a container with no partition table is the one volume on it")
+        expect(listed.first?.id == attached.identifier, "named after the disk, having no partition")
 
         let drive = DiskImage.wholeDiskDrive(attached, url: file)
         expect(drive != nil, "but the whole disk is recognised from its first sector")

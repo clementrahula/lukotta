@@ -216,11 +216,8 @@ public enum DriveScanner {
             // disk look alike from out here -- so it is offered, and the boot
             // sector settles it when it is chosen. Skipped before, which made
             // exactly those drives invisible.
-            // Not an image: one opened through File is described by the
-            // engine's own probe, which knows what is inside it, and listing
-            // it here as well would replace that answer with a guess.
             let unpartitioned =
-                partitions == nil && apfs == nil && !internalDisk && !isImage
+                partitions == nil && apfs == nil && !internalDisk
                 ? [
                     [
                         "DeviceIdentifier": wholeIdent ?? "", "Content": "",

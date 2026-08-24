@@ -227,6 +227,22 @@ public enum ImageList {
         return found + images.filter { !present.contains($0.key) }.values
     }
 
+    /// Which containers to detach when the app is quitting.
+    ///
+    /// Everything it attached, except what is still serving a mount somebody
+    /// chose to leave open: that mount reads through the device, and taking the
+    /// device away would break a drive the person just asked to keep.
+    ///
+    /// Attaching is this application's business and not the reader's. Nothing
+    /// in the interface mentions it, and a container left attached after a quit
+    /// turns up in the list next time as a disk nobody recognises.
+    public static func detachingOnQuit(opened: [String: URL], mountedDevices: [String]) -> [String]
+    {
+        let busy = Set(
+            mountedDevices.map { DriveScanner.wholeDisk(of: ($0 as NSString).lastPathComponent) })
+        return opened.keys.filter { !busy.contains($0) }.sorted()
+    }
+
     /// Which containers should be detached, given the devices just ejected.
     ///
     /// Driven by what was ejected rather than by what is absent from the list. A

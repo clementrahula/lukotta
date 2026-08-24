@@ -147,9 +147,24 @@ public enum DriveSurvey {
             }
 
             // A disk with nothing on it at all: a bare container file, or a
-            // drive nothing has written a partition table to.
+            // drive nothing has written a partition table to. Either way it is
+            // one volume filling the disk, and whether it holds anything is a
+            // question for the boot sector rather than for diskutil, which has
+            // nothing to say about it. Writing it off as a format this app
+            // cannot open was answering a question nobody had asked.
             if parts.isEmpty && volumes.isEmpty {
                 let size = (disk["Size"] as? NSNumber)?.int64Value ?? 0
+                let mount = mountPoint(of: whole, in: mountTable)
+                let verdict: Verdict
+                if let drive = byIdentifier[whole], drive.id == whole {
+                    verdict = .openable
+                } else if internalDisk {
+                    verdict = .system
+                } else if let mount {
+                    verdict = .macOSHasIt(mount)
+                } else {
+                    verdict = .openable
+                }
                 entries.append(
                     Entry(
                         id: whole,
@@ -157,8 +172,14 @@ public enum DriveSurvey {
                         name: nonEmpty(product) ?? whole,
                         sizeBytes: size,
                         content: nonEmpty(disk["Content"] as? String) ?? whole,
-                        verdict: byIdentifier[whole] != nil ? .openable : .unreadable,
-                        drive: byIdentifier[whole]))
+                        verdict: verdict,
+                        drive: byIdentifier[whole]
+                            ?? Drive(
+                                id: whole, devicePath: "/dev/" + whole,
+                                name: nonEmpty(product) ?? whole, sizeBytes: size,
+                                connection: internalDisk
+                                    ? appString("Internal") : appString("External"),
+                                kind: .linux, uuid: whole)))
             }
         }
         return entries

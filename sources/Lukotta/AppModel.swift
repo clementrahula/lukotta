@@ -1905,6 +1905,16 @@ final class AppModel: ObservableObject {
     /// Remove the private workspace. Called when the app quits so nothing of
     /// this session is left behind.
     func cleanUp() {
+        // What was attached is put back. A container file opened during a
+        // session used to stay attached after the app had gone, and turned up
+        // in the list next time as a disk with no name and no explanation --
+        // attaching being this app's business and nobody else's.
+        let leaving = ImageList.detachingOnQuit(
+            opened: openedImages, mountedDevices: Array(openMounts.keys))
+        if !leaving.isEmpty {
+            Log.drives.notice("detaching \(leaving.count, privacy: .public) container files")
+            for identifier in leaving { DiskImage.detach("/dev/" + identifier) }
+        }
         workspace?.destroy()
         workspace = nil
         for past in pastWorkspaces { past.destroy() }
