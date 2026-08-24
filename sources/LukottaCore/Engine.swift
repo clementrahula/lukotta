@@ -125,13 +125,23 @@ public enum EnginePaths {
 /// lock. The lock is required because the mount runs on a background task
 /// holding this while quitting removes it from the main actor.
 public final class Workspace: @unchecked Sendable {
+    /// What this copy of the app calls its scratch directories.
+    public static let prefix: String = {
+        let identifier = Bundle.main.bundleIdentifier ?? "com.lukotta"
+        return "Lukotta-\(identifier)-"
+    }()
+
     public let root: URL
     private let lock = NSLock()
     private var destroyed = false
 
     public init() throws {
         let base = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        root = base.appendingPathComponent("Lukotta-\(UUID().uuidString)", isDirectory: true)
+        // Named after this copy of the app, so that a released app and a
+        // pre-release sweeping the same temporary directory each take away
+        // their own and leave the other's alone.
+        root = base.appendingPathComponent(
+            "\(Workspace.prefix)\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(
             at: root,
             withIntermediateDirectories: true,

@@ -84,7 +84,7 @@ public enum Housekeeping {
                 options: [.skipsHiddenFiles])
         else { return 0 }
         var removed = 0
-        for entry in entries where entry.lastPathComponent.hasPrefix("Lukotta-") {
+        for entry in entries where entry.lastPathComponent.hasPrefix(Workspace.prefix) {
             let modified =
                 (try? entry.resourceValues(forKeys: [.contentModificationDateKey]))?
                 .contentModificationDate

@@ -1187,9 +1187,12 @@ group("nothingIsLeftLyingAboutOnSomebodysMac") {
             [.modificationDate: Date().addingTimeInterval(-seconds)], ofItemAtPath: dir.path)
         return dir
     }
-    let old = make("Lukotta-\(UUID().uuidString)", agedBy: 3600)
-    let fresh = make("Lukotta-\(UUID().uuidString)", agedBy: 5)
+    let old = make("\(Workspace.prefix)\(UUID().uuidString)", agedBy: 3600)
+    let fresh = make("\(Workspace.prefix)\(UUID().uuidString)", agedBy: 5)
     let theirs = make("SomeoneElse-\(UUID().uuidString)", agedBy: 3600)
+    // A pre-release's scratch directory, in the same temporary directory: as
+    // old as the first, and not this copy of the app's to remove.
+    let otherChannel = make("Lukotta-com.lukotta.beta-\(UUID().uuidString)", agedBy: 3600)
 
     let removed = Housekeeping.removeFinishedWorkspaces(now: Date(), in: base)
     expect(removed == 1, "one workspace was finished with")
@@ -1200,6 +1203,9 @@ group("nothingIsLeftLyingAboutOnSomebodysMac") {
     expect(
         FileManager.default.fileExists(atPath: theirs.path),
         "and nothing that is not this app's is touched, however old")
+    expect(
+        FileManager.default.fileExists(atPath: otherChannel.path),
+        "including another channel of this same app")
 
     // A mount point with something mounted on it is never removed, however
     // empty the directory looks from here.

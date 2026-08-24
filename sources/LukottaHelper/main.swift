@@ -273,6 +273,14 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         // what uninstalling asks for. Written as a count rather than a second
         // method so that no helper is ever too old to understand it.
         if count <= 0 {
+            // Only when nothing at all is being served. The addresses are one
+            // pool shared by every copy of this app on the Mac, and a released
+            // app can be serving drives while a pre-release is uninstalled:
+            // taking its address away would break a mount somebody is using.
+            guard !LukottaCore.mountTable().contains("nfs") else {
+                Log.helper.notice("not releasing addresses: drives are open")
+                return reply(Capacity.addresses().count)
+            }
             var released = 0
             for last in 2...13 {
                 let address = "127.0.0.\(last)"
