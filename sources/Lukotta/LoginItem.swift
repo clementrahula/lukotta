@@ -34,7 +34,7 @@ enum LoginItem {
             Log.app.error("could not register to open at login")
             return String(
                 localized:
-                    "macOS would not add \(Brand.name) to your login items. Open System Settings, then General, then Login Items, and add it there."
+                    "macOS would not add \(Brand.name) to your login items. Open System Settings, then General, then Login Items & Extensions, and add it there."
             )
         }
 

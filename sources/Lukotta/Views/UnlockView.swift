@@ -261,7 +261,7 @@ struct PermissionsPanel: View {
             // A bare button into a settings pane is a dead end. Say what to do
             // once it opens.
             detail: appString(
-                "Was refused. In Files and Folders, switch on Removable Volumes for \(Brand.name), then come back."
+                "Was refused. In Files & Folders, switch on Removable Volumes for \(Brand.name), then come back."
             ),
             status: .needed,
             action: (appString("Settings"), { model.openFilesAndFoldersSettings() }))

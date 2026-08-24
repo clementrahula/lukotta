@@ -1970,7 +1970,7 @@
       "context": "A step shown only when macOS is asking the reader to authorise the operation. Never shown when the background helper is registered.",
       "placeholders": []
     },
-    "Was refused. In Files and Folders, switch on Removable Volumes for %@, then come back.": {
+    "Was refused. In Files & Folders, switch on Removable Volumes for %@, then come back.": {
       "screens": [
         "unlock"
       ],
@@ -2212,7 +2212,7 @@
         }
       ]
     },
-    "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": {
+    "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items & Extensions, and add it there.": {
       "screens": [
         "settings"
       ],

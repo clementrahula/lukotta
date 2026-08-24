@@ -8,7 +8,6 @@
       "he": {
         "one": "כונן אחד הפסיק להגיב ונותק. אפשר לפתוח אותו שוב.",
         "two": "שני כוננים הפסיקו להגיב ונותקו. אפשר לפתוח אותם שוב.",
-        "many": "‏%lld כוננים הפסיקו להגיב ונותקו. אפשר לפתוח אותם שוב.",
         "other": "‏%lld כוננים הפסיקו להגיב ונותקו. אפשר לפתוח אותם שוב."
       }
     },
@@ -20,7 +19,6 @@
       "he": {
         "one": "כונן פתוח אחד ייפלט.",
         "two": "שני כוננים פתוחים ייפלטו.",
-        "many": "‏%lld כוננים פתוחים ייפלטו.",
         "other": "‏%lld כוננים פתוחים ייפלטו."
       }
     },
@@ -32,7 +30,6 @@
       "he": {
         "one": "אמצעי אחסון אחד",
         "two": "שני אמצעי אחסון",
-        "many": "‏%lld אמצעי אחסון",
         "other": "‏%lld אמצעי אחסון"
       }
     },
@@ -44,7 +41,6 @@
       "he": {
         "one": "מחק גם מחרוזת סיסמה שמורה אחת (%@)",
         "two": "מחק גם שתי מחרוזות סיסמה שמורות (%@)",
-        "many": "מחק גם %lld מחרוזות סיסמה שמורות (%@)",
         "other": "מחק גם %lld מחרוזות סיסמה שמורות (%@)"
       }
     },
@@ -56,7 +52,6 @@
       "he": {
         "one": "מוחק מחרוזת סיסמה שמורה אחת",
         "two": "מוחק שתי מחרוזות סיסמה שמורות",
-        "many": "מוחק %lld מחרוזות סיסמה שמורות",
         "other": "מוחק %lld מחרוזות סיסמה שמורות"
       }
     },
@@ -68,7 +63,6 @@
       "he": {
         "one": "מוציא כונן פתוח אחד",
         "two": "מוציא שני כוננים פתוחים",
-        "many": "מוציא %lld כוננים פתוחים",
         "other": "מוציא %lld כוננים פתוחים"
       }
     },
@@ -80,7 +74,6 @@
       "he": {
         "one": "לצאת ולהשאיר כונן אחד פתוח?",
         "two": "לצאת ולהשאיר שני כוננים פתוחים?",
-        "many": "לצאת ולהשאיר %lld כוננים פתוחים?",
         "other": "לצאת ולהשאיר %lld כוננים פתוחים?"
       }
     },
@@ -92,7 +85,6 @@
       "he": {
         "one": "הכונן הזה מכיל אמצעי אחסון אחד ולא כולם נפתחו.",
         "two": "הכונן הזה מכיל שני אמצעי אחסון ולא כולם נפתחו.",
-        "many": "הכונן הזה מכיל %lld אמצעי אחסון ולא כולם נפתחו.",
         "other": "הכונן הזה מכיל %lld אמצעי אחסון ולא כולם נפתחו."
       }
     }
@@ -172,7 +164,7 @@
     "External": "חיצוני",
     "FileVault and encrypted disk images, which macOS opens itself": "‏FileVault ותמונות דיסק מוצפנות, ש‑macOS פותח בעצמו",
     "Forget": "שכח",
-    "Full Disk Access": "גישה מלאה לדיסק",
+    "Full Disk Access": "גישה מלאה לכונן",
     "Full Disk Access: macOS will not let any app read a drive’s raw contents without it. It cannot be requested, so it has to be switched on by hand": "גישה מלאה לדיסק: בלעדיה macOS אינו מאפשר לשום יישום לקרוא את התוכן הגולמי של כונן. אי אפשר לבקש אותה, ולכן צריך להפעיל אותה ידנית",
     "GNU General Public License": "GNU General Public License",
     "Granted permission will only apply once the app is restarted.": "הרשאה שניתנה תיכנס לתוקף רק לאחר הפעלה מחדש של היישום.",
@@ -214,7 +206,7 @@
     "Open Drive": "פתיחת כונן",
     "Open Drive…": "פתיחת כונן…",
     "Open Email": "פתיחת דוא״ל",
-    "Open Privacy & Security → Full Disk Access.": "פתחו פרטיות ואבטחה ← גישה מלאה לדיסק.",
+    "Open Privacy & Security → Full Disk Access.": "פתחו פרטיות ואבטחה ← גישה מלאה לכונן.",
     "Open Privacy Settings": "פתיחת הגדרות הפרטיות",
     "Open Read-Only": "פתיחה לקריאה בלבד",
     "Open Settings": "פתיחת ההגדרות",
@@ -323,7 +315,7 @@
     "Virtual machine disks: qcow2, VMDK, VDI, VHD and VHDX, as VMware, VirtualBox, Hyper-V, QEMU and UTM write them": "דיסקים של מכונות וירטואליות: qcow2, ‏VMDK, ‏VDI, ‏VHD ו‑VHDX, כפי ש‑VMware, ‏VirtualBox, ‏Hyper‑V, ‏QEMU ו‑UTM כותבות אותם",
     "Volumes opened": "אמצעי אחסון שנפתחו",
     "Waiting for your approval": "ממתין לאישורך",
-    "Was refused. In Files and Folders, switch on Removable Volumes for %@, then come back.": "נדחתה. בקבצים ותיקיות, הפעילו אמצעי אחסון נשלפים עבור %@ ואז חזרו.",
+    "Was refused. In Files & Folders, switch on Removable Volumes for %@, then come back.": "נדחתה. בקבצים ותיקיות, הפעילו אמצעי אחסון נשלפים עבור %@ ואז חזרו.",
     "Website": "אתר",
     "Welcome to %@": "ברוכים הבאים ל‑%@",
     "What a drive contains is only known once it is unlocked.": "מה שכונן מכיל נודע רק לאחר שנפתח.",
@@ -354,7 +346,7 @@
     "macOS reads this format itself.": "‏macOS קורא פורמט זה בעצמו.",
     "macOS reads this format itself. It did not mount this image, which may already be open in Finder.": "‏macOS קורא פורמט זה בעצמו. הוא לא עיגן את התמונה הזו, וייתכן שהיא כבר פתוחה ב‑Finder.",
     "macOS refused %@ access to this drive. Switch on Removable Volumes below, then open it again.": "‏macOS מנע מ‑%@ גישה לכונן הזה. הפעילו אמצעי אחסון נשלפים למטה ואז פתחו אותו שוב.",
-    "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": "‏macOS לא הוסיף את %@ לפריטי הכניסה שלך. פתחו את הגדרות המערכת, אחר כך כללי, אחר כך פריטי כניסה, והוסיפו אותו שם.",
+    "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items & Extensions, and add it there.": "‏macOS לא הוסיף את %@ לפריטי הכניסה שלך. פתחו את הגדרות המערכת, אחר כך כללי, אחר כך פריטי התחברות והרחבות, והוסיפו אותו שם.",
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": "‏macOS כתב את %@. הוא אינו נשלח לשום מקום אוטומטית. צרפו אותו להודעה שלכם אם תוכלו.",
     "not reached": "לא הגיע",
     "qcow2": "qcow2",
@@ -374,7 +366,7 @@
     "“%@” is marked as damaged. Repair it before opening it.": "‏“%@” מסומן כפגום. תקנו אותו לפני הפתיחה.",
     "“%@” is not a disk image.": "‏“%@” אינו תמונת דיסק.",
     "“%@” is one of a chain of snapshots. Open the disk it was made from.": "‏“%@” הוא אחד משרשרת תצלומי מצב. פתחו את הדיסק שממנו נוצר.",
-    "“%@” is smaller than its footer states, and may be damaged or incomplete.": "‏“%@” קטן ממה שכתוב בכותרת התחתונה שלו, ועלול להיות פגום או חלקי.",
+    "“%@” is smaller than its footer states, and may be damaged or incomplete.": "‏“%@” קטן ממה שמצוין ברשומת הסיום שלו, ועלול להיות פגום או חלקי.",
     "“%@” is unlocked": "‏“%@” פתוח",
     "“%@” names another file on this Mac, which would be opened along with it.": "‏“%@” מפנה לקובץ אחר ב‑Mac הזה, שייפתח יחד איתו.",
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "‏“%@” זקוק ל‑“%@”, שאינו לצידו. תמונה מסוג זה היא אוסף קבצים, וכולם נדרשים.",

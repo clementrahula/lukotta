@@ -518,7 +518,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ में से %@ खाली"
+            "value": "%2$@ में से %1$@ खाली"
           }
         },
         "hr": {
@@ -548,7 +548,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 中 %@ が空き"
+            "value": "%2$@ 中 %1$@ が空き"
           }
         },
         "ko": {
@@ -1690,7 +1690,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ otwiera dyski z BitLockerem, dyski linuksowe, dyski maszyn wirtualnych i obrazy dysków, których macOS sam nie potrafi otworzyć.\n\nOdczyt dysku na poziomie surowego urządzenia wymaga Pełnego dostępu do dysku. macOS nie daje programom żadnego sposobu, by poprosić o to bezpośrednio, więc trzeba włączyć go ręcznie."
+            "value": "%@ otwiera dyski z BitLockerem, dyski Linux, dyski maszyn wirtualnych i obrazy dysków, których macOS sam nie potrafi otworzyć.\n\nOdczyt dysku na poziomie surowego urządzenia wymaga Pełnego dostępu do dysku. macOS nie daje programom żadnego sposobu, by poprosić o to bezpośrednio, więc trzeba włączyć go ręcznie."
           }
         },
         "pt-PT": {
@@ -2678,12 +2678,6 @@
         "he": {
           "variations": {
             "plural": {
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "‏%lld כוננים הפסיקו להגיב ונותקו. אפשר לפתוח אותם שוב."
-                }
-              },
               "one": {
                 "stringUnit": {
                   "state": "translated",
@@ -3432,12 +3426,6 @@
         "he": {
           "variations": {
             "plural": {
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "‏%lld כוננים פתוחים ייפלטו."
-                }
-              },
               "one": {
                 "stringUnit": {
                   "state": "translated",
@@ -4406,12 +4394,6 @@
         "he": {
           "variations": {
             "plural": {
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "‏%lld אמצעי אחסון"
-                }
-              },
               "one": {
                 "stringUnit": {
                   "state": "translated",
@@ -4920,7 +4902,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "260 MB na disku: 160 MB pro aplikaci a 100 MB pro linuxové prostředí rozbalené při prvním použití"
+            "value": "260 MB na disku: 160 MB pro aplikaci a 100 MB pro prostředí Linux rozbalené při prvním použití"
           }
         },
         "da": {
@@ -5052,7 +5034,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "260 MB miejsca na dysku: 160 MB na aplikację i 100 MB na środowisko Linuksa rozpakowywane przy pierwszym użyciu"
+            "value": "260 MB miejsca na dysku: 160 MB na aplikację i 100 MB na środowisko Linux rozpakowywane przy pierwszym użyciu"
           }
         },
         "pt-PT": {
@@ -8240,12 +8222,6 @@
         "he": {
           "variations": {
             "plural": {
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "מחק גם %lld מחרוזות סיסמה שמורות (%@)"
-                }
-              },
               "one": {
                 "stringUnit": {
                   "state": "translated",
@@ -13214,7 +13190,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "सूची के नीचे + पर क्लिक करें, Applications में %@ चुनें और उसे चालू करें।"
+            "value": "सूची के नीचे + पर क्लिक करें, ऐप्लिकेशन में %@ चुनें और उसे चालू करें।"
           }
         },
         "hr": {
@@ -13232,7 +13208,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klik + di bagian bawah daftar, pilih %@ di Applications, lalu nyalakan."
+            "value": "Klik + di bagian bawah daftar, pilih %@ di Aplikasi, lalu nyalakan."
           }
         },
         "it": {
@@ -13268,7 +13244,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klik + di bahagian bawah senarai, pilih %@ dalam Applications, kemudian hidupkannya."
+            "value": "Klik + di bahagian bawah senarai, pilih %@ dalam Aplikasi, kemudian hidupkannya."
           }
         },
         "nb": {
@@ -13328,7 +13304,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "คลิก + ที่ด้านล่างของรายการ เลือก %@ ใน Applications แล้วเปิดใช้งาน"
+            "value": "คลิก + ที่ด้านล่างของรายการ เลือก %@ ในแอปพลิเคชัน แล้วเปิดใช้งาน"
           }
         },
         "tr": {
@@ -13346,7 +13322,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bấm + ở cuối danh sách, chọn %@ trong Applications rồi bật lên."
+            "value": "Bấm + ở cuối danh sách, chọn %@ trong Ứng dụng rồi bật lên."
           }
         },
         "zh-Hans": {
@@ -14714,12 +14690,6 @@
         "he": {
           "variations": {
             "plural": {
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "מוחק %lld מחרוזות סיסמה שמורות"
-                }
-              },
               "one": {
                 "stringUnit": {
                   "state": "translated",
@@ -15228,7 +15198,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mazání linuxového prostředí"
+            "value": "Mazání prostředí Linux"
           }
         },
         "da": {
@@ -15360,7 +15330,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usuwanie środowiska Linuksa"
+            "value": "Usuwanie środowiska Linux"
           }
         },
         "pt-PT": {
@@ -17888,12 +17858,6 @@
         "he": {
           "variations": {
             "plural": {
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "מוציא %lld כוננים פתוחים"
-                }
-              },
               "one": {
                 "stringUnit": {
                   "state": "translated",
@@ -19490,217 +19454,217 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "كل ما هو متصل بهذا الـ Mac، سواء استطاع %@ فتحه أم لا."
+            "value": "كل محرّك متصل بهذا الـ Mac، سواء استطاع %@ فتحه أم لا."
           }
         },
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Всичко, свързано с този Mac, независимо дали %@ може да го отвори."
+            "value": "Всеки диск, свързан с този Mac, независимо дали %@ може да го отвори."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vše připojené k tomuto Macu, ať už to %@ umí otevřít, nebo ne."
+            "value": "Každý disk připojený k tomuto Macu, ať už jej %@ umí otevřít, nebo ne."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alt, der er tilsluttet denne Mac, uanset om %@ kan åbne det."
+            "value": "Alle enheder, der er tilsluttet denne Mac, uanset om %@ kan åbne dem."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alles, was an diesem Mac hängt, ob %@ es öffnen kann oder nicht."
+            "value": "Jedes Laufwerk an diesem Mac, ob %@ es öffnen kann oder nicht."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ό,τι είναι συνδεδεμένο σε αυτόν τον Mac, είτε μπορεί να το ανοίξει το %@ είτε όχι."
+            "value": "Κάθε δίσκος συνδεδεμένος σε αυτόν τον Mac, είτε μπορεί να τον ανοίξει το %@ είτε όχι."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todo lo conectado a este Mac, pueda %@ abrirlo o no."
+            "value": "Todos los discos conectados a este Mac, pueda %@ abrirlos o no."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kõik, mis on selle Maciga ühendatud, olenemata sellest, kas %@ suudab seda avada."
+            "value": "Kõik selle Maciga ühendatud kettad, olenemata sellest, kas %@ suudab neid avada."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kaikki tähän Maciin liitetty, avaapa %@ sen tai ei."
+            "value": "Kaikki tähän Maciin liitetyt asemat, avaapa %@ ne tai ei."
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lahat ng nakakabit sa Mac na ito, mabuksan man ito ng %@ o hindi."
+            "value": "Bawat drive na nakakabit sa Mac na ito, mabuksan man ito ng %@ o hindi."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tout ce qui est connecté à ce Mac, que %@ sache l’ouvrir ou non."
+            "value": "Tous les disques connectés à ce Mac, que %@ sache les ouvrir ou non."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "כל מה שמחובר ל‑Mac הזה, בין אם %@ יכול לפתוח אותו ובין אם לא."
+            "value": "כל כונן שמחובר ל‑Mac הזה, בין אם %@ יכול לפתוח אותו ובין אם לא."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "इस Mac से जुड़ी हर चीज़, चाहे %@ उसे खोल सके या नहीं।"
+            "value": "इस Mac से जुड़ी हर ड्राइव, चाहे %@ उसे खोल सके या नहीं।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sve što je spojeno na ovaj Mac, bez obzira može li ga %@ otvoriti."
+            "value": "Svaki disk spojen na ovaj Mac, bez obzira može li ga %@ otvoriti."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Minden, ami ehhez a Machez csatlakozik, akár meg tudja nyitni a(z) %@, akár nem."
+            "value": "Minden meghajtó, ami ehhez a Machez csatlakozik, akár meg tudja nyitni a(z) %@, akár nem."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Segala yang terpasang pada Mac ini, baik %@ dapat membukanya maupun tidak."
+            "value": "Setiap drive yang terpasang pada Mac ini, baik %@ dapat membukanya maupun tidak."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tutto ciò che è collegato a questo Mac, che %@ possa aprirlo o meno."
+            "value": "Tutti i dischi collegati a questo Mac, che %@ possa aprirli o meno."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ が開けるかどうかにかかわらず、この Mac に接続されているすべて。"
+            "value": "%@ が開けるかどうかにかかわらず、この Mac に接続されているすべてのドライブ。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@이(가) 열 수 있든 없든, 이 Mac에 연결된 모든 것."
+            "value": "%@이(가) 열 수 있든 없든, 이 Mac에 연결된 모든 드라이브."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Viskas, kas prijungta prie šio „Mac“, nesvarbu, ar %@ gali tai atverti."
+            "value": "Visi prie šio „Mac“ prijungti diskai, nesvarbu, ar %@ gali juos atverti."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Viss, kas pievienots šim Mac, neatkarīgi no tā, vai %@ to var atvērt."
+            "value": "Visi šim Mac pievienotie diski neatkarīgi no tā, vai %@ tos var atvērt."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Segala yang disambungkan pada Mac ini, sama ada %@ dapat membukanya atau tidak."
+            "value": "Setiap pemacu yang disambungkan pada Mac ini, sama ada %@ dapat membukanya atau tidak."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alt som er koblet til denne Macen, enten %@ kan åpne det eller ikke."
+            "value": "Alle enheter som er koblet til denne Macen, enten %@ kan åpne dem eller ikke."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alles wat op deze Mac is aangesloten, of %@ het nu kan openen of niet."
+            "value": "Alle schijven die op deze Mac zijn aangesloten, of %@ ze nu kan openen of niet."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wszystko podłączone do tego Maca, niezależnie od tego, czy %@ potrafi to otworzyć."
+            "value": "Wszystkie dyski podłączone do tego Maca, niezależnie od tego, czy %@ potrafi je otworzyć."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tudo o que está ligado a este Mac, quer o %@ o consiga abrir ou não."
+            "value": "Todos os discos ligados a este Mac, quer o %@ os consiga abrir ou não."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tot ce este conectat la acest Mac, indiferent dacă %@ îl poate deschide."
+            "value": "Toate discurile conectate la acest Mac, indiferent dacă %@ le poate deschide."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Всё, что подключено к этому Mac, независимо от того, может ли %@ это открыть."
+            "value": "Все диски, подключённые к этому Mac, независимо от того, может ли %@ их открыть."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vse, kar je priključeno na ta Mac, ne glede na to, ali zna %@ to odpreti."
+            "value": "Vsi diski, priključeni na ta Mac, ne glede na to, ali jih zna %@ odpreti."
           }
         },
         "sq": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gjithçka e lidhur me këtë Mac, pavarësisht nëse %@ mund ta hapë."
+            "value": "Çdo disk i lidhur me këtë Mac, pavarësisht nëse %@ mund ta hapë."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Allt som är anslutet till den här datorn, oavsett om %@ kan öppna det."
+            "value": "Alla enheter som är anslutna till den här datorn, oavsett om %@ kan öppna dem."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ทุกอย่างที่ต่ออยู่กับ Mac เครื่องนี้ ไม่ว่า %@ จะเปิดได้หรือไม่"
+            "value": "ไดรฟ์ทุกตัวที่ต่ออยู่กับ Mac เครื่องนี้ ไม่ว่า %@ จะเปิดได้หรือไม่"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bu Mac'e bağlı olan her şey, %@ açabilsin veya açamasın."
+            "value": "Bu Mac'e bağlı tüm sürücüler, %@ açabilsin veya açamasın."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Усе, що підключено до цього Mac, незалежно від того, чи може %@ це відкрити."
+            "value": "Усі диски, підключені до цього Mac, незалежно від того, чи може %@ їх відкрити."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mọi thứ gắn với máy Mac này, dù %@ có mở được hay không."
+            "value": "Mọi ổ đĩa gắn với máy Mac này, dù %@ có mở được hay không."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "连接到这台 Mac 的一切，无论 %@ 能否打开。"
+            "value": "连接到这台 Mac 的所有驱动器，无论 %@ 能否打开。"
           }
         }
       }
@@ -20876,7 +20840,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "גישה מלאה לדיסק"
+            "value": "גישה מלאה לכונן"
           }
         },
         "hi": {
@@ -20978,7 +20942,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Full Disk Access"
+            "value": "Poln dostop do diska"
           }
         },
         "sq": {
@@ -20996,7 +20960,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "การเข้าถึงดิสก์เต็มรูปแบบ"
+            "value": "การเข้าถึงดิสก์ทั้งหมด"
           }
         },
         "tr": {
@@ -21014,7 +20978,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toàn quyền truy cập đĩa"
+            "value": "Quyền truy cập đầy đủ vào ổ đĩa"
           }
         },
         "zh-Hans": {
@@ -21322,7 +21286,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU सामान्य Public License"
+            "value": "GNU General Public License"
           }
         },
         "hr": {
@@ -21340,7 +21304,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU Umum Public License"
+            "value": "GNU General Public License"
           }
         },
         "it": {
@@ -21376,7 +21340,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU Umum Public License"
+            "value": "GNU General Public License"
           }
         },
         "nb": {
@@ -21412,7 +21376,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU Основные Public License"
+            "value": "GNU General Public License"
           }
         },
         "sl": {
@@ -21436,25 +21400,25 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU ทั่วไป Public License"
+            "value": "GNU General Public License"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU Genel Public License"
+            "value": "GNU General Public License"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU Загальні Public License"
+            "value": "GNU General Public License"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "GNU Cài đặt chung Public License"
+            "value": "GNU General Public License"
           }
         },
         "zh-Hans": {
@@ -23814,7 +23778,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dyski LUKS z Linuksa, zarówno LUKS1, jak i LUKS2"
+            "value": "Dyski LUKS z systemu Linux, zarówno LUKS1, jak i LUKS2"
           }
         },
         "pt-PT": {
@@ -30050,7 +30014,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "افتح الخصوصية والأمان ← الوصول الكامل إلى القرص."
+            "value": "افتح الخصوصية والأمن ← الوصول الكامل إلى القرص."
           }
         },
         "bg": {
@@ -30116,7 +30080,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "פתחו פרטיות ואבטחה ← גישה מלאה לדיסק."
+            "value": "פתחו פרטיות ואבטחה ← גישה מלאה לכונן."
           }
         },
         "hi": {
@@ -30218,7 +30182,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Odprite „Privacy & Security“ → »Full Disk Access«."
+            "value": "Odprite „Zasebnost in varnost“ → »Poln dostop do diska«."
           }
         },
         "sq": {
@@ -30236,7 +30200,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "เปิด ความเป็นส่วนตัวและความปลอดภัย → การเข้าถึงดิสก์เต็มรูปแบบ"
+            "value": "เปิด ความเป็นส่วนตัวและความปลอดภัย → การเข้าถึงดิสก์ทั้งหมด"
           }
         },
         "tr": {
@@ -30248,13 +30212,13 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Відкрийте Конфіденційність і безпека → Повний доступ до диска."
+            "value": "Відкрийте Приватність і безпека → Повний доступ до диска."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mở Quyền riêng tư & Bảo mật → Toàn quyền truy cập đĩa."
+            "value": "Mở Quyền riêng tư & Bảo mật → Quyền truy cập đầy đủ vào ổ đĩa."
           }
         },
         "zh-Hans": {
@@ -30936,7 +30900,7 @@
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Отваряне на Системни настройки"
+            "value": "Отваряне на System Settings"
           }
         },
         "cs": {
@@ -30972,7 +30936,7 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ava süsteemiseaded"
+            "value": "Ava System Settings"
           }
         },
         "fi": {
@@ -31044,13 +31008,13 @@
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Atverti sistemos nuostatas"
+            "value": "Atverti System Settings"
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Atvērt sistēmas iestatījumus"
+            "value": "Atvērt System Settings"
           }
         },
         "ms": {
@@ -31098,7 +31062,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Odpri System Settings"
+            "value": "Odpri Nastavitve sistema"
           }
         },
         "sq": {
@@ -34702,12 +34666,6 @@
         "he": {
           "variations": {
             "plural": {
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "לצאת ולהשאיר %lld כוננים פתוחים?"
-                }
-              },
               "one": {
                 "stringUnit": {
                   "state": "translated",
@@ -36554,7 +36512,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Απομνημόνευση αυτού του κλειδιού στο Μπρελόκ μου"
+            "value": "Απομνημόνευση αυτού του κλειδιού στην Κλειδοθήκη μου"
           }
         },
         "es": {
@@ -36596,13 +36554,13 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "इस कुंजी को मेरे Keychain में रखें"
+            "value": "इस कुंजी को मेरे कीचेन में रखें"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zapamti ovaj ključ u mom Keychainu"
+            "value": "Zapamti ovaj ključ u mom privjesku ključeva"
           }
         },
         "hu": {
@@ -36614,7 +36572,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Simpan kunci ini di Keychain saya"
+            "value": "Simpan kunci ini di Rantai Kunci saya"
           }
         },
         "it": {
@@ -36650,7 +36608,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Simpan kunci ini dalam Keychain saya"
+            "value": "Simpan kunci ini dalam Rantai Kunci saya"
           }
         },
         "nb": {
@@ -36680,7 +36638,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reține această cheie în Keychain-ul meu"
+            "value": "Reține această cheie în portcheiul meu"
           }
         },
         "ru": {
@@ -36692,7 +36650,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zapomni si ta ključ v moji Keychain"
+            "value": "Zapomni si ta ključ v moji verigi ključev"
           }
         },
         "sq": {
@@ -36710,7 +36668,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "เก็บคีย์นี้ไว้ใน Keychain ของฉัน"
+            "value": "เก็บคีย์นี้ไว้ในพวงกุญแจของฉัน"
           }
         },
         "tr": {
@@ -36728,7 +36686,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lưu khóa này vào Keychain của tôi"
+            "value": "Lưu khóa này vào chuỗi khóa của tôi"
           }
         },
         "zh-Hans": {
@@ -39396,7 +39354,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Příprava linuxového prostředí"
+            "value": "Příprava prostředí Linux"
           }
         },
         "da": {
@@ -39528,7 +39486,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Przygotowywanie środowiska Linuksa"
+            "value": "Przygotowywanie środowiska Linux"
           }
         },
         "pt-PT": {
@@ -43268,7 +43226,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Środowisko Linuksa jest rozpakowywane raz, przy pierwszym użyciu."
+            "value": "Środowisko Linux jest rozpakowywane raz, przy pierwszym użyciu."
           }
         },
         "pt-PT": {
@@ -43488,7 +43446,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Środowisko Linuksa zostanie usunięte, zwalniając około %lld MB."
+            "value": "Środowisko Linux zostanie usunięte, zwalniając około %lld MB."
           }
         },
         "pt-PT": {
@@ -44296,7 +44254,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "ड्राइव Finder के साइडबार में Locations के नीचे दिखती है।\nनिकालने से पहले उसे Finder में इजेक्ट करें।"
+            "value": "ड्राइव Finder के साइडबार में स्थान के नीचे दिखती है।\nनिकालने से पहले उसे Finder में इजेक्ट करें।"
           }
         },
         "hr": {
@@ -44314,7 +44272,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drive muncul di bilah samping Finder di bawah Locations.\nKeluarkan di Finder sebelum mencabutnya."
+            "value": "Drive muncul di bilah samping Finder di bawah Lokasi.\nKeluarkan di Finder sebelum mencabutnya."
           }
         },
         "it": {
@@ -44350,7 +44308,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pemacu muncul dalam bar sisi Finder di bawah Locations.\nKeluarkannya dalam Finder sebelum mencabutnya."
+            "value": "Pemacu muncul dalam bar sisi Finder di bawah Lokasi.\nKeluarkannya dalam Finder sebelum mencabutnya."
           }
         },
         "nb": {
@@ -44410,7 +44368,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ไดรฟ์จะปรากฏในแถบข้างของ Finder ใต้หัวข้อ Locations\nดันออกใน Finder ก่อนถอดสาย"
+            "value": "ไดรฟ์จะปรากฏในแถบข้างของ Finder ใต้หัวข้อตำแหน่ง\nดันออกใน Finder ก่อนถอดสาย"
           }
         },
         "tr": {
@@ -44428,7 +44386,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ổ đĩa xuất hiện ở thanh bên của Finder, dưới mục Locations.\nHãy tháo nó trong Finder trước khi rút ra."
+            "value": "Ổ đĩa xuất hiện ở thanh bên của Finder, dưới mục Vị trí.\nHãy tháo nó trong Finder trước khi rút ra."
           }
         },
         "zh-Hans": {
@@ -44956,7 +44914,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "ड्राइव को स्थानीय नेटवर्क कनेक्शन से Finder को सौंपा जाता है, इसलिए वह Locations के नीचे नेटवर्क आइकन के साथ दिखती है। वह किसी भी और ड्राइव की तरह पढ़ी, लिखी और निकाली जाती है। macOS उसे स्थानीय डिस्क की तरह दिखाने का कोई रास्ता नहीं देता।"
+            "value": "ड्राइव को स्थानीय नेटवर्क कनेक्शन से Finder को सौंपा जाता है, इसलिए वह स्थान के नीचे नेटवर्क आइकन के साथ दिखती है। वह किसी भी और ड्राइव की तरह पढ़ी, लिखी और निकाली जाती है। macOS उसे स्थानीय डिस्क की तरह दिखाने का कोई रास्ता नहीं देता।"
           }
         },
         "hr": {
@@ -44974,7 +44932,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drive diserahkan ke Finder lewat sambungan jaringan lokal, jadi muncul di bawah Locations dengan ikon jaringan. Ia dapat dibaca, ditulis, dan dikeluarkan seperti drive lain. macOS tidak menyediakan cara menampilkannya sebagai disk lokal."
+            "value": "Drive diserahkan ke Finder lewat sambungan jaringan lokal, jadi muncul di bawah Lokasi dengan ikon jaringan. Ia dapat dibaca, ditulis, dan dikeluarkan seperti drive lain. macOS tidak menyediakan cara menampilkannya sebagai disk lokal."
           }
         },
         "it": {
@@ -45010,7 +44968,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pemacu diserahkan kepada Finder melalui sambungan rangkaian setempat, jadi ia muncul di bawah Locations dengan ikon rangkaian. Ia dibaca, ditulis dan dikeluarkan seperti mana-mana pemacu lain. macOS tidak menyediakan cara untuk memaparkannya sebagai cakera setempat."
+            "value": "Pemacu diserahkan kepada Finder melalui sambungan rangkaian setempat, jadi ia muncul di bawah Lokasi dengan ikon rangkaian. Ia dibaca, ditulis dan dikeluarkan seperti mana-mana pemacu lain. macOS tidak menyediakan cara untuk memaparkannya sebagai cakera setempat."
           }
         },
         "nb": {
@@ -45070,7 +45028,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ไดรฟ์ถูกส่งให้ Finder ผ่านการเชื่อมต่อเครือข่ายภายในเครื่อง จึงปรากฏใต้หัวข้อ Locations พร้อมไอคอนเครือข่าย อ่าน เขียน และดันออกได้เหมือนไดรฟ์อื่น macOS ไม่มีวิธีให้แสดงมันเป็นดิสก์ภายในเครื่อง"
+            "value": "ไดรฟ์ถูกส่งให้ Finder ผ่านการเชื่อมต่อเครือข่ายภายในเครื่อง จึงปรากฏใต้หัวข้อตำแหน่ง พร้อมไอคอนเครือข่าย อ่าน เขียน และดันออกได้เหมือนไดรฟ์อื่น macOS ไม่มีวิธีให้แสดงมันเป็นดิสก์ภายในเครื่อง"
           }
         },
         "tr": {
@@ -45088,7 +45046,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ổ đĩa được giao cho Finder qua một kết nối mạng cục bộ, nên nó xuất hiện dưới mục Locations với biểu tượng mạng. Nó đọc, ghi và tháo như mọi ổ đĩa khác. macOS không có cách nào để trình bày nó như một đĩa cục bộ."
+            "value": "Ổ đĩa được giao cho Finder qua một kết nối mạng cục bộ, nên nó xuất hiện dưới mục Vị trí với biểu tượng mạng. Nó đọc, ghi và tháo như mọi ổ đĩa khác. macOS không có cách nào để trình bày nó như một đĩa cục bộ."
           }
         },
         "zh-Hans": {
@@ -48656,12 +48614,6 @@
         "he": {
           "variations": {
             "plural": {
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "הכונן הזה מכיל %lld אמצעי אחסון ולא כולם נפתחו."
-                }
-              },
               "one": {
                 "stringUnit": {
                   "state": "translated",
@@ -53588,7 +53540,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Χρησιμοποιείται το κλειδί που έχει αποθηκευτεί στο Μπρελόκ σας"
+            "value": "Χρησιμοποιείται το κλειδί που έχει αποθηκευτεί στην Κλειδοθήκη σας"
           }
         },
         "es": {
@@ -53630,13 +53582,13 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keychain में सहेजी गई कुंजी इस्तेमाल की जा रही है"
+            "value": "कीचेन में सहेजी गई कुंजी इस्तेमाल की जा रही है"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Koristi se ključ spremljen u vašem Keychainu"
+            "value": "Koristi se ključ spremljen u vašem privjesku ključeva"
           }
         },
         "hu": {
@@ -53648,7 +53600,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Memakai kunci yang tersimpan di Keychain Anda"
+            "value": "Memakai kunci yang tersimpan di Rantai Kunci Anda"
           }
         },
         "it": {
@@ -53684,7 +53636,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Menggunakan kunci yang disimpan dalam Keychain anda"
+            "value": "Menggunakan kunci yang disimpan dalam Rantai Kunci anda"
           }
         },
         "nb": {
@@ -53714,7 +53666,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se folosește cheia salvată în Keychain-ul dvs."
+            "value": "Se folosește cheia salvată în portcheiul dvs."
           }
         },
         "ru": {
@@ -53726,7 +53678,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uporablja se ključ, shranjen v vaši Keychain"
+            "value": "Uporablja se ključ, shranjen v vaši verigi ključev"
           }
         },
         "sq": {
@@ -53744,7 +53696,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "กำลังใช้คีย์ที่บันทึกไว้ใน Keychain ของคุณ"
+            "value": "กำลังใช้คีย์ที่บันทึกไว้ในพวงกุญแจของคุณ"
           }
         },
         "tr": {
@@ -53762,7 +53714,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đang dùng khóa đã lưu trong Keychain của bạn"
+            "value": "Đang dùng khóa đã lưu trong chuỗi khóa của bạn"
           }
         },
         "zh-Hans": {
@@ -55533,12 +55485,12 @@
         }
       }
     },
-    "Was refused. In Files and Folders, switch on Removable Volumes for %@, then come back.": {
+    "Was refused. In Files & Folders, switch on Removable Volumes for %@, then come back.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "رُفض. في الملفات والمجلدات، شغّل وحدات التخزين القابلة للإزالة لـ %@، ثم عد."
+            "value": "رُفض. في الملفات والمجلدات، شغّل وحدات تخزين قابلة للإزالة لـ %@، ثم عد."
           }
         },
         "bg": {
@@ -55592,7 +55544,7 @@
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tinanggihan. Sa Files and Folders, buksan ang Removable Volumes para sa %@, pagkatapos ay bumalik."
+            "value": "Tinanggihan. Sa Files & Folders, buksan ang Removable Volumes para sa %@, pagkatapos ay bumalik."
           }
         },
         "fr": {
@@ -55610,7 +55562,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "अस्वीकार कर दिया गया। फ़ाइलें और फ़ोल्डर में %@ के लिए हटाने योग्य वॉल्यूम चालू करें, फिर लौटें।"
+            "value": "अस्वीकार कर दिया गया। फ़ाइल और फ़ोल्डर में %@ के लिए हटाने योग्य वॉल्यूम चालू करें, फिर लौटें।"
           }
         },
         "hr": {
@@ -55628,7 +55580,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ditolak. Di File dan Folder, nyalakan Volume Lepasan untuk %@, lalu kembali."
+            "value": "Ditolak. Di File & Folder, nyalakan Volume yang Dapat Dihapus untuk %@, lalu kembali."
           }
         },
         "it": {
@@ -55646,7 +55598,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "거부되었습니다. 파일 및 폴더에서 %@에 대해 이동식 볼륨을 켠 뒤 돌아오십시오."
+            "value": "거부되었습니다. 파일 및 폴더에서 %@에 대해 제거 가능한 볼륨을 켠 뒤 돌아오십시오."
           }
         },
         "lt": {
@@ -55664,7 +55616,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telah ditolak. Dalam Fail dan Folder, hidupkan Volum Boleh Tanggal untuk %@, kemudian kembali."
+            "value": "Telah ditolak. Dalam Fail & Folder, hidupkan Volum Boleh Dikeluarkan untuk %@, kemudian kembali."
           }
         },
         "nb": {
@@ -55706,13 +55658,13 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bilo je zavrnjeno. V „Files and Folders“ vklopite „Removable Volumes“ za %@ in se vrnite."
+            "value": "Bilo je zavrnjeno. V „Datoteke in mape“ vklopite „Snemljivi nosilci“ za %@ in se vrnite."
           }
         },
         "sq": {
           "stringUnit": {
             "state": "translated",
-            "value": "U refuzua. Te Files and Folders, aktivizo Removable Volumes për %@, pastaj kthehu."
+            "value": "U refuzua. Te Files & Folders, aktivizo Removable Volumes për %@, pastaj kthehu."
           }
         },
         "sv": {
@@ -55724,13 +55676,13 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ถูกปฏิเสธ ใน ไฟล์และโฟลเดอร์ ให้เปิด โวลุ่มที่ถอดได้ สำหรับ %@ แล้วกลับมา"
+            "value": "ถูกปฏิเสธ ใน ไฟล์และโฟลเดอร์ ให้เปิด ดิสก์โวลุ่มที่ถอดออกได้ สำหรับ %@ แล้วกลับมา"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reddedildi. Dosyalar ve Klasörler içinde %@ için Çıkarılabilir Birimler seçeneğini açın, sonra geri dönün."
+            "value": "Reddedildi. Dosyalar ve Klasörler içinde %@ için Çıkarılabilir Disk Bölümleri seçeneğini açın, sonra geri dönün."
           }
         },
         "uk": {
@@ -55742,13 +55694,13 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đã bị từ chối. Trong Tệp và thư mục, hãy bật Ổ đĩa tháo lắp được cho %@ rồi quay lại."
+            "value": "Đã bị từ chối. Trong Tệp & Thư mục, hãy bật Ổ đĩa di động cho %@ rồi quay lại."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已被拒绝。请在“文件与文件夹”中为 %@ 开启“可移除宗卷”，然后返回。"
+            "value": "已被拒绝。请在“文件与文件夹”中为 %@ 开启“可移除的宗卷”，然后返回。"
           }
         }
       }
@@ -56020,7 +55972,7 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tere tulemast! See on %@"
+            "value": "Tere tulemast rakendusse %@"
           }
         },
         "fi": {
@@ -62353,222 +62305,222 @@
         }
       }
     },
-    "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items, and add it there.": {
+    "macOS would not add %@ to your login items. Open System Settings, then General, then Login Items & Extensions, and add it there.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لم يضف macOS %@ إلى عناصر تسجيل الدخول لديك. افتح إعدادات النظام، ثم عام، ثم عناصر تسجيل الدخول، وأضفه هناك."
+            "value": "لم يضف macOS %@ إلى عناصر تسجيل الدخول لديك. افتح إعدادات النظام، ثم عام، ثم عناصر الدخول والملحقات، وأضفه هناك."
           }
         },
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS не добави %@ към елементите за влизане. Отворете System Settings, после General, после Login Items и го добавете там."
+            "value": "macOS не добави %@ към елементите за влизане. Отворете System Settings, после General, после Login Items & Extensions и го добавете там."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS nepřidal %@ mezi položky přihlášení. Otevřete Nastavení systému, pak Obecné, pak Položky přihlášení a přidejte ji tam."
+            "value": "macOS nepřidal %@ mezi položky přihlášení. Otevřete Nastavení systému, pak Obecné, pak Aktivaci položek a rozšíření při přihlášení a přidejte ji tam."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ville ikke føje %@ til dine loginemner. Åbn Systemindstillinger, derefter Generelt, derefter Loginemner, og tilføj programmet der."
+            "value": "macOS ville ikke føje %@ til dine loginemner. Åbn Systemindstillinger, derefter Generelt, derefter Loginemner & udvidelser, og tilføj programmet der."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS hat %@ nicht zu deinen Anmeldeobjekten hinzugefügt. Öffne die Systemeinstellungen, dann Allgemein, dann Anmeldeobjekte, und füge die App dort hinzu."
+            "value": "macOS hat %@ nicht zu deinen Anmeldeobjekten hinzugefügt. Öffne die Systemeinstellungen, dann Allgemein, dann Anmeldeobjekte & Erweiterungen, und füge die App dort hinzu."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Το macOS δεν πρόσθεσε το %@ στα αντικείμενα σύνδεσης. Ανοίξτε τις Ρυθμίσεις συστήματος, μετά Γενικά, μετά Αντικείμενα σύνδεσης, και προσθέστε το εκεί."
+            "value": "Το macOS δεν πρόσθεσε το %@ στα αντικείμενα σύνδεσης. Ανοίξτε τις Ρυθμίσεις συστήματος, μετά Γενικά, μετά Στοιχεία εισόδου και επεκτάσεις, και προσθέστε το εκεί."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS no añadió %@ a tus ítems de inicio. Abre Ajustes del Sistema, luego General, luego Ítems de inicio, y añádelo ahí."
+            "value": "macOS no añadió %@ a tus ítems de inicio. Abre Ajustes del Sistema, luego General, luego Ítems de inicio y extensiones, y añádelo ahí."
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ei lisanud rakendust %@ sisselogimisüksuste hulka. Ava Süsteemiseaded, siis Üldine, siis Sisselogimisüksused, ja lisa see sinna."
+            "value": "macOS ei lisanud rakendust %@ sisselogimisüksuste hulka. Ava System Settings, siis General, siis Login Items & Extensions, ja lisa see sinna."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ei lisännyt ohjelmaa %@ kirjautumiskohteisiin. Avaa Järjestelmäasetukset, sitten Yleiset, sitten Kirjautumiskohteet, ja lisää se sinne."
+            "value": "macOS ei lisännyt ohjelmaa %@ kirjautumiskohteisiin. Avaa Järjestelmäasetukset, sitten Yleiset, sitten Kirjautumiskohteet ja laajennukset, ja lisää se sinne."
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hindi idinagdag ng macOS ang %@ sa iyong mga login item. Buksan ang System Settings, pagkatapos ay General, pagkatapos ay Login Items, at idagdag ito roon."
+            "value": "Hindi idinagdag ng macOS ang %@ sa iyong mga login item. Buksan ang System Settings, pagkatapos ay General, pagkatapos ay Login Items & Extensions, at idagdag ito roon."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS n’a pas ajouté %@ à vos ouvertures de session. Ouvrez Réglages Système, puis Général, puis Ouverture, et ajoutez-la là."
+            "value": "macOS n’a pas ajouté %@ à vos ouvertures de session. Ouvrez Réglages Système, puis Général, puis Ouverture et extensions, et ajoutez-la là."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏macOS לא הוסיף את %@ לפריטי הכניסה שלך. פתחו את הגדרות המערכת, אחר כך כללי, אחר כך פריטי כניסה, והוסיפו אותו שם."
+            "value": "‏macOS לא הוסיף את %@ לפריטי הכניסה שלך. פתחו את הגדרות המערכת, אחר כך כללי, אחר כך פריטי התחברות והרחבות, והוסיפו אותו שם."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ने %@ को आपके लॉगिन आइटम में नहीं जोड़ा। सिस्टम सेटिंग्ज़, फिर सामान्य, फिर लॉगिन आइटम खोलें और उसे वहाँ जोड़ें।"
+            "value": "macOS ने %@ को आपके लॉगिन आइटम में नहीं जोड़ा। सिस्टम सेटिंग, फिर सामान्य, फिर लॉगइन आइटम और एक्सटेंशन खोलें और उसे वहाँ जोड़ें।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS nije dodao %@ u stavke prijave. Otvorite Postavke sustava, zatim Općenito, zatim Stavke prijave, i dodajte ga ondje."
+            "value": "macOS nije dodao %@ u stavke prijave. Otvorite Postavke sustava, zatim Općenito, zatim Stavke za prijavu i ekstenzije, i dodajte ga ondje."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A macOS nem adta hozzá a(z) %@ alkalmazást a bejelentkezési elemekhez. Nyissa meg a Rendszerbeállításokat, majd az Általános, majd a Bejelentkezési elemek részt, és adja hozzá ott."
+            "value": "A macOS nem adta hozzá a(z) %@ alkalmazást a bejelentkezési elemekhez. Nyissa meg a Rendszerbeállításokat, majd az Általános, majd az Indítóelemek és bővítmények részt, és adja hozzá ott."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS tidak menambahkan %@ ke item masuk Anda. Buka Pengaturan Sistem, lalu Umum, lalu Item Masuk, dan tambahkan di sana."
+            "value": "macOS tidak menambahkan %@ ke item masuk Anda. Buka Pengaturan Sistem, lalu Umum, lalu Item Masuk & Ekstensi, dan tambahkan di sana."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS non ha aggiunto %@ agli elementi di login. Apri Impostazioni di Sistema, poi Generali, poi Elementi login, e aggiungila lì."
+            "value": "macOS non ha aggiunto %@ agli elementi di login. Apri Impostazioni di Sistema, poi Generali, poi Elementi login ed estensioni, e aggiungila lì."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS は %@ をログイン項目に追加しませんでした。「システム設定」を開き、「一般」、「ログイン項目」と進んで、そこで追加してください。"
+            "value": "macOS は %@ をログイン項目に追加しませんでした。「システム設定」を開き、「一般」、「ログイン項目と機能拡張」と進んで、そこで追加してください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS가 %@을(를) 로그인 항목에 추가하지 않았습니다. 시스템 설정을 열고 일반, 로그인 항목으로 이동해 그곳에서 추가하십시오."
+            "value": "macOS가 %@을(를) 로그인 항목에 추가하지 않았습니다. 시스템 설정을 열고 일반, 로그인 항목 및 확장 프로그램으로 이동해 그곳에서 추가하십시오."
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "„macOS“ nepridėjo %@ prie prisijungimo elementų. Atverkite Sistemos nuostatas, tada Bendra, tada Prisijungimo elementai, ir pridėkite ją ten."
+            "value": "„macOS“ nepridėjo %@ prie prisijungimo elementų. Atverkite System Settings, tada General, tada Login Items & Extensions, ir pridėkite ją ten."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS nepievienoja %@ pieteikšanās vienumiem. Atveriet Sistēmas iestatījumus, tad Vispārīgi, tad Pieteikšanās vienumi, un pievienojiet to tur."
+            "value": "macOS nepievienoja %@ pieteikšanās vienumiem. Atveriet System Settings, tad General, tad Login Items & Extensions, un pievienojiet to tur."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS tidak menambah %@ pada item log masuk anda. Buka Seting Sistem, kemudian Umum, kemudian Item Log Masuk, dan tambahkannya di sana."
+            "value": "macOS tidak menambah %@ pada item log masuk anda. Buka Seting Sistem, kemudian Umum, kemudian Item Log Masuk & Sambungan, dan tambahkannya di sana."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS la ikke %@ til i påloggingsobjektene. Åpne Systeminnstillinger, så Generelt, så Påloggingsobjekter, og legg den til der."
+            "value": "macOS la ikke %@ til i påloggingsobjektene. Åpne Systeminnstillinger, så Generelt, så Påloggingsobjekter og utvidelser, og legg den til der."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS heeft %@ niet aan je inlogitems toegevoegd. Open Systeeminstellingen, dan Algemeen, dan Inlogonderdelen, en voeg de app daar toe."
+            "value": "macOS heeft %@ niet aan je inlogitems toegevoegd. Open Systeeminstellingen, dan Algemeen, dan Inlogonderdelen en extensies, en voeg de app daar toe."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS nie dodał programu %@ do elementów logowania. Otwórz Ustawienia systemowe, potem Ogólne, potem Elementy logowania, i dodaj go tam."
+            "value": "macOS nie dodał programu %@ do elementów logowania. Otwórz Ustawienia systemowe, potem Ogólne, potem Rzeczy i rozszerzenia otwierane podczas logowania, i dodaj go tam."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O macOS não adicionou o %@ aos itens de início de sessão. Abra as Definições do Sistema, depois Geral, depois Itens de início de sessão, e adicione-o aí."
+            "value": "O macOS não adicionou o %@ aos itens de início de sessão. Abra as Definições do Sistema, depois Geral, depois Início de sessão e extensões, e adicione-o aí."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS nu a adăugat %@ la elementele de conectare. Deschideți Configurări sistem, apoi General, apoi Elemente de conectare, și adăugați-l acolo."
+            "value": "macOS nu a adăugat %@ la elementele de conectare. Deschideți Configurări sistem, apoi General, apoi Lansare la login și extensii, și adăugați-l acolo."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS не добавил %@ в объекты входа. Откройте Системные настройки, затем Основные, затем Объекты входа, и добавьте его там."
+            "value": "macOS не добавил %@ в объекты входа. Откройте Системные настройки, затем Основные, затем Объекты входа и расширения, и добавьте его там."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ni dodal %@ med prijavne elemente. Odprite System Settings, nato Splošno, nato Prijavni elementi, in ga dodajte tam."
+            "value": "macOS ni dodal %@ med prijavne elemente. Odprite Nastavitve sistema, nato Splošno, nato Elemente prijave in razširitve, in ga dodajte tam."
           }
         },
         "sq": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS nuk pranoi ta shtojë %@ te elementet e hyrjes. Hap System Settings, pastaj General, pastaj Login Items, dhe shtoje atje."
+            "value": "macOS nuk pranoi ta shtojë %@ te elementet e hyrjes. Hap System Settings, pastaj General, pastaj Login Items & Extensions, dhe shtoje atje."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS lade inte till %@ bland dina inloggningsobjekt. Öppna Systeminställningar, sedan Allmänt, sedan Inloggningsobjekt, och lägg till det där."
+            "value": "macOS lade inte till %@ bland dina inloggningsobjekt. Öppna Systeminställningar, sedan Allmänt, sedan Startobjekt och tillägg, och lägg till det där."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ไม่ได้เพิ่ม %@ ลงในรายการล็อกอินของคุณ เปิด การตั้งค่าระบบ แล้วไปที่ ทั่วไป จากนั้น รายการเข้าสู่ระบบ และเพิ่มที่นั่น"
+            "value": "macOS ไม่ได้เพิ่ม %@ ลงในรายการล็อกอินของคุณ เปิด การตั้งค่าระบบ แล้วไปที่ ทั่วไป จากนั้น รายการเข้าสู่ระบบและส่วนขยาย และเพิ่มที่นั่น"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS, %@ uygulamasını oturum açma ögelerinize eklemedi. Sistem Ayarları, sonra Genel, sonra Giriş Öğeleri açın ve oradan ekleyin."
+            "value": "macOS, %@ uygulamasını oturum açma ögelerinize eklemedi. Sistem Ayarları, sonra Genel, sonra Oturum Açma Öğeleri ve Genişletmeler açın ve oradan ekleyin."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS не додав %@ до об’єктів входу. Відкрийте Системні параметри, потім Загальні, потім Об’єкти входу, і додайте його там."
+            "value": "macOS не додав %@ до об’єктів входу. Відкрийте Системні параметри, потім Загальні, потім Автозапуск і розширення, і додайте його там."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS không thêm %@ vào các mục đăng nhập của bạn. Hãy mở Cài đặt hệ thống, rồi Cài đặt chung, rồi Mục đăng nhập, và thêm ở đó."
+            "value": "macOS không thêm %@ vào các mục đăng nhập của bạn. Hãy mở Cài đặt hệ thống, rồi Cài đặt chung, rồi Mục đăng nhập & Phần mở rộng, và thêm ở đó."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS 未把 %@ 添加到你的登录项。请打开“系统设置”，然后是“通用”，再到“登录项”，在那里添加。"
+            "value": "macOS 未把 %@ 添加到你的登录项。请打开“系统设置”，然后是“通用”，再到“登录项与扩展”，在那里添加。"
           }
         }
       }
@@ -66764,7 +66716,7 @@
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@“ е по-малък, отколкото посочва долният му колонтитул, и може да е повреден или непълен."
+            "value": "„%@“ е по-малък, отколкото посочва завършващият му запис, и може да е повреден или непълен."
           }
         },
         "cs": {
@@ -66776,25 +66728,25 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@” er mindre, end dens egen sidefod angiver, og kan være beskadiget eller ufuldstændig."
+            "value": "“%@” er mindre, end dens slutpost angiver, og kan være beskadiget eller ufuldstændig."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@“ ist kleiner, als seine eigene Fußzeile angibt, und ist möglicherweise beschädigt oder unvollständig."
+            "value": "„%@“ ist kleiner, als sein abschließender Datensatz angibt, und ist möglicherweise beschädigt oder unvollständig."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Το «%@» είναι μικρότερο από όσο δηλώνει το υποσέλιδό του και μπορεί να είναι κατεστραμμένο ή ημιτελές."
+            "value": "Το «%@» είναι μικρότερο από όσο δηλώνει η τελική εγγραφή του και μπορεί να είναι κατεστραμμένο ή ημιτελές."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%@» es más pequeño de lo que indica su pie de página y puede estar dañado o incompleto."
+            "value": "«%@» es más pequeño de lo que indica su registro final y puede estar dañado o incompleto."
           }
         },
         "et": {
@@ -66806,7 +66758,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%@” on pienempi kuin sen oma alatunniste ilmoittaa, ja se voi olla vaurioitunut tai keskeneräinen."
+            "value": "”%@” on pienempi kuin sen lopputietue ilmoittaa, ja se voi olla vaurioitunut tai keskeneräinen."
           }
         },
         "fil": {
@@ -66818,13 +66770,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "« %@ » est plus petit que ne l’indique son pied de page ; il est peut-être endommagé ou incomplet."
+            "value": "« %@ » est plus petit que ne l’indique son enregistrement de fin ; il est peut-être endommagé ou incomplet."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏“%@” קטן ממה שכתוב בכותרת התחתונה שלו, ועלול להיות פגום או חלקי."
+            "value": "‏“%@” קטן ממה שמצוין ברשומת הסיום שלו, ועלול להיות פגום או חלקי."
           }
         },
         "hi": {
@@ -66842,7 +66794,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A(z) „%@” kisebb, mint amit a saját élőlába megad, ezért sérült vagy hiányos lehet."
+            "value": "A(z) „%@” kisebb, mint amit a zárórekordja megad, ezért sérült vagy hiányos lehet."
           }
         },
         "id": {
@@ -66854,7 +66806,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%@» è più piccolo di quanto indichi il suo piè di pagina e potrebbe essere danneggiato o incompleto."
+            "value": "«%@» è più piccolo di quanto indichi il suo record finale e potrebbe essere danneggiato o incompleto."
           }
         },
         "ja": {
@@ -66872,13 +66824,13 @@
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@“ yra mažesnis, nei nurodo jo poraštė, todėl gali būti sugadintas arba nebaigtas."
+            "value": "„%@“ yra mažesnis, nei nurodo jo baigiamasis įrašas, todėl gali būti sugadintas arba nebaigtas."
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@” ir mazāks, nekā norāda tā kājene, un var būt bojāts vai nepabeigts."
+            "value": "“%@” ir mazāks, nekā norāda tā noslēguma ieraksts, un var būt bojāts vai nepabeigts."
           }
         },
         "ms": {
@@ -66890,13 +66842,13 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%@» er mindre enn sin egen bunntekst oppgir, og kan være skadet eller ufullstendig."
+            "value": "«%@» er mindre enn den avsluttende posten oppgir, og kan være skadet eller ufullstendig."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "‘%@’ is kleiner dan de eigen voettekst aangeeft en is mogelijk beschadigd of onvolledig."
+            "value": "‘%@’ is kleiner dan de afsluitende record aangeeft en is mogelijk beschadigd of onvolledig."
           }
         },
         "pl": {
@@ -66908,13 +66860,13 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "«%@» é menor do que o seu rodapé indica e pode estar danificado ou incompleto."
+            "value": "«%@» é menor do que o seu registo final indica e pode estar danificado ou incompleto."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@” este mai mic decât indică propriul subsol și poate fi deteriorat sau incomplet."
+            "value": "„%@” este mai mic decât indică înregistrarea sa finală și poate fi deteriorat sau incomplet."
           }
         },
         "ru": {
@@ -66926,19 +66878,19 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "»%@« je manjši, kot navaja njegova noga, in je morda poškodovan ali nepopoln."
+            "value": "»%@« je manjši, kot navaja njegov zaključni zapis, in je morda poškodovan ali nepopoln."
           }
         },
         "sq": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@” është më i vogël se sa deklaron fundfaqja e tij, dhe mund të jetë i dëmtuar ose i paplotë."
+            "value": "“%@” është më i vogël se sa deklaron regjistri i tij përfundimtar, dhe mund të jetë i dëmtuar ose i paplotë."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%@” är mindre än vad dess egen sidfot anger och kan vara skadad eller ofullständig."
+            "value": "”%@” är mindre än vad dess slutpost anger och kan vara skadad eller ofullständig."
           }
         },
         "th": {
@@ -66950,7 +66902,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@”, altbilgisinin belirttiğinden küçük; hasarlı veya eksik olabilir."
+            "value": "“%@”, son kaydının belirttiğinden küçük; hasarlı veya eksik olabilir."
           }
         },
         "uk": {
@@ -66968,7 +66920,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@”比其页脚所述的更小，可能已损坏或不完整。"
+            "value": "“%@”比其尾部记录所述的更小，可能已损坏或不完整。"
           }
         }
       }
