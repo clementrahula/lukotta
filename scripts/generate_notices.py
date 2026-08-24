@@ -77,7 +77,7 @@ w("every GPL-licensed component embedded in it is offered from the same location
 w("the application itself, at no additional charge.")
 w("")
 w("Each release is accompanied by that source. Requests may also be addressed to")
-w("lukotta@rahula.dev.")
+w("legal@lukotta.com.")
 w("")
 w('## Scope of the Corresponding Source')
 w('')

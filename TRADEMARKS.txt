@@ -54,4 +54,4 @@ describe compatibility.
 
   4. Contact
 
-  lukotta@rahula.dev
+  legal@lukotta.com

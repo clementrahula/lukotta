@@ -17,7 +17,7 @@ EMPTY = """<?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
   <channel>
     <title>Lukotta</title>
-    <link>https://lukotta-updates.rahula.dev/appcast.xml</link>
+    <link>https://updates.lukotta.com/appcast.xml</link>
     <description>Updates for Lukotta.</description>
     <language>en</language>
   </channel>

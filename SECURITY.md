@@ -6,7 +6,7 @@ how each of those is done, and where to report a fault.
 
 ## Reporting a Vulnerability
 
-Email **lukotta@rahula.dev**. Please do not open a public issue for anything
+Email **bugreport@lukotta.com**. Please do not open a public issue for anything
 that could expose someone's passphrase or their data.
 
 Include what you did, what happened, the version from the Help screen, and

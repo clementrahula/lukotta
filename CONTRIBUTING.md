@@ -83,7 +83,7 @@ person with the same drive finds the answer.
 The bug icon in the app gathers the version, the environment and the engine's
 own output, removes credentials from it by value rather than by pattern, and
 shows you everything before it sends. That report goes to
-**lukotta@rahula.dev**. Use it when the report carries something you would
+**bugreport@lukotta.com**. Use it when the report carries something you would
 rather not publish, such as a drive's name or the layout of your disks, or when
 you have no GitHub account.
 
@@ -221,7 +221,6 @@ Everything else is in one of these:
 | `translations/` | One JSON file per language, built into the string catalogue. |
 | `patches/` | Changes to the engine and the crates it links. Somebody else's code, under their licence. |
 | `assets/` | Artwork. `assets/brand/` holds the originals and the renderings made from them. |
-| `docs/` | **The website**, at lukotta.rahula.dev. GitHub Pages serves from the repository root or `docs/`, so it takes that name; the documentation is in the root. |
 | `vendor/` | The Linux engine, fetched by the build. Ignored apart from `engine.lock`, which pins it. |
 
 ## Test Drives Without Encrypted Hardware

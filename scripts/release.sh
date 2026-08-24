@@ -156,7 +156,7 @@ python3 "$HERE/scripts/appcast.py" \
   --length "$LENGTH" \
   --signature "$SIGNATURE" \
   --min-system "$(/usr/libexec/PlistBuddy -c 'Print LSMinimumSystemVersion' "$APP/Contents/Info.plist")" \
-  --notes-link "${LUKOTTA_NOTES_BASE:-https://lukotta-updates.rahula.dev}/notes/$VERSION.html" \
+  --notes-link "${LUKOTTA_NOTES_BASE:-https://updates.lukotta.com}/notes/$VERSION.html" \
   --pubdate "$(LC_ALL=C date -u '+%a, %d %b %Y %H:%M:%S +0000')" \
   ${DELTA_ARGS[@]+"${DELTA_ARGS[@]}"}
 

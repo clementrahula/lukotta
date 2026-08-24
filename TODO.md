@@ -96,7 +96,7 @@ responsibly be given to anyone.
   deltas are not, so every bug-fix release is a 154 MB download for a few
   kilobytes of changed code.
 - **[you] A second repository for the appcast**, served at
-  `lukotta-updates.rahula.dev`. The feed URL is already compiled into every
+  `updates.lukotta.com`. The feed URL is already compiled into every
   build, so this host is fixed. One Pages site takes one custom domain, so the
   feed cannot share a host with the website; keeping them apart also keeps the
   feed off the proxied hostname, where an edge cache could serve a stale version

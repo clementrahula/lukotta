@@ -233,8 +233,8 @@ credential that does not exist. `./scripts/notary-status.sh` says which it is.
 
 The feed itself lives in its own repository,
 [lukotta-appcast](https://github.com/clementrahula/lukotta-appcast), served by
-GitHub Pages at `lukotta-updates.rahula.dev`. One Pages site takes one custom
-domain, and `lukotta.rahula.dev` is the website's. Point `LUKOTTA_APPCAST` at a
+GitHub Pages at `updates.lukotta.com`. The website lives in a repository of its
+own, so each has its own Pages site and its own domain. Point `LUKOTTA_APPCAST` at a
 checkout of it and the release writes the appcast and the notes straight in:
 
 ```bash

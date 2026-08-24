@@ -143,7 +143,7 @@ struct ReportIssueSheet: View {
                 Button("Open Email") {
                     copyReport()
                     if let url = Diagnostics.mailtoURL(
-                        address: "lukotta@rahula.dev", environment: environment)
+                        address: "bugreport@lukotta.com", environment: environment)
                     {
                         NSWorkspace.shared.open(url)
                     }

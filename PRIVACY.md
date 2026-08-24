@@ -1,13 +1,13 @@
 # Privacy Policy
 
 Applies to: Lukotta 1.x
-Website: lukotta.rahula.dev
+Website: lukotta.com
 Effective: 21 August 2026
 
 Lukotta is written and published by Clement Rahula, an individual residing in
 the Republic of Estonia (the "Developer").
 
-For privacy questions or requests, contact **lukotta@rahula.dev**.
+For privacy questions or requests, contact **legal@lukotta.com**.
 
 ## Plain-English Summary
 
@@ -33,7 +33,7 @@ command line. [SECURITY.md](SECURITY.md) describes how it is handled.
 
 ### Checking for Updates
 
-While the app is running, it asks `lukotta-updates.rahula.dev` once a day
+While the app is running, it asks `updates.lukotta.com` once a day
 whether a newer version exists. That request carries your IP address, as any
 web request does, along with the app version and the macOS version, so the
 reply can offer a suitable update.
@@ -67,9 +67,9 @@ legal basis is the Developer's legitimate interest in supporting the software.
 
 ## The Website and the Update Feed
 
-The website at `lukotta.rahula.dev` is hosted on GitHub Pages and delivered
-through Cloudflare. The update feed at `lukotta-updates.rahula.dev` is served
-by GitHub Pages directly, without Cloudflare.
+The website at `lukotta.com` is hosted on GitHub Pages and delivered through
+Cloudflare. The update feed at `updates.lukotta.com` is served by GitHub Pages
+directly, without Cloudflare.
 
 Neither uses cookies, advertising trackers, visitor profiling or analytics.
 
@@ -85,7 +85,7 @@ it in the app deletes the entry.
 - **GitHub** hosts the website, the update feed, the source repository and the
   downloads. Requests to any of them appear in GitHub's logs.
   <https://docs.github.com/site-policy/privacy-policies/github-privacy-statement>
-- **Cloudflare** delivers and protects `lukotta.rahula.dev`.
+- **Cloudflare** delivers and protects `lukotta.com`.
   <https://www.cloudflare.com/privacypolicy/>
 
 The app does not connect to Cloudflare, and neither provider receives anything
@@ -107,7 +107,7 @@ policies, linked above. The Developer does not receive or store them.
 
 Where the GDPR applies, you may have rights over personal data processed about
 you: access, correction, deletion, restriction, objection and portability. To
-exercise them, contact **lukotta@rahula.dev**.
+exercise them, contact **legal@lukotta.com**.
 
 Because so little is collected, the Developer will usually hold nothing that
 identifies you, and may therefore be unable to link a request to any stored

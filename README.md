@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://lukotta.rahula.dev">lukotta.rahula.dev</a> ·
+  <a href="https://lukotta.com">lukotta.com</a> ·
   <a href="https://github.com/clementrahula/lukotta/releases">Download</a>
 </p>
 
@@ -108,7 +108,7 @@ Thai · Turkish · Ukrainian · Vietnamese
 Arabic and Hebrew read right to left, and the interface turns round with them.
 
 If a translation reads wrongly, or you would like a translation that is not listed here,
-write to [lukotta@rahula.dev][email] or to GitHub Issues. Corrections and
+write to [support@lukotta.com][email] or to GitHub Issues. Corrections and
 requests are both welcome.
 
 ## Installing
@@ -217,7 +217,7 @@ as it always does in Finnish.
 
 ## Credits
 
-Clement Rahula · [lukotta@rahula.dev](mailto:lukotta@rahula.dev) ·
+Clement Rahula · [support@lukotta.com](mailto:support@lukotta.com) ·
 [rahula.dev](https://rahula.dev)
 
 The mounting is done by [anylinuxfs][anylinuxfs], written by nohajc. Updates use
@@ -227,7 +227,7 @@ projects it works with.
 Lukotta is developed and maintained using GenAI tools, mainly the Opus 5
 and Fable 5 models from Anthropic.
 
-[email]: mailto:lukotta@rahula.dev
+[email]: mailto:support@lukotta.com
 [releases]: https://github.com/clementrahula/lukotta/releases
 [building]: BUILDING.md
 [contributing]: CONTRIBUTING.md

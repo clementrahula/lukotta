@@ -138,7 +138,7 @@ struct HelpSheet: View {
                             Button("Licence") { document = .licence }
                             Button("Third-Party Notices") { document = .notices }
                             Button("Specs") { document = .specs }
-                            Button("Website") { model.open("https://lukotta.rahula.dev") }
+                            Button("Website") { model.open("https://lukotta.com") }
                             Button("Source") {
                                 model.open("https://github.com/clementrahula/lukotta")
                             }
@@ -150,7 +150,9 @@ struct HelpSheet: View {
                     HelpSection(title: "Author") {
                         Text("Clement Rahula")
                         HStack(spacing: 10) {
-                            Button("lukotta@rahula.dev") { model.open("mailto:lukotta@rahula.dev") }
+                            Button("support@lukotta.com") {
+                                model.open("mailto:support@lukotta.com")
+                            }
                             Button("rahula.dev") { model.open("https://rahula.dev") }
                         }
                         .controlSize(.small)

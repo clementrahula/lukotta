@@ -20,7 +20,8 @@ CATALOGUE = ROOT / "resources" / "Localizable.xcstrings"
 # Names, addresses and format-only keys are not sentences.
 SKIP = {
     # Names and addresses.
-    "Clement Rahula", "lukotta@rahula.dev", "rahula.dev",
+    "Clement Rahula", "support@lukotta.com", "legal@lukotta.com",
+    "bugreport@lukotta.com", "lukotta.com", "rahula.dev",
     # Formats and separators, which carry no words.
     "%@", "%@, %@", "%@, %@, %@", "%@, %@, %@%@", "%@: %@", "%@ · %@", "%@ · %@ · %@",
     "%@ · %@ · %@ · %@", ", ", "-",

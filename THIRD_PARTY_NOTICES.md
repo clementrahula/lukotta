@@ -14,7 +14,7 @@ every GPL-licensed component embedded in it is offered from the same location as
 the application itself, at no additional charge.
 
 Each release is accompanied by that source. Requests may also be addressed to
-lukotta@rahula.dev.
+legal@lukotta.com.
 
 ## Scope of the Corresponding Source
 
@@ -206,4 +206,4 @@ registered trademark of Linus Torvalds. macOS, Finder and Apple Silicon are
 trademarks of Apple Inc. Lukotta is not affiliated with, endorsed by, or
 sponsored by any of them, and names them to state what it works with.
 
-Generated 2026-08-23.
+Generated 2026-08-24.
