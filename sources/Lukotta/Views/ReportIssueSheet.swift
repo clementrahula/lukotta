@@ -41,7 +41,7 @@ struct ReportIssueSheet: View {
     /// typed description redacted on top of it.
     private var reportText: String {
         guard !problem.isEmpty else { return fixedPart }
-        return Diagnostics.withProblem(Diagnostics.redact(problem), in: fixedPart)
+        return Diagnostics.withProblem(Diagnostics.scrubbed(problem), in: fixedPart)
     }
 
     private func copyReport() {

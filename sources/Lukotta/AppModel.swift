@@ -225,6 +225,18 @@ final class AppModel: ObservableObject {
         departed = [Departed(id: "snapshot", name: name, index: index)]
     }
 
+    /// The scratch directory a mount was given, once the mount is over.
+    ///
+    /// Immediately, rather than at quit or at the next launch: somebody who
+    /// opens a drive every morning and never quits the app would otherwise
+    /// carry a directory for each one until they restarted.
+    private func tidyUpAfterMounting() {
+        workspace?.destroy()
+        workspace = nil
+        for past in pastWorkspaces { past.destroy() }
+        pastWorkspaces = []
+    }
+
     private func noteDeparted(_ drive: Drive) {
         let index = drives.firstIndex { $0.id == drive.id } ?? drives.count
         departed.removeAll { $0.id == drive.id }
@@ -703,6 +715,9 @@ final class AppModel: ObservableObject {
     private func detachImages(forDevices devices: [String]) {
         let gone = ImageList.detaching(devices: devices, images: Set(openedImages.keys))
         guard !gone.isEmpty else { return }
+        // The file is about to stop being attached, so what the settings
+        // remember about it is about to be wrong.
+        defer { Task.detached(priority: .utility) { Housekeeping.sweep() } }
         let files = gone.compactMap { openedImages[$0]?.path }
         for identifier in gone {
             openedImages[identifier] = nil
@@ -868,6 +883,9 @@ final class AppModel: ObservableObject {
     /// Forget mounts that are no longer there, and leave the interface
     /// somewhere it can be used.
     private func dropMounts(_ points: [String]) {
+        // Mounts that went away without anybody ejecting them leave the same
+        // empty directories behind as an eject does.
+        defer { Task.detached(priority: .utility) { Housekeeping.sweep() } }
         let names = points.map { ($0 as NSString).lastPathComponent }
         openVolumes = []
         openMounts = openMounts.filter { !points.contains($0.value) }
@@ -1001,6 +1019,11 @@ final class AppModel: ObservableObject {
         watcher.start()
         sleepWatch.start()
         putBackWhatWasLeftAttached()
+        // Everything this app can leave behind, taken away in one place: the
+        // scratch directory of a mount that never finished, the empty folder an
+        // ejected drive leaves in ~/Volumes, and the settings' memory of files
+        // that are no longer on this Mac.
+        Task.detached(priority: .utility) { Housekeeping.sweep() }
         // Read now, so the report sheet is filled in before anybody asks for
         // it rather than several seconds after.
         refreshRecentLog()
@@ -1805,7 +1828,13 @@ final class AppModel: ObservableObject {
             fail(drive, "Could not create a private working folder.", "\(error)")
             return
         }
-        if let previous = workspace { pastWorkspaces.append(previous) }
+        // The one before this is finished with the moment a new mount starts:
+        // its script has run and its log has been read. Kept until quit, they
+        // were the hundred and twelve directories found lying about.
+        if let previous = workspace {
+            previous.destroy()
+            pastWorkspaces.removeAll()
+        }
         workspace = ws
 
         // A container file needs no privilege at all: this user attached it, so
@@ -1941,6 +1970,8 @@ final class AppModel: ObservableObject {
         drive: Drive, credential: String, mountPoint: String, transcript: String = "",
         route: MountRoute
     ) {
+        // The script is spent and its log has been read into the transcript.
+        tidyUpAfterMounting()
         // Read-only either because it was asked for, or because the drive
         // refused to be written to and the script fell back. The second is the
         // one worth reporting, and both are recorded the same way.
@@ -2109,6 +2140,9 @@ final class AppModel: ObservableObject {
         // A failure is when somebody reaches for the report, so the log is
         // fetched again here rather than when the sheet is opened.
         refreshRecentLog()
+        // Everything worth keeping from the attempt is in the summary and the
+        // detail by now, both scrubbed. The scratch directory is not.
+        tidyUpAfterMounting()
         // Whatever the first sector reported, the drive did not open. The
         // reading is discarded so that a second attempt asks for a passphrase.
         // A volume wrongly read as unencrypted would otherwise be retried
@@ -2120,12 +2154,9 @@ final class AppModel: ObservableObject {
         // carry engine output, so it passes through the same redaction as the
         // report.
         Log.mount.error(
-            "mount failed at \(String(describing: self.failedStage), privacy: .public): \(Diagnostics.redact(summary, secret: self.activeCredential))"
+            "mount failed at \(String(describing: self.failedStage), privacy: .public): \(Diagnostics.scrubbed(summary, secret: self.activeCredential))"
         )
-        let clean =
-            detail
-            .map { Diagnostics.redact($0, secret: activeCredential) }
-            .map(Diagnostics.withoutMarkers)
+        let clean = detail.map { Diagnostics.scrubbed($0, secret: activeCredential) }
         // A restore that did not work says nothing: there is nobody sitting
         // there, and a failure screen for a drive nobody asked about would be
         // the first thing they saw at login.
@@ -2134,7 +2165,7 @@ final class AppModel: ObservableObject {
             restoreFinished?()
             return
         }
-        phase = .failed(drive, Diagnostics.redact(summary, secret: activeCredential), clean)
+        phase = .failed(drive, Diagnostics.scrubbed(summary, secret: activeCredential), clean)
     }
 
     /// Show whatever of the helper's transcript has not been shown yet.
@@ -2151,7 +2182,7 @@ final class AppModel: ObservableObject {
         // Redacted as it arrives, since the log is shown in the interface,
         // offered in bug reports and written to the workspace. There is then no
         // interval in which a credential exists in any of them.
-        statusLines.append(Diagnostics.redact(line, secret: activeCredential))
+        statusLines.append(Diagnostics.scrubbed(line, secret: activeCredential))
         // Stage markers drive the indicator and are not output to be read.
         if line.contains("LUKOTTA_") { statusLines.removeLast() }
         if line.contains(MountScript.stageMarker) { stageLines.append(line) }
@@ -2239,6 +2270,8 @@ final class AppModel: ObservableObject {
                     self.detachImages(forDevices: devices)
                     self.forgetEngineRead(devices)
                     self.showAllDrives()
+                    // The mount point this drive was served on is empty now.
+                    Task.detached(priority: .utility) { Housekeeping.sweep() }
                 } else {
                     self.ejectProblem = result.message
                 }
@@ -2273,10 +2306,11 @@ final class AppModel: ObservableObject {
                 if let file = openedImages[identifier] { DiskImage.OpenedFiles.remove(file.path) }
             }
         }
-        workspace?.destroy()
-        workspace = nil
-        for past in pastWorkspaces { past.destroy() }
-        pastWorkspaces = []
+        tidyUpAfterMounting()
         EngineConfig.removeGeneratedAction()
+        // On the way out, and synchronously: after this the process is gone and
+        // nothing else will do it. Everything in use fails the sweep's own
+        // rules, so a drive somebody chose to leave open is untouched.
+        Housekeeping.sweep()
     }
 }

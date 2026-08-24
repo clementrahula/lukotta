@@ -140,8 +140,55 @@ public enum Diagnostics {
         return redact(result)
     }
 
+    /// The one way text leaves this app.
+    ///
+    /// Everything shown on a failure screen, kept in the status lines, written
+    /// to the log, handed back by the helper or put in a report goes through
+    /// here and through nothing else. Written as one function because the
+    /// alternative is what was here before: two functions, applied in different
+    /// combinations at eight call sites, so the markers were stripped from a
+    /// failure's detail and not from its summary, and the home directory was
+    /// stripped from nowhere at all.
+    ///
+    /// It removes, in order: this app's own markers, the credential by value,
+    /// anything shaped like a recovery key, anything a tool labelled a secret,
+    /// and the account name out of any path under the home directory.
+    ///
+    /// Drive names and file names are deliberately kept. A report is diagnosed
+    /// by somebody reading it, and "photos.img would not open" is the whole
+    /// content of most reports; that is why the report goes to an address and
+    /// not to a public issue.
+    public static func scrubbed(_ text: String, secret: String? = nil) -> String {
+        redact(withoutMarkers(text), secret: secret)
+    }
+
+    /// The account name, out of any path that carries it.
+    ///
+    /// A report is full of paths -- the engine prints its rootfs, the mount
+    /// point, the image somebody opened -- and every one of them starts
+    /// /Users/<account>. That is a person's name, on its way to an inbox, for
+    /// no diagnostic gain: what matters is that the path was under the home
+    /// directory, not whose.
+    public static func withoutTheAccountName(_ text: String) -> String {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        guard home.hasPrefix("/Users/"), home.count > "/Users/".count else { return text }
+        var result = text.replacingOccurrences(of: home, with: "~")
+        // The account can also arrive on its own, from a tool that prints the
+        // user rather than the path: SUDO_USER, "mounted by <account>", an
+        // owner column. Only as a whole word, so a drive named after somebody
+        // is left alone.
+        let account = String(home.dropFirst("/Users/".count))
+        if account.count >= 3 {
+            result = result.replacingOccurrences(
+                of: #"(?<![A-Za-z0-9._-])"# + NSRegularExpression.escapedPattern(for: account)
+                    + #"(?![A-Za-z0-9._-])"#,
+                with: "[account]", options: [.regularExpression])
+        }
+        return result
+    }
+
     public static func redact(_ text: String) -> String {
-        var result = text
+        var result = withoutTheAccountName(text)
 
         // A BitLocker recovery password: eight six-digit groups, separated or
         // not, and the partial forms a log might contain.
@@ -220,7 +267,7 @@ public enum Diagnostics {
         var lines = report.components(separatedBy: "\n")
         // After the four header lines, which every report begins with.
         let after = min(4, lines.count)
-        lines.insert(contentsOf: ["", "What happened:", redact(problem)], at: after)
+        lines.insert(contentsOf: ["", "What happened:", scrubbed(problem)], at: after)
         return lines.joined(separator: "\n")
     }
 
@@ -240,18 +287,18 @@ public enum Diagnostics {
         if let problem, !problem.isEmpty {
             lines.append("")
             lines.append("What happened:")
-            lines.append(redact(problem))
+            lines.append(scrubbed(problem))
         }
         if let engineOutput, !engineOutput.isEmpty {
             lines.append("")
             lines.append("Engine output:")
             // Enough to diagnose, not so much that it cannot be pasted.
-            lines.append(redact(String(engineOutput.suffix(4000))))
+            lines.append(scrubbed(String(engineOutput.suffix(4000))))
         }
         if let recentLog, !recentLog.isEmpty {
             lines.append("")
             lines.append("What the app was doing:")
-            lines.append(redact(recentLog))
+            lines.append(scrubbed(recentLog))
         }
         if let crashReport {
             lines.append("")

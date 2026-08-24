@@ -26,6 +26,22 @@ public enum DriveMemory {
         return store[uuid]
     }
 
+    /// Forget the names of files that are no longer on this Mac.
+    ///
+    /// The keys are partition UUIDs for drives and paths for images. A UUID
+    /// says nothing about a file and is kept: the drive may be in a drawer. A
+    /// path that no longer exists is a record of something somebody deleted,
+    /// and is of no use to anybody.
+    @discardableResult
+    public static func forgetMissingFiles() -> Int {
+        let manager = FileManager.default
+        var current = store
+        let gone = current.keys.filter { $0.hasPrefix("/") && !manager.fileExists(atPath: $0) }
+        for key in gone { current[key] = nil }
+        if !gone.isEmpty { store = current }
+        return gone.count
+    }
+
     /// Record the label of a drive that has just been opened.
     ///
     /// `mountPoint` is a path such as /Volumes/BACKUP; the last component is the

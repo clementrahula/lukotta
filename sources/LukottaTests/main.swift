@@ -1104,6 +1104,95 @@ group("nothingTalksToTheHelperOffTheSafePath") {
         "and the one safe path is still here")
 }
 
+group("oneScrubberAndNothingGoesRoundIt") {
+    // Everything shown, stored, logged or sent goes through one function. It
+    // was two, applied in different combinations at eight call sites, so a
+    // failure's summary kept the markers its detail had stripped and nothing
+    // stripped the account name at all.
+    let home = FileManager.default.homeDirectoryForCurrentUser.path
+    let text = """
+        LUKOTTA_STAGE:working
+        opening \(home)/Pictures/holiday.img
+        passphrase: hunter2
+        recovery key 123456-234567-345678-456789-567890-678901-789012-890123
+        """
+    let clean = Diagnostics.scrubbed(text, secret: "swordfish")
+    expect(!clean.contains("LUKOTTA_"), "this app's own markers do not leave it")
+    expect(!clean.contains(home), "nor does the path to somebody's home")
+    expect(clean.contains("~/Pictures/holiday.img"), "the path is still readable")
+    expect(clean.contains("holiday.img"), "and the file is still named, which is the report")
+    expect(!clean.contains("hunter2"), "a labelled secret goes")
+    expect(!clean.contains("123456-234567"), "and so does a recovery key")
+    expect(
+        Diagnostics.scrubbed("it was swordfish", secret: "swordfish") == "it was [redacted]",
+        "and the credential itself, by value")
+
+    // The account name on its own, not as part of a path.
+    let account = String(home.dropFirst("/Users/".count))
+    if account.count >= 3 {
+        expect(
+            !Diagnostics.scrubbed("mounted by \(account)").contains(" \(account)"),
+            "the account name goes wherever it appears")
+    }
+
+    // Nothing may call the halves directly: that is how the combinations
+    // drifted apart in the first place.
+    for file in [
+        "sources/Lukotta/AppModel.swift", "sources/LukottaHelper/main.swift",
+        "sources/Lukotta/Views/ReportIssueSheet.swift",
+    ] {
+        let source = (try? String(contentsOfFile: file, encoding: .utf8)) ?? ""
+        expect(!source.isEmpty, "\(file) is where this expects it")
+        expect(
+            !source.contains("Diagnostics.redact")
+                && !source.contains("Diagnostics.withoutMarkers"),
+            "\(file) scrubs through the one function")
+    }
+}
+
+group("nothingIsLeftLyingAboutOnSomebodysMac") {
+    // The three rules: only what this app made, only when it is finished with,
+    // and never anything in use.
+    let base = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        .appendingPathComponent("housekeeping-check-\(UUID().uuidString)", isDirectory: true)
+    try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: base) }
+
+    func make(_ name: String, agedBy seconds: TimeInterval) -> URL {
+        let dir = base.appendingPathComponent(name, isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        try? FileManager.default.setAttributes(
+            [.modificationDate: Date().addingTimeInterval(-seconds)], ofItemAtPath: dir.path)
+        return dir
+    }
+    let old = make("Lukotta-\(UUID().uuidString)", agedBy: 3600)
+    let fresh = make("Lukotta-\(UUID().uuidString)", agedBy: 5)
+    let theirs = make("SomeoneElse-\(UUID().uuidString)", agedBy: 3600)
+
+    let removed = Housekeeping.removeFinishedWorkspaces(now: Date(), in: base)
+    expect(removed == 1, "one workspace was finished with")
+    expect(!FileManager.default.fileExists(atPath: old.path), "the old one is gone")
+    expect(
+        FileManager.default.fileExists(atPath: fresh.path),
+        "a mount that may still be running is left alone")
+    expect(
+        FileManager.default.fileExists(atPath: theirs.path),
+        "and nothing that is not this app's is touched, however old")
+
+    // A mount point with something mounted on it is never removed, however
+    // empty the directory looks from here.
+    let home = base.appendingPathComponent("home", isDirectory: true)
+    let volumes = home.appendingPathComponent("Volumes", isDirectory: true)
+    let busy = volumes.appendingPathComponent("BUSY", isDirectory: true)
+    let idle = volumes.appendingPathComponent("IDLE", isDirectory: true)
+    try? FileManager.default.createDirectory(at: busy, withIntermediateDirectories: true)
+    try? FileManager.default.createDirectory(at: idle, withIntermediateDirectories: true)
+    let table = "x.local:/mnt/BUSY on \(busy.path) (nfs, nodev)"
+    let points = Housekeeping.removeEmptyMountPoints(in: table, home: home)
+    expect(points == 1, "the empty one is taken away")
+    expect(FileManager.default.fileExists(atPath: busy.path), "and the mounted one is not")
+}
+
 group("howManyDrivesThisMacCanServeAtOnce") {
     // Every open drive is a virtual machine serving NFS, and NFS has one port,
     // so each one needs a loopback address of its own. That, and nothing about

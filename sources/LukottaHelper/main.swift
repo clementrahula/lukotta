@@ -231,7 +231,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 + " for \(devicePath)"
             Log.helper.notice(
                 "mount script exited \(task.terminationStatus, privacy: .public)")
-            reply(task.terminationStatus, Diagnostics.redact(output, secret: credential))
+            reply(task.terminationStatus, Diagnostics.scrubbed(output, secret: credential))
         } catch {
             Log.helper.error("the mount could not be run: \(error)")
             reply(71, "\(error)")
@@ -240,7 +240,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
 
     func progress(reply: @escaping (String) -> Void) {
         let (text, secret) = progressQueue.sync { (transcript, activeCredential) }
-        reply(Diagnostics.redact(text, secret: secret))
+        reply(Diagnostics.scrubbed(text, secret: secret))
     }
 
     func identify(devicePath: String, reply: @escaping (String) -> Void) {
