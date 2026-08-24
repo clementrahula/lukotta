@@ -176,7 +176,17 @@ public enum DiskImage {
     /// Returns nil for anything unrecognised, which keeps an unopenable file out
     /// of the list rather than listing it as unknown.
     public static func wholeDiskDrive(_ attached: Attached, url: URL) -> Drive? {
+        wholeDiskContents(attached, url: url)?.drive
+    }
+
+    /// The same, with what the first sector turned out to be. The row can then
+    /// say what is in the file rather than what its partition type suggests,
+    /// there being no partition type at all.
+    public static func wholeDiskContents(_ attached: Attached, url: URL)
+        -> (drive: Drive, format: VolumeFormat)?
+    {
         guard let sector = BootSector.read(devicePath: attached.device) else { return nil }
+        let format = BootSector.identify(sector)
         let kind: VolumeKind
         switch BootSector.identify(sector) {
         case .luks, .ext, .btrfs, .xfs: kind = .linux
@@ -184,7 +194,7 @@ public enum DiskImage {
         case .unknown: return nil
         }
         let size = fileSize(atPath: url.path)
-        return Drive(
+        let drive = Drive(
             id: attached.identifier,
             devicePath: attached.device,
             // The file's name without its extension, which is what the drive is
@@ -197,6 +207,7 @@ public enum DiskImage {
             // container is found again next time. The device it attaches as
             // changes on every attach.
             uuid: url.path)
+        return (drive, format)
     }
 
     /// Devices still attached from a file this app opened, with nothing mounted

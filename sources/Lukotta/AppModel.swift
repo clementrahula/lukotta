@@ -414,7 +414,7 @@ final class AppModel: ObservableObject {
             // Cancelled while it ran. Whatever attached is detached again,
             // since nothing will be shown for it.
             guard !Task.isCancelled else {
-                if case .success(let attached, _, _) = outcome {
+                if case .success(let attached, _, _, _) = outcome {
                     DiskImage.detach(attached.device)
                 }
                 return
@@ -439,13 +439,18 @@ final class AppModel: ObservableObject {
                 if format != .unknown { self.knownFormats[drive.id] = format }
                 self.containerFormats[drive.id] = container
                 self.choose(drive)
-            case .success(let attached, let all, let mine):
+            case .success(let attached, let all, let mine, let format):
                 // Remembered as this app's doing, so that a crash or a forced
                 // quit leaves something able to say which attachment to put
                 // back. hdiutil says what is attached and not who asked for it.
                 DiskImage.OpenedFiles.add(url.path)
                 self.openedImages[attached.identifier] = url
                 self.containerFormats[attached.identifier] = .raw
+                // Read on the way in, so the row says what is in the file
+                // rather than the two things a partition type would allow.
+                if format != .unknown, let row = mine.first {
+                    self.knownFormats[row.id] = format
+                }
                 // Only when the scan could not see it for itself.
                 if let synthesised = all.first(where: {
                     $0.id == attached.identifier && $0.uuid == url.path
@@ -522,7 +527,9 @@ final class AppModel: ObservableObject {
     }
 
     private enum ImageOutcome {
-        case success(DiskImage.Attached, [Drive], [Drive])
+        /// The attachment, the whole list, this file's rows, and what its first
+        /// sector said where the file is one volume with no table around it.
+        case success(DiskImage.Attached, [Drive], [Drive], VolumeFormat)
         /// Read by the engine rather than attached, so there is no device and
         /// nothing to detach afterwards.
         case qcow2(Drive, VolumeFormat, ContainerFormat)
@@ -622,6 +629,7 @@ final class AppModel: ObservableObject {
             // built from the file replaces it. Its first sector identifies it,
             // and the device belongs to whoever attached it, so it can be read
             // here without the helper.
+            var wholeDiskFormat: VolumeFormat = .unknown
             if mine.count <= 1, mine.first.map({ $0.id == attached.identifier }) ?? true {
                 // The first sector says what is in it, and where it cannot be
                 // read -- a device the last mount has not finished letting go
@@ -629,8 +637,10 @@ final class AppModel: ObservableObject {
                 // again on the way to opening it; which file it is cannot be
                 // found out anywhere else, and is what everything else here
                 // hangs on.
+                let read = DiskImage.wholeDiskContents(attached, url: url)
+                wholeDiskFormat = read?.format ?? .unknown
                 let row =
-                    DiskImage.wholeDiskDrive(attached, url: url)
+                    read?.drive
                     ?? Drive(
                         id: attached.identifier, devicePath: attached.device,
                         name: url.deletingPathExtension().lastPathComponent,
@@ -649,7 +659,7 @@ final class AppModel: ObservableObject {
                         "There is nothing in “\(isolated(url.lastPathComponent))” that \(appName) can open."
                     ))
             }
-            return .success(attached, all, mine)
+            return .success(attached, all, mine, wholeDiskFormat)
         }
     }
 
@@ -1308,6 +1318,11 @@ final class AppModel: ObservableObject {
     /// says nothing about what is behind it until it is opened.
     @Published var knownFilesystems: [String: String] = [:]
 
+    /// Which container a row is, where the row is a file at all.
+    func container(of drive: Drive) -> ContainerFormat? {
+        containerFormats[drive.id] ?? containerFormats[DriveScanner.wholeDisk(of: drive.id)]
+    }
+
     /// Which container the drive on screen is, where it is an image.
     ///
     /// Nil for a physical drive, and for an image opened before this was
@@ -1597,10 +1612,11 @@ final class AppModel: ObservableObject {
             knownFormats[drive.id] = format
             containerFormats[drive.id] = container
             return drive
-        case .success(let attached, let all, _):
+        case .success(let attached, let all, let mine, let format):
             DiskImage.OpenedFiles.add(url.path)
             openedImages[attached.identifier] = url
             containerFormats[attached.identifier] = .raw
+            if format != .unknown, let row = mine.first { knownFormats[row.id] = format }
             drives = inArrivalOrder(reconcileImages(all, attachments: nil))
             return drives.first { $0.uuid == url.path }
         }

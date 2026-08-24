@@ -283,7 +283,7 @@ group("volumeKindsAndTheDirtyVolumePath") {
 
     // What may be there, until a probe says which of them it is.
     expect(VolumeKind.microsoft.summary, "BitLocker/NTFS", "microsoft kind summary")
-    expect(VolumeKind.linux.summary, "LUKS", "linux kind summary")
+    expect(VolumeKind.linux.summary, "LUKS/Linux", "linux kind summary")
     // And once it has, one name rather than a pair.
     expect(VolumeKind.microsoft.summary(knowing: .ntfs), "NTFS", "a probed microsoft volume")
     expect(
@@ -291,7 +291,7 @@ group("volumeKindsAndTheDirtyVolumePath") {
     expect(VolumeKind.linux.summary(knowing: .ext), "ext", "a probed Linux filesystem")
     expect(VolumeKind.linux.summary(knowing: .luks), "LUKS", "a probed LUKS container")
     expect(
-        VolumeKind.linux.summary(knowing: .unknown), "LUKS",
+        VolumeKind.linux.summary(knowing: .unknown), "LUKS/Linux",
         "an unrecognised probe leaves the pair standing")
     // And once it is open, both halves: the lock and what was behind it.
     expect(
@@ -996,6 +996,43 @@ group("aSynthesisedContainerIsNotAContainerFile") {
         rows.allSatisfy { $0.verdict == .system },
         "and both belong to the system, whatever diskutil calls the container")
     expect(rows.allSatisfy { $0.drive == nil }, "so neither is offered as a drive to open")
+}
+
+group("aRowSaysOnlyWhatIsKnownAboutIt") {
+    // A partition type is worth two possibilities and the row says both. A disk
+    // with no partition table has no type at all -- a stick somebody ran
+    // cryptsetup or mkfs over, or BitLocker written without a table -- and a
+    // row that guesses there said LUKS over a plain ext4 stick.
+    let plist: [String: Any] = [
+        "AllDisksAndPartitions": [
+            ["DeviceIdentifier": "disk4", "Size": NSNumber(value: 64_000_000_000)]
+        ]
+    ]
+    let rows = DriveScanner.drives(
+        inList: plist,
+        info: { _ in ["BusProtocol": "USB", "Internal": false] })
+    expect(rows.count == 1, "an unpartitioned disk is offered")
+    expect(rows.first?.kindIsKnown == false, "and says nothing about what is in it")
+
+    let partitioned: [String: Any] = [
+        "AllDisksAndPartitions": [
+            [
+                "DeviceIdentifier": "disk4",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk4s1", "Content": "Linux Filesystem",
+                        "Size": NSNumber(value: 64_000_000_000),
+                    ]
+                ],
+            ]
+        ]
+    ]
+    let typed = DriveScanner.drives(
+        inList: partitioned, info: { _ in ["BusProtocol": "USB", "Internal": false] })
+    expect(typed.first?.kindIsKnown == true, "a partition type is worth saying")
+    expect(
+        typed.first?.kind.summary == "LUKS/Linux",
+        "and it is the pair, since the type allows either")
 }
 
 group("theListKeepsTheOrderThingsArrivedIn") {

@@ -62,7 +62,10 @@ public enum VolumeKind: String, Hashable, Sendable {
         }
         switch self {
         case .microsoft: return "BitLocker/NTFS"
-        case .linux: return "LUKS"
+        // The pair, as above: the lock or the filesystem, since a Linux
+        // partition type says only that it is one of the two. Saying "LUKS"
+        // alone put that word over every unencrypted ext4 stick in the list.
+        case .linux: return "LUKS/Linux"
         }
     }
 
@@ -159,10 +162,20 @@ public struct Drive: Identifiable, Hashable, Sendable {
     public let kind: VolumeKind
     /// Partition UUID, stable across replugging, unlike diskNsM.
     public let uuid: String
+    /// Whether the partition type says anything about what is inside.
+    ///
+    /// It does for a partition: Microsoft Basic Data is BitLocker or NTFS, a
+    /// Linux partition is LUKS or a Linux filesystem, and the row can say so.
+    /// A disk with no partition table has no type at all -- it is a stick
+    /// somebody ran cryptsetup or mkfs over, and it could equally be BitLocker
+    /// written without a table. Guessing there produced a row that said LUKS
+    /// over a plain ext4 stick, so such a row says nothing until something has
+    /// read the first sector.
+    public let kindIsKnown: Bool
 
     public init(
         id: String, devicePath: String, name: String, sizeBytes: Int64,
-        connection: String, kind: VolumeKind, uuid: String
+        connection: String, kind: VolumeKind, uuid: String, kindIsKnown: Bool = true
     ) {
         self.id = id
         self.devicePath = devicePath
@@ -171,6 +184,7 @@ public struct Drive: Identifiable, Hashable, Sendable {
         self.connection = connection
         self.kind = kind
         self.uuid = uuid
+        self.kindIsKnown = kindIsKnown
     }
 
     public var sizeDescription: String {
@@ -406,7 +420,8 @@ public enum DriveScanner {
                         sizeBytes: size,
                         connection: connection.joined(separator: " · "),
                         kind: kind,
-                        uuid: uuid))
+                        uuid: uuid,
+                        kindIsKnown: !isWholeDisk))
             }
         }
         return drives

@@ -56,6 +56,7 @@ struct DriveListView: View {
                                 mountPoint: point,
                                 knownFormat: model.knownFormats[drive.id],
                                 knownFilesystem: model.knownFilesystems[drive.id],
+                                container: model.container(of: drive),
                                 space: point.flatMap { model.space[$0] },
                                 volumeCount: point.flatMap { model.volumeCount[$0] } ?? 1,
                                 readOnly: point.map { model.readOnlyMounts.contains($0) } ?? false,
@@ -106,6 +107,9 @@ struct DriveRow: View {
     var knownFormat: VolumeFormat?
     /// What it turned out to hold, where it has been opened.
     var knownFilesystem: String?
+    /// Which container the file is, where the row is a file. The row names it
+    /// rather than saying "Disk Image" over every one of them.
+    var container: ContainerFormat?
     /// Only known once the drive is open, and only then worth showing.
     var space: VolumeSpace?
     var volumeCount: Int = 1
@@ -137,8 +141,18 @@ struct DriveRow: View {
     /// not stop being a 500 GB USB disk.
     private var details: String {
         var parts = [drive.sizeDescription]
-        if !drive.connection.isEmpty { parts.append(drive.connection) }
-        parts.append(drive.kind.summary(knowing: knownFormat, holding: knownFilesystem))
+        // Which container it is, where that is worth saying. A raw image is a
+        // disk image in macOS's own words, and the scan already calls it one;
+        // the rest are formats macOS knows nothing about, so the row names
+        // them: VDI, VHD, VHDX, VMDK, qcow2.
+        let where_ = container.flatMap { $0 == .raw ? nil : $0.name } ?? drive.connection
+        if !where_.isEmpty { parts.append(where_) }
+        // A disk with no partition table says nothing about itself, so until
+        // something has read it the row says nothing either rather than
+        // printing a guess over it.
+        if knownFormat != nil || drive.kindIsKnown {
+            parts.append(drive.kind.summary(knowing: knownFormat, holding: knownFilesystem))
+        }
         return parts.joined(separator: "  ·  ")
     }
 
