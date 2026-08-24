@@ -244,7 +244,9 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     }
 
     func identify(devicePath: String, reply: @escaping (String) -> Void) {
-        guard let sector = BootSector.read(devicePath: devicePath) else {
+        // Waits for a device that has just been attached or handed back: a
+        // moment's refusal to open is not an unrecognised filesystem.
+        guard let sector = BootSector.readWaiting(devicePath: devicePath) else {
             Log.helper.notice("could not read the first sector")
             reply(VolumeFormat.unknown.rawValue)
             return

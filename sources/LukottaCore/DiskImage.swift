@@ -226,14 +226,39 @@ public enum DiskImage {
     /// attaches a raw image in Terminal and then opens this app finds their
     /// image detached, by an app that never touched it.
     public static func strayAttachments(ours: Set<String>) -> [String] {
+        strayAttachmentsWithFiles(ours: ours).map(\.device)
+    }
+
+    /// The same, with the file each device is serving.
+    ///
+    /// The pair matters because a device identifier is reused the moment it is
+    /// free: disk5 detached is disk5 again at the next attach. A list of
+    /// identifiers gathered a second ago and acted on now can name a device
+    /// that has since become something else -- and detaching it takes down a
+    /// drive somebody is in the middle of opening, which then reads as a
+    /// filesystem nothing recognises.
+    public static func strayAttachmentsWithFiles(ours: Set<String>) -> [(
+        device: String, file: String
+    )] {
         guard !ours.isEmpty, let attached = attachments() else { return [] }
         let busy = MountTableEntry.all(in: mountTable()).map(\.source)
         return attached.compactMap { identifier, path in
             guard ours.contains(path) else { return nil }
             let device = "/dev/" + identifier
             guard !busy.contains(where: { $0.hasPrefix(device) }) else { return nil }
-            return device
+            return (device, path)
         }
+    }
+
+    /// Detach a device only while it is still serving the file it was found
+    /// with. An identifier that has been recycled since belongs to something
+    /// else now and is left alone.
+    @discardableResult
+    public static func detachIfStillBacking(device: String, file: String) -> Bool {
+        let identifier = (device as NSString).lastPathComponent
+        guard (attachments() ?? [:])[identifier] == file else { return false }
+        detach(device)
+        return true
     }
 
     /// The files this app has attached, kept where it can be read after a crash.

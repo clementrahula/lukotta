@@ -460,6 +460,9 @@ final class AppModel: ObservableObject {
             switch outcome {
             case .failure(let message):
                 Log.drives.error("the image could not be opened")
+                // Claimed before the attempt; given back now that nothing came
+                // of it, unless something of it is attached after all.
+                Self.releaseClaim(on: url)
                 self.imageOpening = .failed(url, message)
             case .qcow2(let drive, let format, let container):
                 Log.drives.notice(
@@ -578,6 +581,19 @@ final class AppModel: ObservableObject {
     private nonisolated static func attachAndList(_ url: URL, alreadyOpen: Set<String>)
         -> ImageOutcome
     {
+        // Claimed before it is attached, not after.
+        //
+        // The sweep that puts back containers left attached by a crash reads
+        // this list, and a file added once its attachment existed was not in it
+        // yet: the sweep took the attachment for a stray and detached it under
+        // the row that had just been made for it. The screen then showed a
+        // drive whose device was gone -- read as an unrecognised filesystem,
+        // which asks for a passphrase for something nothing can open.
+        //
+        // Claiming first cannot go wrong the other way: a file claimed and then
+        // not attached is one the sweep leaves alone, and the next sweep sees
+        // nothing attached from it and forgets it.
+        DiskImage.OpenedFiles.add(url.path)
         // A fixed VHD is the raw disk with a footer after it, so the engine
         // opens it unchanged: every structure lies at its natural offset and the
         // last sector is past the end of the disk. The other forms are not raw
@@ -1026,7 +1042,6 @@ final class AppModel: ObservableObject {
         didStart = true
         watcher.start()
         sleepWatch.start()
-        putBackWhatWasLeftAttached()
         // Everything this app can leave behind, taken away in one place: the
         // scratch directory of a mount that never finished, the empty folder an
         // ejected drive leaves in ~/Volumes, and the settings' memory of files
@@ -1054,6 +1069,16 @@ final class AppModel: ObservableObject {
             // Taken down here rather than left to accumulate, since one of them
             // holds a lock on the image file it was opened from.
             EngineProcesses.tidyLeftovers()
+
+            // Before the first scan and before anything can be opened.
+            //
+            // This used to be started and left to run, and it detached what a
+            // freshly opened file had just attached: a device identifier is
+            // reused the moment it is free, so disk5 abandoned by the last run
+            // and disk5 attached by this one are the same name for different
+            // things. Doing it here, while the app is still deciding what it
+            // can see, leaves no window in which the two overlap.
+            Self.putBackWhatWasLeftAttached()
 
             // Off the main thread and before anything else: both probes read
             // files, and doing that where the interface is drawn holds the first
@@ -1147,6 +1172,16 @@ final class AppModel: ObservableObject {
         NSApp.terminate(nil)
     }
 
+    /// Stop calling a file ours when nothing of it is attached.
+    ///
+    /// The claim is made before attaching, so a file that turned out not to be
+    /// openable would otherwise be remembered as attached for ever.
+    private nonisolated static func releaseClaim(on url: URL) {
+        let attached = (DiskImage.attachments() ?? [:]).values
+        guard !attached.contains(url.path) else { return }
+        DiskImage.OpenedFiles.remove(url.path)
+    }
+
     /// Anything this app attached and did not put back.
     ///
     /// A crash, a forced quit, or a device that would not let go at the time
@@ -1156,14 +1191,14 @@ final class AppModel: ObservableObject {
     /// is too.
     ///
     /// Only what this app itself attached, and only what is not in use.
-    private func putBackWhatWasLeftAttached() {
-        Task.detached(priority: .utility) {
-            let ours = DiskImage.OpenedFiles.all()
-            let stale = DiskImage.strayAttachments(ours: ours)
-            guard !stale.isEmpty else { return }
-            Log.drives.notice(
-                "putting back \(stale.count, privacy: .public) containers left attached")
-            for device in stale { DiskImage.detach(device) }
+    private nonisolated static func putBackWhatWasLeftAttached() {
+        let ours = DiskImage.OpenedFiles.all()
+        let stale = DiskImage.strayAttachmentsWithFiles(ours: ours)
+        guard !stale.isEmpty else { return }
+        Log.drives.notice(
+            "putting back \(stale.count, privacy: .public) containers left attached")
+        for leftover in stale {
+            DiskImage.detachIfStillBacking(device: leftover.device, file: leftover.file)
         }
     }
 
@@ -1458,10 +1493,28 @@ final class AppModel: ObservableObject {
         Task { [weak self] in
             guard let self else { return }
             let format: VolumeFormat
+            var read: Data?
             if ours {
-                format = await Task.detached(priority: .userInitiated) {
-                    BootSector.read(devicePath: devicePath).map(BootSector.identify) ?? .unknown
+                read = await Task.detached(priority: .userInitiated) {
+                    BootSector.readWaiting(devicePath: devicePath)
                 }.value
+            }
+            if let sector = read {
+                format = BootSector.identify(sector)
+            } else if ours {
+                // Nothing was read, which is not the same as nothing being
+                // recognised, and the difference decides what the screen does:
+                // an unknown format asks for a passphrase and then fails to
+                // open. A device this app attached is normally its own to read;
+                // when it is not -- a partition still being published, a node
+                // whose owner is root -- the helper can read anything, so it is
+                // asked rather than the question being answered wrongly.
+                let why = await Task.detached(priority: .utility) {
+                    BootSector.whyUnreadable(devicePath: devicePath)
+                }.value
+                Log.drives.error(
+                    "could not read the first sector: \(why, privacy: .public); asking the helper")
+                format = await self.helper.identify(devicePath: devicePath)
             } else {
                 format = await self.helper.identify(devicePath: devicePath)
             }
@@ -1554,6 +1607,17 @@ final class AppModel: ObservableObject {
     /// Record that this drive is open, so that it can be opened again after a
     /// restart. Kept whether or not the setting is on, so that turning it on
     /// puts back what is open now rather than waiting for the next mount.
+    /// Which remembered drive each open mount came from.
+    ///
+    /// Ejecting has to forget the drive, and until now it looked the drive up
+    /// again from the mount's device -- which works while the row is there and
+    /// not otherwise. A drive put back at login has no row anybody chose, and
+    /// after an eject that removed it there is nothing left to look up: the
+    /// eject was forgotten instead of the drive, and it came back at the next
+    /// launch having been explicitly ejected. What was mounted is the one thing
+    /// known at both ends.
+    private var restoreKeys: [String: String] = [:]
+
     private func rememberForRestore(_ drive: Drive, readOnly: Bool) {
         MountMemory.remember(
             MountMemory.Entry(
@@ -1691,6 +1755,7 @@ final class AppModel: ObservableObject {
         }.value
         switch outcome {
         case .failure:
+            Self.releaseClaim(on: url)
             return nil
         case .qcow2(let drive, let format, let container):
             engineReadDrives[drive.id] = drive
@@ -2018,6 +2083,7 @@ final class AppModel: ObservableObject {
         }
         DriveMemory.remember(mountPoint: mountPoint, for: drive.uuid)
         rememberForRestore(drive, readOnly: mountedReadOnly)
+        restoreKeys[mountPoint] = drive.uuid
         switch route {
         case .authorised:
             // Authorisation has just been demonstrated, so this is the moment to
@@ -2323,6 +2389,35 @@ final class AppModel: ObservableObject {
                     }
                     for name in Set(ejected.flatMap { [$0.uuid, self.identity(of: $0)] }) {
                         MountMemory.forget(uuid: name)
+                    }
+                    // And by what was actually mounted, which is the only thing
+                    // that survives every route to here. A drive put back at
+                    // login has no row anybody chose and may have none at all
+                    // by now, so the lookup above finds nothing and the eject
+                    // is forgotten instead of the drive: it came back at the
+                    // next launch, having been explicitly ejected.
+                    let ejectedMounts = self.openMounts.filter { paths.contains($0.value) }
+                    for entry in MountMemory.all()
+                    where ejectedMounts.keys.contains(where: { key in
+                        key == entry.uuid || key == entry.imagePath
+                            || entry.volumeIdentifier.map { key == "/dev/" + $0 } == true
+                    }) {
+                        MountMemory.forget(uuid: entry.uuid)
+                    }
+                    // What this app itself recorded when it made the mount,
+                    // which needs no row and no device to still exist.
+                    for path in paths {
+                        guard let uuid = self.restoreKeys.removeValue(forKey: path) else {
+                            continue
+                        }
+                        MountMemory.forget(uuid: uuid)
+                    }
+                    let left = MountMemory.all().count
+                    if left > 0 {
+                        let keys = ejectedMounts.keys.joined(separator: ",")
+                        Log.mount.notice(
+                            "ejected mounts, \(left, privacy: .public) drives still remembered, keys \(keys, privacy: .private)"
+                        )
                     }
                     if self.openMounts.isEmpty { self.onAllDrivesClosed?() }
                     self.openMounts = self.openMounts.filter { !paths.contains($0.value) }

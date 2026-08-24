@@ -173,4 +173,46 @@ public enum BootSector {
         guard let data = try? handle.read(upToCount: length), !data.isEmpty else { return nil }
         return data
     }
+
+    /// The first sector, waiting for a device that is not answering yet.
+    ///
+    /// A device that has just been attached, or one being handed back by
+    /// something else, can refuse to open for a moment. Nothing separates that
+    /// from a device that is gone once the answer is a nil the caller turns
+    /// into "unrecognised" -- and a drive whose format is unknown is a drive
+    /// the app asks a passphrase for and then fails to open. So a failed read
+    /// is retried for a short while, and what comes back is what it says: a
+    /// sector, or nothing to be had.
+    public static func readWaiting(
+        devicePath: String, attempts: Int = 8, gap: TimeInterval = 0.25
+    ) -> Data? {
+        for attempt in 1...max(1, attempts) {
+            if let data = read(devicePath: devicePath) { return data }
+            guard attempt < attempts else { break }
+            Thread.sleep(forTimeInterval: gap)
+        }
+        return nil
+    }
+
+    /// Why a device could not be read, in the words the system used.
+    ///
+    /// A failed read is reported by every layer above as "unrecognised", which
+    /// is the one answer that is certainly wrong and sends somebody to type a
+    /// passphrase for a drive that was never read. Whether the node is missing,
+    /// busy or not this account's to open decides what to do about it, and only
+    /// the system knows which.
+    public static func whyUnreadable(devicePath: String) -> String {
+        let raw = devicePath.replacingOccurrences(of: "/dev/disk", with: "/dev/rdisk")
+        for path in [raw, devicePath] {
+            let fd = open(path, O_RDONLY)
+            if fd >= 0 {
+                close(fd)
+                return "\(path) opens; the read itself returned nothing"
+            }
+            if path == devicePath {
+                return "\(path): \(String(cString: strerror(errno)))"
+            }
+        }
+        return "\(devicePath): unreadable"
+    }
 }
