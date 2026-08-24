@@ -958,6 +958,46 @@ group("anImageWithASpaceInItsNameIsStillReadable") {
     try? FileManager.default.removeItem(at: DiskImage.withoutSpaces(other))
 }
 
+group("aSynthesisedContainerIsNotAContainerFile") {
+    // Every Mac has three synthesised APFS containers, and diskutil calls them
+    // Virtual -- the same word it uses for a disk image. Read as container
+    // files they were offered as drives to unlock, so somebody was invited to
+    // open their own Recovery volume. The bus says which is which.
+    let plist: [String: Any] = [
+        "AllDisksAndPartitions": [
+            [
+                "DeviceIdentifier": "disk3",
+                "APFSVolumes": [
+                    [
+                        "DeviceIdentifier": "disk3s3", "Content": "Apple_APFS",
+                        "VolumeName": "Recovery",
+                        "Size": NSNumber(value: 494_000_000),
+                    ],
+                    [
+                        "DeviceIdentifier": "disk3s6", "Content": "Apple_APFS",
+                        "VolumeName": "Update",
+                        "Size": NSNumber(value: 5_370_000_000),
+                    ],
+                ],
+            ]
+        ]
+    ]
+    let rows = DriveSurvey.survey(
+        list: plist,
+        info: { _ in
+            [
+                "BusProtocol": "Apple Fabric", "VirtualOrPhysical": "Virtual",
+                "Internal": true,
+            ]
+        },
+        mountTable: "", openable: [])
+    expect(rows.count == 2, "both volumes are listed")
+    expect(
+        rows.allSatisfy { $0.verdict == .system },
+        "and both belong to the system, whatever diskutil calls the container")
+    expect(rows.allSatisfy { $0.drive == nil }, "so neither is offered as a drive to open")
+}
+
 group("theHelperSaysWhichBuildItIs") {
     // launchd keeps a registered daemon running across an app update, and the
     // helper is what builds the mount -- so a fixed app went on behaving as the

@@ -223,8 +223,9 @@ public enum DriveScanner {
             let internalDisk = wholeInfo["Internal"] as? Bool ?? false
             // diskutil says so twice, and either will do: a bus of "Disk Image"
             // or a virtual disk.
-            let isImage =
-                bus == "Disk Image" || (wholeInfo["VirtualOrPhysical"] as? String) == "Virtual"
+            // The bus, and only the bus: a synthesised APFS container is
+            // "Virtual" too, and there are three of those on every Mac.
+            let isImage = bus == "Disk Image"
 
             let partitions = disk["Partitions"] as? [[String: Any]]
             let apfs = disk["APFSVolumes"] as? [[String: Any]]

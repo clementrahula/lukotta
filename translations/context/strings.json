@@ -213,6 +213,18 @@
       "context": "Title of a note in the report sheet when macOS left a crash log.",
       "placeholders": []
     },
+    "A drive %@ can open.": {
+      "screens": [
+        "open-drive"
+      ],
+      "context": "A row in the disk list for a drive this app can open. The counterpart of the lines that say why another one cannot be; what the volume may hold is in the subtitle above it already.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the name of the app"
+        }
+      ]
+    },
     "A drive that refuses to be written to is opened read-only rather than left closed": {
       "screens": [
         "help"
@@ -619,13 +631,6 @@
         "drive-list"
       ],
       "context": "Shown on the row while it happens. Ends with an ellipsis character.",
-      "placeholders": []
-    },
-    "Encrypted, or a Windows or Linux volume.": {
-      "screens": [
-        "open-drive"
-      ],
-      "context": "A row in the disk list: this is the kind of volume the app exists to open.",
       "placeholders": []
     },
     "Engine output": {

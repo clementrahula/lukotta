@@ -136,7 +136,10 @@ private struct SurveyRow: View {
     private var reason: String {
         switch entry.verdict {
         case .openable:
-            return String(localized: "Encrypted, or a Windows or Linux volume.")
+            // The counterpart of the lines below, and said the same way. What
+            // it may hold is in the subtitle already; this line is for what
+            // can be done about it.
+            return String(localized: "A drive \(Brand.name) can open.")
         case .macOSHasIt(let point):
             return String(localized: "macOS has this open at \(point).")
         case .macOSReadsIt:

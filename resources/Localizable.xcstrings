@@ -5783,6 +5783,226 @@
         }
       }
     },
+    "A drive %@ can open.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "محرّك يستطيع %@ فتحه."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Диск, който %@ може да отвори."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk, který %@ umí otevřít."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En enhed, %@ kan åbne."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Laufwerk, das %@ öffnen kann."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ένας δίσκος που μπορεί να ανοίξει το %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un disco que %@ puede abrir."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketas, mida %@ oskab avada."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asema, jonka %@ osaa avata."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isang drive na mabubuksan ng %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un disque que %@ sait ouvrir."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "כונן ש‑%@ יכול לפתוח."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "एक ड्राइव जिसे %@ खोल सकता है।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk koji %@ može otvoriti."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Egy meghajtó, amelyet a(z) %@ meg tud nyitni."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drive yang dapat dibuka %@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un disco che %@ sa aprire."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ が開けるドライブ。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@이(가) 열 수 있는 드라이브입니다."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diskas, kurį „%@“ gali atverti."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disks, ko %@ spēj atvērt."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pemacu yang %@ boleh buka."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En enhet %@ kan åpne."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een schijf die %@ kan openen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dysk, który %@ potrafi otworzyć."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um disco que o %@ consegue abrir."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un disc pe care %@ îl poate deschide."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Диск, который %@ может открыть."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk, ki ga %@ zna odpreti."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Një disk që %@ mund ta hapë."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En enhet som %@ kan öppna."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไดรฟ์ที่ %@ เปิดได้"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ uygulamasının açabileceği bir sürücü."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Диск, який %@ може відкрити."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Một ổ đĩa mà %@ mở được."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 可以打开的驱动器。"
+          }
+        }
+      }
+    },
     "A drive that refuses to be written to is opened read-only rather than left closed": {
       "localizations": {
         "ar": {
@@ -18381,226 +18601,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在推出…"
-          }
-        }
-      }
-    },
-    "Encrypted, or a Windows or Linux volume.": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "مشفّرة، أو وحدة تخزين تخص Windows أو Linux."
-          }
-        },
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Шифрован или том на Windows или Linux."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šifrovaný, nebo svazek Windows či Linuxu."
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Krypteret, eller en Windows- eller Linux-enhed."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verschlüsselt oder ein Windows- oder Linux-Volume."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Κρυπτογραφημένος ή τόμος Windows ή Linux."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cifrado, o un volumen de Windows o Linux."
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Krüptitud või Windowsi või Linuxi köide."
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salattu tai Windows- tai Linux-taltio."
-          }
-        },
-        "fil": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Naka-encrypt, o isang volume ng Windows o Linux."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chiffré, ou un volume Windows ou Linux."
-          }
-        },
-        "he": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "מוצפן, או אמצעי אחסון של Windows או Linux."
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "एन्क्रिप्टेड, या कोई Windows या Linux वॉल्यूम।"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šifriran ili Windows odnosno Linux jedinica."
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Titkosított, vagy Windows- illetve Linux-kötet."
-          }
-        },
-        "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Terenkripsi, atau volume Windows atau Linux."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cifrato, oppure un volume Windows o Linux."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "暗号化されているか、Windows または Linux のボリュームです。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "암호화되었거나 Windows 또는 Linux 볼륨입니다."
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šifruotas arba „Windows“ ar „Linux“ tomas."
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šifrēts vai Windows vai Linux sējums."
-          }
-        },
-        "ms": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disulitkan, atau volum Windows atau Linux."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kryptert, eller en Windows- eller Linux-enhet."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Versleuteld, of een Windows- of Linux-volume."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zaszyfrowany albo wolumin Windows lub Linux."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Encriptado, ou um volume Windows ou Linux."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Criptat, sau un volum Windows ori Linux."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Зашифрованный либо том Windows или Linux."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šifriran ali nosilec Windows oziroma Linux."
-          }
-        },
-        "sq": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "I enkriptuar, ose një volum Windows a Linux."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Krypterad, eller en Windows- eller Linux-volym."
-          }
-        },
-        "th": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "เข้ารหัสอยู่ หรือเป็นโวลุ่มของ Windows หรือ Linux"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Şifreli ya da bir Windows veya Linux birimi."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Зашифрований або том Windows чи Linux."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Được mã hóa, hoặc là một ổ Windows hay Linux."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已加密，或是 Windows 或 Linux 宗卷。"
           }
         }
       }
