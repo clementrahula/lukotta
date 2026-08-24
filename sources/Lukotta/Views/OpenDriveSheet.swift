@@ -108,6 +108,16 @@ struct OpenDriveSheet: View {
             .padding(.horizontal, 22).padding(.vertical, 14)
         }
         .frame(width: 580, height: 560)
+        // The watcher reports a drive being plugged in or taken out. A
+        // container file being attached or detached is not something it sees,
+        // so the sheet also looks again every couple of seconds while it is up.
+        .task {
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                guard !Task.isCancelled else { return }
+                model.surveyDrives()
+            }
+        }
         .task { model.surveyDrives() }
     }
 }

@@ -190,6 +190,36 @@ public enum DiskImage {
             uuid: url.path)
     }
 
+    /// Devices still attached from a file this app opens, with nothing mounted
+    /// from them.
+    ///
+    /// A crash, a forced quit, or a device that would not let go leaves one
+    /// behind. It has no volume mounted -- nothing appears in Finder -- so the
+    /// only sign of it is a disk in the list that nobody recognises.
+    ///
+    /// Judged by two things together: hdiutil says which devices came from a
+    /// file, and the mount table says which are in use. One that is in use
+    /// belongs to whoever is using it and is left alone.
+    public static func strayAttachments() -> [String] {
+        let info = run(["info"], timeout: 15)
+        guard info.status == 0 else { return [] }
+        let busy = MountTableEntry.all(in: mountTable()).map(\.source)
+
+        var devices: [String] = []
+        for line in info.out.components(separatedBy: .newlines) {
+            // "/dev/disk5s1   \tGUID_partition_scheme          \t"
+            let fields = line.split(separator: "\t", omittingEmptySubsequences: true)
+            guard let first = fields.first?.trimmingCharacters(in: .whitespaces),
+                first.hasPrefix("/dev/disk")
+            else { continue }
+            let whole = "/dev/" + DriveScanner.wholeDisk(of: (first as NSString).lastPathComponent)
+            guard !devices.contains(whole) else { continue }
+            guard !busy.contains(where: { $0.hasPrefix(whole) }) else { continue }
+            devices.append(whole)
+        }
+        return devices
+    }
+
     @discardableResult
     public static func detach(_ device: String) -> Bool {
         // Forced: the eject that precedes this has already taken the filesystem

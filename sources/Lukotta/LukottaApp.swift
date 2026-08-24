@@ -283,6 +283,9 @@ struct LukottaApp: App {
                     // Permissions are granted elsewhere, so look again on the
                     // way back rather than trusting a stale reading.
                     model.refreshPermissions()
+                    // And the log, so the report is already written whenever
+                    // somebody reaches for it.
+                    model.refreshRecentLog()
                 }
         }
         .windowResizability(.contentMinSize)

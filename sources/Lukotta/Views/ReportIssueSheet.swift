@@ -166,18 +166,9 @@ struct ReportIssueSheet: View {
                 engineOutput: model.reportableOutput,
                 crashReport: crashes.first,
                 recentLog: model.recentLog.isEmpty ? nil : model.recentLog)
-            // Read on the way in and after every failure, so it is nearly
-            // always here already; fetched now only if it is not.
-            let text =
-                model.recentLog.isEmpty
-                ? await Task.detached(priority: .userInitiated) { Diagnostics.recentLog() }.value
-                : model.recentLog
-            recentLog = text
-            fixedPart = Diagnostics.report(
-                environment: environment,
-                engineOutput: model.reportableOutput,
-                crashReport: crashes.first,
-                recentLog: text)
+            // Kept fresh from now on too: the sheet can be left open while the
+            // thing being reported is tried again.
+            recentLog = model.recentLog
         }
     }
 }

@@ -960,7 +960,7 @@ group("anImageWithASpaceInItsNameIsStillReadable") {
 
 group("DUMPSCRIPT") {
     if ProcessInfo.processInfo.environment["LUKOTTA_DUMP_SCRIPT"] == "1" {
-        print(MountScript.build(sampleInputs(kind: .microsoft, readOnly: true)))
+        print(MountScript.build(sampleInputs(kind: .microsoft, readOnly: false)))
     }
 }
 

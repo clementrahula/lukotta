@@ -785,6 +785,10 @@ final class AppModel: ObservableObject {
     }
 
     private func driveSetChanged() {
+        // The Open Drive sheet lists the same disks and must not go stale
+        // behind its own window: a drive unplugged while it is up sat there as
+        // though it were still there.
+        if showOpenDrive { surveyDrives() }
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
             let found = DriveScanner.scan(images: images)
@@ -832,6 +836,7 @@ final class AppModel: ObservableObject {
         didStart = true
         watcher.start()
         sleepWatch.start()
+        putBackWhatWasLeftAttached()
         // Read now, so the report sheet is filled in before anybody asks for
         // it rather than several seconds after.
         refreshRecentLog()
@@ -925,7 +930,26 @@ final class AppModel: ObservableObject {
         NSApp.terminate(nil)
     }
 
-    /// What this app remembers a drive by.
+    /// Anything this app attached and did not put back.
+    ///
+    /// A crash, a forced quit, or a device that would not let go at the time
+    /// leaves a container attached. It then turns up in the list as a disk with
+    /// no name and no explanation, which is nobody's idea of a drive. Nothing
+    /// is said about it: attaching is this app's business, and putting it back
+    /// is too.
+    ///
+    /// Only what this app itself attached, and only what is not in use.
+    private func putBackWhatWasLeftAttached() {
+        Task.detached(priority: .utility) {
+            let stale = DiskImage.strayAttachments()
+            guard !stale.isEmpty else { return }
+            Log.drives.notice(
+                "putting back \(stale.count, privacy: .public) containers left attached")
+            for device in stale { DiskImage.detach(device) }
+        }
+    }
+
+    /// What this app remembers a drive by.    /// What this app remembers a drive by.
     ///
     /// A container file is the file, wherever it is attached and whatever the
     /// device is called this time: attaching gives it a fresh device
@@ -1949,11 +1973,7 @@ final class AppModel: ObservableObject {
             opened: openedImages, mountedDevices: Array(openMounts.keys))
         if !leaving.isEmpty {
             Log.drives.notice("detaching \(leaving.count, privacy: .public) container files")
-            let stuck = leaving.filter { !DiskImage.detach("/dev/" + $0) }
-            if !stuck.isEmpty {
-                Log.drives.error(
-                    "\(stuck.count, privacy: .public) container files are still attached")
-            }
+            for identifier in leaving { DiskImage.detach("/dev/" + identifier) }
         }
         workspace?.destroy()
         workspace = nil
