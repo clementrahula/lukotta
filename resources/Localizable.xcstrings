@@ -6,7 +6,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "تعذّر على %@ فتح محرّكاتك"
+            "value": "تعذّر على %@ فتح محركات الأقراص لديك"
           }
         },
         "bg": {
@@ -500,7 +500,7 @@
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ang libre sa %@"
+            "value": "%@ ang available sa %@"
           }
         },
         "fr": {
@@ -1546,7 +1546,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يفتح %@ محرّكات BitLocker وLinux ومحرّكات الأجهزة الافتراضية وصور الأقراص التي لا يستطيع macOS فتحها بنفسه.\n\nقراءة محرّك على مستوى الجهاز الخام تتطلب الوصول الكامل إلى القرص. لا يتيح macOS للتطبيق أي طريقة لطلب هذا مباشرةً، لذا يجب تشغيله يدويًا."
+            "value": "يفتح %@ محركات أقراص BitLocker وLinux ومحركات أقراص الأجهزة الافتراضية وصور الأقراص التي لا يستطيع macOS فتحها بنفسه.\n\nقراءة محرك أقراص على مستوى الجهاز الخام تتطلب الوصول الكامل إلى القرص. لا يتيح macOS للتطبيق أي طريقة لطلب هذا مباشرةً، لذا يجب تشغيله يدويًا."
           }
         },
         "bg": {
@@ -1766,7 +1766,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يُفتح %@ في الخلفية عند تسجيل دخولك ويعيد المحرّكات والصور التي كانت مفتوحة كما كانت. لا يعود المحرّك الذي يطلب كلمة سر إلا إذا كانت كلمة السر محفوظة في سلسلة المفاتيح."
+            "value": "يُفتح %@ في الخلفية عند تسجيل دخولك ويعيد محركات الأقراص والصور التي كانت مفتوحة كما كانت. لا يعود محرك الأقراص الذي يطلب كلمة سر إلا إذا كانت كلمة السر محفوظة في سلسلة المفاتيح."
           }
         },
         "bg": {
@@ -1986,7 +1986,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يشغّل %@ جهازًا افتراضيًا صغيرًا بنظام Linux، ويفتح المحرّك داخله، ثم يسلّم المحرّك إلى الباحث. لا يستطيع macOS قراءة أنظمة ملفات BitLocker أو Linux، أما Linux فيستطيع."
+            "value": "يشغّل %@ جهازًا افتراضيًا صغيرًا بنظام Linux، ويلغي قفل محرك الأقراص داخله، ثم يسلّم محرك الأقراص إلى الباحث. لا يستطيع macOS قراءة أنظمة ملفات BitLocker أو Linux، أما Linux فيستطيع."
           }
         },
         "bg": {
@@ -2028,19 +2028,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ käivitab väikese Linuxi virtuaalmasina, avab ketta selle sees ja annab ketta Finderile tagasi. macOS ei oska lugeda BitLockeri ega Linuxi failisüsteeme. Linux oskab."
+            "value": "%@ käivitab väikese Linuxi virtuaalmasina, avab selle sees oleva ketta lukust ja annab ketta Finderile tagasi. macOS ei oska lugeda BitLockeri ega Linuxi failisüsteeme. Linux oskab."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ käynnistää pienen Linux-virtuaalikoneen, avaa aseman sen sisällä ja luovuttaa aseman takaisin Finderille. macOS ei osaa lukea BitLocker- eikä Linux-tiedostojärjestelmiä. Linux osaa."
+            "value": "%@ käynnistää pienen Linux-virtuaalikoneen, avaa sen sisällä olevan aseman lukituksen ja luovuttaa aseman takaisin Finderille. macOS ei osaa lukea BitLocker- eikä Linux-tiedostojärjestelmiä. Linux osaa."
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nagpapatakbo ang %@ ng maliit na Linux virtual machine, binubuksan ang drive sa loob nito, at ibinibigay ang drive sa Finder. Hindi mabasa ng macOS ang mga file system ng BitLocker o Linux. Kaya ng Linux."
+            "value": "Nagpapatakbo ang %@ ng maliit na Linux virtual machine, ini-unlock ang drive sa loob nito, at ibinibigay ang drive sa Finder. Hindi mabasa ng macOS ang mga file system ng BitLocker o Linux. Kaya ng Linux."
           }
         },
         "fr": {
@@ -2052,7 +2052,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏%@ מפעיל מכונה וירטואלית קטנה של Linux, פותח בתוכה את הכונן ומוסר את הכונן ל‑Finder. ‏macOS אינו יכול לקרוא מערכות קבצים של BitLocker או Linux. ‏Linux יכול."
+            "value": "‏%@ מפעיל מכונה וירטואלית קטנה של Linux, מבטל בתוכה את נעילת הכונן ומוסר את הכונן ל‑Finder. ‏macOS אינו יכול לקרוא מערכות קבצים של BitLocker או Linux. ‏Linux יכול."
           }
         },
         "hi": {
@@ -2178,7 +2178,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ küçük bir Linux sanal makinesi başlatır, sürücüyü onun içinde açar ve sürücüyü Finder'a devreder. macOS, BitLocker ve Linux dosya sistemlerini okuyamaz. Linux okuyabilir."
+            "value": "%@ küçük bir Linux sanal makinesi başlatır, sürücünün kilidini onun içinde açar ve sürücüyü Finder'a devreder. macOS, BitLocker ve Linux dosya sistemlerini okuyamaz. Linux okuyabilir."
           }
         },
         "uk": {
@@ -2429,37 +2429,37 @@
               "few": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "توقفت %lld محرّكات عن الاستجابة وفُصلت. يمكنك فتحها من جديد."
+                  "value": "توقفت %lld محركات أقراص عن الاستجابة وفُصلت. يمكنك فتحها من جديد."
                 }
               },
               "many": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "توقف %lld محرّكًا عن الاستجابة وفُصلت. يمكنك فتحها من جديد."
+                  "value": "توقف %lld محرك أقراص عن الاستجابة وفُصلت. يمكنك فتحها من جديد."
                 }
               },
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "توقف محرّك واحد عن الاستجابة وفُصل. يمكنك فتحه من جديد."
+                  "value": "توقف محرك أقراص واحد عن الاستجابة وفُصل. يمكنك فتحه من جديد."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "توقف %lld محرّك عن الاستجابة وفُصلت. يمكنك فتحها من جديد."
+                  "value": "توقف %lld محرك أقراص عن الاستجابة وفُصلت. يمكنك فتحها من جديد."
                 }
               },
               "two": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "توقف محرّكان عن الاستجابة وفُصلا. يمكنك فتحهما من جديد."
+                  "value": "توقف محركا أقراص عن الاستجابة وفُصلا. يمكنك فتحهما من جديد."
                 }
               },
               "zero": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "لم تتوقف أي محرّكات عن الاستجابة."
+                  "value": "لم تتوقف أي محركات أقراص عن الاستجابة."
                 }
               }
             }
@@ -3177,37 +3177,37 @@
               "few": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "ستُخرج %lld محرّكات مفتوحة."
+                  "value": "ستُخرج %lld محركات أقراص مفتوحة."
                 }
               },
               "many": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "سيُخرج %lld محرّكًا مفتوحًا."
+                  "value": "سيُخرج %lld محرك أقراص مفتوحًا."
                 }
               },
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "سيُخرج محرّك مفتوح واحد."
+                  "value": "سيُخرج محرك أقراص مفتوح واحد."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "سيُخرج %lld محرّك مفتوح."
+                  "value": "سيُخرج %lld محرك أقراص مفتوح."
                 }
               },
               "two": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "سيُخرج محرّكان مفتوحان."
+                  "value": "سيُخرج محركا أقراص مفتوحان."
                 }
               },
               "zero": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "لن يُخرج أي محرّك."
+                  "value": "لن يُخرج أي محرك أقراص."
                 }
               }
             }
@@ -4235,13 +4235,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "%lld enhed"
+                  "value": "%lld diskenhed"
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "%lld enheder"
+                  "value": "%lld diskenheder"
                 }
               }
             }
@@ -4944,7 +4944,7 @@
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "260 MB ng disk: 160 MB para sa app, 100 MB para sa Linux environment na binubuksan sa unang paggamit"
+            "value": "260 MB ng disk: 160 MB para sa app, 100 MB para sa Linux environment na ina-unpack sa unang paggamit"
           }
         },
         "fr": {
@@ -4962,7 +4962,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "डिस्क पर 260 MB: ऐप के लिए 160 MB और पहली बार उपयोग पर खुलने वाले Linux परिवेश के लिए 100 MB"
+            "value": "260 MB डिस्क: ऐप के लिए 160 MB, और पहली बार इस्तेमाल पर अनपैक होने वाले Linux environment के लिए 100 MB"
           }
         },
         "hr": {
@@ -5016,7 +5016,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "260 MB ruang cakera: 160 MB untuk aplikasi, 100 MB untuk persekitaran Linux yang dibuka pada penggunaan pertama"
+            "value": "260 MB cakera: 160 MB untuk aplikasi, 100 MB untuk persekitaran Linux yang dinyahmampat pada penggunaan pertama"
           }
         },
         "nb": {
@@ -5082,7 +5082,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "260 MB disk: 160 MB uygulama için, 100 MB ilk kullanımda açılan Linux ortamı için"
+            "value": "260 MB disk: uygulama için 160 MB, ilk kullanımda paketten çıkarılan Linux ortamı için 100 MB"
           }
         },
         "uk": {
@@ -5110,7 +5110,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "من 30 إلى 80 ميجابايت من الذاكرة لكل محرّك مفتوح"
+            "value": "من 30 إلى 80 ميجابايت من الذاكرة لكل محرك أقراص غير مقفل"
           }
         },
         "bg": {
@@ -5152,19 +5152,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "30–80 MB muutmälu iga avatud ketta kohta"
+            "value": "30–80 MB muutmälu iga lukust avatud ketta kohta"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "30–80 Mt keskusmuistia jokaista avattua asemaa kohti"
+            "value": "30–80 Mt keskusmuistia jokaista asemaa kohti, jonka lukitus on avattu"
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 hanggang 80 MB ng memory sa bawat drive na nakabukas"
+            "value": "30 hanggang 80 MB ng memory sa bawat na-unlock na drive"
           }
         },
         "fr": {
@@ -5176,7 +5176,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏30 עד 80 מ״ב זיכרון לכל כונן פתוח"
+            "value": "‏30 עד 80 מ״ב זיכרון לכל כונן לא נעול"
           }
         },
         "hi": {
@@ -5200,7 +5200,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 sampai 80 MB memori untuk setiap drive yang terbuka"
+            "value": "30 sampai 80 MB memori untuk setiap drive yang tidak terkunci"
           }
         },
         "it": {
@@ -5236,7 +5236,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 hingga 80 MB memori bagi setiap pemacu yang dibuka"
+            "value": "30 hingga 80 MB memori bagi setiap pemacu yang tidak berkunci"
           }
         },
         "nb": {
@@ -5302,7 +5302,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Açılan her sürücü için 30 ila 80 MB bellek"
+            "value": "Kilidi açılmış her sürücü için 30 ila 80 MB bellek"
           }
         },
         "uk": {
@@ -5770,7 +5770,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "محرّك يستطيع %@ فتحه."
+            "value": "محرك أقراص يستطيع %@ فتحه."
           }
         },
         "bg": {
@@ -5990,7 +5990,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "المحرّك الذي يرفض الكتابة يُفتح للقراءة فقط بدل تركه مغلقًا، ويُذكر ذلك"
+            "value": "محرك الأقراص الذي يرفض الكتابة يُفتح للقراءة فقط بدل تركه مغلقًا، ويُذكر ذلك"
           }
         },
         "bg": {
@@ -6228,7 +6228,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "En macOS-systemenhed."
+            "value": "En macOS-systemdiskenhed."
           }
         },
         "de": {
@@ -6870,7 +6870,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يمكن أن يبقى نحو عشرة محرّكات مفتوحة في آن واحد"
+            "value": "يمكن أن يبقى نحو عشرة محركات أقراص غير مقفلة في آن واحد"
           }
         },
         "bg": {
@@ -6912,19 +6912,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Umbes kümme ketast võib korraga avatuks jääda"
+            "value": "Umbes kümme ketast võib korraga lukust avatuks jääda"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Noin kymmenen asemaa voi olla avattuna yhtä aikaa"
+            "value": "Noin kymmenen aseman lukitus voi olla avattuna yhtä aikaa"
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mga sampung drive ang maaaring manatiling nakabukas nang sabay"
+            "value": "Mga sampung drive ang maaaring manatiling naka-unlock nang sabay"
           }
         },
         "fr": {
@@ -6936,7 +6936,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "אפשר להשאיר כעשרה כוננים פתוחים בו־זמנית"
+            "value": "אפשר להשאיר כעשרה כוננים לא נעולים בו־זמנית"
           }
         },
         "hi": {
@@ -6960,7 +6960,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sekitar sepuluh drive dapat tetap terbuka sekaligus"
+            "value": "Sekitar sepuluh drive dapat tetap tidak terkunci sekaligus"
           }
         },
         "it": {
@@ -6996,7 +6996,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kira-kira sepuluh pemacu boleh kekal dibuka serentak"
+            "value": "Kira-kira sepuluh pemacu boleh kekal tidak berkunci serentak"
           }
         },
         "nb": {
@@ -7062,7 +7062,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aynı anda yaklaşık on sürücü açık kalabilir"
+            "value": "Aynı anda yaklaşık on sürücünün kilidi açık kalabilir"
           }
         },
         "uk": {
@@ -7530,7 +7530,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "كل المحرّكات"
+            "value": "كل محركات الأقراص"
           }
         },
         "bg": {
@@ -9176,7 +9176,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Et diskbillede åbnes uden administratoradgangskode, og enheden vises i din hjemmemappe"
+            "value": "Et diskbillede åbnes uden administratoradgangskode, og diskenheden vises i din hjemmemappe"
           }
         },
         "de": {
@@ -9598,7 +9598,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "هناك محرّك آخر مفتوح، ويجب أن يعمل محرّك الأقراص وحده في المرة الأولى بعد تغيّره. أخرج المحرّكات الأخرى، وافتح هذا، وبعدها يمكن فتحها كلها معًا من جديد."
+            "value": "هناك محرك أقراص آخر مفتوح، ويجب أن يعمل المحرّك وحده في المرة الأولى بعد تغيّره. أخرج محركات الأقراص الأخرى، وافتح هذا، وبعدها يمكن فتحها كلها معًا من جديد."
           }
         },
         "bg": {
@@ -10038,7 +10038,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يظهر فقط أثناء وجود محرّك مفتوح، لإخراجه."
+            "value": "يظهر فقط أثناء وجود محرك أقراص غير مقفل، لإخراجه."
           }
         },
         "bg": {
@@ -10080,19 +10080,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ilmub ainult siis, kui ketas on avatud, selle väljutamiseks."
+            "value": "Ilmub ainult siis, kui ketas on lukust avatud, selle väljutamiseks."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Näkyy vain, kun asema on avattuna, sen käytöstä poistamista varten."
+            "value": "Näkyy vain, kun aseman lukitus on avattu, sen käytöstä poistamista varten."
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lumalabas lamang habang nakabukas ang isang drive, para i-eject ito."
+            "value": "Lumalabas lamang habang naka-unlock ang isang drive, para i-eject ito."
           }
         },
         "fr": {
@@ -10104,7 +10104,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מופיע רק בזמן שכונן פתוח, כדי להוציא אותו."
+            "value": "מופיע רק בזמן שכונן אינו נעול, כדי להוציא אותו."
           }
         },
         "hi": {
@@ -10128,7 +10128,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Muncul hanya selama drive terbuka, untuk mengeluarkannya."
+            "value": "Muncul hanya selama drive tidak terkunci, untuk mengeluarkannya."
           }
         },
         "it": {
@@ -10164,7 +10164,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Muncul hanya semasa sesebuah pemacu terbuka, untuk mengeluarkannya."
+            "value": "Muncul hanya semasa sesebuah pemacu tidak berkunci, untuk mengeluarkannya."
           }
         },
         "nb": {
@@ -10230,7 +10230,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yalnızca bir sürücü açıkken, onu çıkarmak için görünür."
+            "value": "Yalnızca bir sürücünün kilidi açıkken, onu çıkarmak için görünür."
           }
         },
         "uk": {
@@ -10704,25 +10704,25 @@
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "Разработчик"
+            "value": "Автор"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vývojář"
+            "value": "Autor"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Udvikler"
+            "value": "Forfatter"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Entwickler"
+            "value": "Autor"
           }
         },
         "el": {
@@ -10734,19 +10734,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desarrollador"
+            "value": "Autor"
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arendaja"
+            "value": "Autor"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kehittäjä"
+            "value": "Tekijä"
           }
         },
         "fil": {
@@ -10758,7 +10758,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Développeur"
+            "value": "Auteur"
           }
         },
         "he": {
@@ -10776,13 +10776,13 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Razvojni programer"
+            "value": "Autor"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fejlesztő"
+            "value": "Szerző"
           }
         },
         "id": {
@@ -10794,7 +10794,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sviluppatore"
+            "value": "Autore"
           }
         },
         "ja": {
@@ -10818,7 +10818,7 @@
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izstrādātājs"
+            "value": "Autors"
           }
         },
         "ms": {
@@ -10830,13 +10830,13 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Utvikler"
+            "value": "Forfatter"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ontwikkelaar"
+            "value": "Auteur"
           }
         },
         "pl": {
@@ -10848,13 +10848,13 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Programador"
+            "value": "Autor"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dezvoltator"
+            "value": "Autor"
           }
         },
         "ru": {
@@ -10866,7 +10866,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Razvijalec"
+            "value": "Avtor"
           }
         },
         "sq": {
@@ -10878,7 +10878,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Utvecklare"
+            "value": "Upphovsperson"
           }
         },
         "th": {
@@ -11138,7 +11138,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "محرّكات BitLocker، تُفتح بكلمة سر وحدة التخزين أو بمفتاح استرداد من 48 رقمًا"
+            "value": "محركات أقراص BitLocker، يُلغى قفلها بكلمة سر وحدة التخزين أو بمفتاح استرداد من 48 رقمًا"
           }
         },
         "bg": {
@@ -11156,7 +11156,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "BitLocker-enheder, låst op med enhedens adgangskode eller en 48-cifret genoprettelsesnøgle"
+            "value": "BitLocker-enheder, låst op med diskenhedens adgangskode eller en 48-cifret genoprettelsesnøgle"
           }
         },
         "de": {
@@ -11180,19 +11180,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "BitLockeri kettad, avatuna köite parooli või 48-kohalise taastevõtmega"
+            "value": "BitLockeri kettad, lukust avatud köite parooli või 48-kohalise taastevõtmega"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "BitLocker-asemat, avattuna taltion salasanalla tai 48-numeroisella palautusavaimella"
+            "value": "BitLocker-asemat, joiden lukitus avataan taltion salasanalla tai 48-numeroisella palautusavaimella"
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mga BitLocker drive, binubuksan sa pamamagitan ng password ng volume o 48-digit na recovery key"
+            "value": "Mga BitLocker drive, na-unlock gamit ang password ng volume o 48-digit na recovery key"
           }
         },
         "fr": {
@@ -11204,7 +11204,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "כונני BitLocker, שנפתחים בסיסמת אמצעי האחסון או במפתח שחזור בן 48 ספרות"
+            "value": "כונני BitLocker, שנעילתם בוטלה באמצעות סיסמת אמצעי האחסון או מפתח שחזור בן 48 ספרות"
           }
         },
         "hi": {
@@ -11228,7 +11228,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drive BitLocker, dibuka dengan kata sandi volume atau kunci pemulihan 48 digit"
+            "value": "Drive BitLocker, dibuka kuncinya dengan kata sandi volume atau kunci pemulihan 48 digit"
           }
         },
         "it": {
@@ -11264,7 +11264,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pemacu BitLocker, dibuka dengan kata laluan volum atau kunci pemulihan 48 digit"
+            "value": "Pemacu BitLocker, dibuka kuncinya dengan kata laluan volum atau kunci pemulihan 48 digit"
           }
         },
         "nb": {
@@ -11330,7 +11330,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Birim parolası veya 48 haneli kurtarma anahtarıyla açılan BitLocker sürücüleri"
+            "value": "Birim parolası veya 48 haneli kurtarma anahtarıyla kilidi açılan BitLocker sürücüleri"
           }
         },
         "uk": {
@@ -12678,7 +12678,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "اختر ملف ← فتح صورة قرص، أو ملف ← فتح محرّك لرؤية كل قرص متصل بهذا الـ Mac وما يستطيع %@ فعله بكل منها"
+            "value": "اختر ملف ← فتح صورة قرص، أو ملف ← فتح محرك أقراص لرؤية كل قرص متصل بهذا الـ Mac وما يستطيع %@ فعله بكل منها"
           }
         },
         "bg": {
@@ -13558,7 +13558,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "وصّل المحرّك واختر إعادة الفحص. إن كان موصولًا بالفعل فقد يكون macOS قد ركّبه، وعندها أخرجه في الباحث أولًا. ولفتح صورة قرص بدلًا من ذلك، اختر ملف ← فتح صورة قرص."
+            "value": "وصّل محرك الأقراص واختر إعادة الفحص. إن كان موصولًا بالفعل فقد يكون macOS قد ركّبه، وعندها أخرجه في الباحث أولًا. ولفتح صورة قرص بدلًا من ذلك، اختر ملف ← فتح صورة قرص."
           }
         },
         "bg": {
@@ -16286,7 +16286,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "محرّكات مختومة بشريحة TPM بدل كلمة سر، بما فيها التشفير العتادي الأحدث في Ubuntu"
+            "value": "محركات أقراص مختومة بشريحة TPM بدل كلمة سر، بما فيها التشفير العتادي الأحدث في Ubuntu"
           }
         },
         "bg": {
@@ -17434,7 +17434,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poistetaan %@"
+            "value": "Poistetaan %@ käytöstä"
           }
         },
         "fil": {
@@ -17609,37 +17609,37 @@
               "few": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "يجري إخراج %lld محرّكات مفتوحة"
+                  "value": "يجري إخراج %lld محركات أقراص مفتوحة"
                 }
               },
               "many": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "يجري إخراج %lld محرّكًا مفتوحًا"
+                  "value": "يجري إخراج %lld محرك أقراص مفتوحًا"
                 }
               },
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "يجري إخراج محرّك مفتوح واحد"
+                  "value": "يجري إخراج محرك أقراص مفتوح واحد"
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "يجري إخراج %lld محرّك مفتوح"
+                  "value": "يجري إخراج %lld محرك أقراص مفتوح"
                 }
               },
               "two": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "يجري إخراج محرّكين مفتوحين"
+                  "value": "يجري إخراج محركَي أقراص مفتوحين"
                 }
               },
               "zero": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "يجري إخراج المحرّكات المفتوحة"
+                  "value": "يجري إخراج محركات الأقراص المفتوحة"
                 }
               }
             }
@@ -18742,7 +18742,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izhod pogona"
+            "value": "Izhod mehanizma"
           }
         },
         "sq": {
@@ -18794,7 +18794,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "أدخل عبارة سر المحرّك."
+            "value": "أدخل عبارة سر محرك الأقراص."
           }
         },
         "bg": {
@@ -18962,7 +18962,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vnesite geslo pogona."
+            "value": "Vnesite geselno frazo pogona."
           }
         },
         "sq": {
@@ -19014,7 +19014,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "أدخل كلمة سر المحرّك، أو مفتاح الاسترداد المكوّن من 48 رقمًا."
+            "value": "أدخل كلمة سر محرك الأقراص، أو مفتاح الاسترداد المكوّن من 48 رقمًا."
           }
         },
         "bg": {
@@ -19234,7 +19234,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يمكن فتح كل محرّك وكل صورة للقراءة فقط، من الزر المجاور لـ فتح أو إلغاء القفل. ولا يُكتب عليها شيء، ولا حتى من macOS"
+            "value": "يمكن فتح كل محرك أقراص وكل صورة للقراءة فقط، من الزر المجاور لـ فتح أو إلغاء القفل. ولا يُكتب عليها شيء، ولا حتى من macOS"
           }
         },
         "bg": {
@@ -19454,7 +19454,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "كل محرّك متصل بهذا الـ Mac، سواء استطاع %@ فتحه أم لا."
+            "value": "كل محرك أقراص متصل بهذا الـ Mac، سواء استطاع %@ فتحه أم لا."
           }
         },
         "bg": {
@@ -20994,7 +20994,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "الوصول الكامل إلى القرص: من دونه لا يسمح macOS لأي تطبيق بقراءة المحتوى الخام لمحرّك. ولا يمكن طلبه، لذا يجب تشغيله يدويًا"
+            "value": "الوصول الكامل إلى القرص: من دونه لا يسمح macOS لأي تطبيق بقراءة المحتوى الخام لمحرك أقراص. ولا يمكن طلبه، لذا يجب تشغيله يدويًا"
           }
         },
         "bg": {
@@ -21654,7 +21654,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يجري تسليم المحرّك إلى الباحث"
+            "value": "يجري تسليم محرك الأقراص إلى الباحث"
           }
         },
         "bg": {
@@ -23148,7 +23148,7 @@
         "sq": {
           "stringUnit": {
             "state": "translated",
-            "value": "Imazhe që emërtojnë një skedar tjetër: një zinxhir fotografish VMware, një VHD diferencues, një VHDX me prind, ose një qcow2 me skedar mbështetës. %@ nuk hap asnjë imazh që vendos se cilët skedarë të tjerë lexohen"
+            "value": "Imazhe që emërtojnë një skedar tjetër: një zinxhir snapshot-esh VMware, një VHD diferencues, një VHDX me prind, ose një qcow2 me skedar mbështetës. %@ nuk hap asnjë imazh që vendos se cilët skedarë të tjerë lexohen"
           }
         },
         "sv": {
@@ -23634,7 +23634,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "محرّكات LUKS من Linux، بنوعيها LUKS1 وLUKS2"
+            "value": "محركات أقراص LUKS من Linux، بنوعيها LUKS1 وLUKS2"
           }
         },
         "bg": {
@@ -23854,7 +23854,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "وحدات تخزين LUKS التي تُحفظ ترويستها بمعزل عن المحرّك"
+            "value": "وحدات تخزين LUKS التي تُحفظ ترويستها بمعزل عن محرك الأقراص"
           }
         },
         "bg": {
@@ -23872,7 +23872,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "LUKS-enheder, hvis header er arkiveret adskilt fra disken"
+            "value": "LUKS-diskenheder, hvis header er arkiveret adskilt fra disken"
           }
         },
         "de": {
@@ -24074,7 +24074,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "LVM داخل LUKS، كما تعدّه Ubuntu وDebian وMint وFedora. تُفتح عدة وحدات تخزين على محرّك واحد معًا"
+            "value": "LVM داخل LUKS، كما تعدّه Ubuntu وDebian وMint وFedora. يُلغى قفل عدة وحدات تخزين على محرك أقراص واحد معًا"
           }
         },
         "bg": {
@@ -24092,7 +24092,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "LVM inde i LUKS, som Ubuntu, Debian, Mint og Fedora sætter det op. Flere enheder på samme disk låses op sammen"
+            "value": "LVM inde i LUKS, som Ubuntu, Debian, Mint og Fedora sætter det op. Flere diskenheder på samme disk låses op sammen"
           }
         },
         "de": {
@@ -24116,19 +24116,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "LVM LUKS-i sees, nagu Ubuntu, Debian, Mint ja Fedora selle seadistavad. Ühe ketta mitu köidet avanevad koos"
+            "value": "LVM LUKS-i sees, nagu Ubuntu, Debian, Mint ja Fedora selle seadistavad. Ühe ketta mitme köite lukud avatakse koos"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "LVM LUKSin sisällä, kuten Ubuntu, Debian, Mint ja Fedora sen määrittävät. Saman aseman useat taltiot avautuvat yhdessä"
+            "value": "LVM LUKSin sisällä, kuten Ubuntu, Debian, Mint ja Fedora sen määrittävät. Saman aseman useiden taltioiden lukitukset avataan yhdessä"
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "LVM sa loob ng LUKS, gaya ng pagkakaayos ng Ubuntu, Debian, Mint at Fedora. Sabay-sabay na bumubukas ang ilang volume sa isang drive"
+            "value": "LVM sa loob ng LUKS, gaya ng pagkakaayos ng Ubuntu, Debian, Mint at Fedora. Sabay-sabay na naa-unlock ang ilang volume sa isang drive"
           }
         },
         "fr": {
@@ -24140,7 +24140,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏LVM בתוך LUKS, כפי ש‑Ubuntu, ‏Debian, ‏Mint ו‑Fedora מגדירות זאת. כמה אמצעי אחסון בכונן אחד נפתחים יחד"
+            "value": "‏LVM בתוך LUKS, כפי ש‑Ubuntu, ‏Debian, ‏Mint ו‑Fedora מגדירות זאת. נעילתם של כמה אמצעי אחסון בכונן אחד מתבטלת יחד"
           }
         },
         "hi": {
@@ -24164,7 +24164,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "LVM di dalam LUKS, seperti yang disiapkan Ubuntu, Debian, Mint, dan Fedora. Beberapa volume pada satu drive terbuka bersama-sama"
+            "value": "LVM di dalam LUKS, seperti yang disiapkan Ubuntu, Debian, Mint, dan Fedora. Beberapa volume pada satu drive dibuka kuncinya bersama-sama"
           }
         },
         "it": {
@@ -24200,7 +24200,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "LVM di dalam LUKS, seperti yang disediakan Ubuntu, Debian, Mint dan Fedora. Beberapa volum pada satu pemacu dibuka serentak"
+            "value": "LVM di dalam LUKS, seperti yang disediakan Ubuntu, Debian, Mint dan Fedora. Beberapa volum pada satu pemacu dibuka kuncinya serentak"
           }
         },
         "nb": {
@@ -24266,7 +24266,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ubuntu, Debian, Mint ve Fedora'nın kurduğu biçimde LUKS içinde LVM. Bir sürücüdeki birkaç birim birlikte açılır"
+            "value": "Ubuntu, Debian, Mint ve Fedora'nın kurduğu biçimde LUKS içinde LVM. Bir sürücüdeki birkaç birimin kilidi birlikte açılır"
           }
         },
         "uk": {
@@ -26054,7 +26054,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يجري البحث عن محرّكات…"
+            "value": "يجري البحث عن محركات أقراص…"
           }
         },
         "bg": {
@@ -27154,7 +27154,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لم يُعثر على محرّكات"
+            "value": "لم يُعثر على محركات أقراص"
           }
         },
         "bg": {
@@ -28254,7 +28254,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "بعد إعداد المساعد في الخلفية، لن يمسّ التحديث المحرّكات المفتوحة."
+            "value": "بعد إعداد المساعد في الخلفية، لن يمسّ التحديث محركات الأقراص غير المقفلة."
           }
         },
         "bg": {
@@ -28296,19 +28296,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kui taustaabiline on seadistatud, ei puuduta uuendamine avatud kettaid."
+            "value": "Kui taustaabiline on seadistatud, ei puuduta uuendamine lukust avatud kettaid."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kun taustaohjelma on otettu käyttöön, päivittäminen ei koske avattuihin asemiin."
+            "value": "Kun taustaohjelma on otettu käyttöön, päivittäminen ei koske asemia, joiden lukitus on avattu."
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kapag naisaayos na ang background helper, hindi na gagalawin ng pag-update ang mga nakabukas na drive."
+            "value": "Kapag naisaayos na ang background helper, hindi na gagalawin ng pag-update ang mga naka-unlock na drive."
           }
         },
         "fr": {
@@ -28320,7 +28320,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "לאחר שעוזר הרקע מוגדר, עדכון לא ייגע בכוננים פתוחים."
+            "value": "לאחר שעוזר הרקע מוגדר, עדכון לא ייגע בכוננים שאינם נעולים."
           }
         },
         "hi": {
@@ -28344,7 +28344,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Setelah pembantu latar belakang disiapkan, pembaruan tidak akan mengganggu drive yang terbuka."
+            "value": "Setelah pembantu latar belakang disiapkan, pembaruan tidak akan mengganggu drive yang tidak terkunci."
           }
         },
         "it": {
@@ -28380,7 +28380,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Setelah pembantu latar belakang disediakan, kemas kini tidak akan mengganggu pemacu yang terbuka."
+            "value": "Setelah pembantu latar belakang disediakan, kemas kini tidak akan mengganggu pemacu yang tidak berkunci."
           }
         },
         "nb": {
@@ -28446,7 +28446,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arka plan yardımcısı kurulduktan sonra güncelleme, açık sürücülere dokunmaz."
+            "value": "Arka plan yardımcısı kurulduktan sonra güncelleme, kilidi açık sürücülere dokunmaz."
           }
         },
         "uk": {
@@ -29354,7 +29354,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "فتح محرّك"
+            "value": "فتح محرك أقراص"
           }
         },
         "bg": {
@@ -29574,7 +29574,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "فتح محرّك…"
+            "value": "فتح محرك أقراص…"
           }
         },
         "bg": {
@@ -31334,7 +31334,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "فتح المحرّكات من جديد بعد إعادة التشغيل"
+            "value": "فتح محركات الأقراص من جديد بعد إعادة التشغيل"
           }
         },
         "bg": {
@@ -31554,7 +31554,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "افتح المحرّكات المشفّرة على macOS"
+            "value": "افتح محركات الأقراص المشفّرة على macOS"
           }
         },
         "bg": {
@@ -33042,7 +33042,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geslo"
+            "value": "Geselna fraza"
           }
         },
         "sq": {
@@ -34417,37 +34417,37 @@
               "few": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "هل تريد الإنهاء وترك %lld محرّكات مفتوحة؟"
+                  "value": "هل تريد الإنهاء وترك %lld محركات أقراص مفتوحة؟"
                 }
               },
               "many": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "هل تريد الإنهاء وترك %lld محرّكًا مفتوحًا؟"
+                  "value": "هل تريد الإنهاء وترك %lld محرك أقراص مفتوحًا؟"
                 }
               },
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "هل تريد الإنهاء وترك محرّك واحد مفتوحًا؟"
+                  "value": "هل تريد الإنهاء وترك محرك أقراص واحد مفتوحًا؟"
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "هل تريد الإنهاء وترك %lld محرّك مفتوح؟"
+                  "value": "هل تريد الإنهاء وترك %lld محرك أقراص مفتوح؟"
                 }
               },
               "two": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "هل تريد الإنهاء وترك محرّكين مفتوحين؟"
+                  "value": "هل تريد الإنهاء وترك محركَي أقراص مفتوحين؟"
                 }
               },
               "zero": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "هل تريد الإنهاء وترك المحرّكات مفتوحة؟"
+                  "value": "هل تريد الإنهاء وترك محركات الأقراص مفتوحة؟"
                 }
               }
             }
@@ -35382,7 +35382,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "صور الأقراص الخام، ووحدة تخزين BitLocker أو LUKS داخل أي صورة، وتُفتح كما تُفتح على محرّك"
+            "value": "صور الأقراص الخام، ووحدة تخزين BitLocker أو LUKS داخل أي صورة، ويُلغى قفلها كما يُلغى قفل وحدة تخزين على محرك أقراص"
           }
         },
         "bg": {
@@ -35400,7 +35400,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rå diskbilleder, og en BitLocker- eller LUKS-enhed inde i et hvilket som helst diskbillede, som låses op ligesom en på en disk"
+            "value": "Rå diskbilleder, og en BitLocker- eller LUKS-diskenhed inde i et hvilket som helst diskbillede, som låses op ligesom en på en disk"
           }
         },
         "de": {
@@ -35424,19 +35424,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Töötlemata kettatõmmised ning BitLockeri või LUKS-i köide mis tahes tõmmise sees, mis avaneb nagu kettal olev köide"
+            "value": "Töötlemata kettatõmmised ning BitLockeri või LUKS-i köide mis tahes tõmmise sees, mille lukk avatakse nagu kettal oleval köitel"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Raakalevytiedostot sekä BitLocker- tai LUKS-taltio minkä tahansa levytiedoston sisällä, joka avautuu kuten aseman taltio"
+            "value": "Raakalevykuvat sekä missä tahansa levykuvassa oleva BitLocker- tai LUKS-taltio, jonka lukitus avataan samalla tavoin kuin asemalla olevan taltion"
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mga raw na disk image, at isang BitLocker o LUKS volume sa loob ng anumang image, na bumubukas gaya ng nasa isang drive"
+            "value": "Mga raw na disk image, at isang BitLocker o LUKS volume sa loob ng anumang image, na naa-unlock gaya ng nasa isang drive"
           }
         },
         "fr": {
@@ -35448,7 +35448,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "תמונות דיסק גולמיות, ואמצעי אחסון BitLocker או LUKS בתוך כל תמונה, שנפתח כמו על כונן"
+            "value": "תמונות דיסק גולמיות, ואמצעי אחסון BitLocker או LUKS בתוך כל תמונה, שנעילתו מתבטלת כמו זו של אמצעי אחסון בכונן"
           }
         },
         "hi": {
@@ -35472,7 +35472,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Image disk mentah, dan volume BitLocker atau LUKS di dalam image mana pun, yang terbuka seperti pada sebuah drive"
+            "value": "Image disk mentah, dan volume BitLocker atau LUKS di dalam image mana pun, yang dibuka kuncinya seperti volume pada sebuah drive"
           }
         },
         "it": {
@@ -35508,7 +35508,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Imej cakera mentah, dan volum BitLocker atau LUKS di dalam mana-mana imej, yang dibuka sama seperti pada sesebuah pemacu"
+            "value": "Imej cakera mentah, dan volum BitLocker atau LUKS di dalam mana-mana imej, yang dibuka kuncinya sama seperti volum pada sesebuah pemacu"
           }
         },
         "nb": {
@@ -35574,7 +35574,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ham disk imajları ve herhangi bir imajın içindeki BitLocker veya LUKS birimi; bir sürücüdeki gibi açılır"
+            "value": "Ham disk imajları ve herhangi bir imajın içindeki BitLocker veya LUKS birimi; bir sürücüdeki gibi kilidi açılır"
           }
         },
         "uk": {
@@ -36702,7 +36702,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "وحدات التخزين القابلة للإزالة: يطلبها macOS عند أول قراءة لمحرّك"
+            "value": "وحدات التخزين القابلة للإزالة: يطلبها macOS عند أول قراءة لمحرك أقراص"
           }
         },
         "bg": {
@@ -38902,7 +38902,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "رؤية المحرّكات الموصولة"
+            "value": "رؤية محركات الأقراص الموصولة"
           }
         },
         "bg": {
@@ -41542,7 +41542,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "شغّل الوصول الكامل إلى القرص لـ %@ في النافذة التي فُتحت للتو. من دونه لا يمكن قراءة أي محرّك، لا عند تسجيل الدخول ولا في أي وقت آخر."
+            "value": "شغّل الوصول الكامل إلى القرص لـ %@ في النافذة التي فُتحت للتو. من دونه لا يمكن قراءة أي محرك أقراص، لا عند تسجيل الدخول ولا في أي وقت آخر."
           }
         },
         "bg": {
@@ -42422,7 +42422,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لم تفتح كلمة السر أو مفتاح الاسترداد هذا المحرّك."
+            "value": "لم تُلغِ كلمة السر أو مفتاح الاسترداد قفل محرك الأقراص هذا."
           }
         },
         "bg": {
@@ -42464,19 +42464,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "See parool või taastevõti ei avanud seda ketast."
+            "value": "See parool või taastevõti ei avanud seda ketast lukust."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tuo salasana tai palautusavain ei avannut tätä asemaa."
+            "value": "Tuo salasana tai palautusavain ei avannut tämän aseman lukitusta."
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hindi nabuksan ng password o recovery key na iyon ang drive na ito."
+            "value": "Hindi na-unlock ng password o recovery key na iyon ang drive na ito."
           }
         },
         "fr": {
@@ -42488,7 +42488,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "הסיסמה או מפתח השחזור לא פתחו את הכונן הזה."
+            "value": "הסיסמה או מפתח השחזור לא ביטלו את נעילת הכונן הזה."
           }
         },
         "hi": {
@@ -42512,7 +42512,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kata sandi atau kunci pemulihan itu tidak membuka drive ini."
+            "value": "Kata sandi atau kunci pemulihan itu tidak membuka kunci drive ini."
           }
         },
         "it": {
@@ -43136,7 +43136,7 @@
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ang Linux environment ay binubuksan nang isang beses, sa unang paggamit."
+            "value": "Ang Linux environment ay ina-unpack nang isang beses, sa unang paggamit."
           }
         },
         "fr": {
@@ -43154,7 +43154,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Linux परिवेश एक बार, पहली बार उपयोग पर खुलता है।"
+            "value": "Linux environment को पहली बार इस्तेमाल करने पर एक बार अनपैक किया जाता है।"
           }
         },
         "hr": {
@@ -43208,7 +43208,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Persekitaran Linux dibuka sekali sahaja, pada penggunaan pertama."
+            "value": "Persekitaran Linux dinyahmampat sekali, pada penggunaan pertama."
           }
         },
         "nb": {
@@ -43274,7 +43274,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Linux ortamı bir kez, ilk kullanımda açılır."
+            "value": "Linux ortamı bir kez, ilk kullanımda paketten çıkarılır."
           }
         },
         "uk": {
@@ -43522,7 +43522,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لم يُعد المساعد في الخلفية بعد، لذا فإن %@ نفسه هو من يُبقي المحرّك مفتوحًا. الإنهاء الآن يفصله، ولن يكتمل ما يجري كتابته.\n\nوبعد إعداد المساعد تبقى المحرّكات مفتوحة من تلقاء نفسها."
+            "value": "لم يُعد المساعد في الخلفية بعد، لذا فإن %@ نفسه هو من يُبقي محرك الأقراص مفتوحًا. الإنهاء الآن يفصله، ولن يكتمل ما يجري كتابته.\n\nوبعد إعداد المساعد تبقى محركات الأقراص مفتوحة من تلقاء نفسها."
           }
         },
         "bg": {
@@ -43742,7 +43742,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لم يُعد المساعد في الخلفية بعد، لذا فإن %@ نفسه هو من يُبقيها مفتوحة. الإنهاء الآن يفصلها، ولن يكتمل ما يجري كتابته.\n\nوبعد إعداد المساعد تبقى المحرّكات مفتوحة من تلقاء نفسها."
+            "value": "لم يُعد المساعد في الخلفية بعد، لذا فإن %@ نفسه هو من يُبقيها مفتوحة. الإنهاء الآن يفصلها، ولن يكتمل ما يجري كتابته.\n\nوبعد إعداد المساعد تبقى محركات الأقراص مفتوحة من تلقاء نفسها."
           }
         },
         "bg": {
@@ -44182,7 +44182,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يظهر المحرّك في الشريط الجانبي للباحث ضمن المواقع.\nأخرجه في الباحث قبل فصله."
+            "value": "يظهر محرك الأقراص في الشريط الجانبي للباحث ضمن المواقع.\nأخرجه في الباحث قبل فصله."
           }
         },
         "bg": {
@@ -44402,7 +44402,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لم يكتمل إخراج المحرّك. قد يكون لا يزال قيد الاستخدام، فحاول مرة أخرى أو أخرجه في الباحث."
+            "value": "لم يكتمل إخراج محرك الأقراص. قد يكون لا يزال قيد الاستخدام، فحاول مرة أخرى أو أخرجه في الباحث."
           }
         },
         "bg": {
@@ -44622,7 +44622,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "المحرّك مشغول. أغلق كل ما يستخدمه، ثم حاول مرة أخرى."
+            "value": "محرك الأقراص مشغول. أغلق كل ما يستخدمه، ثم حاول مرة أخرى."
           }
         },
         "bg": {
@@ -44842,7 +44842,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يُسلَّم المحرّك إلى الباحث عبر اتصال شبكة محلي، لذا يظهر ضمن المواقع بأيقونة شبكة. ويُقرأ ويُكتب ويُخرج كأي محرّك آخر. ولا يتيح macOS أي طريقة لعرضه كقرص محلي."
+            "value": "يُسلَّم محرك الأقراص إلى الباحث عبر اتصال شبكة محلي، لذا يظهر ضمن المواقع بأيقونة شبكة. ويُقرأ ويُكتب ويُخرج كأي محرك أقراص آخر. ولا يتيح macOS أي طريقة لعرضه كقرص محلي."
           }
         },
         "bg": {
@@ -45062,7 +45062,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يبقى المحرّك في الباحث بعد إنهاء %@. أخرجه هناك متى انتهيت."
+            "value": "يبقى محرك الأقراص في الباحث بعد إنهاء %@. أخرجه هناك متى انتهيت."
           }
         },
         "bg": {
@@ -45282,7 +45282,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لم يُفتح المحرّك"
+            "value": "لم يُفتح محرك الأقراص"
           }
         },
         "bg": {
@@ -45502,7 +45502,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لم يُفتح المحرّك. %@"
+            "value": "لم يُفتح محرك الأقراص. %@"
           }
         },
         "bg": {
@@ -45722,7 +45722,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لم يُغلق المحرّك بشكل سليم من Windows. أوقف بدء التشغيل السريع في Windows، أو أغلق Windows إغلاقًا كاملًا بدل الإسبات، ثم حاول مرة أخرى."
+            "value": "لم يُغلق محرك الأقراص بشكل سليم من Windows. أوقف بدء التشغيل السريع في Windows، أو أغلق Windows إغلاقًا كاملًا بدل الإسبات، ثم حاول مرة أخرى."
           }
         },
         "bg": {
@@ -45960,7 +45960,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Motoren genkendte ikke noget filsystem på denne enhed. Hvis den er krypteret, er adgangskoden eller genoprettelsesnøglen måske forkert."
+            "value": "Motoren genkendte ikke noget filsystem på denne diskenhed. Hvis den er krypteret, er adgangskoden eller genoprettelsesnøglen måske forkert."
           }
         },
         "de": {
@@ -46110,7 +46110,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pogon na tem nosilcu ni prepoznal datotečnega sistema. Če je šifriran, sta geslo ali obnovitveni ključ morda napačna."
+            "value": "Mehanizem na tem nosilcu ni prepoznal datotečnega sistema. Če je šifriran, sta geslo ali obnovitveni ključ morda napačna."
           }
         },
         "sq": {
@@ -46330,7 +46330,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pogon ni sporočil ničesar. Morda je bil pogon odklopljen."
+            "value": "Mehanizem ni sporočil ničesar. Morda je bil pogon odklopljen."
           }
         },
         "sq": {
@@ -46822,7 +46822,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "عبارة السر التي شُفّر بها هذا المحرّك."
+            "value": "عبارة السر التي شُفّر بها محرك الأقراص هذا."
           }
         },
         "bg": {
@@ -46990,7 +46990,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geslo, s katerim je bil ta pogon šifriran."
+            "value": "Geselna fraza, s katero je bil ta pogon šifriran."
           }
         },
         "sq": {
@@ -47042,7 +47042,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "كلمة السر التي أُقفل بها المحرّك، أو مفتاح استرداد BitLocker المكوّن من 48 رقمًا. وتُتجاهل المسافات والشرطات في مفتاح الاسترداد."
+            "value": "كلمة السر التي أُقفل بها محرك الأقراص، أو مفتاح استرداد BitLocker المكوّن من 48 رقمًا. وتُتجاهل المسافات والشرطات في مفتاح الاسترداد."
           }
         },
         "bg": {
@@ -48365,37 +48365,37 @@
               "few": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "يحتوي هذا المحرّك على %lld وحدات تخزين ولم تُفتح كلها."
+                  "value": "يحتوي محرك الأقراص هذا على %lld وحدات تخزين ولم تُفتح كلها."
                 }
               },
               "many": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "يحتوي هذا المحرّك على %lld وحدة تخزين ولم تُفتح كلها."
+                  "value": "يحتوي محرك الأقراص هذا على %lld وحدة تخزين ولم تُفتح كلها."
                 }
               },
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "يحتوي هذا المحرّك على وحدة تخزين واحدة ولم تُفتح."
+                  "value": "يحتوي محرك الأقراص هذا على وحدة تخزين واحدة ولم تُفتح."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "يحتوي هذا المحرّك على %lld وحدة تخزين ولم تُفتح كلها."
+                  "value": "يحتوي محرك الأقراص هذا على %lld وحدة تخزين ولم تُفتح كلها."
                 }
               },
               "two": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "يحتوي هذا المحرّك على وحدتَي تخزين ولم تُفتح كلها."
+                  "value": "يحتوي محرك الأقراص هذا على وحدتَي تخزين ولم تُفتح كلها."
                 }
               },
               "zero": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "لا يحتوي هذا المحرّك على وحدات تخزين."
+                  "value": "لا يحتوي محرك الأقراص هذا على وحدات تخزين."
                 }
               }
             }
@@ -48455,13 +48455,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Denne enhed indeholder %lld enhed, og den kunne ikke åbnes."
+                  "value": "Denne enhed indeholder %lld diskenhed, og den kunne ikke åbnes."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Denne enhed indeholder %lld enheder, og ikke alle kunne åbnes."
+                  "value": "Denne enhed indeholder %lld diskenheder, og ikke alle kunne åbnes."
                 }
               }
             }
@@ -49110,7 +49110,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يحتوي هذا المحرّك على عدة وحدات تخزين بداخله، ولم يستطع %@ تحديد أيها. والإبلاغ عن ذلك سيساعد."
+            "value": "يحتوي محرك الأقراص هذا على عدة وحدات تخزين بداخله، ولم يستطع %@ تحديد أيها. والإبلاغ عن ذلك سيساعد."
           }
         },
         "bg": {
@@ -49128,7 +49128,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Denne enhed indeholder flere enheder, og %@ kunne ikke finde ud af hvilke. Det vil hjælpe at rapportere det."
+            "value": "Denne enhed indeholder flere diskenheder, og %@ kunne ikke finde ud af hvilke. Det vil hjælpe at rapportere det."
           }
         },
         "de": {
@@ -49330,7 +49330,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "هذا المحرّك غير مشفّر."
+            "value": "محرك الأقراص هذا غير مشفّر."
           }
         },
         "bg": {
@@ -49568,7 +49568,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Denne partition er ikke en BitLocker-enhed."
+            "value": "Denne partition er ikke en BitLocker-diskenhed."
           }
         },
         "de": {
@@ -51132,13 +51132,13 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ava"
+            "value": "Ava lukust"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Avaa"
+            "value": "Avaa lukitus"
           }
         },
         "fil": {
@@ -51502,7 +51502,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Salt Okunur Aç"
+            "value": "Salt Okunur Kilidi Aç"
           }
         },
         "uk": {
@@ -51530,7 +51530,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "إلغاء قفل هذا المحرّك"
+            "value": "إلغاء قفل محرك الأقراص هذا"
           }
         },
         "bg": {
@@ -51572,13 +51572,13 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ava see ketas"
+            "value": "Ava see ketas lukust"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Avaa tämä asema"
+            "value": "Avaa tämän aseman lukitus"
           }
         },
         "fil": {
@@ -52012,13 +52012,13 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ava „%@“"
+            "value": "Ava lukust „%@“"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Avaa ”%@”"
+            "value": "Avaa lukitus ”%@”"
           }
         },
         "fil": {
@@ -52190,7 +52190,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "مفتوح"
+            "value": "تم إلغاء القفل"
           }
         },
         "bg": {
@@ -52232,19 +52232,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Avatud"
+            "value": "Lukust avatud"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Avattu"
+            "value": "Lukitus avattu"
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nakabukas"
+            "value": "Na-unlock"
           }
         },
         "fr": {
@@ -52256,7 +52256,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "פתוח"
+            "value": "לא נעול"
           }
         },
         "hi": {
@@ -52280,7 +52280,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Terbuka"
+            "value": "Tidak Terkunci"
           }
         },
         "it": {
@@ -52316,7 +52316,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Terbuka"
+            "value": "Tidak Berkunci"
           }
         },
         "nb": {
@@ -52382,7 +52382,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Açık"
+            "value": "Kilidi Açık"
           }
         },
         "uk": {
@@ -52410,7 +52410,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "مفتوح في %@"
+            "value": "تم إلغاء قفله في %@"
           }
         },
         "bg": {
@@ -52452,19 +52452,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Avatud asukohas %@"
+            "value": "Lukust avatud asukohas %@"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Avattu sijaintiin %@"
+            "value": "Lukitus avattu sijainnissa %@"
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nakabukas sa %@"
+            "value": "Na-unlock sa %@"
           }
         },
         "fr": {
@@ -52476,7 +52476,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "פתוח ב‑%@"
+            "value": "לא נעול ב‑%@"
           }
         },
         "hi": {
@@ -52500,7 +52500,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Terbuka di %@"
+            "value": "Tidak terkunci di %@"
           }
         },
         "it": {
@@ -52536,7 +52536,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dibuka pada %@"
+            "value": "Tidak berkunci di %@"
           }
         },
         "nb": {
@@ -52602,7 +52602,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ konumunda açıldı"
+            "value": "%@ konumunda kilidi açıldı"
           }
         },
         "uk": {
@@ -52672,13 +52672,13 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Avamine ja haakimine"
+            "value": "Lukust avamine ja haakimine"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Avataan ja otetaan käyttöön"
+            "value": "Lukituksen avaaminen ja käyttöönotto"
           }
         },
         "fil": {
@@ -53290,7 +53290,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لا يخرج التحديث محرّكاتك. فكل ما هو مفتوح يبقى مفتوحًا ويواصل العمل."
+            "value": "لا يخرج التحديث محركات الأقراص لديك. فكل ما أُلغي قفله يبقى غير مقفل ويواصل العمل."
           }
         },
         "bg": {
@@ -53332,19 +53332,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uuendamine ei väljuta sinu kettaid. Kõik avatu jääb avatuks ja töötab edasi."
+            "value": "Uuendamine ei väljuta sinu kettaid. Kõik lukust avatu jääb lukust avatuks ja töötab edasi."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Päivittäminen ei poista asemiasi käytöstä. Kaikki avattu pysyy avattuna ja toimii edelleen."
+            "value": "Päivittäminen ei poista asemiasi käytöstä. Kaikki, minkä lukitus on avattu, pysyy lukitsemattomana ja toimii edelleen."
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hindi ini-eject ng pag-update ang iyong mga drive. Ang anumang nakabukas ay mananatiling bukas at patuloy na gumagana."
+            "value": "Hindi ini-eject ng pag-update ang iyong mga drive. Ang anumang naka-unlock ay mananatiling naka-unlock at patuloy na gumagana."
           }
         },
         "fr": {
@@ -53356,7 +53356,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "עדכון אינו מוציא את הכוננים שלך. כל מה שפתוח נשאר פתוח וממשיך לעבוד."
+            "value": "עדכון אינו מוציא את הכוננים שלך. כל מה שאינו נעול נשאר לא נעול וממשיך לעבוד."
           }
         },
         "hi": {
@@ -53380,7 +53380,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Memperbarui tidak mengeluarkan drive Anda. Apa pun yang terbuka tetap terbuka dan terus bekerja."
+            "value": "Memperbarui tidak mengeluarkan drive Anda. Apa pun yang tidak terkunci tetap tidak terkunci dan terus bekerja."
           }
         },
         "it": {
@@ -53416,7 +53416,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mengemas kini tidak mengeluarkan pemacu anda. Apa-apa yang terbuka kekal terbuka dan terus berfungsi."
+            "value": "Mengemas kini tidak mengeluarkan pemacu anda. Apa-apa yang tidak berkunci kekal tidak berkunci dan terus berfungsi."
           }
         },
         "nb": {
@@ -53482,7 +53482,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Güncelleme sürücülerinizi çıkarmaz. Açık olan her şey açık kalır ve çalışmayı sürdürür."
+            "value": "Güncelleme sürücülerinizi çıkarmaz. Kilidi açık olan her şeyin kilidi açık kalır ve çalışmayı sürdürür."
           }
         },
         "uk": {
@@ -55068,7 +55068,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Åbnede enheder"
+            "value": "Åbnede diskenheder"
           }
         },
         "de": {
@@ -56150,7 +56150,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لا يُعرف ما يحتويه المحرّك إلا بعد فتحه."
+            "value": "لا يُعرف ما يحتويه محرك الأقراص إلا بعد إلغاء قفله."
           }
         },
         "bg": {
@@ -56192,19 +56192,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ketta sisu selgub alles siis, kui see on avatud."
+            "value": "Ketta sisu selgub alles siis, kui see on lukust avatud."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aseman sisältö selviää vasta, kun se on avattu."
+            "value": "Aseman sisältö selviää vasta, kun sen lukitus on avattu."
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ang laman ng isang drive ay nalalaman lamang kapag ito ay nabuksan na."
+            "value": "Ang laman ng isang drive ay nalalaman lamang kapag na-unlock na ito."
           }
         },
         "fr": {
@@ -56216,7 +56216,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מה שכונן מכיל נודע רק לאחר שנפתח."
+            "value": "מה שכונן מכיל נודע רק לאחר שבוטלה נעילתו."
           }
         },
         "hi": {
@@ -57470,7 +57470,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لماذا يظهر كمحرّك شبكة"
+            "value": "لماذا يظهر كمحرك أقراص شبكي"
           }
         },
         "bg": {
@@ -57690,7 +57690,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "محرّكات Windows بنظام NTFS، بما فيها ما تركه Windows في وضع الإسبات أو لم يُغلق بشكل سليم"
+            "value": "محركات أقراص Windows بنظام NTFS، بما فيها ما تركه Windows في وضع الإسبات أو لم يُغلق بشكل سليم"
           }
         },
         "bg": {
@@ -57910,7 +57910,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏Windows في منتصف تشفير هذا المحرّك أو فك تشفيره. افتحه في Windows ودع BitLocker ينتهي، ثم حاول مرة أخرى."
+            "value": "‏Windows في منتصف تشفير محرك الأقراص هذا أو فك تشفيره. افتحه في Windows ودع BitLocker ينتهي، ثم حاول مرة أخرى."
           }
         },
         "bg": {
@@ -59010,7 +59010,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "محرّكاتك معدّة لتُفتح من جديد بعد إعادة التشغيل، لكن الوصول الكامل إلى القرص لم يعد ممنوحًا. وقد يزيله تحديث لـ macOS أو نقل التطبيق أو إعادة تثبيته."
+            "value": "محركات الأقراص لديك معدّة لتُفتح من جديد بعد إعادة التشغيل، لكن الوصول الكامل إلى القرص لم يعد ممنوحًا. وقد يزيله تحديث لـ macOS أو نقل التطبيق أو إعادة تثبيته."
           }
         },
         "bg": {
@@ -60550,7 +60550,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏macOS يركّب هذا المحرّك بالفعل. أخرجه في الباحث ثم حاول مرة أخرى."
+            "value": "‏macOS يركّب محرك الأقراص هذا بالفعل. أخرجه في الباحث ثم حاول مرة أخرى."
           }
         },
         "bg": {
@@ -60770,7 +60770,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "منع macOS الوصول إلى المحرّك. يحتاج %@ إلى الوصول الكامل إلى القرص قبل أن يستطيع قراءة قرص مشفّر."
+            "value": "منع macOS الوصول إلى محرك الأقراص. يحتاج %@ إلى الوصول الكامل إلى القرص قبل أن يستطيع قراءة قرص مشفّر."
           }
         },
         "bg": {
@@ -61436,7 +61436,7 @@
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS сам чете и записва exFAT, затова този образ беше отворендиректно като обикновен диск."
+            "value": "macOS сам чете и записва exFAT, затова този образ беше отворен директно като обикновен диск."
           }
         },
         "cs": {
@@ -62090,7 +62090,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "رفض macOS وصول %@ إلى هذا المحرّك. شغّل وحدات التخزين القابلة للإزالة أدناه، ثم افتحه من جديد."
+            "value": "رفض macOS وصول %@ إلى محرك الأقراص هذا. شغّل وحدات التخزين القابلة للإزالة أدناه، ثم افتحه من جديد."
           }
         },
         "bg": {
@@ -62750,7 +62750,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لم يُبلغ"
+            "value": "لم يتم الوصول إليه"
           }
         },
         "bg": {
@@ -63850,7 +63850,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "مفتوح"
+            "value": "غير مقفل"
           }
         },
         "bg": {
@@ -63892,19 +63892,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "avatud"
+            "value": "lukust avatud"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "avattu"
+            "value": "lukitus avattu"
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "nakabukas"
+            "value": "na-unlock"
           }
         },
         "fr": {
@@ -63916,7 +63916,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "פתוח"
+            "value": "לא נעול"
           }
         },
         "hi": {
@@ -63940,7 +63940,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "terbuka"
+            "value": "tidak terkunci"
           }
         },
         "it": {
@@ -63976,7 +63976,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "terbuka"
+            "value": "tidak berkunci"
           }
         },
         "nb": {
@@ -64042,7 +64042,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "açık"
+            "value": "kilidi açık"
           }
         },
         "uk": {
@@ -64730,7 +64730,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يحتوي “%@” على وحدة تخزين مشفّرة، ولا يستطيع محرّك الأقراص في هذه النسخة فتح التشفير داخل صورة. وفتح المحرّك الذي صُنعت منه سينجح."
+            "value": "يحتوي “%@” على وحدة تخزين مشفّرة، ولا يستطيع المحرّك في هذه النسخة فتح التشفير داخل صورة. وفتح محرك الأقراص الذي صُنعت منه سينجح."
           }
         },
         "bg": {
@@ -64748,7 +64748,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%1$@” indeholder et krypteret arkiv, og diskmotoren i denne udgave kan ikke åbne kryptering inde i et diskbillede. At åbne den disk, det er lavet af, ville virke."
+            "value": "“%1$@” indeholder en krypteret diskenhed, og diskmotoren i denne udgave kan ikke åbne kryptering inde i et diskbillede. At åbne den disk, det er lavet af, ville virke."
           }
         },
         "de": {
@@ -65170,7 +65170,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏“%@” من نوع VDI، ولا يملك محرّك الأقراص في هذه النسخة مشغّل VDI. صورة خام أو qcow2 ستُفتح."
+            "value": "‏“%@” من نوع VDI، ولا يملك المحرّك في هذه النسخة مشغّل VDI. صورة خام أو qcow2 ستُفتح."
           }
         },
         "bg": {
@@ -65218,7 +65218,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%@” on VDI, eikä tämän koosteen levymoottorissa ole VDI-ajuria. Raakatiedosto tai qcow2 aukeaisi."
+            "value": "”%@” on VDI, eikä tämän koosteen levymoottorissa ole VDI-ajuria. Raakalevykuva tai qcow2 aukeaisi."
           }
         },
         "fil": {
@@ -65390,7 +65390,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏“%@” من نوع VHDX، ولا يملك محرّك الأقراص في هذه النسخة مشغّل VHDX. ملف VHD أو صورة خام أو qcow2 سيُفتح."
+            "value": "‏“%@” من نوع VHDX، ولا يملك المحرّك في هذه النسخة مشغّل VHDX. ملف VHD أو صورة خام أو qcow2 سيُفتح."
           }
         },
         "bg": {
@@ -65438,7 +65438,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%@” on VHDX, eikä tämän koosteen levymoottorissa ole VHDX-ajuria. VHD, raakatiedosto tai qcow2 aukeaisi."
+            "value": "”%@” on VHDX, eikä tämän koosteen levymoottorissa ole VHDX-ajuria. VHD, raakalevykuva tai qcow2 aukeaisi."
           }
         },
         "fil": {
@@ -65610,7 +65610,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏“%@” من نوع VHD ديناميكي، ولا يملك محرّك الأقراص في هذه النسخة مشغّلًا له. ملف VHD ثابت أو صورة خام أو qcow2 سيُفتح."
+            "value": "‏“%@” من نوع VHD ديناميكي، ولا يملك المحرّك في هذه النسخة مشغّلًا له. ملف VHD ثابت أو صورة خام أو qcow2 سيُفتح."
           }
         },
         "bg": {
@@ -65658,7 +65658,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%@” on dynaaminen VHD, eikä tämän koosteen levymoottorissa ole sille ajuria. Kiinteä VHD, raakatiedosto tai qcow2 aukeaisi."
+            "value": "”%@” on dynaaminen VHD, eikä tämän koosteen levymoottorissa ole sille ajuria. Kiinteä VHD, raakalevykuva tai qcow2 aukeaisi."
           }
         },
         "fil": {
@@ -65830,7 +65830,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏“%@” من نوع VMDK متناثر، ومحرّك الأقراص في هذه النسخة يقرأ الشكل المسطّح فقط. ملف VMDK مسطّح أو صورة خام سيُفتح."
+            "value": "‏“%@” من نوع VMDK متناثر، والمحرّك في هذه النسخة يقرأ الشكل المسطّح فقط. ملف VMDK مسطّح أو صورة خام سيُفتح."
           }
         },
         "bg": {
@@ -65878,7 +65878,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%@” on harva VMDK, ja tämän koosteen levymoottori lukee vain litteän muodon. Litteä VMDK tai raakatiedosto aukeaisi."
+            "value": "”%@” on harva VMDK, ja tämän koosteen levymoottori lukee vain litteän muodon. Litteä VMDK tai raakalevykuva aukeaisi."
           }
         },
         "fil": {
@@ -66664,7 +66664,7 @@
         "sq": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@” është pjesë e një zinxhiri fotografish. Hap diskun nga i cili u krijua."
+            "value": "“%@” është pjesë e një zinxhiri snapshot-esh. Hap diskun nga i cili u krijua."
           }
         },
         "sv": {
@@ -66930,7 +66930,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏“%@” مفتوح"
+            "value": "تم إلغاء قفل “%@”"
           }
         },
         "bg": {
@@ -66972,19 +66972,19 @@
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "„%@“ on avatud"
+            "value": "„%@“ on lukust avatud"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "”%@” on avattu"
+            "value": "”%@” on lukitsematon"
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nakabukas ang “%@”"
+            "value": "Na-unlock ang “%@”"
           }
         },
         "fr": {
@@ -66996,7 +66996,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏“%@” פתוח"
+            "value": "‏“%@” אינו נעול"
           }
         },
         "hi": {
@@ -67020,7 +67020,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@” terbuka"
+            "value": "“%@” tidak terkunci"
           }
         },
         "it": {
@@ -67056,7 +67056,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@” telah dibuka"
+            "value": "“%@” tidak berkunci"
           }
         },
         "nb": {
@@ -67122,7 +67122,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@” açıldı"
+            "value": "“%@” kilidi açık"
           }
         },
         "uk": {
