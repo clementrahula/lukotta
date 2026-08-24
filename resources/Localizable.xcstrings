@@ -17161,6 +17161,226 @@
         }
       }
     },
+    "Eject It and Open": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إخراجه وفتحه"
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Извади и отвори"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpojit a otevřít"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skub ud, og åbn"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auswerfen und öffnen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εξαγωγή και άνοιγμα"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expulsar y abrir"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Väljuta ja ava"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poista käytöstä ja avaa"
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I-eject at Buksan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éjecter et ouvrir"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "הוצאה ופתיחה"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "निकालें और खोलें"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izbaci i otvori"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiadás és megnyitás"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keluarkan dan Buka"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Espelli e apri"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取り出して開く"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추출 후 열기"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išstumti ir atverti"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izstumt un atvērt"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keluarkan dan Buka"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Løs ut og åpne"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwijder en open"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wysuń i otwórz"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejetar e abrir"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scoate și deschide"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Извлечь и открыть"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izvrzi in odpri"
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nxirre dhe hape"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mata ut och öppna"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ดีดออกแล้วเปิด"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çıkart ve Aç"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вилучити й відкрити"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tháo ra và mở"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "推出并打开"
+          }
+        }
+      }
+    },
     "Eject a drive or an image before opening another.": {
       "localizations": {
         "ar": {
@@ -63621,6 +63841,226 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS 未把 %@ 添加到你的登录项。请打开“系统设置”，然后是“通用”，再到“登录项与扩展”，在那里添加。"
+          }
+        }
+      }
+    },
+    "macOS would not let go of this drive. Close anything using it, then try again.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم يسمح macOS بإفلات محرك الأقراص هذا. أغلق كل ما يستخدمه، ثم حاول مرة أخرى."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS не освободи този диск. Затворете всичко, което го използва, и опитайте отново."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS tento disk neuvolnil. Zavřete vše, co jej používá, a zkuste to znovu."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ville ikke slippe denne enhed. Luk alt, der bruger den, og prøv igen."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS hat dieses Laufwerk nicht freigegeben. Schließe alles, was es verwendet, und versuche es erneut."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το macOS δεν άφησε αυτόν τον δίσκο. Κλείστε ό,τι τον χρησιμοποιεί και δοκιμάστε ξανά."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS no ha soltado este disco. Cierra todo lo que lo esté usando e inténtalo de nuevo."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ei vabastanud seda ketast. Sulge kõik, mis seda kasutab, ja proovi uuesti."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ei vapauttanut tätä asemaa. Sulje kaikki, mikä käyttää sitä, ja yritä uudelleen."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hindi binitawan ng macOS ang drive na ito. Isara ang anumang gumagamit nito, pagkatapos ay subukan muli."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS n'a pas libéré ce disque. Fermez tout ce qui l'utilise, puis réessayez."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‏macOS לא שחרר את הכונן הזה. סגרו כל דבר שמשתמש בו ונסו שוב."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ने यह ड्राइव नहीं छोड़ी। इसका उपयोग करने वाली हर चीज़ बंद करें, फिर दोबारा कोशिश करें।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nije otpustio ovaj disk. Zatvorite sve što ga koristi pa pokušajte ponovno."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A macOS nem engedte el ezt a meghajtót. Zárjon be mindent, ami használja, majd próbálja újra."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS tidak melepaskan drive ini. Tutup apa pun yang menggunakannya, lalu coba lagi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS non ha rilasciato questo disco. Chiudi tutto ciò che lo sta usando e riprova."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS がこのドライブを手放しませんでした。使用中のものをすべて閉じてから、もう一度お試しください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS가 이 드라이브를 놓아주지 않았습니다. 사용 중인 항목을 모두 닫은 후 다시 시도하십시오."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„macOS“ nepaleido šio disko. Uždarykite viską, kas jį naudoja, ir bandykite dar kartą."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS neatlaida šo disku. Aizveriet visu, kas to izmanto, un mēģiniet vēlreiz."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS tidak melepaskan pemacu ini. Tutup apa-apa yang menggunakannya, kemudian cuba lagi."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS slapp ikke denne enheten. Lukk alt som bruker den, og prøv igjen."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS heeft deze schijf niet losgelaten. Sluit alles wat de schijf gebruikt en probeer het opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nie zwolnił tego dysku. Zamknij wszystko, co go używa, i spróbuj ponownie."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O macOS não largou este disco. Feche tudo o que o esteja a usar e tente novamente."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nu a eliberat acest disc. Închideți tot ce îl folosește, apoi încercați din nou."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS не отпустил этот диск. Закройте всё, что его использует, и попробуйте снова."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS tega pogona ni sprostil. Zaprite vse, kar ga uporablja, in poskusite znova."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS nuk e lëshoi këtë disk. Mbyll gjithçka që e përdor, pastaj provo sërish."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS släppte inte den här enheten. Stäng allt som använder den och försök igen."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ไม่ปล่อยไดรฟ์นี้ ปิดทุกอย่างที่ใช้งานไดรฟ์อยู่ แล้วลองอีกครั้ง"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS bu sürücüyü bırakmadı. Onu kullanan her şeyi kapatın, sonra yeniden deneyin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS не відпустив цей диск. Закрийте все, що його використовує, і спробуйте ще раз."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS không nhả ổ đĩa này. Hãy đóng mọi thứ đang dùng nó, rồi thử lại."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 没有释放此驱动器。请关闭正在使用它的所有内容，然后重试。"
           }
         }
       }

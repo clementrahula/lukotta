@@ -81,6 +81,14 @@ final class AppModel: ObservableObject {
     /// Which step a failed mount got to, so the failure can point at it rather
     /// than replacing the steps with a bare sentence.
     @Published var failedStage: MountStage?
+
+    /// Which diagnosis rule explained the last failure, when one did.
+    ///
+    /// The failure screen offers what the rule makes possible -- a drive macOS
+    /// has already mounted can be taken from it and opened here -- and the
+    /// summary is the wrong thing to test for: it is a translated sentence, so
+    /// matching words in it works in English and nowhere else.
+    @Published var failedRule: String?
     /// Every volume opened for the drive on screen. A container can hold more
     /// than one, and all are opened without asking which.
     @Published var openVolumes: [String] = []
@@ -2165,6 +2173,9 @@ final class AppModel: ObservableObject {
         // have worked.
         chosenFormat = nil
         failedStage = MountStage.inferred(from: stageLines + statusLines)
+        failedRule =
+            Diagnosis.rule(for: [detail, summary].compactMap { $0 }.joined(separator: "\n"))?
+            .name
         // The stage is generated here and safe to read back. The summary can
         // carry engine output, so it passes through the same redaction as the
         // report.
@@ -2181,6 +2192,48 @@ final class AppModel: ObservableObject {
             return
         }
         phase = .failed(drive, Diagnostics.scrubbed(summary, secret: activeCredential), clean)
+    }
+
+    /// Take the drive back from macOS, then open it here.
+    ///
+    /// macOS mounts NTFS and exFAT itself, read-only for NTFS, and the engine
+    /// will not touch a disk the host already has. The engine can be told to
+    /// proceed anyway, and is not: two systems with the same filesystem open,
+    /// one of them caching it, is how a volume gets corrupted. Unmounting first
+    /// leaves exactly one reader, which is the state everything else assumes.
+    func takeBackFromMacOSAndOpen(_ drive: Drive) {
+        // Whatever macOS has mounted from this disk: the drive's own device,
+        // and any sibling partition of the same disk, since a container is one
+        // row here and several devices there.
+        let disk = DriveScanner.wholeDisk(of: drive.id)
+        let taken = MountTableEntry.all(in: mountTable())
+            .filter {
+                guard $0.source.hasPrefix("/dev/") else { return false }
+                let identifier = ($0.source as NSString).lastPathComponent
+                return identifier == drive.id || DriveScanner.wholeDisk(of: identifier) == disk
+            }
+        guard !taken.isEmpty else {
+            // Nothing of it is mounted any more; the retry is the whole answer.
+            unlock(drive, readOnly: mountingReadOnly)
+            return
+        }
+        for entry in taken {
+            let result = run("/usr/sbin/diskutil", ["unmount", entry.mountPoint])
+            guard result?.ok == true else {
+                let why = result?.err.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                Log.mount.error(
+                    "could not take \(entry.source, privacy: .private) back from macOS: \(Diagnostics.scrubbed(why), privacy: .public)"
+                )
+                fail(
+                    drive,
+                    appString(
+                        "macOS would not let go of this drive. Close anything using it, then try again."
+                    ), why.isEmpty ? nil : Diagnostics.scrubbed(why))
+                return
+            }
+        }
+        Log.mount.notice("took \(taken.count, privacy: .public) volumes back from macOS")
+        unlock(drive, readOnly: mountingReadOnly)
     }
 
     /// Show whatever of the helper's transcript has not been shown yet.

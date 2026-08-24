@@ -80,6 +80,12 @@ struct FailureView: View {
                 if summary.contains("Full Disk Access") {
                     Button("Open Privacy Settings") { model.openPrivacySettings() }
                         .keyboardShortcut(.defaultAction)
+                } else if model.failedRule == "already-mounted", let drive {
+                    // The one failure with a remedy that is a button rather
+                    // than a sentence: macOS has the drive, and it can be asked
+                    // to let go without leaving this screen.
+                    Button("Eject It and Open") { model.takeBackFromMacOSAndOpen(drive) }
+                        .keyboardShortcut(.defaultAction)
                 } else if let drive {
                     // Retries as it stands, which includes how it was asked
                     // for: somebody who chose Unlock Read-Only and then tried

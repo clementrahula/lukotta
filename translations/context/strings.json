@@ -604,6 +604,13 @@
         }
       ]
     },
+    "Eject It and Open": {
+      "screens": [
+        "failure"
+      ],
+      "context": "Button on the failure screen, shown only when the drive could not be opened because macOS has it mounted already. It unmounts the drive from macOS and opens it here, in one step. Title case, as macOS button labels are. 'Eject' should be the word this language's Finder uses for ejecting a disk.",
+      "placeholders": []
+    },
     "Eject a drive or an image before opening another.": {
       "screens": [
         "menus"
@@ -2276,6 +2283,13 @@
           "is": "the name of the app"
         }
       ]
+    },
+    "macOS would not let go of this drive. Close anything using it, then try again.": {
+      "screens": [
+        "failure"
+      ],
+      "context": "Shown when the button above was pressed and macOS refused to unmount the drive, which normally means a program still has a file open on it.",
+      "placeholders": []
     },
     "macOS wrote %@. It is not sent anywhere automatically. Attach it to your message if you can.": {
       "screens": [

@@ -1172,6 +1172,39 @@ group("uninstallingTakesEverythingWithIt") {
     }
 }
 
+group("aDriveMacOSAlreadyHasCanBeTakenBackFromIt") {
+    // macOS mounts NTFS and exFAT itself, and the engine will not touch a disk
+    // the host already has. Until now that was a sentence on a failure screen
+    // and nothing else. The rule has to be identified by name: the sentence is
+    // translated, so matching words in it works in English and nowhere else.
+    let transcript = "Error: /dev/disk4s1 is already mounted at /Volumes/WINDOWS"
+    expect(
+        Diagnosis.rule(for: transcript)?.name == "already-mounted",
+        "the engine's complaint is recognised as the drive being held by macOS")
+
+    // Which of the host's mounts belong to the disk being opened. A container
+    // is one row in the list and several devices in the mount table, so a
+    // sibling partition of the same disk counts and another disk does not.
+    let table = """
+        /dev/disk3s1s1 on / (apfs, sealed, local, read-only, journaled)
+        /dev/disk4s1 on /Volumes/WINDOWS (ntfs, local, nodev, nosuid, read-only)
+        /dev/disk4s2 on /Volumes/DATA (exfat, local, nodev, nosuid)
+        /dev/disk5s1 on /Volumes/OTHER (ntfs, local, read-only)
+        """
+    let disk = DriveScanner.wholeDisk(of: "disk4s1")
+    let taken = MountTableEntry.all(in: table).filter {
+        guard $0.source.hasPrefix("/dev/") else { return false }
+        let identifier = ($0.source as NSString).lastPathComponent
+        return identifier == "disk4s1" || DriveScanner.wholeDisk(of: identifier) == disk
+    }
+    expect(
+        taken.map(\.mountPoint) == ["/Volumes/WINDOWS", "/Volumes/DATA"],
+        "every volume of that disk is taken back, and nothing from another")
+    expect(
+        !taken.contains { $0.mountPoint == "/" },
+        "and never the volume this Mac is running from")
+}
+
 group("theEnginesOwnLogsDoNotPileUpForEver") {
     // Three files a mount, nineteen kilobytes, written into ~/Library/Logs by
     // the engine itself and never rotated. They cannot be recognised by name:
