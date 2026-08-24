@@ -320,9 +320,19 @@ group("volumeKindsAndTheDirtyVolumePath") {
         ],
         info: { _ in [:] }, mountTable: "", openable: [])
     expect(bare.count == 1, "a disk with no partition table is still a row")
-    expect(
-        bare.first.map { !$0.name.isEmpty && !$0.content.isEmpty } ?? false,
-        "and it says what it is rather than carrying two empty fields")
+    expect(bare.first.map { !$0.name.isEmpty } ?? false, "and it is named")
+    // Nothing is said about what it holds, because nothing here knows: the
+    // partition scheme is not a thing on the disk, and the row already carries
+    // the device name.
+    expect(bare.first?.content == "", "and says nothing it cannot know")
+
+    // diskutil's own words, in the vocabulary the drive list uses.
+    expect(DriveSurvey.described("Windows_NTFS"), "BitLocker/NTFS", "a Microsoft partition type")
+    expect(DriveSurvey.described("Linux_LVM"), "LUKS/Linux", "and a Linux one")
+    expect(DriveSurvey.described("Apple_APFS_ISC"), "APFS", "APFS, whichever of its roles")
+    expect(DriveSurvey.described("Apple_HFS"), "Mac OS Extended", "the old Mac filesystem")
+    expect(DriveSurvey.described("GUID_partition_scheme"), "", "a partition scheme is not contents")
+    expect(DriveSurvey.described("Some_New_Type"), "Some_New_Type", "and anything else stands")
 
     let d = Drive(
         id: "disk4s1", devicePath: "/dev/disk4s1", name: "BACKUP",

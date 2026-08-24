@@ -151,7 +151,7 @@ public enum DriveSurvey {
                         disk: whole,
                         name: nonEmpty(label) ?? nonEmpty(product) ?? identifier,
                         sizeBytes: size,
-                        content: nonEmpty(content) ?? identifier,
+                        content: described(content),
                         verdict: verdict,
                         drive: byIdentifier[identifier]))
             }
@@ -181,7 +181,7 @@ public enum DriveSurvey {
                         disk: whole,
                         name: nonEmpty(product) ?? whole,
                         sizeBytes: size,
-                        content: nonEmpty(disk["Content"] as? String) ?? whole,
+                        content: described((disk["Content"] as? String) ?? ""),
                         verdict: verdict,
                         drive: byIdentifier[whole]
                             ?? Drive(
@@ -195,6 +195,35 @@ public enum DriveSurvey {
             }
         }
         return entries
+    }
+
+    /// diskutil's vocabulary in words somebody recognises.
+    ///
+    /// The list is read by whoever is looking for their drive in it, and
+    /// "Windows_NTFS" and "Apple_APFS_ISC" are names for people who already
+    /// know what they are looking at. A partition type this app opens is
+    /// described exactly as the drive list describes it, so the two screens
+    /// agree; the rest are the filesystem's own name.
+    ///
+    /// Anything unrecognised is passed through as diskutil said it. It is rare,
+    /// and a name that is odd is better than one that is wrong.
+    public static func described(_ content: String) -> String {
+        if let kind = VolumeKind.holding(content) { return kind.summary }
+        switch content {
+        case "Apple_APFS", "Apple_APFS_Container", "Apple_APFS_ISC", "Apple_APFS_Recovery",
+            "Apple_APFS_Snapshot":
+            return "APFS"
+        case "Apple_HFS", "Apple_HFSX": return "Mac OS Extended"
+        case "Apple_Boot", "Apple_Recovery": return "Recovery"
+        case "EFI": return "EFI"
+        case "Microsoft Reserved": return "Microsoft Reserved"
+        // A whole disk with a table on it, and a disk with nothing at all. The
+        // scheme is not a thing the disk holds, and the row already carries the
+        // device name, so there is nothing here worth a second line.
+        case "GUID_partition_scheme", "FDisk_partition_scheme", "Apple_partition_scheme", "":
+            return ""
+        default: return content
+        }
     }
 
     /// What diskutil said, where it said anything.

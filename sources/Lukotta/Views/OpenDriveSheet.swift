@@ -175,9 +175,12 @@ private struct SurveyRow: View {
                         .environment(\.layoutDirection, .leftToRight)
                         .foregroundStyle(.tertiary)
                 }
-                Text(verbatim: "\(entry.sizeDescription) · \(entry.content)")
-                    .font(.caption).foregroundStyle(.secondary)
-                    .environment(\.layoutDirection, .leftToRight)
+                Text(
+                    verbatim: entry.content.isEmpty
+                        ? entry.sizeDescription : "\(entry.sizeDescription) · \(entry.content)"
+                )
+                .font(.caption).foregroundStyle(.secondary)
+                .environment(\.layoutDirection, .leftToRight)
                 Text(reason)
                     .font(.caption).foregroundStyle(.tertiary)
                     .fixedSize(horizontal: false, vertical: true)
