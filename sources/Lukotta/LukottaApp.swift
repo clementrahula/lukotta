@@ -300,9 +300,12 @@ struct LukottaApp: App {
                 get: { showMenuBarIcon && !model.openMounts.isEmpty },
                 set: { _ in })
         ) {
-            ForEach(Array(model.openMounts.values.sorted()), id: \.self) { path in
-                Button("Eject \((path as NSString).lastPathComponent)") {
-                    model.eject(path)
+            // The list's own order, and the list's own names. Sorting the
+            // mount points instead gave a menu in a different order from the
+            // window behind it, naming drives after the folder they landed in.
+            ForEach(model.drives) { drive in
+                if let point = model.mountPoint(for: drive) {
+                    Button("Eject \(drive.name)") { model.eject(point) }
                 }
             }
             Divider()

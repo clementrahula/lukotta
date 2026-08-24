@@ -81,24 +81,71 @@ public enum VolumeKind: String, Hashable, Sendable {
 /// not two. What identifies a row is given by the caller, because a device
 /// name is not it: those are handed back out as soon as they are free.
 public struct DriveOrder: Sendable {
-    private var seen: [String] = []
+    private var seen: [String]
 
-    public init() {}
+    /// How many places to remember. Enough for every drive and file somebody
+    /// opens over a long time, and not enough to grow without end.
+    private static let limit = 200
+
+    public init(remembering: [String] = []) { seen = remembering }
+
+    /// The places, to be kept somewhere that outlives the app. An order
+    /// somebody arranged by hand and lost at the next launch would be worse
+    /// than not being able to arrange it.
+    public var remembered: [String] { seen }
 
     /// The same drives, in the order they were first seen.
     ///
-    /// Anything gone is forgotten, so a drive that comes back later comes back
-    /// at the bottom rather than reclaiming a place among rows that have been
-    /// there all along.
+    /// A place is kept for a drive that is not there. Unplug one and plug it in
+    /// again and it comes back where it was, rather than at the bottom, which
+    /// matters more once the order is somebody's own arrangement and not just
+    /// the order things turned up in.
     public mutating func apply(_ drives: [Drive], key: (Drive) -> String) -> [Drive] {
         var byKey: [String: Drive] = [:]
         for drive in drives {
             let identity = key(drive)
             if byKey[identity] == nil { byKey[identity] = drive }
         }
-        seen = seen.filter { byKey[$0] != nil }
         for drive in drives where !seen.contains(key(drive)) { seen.append(key(drive)) }
+        // Over the limit, the places given up are the ones nothing is standing
+        // in any more, oldest first. Trimming from the front regardless would
+        // take the place of a drive that is right there at the top of the list.
+        var index = 0
+        while seen.count > Self.limit, index < seen.count {
+            if byKey[seen[index]] == nil {
+                seen.remove(at: index)
+            } else {
+                index += 1
+            }
+        }
         return seen.compactMap { byKey[$0] }
+    }
+
+    /// Take an order somebody arranged themselves.
+    ///
+    /// What they arranged comes first, in the order they left it. Anything not
+    /// in it is a row they could not see and did not move, and keeps its place
+    /// behind the rest.
+    public mutating func adopt(_ keys: [String]) {
+        let arranged = Set(keys)
+        seen = keys + seen.filter { !arranged.contains($0) }
+    }
+}
+
+/// Where the order of the list is kept between launches.
+///
+/// Beside the rest of the app's settings. What it holds is what each row is --
+/// a volume's own UUID, or the path of a file somebody opened -- so it says
+/// nothing about a drive that is not plugged in and nothing about the machine.
+public enum ListOrderMemory {
+    static let key = "listOrder"
+
+    public static func read() -> [String] {
+        UserDefaults.standard.stringArray(forKey: key) ?? []
+    }
+
+    public static func write(_ order: [String]) {
+        UserDefaults.standard.set(order, forKey: key)
     }
 }
 

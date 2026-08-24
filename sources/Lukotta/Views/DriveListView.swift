@@ -32,16 +32,22 @@ struct DriveListView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.bottom, 2)
                 }
-                ScrollView {
-                    VStack(spacing: 10) {
-                        // A drive that has just gone leaves its message where
-                        // it was, in the space it was taking.
-                        ForEach(model.departed.filter { $0.index == 0 }) { gone in
-                            DepartedRow(name: gone.name)
-                        }
-                        ForEach(Array(model.drives.enumerated()), id: \.element.id) {
-                            position, drive in
-                            let point = model.mountPoint(for: drive)
+                // A List rather than a stack in a scroll view, for the one
+                // thing a stack cannot do: rows are dragged into whatever order
+                // somebody wants them in, with AppKit drawing the drag and the
+                // place it would land. Everything a list would otherwise impose
+                // -- its background, its separators, its insets -- is taken
+                // back off, so this looks as it did.
+                List {
+                    // A drive that has just gone leaves its message where
+                    // it was, in the space it was taking.
+                    ForEach(model.departed.filter { $0.index == 0 }) { gone in
+                        DepartedRow(name: gone.name).plainRow
+                    }
+                    ForEach(Array(model.drives.enumerated()), id: \.element.id) {
+                        position, drive in
+                        let point = model.mountPoint(for: drive)
+                        VStack(spacing: 10) {
                             DriveRow(
                                 drive: drive,
                                 mountPoint: point,
@@ -61,8 +67,13 @@ struct DriveListView: View {
                                 DepartedRow(name: gone.name)
                             }
                         }
+                        .plainRow
                     }
+                    .onMove { from, to in model.moveDrives(from: from, to: to) }
                 }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .environment(\.defaultMinListRowHeight, 1)
                 HStack {
                     Text("What a drive contains is only known once it is unlocked.")
                         .font(.caption).foregroundStyle(.secondary)
@@ -72,6 +83,16 @@ struct DriveListView: View {
                 }
             }
         }
+    }
+}
+
+extension View {
+    /// A list row with nothing of the list about it: no separator, no
+    /// background of its own, and the spacing the rows had as a stack.
+    fileprivate var plainRow: some View {
+        listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0))
     }
 }
 

@@ -1024,11 +1024,22 @@ group("theListKeepsTheOrderThingsArrivedIn") {
 
     let backAgain = order.apply([drive("a"), drive("c"), drive("b")], key: key)
     expect(
-        backAgain.map(\.id) == ["a", "c", "b"],
-        "and comes back at the bottom rather than pushing the others about")
+        backAgain.map(\.id) == ["a", "b", "c"],
+        "and comes back where it was, its place having been kept")
 
     let twice = order.apply([drive("a"), drive("a")], key: key)
     expect(twice.count == 1, "the same thing seen twice is one row")
+
+    // Dragged into an order of somebody's own, which outlives the rows it was
+    // made from: what they arranged is what they see next time.
+    order.adopt(["uuid-c", "uuid-a", "uuid-b"])
+    let arranged = order.apply([drive("a"), drive("b"), drive("c")], key: key)
+    expect(arranged.map(\.id) == ["c", "a", "b"], "an order arranged by hand is kept")
+    var later = DriveOrder(remembering: order.remembered)
+    let afterRestart = later.apply([drive("b"), drive("a"), drive("c")], key: key)
+    expect(afterRestart.map(\.id) == ["c", "a", "b"], "and is still there at the next launch")
+    let andNew = later.apply([drive("a"), drive("b"), drive("c"), drive("d")], key: key)
+    expect(andNew.map(\.id) == ["c", "a", "b", "d"], "with anything new below it")
 }
 
 group("anAttachedImageIsNotADrive") {

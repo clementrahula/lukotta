@@ -290,10 +290,26 @@ final class AppModel: ObservableObject {
                 Log.drives.notice("a container file is no longer attached")
                 openedImages[identifier] = nil
                 imageDrives[identifier] = nil
-                containerFormats[identifier] = nil
+                forget(under: identifier)
             }
         }
         return ImageList.merge(found: found, images: imageDrives) + engineRead
+    }
+
+    /// Drop everything read from a disk that has gone.
+    ///
+    /// What was found on a drive is remembered under the name of the device it
+    /// was found on, and that name goes to the next image to be attached. Left
+    /// behind, it describes the wrong file: a row saying Btrfs for a container
+    /// nothing has looked inside yet.
+    private func forget(under identifier: String) {
+        containerFormats[identifier] = nil
+        for key in knownFormats.keys where DriveScanner.wholeDisk(of: key) == identifier {
+            knownFormats[key] = nil
+        }
+        for key in knownFilesystems.keys where DriveScanner.wholeDisk(of: key) == identifier {
+            knownFilesystems[key] = nil
+        }
     }
 
     /// What a row is, as against what it is called this time round.
@@ -319,10 +335,24 @@ final class AppModel: ObservableObject {
     /// happened. A row now keeps its place for as long as it is there, and
     /// anything new goes to the bottom -- a drive and a file alike, there being
     /// one list and not two.
-    private var listOrder = DriveOrder()
+    private var listOrder = DriveOrder(remembering: ListOrderMemory.read())
 
     private func inArrivalOrder(_ drives: [Drive]) -> [Drive] {
-        listOrder.apply(drives) { self.rowKey($0) }
+        let ordered = listOrder.apply(drives) { self.rowKey($0) }
+        ListOrderMemory.write(listOrder.remembered)
+        return ordered
+    }
+
+    /// Somebody dragged a row somewhere else.
+    ///
+    /// The order they leave it in is theirs, and it outlives the rows: unplug a
+    /// drive, quit, come back, and it returns to the place they gave it.
+    func moveDrives(from source: IndexSet, to destination: Int) {
+        var moved = drives
+        moved.move(fromOffsets: source, toOffset: destination)
+        drives = moved
+        listOrder.adopt(moved.map { self.rowKey($0) })
+        ListOrderMemory.write(listOrder.remembered)
     }
     /// Opening a container file, while it is happening and if it fails.
     ///
@@ -411,7 +441,7 @@ final class AppModel: ObservableObject {
                 if format != .unknown { self.knownFormats[drive.id] = format }
                 self.containerFormats[drive.id] = container
                 self.choose(drive)
-            case .success(let attached, let all, _):
+            case .success(let attached, let all, let mine):
                 self.openedImages[attached.identifier] = url
                 self.containerFormats[attached.identifier] = .raw
                 // Only when the scan could not see it for itself.
@@ -424,8 +454,11 @@ final class AppModel: ObservableObject {
                     self.reconcileImages(all, attachments: nil))
                 // Opening a file is already the choice, there being nothing to
                 // pick from, so it either opens or asks for its passphrase.
-                if let mine = all.first(where: { $0.uuid == url.path }) {
-                    self.choose(mine)
+                // An image carrying a partition table has a row per volume and
+                // none of them is the file, so the first of them is the one
+                // that was asked for.
+                if let chosen = all.first(where: { $0.uuid == url.path }) ?? mine.first {
+                    self.choose(chosen)
                 } else {
                     self.phase = .chooseDrive
                 }
@@ -575,13 +608,24 @@ final class AppModel: ObservableObject {
             var all = DriveScanner.scan(images: alreadyOpen.union([attached.identifier]))
             var mine = all.filter { DriveScanner.wholeDisk(of: $0.id) == attached.identifier }
             // A container made with `cryptsetup luksFormat container.img` has
-            // no partition table. It attaches as a whole disk that diskutil
-            // reports as empty, so the scan finds nothing. Its first sector
-            // identifies it, and the device belongs to whoever attached it, so
-            // it can be read here without the helper.
-            if mine.isEmpty, let whole = DiskImage.wholeDiskDrive(attached, url: url) {
-                mine = [whole]
+            // no partition table: it is one volume filling the whole disk. The
+            // scan offers such a disk now -- it had to, an encrypted stick
+            // written the same way being invisible otherwise -- and the row it
+            // makes is named after the device the file happens to have landed
+            // on. That is not a name for a file: it belongs to the next image
+            // as soon as this one is put back, and it is not what a passphrase
+            // is saved under.
+            //
+            // So where the only row for this image is the disk itself, the row
+            // built from the file replaces it. Its first sector identifies it,
+            // and the device belongs to whoever attached it, so it can be read
+            // here without the helper.
+            if mine.count <= 1, mine.first.map({ $0.id == attached.identifier }) ?? true,
+                let whole = DiskImage.wholeDiskDrive(attached, url: url)
+            {
+                all.removeAll { $0.id == attached.identifier }
                 all.append(whole)
+                mine = [whole]
             }
             guard !mine.isEmpty else {
                 DiskImage.detach(attached.device)
@@ -621,7 +665,7 @@ final class AppModel: ObservableObject {
         for identifier in gone {
             openedImages[identifier] = nil
             imageDrives[identifier] = nil
-            containerFormats[identifier] = nil
+            forget(under: identifier)
         }
         Log.drives.notice("detaching \(gone.count, privacy: .public) container files")
         Task.detached(priority: .utility) {
