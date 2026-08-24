@@ -150,7 +150,7 @@
     "Enter the drive's passphrase.": "Skriv inn passordfrasen til enheten.",
     "Enter the drive's password, or its 48-digit recovery key.": "Skriv inn passordet til enheten eller den 48-sifrede gjenopprettingsnøkkelen.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Alle disker og diskbilder kan åpnes kun for lesing, med knappen ved siden av Åpne eller Lås opp. Ingenting skrives til dem, heller ikke av macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Alt som er koblet til denne Macen, enten %@ kan åpne det eller ikke.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Alle enheter som er koblet til denne Macen, enten %@ kan åpne dem eller ikke.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Alt annet ble fjernet. %@ selv kunne ikke flyttes til papirkurven: %@. Dra programmet dit selv for å gjøre det ferdig.",
     "Examining its contents.": "Innholdet undersøkes.",
     "External": "Ekstern",

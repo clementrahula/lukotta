@@ -19485,7 +19485,7 @@
         }
       }
     },
-    "Everything attached to this Mac, whether or not %@ can open it.": {
+    "Every drive attached to this Mac, whether or not %@ can open it.": {
       "localizations": {
         "ar": {
           "stringUnit": {

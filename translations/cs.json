@@ -166,7 +166,7 @@
     "Enter the drive's passphrase.": "Zadejte přístupovou frázi disku.",
     "Enter the drive's password, or its 48-digit recovery key.": "Zadejte heslo disku nebo jeho 48místný obnovovací klíč.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Každý disk i obraz lze otevřít jen ke čtení, tlačítkem vedle Otevřít nebo Odemknout. Nic se na něj nezapíše, ani ze strany macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Vše připojené k tomuto Macu, ať už to %@ umí otevřít, nebo ne.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Každý disk připojený k tomuto Macu, ať už jej %@ umí otevřít, nebo ne.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Vše ostatní bylo odstraněno. Samotnou aplikaci %@ se nepodařilo přesunout do Koše: %@. Přetáhněte ji tam sami, tím to bude hotové.",
     "Examining its contents.": "Zjišťuje se jeho obsah.",
     "External": "Vnější",

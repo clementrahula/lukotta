@@ -150,7 +150,7 @@
     "Enter the drive's passphrase.": "Voer de wachtwoordzin van de schijf in.",
     "Enter the drive's password, or its 48-digit recovery key.": "Voer het wachtwoord van de schijf in, of de herstelsleutel van 48 cijfers.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Elke schijf en elk schijfkopiebestand kan alleen-lezen worden geopend, met de knop naast Open of Ontgrendel. Er wordt niets naar geschreven, ook niet door macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Alles wat op deze Mac is aangesloten, of %@ het nu kan openen of niet.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Alle schijven die op deze Mac zijn aangesloten, of %@ ze nu kan openen of niet.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Al het andere is verwijderd. %@ zelf kon niet naar de prullenmand worden verplaatst: %@. Sleep de app er zelf naartoe om het af te ronden.",
     "Examining its contents.": "De inhoud wordt bekeken.",
     "External": "Extern",

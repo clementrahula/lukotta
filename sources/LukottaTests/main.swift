@@ -998,6 +998,40 @@ group("aSynthesisedContainerIsNotAContainerFile") {
     expect(rows.allSatisfy { $0.drive == nil }, "so neither is offered as a drive to open")
 }
 
+group("anAttachedImageIsNotADrive") {
+    // A disk image is a file, chosen by name in File > Open Disk Image. Listed
+    // among the drives it is a row called "disk8" with no name anybody put on
+    // it, and nothing to say what it is. So an attached image is left out --
+    // unless this app opened it, when it belongs to both lists at once.
+    let plist: [String: Any] = [
+        "AllDisksAndPartitions": [
+            [
+                "DeviceIdentifier": "disk8",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk8s1", "Content": "Linux Filesystem",
+                        "Size": NSNumber(value: 2_000_000_000),
+                    ]
+                ],
+            ]
+        ]
+    ]
+    let asImage: (String) -> [String: Any] = { _ in
+        ["BusProtocol": "Disk Image", "VirtualOrPhysical": "Virtual", "Internal": false]
+    }
+    expect(
+        DriveSurvey.survey(list: plist, info: asImage, mountTable: "", openable: []).isEmpty,
+        "an image nobody opened here is not a drive")
+
+    let opened = Drive(
+        id: "disk8s1", devicePath: "/dev/disk8s1", name: "backup.img", sizeBytes: 2_000_000_000,
+        connection: "Disk Image", kind: .linux, uuid: "/Users/someone/backup.img")
+    let rows = DriveSurvey.survey(
+        list: plist, info: asImage, mountTable: "", openable: [opened])
+    expect(rows.count == 1 && rows.first?.verdict == .openable, "one this app opened is listed")
+    expect(rows.first?.drive?.uuid == opened.uuid, "as the drive it already knows")
+}
+
 group("theHelperSaysWhichBuildItIs") {
     // launchd keeps a registered daemon running across an app update, and the
     // helper is what builds the mount -- so a fixed app went on behaving as the

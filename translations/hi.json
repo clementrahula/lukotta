@@ -150,7 +150,7 @@
     "Enter the drive's passphrase.": "ड्राइव का पासफ़्रेज़ दर्ज करें।",
     "Enter the drive's password, or its 48-digit recovery key.": "ड्राइव का पासवर्ड, या उसकी 48 अंकों की रिकवरी कुंजी दर्ज करें।",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "हर ड्राइव और इमेज को खोलें या अनलॉक करें के पास वाले बटन से केवल पढ़ने के लिए खोला जा सकता है। उस पर कुछ नहीं लिखा जाता, macOS भी नहीं",
-    "Everything attached to this Mac, whether or not %@ can open it.": "इस Mac से जुड़ी हर चीज़, चाहे %@ उसे खोल सके या नहीं।",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "इस Mac से जुड़ी हर ड्राइव, चाहे %@ उसे खोल सके या नहीं।",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "बाकी सब हटा दिया गया। %@ को ही ट्रैश में नहीं ले जाया जा सका: %@। पूरा करने के लिए उसे स्वयं वहाँ खींचें।",
     "Examining its contents.": "इसकी सामग्री देखी जा रही है।",
     "External": "बाहरी",

@@ -166,7 +166,7 @@
     "Enter the drive's passphrase.": "Введите парольную фразу диска.",
     "Enter the drive's password, or its 48-digit recovery key.": "Введите пароль диска или его 48-значный ключ восстановления.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Любой диск и образ можно открыть только для чтения — кнопкой рядом с «Открыть» или «Разблокировать». На него ничего не записывается, даже macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Всё, что подключено к этому Mac, независимо от того, может ли %@ это открыть.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Все диски, подключённые к этому Mac, независимо от того, может ли %@ их открыть.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Всё остальное удалено. Сам %@ не удалось переместить в Корзину: %@. Перетащите его туда сами, чтобы завершить.",
     "Examining its contents.": "Изучается его содержимое.",
     "External": "Внешний",

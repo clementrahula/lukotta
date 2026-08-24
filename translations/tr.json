@@ -150,7 +150,7 @@
     "Enter the drive's passphrase.": "Sürücünün parola tümcesini girin.",
     "Enter the drive's password, or its 48-digit recovery key.": "Sürücünün parolasını veya 48 haneli kurtarma anahtarını girin.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Her sürücü ve imaj, Aç ya da Kilidi Aç düğmesinin yanındaki düğmeyle salt okunur açılabilir. Üzerine hiçbir şey yazılmaz, macOS bile yazmaz",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Bu Mac'e bağlı olan her şey, %@ açabilsin veya açamasın.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Bu Mac'e bağlı tüm sürücüler, %@ açabilsin veya açamasın.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Diğer her şey kaldırıldı. %@ uygulamasının kendisi Çöp Kutusu'na taşınamadı: %@. Bitirmek için onu oraya kendiniz sürükleyin.",
     "Examining its contents.": "İçeriği inceleniyor.",
     "External": "Harici",

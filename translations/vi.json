@@ -142,7 +142,7 @@
     "Enter the drive's passphrase.": "Hãy nhập cụm mật khẩu của ổ đĩa.",
     "Enter the drive's password, or its 48-digit recovery key.": "Hãy nhập mật khẩu của ổ đĩa, hoặc khóa khôi phục 48 chữ số.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Mọi ổ đĩa và ảnh đĩa đều có thể mở ở chế độ chỉ đọc, bằng nút bên cạnh Mở hoặc Mở khóa. Không có gì được ghi lên nó, kể cả macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Mọi thứ gắn với máy Mac này, dù %@ có mở được hay không.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Mọi ổ đĩa gắn với máy Mac này, dù %@ có mở được hay không.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Mọi thứ khác đã được gỡ. Riêng %@ không chuyển được vào Thùng rác: %@. Hãy tự kéo nó vào đó để hoàn tất.",
     "Examining its contents.": "Đang xem xét nội dung của nó.",
     "External": "Gắn ngoài",

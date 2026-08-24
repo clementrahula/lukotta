@@ -142,7 +142,7 @@
     "Enter the drive's passphrase.": "请输入驱动器的密码短语。",
     "Enter the drive's password, or its 48-digit recovery key.": "请输入驱动器的密码，或其 48 位恢复密钥。",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "每个驱动器和映像都可以通过“打开”或“解锁”旁边的按钮以只读方式打开。不会向其写入任何内容，连 macOS 也不会",
-    "Everything attached to this Mac, whether or not %@ can open it.": "连接到这台 Mac 的一切，无论 %@ 能否打开。",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "连接到这台 Mac 的所有驱动器，无论 %@ 能否打开。",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "其余部分均已移除。%@ 本身无法移到“废纸篓”：%@。请自行将它拖到那里以完成。",
     "Examining its contents.": "正在检查其内容。",
     "External": "外置",

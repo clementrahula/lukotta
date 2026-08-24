@@ -150,7 +150,7 @@
     "Enter the drive's passphrase.": "Kirjoita aseman salauslause.",
     "Enter the drive's password, or its 48-digit recovery key.": "Kirjoita aseman salasana tai sen 48-numeroinen palautusavain.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Jokaisen levyn ja levykuvan voi avata vain luettavaksi painikkeesta Avaa- tai Avaa lukitus -painikkeen vierestä. Siihen ei kirjoiteta mitään, ei edes macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Kaikki tähän Maciin liitetty, avaapa %@ sen tai ei.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Kaikki tähän Maciin liitetyt asemat, avaapa %@ ne tai ei.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Kaikki muu poistettiin. %@ itseään ei saatu siirrettyä roskakoriin: %@. Vedä se sinne itse, niin homma on valmis.",
     "Examining its contents.": "Sisältöä tarkastetaan.",
     "External": "Ulkoinen",

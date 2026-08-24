@@ -150,7 +150,7 @@
     "Enter the drive's passphrase.": "Ilagay ang passphrase ng drive.",
     "Enter the drive's password, or its 48-digit recovery key.": "Ilagay ang password ng drive, o ang 48-digit nitong recovery key.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Bawat drive at image ay mabubuksan nang read-only, mula sa pindutan katabi ng Buksan o I-unlock. Walang isinusulat dito, kahit ng macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Lahat ng nakakabit sa Mac na ito, mabuksan man ito ng %@ o hindi.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Bawat drive na nakakabit sa Mac na ito, mabuksan man ito ng %@ o hindi.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Naalis na ang lahat ng iba pa. Ang %@ mismo ay hindi mailipat sa Basurahan: %@. I-drag ito roon nang mag-isa para matapos.",
     "Examining its contents.": "Sinusuri ang laman nito.",
     "External": "Panlabas",

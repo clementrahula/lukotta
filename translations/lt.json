@@ -166,7 +166,7 @@
     "Enter the drive's passphrase.": "Įveskite disko slaptafrazę.",
     "Enter the drive's password, or its 48-digit recovery key.": "Įveskite disko slaptažodį arba jo 48 skaitmenų atkūrimo raktą.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Kiekvieną diską ir atvaizdį galima atverti tik skaitymui – mygtuku šalia „Atverti“ arba „Atrakinti“. Į jį nieko neįrašoma, net „macOS“",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Viskas, kas prijungta prie šio „Mac“, nesvarbu, ar %@ gali tai atverti.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Visi prie šio „Mac“ prijungti diskai, nesvarbu, ar %@ gali juos atverti.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Visa kita pašalinta. Pačios %@ nepavyko perkelti į šiukšlinę: %@. Nutempkite ją ten patys ir tuo viskas baigsis.",
     "Examining its contents.": "Tikrinamas jo turinys.",
     "External": "Išorinis",

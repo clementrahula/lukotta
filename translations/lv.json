@@ -158,7 +158,7 @@
     "Enter the drive's passphrase.": "Ievadiet diska paroles frāzi.",
     "Enter the drive's password, or its 48-digit recovery key.": "Ievadiet diska paroli vai tā 48 ciparu atkopšanas atslēgu.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Ikvienu disku un attēlu var atvērt tikai lasīšanai — ar pogu blakus Atvērt vai Atbloķēt. Tajā netiek ierakstīts nekas, arī macOS neko neieraksta",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Viss, kas pievienots šim Mac, neatkarīgi no tā, vai %@ to var atvērt.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Visi šim Mac pievienotie diski neatkarīgi no tā, vai %@ tos var atvērt.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Viss pārējais tika noņemts. Pašu %@ neizdevās pārvietot uz miskasti: %@. Ievelciet to tur pats, un viss būs pabeigts.",
     "Examining its contents.": "Tiek pārbaudīts tā saturs.",
     "External": "Ārējs",

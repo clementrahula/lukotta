@@ -158,7 +158,7 @@
     "Enter the drive's passphrase.": "Unesite zaporku diska.",
     "Enter the drive's password, or its 48-digit recovery key.": "Unesite lozinku diska ili njegov 48-znamenkasti ključ za oporavak.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Svaki se disk i svaka slika mogu otvoriti samo za čitanje, tipkom uz Otvori ili Otključaj. Na njih se ništa ne zapisuje, ni sam macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Sve što je spojeno na ovaj Mac, bez obzira može li ga %@ otvoriti.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Svaki disk spojen na ovaj Mac, bez obzira može li ga %@ otvoriti.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Sve ostalo je uklonjeno. Sam %@ nije se mogao premjestiti u Smeće: %@. Povucite ga tamo sami kako biste dovršili.",
     "Examining its contents.": "Provjerava se njezin sadržaj.",
     "External": "Vanjski",

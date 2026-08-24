@@ -142,7 +142,7 @@
     "Enter the drive's passphrase.": "ป้อนวลีรหัสผ่านของไดรฟ์",
     "Enter the drive's password, or its 48-digit recovery key.": "ป้อนรหัสผ่านของไดรฟ์ หรือคีย์กู้คืน 48 หลัก",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "ทุกไดรฟ์และทุกอิมเมจเปิดแบบอ่านอย่างเดียวได้ จากปุ่มข้าง เปิด หรือ ปลดล็อก ไม่มีอะไรถูกเขียนลงไป แม้แต่ macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "ทุกอย่างที่ต่ออยู่กับ Mac เครื่องนี้ ไม่ว่า %@ จะเปิดได้หรือไม่",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "ไดรฟ์ทุกตัวที่ต่ออยู่กับ Mac เครื่องนี้ ไม่ว่า %@ จะเปิดได้หรือไม่",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "ส่วนอื่นถูกลบไปแล้ว แต่ตัว %@ เองย้ายไปถังขยะไม่ได้: %@ กรุณาลากไปเองเพื่อให้เสร็จสมบูรณ์",
     "Examining its contents.": "กำลังตรวจดูเนื้อหาภายใน",
     "External": "ภายนอก",

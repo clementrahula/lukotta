@@ -150,7 +150,7 @@
     "Enter the drive's passphrase.": "Sisesta ketta paroolifraas.",
     "Enter the drive's password, or its 48-digit recovery key.": "Sisesta ketta parool või selle 48-kohaline taastevõti.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Iga ketta ja tõmmise saab avada ainult lugemiseks, nupust Ava või Ava lukust kõrval. Sellele ei kirjutata midagi, ka macOS ise mitte",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Kõik, mis on selle Maciga ühendatud, olenemata sellest, kas %@ suudab seda avada.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Kõik selle Maciga ühendatud kettad, olenemata sellest, kas %@ suudab neid avada.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Kõik muu eemaldati. %@ ennast ei õnnestunud prügikasti liigutada: %@. Lohistage see ise sinna, siis on kõik tehtud.",
     "Examining its contents.": "Selle sisu vaadatakse üle.",
     "External": "Väline",

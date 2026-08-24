@@ -166,7 +166,7 @@
     "Enter the drive's passphrase.": "Wpisz hasło dostępu do dysku.",
     "Enter the drive's password, or its 48-digit recovery key.": "Wpisz hasło dysku albo jego 48-cyfrowy klucz odzyskiwania.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Każdy dysk i każdy obraz można otworzyć tylko do odczytu, przyciskiem obok Otwórz lub Odblokuj. Nic nie jest na nim zapisywane, nawet przez macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Wszystko podłączone do tego Maca, niezależnie od tego, czy %@ potrafi to otworzyć.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Wszystkie dyski podłączone do tego Maca, niezależnie od tego, czy %@ potrafi je otworzyć.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Wszystko inne zostało usunięte. Samego programu %@ nie udało się przenieść do Kosza: %@. Przeciągnij go tam sam, aby dokończyć.",
     "Examining its contents.": "Sprawdzanie jego zawartości.",
     "External": "Zewnętrzny",

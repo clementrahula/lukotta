@@ -150,7 +150,7 @@
     "Enter the drive's passphrase.": "Shkruaj frazkalimin e diskut.",
     "Enter the drive's password, or its 48-digit recovery key.": "Shkruaj fjalëkalimin e diskut, ose çelësin e tij të rikuperimit me 48 shifra.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Çdo disk dhe imazh mund të hapet si vetëm-lexim, nga butoni pranë Hap ose Shkyç. Asgjë nuk shkruhet në të, as edhe nga macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Gjithçka e lidhur me këtë Mac, pavarësisht nëse %@ mund ta hapë.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Çdo disk i lidhur me këtë Mac, pavarësisht nëse %@ mund ta hapë.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Gjithçka tjetër u hoq. Vetë %@ nuk mund të zhvendosej në Bin: %@. Zvarrite atje vetë për ta përfunduar.",
     "Examining its contents.": "Po shqyrtohet përmbajtja e tij.",
     "External": "I jashtëm",

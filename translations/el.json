@@ -150,7 +150,7 @@
     "Enter the drive's passphrase.": "Εισαγάγετε τη φράση πρόσβασης του δίσκου.",
     "Enter the drive's password, or its 48-digit recovery key.": "Εισαγάγετε το συνθηματικό του δίσκου ή το 48ψήφιο κλειδί ανάκτησής του.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Κάθε δίσκος και κάθε εικόνα μπορεί να ανοίξει μόνο για ανάγνωση, από το κουμπί δίπλα στο Άνοιγμα ή στο Ξεκλείδωμα. Δεν γράφεται τίποτα σε αυτόν, ούτε από το macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Ό,τι είναι συνδεδεμένο σε αυτόν τον Mac, είτε μπορεί να το ανοίξει το %@ είτε όχι.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Κάθε δίσκος συνδεδεμένος σε αυτόν τον Mac, είτε μπορεί να τον ανοίξει το %@ είτε όχι.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Όλα τα υπόλοιπα αφαιρέθηκαν. Το ίδιο το %@ δεν μπόρεσε να μετακινηθεί στον Κάδο απορριμμάτων: %@. Σύρετέ το εκεί εσείς για να ολοκληρωθεί.",
     "Examining its contents.": "Ελέγχεται το περιεχόμενό του.",
     "External": "Εξωτερικός",

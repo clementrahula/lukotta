@@ -100,6 +100,22 @@ public enum DriveSurvey {
             // reading it as a container file offered somebody their own
             // Recovery volume to unlock.
             let isImage = (wholeInfo["BusProtocol"] as? String) == "Disk Image"
+
+            // A disk image is a file, and a file is opened through File > Open
+            // Disk Image, where it is chosen by name in a place somebody put
+            // it. Attached and listed here it is a row called "Disk Image"
+            // with a number after it, which names nothing anybody would
+            // recognise: it is either one this app attached and has not yet
+            // put back, or another program's business.
+            //
+            // One this app opened is already in the drive list, and is the
+            // exception: it is listed here too, so both lists agree.
+            let opened =
+                byIdentifier[whole] != nil
+                || (disk["Partitions"] as? [[String: Any]] ?? []).contains {
+                    ($0["DeviceIdentifier"] as? String).map { byIdentifier[$0] != nil } ?? false
+                }
+            if isImage && !opened { continue }
             let product =
                 (wholeInfo["MediaName"] as? String) ?? (wholeInfo["IORegistryEntryName"] as? String)
 
@@ -121,12 +137,6 @@ public enum DriveSurvey {
                 {
                     verdict = .system
                 } else if byIdentifier[identifier] != nil {
-                    verdict = .openable
-                } else if isImage, !internalDisk, mount == nil {
-                    // A file this app can always hand to the engine. Whether
-                    // anything is inside it is a question for the engine, and
-                    // a row with no way to try is worse than an attempt that
-                    // says why it failed.
                     verdict = .openable
                 } else if let mount {
                     verdict = .macOSHasIt(mount)
@@ -154,15 +164,7 @@ public enum DriveSurvey {
                         sizeBytes: size,
                         content: nonEmpty(content) ?? identifier,
                         verdict: verdict,
-                        drive: byIdentifier[identifier]
-                            ?? (isImage && !internalDisk && mount == nil
-                                ? Drive(
-                                    id: identifier, devicePath: "/dev/" + identifier,
-                                    name: nonEmpty(label) ?? nonEmpty(product) ?? identifier,
-                                    sizeBytes: size, connection: appString("Disk Image"),
-                                    kind: VolumeKind.holding(content) ?? .linux,
-                                    uuid: identifier)
-                                : nil)))
+                        drive: byIdentifier[identifier]))
             }
 
             // A disk with nothing on it at all: a bare container file, or a

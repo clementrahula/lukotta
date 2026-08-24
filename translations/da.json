@@ -150,7 +150,7 @@
     "Enter the drive's passphrase.": "Skriv enhedens adgangssætning.",
     "Enter the drive's password, or its 48-digit recovery key.": "Skriv enhedens adgangskode eller dens 48-cifrede genoprettelsesnøgle.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Hvert drev og hvert diskbillede kan åbnes kun til læsning, med knappen ved siden af Åbn eller Lås op. Der skrives intet til det, heller ikke af macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Alt, der er tilsluttet denne Mac, uanset om %@ kan åbne det.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Alle enheder, der er tilsluttet denne Mac, uanset om %@ kan åbne dem.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Alt andet blev fjernet. Selve %@ kunne ikke flyttes til Papirkurven: %@. Træk programmet derover selv for at gøre det færdigt.",
     "Examining its contents.": "Indholdet undersøges.",
     "External": "Ekstern",

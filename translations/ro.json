@@ -158,7 +158,7 @@
     "Enter the drive's passphrase.": "Introduceți fraza de acces a discului.",
     "Enter the drive's password, or its 48-digit recovery key.": "Introduceți parola discului sau cheia sa de recuperare din 48 de cifre.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Orice disc și orice imagine pot fi deschise doar pentru citire, cu butonul de lângă Deschideți sau Deblocați. Nu se scrie nimic pe el, nici măcar de către macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Tot ce este conectat la acest Mac, indiferent dacă %@ îl poate deschide.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Toate discurile conectate la acest Mac, indiferent dacă %@ le poate deschide.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Restul a fost eliminat. Aplicația %@ nu a putut fi mutată la Coșul de gunoi: %@. Trageți-o acolo dumneavoastră pentru a încheia.",
     "Examining its contents.": "Se examinează conținutul.",
     "External": "Extern",

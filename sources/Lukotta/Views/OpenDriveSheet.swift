@@ -99,7 +99,7 @@ struct OpenDriveSheet: View {
 
             Divider()
             HStack {
-                Text("Everything attached to this Mac, whether or not \(Brand.name) can open it.")
+                Text("Every drive attached to this Mac, whether or not \(Brand.name) can open it.")
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer()

@@ -150,7 +150,7 @@
     "Enter the drive's passphrase.": "Introduza a frase-passe do disco.",
     "Enter the drive's password, or its 48-digit recovery key.": "Introduza a palavra-passe do disco ou a respetiva chave de recuperação de 48 dígitos.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Qualquer disco ou imagem pode ser aberto apenas para leitura, no botão ao lado de Abrir ou Desbloquear. Nada lhe é escrito, nem sequer pelo macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Tudo o que está ligado a este Mac, quer o %@ o consiga abrir ou não.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Todos os discos ligados a este Mac, quer o %@ os consiga abrir ou não.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Tudo o resto foi removido. O próprio %@ não pôde ser movido para o Lixo: %@. Arraste-o para lá para terminar.",
     "Examining its contents.": "A verificar o respetivo conteúdo.",
     "External": "Externo",

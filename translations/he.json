@@ -166,7 +166,7 @@
     "Enter the drive's passphrase.": "הזינו את מחרוזת הסיסמה של הכונן.",
     "Enter the drive's password, or its 48-digit recovery key.": "הזינו את סיסמת הכונן, או את מפתח השחזור בן 48 הספרות.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "אפשר לפתוח כל כונן וכל תמונה לקריאה בלבד, מהכפתור שליד פתיחה או ביטול נעילה. שום דבר לא נכתב אליהם, גם לא על ידי macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "כל מה שמחובר ל‑Mac הזה, בין אם %@ יכול לפתוח אותו ובין אם לא.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "כל כונן שמחובר ל‑Mac הזה, בין אם %@ יכול לפתוח אותו ובין אם לא.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "כל השאר הוסר. את %@ עצמו לא ניתן היה להעביר לאשפה: %@. גררו אותו לשם בעצמכם כדי לסיים.",
     "Examining its contents.": "בודק את תוכנו.",
     "External": "חיצוני",

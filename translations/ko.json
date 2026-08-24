@@ -142,7 +142,7 @@
     "Enter the drive's passphrase.": "드라이브의 암호 구문을 입력하십시오.",
     "Enter the drive's password, or its 48-digit recovery key.": "드라이브의 암호 또는 48자리 복구 키를 입력하십시오.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "모든 드라이브와 이미지는 열기 또는 잠금 해제 옆의 버튼으로 읽기 전용으로 열 수 있습니다. macOS조차 아무것도 기록하지 않습니다",
-    "Everything attached to this Mac, whether or not %@ can open it.": "%@이(가) 열 수 있든 없든, 이 Mac에 연결된 모든 것.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "%@이(가) 열 수 있든 없든, 이 Mac에 연결된 모든 드라이브.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "나머지는 모두 제거되었습니다. %@ 자체는 휴지통으로 옮기지 못했습니다: %@. 마무리하려면 직접 그곳으로 끌어다 놓으십시오.",
     "Examining its contents.": "내용을 살펴보는 중입니다.",
     "External": "외장",

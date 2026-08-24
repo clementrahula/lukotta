@@ -182,7 +182,7 @@
     "Enter the drive's passphrase.": "أدخل عبارة سر المحرّك.",
     "Enter the drive's password, or its 48-digit recovery key.": "أدخل كلمة سر المحرّك، أو مفتاح الاسترداد المكوّن من 48 رقمًا.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "يمكن فتح كل محرّك وكل صورة للقراءة فقط، من الزر المجاور لـ فتح أو إلغاء القفل. ولا يُكتب عليها شيء، ولا حتى من macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "كل ما هو متصل بهذا الـ Mac، سواء استطاع %@ فتحه أم لا.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "كل محرّك متصل بهذا الـ Mac، سواء استطاع %@ فتحه أم لا.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "أُزيل كل شيء آخر. أما %@ نفسه فتعذّر نقله إلى المهملات: %@. اسحبه إلى هناك بنفسك لإتمام الأمر.",
     "Examining its contents.": "يجري فحص محتواه.",
     "External": "خارجي",

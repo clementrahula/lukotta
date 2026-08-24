@@ -142,7 +142,7 @@
     "Enter the drive's passphrase.": "Masukkan frasa sandi drive.",
     "Enter the drive's password, or its 48-digit recovery key.": "Masukkan kata sandi drive, atau kunci pemulihan 48 digitnya.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Setiap drive dan image dapat dibuka baca-saja, lewat tombol di samping Buka atau Buka Kunci. Tidak ada yang ditulis padanya, bahkan oleh macOS",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Segala yang terpasang pada Mac ini, baik %@ dapat membukanya maupun tidak.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Setiap drive yang terpasang pada Mac ini, baik %@ dapat membukanya maupun tidak.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Selebihnya telah dihapus. %@ sendiri tidak dapat dipindahkan ke Tong Sampah: %@. Seret sendiri ke sana untuk menyelesaikannya.",
     "Examining its contents.": "Memeriksa isinya.",
     "External": "Eksternal",

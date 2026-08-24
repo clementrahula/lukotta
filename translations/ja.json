@@ -142,7 +142,7 @@
     "Enter the drive's passphrase.": "ドライブのパスフレーズを入力してください。",
     "Enter the drive's password, or its 48-digit recovery key.": "ドライブのパスワード、または 48 桁の回復キーを入力してください。",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "どのドライブもイメージも、「開く」または「ロック解除」の隣のボタンから読み出し専用で開けます。macOS でさえ、何も書き込みません",
-    "Everything attached to this Mac, whether or not %@ can open it.": "%@ が開けるかどうかにかかわらず、この Mac に接続されているすべて。",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "%@ が開けるかどうかにかかわらず、この Mac に接続されているすべてのドライブ。",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "ほかはすべて削除しました。%@ 自体はゴミ箱に移動できませんでした：%@。仕上げにご自身でそこへドラッグしてください。",
     "Examining its contents.": "内容を調べています。",
     "External": "外部",

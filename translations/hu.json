@@ -150,7 +150,7 @@
     "Enter the drive's passphrase.": "Adja meg a meghajtó jelmondatát.",
     "Enter the drive's password, or its 48-digit recovery key.": "Adja meg a meghajtó jelszavát vagy a 48 jegyű helyreállítási kulcsát.",
     "Every drive and image can be opened read-only, from the button beside Open or Unlock. Nothing is written to it, not even by macOS": "Minden lemez és lemezkép megnyitható csak olvasásra, a Megnyitás vagy a Feloldás melletti gombbal. Semmi nem íródik rá, még a macOS sem ír rá",
-    "Everything attached to this Mac, whether or not %@ can open it.": "Minden, ami ehhez a Machez csatlakozik, akár meg tudja nyitni a(z) %@, akár nem.",
+    "Every drive attached to this Mac, whether or not %@ can open it.": "Minden meghajtó, ami ehhez a Machez csatlakozik, akár meg tudja nyitni a(z) %@, akár nem.",
     "Everything else was removed. %@ itself could not be moved to the Bin: %@. Drag it there yourself to finish.": "Minden más el lett távolítva. Magát a(z) %@ alkalmazást nem sikerült a Kukába helyezni: %@. Húzza oda maga, ezzel készen is van.",
     "Examining its contents.": "A tartalmának vizsgálata.",
     "External": "Külső",
