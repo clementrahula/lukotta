@@ -73,8 +73,12 @@ public enum DriveSurvey {
     ]
 
     /// Types macOS reads for itself.
+    /// The partition type of an APFS volume, which diskutil states on the
+    /// container and leaves off the volumes inside it.
+    static let apfsVolume = "Apple_APFS"
+
     static let macOSContent: Set<String> = [
-        "Apple_APFS", "Apple_HFS", "Apple_CoreStorage", "Apple_APFS_Container",
+        apfsVolume, "Apple_HFS", "Apple_CoreStorage", "Apple_APFS_Container",
     ]
 
     /// Everything attached, with a verdict each.
@@ -145,13 +149,24 @@ public enum DriveSurvey {
                     verdict = .unreadable
                 }
 
+                // A volume inside an APFS container carries no type of its
+                // own -- the container has it -- so the row would have said
+                // nothing at all. It is APFS, which is what it is and what the
+                // row is there to say.
+                var kind = nonEmpty(content) ?? ""
+                if kind.isEmpty,
+                    volumes.contains(where: { ($0["DeviceIdentifier"] as? String) == identifier })
+                {
+                    kind = apfsVolume
+                }
+
                 entries.append(
                     Entry(
                         id: identifier,
                         disk: whole,
                         name: nonEmpty(label) ?? nonEmpty(product) ?? identifier,
                         sizeBytes: size,
-                        content: described(content),
+                        content: described(kind),
                         verdict: verdict,
                         drive: byIdentifier[identifier]))
             }
