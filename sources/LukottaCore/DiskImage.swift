@@ -194,7 +194,24 @@ public enum DiskImage {
     public static func detach(_ device: String) -> Bool {
         // Forced: the eject that precedes this has already taken the filesystem
         // down, and a lingering reference would keep the image file locked.
-        run(["detach", device, "-force"]).status == 0
+        if run(["detach", device, "-force"]).status == 0 { return true }
+
+        // Something still holds it. Nearly always a volume served from it that
+        // has not finished going away, and hdiutil answers before the system
+        // has let go, so the first refusal means "not yet" more often than it
+        // means "no". Take the volumes down and ask again.
+        //
+        // Asked once and never checked, a refusal left the image attached with
+        // nothing to say so: the file turned up in the next session's list as a
+        // disk nobody recognised, which is how two of them accumulated.
+        LukottaCore.run("/usr/sbin/diskutil", ["unmountDisk", "force", device], timeout: 20)
+        for attempt in 1...3 {
+            Thread.sleep(forTimeInterval: 0.4 * Double(attempt))
+            if run(["detach", device, "-force"]).status == 0 { return true }
+        }
+        Log.drives.error(
+            "could not put back \(device, privacy: .public); it is still attached")
+        return false
     }
 
     /// hdiutil, with a deadline: attaching an image that is on a network

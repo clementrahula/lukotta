@@ -958,6 +958,12 @@ group("anImageWithASpaceInItsNameIsStillReadable") {
     try? FileManager.default.removeItem(at: DiskImage.withoutSpaces(other))
 }
 
+group("DUMPSCRIPT") {
+    if ProcessInfo.processInfo.environment["LUKOTTA_DUMP_SCRIPT"] == "1" {
+        print(MountScript.build(sampleInputs(kind: .microsoft, readOnly: true)))
+    }
+}
+
 group("theMountScriptIsValidShell") {
     // The script is generated, handed to a privileged helper and run there. A
     // shell that cannot parse it exits 2 before anything happens, which the app

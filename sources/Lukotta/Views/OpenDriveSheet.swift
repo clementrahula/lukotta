@@ -52,6 +52,22 @@ struct OpenDriveSheet: View {
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 8) {
+                        // Nothing here but the system's own volumes, which is
+                        // the same emptiness the drive list reports, and says
+                        // the same thing rather than leaving a blank sheet
+                        // under a collapsed row.
+                        if theirs.isEmpty {
+                            EmptyStateView(
+                                icon: "externaldrive.badge.questionmark",
+                                title: "No drives found",
+                                message:
+                                    "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.",
+                                actionTitle: "Rescan",
+                                action: model.surveyDrives
+                            )
+                            .frame(maxWidth: .infinity)
+                            .padding(.bottom, 8)
+                        }
                         ForEach(theirs) { entry in
                             SurveyRow(entry: entry) { open(entry) }
                         }
@@ -69,7 +85,7 @@ struct OpenDriveSheet: View {
                                 }
                                 .padding(.top, 8)
                             } label: {
-                                Text("This Mac's own volumes")
+                                Text("macOS System Volumes")
                                     .font(.subheadline.weight(.medium))
                                     .foregroundStyle(.secondary)
                             }
@@ -87,7 +103,7 @@ struct OpenDriveSheet: View {
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer()
-                Button("Check Again") { model.surveyDrives() }
+                Button("Rescan") { model.surveyDrives() }
             }
             .padding(.horizontal, 22).padding(.vertical, 14)
         }

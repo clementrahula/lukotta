@@ -1913,7 +1913,11 @@ final class AppModel: ObservableObject {
             opened: openedImages, mountedDevices: Array(openMounts.keys))
         if !leaving.isEmpty {
             Log.drives.notice("detaching \(leaving.count, privacy: .public) container files")
-            for identifier in leaving { DiskImage.detach("/dev/" + identifier) }
+            let stuck = leaving.filter { !DiskImage.detach("/dev/" + $0) }
+            if !stuck.isEmpty {
+                Log.drives.error(
+                    "\(stuck.count, privacy: .public) container files are still attached")
+            }
         }
         workspace?.destroy()
         workspace = nil

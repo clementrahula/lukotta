@@ -408,13 +408,6 @@
       "context": "Warning beside the passphrase field. Caps Lock is the key's name on the keyboard.",
       "placeholders": []
     },
-    "Check Again": {
-      "screens": [
-        "open-drive"
-      ],
-      "context": "Button. Runs the survey of disks again.",
-      "placeholders": []
-    },
     "Check Now": {
       "screens": [
         "settings"
@@ -1728,13 +1721,6 @@
       "context": "A row label in the About section, leading to the licences of everything the app carries.",
       "placeholders": []
     },
-    "This Mac's own volumes": {
-      "screens": [
-        "open-drive"
-      ],
-      "context": "The label of the collapsed group at the foot of the disk list, holding the system's own volumes. APFS makes a dozen of them on any Mac and none is a thing to open.",
-      "placeholders": []
-    },
     "This drive holds %lld volumes and not all of them could be opened.": {
       "screens": [
         "notices"
@@ -2148,6 +2134,13 @@
         "help"
       ],
       "context": "A bullet in the help sheet's list of requirements. A fragment: no full stop. Sequoia is Apple's name for that release.",
+      "placeholders": []
+    },
+    "macOS System Volumes": {
+      "screens": [
+        "open-drive"
+      ],
+      "context": "The label of the collapsed group at the foot of the disk list, holding the volumes macOS makes for itself. APFS puts a dozen in every container -- Preboot, Recovery, VM -- and none of them is a thing to open.",
       "placeholders": []
     },
     "macOS already has this drive mounted. Eject it in Finder and try again.": {
