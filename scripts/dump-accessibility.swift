@@ -21,7 +21,7 @@ guard AXIsProcessTrusted() else {
     exit(2)
 }
 guard let app = NSWorkspace.shared.runningApplications.first(where: {
-    $0.bundleIdentifier == "com.clementrahula.lukotta" }) else {
+    $0.bundleIdentifier == "com.lukotta" }) else {
     print("Lukotta is not running"); exit(1)
 }
 let axApp = AXUIElementCreateApplication(app.processIdentifier)

@@ -7,6 +7,28 @@ only you have; everything else is unassigned and can be picked up in any order.
 
 ---
 
+## Next
+
+- [ ] **Finish the beta channel.** `LUKOTTA_BRANDING=beta` builds *Lukotta
+  Beta* with its own identifier, helper, Keychain service and feed at
+  updates-beta.lukotta.com; the harnesses are compiled into it and out of the
+  released app. Left to do: **[you]** the DNS record for
+  updates-beta.lukotta.com; an icon that tells the two apart in the Dock; a
+  `release.sh` path that publishes to the beta appcast, signed with the same
+  key; and one real beta-to-beta update, applied and relaunched, before any of
+  it is trusted.
+
+- [ ] **Harmonise the end-to-end tests.** They cover the happy path of each
+  format and little else: what is not exercised is every way a flow can go
+  wrong, and none of it runs against the real screens. Wanted: every flow, not
+  only the ones that succeed — a wrong passphrase, a drive unplugged mid-mount,
+  a refused permission, a full ceiling, an eject that will not complete, an
+  update applied and relaunched. A production release should be tested end to
+  end for real rather than synthetically. Beta needs the same set; a plain
+  local build can do with less.
+
+---
+
 ## The eight before release — done
 
 All eight are implemented. What they were, and what came out of them:

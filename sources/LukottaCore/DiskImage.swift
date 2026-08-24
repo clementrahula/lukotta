@@ -512,7 +512,7 @@ extension DiskImage {
         let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
         guard
             let directory = caches?
-                .appendingPathComponent(Bundle.main.bundleIdentifier ?? "dev.lukotta")
+                .appendingPathComponent(Bundle.main.bundleIdentifier ?? "com.lukotta")
                 .appendingPathComponent("images", isDirectory: true)
         else { return url }
         try? FileManager.default.createDirectory(

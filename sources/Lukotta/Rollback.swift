@@ -11,7 +11,7 @@ import LukottaCore
 /// only between an update installing and the first launch that works, and is
 /// dropped the moment one does — which is also what disarms the counter.
 enum Rollback {
-    private static let recordKey = "dev.lukotta.launchRecord"
+    private static let recordKey = "com.lukotta.launchRecord"
 
     private static var support: URL? {
         try? FileManager.default.url(

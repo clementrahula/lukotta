@@ -10,7 +10,7 @@ import os
 /// was holding in memory is gone by then; the unified log is not. It survives
 /// the crash that ended the process, it survives the quit, and it can be read
 /// back afterwards — by the app itself for a report, or with
-/// `log show --predicate 'subsystem == "com.clementrahula.lukotta"'`.
+/// `log show --predicate 'subsystem == "com.lukotta"'`.
 ///
 /// Interpolating a string into a `Logger` message marks it private and the log
 /// shows `<private>` in its place, which is the right default for a drive's
@@ -19,7 +19,7 @@ import os
 /// `privacy: .public`. Nothing here is ever given a passphrase.
 public enum Log {
     /// Also what a report reads back, so the two cannot name different things.
-    public static let subsystem = Bundle.main.bundleIdentifier ?? "dev.lukotta"
+    public static let subsystem = Bundle.main.bundleIdentifier ?? "com.lukotta"
 
     /// Starting, quitting, permissions, appearance, language.
     public static let app = Logger(subsystem: subsystem, category: "app")

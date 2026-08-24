@@ -127,7 +127,7 @@ private func checkHelperIfAsked() {
 /// Where the menu bar preference lives, so the setting and the scene that reads
 /// it cannot drift apart over a spelled-out key.
 enum MenuBarPreference {
-    static let key = "dev.lukotta.showMenuBarIcon"
+    static let key = "com.lukotta.showMenuBarIcon"
 }
 
 /// Unregister the privileged helper and exit.

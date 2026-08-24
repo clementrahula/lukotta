@@ -15,7 +15,7 @@ enum Appearance: String, CaseIterable, Identifiable {
     case light
     case dark
 
-    static let key = "dev.lukotta.appearance"
+    static let key = "com.lukotta.appearance"
 
     var id: String { rawValue }
 

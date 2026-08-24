@@ -21,7 +21,7 @@ public enum CredentialStore {
     /// suffix, so it cannot read or overwrite them -- it is a different app,
     /// and somebody testing one should not find the other's keys in it.
     private static let service: String = {
-        let base = "dev.lukotta.drive-credential"
+        let base = "com.lukotta.drive-credential"
         let identifier = Bundle.main.bundleIdentifier ?? ""
         return identifier.hasSuffix(".beta") ? base + ".beta" : base
     }()

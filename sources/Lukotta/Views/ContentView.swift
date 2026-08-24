@@ -33,7 +33,7 @@ struct ContentView: View {
         // so that every language shows all three steps without scrolling.
         .frame(minWidth: 580, idealWidth: 640, minHeight: 600, idealHeight: 640)
         .background(Color(nsColor: .windowBackgroundColor))
-        .remembersFrame(as: "dev.lukotta.mainWindowFrame")
+        .remembersFrame(as: "com.lukotta.mainWindowFrame")
         // One place for anything worth saying out loud, rather than each view
         // announcing its own arrival and talking over the others.
         .onChange(of: model.spokenPhase) { _, spoken in

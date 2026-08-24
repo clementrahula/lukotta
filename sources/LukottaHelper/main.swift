@@ -16,7 +16,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
 
     /// The running mount's output, so the app can show progress rather than
     /// sit on one step until everything is over.
-    private let progressQueue = DispatchQueue(label: "dev.lukotta.helper.progress")
+    private let progressQueue = DispatchQueue(label: "com.lukotta.helper.progress")
     private var transcript = ""
     /// Held only while a mount runs, so its output can be scrubbed of it.
     private var activeCredential: String?

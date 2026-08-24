@@ -16,7 +16,7 @@ import Foundation
 /// in Language & Region does. This writes the same preference that setting
 /// writes, in this app's own domain.
 enum Language {
-    static let key = "dev.lukotta.language"
+    static let key = "com.lukotta.language"
     static let system = "system"
 
     /// The languages this build actually carries, taken from the bundle rather

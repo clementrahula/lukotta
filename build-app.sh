@@ -34,7 +34,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 case "${LUKOTTA_BRANDING:-unbranded}" in
   official)
     APP_NAME="Lukotta"
-    BUNDLE_ID="com.clementrahula.lukotta"
+    BUNDLE_ID="com.lukotta"
     ICON_SET="AppIcon"
     MARK_SET="LukottaMark"
     SWITCH_SET="FullDiskAccessSwitch"
@@ -48,7 +48,7 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     # everything else about it, including the name and the mark, is the app
     # people will receive.
     APP_NAME="Lukotta Beta"
-    BUNDLE_ID="com.clementrahula.lukotta.beta"
+    BUNDLE_ID="com.lukotta.beta"
     ICON_SET="AppIcon"
     MARK_SET="LukottaMark"
     SWITCH_SET="FullDiskAccessSwitch"
