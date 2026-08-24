@@ -958,6 +958,40 @@ group("anImageWithASpaceInItsNameIsStillReadable") {
     try? FileManager.default.removeItem(at: DiskImage.withoutSpaces(other))
 }
 
+group("aReadOnlyMountAsksForItInOneFlag") {
+    // --ignore-permissions and a read-only export are the same job to the
+    // engine -- taking charge of the NFS export -- so it refuses the two
+    // together and every read-only mount of a real drive failed before the
+    // machine started. A read-only mount asks for both in the one flag.
+    let readOnly = MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))
+    expect(!readOnly.contains("--ignore-permissions"), "read-only does not ask for the pair")
+    expect(readOnly.contains("--nfs-export-opts="), "it names the export instead")
+    expect(
+        readOnly.contains("all_squash,anonuid=501,anongid=20"),
+        "and says the files belong to whoever opened the drive, which is what the other flag did")
+    expect(readOnly.contains(" -o ro"), "the guest still mounts read-only")
+
+    // A writable mount is unchanged, and its read-only fallback asks the new
+    // way -- so a drive that refuses to be written to still opens.
+    let writable = MountScript.build(sampleInputs(kind: .microsoft, readOnly: false))
+    let first =
+        writable.components(separatedBy: "anylinuxfs' mount").dropFirst().first
+        ?? ""
+    expect(first.contains("--ignore-permissions"), "the first attempt asks as it always did")
+    expect(!first.contains("nfs-export-opts"), "and does not name the export")
+    expect(
+        writable.contains("--nfs-export-opts="),
+        "while the read-only fallback further down does")
+
+    // Every attempt, not merely the first.
+    for attempt in readOnly.components(separatedBy: "anylinuxfs' mount").dropFirst() {
+        let command = attempt.components(separatedBy: ">>").first ?? ""
+        expect(
+            !command.contains("--ignore-permissions"),
+            "no attempt asks for the combination the engine refuses")
+    }
+}
+
 group("theMountScriptIsValidShell") {
     // The script is generated, handed to a privileged helper and run there. A
     // shell that cannot parse it exits 2 before anything happens, which the app
@@ -2783,21 +2817,18 @@ group("readOnlyIsBothSidesOfTheConnection") {
     let script = MountScript.build(sampleInputs(readOnly: true))
     expect(script.contains(" -o ro"), "the guest mounts the filesystem read-only")
 
-    // Not in the NFS options. Asking there for a read-only export makes the
-    // engine build --nfs-export-opts for itself on the privileged route, and
-    // it then refuses that flag alongside --ignore-permissions -- so every
-    // read-only mount of a real drive failed before the machine started.
+    // The host side is the export, named in the one flag the engine accepts
+    // alongside a read-only mount. Asked for in the NFS options instead, the
+    // engine builds that flag itself and then refuses its own combination.
     expect(
         !script.contains("readahead=128,ro"),
-        "and the export is not asked to be read-only, which the engine answers by refusing itself")
-    expect(
-        !script.contains("nfs-export-opts"),
-        "nor is the export overridden here")
+        "the NFS options do not ask for it, which is what the engine refuses")
+    expect(script.contains("--nfs-export-opts="), "the export says so instead")
 
     // Every attempt, not merely the first: the ntfs-3g retry and the LVM
     // discovery must not quietly mount a drive read-write after the read-only
     // attempt failed.
-    let attempts = script.components(separatedBy: "mount --ignore-permissions").dropFirst()
+    let attempts = script.components(separatedBy: "anylinuxfs' mount").dropFirst()
     expect(!attempts.isEmpty, "there is more than one attempt to check")
     expect(
         attempts.allSatisfy { $0.contains("-o ro") },

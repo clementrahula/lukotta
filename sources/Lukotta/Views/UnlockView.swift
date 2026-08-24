@@ -126,7 +126,12 @@ struct UnlockView: View {
                                 .font(.system(.body, design: .monospaced))
                                 .environment(\.layoutDirection, .leftToRight)
                                 .focused($focused)
-                                .onSubmit { model.unlock(drive) }
+                                // The same request the default button makes:
+                                // a format that cannot be written is opened
+                                // read-only whichever way it was asked for.
+                                .onSubmit {
+                                    model.unlock(drive, readOnly: !model.chosenIsWritable)
+                                }
                                 .accessibilityLabel(
                                     drive.kind == .linux
                                         ? "Passphrase" : "Password or recovery key")

@@ -271,7 +271,7 @@ public enum MountScript {
                     engineQ: engineQ,
                     target: shellQuoted(volume.mountIdentifier),
                     driver: nil, options: nfsOptions(i), readOnly: i.readOnly,
-                    logQ: logQ)
+                    ownership: ownershipFlags(i), logQ: logQ)
             ]
         }
 
@@ -290,7 +290,8 @@ public enum MountScript {
             drivers.map {
                 mountCommand(
                     engineQ: engineQ, target: target, driver: $0,
-                    options: nfsOptions(i), readOnly: i.readOnly, logQ: logQ)
+                    options: nfsOptions(i), readOnly: i.readOnly,
+                    ownership: ownershipFlags(i), logQ: logQ)
             }
         }
         if i.kind == .linux {
@@ -345,15 +346,41 @@ public enum MountScript {
         driver: String?,
         options: String,
         readOnly: Bool,
+        ownership: String,
         logQ: String
     ) -> String {
         let typeFlag = driver.map { " -t \($0)" } ?? ""
         // --nfs-options must use the joined form. The flag is variadic, and the
         // separated form consumes the target that follows it.
-        return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount --ignore-permissions"
+        return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount\(ownership)"
             + "\(typeFlag)\(readOnlyFlags(readOnly)) -w false"
             + " --nfs-options=\(shellQuoted(options))"
             + " \(target) >> \(logQ) 2>&1 && \(mountedCheck)"
+    }
+
+    /// How the mount is asked for: who the files belong to, and whether
+    /// anything may be written.
+    ///
+    /// `--ignore-permissions` is what makes the files appear to belong to
+    /// whoever opened the drive. The engine implements it by taking charge of
+    /// the NFS export, which is also what it must do to export read-only -- so
+    /// it refuses the two together, and every read-only mount of a real drive
+    /// failed before the machine started:
+    ///
+    ///     error: the argument '--ignore-permissions' cannot be used with
+    ///            '--nfs-export-opts <NFS_EXPORT_OPTS>'
+    ///
+    /// A read-only mount therefore says both things in the one flag the engine
+    /// will accept: the export is read-only, and every file in it is reported
+    /// as belonging to the user, which is what --ignore-permissions was for.
+    /// The other options are the engine's own defaults, kept because naming
+    /// the export at all replaces them.
+    static func ownershipFlags(_ i: Inputs) -> String {
+        guard i.readOnly else { return " --ignore-permissions" }
+        let opts =
+            "ro,no_subtree_check,no_root_squash,insecure,"
+            + "all_squash,anonuid=\(i.uid),anongid=\(i.gid)"
+        return " --nfs-export-opts=" + shellQuoted(opts)
     }
 
     /// What makes the mount inside the guest read-only.
@@ -451,7 +478,7 @@ public enum MountScript {
               else
                 __opened=0
                 for __lv in $__lvs; do
-                  ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions\(readOnlyFlags(i.readOnly)) -w false --nfs-options=\(shellQuoted(nfsOptions(i))) "lvm:$__lv" >> \(logQ) 2>&1
+                  ALFS_PASSPHRASE="$__cred" \(engineQ) mount\(ownershipFlags(i))\(readOnlyFlags(i.readOnly)) -w false --nfs-options=\(shellQuoted(nfsOptions(i))) "lvm:$__lv" >> \(logQ) 2>&1
                   if __mounted; then
                     __opened=$((__opened+1))
                     __rebase
@@ -559,7 +586,7 @@ public enum MountScript {
                        !skip' \(configQ) 2>/dev/null; cat \(actionQ); } > \(mergedQ)
                 cat \(mergedQ) > \(configQ)
                 __first=$(printf '%s\\n' "$__lvs" | head -n 1)
-                ALFS_PASSPHRASE="$__cred" \(engineQ) mount --ignore-permissions\(readOnlyFlags(i.readOnly)) -w false --nfs-options=\(shellQuoted(nfsOptions(i))) -a \(generatedAction) "lvm:$__first" >> \(logQ) 2>&1
+                ALFS_PASSPHRASE="$__cred" \(engineQ) mount\(ownershipFlags(i))\(readOnlyFlags(i.readOnly)) -w false --nfs-options=\(shellQuoted(nfsOptions(i))) -a \(generatedAction) "lvm:$__first" >> \(logQ) 2>&1
             """
     }
 }

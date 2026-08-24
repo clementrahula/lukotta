@@ -81,8 +81,11 @@ struct FailureView: View {
                     Button("Open Privacy Settings") { model.openPrivacySettings() }
                         .keyboardShortcut(.defaultAction)
                 } else if let drive {
-                    // Retries as it stands. Back is the way to change anything.
-                    Button("Try Again") { model.unlock(drive) }
+                    // Retries as it stands, which includes how it was asked
+                    // for: somebody who chose Unlock Read-Only and then tried
+                    // again got a writable mount, silently, having asked twice
+                    // for the opposite. Back is the way to change anything.
+                    Button("Try Again") { model.unlock(drive, readOnly: model.mountingReadOnly) }
                         .keyboardShortcut(.defaultAction)
                 }
             }
