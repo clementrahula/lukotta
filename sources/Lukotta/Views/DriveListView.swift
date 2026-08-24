@@ -10,6 +10,10 @@ import SwiftUI
 struct DriveListView: View {
     @EnvironmentObject var model: AppModel
 
+    /// The row a dragged row is currently over, so it can show where it would
+    /// land. Nothing else depends on it.
+    @State private var dropping: String?
+
     var body: some View {
         list
     }
@@ -32,28 +36,23 @@ struct DriveListView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.bottom, 2)
                 }
-                // A List rather than a stack in a scroll view, for the one
-                // thing a stack cannot do: rows are dragged into whatever order
-                // somebody wants them in, with AppKit drawing the drag and the
-                // place it would land. Everything a list would otherwise impose
-                // -- its background, its separators, its insets -- is taken
-                // back off, so this looks as it did.
                 // A drive that has just gone leaves its message where it was,
-                // in the space it was taking. One that was at the top is above
-                // the list rather than in it: a list holding two of these can
-                // only reorder within one of them, and the row on the boundary
-                // would not pick up at all.
+                // in the space it was taking.
                 ForEach(model.departed.filter { $0.index == 0 }) { gone in
                     DepartedRow(name: gone.name)
                 }
-                List {
-                    // The drives themselves, rather than pairs of index and
-                    // drive: reordering is done by the list, and what it hands
-                    // back are offsets into the collection it was given.
-                    ForEach(model.drives) { drive in
-                        let position = model.drives.firstIndex(of: drive) ?? 0
-                        let point = model.mountPoint(for: drive)
-                        VStack(spacing: 10) {
+                // Rows are dragged into whatever order somebody wants them in.
+                //
+                // Asked for on the row rather than left to a List, which
+                // reorders its own rows and never started here: a row is a
+                // button, and the button takes the press before the list sees a
+                // drag. A row carries its device identifier while it is being
+                // dragged, and dropping it on another row is what moves it.
+                ScrollView {
+                    VStack(spacing: 10) {
+                        ForEach(Array(model.drives.enumerated()), id: \.element.id) {
+                            position, drive in
+                            let point = model.mountPoint(for: drive)
                             DriveRow(
                                 drive: drive,
                                 mountPoint: point,
@@ -69,18 +68,37 @@ struct DriveListView: View {
                                 // One at a time. A second teardown while the
                                 // first is running is how a drive ends up half
                                 // ejected.
-                                otherEjectInFlight: model.isEjecting)
+                                otherEjectInFlight: model.isEjecting,
+                                dropping: dropping == drive.id
+                            )
+                            .draggable(drive.id) {
+                                // What is carried under the pointer: the row's
+                                // name, rather than the whole row redrawn.
+                                Label(drive.name, systemImage: "externaldrive.fill")
+                                    .padding(6)
+                            }
+                            .dropDestination(for: String.self) { items, _ in
+                                dropping = nil
+                                guard let dragged = items.first else { return false }
+                                model.move(dragged, onto: drive)
+                                return true
+                            } isTargeted: { over in
+                                if over {
+                                    dropping = drive.id
+                                } else if dropping == drive.id {
+                                    dropping = nil
+                                }
+                            }
                             ForEach(model.departed.filter { $0.index == position + 1 }) { gone in
                                 DepartedRow(name: gone.name)
                             }
                         }
-                        .plainRow
                     }
-                    .onMove { from, to in model.moveDrives(from: from, to: to) }
+                    // Once the rows have moved, nothing is being dragged over
+                    // anything: the row that was marked has changed places, and
+                    // the mark would sit on whatever took its position.
+                    .onChange(of: model.drives.map(\.id)) { dropping = nil }
                 }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
-                .environment(\.defaultMinListRowHeight, 1)
                 HStack {
                     Text("What a drive contains is only known once it is unlocked.")
                         .font(.caption).foregroundStyle(.secondary)
@@ -90,16 +108,6 @@ struct DriveListView: View {
                 }
             }
         }
-    }
-}
-
-extension View {
-    /// A list row with nothing of the list about it: no separator, no
-    /// background of its own, and the spacing the rows had as a stack.
-    fileprivate var plainRow: some View {
-        listRowSeparator(.hidden)
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0))
     }
 }
 
@@ -124,6 +132,8 @@ struct DriveRow: View {
     var ejecting = false
     /// Some drive is, which is enough to stop this one being started.
     var otherEjectInFlight = false
+    /// A row being dragged is over this one, and would land here.
+    var dropping = false
 
     private var isMounted: Bool { mountPoint != nil }
 
@@ -160,17 +170,33 @@ struct DriveRow: View {
     }
 
     var body: some View {
-        // A locked row is a button: that is what tapping it does. Written as one
-        // rather than as a tap gesture so it can be reached with the keyboard
-        // and activated by VoiceOver, neither of which a gesture offers.
+        // A locked row opens the drive when it is clicked, and it is also the
+        // thing being dragged when the list is being rearranged. Written as a
+        // Button, those two fight and the drag wins: the row could be dragged
+        // and no longer opened.
+        //
+        // A tap gesture and a drag do not fight -- one needs the pointer to
+        // stay still and the other needs it to move. What a Button gave for
+        // free is then given here by hand: the keyboard, the button trait, and
+        // the action a screen reader performs.
         if isMounted {
             row
         } else {
-            Button(action: action) { row }
-                .buttonStyle(.plain)
+            row
+                .contentShape(Rectangle())
+                .onTapGesture(perform: action)
+                .focusable()
+                .onKeyPress(.return) {
+                    action(); return .handled
+                }
+                .onKeyPress(.space) {
+                    action(); return .handled
+                }
                 .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(.isButton)
                 .accessibilityLabel("\(drive.name), \(shutWord), \(details)")
                 .accessibilityHint("Unlock this drive")
+                .accessibilityAction(.default, action)
         }
     }
 
@@ -258,7 +284,12 @@ struct DriveRow: View {
         .background(
             RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor))
         )
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.primary.opacity(0.08)))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(
+                    dropping ? Color.accentColor : Color.primary.opacity(0.08),
+                    lineWidth: dropping ? 2 : 1)
+        )
         .contentShape(Rectangle())
     }
 }

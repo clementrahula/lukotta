@@ -341,6 +341,19 @@ final class AppModel: ObservableObject {
         listOrder.apply(drives) { self.rowKey($0) }
     }
 
+    /// Somebody dropped one row onto another.
+    ///
+    /// The row carries its device identifier while it is being dragged, which
+    /// is what comes back here. Moving down lands after the row it was dropped
+    /// on, moving up lands before it, which is where the gap was drawn.
+    func move(_ dragged: String, onto target: Drive) {
+        guard let from = drives.firstIndex(where: { $0.id == dragged }),
+            let to = drives.firstIndex(where: { $0.id == target.id }),
+            from != to
+        else { return }
+        moveDrives(from: IndexSet(integer: from), to: to > from ? to + 1 : to)
+    }
+
     /// Somebody dragged a row somewhere else.
     ///
     /// The order they leave it in is theirs, and it outlives the rows: unplug a
