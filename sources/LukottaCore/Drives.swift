@@ -498,8 +498,15 @@ public enum Capacity {
     }
 
     /// How many drives can be open at once, and how many are.
+    ///
+    /// The limit can be pinned by the environment, which is how the ceiling is
+    /// exercised without opening a dozen drives to get to it. Never read from
+    /// anything a person can set by accident: an environment variable set for a
+    /// test run, and nothing in the settings.
     public static func now(mounts: Int) -> (limit: Int, open: Int) {
-        (limit: max(1, addresses().count), open: max(0, mounts))
+        let real = max(1, addresses().count)
+        let pinned = ProcessInfo.processInfo.environment["LUKOTTA_CAPACITY"].flatMap(Int.init)
+        return (limit: pinned.map { max(1, min($0, real)) } ?? real, open: max(0, mounts))
     }
 
     /// Whether another drive can be opened at all.

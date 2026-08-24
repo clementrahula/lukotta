@@ -87,6 +87,10 @@ struct FailureView: View {
                     // for the opposite. Back is the way to change anything.
                     Button("Try Again") { model.unlock(drive, readOnly: model.mountingReadOnly) }
                         .keyboardShortcut(.defaultAction)
+                        // Trying again needs somewhere to serve it from, and
+                        // this screen can be standing open while the last
+                        // place is taken by something else.
+                        .disabled(!model.canOpenAnother && model.mountPoint(for: drive) == nil)
                 }
             }
         }

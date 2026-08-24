@@ -28,8 +28,19 @@ struct UnlockView: View {
     /// Neither button can be pressed until there is something to open with: a
     /// credential typed, one remembered, or a drive that needs none.
     private var nothingToOpenWith: Bool {
-        model.credential.isEmpty && !model.usingSavedCredential
-            && !model.chosenDriveIsOpenAlready
+        noRoomForIt
+            || (model.credential.isEmpty && !model.usingSavedCredential
+                && !model.chosenDriveIsOpenAlready)
+    }
+
+    /// Nowhere left to serve this drive from.
+    ///
+    /// Reachable even though every way in is shut at the ceiling: this screen
+    /// can be standing open while the last drive somebody else asked for
+    /// finishes mounting, or while one comes back at login. The buttons say so
+    /// rather than bouncing whoever presses them back to the list.
+    private var noRoomForIt: Bool {
+        !model.canOpenAnother && model.mountPoint(for: drive) == nil
     }
     @State private var capsLockOn = false
     @State private var capsMonitor: Any?
@@ -38,6 +49,28 @@ struct UnlockView: View {
         VStack(alignment: .leading, spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    if noRoomForIt {
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                                .accessibilityHidden(true)
+                            Text(
+                                "\(model.capacity.open) drives or images are open. You can only have \(model.capacity.limit) open at the same time. Eject one to open another."
+                            )
+                            .font(.callout)
+                            .fixedSize(horizontal: false, vertical: true)
+                            Spacer(minLength: 0)
+                        }
+                        .padding(11)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8).fill(Color.orange.opacity(0.12))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8).stroke(Color.orange.opacity(0.35))
+                        )
+                        .accessibilityElement(children: .combine)
+                    }
                     VStack(alignment: .leading, spacing: 3) {
                         Text(
                             model.chosenDriveIsOpenAlready
