@@ -194,8 +194,8 @@ struct DriveRow: View {
         // disk image in macOS's own words, and the scan already calls it one;
         // the rest are formats macOS knows nothing about, so the row names
         // them: VDI, VHD, VHDX, VMDK, qcow2.
-        let where_ = container.flatMap { $0 == .raw ? nil : $0.name } ?? drive.connection
-        if !where_.isEmpty { parts.append(where_) }
+        let placeOrFormat = container.flatMap { $0 == .raw ? nil : $0.name } ?? drive.connection
+        if !placeOrFormat.isEmpty { parts.append(placeOrFormat) }
         // A disk with no partition table says nothing about itself, so until
         // something has read it the row says nothing either rather than
         // printing a guess over it.

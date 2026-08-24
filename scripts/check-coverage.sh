@@ -31,7 +31,9 @@ text = open("sources/Lukotta/Snapshots.swift").read()
 body = text.split("static func scenes()", 1)[1]
 # Only as far as the next function: the geometries and the appearances further
 # down the file are pairs of the same shape.
-body = re.split(r"\n    (?:@MainActor\n    )?(?:private )?static (?:func|let|var) ", body)[0]
+# Indentation-agnostic: the file is wrapped in #if DEVTOOLS in some builds,
+# and a formatter indents everything inside it by four more spaces.
+body = re.split(r"\n\s+(?:@MainActor\n\s+)?(?:private )?static (?:func|let|var) ", body)[0]
 print("\n".join(sorted(set(re.findall(r"\(\s*\n?\s*\"([a-z0-9-]+)\",", body)))))
 ')
 for scene in $scenes; do
