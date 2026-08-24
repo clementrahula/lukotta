@@ -95,6 +95,10 @@ public enum DriveSurvey {
             guard let whole = disk["DeviceIdentifier"] as? String else { continue }
             let wholeInfo = info(whole)
             let internalDisk = wholeInfo["Internal"] as? Bool ?? false
+            // diskutil says so twice, and either will do.
+            let isImage =
+                (wholeInfo["BusProtocol"] as? String) == "Disk Image"
+                || (wholeInfo["VirtualOrPhysical"] as? String) == "Virtual"
             let product =
                 (wholeInfo["MediaName"] as? String) ?? (wholeInfo["IORegistryEntryName"] as? String)
 
@@ -112,6 +116,12 @@ public enum DriveSurvey {
 
                 let verdict: Verdict
                 if byIdentifier[identifier] != nil {
+                    verdict = .openable
+                } else if isImage, mount == nil {
+                    // A file this app can always hand to the engine. Whether
+                    // anything is inside it is a question for the engine, and
+                    // a row with no way to try is worse than an attempt that
+                    // says why it failed.
                     verdict = .openable
                 } else if systemContent.contains(content) || (internalDisk && content.isEmpty)
                     || systemVolumeNames.contains(label ?? "")
@@ -143,7 +153,15 @@ public enum DriveSurvey {
                         sizeBytes: size,
                         content: nonEmpty(content) ?? identifier,
                         verdict: verdict,
-                        drive: byIdentifier[identifier]))
+                        drive: byIdentifier[identifier]
+                            ?? (isImage && mount == nil
+                                ? Drive(
+                                    id: identifier, devicePath: "/dev/" + identifier,
+                                    name: nonEmpty(label) ?? nonEmpty(product) ?? identifier,
+                                    sizeBytes: size, connection: appString("Disk Image"),
+                                    kind: VolumeKind.holding(content) ?? .linux,
+                                    uuid: identifier)
+                                : nil)))
             }
 
             // A disk with nothing on it at all: a bare container file, or a
@@ -177,8 +195,10 @@ public enum DriveSurvey {
                             ?? Drive(
                                 id: whole, devicePath: "/dev/" + whole,
                                 name: nonEmpty(product) ?? whole, sizeBytes: size,
-                                connection: internalDisk
-                                    ? appString("Internal") : appString("External"),
+                                connection: isImage
+                                    ? appString("Disk Image")
+                                    : (internalDisk
+                                        ? appString("Internal") : appString("External")),
                                 kind: .linux, uuid: whole)))
             }
         }

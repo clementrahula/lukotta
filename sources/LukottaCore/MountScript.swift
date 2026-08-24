@@ -387,7 +387,23 @@ public enum MountScript {
     /// attempted; with it the volume is read-only in the mount table, Finder
     /// marks it so, and a write fails as "Read-only file system".
     static func nfsOptions(_ i: Inputs) -> String {
-        i.readOnly ? i.nfsOptions + ",ro" : i.nfsOptions
+        // Deliberately the same either way.
+        //
+        // Adding "ro" here asks the engine for a read-only NFS export, and on
+        // the privileged route it answers by building --nfs-export-opts for
+        // itself -- then refuses that flag alongside --ignore-permissions,
+        // which is its own rule and ours to keep out of: "the argument
+        // '--ignore-permissions' cannot be used with '--nfs-export-opts'". So
+        // every read-only mount of a real drive failed before the machine
+        // started, four times over, and the same mount succeeded unprivileged
+        // where the engine takes another path.
+        //
+        // Read-only is carried by "-o ro" instead, which is the guest's own
+        // mount and the half that decides whether anything can be written. The
+        // host mount is then presented as writable and a write is refused when
+        // it is attempted rather than when it is asked for, which is the
+        // smaller of the two wrongs.
+        i.nfsOptions
     }
 
     /// Rows of `list --decrypt=all` that are mountable logical volumes: an

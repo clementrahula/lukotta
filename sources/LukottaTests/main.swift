@@ -958,12 +958,6 @@ group("anImageWithASpaceInItsNameIsStillReadable") {
     try? FileManager.default.removeItem(at: DiskImage.withoutSpaces(other))
 }
 
-group("DUMPSCRIPT") {
-    if ProcessInfo.processInfo.environment["LUKOTTA_DUMP_SCRIPT"] == "1" {
-        print(MountScript.build(sampleInputs(kind: .microsoft, readOnly: false)))
-    }
-}
-
 group("theMountScriptIsValidShell") {
     // The script is generated, handed to a privileged helper and run there. A
     // shell that cannot parse it exits 2 before anything happens, which the app
@@ -2788,16 +2782,17 @@ group("readOnlyIsBothSidesOfTheConnection") {
     // write, so both are asserted here.
     let script = MountScript.build(sampleInputs(readOnly: true))
     expect(script.contains(" -o ro"), "the guest mounts the filesystem read-only")
-    expect(
-        script.contains("readahead=128,ro"),
-        "and the host's own mount is read-only, which is the half Finder reads")
 
-    // The engine refuses --nfs-export-opts together with --ignore-permissions,
-    // and overriding the export would discard what --ignore-permissions sets,
-    // which is what makes the files readable by whoever opened the drive.
+    // Not in the NFS options. Asking there for a read-only export makes the
+    // engine build --nfs-export-opts for itself on the privileged route, and
+    // it then refuses that flag alongside --ignore-permissions -- so every
+    // read-only mount of a real drive failed before the machine started.
+    expect(
+        !script.contains("readahead=128,ro"),
+        "and the export is not asked to be read-only, which the engine answers by refusing itself")
     expect(
         !script.contains("nfs-export-opts"),
-        "and the export is left as the engine sets it")
+        "nor is the export overridden here")
 
     // Every attempt, not merely the first: the ntfs-3g retry and the LVM
     // discovery must not quietly mount a drive read-write after the read-only
