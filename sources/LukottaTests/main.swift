@@ -1045,6 +1045,41 @@ group("aRowSaysOnlyWhatIsKnownAboutIt") {
         "and it is the pair, since the type allows either")
 }
 
+group("aLanguageSpokenInAnotherCountryFindsItsTranslation") {
+    // Nobody's Mac is set to plain "es". It is set to Spanish (Mexico), German
+    // (Austria), Arabic (Egypt), and macOS matches those against what a bundle
+    // carries. That matching is Foundation's, and it is asked here directly:
+    // the thing that can break it is a folder named in some other style than
+    // Apple's, which no other check would notice.
+    let shipped =
+        ((try? FileManager.default.contentsOfDirectory(atPath: "translations")) ?? [])
+        .filter { $0.hasSuffix(".json") }.map { String($0.dropLast(5)) }
+    expect(shipped.count >= 30, "the translations are where this expects them")
+
+    func chosen(_ preferences: [String]) -> String {
+        Bundle.preferredLocalizations(from: shipped + ["en"], forPreferences: preferences).first
+            ?? "—"
+    }
+    // A language written the same way wherever it is spoken.
+    expect(chosen(["es-MX"]), "es", "Spanish in Mexico is Spanish")
+    expect(chosen(["es-419"]), "es", "and so is Latin American Spanish")
+    expect(chosen(["de-AT"]), "de", "German in Austria is German")
+    expect(chosen(["ar-EG"]), "ar", "Arabic in Egypt is Arabic")
+    expect(chosen(["fr-CA"]), "fr", "French in Canada is French")
+    expect(chosen(["pt-BR"]), "pt-PT", "Brazilian Portuguese takes the Portuguese there is")
+    expect(chosen(["zh-Hans-SG"]), "zh-Hans", "Simplified Chinese in Singapore")
+    // Codes that were renamed, and which some systems still send.
+    expect(chosen(["iw"]), "he", "Hebrew's old code")
+    expect(chosen(["in"]), "id", "Indonesian's old code")
+    expect(chosen(["tl"]), "fil", "Tagalog asks for Filipino")
+    expect(chosen(["nn-NO"]), "nb", "Nynorsk takes Bokmål")
+    // A language this app does not have, with a second choice behind it, which
+    // is how a Mac in Catalonia or Kazakhstan is actually set up.
+    expect(chosen(["ca-ES", "es-ES"]), "es", "Catalan falls to the next language asked for")
+    expect(chosen(["kk-KZ", "ru-RU"]), "ru", "and Kazakh to Russian")
+    expect(chosen(["fa-IR", "en-US"]), "en", "and English where there is nothing nearer")
+}
+
 group("theListKeepsTheOrderThingsArrivedIn") {
     // Rows used to come back in whatever order a scan and two dictionaries
     // produced, so opening a second image moved the first one and a drive
