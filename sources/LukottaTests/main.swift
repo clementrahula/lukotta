@@ -736,18 +736,18 @@ group("mountStages") {
         disk4s1.local:/mnt/BACKUP on /Users/someone/Volumes/BACKUP (nfs, nodev)
         """
     expect(
-        EngineProcesses.deadEngineMounts(in: serving, enginesRunning: true).isEmpty,
-        "with an engine running, nothing is presumed dead")
+        EngineProcesses.deadEngineMounts(in: serving, answers: { _ in true }).isEmpty,
+        "a mount that answers is a drive somebody has open")
     expect(
-        EngineProcesses.deadEngineMounts(in: serving, enginesRunning: false)
+        EngineProcesses.deadEngineMounts(in: serving, answers: { _ in false })
             == ["/Users/someone/Volumes/BACKUP"],
-        "with no engine anywhere, an engine mount in the table has lost its server")
+        "one that does not answer has lost its server, whatever is still running")
     expect(
         EngineProcesses.deadEngineMounts(
             in: "map auto_home on /System/Volumes/Data/home (autofs, automounted)",
-            enginesRunning: false
+            answers: { _ in false }
         ).isEmpty,
-        "and a table with no engine mount in it has nothing to take away")
+        "and nothing but an engine mount is ever asked")
 
     // What counts as the machinery slipping, which decides whether somebody is
     // told their drive will not open or the attempt is quietly made again.

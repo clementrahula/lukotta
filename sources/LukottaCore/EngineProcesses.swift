@@ -93,14 +93,26 @@ public enum EngineProcesses {
         return idle.count
     }
 
-    /// The engine mounts in this table that nothing can be serving.
+    /// The engine mounts in this table that no longer answer.
     ///
-    /// Pure, so a test can say what it would do without a mount table of its
-    /// own: with no engine process running anywhere, every engine mount listed
-    /// is a mount whose server has gone.
-    public static func deadEngineMounts(in table: String, enginesRunning: Bool) -> [String] {
-        guard !enginesRunning else { return [] }
-        return MountTableEntry.all(in: table).filter(\.isEngineMount).map(\.mountPoint)
+    /// Asked of each mount rather than inferred from the engines that happen to
+    /// be running. "Nothing is running, so nothing is being served" was the
+    /// first version of this and it is wrong exactly when it matters: the
+    /// engine that left the mount behind is often still on its way out, and
+    /// counted as though it were serving the mount it has already abandoned.
+    ///
+    /// The probe is a stat, in a process of its own with two seconds to answer.
+    /// A live mount answers at once; one whose server has gone fails or does
+    /// not answer at all, and the deadline is what keeps this from waiting on
+    /// it the way everything else does.
+    public static func deadEngineMounts(
+        in table: String,
+        answers: (String) -> Bool = { point in
+            LukottaCore.run("/usr/bin/stat", ["-f", "%d", point], timeout: 2)?.status == 0
+        }
+    ) -> [String] {
+        MountTableEntry.all(in: table).filter(\.isEngineMount).map(\.mountPoint)
+            .filter { !answers($0) }
     }
 
     /// Take away mounts whose server has gone, and say whether any went.
@@ -114,7 +126,7 @@ public enum EngineProcesses {
     /// Mounted by this user, so this needs no privilege.
     @discardableResult
     public static func deadMountsCleared(in table: String) -> Bool {
-        let dead = deadEngineMounts(in: table, enginesRunning: !running().isEmpty)
+        let dead = deadEngineMounts(in: table)
         guard !dead.isEmpty else { return false }
         Log.mount.notice("taking away \(dead.count, privacy: .public) mounts whose server has gone")
         for point in dead {
