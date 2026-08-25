@@ -111,18 +111,56 @@ static int exists(const char *path) {
   return stat(path, &info) == 0;
 }
 
-// Put the kept-aside bundle back over this one, with ditto, which copies a
-// signed bundle as a signed bundle -- extended attributes, symlinks and all.
-static int restore(const char *kept_aside, const char *bundle) {
+static int run_to_completion(const char *program, char *const argv[]) {
   pid_t child = fork();
   if (child < 0) return 0;
   if (child == 0) {
-    execl("/usr/bin/ditto", "ditto", kept_aside, bundle, (char *)NULL);
+    execv(program, argv);
     _exit(127);
   }
   int status = 0;
   if (waitpid(child, &status, 0) < 0) return 0;
   return WIFEXITED(status) && WEXITSTATUS(status) == 0;
+}
+
+// Put the kept-aside bundle back over this one, with ditto, which copies a
+// signed bundle as a signed bundle -- extended attributes, symlinks and all.
+//
+// The broken one is moved out of the way first. ditto merges into what is
+// already there: a version that added a framework, renamed a resource or
+// shipped a helper the old one never had would leave those files behind inside
+// the restored bundle, and a bundle carrying files its signature does not cover
+// is one macOS refuses to open -- a rollback that produces a second app that
+// will not start.
+//
+// Moved rather than deleted, and put back if the copy fails, so there is an
+// application on this Mac at every moment of this.
+static int restore(const char *kept_aside, const char *bundle, const char *support) {
+  char broken[PATH_MAX];
+  if (snprintf(broken, sizeof(broken), "%s/previous/broken.app", support)
+      >= (int)sizeof(broken)) {
+    return 0;
+  }
+  char *const away[] = { "rm", "-rf", broken, NULL };
+  run_to_completion("/bin/rm", away);
+
+  char *const copy[] = { "ditto", (char *)kept_aside, (char *)bundle, NULL };
+  if (rename(bundle, broken) != 0) {
+    // The two are on different volumes -- an app kept somewhere other than
+    // /Applications -- so it cannot be moved aside. Copied over where it
+    // stands, then, which is what this did before it knew better: a merged
+    // bundle is a poor rollback and no rollback is a worse one.
+    return run_to_completion("/usr/bin/ditto", copy);
+  }
+
+  if (!run_to_completion("/usr/bin/ditto", copy)) {
+    // Nothing was put back, so the version that was there goes back.
+    rename(broken, bundle);
+    return 0;
+  }
+  char *const clean[] = { "rm", "-rf", broken, NULL };
+  run_to_completion("/bin/rm", clean);
+  return 1;
 }
 
 // Only one launch may restore.
@@ -225,7 +263,7 @@ int main(int argc, char *argv[]) {
     if (count >= ATTEMPTS_ALLOWED && exists(kept_aside) && take_restore_lock(support)) {
       // This version has been opened three times and has never got as far as
       // saying it was working. Whatever is wrong with it, the previous one ran.
-      int put_back = restore(kept_aside, bundle);
+      int put_back = restore(kept_aside, bundle, support);
       release_restore_lock(support);
       if (put_back) {
         record_attempt(attempts_path, 0);

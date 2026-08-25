@@ -72,10 +72,28 @@ enum Rollback {
     static func keepCurrentAside() {
         guard let keptAside else { return }
         let manager = FileManager.default
-        try? manager.createDirectory(
-            at: keptAside.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try? manager.removeItem(at: keptAside)
-        try? manager.copyItem(at: Bundle.main.bundleURL, to: keptAside)
+        // Copied under another name and moved into place at the end. The shim
+        // in front of the app decides by whether the copy is there, and a copy
+        // interrupted half way -- the quit that follows this is what interrupts
+        // it -- is a bundle that exists, restores, and does not start. The move
+        // is the moment it becomes something to fall back to.
+        let building = keptAside.deletingLastPathComponent()
+            .appendingPathComponent("previous.copying", isDirectory: true)
+        do {
+            try manager.createDirectory(
+                at: keptAside.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try? manager.removeItem(at: building)
+            try manager.copyItem(at: Bundle.main.bundleURL, to: building)
+            try? manager.removeItem(at: keptAside)
+            try manager.moveItem(at: building, to: keptAside)
+        } catch {
+            // Said out loud rather than shrugged at. A disk with no room on it
+            // arms nothing, and the update that follows then has nothing to
+            // fall back to -- which is worth knowing from the log afterwards
+            // rather than guessing at.
+            Log.updates.error("the outgoing version could not be kept aside: \(error)")
+            try? manager.removeItem(at: building)
+        }
     }
 
     // MARK: Launching
@@ -85,13 +103,24 @@ enum Rollback {
     /// Returns false when the previous version has been put back and opened, in
     /// which case this process should stop.
     static func evaluateLaunch() -> Bool {
-        // Anything under the old name, which was the application's rather than
-        // its identifier's. A copy of a version two updates ago is not worth
-        // carrying across, and the uninstaller removes the identifier's
-        // directory, not this one.
-        if let oldPlace, FileManager.default.fileExists(atPath: oldPlace.path) {
-            Log.updates.notice("taking away what was kept under the old name")
-            try? FileManager.default.removeItem(at: oldPlace)
+        // What this mechanism itself left under the old name, which was the
+        // application's rather than its identifier's. A copy of a version two
+        // updates ago is not worth carrying across, and the uninstaller removes
+        // the identifier's directory, not this one.
+        //
+        // Only this mechanism's own two entries: the directory under the old
+        // name is also where the Linux environment lives on a Mac that has not
+        // been through the move yet, and that move happens later in this same
+        // launch. Taking the whole directory would take the environment with
+        // it, an unpack the app would then have to do again.
+        if let oldPlace {
+            for leftover in ["previous", "launch-attempts"] {
+                let url = oldPlace.appendingPathComponent(leftover)
+                guard FileManager.default.fileExists(atPath: url.path) else { continue }
+                Log.updates.notice(
+                    "taking away \(leftover, privacy: .public) kept under the old name")
+                try? FileManager.default.removeItem(at: url)
+            }
         }
 
         let action = AppRollback.decide(
@@ -119,9 +148,19 @@ enum Rollback {
         // The shim counts every launch and cannot tell whether any of them
         // worked; this is the answer it is waiting for.
         if let launchAttempts { try? FileManager.default.removeItem(at: launchAttempts) }
-        if keptAsideVersion() != nil {
-            Log.updates.notice("this build started; the kept-aside copy is no longer needed")
-        }
+        // A copy of the version that is running is not spent: it was made for
+        // an update that has been fetched but not yet swapped in, and the swap
+        // can be one quit away. Dropping it here — on any healthy launch in
+        // between, and on every --smoke-test a release or a preflight runs —
+        // would leave that install with nothing to fall back to.
+        //
+        // A copy of some *other* version is proof the swap already happened,
+        // and this launch is the proof that it worked. That one is spent.
+        let kept = keptAsideVersion()
+        guard let kept, kept != currentVersion else { return }
+        Log.updates.notice(
+            "build \(currentVersion, privacy: .public) started; the copy of \(kept, privacy: .public) is no longer needed"
+        )
         if let keptAside { try? FileManager.default.removeItem(at: keptAside) }
     }
 

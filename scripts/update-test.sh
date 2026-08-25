@@ -57,6 +57,9 @@ installed_build() {
 }
 
 server=""
+# Set once the harness has installed a build numbered far above any real one,
+# and cleared again when the real beta is put back at the end.
+harness_build_installed=0
 clean_up() {
   if [ -n "$server" ]; then
     kill "$server" 2>/dev/null || true
@@ -64,11 +67,28 @@ clean_up() {
     # though something had gone wrong at the end of a run that passed.
     wait "$server" 2>/dev/null || true
   fi
+  # A run stopped part-way -- interrupted, or failed at a check -- otherwise
+  # leaves that build in /Applications, and a beta numbered 900001 answers "up
+  # to date" to every genuine feed for as long as it sits there. Put back here
+  # as well as at the end, since this is the path an interrupted run takes.
+  if [ "$harness_build_installed" = "1" ]; then
+    printf '\n==> Putting this Mac back\n'
+    LUKOTTA_BRANDING=beta ./build-app.sh "$HERE/dist/$APP_NAME.app" >/dev/null 2>&1 \
+      && printf '  the real beta is installed again\n' \
+      || printf '  could not rebuild the beta; run ./build-app.sh yourself\n'
+  fi
   [ -z "${LUKOTTA_UPDATE_WORK:-}" ] && rm -rf "$WORK" || true
 }
 trap clean_up EXIT
 
+# Which drives were already open on this Mac. Everything below force-unmounts
+# what it finds under ~/Volumes, which is right for what this run opened and
+# wrong for a drive somebody was using when they started it -- writes in flight,
+# gone. Nothing in this list is touched.
+MOUNTS_BEFORE="$(/sbin/mount | awk '/\(nfs/ { sub(/^.* on /, ""); sub(/ \(.*$/, ""); print }' | tr '\n' ' ')"
+
 printf '==> Building the version to update from (build %s)\n' "$FROM_BUILD"
+harness_build_installed=1
 LUKOTTA_DEVTOOLS=1 LUKOTTA_BRANDING=beta LUKOTTA_BUILD="$FROM_BUILD" ./build-app.sh "$HERE/dist/$APP_NAME.app" >/dev/null
 
 printf '\na Mac that has never had this app\n'
@@ -123,6 +143,7 @@ fi
 # nothing to do with updates.
 for point in "$HOME"/Volumes/*; do
   [ -d "$point" ] || continue
+  case " $MOUNTS_BEFORE " in *" $point "*) continue ;; esac
   /sbin/umount -f "$point" >/dev/null 2>&1 || true
   rmdir "$point" >/dev/null 2>&1 || true
 done
@@ -223,6 +244,22 @@ else
 fi
 that "and the copy is dropped once a launch works" \
   test ! -d "$KEPT_APP"
+
+# A copy of the version that is *running* is a different thing, and must not be
+# dropped. It means an update has been fetched and not yet swapped in, and the
+# swap can be one quit away -- Sparkle resumes an extracted update in a later
+# session without downloading it again, and without saying so. A healthy launch
+# in between, or a --smoke-test from a release script, used to take the copy
+# away, and the install that followed had nothing to fall back to.
+mkdir -p "$KEPT"
+/usr/bin/ditto "$INSTALLED" "$KEPT_APP"
+if "$BINARY" --smoke-test >"$WORK/armed.log" 2>&1; then
+  that "a copy armed for an update that has not happened survives a launch" \
+    test -x "$KEPT_APP/Contents/MacOS/$APP_NAME"
+else
+  bad "a copy armed for an update that has not happened survives a launch"
+fi
+rm -rf "$KEPT"
 
 printf '\nan update sent as only what changed\n'
 # What almost everybody actually receives. A delta is a patch between two
@@ -431,6 +468,7 @@ printf '\n==> Putting this Mac back\n'
 # like that answers "up to date" to every genuine feed until somebody notices.
 # Without the harnesses: this is the copy left on the Mac afterwards, and a
 # pre-release somebody uses is not a place for them.
+harness_build_installed=0
 LUKOTTA_BRANDING=beta ./build-app.sh "$HERE/dist/$APP_NAME.app" >/dev/null 2>&1 \
   && printf '  the real beta is installed again\n' \
   || printf '  could not rebuild the beta; run ./build-app.sh yourself\n'
