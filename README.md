@@ -21,7 +21,21 @@
 
 <p align="center">
   <a href="https://lukotta.com">lukotta.com</a> ·
-  <a href="https://github.com/clementrahula/lukotta/releases">Download</a>
+  <a href="https://github.com/clementrahula/lukotta/releases">All releases</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/clementrahula/lukotta/releases/latest/download/Lukotta.dmg">
+    <img src="https://img.shields.io/badge/Download-Lukotta%20for%20macOS-3b6ea5?style=for-the-badge"
+      alt="Download Lukotta for macOS">
+  </a>
+</p>
+
+<p align="center">
+  <img src="assets/screenshots/en-light.png" width="380"
+    alt="The drive list in the light appearance: a BitLocker drive, two LUKS disk images and a VirtualBox disk open, and a second BitLocker drive still locked.">
+  <img src="assets/screenshots/en-dark.png" width="380"
+    alt="The same drive list in the dark appearance.">
 </p>
 
 ## How It Works

@@ -70,7 +70,20 @@ SLUG="$(printf '%s' "$APP_NAME" | tr ' ' '-')"
 
 APP="$HERE/dist/$APP_NAME.app"
 ZIP="$HERE/dist/$SLUG-$VERSION.zip"
-DMG="$HERE/dist/$SLUG-$VERSION.dmg"
+# The disk image carries no version in its name, and that is deliberate: it is
+# what makes
+#
+#     https://github.com/<repo>/releases/latest/download/Lukotta.dmg
+#
+# a link that never has to be edited. GitHub resolves /latest/ to the newest
+# release that is not a prerelease and then asks for an asset of exactly that
+# name, so a versioned one would need the README changed at every release and
+# would be wrong in between. The version is not lost: it is the volume name
+# Finder shows when the image is opened, and the tag it was published under.
+#
+# The archive beside it keeps its version, because Sparkle's appcast points at
+# one URL per version and they cannot collide.
+DMG="$HERE/dist/$SLUG.dmg"
 # Point this at a checkout of the updates repository to update it in place.
 APPCAST="${LUKOTTA_APPCAST:-$APPCAST_DEFAULT}"
 NOTES_BASE="${LUKOTTA_NOTES_BASE:-$NOTES_BASE_DEFAULT}"
@@ -288,7 +301,12 @@ fi
 
 printf '\nArchive : %s\n' "$ZIP"
 printf 'Appcast : %s\n' "$APPCAST"
-printf 'Download: %s/%s\n' "$BASE_URL" "$(basename "$ZIP")"
+printf 'Update  : %s/%s\n' "$BASE_URL" "$(basename "$ZIP")"
+# What the button in the README points at. Worth printing: it is the one URL
+# here that is not written down anywhere else, and the first release to carry a
+# disk image of this name is the one that makes it start working.
+printf 'Download: https://github.com/%s/releases/latest/download/%s\n' \
+  "$REPO" "$(basename "$DMG")"
 # The feed is served from its own repository — GitHub Pages gives one site one
 # custom domain, and the project's website has the other. Point LUKOTTA_APPCAST
 # at a checkout of it and the appcast and notes are written straight in, ready
