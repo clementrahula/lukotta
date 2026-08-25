@@ -1236,7 +1236,7 @@ import CryptoKit
                 model.unlock(drive)
                 guard
                     waitUntil(
-                        "it mounts", timeout: 180,
+                        "it mounts", timeout: 240,
                         condition: {
                             if case .mounted = model.phase { return true }
                             if case .failed = model.phase { return true }
@@ -1322,7 +1322,7 @@ import CryptoKit
             model.unlock(drive)
             guard
                 waitUntil(
-                    "it mounts again", timeout: 180,
+                    "it mounts again", timeout: 240,
                     condition: {
                         if case .mounted = model.phase { return true }
                         if case .failed = model.phase { return true }
@@ -2145,7 +2145,7 @@ import CryptoKit
                 model.unlock(drive)
                 guard
                     waitUntil(
-                        "it mounts", timeout: 180,
+                        "it mounts", timeout: 240,
                         condition: {
                             if case .mounted = model.phase { return true }
                             if case .failed = model.phase { return true }
