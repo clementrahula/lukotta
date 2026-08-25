@@ -143,9 +143,13 @@ public enum Housekeeping {
         /// assert the list shrinks rather than growing for ever.
         public static let key = "engineLogsWeMade"
 
+        /// Inside this app's own engine directory, which is where the engine
+        /// writes them now that it is given a home of its own. Nothing else
+        /// writes here, so everything found is ours to remove -- and a Mac
+        /// running anylinuxfs on its own keeps its logs where it always did,
+        /// untouched.
         public static var directory: URL {
-            FileManager.default.homeDirectoryForCurrentUser
-                .appendingPathComponent("Library/Logs", isDirectory: true)
+            EngineEnvironment.engineHome.appendingPathComponent("Library/Logs", isDirectory: true)
         }
 
         /// How long one is kept. Long enough to be in a bug report written the

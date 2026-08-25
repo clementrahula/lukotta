@@ -1,0 +1,72 @@
+Give the engine a state directory of its own, without moving the mounts.
+
+anylinuxfs keeps everything it needs under the invoking user's home: the Linux
+image and its configuration in ~/.anylinuxfs, its logs in ~/Library/Logs. That
+is right for a program somebody installed themselves -- there is one of it, and
+the directory is its own.
+
+An application that carries the engine inside it is a different case. Several
+can be installed at once -- a release, a beta, and anylinuxfs itself, installed
+by whoever was using it first -- and each ships the image version its own engine
+was built against. One directory between them means each finds an image it did
+not put there, and either runs against one it was not built for or replaces the
+others'. Every one of those is somebody's drive failing to open for a reason
+nothing on screen could explain.
+
+ANYLINUXFS_HOME moves that state and only that state. The home directory itself
+is still resolved from the invoking user, because it decides something else
+entirely: where an unprivileged mount appears. Drives belong in ~/Volumes,
+where the person can find them, and not wherever an application keeps its
+files.
+
+So this separates the two meanings the home directory had:
+
+  home_dir    the person's home. Mount points, and nothing else.
+  state_dir   where the image, the configuration and the logs live.
+
+Unset, state_dir is home_dir and nothing changes: a copy installed on its own
+behaves exactly as it always has. Set, an application can give the engine a
+directory nothing else writes to, and drives still mount where they always did.
+
+--- a/anylinuxfs/src/main.rs
++++ b/anylinuxfs/src/main.rs
+@@ -176,6 +176,21 @@
+     let home_dir = utils::home_dir_from_uid(invoker_uid)
+         .context("Failed to resolve invoking user's home directory")?;
+ 
++    // Where the image, the configuration and the logs live, which is not
++    // necessarily where the person's own files live. An application embedding
++    // this engine sets ANYLINUXFS_HOME so that its state is its own; the home
++    // above is left as it was, because mount points are composed from it and a
++    // drive belongs in the person's ~/Volumes rather than inside an
++    // application's directory.
++    let state_dir = match env::var_os("ANYLINUXFS_HOME") {
++        Some(value) if !value.is_empty() => {
++            let dir = PathBuf::from(value);
++            fs::create_dir_all(&dir).context("Failed to create ANYLINUXFS_HOME directory")?;
++            dir
++        }
++        _ => home_dir.clone(),
++    };
++
+     let exec_path = fs::canonicalize(env::current_exe().context("Failed to get executable path")?)
+         .context("Failed to get resolved exec path")?;
+     let exec_dir = exec_path
+@@ -190,13 +205,13 @@
+     // Generate unique log file ID for this instance
+     let log_file_id = rand_string(8);
+ 
+-    let profile_path = home_dir.join(".anylinuxfs");
+-    let config_file_path = home_dir.join(".anylinuxfs").join("config.toml");
++    let profile_path = state_dir.join(".anylinuxfs");
++    let config_file_path = state_dir.join(".anylinuxfs").join("config.toml");
+     #[cfg(target_os = "macos")]
+-    let log_dir = home_dir.join("Library").join("Logs");
++    let log_dir = state_dir.join("Library").join("Logs");
+     #[cfg(target_os = "linux")]
+     let log_dir = {
+-        let dir = home_dir.join(".anylinuxfs").join("logs");
++        let dir = state_dir.join(".anylinuxfs").join("logs");
+         fs::create_dir_all(&dir)
+             .with_context(|| format!("Failed to create log directory {}", dir.display()))?;
+         dir

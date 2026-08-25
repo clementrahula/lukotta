@@ -3,25 +3,23 @@
 
 import Foundation
 
-/// The engine's config.toml, which survives across mounts in the user's home.
+/// The engine's config.toml, which survives across mounts.
 ///
-/// The file can belong to something else: anylinuxfs installed on its own puts
-/// its configuration here too, since the engine gives every program that uses it
-/// the same path. So what this app writes is one section under a name of its
-/// own, `[custom_actions.lukotta]`, added before a multi-volume mount and taken
-/// away after the eject. Nothing else in the file is read, moved or rewritten,
-/// and a file that cannot be written is not an error -- the section is inert
-/// once the mount is gone.
+/// It sits inside this app's own engine directory, so it belongs to this app
+/// alone: nothing else on the Mac reads or writes it, and this app writes to no
+/// other copy of it. What goes in is one section under a name of its own,
+/// `[custom_actions.lukotta]`, added before a multi-volume mount and taken away
+/// after the eject.
 ///
 /// Lukotta writes exactly one thing into it: the generated custom action that
 /// serves every logical volume of a container. The mount script regenerates
 /// that section on each multi-volume mount, and this type removes it once the
 /// drive is ejected — the app aims to leave nothing behind that it still needs.
 public enum EngineConfig {
-    /// ~/.anylinuxfs/config.toml. The engine hard-resolves this location from
-    /// the invoking user and offers no setting to move it; see EngineEnvironment.
+    /// Inside this app's engine directory, which is what the engine is given
+    /// as its home. See `EngineEnvironment.engineHome`.
     public static var path: String {
-        FileManager.default.homeDirectoryForCurrentUser
+        EngineEnvironment.engineHome
             .appendingPathComponent(".anylinuxfs/config.toml").path
     }
 

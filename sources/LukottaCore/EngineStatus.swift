@@ -20,7 +20,9 @@ public enum EngineStatus {
     public static func current() -> [EngineMount] {
         guard let engine = EnginePaths.anylinuxfs,
             FileManager.default.fileExists(atPath: engine.path),
-            let result = LukottaCore.run(engine.path, ["status"])
+            let result = LukottaCore.run(
+                engine.path, ["status"],
+                environment: EngineEnvironment.environmentForEngine())
         else { return [] }
         return parse(result.out)
     }
@@ -124,7 +126,8 @@ public enum EngineStatus {
         // deadline passed.
         guard
             let result = run(
-                engine.path, ["unmount", mountPoint, "--wait-for-vm", "30"], timeout: timeout)
+                engine.path, ["unmount", mountPoint, "--wait-for-vm", "30"], timeout: timeout,
+                environment: EngineEnvironment.environmentForEngine())
         else {
             return (
                 false,

@@ -214,7 +214,8 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     logPath: log.path,
                     discoverLogPath: workspace.root.appendingPathComponent("discover.log").path,
                     expectScriptPath: expect.path,
-                    configPath: home + "/.anylinuxfs/config.toml",
+                    configPath: engineHome(of: home) + "/.anylinuxfs/config.toml",
+                    engineHome: engineHome(of: home),
                     libraryPaths: EnginePaths.libraryPaths(),
                     uid: invokingUID(), gid: invokingGID(),
                     cores: MountScript.VirtualMachine.cores,
@@ -353,6 +354,22 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
 
     func helperVersion(reply: @escaping (String) -> Void) {
         reply(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown")
+    }
+
+    /// The engine's own directory inside that user's Application Support.
+    ///
+    /// The same place the app uses, composed here from the invoking user's home
+    /// because this runs as root and must never resolve anything against
+    /// root's. It is handed to the engine in the mount script, so a mount made
+    /// through the helper reads the same image as one made without it -- this
+    /// app's own, and never the shared one another program may be using.
+    private func engineHome(of home: String) -> String {
+        // The same expression the app uses, against the invoking user's home
+        // rather than root's. Both have to arrive at one path: otherwise a
+        // mount made through the helper reads a different Linux environment
+        // from one made without it, and the two are different versions the
+        // moment either is updated.
+        EngineEnvironment.engineHome(inHome: home, named: EngineEnvironment.appDirectoryName).path
     }
 
     /// The user this is being done for, whose home the engine resolves paths

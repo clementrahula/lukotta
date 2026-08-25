@@ -62,6 +62,19 @@ fetch_checked() {
   echo "          sha256 verified"
 }
 
+# LUKOTTA_HOST_ONLY=1 builds the host binary and keeps the guest binary that is
+# already vendored. vmproxy is a Linux binary and needs a cross-compiler; a
+# toolchain without the musl target can still build everything that runs on this
+# side, which is where most of the patches are. The guest binary is only kept
+# when one is already there to keep -- shipping a host built from patched source
+# beside a guest built from something else is exactly the mismatch the patches
+# exist to avoid.
+HOST_ONLY="${LUKOTTA_HOST_ONLY:-0}"
+if [ "$HOST_ONLY" = "1" ] && [ ! -f "$OUT/vmproxy" ]; then
+  echo "error: LUKOTTA_HOST_ONLY needs a vmproxy already built in $OUT" >&2
+  exit 1
+fi
+
 for tool in cargo rustc; do
   command -v "$tool" >/dev/null || {
     echo "error: no $tool. Install a Rust toolchain: https://rustup.rs" >&2; exit 1; }
@@ -143,12 +156,19 @@ PYEOF
 echo "Building…"
 export PATH="/opt/homebrew/opt/lld/bin:/opt/homebrew/opt/llvm/bin:$PATH"
 ( cd "$SRC/anylinuxfs" && cargo build --release --quiet )
-( cd "$SRC/vmproxy"    && cargo build --release --quiet )
-
 HOST="$SRC/anylinuxfs/target/release/anylinuxfs"
+[ -x "$HOST" ] || { echo "error: no anylinuxfs was built" >&2; exit 1; }
+
 GUEST="$SRC/vmproxy/target/aarch64-unknown-linux-musl/release/vmproxy"
-[ -x "$HOST" ]  || { echo "error: no anylinuxfs was built" >&2; exit 1; }
-[ -f "$GUEST" ] || { echo "error: no vmproxy was built" >&2; exit 1; }
+if [ "$HOST_ONLY" = "1" ]; then
+  KEPT="$(mktemp -d)/vmproxy"
+  cp "$OUT/vmproxy" "$KEPT"
+  GUEST="$KEPT"
+  echo "  keeping the vmproxy already built"
+else
+  ( cd "$SRC/vmproxy" && cargo build --release --quiet )
+  [ -f "$GUEST" ] || { echo "error: no vmproxy was built" >&2; exit 1; }
+fi
 
 rm -rf "$OUT"; mkdir -p "$OUT"
 cp "$HOST" "$GUEST" "$OUT/"

@@ -84,9 +84,7 @@ struct MountedView: View {
             )
 
             if let notice = model.notice {
-                Label(notice, systemImage: "info.circle")
-                    .font(.caption).foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                NoticeLine(text: notice) { model.notice = nil }
             }
 
             if let problem = model.ejectProblem {

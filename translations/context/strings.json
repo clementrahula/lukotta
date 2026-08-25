@@ -370,13 +370,6 @@
       "context": "A failure sentence. After the engine changes, the first run has to be the only one; several drives can be open together again afterwards.",
       "placeholders": []
     },
-    "Another program set up the Linux environment this Mac shares, and it is a different version. Quit or remove that program, then open this drive again.": {
-      "screens": [
-        "failure"
-      ],
-      "context": "Shown when the Linux environment in the shared location was set up by something else -- a beta of this app, or anylinuxfs installed on its own -- and is a different version. The app will not replace an environment it did not create, because that program may be using it.",
-      "placeholders": []
-    },
     "Appearance": {
       "screens": [
         "settings"
@@ -568,6 +561,14 @@
         "notices"
       ],
       "context": "Shown in a row's subtitle where a physical drive would say USB. Means the row is a file, not hardware.",
+      "placeholders": []
+    },
+    "Dismiss": {
+      "screens": [
+        "drive-list",
+        "mounted"
+      ],
+      "context": "The label of the small × that closes a passing message, such as a drive having stopped responding. Read aloud by a screen reader and shown as a tooltip; the button itself is the × symbol. Apple's own word for this control in this language.",
       "placeholders": []
     },
     "Done": {
@@ -1774,6 +1775,24 @@
       "context": "A row label in the About section, leading to the licences of everything the app carries.",
       "placeholders": []
     },
+    "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": {
+      "screens": [
+        "failure"
+      ],
+      "context": "The same, for the Linux environment the engine boots. 'Linux' is a protected name and stays as it is. The placeholder is the application's name.",
+      "placeholders": [
+        "the application's name"
+      ]
+    },
+    "This copy of %@ is incomplete: its drive engine is missing. Install it again.": {
+      "screens": [
+        "failure"
+      ],
+      "context": "Shown when the app's own drive engine is not inside the application bundle, which means the copy was damaged or incompletely copied. The placeholder is the application's name.",
+      "placeholders": [
+        "the application's name"
+      ]
+    },
     "This drive holds %lld volumes and not all of them could be opened.": {
       "screens": [
         "notices"
@@ -2164,6 +2183,13 @@
         "settings"
       ],
       "context": "Shown under the updates setting when automatic checking is off.",
+      "placeholders": []
+    },
+    "You cancelled the administrator prompt, so the drive was not opened.": {
+      "screens": [
+        "failure"
+      ],
+      "context": "Shown after somebody presses Cancel on the macOS administrator password panel that appears when opening a physical drive. Nothing went wrong; it says plainly why the drive did not open.",
       "placeholders": []
     },
     "Your drives are set to open again after a restart, but Full Disk Access is no longer granted. A macOS update, a move or a reinstall can remove it.": {

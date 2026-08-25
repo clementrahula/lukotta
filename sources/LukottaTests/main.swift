@@ -63,7 +63,8 @@ func sampleInputs(
         logPath: "/tmp/ws/mount.log",
         discoverLogPath: "/tmp/ws/discover.log",
         expectScriptPath: "/tmp/ws/discover.exp",
-        configPath: "/Users/u/.anylinuxfs/config.toml",
+        configPath: "/Users/u/Library/Application Support/Lukotta/engine/.anylinuxfs/config.toml",
+        engineHome: "/Users/u/Library/Application Support/Lukotta/engine",
         libraryPaths: ["/engine/lib"],
         uid: 501, gid: 20, cores: 4, ramMiB: 2560, readOnly: readOnly)
 }
@@ -462,7 +463,10 @@ group("theElevatedMountScript") {
             kind: .linux, volume: nil, aliasPath: nil, fifoPath: "/tmp/My Space/fifo",
             logPath: "/tmp/My Space/mount.log", discoverLogPath: "/tmp/My Space/discover.log",
             expectScriptPath: "/tmp/My Space/discover.exp",
-            configPath: "/Users/u/.anylinuxfs/config.toml", libraryPaths: ["/eng/li b"],
+            configPath:
+                "/Users/u/Library/Application Support/Lukotta/engine/.anylinuxfs/config.toml",
+            engineHome: "/Users/u/Library/Application Support/Lukotta/engine",
+            libraryPaths: ["/eng/li b"],
             uid: 501, gid: 20, cores: 4, ramMiB: 2560))
     expect(msSpaces.contains("'/tmp/My Space/mount.log'"), "spaces in paths stay quoted")
     expect(msSpaces.contains("'/eng/any linux fs'"), "spaces in the engine path stay quoted")
@@ -486,8 +490,17 @@ group("multiVolumeServing") {
         script.contains(#"mount -o bind \"$ALFS_VM_MOUNT_POINT\""#),
         "the primary volume is bound into the scratch dir, not re-mounted")
     expect(
-        script.contains("'/Users/u/.anylinuxfs/config.toml'"),
+        script.contains(
+            "'/Users/u/Library/Application Support/Lukotta/engine/.anylinuxfs/config.toml'"),
         "the action is merged into the engine's config")
+    // The engine is told where its own directory is, in the elevated shell,
+    // because macOS strips the environment across a privilege boundary and an
+    // engine that does not see this reads the shared one instead -- a different
+    // image, and possibly another program's.
+    expect(
+        script.contains(
+            "export ANYLINUXFS_HOME='/Users/u/Library/Application Support/Lukotta/engine'"),
+        "and the engine is given this app's own directory to work in")
     expect(
         script.contains("LUKOTTA_VOLUMES:$(__new_mounts | grep -c .)"),
         "a combined mount counts the mounts that were not there before")
@@ -798,7 +811,8 @@ group("mountStages") {
             enginePath: "/e", devicePath: "/dev/disk5s1", driveName: "D", kind: .linux,
             volume: nil, aliasPath: "/tmp/ws/alias/Disk Image", fifoPath: "/f",
             logPath: "/l", discoverLogPath: "/d", expectScriptPath: "/x",
-            configPath: "/c", libraryPaths: [], uid: 501, gid: 20, cores: 4, ramMiB: 2560))
+            configPath: "/c", engineHome: "/h", libraryPaths: [], uid: 501, gid: 20,
+            cores: 4, ramMiB: 2560))
     expect(!aliased.contains("/tmp/ws/alias"), "an unresolvable alias is not attempted")
     expect(aliased.contains("'/dev/disk5s1'"), "the device itself still is")
 
@@ -1164,13 +1178,14 @@ group("uninstallingTakesEverythingWithIt") {
         (try? String(contentsOfFile: "sources/Lukotta/Uninstall.swift", encoding: .utf8)) ?? ""
     expect(!uninstall.isEmpty, "the uninstall is where this expects it")
     for what in [
-        ".anylinuxfs",  // the Linux environment
+
         "applicationSupportDirectory",  // what the app kept
         "cachesDirectory",  // what Sparkle kept, in this app's name
         "removePersistentDomain",  // every setting, including the ones added since
         "CredentialStore.delete",  // the saved passphrases, when asked
         "releaseRoom",  // the loopback addresses the helper added
         "Housekeeping.sweep",  // the scratch directories and mount points
+        "EngineEnvironment.engineHome",  // this app's own Linux environment
         "unregister",  // the daemon
         "moveToTheBin",  // and the app itself
     ] {
@@ -1197,6 +1212,47 @@ group("aRefusedPermissionSaysWhichOneAndOffersTheWayToIt") {
     expect(
         summary.contains("Full Disk Access"),
         "which is what puts Open Privacy Settings on the failure screen")
+}
+
+group("theEngineWorksInThisAppsOwnDirectoryAndNobodyElses") {
+    // The engine as published keeps everything under ~/.anylinuxfs, which is
+    // one directory for every program on the Mac that uses it: a release, a
+    // beta, and anylinuxfs installed on its own. Each ships the image its own
+    // engine was built against, so sharing means each of them finding an image
+    // it did not put there. The engine this app carries is patched to take that
+    // directory from ANYLINUXFS_HOME, and this is what it is given.
+    let home = EngineEnvironment.engineHome(inHome: "/Users/someone", named: "Lukotta Beta")
+    expect(
+        home.path == "/Users/someone/Library/Application Support/Lukotta Beta/engine",
+        "the engine works inside this app's own Application Support directory")
+    expect(
+        !home.path.contains("/.anylinuxfs"),
+        "and not in the one every program using this engine shares")
+
+    // The helper runs as root and mounts on somebody else's behalf, so it
+    // composes the same path against their home. The two must agree exactly, or
+    // a drive opened with the helper reads a different Linux environment from
+    // one opened without it -- different versions the moment either updates.
+    let release = EngineEnvironment.engineHome(inHome: "/Users/someone", named: "Lukotta")
+    expect(release.path != home.path, "a beta and a release are two directories, not one")
+
+    expect(
+        EngineEnvironment.alpineDirectory.path.hasPrefix(EngineEnvironment.engineHome.path),
+        "the Linux environment lives inside it")
+    expect(
+        EngineConfig.path.hasPrefix(EngineEnvironment.engineHome.path),
+        "so does the engine's configuration, which is this app's own copy")
+    expect(
+        Housekeeping.EngineLogs.directory.path.hasPrefix(EngineEnvironment.engineHome.path),
+        "and its logs, so a Mac running anylinuxfs on its own keeps its own")
+
+    // Every run of the engine carries it. One that does not looks in the shared
+    // home instead, which is a different image and may be another program's.
+    let environment = EngineEnvironment.environmentForEngine(base: ["PATH": "/usr/bin"])
+    expect(
+        environment[EngineEnvironment.homeVariable] == EngineEnvironment.engineHome.path,
+        "every run of the engine is told where its directory is")
+    expect(environment["PATH"] == "/usr/bin", "and keeps the rest of the environment it was given")
 }
 
 group("anEngineThatServesNothingIsNotLeftRunning") {
@@ -1464,14 +1520,7 @@ group("anUpdatedLinuxEnvironmentActuallyArrives") {
         if let text { try? text.write(to: file, atomically: true, encoding: .utf8) }
     }
 
-    func setOwner(_ text: String?) {
-        let file = base.appendingPathComponent(EngineEnvironment.ownerFile)
-        try? fm.removeItem(at: file)
-        if let text { try? text.write(to: file, atomically: true, encoding: .utf8) }
-    }
-
     setVersion("1.5.1")
-    setOwner(EngineEnvironment.ownerMark)
     expect(EngineEnvironment.isReady(in: base), "an unpacked environment is ready")
     expect(
         !EngineEnvironment.needsRefresh(in: base, shipped: "1.5.1"),
@@ -1480,52 +1529,56 @@ group("anUpdatedLinuxEnvironmentActuallyArrives") {
         EngineEnvironment.needsRefresh(in: base, shipped: "1.6.0"),
         "a different one is replaced")
 
-    // The engine hands every program that uses it the same directory, so what
-    // is there may belong to a beta of this app, or to anylinuxfs installed on
-    // its own by somebody who was using it first. Replacing that is taking away
-    // something this app was never given -- and while both were doing it, each
-    // launch of either unpacked a hundred megabytes over the other's.
-    setOwner("com.example.somethingelse")
-    expect(
-        !EngineEnvironment.needsRefresh(in: base, shipped: "1.6.0"),
-        "an environment another program set up is never replaced")
-    expect(
-        EngineEnvironment.usable(in: base, shipped: "1.5.1"),
-        "and one of the version this app ships is used as it stands")
-    expect(
-        !EngineEnvironment.usable(in: base, shipped: "1.6.0"),
-        "while one of another version is not used either, since it is not ours to change")
-    setOwner(nil)
-    expect(
-        !EngineEnvironment.needsRefresh(in: base, shipped: "1.6.0"),
-        "an environment with no name on it is treated as somebody else's")
-    expect(
-        EngineEnvironment.usable(in: base, shipped: "1.5.1"),
-        "and still used when it is the version this app ships")
+    // The environment lives in this app's own directory, which nothing else on
+    // the Mac writes to -- so there is no question of whose it is, and no
+    // sentence anybody has to read about another program. What is left of that
+    // problem is the one copy installed before the directory existed: it is
+    // moved across, in place, and only when it is unmistakably this app's own
+    // work.
+    let shared = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        .appendingPathComponent("shared-home-\(UUID().uuidString)", isDirectory: true)
+    let mine = shared.deletingLastPathComponent()
+        .appendingPathComponent("own-home-\(UUID().uuidString)", isDirectory: true)
+    defer {
+        try? fm.removeItem(at: shared)
+        try? fm.removeItem(at: mine)
+    }
+    try? fm.createDirectory(
+        at: shared.appendingPathComponent("rootfs"), withIntermediateDirectories: true)
+    try? "1.5.1".write(
+        to: shared.appendingPathComponent("rootfs.ver"), atomically: true, encoding: .utf8)
 
-    // Except when it is unmistakably this app's own work. Every copy installed
-    // before the name was written there has no mark, and telling those people
-    // that another program owns their environment would be both wrong and
-    // unfixable. The trimming settles it: these two files are written by this
-    // project's build and by nothing else.
+    expect(
+        !EngineEnvironment.adoptWhatWasLeftInTheSharedHome(
+            from: shared, into: mine, mountTable: ""),
+        "an environment another program unpacked is left where it is")
     for marker in ["rootfs.count", "removed-packages.txt"] {
         try? "1".write(
-            to: base.appendingPathComponent(marker), atomically: true, encoding: .utf8)
+            to: shared.appendingPathComponent(marker), atomically: true, encoding: .utf8)
     }
     expect(
-        EngineEnvironment.ownedByThisApp(in: base),
-        "an unmarked environment carrying this build's own files is claimed as ours")
+        EngineEnvironment.adoptWhatWasLeftInTheSharedHome(
+            from: shared, into: mine, mountTable: ""),
+        "and one this app unpacked itself is moved into its own directory")
+    expect(EngineEnvironment.isReady(in: mine), "so it is ready without unpacking anything again")
+    expect(!fm.fileExists(atPath: shared.path), "and nothing of it is left in the shared one")
     expect(
-        EngineEnvironment.needsRefresh(in: base, shipped: "1.6.0"),
-        "so an app updating from before the name existed still gets its new guest")
-    try? fm.removeItem(at: base.appendingPathComponent("removed-packages.txt"))
+        !EngineEnvironment.adoptWhatWasLeftInTheSharedHome(
+            from: shared, into: mine, mountTable: ""),
+        "a second run finds nothing to move and says so")
+    // Never out from under a machine that is serving a drive from it.
+    try? fm.createDirectory(
+        at: shared.appendingPathComponent("rootfs"), withIntermediateDirectories: true)
+    for marker in ["rootfs.count", "removed-packages.txt", "rootfs.ver"] {
+        try? "1".write(
+            to: shared.appendingPathComponent(marker), atomically: true, encoding: .utf8)
+    }
+    try? fm.removeItem(at: mine)
     expect(
-        !EngineEnvironment.ownedByThisApp(in: base),
-        "and half the evidence is not evidence")
-    setOwner(EngineEnvironment.ownerMark)
-    expect(
-        EngineEnvironment.versionOfGuest(in: base) == "1.5.1",
-        "and the version is read from beside the rootfs")
+        !EngineEnvironment.adoptWhatWasLeftInTheSharedHome(
+            from: shared, into: mine,
+            mountTable: "disk4s1.local:/mnt/X on /Users/u/Volumes/X (nfs, nodev, nosuid)"),
+        "and never while a drive is being served from it")
 
     // Evidence or nothing: this replaces a working environment.
     setVersion(nil)

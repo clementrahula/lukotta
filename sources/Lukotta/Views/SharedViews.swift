@@ -81,3 +81,34 @@ struct EmptyStateView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
+
+
+/// A line of news, with a way to be rid of it.
+///
+/// No icon in front of it. A symbol there says a category -- a warning, an
+/// error -- and this is neither: a drive went away and can be opened again. The
+/// close button is what somebody reaches for once they have read it, and
+/// without one the sentence stays until something else happens to clear it.
+struct NoticeLine: View {
+    let text: String
+    let dismiss: () -> Void
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Text(text)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Button(action: dismiss) {
+                Image(systemName: "xmark")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Dismiss")
+            .help("Dismiss")
+        }
+        .accessibilityElement(children: .combine)
+    }
+}

@@ -36,6 +36,12 @@ public enum MountScript {
         /// The engine's config.toml. A container holding several volumes is
         /// served through a custom action generated into this file.
         var configPath: String
+        /// Where the engine keeps its image, its configuration and its logs.
+        ///
+        /// Passed in rather than resolved here: the helper composes the script
+        /// while running as root, and anything it works out for itself lands in
+        /// root's Library instead of the user's.
+        var engineHome: String
         var libraryPaths: [String]
         var uid: UInt32
         var gid: UInt32
@@ -62,7 +68,8 @@ public enum MountScript {
             kind: VolumeKind, volume: LogicalVolume? = nil,
             aliasPath: String? = nil, fifoPath: String, logPath: String,
             discoverLogPath: String, expectScriptPath: String,
-            configPath: String, libraryPaths: [String], uid: UInt32, gid: UInt32,
+            configPath: String, engineHome: String, libraryPaths: [String], uid: UInt32,
+            gid: UInt32,
             cores: Int, ramMiB: Int, elevated: Bool = true, readOnly: Bool = false
         ) {
             self.enginePath = enginePath
@@ -76,6 +83,7 @@ public enum MountScript {
             self.discoverLogPath = discoverLogPath
             self.expectScriptPath = expectScriptPath
             self.configPath = configPath
+            self.engineHome = engineHome
             self.libraryPaths = libraryPaths
             self.uid = uid
             self.gid = gid
@@ -199,6 +207,13 @@ public enum MountScript {
 
         // DYLD_* must be set inside the elevated shell: macOS strips those
         // variables across a privilege boundary.
+        // Where the engine keeps its image, its configuration and its logs.
+        // Exported inside the elevated shell for the same reason DYLD_* is:
+        // macOS strips the environment across a privilege boundary, and an
+        // engine that does not see this looks in the shared home instead --
+        // which is a different image, and may be another program's.
+        lines.append("export \(EngineEnvironment.homeVariable)=\(shellQuoted(i.engineHome))")
+
         let libs = i.libraryPaths.joined(separator: ":")
         if !libs.isEmpty {
             lines.append("export DYLD_LIBRARY_PATH=\(shellQuoted(libs))")

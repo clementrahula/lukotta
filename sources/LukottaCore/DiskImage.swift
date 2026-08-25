@@ -527,7 +527,9 @@ extension DiskImage {
     ///     0:   btrfs LUKOTTAPLAIN     +335.5 MB   plain.qcow2
     public static func contents(of url: URL) -> [String] {
         guard let engine = EnginePaths.anylinuxfs,
-            let result = LukottaCore.run(engine.path, ["list", withoutSpaces(url).path])
+            let result = LukottaCore.run(
+                engine.path, ["list", withoutSpaces(url).path],
+                environment: EngineEnvironment.environmentForEngine())
         else { return [] }
         return types(inListing: result.out)
     }

@@ -25,10 +25,10 @@ enum Uninstall {
         var savedPassphrases: [String] = []
     }
 
-    nonisolated private static var guest: URL {
-        FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".anylinuxfs", isDirectory: true)
-    }
+    /// This app's own engine directory, inside its own Application Support.
+    /// Nothing else on the Mac keeps anything here, so removing it takes away
+    /// this app's Linux environment and nobody else's.
+    nonisolated private static var guest: URL { EngineEnvironment.engineHome }
 
     /// Sparkle's own cache: the feed it fetched and the icons in it. Nothing
     /// of the drive app, but it is in this app's name and would outlive it.
@@ -53,14 +53,7 @@ enum Uninstall {
         plan.openDrives = EngineStatus.current().map(\.mountPoint)
         plan.helperRegistered =
             SMAppService.daemon(plistName: HelperInfo.plistName).status != .notRegistered
-        // Only what this app put there. The engine gives every program that
-        // uses it the same directory, so a Mac can have one that anylinuxfs set
-        // up on its own, or that a beta of this app did -- and uninstalling
-        // this one is no reason to take away theirs. What is left then is a
-        // directory another program is using, which is where it started.
-        if EngineEnvironment.ownedByThisApp(in: EngineEnvironment.alpineDirectory),
-            let size = try? FileManager.default.allocatedSizeOfDirectory(at: guest)
-        {
+        if let size = try? FileManager.default.allocatedSizeOfDirectory(at: guest) {
             plan.guestSizeMB = Int(size / 1_000_000)
         }
         plan.hasPreferences =

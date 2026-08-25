@@ -10033,226 +10033,6 @@
         }
       }
     },
-    "Another program set up the Linux environment this Mac shares, and it is a different version. Quit or remove that program, then open this drive again.": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "برنامج آخر أعدّ بيئة لينكس التي يشترك فيها هذا الماك، وهي بإصدار مختلف. أغلق ذلك البرنامج أو أزله، ثم افتح محرك الأقراص مرة أخرى."
-          }
-        },
-        "bg": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Друга програма е настроила средата на Linux, която този Mac споделя, и тя е с различна версия. Затворете или премахнете тази програма и отворете диска отново."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Linuxové prostředí, které tento Mac sdílí, nastavil jiný program a má jinou verzi. Ukončete nebo odeberte tento program a pak disk otevřete znovu."
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Et andet program har indstillet det Linux-miljø, denne Mac deler, og det er en anden version. Slut eller fjern programmet, og åbn så enheden igen."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ein anderes Programm hat die Linux-Umgebung eingerichtet, die dieser Mac gemeinsam nutzt, und sie hat eine andere Version. Beende oder entferne dieses Programm und öffne das Laufwerk dann erneut."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ένα άλλο πρόγραμμα δημιούργησε το περιβάλλον Linux που μοιράζεται αυτό το Mac, και είναι διαφορετικής έκδοσης. Κλείστε ή αφαιρέστε το πρόγραμμα και ανοίξτε ξανά τον δίσκο."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Otro programa ha configurado el entorno Linux que comparte este Mac, y es de otra versión. Cierra o elimina ese programa y vuelve a abrir el disco."
-          }
-        },
-        "et": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Selle Maci jagatud Linuxi keskkonna seadistas teine programm ja see on teist versiooni. Sulge või eemalda see programm ja ava ketas uuesti."
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Toinen ohjelma on määrittänyt tämän Macin jakaman Linux-ympäristön, ja se on eri versio. Lopeta tai poista kyseinen ohjelma ja avaa asema uudelleen."
-          }
-        },
-        "fil": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "May ibang program na nag-set up ng Linux environment na ibinabahagi ng Mac na ito, at ibang bersyon ito. Isara o alisin ang program na iyon, pagkatapos ay buksan muli ang drive."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un autre programme a configuré l'environnement Linux que ce Mac partage, et il s'agit d'une autre version. Quittez ou supprimez ce programme, puis ouvrez à nouveau le disque."
-          }
-        },
-        "he": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "תוכנה אחרת הגדירה את סביבת הלינוקס שה‑Mac הזה חולק, והיא בגרסה אחרת. צאו מהתוכנה או הסירו אותה, ואז פתחו את הכונן שוב."
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "इस Mac की साझा लिनक्स परिवेश किसी दूसरे प्रोग्राम ने सेट किया है, और उसका संस्करण अलग है। उस प्रोग्राम को बंद या हटाएँ, फिर यह ड्राइव दोबारा खोलें।"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Linux okruženje koje ovaj Mac dijeli postavio je drugi program i druge je verzije. Zatvorite ili uklonite taj program pa ponovno otvorite disk."
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A Mac által megosztott Linux-környezetet másik program állította be, és eltérő verziójú. Lépjen ki a programból vagy távolítsa el, majd nyissa meg újra a meghajtót."
-          }
-        },
-        "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Program lain telah menyiapkan lingkungan Linux yang dipakai bersama di Mac ini, dan versinya berbeda. Tutup atau hapus program tersebut, lalu buka drive ini lagi."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un altro programma ha configurato l'ambiente Linux condiviso su questo Mac, ed è di una versione diversa. Chiudi o rimuovi quel programma, poi apri di nuovo il disco."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "この Mac が共有する Linux 環境は別のプログラムが用意したもので、バージョンが異なります。そのプログラムを終了するか削除してから、ドライブをもう一度開いてください。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "이 Mac이 공유하는 Linux 환경은 다른 프로그램이 설정했으며 버전이 다릅니다. 해당 프로그램을 종료하거나 제거한 후 드라이브를 다시 여십시오."
-          }
-        },
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šio „Mac“ bendrai naudojamą „Linux“ aplinką sukūrė kita programa ir jos versija skiriasi. Uždarykite arba pašalinkite tą programą ir atverkite diską dar kartą."
-          }
-        },
-        "lv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Šī Mac koplietoto Linux vidi iestatīja cita programma, un tā ir citas versijas. Aizveriet vai noņemiet šo programmu un atveriet disku vēlreiz."
-          }
-        },
-        "ms": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Program lain telah menyediakan persekitaran Linux yang dikongsi Mac ini, dan versinya berbeza. Tutup atau buang program itu, kemudian buka pemacu ini semula."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Et annet program har satt opp Linux-miljøet denne Macen deler, og det er en annen versjon. Avslutt eller fjern programmet, og åpne enheten på nytt."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Een ander programma heeft de Linux-omgeving ingesteld die deze Mac deelt, en die heeft een andere versie. Sluit of verwijder dat programma en open de schijf opnieuw."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Środowisko Linux współdzielone na tym Macu skonfigurował inny program i ma ono inną wersję. Zamknij lub usuń ten program, a potem otwórz dysk ponownie."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Outro programa configurou o ambiente Linux que este Mac partilha, e é de outra versão. Feche ou remova esse programa e abra o disco novamente."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un alt program a configurat mediul Linux pe care acest Mac îl partajează și este o versiune diferită. Închideți sau eliminați acel program, apoi deschideți din nou discul."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Среду Linux, общую для этого Mac, настроила другая программа, и её версия отличается. Закройте или удалите эту программу, затем откройте диск снова."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Okolje Linux, ki ga ta Mac deli, je nastavil drug program in je druge različice. Zaprite ali odstranite ta program, nato znova odprite pogon."
-          }
-        },
-        "sq": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Një program tjetër e ka ngritur mjedisin Linux që ndan ky Mac, dhe është version tjetër. Mbylle ose hiqe atë program, pastaj hape sërish diskun."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ett annat program har ställt in Linux-miljön som den här Macen delar, och den har en annan version. Avsluta eller ta bort programmet och öppna sedan enheten igen."
-          }
-        },
-        "th": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "โปรแกรมอื่นเป็นผู้ตั้งค่าสภาพแวดล้อม Linux ที่ Mac เครื่องนี้ใช้ร่วมกัน และเป็นคนละเวอร์ชัน ปิดหรือลบโปรแกรมนั้น แล้วเปิดไดรฟ์นี้อีกครั้ง"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bu Mac'in paylaştığı Linux ortamını başka bir program kurdu ve sürümü farklı. O programı kapatın veya kaldırın, sonra sürücüyü yeniden açın."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Середовище Linux, яке спільно використовує цей Mac, налаштувала інша програма, і воно іншої версії. Закрийте або вилучіть цю програму, а потім відкрийте диск знову."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Một chương trình khác đã thiết lập môi trường Linux mà máy Mac này dùng chung, và nó khác phiên bản. Hãy thoát hoặc gỡ chương trình đó, rồi mở lại ổ đĩa."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "此 Mac 共享的 Linux 环境由其他程序设置，且版本不同。请退出或移除该程序，然后重新打开此驱动器。"
-          }
-        }
-      }
-    },
     "Appearance": {
       "localizations": {
         "ar": {
@@ -16277,6 +16057,226 @@
           "stringUnit": {
             "state": "translated",
             "value": "磁盘映像"
+          }
+        }
+      }
+    },
+    "Dismiss": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تجاهل"
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скриване"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zavřít"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afvis"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausblenden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Παράβλεψη"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descartar"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loobu"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hylkää"
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I-dismiss"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignorer"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "סגירה"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खारिज करें"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odbaci"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elvetés"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutup"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignora"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "閉じる"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "닫기"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atmesti"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nerādīt"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tolak"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avvis"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negeer"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamknij"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignorar"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Închide"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрыть"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opusti"
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hidhe poshtë"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avvisa"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิด"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kapat"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сховати"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bỏ qua"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
           }
         }
       }
@@ -49677,6 +49677,446 @@
         }
       }
     },
+    "This copy of %@ is incomplete: its Linux environment is missing. Install it again.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نسختك من %@ غير مكتملة: بيئة Linux مفقودة. أعد تثبيتها."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Това копие на %@ е непълно: средата на Linux липсва. Инсталирайте го отново."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tato kopie aplikace %@ je neúplná: chybí prostředí Linux. Nainstalujte ji znovu."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette eksemplar af %@ er ufuldstændigt: Linux-miljøet mangler. Installer det igen."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Kopie von %@ ist unvollständig: Die Linux-Umgebung fehlt. Installiere sie erneut."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτό το αντίγραφο του %@ είναι ελλιπές: λείπει το περιβάλλον Linux. Εγκαταστήστε το ξανά."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta copia de %@ está incompleta: falta el entorno Linux. Vuelve a instalarla."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See %@ koopia on puudulik: Linuxi keskkond on puudu. Paigalda see uuesti."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä %@-kopio on puutteellinen: Linux-ympäristö puuttuu. Asenna se uudelleen."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hindi kumpleto ang kopyang ito ng %@: nawawala ang Linux environment. I-install itong muli."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cet exemplaire de %@ est incomplet : l’environnement Linux est absent. Réinstallez-le."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "העותק הזה של %@ אינו שלם: סביבת Linux חסרה. התקינו אותו מחדש."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ की यह प्रति अधूरी है: Linux परिवेश गायब है। इसे दोबारा इंस्टॉल करें।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ova kopija aplikacije %@ nije potpuna: nedostaje Linux okruženje. Instalirajte je ponovno."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ e példánya hiányos: hiányzik a Linux-környezet. Telepítse újra."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salinan %@ ini tidak lengkap: lingkungan Linux tidak ada. Pasang lagi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa copia di %@ è incompleta: manca l’ambiente Linux. Installala di nuovo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この %@ は不完全です。Linux 環境がありません。インストールし直してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 %@ 사본은 불완전합니다. Linux 환경이 없습니다. 다시 설치하십시오."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ši %@ kopija nepilna: trūksta „Linux“ aplinkos. Įdiekite ją iš naujo."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šī %@ kopija ir nepilnīga: trūkst Linux vides. Instalējiet to vēlreiz."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salinan %@ ini tidak lengkap: persekitaran Linux tiada. Pasang semula."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette eksemplaret av %@ er ufullstendig: Linux-miljøet mangler. Installer det på nytt."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit exemplaar van %@ is onvolledig: de Linux-omgeving ontbreekt. Installeer het opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta kopia aplikacji %@ jest niekompletna: brakuje środowiska Linux. Zainstaluj ją ponownie."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta cópia do %@ está incompleta: falta o ambiente Linux. Instale-o novamente."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Această copie a %@ este incompletă: lipsește mediul Linux. Instalați-o din nou."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эта копия %@ неполная: отсутствует среда Linux. Установите её заново."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta izvod aplikacije %@ ni popoln: manjka okolje Linux. Znova ga namestite."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kjo kopje e %@ është e paplotë: mungon mjedisi Linux. Instaloje sërish."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det här exemplaret av %@ är ofullständigt: Linux-miljön saknas. Installera det igen."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สำเนา %@ นี้ไม่สมบูรณ์ ขาดสภาพแวดล้อม Linux ติดตั้งใหม่อีกครั้ง"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ uygulamasının bu kopyası eksik: Linux ortamı yok. Yeniden yükleyin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ця копія %@ неповна: бракує середовища Linux. Встановіть її знову."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bản %@ này chưa đầy đủ: thiếu môi trường Linux. Hãy cài đặt lại."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此 %@ 副本不完整：缺少 Linux 环境。请重新安装。"
+          }
+        }
+      }
+    },
+    "This copy of %@ is incomplete: its drive engine is missing. Install it again.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نسختك من %@ غير مكتملة: محرّك الأقراص مفقود. أعد تثبيتها."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Това копие на %@ е непълно: двигателят за дискове липсва. Инсталирайте го отново."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tato kopie aplikace %@ je neúplná: chybí jádro pro disky. Nainstalujte ji znovu."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette eksemplar af %@ er ufuldstændigt: motoren til enheder mangler. Installer det igen."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Kopie von %@ ist unvollständig: Die Laufwerks-Engine fehlt. Installiere sie erneut."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτό το αντίγραφο του %@ είναι ελλιπές: λείπει η μηχανή δίσκων. Εγκαταστήστε το ξανά."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta copia de %@ está incompleta: falta el motor de discos. Vuelve a instalarla."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See %@ koopia on puudulik: ketaste mootor on puudu. Paigalda see uuesti."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä %@-kopio on puutteellinen: asemien moottori puuttuu. Asenna se uudelleen."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hindi kumpleto ang kopyang ito ng %@: nawawala ang drive engine. I-install itong muli."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cet exemplaire de %@ est incomplet : le moteur de disques est absent. Réinstallez-le."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "העותק הזה של %@ אינו שלם: מנוע הכוננים חסר. התקינו אותו מחדש."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ की यह प्रति अधूरी है: ड्राइव इंजन गायब है। इसे दोबारा इंस्टॉल करें।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ova kopija aplikacije %@ nije potpuna: nedostaje pogon za diskove. Instalirajte je ponovno."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ e példánya hiányos: hiányzik a meghajtómotor. Telepítse újra."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salinan %@ ini tidak lengkap: mesin drive tidak ada. Pasang lagi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa copia di %@ è incompleta: manca il motore dei dischi. Installala di nuovo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この %@ は不完全です。ドライブエンジンがありません。インストールし直してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 %@ 사본은 불완전합니다. 드라이브 엔진이 없습니다. 다시 설치하십시오."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ši %@ kopija nepilna: trūksta diskų variklio. Įdiekite ją iš naujo."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šī %@ kopija ir nepilnīga: trūkst disku dzinēja. Instalējiet to vēlreiz."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salinan %@ ini tidak lengkap: enjin pemacu tiada. Pasang semula."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette eksemplaret av %@ er ufullstendig: motoren for enheter mangler. Installer det på nytt."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit exemplaar van %@ is onvolledig: de schijf-engine ontbreekt. Installeer het opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta kopia aplikacji %@ jest niekompletna: brakuje silnika dysków. Zainstaluj ją ponownie."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta cópia do %@ está incompleta: falta o motor de discos. Instale-o novamente."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Această copie a %@ este incompletă: lipsește motorul pentru discuri. Instalați-o din nou."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эта копия %@ неполная: отсутствует движок дисков. Установите её заново."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta izvod aplikacije %@ ni popoln: manjka mehanizem za pogone. Znova ga namestite."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kjo kopje e %@ është e paplotë: mungon motori i disqeve. Instaloje sërish."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det här exemplaret av %@ är ofullständigt: enhetsmotorn saknas. Installera det igen."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สำเนา %@ นี้ไม่สมบูรณ์ ขาดเอนจินไดรฟ์ ติดตั้งใหม่อีกครั้ง"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ uygulamasının bu kopyası eksik: sürücü motoru yok. Yeniden yükleyin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ця копія %@ неповна: бракує рушія дисків. Встановіть її знову."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bản %@ này chưa đầy đủ: thiếu bộ máy ổ đĩa. Hãy cài đặt lại."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此 %@ 副本不完整：缺少驱动引擎。请重新安装。"
+          }
+        }
+      }
+    },
     "This drive holds %lld volumes and not all of them could be opened.": {
       "localizations": {
         "ar": {
@@ -60761,6 +61201,226 @@
           "stringUnit": {
             "state": "translated",
             "value": "你仍然可以随时检查。"
+          }
+        }
+      }
+    },
+    "You cancelled the administrator prompt, so the drive was not opened.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ألغيت مطالبة المسؤول، لذلك لم يُفتح محرك الأقراص."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отказахте подканата за администратор, затова дискът не беше отворен."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zrušili jste výzvu správce, disk se proto neotevřel."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du annullerede administratorprompten, så enheden blev ikke åbnet."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du hast die Administratorabfrage abgebrochen, daher wurde das Laufwerk nicht geöffnet."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ακυρώσατε το αίτημα διαχειριστή, οπότε ο δίσκος δεν άνοιξε."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Has cancelado la solicitud de administrador, así que el disco no se ha abierto."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Katkestasid administraatori küsimuse, seega ketast ei avatud."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peruutit pääkäyttäjän kyselyn, joten asemaa ei avattu."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kinansela mo ang prompt ng administrator, kaya hindi nabuksan ang drive."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous avez annulé la demande d’administrateur, le disque n’a donc pas été ouvert."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ביטלתם את בקשת המנהל, ולכן הכונן לא נפתח."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आपने व्यवस्थापक प्रॉम्प्ट रद्द कर दिया, इसलिए ड्राइव नहीं खुली।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otkazali ste upit administratora pa disk nije otvoren."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Megszakította a rendszergazdai kérést, ezért a meghajtó nem nyílt meg."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anda membatalkan permintaan administrator, jadi drive tidak dibuka."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hai annullato la richiesta di amministratore, quindi il disco non è stato aperto."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "管理者の確認をキャンセルしたため、ドライブは開かれませんでした。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "관리자 확인을 취소했으므로 드라이브를 열지 않았습니다."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atšaukėte administratoriaus užklausą, todėl diskas nebuvo atvertas."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūs atcēlāt administratora pieprasījumu, tāpēc disks netika atvērts."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anda membatalkan gesaan pentadbir, jadi pemacu tidak dibuka."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du avbrøt administratorforespørselen, så enheten ble ikke åpnet."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je hebt het beheerdersverzoek geannuleerd, dus de schijf is niet geopend."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anulowano prośbę o hasło administratora, więc dysk nie został otwarty."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelou o pedido de administrador, pelo que o disco não foi aberto."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ați anulat solicitarea de administrator, așa că discul nu a fost deschis."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вы отменили запрос администратора, поэтому диск не был открыт."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preklicali ste skrbniško zahtevo, zato pogon ni bil odprt."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E anulove kërkesën e administratorit, prandaj disku nuk u hap."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du avbröt administratörsfrågan, så enheten öppnades inte."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "คุณยกเลิกการถามรหัสผ่านผู้ดูแลระบบ จึงไม่ได้เปิดไดรฟ์"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yönetici istemini iptal ettiniz, bu yüzden sürücü açılmadı."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ви скасували запит адміністратора, тому диск не було відкрито."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn đã hủy lời nhắc quản trị, nên ổ đĩa không được mở."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你取消了管理员验证，因此未打开驱动器。"
           }
         }
       }

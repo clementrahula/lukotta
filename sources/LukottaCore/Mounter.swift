@@ -78,6 +78,7 @@ public enum Mounter {
                 discoverLogPath: workspace.root.appendingPathComponent("discover.log").path,
                 expectScriptPath: expectURL.path,
                 configPath: EngineConfig.path,
+                engineHome: EngineEnvironment.engineHome.path,
                 libraryPaths: EnginePaths.libraryPaths(),
                 uid: getuid(),
                 gid: getgid(),

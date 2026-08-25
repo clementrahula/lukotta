@@ -54,10 +54,7 @@ struct DriveListView: View {
                     .accessibilityElement(children: .combine)
                 }
                 if let notice = model.notice {
-                    Label(notice, systemImage: "bolt.horizontal.circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                    NoticeLine(text: notice) { model.notice = nil }
                         .padding(.bottom, 2)
                 }
                 // A drive that has just gone leaves its message where it was,

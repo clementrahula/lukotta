@@ -25,7 +25,24 @@ SRC_RUNTIME="${LUKOTTA_SRC_RUNTIME:-$UPSTREAM}"
 SRC_BLKID="$UPSTREAM/util-linux/$UTIL_VERSION/lib"
 # Still from a local install: the guest image is downloaded by "anylinuxfs init"
 # rather than shipped in the bottle. Its identity is recorded in the lock.
-SRC_ROOTFS="${LUKOTTA_SRC_ROOTFS:-$HOME/.anylinuxfs/alpine}"
+#
+# Two places to look. The app keeps its own copy inside its Application Support
+# directory now, so that nothing on the Mac shares an image with it; a plain
+# "anylinuxfs init" still writes to the shared one. Either is a valid source --
+# the archive is checked against the digest the lock pins whichever it came
+# from.
+SRC_ROOTFS="${LUKOTTA_SRC_ROOTFS:-}"
+if [ -z "$SRC_ROOTFS" ]; then
+  for candidate in \
+    "$HOME/Library/Application Support/Lukotta/engine/.anylinuxfs/alpine" \
+    "$HOME/Library/Application Support/Lukotta Beta/engine/.anylinuxfs/alpine" \
+    "$HOME/.anylinuxfs/alpine"; do
+    [ -d "$candidate/rootfs" ] || continue
+    SRC_ROOTFS="$candidate"
+    break
+  done
+  SRC_ROOTFS="${SRC_ROOTFS:-$HOME/.anylinuxfs/alpine}"
+fi
 OUT="$HERE/vendor/engine"
 
 [ -x "$SRC_RUNTIME/anylinuxfs/$ALFS_VERSION/bin/anylinuxfs" ] || {
