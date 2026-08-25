@@ -377,14 +377,27 @@ final class HelperClient: ObservableObject {
     /// The error handler is not optional either: an XPC call to a method the
     /// peer does not implement never calls its reply, so without it this would
     /// hang, and leak, on every attempt.
+    /// `within` and `orAfterThat` are for the one call that can genuinely take
+    /// minutes. A daemon that has wedged calls neither the reply nor the error
+    /// handler, and without a deadline the app waits on it exactly as long as
+    /// somebody is willing to watch a spinner. The answer given in its place is
+    /// the caller's to choose, because "no answer" and "no helper" want
+    /// different things done about them.
     private nonisolated static func roundTrip<T: Sendable>(
         _ box: ConnectionBox,
+        within: TimeInterval? = nil,
+        orAfterThat late: T? = nil,
         _ send:
             @escaping @Sendable (LukottaHelperProtocol, @escaping @Sendable (T?) -> Void) ->
             Void
     ) async -> T? {
         await withCheckedContinuation { (continuation: CheckedContinuation<T?, Never>) in
             let once = ResumeOnce(continuation)
+            if let within {
+                DispatchQueue.global().asyncAfter(deadline: .now() + within) {
+                    once.resume(late)
+                }
+            }
             guard
                 let proxy = box.connection
                     .remoteObjectProxyWithErrorHandler({ _ in once.resume(nil) })
@@ -440,7 +453,20 @@ final class HelperClient: ObservableObject {
         let devicePath = drive.devicePath
         let isLinux = drive.kind == .linux
         let identifier = volume?.mountIdentifier
-        let answer = await Self.roundTrip(ConnectionBox(connection)) { proxy, done in
+        // Longer than the daemon's own deadline, so an attempt that ended
+        // there is reported by the daemon rather than guessed at here. This
+        // fires only when the daemon itself has stopped answering, which is
+        // also why it does not fall through to the older method below: a
+        // second request to a wedged daemon is a second machine, not an answer.
+        let answer = await Self.roundTrip(
+            ConnectionBox(connection),
+            within: TransientFailure.deadline + 30,
+            orAfterThat: (
+                status: Int32(75),
+                transcript: "\(TransientFailure.deadlineReached) "
+                    + "\(Int(TransientFailure.deadline)) seconds"
+            )
+        ) { proxy, done in
             proxy.mount(
                 devicePath: devicePath,
                 aliasPath: aliasPath,
@@ -471,6 +497,67 @@ final class HelperClient: ObservableObject {
             ) { status, transcript in
                 done((status: status, transcript: transcript))
             }
+        }
+    }
+}
+
+/// The one privileged thing this app has to do without an app around it.
+///
+/// A mount the engine made as root does not come down for the user who asked
+/// for it, so a leftover of one wedges the name it was mounted at -- and the
+/// sweep that clears leftovers runs deep inside a mount, on whatever thread it
+/// is on, with no view of the app. This lends that sweep the daemon's
+/// privilege: its own short-lived connection, no main actor, no async, and a
+/// deadline of its own so a daemon that will not answer cannot hold a mount up.
+///
+/// Not a path anything takes twice a day. When the helper is not installed it
+/// answers false at once and the sweep simply leaves the mount alone.
+enum PrivilegedUnmount {
+    static func lendItToTheEngineSweep() {
+        EngineProcesses.lendRootUnmount { mountPoint in
+            unmount(mountPoint, within: 60)
+        }
+    }
+
+    static func unmount(_ mountPoint: String, within seconds: TimeInterval) -> Bool {
+        guard SMAppService.daemon(plistName: HelperInfo.plistName).status == .enabled
+        else { return false }
+        let connection = NSXPCConnection(
+            machServiceName: HelperInfo.machServiceName, options: .privileged)
+        connection.remoteObjectInterface = NSXPCInterface(with: LukottaHelperProtocol.self)
+        connection.resume()
+        defer { connection.invalidate() }
+
+        let waited = DispatchSemaphore(value: 0)
+        let outcome = Outcome()
+        guard
+            let proxy = connection.remoteObjectProxyWithErrorHandler({ _ in waited.signal() })
+                as? LukottaHelperProtocol
+        else { return false }
+        proxy.unmount(mountPoint: mountPoint) { status, _ in
+            outcome.set(status == 0)
+            waited.signal()
+        }
+        guard waited.wait(timeout: .now() + seconds) == .success else {
+            Log.mount.error("the daemon did not answer a request to take a dead mount away")
+            return false
+        }
+        return outcome.get()
+    }
+
+    /// One bool, written on XPC's queue and read on this one.
+    private final class Outcome: @unchecked Sendable {
+        private let lock = NSLock()
+        private var value = false
+        func set(_ new: Bool) {
+            lock.lock()
+            value = new
+            lock.unlock()
+        }
+        func get() -> Bool {
+            lock.lock()
+            defer { lock.unlock() }
+            return value
         }
     }
 }

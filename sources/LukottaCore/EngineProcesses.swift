@@ -93,6 +93,72 @@ public enum EngineProcesses {
         return idle.count
     }
 
+    /// The privilege this package does not have, lent by whoever does.
+    ///
+    /// A mount the engine made as root does not come down for the user who
+    /// asked for it, and this package is only ever the user. The app installs
+    /// the helper's unmount here at launch; a test binary, an uninstaller or
+    /// the helper itself leaves it empty and simply does without. Kept as a
+    /// lent function rather than an argument threaded through six call sites,
+    /// because the deepest caller is a mount inside this package that knows
+    /// nothing of XPC.
+    private static let lentLock = NSLock()
+    private nonisolated(unsafe) static var lentRootUnmount: ((String) -> Bool)?
+
+    public static func lendRootUnmount(_ unmount: @escaping (String) -> Bool) {
+        lentLock.lock()
+        defer { lentLock.unlock() }
+        lentRootUnmount = unmount
+    }
+
+    static func rootUnmount() -> ((String) -> Bool)? {
+        lentLock.lock()
+        defer { lentLock.unlock() }
+        return lentRootUnmount
+    }
+
+    /// Whether a mount point is one this app is entitled to force down.
+    ///
+    /// Two proofs, either of which is enough: this app wrote the mount point
+    /// down when it made it, or it is under this user's own `~/Volumes`, where
+    /// only an unprivileged mount of theirs can be. Everything else in the
+    /// table -- the other channel's drives, a Homebrew anylinuxfs somebody runs
+    /// alongside this, an NFS file server that happens to be under /Volumes --
+    /// is somebody else's to take down, and a forced unmount of it is data
+    /// somebody loses.
+    public static func isOursToForce(_ mountPoint: String, opened: Set<String> = OpenedHere.all())
+        -> Bool
+    {
+        if opened.contains(mountPoint) { return true }
+        let mine = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Volumes", isDirectory: true).path
+        return mountPoint.hasPrefix(mine + "/")
+    }
+
+    /// How a mount answered a probe.
+    public enum MountAnswer: Sendable {
+        case alive
+        case silent
+        /// The probe never ran, so this says nothing about the mount.
+        case couldNotAsk
+    }
+
+    /// Ask one mount whether it is still there.
+    public static func mountAnswers(_ point: String, timeout: TimeInterval = 2) -> MountAnswer {
+        // stat -f on a child that does not exist rather than on the mount root:
+        // the root's attributes can be answered out of the NFS client's cache
+        // for up to a minute after the server has gone, so probing it calls a
+        // dead mount live exactly when it matters. A lookup of a name the
+        // client has never seen has to go to the server.
+        let probe = (point as NSString).appendingPathComponent(".lukotta-is-anyone-there")
+        switch LukottaCore.ask("/usr/bin/stat", ["-f", "%d", probe], timeout: timeout) {
+        // Any answer at all, including "no such file", means a server answered.
+        case .finished: return .alive
+        case .silent: return .silent
+        case .couldNotAsk: return .couldNotAsk
+        }
+    }
+
     /// The engine mounts in this table that no longer answer.
     ///
     /// Asked of each mount rather than inferred from which engines are running:
@@ -102,14 +168,47 @@ public enum EngineProcesses {
     /// The probe is a stat in a process of its own, with two seconds to answer.
     /// A live mount answers at once; one whose server has gone does not, and
     /// the deadline is what stops this waiting on it as everything else does.
+    ///
+    /// Two silences, a second apart, before a mount is called dead. One is not
+    /// evidence: a machine flushing a large copy can miss a two-second deadline
+    /// and still be serving somebody's drive perfectly well. And a probe that
+    /// could not be started at all -- no descriptors, no processes -- stops the
+    /// whole answer, because on a Mac in that state every mount looks dead and
+    /// the sweep that follows would take all of them down.
     public static func deadEngineMounts(
         in table: String,
-        answers: (String) -> Bool = { point in
-            LukottaCore.run("/usr/bin/stat", ["-f", "%d", point], timeout: 2)?.status == 0
-        }
+        opened: Set<String> = OpenedHere.all(),
+        answers: (String) -> MountAnswer = { mountAnswers($0) },
+        pause: (TimeInterval) -> Void = { Thread.sleep(forTimeInterval: $0) }
     ) -> [String] {
-        MountTableEntry.all(in: table).filter(\.isEngineMount).map(\.mountPoint)
-            .filter { !answers($0) }
+        let candidates = MountTableEntry.all(in: table).filter(\.isEngineMount).map(\.mountPoint)
+            .filter { isOursToForce($0, opened: opened) }
+        guard !candidates.isEmpty else { return [] }
+
+        var quiet: [String] = []
+        for point in candidates {
+            switch answers(point) {
+            case .alive: continue
+            case .couldNotAsk:
+                Log.mount.notice("could not ask whether mounts are still served; leaving them")
+                return []
+            case .silent: quiet.append(point)
+            }
+        }
+        guard !quiet.isEmpty else { return [] }
+
+        // Asked again, once, after a moment. Only a mount that is silent both
+        // times is taken to have lost its server.
+        pause(1)
+        var dead: [String] = []
+        for point in quiet {
+            switch answers(point) {
+            case .silent: dead.append(point)
+            case .alive: continue
+            case .couldNotAsk: return []
+            }
+        }
+        return dead
     }
 
     /// Take away mounts whose server has gone, and say whether any went.
@@ -118,20 +217,36 @@ public enum EngineProcesses {
     /// "invalid file system" -- which the mount script reads as a drive that
     /// will not take writes, so it falls back to read-only and says nothing.
     ///
-    /// Forced, because a mount with no server does not come down politely.
-    /// Mounted by this user, so this needs no privilege.
+    /// Forced, because a mount with no server does not come down politely. An
+    /// unprivileged mount under `~/Volumes` is this user's to unmount; one the
+    /// engine made as root under `/Volumes` is not, and `unmountAsRoot` is how
+    /// the caller lends the privilege it already has -- the helper, on the app
+    /// side. Without it, a root leftover simply stays, which is honest: saying
+    /// something came down when it did not is what sent the sweep on to take
+    /// down engines that were still serving it.
     @discardableResult
-    public static func deadMountsCleared(in table: String) -> Bool {
+    public static func deadMountsCleared(
+        in table: String,
+        unmountAsRoot: ((String) -> Bool)? = nil
+    ) -> Bool {
+        let unmountAsRoot = unmountAsRoot ?? rootUnmount()
         let dead = deadEngineMounts(in: table)
         guard !dead.isEmpty else { return false }
         Log.mount.notice("taking away \(dead.count, privacy: .public) mounts whose server has gone")
+        var went = 0
         for point in dead {
-            _ = LukottaCore.run("/sbin/umount", ["-f", point])
+            var cleared = LukottaCore.run("/sbin/umount", ["-f", point], timeout: 20)?.ok == true
+            if !cleared, let unmountAsRoot { cleared = unmountAsRoot(point) }
+            guard cleared else {
+                Log.mount.error("a mount whose server has gone would not come down")
+                continue
+            }
+            went += 1
             // The directory it was mounted on, which is this app's to remove
             // when nothing is on it. rmdir refuses anything else.
             _ = rmdir(point)
         }
-        return true
+        return went > 0
     }
 
     /// Take down helpers left over from a previous run.

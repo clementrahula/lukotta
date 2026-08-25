@@ -710,8 +710,8 @@ group("mountStages") {
     expect(!checked.contains("disk4s1.local:"), "the check does not guess the share's name")
     let checkedMS = MountScript.build(sampleInputs(kind: .microsoft))
     expect(
-        checkedMS.components(separatedBy: "&& __mounted").count - 1 == 5,
-        "every attempt is verified: both NTFS drivers, one more go, then both read-only")
+        checkedMS.components(separatedBy: "&& __mounted").count - 1 == 6,
+        "every attempt is verified: both NTFS drivers, both again after a slip, then both read-only")
     // The extra one is the retry for a machine that slipped, and it must be
     // unreachable without the evidence for it. Unguarded, it would be a second
     // full attempt on every drive that cannot be written to.
@@ -785,23 +785,54 @@ group("mountStages") {
     // A mount whose server has gone looks exactly like a drive somebody has
     // open, and deciding wrongly either leaves the next mount wedged or takes
     // away a volume in use.
+    let ourMount = "/Users/someone/Volumes/BACKUP"
     let serving = """
         map auto_home on /System/Volumes/Data/home (autofs, automounted)
-        disk4s1.local:/mnt/BACKUP on /Users/someone/Volumes/BACKUP (nfs, nodev)
+        disk4s1.local:/mnt/BACKUP on \(ourMount) (nfs, nodev)
         """
+    let mine: Set<String> = [ourMount]
+    let noWait: (TimeInterval) -> Void = { _ in }
     expect(
-        EngineProcesses.deadEngineMounts(in: serving, answers: { _ in true }).isEmpty,
+        EngineProcesses.deadEngineMounts(
+            in: serving, opened: mine, answers: { _ in .alive }, pause: noWait
+        ).isEmpty,
         "a mount that answers is a drive somebody has open")
     expect(
-        EngineProcesses.deadEngineMounts(in: serving, answers: { _ in false })
-            == ["/Users/someone/Volumes/BACKUP"],
-        "one that does not answer has lost its server, whatever is still running")
+        EngineProcesses.deadEngineMounts(
+            in: serving, opened: mine, answers: { _ in .silent }, pause: noWait) == [ourMount],
+        "one that answers neither time has lost its server, whatever is still running")
     expect(
         EngineProcesses.deadEngineMounts(
             in: "map auto_home on /System/Volumes/Data/home (autofs, automounted)",
-            answers: { _ in false }
+            opened: mine, answers: { _ in .silent }, pause: noWait
         ).isEmpty,
         "and nothing but an engine mount is ever asked")
+    expect(
+        EngineProcesses.deadEngineMounts(
+            in: serving, opened: [], answers: { _ in .silent }, pause: noWait
+        ).isEmpty,
+        "a mount this app did not make is somebody else's to take down")
+    expect(
+        EngineProcesses.deadEngineMounts(
+            in: serving, opened: mine, answers: { _ in .couldNotAsk }, pause: noWait
+        ).isEmpty,
+        "a probe that could not be started says nothing about the mount")
+    var asked = 0
+    expect(
+        EngineProcesses.deadEngineMounts(
+            in: serving, opened: mine,
+            answers: { _ in
+                asked += 1
+                return asked == 1 ? .silent : .alive
+            }, pause: noWait
+        ).isEmpty,
+        "one silence is a busy machine; only two in a row is a server that has gone")
+    expect(
+        EngineProcesses.isOursToForce(ourMount, opened: mine),
+        "a mount point this app wrote down is its own to force")
+    expect(
+        !EngineProcesses.isOursToForce("/Volumes/Somebody Else", opened: []),
+        "and one under /Volumes that it never made is not")
 
     // What counts as the machinery slipping, which decides whether somebody is
     // told their drive will not open or the attempt is quietly made again.
@@ -823,6 +854,49 @@ group("mountStages") {
     expect(
         !TransientFailure.isTransient("mount: /dev/disk4s1: Device busy"),
         "and a busy device says which drive it is about, so it is reported")
+
+    // One list, read by the shell as well as by this.
+    expect(
+        TransientFailure.signatures.allSatisfy {
+            TransientFailure.signaturesForTheScript.contains($0)
+        },
+        "the pattern the mount script greps with carries every signature")
+    expect(
+        !TransientFailure.signaturesForTheScript.contains("'"),
+        "and nothing in it can close the quotes it is pasted inside")
+
+    // What a transcript was about, before whether it contains a slip. Every
+    // attempt tears a virtual machine down afterwards, and the teardown talks
+    // like a slip all the way out -- including the one after a wrong passphrase.
+    let refusedThenTornDown =
+        (["No key available with this passphrase"]
+        + Array(repeating: "shutting down", count: 8)
+        + ["gvproxy: connection reset by peer", "vm exited"]).joined(separator: "\n")
+    expect(
+        !TransientFailure.endedInASlip(
+            summary: "The passphrase did not unlock the drive.", detail: refusedThenTornDown),
+        "a wrong passphrase is settled, whatever the teardown says on its way out")
+    expect(
+        TransientFailure.endedInASlip(
+            summary: "The drive could not be opened.",
+            detail: "Failed to write to pipe: Broken pipe (os error 32)\nvm exited"),
+        "and a slip with nothing to explain it is worth another go")
+    expect(
+        TransientFailure.endedInASlip(
+            summary: "The drive could not be opened.",
+            detail: (Array(repeating: "unpacking", count: 200)
+                + ["\(TransientFailure.deadlineReached) 480 seconds"]).joined(separator: "\n")),
+        "an attempt this app ended itself says so, however long the transcript")
+    expect(
+        !TransientFailure.endedInASlip(
+            summary: "The drive could not be opened.",
+            detail: "unknown filesystem type 'exfat'\nconnection refused"),
+        "a filesystem nothing here can read is an answer, not a slip")
+    expect(
+        TransientFailure.endedInASlip(
+            summary: "The engine is already busy with another drive.",
+            detail: "another instance is already running\nfailed to acquire lock"),
+        "a lock held by an instance on its way out is the machinery, and is retried")
 
     // A pty echoes what is written to it, so the engine's own output can carry
     // the passphrase back. Shape-matching cannot catch an ordinary one, so the

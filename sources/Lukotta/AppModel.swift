@@ -1092,6 +1092,12 @@ final class AppModel: ObservableObject {
         // of somebody who is about to be shown the permission screen instead.
         phase = Permissions.likelyGranted() ? .scanning : .needsPermission
         let images = Set(openedImages.keys)
+        // The daemon's privilege, lent to the sweep that clears mounts whose
+        // server has gone. One the engine made as root does not come down for
+        // the user who asked for it, and a leftover of one wedges the name it
+        // was mounted at against every later attempt.
+        PrivilegedUnmount.lendItToTheEngineSweep()
+
         Task.detached(priority: .userInitiated) {
             // A run that ended badly, or a machine that slept through one, can
             // leave the engine's network helper behind with nothing to eject it.
@@ -1109,6 +1115,7 @@ final class AppModel: ObservableObject {
             if let older = EngineEnvironment.legacyNamedHome {
                 EngineEnvironment.adoptWhatWasLeftInTheSharedHome(
                     from: older.appendingPathComponent(".anylinuxfs/alpine", isDirectory: true))
+                EngineEnvironment.forgetLegacyNamedHomeIfEmpty()
             }
 
             // Before the first scan and before anything can be opened.
@@ -1999,8 +2006,7 @@ final class AppModel: ObservableObject {
     private func retriedAfterASlip(
         drive: Drive, credential: String, summary: String, detail: String?
     ) -> Bool {
-        let text = [summary, detail ?? ""].joined(separator: "\n")
-        guard TransientFailure.isTransient(text) else { return false }
+        guard TransientFailure.endedInASlip(summary: summary, detail: detail) else { return false }
         guard mountSlips + 1 < TransientFailure.attempts else {
             Log.mount.error("the machinery slipped every time; showing what it said")
             return false
@@ -2009,10 +2015,11 @@ final class AppModel: ObservableObject {
         Log.mount.notice(
             "the engine slipped rather than refusing the drive; attempt \(self.mountSlips + 1, privacy: .public)"
         )
-        // Whatever the failed attempt left running, before another one starts.
-        // Two machines for one image is how the second attempt fails for a
-        // reason of its own making.
-        Task.detached(priority: .userInitiated) { _ = EngineProcesses.tidyWhatServesNothing() }
+        // What the failed attempt left running is taken down by the next mount
+        // itself, first thing and on its own thread. Started here as well, and
+        // not waited for, it outlived the pause below often enough to see the
+        // retry's fresh machine as an engine serving nothing -- and take it
+        // down, turning one slip into a failure.
         appendStatus("The machine did not answer. Trying again…")
         Task { [weak self] in
             try? await Task.sleep(nanoseconds: UInt64(TransientFailure.pause * 1_000_000_000))

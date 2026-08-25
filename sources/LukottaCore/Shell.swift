@@ -33,11 +33,62 @@ public struct CommandOutput: Sendable {
     public var ok: Bool { status == 0 }
 }
 
+/// How a program's run ended, when the difference matters.
+///
+/// `run` folds the last two together into nil, which is right for a caller
+/// that only wants the output. It is wrong for one that reads silence as
+/// evidence: a probe that never started says nothing about what it was going
+/// to ask, and treating that as an answer is how a busy Mac -- out of file
+/// descriptors, out of processes -- turns into a sweep that force-unmounts
+/// every drive somebody has open.
+public enum Ending: Sendable {
+    /// It ran and finished. Whether it *succeeded* is in the status.
+    case finished(CommandOutput)
+    /// It ran and was still going when the deadline passed.
+    case silent
+    /// It never started, so nothing was asked.
+    case couldNotAsk
+}
+
+/// Run a program and say how it ended.
+@discardableResult
+public func ask(
+    _ executable: String,
+    _ arguments: [String] = [],
+    timeout: TimeInterval? = nil,
+    environment: [String: String]? = nil
+) -> Ending {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: executable)
+    process.arguments = arguments
+    if let environment { process.environment = environment }
+
+    let out = Pipe()
+    let err = Pipe()
+    process.standardOutput = out
+    process.standardError = err
+    do { try process.run() } catch { return .couldNotAsk }
+
+    if let timeout {
+        let finished = DispatchSemaphore(value: 0)
+        process.terminationHandler = { _ in finished.signal() }
+        if finished.wait(timeout: .now() + timeout) == .timedOut {
+            process.terminate()
+            return .silent
+        }
+    }
+
+    let output = String(decoding: out.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+    let errors = String(decoding: err.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+    process.waitUntilExit()
+    return .finished(CommandOutput(status: process.terminationStatus, out: output, err: errors))
+}
+
 /// Run a program and collect what it said.
 ///
 /// Nil means it could not be started or did not finish inside the deadline;
 /// the caller decides what that means, since a missing tool and a wedged one
-/// need different sentences.
+/// need different sentences. Where those two need telling apart, use `ask`.
 ///
 /// The deadline is watched before the pipes are read. Reading to the end of a
 /// pipe waits for the writing end to close, which a process that will never
@@ -55,30 +106,10 @@ public func run(
     timeout: TimeInterval? = nil,
     environment: [String: String]? = nil
 ) -> CommandOutput? {
-    let process = Process()
-    process.executableURL = URL(fileURLWithPath: executable)
-    process.arguments = arguments
-    if let environment { process.environment = environment }
-
-    let out = Pipe()
-    let err = Pipe()
-    process.standardOutput = out
-    process.standardError = err
-    do { try process.run() } catch { return nil }
-
-    if let timeout {
-        let finished = DispatchSemaphore(value: 0)
-        process.terminationHandler = { _ in finished.signal() }
-        if finished.wait(timeout: .now() + timeout) == .timedOut {
-            process.terminate()
-            return nil
-        }
+    switch ask(executable, arguments, timeout: timeout, environment: environment) {
+    case .finished(let output): return output
+    case .silent, .couldNotAsk: return nil
     }
-
-    let output = String(decoding: out.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
-    let errors = String(decoding: err.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
-    process.waitUntilExit()
-    return CommandOutput(status: process.terminationStatus, out: output, err: errors)
 }
 
 /// One line of `mount` output, taken apart once.
