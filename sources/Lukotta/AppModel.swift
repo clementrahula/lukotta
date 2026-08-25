@@ -1579,12 +1579,9 @@ final class AppModel: ObservableObject {
                 // Settling for unknown here sent somebody to type a passphrase
                 // for a drive nothing had read.
                 if answer == .unknown {
-                    // Read from where the file is attached now, rather than
-                    // from where it was when this row was made. An image
-                    // ejected and opened again comes back as a different disk,
-                    // and a row that outlived the attachment behind it reads a
-                    // device that is not there any more -- for ever, since
-                    // nothing about waiting makes a stale path good.
+                    // From where the file is attached now. An image ejected
+                    // and opened again comes back as a different disk, and no
+                    // amount of waiting makes a stale device path good.
                     var path = devicePath
                     if let file = self.openedImages[DriveScanner.wholeDisk(of: identifier)] {
                         let now = await Task.detached(priority: .userInitiated) {
@@ -1989,9 +1986,9 @@ final class AppModel: ObservableObject {
 
     /// How many times the machinery has slipped during this attempt.
     ///
-    /// Reset when somebody asks for a drive to be opened, counted up only by a
-    /// retry this app decided on. Kept per attempt rather than per drive: two
-    /// drives failing for the same passing reason should each get their tries.
+    /// Reset when somebody asks for a drive, counted up only by a retry this
+    /// app decided on. Per attempt rather than per drive, so two drives failing
+    /// for the same passing reason each get their tries.
     private var mountSlips = 0
 
     /// Try again when what failed was the machinery rather than the drive.
@@ -2218,9 +2215,9 @@ final class AppModel: ObservableObject {
             .options.contains("read-only") ?? false
         mountedReadOnly = mountingReadOnly || fellBack || systemSaysReadOnly
         if fellBack {
-            // A reason, always. The rules name what they recognise; where none
-            // of them does, the drive still opened read-only and the person
-            // still has to be told, or they find out at their first save.
+            // A reason, always. Where no rule recognises the transcript the
+            // drive still opened read-only, and saying nothing means they find
+            // out at their first save.
             readOnlyReason =
                 Self.reasonForFallback(transcript, statusLines)
                 ?? appString(

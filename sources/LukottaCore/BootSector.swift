@@ -184,13 +184,10 @@ public enum BootSector {
     /// is retried for a short while, and what comes back is what it says: a
     /// sector, or nothing to be had.
     /// - Parameters:
-    ///   - attempts: how many times to ask. Six seconds in all by default,
-    ///     rather than the two it was: hdiutil answers as soon as the disk
-    ///     exists, and on a Mac with work in front of it the node this reads is
-    ///     published a moment later. Two seconds was enough almost always,
-    ///     which is the worst kind of enough -- the run that missed it read
-    ///     nothing, asked a helper that was not installed, and settled on "not
-    ///     recognised" about an image it had opened a minute earlier.
+    ///   - attempts: how many times to ask. Six seconds in all: hdiutil answers
+    ///     as soon as the disk exists, and the node this reads is published a
+    ///     moment later on a Mac with work in front of it. Falling short means
+    ///     answering "not recognised" about a drive nothing has read.
     ///   - gap: how long to wait between attempts.
     public static func readWaiting(
         devicePath: String, attempts: Int = 20, gap: TimeInterval = 0.3

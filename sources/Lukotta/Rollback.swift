@@ -13,12 +13,10 @@ import LukottaCore
 enum Rollback {
     private static let recordKey = "com.lukotta.launchRecord"
 
-    /// What the app and the shim in front of it both file this under.
-    ///
-    /// The identifier, which is what everything else this app keeps is filed
-    /// under and what the shim reads out of the Info.plist beside it. The name
-    /// on disk is the fallback, on both sides, for a bundle whose Info.plist
-    /// cannot be read.
+    /// What the app and the shim in front of it both file this under: the
+    /// identifier, as everything else this app keeps is filed. The name on disk
+    /// is the fallback on both sides, for a bundle whose Info.plist cannot be
+    /// read.
     private static var bundleName: String {
         AppRollback.supportName(
             identifier: Bundle.main.bundleIdentifier,
@@ -87,11 +85,10 @@ enum Rollback {
     /// Returns false when the previous version has been put back and opened, in
     /// which case this process should stop.
     static func evaluateLaunch() -> Bool {
-        // Anything left where this used to be kept, which was a directory named
-        // after the application rather than after its identifier. Nothing there
-        // is worth carrying across -- a copy of a version two updates ago -- and
-        // left alone it would sit in Application Support for ever, since the
-        // uninstaller takes away the identifier's directory and not this one.
+        // Anything under the old name, which was the application's rather than
+        // its identifier's. A copy of a version two updates ago is not worth
+        // carrying across, and the uninstaller removes the identifier's
+        // directory, not this one.
         if let oldPlace, FileManager.default.fileExists(atPath: oldPlace.path) {
             Log.updates.notice("taking away what was kept under the old name")
             try? FileManager.default.removeItem(at: oldPlace)

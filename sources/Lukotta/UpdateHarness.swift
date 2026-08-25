@@ -145,10 +145,10 @@
     /// rollback the whole thing exists to prove had nothing to roll back to.
     /// The check said so and was read as a fault in the app.
     private final class HeadlessDelegate: NSObject, SPUUpdaterDelegate {
-        // Every hook Sparkle offers between "there is an update" and "the
-        // bundle has been replaced", so that a run says which of them actually
-        // arrive. The app keeps the outgoing version aside from one of these,
-        // and a hook that is never called is a safety net that is never armed.
+        // Every hook between "there is an update" and "the bundle has been
+        // replaced", so a run says which of them arrive. The app keeps the
+        // outgoing version aside from one of these, and a hook that is never
+        // called is a safety net that is never armed.
         func updater(_ updater: SPUUpdater, didFinishLoading appcast: SUAppcast) {
             UpdateHarness.say("hook: the feed was read")
         }
@@ -170,10 +170,8 @@
         func updater(_ updater: SPUUpdater, willInstallUpdate item: SUAppcastItem) {
             Rollback.keepCurrentAside()
             UpdateHarness.say("keeping this version aside first")
-            // And now quit, which is what the installer is waiting for. Quitting
-            // on a timer instead cut this callback off before it arrived: the
-            // log read "installing" then "quitting", nothing was kept aside, and
-            // the rollback checks failed for want of anything to roll back to.
+            // Then quit, which is what the installer is waiting for. Quitting on
+            // a timer instead arrives before this callback and keeps nothing.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { exit(0) }
         }
 
@@ -270,21 +268,14 @@
             UpdateHarness.say("installing")
             reply(.install)
 
-            // And then quit, which is the only thing left for an application to
-            // do. By now the installer is running in a process of its own and
-            // waiting for this one to leave before it replaces the bundle it is
-            // sitting in.
-            //
             // Sparkle asks an application to quit by asking AppKit to, and this
-            // one has no event loop for AppKit to ask through -- so the request
-            // arrived nowhere, the installer waited, and the run failed five
-            // minutes later with the update built, downloaded, verified and not
-            // installed. Killing the process by hand finished it in seconds,
-            // which is how this was found the first time and the second.
+            // one runs no event loop for AppKit to ask through, so the request
+            // reaches nobody and the installer waits for a process that will
+            // never leave.
             //
-            // The quitting itself happens in willInstallUpdate, one callback
-            // later, where the outgoing version is kept aside first. This is
-            // only the backstop for an update that never reaches it.
+            // The quitting happens a callback later, in willInstallUpdate,
+            // where the outgoing version is kept aside first. This is the
+            // backstop for an update that never reaches it.
             DispatchQueue.main.asyncAfter(deadline: .now() + 25) {
                 UpdateHarness.say("quitting without being told to keep anything aside")
                 exit(0)
@@ -296,14 +287,9 @@
             retryTerminatingApplication: @escaping () -> Void
         ) {
             guard applicationTerminated else {
-                // Quitting is the whole of what an application does here.
-                // The installer will not replace a bundle while the
-                // application inside it is running, so it waits -- and this
-                // used to wait back, sitting in its run loop believing it
-                // would go away by itself. The two waited for each other
-                // until the harness gave up five minutes later. Killing the
-                // process by hand finished the update in seconds, which is
-                // what said which of them was wrong.
+                // The installer will not replace a bundle while the application
+                // inside it is running, so quitting is the whole of what there
+                // is to do here. Waiting instead means both sides wait.
                 UpdateHarness.say("quitting, so the bundle can be replaced")
                 exit(0)
             }

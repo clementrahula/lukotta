@@ -40,17 +40,14 @@ public enum Mounter {
         else {
             throw EngineError.missingEngine
         }
-        // Whatever this app left running that serves nothing, taken down before
-        // another machine is started -- and waited for, which is the whole
-        // point: an eject returns as soon as the volume leaves the mount table,
-        // while the machine that was serving it keeps the image file for
-        // another half-minute. Opening the same file again inside that window
-        // is the most ordinary thing there is, and it met either a locked file
-        // or a machine that mounted it read-only because read-write was refused
-        // -- which nothing said, until the first save.
+        // Whatever this app left running that serves nothing, taken down and
+        // waited for. An eject returns as soon as the volume leaves the mount
+        // table; the machine that served it keeps the image file for another
+        // half-minute, and opening the same file inside that window meets a
+        // locked file or a read-only mount nothing announced.
         //
-        // Nothing that is serving a drive is touched: one engine mount in the
-        // table, anybody's, and this does nothing at all.
+        // Nothing serving a drive is touched: one engine mount in the table,
+        // anybody's, and this does nothing.
         _ = EngineProcesses.tidyWhatServesNothing()
         try EngineEnvironment.prepare(progress: progress)
         // The engine writes three logs per mount into ~/Library/Logs and never
@@ -146,10 +143,10 @@ public enum Mounter {
         streamer.start()
         // Waited for, but not for ever. An attempt that will never finish -- a
         // machine that did not come up, an NFS mount waiting on a server that
-        // has gone -- otherwise leaves somebody watching a spinner for as long
-        // as they are willing to, and leaves the image locked against the next
-        // attempt when they give up. The deadline is generous enough that a
-        // slow drive is never mistaken for a stuck one.
+        // has gone -- otherwise holds a spinner as long as somebody is willing
+        // to watch it and leaves the image locked when they give up. The
+        // deadline is generous enough that a slow drive is never taken for a
+        // stuck one.
         var ranOut = false
         let deadline = Date().addingTimeInterval(TransientFailure.deadline)
         while osa.isRunning {
@@ -206,13 +203,10 @@ public enum Mounter {
     public static func discoverMountPoint(for drive: Drive, transcript: String) -> String? {
         // Nothing counts as a mount point that is not in the mount table.
         //
-        // The engine makes the directory before it mounts anything on it, and
-        // leaves it there when the mount fails. Both routes below used to
-        // answer with a path that merely existed -- the engine's own record of
-        // itself, which goes stale, and a line from the transcript checked with
-        // fileExists -- so a mount that never happened was reported as a drive
-        // that had opened. What the person then had was an empty folder they
-        // did not have permission to write to, and no failure anywhere.
+        // The engine makes the directory before it mounts on it and leaves it
+        // there when the mount fails, so a path that merely exists is no
+        // evidence at all: the answer is then an empty folder nobody can write
+        // to, presented as a drive that opened.
         let table = LukottaCore.mountTable()
         let mounted = Set(MountTableEntry.all(in: table).map(\.mountPoint))
 

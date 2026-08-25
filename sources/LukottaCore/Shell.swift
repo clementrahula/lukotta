@@ -123,16 +123,12 @@ public struct MountTableEntry: Sendable {
     /// unlocked, which is what tells its mounts apart from a file server's.
     public var isEngineMount: Bool {
         guard isNFS else { return false }
-        // Two shapes, because the engine serves a volume group differently from
-        // a single filesystem. One volume is exported from /mnt; a group is a
-        // tmpfs under /run with each volume bound inside it, and its share
-        // reads "lvm-<group>.local:/run/<name>".
-        //
-        // Only the first was recognised, so an open volume group was not this
-        // app's mount as far as this app was concerned: the sweep that takes
-        // down engines serving nothing would have taken down the engine serving
-        // somebody's root and home, and the sweep for mounts whose server has
-        // gone never looked at them at all.
+        // Two shapes. A single filesystem is exported from /mnt; a volume group
+        // is a tmpfs under /run with the volumes bound inside it, and its share
+        // reads "lvm-<group>.local:/run/<name>". Miss the second and an open
+        // volume group is not this app's mount as far as this app knows, which
+        // is enough for the sweep of engines serving nothing to take down the
+        // machine serving somebody's root and home.
         return source.contains(".local:/mnt/") || source.contains(".local:/run/")
             || source.hasPrefix("127.0.0.")
     }

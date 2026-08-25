@@ -482,13 +482,10 @@ extension DiskImage {
         if let point = mountPoint(ofDisk: identifier) { return point }
 
         // Asked for, then waited for. macOS mounts through diskarbitration,
-        // which answers this command before the volume is in the mount table --
-        // and an image attached a moment ago is often still being probed, so
-        // the first attempt returns "busy" and a second, a second later, works.
-        //
-        // Read once, this looked exactly like a disk macOS would not mount, and
-        // the person was told their image might already be open in Finder while
-        // it was quietly mounting behind the message.
+        // which answers before the volume is in the mount table, and an image
+        // attached a moment ago is often still being probed: the first attempt
+        // says "busy" and the next one works. Read once, that is
+        // indistinguishable from a disk macOS refuses.
         for attempt in 0..<15 {
             if attempt > 0 { Thread.sleep(forTimeInterval: 0.4) }
             _ = diskutil(["mountDisk", device])
@@ -550,10 +547,9 @@ extension DiskImage {
         // opened", about a file the person has just been reading. Ejecting a
         // drive and opening it again is the most ordinary thing there is, so
         // the question is asked again rather than answered wrongly.
-        // Bounded by the clock as well as by the count. Each of these asks the
-        // engine, which starts a machine to answer; five of them against an
-        // image that will never be readable is most of a minute of somebody
-        // watching a spinner to be told what the first attempt already knew.
+        // Bounded by the clock as well as the count: each attempt starts a
+        // machine, and five against an unreadable image is most of a minute
+        // spent arriving at what the first one said.
         let givingUpAt = Date().addingTimeInterval(20)
         for attempt in 1...5 {
             guard
@@ -563,17 +559,11 @@ extension DiskImage {
             else { return [] }
             let found = types(inListing: result.out)
             if !found.isEmpty { return found }
-            // An empty answer means one of two things, and they are not the
-            // same: the engine looked and there is nothing in this file, or the
-            // engine never got as far as looking. It says which -- a machine
-            // that would not start, an image it could not hold, a probe that
-            // ended -- through its status and whatever it wrote to stderr.
-            //
-            // Only the first is an answer. The second was being reported to the
-            // person as "there is nothing in it that can be opened", about an
-            // image that opens perfectly well a second later, which is how a
-            // run of these under load produced a file that had worked all
-            // afternoon suddenly holding nothing.
+            // An empty answer means one of two things: the engine looked and
+            // found nothing, or the engine never got as far as looking. Its
+            // status and stderr say which, and only the first is an answer --
+            // the second reads to a person as "there is nothing in it that can
+            // be opened" about an image that opens a second later.
             let complaint = (result.out + result.err).lowercased()
             let wentWrong = result.status != 0 || !result.err.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             let busy =

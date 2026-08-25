@@ -23,15 +23,11 @@ final class UpdaterRelay: NSObject, SPUUpdaterDelegate {
 
     /// Keep the outgoing bundle, at every point Sparkle offers before the swap.
     ///
-    /// This hung on willInstallUpdate alone, and that callback never arrives.
-    /// Driving a real update through Sparkle with every hook implemented showed
-    /// which do: the feed being read, the archive downloaded, the archive
-    /// unpacked -- and then the application is asked to quit and the installer
-    /// replaces the bundle. So nothing was ever copied aside, and the rollback
-    /// that puts the previous version back had nothing to put back.
-    ///
-    /// Copying twice costs a ditto of a bundle already on this disk and makes
-    /// the net independent of which callback a Sparkle release chooses to send.
+    /// Which of these arrive is not a matter of reading the documentation:
+    /// driving a real update through shows that the download and the extraction
+    /// do and that willInstallUpdate does not. Hanging the copy on one callback
+    /// is how the rollback ended up with nothing to put back, so it hangs on
+    /// all three. Copying twice costs a ditto of a bundle already on this disk.
     func updater(_ updater: SPUUpdater, didDownloadUpdate item: SUAppcastItem) {
         onWillInstall?()
     }

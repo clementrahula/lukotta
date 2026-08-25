@@ -95,16 +95,13 @@ public enum EngineProcesses {
 
     /// The engine mounts in this table that no longer answer.
     ///
-    /// Asked of each mount rather than inferred from the engines that happen to
-    /// be running. "Nothing is running, so nothing is being served" was the
-    /// first version of this and it is wrong exactly when it matters: the
-    /// engine that left the mount behind is often still on its way out, and
-    /// counted as though it were serving the mount it has already abandoned.
+    /// Asked of each mount rather than inferred from which engines are running:
+    /// the engine that abandoned a mount is usually still on its way out, and
+    /// counting it says the mount is served when it is not.
     ///
-    /// The probe is a stat, in a process of its own with two seconds to answer.
-    /// A live mount answers at once; one whose server has gone fails or does
-    /// not answer at all, and the deadline is what keeps this from waiting on
-    /// it the way everything else does.
+    /// The probe is a stat in a process of its own, with two seconds to answer.
+    /// A live mount answers at once; one whose server has gone does not, and
+    /// the deadline is what stops this waiting on it as everything else does.
     public static func deadEngineMounts(
         in table: String,
         answers: (String) -> Bool = { point in
@@ -117,10 +114,9 @@ public enum EngineProcesses {
 
     /// Take away mounts whose server has gone, and say whether any went.
     ///
-    /// What one does when it is left: macOS refuses the next mount at that name
-    /// -- "invalid file system" -- so the engine's request fails, and a drive
-    /// asked for read-write falls through to the read-only attempt and opens
-    /// read-only with nothing said. That is the shape it was found in.
+    /// One left in place makes macOS refuse the next mount at that name --
+    /// "invalid file system" -- which the mount script reads as a drive that
+    /// will not take writes, so it falls back to read-only and says nothing.
     ///
     /// Forced, because a mount with no server does not come down politely.
     /// Mounted by this user, so this needs no privilege.

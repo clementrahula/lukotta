@@ -5,20 +5,15 @@ import Foundation
 
 /// Failures that mean "the machinery slipped", not "this cannot be opened".
 ///
-/// The engine starts a virtual machine, hands it a disk, and talks to it over a
-/// socket and a pipe. Any of that can fail for a moment on a Mac that is busy:
-/// the machine's own end of the pipe goes before it has read what was written
-/// to it, a socket is reset while it is being set up, the hypervisor refuses a
-/// machine because the last one has not finished going away.
-///
-/// None of those say anything about the drive. Told to a person they are worse
-/// than useless -- "Failed to write to pipe: Broken pipe (os error 32)" about a
-/// disk that opens perfectly well a second later -- so the attempt is made
-/// again instead, and only what survives being tried three times is shown.
+/// The engine starts a virtual machine per mount and talks to it over a socket
+/// and a pipe. On a busy Mac either can go for a moment, and none of that says
+/// anything about the drive: "Broken pipe (os error 32)" is about a disk that
+/// opens perfectly well a second later. So the attempt is made again, and only
+/// what survives three of them is shown.
 ///
 /// Deliberately narrow. A wrong password, a filesystem nobody can read, a
-/// hibernated Windows volume: those are answers, and trying again would waste a
-/// minute of somebody's time to arrive at the same place.
+/// hibernated Windows volume: those are answers, and trying again spends a
+/// minute of somebody's time arriving at the same place.
 public enum TransientFailure {
 
     /// Read from the engine's own output. Lowercased before matching, since
@@ -48,9 +43,8 @@ public enum TransientFailure {
         deadlineReached,
     ]
 
-    /// What a mount that outstayed its welcome leaves in the detail, so that
-    /// the app knows to make one more attempt rather than reporting a drive
-    /// that had not finished opening.
+    /// What a mount ended by the deadline leaves in the detail, so it is tried
+    /// again rather than reported as a drive that would not open.
     public static let deadlineReached = "the attempt was ended after"
 
     /// How long one attempt may take before it is ended.
