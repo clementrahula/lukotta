@@ -136,6 +136,22 @@
         func showReady(toInstallAndRelaunch reply: @escaping (SPUUserUpdateChoice) -> Void) {
             UpdateHarness.say("installing")
             reply(.install)
+
+            // And then quit, which is the only thing left for an application to
+            // do. By now the installer is running in a process of its own and
+            // waiting for this one to leave before it replaces the bundle it is
+            // sitting in.
+            //
+            // Sparkle asks an application to quit by asking AppKit to, and this
+            // one has no event loop for AppKit to ask through -- so the request
+            // arrived nowhere, the installer waited, and the run failed five
+            // minutes later with the update built, downloaded, verified and not
+            // installed. Killing the process by hand finished it in seconds,
+            // which is how this was found the first time and the second.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                UpdateHarness.say("quitting, so the bundle can be replaced")
+                exit(0)
+            }
         }
 
         func showInstallingUpdate(

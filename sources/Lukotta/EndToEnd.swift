@@ -8,6 +8,7 @@
 #if DEVTOOLS
 
     import AppKit
+import CryptoKit
     import LukottaCore
     import SwiftUI
 
@@ -232,7 +233,7 @@
                 else { continue }
                 print("")
                 print("writing to a \(what): \(image.lastPathComponent)")
-                writeFlow(image: image)
+                writeFlow(image: image, fillingUp: name == "plain")
             }
 
             // Writing through encryption: the same drivers underneath, with LUKS
@@ -681,6 +682,404 @@
             else { return }
         }
 
+        /// What was written into a mounted drive, so that it can be asked for
+        /// again after the machine that served it has gone.
+        struct WrittenInEarnest {
+            /// The digest of the large file, taken as it was written.
+            var digest: String
+            /// How many bytes that file was.
+            var size: Int
+            /// How many small files were written beside it.
+            var count: Int
+            /// The one that was overwritten after the fact, and what it should
+            /// say now.
+            var overwritten: String
+            /// The names and shapes a filesystem is asked to carry besides
+            /// bytes, and what each should read as.
+            var awkward: [(what: String, name: String, contents: String)]
+        }
+
+        /// The name of the directory everything below is written into, so that
+        /// what a run leaves behind can be taken away in one go.
+        static let bulkDirectory = "lukotta-write-probe"
+
+        /// Write enough to be worth reading back.
+        ///
+        /// One sentence in one file proves the write path exists and nothing
+        /// else. What it never touches is the part of a container format that
+        /// only appears once the file outgrows what was already allocated: a
+        /// qcow2 or a dynamic VHD adds clusters as it goes and writes them
+        /// wherever there is room, a VDI extends its block map, a sparse VMDK
+        /// allocates grains. A driver that maps any of those wrongly returns
+        /// somebody else's bytes, and a sixty-byte file lands inside the first
+        /// cluster where nothing has to be mapped at all.
+        ///
+        /// So: thirty-two megabytes with a digest taken as it is written, two
+        /// hundred small files in a directory of their own, one of them
+        /// overwritten and one deleted. All of it read back after the drive has
+        /// been ejected and opened again, which means a different machine
+        /// reading the file as it now stands.
+        @MainActor
+        private static func writeInEarnest(at mountPoint: String) -> WrittenInEarnest? {
+            let root = URL(fileURLWithPath: mountPoint)
+                .appendingPathComponent(bulkDirectory, isDirectory: true)
+            do {
+                try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+            } catch {
+                check(false, "a directory can be made on it (\(error.localizedDescription))")
+                return nil
+            }
+
+            // Not zeroes and not random: a pattern that depends on where it is,
+            // so a block returned from the wrong place reads as the wrong bytes
+            // rather than as the same bytes.
+            let size = 32 * 1024 * 1024
+            var payload = Data(count: size)
+            payload.withUnsafeMutableBytes { raw in
+                guard let base = raw.bindMemory(to: UInt8.self).baseAddress else { return }
+                for index in 0..<size {
+                    base[index] = UInt8(truncatingIfNeeded: index &* 2_654_435_761)
+                }
+            }
+            let digest = SHA256.hash(data: payload).map { String(format: "%02x", $0) }.joined()
+
+            let large = root.appendingPathComponent("large.bin")
+            let started = Date()
+            do {
+                try payload.write(to: large)
+            } catch {
+                check(false, "thirty-two megabytes can be written (\(error.localizedDescription))")
+                return nil
+            }
+            let seconds = Date().timeIntervalSince(started)
+            check(true, "thirty-two megabytes go in, at \(Int(Double(size) / 1_048_576 / max(seconds, 0.001))) MB/s")
+
+            // A crowd of small files, which is metadata rather than data: the
+            // part of a filesystem that a mount serving one file never touches.
+            let many = root.appendingPathComponent("many", isDirectory: true)
+            try? FileManager.default.createDirectory(at: many, withIntermediateDirectories: true)
+            let count = 200
+            var wrote = 0
+            for index in 0..<count {
+                let file = many.appendingPathComponent("file-\(index).txt")
+                if (try? Data("file number \(index)\n".utf8).write(to: file)) != nil { wrote += 1 }
+            }
+            check(wrote == count, "and two hundred small files beside it (\(wrote) written)")
+
+            // What a person does to a file they already have: change it, and
+            // throw another away.
+            let overwritten = "this file was written twice\n"
+            let changed = many.appendingPathComponent("file-7.txt")
+            let removed = many.appendingPathComponent("file-11.txt")
+            let edited = (try? Data(overwritten.utf8).write(to: changed)) != nil
+            let deleted = (try? FileManager.default.removeItem(at: removed)) != nil
+            check(edited && deleted, "one of them is rewritten and another deleted")
+
+            // Into the middle of what is already there, rather than on the end
+            // of it. Appending only ever asks a container for the next block;
+            // this asks it for a block it allocated a moment ago, at three
+            // places it has to find rather than follow. A mapping that is
+            // wrong by one cluster is invisible to a file written in one go
+            // and obvious here.
+            var expected = payload
+            let patches: [(Int, UInt8)] = [
+                (1 * 1024 * 1024, 0xA5), (17 * 1024 * 1024 + 4096, 0x5A),
+                (size - 8192, 0xC3),
+            ]
+            var patched = true
+            if let handle = try? FileHandle(forWritingTo: large) {
+                for (offset, byte) in patches {
+                    let block = Data(repeating: byte, count: 4096)
+                    do {
+                        try handle.seek(toOffset: UInt64(offset))
+                        try handle.write(contentsOf: block)
+                        expected.replaceSubrange(offset..<(offset + block.count), with: block)
+                    } catch {
+                        patched = false
+                    }
+                }
+                try? handle.close()
+            } else {
+                patched = false
+            }
+            check(patched, "three blocks in the middle of it are written over")
+            let digestAfter = SHA256.hash(data: expected).map { String(format: "%02x", $0) }
+                .joined()
+
+            let awkward = writeTheAwkwardThings(in: root)
+
+            return WrittenInEarnest(
+                digest: digestAfter, size: size, count: count, overwritten: overwritten,
+                awkward: awkward)
+        }
+
+        /// The names and shapes a filesystem is asked to carry besides bytes.
+        ///
+        /// A volume that only ever holds "file-3.txt" is not a volume anybody
+        /// keeps anything on. What people actually put on a drive is names in
+        /// their own language, names as long as the filesystem allows, folders
+        /// inside folders, links, and -- whether they want them or not -- the
+        /// files Finder writes on every volume it opens.
+        ///
+        /// The accented ones matter more than they look. macOS hands out names
+        /// decomposed, an e and an acute accent; Linux stores whatever bytes it
+        /// is given. The engine mounts with `nfc`, which is what makes a name
+        /// typed here come back the same, and nothing checked that it does.
+        @MainActor
+        private static func writeTheAwkwardThings(in root: URL)
+            -> [(what: String, name: String, contents: String)]
+        {
+            let manager = FileManager.default
+            let names = root.appendingPathComponent("names", isDirectory: true)
+            try? manager.createDirectory(at: names, withIntermediateDirectories: true)
+
+            // Every one of these is a name somebody has, or a name a filesystem
+            // has a rule about.
+            var written: [(what: String, name: String, contents: String)] = []
+            let candidates: [(String, String)] = [
+                ("an accented name", "Bänder für Käse.txt"),
+                ("a name in Greek", "αντίγραφο ασφαλείας.txt"),
+                ("a name in Japanese", "写真のバックアップ.txt"),
+                ("a name in Arabic", "نسخة احتياطية.txt"),
+                ("a name with an emoji", "holiday 🏖 2026.txt"),
+                ("a name with spaces and quotes", "the \"good\" one - final (2).txt"),
+                ("a name that starts with a dot", ".hidden-by-name"),
+                ("a name as long as the filesystem allows", String(repeating: "n", count: 250) + ".txt"),
+            ]
+            for (what, name) in candidates {
+                let file = names.appendingPathComponent(name)
+                let contents = "this is \(what)\n"
+                if (try? Data(contents.utf8).write(to: file)) != nil {
+                    written.append((what, name, contents))
+                } else {
+                    check(false, "\(what) can be written")
+                }
+            }
+            check(
+                written.count == candidates.count,
+                "eight names people actually use are written (\(written.count) of \(candidates.count))"
+            )
+
+            // Folders inside folders, which is a filesystem's other dimension.
+            var deep = root.appendingPathComponent("deep", isDirectory: true)
+            for level in 1...12 { deep = deep.appendingPathComponent("level-\(level)", isDirectory: true) }
+            let buried = deep.appendingPathComponent("buried.txt")
+            let madeDeep =
+                (try? manager.createDirectory(at: deep, withIntermediateDirectories: true)) != nil
+                && (try? Data("twelve deep\n".utf8).write(to: buried)) != nil
+            check(madeDeep, "twelve folders inside each other, with a file at the bottom")
+
+            // Links, both kinds.
+            let target = names.appendingPathComponent(candidates[0].1)
+            let symbolic = root.appendingPathComponent("a-symlink")
+            let hard = root.appendingPathComponent("a-hard-link")
+            let madeSymlink =
+                (try? manager.createSymbolicLink(at: symbolic, withDestinationURL: target)) != nil
+            let madeHard = (try? manager.linkItem(at: target, to: hard)) != nil
+            check(madeSymlink, "a symbolic link is made")
+            check(madeHard, "and a hard link")
+
+            // What a program expects to be able to say about a file it wrote:
+            // that it may be run, and when it was made.
+            let script = root.appendingPathComponent("runnable.sh")
+            let madeScript = (try? Data("#!/bin/sh\necho hello\n".utf8).write(to: script)) != nil
+            let modeSet =
+                (try? manager.setAttributes([.posixPermissions: 0o755], ofItemAtPath: script.path))
+                != nil
+            check(madeScript && modeSet, "a file is marked executable")
+            let stamped = Date(timeIntervalSince1970: 1_600_000_000)
+            let dated =
+                (try? manager.setAttributes([.modificationDate: stamped], ofItemAtPath: script.path))
+                != nil
+            check(dated, "and given a date of its own")
+
+            // The three things Finder leaves on any volume it looks at, which
+            // arrive whether or not anybody wanted them. AppleDouble carries
+            // what the filesystem underneath cannot: an extended attribute on a
+            // volume with nowhere to put one becomes a ._ file beside it.
+            let finder = root.appendingPathComponent(".DS_Store")
+            let double = root.appendingPathComponent("._a-file-with-a-fork")
+            let forked = root.appendingPathComponent("a-file-with-a-fork")
+            _ = try? Data(repeating: 0x07, count: 6148).write(to: finder)
+            _ = try? Data(repeating: 0x00, count: 82).write(to: double)
+            _ = try? Data("this one carries an attribute\n".utf8).write(to: forked)
+            let attributed = forked.withUnsafeFileSystemRepresentation { path -> Bool in
+                guard let path else { return false }
+                let value = Array("green".utf8)
+                return setxattr(path, "com.apple.metadata:kMDItemFinderComment", value, value.count, 0, 0) == 0
+            }
+            check(
+                manager.fileExists(atPath: finder.path) && manager.fileExists(atPath: double.path),
+                "the files Finder writes on any volume it opens")
+            check(attributed, "and an extended attribute on one of them")
+
+            return written
+        }
+
+        /// Write until there is nowhere left to write, and see what that is like.
+        ///
+        /// Running out of room is not a fault, and it is the one failure a
+        /// person is guaranteed to meet eventually. What matters is that it
+        /// arrives as a refusal rather than as a truncated file, that it says
+        /// so, and that the volume is still a volume afterwards -- the last
+        /// being why this runs before everything written above is read back.
+        @MainActor
+        private static func fillItUp(at mountPoint: String) {
+            let point = URL(fileURLWithPath: mountPoint)
+            let free =
+                (try? point.resourceValues(forKeys: [.volumeAvailableCapacityKey]))?
+                .volumeAvailableCapacity ?? 0
+            guard free > 0 else {
+                check(false, "the volume says how much room is left")
+                return
+            }
+
+            let hog = point.appendingPathComponent("lukotta-fills-the-disk.bin")
+            FileManager.default.createFile(atPath: hog.path, contents: nil)
+            guard let handle = try? FileHandle(forWritingTo: hog) else {
+                check(false, "a file can be opened to fill it with")
+                return
+            }
+            // Asked for more than there is, a piece at a time, so the refusal
+            // arrives where a real one would: in the middle of a write.
+            let piece = Data(repeating: 0x77, count: 4 * 1024 * 1024)
+            var refused = false
+            var wrote = 0
+            while wrote < free + 16 * 1024 * 1024 {
+                do {
+                    try handle.write(contentsOf: piece)
+                    wrote += piece.count
+                } catch {
+                    refused = true
+                    break
+                }
+            }
+            try? handle.close()
+            check(refused, "filling the volume is refused rather than half-done")
+            let onDisk =
+                (try? FileManager.default.attributesOfItem(atPath: hog.path)[.size] as? Int) ?? 0
+            check(
+                onDisk ?? 0 <= free + piece.count,
+                "and what it holds is no more than there was room for")
+            try? FileManager.default.removeItem(at: hog)
+            let afterwards =
+                (try? point.resourceValues(forKeys: [.volumeAvailableCapacityKey]))?
+                .volumeAvailableCapacity ?? 0
+            check(afterwards > free / 2, "and the room comes back when it is deleted")
+        }
+
+        /// Ask for all of it back, from a machine that has never seen it.
+        @MainActor
+        private static func readItBack(_ written: WrittenInEarnest, at mountPoint: String) {
+            let root = URL(fileURLWithPath: mountPoint)
+                .appendingPathComponent(bulkDirectory, isDirectory: true)
+            let large = root.appendingPathComponent("large.bin")
+
+            // Read in pieces and digested as it comes, rather than held whole:
+            // this is the read path a person's own copy takes.
+            guard let handle = try? FileHandle(forReadingFrom: large) else {
+                check(false, "the large file is still there")
+                return
+            }
+            defer { try? handle.close() }
+            var hasher = SHA256()
+            var read = 0
+            while let piece = try? handle.read(upToCount: 4 * 1024 * 1024), !piece.isEmpty {
+                hasher.update(data: piece)
+                read += piece.count
+            }
+            check(read == written.size, "the large file is the size it was (\(read) bytes)")
+            let digest = hasher.finalize().map { String(format: "%02x", $0) }.joined()
+            check(digest == written.digest, "and every byte of it is what was written")
+
+            let many = root.appendingPathComponent("many", isDirectory: true)
+            let crowd = (try? FileManager.default.contentsOfDirectory(atPath: many.path)) ?? []
+            check(
+                crowd.count == written.count - 1,
+                "the deleted file is gone and the rest are there (\(crowd.count) of \(written.count - 1))"
+            )
+            var wrong = 0
+            for name in crowd {
+                let index = name.replacingOccurrences(of: "file-", with: "")
+                    .replacingOccurrences(of: ".txt", with: "")
+                let expected =
+                    index == "7" ? written.overwritten : "file number \(index)\n"
+                let got = try? String(contentsOf: many.appendingPathComponent(name), encoding: .utf8)
+                if got != expected { wrong += 1 }
+            }
+            check(wrong == 0, "and each of them says what it was last told to (\(wrong) wrong)")
+
+            // The names, which is where a mount option rather than a driver
+            // decides the answer. A name typed here as one character and stored
+            // as two comes back as neither unless the mount composes it again.
+            let names = root.appendingPathComponent("names", isDirectory: true)
+            var missing: [String] = []
+            for (what, name, contents) in written.awkward {
+                let file = names.appendingPathComponent(name)
+                let got = try? String(contentsOf: file, encoding: .utf8)
+                if got != contents { missing.append(what) }
+            }
+            check(
+                missing.isEmpty,
+                missing.isEmpty
+                    ? "every name comes back as it was typed"
+                    : "every name comes back as it was typed (\(missing.joined(separator: ", ")))")
+            // Listed as well as opened: a name the mount hands back differently
+            // from the one it was given opens by luck and lists wrongly.
+            let listed = Set((try? FileManager.default.contentsOfDirectory(atPath: names.path)) ?? [])
+            let expectedNames = Set(written.awkward.map(\.name))
+            check(
+                listed.isSuperset(of: expectedNames),
+                "and the folder lists them under those names (\(listed.count) there)")
+
+            let manager = FileManager.default
+            let buried = (1...12).reduce(root.appendingPathComponent("deep", isDirectory: true)) {
+                $0.appendingPathComponent("level-\($1)", isDirectory: true)
+            }.appendingPathComponent("buried.txt")
+            check(
+                (try? String(contentsOf: buried, encoding: .utf8)) == "twelve deep\n",
+                "the file twelve folders down is still there")
+
+            let symbolic = root.appendingPathComponent("a-symlink")
+            let hard = root.appendingPathComponent("a-hard-link")
+            check(
+                (try? manager.destinationOfSymbolicLink(atPath: symbolic.path)) != nil,
+                "the symbolic link still points somewhere")
+            check(
+                (try? String(contentsOf: hard, encoding: .utf8))?.isEmpty == false,
+                "and the hard link still reads as the file it was made from")
+
+            let script = root.appendingPathComponent("runnable.sh")
+            let attributes = try? manager.attributesOfItem(atPath: script.path)
+            let mode = (attributes?[.posixPermissions] as? NSNumber)?.int16Value ?? 0
+            check(mode & 0o111 != 0, "what was marked executable still is")
+            let modified = attributes?[.modificationDate] as? Date
+            check(
+                modified.map { abs($0.timeIntervalSince1970 - 1_600_000_000) < 2 } ?? false,
+                "and the date it was given is the date it has")
+
+            let forked = root.appendingPathComponent("a-file-with-a-fork")
+            let attribute = forked.withUnsafeFileSystemRepresentation { path -> Int in
+                guard let path else { return -1 }
+                return getxattr(path, "com.apple.metadata:kMDItemFinderComment", nil, 0, 0, 0)
+            }
+            let double = root.appendingPathComponent("._a-file-with-a-fork")
+            check(
+                attribute > 0 || manager.fileExists(atPath: double.path),
+                "the extended attribute survived, in one form or the other")
+            check(
+                manager.fileExists(atPath: root.appendingPathComponent(".DS_Store").path),
+                "and what Finder wrote is where it left it")
+        }
+
+        /// Leave the fixture as it was found.
+        @MainActor
+        private static func removeWhatWasWritten(at mountPoint: String) {
+            let root = URL(fileURLWithPath: mountPoint)
+                .appendingPathComponent(bulkDirectory, isDirectory: true)
+            try? FileManager.default.removeItem(at: root)
+        }
+
         /// Write to an image, eject it, and open it again to see what stayed.
         ///
         /// The formats are written by drivers added here, so this is where their
@@ -689,13 +1088,15 @@
         /// the image being opened again from the file on disk.
         @MainActor
         private static func writeFlow(
-            image: URL, passphrase: String? = nil, expectingReadOnly: Bool = false
+            image: URL, passphrase: String? = nil, expectingReadOnly: Bool = false,
+            fillingUp: Bool = false
         ) {
             let contents = "written through \(image.lastPathComponent) at mount time\n"
             let name = "lukotta-write-probe.txt"
 
             // 1. Open it and write a file into it.
             var written = false
+            var bulk: WrittenInEarnest?
             do {
                 let model = AppModel()
                 model.start()
@@ -789,6 +1190,8 @@
                     let read = try? String(contentsOf: probe, encoding: .utf8)
                     check(read == contents, "and reads back as what was written")
                 }
+                if written { bulk = writeInEarnest(at: mountPoint) }
+                if written, fillingUp { fillItUp(at: mountPoint) }
 
                 model.eject(mountPoint)
                 guard waitUntil("it ejects", timeout: 120, condition: { !model.isEjecting }) else {
@@ -824,9 +1227,11 @@
             let probe = URL(fileURLWithPath: mountPoint).appendingPathComponent(name)
             let read = try? String(contentsOf: probe, encoding: .utf8)
             check(read == contents, "the file written before is in the image, unchanged")
+            if let bulk { readItBack(bulk, at: mountPoint) }
 
             // Left as it was found, so the fixture can be used again.
             try? FileManager.default.removeItem(at: probe)
+            if bulk != nil { removeWhatWasWritten(at: mountPoint) }
             model.eject(mountPoint)
             waitUntil("it ejects", timeout: 120, condition: { !model.isEjecting })
         }
