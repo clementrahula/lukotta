@@ -132,8 +132,34 @@ public enum Mounter {
         // Stream the engine's own output while it works.
         let streamer = LogStreamer(path: log.path, onLine: progress)
         streamer.start()
+        // Waited for, but not for ever. An attempt that will never finish -- a
+        // machine that did not come up, an NFS mount waiting on a server that
+        // has gone -- otherwise leaves somebody watching a spinner for as long
+        // as they are willing to, and leaves the image locked against the next
+        // attempt when they give up. The deadline is generous enough that a
+        // slow drive is never mistaken for a stuck one.
+        var ranOut = false
+        let deadline = Date().addingTimeInterval(TransientFailure.deadline)
+        while osa.isRunning {
+            if Date() >= deadline {
+                ranOut = true
+                osa.terminate()
+                break
+            }
+            Thread.sleep(forTimeInterval: 0.2)
+        }
         osa.waitUntilExit()
         streamer.stop()
+        if ranOut {
+            // Whatever it started, since the shell being killed does not take
+            // the machine with it.
+            EngineProcesses.stopWhatStartedSince(helpersBefore)
+            let transcript = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
+            throw EngineError.mountFailed(
+                summary: appString("The drive could not be opened."),
+                detail: "\(TransientFailure.deadlineReached) "
+                    + "\(Int(TransientFailure.deadline)) seconds\n" + transcript)
+        }
 
         let transcript = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
         let osaMessage =

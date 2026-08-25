@@ -35,7 +35,29 @@ public enum TransientFailure {
         "failed to start the virtual machine",
         "connection refused",
         "os error 61",
+        // The image is held by a machine that has not finished going away. The
+        // retry takes down whatever is serving nothing before it tries again,
+        // which is what releases it.
+        "failed to acquire lock",
+        "already locked",
+        // What this app says when it stops waiting for an attempt of its own.
+        deadlineReached,
     ]
+
+    /// What a mount that outstayed its welcome leaves in the detail, so that
+    /// the app knows to make one more attempt rather than reporting a drive
+    /// that had not finished opening.
+    public static let deadlineReached = "the attempt was ended after"
+
+    /// How long one attempt may take before it is ended.
+    ///
+    /// Generous, because it is not a performance target: a large NTFS volume
+    /// whose log needs replaying, or an LVM group of several volumes, takes
+    /// minutes on any machine. What it is for is the attempt that will never
+    /// end -- a virtual machine that did not come up, an NFS mount waiting on a
+    /// server that has gone -- which otherwise leaves somebody watching a
+    /// spinner for as long as they are willing to.
+    public static let deadline: TimeInterval = 8 * 60
 
     /// Whether this is worth trying again.
     public static func isTransient(_ text: String) -> Bool {

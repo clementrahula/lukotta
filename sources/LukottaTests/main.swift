@@ -728,6 +728,27 @@ group("mountStages") {
         !checkedRO.contains("__slipped"),
         "a mount asked for read-only has no write attempt to try again")
 
+    // What counts as the machinery slipping, which decides whether somebody is
+    // told their drive will not open or the attempt is quietly made again.
+    expect(
+        TransientFailure.isTransient("macOS: Error: Failed to write to pipe: Broken pipe (os error 32)"),
+        "a broken pipe is the machinery, not the drive")
+    expect(
+        TransientFailure.isTransient("Failed to acquire lock on image file: file already locked"),
+        "an image still held by the last machine is worth another go")
+    expect(
+        TransientFailure.isTransient("\(TransientFailure.deadlineReached) 480 seconds"),
+        "and so is an attempt this app ended itself")
+    expect(
+        !TransientFailure.isTransient("No key available with this passphrase"),
+        "a wrong passphrase is an answer, and trying again wastes a minute")
+    expect(
+        !TransientFailure.isTransient("unknown filesystem type 'ntfs'"),
+        "so is a filesystem nothing here can read")
+    expect(
+        !TransientFailure.isTransient("mount: /dev/disk4s1: Device busy"),
+        "and a busy device says which drive it is about, so it is reported")
+
     // A pty echoes what is written to it, so the engine's own output can carry
     // the passphrase back. Shape-matching cannot catch an ordinary one, so the
     // value itself is removed when it is known.
