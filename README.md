@@ -110,7 +110,7 @@ is written and what is not, and how each is read.
 
 ## Languages
 
-Lukotta is available in English and 35 other languages:
+Lukotta is available in thirty-seven languages. English, and these thirty-six:
 
 Albanian · Arabic · Bulgarian · Chinese (Simplified) · Croatian · Czech ·
 Danish · Dutch · Estonian · Filipino · Finnish · French · German · Greek ·
