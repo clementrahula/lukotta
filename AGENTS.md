@@ -372,27 +372,26 @@ file or an external data file is refused before the engine is told anything;
 see `Qcow2Header.namesAnotherFile`. Keep that check ahead of the engine when
 adding formats.
 
-## Invariants Found The Hard Way
+## Invariants Worth Keeping
 
-Each of these was a fault before it was a rule, and each was found by a run
-rather than by reading. Changing one needs the same evidence that established
-it.
+Each of these was a fault before it was a rule, and none of them is obvious from
+the code alone. Changing one needs the evidence that established it.
 
 - **A drive is open only where something is mounted.** The engine makes the
-  mount point before it mounts on it and leaves the directory when the mount
-  fails, so "the path exists" reported drives that had not opened. Only the
-  mount table counts, on every route.
+  mount point before it mounts on it and leaves the directory behind when the
+  mount fails, so a path that exists is no evidence. Only the mount table
+  counts, on every route.
 - **A mount of this app's own is `.local:/mnt/…` or `.local:/run/…`.** A volume
   group is served as a tmpfs under `/run` with the volumes bound inside it.
   Recognising only the first shape meant the sweep for engines serving nothing
   would have taken down the machine serving somebody's root and home.
 - **The kept-aside copy is filed under the identifier.** The app writes it and
-  the shim in front of the app puts it back; they disagreed about where, so no
-  update ever rolled back. `AppRollback.supportName` is the one answer, and
-  `bundle_identifier()` in `sources/LukottaLaunch/main.c` does the same.
+  the shim puts it back, so a disagreement about where is a rollback that never
+  happens. `AppRollback.supportName` is the one answer; `bundle_identifier()` in
+  `sources/LukottaLaunch/main.c` does the same for the shim.
 - **The copy is made when the archive arrives, not when it installs.** Sparkle
-  does not send `willInstallUpdate`; it sends `didDownloadUpdate` and
-  `didExtractUpdate`. Hanging the copy on the first meant it was never made.
+  sends `didDownloadUpdate` and `didExtractUpdate`, and does not send
+  `willInstallUpdate`. A copy hung on that one is never made.
 - **The machinery slipping is not the drive refusing.** A broken pipe, a locked
   image, an NFS mount macOS would not make: absorbed and retried, never
   reported. A wrong passphrase or an unreadable filesystem is an answer and is

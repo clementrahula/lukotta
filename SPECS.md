@@ -246,11 +246,11 @@ of that shape already on the drive cannot be followed — `readlink` returns the
 right text, and opening through it fails. An ASCII target is unaffected, in a
 directory or at the root, and hard links are unaffected entirely.
 
-Both halves are a property of the client rather than of this application or of
-the drive: the same volume mounted without `nfc` takes such a link and follows
-it. The option is the engine's default for macOS and stays, because getting
-names right matters on every volume and this shape of link is rare — extracting
-an archive written on a system in another language is where it appears.
+Both halves belong to the client rather than to this application or the drive:
+the same volume mounted without `nfc` takes such a link and follows it. The
+option stays, because names are what every volume is full of and this shape of
+link is rare — an archive written on a system in another language is where it
+turns up.
 
 ## 6. Where the drivers came from
 
