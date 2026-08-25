@@ -57,6 +57,10 @@ public enum Housekeeping {
         attached: Set<String>? = nil
     ) -> Result {
         var result = Result()
+        // Mounts whose server has gone, before anything is counted: they are in
+        // the table, they look like drives somebody has open, and macOS refuses
+        // the next mount at the same name while one is there.
+        EngineProcesses.deadMountsCleared(in: mountTable)
         result.workspaces = removeFinishedWorkspaces(now: now)
         result.mountPoints = removeEmptyMountPoints(in: mountTable)
         result.engineLogs = EngineLogs.removeOld(now: now)

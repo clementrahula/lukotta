@@ -81,12 +81,49 @@ public enum EngineProcesses {
     public static func tidyWhatServesNothing(mountTable table: String = LukottaCore.mountTable())
         -> Int
     {
+        // A mount whose server has gone is not a drive somebody has open. It
+        // sits in the table looking exactly like one, which stopped this sweep
+        // before it started and left the leftovers it exists to take down.
+        let table = deadMountsCleared(in: table) ? LukottaCore.mountTable() : table
         guard !MountTableEntry.all(in: table).contains(where: \.isEngineMount) else { return 0 }
         let idle = running()
         guard !idle.isEmpty else { return 0 }
         Log.mount.notice("taking down \(idle.count, privacy: .public) engines serving nothing")
         stop(idle)
         return idle.count
+    }
+
+    /// The engine mounts in this table that nothing can be serving.
+    ///
+    /// Pure, so a test can say what it would do without a mount table of its
+    /// own: with no engine process running anywhere, every engine mount listed
+    /// is a mount whose server has gone.
+    public static func deadEngineMounts(in table: String, enginesRunning: Bool) -> [String] {
+        guard !enginesRunning else { return [] }
+        return MountTableEntry.all(in: table).filter(\.isEngineMount).map(\.mountPoint)
+    }
+
+    /// Take away mounts whose server has gone, and say whether any went.
+    ///
+    /// What one does when it is left: macOS refuses the next mount at that name
+    /// -- "invalid file system" -- so the engine's request fails, and a drive
+    /// asked for read-write falls through to the read-only attempt and opens
+    /// read-only with nothing said. That is the shape it was found in.
+    ///
+    /// Forced, because a mount with no server does not come down politely.
+    /// Mounted by this user, so this needs no privilege.
+    @discardableResult
+    public static func deadMountsCleared(in table: String) -> Bool {
+        let dead = deadEngineMounts(in: table, enginesRunning: !running().isEmpty)
+        guard !dead.isEmpty else { return false }
+        Log.mount.notice("taking away \(dead.count, privacy: .public) mounts whose server has gone")
+        for point in dead {
+            _ = LukottaCore.run("/sbin/umount", ["-f", point])
+            // The directory it was mounted on, which is this app's to remove
+            // when nothing is on it. rmdir refuses anything else.
+            _ = rmdir(point)
+        }
+        return true
     }
 
     /// Take down helpers left over from a previous run.

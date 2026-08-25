@@ -728,6 +728,27 @@ group("mountStages") {
         !checkedRO.contains("__slipped"),
         "a mount asked for read-only has no write attempt to try again")
 
+    // A mount whose server has gone looks exactly like a drive somebody has
+    // open, and deciding wrongly either leaves the next mount wedged or takes
+    // away a volume in use.
+    let serving = """
+        map auto_home on /System/Volumes/Data/home (autofs, automounted)
+        disk4s1.local:/mnt/BACKUP on /Users/someone/Volumes/BACKUP (nfs, nodev)
+        """
+    expect(
+        EngineProcesses.deadEngineMounts(in: serving, enginesRunning: true).isEmpty,
+        "with an engine running, nothing is presumed dead")
+    expect(
+        EngineProcesses.deadEngineMounts(in: serving, enginesRunning: false)
+            == ["/Users/someone/Volumes/BACKUP"],
+        "with no engine anywhere, an engine mount in the table has lost its server")
+    expect(
+        EngineProcesses.deadEngineMounts(
+            in: "map auto_home on /System/Volumes/Data/home (autofs, automounted)",
+            enginesRunning: false
+        ).isEmpty,
+        "and a table with no engine mount in it has nothing to take away")
+
     // What counts as the machinery slipping, which decides whether somebody is
     // told their drive will not open or the attempt is quietly made again.
     expect(
