@@ -728,6 +728,26 @@ group("mountStages") {
         !checkedRO.contains("__slipped"),
         "a mount asked for read-only has no write attempt to try again")
 
+    // Which mounts are this app's own. A volume group is served as a tmpfs
+    // under /run with the volumes bound inside it, and that shape was not
+    // recognised -- so the sweep that takes down engines serving nothing would
+    // have taken down the one serving somebody's root and home.
+    let engineShapes = """
+        disk4s1.local:/mnt/BACKUP on /Users/someone/Volumes/BACKUP (nfs, nodev)
+        lvm-ubuntuvg.local:/run/Disk-Image on /Users/someone/Volumes/Disk-Image (nfs, nodev)
+        127.0.0.4:/mnt/DATA on /Users/someone/Volumes/DATA (nfs, nodev)
+        //someone@server/share on /Volumes/share (smbfs, nodev)
+        /dev/disk4s2 on /Volumes/BACKUP (exfat, local)
+        """
+    let ours = MountTableEntry.all(in: engineShapes).filter(\.isEngineMount).map(\.mountPoint)
+    expect(ours.count == 3, "a single volume, a volume group and a loopback export are all ours")
+    expect(
+        ours.contains("/Users/someone/Volumes/Disk-Image"),
+        "the volume group's tmpfs under /run is one of them")
+    expect(
+        !ours.contains("/Volumes/share") && !ours.contains("/Volumes/BACKUP"),
+        "and somebody else's share and a local disk are not")
+
     // A mount point is a place something is mounted, and nothing else. The
     // engine makes the directory before it mounts on it and leaves it there
     // when the mount fails, so "the path exists" answered yes for a drive that

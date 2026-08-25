@@ -2040,9 +2040,15 @@ import CryptoKit
                 // What the app has, and what the system has, when those differ.
                 print("      the app says: \(points.joined(separator: ", "))")
                 print("      it counted: \(model.volumeCount)")
-                let engineMounts = MountTableEntry.all(in: mountTable())
+                let table = mountTable()
+                let engineMounts = MountTableEntry.all(in: table)
                     .filter(\.isEngineMount).map(\.mountPoint)
-                print("      the mount table says: \(engineMounts.joined(separator: ", "))")
+                print("      engine mounts: \(engineMounts.joined(separator: ", "))")
+                let underHome = MountTableEntry.all(in: table)
+                    .filter { $0.mountPoint.contains("/Volumes/") }
+                    .map { "\($0.source) on \($0.mountPoint)" }
+                print("      anything under Volumes: \(underHome.joined(separator: " | "))")
+                for line in model.statusLines.suffix(12) { print("      step: \(line)") }
 
                 var wrote = 0
                 for (index, point) in points.enumerated() {
