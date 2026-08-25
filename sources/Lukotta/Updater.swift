@@ -15,7 +15,7 @@ import SwiftUI
 /// The delegate has to be handed to the controller as it is built, and is
 /// read-only afterwards, so it cannot be the Updater itself — that object does
 /// not exist yet at the point it would have to be passed.
-private final class UpdaterRelay: NSObject, SPUUpdaterDelegate {
+final class UpdaterRelay: NSObject, SPUUpdaterDelegate {
     var onFailure: ((String) -> Void)?
     var onWillInstall: (() -> Void)?
     /// Answers whether a drive is open that the app itself is holding.

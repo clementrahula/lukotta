@@ -42,6 +42,18 @@
             // which the script checks for itself, by asking it to.
             let delegate = HeadlessDelegate()
             Self.delegate = delegate
+
+            // A drive open while the update arrives, when one was asked for.
+            //
+            // The app postpones an update it would have to interrupt: without
+            // the helper the virtual machine serving the drive is this
+            // process's own child, so replacing the bundle takes the drive with
+            // it. That is written down in UpdaterRelay and had never once been
+            // run -- and an engine running out of a bundle Sparkle is replacing
+            // is exactly what wedged an earlier run of this harness.
+            if let held = value(after: "hold") {
+                holdOpen(URL(fileURLWithPath: held), passphrase: value(after: "with"))
+            }
             let updater = SPUUpdater(
                 hostBundle: Bundle.main, applicationBundle: Bundle.main,
                 userDriver: driver, delegate: delegate)
@@ -64,6 +76,55 @@
 
         /// Held here because the updater keeps only a weak reference to it.
         static var delegate: (any SPUUpdaterDelegate)?
+
+        /// The drive being held open while the update is offered, if any.
+        static var holding: (model: AppModel, mountPoint: String)?
+
+        /// The value of `name=value` on the command line, or nil.
+        static func value(after name: String) -> String? {
+            for argument in CommandLine.arguments where argument.hasPrefix(name + "=") {
+                return String(argument.dropFirst(name.count + 1))
+            }
+            return nil
+        }
+
+        /// Open an image and leave it mounted, so the update arrives while a
+        /// drive is open.
+        @MainActor
+        static func holdOpen(_ image: URL, passphrase: String?) {
+            let model = AppModel()
+            model.start()
+            let ready = Date().addingTimeInterval(60)
+            while model.isScanning, Date() < ready {
+                RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+            }
+            model.openImage(image)
+            let opened = Date().addingTimeInterval(120)
+            while model.imageOpening != nil || !model.drives.contains(where: { $0.uuid == image.path }
+            ), Date() < opened {
+                RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+            }
+            guard let drive = model.drives.first(where: { $0.uuid == image.path }) else {
+                fail("the drive to hold open would not open: \(image.lastPathComponent)")
+            }
+            model.choose(drive)
+            let identified = Date().addingTimeInterval(60)
+            while model.chosenFormat == nil, Date() < identified {
+                RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+            }
+            if let passphrase { model.credential = passphrase }
+            model.unlock(drive)
+            let mounted = Date().addingTimeInterval(240)
+            var point: String?
+            while point == nil, Date() < mounted {
+                RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+                if case .mounted(_, let where_) = model.phase { point = where_ }
+                if case .failed(_, let why, _) = model.phase { fail("it would not mount: \(why)") }
+            }
+            guard let point else { fail("it did not mount inside four minutes") }
+            holding = (model, point)
+            say("holding \(image.lastPathComponent) open at \(point)")
+        }
 
         static func say(_ what: String) {
             FileHandle.standardOutput.write(Data("  \(what)\n".utf8))
@@ -95,6 +156,31 @@
         }
 
         func updaterShouldRelaunchApplication(_ updater: SPUUpdater) -> Bool { false }
+
+        /// The app's rule, asked of the app's own relay: an update is put off
+        /// while this process is the one serving the drive.
+        func updater(
+            _ updater: SPUUpdater,
+            shouldPostponeRelaunchForUpdate item: SUAppcastItem,
+            untilInvokingBlock installHandler: @escaping () -> Void
+        ) -> Bool {
+            let held = MainActor.assumeIsolated { UpdateHarness.holding }
+            guard let held else { return false }
+            UpdateHarness.say("postponed, because a drive is open")
+
+            // Ejected the way somebody would, and then the update goes ahead.
+            // What is being proved is that it waited: an update that replaced
+            // the bundle now would take the machine serving that drive with it.
+            MainActor.assumeIsolated {
+                held.model.eject(held.mountPoint)
+                UpdateHarness.holding = nil
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                UpdateHarness.say("the drive is ejected; letting it install")
+                installHandler()
+            }
+            return true
+        }
     }
 
     /// Every decision a person would make, made the same way every time: yes.

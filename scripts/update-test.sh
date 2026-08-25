@@ -291,6 +291,58 @@ else
   GOOD_BUILD="$DELTA_BUILD"
 fi
 
+printf '\nan update offered while a drive is open\n'
+# The one an update must not do: replace the bundle while the machine serving
+# somebody's drive is running out of it. Without the helper that machine is the
+# app's own child, so the app puts the update off until the drive is ejected --
+# a rule written down in UpdaterRelay and, until now, never once run.
+HOLD_BUILD="$((DELTA_BUILD + 1))"
+if [ -z "$DELTA_TOOL" ]; then
+  HOLD_BUILD="$((TO_BUILD + 1))"
+fi
+if [ -f "$FIXTURE" ]; then
+  printf '  building the version to update to (build %s)\n' "$HOLD_BUILD"
+  LUKOTTA_INSTALL=0 LUKOTTA_DEVTOOLS=1 LUKOTTA_BRANDING=beta LUKOTTA_BUILD="$HOLD_BUILD" \
+    ./build-app.sh "$WORK/held/$APP_NAME.app" >/dev/null
+
+  HOLD_ZIP="$WORK/feed/$APP_NAME-$VERSION-$HOLD_BUILD.zip"
+  /usr/bin/ditto -c -k --keepParent "$WORK/held/$APP_NAME.app" "$HOLD_ZIP"
+  HOLD_LINE="$("$SIGN" --account "${LUKOTTA_SPARKLE_ACCOUNT:-lukotta}" "$HOLD_ZIP")"
+  HOLD_SIG="$(printf '%s' "$HOLD_LINE" | sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p')"
+  HOLD_LEN="$(printf '%s' "$HOLD_LINE" | sed -n 's/.*length="\([^"]*\)".*/\1/p')"
+  python3 "$HERE/scripts/appcast.py" \
+    --appcast "$WORK/feed/appcast.xml" \
+    --version "$VERSION" \
+    --build "$HOLD_BUILD" \
+    --url "http://127.0.0.1:$PORT/$(basename "$HOLD_ZIP")" \
+    --length "$HOLD_LEN" \
+    --signature "$HOLD_SIG" \
+    --min-system "$(/usr/libexec/PlistBuddy -c 'Print LSMinimumSystemVersion' "$INSTALLED/Contents/Info.plist")" \
+    --pubdate "$(LC_ALL=C date -u '+%a, %d %b %Y %H:%M:%S +0000')" >/dev/null
+
+  set +e
+  "$BINARY" --update-test "$FEED" hold="$FIXTURE" >"$WORK/held.log" 2>&1
+  status=$?
+  set -e
+  sed 's/^/    /' "$WORK/held.log"
+  that "the drive was open when the update arrived" \
+    grep -q "holding" "$WORK/held.log"
+  that "and the update waited for it rather than pulling it away" \
+    grep -q "postponed, because a drive is open" "$WORK/held.log"
+  that "then installed once it was ejected" same "$status" "0"
+  for _ in $(seq 1 120); do
+    [ "$(installed_build)" = "$HOLD_BUILD" ] && break
+    /bin/sleep 0.5
+  done
+  that "and the app in /Applications is the build that waited" \
+    same "$(installed_build)" "$HOLD_BUILD"
+  that "nothing of the engine is left serving nothing" \
+    test -z "$(/usr/sbin/lsof -c anylinuxfs 2>/dev/null | head -1)"
+  GOOD_BUILD="$HOLD_BUILD"
+else
+  printf '  ..   no fixture at %s; an update with a drive open is not tried\n' "$FIXTURE"
+fi
+
 printf '\na version that will not start at all\n'
 # Rollback keeps the outgoing bundle aside and puts it back after three launches
 # that never reach a working window. Proved with a binary that cannot run rather
