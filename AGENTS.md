@@ -392,12 +392,28 @@ the code alone. Changing one needs the evidence that established it.
 - **The copy is made when the archive arrives, not when it installs.** Sparkle
   sends `didDownloadUpdate` and `didExtractUpdate`, and does not send
   `willInstallUpdate`. A copy hung on that one is never made.
+- **A copy of the running version is armed, not spent.** It is dropped only
+  when it is of some *other* version, which is proof the swap already happened.
+  Between a download and the quit that installs it -- and Sparkle resumes an
+  extracted update a session later without downloading it again -- the copy is
+  of what is running, and dropping it there disarms the install it was made
+  for. `--smoke-test` runs this path too.
 - **The machinery slipping is not the drive refusing.** A broken pipe, a locked
   image, an NFS mount macOS would not make: absorbed and retried, never
   reported. A wrong passphrase or an unreadable filesystem is an answer and is
   reported at once. `TransientFailure` holds the list.
-- **An attempt has an end.** Eight minutes, then what it started is taken down.
-  No real drive needs it and a stuck one would otherwise wait for ever.
+- **An attempt has an end, on every route.** Eight minutes, then what it started
+  is taken down. No real drive needs it and a stuck one would otherwise wait for
+  ever. The mount script ends itself a little sooner than that, because ending a
+  privileged attempt from outside reaches the shell and not the root engine
+  under it -- which went on mounting, and produced a drive in Finder minutes
+  after somebody had been told it could not be opened.
+- **A sweep takes down only what this app can show is its own, and says what
+  really came down.** A mount point it wrote down when it made it, or one under
+  this user's `~/Volumes`. A probe that could not be started is not a mount that
+  has stopped answering, and one silence is not two. Reporting a forced unmount
+  that did not happen is what sent the sweep on to take down engines still
+  serving it.
 
 ## Security Invariants
 
@@ -500,3 +516,10 @@ Properties of the design. Each has been decided, and arriving at one and
   hardware. Identification is covered both ways by tests over synthetic boot
   sectors, and anything unrecognised is left alone. A gap in the evidence rather
   than a known fault: treat a report against one seriously.
+- **The privileged route.** Every fixture is a container file, which opens
+  unprivileged, so nothing in the harnesses has ever gone through `osascript`
+  with an administrator password or through the daemon. The deadline the daemon
+  keeps, the script's own deadline, and the daemon's unmount lent to the sweep
+  are all on that route. Their unprivileged twins are exercised on every run,
+  and the shell the deadline is built from is covered by a test of its own --
+  but the route itself waits on a drive nobody here has.
