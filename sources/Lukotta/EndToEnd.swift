@@ -1024,11 +1024,15 @@ import CryptoKit
                 let got = try? String(contentsOf: file, encoding: .utf8)
                 if got != contents { missing.append(what) }
             }
-            check(
-                missing.isEmpty,
-                missing.isEmpty
-                    ? "every name comes back as it was typed"
-                    : "every name comes back as it was typed (\(missing.joined(separator: ", ")))")
+            // Written as an if rather than a ternary on purpose: the string
+            // extractor reads a literal in a ternary as a sentence the app
+            // says, and the coverage gate then asks for it in thirty-six
+            // languages.
+            var nameVerdict = "every name comes back as it was typed"
+            if !missing.isEmpty {
+                nameVerdict += " (" + missing.joined(separator: ", ") + ")"
+            }
+            check(missing.isEmpty, nameVerdict)
             // Listed as well as opened: a name the mount hands back differently
             // from the one it was given opens by luck and lists wrongly.
             let listed = Set((try? FileManager.default.contentsOfDirectory(atPath: names.path)) ?? [])
