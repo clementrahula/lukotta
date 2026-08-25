@@ -54,3 +54,49 @@ done
 
 printf '  %s languages, two appearances, %s pictures in %s\n' \
   "$count" "$(find "$OUT" -name '*.png' | wc -l | tr -d ' ')" "$OUT"
+
+# Nothing in a picture but the picture.
+#
+# What AppKit writes is already free of anything personal -- no date, no name,
+# no machine, no camera fields -- but "already free" is a property of this
+# version of macOS rather than a promise, and these files are published. So
+# every chunk that is not the image itself is dropped, and the extended
+# attributes the filesystem hangs on a written file go with them.
+#
+# One will not go: com.apple.provenance is written by the system and cannot be
+# removed by anybody. It is three bytes standing for an entry in a database on
+# this Mac, and carries no name, path or account -- so it is left, and said out
+# loud here rather than quietly assumed harmless.
+#
+# pHYs is kept: it records that the picture is drawn at twice the density, which
+# is what makes it come out the right size rather than double everywhere it is
+# placed. sRGB is kept because dropping it changes the colours.
+printf 'Taking everything but the picture back out\n'
+python3 - "$OUT" <<'PYTHON'
+import pathlib
+import struct
+import sys
+
+KEEP = {b"IHDR", b"PLTE", b"tRNS", b"sRGB", b"pHYs", b"IDAT", b"IEND"}
+SIGNATURE = b"\x89PNG\r\n\x1a\n"
+
+removed = 0
+for path in sorted(pathlib.Path(sys.argv[1]).glob("*.png")):
+    raw = path.read_bytes()
+    if not raw.startswith(SIGNATURE):
+        sys.exit(f"{path} is not a PNG")
+    out, at, dropped = bytearray(SIGNATURE), len(SIGNATURE), []
+    while at < len(raw):
+        length, kind = struct.unpack_from(">I4s", raw, at)
+        end = at + 12 + length
+        if kind in KEEP:
+            out += raw[at:end]
+        else:
+            dropped.append(kind.decode("latin1"))
+        at = end
+    if dropped:
+        path.write_bytes(out)
+        removed += len(dropped)
+print(f"  {removed} chunks out of {len(list(pathlib.Path(sys.argv[1]).glob('*.png')))} pictures")
+PYTHON
+xattr -c "$OUT"/*.png
