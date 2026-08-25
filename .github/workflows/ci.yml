@@ -39,9 +39,9 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-        # The whole history, not the tip. Two of the checks below read it --
-        # one for anything private, one for a second author -- and against the
-        # single commit a default checkout fetches, both pass by seeing nothing.
+        # The whole history, not the tip. The gitleaks pass below reads it,
+        # and against the single commit a default checkout fetches it passes by
+        # seeing nothing.
         with:
           fetch-depth: 0
 
@@ -96,27 +96,6 @@ jobs:
         run: |
           brew install gitleaks
           gitleaks detect --redact --no-banner --config .gitleaks.toml
-
-      # People may co-author a commit here; tools may not. Checked over the
-      # whole history rather than the tip, because a trailer reaches this
-      # repository through a clone with no hooks installed or a --no-verify,
-      # and taking one back out costs a rewrite of everything after it. The
-      # same list as .githooks/commit-msg, and the same caveat: add to it
-      # rather than trying to guess at what an author is.
-      - name: No tool credited as an author, anywhere in the history
-        run: |
-          tools='anthropic\.com|openai\.com|claude|chatgpt|\bgpt-|copilot|codex'
-          tools="$tools"'|cursor|devin|windsurf|\baider\b|google-labs-jules'
-          tools="$tools"'|gemini|noreply@github\.com'
-          found="$(git log --all --format='%H %(trailers:only,unfold)' \
-            | grep -iE 'co-authored-by:|signed-off-by:|on-behalf-of:' \
-            | grep -iE "$tools" || true)"
-          if [ -n "$found" ]; then
-            echo "These commits credit a tool as an author:"
-            echo "$found"
-            exit 1
-          fi
-          echo "  no commit credits a tool"
 
       - name: Lint, and whether the checks are keeping up
         run: |

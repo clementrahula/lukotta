@@ -1,17 +1,16 @@
 #!/bin/bash
-# Refuse a commit message that credits the tool that wrote the diff.
+# Take the tool's name back out of a commit message, and commit.
 #
-# Co-authorship itself is fine, and will matter: a project with more than one
-# maintainer has commits belonging to more than one person, and a
-# Co-Authored-By naming one of them is the record of that. What does not belong
-# in the history is a tool. An agent is not an author, its address is nobody's,
-# and stamped onto every commit it becomes an identity in the history and a name
-# on every fork of it. The README says what wrote this app, once, which is where
-# somebody looking for that answer goes.
+# Co-authorship stays: a project with more than one maintainer has commits
+# belonging to more than one person, and a Co-Authored-By naming one of them is
+# the record of that. A tool is not one of them -- an agent is not an author,
+# its address is nobody's, and stamped onto every commit it becomes an identity
+# in the history and a name on every fork of it. The README says what wrote this
+# app, once, which is where somebody looking for that answer goes.
 #
-# Taking one back out costs a rewrite of every commit after it and a force-push
-# over whatever anybody had already cloned; three hundred and forty-one of them
-# once cost exactly that. Refusing them costs nothing.
+# This does not refuse the commit. Nobody put the line there on purpose; the
+# tools add it themselves, and stopping somebody's work to tell them so is worse
+# than the line. So it is removed and the commit goes through.
 #
 # The list is names and addresses, and it is not clever: a tool not on it goes
 # through. Add to it rather than trying to guess at what an author is.
@@ -19,17 +18,19 @@ set -uo pipefail
 message="$1"
 
 TOOLS='anthropic\.com|openai\.com|claude|chatgpt|\bgpt-|copilot|codex|cursor|devin|windsurf|\baider\b|google-labs-jules|gemini|noreply@github\.com'
+TRAILER="^(co-authored-by|signed-off-by|on-behalf-of):.*($TOOLS)"
 
-found="$(grep -inE '^(co-authored-by|signed-off-by|on-behalf-of):' "$message" \
-  | grep -iE "$TOOLS" || true)"
-if [ -n "$found" ]; then
-  echo "This message credits a tool as an author:"
-  echo ""
-  echo "${found//$'\n'/$'\n'  }" | sed -e '1s/^/  /'
-  echo ""
-  echo "People can co-author a commit here; tools cannot. Say what the change"
-  echo "does; the README says what wrote it."
-  echo ""
-  echo "Nothing was committed."
-  exit 1
+found="$(grep -icE "$TRAILER" "$message" || true)"
+[ "$found" = "0" ] && exit 0
+
+# The blank line the trailer was sitting after goes with it: a command
+# substitution drops trailing newlines, which is the whole of the tidying up
+# needed here.
+kept="$(grep -ivE "$TRAILER" "$message" || true)"
+printf '%s\n' "$kept" > "$message"
+
+if [ "$found" = "1" ]; then
+  echo "  took out a line crediting a tool as an author"
+else
+  echo "  took out $found lines crediting a tool as an author"
 fi
