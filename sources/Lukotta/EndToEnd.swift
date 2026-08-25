@@ -1056,10 +1056,14 @@ import CryptoKit
             }
             try? handle.close()
             check(refused, "filling the volume is refused rather than half-done")
-            let onDisk =
-                (try? FileManager.default.attributesOfItem(atPath: hog.path)[.size] as? Int) ?? 0
+            // Read as an answer or as nothing, never as zero: unreadable
+            // attributes default to zero, and zero is under every limit, so the
+            // check passed on a file nothing could measure.
+            let onDisk = (try? FileManager.default.attributesOfItem(atPath: hog.path))?[.size]
+                as? Int
+            check(onDisk != nil, "and the file it half-wrote can be measured")
             check(
-                onDisk ?? 0 <= free + piece.count,
+                (onDisk ?? Int.max) <= free + piece.count,
                 "and what it holds is no more than there was room for")
             try? FileManager.default.removeItem(at: hog)
             let afterwards =
@@ -1597,18 +1601,19 @@ import CryptoKit
             check(model.chosenFormat == .exfat, "it was recognised as exFAT")
 
             // The volume must be local rather than served over NFS.
-            let table = (try? String(contentsOfFile: "/dev/null", encoding: .utf8)) ?? ""
-            _ = table
             check(FileManager.default.fileExists(atPath: point), "and macOS mounted it at \(point)")
             check(point.hasPrefix("/Volumes/"), "in /Volumes, like any other disk")
             check(
                 !model.drives.contains { $0.uuid == image.path },
                 "and it is not in this app's list, because it is not this app's to hold")
 
-            // macOS owns the attachment once it is handed over, so detaching it
-            // here would remove the volume just mounted.
-            DiskImage.detach("/dev/" + (point as NSString).lastPathComponent)
-            _ = DiskImage.attachedDevices(forImages: [image.path]).map { DiskImage.detach($0) }
+            // macOS owns the attachment once it is handed over. Detached by
+            // the device it is actually on, which is what the image says: a
+            // path built from the mount point names /dev/<volume name>, which
+            // is nothing, and left the image attached after every run.
+            for device in DiskImage.attachedDevices(forImages: [image.path]) {
+                DiskImage.detach(device)
+            }
         }
 
         /// A qcow2, which macOS cannot attach at all. The engine reads the format

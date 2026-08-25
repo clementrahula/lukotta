@@ -273,17 +273,20 @@ NOTES_FILE="$NOTES_DIR/$VERSION.html"
 # becomes the body of the GitHub release further down, so the two cannot say
 # different things.
 python3 - "$VERSION" "$NOTES_SOURCE" > "$NOTES_FILE" <<'PYEOF'
-import pathlib, re, sys
+import html, pathlib, re, sys
 version = sys.argv[1]
 source = pathlib.Path(sys.argv[2])
 body = source.read_text().strip() if source.exists() else ""
 items = [re.sub(r"\s+", " ", b).strip() for b in re.split(r"\n(?=- )", body) if b.strip()]
 print("<html><body style=\"font: -apple-system-body; margin: 0\">")
-print(f"<h2>Version {version}</h2>")
+print(f"<h2>Version {html.escape(version)}</h2>")
 if items:
     print("<ul>")
+    # Escaped, because these are somebody's sentences, not markup. A note
+    # mentioning <Enter>, "AT&T" or a comparison of two numbers otherwise
+    # produces a panel with half a line missing and a release page to match.
     for item in items:
-        print(f"  <li>{item.lstrip('- ')}</li>")
+        print(f"  <li>{html.escape(item.lstrip('- '))}</li>")
     print("</ul>")
 else:
     print("<p>No notes were written for this version.</p>")
@@ -309,13 +312,25 @@ DELTA_ARGS=()
 DELTA_FILES=()
 PREVIOUS="${KEPT_PREVIOUS:-${LUKOTTA_PREVIOUS:-$HERE/dist/previous}}"
 DELTA_TOOL="$(find "$HERE/.build" -name BinaryDelta -type f -perm -111 -print -quit 2>/dev/null || true)"
+# Which application these deltas are for. The release's name is a prefix of the
+# pre-release's, so the glob alone lets the other channel's archives through.
+APP_ID="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Contents/Info.plist")"
 if [ -d "$PREVIOUS" ] && [ -n "$DELTA_TOOL" ]; then
-  for archive in "$PREVIOUS"/*.zip; do
+  # This channel's own archives. Both channels are numbered from the same
+  # count of commits and both keep their archives here, so a beta of build N
+  # lying about while a release is cut produced a release delta built against
+  # the beta bundle and advertised to build N of the release. Sparkle checks
+  # what it is patching before it applies one, so nobody was left with a broken
+  # app -- they were offered a delta that could never apply and quietly sent the
+  # whole archive instead, which is the thing deltas exist to avoid.
+  for archive in "$PREVIOUS/$SLUG"-*.zip; do
     [ -f "$archive" ] || continue
     work="$(mktemp -d)"
     /usr/bin/ditto -x -k "$archive" "$work" 2>/dev/null || { rm -rf "$work"; continue; }
     old_app="$(find "$work" -maxdepth 1 -name "*.app" -print -quit)"
     [ -n "$old_app" ] || { rm -rf "$work"; continue; }
+    old_id="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$old_app/Contents/Info.plist" 2>/dev/null || true)"
+    [ "$old_id" = "$APP_ID" ] || { rm -rf "$work"; continue; }
     old_build="$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$old_app/Contents/Info.plist" 2>/dev/null || true)"
     [ -n "$old_build" ] && [ "$old_build" != "$BUILD" ] || { rm -rf "$work"; continue; }
 

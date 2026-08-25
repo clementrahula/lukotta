@@ -36,13 +36,24 @@ that() { local what="$1"; shift; if "$@" >/dev/null 2>&1; then ok "$what"; else 
 
 # Anything left running from whatever ran last. A machine still serving a mount
 # nobody remembers is the commonest reason a run fails for the wrong reason.
+# Which drives were open before any of this started, and which engines were
+# serving them. Neither is this run's to take down: somebody running a preflight
+# on the Mac they work on has drives open on it, and a forced unmount of one is
+# their writes lost to a test.
+MOUNTS_BEFORE="$(/sbin/mount | awk '/\(nfs/ { sub(/^.* on /, ""); sub(/ \(.*$/, ""); print }' | tr '\n' ' ')"
+ENGINES_BEFORE=" $( (pgrep -f "Contents/Resources/engine/anylinuxfs" || true) 2>/dev/null | tr '\n' ' ') "
+
 tidy() {
   for point in "$HOME"/Volumes/*; do
     [ -d "$point" ] || continue
+    case " $MOUNTS_BEFORE " in *" $point "*) continue ;; esac
     /sbin/umount -f "$point" >/dev/null 2>&1 || true
     rmdir "$point" >/dev/null 2>&1 || true
   done
-  pkill -f "Contents/Resources/engine/anylinuxfs" >/dev/null 2>&1 || true
+  for pid in $( (pgrep -f "Contents/Resources/engine/anylinuxfs" || true) 2>/dev/null); do
+    case "$ENGINES_BEFORE" in *" $pid "*) continue ;; esac
+    kill "$pid" >/dev/null 2>&1 || true
+  done
 }
 
 say "Building both channels"
@@ -84,9 +95,20 @@ for app in "$RELEASE" "$BETA"; do
   LUKOTTA_E2E_QUICK=1 "$app/Contents/MacOS/$name" --e2e \
     container="$CACHE/container.img" passphrase="$PASSPHRASE" \
     plain="$CACHE/plain.img" ntfs="$CACHE/plain.ntfs.img" >"$log" 2>&1
+  ran=$?
   steps="$(grep -c '^  ok' "$log" || true)"
   broke="$(grep -c '^  FAIL' "$log" || true)"
-  if [ "${broke:-0}" -eq 0 ]; then
+  # Three things, not one. A harness that dies at launch -- a dyld failure, the
+  # wrong engine directory, a crash before the first check -- leaves an empty
+  # log, and counting only failures reads that as a clean run: "ok (0 checks)",
+  # from the gate that exists to catch exactly that.
+  if [ "$ran" -ne 0 ]; then
+    bad "$name opens, writes to and ejects a drive (the run itself failed, status $ran)"
+    tail -12 "$log" | sed 's/^/      /'
+  elif [ "${steps:-0}" -lt 20 ]; then
+    bad "$name opens, writes to and ejects a drive (only $steps checks ran)"
+    tail -12 "$log" | sed 's/^/      /'
+  elif [ "${broke:-0}" -eq 0 ]; then
     ok "$name opens, writes to and ejects a drive ($steps checks)"
   else
     bad "$name opens, writes to and ejects a drive ($broke of $((steps + broke)) failed)"

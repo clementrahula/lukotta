@@ -81,6 +81,21 @@ if [ -d "$OTHER_HOME" ]; then
   OTHER_BEFORE="$(find "$OTHER_HOME" -exec stat -f '%m %z %N' {} + 2>/dev/null | sort)"
 fi
 
+# Whether a filesystem was really written, by the mark it leaves at a known
+# offset. Every mkfs here runs with its output thrown away, and one that fails
+# leaves a file of zeroes that is cached for ever: the run that made it goes on
+# to fail, and so does every run after it, for a reason that has nothing to do
+# with the app. Deleted instead, so the next run simply makes it again.
+made_or_go() {
+  local file="$1" offset="$2" mark="$3" what="$4"
+  if dd if="$file" bs=1 skip="$offset" count="${#mark}" 2>/dev/null | grep -q "$mark"; then
+    return 0
+  fi
+  rm -f "$file"
+  echo "error: $what was not created; run this again" >&2
+  exit 1
+}
+
 if [ ! -f "$CONTAINER" ]; then
   echo "==> Building a LUKS container to test against (once)"
   mkdir -p "$CACHE"
@@ -114,6 +129,7 @@ if [ ! -f "$PLAIN" ]; then
   dd if=/dev/zero of="$PLAIN" bs=1m count=320 2>/dev/null
   "$ENGINE" shell "$PLAIN" -c "mkfs.btrfs -f -q -L LUKOTTAPLAIN /dev/vda" >/dev/null 2>&1
   restore_length "$PLAIN" "$SIZE"
+  made_or_go "$PLAIN" 65600 _BHRfS_M "an unencrypted image"
 fi
 
 # ext4, which is what nearly every Linux install puts on its volumes.
@@ -166,6 +182,7 @@ if [ ! -f "$NTFS" ]; then
   dd if=/dev/zero of="$NTFS" bs=1m count=320 2>/dev/null
   "$ENGINE" shell "$NTFS" -c "mkfs.ntfs -f -F -L LUKOTTANTFS /dev/vda" >/dev/null 2>&1
   restore_length "$NTFS" "$SIZE"
+  made_or_go "$NTFS" 3 NTFS "an NTFS image"
 fi
 
 if [ ! -f "$EXFAT" ]; then
@@ -178,6 +195,7 @@ if [ ! -f "$EXFAT" ]; then
   dev="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$EXFAT" | head -1 | awk '{print $1}')"
   newfs_exfat -v EXFAT "$dev" >/dev/null 2>&1
   hdiutil detach "$dev" -force >/dev/null 2>&1
+  made_or_go "$EXFAT" 3 EXFAT "an exFAT image"
 fi
 
 # qcow2 wrappers around the two images above. There is no qemu-img on a Mac, so
@@ -283,7 +301,7 @@ clean_up() {
   status=$?
   while read -r point; do
     [ -n "$point" ] && umount "$point" >/dev/null 2>&1 || true
-  done < <(/sbin/mount | awk '/ on .*\/Volumes\/LUKOTTA(E2E|PLAIN)/ && /nfs/ {
+  done < <(/sbin/mount | awk '/ on .*\/Volumes\/(LUKOTTA|EXFAT|Disk-Image|CROWD)/ && /nfs/ {
       sub(/^.* on /, ""); sub(/ \(.*$/, ""); print }')
   # Only where nothing is being served any more. An engine with a live mount
   # behind it belongs to whoever opened that drive -- which may be somebody

@@ -361,6 +361,29 @@ public enum EngineEnvironment {
         return true
     }
 
+    /// Take away what is left under the old name once nothing of ours is in
+    /// it any more.
+    ///
+    /// The adoption above is a move, so it empties the directory rather than
+    /// clearing it: `<Old Name>/engine/.anylinuxfs` and its parents stay behind
+    /// as empty directories nobody will ever look in. Removed only while they
+    /// are empty -- a Mac that has not been through the move yet keeps
+    /// everything it has.
+    public static func forgetLegacyNamedHomeIfEmpty() {
+        guard let older = legacyNamedHome else { return }
+        let manager = FileManager.default
+        // engine/, then the directory named after the application, innermost
+        // first. Each goes only if the one inside it left nothing behind.
+        var here: URL? = older
+        while let url = here, url.lastPathComponent != "Application Support" {
+            guard let left = try? manager.contentsOfDirectory(atPath: url.path) else { return }
+            let real = left.filter { $0 != ".DS_Store" }
+            guard real.isEmpty else { return }
+            try? manager.removeItem(at: url)
+            here = url.deletingLastPathComponent()
+        }
+    }
+
     /// How far through the unpacking we are, or nil when there is nothing to
     /// count against.
     ///
