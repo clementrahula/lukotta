@@ -204,23 +204,37 @@ public enum Mounter {
     /// Ask the engine where the volume landed; fall back to scraping only if it
     /// has nothing to say.
     public static func discoverMountPoint(for drive: Drive, transcript: String) -> String? {
+        // Nothing counts as a mount point that is not in the mount table.
+        //
+        // The engine makes the directory before it mounts anything on it, and
+        // leaves it there when the mount fails. Both routes below used to
+        // answer with a path that merely existed -- the engine's own record of
+        // itself, which goes stale, and a line from the transcript checked with
+        // fileExists -- so a mount that never happened was reported as a drive
+        // that had opened. What the person then had was an empty folder they
+        // did not have permission to write to, and no failure anywhere.
+        let table = LukottaCore.mountTable()
+        let mounted = Set(MountTableEntry.all(in: table).map(\.mountPoint))
+
         // An LVM mount is reported as "lvm:<vg>:<disk>:<lv>" rather than by the
         // device path, so match on the disk identifier it carries.
         if let m = EngineStatus.current().first(where: {
             $0.devicePath == drive.devicePath
                 || drive.owns($0.devicePath)
-        }) {
+        }), mounted.contains(m.mountPoint) {
             return m.mountPoint
         }
-        return scrapeMountPoint(for: drive, transcript: transcript)
+        return scrapeMountPoint(for: drive, transcript: transcript, mounted: mounted)
     }
 
-    private static func scrapeMountPoint(for drive: Drive, transcript: String) -> String? {
+    private static func scrapeMountPoint(
+        for drive: Drive, transcript: String, mounted: Set<String>
+    ) -> String? {
         for line in transcript.components(separatedBy: .newlines) {
             guard let r = line.range(of: "/Volumes/") else { continue }
             let candidate = String(line[r.lowerBound...])
                 .trimmingCharacters(in: CharacterSet(charactersIn: " \t\"'.,)"))
-            if FileManager.default.fileExists(atPath: candidate) { return candidate }
+            if mounted.contains(candidate) { return candidate }
         }
         // Fall back to asking the system for NFS mounts under /Volumes.
         for line in mountTable().components(separatedBy: .newlines)

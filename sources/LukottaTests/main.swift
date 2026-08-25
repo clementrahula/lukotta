@@ -728,6 +728,24 @@ group("mountStages") {
         !checkedRO.contains("__slipped"),
         "a mount asked for read-only has no write attempt to try again")
 
+    // A mount point is a place something is mounted, and nothing else. The
+    // engine makes the directory before it mounts on it and leaves it there
+    // when the mount fails, so "the path exists" answered yes for a drive that
+    // had not opened: the person got an empty folder they could not write to
+    // and no failure anywhere.
+    let mountedSomewhere = """
+        map auto_home on /System/Volumes/Data/home (autofs, automounted)
+        disk4s1.local:/mnt/BACKUP on /Users/someone/Volumes/BACKUP (nfs, nodev)
+        """
+    expect(
+        Set(MountTableEntry.all(in: mountedSomewhere).map(\.mountPoint))
+            .contains("/Users/someone/Volumes/BACKUP"),
+        "a mount in the table is a mount")
+    expect(
+        !Set(MountTableEntry.all(in: mountedSomewhere).map(\.mountPoint))
+            .contains("/Users/someone/Volumes/Disk-Image"),
+        "and a directory nobody mounted anything on is not, whatever is on disk")
+
     // The app keeps the outgoing version aside; the shim in front of it decides
     // whether to put it back. They have to agree about where it is, and did
     // not: one used the identifier, the other the name on disk, so a broken

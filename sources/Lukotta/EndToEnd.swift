@@ -336,8 +336,49 @@ import CryptoKit
         /// for start a screen further down. Each wait is still checked here, so a
         /// preamble that fails is a counted failure and not a flow that quietly
         /// did nothing.
+        /// - Parameter partitioned: the image carries a partition table, so the
+        ///   list holds a row per partition and none of them is the file. Every
+        ///   other fixture here is a bare container filling its image, whose
+        ///   row is the file itself -- waiting for that row is what the volume
+        ///   group image never satisfied, and three minutes of waiting said
+        ///   "the image opens (gave up)" about an image that had opened.
         @MainActor
-        private static func openAndChoose(_ image: URL, timeout: TimeInterval = 60) -> (
+        private static func openAndChoose(
+            _ image: URL, timeout: TimeInterval = 60, partitioned: Bool = false
+        ) -> (model: AppModel, drive: Drive)? {
+            guard !partitioned else { return openPartitioned(image, timeout: timeout) }
+            return openWholeDisk(image, timeout: timeout)
+        }
+
+        /// A partitioned image: the app chooses the partition itself, as it does
+        /// for somebody who opened the file from Finder.
+        @MainActor
+        private static func openPartitioned(_ image: URL, timeout: TimeInterval) -> (
+            model: AppModel, drive: Drive
+        )? {
+            let model = AppModel()
+            model.start()
+            guard waitUntil("the app finishes scanning", condition: { !model.isScanning }) else {
+                return nil
+            }
+            model.openImage(image)
+            guard
+                waitUntil(
+                    "the image opens", timeout: timeout,
+                    condition: { model.imageOpening == nil && model.phaseIsUnlock })
+            else {
+                if case .failed(_, let why) = model.imageOpening { print("      \(why)") }
+                return nil
+            }
+            guard case .unlock(let drive) = model.phase else {
+                check(false, "a volume of it is on screen")
+                return nil
+            }
+            return (model, drive)
+        }
+
+        @MainActor
+        private static func openWholeDisk(_ image: URL, timeout: TimeInterval) -> (
             model: AppModel, drive: Drive
         )? {
             let model = AppModel()
@@ -1962,7 +2003,12 @@ import CryptoKit
 
             var points: [String] = []
             do {
-                guard let (model, drive) = openAndChoose(image) else { return }
+                // Longer than the rest: this is the largest image the run
+                // opens, and the engine reads a whole volume group out of it
+                // before anything is shown. Sixty seconds is enough for a
+                // single-filesystem fixture and was not for this.
+                guard let (model, drive) = openAndChoose(image, timeout: 180, partitioned: true)
+                else { return }
                 guard
                     waitUntil(
                         "it is identified", timeout: 60,
@@ -1991,14 +2037,28 @@ import CryptoKit
                     condition: { model.openVolumes.count > 1 })
                 points = model.openVolumes.isEmpty ? [mountPoint] : model.openVolumes
                 check(points.count > 1, "more than one volume came up (\(points.count))")
+                // What the app has, and what the system has, when those differ.
+                print("      the app says: \(points.joined(separator: ", "))")
+                print("      it counted: \(model.volumeCount)")
+                let engineMounts = MountTableEntry.all(in: mountTable())
+                    .filter(\.isEngineMount).map(\.mountPoint)
+                print("      the mount table says: \(engineMounts.joined(separator: ", "))")
 
                 var wrote = 0
                 for (index, point) in points.enumerated() {
                     let probe = URL(fileURLWithPath: point).appendingPathComponent(name)
                     let contents = "volume \(index) of \(points.count)\n"
-                    if (try? Data(contents.utf8).write(to: probe)) != nil { wrote += 1 }
+                    do {
+                        try Data(contents.utf8).write(to: probe)
+                        wrote += 1
+                    } catch {
+                        print("      \(point): \(error.localizedDescription)")
+                    }
                 }
                 check(wrote == points.count, "each of them takes a file (\(wrote) of \(points.count))")
+                check(
+                    !model.mountedReadOnly,
+                    "and the group opened read-write, nobody having asked otherwise")
 
                 model.eject(mountPoint)
                 _ = waitUntil("they all eject together", timeout: 180, condition: { !model.isEjecting })
@@ -2006,7 +2066,8 @@ import CryptoKit
             }
 
             // Opened again, by a machine that has never seen any of them.
-            guard let (model, drive) = openAndChoose(image) else { return }
+            guard let (model, drive) = openAndChoose(image, timeout: 180, partitioned: true)
+            else { return }
             guard
                 waitUntil(
                     "it is identified again", timeout: 60,
