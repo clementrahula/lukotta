@@ -59,6 +59,55 @@ supplied by the host, which for an image is `auto`.
 **Verification.** A LUKS2 container within a qcow2 image mounts, and a file
 written into it reads back unchanged. The end-to-end test covers this case.
 
+## anylinuxfs-private-home.patch
+
+**Purpose.** Gives the engine a state directory the caller names, so that two
+applications carrying it do not share one.
+
+anylinuxfs keeps its Linux image and configuration in `~/.anylinuxfs` and its
+logs in `~/Library/Logs`. That is right for a program somebody installed
+themselves. It is wrong for an application that carries the engine inside it,
+because several can be installed at once — a release, a pre-release, and
+anylinuxfs itself — and each ships the image version its own engine was built
+against. One directory between them means each finds an image it did not put
+there.
+
+**Change.** `ANYLINUXFS_HOME` moves the image, the configuration and the logs.
+The home directory itself is still resolved from the invoking user, because it
+decides something else: where an unprivileged mount appears. Drives belong in
+`~/Volumes`, not wherever an application keeps its files.
+
+**Verification.** The end-to-end run records the other channel's directory
+before it starts and compares it afterwards; a run that wrote into it fails.
+Both channels are run in both orders.
+
+## anylinuxfs-serve-volumes-unprivileged.patch
+
+**Defect.** A volume group opened from a disk image gave a read-only folder
+holding one empty directory per volume. The engine mounts the group's own
+directory first and then each volume inside it, and those later mounts were
+escalated with `sudo` — always, and not because anything needed it. `elevate` is
+decided by how the process was started, never by whether the mount would have
+worked without it:
+
+    macOS: need to use sudo to mount additional NFS exports
+    macOS: Failed to mount additional NFS exports: mount failed with exit code 1
+
+Where somebody was there to type a password, they were asked for one in the
+middle of opening a file. Where nobody was, the volumes were simply not there.
+
+**Change.** On macOS the sub-mounts are made the way the mount above them was
+made: as whoever is running the engine. macOS permits a mount on a directory its
+owner holds, which is what the parent mount already demonstrated. Linux keeps
+the previous behaviour, mounting there requiring privilege.
+
+**Verification.** Tested by hand first: `mount -t nfs` on a subdirectory of a
+share already mounted returns 0 as an ordinary user. Then through the
+application, where a LUKS2 container holding a volume group of three volumes
+mounts all three, each takes a file, and each file is still there when the image
+is opened again by a new machine. The end-to-end run covers it where
+`scripts/make-test-volumes.sh` has been run.
+
 ## anylinuxfs-image-formats.patch
 
 **Purpose.** Exposes the VMDK, VDI, VHD and VHDX formats. libkrun accepts a

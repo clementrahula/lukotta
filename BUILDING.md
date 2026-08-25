@@ -175,13 +175,30 @@ staples the ticket into the bundle so a first launch works offline.
 ```bash
 ./scripts/run-tests.sh
 ./scripts/lint.sh
-./scripts/e2e.sh          # a real Mac, Full Disk Access, real images
+./scripts/preflight.sh    # what a release needs, in about half an hour
+./scripts/e2e.sh          # everything, over an hour, a real Mac
 ./dist/Lukotta.app/Contents/MacOS/Lukotta --smoke-test
 ```
 
 The smoke test starts the app far enough to prove that dyld resolved every
 library, then exits. A build that installs and then refuses to launch is the one
 failure an update cannot undo.
+
+`preflight.sh` is what to run before a release: a fresh install, a drive opened
+and written to and ejected, an update applied and rolled back, on both channels.
+`e2e.sh` is the whole thing — every image format, every filesystem it can build
+a fixture for, the awkward names and the unhappy paths — and takes long enough
+that it belongs to a night rather than to a release.
+
+Both need a real Mac with Full Disk Access. `e2e.sh` builds its own fixtures the
+first time, one of them with Homebrew's `mke2fs`, which it fetches if it is
+missing: the guest carries mkfs for btrfs, NTFS and FAT only, and ext4 is what
+nearly every Linux install puts on its volumes. A Mac with no Homebrew tests one
+filesystem fewer and says so.
+
+`scripts/make-test-volumes.sh` builds the LUKS layouts, including a volume group
+of three volumes; `e2e.sh` uses those where they exist and says so where they do
+not.
 
 `build-app.sh` already compares the binary's minimum macOS with the floor the
 engine's bottle sets, and refuses to finish if they disagree. To look at every
@@ -267,6 +284,19 @@ Before anything is built, the notes are printed in full and the release asks
 whether they go out. It is the one part of a release no machine can check.
 `LUKOTTA_NOTES_REVIEWED=1` says they were read somewhere else, for a release
 with nobody at the keyboard.
+
+### Re-vendoring after a change to the engine
+
+`scripts/vendor-engine.sh` keeps the Linux guest it has already vendored and
+refreshes the binaries around it. That is what a change to the host side wants,
+and it is what makes the script safe to run twice: packing a guest means
+trimming an untrimmed image, and on a Mac that has built this before, every copy
+to hand is a trimmed one — the application's own directory and the engine's,
+both filled from a build. Trimming one of those leaves an image with nothing in
+it.
+
+`LUKOTTA_REPACK_GUEST=1` packs a new one, and needs an image nothing has
+trimmed: `anylinuxfs init` writes one into `~/.anylinuxfs`.
 
 Notarisation needs the Mac unlocked. The credential lives in the Local Items
 keychain, which locks with the session, and a locked one is reported as a
