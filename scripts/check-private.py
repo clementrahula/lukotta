@@ -32,7 +32,10 @@ import subprocess
 import sys
 
 # Names a fixture may use. Anything else is somebody's real account.
-ALLOWED_USERS = {"someone", "u", "Shared"}
+# "kim" is invented, and short on purpose: it stands in for a home directory in
+# the pictures drawn for the listings, where a longer one pushes the mount point
+# past the width of the window and every path comes out with an ellipsis in it.
+ALLOWED_USERS = {"someone", "u", "Shared", "kim"}
 
 # Values that are deliberately in the repository, each shaped like the real
 # thing so the code around it is exercised, none of it anyone's.
