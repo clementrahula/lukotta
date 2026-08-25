@@ -31,6 +31,15 @@ QCOW_ENC="$CACHE/container.qcow2"
 PASSPHRASE="lukotta-e2e"
 
 [ -d "$APP" ] || { echo "error: no app at $APP" >&2; exit 1; }
+# The harnesses are compiled out of the release and the beta now, so the app
+# this drives has to have been built with them in:
+#   LUKOTTA_DEVTOOLS=1 LUKOTTA_BRANDING=beta ./build-app.sh "dist/Lukotta Beta.app"
+HARNESS_CHECK="$APP/Contents/MacOS/$(basename "$APP" .app)"
+if ! /usr/bin/strings "$HARNESS_CHECK-app" 2>/dev/null | grep -q -- "--e2e"; then
+  echo "error: $(basename "$APP") was built without the harnesses." >&2
+  echo "       Rebuild it with LUKOTTA_DEVTOOLS=1 and run this again." >&2
+  exit 1
+fi
 BINARY="$APP/Contents/MacOS/$(basename "$APP" .app)"
 ENGINE="$APP/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs"
 

@@ -1331,6 +1331,15 @@ final class AppModel: ObservableObject {
 
     private func refreshCapacity(mounts: Int) {
         capacity = Capacity.now(mounts: mounts)
+        // The loopback addresses belong to the Mac, not to this copy of the
+        // app, so another copy uninstalling releases them all -- and this one
+        // then has three where it had twelve, until its next launch asked for
+        // them again. Asked for here instead, whenever the number is short and
+        // there is a helper to ask.
+        guard capacity.limitCount < Capacity.wanted, helper.isReady else { return }
+        Log.drives.notice(
+            "only \(self.capacity.limitCount, privacy: .public) addresses; asking for more")
+        helper.makeRoomForDrives()
     }
 
     /// Bumped every time a scan's results are applied.

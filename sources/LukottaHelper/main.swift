@@ -307,7 +307,9 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         // Nothing is removed while a drive is open: the mounts are served by
         // machines this daemon started, and taking it away underneath them
         // leaves them with nothing to eject them.
-        guard !LukottaCore.mountTable().contains("nfs") else {
+        guard
+            !MountTableEntry.all(in: LukottaCore.mountTable()).contains(where: \.isEngineMount)
+        else {
             Log.helper.notice("not removing myself: drives are open")
             return reply(false)
         }
@@ -349,7 +351,9 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             // pool shared by every copy of this app on the Mac, and a released
             // app can be serving drives while a pre-release is uninstalled:
             // taking its address away would break a mount somebody is using.
-            guard !LukottaCore.mountTable().contains("nfs") else {
+            guard
+                !MountTableEntry.all(in: LukottaCore.mountTable()).contains(where: \.isEngineMount)
+            else {
                 Log.helper.notice("not releasing addresses: drives are open")
                 return reply(Capacity.addresses().count)
             }

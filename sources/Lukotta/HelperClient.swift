@@ -237,6 +237,12 @@ final class HelperClient: ObservableObject {
                 guard let self else { return }
                 if blessed {
                     Log.app.notice("the helper was installed with an administrator password")
+                } else if FileManager.default.fileExists(atPath: HelperInfo.installedJobPath) {
+                    // One is already installed the other way. Registering now
+                    // would put a second daemon beside it, both claiming the
+                    // same mach service, and which one answered would be
+                    // whichever launchd reached first.
+                    Log.app.notice("a daemon is already installed; not registering a second")
                 } else {
                     // The other route needs no password. It leaves the daemon
                     // switched off until somebody turns it on in Settings, and

@@ -120,11 +120,22 @@ rm -rf "$OUT"
 mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources/helpers"
 
 printf 'Building %s %s (build %s)\n' "$APP_NAME" "$VERSION" "$BUILD"
-# The harnesses go into everything except the app people are given.
-if [ "${LUKOTTA_BRANDING:-unbranded}" = "official" ]; then
-  DEVTOOLS=()
-else
+# The harnesses go into no build anybody is given.
+#
+# They were in everything except the release, which stopped describing the beta
+# the moment the beta went to other people: it carried --e2e, --snapshots and
+# --update-test, and the last of those points at any feed it is handed. Sparkle
+# still checks the signature of whatever arrives, so this was surface rather
+# than a hole, but a pre-release is an app somebody else runs.
+#
+# LUKOTTA_DEVTOOLS=1 puts them back, which is what the harnesses do when they
+# build the copies they drive.
+if [ "${LUKOTTA_DEVTOOLS:-0}" = "1" ]; then
   DEVTOOLS=(-Xswiftc -DDEVTOOLS)
+elif [ "${LUKOTTA_BRANDING:-unbranded}" = "unbranded" ]; then
+  DEVTOOLS=(-Xswiftc -DDEVTOOLS)
+else
+  DEVTOOLS=()
 fi
 
 swift build -c release --product Lukotta ${DEVTOOLS[@]+"${DEVTOOLS[@]}"}
@@ -177,6 +188,19 @@ fi
 # inside the binary, and each side to name a code requirement the other must
 # satisfy. macOS checks both before it installs anything.
 TEAM_ID="$(printf '%s' "$SIGN_ID" | sed -n 's/.*(\([A-Z0-9]*\))$/\1/p')"
+# A real identity always carries its team in brackets. Given one that does not
+# -- a hash, a name typed by hand -- the requirements below would name an empty
+# team, nothing could ever satisfy them, and the app would quietly install its
+# helper the other way instead. Ad-hoc signing has no team by definition and is
+# allowed to carry on: that build cannot bless anything and says so at the point
+# it tries.
+if [ -z "$TEAM_ID" ] && [ "$SIGN_ID" != "-" ]; then
+  echo "error: no team identifier in the signing identity '$SIGN_ID'." >&2
+  echo "       The helper's code requirements are built from it, so a build" >&2
+  echo "       without one installs a daemon nothing is allowed to talk to." >&2
+  echo "       Use the full name, as security find-identity prints it." >&2
+  exit 1
+fi
 HELPER_LABEL="$BUNDLE_ID.helper"
 APP_REQUIREMENT="anchor apple generic and identifier \"$BUNDLE_ID\" and certificate leaf[subject.OU] = \"$TEAM_ID\""
 HELPER_REQUIREMENT="anchor apple generic and identifier \"$HELPER_LABEL\" and certificate leaf[subject.OU] = \"$TEAM_ID\""
@@ -367,8 +391,11 @@ fi
 # requirement names. codesign takes the identifier of a bare Mach-O from its
 # file name, which for that copy is already the label.
 if [ -f "$CONTENTS/MacOS/$HELPER_NAME" ]; then
+  # Not tolerated. An unsigned helper is refused by the system at the moment
+  # somebody tries to set it up, which is on their Mac rather than here.
   /usr/bin/codesign --force --options runtime --sign "$SIGN_ID" \
-    "$CONTENTS/MacOS/$HELPER_NAME" >/dev/null 2>&1 || true
+    "$CONTENTS/MacOS/$HELPER_NAME" >/dev/null 2>&1 \
+    || { echo "error: could not sign the helper in Contents/MacOS" >&2; exit 1; }
 fi
 if [ -f "$CONTENTS/Library/LaunchServices/$HELPER_LABEL" ]; then
   /usr/bin/codesign --force --options runtime --identifier "$HELPER_LABEL" \

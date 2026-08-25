@@ -20,10 +20,16 @@ public enum CredentialStore {
     /// lose every passphrase anybody has saved. A pre-release adds its own
     /// suffix, so it cannot read or overwrite them -- it is a different app,
     /// and somebody testing one should not find the other's keys in it.
+    /// Named after the application, whichever application this is.
+    ///
+    /// It used to be one name with a suffix for the pre-release, so every other
+    /// build -- an unbranded one, a fork, anything built from this source with
+    /// its own identifier -- read and wrote the release's saved passphrases.
+    /// Keying it to the identifier gives each of them its own, and keeps the
+    /// two channels apart as before.
     private static let service: String = {
-        let base = "com.lukotta.drive-credential"
-        let identifier = Bundle.main.bundleIdentifier ?? ""
-        return identifier.hasSuffix(".beta") ? base + ".beta" : base
+        let identifier = Bundle.main.bundleIdentifier ?? "com.example.driveunlocker"
+        return "\(identifier).drive-credential"
     }()
 
     public static func save(_ credential: String, for uuid: String) -> Bool {

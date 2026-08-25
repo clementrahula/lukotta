@@ -206,11 +206,27 @@ public final class Workspace: @unchecked Sendable {
 /// Nothing outside this app writes here, and this app writes nowhere else.
 public enum EngineEnvironment {
 
+    /// Where this app kept the engine before the directory was named after the
+    /// identifier rather than the file. Left behind by a rename otherwise.
+    public static var legacyNamedHome: URL? {
+        let name = Bundle.main.bundleURL.deletingPathExtension().lastPathComponent
+        guard !name.isEmpty, name != appDirectoryName else { return nil }
+        return engineHome(
+            inHome: FileManager.default.homeDirectoryForCurrentUser.path, named: name)
+    }
+
     /// Where the engine keeps everything: the image, its configuration, its
     /// logs. Handed to it in the environment of every process that runs it.
     /// The application's own name, which is what its directory is called: a
     /// beta and a release are two applications and keep two directories.
     public static var appDirectoryName: String {
+        // The identifier, not the name of the file. Somebody renaming the app
+        // in Finder would otherwise be given a fresh directory, a fresh
+        // hundred-megabyte unpack, and no sight of the copy kept aside for
+        // putting a bad update back. The shim in front of the app reads the
+        // same value out of Info.plist, so both arrive at one directory.
+        let identifier = Bundle.main.bundleIdentifier
+        if let identifier, !identifier.isEmpty { return identifier }
         let name = Bundle.main.bundleURL.deletingPathExtension().lastPathComponent
         return name.isEmpty || name == "/" ? "Lukotta" : name
     }
@@ -337,7 +353,7 @@ public enum EngineEnvironment {
         }
         guard ours else { return false }
         // Never out from under a machine that is serving a drive from it.
-        guard !table.contains("nfs") else { return false }
+        guard !MountTableEntry.all(in: table).contains(where: \.isEngineMount) else { return false }
         try? manager.createDirectory(
             at: directory.deletingLastPathComponent(), withIntermediateDirectories: true)
         guard (try? manager.moveItem(at: shared, to: directory)) != nil else { return false }
@@ -381,8 +397,18 @@ public enum EngineEnvironment {
         makeHomeReady()
 
         // An environment this app unpacked before it had a directory of its
-        // own is moved across rather than unpacked again.
-        if directory == alpineDirectory { adoptWhatWasLeftInTheSharedHome(into: directory) }
+        // own is moved across rather than unpacked again -- and so is one it
+        // left under the app's file name, before the directory was named after
+        // the identifier instead. Both are this app's own work; neither is
+        // worth eighty megabytes of unpacking to arrive at again.
+        if directory == alpineDirectory {
+            adoptWhatWasLeftInTheSharedHome(into: directory)
+            if let older = legacyNamedHome {
+                adoptWhatWasLeftInTheSharedHome(
+                    from: older.appendingPathComponent(".anylinuxfs/alpine", isDirectory: true),
+                    into: directory)
+            }
+        }
 
         if isReady(in: directory) {
             guard needsRefresh(in: directory) else { return false }
@@ -392,7 +418,7 @@ public enum EngineEnvironment {
             // this filesystem, and the engine takes an exclusive lock to write
             // here for exactly that reason. Left for the next launch otherwise,
             // which is where the old environment goes on working meanwhile.
-            guard !mountTable().contains("nfs") else {
+            guard !MountTableEntry.all(in: mountTable()).contains(where: \.isEngineMount) else {
                 Log.app.notice("the Linux environment is out of date; a drive is open, so later")
                 return false
             }

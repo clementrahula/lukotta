@@ -81,7 +81,7 @@ public enum EngineProcesses {
     public static func tidyWhatServesNothing(mountTable table: String = LukottaCore.mountTable())
         -> Int
     {
-        guard !MountTableEntry.all(in: table).contains(where: \.isNFS) else { return 0 }
+        guard !MountTableEntry.all(in: table).contains(where: \.isEngineMount) else { return 0 }
         let idle = running()
         guard !idle.isEmpty else { return 0 }
         Log.mount.notice("taking down \(idle.count, privacy: .public) engines serving nothing")

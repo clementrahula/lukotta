@@ -195,10 +195,21 @@ public enum Housekeeping {
             let mine = UserDefaults.standard.stringArray(forKey: key) ?? []
             guard !mine.isEmpty else { return 0 }
 
+            // Where the engine wrote before it was given a directory of its
+            // own. Names recorded then resolve against the new directory, where
+            // nothing of that name exists -- so they were forgotten as "already
+            // gone" while the files sat in the old place for ever.
+            let legacy = FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent("Library/Logs", isDirectory: true)
+
             var kept: [String] = []
             var removed = 0
             for name in mine {
-                let file = base.appendingPathComponent(name)
+                var file = base.appendingPathComponent(name)
+                if !manager.fileExists(atPath: file.path) {
+                    let older = legacy.appendingPathComponent(name)
+                    if manager.fileExists(atPath: older.path) { file = older }
+                }
                 guard manager.fileExists(atPath: file.path) else { continue }  // already gone
                 let written =
                     (try? file.resourceValues(forKeys: [.contentModificationDateKey]))?

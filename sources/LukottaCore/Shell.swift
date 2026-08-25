@@ -111,6 +111,20 @@ public struct MountTableEntry: Sendable {
     /// Whether this is an NFS mount, which is how every mount the engine makes
     /// arrives on this Mac.
     public var isNFS: Bool { options.hasPrefix("nfs") }
+
+    /// Whether this is one of the engine's own.
+    ///
+    /// Not every NFS mount is: an office Mac can have a file server mounted all
+    /// day. Guarding on "any NFS anywhere" meant such a Mac could never remove
+    /// its helper, never release the addresses it had added, and never move its
+    /// Linux environment -- conservative, and permanent.
+    ///
+    /// The engine exports over loopback and names the share after the device it
+    /// unlocked, which is what tells its mounts apart from a file server's.
+    public var isEngineMount: Bool {
+        guard isNFS else { return false }
+        return source.contains(".local:/mnt/") || source.hasPrefix("127.0.0.")
+    }
 }
 
 extension MountTableEntry {

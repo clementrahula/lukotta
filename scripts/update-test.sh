@@ -68,7 +68,7 @@ clean_up() {
 trap clean_up EXIT
 
 printf '==> Building the version to update from (build %s)\n' "$FROM_BUILD"
-LUKOTTA_BRANDING=beta LUKOTTA_BUILD="$FROM_BUILD" ./build-app.sh "$HERE/dist/$APP_NAME.app" >/dev/null
+LUKOTTA_DEVTOOLS=1 LUKOTTA_BRANDING=beta LUKOTTA_BUILD="$FROM_BUILD" ./build-app.sh "$HERE/dist/$APP_NAME.app" >/dev/null
 
 printf '\na Mac that has never had this app\n'
 # Everything this app could have left on a Mac, taken away: its settings, its
@@ -79,7 +79,9 @@ printf '\na Mac that has never had this app\n'
 # place it keeps anything. ~/.anylinuxfs belongs to whatever else on this Mac
 # uses the same engine, and wiping it here would be this harness doing the exact
 # thing the app was changed to stop doing.
-ENGINE_HOME="$HOME/Library/Application Support/$APP_NAME/engine"
+# Named after the identifier, as the app names it -- renaming the application
+# does not move anybody's Linux environment.
+ENGINE_HOME="$HOME/Library/Application Support/$BUNDLE_ID/engine"
 SETTINGS_BACKUP="$WORK/settings.plist"
 defaults export "$BUNDLE_ID" "$SETTINGS_BACKUP" >/dev/null 2>&1 || true
 defaults delete "$BUNDLE_ID" >/dev/null 2>&1 || true
@@ -112,7 +114,7 @@ BEFORE_PROBE="$(defaults read "$BUNDLE_ID" lukottaUpdateProbe 2>/dev/null || ech
 
 printf '\nan update, applied the way a person receives one\n'
 printf '  building the version to update to (build %s)\n' "$TO_BUILD"
-LUKOTTA_INSTALL=0 LUKOTTA_BRANDING=beta LUKOTTA_BUILD="$TO_BUILD" \
+LUKOTTA_INSTALL=0 LUKOTTA_DEVTOOLS=1 LUKOTTA_BRANDING=beta LUKOTTA_BUILD="$TO_BUILD" \
   ./build-app.sh "$WORK/$APP_NAME.app" >/dev/null
 
 mkdir -p "$WORK/feed"
@@ -189,12 +191,27 @@ printf '\na version that will not start at all\n'
 # Rollback keeps the outgoing bundle aside and puts it back after three launches
 # that never reach a working window. Proved with a binary that cannot run rather
 # than by describing it.
-SUPPORT="$HOME/Library/Application Support/$APP_NAME"
+# Named after the identifier, as the app names it.
+SUPPORT="$HOME/Library/Application Support/$BUNDLE_ID"
 KEPT="$SUPPORT/previous"
-rm -rf "$KEPT"
-mkdir -p "$KEPT"
-/usr/bin/ditto "$INSTALLED" "$KEPT/$APP_NAME.app"
-that "the working version is kept aside before the swap" test -d "$KEPT/$APP_NAME.app"
+
+# Made by the app itself, during the update above, and not by this script.
+#
+# It used to be copied here before the check, which proved the shim could put
+# back a bundle somebody had placed for it -- and nothing at all about whether
+# the app keeps one aside when Sparkle replaces it. That is the half that fails
+# quietly: a rollback with nothing to roll back to.
+if [ -d "$KEPT/$APP_NAME.app" ]; then
+  ok "the app kept the outgoing version aside when it was replaced"
+else
+  bad "the app kept the outgoing version aside when it was replaced"
+  # The rest of this section needs something to put back, so it is made here --
+  # and the check above has already recorded that the app did not.
+  mkdir -p "$KEPT"
+  /usr/bin/ditto "$INSTALLED" "$KEPT/$APP_NAME.app"
+fi
+that "and it is a working copy, not an empty directory" \
+  test -x "$KEPT/$APP_NAME.app/Contents/MacOS/$APP_NAME"
 
 # Not a version that starts and fails -- the app puts that back itself. This is
 # one whose own code never runs: the binary inside the bundle is replaced with
@@ -226,6 +243,8 @@ rm -rf "$KEPT" "$SUPPORT/launch-attempts"
 printf '\n==> Putting this Mac back\n'
 # The harness installs a build numbered far above any real one, so a beta left
 # like that answers "up to date" to every genuine feed until somebody notices.
+# Without the harnesses: this is the copy left on the Mac afterwards, and a
+# pre-release somebody uses is not a place for them.
 LUKOTTA_BRANDING=beta ./build-app.sh "$HERE/dist/$APP_NAME.app" >/dev/null 2>&1 \
   && printf '  the real beta is installed again\n' \
   || printf '  could not rebuild the beta; run ./build-app.sh yourself\n'

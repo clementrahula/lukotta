@@ -74,15 +74,23 @@ public enum Diagnostics {
         return
             entries
             .filter { url in
-                guard url.lastPathComponent.hasPrefix(appName), url.pathExtension == "ips"
-                else { return false }
+                // The report is named after the process, which since the launch
+                // shim is "<app>-app". Matching the app's name as a prefix let
+                // "Lukotta Beta-app-….ips" into a release's bug report, where
+                // it sends whoever reads it looking in the wrong application.
+                let name = url.lastPathComponent
+                let mine = name.hasPrefix("\(appName)-app-") || name.hasPrefix("\(appName)-2")
+                guard mine, url.pathExtension == "ips" else { return false }
                 let modified =
                     (try? url.resourceValues(forKeys: [.contentModificationDateKey]))?
                     .contentModificationDate ?? .distantPast
                 guard Date().timeIntervalSince(modified) <= within else { return false }
                 guard let build = currentBuild else { return true }
-                // The .ips header is a JSON object on the first line.
-                guard let reported = buildRecorded(in: url) else { return true }
+                // The .ips header is a JSON object on the first line. A report
+                // whose header cannot be read says nothing about which build it
+                // came from, and was included on that basis -- which is the one
+                // reading that cannot be checked. Left out instead.
+                guard let reported = buildRecorded(in: url) else { return false }
                 return reported == build
             }
             .sorted { a, b in

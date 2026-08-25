@@ -66,6 +66,46 @@ static void record_attempt(const char *path, long count) {
   fclose(file);
 }
 
+// CFBundleIdentifier out of Contents/Info.plist, without a plist parser.
+//
+// The file is a few hundred bytes of XML written by our own build. The key is
+// found, then the next <string> after it. Anything unexpected -- a binary
+// plist, a missing key, a value too long -- answers no, and the caller falls
+// back to the name on disk, which is what it did before.
+static int bundle_identifier(const char *contents_dir, char *out, size_t size) {
+  char path[PATH_MAX];
+  if (!join(path, sizeof(path), contents_dir, "/Info.plist")) return 0;
+  FILE *file = fopen(path, "r");
+  if (file == NULL) return 0;
+
+  char text[8192];
+  size_t read = fread(text, 1, sizeof(text) - 1, file);
+  fclose(file);
+  if (read == 0) return 0;
+  text[read] = '\0';
+
+  const char *key = strstr(text, "<key>CFBundleIdentifier</key>");
+  if (key == NULL) return 0;
+  const char *open_tag = strstr(key, "<string>");
+  if (open_tag == NULL) return 0;
+  open_tag += strlen("<string>");
+  const char *close_tag = strstr(open_tag, "</string>");
+  if (close_tag == NULL || close_tag <= open_tag) return 0;
+
+  size_t length = (size_t)(close_tag - open_tag);
+  if (length == 0 || length >= size) return 0;
+  // Nothing that could reach outside the directory it names.
+  for (size_t i = 0; i < length; i++) {
+    char c = open_tag[i];
+    int allowed = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+                  || (c >= '0' && c <= '9') || c == '.' || c == '-' || c == '_';
+    if (!allowed) return 0;
+  }
+  memcpy(out, open_tag, length);
+  out[length] = '\0';
+  return 1;
+}
+
 static int exists(const char *path) {
   struct stat info;
   return stat(path, &info) == 0;
@@ -106,7 +146,12 @@ static int take_restore_lock(const char *support) {
   if (stat(path, &info) == 0) {
     time_t now = time(NULL);
     if (now - info.st_mtime < LOCK_STALE_AFTER) return 0;
-    unlink(path);
+    // Stale, so it is cleared -- but two launches can reach this line together,
+    // and the second unlink would take away the lock the first has just made.
+    // Only the process whose unlink removed the file it actually looked at goes
+    // on to create one, and creation is exclusive, so exactly one wins either
+    // way.
+    if (unlink(path) != 0) return 0;
   }
   int fd = open(path, O_CREAT | O_EXCL | O_WRONLY, 0600);
   if (fd < 0) return 0;
@@ -141,13 +186,24 @@ int main(int argc, char *argv[]) {
   char real[PATH_MAX];
   if (!join(real, sizeof(real), self, "-app")) return 1;
 
-  // "Lukotta.app" -> "Lukotta"
+  // What this application calls itself, which is its identifier and not the
+  // name of the file. Renaming an app in Finder is somebody tidying up; it
+  // should not orphan the copy kept aside for putting back, the count of
+  // launches, or a hundred megabytes of Linux.
+  //
+  // Read out of Contents/Info.plist by hand: this program links nothing, and a
+  // property list read for one string is a scan for one key.
   char bundle_copy[PATH_MAX];
   strncpy(bundle_copy, bundle, sizeof(bundle_copy) - 1);
   bundle_copy[sizeof(bundle_copy) - 1] = '\0';
   char *bundle_name = basename(bundle_copy);
   char *dot = strrchr(bundle_name, '.');
   if (dot != NULL && strcmp(dot, ".app") == 0) *dot = '\0';
+
+  char identifier[256];
+  if (bundle_identifier(contents, identifier, sizeof(identifier))) {
+    bundle_name = identifier;
+  }
 
   char support[PATH_MAX], attempts_path[PATH_MAX], kept_aside[PATH_MAX];
   int have_support = support_directory(support, sizeof(support), bundle_name);

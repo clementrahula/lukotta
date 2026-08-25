@@ -149,6 +149,12 @@ enum Uninstall {
             }
             await MainActor.run {
                 if let support { try? FileManager.default.removeItem(at: support) }
+                // And what an earlier version of this app kept under the
+                // application's file name, if a rename or an update left one.
+                if let older = EngineEnvironment.legacyNamedHome {
+                    try? FileManager.default.removeItem(
+                        at: older.deletingLastPathComponent())
+                }
                 if let caches { try? FileManager.default.removeItem(at: caches) }
                 UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
                 DriveMemory.forgetEverything()
