@@ -36,9 +36,15 @@
             say("checking \(feed)")
 
             let driver = HeadlessDriver()
+            // Installed, not relaunched. A relaunch would leave a window open
+            // on the Mac this was run from, and what is being proved is that
+            // the bundle in /Applications is replaced by one that starts --
+            // which the script checks for itself, by asking it to.
+            let delegate = HeadlessDelegate()
+            Self.delegate = delegate
             let updater = SPUUpdater(
                 hostBundle: Bundle.main, applicationBundle: Bundle.main,
-                userDriver: driver, delegate: nil)
+                userDriver: driver, delegate: delegate)
             do {
                 try updater.start()
             } catch {
@@ -56,6 +62,9 @@
             fail("nothing happened within five minutes")
         }
 
+        /// Held here because the updater keeps only a weak reference to it.
+        static var delegate: (any SPUUpdaterDelegate)?
+
         static func say(_ what: String) {
             FileHandle.standardOutput.write(Data("  \(what)\n".utf8))
         }
@@ -64,6 +73,11 @@
             FileHandle.standardError.write(Data("  FAIL \(why)\n".utf8))
             exit(1)
         }
+    }
+
+    /// Refuses the relaunch, and nothing else.
+    private final class HeadlessDelegate: NSObject, SPUUpdaterDelegate {
+        func updaterShouldRelaunchApplication(_ updater: SPUUpdater) -> Bool { false }
     }
 
     /// Every decision a person would make, made the same way every time: yes.
@@ -128,9 +142,18 @@
             withApplicationTerminated applicationTerminated: Bool,
             retryTerminatingApplication: @escaping () -> Void
         ) {
-            // Nothing is holding this process open, so it goes away by itself.
-            // Sparkle asks again if it does not.
-            if !applicationTerminated { retryTerminatingApplication() }
+            guard applicationTerminated else {
+                // Quitting is the whole of what an application does here.
+                // The installer will not replace a bundle while the
+                // application inside it is running, so it waits -- and this
+                // used to wait back, sitting in its run loop believing it
+                // would go away by itself. The two waited for each other
+                // until the harness gave up five minutes later. Killing the
+                // process by hand finished the update in seconds, which is
+                // what said which of them was wrong.
+                UpdateHarness.say("quitting, so the bundle can be replaced")
+                exit(0)
+            }
         }
 
         func showUpdateInstalledAndRelaunched(

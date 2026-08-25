@@ -155,9 +155,13 @@ set +e
 status=$?
 set -e
 sed 's/^/    /' "$WORK/update.log"
-that "Sparkle downloaded, checked, installed and relaunched it" same "$status" "0"
+that "Sparkle downloaded it, checked it, and the app quit for it" same "$status" "0"
 
-for _ in $(seq 1 40); do
+# The installer runs on after the app has gone: it waits for the process to
+# leave, swaps ninety megabytes of bundle, and only then is the new version
+# there. A minute, rather than the twenty seconds this waited before, which was
+# most of the time enough.
+for _ in $(seq 1 120); do
   [ "$(installed_build)" = "$TO_BUILD" ] && break
   /bin/sleep 0.5
 done
@@ -254,7 +258,7 @@ else
   status=$?
   set -e
   sed 's/^/    /' "$WORK/delta-update.log"
-  that "Sparkle downloaded, checked, installed and relaunched it" same "$status" "0"
+  that "Sparkle downloaded it, checked it, and the app quit for it" same "$status" "0"
 
   that "and what it fetched was the delta" grep -q "\.delta" "$SERVER_LOG"
   if grep -q "$DELTA_BUILD\.zip" "$SERVER_LOG"; then
@@ -264,7 +268,7 @@ else
     ok "and not the whole archive"
   fi
 
-  for _ in $(seq 1 40); do
+  for _ in $(seq 1 120); do
     [ "$(installed_build)" = "$DELTA_BUILD" ] && break
     /bin/sleep 0.5
   done
