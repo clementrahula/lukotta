@@ -114,35 +114,52 @@ if [ -n "$PUBLISHED" ] && [ "$PUBLISHED" != "0" ] && [ "$BUILD" -le "$PUBLISHED"
   exit 1
 fi
 
-# The notes people are shown when the update arrives, checked before anything
-# is built rather than warned about after everything is signed.
+# The notes people are shown when the update arrives. Written with the version
+# by bump-version.sh and edited since, or drafted here from the commits this
+# version is made of -- either way there is a file, and it says what changed in
+# this version rather than in whichever one was copied.
 #
-# What went wrong without this: a warning on stderr, in the middle of a release
-# that carried on regardless. Three versions went out carrying the same six
-# lines -- a description of the app rather than what had changed in it -- and
-# one of those files was the previous version's, renamed, which left the
-# version it was written for with no record at all. Fifty tags have no notes
-# file whatsoever, and each would have shipped "No notes were written for this
-# version" to everybody updating.
-#
-# So: it exists, it has something in it, and it is not a copy of another
-# version's. The last is the one that actually happened.
+# The draft is made outside the repository. The check above refused to release
+# from a dirty tree, so writing a file into it here would leave the release
+# built from something the tag does not have.
 NOTES_SOURCE="$HERE/releases/$VERSION.md"
 if [ ! -s "$NOTES_SOURCE" ]; then
-  echo "error: no release notes at releases/$VERSION.md" >&2
-  echo "       Sparkle shows them to everybody who updates, so write what" >&2
-  echo "       changed in this version -- one '- ' line each, in the words" >&2
-  echo "       somebody using the app would use." >&2
+  printf '==> No releases/%s.md. Drafting from the commits since the last version\n' "$VERSION"
+  DRAFT="$(mktemp)"
+  "$HERE/scripts/release-notes.py" "$VERSION" > "$DRAFT"
+  NOTES_SOURCE="$DRAFT"
+  printf '    to keep it: ./scripts/release-notes.py %s --write, and commit it\n' "$VERSION"
+fi
+
+# Read before it goes out, by somebody.
+#
+# Everything else here is automatic and should be: the version, the notes, the
+# archive, the signature, the appcast, the deltas. This is the one part a
+# machine cannot check, because a line can be true, in order, and still be
+# written for the person who made the change rather than the person reading it
+# -- and this text is the only thing most people will ever read about the
+# release. So it is put on the screen, in full, before anything is built.
+printf '\n==> The notes everybody updating will be shown\n\n'
+sed 's/^/    /' "$NOTES_SOURCE"
+printf '\n'
+if [ "${LUKOTTA_NOTES_REVIEWED:-0}" = "1" ]; then
+  printf '    Taken as read (LUKOTTA_NOTES_REVIEWED=1).\n\n'
+elif [ -t 0 ]; then
+  printf '    Read it as somebody updating will: is every line about them, and\n'
+  printf '    does it say what changed rather than how it was done?\n\n'
+  read -r -p "    Publish these notes? [y/N] " answer
+  case "$answer" in
+    y | Y | yes | YES) printf '\n' ;;
+    *)
+      printf '\nNothing was built. Edit releases/%s.md and run this again.\n' "$VERSION"
+      exit 1 ;;
+  esac
+else
+  echo "error: nobody can read the notes from here." >&2
+  echo "       Run this where somebody is at the keyboard, or set" >&2
+  echo "       LUKOTTA_NOTES_REVIEWED=1 having read them elsewhere." >&2
   exit 1
 fi
-for other in "$HERE"/releases/*.md; do
-  [ "$other" = "$NOTES_SOURCE" ] && continue
-  cmp -s "$other" "$NOTES_SOURCE" || continue
-  echo "error: releases/$VERSION.md is a copy of $(basename "$other")" >&2
-  echo "       Notes say what changed in one version. Copying the last one" >&2
-  echo "       tells everybody updating that nothing did." >&2
-  exit 1
-done
 
 SIGN_TOOL="$(find "$HERE/.build" -name sign_update -type f -perm -111 -print -quit 2>/dev/null || true)"
 [ -n "$SIGN_TOOL" ] || { echo "error: sign_update not found; run swift build" >&2; exit 1; }
@@ -229,8 +246,9 @@ else:
 print("</body></html>")
 PYEOF
 grep -q "<li>" "$NOTES_FILE" || {
-  echo "error: releases/$VERSION.md produced no notes" >&2
-  echo "       Every line has to start with '- '." >&2
+  echo "error: $NOTES_SOURCE produced no notes at all, which cannot happen" >&2
+  echo "       from a generated file -- it has been edited into something the" >&2
+  echo "       reader cannot parse. Every line starts with '- '." >&2
   exit 1
 }
 

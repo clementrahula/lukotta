@@ -40,13 +40,20 @@ NEW="$MA.$MI.$PA"
 [ -z "$(git -C "$HERE" status --porcelain)" ] || {
   echo "error: working tree is dirty; commit first" >&2; exit 1; }
 printf '%s\n' "$NEW" > "$HERE/VERSION"
+# The notes for this version, drafted from the commits it is made of. Written
+# here rather than at release time because a version and its notes are the same
+# fact: leave them to be written later and they are forgotten, or the last
+# version's file is copied and nobody sees that it was. Edit the file into
+# whatever reads best -- it is a starting point, and it is already right about
+# what changed.
+"$HERE/scripts/release-notes.py" "$NEW" --write
 # The README carries the version as a badge, which would otherwise be wrong from
 # the moment this runs.
 /usr/bin/sed -i '' \
   -e "s|badge/version-[0-9.]*-|badge/version-$NEW-|" \
   -e "s|alt=\"Version [0-9.]*\"|alt=\"Version $NEW\"|" \
   "$HERE/README.md"
-git -C "$HERE" add VERSION README.md
+git -C "$HERE" add VERSION README.md "releases/$NEW.md"
 git -C "$HERE" commit -q -m "Version $NEW"
 if [ "$TAG" = true ]; then
   git -C "$HERE" tag -a "v$NEW" -m "Lukotta v$NEW"
