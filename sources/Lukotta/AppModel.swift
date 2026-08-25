@@ -1579,10 +1579,32 @@ final class AppModel: ObservableObject {
                 // Settling for unknown here sent somebody to type a passphrase
                 // for a drive nothing had read.
                 if answer == .unknown {
+                    // Read from where the file is attached now, rather than
+                    // from where it was when this row was made. An image
+                    // ejected and opened again comes back as a different disk,
+                    // and a row that outlived the attachment behind it reads a
+                    // device that is not there any more -- for ever, since
+                    // nothing about waiting makes a stale path good.
+                    var path = devicePath
+                    if let file = self.openedImages[DriveScanner.wholeDisk(of: identifier)] {
+                        let now = await Task.detached(priority: .userInitiated) {
+                            DiskImage.attachedDevices(forImages: [file.path])
+                        }.value
+                        if let current = now.first, current != devicePath {
+                            Log.drives.notice(
+                                "the image is attached as \(current, privacy: .public) now, not \(devicePath, privacy: .public)"
+                            )
+                            path = current
+                        }
+                    }
                     let second = await Task.detached(priority: .userInitiated) {
-                        BootSector.readWaiting(devicePath: devicePath, attempts: 20, gap: 0.5)
+                        BootSector.readWaiting(devicePath: path, attempts: 20, gap: 0.5)
                     }.value
                     if let second { answer = BootSector.identify(second) }
+                    if second == nil {
+                        Log.drives.error(
+                            "still nothing from \(path, privacy: .public) after a second reading")
+                    }
                 }
                 format = answer
             } else {

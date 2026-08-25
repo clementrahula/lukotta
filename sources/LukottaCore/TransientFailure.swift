@@ -40,6 +40,10 @@ public enum TransientFailure {
         // which is what releases it.
         "failed to acquire lock",
         "already locked",
+        // macOS refusing the NFS mount the engine asked for. The server is the
+        // machine that has just come up inside the engine, and a moment later
+        // the same request works.
+        "failed to request nfs mount",
         // What this app says when it stops waiting for an attempt of its own.
         deadlineReached,
     ]
