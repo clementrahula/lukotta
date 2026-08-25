@@ -25,6 +25,7 @@ APP="${LUKOTTA_E2E_APP:-/Applications/Lukotta.app}"
 CACHE="${LUKOTTA_E2E_CACHE:-$HOME/Library/Caches/dev.lukotta.e2e}"
 CONTAINER="$CACHE/container.img"
 PLAIN="$CACHE/plain.img"
+NTFS="$CACHE/plain.ntfs.img"
 EXFAT="$CACHE/exfat.img"
 QCOW_PLAIN="$CACHE/plain.qcow2"
 QCOW_ENC="$CACHE/container.qcow2"
@@ -112,6 +113,20 @@ if [ ! -f "$PLAIN" ]; then
   dd if=/dev/zero of="$PLAIN" bs=1m count=320 2>/dev/null
   "$ENGINE" shell "$PLAIN" -c "mkfs.btrfs -f -q -L LUKOTTAPLAIN /dev/vda" >/dev/null 2>&1
   restore_length "$PLAIN" "$SIZE"
+fi
+
+# NTFS, which is what a BitLocker drive holds once it is unlocked, and what
+# every Windows disk anybody brings to a Mac is. Everything else here is btrfs
+# -- that being the only other mkfs the trimmed guest carries -- so until this
+# was added, no test had ever written a byte to the filesystem the app exists
+# for. The read path was covered by the crowd images; the write path, through
+# ntfs3 or ntfs-3g, was covered by the owner's own hardware and nothing else.
+if [ ! -f "$NTFS" ]; then
+  echo "==> Building an NTFS image to test against (once)"
+  mkdir -p "$CACHE"
+  dd if=/dev/zero of="$NTFS" bs=1m count=320 2>/dev/null
+  "$ENGINE" shell "$NTFS" -c "mkfs.ntfs -f -F -L LUKOTTANTFS /dev/vda" >/dev/null 2>&1
+  restore_length "$NTFS" "$SIZE"
 fi
 
 if [ ! -f "$EXFAT" ]; then
@@ -271,6 +286,7 @@ set +e
   container="$CONTAINER" \
   passphrase="$PASSPHRASE" \
   plain="$PLAIN" \
+  ntfs="$NTFS" \
   exfat="$EXFAT" \
   qcow2="$QCOW_PLAIN" \
   qcow2-encrypted="$QCOW_ENC" \

@@ -220,6 +220,11 @@ import CryptoKit
             // mount still had in memory.
             let writable = [
                 ("plain", "raw image"),
+                // The filesystem the app exists for: what is inside a BitLocker
+                // drive, and what every Windows disk is. Everything else here is
+                // btrfs, so until this fixture existed nothing had written a
+                // byte to NTFS except on the owner's own hardware.
+                ("ntfs", "raw NTFS image"),
                 ("vhd-dynamic", "dynamic VHD"),
                 ("vhd", "fixed VHD"),
                 ("vdi", "VDI"),
