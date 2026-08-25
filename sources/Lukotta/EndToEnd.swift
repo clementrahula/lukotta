@@ -765,6 +765,15 @@
                 }
 
                 check(!model.mountedReadOnly, "it opened read-write, which this format allows")
+                // Why, when it did not. A drive that quietly opens read-only is
+                // the failure somebody meets at their first save, and "it was
+                // read-only" says nothing about what to fix. The reason the app
+                // shows, then the last of the engine's own steps.
+                if model.mountedReadOnly {
+                    print("      reason: \(model.readOnlyReason ?? "none given")")
+                    print("      asked read-only: \(model.mountingReadOnly)")
+                    for line in model.statusLines.suffix(6) { print("      \(line)") }
+                }
                 check(
                     !mountTableSaysReadOnly(mountPoint),
                     "and the mount table agrees, which is what Finder reads")
