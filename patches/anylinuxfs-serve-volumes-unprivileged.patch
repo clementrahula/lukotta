@@ -1,0 +1,39 @@
+Mount a volume group's volumes without asking for a password.
+
+A volume group is served as one NFS export per volume: the group's own directory
+first, then each volume mounted inside it. The first of those is made by whoever
+is running the engine. The rest were escalated with sudo, always, and not
+because anything needed it -- `elevate` is decided by how the process was
+started, never by whether the mount would have worked without it.
+
+macOS lets the owner of a directory mount an NFS export on it, which is exactly
+how the parent mount was made a moment earlier. Mounting the children the same
+way works: tested by hand against a running export, `mount -t nfs` on a
+subdirectory of a share already mounted returns 0 as an ordinary user.
+
+What the escalation did instead was ask for an administrator password in the
+middle of opening a disk image -- and where nobody could type one, which is
+every unattended case, print "need to use sudo to mount additional NFS exports"
+and leave the group mounted read-only with an empty folder where each volume
+should be. A person opening a Linux backup saw root, home and backup, all empty,
+and nothing anywhere saying why.
+
+Linux is left as it was: mounting there does need privilege, and the engine is
+run differently.
+
+--- a/anylinuxfs/src/cmd_mount.rs	2026-08-25 10:52:01
++++ b/anylinuxfs/src/cmd_mount.rs
+@@ -1141,6 +1141,13 @@
+             .peekable();
+ 
+         let _log_guard = ConsoleLogGuard::enable_temporarily(verbose);
++        // The parent export was mounted by whoever is running this, and macOS
++        // lets them mount on a directory they own, so the volumes inside it
++        // need nothing extra. Asking for a password here asks for one to
++        // finish something that has already worked without it.
++        #[cfg(target_os = "macos")]
++        let elevate = false;
++        #[cfg(not(target_os = "macos"))]
+         let elevate = self.config.common.privilege.sudo_uid.is_none()
+             && self.config.common.privilege.invoker_uid != 0;
+ 
