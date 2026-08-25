@@ -550,6 +550,11 @@ extension DiskImage {
         // opened", about a file the person has just been reading. Ejecting a
         // drive and opening it again is the most ordinary thing there is, so
         // the question is asked again rather than answered wrongly.
+        // Bounded by the clock as well as by the count. Each of these asks the
+        // engine, which starts a machine to answer; five of them against an
+        // image that will never be readable is most of a minute of somebody
+        // watching a spinner to be told what the first attempt already knew.
+        let givingUpAt = Date().addingTimeInterval(20)
         for attempt in 1...5 {
             guard
                 let result = LukottaCore.run(
@@ -574,7 +579,7 @@ extension DiskImage {
             let busy =
                 complaint.contains("locked") || complaint.contains("busy")
                 || complaint.contains("in use") || complaint.contains("resource temporarily")
-            guard busy || wentWrong, attempt < 5 else { return found }
+            guard busy || wentWrong, attempt < 5, Date() < givingUpAt else { return found }
             Log.drives.notice(
                 "the engine did not answer for this image (attempt \(attempt, privacy: .public)); asking again"
             )
