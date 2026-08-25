@@ -108,6 +108,18 @@ else
   printf '  ..   no fixture at %s; the first mount is not tried\n' "$FIXTURE"
 fi
 
+# What that first mount left. The image stays open until something closes it,
+# and an image a machine still has open is one nothing else can open: the
+# section further down that holds a drive while an update arrives met "Failed
+# to acquire lock on device" and failed four checks for a reason that had
+# nothing to do with updates.
+for point in "$HOME"/Volumes/*; do
+  [ -d "$point" ] || continue
+  /sbin/umount -f "$point" >/dev/null 2>&1 || true
+  rmdir "$point" >/dev/null 2>&1 || true
+done
+pkill -f "$INSTALLED/Contents/Resources/engine" >/dev/null 2>&1 || true
+
 # Something to lose: settings written by this version, which the update must
 # leave exactly as they are.
 defaults write "$BUNDLE_ID" lukottaUpdateProbe -string "written-before-the-update"
@@ -189,11 +201,20 @@ that "which is signed as the daemon the app is allowed to install" \
 that "and the app it will answer to is this one, not itself" \
   test "$(/usr/bin/strings "$INSTALLED/Contents/Library/LaunchServices/$BUNDLE_ID.helper" \
     | grep -c "$BUNDLE_ID.helper.helper")" = "0"
+# Before anything starts the new version: a launch that reaches a working app
+# drops the copy, which is what disarms the mechanism until the next update
+# arms it again. Asked for after three successful launches, as this was, the
+# answer is always no and says nothing about whether it was ever made.
+that "the outgoing version was kept aside for a rollback" \
+  test -x "$KEPT_APP/Contents/MacOS/$APP_NAME"
+
 if "$BINARY" --smoke-test >"$WORK/after-update.log" 2>&1; then
   ok "and the updated app starts"
 else
   bad "and the updated app starts"
 fi
+that "and the copy is dropped once a launch works" \
+  test ! -d "$KEPT_APP"
 
 printf '\nan update sent as only what changed\n'
 # What almost everybody actually receives. A delta is a patch between two

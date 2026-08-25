@@ -21,8 +21,25 @@ final class UpdaterRelay: NSObject, SPUUpdaterDelegate {
     /// Answers whether a drive is open that the app itself is holding.
     var isHoldingADrive: (() -> Bool)?
 
-    /// The last moment the outgoing bundle can be copied: this runs in the
-    /// version about to be replaced.
+    /// Keep the outgoing bundle, at every point Sparkle offers before the swap.
+    ///
+    /// This hung on willInstallUpdate alone, and that callback never arrives.
+    /// Driving a real update through Sparkle with every hook implemented showed
+    /// which do: the feed being read, the archive downloaded, the archive
+    /// unpacked -- and then the application is asked to quit and the installer
+    /// replaces the bundle. So nothing was ever copied aside, and the rollback
+    /// that puts the previous version back had nothing to put back.
+    ///
+    /// Copying twice costs a ditto of a bundle already on this disk and makes
+    /// the net independent of which callback a Sparkle release chooses to send.
+    func updater(_ updater: SPUUpdater, didDownloadUpdate item: SUAppcastItem) {
+        onWillInstall?()
+    }
+
+    func updater(_ updater: SPUUpdater, didExtractUpdate item: SUAppcastItem) {
+        onWillInstall?()
+    }
+
     func updater(_ updater: SPUUpdater, willInstallUpdate item: SUAppcastItem) {
         onWillInstall?()
     }
