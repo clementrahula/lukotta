@@ -38,12 +38,17 @@ import CryptoKit
             // from the hand-over.
             var fixtures: [String: URL] = [:]
             var passphrase = ""
+            // The volumes somebody built with make-test-volumes.sh have a
+            // passphrase of their own, those images not being made here.
+            var lvmPassphrase = ""
             for argument in CommandLine.arguments.dropFirst(index + 1) {
                 guard let equals = argument.firstIndex(of: "=") else { continue }
                 let key = String(argument[argument.startIndex..<equals])
                 let value = String(argument[argument.index(after: equals)...])
                 if key == "passphrase" {
                     passphrase = value
+                } else if key == "lvm-passphrase" {
+                    lvmPassphrase = value
                 } else {
                     fixtures[key] = URL(fileURLWithPath: value)
                 }
@@ -192,6 +197,17 @@ import CryptoKit
                 print("")
                 print("an image naming another file: \(hostile.lastPathComponent)")
                 hostileFlow(image: hostile)
+            }
+
+            // A real Linux install's layout, when one has been built. Not made
+            // here: scripts/make-test-volumes.sh builds these, and a Mac that
+            // has never run it says so and carries on.
+            if let group = fixtures["lvm"], FileManager.default.fileExists(atPath: group.path) {
+                print("")
+                print("a container holding several volumes: \(group.lastPathComponent)")
+                severalVolumesFlow(
+                    image: group,
+                    passphrase: lvmPassphrase.isEmpty ? passphrase : lvmPassphrase)
             }
 
             if let plain = fixtures["plain"], FileManager.default.fileExists(atPath: plain.path) {
@@ -1892,6 +1908,105 @@ import CryptoKit
                 _ = waitUntil("it ejects", timeout: 120, condition: { !vanishing.isEjecting })
             }
             _ = EngineProcesses.tidyWhatServesNothing()
+        }
+
+        /// A container holding several volumes, each of them written to.
+        ///
+        /// The layout Ubuntu, Debian, Mint and Fedora all install: one LUKS
+        /// container, one volume group, and root and home and sometimes backup
+        /// inside it. The app serves them as one mount with the others nested
+        /// underneath, which is a shape nothing else here has -- every fixture
+        /// the harness builds for itself holds exactly one filesystem, so
+        /// "several volumes" was tested by counting them and never by using
+        /// them.
+        @MainActor
+        private static func severalVolumesFlow(image: URL, passphrase: String) {
+            let name = "lukotta-volume-probe.txt"
+
+            var points: [String] = []
+            do {
+                guard let (model, drive) = openAndChoose(image) else { return }
+                guard
+                    waitUntil(
+                        "it is identified", timeout: 60,
+                        condition: { model.phaseIsUnlock && model.chosenFormat != nil })
+                else { return }
+                model.credential = passphrase
+                model.unlock(drive)
+                guard
+                    waitUntil(
+                        "it mounts", timeout: 240,
+                        condition: {
+                            if case .mounted = model.phase { return true }
+                            if case .failed = model.phase { return true }
+                            return false
+                        })
+                else { return }
+                guard case .mounted(_, let mountPoint) = model.phase else {
+                    if case .failed(_, let summary, _) = model.phase { print("      \(summary)") }
+                    check(false, "it mounted rather than failing")
+                    return
+                }
+                // Every volume it opened, which is the mount and whatever is
+                // nested under it.
+                _ = waitUntil(
+                    "the volumes it holds are all mounted", timeout: 120,
+                    condition: { model.openVolumes.count > 1 })
+                points = model.openVolumes.isEmpty ? [mountPoint] : model.openVolumes
+                check(points.count > 1, "more than one volume came up (\(points.count))")
+
+                var wrote = 0
+                for (index, point) in points.enumerated() {
+                    let probe = URL(fileURLWithPath: point).appendingPathComponent(name)
+                    let contents = "volume \(index) of \(points.count)\n"
+                    if (try? Data(contents.utf8).write(to: probe)) != nil { wrote += 1 }
+                }
+                check(wrote == points.count, "each of them takes a file (\(wrote) of \(points.count))")
+
+                model.eject(mountPoint)
+                _ = waitUntil("they all eject together", timeout: 180, condition: { !model.isEjecting })
+                check(model.ejectProblem == nil, "ejecting reported no problem")
+            }
+
+            // Opened again, by a machine that has never seen any of them.
+            guard let (model, drive) = openAndChoose(image) else { return }
+            guard
+                waitUntil(
+                    "it is identified again", timeout: 60,
+                    condition: { model.phaseIsUnlock && model.chosenFormat != nil })
+            else { return }
+            model.credential = passphrase
+            model.unlock(drive)
+            guard
+                waitUntil(
+                    "and mounts again", timeout: 240,
+                    condition: {
+                        if case .mounted = model.phase { return true }
+                        if case .failed = model.phase { return true }
+                        return false
+                    })
+            else { return }
+            guard case .mounted(_, let mountPoint) = model.phase else {
+                check(false, "it mounted rather than failing")
+                return
+            }
+            _ = waitUntil(
+                "the volumes come back", timeout: 120,
+                condition: { model.openVolumes.count >= points.count })
+            let now = model.openVolumes.isEmpty ? [mountPoint] : model.openVolumes
+            var found = 0
+            for (index, point) in now.enumerated() {
+                let probe = URL(fileURLWithPath: point).appendingPathComponent(name)
+                let expected = "volume \(index) of \(points.count)\n"
+                if (try? String(contentsOf: probe, encoding: .utf8)) == expected { found += 1 }
+                try? FileManager.default.removeItem(at: probe)
+            }
+            check(
+                found == points.count,
+                "what was written to each volume is in each volume (\(found) of \(points.count))")
+
+            model.eject(mountPoint)
+            _ = waitUntil("they eject again", timeout: 180, condition: { !model.isEjecting })
         }
 
         /// What happens when the drive does not go away politely.

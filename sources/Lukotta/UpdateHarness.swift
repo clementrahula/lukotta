@@ -145,6 +145,28 @@
     /// rollback the whole thing exists to prove had nothing to roll back to.
     /// The check said so and was read as a fault in the app.
     private final class HeadlessDelegate: NSObject, SPUUpdaterDelegate {
+        // Every hook Sparkle offers between "there is an update" and "the
+        // bundle has been replaced", so that a run says which of them actually
+        // arrive. The app keeps the outgoing version aside from one of these,
+        // and a hook that is never called is a safety net that is never armed.
+        func updater(_ updater: SPUUpdater, didFinishLoading appcast: SUAppcast) {
+            UpdateHarness.say("hook: the feed was read")
+        }
+
+        func updater(_ updater: SPUUpdater, didDownloadUpdate item: SUAppcastItem) {
+            UpdateHarness.say("hook: downloaded")
+            Rollback.keepCurrentAside()
+        }
+
+        func updater(_ updater: SPUUpdater, didExtractUpdate item: SUAppcastItem) {
+            UpdateHarness.say("hook: unpacked")
+            Rollback.keepCurrentAside()
+        }
+
+        func updaterWillRelaunchApplication(_ updater: SPUUpdater) {
+            UpdateHarness.say("hook: about to relaunch")
+        }
+
         func updater(_ updater: SPUUpdater, willInstallUpdate item: SUAppcastItem) {
             Rollback.keepCurrentAside()
             UpdateHarness.say("keeping this version aside first")
@@ -155,7 +177,15 @@
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { exit(0) }
         }
 
-        func updaterShouldRelaunchApplication(_ updater: SPUUpdater) -> Bool { false }
+        /// Relaunched only where the run is about postponing one.
+        ///
+        /// Sparkle asks whether to put the install off only when it means to
+        /// relaunch afterwards, so refusing the relaunch refuses the question
+        /// -- and the check that an update waits for an open drive passed
+        /// through a code path that was never asked anything.
+        func updaterShouldRelaunchApplication(_ updater: SPUUpdater) -> Bool {
+            CommandLine.arguments.contains { $0.hasPrefix("hold=") }
+        }
 
         /// The app's rule, asked of the app's own relay: an update is put off
         /// while this process is the one serving the drive.

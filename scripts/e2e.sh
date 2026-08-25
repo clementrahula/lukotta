@@ -262,6 +262,19 @@ clean_up() {
 }
 trap clean_up EXIT
 
+# A LUKS container holding a volume group, if this Mac has one. Not built here:
+# scripts/make-test-volumes.sh makes them, they take a while, and every fixture
+# this script builds for itself holds exactly one filesystem -- so the layout
+# every Linux install actually has is only tested where somebody has run that.
+LVM_IMAGE=""
+LVM_PASSPHRASE="${LUKOTTA_LVM_PASSPHRASE:-lukotta-test-pass}"
+for candidate in "$HOME/.lukotta-testvols/luks2-lvm.img" "$HOME/.lukotta-testvols/luks-lvm.img"; do
+  [ -f "$candidate" ] || continue
+  LVM_IMAGE="$candidate"
+  break
+done
+[ -n "$LVM_IMAGE" ] || printf '==> No volume group image; that layout is not tested on this Mac\n'
+
 # Named, not positional. Adding a format is a line here and a line in
 # EndToEnd.swift, rather than a count that has to agree on both sides.
 # Compared when this run ends, however it ends.
@@ -301,7 +314,9 @@ set +e
   vmdk-streamed="$VMDK_STREAMED" \
   vhdx="$VHDX" \
   vhdx-dirty="$VHDX_DIRTY" \
-  vhdx-parent="$VHDX_PARENT"
+  vhdx-parent="$VHDX_PARENT" \
+  ${LVM_IMAGE:+lvm="$LVM_IMAGE"} \
+  ${LVM_IMAGE:+lvm-passphrase="$LVM_PASSPHRASE"}
 E2E_STATUS=$?
 set -e
 
