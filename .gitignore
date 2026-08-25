@@ -24,3 +24,8 @@ dist/
 # it; the repository holds the fixes rather than the report. Ignored so that a
 # sweeping `git add` cannot take one in, which has happened.
 /AUDIT.md
+
+# Audits: working documents, and they quote this machine back at you.
+audit.md
+audit_*/
+translation_audit/

@@ -123,7 +123,14 @@ libc.getxattr.restype = ctypes.c_ssize_t
 XATTR_NOFOLLOW = 0x0001
 
 def recorded_mode(path):
-    buf = ctypes.create_string_buffer(64)
+    # Asked for its length first: a value longer than the buffer fails with
+    # ERANGE, which from here looks exactly like "there is no such attribute"
+    # and leaves the file unexecutable in the image that ships.
+    needed = libc.getxattr(
+        path.encode(), b"user.containers.override_stat", None, 0, 0, XATTR_NOFOLLOW)
+    if needed <= 0:
+        return None
+    buf = ctypes.create_string_buffer(needed)
     size = libc.getxattr(
         path.encode(), b"user.containers.override_stat", buf, len(buf), 0, XATTR_NOFOLLOW)
     if size <= 0:
@@ -182,7 +189,26 @@ fault=""
 for d in proc sys dev tmp run; do
   [ -d "$CHECK/rootfs/$d" ] || fault="$fault /$d"
 done
-[ -x "$CHECK/rootfs/bin/lsblk" ] || fault="$fault bin/lsblk-not-executable"
+
+# Every tool an unlock actually goes through, not only the one that lists disks.
+# lsblk running proves the machine boots and can answer a question; it says
+# nothing about whether an encrypted volume can be opened, an NTFS volume
+# mounted, or the export served. Each arrives unexecutable if its recorded mode
+# was missing or unreadable, and each then fails somewhere else entirely.
+for tool in bin/lsblk sbin/cryptsetup bin/mount sbin/blkid bin/busybox \
+            sbin/mount.ntfs-3g sbin/rpc.nfsd sbin/exportfs sbin/rpc.mountd; do
+  [ -e "$CHECK/rootfs/$tool" ] || continue   # not every image carries every one
+  [ -x "$CHECK/rootfs/$tool" ] || fault="$fault $tool-not-executable"
+done
+# And the two without which nothing works at all have to be there.
+[ -x "$CHECK/rootfs/bin/lsblk" ] || fault="$fault bin/lsblk-missing"
+[ -x "$CHECK/rootfs/sbin/cryptsetup" ] || fault="$fault sbin/cryptsetup-missing"
+# Nothing left unexecutable anywhere among the tools: one file whose recorded
+# mode could not be read is one command that fails when somebody needs it.
+UNEXECUTABLE="$(/usr/bin/find "$CHECK/rootfs/bin" "$CHECK/rootfs/sbin" \
+  "$CHECK/rootfs/usr/bin" "$CHECK/rootfs/usr/sbin" \
+  -type f ! -perm -u+x 2>/dev/null | wc -l | tr -d ' ')"
+[ "$UNEXECUTABLE" = "0" ] || fault="$fault $UNEXECUTABLE-unexecutable-tools"
 /usr/bin/xattr -p user.containers.override_stat "$CHECK/rootfs/bin/lsblk" >/dev/null 2>&1   || fault="$fault bin/lsblk-has-no-guest-owner"
 rm -rf "$CHECK"
 if [ -n "$fault" ]; then

@@ -497,6 +497,18 @@ public enum Capacity {
         return found
     }
 
+    /// The loopback addresses a drive can be served on: IPv4 only, which is
+    /// what the engine exports over.
+    public static func addressesForServing(of interface: String = "lo0") -> [String] {
+        addresses(of: interface).filter { $0.contains(".") && !$0.contains(":") }
+    }
+
+    /// The highest `127.0.0.x` this app will ever add, and therefore the
+    /// highest it must take away again. The two were written separately and
+    /// disagreed: adding could reach .63 and releasing stopped at .13, which
+    /// would have left addresses on the interface after an uninstall.
+    public static let lastLoopbackAddress = 2 + 32
+
     /// How many drives can be open at once, and how many are.
     ///
     /// The limit can be pinned by the environment, which is how the ceiling is
@@ -509,7 +521,12 @@ public enum Capacity {
     /// the key the app looks up, and every translation of it is skipped in
     /// silence -- the English shows, because the key is the English.
     public static func now(mounts: Int) -> (limitCount: Int, openCount: Int) {
-        let real = max(1, addresses().count)
+        // Only the addresses a drive can actually be served on. The engine
+        // exports over IPv4, and lo0 carries ::1 and fe80::1 as well -- counting
+        // those said this Mac could open two more drives than it has anywhere to
+        // put, so the last one failed to get an address while the app still
+        // showed room for it.
+        let real = max(1, addressesForServing().count)
         let pinned = ProcessInfo.processInfo.environment["LUKOTTA_CAPACITY"].flatMap(Int.init)
         return (limitCount: pinned.map { max(1, min($0, real)) } ?? real, openCount: max(0, mounts))
     }

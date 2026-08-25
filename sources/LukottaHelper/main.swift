@@ -17,9 +17,36 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     /// The running mount's output, so the app can show progress rather than
     /// sit on one step until everything is over.
     private let progressQueue = DispatchQueue(label: "com.lukotta.helper.progress")
-    private var transcript = ""
-    /// Held only while a mount runs, so its output can be scrubbed of it.
-    private var activeCredential: String?
+
+    /// One mount's output and the credential to keep out of it.
+    ///
+    /// Kept together, and only ever replaced as a pair. They were two variables
+    /// on this object: a second mount starting while the first ran overwrote
+    /// the credential and appended to the same transcript, and the first one
+    /// finishing set the credential to nil while the second was still going. A
+    /// passphrase is taken out of the output *by value*, so the window where
+    /// the wrong value is held is the window where a passphrase the engine
+    /// echoed reaches the app relying on pattern matching alone.
+    private struct Running {
+        var transcript = ""
+        var credential: String?
+    }
+
+    /// The mounts running now, by the workspace that is serving each. The
+    /// engine allows one at a time, so this is usually one -- and "usually" is
+    /// not something to hold a passphrase with.
+    private var running: [String: Running] = [:]
+
+    /// Everything running, oldest first, for the app's progress request. The
+    /// app asks for "the mount", because from where it stands there is one.
+    private func transcriptForProgress() -> (String, String?) {
+        let all = running.keys.sorted().compactMap { running[$0] }
+        let text = all.map(\.transcript).joined()
+        // Scrubbed against every credential in flight, not whichever was set
+        // last: what has to be removed is all of them.
+        let secrets = all.compactMap(\.credential)
+        return (text, secrets.first)
+    }
 
     /// Who the connected app runs as, recorded when the connection is accepted.
     ///
@@ -197,13 +224,13 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")
             try script.write(to: scriptURL, atomically: true, encoding: .utf8)
 
-            progressQueue.sync {
-                transcript = ""
-                activeCredential = credential
-            }
-            defer { progressQueue.sync { activeCredential = nil } }
+            // This mount's own slot, named by the workspace that serves it, so
+            // two mounts cannot write over each other's output or credential.
+            let token = workspace.root.lastPathComponent
+            progressQueue.sync { running[token] = Running(credential: credential) }
+            defer { progressQueue.sync { running[token] = nil } }
             let streamer = LogStreamer(path: log.path) { [weak self] line in
-                self?.progressQueue.sync { self?.transcript += line + "\n" }
+                self?.progressQueue.sync { self?.running[token]?.transcript += line + "\n" }
             }
             streamer.start()
 
@@ -239,8 +266,16 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     }
 
     func progress(reply: @escaping (String) -> Void) {
-        let (text, secret) = progressQueue.sync { (transcript, activeCredential) }
-        reply(Diagnostics.scrubbed(text, secret: secret))
+        let (text, secret, others) = progressQueue.sync { () -> (String, String?, [String]) in
+            let (text, first) = transcriptForProgress()
+            let rest = running.values.compactMap(\.credential).filter { $0 != first }
+            return (text, first, rest)
+        }
+        // Every credential in flight, not just the one this transcript belongs
+        // to: an engine that echoes a passphrase does not know whose it is.
+        var scrubbed = Diagnostics.scrubbed(text, secret: secret)
+        for other in others { scrubbed = Diagnostics.scrubbed(scrubbed, secret: other) }
+        reply(scrubbed)
     }
 
     func identify(devicePath: String, reply: @escaping (String) -> Void) {
@@ -284,7 +319,11 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 return reply(Capacity.addresses().count)
             }
             var released = 0
-            for last in 2...13 {
+            // Every address this app can add, so releasing undoes adding
+            // exactly. These two bounds were written apart and disagreed:
+            // adding could reach .63, releasing stopped at .13, and the
+            // remainder stayed on the interface after an uninstall.
+            for last in 2...Capacity.lastLoopbackAddress {
                 let address = "127.0.0.\(last)"
                 guard Capacity.addresses().contains(address) else { continue }
                 _ = LukottaCore.run("/sbin/ifconfig", ["lo0", "-alias", address])
@@ -293,14 +332,14 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             Log.helper.notice("released \(released, privacy: .public) loopback addresses")
             return reply(Capacity.addresses().count)
         }
-        let wanted = min(max(count, 1), 32)
+        let wanted = min(max(count, 1), Capacity.lastLoopbackAddress - 1)
         var have = Capacity.addresses().count
         // 127.0.0.2 upwards, which are loopback by definition and reach nothing
         // outside this Mac. Numbered from a fixed base so calling this again
         // lands on the same addresses rather than filling the interface with
         // new ones, and skipped where they are already there.
         var last = 1
-        while have < wanted, last < 64 {
+        while have < wanted, last < Capacity.lastLoopbackAddress {
             last += 1
             let address = "127.0.0.\(last)"
             guard !Capacity.addresses().contains(address) else { continue }

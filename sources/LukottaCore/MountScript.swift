@@ -223,7 +223,11 @@ public enum MountScript {
         // Reaching this line means authorisation succeeded and the script is
         // running as root.
         lines.append("echo \"\(stageMarker)authorised\" >> \(logQ)")
-        lines.append("__cred=\"$(cat \(shellQuoted(i.fifoPath)))\"")
+        // Read byte for byte, not through command substitution, which strips
+        // every trailing newline: a passphrase ending in one -- legal, and
+        // chosen by somebody who pasted it -- was silently altered on the way
+        // to the engine, and refused with nothing to say why.
+        lines.append("IFS= read -r -d '' __cred < \(shellQuoted(i.fifoPath)) || true")
         lines.append("echo \"\(stageMarker)working\" >> \(logQ)")
         lines.append("\(engineQ) config -n \(i.cores) -r \(i.ramMiB) >/dev/null 2>&1 || true")
         // The baseline every attempt is judged against: which mounts the

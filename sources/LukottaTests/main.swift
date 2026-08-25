@@ -399,10 +399,16 @@ group("theElevatedMountScript") {
         msScript.contains("'/dev/disk4s1' >>"),
         "the device is a positional argument, not swallowed by a preceding flag")
 
-    // The credential is read from the pipe, never written into the script.
+    // The credential is read from the pipe, never written into the script --
+    // and read byte for byte. Command substitution strips trailing newlines, so
+    // a passphrase ending in one was altered on its way to the engine and
+    // refused with nothing to say why.
     expect(
-        msScript.contains("__cred=\"$(cat '/tmp/ws/credential.fifo')\""),
-        "credential is read from the FIFO")
+        msScript.contains("IFS= read -r -d '' __cred < '/tmp/ws/credential.fifo'"),
+        "credential is read from the FIFO, exactly as it was typed")
+    expect(
+        !msScript.contains("$(cat '/tmp/ws/credential.fifo')"),
+        "and not through a substitution that would trim it")
     expect(msScript.contains("ALFS_PASSPHRASE=\"$__cred\""), "credential passed by reference")
     expect(msScript.contains("unset __cred"), "credential is unset afterwards")
 
@@ -1597,7 +1603,22 @@ group("howManyDrivesThisMacCanServeAtOnce") {
 
     // The limit is what the machine has, never a number written down here: the
     // helper adds addresses, and a Mac where it never arrived has three.
-    expect(Capacity.now(mounts: 0).limitCount == addresses.count, "the limit is what is there")
+    //
+    // Counted over the addresses a drive can be served on, which is the IPv4
+    // ones: lo0 also carries ::1 and fe80::1, and counting those said this Mac
+    // could open two more drives than it had anywhere to put -- so the last one
+    // failed for an address while the app still showed room.
+    let serving = Capacity.addressesForServing()
+    expect(
+        serving.allSatisfy { !$0.contains(":") },
+        "the addresses counted are the ones the engine exports over")
+    expect(serving.count <= addresses.count, "which is never more than the interface carries")
+    expect(Capacity.now(mounts: 0).limitCount == serving.count, "the limit is what is there")
+    // Adding and releasing have to cover the same range, or an uninstall leaves
+    // addresses on the interface that nothing will ever take away.
+    expect(
+        Capacity.lastLoopbackAddress >= 2 + Capacity.wanted,
+        "the address range reaches at least as far as the ceiling needs")
     expect(Capacity.now(mounts: 2).openCount == 2, "and what is open is what is mounted")
     expect(Capacity.hasRoom(limitCount: 12, openCount: 11), "room below the limit")
     expect(!Capacity.hasRoom(limitCount: 12, openCount: 12), "and none at it")

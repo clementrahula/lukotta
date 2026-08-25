@@ -22,12 +22,14 @@
 // bigger problems than an update.
 
 #include <errno.h>
+#include <fcntl.h>
 #include <libgen.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -83,6 +85,40 @@ static int restore(const char *kept_aside, const char *bundle) {
   return WIFEXITED(status) && WEXITSTATUS(status) == 0;
 }
 
+// Only one launch may restore.
+//
+// Two copies opened at the same moment -- a double-click on a Dock icon, or a
+// Sparkle relaunch meeting somebody opening the app -- both read the same count
+// and both start copying a bundle over the same destination. Two writers, one
+// application, and what is left is neither version.
+//
+// O_EXCL is the whole of the lock: whoever creates the file restores, and the
+// other carries on and runs the app that is there. A stale one from a launch
+// that died mid-copy is ignored after a minute, since a copy takes seconds and
+// a lock nobody can clear is an application that never starts again.
+#define LOCK_STALE_AFTER 60
+
+static int take_restore_lock(const char *support) {
+  char path[PATH_MAX];
+  if (!join(path, sizeof(path), support, "/restoring")) return 0;
+
+  struct stat info;
+  if (stat(path, &info) == 0) {
+    time_t now = time(NULL);
+    if (now - info.st_mtime < LOCK_STALE_AFTER) return 0;
+    unlink(path);
+  }
+  int fd = open(path, O_CREAT | O_EXCL | O_WRONLY, 0600);
+  if (fd < 0) return 0;
+  close(fd);
+  return 1;
+}
+
+static void release_restore_lock(const char *support) {
+  char path[PATH_MAX];
+  if (join(path, sizeof(path), support, "/restoring")) unlink(path);
+}
+
 int main(int argc, char *argv[]) {
   char self[PATH_MAX];
   if (realpath(argv[0], self) == NULL) {
@@ -130,10 +166,12 @@ int main(int argc, char *argv[]) {
 
   if (have_support) {
     long count = attempts_so_far(attempts_path);
-    if (count >= ATTEMPTS_ALLOWED && exists(kept_aside)) {
+    if (count >= ATTEMPTS_ALLOWED && exists(kept_aside) && take_restore_lock(support)) {
       // This version has been opened three times and has never got as far as
       // saying it was working. Whatever is wrong with it, the previous one ran.
-      if (restore(kept_aside, bundle)) {
+      int put_back = restore(kept_aside, bundle);
+      release_restore_lock(support);
+      if (put_back) {
         record_attempt(attempts_path, 0);
         execv(real, argv);
         // The restored bundle's own executable, if the name differed.

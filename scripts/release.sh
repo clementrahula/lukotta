@@ -14,7 +14,26 @@ HERE="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$HERE"
 
 VERSION="$(tr -d ' \n' < VERSION)"
-BUILD="$(git rev-list --count HEAD)"
+BUILD="${LUKOTTA_BUILD:-$(git rev-list --count HEAD)}"
+
+# Sparkle offers an update only when its build number is greater than the one
+# installed. The commit count is monotonic on a straight line of history and on
+# nothing else: a hotfix cut from a shorter branch, a squash merge, or a rewrite
+# produces a number that has already been released -- and Sparkle then answers
+# "up to date" to everybody, for a release that fixes something, with nothing
+# anywhere saying why. Checked against the feed rather than trusted.
+highest_published() {
+  [ -f "$1" ] || return 0
+  /usr/bin/python3 - "$1" <<'PY'
+import re, sys
+try:
+    text = open(sys.argv[1], encoding="utf-8").read()
+except OSError:
+    sys.exit(0)
+found = [int(v) for v in re.findall(r'sparkle:version="(\d+)"', text)]
+print(max(found) if found else 0)
+PY
+}
 REPO="${LUKOTTA_REPO:-clementrahula/lukotta}"
 PROFILE="${LUKOTTA_NOTARY_PROFILE:-lukotta}"
 
@@ -62,6 +81,15 @@ BASE_URL="${LUKOTTA_DOWNLOAD_BASE:-https://github.com/$REPO/releases/download/$T
   echo "error: working tree is dirty; commit before releasing" >&2; exit 1; }
 git rev-parse "$TAG" >/dev/null 2>&1 || git rev-parse "v$VERSION" >/dev/null 2>&1 || {
   echo "error: no tag $TAG; run scripts/bump-version.sh first" >&2; exit 1; }
+
+PUBLISHED="$(highest_published "$APPCAST")"
+if [ -n "$PUBLISHED" ] && [ "$PUBLISHED" != "0" ] && [ "$BUILD" -le "$PUBLISHED" ]; then
+  echo "error: this build is $BUILD and $PUBLISHED is already published in" >&2
+  echo "       $(basename "$APPCAST"). Sparkle would tell everyone they are up to date." >&2
+  echo "       Set LUKOTTA_BUILD to a number above $PUBLISHED, or release from a" >&2
+  echo "       branch whose history is longer than the last release's." >&2
+  exit 1
+fi
 
 SIGN_TOOL="$(find "$HERE/.build" -name sign_update -type f -perm -111 -print -quit 2>/dev/null || true)"
 [ -n "$SIGN_TOOL" ] || { echo "error: sign_update not found; run swift build" >&2; exit 1; }

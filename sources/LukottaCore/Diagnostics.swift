@@ -171,13 +171,18 @@ public enum Diagnostics {
     /// directory, not whose.
     public static func withoutTheAccountName(_ text: String) -> String {
         let home = FileManager.default.homeDirectoryForCurrentUser.path
-        guard home.hasPrefix("/Users/"), home.count > "/Users/".count else { return text }
+        // Any home, not only one under /Users. A network account, a mobile
+        // account, or a Mac where somebody moved the home directories has a
+        // home somewhere else entirely -- and the promise that a report carries
+        // no name is a promise to them too. The name is the last component
+        // whatever the path in front of it is.
+        let account = (home as NSString).lastPathComponent
+        guard !home.isEmpty, home != "/", !account.isEmpty else { return text }
         var result = text.replacingOccurrences(of: home, with: "~")
         // The account can also arrive on its own, from a tool that prints the
         // user rather than the path: SUDO_USER, "mounted by <account>", an
         // owner column. Only as a whole word, so a drive named after somebody
         // is left alone.
-        let account = String(home.dropFirst("/Users/".count))
         if account.count >= 3 {
             result = result.replacingOccurrences(
                 of: #"(?<![A-Za-z0-9._-])"# + NSRegularExpression.escapedPattern(for: account)

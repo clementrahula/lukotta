@@ -2464,10 +2464,15 @@ final class AppModel: ObservableObject {
 
     /// Eject everything, then run the completion. Used on quit.
     func ejectAll(completion: @escaping @MainActor @Sendable () -> Void) {
+        // What this app opened, not what the engine is serving.
+        //
+        // The engine's status covers every program using it on this Mac, so
+        // quitting with "eject the open drives" ejected a beta's drives from
+        // the release, and anylinuxfs's own mounts from either. Somebody
+        // quitting one application does not expect another's drives to close.
+        let mine = Array(Set(openMounts.values)).sorted()
         Task.detached(priority: .userInitiated) {
-            for m in EngineStatus.current() {
-                _ = EngineStatus.unmount(mountPoint: m.mountPoint)
-            }
+            for point in mine { _ = EngineStatus.unmount(mountPoint: point) }
             EngineConfig.removeGeneratedAction()
             await MainActor.run { completion() }
         }

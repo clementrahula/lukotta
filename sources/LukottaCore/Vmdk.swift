@@ -183,8 +183,17 @@ extension DiskImage {
                     "“\(isolated(url.lastPathComponent))” is a sparse VMDK, and this build’s drive engine reads only the flat form. A flat VMDK or a raw image would open."
                 )
             }
-            let at = sparse.descriptorOffset * SparseVmdkHeader.sector
-            let length = sparse.descriptorSize * SparseVmdkHeader.sector
+            // Both fields come from the file. Swift traps on overflow, so a
+            // header claiming an offset past 2^55 sectors would take the app
+            // down while it was deciding whether to open the file at all --
+            // which is the whole of the damage, and enough of it.
+            let (at, atOverflowed) = sparse.descriptorOffset.multipliedReportingOverflow(
+                by: SparseVmdkHeader.sector)
+            let (length, lengthOverflowed) = sparse.descriptorSize.multipliedReportingOverflow(
+                by: SparseVmdkHeader.sector)
+            guard !atOverflowed, !lengthOverflowed else {
+                return appString("“\(isolated(url.lastPathComponent))” is not a disk image.")
+            }
             guard at > 0, length > 0, length <= 2 * 1024 * 1024,
                 (try? handle.seek(toOffset: at)) != nil,
                 let inside = try? handle.read(upToCount: Int(length)), !inside.isEmpty
