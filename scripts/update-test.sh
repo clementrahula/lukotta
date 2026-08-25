@@ -75,8 +75,15 @@ printf '\na Mac that has never had this app\n'
 # Linux environment, its record of what was open. The helper stays registered --
 # unregistering it needs an authorisation panel, and a fresh install onto a Mac
 # that has one is the ordinary case anyway.
+# This app's own directory, which since the engine was given one is the only
+# place it keeps anything. ~/.anylinuxfs belongs to whatever else on this Mac
+# uses the same engine, and wiping it here would be this harness doing the exact
+# thing the app was changed to stop doing.
+ENGINE_HOME="$HOME/Library/Application Support/$APP_NAME/engine"
+SETTINGS_BACKUP="$WORK/settings.plist"
+defaults export "$BUNDLE_ID" "$SETTINGS_BACKUP" >/dev/null 2>&1 || true
 defaults delete "$BUNDLE_ID" >/dev/null 2>&1 || true
-rm -rf "$HOME/.anylinuxfs/alpine" "$HOME/.anylinuxfs/alpine.unpacking"
+rm -rf "$ENGINE_HOME/.anylinuxfs/alpine" "$ENGINE_HOME/.anylinuxfs/alpine.unpacking"
 if "$BINARY" --smoke-test >"$WORK/first-run.log" 2>&1; then
   ok "it starts on a Mac with nothing of its own on it"
 else
@@ -93,7 +100,7 @@ if [ -f "$FIXTURE" ]; then
     tail -5 "$WORK/first-mount.log" | sed 's/^/    /'
   fi
   that "and the environment it unpacked states its version" \
-    file_exists "$HOME/.anylinuxfs/alpine/rootfs.ver"
+    file_exists "$ENGINE_HOME/.anylinuxfs/alpine/rootfs.ver"
 else
   printf '  ..   no fixture at %s; the first mount is not tried\n' "$FIXTURE"
 fi
@@ -153,9 +160,25 @@ that "and the app in /Applications is the new build" same "$(installed_build)" "
 printf '\nwhat the update was not allowed to disturb\n'
 that "the settings written before it are still there" \
   same "$(defaults read "$BUNDLE_ID" lukottaUpdateProbe 2>/dev/null || echo "")" "$BEFORE_PROBE"
-that "the Linux environment is still unpacked" file_exists "$HOME/.anylinuxfs/alpine/rootfs.ver"
+that "the Linux environment is still unpacked" \
+  file_exists "$ENGINE_HOME/.anylinuxfs/alpine/rootfs.ver"
 that "the new copy carries its own helper" \
   test -n "$(find "$INSTALLED/Contents/Library/LaunchDaemons" -type f -print -quit 2>/dev/null)"
+# And the copy the newer route installs, signed under the label it is blessed
+# as -- a bundle missing that installs nothing at all, and says so nowhere.
+that "and the copy that gets installed with a password" \
+  test -x "$INSTALLED/Contents/Library/LaunchServices/$BUNDLE_ID.helper"
+BLESSED_ID="$(/usr/bin/codesign -d -v "$INSTALLED/Contents/Library/LaunchServices/$BUNDLE_ID.helper" 2>&1 \
+  | sed -n 's/^Identifier=//p')"
+that "which is signed as the daemon the app is allowed to install" \
+  same "$BLESSED_ID" "$BUNDLE_ID.helper"
+# The helper composes the mach service, the client requirement and its own
+# removal paths from the app's identifier. It reads that from the Info.plist
+# embedded in itself, so the suffix has to come off -- or it listens somewhere
+# nobody calls and refuses the one app allowed to call it.
+that "and the app it will answer to is this one, not itself" \
+  test "$(/usr/bin/strings "$INSTALLED/Contents/Library/LaunchServices/$BUNDLE_ID.helper" \
+    | grep -c "$BUNDLE_ID.helper.helper")" = "0"
 if "$BINARY" --smoke-test >"$WORK/after-update.log" 2>&1; then
   ok "and the updated app starts"
 else
@@ -199,6 +222,18 @@ fi
 that "and the app in /Applications is the one that worked" \
   same "$(installed_build)" "$TO_BUILD"
 rm -rf "$KEPT" "$SUPPORT/launch-attempts"
+
+printf '\n==> Putting this Mac back\n'
+# The harness installs a build numbered far above any real one, so a beta left
+# like that answers "up to date" to every genuine feed until somebody notices.
+LUKOTTA_BRANDING=beta ./build-app.sh "$HERE/dist/$APP_NAME.app" >/dev/null 2>&1 \
+  && printf '  the real beta is installed again\n' \
+  || printf '  could not rebuild the beta; run ./build-app.sh yourself\n'
+defaults delete "$BUNDLE_ID" lukottaUpdateProbe >/dev/null 2>&1 || true
+if [ -f "$SETTINGS_BACKUP" ]; then
+  defaults import "$BUNDLE_ID" "$SETTINGS_BACKUP" >/dev/null 2>&1 \
+    && printf '  and the settings it had before\n'
+fi
 
 printf '\n%s/%s checks passed\n' "$pass" "$((pass + fail))"
 [ "$fail" = "0" ]

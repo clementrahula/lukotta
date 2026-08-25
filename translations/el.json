@@ -294,6 +294,7 @@
     "This partition is not a BitLocker volume.": "Αυτό το διαμέρισμα δεν είναι τόμος BitLocker.",
     "This takes a moment.": "Αυτό παίρνει μια στιγμή.",
     "This usually takes under a minute.": "Συνήθως διαρκεί λιγότερο από ένα λεπτό.",
+    "This version needs setting up again. It takes one password.": "Αυτή η έκδοση χρειάζεται ρύθμιση ξανά. Χρειάζεται ένα συνθηματικό.",
     "Try Again": "Δοκιμή ξανά",
     "Uninstall": "Κατάργηση",
     "Uninstall %@?": "Κατάργηση του %@;",

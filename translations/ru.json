@@ -310,6 +310,7 @@
     "This partition is not a BitLocker volume.": "Этот раздел не является томом BitLocker.",
     "This takes a moment.": "Это займёт мгновение.",
     "This usually takes under a minute.": "Обычно это занимает меньше минуты.",
+    "This version needs setting up again. It takes one password.": "Эту версию нужно настроить заново. Понадобится один пароль.",
     "Try Again": "Повторить",
     "Uninstall": "Удалить",
     "Uninstall %@?": "Удалить %@?",

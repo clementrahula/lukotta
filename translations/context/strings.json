@@ -965,7 +965,7 @@
       "screens": [
         "help"
       ],
-      "context": "Explains where the name comes from. The Finnish words lukko and -tta stay as they are; the gloss without a lock is translated.",
+      "context": "The paragraph under 'The name' in the About panel, explaining what the app's name means. The Finnish translation deliberately says something else: this sentence exists to explain Finnish to people who do not speak it, and to a Finnish reader it explains their own language to them. Finnish instead notes the grammar in passing and says the author is Estonian and chose Finnish because it sounded better. Written by the author; do not replace it with a translation of the English.",
       "placeholders": []
     },
     "Menu Bar": {
@@ -1864,6 +1864,13 @@
         "working"
       ],
       "context": "Reassurance under the progress line, so a wait does not look like a hang.",
+      "placeholders": []
+    },
+    "This version needs setting up again. It takes one password.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Shown when the app has been updated and the background helper on this Mac is the older version. Beside it is a button that sets it up again, which asks for an administrator password once.",
       "placeholders": []
     },
     "Try Again": {

@@ -286,6 +286,7 @@
     "This partition is not a BitLocker volume.": "このパーティションは BitLocker ボリュームではありません。",
     "This takes a moment.": "少し時間がかかります。",
     "This usually takes under a minute.": "ふつうは 1 分もかかりません。",
+    "This version needs setting up again. It takes one password.": "このバージョンは設定し直す必要があります。パスワードを一度だけ入力します。",
     "Try Again": "再試行",
     "Uninstall": "アンインストール",
     "Uninstall %@?": "%@ をアンインストールしますか？",

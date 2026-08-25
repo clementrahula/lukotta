@@ -131,7 +131,12 @@ enum Uninstall {
                 // is as they left it is not uninstalling.
                 await AppModel.shared.helper.releaseRoom()
                 await MainActor.run {
-                    try? SMAppService.daemon(plistName: HelperInfo.plistName).unregister()
+                    // Both routes. Unregistering reaches a daemon this app
+                    // registered; it says nothing about one installed with an
+                    // administrator password, which is a launchd job in
+                    // /Library that only root can remove -- so the daemon is
+                    // asked to remove itself, which it can, being root.
+                    AppModel.shared.helper.remove()
                 }
                 finished()
             }

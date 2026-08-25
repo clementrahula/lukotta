@@ -294,6 +294,7 @@
     "This partition is not a BitLocker volume.": "Denne partisjonen er ikke et BitLocker-volum.",
     "This takes a moment.": "Dette tar et øyeblikk.",
     "This usually takes under a minute.": "Det tar vanligvis under ett minutt.",
+    "This version needs setting up again. It takes one password.": "Denne versjonen må konfigureres på nytt. Det krever ett passord.",
     "Try Again": "Prøv igjen",
     "Uninstall": "Avinstaller",
     "Uninstall %@?": "Avinstallere %@?",

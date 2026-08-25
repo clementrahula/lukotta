@@ -286,6 +286,7 @@
     "This partition is not a BitLocker volume.": "이 파티션은 BitLocker 볼륨이 아닙니다.",
     "This takes a moment.": "잠시 걸립니다.",
     "This usually takes under a minute.": "보통 1분이 채 걸리지 않습니다.",
+    "This version needs setting up again. It takes one password.": "이 버전은 다시 설정해야 합니다. 암호를 한 번만 입력하면 됩니다.",
     "Try Again": "다시 시도",
     "Uninstall": "제거",
     "Uninstall %@?": "%@을(를) 제거하시겠습니까?",

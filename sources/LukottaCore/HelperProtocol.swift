@@ -11,8 +11,25 @@ public enum HelperInfo {
     /// gets its own service and daemon without a second set of constants to
     /// keep in step. The helper runs from `Contents/MacOS` of the same bundle,
     /// so it reads the identifier the app does.
-    public static let appIdentifier =
-        Bundle.main.bundleIdentifier ?? "com.example.driveunlocker"
+    public static let appIdentifier = identifierOfTheApp(
+        behind: Bundle.main.bundleIdentifier ?? "com.example.driveunlocker")
+
+    /// The app's identifier, whether this is the app asking or the helper.
+    ///
+    /// The helper carries its own Info.plist inside the binary, because
+    /// SMJobBless requires one -- and an embedded plist wins over the bundle
+    /// the executable happens to sit in, so the helper reads its own identifier
+    /// here rather than the app's. Everything below is composed from the app's:
+    /// the mach service, the code requirement each side demands of the other,
+    /// the paths the daemon removes itself from. With the suffix left on, the
+    /// helper listened on <id>.helper.helper, refused the only app allowed to
+    /// talk to it, and looked for itself in the wrong place -- which is a
+    /// daemon that installs and then serves nobody.
+    public static func identifierOfTheApp(behind identifier: String) -> String {
+        let suffix = ".helper"
+        guard identifier.hasSuffix(suffix) else { return identifier }
+        return String(identifier.dropLast(suffix.count))
+    }
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"

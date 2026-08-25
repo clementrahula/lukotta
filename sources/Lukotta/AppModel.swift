@@ -2121,6 +2121,12 @@ final class AppModel: ObservableObject {
         DriveMemory.remember(mountPoint: mountPoint, for: drive.uuid)
         rememberForRestore(drive, readOnly: mountedReadOnly)
         restoreKeys[mountPoint] = drive.uuid
+        // And in the settings, so that after a restart this app can still say
+        // which mounts on this Mac are its own: a beta and a release both serve
+        // into ~/Volumes, and the engine's status does not say who asked.
+        // Without this, uninstalling ejected nothing and went on to delete the
+        // Linux environment under drives that were still open.
+        OpenedHere.add(mountPoint)
         switch route {
         case .authorised:
             // Authorisation has just been demonstrated, so this is the moment to

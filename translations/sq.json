@@ -294,6 +294,7 @@
     "This partition is not a BitLocker volume.": "Ky particion nuk është volum BitLocker.",
     "This takes a moment.": "Kjo zgjat një çast.",
     "This usually takes under a minute.": "Kjo zakonisht zgjat më pak se një minutë.",
+    "This version needs setting up again. It takes one password.": "Ky version duhet konfiguruar sërish. Duhet vetëm një fjalëkalim.",
     "Try Again": "Provo sërish",
     "Uninstall": "Çinstalo",
     "Uninstall %@?": "Të çinstalohet %@?",

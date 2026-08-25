@@ -1214,6 +1214,48 @@ group("aRefusedPermissionSaysWhichOneAndOffersTheWayToIt") {
         "which is what puts Open Privacy Settings on the failure screen")
 }
 
+group("theHelperAndTheAppAgreeOnWhoTheyAre") {
+    // The helper carries its own Info.plist inside the binary, because
+    // SMJobBless requires one -- and an embedded plist wins over the bundle the
+    // executable sits in, so the helper reads its own identifier where it used
+    // to read the app's. Everything is composed from the app's: the mach
+    // service, the requirement each side demands of the other, the paths the
+    // daemon removes itself from.
+    //
+    // Left alone, the helper listened on <id>.helper.helper, refused the only
+    // app allowed to talk to it, and looked for itself where it was not. A
+    // daemon that installs and then serves nobody, with nothing on any screen
+    // saying why.
+    expect(
+        HelperInfo.identifierOfTheApp(behind: "com.lukotta.helper") == "com.lukotta",
+        "the helper reading its own identifier arrives at the app's")
+    expect(
+        HelperInfo.identifierOfTheApp(behind: "com.lukotta.beta.helper") == "com.lukotta.beta",
+        "and so does the beta's, which is a different app again")
+    expect(
+        HelperInfo.identifierOfTheApp(behind: "com.lukotta") == "com.lukotta",
+        "the app's own identifier is left as it is")
+    expect(
+        HelperInfo.identifierOfTheApp(behind: "com.helpful.app") == "com.helpful.app",
+        "and an identifier that merely contains the word is not truncated")
+
+    // What the two sides then compose, which has to match exactly or the
+    // connection is refused by the one side and never offered by the other.
+    expect(
+        HelperInfo.machServiceName == HelperInfo.appIdentifier + ".helper",
+        "the mach service is the app's identifier with one suffix, not two")
+    expect(
+        HelperInfo.installedJobPath.hasSuffix("/\(HelperInfo.machServiceName).plist"),
+        "the job the daemon removes is the job it was installed as")
+    expect(
+        HelperInfo.installedToolPath.hasSuffix("/\(HelperInfo.machServiceName)"),
+        "and the binary it removes is the one that was installed")
+    expect(
+        HelperInfo.clientRequirement(team: "A1B2C3D4E5")?
+            .contains("identifier \"\(HelperInfo.appIdentifier)\"") == true,
+        "the requirement names the app, which is who connects")
+}
+
 group("theFirstScreenIsTheRightOneStraightAway") {
     // Reading the permission opens files, so it happens off the main thread --
     // which is a whole screen too late to decide what to draw. The app opened

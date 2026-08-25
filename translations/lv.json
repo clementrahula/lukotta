@@ -302,6 +302,7 @@
     "This partition is not a BitLocker volume.": "Šis nodalījums nav BitLocker sējums.",
     "This takes a moment.": "Tas aizņem brīdi.",
     "This usually takes under a minute.": "Parasti tas aizņem mazāk par minūti.",
+    "This version needs setting up again. It takes one password.": "Šī versija ir jāiestata no jauna. Tam vajadzīga viena parole.",
     "Try Again": "Mēģināt vēlreiz",
     "Uninstall": "Atinstalēt",
     "Uninstall %@?": "Vai atinstalēt %@?",

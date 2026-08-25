@@ -14,6 +14,19 @@ import SwiftUI
 /// Renaming the window's own autosave does not work, because SwiftUI sets its
 /// name after the view appears and takes it back. So the frame is saved and
 /// restored here instead, under a key we choose.
+/// Whether the app is moving the window itself at this moment.
+///
+/// A frame is remembered when the window moves or resizes, which is how
+/// somebody's own choice of size survives a quit. The app also sizes the window
+/// -- when a screen wants less width than the one before it -- and that arrived
+/// through the same notification, was written down as though it had been
+/// dragged, and from then on the app never adjusted the width again: it had
+/// been told, by itself, to keep its hands off.
+@MainActor
+enum WindowGeometry {
+    static var isAdjusting = false
+}
+
 struct RememberFrame: NSViewRepresentable {
     let key: String
 
@@ -173,6 +186,8 @@ struct RememberFrame: NSViewRepresentable {
         }
 
         private func save() {
+            // Not what the app just did to the window; only what was done to it.
+            guard !WindowGeometry.isAdjusting else { return }
             guard let window else { return }
             UserDefaults.standard.set(NSStringFromRect(window.frame), forKey: key)
         }
@@ -234,7 +249,11 @@ private struct WindowWidth: NSViewRepresentable {
             // across the display each time a screen changes.
             frame.origin.x += (frame.width - width) / 2
             frame.size.width = width
+            WindowGeometry.isAdjusting = true
             window.setFrame(frame, display: true, animate: window.isVisible)
+            // The notifications arrive after this returns, so the flag is
+            // cleared once they have been and gone.
+            DispatchQueue.main.async { WindowGeometry.isAdjusting = false }
         }
     }
 }

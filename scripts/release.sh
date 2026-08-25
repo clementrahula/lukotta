@@ -82,6 +82,16 @@ BASE_URL="${LUKOTTA_DOWNLOAD_BASE:-https://github.com/$REPO/releases/download/$T
 git rev-parse "$TAG" >/dev/null 2>&1 || git rev-parse "v$VERSION" >/dev/null 2>&1 || {
   echo "error: no tag $TAG; run scripts/bump-version.sh first" >&2; exit 1; }
 
+# Against the feed that is actually published, not a copy left in dist by the
+# last run on this machine -- which the wipe above has just deleted, and which a
+# fresh clone never had, so the check passed by finding nothing.
+if [ -z "${LUKOTTA_APPCAST:-}" ]; then
+  echo "error: set LUKOTTA_APPCAST to a checkout of the updates repository." >&2
+  echo "       Without the published feed there is nothing to check this build" >&2
+  echo "       number against, and Sparkle offers an update only when the number" >&2
+  echo "       is higher than the one people already have." >&2
+  exit 1
+fi
 PUBLISHED="$(highest_published "$APPCAST")"
 if [ -n "$PUBLISHED" ] && [ "$PUBLISHED" != "0" ] && [ "$BUILD" -le "$PUBLISHED" ]; then
   echo "error: this build is $BUILD and $PUBLISHED is already published in" >&2
@@ -95,6 +105,15 @@ SIGN_TOOL="$(find "$HERE/.build" -name sign_update -type f -perm -111 -print -qu
 [ -n "$SIGN_TOOL" ] || { echo "error: sign_update not found; run swift build" >&2; exit 1; }
 
 printf '==> Building and notarising %s (build %s)\n' "$VERSION" "$BUILD"
+# The archives previous releases were built from, kept out of the way before the
+# wipe. They live in dist/previous by default, and the wipe below deleted them
+# every time -- so deltas were silently never built, and every release told
+# everybody to download the whole thing.
+KEPT_PREVIOUS=""
+if [ -d "${LUKOTTA_PREVIOUS:-$HERE/dist/previous}" ]; then
+  KEPT_PREVIOUS="$(mktemp -d)/previous"
+  /usr/bin/ditto "${LUKOTTA_PREVIOUS:-$HERE/dist/previous}" "$KEPT_PREVIOUS"
+fi
 rm -rf "$HERE/dist"
 # A release is the one build that carries the marks. See TRADEMARKS.txt.
 LUKOTTA_BRANDING="$BRANDING" LUKOTTA_NOTARY_PROFILE="$PROFILE" \
@@ -178,7 +197,7 @@ DELTA_ARGS=()
 # names — rather than globbing dist/, which picks up whatever an earlier run
 # left behind and stays a literal "*.delta" when there is nothing there.
 DELTA_FILES=()
-PREVIOUS="${LUKOTTA_PREVIOUS:-$HERE/dist/previous}"
+PREVIOUS="${KEPT_PREVIOUS:-${LUKOTTA_PREVIOUS:-$HERE/dist/previous}}"
 DELTA_TOOL="$(find "$HERE/.build" -name BinaryDelta -type f -perm -111 -print -quit 2>/dev/null || true)"
 if [ -d "$PREVIOUS" ] && [ -n "$DELTA_TOOL" ]; then
   for archive in "$PREVIOUS"/*.zip; do

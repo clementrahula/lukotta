@@ -326,6 +326,7 @@
     "This partition is not a BitLocker volume.": "هذا القسم ليس وحدة تخزين BitLocker.",
     "This takes a moment.": "يستغرق هذا لحظة.",
     "This usually takes under a minute.": "يستغرق هذا عادةً أقل من دقيقة.",
+    "This version needs setting up again. It takes one password.": "يحتاج هذا الإصدار إلى إعداد من جديد. يتطلب ذلك كلمة سر واحدة.",
     "Try Again": "إعادة المحاولة",
     "Uninstall": "إلغاء التثبيت",
     "Uninstall %@?": "هل تريد إلغاء تثبيت %@؟",

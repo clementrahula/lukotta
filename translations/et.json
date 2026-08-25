@@ -294,6 +294,7 @@
     "This partition is not a BitLocker volume.": "See partitsioon ei ole BitLockeri köide.",
     "This takes a moment.": "See võtab hetke.",
     "This usually takes under a minute.": "Tavaliselt võtab see alla minuti.",
+    "This version needs setting up again. It takes one password.": "See versioon tuleb uuesti seadistada. Selleks kulub üks parool.",
     "Try Again": "Proovi uuesti",
     "Uninstall": "Eemalda",
     "Uninstall %@?": "Kas eemaldada %@?",

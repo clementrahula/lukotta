@@ -190,7 +190,18 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             let workspace = try Workspace()
             defer { workspace.destroy() }
 
-            try EngineEnvironment.prepare { _ in }
+            // Into the invoking user's directory, not root's. This process is
+            // root, so anything it resolves from its own home lands in
+            // /var/root -- a hundred megabytes unpacked where nothing will ever
+            // look for it, while the script written below points somewhere
+            // else entirely and the mount finds no environment at all.
+            let home = engineHome(of: home)
+            try FileManager.default.createDirectory(
+                atPath: home + "/Library/Logs", withIntermediateDirectories: true)
+            try EngineEnvironment.prepare(
+                into: URL(fileURLWithPath: home).appendingPathComponent(
+                    ".anylinuxfs/alpine", isDirectory: true)
+            ) { _ in }
             let fifo = try workspace.makeCredentialPipe()
             let log = workspace.root.appendingPathComponent("mount.log")
             FileManager.default.createFile(atPath: log.path, contents: nil)

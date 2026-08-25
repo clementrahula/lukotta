@@ -286,6 +286,7 @@
     "This partition is not a BitLocker volume.": "这个分区不是 BitLocker 宗卷。",
     "This takes a moment.": "这需要片刻。",
     "This usually takes under a minute.": "通常不到一分钟。",
+    "This version needs setting up again. It takes one password.": "此版本需要重新设置。只需输入一次密码。",
     "Try Again": "重试",
     "Uninstall": "卸载",
     "Uninstall %@?": "要卸载 %@ 吗？",

@@ -294,6 +294,7 @@
     "This partition is not a BitLocker volume.": "Bu bölüm bir BitLocker birimi değil.",
     "This takes a moment.": "Bu bir an sürer.",
     "This usually takes under a minute.": "Bu genellikle bir dakikadan kısa sürer.",
+    "This version needs setting up again. It takes one password.": "Bu sürümün yeniden kurulması gerekiyor. Tek bir parola yeterli.",
     "Try Again": "Yeniden Dene",
     "Uninstall": "Kaldır",
     "Uninstall %@?": "%@ kaldırılsın mı?",

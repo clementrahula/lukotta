@@ -286,6 +286,7 @@
     "This partition is not a BitLocker volume.": "พาร์ทิชันนี้ไม่ใช่โวลุ่ม BitLocker",
     "This takes a moment.": "ใช้เวลาสักครู่",
     "This usually takes under a minute.": "โดยทั่วไปใช้เวลาไม่ถึงหนึ่งนาที",
+    "This version needs setting up again. It takes one password.": "เวอร์ชันนี้ต้องตั้งค่าใหม่ ใช้รหัสผ่านครั้งเดียว",
     "Try Again": "ลองใหม่",
     "Uninstall": "ถอนการติดตั้ง",
     "Uninstall %@?": "ถอนการติดตั้ง %@ ไหม",

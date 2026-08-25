@@ -294,6 +294,7 @@
     "This partition is not a BitLocker volume.": "Esta partição não é um volume BitLocker.",
     "This takes a moment.": "Isto demora um momento.",
     "This usually takes under a minute.": "Normalmente demora menos de um minuto.",
+    "This version needs setting up again. It takes one password.": "Esta versão tem de ser configurada novamente. Basta uma palavra-passe.",
     "Try Again": "Tentar de novo",
     "Uninstall": "Desinstalar",
     "Uninstall %@?": "Desinstalar o %@?",

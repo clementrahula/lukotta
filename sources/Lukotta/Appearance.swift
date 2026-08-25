@@ -45,7 +45,13 @@ enum Appearance: String, CaseIterable, Identifiable {
     /// hands control back to the system, including later changes to it.
     @MainActor
     func apply() {
-        NSApp.appearance = nsAppearance
+        // NSApplication.shared, not NSApp: this is called before the first
+        // window exists so that a Mac set to the other appearance does not see
+        // a flash of the system's, and at that moment NSApp is still nil.
+        // Reading it there force-unwrapped nil and took the app down on every
+        // launch. NSApplication.shared makes the instance if it is not there
+        // yet, which is what asking for it this early means.
+        NSApplication.shared.appearance = nsAppearance
     }
 
     static var current: Appearance {

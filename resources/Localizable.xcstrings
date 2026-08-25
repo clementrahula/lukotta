@@ -27422,7 +27422,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lúkotta on suomea ja tarkoittaa ”ilman lukkoa”, sanasta lukko, päätteellä -tta joka ilmaisee jonkin puuttumista. Paino on ensimmäisellä tavulla, kuten suomessa aina."
+            "value": "Nimi on abessiivi sanasta lukko - sen kyllä huomasit. Olen virolainen, mutta suomeksi se kuulosti kauniimmalta, joten valitsin sen."
           }
         },
         "fil": {
@@ -52621,6 +52621,226 @@
           "stringUnit": {
             "state": "translated",
             "value": "通常不到一分钟。"
+          }
+        }
+      }
+    },
+    "This version needs setting up again. It takes one password.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يحتاج هذا الإصدار إلى إعداد من جديد. يتطلب ذلك كلمة سر واحدة."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тази версия трябва да се настрои отново. Нужна е една парола."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tato verze potřebuje nastavit znovu. Stačí jedno heslo."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne version skal indstilles igen. Det kræver én adgangskode."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Version muss neu eingerichtet werden. Dafür braucht es ein Passwort."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτή η έκδοση χρειάζεται ρύθμιση ξανά. Χρειάζεται ένα συνθηματικό."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta versión hay que configurarla otra vez. Solo hace falta una contraseña."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See versioon tuleb uuesti seadistada. Selleks kulub üks parool."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä versio pitää määrittää uudelleen. Siihen tarvitaan yksi salasana."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kailangang i-set up muli ang bersyong ito. Isang password lang ang kailangan."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette version doit être configurée à nouveau. Un seul mot de passe suffit."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "יש להגדיר את הגרסה הזו מחדש. נדרשת סיסמה אחת."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इस संस्करण को दोबारा सेट अप करना होगा। इसमें एक पासवर्ड लगेगा।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovu verziju treba ponovno postaviti. Potrebna je jedna lozinka."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ezt a verziót újra be kell állítani. Egyetlen jelszó kell hozzá."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versi ini perlu disiapkan lagi. Cukup satu kata sandi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa versione va configurata di nuovo. Serve una sola password."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このバージョンは設定し直す必要があります。パスワードを一度だけ入力します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 버전은 다시 설정해야 합니다. 암호를 한 번만 입력하면 됩니다."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šią versiją reikia nustatyti iš naujo. Prireiks vieno slaptažodžio."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šī versija ir jāiestata no jauna. Tam vajadzīga viena parole."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versi ini perlu disediakan semula. Satu kata laluan sahaja diperlukan."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne versjonen må konfigureres på nytt. Det krever ett passord."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze versie moet opnieuw worden ingesteld. Daarvoor is één wachtwoord nodig."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tę wersję trzeba skonfigurować ponownie. Wystarczy jedno hasło."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta versão tem de ser configurada novamente. Basta uma palavra-passe."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Această versiune trebuie configurată din nou. E nevoie de o singură parolă."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эту версию нужно настроить заново. Понадобится один пароль."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To različico je treba znova nastaviti. Potrebno je eno geslo."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ky version duhet konfiguruar sërish. Duhet vetëm një fjalëkalim."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den här versionen behöver ställas in igen. Det krävs ett lösenord."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เวอร์ชันนี้ต้องตั้งค่าใหม่ ใช้รหัสผ่านครั้งเดียว"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu sürümün yeniden kurulması gerekiyor. Tek bir parola yeterli."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цю версію потрібно налаштувати знову. Знадобиться один пароль."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phiên bản này cần được thiết lập lại. Chỉ cần một mật khẩu."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此版本需要重新设置。只需输入一次密码。"
           }
         }
       }

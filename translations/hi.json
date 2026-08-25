@@ -294,6 +294,7 @@
     "This partition is not a BitLocker volume.": "यह पार्टीशन BitLocker वॉल्यूम नहीं है।",
     "This takes a moment.": "इसमें एक पल लगता है।",
     "This usually takes under a minute.": "आमतौर पर इसमें एक मिनट से कम लगता है।",
+    "This version needs setting up again. It takes one password.": "इस संस्करण को दोबारा सेट अप करना होगा। इसमें एक पासवर्ड लगेगा।",
     "Try Again": "फिर कोशिश करें",
     "Uninstall": "अनइंस्टॉल करें",
     "Uninstall %@?": "%@ अनइंस्टॉल करें?",

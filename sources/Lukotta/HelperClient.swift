@@ -46,6 +46,10 @@ final class HelperClient: ObservableObject {
     /// app's own version twice is not.
     @Published private(set) var installedVersion: String?
 
+    /// Whether the daemon has been asked to prove it is running this session.
+    /// Once is enough: every mount asks it something anyway.
+    private var hasConfirmed = false
+
     private var connection: NSXPCConnection?
     private var service: SMAppService {
         SMAppService.daemon(plistName: HelperInfo.plistName)
@@ -54,9 +58,16 @@ final class HelperClient: ObservableObject {
     func refresh() {
         // A daemon installed with an administrator password is a launchd job,
         // not a service this app registered, so SMAppService says nothing about
-        // it. What says so is the job itself, in the place only root can write.
+        // it. The job on disk is evidence that it was installed -- not that it
+        // runs, which is a different thing and the one that matters. So the
+        // screen says ready and the daemon is asked to confirm it; if it never
+        // answers, the state drops to one with a button on it.
         if FileManager.default.fileExists(atPath: HelperInfo.installedJobPath) {
-            state = .ready
+            if state != .ready { state = .ready }
+            if !hasConfirmed {
+                hasConfirmed = true
+                confirmItIsReallyThere()
+            }
             return
         }
         switch service.status {
@@ -82,6 +93,26 @@ final class HelperClient: ObservableObject {
     /// is already approved, and this is not something to make anybody read.
     func replaceIfStale() {
         guard case .ready = state else { return }
+        // A daemon installed with an administrator password is not this app's
+        // to re-register: unregistering reaches nothing, and registering again
+        // would install the other kind beside it. The one running has to be
+        // taken away first, and putting the new one back asks for the password
+        // again -- so it is offered rather than done, and the drive in front of
+        // somebody still opens through the older daemon meanwhile.
+        if FileManager.default.fileExists(atPath: HelperInfo.installedJobPath) {
+            askVersion { [weak self] theirs in
+                guard let self else { return }
+                let mine =
+                    Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+                guard !mine.isEmpty, !theirs.isEmpty, theirs != mine else { return }
+                Log.app.notice(
+                    "the installed helper is build \(theirs, privacy: .public), this is \(mine, privacy: .public); asking to set it up again"
+                )
+                self.state = .failed(
+                    appString("This version needs setting up again. It takes one password."))
+            }
+            return
+        }
         let mine = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
         guard !mine.isEmpty else { return }
         askVersion { [weak self] theirs in
@@ -196,6 +227,7 @@ final class HelperClient: ObservableObject {
     /// happens if a future macOS finally removes the older one.
     func install() {
         guard state != .installing else { return }
+        hasConfirmed = true
         state = .installing
         Task.detached(priority: .userInitiated) { [weak self] in
             // The password panel is put up by the system on this thread, so it
@@ -265,26 +297,31 @@ final class HelperClient: ObservableObject {
         else { return false }
         defer { AuthorizationFree(authorisation, []) }
 
-        var right = kSMRightBlessPrivilegedHelper.withCString { name in
-            AuthorizationItem(name: name, valueLength: 0, value: nil, flags: 0)
-        }
-        return withUnsafeMutablePointer(to: &right) { item -> Bool in
-            var rights = AuthorizationRights(count: 1, items: item)
-            let flags: AuthorizationFlags = [.interactionAllowed, .preAuthorize, .extendRights]
-            guard
-                AuthorizationCopyRights(authorisation, &rights, nil, flags, nil)
-                    == errAuthorizationSuccess
-            else { return false }
+        // The name has to outlive the call. Taking a pointer inside
+        // withCString and using it after that closure returns is a pointer to
+        // memory that is no longer anybody's -- it happens to work until it
+        // does not, and this one asks for a right to install a root daemon.
+        return kSMRightBlessPrivilegedHelper.withCString { name -> Bool in
+            var right = AuthorizationItem(
+                name: name, valueLength: 0, value: nil, flags: 0)
+            return withUnsafeMutablePointer(to: &right) { item -> Bool in
+                var rights = AuthorizationRights(count: 1, items: item)
+                let flags: AuthorizationFlags = [.interactionAllowed, .preAuthorize, .extendRights]
+                guard
+                    AuthorizationCopyRights(authorisation, &rights, nil, flags, nil)
+                        == errAuthorizationSuccess
+                else { return false }
 
-            var failure: Unmanaged<CFError>?
-            let blessed = SMJobBless(
-                kSMDomainSystemLaunchd, HelperInfo.machServiceName as CFString, authorisation,
-                &failure)
-            if !blessed, let failure {
-                let error = failure.takeRetainedValue()
-                Log.app.error("the helper could not be installed: \(error, privacy: .public)")
+                var failure: Unmanaged<CFError>?
+                let blessed = SMJobBless(
+                    kSMDomainSystemLaunchd, HelperInfo.machServiceName as CFString, authorisation,
+                    &failure)
+                if !blessed, let failure {
+                    let error = failure.takeRetainedValue()
+                    Log.app.error("the helper could not be installed: \(error, privacy: .public)")
+                }
+                return blessed
             }
-            return blessed
         }
     }
 
