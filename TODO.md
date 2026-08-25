@@ -15,6 +15,17 @@ hardware only you have.
   drive list in every language and both appearances; the unlock sheet and the
   screen shown while a drive is opening are not among them, and the site wants
   all three.
+- [ ] **[you] The documents that are yours.** README.md, CONTRIBUTING.md and the
+  legal files were left alone through a night of changes. Two things in them may
+  now be worth a look: CONTRIBUTING describes the tests as `run-tests.sh`,
+  `lint.sh` and `e2e.sh`, and there is a third now — `preflight.sh`, which is
+  what a release has to pass; and the README's Download button points at
+  `releases/latest/download/Lukotta.dmg`, which resolves from the first release
+  that uploads one.
+- [ ] **[you] The pre-release feed's directory.** The appcast repository serves
+  `updates.lukotta.com`; the beta feed is a `beta/` directory in the same
+  repository now, rather than a second domain. The first beta release writes it:
+  `LUKOTTA_CHANNEL=beta LUKOTTA_APPCAST=../lukotta-appcast/beta/appcast.xml`.
 
 ## Stage 3 — larger bets
 

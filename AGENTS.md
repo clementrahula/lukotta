@@ -372,6 +372,34 @@ file or an external data file is refused before the engine is told anything;
 see `Qcow2Header.namesAnotherFile`. Keep that check ahead of the engine when
 adding formats.
 
+## Invariants Found The Hard Way
+
+Each of these was a fault before it was a rule, and each was found by a run
+rather than by reading. Changing one needs the same evidence that established
+it.
+
+- **A drive is open only where something is mounted.** The engine makes the
+  mount point before it mounts on it and leaves the directory when the mount
+  fails, so "the path exists" reported drives that had not opened. Only the
+  mount table counts, on every route.
+- **A mount of this app's own is `.local:/mnt/…` or `.local:/run/…`.** A volume
+  group is served as a tmpfs under `/run` with the volumes bound inside it.
+  Recognising only the first shape meant the sweep for engines serving nothing
+  would have taken down the machine serving somebody's root and home.
+- **The kept-aside copy is filed under the identifier.** The app writes it and
+  the shim in front of the app puts it back; they disagreed about where, so no
+  update ever rolled back. `AppRollback.supportName` is the one answer, and
+  `bundle_identifier()` in `sources/LukottaLaunch/main.c` does the same.
+- **The copy is made when the archive arrives, not when it installs.** Sparkle
+  does not send `willInstallUpdate`; it sends `didDownloadUpdate` and
+  `didExtractUpdate`. Hanging the copy on the first meant it was never made.
+- **The machinery slipping is not the drive refusing.** A broken pipe, a locked
+  image, an NFS mount macOS would not make: absorbed and retried, never
+  reported. A wrong passphrase or an unreadable filesystem is an answer and is
+  reported at once. `TransientFailure` holds the list.
+- **An attempt has an end.** Eight minutes, then what it started is taken down.
+  No real drive needs it and a stuck one would otherwise wait for ever.
+
 ## Security Invariants
 
 Each of these is load-bearing. Changing one is a deliberate decision rather
@@ -413,6 +441,28 @@ from the commits by `scripts/release-notes.py`, written with the version by
 release body by `scripts/release.sh`. The draft is a starting point: rewrite it
 for the person reading it, then again to take out what they gain nothing from.
 The release prints the result and asks somebody to read it before it builds.
+
+## What The Runs Are For
+
+Three, and they answer different questions.
+
+| Run | What it answers | How long |
+| --- | --- | --- |
+| `scripts/run-tests.sh` | Does the logic hold, on any Mac, with no drive | seconds |
+| `scripts/preflight.sh` | Does a release work: install, open, write, eject, update, roll back, both channels | half an hour |
+| `scripts/e2e.sh` | Everything: every format, every filesystem, the awkward names, the unhappy paths | over an hour, per channel |
+
+`e2e.sh` builds its own fixtures the first time and keeps them in
+`~/Library/Caches/dev.lukotta.e2e`. One of them is made with Homebrew's
+`mke2fs`, fetched if it is missing: the guest carries mkfs for btrfs, NTFS and
+FAT only. The LUKS layouts, including a volume group of three volumes, come from
+`scripts/make-test-volumes.sh`, and a Mac without them tests one shape fewer and
+says so rather than passing quietly.
+
+`update-test.sh` is inside `preflight.sh` and can be run alone. It applies real
+updates through Sparkle against a feed served from this Mac: a full archive, a
+delta, one offered while a drive is open, and a build that cannot start being
+put back.
 
 ## What Is Not A Bug
 
