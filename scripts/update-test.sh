@@ -200,9 +200,11 @@ that "Sparkle downloaded it, checked it, and the app quit for it" same "$status"
 
 # The installer runs on after the app has gone: it waits for the process to
 # leave, swaps ninety megabytes of bundle, and only then is the new version
-# there. A minute, rather than the twenty seconds this waited before, which was
-# most of the time enough.
-for _ in $(seq 1 120); do
+# there. Three minutes, rather than the one this waited before: on a Mac busy
+# with the rest of a preflight, ninety megabytes take longer than a minute to
+# swap, and the check failed while every check after it -- which all depend on
+# the update having landed -- passed.
+for _ in $(seq 1 360); do
   [ "$(installed_build)" = "$TO_BUILD" ] && break
   /bin/sleep 0.5
 done
