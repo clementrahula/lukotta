@@ -13,12 +13,26 @@ import LukottaCore
 enum Rollback {
     private static let recordKey = "com.lukotta.launchRecord"
 
-    /// The bundle's own name, so a beta and a release keep their copies apart
-    /// -- and so this agrees with the shim in front of the app, which has only
-    /// the path to go on. Both wrote to a directory called "Lukotta" before,
-    /// which is one directory for two applications that replace each other.
+    /// What the app and the shim in front of it both file this under.
+    ///
+    /// The identifier, which is what everything else this app keeps is filed
+    /// under and what the shim reads out of the Info.plist beside it. The name
+    /// on disk is the fallback, on both sides, for a bundle whose Info.plist
+    /// cannot be read.
     private static var bundleName: String {
-        Bundle.main.bundleURL.deletingPathExtension().lastPathComponent
+        AppRollback.supportName(
+            identifier: Bundle.main.bundleIdentifier,
+            bundleName: Bundle.main.bundleURL.deletingPathExtension().lastPathComponent)
+    }
+
+    /// Where this used to be kept, so that what is there can be taken away.
+    private static var oldPlace: URL? {
+        let name = Bundle.main.bundleURL.deletingPathExtension().lastPathComponent
+        guard name != bundleName else { return nil }
+        return try? FileManager.default.url(
+            for: .applicationSupportDirectory, in: .userDomainMask,
+            appropriateFor: nil, create: false
+        ).appendingPathComponent(name, isDirectory: true)
     }
 
     private static var support: URL? {
@@ -73,6 +87,16 @@ enum Rollback {
     /// Returns false when the previous version has been put back and opened, in
     /// which case this process should stop.
     static func evaluateLaunch() -> Bool {
+        // Anything left where this used to be kept, which was a directory named
+        // after the application rather than after its identifier. Nothing there
+        // is worth carrying across -- a copy of a version two updates ago -- and
+        // left alone it would sit in Application Support for ever, since the
+        // uninstaller takes away the identifier's directory and not this one.
+        if let oldPlace, FileManager.default.fileExists(atPath: oldPlace.path) {
+            Log.updates.notice("taking away what was kept under the old name")
+            try? FileManager.default.removeItem(at: oldPlace)
+        }
+
         let action = AppRollback.decide(
             record: readRecord(),
             currentVersion: currentVersion,

@@ -35,6 +35,25 @@ public enum LaunchAction: Equatable, Sendable {
 }
 
 public enum AppRollback {
+
+    /// The directory the app and the shim in front of it both keep this in.
+    ///
+    /// They have to agree, and they did not. The shim reads the identifier out
+    /// of the Info.plist beside it; the app used the name of the bundle on
+    /// disk. So the app kept the outgoing version under "Lukotta Beta" and the
+    /// shim looked for it under "com.lukotta.beta", found nothing, and started
+    /// a broken version for the fourth time and the fortieth. The one thing an
+    /// update cannot undo was the one thing not wired up.
+    ///
+    /// The identifier is what everything else this app keeps is filed under,
+    /// and it survives somebody renaming the application. The name is the
+    /// fallback on both sides, for a bundle whose Info.plist cannot be read --
+    /// `bundle_identifier()` in sources/LukottaLaunch/main.c does the same.
+    public static func supportName(identifier: String?, bundleName: String) -> String {
+        guard let identifier, !identifier.isEmpty else { return bundleName }
+        return identifier
+    }
+
     /// Why three, rather than one or five.
     ///
     /// One would be wrong: a launch that begins and never finishes is not proof

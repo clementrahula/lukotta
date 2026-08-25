@@ -194,6 +194,12 @@ import CryptoKit
                 hostileFlow(image: hostile)
             }
 
+            if let plain = fixtures["plain"], FileManager.default.fileExists(atPath: plain.path) {
+                print("")
+                print("a machine that goes away without warning: \(plain.lastPathComponent)")
+                unexpectedlyFlow(image: plain, passphrase: nil)
+            }
+
             print("")
             print("when things go wrong: \(container.lastPathComponent)")
             whenThingsGoWrongFlow(container: container, passphrase: passphrase)
@@ -1886,6 +1892,108 @@ import CryptoKit
                 _ = waitUntil("it ejects", timeout: 120, condition: { !vanishing.isEjecting })
             }
             _ = EngineProcesses.tidyWhatServesNothing()
+        }
+
+        /// What happens when the drive does not go away politely.
+        ///
+        /// Two ways it does not, both of them ordinary. Somebody force-quits
+        /// the app, or it crashes, and the machine serving the volume goes with
+        /// nothing unmounted. Or somebody ejects the volume in Finder, which
+        /// this app is not told about and only finds out by looking.
+        ///
+        /// What matters after either is the same: what was written is on the
+        /// drive, and the app is not left holding a mount that is not there.
+        @MainActor
+        private static func unexpectedlyFlow(image: URL, passphrase: String?) {
+            let marker = "written just before the machine was taken away\n"
+            let name = "lukotta-crash-probe.txt"
+
+            // 1. Open it, write something, and take the machine down where it
+            //    stands -- which is what a crash looks like from the volume's
+            //    side: no unmount, no flush, no eject.
+            do {
+                guard let (model, drive) = openAndChoose(image) else { return }
+                guard
+                    waitUntil(
+                        "it is identified", timeout: 60,
+                        condition: { model.phaseIsUnlock && model.chosenFormat != nil })
+                else { return }
+                if let passphrase { model.credential = passphrase }
+                model.unlock(drive)
+                guard
+                    waitUntil(
+                        "it mounts", timeout: 180,
+                        condition: {
+                            if case .mounted = model.phase { return true }
+                            if case .failed = model.phase { return true }
+                            return false
+                        })
+                else { return }
+                guard case .mounted(_, let mountPoint) = model.phase else {
+                    check(false, "it mounted rather than failing")
+                    return
+                }
+                let probe = URL(fileURLWithPath: mountPoint).appendingPathComponent(name)
+                let wrote = (try? Data(marker.utf8).write(to: probe)) != nil
+                check(wrote, "something is written to it")
+                guard wrote else { return }
+
+                EngineProcesses.stop(EngineProcesses.running())
+                check(true, "and the machine serving it is taken away without an eject")
+                _ = waitUntil(
+                    "the mount goes with it", timeout: 120,
+                    condition: { !FileManager.default.fileExists(atPath: mountPoint + "/" + name) })
+            }
+
+            // 2. Open it again. Nothing about the first mount was tidy, and
+            //    what was written still has to be there.
+            do {
+                guard let (model, drive) = openAndChoose(image) else { return }
+                guard
+                    waitUntil(
+                        "it opens again after that", timeout: 60,
+                        condition: { model.phaseIsUnlock && model.chosenFormat != nil })
+                else { return }
+                if let passphrase { model.credential = passphrase }
+                model.unlock(drive)
+                guard
+                    waitUntil(
+                        "and mounts", timeout: 180,
+                        condition: {
+                            if case .mounted = model.phase { return true }
+                            if case .failed = model.phase { return true }
+                            return false
+                        })
+                else { return }
+                guard case .mounted(_, let mountPoint) = model.phase else {
+                    if case .failed(_, let summary, _) = model.phase { print("      \(summary)") }
+                    check(false, "it mounted rather than failing")
+                    return
+                }
+                let probe = URL(fileURLWithPath: mountPoint).appendingPathComponent(name)
+                let read = try? String(contentsOf: probe, encoding: .utf8)
+                check(read == marker, "what was written before the crash is on the drive")
+                try? FileManager.default.removeItem(at: probe)
+
+                // 3. And now the other way: ejected in Finder, behind this
+                //    app's back. Nothing tells it; it has to notice.
+                _ = shellOutput("/sbin/umount", ["-f", mountPoint])
+                let noticed = waitUntil(
+                    "ejected in Finder, the app notices it has gone", timeout: 120,
+                    condition: {
+                        model.refreshDrives()
+                        return model.openMounts.values.contains(mountPoint) == false
+                    })
+                check(noticed, "and stops offering to eject a drive that is not there")
+                // Ejected rather than lost: nothing about a volume somebody
+                // took away in Finder should bring it back at the next login.
+                let remembered = MountMemory.all().contains { (entry: MountMemory.Entry) in
+                    entry.imagePath == image.path
+                }
+                check(
+                    !remembered,
+                    "and does not put it back next time, nobody having asked it to")
+            }
         }
 
         /// Every disk on this Mac, with a verdict each. Run against the real

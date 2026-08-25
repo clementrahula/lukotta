@@ -75,8 +75,20 @@
         }
     }
 
-    /// Refuses the relaunch, and nothing else.
+    /// Refuses the relaunch, and does what the app's own delegate does.
+    ///
+    /// The app keeps the outgoing bundle aside from Sparkle's willInstallUpdate,
+    /// which is the last moment it can: that call arrives in the version about
+    /// to be replaced. A harness with a delegate of its own does not get that
+    /// call unless it implements it -- so it did not, nothing was kept, and the
+    /// rollback the whole thing exists to prove had nothing to roll back to.
+    /// The check said so and was read as a fault in the app.
     private final class HeadlessDelegate: NSObject, SPUUpdaterDelegate {
+        func updater(_ updater: SPUUpdater, willInstallUpdate item: SUAppcastItem) {
+            Rollback.keepCurrentAside()
+            UpdateHarness.say("keeping this version aside first")
+        }
+
         func updaterShouldRelaunchApplication(_ updater: SPUUpdater) -> Bool { false }
     }
 

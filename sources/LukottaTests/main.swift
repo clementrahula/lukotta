@@ -728,6 +728,22 @@ group("mountStages") {
         !checkedRO.contains("__slipped"),
         "a mount asked for read-only has no write attempt to try again")
 
+    // The app keeps the outgoing version aside; the shim in front of it decides
+    // whether to put it back. They have to agree about where it is, and did
+    // not: one used the identifier, the other the name on disk, so a broken
+    // update never rolled back. bundle_identifier() in main.c does the same as
+    // this, and the fallback is what a bundle with no readable Info.plist gets.
+    expect(
+        AppRollback.supportName(identifier: "com.lukotta.beta", bundleName: "Lukotta Beta")
+            == "com.lukotta.beta",
+        "the identifier is what both sides file the kept-aside copy under")
+    expect(
+        AppRollback.supportName(identifier: nil, bundleName: "Lukotta Beta") == "Lukotta Beta",
+        "and the name on disk when there is no identifier to read")
+    expect(
+        AppRollback.supportName(identifier: "", bundleName: "Drive Unlocker") == "Drive Unlocker",
+        "an empty identifier counting as none")
+
     // A mount whose server has gone looks exactly like a drive somebody has
     // open, and deciding wrongly either leaves the next mount wedged or takes
     // away a volume in use.
