@@ -298,6 +298,10 @@ printf '\na version that will not start at all\n'
 # Named after the identifier, as the app names it.
 SUPPORT="$HOME/Library/Application Support/$BUNDLE_ID"
 KEPT="$SUPPORT/previous"
+# Named after the identifier, as both the app and the shim in front of it name
+# it. This asked for the application's name and found nothing, which read as a
+# safety net that had not been armed.
+KEPT_APP="$KEPT/$BUNDLE_ID.app"
 
 # Made by the app itself, during the update above, and not by this script.
 #
@@ -305,17 +309,17 @@ KEPT="$SUPPORT/previous"
 # back a bundle somebody had placed for it -- and nothing at all about whether
 # the app keeps one aside when Sparkle replaces it. That is the half that fails
 # quietly: a rollback with nothing to roll back to.
-if [ -d "$KEPT/$APP_NAME.app" ]; then
+if [ -d "$KEPT_APP" ]; then
   ok "the app kept the outgoing version aside when it was replaced"
 else
   bad "the app kept the outgoing version aside when it was replaced"
   # The rest of this section needs something to put back, so it is made here --
   # and the check above has already recorded that the app did not.
   mkdir -p "$KEPT"
-  /usr/bin/ditto "$INSTALLED" "$KEPT/$APP_NAME.app"
+  /usr/bin/ditto "$INSTALLED" "$KEPT_APP"
 fi
 that "and it is a working copy, not an empty directory" \
-  test -x "$KEPT/$APP_NAME.app/Contents/MacOS/$APP_NAME"
+  test -x "$KEPT_APP/Contents/MacOS/$APP_NAME"
 
 # Not a version that starts and fails -- the app puts that back itself. This is
 # one whose own code never runs: the binary inside the bundle is replaced with
@@ -338,7 +342,7 @@ if "$BINARY" --smoke-test 2>/dev/null | grep -q started; then
 else
   bad "opened a few times, it puts the working version back and starts"
   # Never leave this Mac worse than it was found.
-  /usr/bin/ditto "$KEPT/$APP_NAME.app" "$INSTALLED"
+  /usr/bin/ditto "$KEPT_APP" "$INSTALLED"
 fi
 that "and the app in /Applications is the one that worked" \
   same "$(installed_build)" "$GOOD_BUILD"

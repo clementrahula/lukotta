@@ -87,6 +87,11 @@
         func updater(_ updater: SPUUpdater, willInstallUpdate item: SUAppcastItem) {
             Rollback.keepCurrentAside()
             UpdateHarness.say("keeping this version aside first")
+            // And now quit, which is what the installer is waiting for. Quitting
+            // on a timer instead cut this callback off before it arrived: the
+            // log read "installing" then "quitting", nothing was kept aside, and
+            // the rollback checks failed for want of anything to roll back to.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { exit(0) }
         }
 
         func updaterShouldRelaunchApplication(_ updater: SPUUpdater) -> Bool { false }
@@ -160,8 +165,12 @@
             // minutes later with the update built, downloaded, verified and not
             // installed. Killing the process by hand finished it in seconds,
             // which is how this was found the first time and the second.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                UpdateHarness.say("quitting, so the bundle can be replaced")
+            //
+            // The quitting itself happens in willInstallUpdate, one callback
+            // later, where the outgoing version is kept aside first. This is
+            // only the backstop for an update that never reaches it.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 25) {
+                UpdateHarness.say("quitting without being told to keep anything aside")
                 exit(0)
             }
         }
