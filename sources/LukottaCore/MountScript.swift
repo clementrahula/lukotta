@@ -262,6 +262,31 @@ public enum MountScript {
         // The marker says which happened, so the drive is never presented as
         // writable when it is not.
         if !i.readOnly {
+            // Before that: one more go at writing, when what stopped it was the
+            // machinery rather than the drive.
+            //
+            // The engine talks to its virtual machine over a socket and a pipe,
+            // and on a busy Mac either can go for a moment -- "Failed to write
+            // to pipe: Broken pipe (os error 32)" about a disk that is
+            // perfectly writable. Falling straight through to the read-only
+            // attempts made that slip permanent for as long as the drive stayed
+            // open: it mounted, so nothing said anything was wrong, and the
+            // first save was refused by a volume nobody chose to open read-only.
+            //
+            // Only on that evidence, and only once. A drive that genuinely
+            // will not take writes must not spend another minute of somebody's
+            // time proving it twice.
+            let slipped = """
+                __slipped() {
+                  grep -qiE 'broken pipe|os error 32|failed to write to pipe|connection reset|start vm error' \
+                    \(logQ) 2>/dev/null
+                }
+                """
+            lines.append(slipped)
+            chain += attempts(i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ).prefix(1).map {
+                "{ __slipped && sleep 2 && \($0) ; }"
+            }
+
             var readOnly = i
             readOnly.readOnly = true
             let retry = attempts(readOnly, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)

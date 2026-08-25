@@ -479,8 +479,23 @@ extension DiskImage {
         let identifier = (device as NSString).lastPathComponent
         // Already mounted is a success, not an error: a physical drive is
         // usually mounted by macOS before this app has even seen it.
-        _ = diskutil(["mountDisk", device])
-        return mountPoint(ofDisk: identifier)
+        if let point = mountPoint(ofDisk: identifier) { return point }
+
+        // Asked for, then waited for. macOS mounts through diskarbitration,
+        // which answers this command before the volume is in the mount table --
+        // and an image attached a moment ago is often still being probed, so
+        // the first attempt returns "busy" and a second, a second later, works.
+        //
+        // Read once, this looked exactly like a disk macOS would not mount, and
+        // the person was told their image might already be open in Finder while
+        // it was quietly mounting behind the message.
+        for attempt in 0..<15 {
+            if attempt > 0 { Thread.sleep(forTimeInterval: 0.4) }
+            _ = diskutil(["mountDisk", device])
+            if let point = mountPoint(ofDisk: identifier) { return point }
+        }
+        Log.drives.notice("macOS did not mount \(identifier, privacy: .public) within six seconds")
+        return nil
     }
 
     /// Where macOS has mounted anything belonging to this disk.
@@ -543,12 +558,26 @@ extension DiskImage {
             else { return [] }
             let found = types(inListing: result.out)
             if !found.isEmpty { return found }
+            // An empty answer means one of two things, and they are not the
+            // same: the engine looked and there is nothing in this file, or the
+            // engine never got as far as looking. It says which -- a machine
+            // that would not start, an image it could not hold, a probe that
+            // ended -- through its status and whatever it wrote to stderr.
+            //
+            // Only the first is an answer. The second was being reported to the
+            // person as "there is nothing in it that can be opened", about an
+            // image that opens perfectly well a second later, which is how a
+            // run of these under load produced a file that had worked all
+            // afternoon suddenly holding nothing.
             let complaint = (result.out + result.err).lowercased()
+            let wentWrong = result.status != 0 || !result.err.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             let busy =
                 complaint.contains("locked") || complaint.contains("busy")
                 || complaint.contains("in use") || complaint.contains("resource temporarily")
-            guard busy, attempt < 5 else { return found }
-            Log.drives.notice("the image is still held; asking again")
+            guard busy || wentWrong, attempt < 5 else { return found }
+            Log.drives.notice(
+                "the engine did not answer for this image (attempt \(attempt, privacy: .public)); asking again"
+            )
             Thread.sleep(forTimeInterval: 0.6)
         }
         return []

@@ -485,6 +485,12 @@
             guard waitUntil("the list rebuilds", condition: { model.scanGeneration > generation })
             else { return }
             check(model.drives.map(\.uuid) == order, "and comes back in the same order, unchanged")
+            // Against what was opened, not against itself. Comparing the list to
+            // a copy of the list passes on an empty list, which is exactly the
+            // case worth catching: everything opened here having quietly left it.
+            check(
+                arrived.allSatisfy { path in model.drives.contains { $0.uuid == path } },
+                "and everything opened here is still in it")
 
             // Two of them open at once: one that asks for nothing, and one that
             // asks for a passphrase and is told to remember it.
@@ -494,6 +500,13 @@
                 let lockedDrive = model.drives.first(where: { $0.uuid == locked.path })
             else {
                 check(false, "both the images this flow needs are listed")
+                print("      the list holds \(model.drives.count): "
+                    + model.drives.map { ($0.uuid as NSString).lastPathComponent }
+                        .joined(separator: ", "))
+                for (what, url) in images where !model.drives.contains(where: { $0.uuid == url.path })
+                {
+                    print("      \(what) is not in it: \(url.lastPathComponent)")
+                }
                 return
             }
 
@@ -846,7 +859,11 @@
                         })
                 else { return }
                 guard case .mounted(_, let point) = model.phase else {
-                    check(false, "it mounted rather than failing")
+                    check(false, "it opened, rather than failing")
+                    if case .failed(_, let summary, let detail) = model.phase {
+                        print("      \(summary)")
+                        if let detail, !detail.isEmpty { print("      \(detail)") }
+                    }
                     return
                 }
                 mountPoint = point
@@ -1039,6 +1056,18 @@
             guard case .handedToMacOS(_, let point) = model.imageOpening else {
                 if case .failed(_, let why) = model.imageOpening { print("      \(why)") }
                 check(false, "it was handed over rather than refused")
+                // Which is a question about this Mac as much as about the app:
+                // an image already attached is handed back the device it has,
+                // and nothing new is mounted.
+                let devices = DiskImage.attachedDevices(forImages: [image.path])
+                print("      attached as: \(devices.isEmpty ? "nothing" : devices.joined(separator: ", "))")
+                let table = mountTable()
+                for device in devices {
+                    let mounted = MountTableEntry.all(in: table)
+                        .filter { $0.source.hasPrefix(device) }
+                        .map(\.mountPoint)
+                    print("      \(device) is mounted at: \(mounted.isEmpty ? "nothing" : mounted.joined(separator: ", "))")
+                }
                 return
             }
             check(!sawTheQuestion, "and no password was ever asked for")

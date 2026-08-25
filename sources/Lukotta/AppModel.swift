@@ -1895,6 +1895,9 @@ final class AppModel: ObservableObject {
 
     func unlock(_ drive: Drive, readOnly: Bool = false) {
         credentialProblem = nil
+        // Somebody asked; the slips this app absorbed on their behalf last time
+        // are spent.
+        mountSlips = 0
         // A format that cannot be written is opened read-only whatever was
         // asked for. Mounting it writable appears to work and then refuses
         // every write, which is worse than saying so at the start.
@@ -1949,6 +1952,44 @@ final class AppModel: ObservableObject {
     private var activeCredential: String?
 
     // MARK: The three ways a drive opens
+
+    /// How many times the machinery has slipped during this attempt.
+    ///
+    /// Reset when somebody asks for a drive to be opened, counted up only by a
+    /// retry this app decided on. Kept per attempt rather than per drive: two
+    /// drives failing for the same passing reason should each get their tries.
+    private var mountSlips = 0
+
+    /// Try again when what failed was the machinery rather than the drive.
+    ///
+    /// Returns true when another attempt has been started, and the caller must
+    /// then say nothing: the person asked for a drive to be opened and it is
+    /// still being opened.
+    private func retriedAfterASlip(
+        drive: Drive, credential: String, summary: String, detail: String?
+    ) -> Bool {
+        let text = [summary, detail ?? ""].joined(separator: "\n")
+        guard TransientFailure.isTransient(text) else { return false }
+        guard mountSlips + 1 < TransientFailure.attempts else {
+            Log.mount.error("the machinery slipped every time; showing what it said")
+            return false
+        }
+        mountSlips += 1
+        Log.mount.notice(
+            "the engine slipped rather than refusing the drive; attempt \(self.mountSlips + 1, privacy: .public)"
+        )
+        // Whatever the failed attempt left running, before another one starts.
+        // Two machines for one image is how the second attempt fails for a
+        // reason of its own making.
+        Task.detached(priority: .userInitiated) { _ = EngineProcesses.tidyWhatServesNothing() }
+        appendStatus("The machine did not answer. Trying again…")
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(TransientFailure.pause * 1_000_000_000))
+            guard let self, case .working = self.phase else { return }
+            self.runMount(drive: drive, credential: credential)
+        }
+        return true
+    }
 
     private func runMount(drive: Drive, credential: String) {
         // The ceiling is hard. Every way of reaching this is shut while the
@@ -2043,11 +2084,14 @@ final class AppModel: ObservableObject {
                     self.appendStatus(
                         "opened through the background helper; it returned status \(outcome.status)"
                     )
-                    self.fail(
-                        drive,
-                        Diagnosis.summarise(outcome.transcript, fallback: ""),
-                        outcome.transcript + "\n"
-                            + self.statusLines.joined(separator: "\n"))
+                    let summary = Diagnosis.summarise(outcome.transcript, fallback: "")
+                    let detail =
+                        outcome.transcript + "\n" + self.statusLines.joined(separator: "\n")
+                    guard
+                        !self.retriedAfterASlip(
+                            drive: drive, credential: credential, summary: summary, detail: detail)
+                    else { return }
+                    self.fail(drive, summary, detail)
                 }
             }
             return
@@ -2217,9 +2261,13 @@ final class AppModel: ObservableObject {
                 }
             } catch let err as EngineError {
                 await MainActor.run {
-                    self.fail(
-                        drive, err.errorDescription ?? "The drive could not be opened.",
-                        err.detail)
+                    let summary = err.errorDescription ?? "The drive could not be opened."
+                    guard
+                        !self.retriedAfterASlip(
+                            drive: drive, credential: credential, summary: summary,
+                            detail: err.detail)
+                    else { return }
+                    self.fail(drive, summary, err.detail)
                 }
             } catch {
                 await MainActor.run {

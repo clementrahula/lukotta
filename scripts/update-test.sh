@@ -50,6 +50,7 @@ check() { if [ "$1" = "0" ]; then ok "$2"; else bad "$2"; fi; }
 # be read by mistake.
 that() { local what="$1"; shift; if "$@"; then ok "$what"; else bad "$what"; fi; }
 file_exists() { [ -f "$1" ]; }
+signature_holds() { /usr/bin/codesign --verify --deep --strict "$1" >/dev/null 2>&1; }
 same() { [ "$1" = "$2" ]; }
 installed_build() {
   /usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$INSTALLED/Contents/Info.plist" 2>/dev/null
@@ -136,7 +137,10 @@ python3 "$HERE/scripts/appcast.py" \
   --pubdate "$(LC_ALL=C date -u '+%a, %d %b %Y %H:%M:%S +0000')" >/dev/null
 that "and described in an appcast" test -s "$WORK/feed/appcast.xml"
 
-( cd "$WORK/feed" && exec python3 -m http.server "$PORT" --bind 127.0.0.1 >/dev/null 2>&1 ) &
+# Kept rather than discarded: which file Sparkle asked for is the only proof
+# that a delta was applied as a delta. python3 -m http.server logs to stderr.
+SERVER_LOG="$WORK/server.log"
+( cd "$WORK/feed" && exec python3 -m http.server "$PORT" --bind 127.0.0.1 >/dev/null 2>"$SERVER_LOG" ) &
 server=$!
 for _ in $(seq 1 20); do
   /usr/bin/curl -fsS "$FEED" >/dev/null 2>&1 && break
@@ -185,6 +189,102 @@ if "$BINARY" --smoke-test >"$WORK/after-update.log" 2>&1; then
   ok "and the updated app starts"
 else
   bad "and the updated app starts"
+fi
+
+printf '\nan update sent as only what changed\n'
+# What almost everybody actually receives. A delta is a patch between two
+# bundles rather than a copy of the new one, and it fails differently: it can
+# apply cleanly and produce a bundle whose signature no longer matches, or be
+# silently ignored so that everybody downloads ninety megabytes instead of two.
+# Neither is visible from the outside, so this checks what was fetched and not
+# only what ended up installed.
+GOOD_BUILD="$TO_BUILD"
+DELTA_BUILD="$((TO_BUILD + 1))"
+DELTA_TOOL="$(find "$HERE/.build" -name BinaryDelta -type f -perm -111 -print -quit 2>/dev/null || true)"
+if [ -z "$DELTA_TOOL" ]; then
+  bad "BinaryDelta is built (run swift build)"
+else
+  printf '  building the version to update to (build %s)\n' "$DELTA_BUILD"
+  LUKOTTA_INSTALL=0 LUKOTTA_DEVTOOLS=1 LUKOTTA_BRANDING=beta LUKOTTA_BUILD="$DELTA_BUILD" \
+    ./build-app.sh "$WORK/next/$APP_NAME.app" >/dev/null
+
+  DELTA_ZIP="$WORK/feed/$APP_NAME-$VERSION-$DELTA_BUILD.zip"
+  /usr/bin/ditto -c -k --keepParent "$WORK/next/$APP_NAME.app" "$DELTA_ZIP"
+  ZIP_LINE="$("$SIGN" --account "${LUKOTTA_SPARKLE_ACCOUNT:-lukotta}" "$DELTA_ZIP")"
+  ZIP_SIG="$(printf '%s' "$ZIP_LINE" | sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p')"
+  ZIP_LEN="$(printf '%s' "$ZIP_LINE" | sed -n 's/.*length="\([^"]*\)".*/\1/p')"
+
+  # From the copy actually installed, which is what somebody updating has. A
+  # delta built against a different copy of the same build applies to nothing.
+  DELTA="$WORK/feed/$APP_NAME-$TO_BUILD-$DELTA_BUILD.delta"
+  if "$DELTA_TOOL" create "$INSTALLED" "$WORK/next/$APP_NAME.app" "$DELTA" >"$WORK/delta.log" 2>&1; then
+    ok "a delta is built between the installed build and the new one"
+  else
+    bad "a delta is built between the installed build and the new one"
+    tail -3 "$WORK/delta.log" | sed 's/^/    /'
+  fi
+  DELTA_LINE="$("$SIGN" --account "${LUKOTTA_SPARKLE_ACCOUNT:-lukotta}" "$DELTA")"
+  DELTA_SIG="$(printf '%s' "$DELTA_LINE" | sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p')"
+  DELTA_LEN="$(printf '%s' "$DELTA_LINE" | sed -n 's/.*length="\([^"]*\)".*/\1/p')"
+  that "and signed with the same key as the archive" test -n "$DELTA_SIG" -a -n "$DELTA_LEN"
+  # A patch the size of the whole app is a patch that patched nothing.
+  if [ -n "$DELTA_LEN" ] && [ -n "$ZIP_LEN" ] && [ "$DELTA_LEN" -lt "$((ZIP_LEN / 2))" ]; then
+    ok "and it is a fraction of the archive ($((DELTA_LEN / 1024)) KB against $((ZIP_LEN / 1024 / 1024)) MB)"
+  else
+    bad "and it is a fraction of the archive ($DELTA_LEN against $ZIP_LEN)"
+  fi
+
+  python3 "$HERE/scripts/appcast.py" \
+    --appcast "$WORK/feed/appcast.xml" \
+    --version "$VERSION" \
+    --build "$DELTA_BUILD" \
+    --url "http://127.0.0.1:$PORT/$(basename "$DELTA_ZIP")" \
+    --length "$ZIP_LEN" \
+    --signature "$ZIP_SIG" \
+    --delta "$TO_BUILD:http://127.0.0.1:$PORT/$(basename "$DELTA"):$DELTA_LEN:$DELTA_SIG" \
+    --min-system "$(/usr/libexec/PlistBuddy -c 'Print LSMinimumSystemVersion' "$INSTALLED/Contents/Info.plist")" \
+    --pubdate "$(LC_ALL=C date -u '+%a, %d %b %Y %H:%M:%S +0000')" >/dev/null
+  that "the appcast offers it to exactly the build installed" \
+    grep -q "sparkle:deltaFrom=\"$TO_BUILD\"" "$WORK/feed/appcast.xml"
+
+  # From here on, only what this update asks for.
+  : > "$SERVER_LOG"
+  set +e
+  "$BINARY" --update-test "$FEED" >"$WORK/delta-update.log" 2>&1
+  status=$?
+  set -e
+  sed 's/^/    /' "$WORK/delta-update.log"
+  that "Sparkle downloaded, checked, installed and relaunched it" same "$status" "0"
+
+  that "and what it fetched was the delta" grep -q "\.delta" "$SERVER_LOG"
+  if grep -q "$DELTA_BUILD\.zip" "$SERVER_LOG"; then
+    bad "and not the whole archive"
+    sed 's/^/    /' "$SERVER_LOG"
+  else
+    ok "and not the whole archive"
+  fi
+
+  for _ in $(seq 1 40); do
+    [ "$(installed_build)" = "$DELTA_BUILD" ] && break
+    /bin/sleep 0.5
+  done
+  that "the app in /Applications is the patched build" same "$(installed_build)" "$DELTA_BUILD"
+  # A delta patches a signed bundle in place, which is where one stops being
+  # signed correctly: every file it rewrites has to land byte for byte, or the
+  # seal covering it no longer matches. Not spctl -- these builds are signed
+  # and not notarised, and Gatekeeper would refuse them for that alone.
+  that "and it is still signed as itself" signature_holds "$INSTALLED"
+  if "$BINARY" --smoke-test >"$WORK/after-delta.log" 2>&1; then
+    ok "and the patched app starts"
+  else
+    bad "and the patched app starts"
+    sed 's/^/    /' "$WORK/after-delta.log"
+  fi
+  that "the settings survived the patch" \
+    same "$(defaults read "$BUNDLE_ID" lukottaUpdateProbe 2>/dev/null || echo "")" "$BEFORE_PROBE"
+  that "and the Linux environment with them" \
+    file_exists "$ENGINE_HOME/.anylinuxfs/alpine/rootfs.ver"
+  GOOD_BUILD="$DELTA_BUILD"
 fi
 
 printf '\na version that will not start at all\n'
@@ -237,7 +337,7 @@ else
   /usr/bin/ditto "$KEPT/$APP_NAME.app" "$INSTALLED"
 fi
 that "and the app in /Applications is the one that worked" \
-  same "$(installed_build)" "$TO_BUILD"
+  same "$(installed_build)" "$GOOD_BUILD"
 rm -rf "$KEPT" "$SUPPORT/launch-attempts"
 
 printf '\n==> Putting this Mac back\n'

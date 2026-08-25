@@ -710,8 +710,23 @@ group("mountStages") {
     expect(!checked.contains("disk4s1.local:"), "the check does not guess the share's name")
     let checkedMS = MountScript.build(sampleInputs(kind: .microsoft))
     expect(
-        checkedMS.components(separatedBy: "&& __mounted").count - 1 == 4,
-        "every attempt is verified: both NTFS drivers, then both again read-only")
+        checkedMS.components(separatedBy: "&& __mounted").count - 1 == 5,
+        "every attempt is verified: both NTFS drivers, one more go, then both read-only")
+    // The extra one is the retry for a machine that slipped, and it must be
+    // unreachable without the evidence for it. Unguarded, it would be a second
+    // full attempt on every drive that cannot be written to.
+    expect(
+        checkedMS.contains("{ __slipped && sleep 2 &&"),
+        "the retry happens only where the log says the machinery slipped")
+    expect(
+        checkedMS.contains("__slipped() {"),
+        "and what counts as a slip is defined in the script rather than assumed")
+    // Read-only was asked for: there is nothing to fall back to and nothing to
+    // retry, so neither appears.
+    let checkedRO = MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))
+    expect(
+        !checkedRO.contains("__slipped"),
+        "a mount asked for read-only has no write attempt to try again")
 
     // A pty echoes what is written to it, so the engine's own output can carry
     // the passphrase back. Shape-matching cannot catch an ordinary one, so the
