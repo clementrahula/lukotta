@@ -10033,6 +10033,226 @@
         }
       }
     },
+    "Another program set up the Linux environment this Mac shares, and it is a different version. Quit or remove that program, then open this drive again.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "برنامج آخر أعدّ بيئة لينكس التي يشترك فيها هذا الماك، وهي بإصدار مختلف. أغلق ذلك البرنامج أو أزله، ثم افتح محرك الأقراص مرة أخرى."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Друга програма е настроила средата на Linux, която този Mac споделя, и тя е с различна версия. Затворете или премахнете тази програма и отворете диска отново."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linuxové prostředí, které tento Mac sdílí, nastavil jiný program a má jinou verzi. Ukončete nebo odeberte tento program a pak disk otevřete znovu."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et andet program har indstillet det Linux-miljø, denne Mac deler, og det er en anden version. Slut eller fjern programmet, og åbn så enheden igen."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein anderes Programm hat die Linux-Umgebung eingerichtet, die dieser Mac gemeinsam nutzt, und sie hat eine andere Version. Beende oder entferne dieses Programm und öffne das Laufwerk dann erneut."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ένα άλλο πρόγραμμα δημιούργησε το περιβάλλον Linux που μοιράζεται αυτό το Mac, και είναι διαφορετικής έκδοσης. Κλείστε ή αφαιρέστε το πρόγραμμα και ανοίξτε ξανά τον δίσκο."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otro programa ha configurado el entorno Linux que comparte este Mac, y es de otra versión. Cierra o elimina ese programa y vuelve a abrir el disco."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selle Maci jagatud Linuxi keskkonna seadistas teine programm ja see on teist versiooni. Sulge või eemalda see programm ja ava ketas uuesti."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toinen ohjelma on määrittänyt tämän Macin jakaman Linux-ympäristön, ja se on eri versio. Lopeta tai poista kyseinen ohjelma ja avaa asema uudelleen."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "May ibang program na nag-set up ng Linux environment na ibinabahagi ng Mac na ito, at ibang bersyon ito. Isara o alisin ang program na iyon, pagkatapos ay buksan muli ang drive."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un autre programme a configuré l'environnement Linux que ce Mac partage, et il s'agit d'une autre version. Quittez ou supprimez ce programme, puis ouvrez à nouveau le disque."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "תוכנה אחרת הגדירה את סביבת הלינוקס שה‑Mac הזה חולק, והיא בגרסה אחרת. צאו מהתוכנה או הסירו אותה, ואז פתחו את הכונן שוב."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इस Mac की साझा लिनक्स परिवेश किसी दूसरे प्रोग्राम ने सेट किया है, और उसका संस्करण अलग है। उस प्रोग्राम को बंद या हटाएँ, फिर यह ड्राइव दोबारा खोलें।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linux okruženje koje ovaj Mac dijeli postavio je drugi program i druge je verzije. Zatvorite ili uklonite taj program pa ponovno otvorite disk."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Mac által megosztott Linux-környezetet másik program állította be, és eltérő verziójú. Lépjen ki a programból vagy távolítsa el, majd nyissa meg újra a meghajtót."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Program lain telah menyiapkan lingkungan Linux yang dipakai bersama di Mac ini, dan versinya berbeda. Tutup atau hapus program tersebut, lalu buka drive ini lagi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un altro programma ha configurato l'ambiente Linux condiviso su questo Mac, ed è di una versione diversa. Chiudi o rimuovi quel programma, poi apri di nuovo il disco."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この Mac が共有する Linux 環境は別のプログラムが用意したもので、バージョンが異なります。そのプログラムを終了するか削除してから、ドライブをもう一度開いてください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 Mac이 공유하는 Linux 환경은 다른 프로그램이 설정했으며 버전이 다릅니다. 해당 프로그램을 종료하거나 제거한 후 드라이브를 다시 여십시오."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šio „Mac“ bendrai naudojamą „Linux“ aplinką sukūrė kita programa ir jos versija skiriasi. Uždarykite arba pašalinkite tą programą ir atverkite diską dar kartą."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šī Mac koplietoto Linux vidi iestatīja cita programma, un tā ir citas versijas. Aizveriet vai noņemiet šo programmu un atveriet disku vēlreiz."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Program lain telah menyediakan persekitaran Linux yang dikongsi Mac ini, dan versinya berbeza. Tutup atau buang program itu, kemudian buka pemacu ini semula."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et annet program har satt opp Linux-miljøet denne Macen deler, og det er en annen versjon. Avslutt eller fjern programmet, og åpne enheten på nytt."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een ander programma heeft de Linux-omgeving ingesteld die deze Mac deelt, en die heeft een andere versie. Sluit of verwijder dat programma en open de schijf opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Środowisko Linux współdzielone na tym Macu skonfigurował inny program i ma ono inną wersję. Zamknij lub usuń ten program, a potem otwórz dysk ponownie."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outro programa configurou o ambiente Linux que este Mac partilha, e é de outra versão. Feche ou remova esse programa e abra o disco novamente."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un alt program a configurat mediul Linux pe care acest Mac îl partajează și este o versiune diferită. Închideți sau eliminați acel program, apoi deschideți din nou discul."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Среду Linux, общую для этого Mac, настроила другая программа, и её версия отличается. Закройте или удалите эту программу, затем откройте диск снова."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Okolje Linux, ki ga ta Mac deli, je nastavil drug program in je druge različice. Zaprite ali odstranite ta program, nato znova odprite pogon."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Një program tjetër e ka ngritur mjedisin Linux që ndan ky Mac, dhe është version tjetër. Mbylle ose hiqe atë program, pastaj hape sërish diskun."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ett annat program har ställt in Linux-miljön som den här Macen delar, och den har en annan version. Avsluta eller ta bort programmet och öppna sedan enheten igen."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โปรแกรมอื่นเป็นผู้ตั้งค่าสภาพแวดล้อม Linux ที่ Mac เครื่องนี้ใช้ร่วมกัน และเป็นคนละเวอร์ชัน ปิดหรือลบโปรแกรมนั้น แล้วเปิดไดรฟ์นี้อีกครั้ง"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu Mac'in paylaştığı Linux ortamını başka bir program kurdu ve sürümü farklı. O programı kapatın veya kaldırın, sonra sürücüyü yeniden açın."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Середовище Linux, яке спільно використовує цей Mac, налаштувала інша програма, і воно іншої версії. Закрийте або вилучіть цю програму, а потім відкрийте диск знову."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Một chương trình khác đã thiết lập môi trường Linux mà máy Mac này dùng chung, và nó khác phiên bản. Hãy thoát hoặc gỡ chương trình đó, rồi mở lại ổ đĩa."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此 Mac 共享的 Linux 环境由其他程序设置，且版本不同。请退出或移除该程序，然后重新打开此驱动器。"
+          }
+        }
+      }
+    },
     "Appearance": {
       "localizations": {
         "ar": {
@@ -50641,6 +50861,226 @@
           "stringUnit": {
             "state": "translated",
             "value": "这个驱动器未加密。"
+          }
+        }
+      }
+    },
+    "This file could not be opened just now. Try again in a moment.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تعذّر فتح هذا الملف الآن. أعد المحاولة بعد لحظة."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Този файл не можа да бъде отворен в момента. Опитайте отново след малко."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tento soubor se teď nepodařilo otevřít. Zkuste to za chvíli znovu."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne fil kunne ikke åbnes lige nu. Prøv igen om et øjeblik."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Datei konnte gerade nicht geöffnet werden. Versuche es gleich noch einmal."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτό το αρχείο δεν μπόρεσε να ανοίξει αυτή τη στιγμή. Δοκιμάστε ξανά σε λίγο."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este archivo no se ha podido abrir ahora mismo. Inténtalo de nuevo en un momento."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seda faili ei õnnestunud praegu avada. Proovi hetke pärast uuesti."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tätä tiedostoa ei voitu avata juuri nyt. Yritä hetken kuluttua uudelleen."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hindi mabuksan ang file na ito ngayon. Subukan muli maya-maya."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce fichier n'a pas pu être ouvert pour le moment. Réessayez dans un instant."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "לא ניתן היה לפתוח את הקובץ הזה כרגע. נסו שוב בעוד רגע."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यह फ़ाइल अभी नहीं खुल सकी। थोड़ी देर बाद फिर कोशिश करें।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovu datoteku trenutačno nije bilo moguće otvoriti. Pokušajte ponovno za trenutak."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ezt a fájlt most nem sikerült megnyitni. Próbálja újra egy pillanat múlva."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File ini tidak dapat dibuka saat ini. Coba lagi sebentar lagi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è stato possibile aprire questo file al momento. Riprova tra un istante."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このファイルは今のところ開けませんでした。少ししてからもう一度お試しください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지금은 이 파일을 열 수 없었습니다. 잠시 후 다시 시도하십시오."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šio failo dabar atverti nepavyko. Bandykite dar kartą po akimirkos."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šo failu pašlaik neizdevās atvērt. Mēģiniet vēlreiz pēc brīža."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fail ini tidak dapat dibuka sekarang. Cuba lagi sebentar lagi."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne filen kunne ikke åpnes akkurat nå. Prøv igjen om et øyeblikk."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit bestand kon nu niet worden geopend. Probeer het zo dadelijk opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się teraz otworzyć tego pliku. Spróbuj ponownie za chwilę."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível abrir este ficheiro neste momento. Tente novamente daqui a pouco."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acest fișier nu a putut fi deschis în acest moment. Încercați din nou peste puțin timp."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сейчас не удалось открыть этот файл. Повторите попытку через мгновение."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Te datoteke zdaj ni bilo mogoče odpreti. Poskusite znova čez trenutek."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ky skedar nuk u hap dot tani. Provo sërish pas pak."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den här filen kunde inte öppnas just nu. Försök igen om ett ögonblick."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดไฟล์นี้ไม่ได้ในขณะนี้ ลองอีกครั้งในอีกสักครู่"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu dosya şu anda açılamadı. Birazdan yeniden deneyin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зараз не вдалося відкрити цей файл. Спробуйте ще раз за мить."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiện không thể mở tệp này. Hãy thử lại sau giây lát."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此刻无法打开此文件。请稍后重试。"
           }
         }
       }

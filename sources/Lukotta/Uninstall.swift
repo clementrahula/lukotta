@@ -53,7 +53,14 @@ enum Uninstall {
         plan.openDrives = EngineStatus.current().map(\.mountPoint)
         plan.helperRegistered =
             SMAppService.daemon(plistName: HelperInfo.plistName).status != .notRegistered
-        if let size = try? FileManager.default.allocatedSizeOfDirectory(at: guest) {
+        // Only what this app put there. The engine gives every program that
+        // uses it the same directory, so a Mac can have one that anylinuxfs set
+        // up on its own, or that a beta of this app did -- and uninstalling
+        // this one is no reason to take away theirs. What is left then is a
+        // directory another program is using, which is where it started.
+        if EngineEnvironment.ownedByThisApp(in: EngineEnvironment.alpineDirectory),
+            let size = try? FileManager.default.allocatedSizeOfDirectory(at: guest)
+        {
             plan.guestSizeMB = Int(size / 1_000_000)
         }
         plan.hasPreferences =
@@ -128,8 +135,10 @@ enum Uninstall {
                 }
                 finished()
             }
+            // The section this app wrote goes whatever happens; it is named
+            // after this app and means nothing to anything else.
+            EngineConfig.removeGeneratedAction()
             if plan.guestSizeMB != nil {
-                EngineConfig.removeGeneratedAction()
                 try? FileManager.default.removeItem(at: guest)
                 finished()
             }

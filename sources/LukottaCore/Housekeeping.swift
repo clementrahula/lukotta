@@ -221,17 +221,43 @@ public enum Housekeeping {
     /// which is both litter and a record of what somebody once opened.
     public static func forgetWhatIsGone(attached: Set<String>? = nil) -> (Int, Int, Int) {
         let manager = FileManager.default
-        let stillAttached = attached ?? Set((DiskImage.attachments() ?? [:]).values)
+
+        // What is attached, or no answer at all.
+        //
+        // hdiutil is asked with a timeout, and a Mac with a network volume or a
+        // sleeping external disk in the mix can take longer than that. The
+        // answer then is nil -- not "nothing is attached" -- and reading it as
+        // the latter empties the list of files this app attached, which is the
+        // only thing that can put them back after a crash. They would stay
+        // attached, unexplained, with nothing left saying they were ours.
+        let known: Set<String>?
+        if let attached {
+            known = attached
+        } else if let listing = DiskImage.attachments() {
+            known = Set(listing.values)
+        } else {
+            known = nil
+        }
 
         // Attached by us: gone when the file is gone, or when nothing is
         // attached from it any more. Anything still attached stays, even after
         // a crash -- that is the whole reason this list exists.
         let opened = DiskImage.OpenedFiles.all()
         var files = 0
-        for path in opened where !stillAttached.contains(path) || !manager.fileExists(atPath: path)
-        {
-            DiskImage.OpenedFiles.remove(path)
-            files += 1
+        if let known {
+            for path in opened where !known.contains(path) || !manager.fileExists(atPath: path) {
+                DiskImage.OpenedFiles.remove(path)
+                files += 1
+            }
+        } else {
+            // Nothing is forgotten on no evidence. A file that has since been
+            // deleted is still dropped, because that much is known without
+            // asking hdiutil anything.
+            Log.app.notice("hdiutil did not answer; the list of attached files is left alone")
+            for path in opened where !manager.fileExists(atPath: path) {
+                DiskImage.OpenedFiles.remove(path)
+                files += 1
+            }
         }
 
         // The name a volume had: kept for files that are still there.

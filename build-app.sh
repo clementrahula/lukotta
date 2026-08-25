@@ -303,13 +303,26 @@ if [ -d "$CONTENTS/Frameworks/Sparkle.framework" ]; then
 fi
 
 # The app's real binary is no longer the bundle's executable, so it is signed in
-# its own right like any other Mach-O inside.
+# its own right like any other Mach-O inside -- and under the bundle's
+# identifier, not its own file name.
+#
+# codesign takes the identifier of a bare Mach-O from the file it is signing, so
+# this one announced itself as "<name>-app". The helper admits a caller by code
+# requirement, and the requirement names the bundle identifier: after the shim
+# hands over, the process talking to the helper was a different identity and was
+# refused. Everything the helper does then stops -- unlocking a physical drive
+# without a password panel, reading a first sector to tell BitLocker from NTFS,
+# making room for a fourth drive -- and nothing says why except a line in the
+# helper's log. Loosening the requirement instead would weaken the one check
+# standing between any process on the Mac and a root daemon.
 if [ -f "$CONTENTS/MacOS/$APP_NAME-app" ]; then
   /usr/bin/codesign --force --options runtime \
     --entitlements "$HERE/lukotta.entitlements" \
+    --identifier "$BUNDLE_ID" \
     --sign "$SIGN_ID" "$CONTENTS/MacOS/$APP_NAME-app" >/dev/null 2>&1 \
-    || /usr/bin/codesign --force --sign "$SIGN_ID" "$CONTENTS/MacOS/$APP_NAME-app" >/dev/null 2>&1 \
-    || true
+    || /usr/bin/codesign --force --identifier "$BUNDLE_ID" \
+      --sign "$SIGN_ID" "$CONTENTS/MacOS/$APP_NAME-app" >/dev/null 2>&1 \
+    || { echo "error: could not sign the app binary" >&2; exit 1; }
 fi
 
 # The helper is a separate executable and must be signed in its own right.
@@ -322,6 +335,20 @@ printf 'Signing with: %s\n' "$SIGN_ID"
 /usr/bin/codesign --force --options runtime --sign "$SIGN_ID" "$OUT" >/dev/null 2>&1 \
   || /usr/bin/codesign --force --sign "$SIGN_ID" "$OUT" >/dev/null
 /usr/bin/codesign --verify --strict "$OUT" && printf 'Signature verified\n'
+
+# What the helper will actually admit. The bundle's executable is the shim and
+# the process that talks to the helper is the binary behind it, so both have to
+# satisfy the requirement the helper pins -- and only one of them did, silently,
+# for as long as it took somebody to try a physical drive.
+for binary in "$CONTENTS/MacOS/$APP_NAME" "$CONTENTS/MacOS/$APP_NAME-app"; do
+  [ -f "$binary" ] || continue
+  /usr/bin/codesign --verify -R "=identifier \"$BUNDLE_ID\"" "$binary" 2>/dev/null || {
+    echo "error: $(basename "$binary") does not satisfy identifier \"$BUNDLE_ID\"," >&2
+    echo "       so the privileged helper would refuse it." >&2
+    exit 1
+  }
+done
+printf 'Both binaries satisfy the helper'"'"'s requirement\n'
 
 # How to prove to Apple who is submitting. notarytool takes credentials three
 # ways and this takes whichever is there, since which one a machine has depends

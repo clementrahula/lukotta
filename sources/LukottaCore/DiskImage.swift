@@ -131,8 +131,19 @@ public enum DiskImage {
         // attaching it a second time either fails or produces a second device
         // for one file. Opening something twice should be opening it, so the
         // attachment that exists is the answer.
-        if let device = (attachments() ?? [:]).first(where: { $0.value == url.path })?.key {
-            return .success(Attached(device: "/dev/" + device, url: url))
+        //
+        // Only on an answer: hdiutil timing out would otherwise read as "not
+        // attached" and produce a second device for one file, which is two
+        // views of the same bytes and the shortest route to a corrupt volume.
+        if let listing = attachments() {
+            if let device = listing.first(where: { $0.value == url.path })?.key {
+                return .success(Attached(device: "/dev/" + device, url: url))
+            }
+        } else {
+            Log.drives.error("hdiutil did not say what is attached; not opening a second copy")
+            return .failure(
+                .nothingToOpen(
+                    appString("This file could not be opened just now. Try again in a moment.")))
         }
 
         // Plain first. A raw image, which is what `dd` and cryptsetup produce
@@ -256,7 +267,9 @@ public enum DiskImage {
     @discardableResult
     public static func detachIfStillBacking(device: String, file: String) -> Bool {
         let identifier = (device as NSString).lastPathComponent
-        guard (attachments() ?? [:])[identifier] == file else { return false }
+        // No answer is not a match: a device is detached only on evidence that
+        // it is still the one that was found.
+        guard let listing = attachments(), listing[identifier] == file else { return false }
         detach(device)
         return true
     }

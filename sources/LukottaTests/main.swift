@@ -1458,7 +1458,14 @@ group("anUpdatedLinuxEnvironmentActuallyArrives") {
         if let text { try? text.write(to: file, atomically: true, encoding: .utf8) }
     }
 
+    func setOwner(_ text: String?) {
+        let file = base.appendingPathComponent(EngineEnvironment.ownerFile)
+        try? fm.removeItem(at: file)
+        if let text { try? text.write(to: file, atomically: true, encoding: .utf8) }
+    }
+
     setVersion("1.5.1")
+    setOwner(EngineEnvironment.ownerMark)
     expect(EngineEnvironment.isReady(in: base), "an unpacked environment is ready")
     expect(
         !EngineEnvironment.needsRefresh(in: base, shipped: "1.5.1"),
@@ -1466,6 +1473,50 @@ group("anUpdatedLinuxEnvironmentActuallyArrives") {
     expect(
         EngineEnvironment.needsRefresh(in: base, shipped: "1.6.0"),
         "a different one is replaced")
+
+    // The engine hands every program that uses it the same directory, so what
+    // is there may belong to a beta of this app, or to anylinuxfs installed on
+    // its own by somebody who was using it first. Replacing that is taking away
+    // something this app was never given -- and while both were doing it, each
+    // launch of either unpacked a hundred megabytes over the other's.
+    setOwner("com.example.somethingelse")
+    expect(
+        !EngineEnvironment.needsRefresh(in: base, shipped: "1.6.0"),
+        "an environment another program set up is never replaced")
+    expect(
+        EngineEnvironment.usable(in: base, shipped: "1.5.1"),
+        "and one of the version this app ships is used as it stands")
+    expect(
+        !EngineEnvironment.usable(in: base, shipped: "1.6.0"),
+        "while one of another version is not used either, since it is not ours to change")
+    setOwner(nil)
+    expect(
+        !EngineEnvironment.needsRefresh(in: base, shipped: "1.6.0"),
+        "an environment with no name on it is treated as somebody else's")
+    expect(
+        EngineEnvironment.usable(in: base, shipped: "1.5.1"),
+        "and still used when it is the version this app ships")
+
+    // Except when it is unmistakably this app's own work. Every copy installed
+    // before the name was written there has no mark, and telling those people
+    // that another program owns their environment would be both wrong and
+    // unfixable. The trimming settles it: these two files are written by this
+    // project's build and by nothing else.
+    for marker in ["rootfs.count", "removed-packages.txt"] {
+        try? "1".write(
+            to: base.appendingPathComponent(marker), atomically: true, encoding: .utf8)
+    }
+    expect(
+        EngineEnvironment.ownedByThisApp(in: base),
+        "an unmarked environment carrying this build's own files is claimed as ours")
+    expect(
+        EngineEnvironment.needsRefresh(in: base, shipped: "1.6.0"),
+        "so an app updating from before the name existed still gets its new guest")
+    try? fm.removeItem(at: base.appendingPathComponent("removed-packages.txt"))
+    expect(
+        !EngineEnvironment.ownedByThisApp(in: base),
+        "and half the evidence is not evidence")
+    setOwner(EngineEnvironment.ownerMark)
     expect(
         EngineEnvironment.versionOfGuest(in: base) == "1.5.1",
         "and the version is read from beside the rootfs")

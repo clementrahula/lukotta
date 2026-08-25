@@ -51,6 +51,15 @@ public enum GuestRuntime {
     @discardableResult
     public static func syncIfNeeded() -> Bool {
         let fm = FileManager.default
+        // Never into somebody else's environment. The guest is shared by
+        // everything on this Mac that uses this engine, and what runs inside it
+        // has to match the engine outside it: putting this bundle's vmproxy
+        // into an environment another program set up leaves that program's
+        // engine talking to a component it did not ship, which fails in ways
+        // nothing on either side can explain.
+        guard EngineEnvironment.ownedByThisApp(in: EngineEnvironment.alpineDirectory) else {
+            return false
+        }
         guard let bundled = bundledVMProxy else { return false }
         let guest = guestVMProxy
         guard fm.fileExists(atPath: bundled.path), fm.fileExists(atPath: guest.path) else {

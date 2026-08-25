@@ -370,6 +370,13 @@
       "context": "A failure sentence. After the engine changes, the first run has to be the only one; several drives can be open together again afterwards.",
       "placeholders": []
     },
+    "Another program set up the Linux environment this Mac shares, and it is a different version. Quit or remove that program, then open this drive again.": {
+      "screens": [
+        "failure"
+      ],
+      "context": "Shown when the Linux environment in the shared location was set up by something else -- a beta of this app, or anylinuxfs installed on its own -- and is a different version. The app will not replace an environment it did not create, because that program may be using it.",
+      "placeholders": []
+    },
     "Appearance": {
       "screens": [
         "settings"
@@ -1796,6 +1803,13 @@
         "unlock"
       ],
       "context": "Title of the blue note for a drive that turned out to need no passphrase.",
+      "placeholders": []
+    },
+    "This file could not be opened just now. Try again in a moment.": {
+      "screens": [
+        "open-image"
+      ],
+      "context": "Shown when the app asked macOS which disk images are attached and got no answer in time, so it would not risk attaching the same file twice. Nothing is wrong with the file itself.",
       "placeholders": []
     },
     "This partition is not a BitLocker volume.": {

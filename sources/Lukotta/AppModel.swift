@@ -753,9 +753,13 @@ final class AppModel: ObservableObject {
             for identifier in gone { DiskImage.detach("/dev/" + identifier) }
             // Put back, so nothing goes looking for it at the next launch. Kept
             // where the detach did not work: it is still attached, and still
-            // this app's to put back.
-            for file in files where !(DiskImage.attachments() ?? [:]).values.contains(file) {
-                DiskImage.OpenedFiles.remove(file)
+            // this app's to put back -- and kept, too, where hdiutil did not
+            // answer, since "no answer" is not "nothing is attached".
+            if let listing = DiskImage.attachments() {
+                let stillThere = Set(listing.values)
+                for file in files where !stillThere.contains(file) {
+                    DiskImage.OpenedFiles.remove(file)
+                }
             }
         }
     }
@@ -1177,8 +1181,11 @@ final class AppModel: ObservableObject {
     /// The claim is made before attaching, so a file that turned out not to be
     /// openable would otherwise be remembered as attached for ever.
     private nonisolated static func releaseClaim(on url: URL) {
-        let attached = (DiskImage.attachments() ?? [:]).values
-        guard !attached.contains(url.path) else { return }
+        // Only on an answer. hdiutil not answering would otherwise drop the
+        // claim on a file that is attached after all, and an attachment nothing
+        // claims is one nothing will ever put back.
+        guard let listing = DiskImage.attachments() else { return }
+        guard !listing.values.contains(url.path) else { return }
         DiskImage.OpenedFiles.remove(url.path)
     }
 

@@ -236,10 +236,69 @@ public enum EngineEnvironment {
     /// Only when both versions can be read. A guest from before the version
     /// file existed, or a bundle without one, is left exactly as it is: this
     /// replaces a working environment, so it does it on evidence or not at all.
+    ///
+    /// And only an environment this app put there. See `ownerOfGuest`.
     public static func needsRefresh(in directory: URL, shipped: String? = versionShipped) -> Bool {
         guard isReady(in: directory), let shipped, let have = versionOfGuest(in: directory)
         else { return false }
+        guard ownedByThisApp(in: directory) else { return false }
         return have != shipped
+    }
+
+    // MARK: Whose environment this is
+
+    /// Who unpacked the Linux environment, written beside it.
+    ///
+    /// The engine resolves `~/.anylinuxfs` from the invoking user and offers no
+    /// way to move it, so everything that uses this engine on a Mac shares one
+    /// directory: this app, a beta of it, and anylinuxfs installed on its own by
+    /// somebody who was using it before this app existed.
+    ///
+    /// Without a name on it, "the version here is not the version I ship" reads
+    /// as "mine is out of date" whoever is asking, and each of them deletes the
+    /// others' environment and unpacks its own -- a hundred megabytes, in turn,
+    /// for as long as both are used. Worse, one of them is somebody else's
+    /// installation, and taking it away is taking away something this app was
+    /// never given.
+    public static let ownerFile = ".lukotta-owner"
+
+    public static func ownerOfGuest(in directory: URL) -> String? {
+        version(at: directory.appendingPathComponent(ownerFile))
+    }
+
+    /// What this build writes there: the bundle identifier, so a beta and a
+    /// release are told apart as surely as two different applications.
+    public static var ownerMark: String {
+        Bundle.main.bundleIdentifier ?? "com.lukotta"
+    }
+
+    public static func ownedByThisApp(in directory: URL) -> Bool {
+        if ownerOfGuest(in: directory) == ownerMark { return true }
+        // Unmarked, but unmistakably from this app's own archive.
+        //
+        // Every copy installed before the name was written there has no mark,
+        // and refusing to touch those would tell people upgrading that another
+        // program owns an environment this app unpacked itself. What settles it
+        // is the trimming: the package list and the entry count are written by
+        // this project's build and by nothing else. "anylinuxfs init" leaves an
+        // OCI layout, an mtree and a version, and none of these.
+        guard ownerOfGuest(in: directory) == nil else { return false }
+        let manager = FileManager.default
+        return ["rootfs.count", "removed-packages.txt"].allSatisfy {
+            manager.fileExists(atPath: directory.appendingPathComponent($0).path)
+        }
+    }
+
+    /// Whether the environment there can be used as it is.
+    ///
+    /// Somebody else's, of the version this app ships, is perfectly good: it is
+    /// the same image, from the same digest. Somebody else's of another version
+    /// is not ours to replace, and not ours to run against either.
+    public static func usable(in directory: URL, shipped: String? = versionShipped) -> Bool {
+        guard isReady(in: directory) else { return false }
+        if ownedByThisApp(in: directory) { return true }
+        guard let shipped, let have = versionOfGuest(in: directory) else { return true }
+        return have == shipped
     }
 
     /// How far through the unpacking we are, or nil when there is nothing to
@@ -276,6 +335,21 @@ public enum EngineEnvironment {
         try? FileManager.default.removeItem(at: staging)
 
         if isReady(in: directory) {
+            // Somebody else's, and not the version this app ships. Refused
+            // rather than replaced: an environment this app did not unpack
+            // belongs to whatever did, and that may be serving a drive right
+            // now from a copy of anylinuxfs this app has never heard of.
+            if !usable(in: directory) {
+                Log.app.error(
+                    "the Linux environment was set up by \(ownerOfGuest(in: directory) ?? "something else", privacy: .public) and is version \(versionOfGuest(in: directory) ?? "unknown", privacy: .public); this app ships \(versionShipped ?? "unknown", privacy: .public)"
+                )
+                throw EngineError.guestBelongsToSomethingElse
+            }
+            if ownerOfGuest(in: directory) == nil, ownedByThisApp(in: directory) {
+                try? ownerMark.write(
+                    to: directory.appendingPathComponent(ownerFile), atomically: true,
+                    encoding: .utf8)
+            }
             guard needsRefresh(in: directory) else { return false }
             // The environment is replaced, not merged: files the last version
             // had and this one does not would otherwise stay for ever. Only
@@ -364,6 +438,11 @@ public enum EngineEnvironment {
                     + lastLines.joined(separator: " "))
         }
 
+        // Named before it is moved into place, so an environment is never in
+        // use for a moment without saying whose it is.
+        try? ownerMark.write(
+            to: staging.appendingPathComponent(ownerFile), atomically: true, encoding: .utf8)
+
         // The one moment the old environment stops existing and the new one
         // starts, with nothing in between that could be taken for either.
         try? fm.removeItem(at: directory)
@@ -385,6 +464,10 @@ public enum EngineError: LocalizedError {
     case credentialRejected(String)
     case authorisationCancelled
     case mountFailed(summary: String, detail: String)
+    /// The Linux environment on this Mac was put there by something else -- a
+    /// beta, or anylinuxfs installed on its own -- and is not the version this
+    /// app ships. It is not ours to replace.
+    case guestBelongsToSomethingElse
 
     public var errorDescription: String? {
         switch self {
@@ -400,6 +483,10 @@ public enum EngineError: LocalizedError {
             return "You cancelled the administrator prompt, so the drive was not opened."
         case .mountFailed(let summary, _):
             return summary
+        case .guestBelongsToSomethingElse:
+            return appString(
+                "Another program set up the Linux environment this Mac shares, and it is a different version. Quit or remove that program, then open this drive again."
+            )
         }
     }
 

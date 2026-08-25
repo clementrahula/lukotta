@@ -5,6 +5,14 @@ import Foundation
 
 /// The engine's config.toml, which survives across mounts in the user's home.
 ///
+/// The file can belong to something else: anylinuxfs installed on its own puts
+/// its configuration here too, since the engine gives every program that uses it
+/// the same path. So what this app writes is one section under a name of its
+/// own, `[custom_actions.lukotta]`, added before a multi-volume mount and taken
+/// away after the eject. Nothing else in the file is read, moved or rewritten,
+/// and a file that cannot be written is not an error -- the section is inert
+/// once the mount is gone.
+///
 /// Lukotta writes exactly one thing into it: the generated custom action that
 /// serves every logical volume of a container. The mount script regenerates
 /// that section on each multi-volume mount, and this type removes it once the
@@ -46,4 +54,5 @@ public enum EngineConfig {
         guard cleaned != text else { return }
         try? cleaned.write(toFile: path, atomically: false, encoding: .utf8)
     }
+
 }
