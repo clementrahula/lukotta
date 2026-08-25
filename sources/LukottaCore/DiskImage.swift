@@ -526,12 +526,32 @@ extension DiskImage {
     ///     0:   crypto_LUKS            +335.5 MB   container.qcow2
     ///     0:   btrfs LUKOTTAPLAIN     +335.5 MB   plain.qcow2
     public static func contents(of url: URL) -> [String] {
-        guard let engine = EnginePaths.anylinuxfs,
-            let result = LukottaCore.run(
-                engine.path, ["list", withoutSpaces(url).path],
-                environment: EngineEnvironment.environmentForEngine())
-        else { return [] }
-        return types(inListing: result.out)
+        guard let engine = EnginePaths.anylinuxfs else { return [] }
+        // A file the engine cannot open yet is not a file with nothing in it.
+        //
+        // The machine that was serving this image a moment ago holds it while
+        // it shuts down, and asking during that second comes back empty --
+        // which the screen then reports as "there is nothing in it that can be
+        // opened", about a file the person has just been reading. Ejecting a
+        // drive and opening it again is the most ordinary thing there is, so
+        // the question is asked again rather than answered wrongly.
+        for attempt in 1...5 {
+            guard
+                let result = LukottaCore.run(
+                    engine.path, ["list", withoutSpaces(url).path],
+                    environment: EngineEnvironment.environmentForEngine())
+            else { return [] }
+            let found = types(inListing: result.out)
+            if !found.isEmpty { return found }
+            let complaint = (result.out + result.err).lowercased()
+            let busy =
+                complaint.contains("locked") || complaint.contains("busy")
+                || complaint.contains("in use") || complaint.contains("resource temporarily")
+            guard busy, attempt < 5 else { return found }
+            Log.drives.notice("the image is still held; asking again")
+            Thread.sleep(forTimeInterval: 0.6)
+        }
+        return []
     }
 
     /// A path to this image with no space in it.

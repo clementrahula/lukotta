@@ -1354,7 +1354,7 @@
             limited.choose(only)
             guard
                 waitUntil(
-                    "it is identified", timeout: 30, condition: { limited.chosenFormat != nil })
+                    "it is identified", timeout: 60, condition: { limited.chosenFormat != nil })
             else { return }
             limited.credential = passphrase
             limited.unlock(only)
