@@ -20,6 +20,6 @@ to land and what tends not to.
 
 ## Anything else
 
-<!-- A format change also changes SPECS.md. A new string means the other
-     twenty-one languages are short one, which lint.sh will tell you.
-     Nothing to add here is fine; delete the section. -->
+<!-- A format change also changes SPECS.md. A new string means thirty-six
+     languages are short one and its context entry is missing, both of which
+     lint.sh will tell you. Nothing to add here is fine; delete the section. -->
