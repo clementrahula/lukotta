@@ -5,15 +5,6 @@ hardware only you have.
 
 ---
 
-## Next
-
-- [ ] **[you] The DNS record for updates-beta.lukotta.com.** Everything else on
-  the beta channel is built and proved: its own icon, its own appcast path in
-  `release.sh`, and a real beta-to-beta update applied against a local feed.
-  `scripts/update-test.sh` runs the whole thing.
-
----
-
 ## Stage 1 — the first release
 
 - [ ] **[you] The hardware pass.** A BitLocker drive, to prove the

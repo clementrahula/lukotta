@@ -92,7 +92,7 @@ is written and what is not, and how each is read.
 - 260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks
   on first use
 - 30 to 80 MB of RAM per unlocked drive
-- About ten drives can stay unlocked at once
+- Up to 12 drives can stay unlocked at once
 
 ## Languages
 
