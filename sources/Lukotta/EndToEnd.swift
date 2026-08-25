@@ -247,6 +247,10 @@ import CryptoKit
                 // btrfs, so until this fixture existed nothing had written a
                 // byte to NTFS except on the owner's own hardware.
                 ("ntfs", "raw NTFS image"),
+                // What nearly every Linux install puts on its volumes, and the
+                // only filesystem here whose image is made on the Mac rather
+                // than inside the guest -- there being no mkfs for it in there.
+                ("ext4", "raw ext4 image"),
                 ("vhd-dynamic", "dynamic VHD"),
                 ("vhd", "fixed VHD"),
                 ("vdi", "VDI"),

@@ -26,6 +26,7 @@ CACHE="${LUKOTTA_E2E_CACHE:-$HOME/Library/Caches/dev.lukotta.e2e}"
 CONTAINER="$CACHE/container.img"
 PLAIN="$CACHE/plain.img"
 NTFS="$CACHE/plain.ntfs.img"
+EXT4="$CACHE/plain.ext4.img"
 EXFAT="$CACHE/exfat.img"
 QCOW_PLAIN="$CACHE/plain.qcow2"
 QCOW_ENC="$CACHE/container.qcow2"
@@ -114,6 +115,44 @@ if [ ! -f "$PLAIN" ]; then
   "$ENGINE" shell "$PLAIN" -c "mkfs.btrfs -f -q -L LUKOTTAPLAIN /dev/vda" >/dev/null 2>&1
   restore_length "$PLAIN" "$SIZE"
 fi
+
+# ext4, which is what nearly every Linux install puts on its volumes.
+#
+# The guest cannot make one: it carries mkfs for btrfs, NTFS and FAT and its
+# root filesystem is read-only, so nothing can be added to it. macOS has no
+# mke2fs of its own either. Homebrew has one, and this fetches it -- a few
+# megabytes on the machine running the tests, and nothing at all in the app.
+# A Mac without Homebrew says so and carries on with one filesystem less.
+find_mke2fs() {
+  for candidate in \
+    "$(command -v mke2fs 2>/dev/null || true)" \
+    /opt/homebrew/opt/e2fsprogs/sbin/mke2fs \
+    /usr/local/opt/e2fsprogs/sbin/mke2fs
+  do
+    [ -n "$candidate" ] && [ -x "$candidate" ] && { printf '%s' "$candidate"; return 0; }
+  done
+  return 1
+}
+
+if [ ! -f "$EXT4" ]; then
+  MKE2FS="$(find_mke2fs || true)"
+  if [ -z "$MKE2FS" ] && command -v brew >/dev/null 2>&1; then
+    echo "==> Fetching e2fsprogs, to build an ext4 image with (once)"
+    brew install e2fsprogs >/dev/null 2>&1 || true
+    MKE2FS="$(find_mke2fs || true)"
+  fi
+  if [ -n "$MKE2FS" ]; then
+    echo "==> Building an ext4 image to test against (once)"
+    mkdir -p "$CACHE"
+    dd if=/dev/zero of="$EXT4" bs=1m count=320 2>/dev/null
+    "$MKE2FS" -t ext4 -F -q -L LUKOTTAEXT4 "$EXT4" >/dev/null 2>&1 \
+      || { echo "    mke2fs would not make one; ext4 is not tested"; rm -f "$EXT4"; }
+  else
+    echo "==> No mke2fs and no Homebrew to fetch one; ext4 is not tested here"
+  fi
+fi
+# XFS has no mkfs on macOS at all, in Homebrew or out of it, and the guest
+# carries none either. It stays read-only in the evidence.
 
 # NTFS, which is what a BitLocker drive holds once it is unlocked, and what
 # every Windows disk anybody brings to a Mac is. Everything else here is btrfs
@@ -300,6 +339,7 @@ set +e
   passphrase="$PASSPHRASE" \
   plain="$PLAIN" \
   ntfs="$NTFS" \
+  ${EXT4:+ext4="$EXT4"} \
   exfat="$EXFAT" \
   qcow2="$QCOW_PLAIN" \
   qcow2-encrypted="$QCOW_ENC" \
