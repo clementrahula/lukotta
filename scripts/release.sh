@@ -224,12 +224,18 @@ printf '==> Checking it starts\n'
 # and installs correctly, then the app dies and the old copy is gone. This has
 # happened once already, when the Sparkle framework was not embedded and dyld
 # refused the binary. Cheaper to find here than on someone else's machine.
-SMOKE_LOG="$HERE/dist/smoke.log"
+# Kept outside dist and only while it is being read. It used to be written to
+# dist/smoke.log and left there, where the whole point of it -- what the app
+# said the one time it would not start -- was a line saying it started, months
+# old, about a version nobody was building any more.
+SMOKE_LOG="$(mktemp)"
 if ! "$APP/Contents/MacOS/$APP_NAME" --smoke-test >"$SMOKE_LOG" 2>&1; then
   echo "error: the built app failed to start:" >&2
   sed 's/^/    /' "$SMOKE_LOG" >&2
+  rm -f "$SMOKE_LOG"
   exit 1
 fi
+rm -f "$SMOKE_LOG"
 printf '    starts, and loads every library it needs\n'
 
 printf '==> Archiving\n'
