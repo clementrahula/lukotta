@@ -2050,10 +2050,14 @@ import CryptoKit
                 print("      anything under Volumes: \(underHome.joined(separator: " | "))")
                 for line in model.statusLines.suffix(12) { print("      step: \(line)") }
 
+                // Each file says which volume it is on, by that volume's own
+                // name. Numbering them by position looked fine until they came
+                // back in another order, and then two of the three were read
+                // as the wrong file.
                 var wrote = 0
-                for (index, point) in points.enumerated() {
+                for point in points {
                     let probe = URL(fileURLWithPath: point).appendingPathComponent(name)
-                    let contents = "volume \(index) of \(points.count)\n"
+                    let contents = "this is \((point as NSString).lastPathComponent)\n"
                     do {
                         try Data(contents.utf8).write(to: probe)
                         wrote += 1
@@ -2099,9 +2103,9 @@ import CryptoKit
                 condition: { model.openVolumes.count >= points.count })
             let now = model.openVolumes.isEmpty ? [mountPoint] : model.openVolumes
             var found = 0
-            for (index, point) in now.enumerated() {
+            for point in now {
                 let probe = URL(fileURLWithPath: point).appendingPathComponent(name)
-                let expected = "volume \(index) of \(points.count)\n"
+                let expected = "this is \((point as NSString).lastPathComponent)\n"
                 if (try? String(contentsOf: probe, encoding: .utf8)) == expected { found += 1 }
                 try? FileManager.default.removeItem(at: probe)
             }

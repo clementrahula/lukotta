@@ -50,6 +50,24 @@ OUT="$HERE/vendor/engine"
 [ -d "$SRC_ROOTFS/rootfs" ] || {
   echo "error: no Linux rootfs at $SRC_ROOTFS/rootfs" >&2; exit 1; }
 
+# The guest already vendored, set aside before the wipe that follows.
+#
+# Packing one means trimming a copy of the untrimmed image, and the only
+# sources on a Mac that has built this before are trimmed copies of the packed
+# one -- the application's own directory and the engine's, both filled from a
+# build. Trimming one of those leaves an image with nothing in it. The boot
+# check catches it, but only after the vendored guest has been overwritten, so
+# a second run of this script destroyed what the first produced and no run
+# afterwards could rebuild it.
+#
+# So it is kept, and this run refreshes the binaries around it. That is what a
+# host-side patch wants in any case: nothing about the guest changed.
+KEPT_GUEST=""
+if [ -f "$OUT/alpine/rootfs.tar.gz" ] && [ "${LUKOTTA_REPACK_GUEST:-0}" != "1" ]; then
+  KEPT_GUEST="$(mktemp -d)/alpine"
+  /usr/bin/ditto "$OUT/alpine" "$KEPT_GUEST"
+fi
+
 rm -rf "$OUT"
 mkdir -p "$OUT/anylinuxfs/lib"
 
@@ -101,6 +119,14 @@ if [ -n "$WANT_DIGEST" ]; then
     exit 1
   fi
 fi
+
+if [ -n "$KEPT_GUEST" ]; then
+  mkdir -p "$OUT/alpine"
+  /usr/bin/ditto "$KEPT_GUEST" "$OUT/alpine"
+  rm -rf "$(dirname "$KEPT_GUEST")"
+  echo "Keeping the Linux root filesystem already vendored ($(du -h "$OUT/alpine/rootfs.tar.gz" | awk '{print $1}'))"
+  echo "  LUKOTTA_REPACK_GUEST=1 packs a new one, from an image nothing has trimmed"
+else
 
 echo "Copying Linux root filesystem…"
 # The rootfs is shipped as a single archive rather than a directory tree. It
@@ -240,6 +266,8 @@ done
 for mtree in "$SRC_ROOTFS"/*.mtree; do
   [ -e "$mtree" ] && cp -f "$mtree" "$OUT/alpine/"
 done
+
+fi  # the guest was packed rather than kept
 
 # Resolve the external dependency closure and make it bundle-relative. The
 # engine links one Homebrew dylib by absolute path; that path will not exist on
