@@ -39,6 +39,11 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        # The whole history, not the tip. Two of the checks below read it --
+        # one for anything private, one for a second author -- and against the
+        # single commit a default checkout fetches, both pass by seeing nothing.
+        with:
+          fetch-depth: 0
 
       # Pinned rather than whatever the image happens to carry. The errors CI
       # found before it was turned off were real ones a newer local SDK does not
@@ -91,6 +96,21 @@ jobs:
         run: |
           brew install gitleaks
           gitleaks detect --redact --no-banner --config .gitleaks.toml
+
+      # One identity in the history, checked over all of it rather than the
+      # tip: a second author reaches this repository through a clone with no
+      # hooks installed, or a --no-verify, and taking one back out costs a
+      # rewrite of everything after it.
+      - name: One author, anywhere in the history
+        run: |
+          found="$(git log --all --format='%H %(trailers:only,unfold)' \
+            | grep -iE 'co-authored-by:|signed-off-by:' || true)"
+          if [ -n "$found" ]; then
+            echo "These commits name a second author:"
+            echo "$found"
+            exit 1
+          fi
+          echo "  every commit carries one identity"
 
       - name: Lint, and whether the checks are keeping up
         run: |

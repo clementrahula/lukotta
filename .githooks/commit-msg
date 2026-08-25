@@ -1,0 +1,28 @@
+#!/bin/bash
+# Refuse a commit message that credits anybody but the author.
+#
+# Every commit here is authored and committed by one person, and the message
+# says what was done and why. It does not carry a second identity: no
+# Co-Authored-By, no Signed-off-by naming a tool, no address belonging to
+# whatever wrote the diff. Tools are named in the README, once, where a reader
+# looking for that answer will find it -- not stamped onto three hundred
+# commits where it becomes an identity in the history and a name on somebody
+# else's fork.
+#
+# Taking one back out costs a rewrite of every commit after it and a force-push
+# over whatever anybody had already cloned. Refusing it costs nothing.
+set -uo pipefail
+message="$1"
+
+found="$(grep -inE '^(co-authored-by|signed-off-by):' "$message" || true)"
+if [ -n "$found" ]; then
+  echo "This message names a second author:"
+  echo ""
+  echo "${found//$'\n'/$'\n'  }" | sed -e '1s/^/  /'
+  echo ""
+  echo "Commits here carry one identity. Say what the change does; the README"
+  echo "says what wrote it."
+  echo ""
+  echo "Nothing was committed."
+  exit 1
+fi
