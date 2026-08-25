@@ -234,6 +234,24 @@ used as the oracle the drivers are tested against instead.
 
 ---
 
+### A symbolic link whose target is not plain ASCII
+
+A volume is served to Finder over NFS, and the mount carries macOS's `nfc`
+option: names are converted to composed form on the way to the server, which is
+what makes a name written on a Linux volume come back the way it was typed.
+
+The same option refuses a symbolic link whose target contains both a directory
+separator and a character outside ASCII. `symlink(2)` answers EINVAL, and a link
+of that shape already on the drive cannot be followed — `readlink` returns the
+right text, and opening through it fails. An ASCII target is unaffected, in a
+directory or at the root, and hard links are unaffected entirely.
+
+Both halves are a property of the client rather than of this application or of
+the drive: the same volume mounted without `nfc` takes such a link and follows
+it. The option is the engine's default for macOS and stays, because getting
+names right matters on every volume and this shape of link is rare — extracting
+an archive written on a system in another language is where it appears.
+
 ## 6. Where the drivers came from
 
 imago read raw, qcow2 and flat VMDK, and wrote only qcow2 and raw. Everything

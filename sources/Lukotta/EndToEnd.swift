@@ -904,11 +904,39 @@ import CryptoKit
             let target = names.appendingPathComponent(candidates[0].1)
             let symbolic = root.appendingPathComponent("a-symlink")
             let hard = root.appendingPathComponent("a-hard-link")
-            let madeSymlink =
-                (try? manager.createSymbolicLink(at: symbolic, withDestinationURL: target)) != nil
+            _ = try? Data("#!/bin/sh\necho hello\n".utf8).write(
+                to: root.appendingPathComponent("runnable.sh"))
+            // Two symbolic links, because the difference between them is a
+            // limitation worth pinning rather than meeting by accident.
+            //
+            // macOS is told to send names in composed form -- the `nfc` mount
+            // option, which the engine sets on every mount and which is what
+            // makes a name written on a Linux volume come back the way it was
+            // typed. The same option makes the client refuse a symbolic link
+            // whose target contains both a slash and a character outside ASCII:
+            // symlink(2) answers EINVAL, and one that already exists cannot be
+            // followed, though readlink still reads it back correctly.
+            //
+            // So an ASCII target works and an accented one does not, and both
+            // are checked. A run where the accented one starts working is a run
+            // that has found the option changed underneath it.
+            let plainTarget = root.appendingPathComponent("runnable.sh")
+            let simple = (try? manager.createSymbolicLink(
+                at: symbolic, withDestinationURL: plainTarget)) != nil
+            check(simple, "a symbolic link with an ordinary target is made")
+
+            let awkwardLink = root.appendingPathComponent("a-symlink-to-an-accented-name")
+            let refused = symlink(target.path, awkwardLink.path) != 0
+            var whyRefused = "a target outside ASCII is refused, as the mount option requires"
+            if !refused {
+                whyRefused = "a target outside ASCII is refused (it was accepted this time)"
+            } else if errno != EINVAL {
+                whyRefused = "a target outside ASCII is refused, with errno \(errno)"
+            }
+            check(refused && errno == EINVAL, whyRefused)
+
             let madeHard = (try? manager.linkItem(at: target, to: hard)) != nil
-            check(madeSymlink, "a symbolic link is made")
-            check(madeHard, "and a hard link")
+            check(madeHard, "and a hard link, which has no such trouble")
 
             // What a program expects to be able to say about a file it wrote:
             // that it may be run, and when it was made.
@@ -1079,7 +1107,7 @@ import CryptoKit
             let hard = root.appendingPathComponent("a-hard-link")
             check(
                 (try? manager.destinationOfSymbolicLink(atPath: symbolic.path)) != nil,
-                "the symbolic link still points somewhere")
+                "the symbolic link still points where it was pointed")
             check(
                 (try? String(contentsOf: hard, encoding: .utf8))?.isEmpty == false,
                 "and the hard link still reads as the file it was made from")
@@ -2109,14 +2137,18 @@ import CryptoKit
                         return model.openMounts.values.contains(mountPoint) == false
                     })
                 check(noticed, "and stops offering to eject a drive that is not there")
-                // Ejected rather than lost: nothing about a volume somebody
-                // took away in Finder should bring it back at the next login.
+                // Still remembered, and that is the decision rather than an
+                // oversight: a mount can go without an eject because somebody
+                // ejected it in Finder, or because a cable moved, or because
+                // the Mac slept, and the mount table says which of those it was
+                // in none of the three cases. AppModel.dropMounts says so in as
+                // many words. Pinned here so that changing it is deliberate.
                 let remembered = MountMemory.all().contains { (entry: MountMemory.Entry) in
                     entry.imagePath == image.path
                 }
                 check(
-                    !remembered,
-                    "and does not put it back next time, nobody having asked it to")
+                    remembered,
+                    "and still means to put it back, a mount going away not being an eject")
             }
         }
 

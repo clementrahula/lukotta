@@ -307,7 +307,14 @@ trap clean_up EXIT
 # every Linux install actually has is only tested where somebody has run that.
 LVM_IMAGE=""
 LVM_PASSPHRASE="${LUKOTTA_LVM_PASSPHRASE:-lukotta-test-pass}"
-for candidate in "$HOME/.lukotta-testvols/luks2-lvm.img" "$HOME/.lukotta-testvols/luks-lvm.img"; do
+# Most volumes first: luks-multi.img is the Ubuntu layout, root and home inside
+# one group, which is the shape this flow exists for. The others hold a single
+# logical volume, which proves nothing the ordinary container flow does not.
+for candidate in \
+  "$HOME/.lukotta-testvols/luks-multi.img" \
+  "$HOME/.lukotta-testvols/luks2-lvm.img" \
+  "$HOME/.lukotta-testvols/luks-lvm.img"
+do
   [ -f "$candidate" ] || continue
   LVM_IMAGE="$candidate"
   break

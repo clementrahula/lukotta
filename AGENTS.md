@@ -437,6 +437,11 @@ Properties of the design. Each has been decided, and arriving at one and
 - **Apple Silicon, macOS 15 or later, no Mac App Store.** Sandboxed apps cannot
   read raw devices or elevate.
 - **TPM-sealed volumes and detached LUKS headers cannot be opened.**
+- **A symbolic link whose target holds a slash and a character outside ASCII
+  cannot be made, and one that exists cannot be followed.** The `nfc` mount
+  option does it, the same volume mounted without it is fine, and the end-to-end
+  run asserts both halves so that a change underneath is noticed. SPECS.md §5
+  has the reasoning.
 
 ## What Has Never Run Against A Real Disk
 
