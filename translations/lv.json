@@ -298,6 +298,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Šī %@ kopija ir nepilnīga: trūkst disku dzinēja. Instalējiet to vēlreiz.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Šis disks satur vairākus sējumus, un %@ nespēja noskaidrot, kurus. Ziņošana par to palīdzētu.",
     "This drive is not encrypted.": "Šis disks nav šifrēts.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Šis disks tika atvērts tikai lasīšanai: tā failu sistēma nepieņēma rakstīšanu. Iespējams, tas jāizlabo sistēmā, kurai tas pieder.",
     "This file could not be opened just now. Try again in a moment.": "Šo failu pašlaik neizdevās atvērt. Mēģiniet vēlreiz pēc brīža.",
     "This partition is not a BitLocker volume.": "Šis nodalījums nav BitLocker sējums.",
     "This takes a moment.": "Tas aizņem brīdi.",

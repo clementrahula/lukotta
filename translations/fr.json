@@ -290,6 +290,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Cet exemplaire de %@ est incomplet : le moteur de disques est absent. Réinstallez-le.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ce disque contient plusieurs volumes, et %@ n’a pas pu déterminer lesquels. Le signaler serait utile.",
     "This drive is not encrypted.": "Ce disque n’est pas chiffré.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Ce disque s'est ouvert en lecture seule : son système de fichiers n'a pas accepté les écritures. Il a peut-être besoin d'être réparé sur le système auquel il appartient.",
     "This file could not be opened just now. Try again in a moment.": "Ce fichier n'a pas pu être ouvert pour le moment. Réessayez dans un instant.",
     "This partition is not a BitLocker volume.": "Cette partition n’est pas un volume BitLocker.",
     "This takes a moment.": "Cela prend un instant.",

@@ -282,6 +282,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Bản %@ này chưa đầy đủ: thiếu bộ máy ổ đĩa. Hãy cài đặt lại.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ổ đĩa này chứa nhiều ổ bên trong, và %@ không xác định được là những ổ nào. Báo cáo việc này sẽ giúp ích.",
     "This drive is not encrypted.": "Ổ đĩa này không được mã hóa.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Ổ đĩa này mở ở chế độ chỉ đọc: hệ thống tệp của nó không chấp nhận ghi. Có thể cần sửa chữa trên hệ thống mà nó thuộc về.",
     "This file could not be opened just now. Try again in a moment.": "Hiện không thể mở tệp này. Hãy thử lại sau giây lát.",
     "This partition is not a BitLocker volume.": "Phân vùng này không phải ổ BitLocker.",
     "This takes a moment.": "Việc này mất một lát.",

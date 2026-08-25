@@ -290,6 +290,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Kjo kopje e %@ është e paplotë: mungon motori i disqeve. Instaloje sërish.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ky disk përmban disa volume brenda, dhe %@ nuk mundi të dallonte cilët. Raportimi i kësaj do të ndihmonte.",
     "This drive is not encrypted.": "Ky disk nuk është i enkriptuar.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Ky disk u hap vetëm për lexim: sistemi i tij i skedarëve nuk pranoi shkrime. Mund të ketë nevojë për riparim në sistemin të cilit i përket.",
     "This file could not be opened just now. Try again in a moment.": "Ky skedar nuk u hap dot tani. Provo sërish pas pak.",
     "This partition is not a BitLocker volume.": "Ky particion nuk është volum BitLocker.",
     "This takes a moment.": "Kjo zgjat një çast.",

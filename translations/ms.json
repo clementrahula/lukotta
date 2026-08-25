@@ -282,6 +282,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Salinan %@ ini tidak lengkap: enjin pemacu tiada. Pasang semula.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Pemacu ini mengandungi beberapa volum di dalamnya, dan %@ tidak dapat menentukan yang mana satu. Melaporkannya akan membantu.",
     "This drive is not encrypted.": "Pemacu ini tidak disulitkan.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Pemacu ini dibuka baca sahaja: sistem failnya tidak menerima penulisan. Ia mungkin perlu dibaiki pada sistem asalnya.",
     "This file could not be opened just now. Try again in a moment.": "Fail ini tidak dapat dibuka sekarang. Cuba lagi sebentar lagi.",
     "This partition is not a BitLocker volume.": "Petak ini bukan volum BitLocker.",
     "This takes a moment.": "Ini mengambil masa sebentar.",

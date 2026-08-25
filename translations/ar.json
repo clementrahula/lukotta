@@ -322,6 +322,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "نسختك من %@ غير مكتملة: محرّك الأقراص مفقود. أعد تثبيتها.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "يحتوي محرك الأقراص هذا على عدة وحدات تخزين بداخله، ولم يستطع %@ تحديد أيها. والإبلاغ عن ذلك سيساعد.",
     "This drive is not encrypted.": "محرك الأقراص هذا غير مشفّر.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "فُتح محرك الأقراص هذا للقراءة فقط: لم يقبل نظام ملفاته الكتابة. قد يحتاج إلى إصلاح على النظام الذي يخصه.",
     "This file could not be opened just now. Try again in a moment.": "تعذّر فتح هذا الملف الآن. أعد المحاولة بعد لحظة.",
     "This partition is not a BitLocker volume.": "هذا القسم ليس وحدة تخزين BitLocker.",
     "This takes a moment.": "يستغرق هذا لحظة.",

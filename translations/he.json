@@ -298,6 +298,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "העותק הזה של %@ אינו שלם: מנוע הכוננים חסר. התקינו אותו מחדש.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "הכונן הזה מכיל כמה אמצעי אחסון בתוכו, ו‑%@ לא הצליח לקבוע אילו. דיווח על כך יעזור.",
     "This drive is not encrypted.": "הכונן הזה אינו מוצפן.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "הכונן הזה נפתח לקריאה בלבד: מערכת הקבצים שלו לא קיבלה כתיבה. ייתכן שנדרש תיקון במערכת שאליה הוא שייך.",
     "This file could not be opened just now. Try again in a moment.": "לא ניתן היה לפתוח את הקובץ הזה כרגע. נסו שוב בעוד רגע.",
     "This partition is not a BitLocker volume.": "המחיצה הזו אינה אמצעי אחסון של BitLocker.",
     "This takes a moment.": "זה לוקח רגע.",

@@ -282,6 +282,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "สำเนา %@ นี้ไม่สมบูรณ์ ขาดเอนจินไดรฟ์ ติดตั้งใหม่อีกครั้ง",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "ไดรฟ์นี้มีหลายโวลุ่มอยู่ภายใน และ %@ ระบุไม่ได้ว่าเป็นโวลุ่มใดบ้าง การรายงานเรื่องนี้จะช่วยได้มาก",
     "This drive is not encrypted.": "ไดรฟ์นี้ไม่ได้เข้ารหัส",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "ไดรฟ์นี้เปิดแบบอ่านอย่างเดียว ระบบไฟล์ไม่ยอมรับการเขียน อาจต้องซ่อมแซมในระบบที่ไดรฟ์นี้สังกัดอยู่",
     "This file could not be opened just now. Try again in a moment.": "เปิดไฟล์นี้ไม่ได้ในขณะนี้ ลองอีกครั้งในอีกสักครู่",
     "This partition is not a BitLocker volume.": "พาร์ทิชันนี้ไม่ใช่โวลุ่ม BitLocker",
     "This takes a moment.": "ใช้เวลาสักครู่",

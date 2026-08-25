@@ -290,6 +290,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Dit exemplaar van %@ is onvolledig: de schijf-engine ontbreekt. Installeer het opnieuw.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Deze schijf bevat meerdere volumes en %@ kon niet bepalen welke. Dit melden zou helpen.",
     "This drive is not encrypted.": "Deze schijf is niet versleuteld.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Deze schijf is alleen-lezen geopend: het bestandssysteem accepteerde geen schrijfacties. Mogelijk moet het worden gerepareerd op het systeem waar het bij hoort.",
     "This file could not be opened just now. Try again in a moment.": "Dit bestand kon nu niet worden geopend. Probeer het zo dadelijk opnieuw.",
     "This partition is not a BitLocker volume.": "Deze partitie is geen BitLocker-volume.",
     "This takes a moment.": "Dit duurt even.",

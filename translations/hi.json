@@ -290,6 +290,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "%@ की यह प्रति अधूरी है: ड्राइव इंजन गायब है। इसे दोबारा इंस्टॉल करें।",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "इस ड्राइव के भीतर कई वॉल्यूम हैं, और %@ यह तय नहीं कर सका कि कौन-से। इसकी सूचना देना मददगार होगा।",
     "This drive is not encrypted.": "यह ड्राइव एन्क्रिप्टेड नहीं है।",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "यह ड्राइव केवल पढ़ने के लिए खुली: इसके फ़ाइल सिस्टम ने लिखना स्वीकार नहीं किया। जिस सिस्टम की यह है, वहाँ इसकी मरम्मत ज़रूरी हो सकती है।",
     "This file could not be opened just now. Try again in a moment.": "यह फ़ाइल अभी नहीं खुल सकी। थोड़ी देर बाद फिर कोशिश करें।",
     "This partition is not a BitLocker volume.": "यह पार्टीशन BitLocker वॉल्यूम नहीं है।",
     "This takes a moment.": "इसमें एक पल लगता है।",

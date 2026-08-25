@@ -290,6 +290,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "%@ uygulamasının bu kopyası eksik: sürücü motoru yok. Yeniden yükleyin.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Bu sürücü içinde birkaç birim var ve %@ hangileri olduğunu çözemedi. Bunu bildirmeniz yardımcı olur.",
     "This drive is not encrypted.": "Bu sürücü şifreli değil.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Bu sürücü salt okunur açıldı: dosya sistemi yazmayı kabul etmedi. Ait olduğu sistemde onarılması gerekebilir.",
     "This file could not be opened just now. Try again in a moment.": "Bu dosya şu anda açılamadı. Birazdan yeniden deneyin.",
     "This partition is not a BitLocker volume.": "Bu bölüm bir BitLocker birimi değil.",
     "This takes a moment.": "Bu bir an sürer.",

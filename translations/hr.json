@@ -298,6 +298,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Ova kopija aplikacije %@ nije potpuna: nedostaje pogon za diskove. Instalirajte je ponovno.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ovaj disk sadrži više jedinica, a %@ nije uspio utvrditi koje. Prijava bi pomogla.",
     "This drive is not encrypted.": "Ovaj disk nije šifriran.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Ovaj se disk otvorio samo za čitanje: njegov datotečni sustav nije prihvatio zapisivanje. Možda ga treba popraviti na sustavu kojem pripada.",
     "This file could not be opened just now. Try again in a moment.": "Ovu datoteku trenutačno nije bilo moguće otvoriti. Pokušajte ponovno za trenutak.",
     "This partition is not a BitLocker volume.": "Ova particija nije BitLocker jedinica.",
     "This takes a moment.": "Ovo traje trenutak.",

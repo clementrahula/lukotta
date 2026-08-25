@@ -306,6 +306,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Эта копия %@ неполная: отсутствует движок дисков. Установите её заново.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Этот диск содержит несколько томов, и %@ не смог определить, какие именно. Сообщение об этом помогло бы.",
     "This drive is not encrypted.": "Этот диск не зашифрован.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Этот диск открылся только для чтения: его файловая система не приняла запись. Возможно, её нужно исправить в той системе, которой диск принадлежит.",
     "This file could not be opened just now. Try again in a moment.": "Сейчас не удалось открыть этот файл. Повторите попытку через мгновение.",
     "This partition is not a BitLocker volume.": "Этот раздел не является томом BitLocker.",
     "This takes a moment.": "Это займёт мгновение.",

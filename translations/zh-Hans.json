@@ -282,6 +282,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "此 %@ 副本不完整：缺少驱动引擎。请重新安装。",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "这个驱动器内部含有多个宗卷，而 %@ 无法判断是哪些。报告此情况会有帮助。",
     "This drive is not encrypted.": "这个驱动器未加密。",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "此驱动器以只读方式打开：其文件系统未接受写入。可能需要在它所属的系统上修复。",
     "This file could not be opened just now. Try again in a moment.": "此刻无法打开此文件。请稍后重试。",
     "This partition is not a BitLocker volume.": "这个分区不是 BitLocker 宗卷。",
     "This takes a moment.": "这需要片刻。",

@@ -1838,6 +1838,13 @@
       "context": "Title of the blue note for a drive that turned out to need no passphrase.",
       "placeholders": []
     },
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": {
+      "screens": [
+        "mounted"
+      ],
+      "context": "Shown beside a drive that is open when the system's mount table says it is read-only although writing was asked for -- a filesystem that needs repair, or one a previous machine left mid-transaction. Without it the drive looked writable and the first save failed with the system's own refusal and no explanation.",
+      "placeholders": []
+    },
     "This file could not be opened just now. Try again in a moment.": {
       "screens": [
         "open-image"

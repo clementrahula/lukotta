@@ -306,6 +306,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Ta kopia aplikacji %@ jest niekompletna: brakuje silnika dysków. Zainstaluj ją ponownie.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ten dysk zawiera kilka woluminów, a %@ nie zdołał ustalić, które. Zgłoszenie tego byłoby pomocne.",
     "This drive is not encrypted.": "Ten dysk nie jest zaszyfrowany.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Ten dysk otworzył się tylko do odczytu: jego system plików nie przyjął zapisu. Może wymagać naprawy w systemie, do którego należy.",
     "This file could not be opened just now. Try again in a moment.": "Nie udało się teraz otworzyć tego pliku. Spróbuj ponownie za chwilę.",
     "This partition is not a BitLocker volume.": "Ta partycja nie jest woluminem BitLocker.",
     "This takes a moment.": "To chwilę potrwa.",

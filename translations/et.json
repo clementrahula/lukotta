@@ -290,6 +290,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "See %@ koopia on puudulik: ketaste mootor on puudu. Paigalda see uuesti.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "See ketas sisaldab mitut köidet ja %@ ei suutnud tuvastada, milliseid. Sellest teatamine aitaks.",
     "This drive is not encrypted.": "See ketas ei ole krüptitud.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "See ketas avanes kirjutuskaitstuna: selle failisüsteem ei võtnud kirjutamist vastu. Võib-olla vajab see parandamist süsteemis, kuhu ta kuulub.",
     "This file could not be opened just now. Try again in a moment.": "Seda faili ei õnnestunud praegu avada. Proovi hetke pärast uuesti.",
     "This partition is not a BitLocker volume.": "See partitsioon ei ole BitLockeri köide.",
     "This takes a moment.": "See võtab hetke.",

@@ -51745,6 +51745,226 @@
         }
       }
     },
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فُتح محرك الأقراص هذا للقراءة فقط: لم يقبل نظام ملفاته الكتابة. قد يحتاج إلى إصلاح على النظام الذي يخصه."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Този диск се отвори само за четене: файловата му система не прие запис. Може да се нуждае от поправка в системата, към която принадлежи."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tento disk se otevřel jen pro čtení: jeho souborový systém nepřijal zápis. Možná potřebuje opravu v systému, kterému patří."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne enhed blev åbnet skrivebeskyttet: filsystemet ville ikke acceptere skrivning. Det skal måske repareres på det system, det hører til."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Laufwerk wurde schreibgeschützt geöffnet: Sein Dateisystem hat keine Schreibvorgänge angenommen. Vielleicht muss es auf dem System repariert werden, zu dem es gehört."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αυτός ο δίσκος άνοιξε μόνο για ανάγνωση: το σύστημα αρχείων του δεν δέχτηκε εγγραφές. Ίσως χρειάζεται επιδιόρθωση στο σύστημα στο οποίο ανήκει."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este disco se ha abierto en modo solo lectura: su sistema de archivos no ha aceptado escrituras. Puede que necesite repararse en el sistema al que pertenece."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See ketas avanes kirjutuskaitstuna: selle failisüsteem ei võtnud kirjutamist vastu. Võib-olla vajab see parandamist süsteemis, kuhu ta kuulub."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä asema avautui vain luettavaksi: sen tiedostojärjestelmä ei hyväksynyt kirjoittamista. Se voi vaatia korjaamista siinä järjestelmässä, johon se kuuluu."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nabuksan ang drive na ito bilang read-only: hindi tumanggap ng pagsusulat ang file system nito. Maaaring kailangan itong ayusin sa sistemang pinagmulan nito."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce disque s'est ouvert en lecture seule : son système de fichiers n'a pas accepté les écritures. Il a peut-être besoin d'être réparé sur le système auquel il appartient."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "הכונן הזה נפתח לקריאה בלבד: מערכת הקבצים שלו לא קיבלה כתיבה. ייתכן שנדרש תיקון במערכת שאליה הוא שייך."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यह ड्राइव केवल पढ़ने के लिए खुली: इसके फ़ाइल सिस्टम ने लिखना स्वीकार नहीं किया। जिस सिस्टम की यह है, वहाँ इसकी मरम्मत ज़रूरी हो सकती है।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj se disk otvorio samo za čitanje: njegov datotečni sustav nije prihvatio zapisivanje. Možda ga treba popraviti na sustavu kojem pripada."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez a meghajtó csak olvasásra nyílt meg: a fájlrendszere nem fogadott írást. Lehet, hogy javítani kell azon a rendszeren, amelyhez tartozik."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drive ini terbuka hanya-baca: sistem berkasnya tidak menerima penulisan. Mungkin perlu diperbaiki di sistem asalnya."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo disco si è aperto in sola lettura: il suo file system non ha accettato scritture. Potrebbe aver bisogno di una riparazione sul sistema a cui appartiene."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このドライブは読み出し専用で開きました。ファイルシステムが書き込みを受け付けませんでした。元のシステムで修復が必要かもしれません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 드라이브는 읽기 전용으로 열렸습니다. 파일 시스템이 쓰기를 받아들이지 않았습니다. 원래 시스템에서 복구가 필요할 수 있습니다."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šis diskas atvertas tik skaitymui: jo failų sistema nepriėmė rašymo. Gali reikėti jį pataisyti toje sistemoje, kuriai jis priklauso."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šis disks tika atvērts tikai lasīšanai: tā failu sistēma nepieņēma rakstīšanu. Iespējams, tas jāizlabo sistēmā, kurai tas pieder."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pemacu ini dibuka baca sahaja: sistem failnya tidak menerima penulisan. Ia mungkin perlu dibaiki pada sistem asalnya."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne enheten ble åpnet skrivebeskyttet: filsystemet tok ikke imot skriving. Det må kanskje repareres på systemet det hører til."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze schijf is alleen-lezen geopend: het bestandssysteem accepteerde geen schrijfacties. Mogelijk moet het worden gerepareerd op het systeem waar het bij hoort."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten dysk otworzył się tylko do odczytu: jego system plików nie przyjął zapisu. Może wymagać naprawy w systemie, do którego należy."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este disco abriu apenas para leitura: o seu sistema de ficheiros não aceitou escritas. Pode precisar de reparação no sistema a que pertence."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acest disc s-a deschis doar pentru citire: sistemul său de fișiere nu a acceptat scrieri. Poate avea nevoie de reparare pe sistemul căruia îi aparține."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Этот диск открылся только для чтения: его файловая система не приняла запись. Возможно, её нужно исправить в той системе, которой диск принадлежит."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta pogon se je odprl samo za branje: njegov datotečni sistem ni sprejel pisanja. Morda ga je treba popraviti v sistemu, ki mu pripada."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ky disk u hap vetëm për lexim: sistemi i tij i skedarëve nuk pranoi shkrime. Mund të ketë nevojë për riparim në sistemin të cilit i përket."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den här enheten öppnades skrivskyddad: filsystemet tog inte emot skrivningar. Det kan behöva repareras på systemet det hör till."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไดรฟ์นี้เปิดแบบอ่านอย่างเดียว ระบบไฟล์ไม่ยอมรับการเขียน อาจต้องซ่อมแซมในระบบที่ไดรฟ์นี้สังกัดอยู่"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu sürücü salt okunur açıldı: dosya sistemi yazmayı kabul etmedi. Ait olduğu sistemde onarılması gerekebilir."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цей диск відкрився лише для читання: його файлова система не прийняла запис. Можливо, її потрібно відновити в системі, якій диск належить."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ổ đĩa này mở ở chế độ chỉ đọc: hệ thống tệp của nó không chấp nhận ghi. Có thể cần sửa chữa trên hệ thống mà nó thuộc về."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此驱动器以只读方式打开：其文件系统未接受写入。可能需要在它所属的系统上修复。"
+          }
+        }
+      }
+    },
     "This file could not be opened just now. Try again in a moment.": {
       "localizations": {
         "ar": {

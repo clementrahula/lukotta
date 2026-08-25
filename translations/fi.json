@@ -290,6 +290,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Tämä %@-kopio on puutteellinen: asemien moottori puuttuu. Asenna se uudelleen.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Tämä asema sisältää useita taltioita, eikä %@ pystynyt selvittämään mitkä. Tästä ilmoittaminen auttaisi.",
     "This drive is not encrypted.": "Tätä asemaa ei ole salattu.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Tämä asema avautui vain luettavaksi: sen tiedostojärjestelmä ei hyväksynyt kirjoittamista. Se voi vaatia korjaamista siinä järjestelmässä, johon se kuuluu.",
     "This file could not be opened just now. Try again in a moment.": "Tätä tiedostoa ei voitu avata juuri nyt. Yritä hetken kuluttua uudelleen.",
     "This partition is not a BitLocker volume.": "Tämä osio ei ole BitLocker-taltio.",
     "This takes a moment.": "Tämä vie hetken.",

@@ -290,6 +290,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Hindi kumpleto ang kopyang ito ng %@: nawawala ang drive engine. I-install itong muli.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "May ilang volume sa loob ng drive na ito, at hindi matukoy ng %@ kung alin ang mga iyon. Malaking tulong kung iuulat ito.",
     "This drive is not encrypted.": "Hindi naka-encrypt ang drive na ito.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Nabuksan ang drive na ito bilang read-only: hindi tumanggap ng pagsusulat ang file system nito. Maaaring kailangan itong ayusin sa sistemang pinagmulan nito.",
     "This file could not be opened just now. Try again in a moment.": "Hindi mabuksan ang file na ito ngayon. Subukan muli maya-maya.",
     "This partition is not a BitLocker volume.": "Ang partition na ito ay hindi isang BitLocker volume.",
     "This takes a moment.": "Sandali lang ito.",

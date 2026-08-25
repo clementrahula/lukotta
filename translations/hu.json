@@ -290,6 +290,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "A(z) %@ e példánya hiányos: hiányzik a meghajtómotor. Telepítse újra.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Ez a meghajtó több kötetet tartalmaz, és a(z) %@ nem tudta megállapítani, melyeket. Segítene, ha jelentené.",
     "This drive is not encrypted.": "Ez a meghajtó nincs titkosítva.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Ez a meghajtó csak olvasásra nyílt meg: a fájlrendszere nem fogadott írást. Lehet, hogy javítani kell azon a rendszeren, amelyhez tartozik.",
     "This file could not be opened just now. Try again in a moment.": "Ezt a fájlt most nem sikerült megnyitni. Próbálja újra egy pillanat múlva.",
     "This partition is not a BitLocker volume.": "Ez a partíció nem BitLocker-kötet.",
     "This takes a moment.": "Ez eltart egy pillanatig.",

@@ -2124,8 +2124,31 @@ final class AppModel: ObservableObject {
         let fellBack =
             transcript.contains(MountScript.stageMarker + "read-only")
             || statusLines.contains { $0.contains(MountScript.stageMarker + "read-only") }
-        mountedReadOnly = mountingReadOnly || fellBack
-        readOnlyReason = fellBack ? Self.reasonForFallback(transcript, statusLines) : nil
+        // And what the system says about the mount, which is the only account
+        // that matters to somebody saving a file.
+        //
+        // A filesystem the guest could not write to -- one needing repair, one
+        // a previous machine left mid-transaction -- is mounted read-only
+        // inside the machine, and nothing in the script says so. The app
+        // reported the drive as open for writing, Finder showed it that way,
+        // and the first save failed with the system's own refusal and no
+        // explanation from here.
+        let systemSaysReadOnly =
+            MountTableEntry.all(in: mountTable())
+            .first { $0.mountPoint == mountPoint }?
+            .options.contains("read-only") ?? false
+        mountedReadOnly = mountingReadOnly || fellBack || systemSaysReadOnly
+        if fellBack {
+            readOnlyReason = Self.reasonForFallback(transcript, statusLines)
+        } else if systemSaysReadOnly, !mountingReadOnly {
+            readOnlyReason =
+                Self.reasonForFallback(transcript, statusLines)
+                ?? appString(
+                    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to."
+                )
+        } else {
+            readOnlyReason = nil
+        }
         if !transcript.isEmpty { noteVolumeCount(transcript) }
         if rememberCredential {
             if !CredentialStore.save(credential, for: identity(of: drive)) {

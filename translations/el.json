@@ -290,6 +290,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Αυτό το αντίγραφο του %@ είναι ελλιπές: λείπει η μηχανή δίσκων. Εγκαταστήστε το ξανά.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Αυτός ο δίσκος περιέχει πολλούς τόμους και το %@ δεν μπόρεσε να διακρίνει ποιους. Μια αναφορά θα βοηθούσε.",
     "This drive is not encrypted.": "Αυτός ο δίσκος δεν είναι κρυπτογραφημένος.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Αυτός ο δίσκος άνοιξε μόνο για ανάγνωση: το σύστημα αρχείων του δεν δέχτηκε εγγραφές. Ίσως χρειάζεται επιδιόρθωση στο σύστημα στο οποίο ανήκει.",
     "This file could not be opened just now. Try again in a moment.": "Αυτό το αρχείο δεν μπόρεσε να ανοίξει αυτή τη στιγμή. Δοκιμάστε ξανά σε λίγο.",
     "This partition is not a BitLocker volume.": "Αυτό το διαμέρισμα δεν είναι τόμος BitLocker.",
     "This takes a moment.": "Αυτό παίρνει μια στιγμή.",

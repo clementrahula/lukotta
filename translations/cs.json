@@ -306,6 +306,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Tato kopie aplikace %@ je neúplná: chybí jádro pro disky. Nainstalujte ji znovu.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Tento disk obsahuje několik svazků a %@ nedokázal určit které. Nahlášení by pomohlo.",
     "This drive is not encrypted.": "Tento disk není šifrovaný.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Tento disk se otevřel jen pro čtení: jeho souborový systém nepřijal zápis. Možná potřebuje opravu v systému, kterému patří.",
     "This file could not be opened just now. Try again in a moment.": "Tento soubor se teď nepodařilo otevřít. Zkuste to za chvíli znovu.",
     "This partition is not a BitLocker volume.": "Tento oddíl není svazek BitLocker.",
     "This takes a moment.": "Chvíli to potrvá.",

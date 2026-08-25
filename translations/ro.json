@@ -298,6 +298,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Această copie a %@ este incompletă: lipsește motorul pentru discuri. Instalați-o din nou.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Acest disc conține mai multe volume, iar %@ nu a putut stabili care anume. Raportarea ar fi de ajutor.",
     "This drive is not encrypted.": "Acest disc nu este criptat.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Acest disc s-a deschis doar pentru citire: sistemul său de fișiere nu a acceptat scrieri. Poate avea nevoie de reparare pe sistemul căruia îi aparține.",
     "This file could not be opened just now. Try again in a moment.": "Acest fișier nu a putut fi deschis în acest moment. Încercați din nou peste puțin timp.",
     "This partition is not a BitLocker volume.": "Această partiție nu este un volum BitLocker.",
     "This takes a moment.": "Durează un moment.",

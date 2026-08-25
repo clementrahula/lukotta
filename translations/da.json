@@ -290,6 +290,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Dette eksemplar af %@ er ufuldstændigt: motoren til enheder mangler. Installer det igen.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Denne enhed indeholder flere diskenheder, og %@ kunne ikke finde ud af hvilke. Det vil hjælpe at rapportere det.",
     "This drive is not encrypted.": "Denne disk er ikke krypteret.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Denne enhed blev åbnet skrivebeskyttet: filsystemet ville ikke acceptere skrivning. Det skal måske repareres på det system, det hører til.",
     "This file could not be opened just now. Try again in a moment.": "Denne fil kunne ikke åbnes lige nu. Prøv igen om et øjeblik.",
     "This partition is not a BitLocker volume.": "Denne partition er ikke en BitLocker-diskenhed.",
     "This takes a moment.": "Det tager et øjeblik.",

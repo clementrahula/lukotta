@@ -282,6 +282,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "この %@ は不完全です。ドライブエンジンがありません。インストールし直してください。",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "このドライブには複数のボリュームが含まれており、%@ はそれがどれなのか判断できませんでした。報告していただけると助かります。",
     "This drive is not encrypted.": "このドライブは暗号化されていません。",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "このドライブは読み出し専用で開きました。ファイルシステムが書き込みを受け付けませんでした。元のシステムで修復が必要かもしれません。",
     "This file could not be opened just now. Try again in a moment.": "このファイルは今のところ開けませんでした。少ししてからもう一度お試しください。",
     "This partition is not a BitLocker volume.": "このパーティションは BitLocker ボリュームではありません。",
     "This takes a moment.": "少し時間がかかります。",

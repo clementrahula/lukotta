@@ -306,6 +306,7 @@
     "This copy of %@ is incomplete: its drive engine is missing. Install it again.": "Ši %@ kopija nepilna: trūksta diskų variklio. Įdiekite ją iš naujo.",
     "This drive holds several volumes inside it, and %@ could not work out which ones. Reporting this would help.": "Šiame diske yra keli tomai, o %@ nepavyko nustatyti, kurie. Pranešimas apie tai padėtų.",
     "This drive is not encrypted.": "Šis diskas nėra šifruotas.",
+    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to.": "Šis diskas atvertas tik skaitymui: jo failų sistema nepriėmė rašymo. Gali reikėti jį pataisyti toje sistemoje, kuriai jis priklauso.",
     "This file could not be opened just now. Try again in a moment.": "Šio failo dabar atverti nepavyko. Bandykite dar kartą po akimirkos.",
     "This partition is not a BitLocker volume.": "Šis skaidinys nėra „BitLocker“ tomas.",
     "This takes a moment.": "Tai užtruks akimirką.",
