@@ -83,6 +83,12 @@ printf '\na Mac that has never had this app\n'
 # Named after the identifier, as the app names it -- renaming the application
 # does not move anybody's Linux environment.
 ENGINE_HOME="$HOME/Library/Application Support/$BUNDLE_ID/engine"
+# Everything this app keeps is filed under the identifier, including the copy
+# of the outgoing version that a rollback puts back -- the app and the shim in
+# front of it both name it that way.
+SUPPORT="$HOME/Library/Application Support/$BUNDLE_ID"
+KEPT="$SUPPORT/previous"
+KEPT_APP="$KEPT/$BUNDLE_ID.app"
 SETTINGS_BACKUP="$WORK/settings.plist"
 defaults export "$BUNDLE_ID" "$SETTINGS_BACKUP" >/dev/null 2>&1 || true
 defaults delete "$BUNDLE_ID" >/dev/null 2>&1 || true
@@ -369,12 +375,7 @@ printf '\na version that will not start at all\n'
 # that never reach a working window. Proved with a binary that cannot run rather
 # than by describing it.
 # Named after the identifier, as the app names it.
-SUPPORT="$HOME/Library/Application Support/$BUNDLE_ID"
-KEPT="$SUPPORT/previous"
-# Named after the identifier, as both the app and the shim in front of it name
-# it. This asked for the application's name and found nothing, which read as a
-# safety net that had not been armed.
-KEPT_APP="$KEPT/$BUNDLE_ID.app"
+
 
 # Made by the app itself, during the update above, and not by this script.
 #
