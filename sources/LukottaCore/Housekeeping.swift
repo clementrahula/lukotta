@@ -60,6 +60,9 @@ public enum Housekeeping {
         result.workspaces = removeFinishedWorkspaces(now: now)
         result.mountPoints = removeEmptyMountPoints(in: mountTable)
         result.engineLogs = EngineLogs.removeOld(now: now)
+        // Mount points this app made that are not mounted any more: ejected in
+        // Finder, or gone with a restart.
+        _ = OpenedHere.forgetWhatIsGone(mountTable: mountTable)
         let (files, names, rows) = forgetWhatIsGone(attached: attached)
         result.rememberedFiles = files
         result.rememberedNames = names

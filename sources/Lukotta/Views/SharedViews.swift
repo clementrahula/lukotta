@@ -82,7 +82,6 @@ struct EmptyStateView: View {
     }
 }
 
-
 /// A line of news, with a way to be rid of it.
 ///
 /// No icon in front of it. A symbol there says a category -- a warning, an

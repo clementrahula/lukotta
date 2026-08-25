@@ -1214,6 +1214,52 @@ group("aRefusedPermissionSaysWhichOneAndOffersTheWayToIt") {
         "which is what puts Open Privacy Settings on the failure screen")
 }
 
+group("aBetaAndAReleaseShareNothingThatMatters") {
+    // The two are installed side by side on purpose, so every place either
+    // keeps something has to be keyed to which one it is. What is derived from
+    // the bundle is checked here; what is keyed by bundle identifier -- the
+    // settings, the Keychain service, the helper's own service name, the log
+    // subsystem, Sparkle's cache -- is separated by macOS itself, given the
+    // identifiers differ, which build-app.sh sets and its own case statement
+    // keeps apart.
+    let beta = "Lukotta Beta"
+    let release = "Lukotta"
+    let home = "/Users/someone"
+
+    // Where the engine keeps the image, the configuration and the logs.
+    expect(
+        EngineEnvironment.engineHome(inHome: home, named: beta)
+            != EngineEnvironment.engineHome(inHome: home, named: release),
+        "the Linux environment of one is not the Linux environment of the other")
+    expect(
+        !EngineEnvironment.engineHome(inHome: home, named: beta).path
+            .hasPrefix(EngineEnvironment.engineHome(inHome: home, named: release).path),
+        "and neither sits inside the other, where deleting one would take the other")
+
+    // The scratch directory of a mount, which is swept by name.
+    expect(
+        Workspace.prefix.contains(Bundle.main.bundleIdentifier ?? "com.lukotta"),
+        "a mount's workspace is named after the application that made it")
+
+    // The mounts themselves. Both serve into ~/Volumes, and the engine's status
+    // reports every mount on the Mac whoever made it, so uninstalling one
+    // offered to eject the other's drives -- and then ejected them.
+    UserDefaults.standard.removeObject(forKey: OpenedHere.key)
+    defer { UserDefaults.standard.removeObject(forKey: OpenedHere.key) }
+    OpenedHere.add("/Users/someone/Volumes/MINE")
+    let reported = ["/Users/someone/Volumes/MINE", "/Users/someone/Volumes/THEIRS"]
+    expect(
+        OpenedHere.ours(of: reported) == ["/Users/someone/Volumes/MINE"],
+        "only the mounts this copy made are this copy's to eject")
+    OpenedHere.remove("/Users/someone/Volumes/MINE")
+    expect(OpenedHere.ours(of: reported).isEmpty, "and ejecting one takes it off the list")
+
+    OpenedHere.add("/Users/someone/Volumes/GONE")
+    expect(
+        OpenedHere.forgetWhatIsGone(mountTable: "") == 1,
+        "a mount point that is no longer mounted is forgotten rather than kept for ever")
+}
+
 group("theEngineWorksInThisAppsOwnDirectoryAndNobodyElses") {
     // The engine as published keeps everything under ~/.anylinuxfs, which is
     // one directory for every program on the Mac that uses it: a release, a

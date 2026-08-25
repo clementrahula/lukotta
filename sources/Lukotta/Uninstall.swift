@@ -39,18 +39,25 @@ enum Uninstall {
         ).appendingPathComponent(bundleIdentifier, isDirectory: true)
     }
 
+    /// This build's own directory, named after the bundle. It was named
+    /// "Lukotta" whatever was running, so uninstalling a beta deleted the
+    /// release's kept-aside copy and its Linux environment along with its own.
     nonisolated private static var support: URL? {
         try? FileManager.default.url(
             for: .applicationSupportDirectory, in: .userDomainMask,
             appropriateFor: nil, create: false
-        ).appendingPathComponent("Lukotta", isDirectory: true)
+        ).appendingPathComponent(EngineEnvironment.appDirectoryName, isDirectory: true)
     }
 
     /// Look before offering, so the confirmation describes this Mac rather than
     /// a general case.
     static func survey() -> Plan {
         var plan = Plan()
-        plan.openDrives = EngineStatus.current().map(\.mountPoint)
+        // What this app opened, not what the engine is serving. The engine's
+        // status covers every program using it on this Mac, so uninstalling a
+        // beta offered to eject -- and then ejected -- drives the release had
+        // open, and anylinuxfs's own besides.
+        plan.openDrives = OpenedHere.ours(of: EngineStatus.current().map(\.mountPoint))
         plan.helperRegistered =
             SMAppService.daemon(plistName: HelperInfo.plistName).status != .notRegistered
         if let size = try? FileManager.default.allocatedSizeOfDirectory(at: guest) {
@@ -140,6 +147,7 @@ enum Uninstall {
                 if let caches { try? FileManager.default.removeItem(at: caches) }
                 UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
                 DriveMemory.forgetEverything()
+                OpenedHere.forgetEverything()
             }
             // The scratch directories, the empty mount points, everything.
             // After this there is no app to do it at the next launch.

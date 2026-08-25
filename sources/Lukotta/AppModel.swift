@@ -2421,6 +2421,7 @@ final class AppModel: ObservableObject {
                     // What this app itself recorded when it made the mount,
                     // which needs no row and no device to still exist.
                     for path in paths {
+                        OpenedHere.remove(path)
                         guard let uuid = self.restoreKeys.removeValue(forKey: path) else {
                             continue
                         }

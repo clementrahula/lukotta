@@ -92,3 +92,59 @@ public enum RestorePreference {
         set { UserDefaults.standard.set(newValue, forKey: key) }
     }
 }
+
+/// The mount points this copy of the app made.
+///
+/// A beta and a release both serve drives into ~/Volumes, and the engine's own
+/// status reports every mount on the Mac whoever made it. Nothing in a mount
+/// says which application asked for it -- so uninstalling one offered to eject,
+/// and then ejected, drives the other had open, and anylinuxfs's own besides.
+///
+/// This is the record: written when a mount is made, taken away when it is
+/// ejected, and kept in this app's own settings, which a beta and a release do
+/// not share. It survives a restart, because what is open at the moment
+/// somebody uninstalls may have been opened days ago.
+public enum OpenedHere {
+    public static let key = "mountPointsThisAppMade"
+
+    public static func all() -> Set<String> {
+        Set(UserDefaults.standard.stringArray(forKey: key) ?? [])
+    }
+
+    public static func add(_ mountPoint: String) {
+        guard !mountPoint.isEmpty else { return }
+        var points = all()
+        points.insert(mountPoint)
+        UserDefaults.standard.set(points.sorted(), forKey: key)
+    }
+
+    public static func remove(_ mountPoint: String) {
+        var points = all()
+        guard points.remove(mountPoint) != nil else { return }
+        UserDefaults.standard.set(points.sorted(), forKey: key)
+    }
+
+    /// Which of these mounts are this app's, out of everything the engine
+    /// reports. A mount point this app never recorded belongs to something
+    /// else, and nothing here touches it.
+    public static func ours(of mountPoints: [String]) -> [String] {
+        let mine = all()
+        return mountPoints.filter { mine.contains($0) }
+    }
+
+    /// Forget what is no longer mounted, so the list cannot grow for ever.
+    @discardableResult
+    public static func forgetWhatIsGone(mountTable table: String = LukottaCore.mountTable()) -> Int
+    {
+        let live = Set(MountTableEntry.all(in: table).map(\.mountPoint))
+        let mine = all()
+        let stale = mine.subtracting(live)
+        guard !stale.isEmpty else { return 0 }
+        UserDefaults.standard.set(mine.subtracting(stale).sorted(), forKey: key)
+        return stale.count
+    }
+
+    public static func forgetEverything() {
+        UserDefaults.standard.removeObject(forKey: key)
+    }
+}

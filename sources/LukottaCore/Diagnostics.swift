@@ -58,7 +58,7 @@ public enum Diagnostics {
     /// reads as "this just crashed". A report from a build the user is not
     /// running is not evidence about the one they are.
     public static func crashReports(
-        appName: String = "Lukotta",
+        appName: String = LukottaCore.appName,
         within: TimeInterval = 24 * 60 * 60,
         limit: Int = 5
     ) -> [URL] {
@@ -285,7 +285,10 @@ public enum Diagnostics {
         parts: [Component]? = nil
     ) -> String {
         var lines = [
-            "Lukotta \(environment.appVersion) (build \(environment.build))",
+            // The build's own name: a report from the beta that says Lukotta is
+            // a report about the wrong application, and the fault gets looked
+            // for in the release.
+            "\(appName) \(environment.appVersion) (build \(environment.build))",
             "\(environment.systemVersion) on \(environment.model)",
             "Engine embedded: \(environment.engineEmbedded ? "yes" : "no")",
             "Full Disk Access: \(environment.fullDiskAccess ? "granted" : "not granted")",
@@ -352,7 +355,7 @@ public enum Diagnostics {
     /// shell both truncate a long URL, so the detail goes to the clipboard and
     /// the message asks for it to be pasted.
     public static func mailtoURL(address: String, environment: Environment) -> URL? {
-        let subject = "Lukotta \(environment.appVersion) — issue report"
+        let subject = "\(appName) \(environment.appVersion) — issue report"
         let body = """
             (Please paste the copied details below, and describe what happened.)
 
