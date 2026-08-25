@@ -35,13 +35,35 @@ PASSPHRASE="lukotta-e2e"
 # this drives has to have been built with them in:
 #   LUKOTTA_DEVTOOLS=1 LUKOTTA_BRANDING=beta ./build-app.sh "dist/Lukotta Beta.app"
 HARNESS_CHECK="$APP/Contents/MacOS/$(basename "$APP" .app)"
-if ! /usr/bin/strings "$HARNESS_CHECK-app" 2>/dev/null | grep -q -- "--e2e"; then
+# Counted rather than matched: with pipefail set, grep -q stops at the first hit
+# and strings dies of SIGPIPE, so the pipeline reports a failure that means
+# "found it". This check refused every app it was given, including the ones
+# built correctly.
+HARNESS_FOUND="$(/usr/bin/strings "$HARNESS_CHECK-app" 2>/dev/null | grep -c -- "--e2e" || true)"
+if [ "${HARNESS_FOUND:-0}" -eq 0 ]; then
   echo "error: $(basename "$APP") was built without the harnesses." >&2
   echo "       Rebuild it with LUKOTTA_DEVTOOLS=1 and run this again." >&2
   exit 1
 fi
 BINARY="$APP/Contents/MacOS/$(basename "$APP" .app)"
 ENGINE="$APP/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs"
+
+# The engine keeps its Linux image inside the application's own directory now,
+# and finds it through this. Without it, every engine command here looks in the
+# shared ~/.anylinuxfs -- which this app no longer writes to, so on a Mac
+# without a separate anylinuxfs install there is no image at all and the first
+# fixture build dies with nothing to say for itself.
+APP_ID="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Contents/Info.plist" 2>/dev/null)"
+ANYLINUXFS_HOME="$HOME/Library/Application Support/${APP_ID:-com.lukotta}/engine"
+# The app moves its environment from the old name to the identifier at its next
+# launch. Until it has, the image is still under the name -- so whichever holds
+# one is what the engine is pointed at here.
+if [ ! -d "$ANYLINUXFS_HOME/.anylinuxfs/alpine/rootfs" ]; then
+  BY_NAME="$HOME/Library/Application Support/$(basename "$APP" .app)/engine"
+  [ -d "$BY_NAME/.anylinuxfs/alpine/rootfs" ] && ANYLINUXFS_HOME="$BY_NAME"
+fi
+export ANYLINUXFS_HOME
+mkdir -p "$ANYLINUXFS_HOME/Library/Logs"
 
 if [ ! -f "$CONTAINER" ]; then
   echo "==> Building a LUKS container to test against (once)"

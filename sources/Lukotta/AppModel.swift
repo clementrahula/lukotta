@@ -1099,6 +1099,18 @@ final class AppModel: ObservableObject {
             // holds a lock on the image file it was opened from.
             EngineProcesses.tidyLeftovers()
 
+            // Where this app keeps its Linux environment, before anything
+            // looks for it. It has moved twice -- out of the directory the
+            // engine shares with every other program that uses it, and then
+            // from the application's file name to its identifier, so renaming
+            // the app does not orphan eighty megabytes. Both are moves, not
+            // unpacks, and neither is worth waiting for a mount to perform.
+            EngineEnvironment.adoptWhatWasLeftInTheSharedHome()
+            if let older = EngineEnvironment.legacyNamedHome {
+                EngineEnvironment.adoptWhatWasLeftInTheSharedHome(
+                    from: older.appendingPathComponent(".anylinuxfs/alpine", isDirectory: true))
+            }
+
             // Before the first scan and before anything can be opened.
             //
             // This used to be started and left to run, and it detached what a

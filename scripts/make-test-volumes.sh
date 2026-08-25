@@ -30,6 +30,17 @@ OUT="${1:-$HOME/.lukotta-testvols}"
 PASS='lukotta-test-pass'
 
 [ -x "$ENGINE" ] || { echo "error: no engine at $ENGINE" >&2; exit 1; }
+
+# The engine keeps its Linux image inside the application's own directory now,
+# and finds it through this. Without it, every engine command here looks in the
+# shared ~/.anylinuxfs -- which this app no longer writes to, so on a Mac
+# without a separate anylinuxfs install there is no image at all and the first
+# fixture build dies with nothing to say for itself.
+APP_BUNDLE="${ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+APP_ID="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' \
+  "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null)"
+export ANYLINUXFS_HOME="$HOME/Library/Application Support/${APP_ID:-com.lukotta}/engine"
+mkdir -p "$ANYLINUXFS_HOME/Library/Logs"
 mkdir -p "$OUT"
 
 image() {  # name, megabytes
