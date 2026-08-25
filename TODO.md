@@ -35,38 +35,4 @@ transport fixes it.
   licensed driver. DriverKit block-storage entitlements need Apple's approval, so
   that conversation starts early.
 
-NTFS read/write dominates the cost either way. Going native also removes the GPL
-constraint, so this and a proprietary product are the same project.
-
----
-
-## Untried
-
-- **The plain-NTFS path.** The first-sector probe recognises three formats and
-  there is no unencrypted NTFS drive to hand, so the note saying a drive is not
-  encrypted, and opening one with no password, have never run against a real
-  disk. Identification is covered both ways by tests over synthetic boot sectors,
-  and anything unrecognised is left alone.
-
-## Known limitations
-
-Properties of the design, not tasks.
-
-- **Encryption nested inside encryption is not opened.** A logical volume that is
-  itself a LUKS container fails and the drive falls back to a single volume. It
-  should say so rather than look broken. Several containers on one disk are fine.
-- **The initialise dialog is only held back while Lukotta is running.** Claiming
-  the disk suppresses it, and a claim belongs to a running process.
-- **The volume appears as a network drive.** macOS offers no supported way to
-  mark an NFS mount local. Only Stage 3 changes it.
-- **Full Disk Access cannot be requested.** No API exists; the app detects the
-  refusal and explains it.
-- **The drive's name in Finder is right from the second unlock onward.** The
-  label is not knowable until the volume is open, which is after the share is
-  named.
-- **A crash with a fallback mount open produces the system's "server connections
-  interrupted" dialog.** The crash cannot be intercepted, only avoided by
-  unmounting first.
-- **Apple Silicon, macOS 15 or later, no Mac App Store.** Sandboxed apps cannot
-  read raw devices or elevate.
-- **TPM-sealed volumes and detached LUKS headers cannot be opened.**
+NTFS read/write dominates the cost either way.

@@ -407,6 +407,42 @@ that can be checked out and built. `--no-tag` skips it. Push with
 `git push origin main --follow-tags`.
 
 There is no changelog file. git records what changed for anyone working here,
-and each release will carry its own notes under `releases/<version>.md`, which
-`scripts/release.sh` turns into the Sparkle description and GitHub shows on the
-release page.
+and each release carries its own notes under `releases/<version>.md`, drafted
+from the commits by `scripts/release-notes.py`, written with the version by
+`bump-version.sh`, and turned into the Sparkle description and the GitHub
+release body by `scripts/release.sh`. The draft is a starting point: rewrite it
+for the person reading it, then again to take out what they gain nothing from.
+The release prints the result and asks somebody to read it before it builds.
+
+## What Is Not A Bug
+
+Properties of the design. Each has been decided, and arriving at one and
+"fixing" it undoes a decision rather than a mistake.
+
+- **Encryption nested inside encryption is not opened.** A logical volume that is
+  itself a LUKS container fails and the drive falls back to a single volume. It
+  should say so rather than look broken. Several containers on one disk are fine.
+- **The initialise dialog is only held back while Lukotta is running.** Claiming
+  the disk suppresses it, and a claim belongs to a running process.
+- **The volume appears as a network drive.** macOS offers no supported way to
+  mark an NFS mount local. Only replacing the transport changes it.
+- **Full Disk Access cannot be requested.** No API exists; the app detects the
+  refusal and explains it.
+- **The drive's name in Finder is right from the second unlock onward.** The
+  label is not knowable until the volume is open, which is after the share is
+  named.
+- **A crash with a fallback mount open produces the system's "server connections
+  interrupted" dialog.** The crash cannot be intercepted, only avoided by
+  unmounting first.
+- **Apple Silicon, macOS 15 or later, no Mac App Store.** Sandboxed apps cannot
+  read raw devices or elevate.
+- **TPM-sealed volumes and detached LUKS headers cannot be opened.**
+
+## What Has Never Run Against A Real Disk
+
+- **The plain-NTFS path.** The first-sector probe recognises three formats and
+  there is no unencrypted NTFS drive to hand, so the note saying a drive is not
+  encrypted, and opening one with no password, have never run against real
+  hardware. Identification is covered both ways by tests over synthetic boot
+  sectors, and anything unrecognised is left alone. A gap in the evidence rather
+  than a known fault: treat a report against one seriously.
