@@ -72,6 +72,7 @@ to which they apply.
 | Component | Licence | Date | Modification |
 | --- | --- | --- | --- |
 | anylinuxfs | GPL-3.0-or-later | 2026-08-22 | Recognition of the VMDK, VDI, VHD and VHDX disk-image formats |
+| anylinuxfs | GPL-3.0-or-later | 2026-08-25 | Separation of the image, the configuration and the logs into a directory the caller names, leaving mount points where they were |
 | vmproxy | GPL-3.0-or-later | 2026-08-22 | Unlocking of an encrypted volume detected inside a disk image |
 | imago | MIT | 2026-08-22 | Drivers for VDI, VHD and VHDX, the first two written as well as read; support for the sparse and stream-optimized forms of VMDK |
 | krun-devices | Apache-2.0 | 2026-08-22 | Selection of the VDI, VHD and VHDX drivers by disk-format number |
