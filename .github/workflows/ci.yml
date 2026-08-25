@@ -97,20 +97,26 @@ jobs:
           brew install gitleaks
           gitleaks detect --redact --no-banner --config .gitleaks.toml
 
-      # One identity in the history, checked over all of it rather than the
-      # tip: a second author reaches this repository through a clone with no
-      # hooks installed, or a --no-verify, and taking one back out costs a
-      # rewrite of everything after it.
-      - name: One author, anywhere in the history
+      # People may co-author a commit here; tools may not. Checked over the
+      # whole history rather than the tip, because a trailer reaches this
+      # repository through a clone with no hooks installed or a --no-verify,
+      # and taking one back out costs a rewrite of everything after it. The
+      # same list as .githooks/commit-msg, and the same caveat: add to it
+      # rather than trying to guess at what an author is.
+      - name: No tool credited as an author, anywhere in the history
         run: |
+          tools='anthropic\.com|openai\.com|claude|chatgpt|\bgpt-|copilot|codex'
+          tools="$tools"'|cursor|devin|windsurf|\baider\b|google-labs-jules'
+          tools="$tools"'|gemini|noreply@github\.com'
           found="$(git log --all --format='%H %(trailers:only,unfold)' \
-            | grep -iE 'co-authored-by:|signed-off-by:' || true)"
+            | grep -iE 'co-authored-by:|signed-off-by:|on-behalf-of:' \
+            | grep -iE "$tools" || true)"
           if [ -n "$found" ]; then
-            echo "These commits name a second author:"
+            echo "These commits credit a tool as an author:"
             echo "$found"
             exit 1
           fi
-          echo "  every commit carries one identity"
+          echo "  no commit credits a tool"
 
       - name: Lint, and whether the checks are keeping up
         run: |

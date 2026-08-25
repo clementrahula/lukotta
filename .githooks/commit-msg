@@ -1,27 +1,34 @@
 #!/bin/bash
-# Refuse a commit message that credits anybody but the author.
+# Refuse a commit message that credits the tool that wrote the diff.
 #
-# Every commit here is authored and committed by one person, and the message
-# says what was done and why. It does not carry a second identity: no
-# Co-Authored-By, no Signed-off-by naming a tool, no address belonging to
-# whatever wrote the diff. Tools are named in the README, once, where a reader
-# looking for that answer will find it -- not stamped onto three hundred
-# commits where it becomes an identity in the history and a name on somebody
-# else's fork.
+# Co-authorship itself is fine, and will matter: a project with more than one
+# maintainer has commits belonging to more than one person, and a
+# Co-Authored-By naming one of them is the record of that. What does not belong
+# in the history is a tool. An agent is not an author, its address is nobody's,
+# and stamped onto every commit it becomes an identity in the history and a name
+# on every fork of it. The README says what wrote this app, once, which is where
+# somebody looking for that answer goes.
 #
 # Taking one back out costs a rewrite of every commit after it and a force-push
-# over whatever anybody had already cloned. Refusing it costs nothing.
+# over whatever anybody had already cloned; three hundred and forty-one of them
+# once cost exactly that. Refusing them costs nothing.
+#
+# The list is names and addresses, and it is not clever: a tool not on it goes
+# through. Add to it rather than trying to guess at what an author is.
 set -uo pipefail
 message="$1"
 
-found="$(grep -inE '^(co-authored-by|signed-off-by):' "$message" || true)"
+TOOLS='anthropic\.com|openai\.com|claude|chatgpt|\bgpt-|copilot|codex|cursor|devin|windsurf|\baider\b|google-labs-jules|gemini|noreply@github\.com'
+
+found="$(grep -inE '^(co-authored-by|signed-off-by|on-behalf-of):' "$message" \
+  | grep -iE "$TOOLS" || true)"
 if [ -n "$found" ]; then
-  echo "This message names a second author:"
+  echo "This message credits a tool as an author:"
   echo ""
   echo "${found//$'\n'/$'\n'  }" | sed -e '1s/^/  /'
   echo ""
-  echo "Commits here carry one identity. Say what the change does; the README"
-  echo "says what wrote it."
+  echo "People can co-author a commit here; tools cannot. Say what the change"
+  echo "does; the README says what wrote it."
   echo ""
   echo "Nothing was committed."
   exit 1
