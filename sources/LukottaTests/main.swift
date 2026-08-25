@@ -9,6 +9,21 @@ import LukottaCore
 // would put them out of reach of anyone building from source, and of CI.
 var failures = 0, checks = 0, currentGroup = ""
 
+// A way to read the script a mount actually runs, for when it stops working
+// and no amount of reading the generator says why.
+if ProcessInfo.processInfo.environment["LUKOTTA_DUMP_MOUNT_SCRIPT"] != nil {
+    print(
+        MountScript.build(
+            MountScript.Inputs(
+                enginePath: "/opt/engine/anylinuxfs", devicePath: "/dev/disk4s1",
+                driveName: "BACKUP", kind: .linux, aliasPath: nil,
+                fifoPath: "/tmp/w/credential.fifo", logPath: "/tmp/w/mount.log",
+                discoverLogPath: "/tmp/w/discover.log", expectScriptPath: "/tmp/w/discover.exp",
+                configPath: "/tmp/h/config.toml", engineHome: "/tmp/h", libraryPaths: ["/tmp/lib"],
+                uid: 501, gid: 20, cores: 2, ramMiB: 1024, elevated: false, readOnly: false)))
+    exit(0)
+}
+
 // Top-level code is on the main actor, so the state these keep is too.
 @MainActor
 func group(_ name: String, _ body: @MainActor () -> Void) {

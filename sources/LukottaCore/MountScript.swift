@@ -356,6 +356,7 @@ public enum MountScript {
         // Whichever way the attempt ended, the deadline is no longer waiting on
         // it. Left running, it sits there for minutes and then kills nothing,
         // and the shell reports the signal as though the mount had failed.
+        lines.append("pkill -KILL -P \"$__watchdog\" 2>/dev/null || true")
         lines.append("kill -KILL \"$__watchdog\" 2>/dev/null || true")
         lines.append("exit $__rc")
         return lines.joined(separator: "\n")
@@ -414,7 +415,14 @@ public enum MountScript {
     /// It ignores TERM, because it is a child of `$$` too and would otherwise
     /// be the first thing its own sweep took down -- leaving nothing to follow
     /// up with KILL for an engine that did not answer the first signal. Which
-    /// is also why the attempt that finishes normally ends it with KILL.
+    /// is also why the attempt that finishes normally ends it with KILL, and
+    /// ends what it is sleeping in first: a `sleep` whose parent has been
+    /// killed goes on holding every pipe the script was given, and whoever is
+    /// reading the far end of one waits there until the sleep is over. That was
+    /// eight minutes of a spinner after a mount that had already worked.
+    ///
+    /// Its own output goes nowhere for the same reason: a background job that
+    /// holds the script's pipes keeps them open long after the script has gone.
     private static func watchdog(seconds: Int, logQ: String) -> String {
         return """
             (
@@ -424,7 +432,7 @@ public enum MountScript {
               pkill -TERM -P $$ 2>/dev/null
               sleep 10
               pkill -KILL -P $$ 2>/dev/null
-            ) &
+            ) >/dev/null 2>&1 &
             __watchdog=$!
             """
     }
