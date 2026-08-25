@@ -183,8 +183,17 @@ public enum BootSector {
     /// the app asks a passphrase for and then fails to open. So a failed read
     /// is retried for a short while, and what comes back is what it says: a
     /// sector, or nothing to be had.
+    /// - Parameters:
+    ///   - attempts: how many times to ask. Six seconds in all by default,
+    ///     rather than the two it was: hdiutil answers as soon as the disk
+    ///     exists, and on a Mac with work in front of it the node this reads is
+    ///     published a moment later. Two seconds was enough almost always,
+    ///     which is the worst kind of enough -- the run that missed it read
+    ///     nothing, asked a helper that was not installed, and settled on "not
+    ///     recognised" about an image it had opened a minute earlier.
+    ///   - gap: how long to wait between attempts.
     public static func readWaiting(
-        devicePath: String, attempts: Int = 8, gap: TimeInterval = 0.25
+        devicePath: String, attempts: Int = 20, gap: TimeInterval = 0.3
     ) -> Data? {
         for attempt in 1...max(1, attempts) {
             if let data = read(devicePath: devicePath) { return data }

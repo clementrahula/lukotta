@@ -1572,7 +1572,19 @@ final class AppModel: ObservableObject {
                 }.value
                 Log.drives.error(
                     "could not read the first sector: \(why, privacy: .public); asking the helper")
-                format = await self.helper.identify(devicePath: devicePath)
+                var answer = await self.helper.identify(devicePath: devicePath)
+                // No helper installed means no answer, not an answer of
+                // "unrecognised" -- and this device is one this app attached,
+                // so the only thing standing between it and a reading is time.
+                // Settling for unknown here sent somebody to type a passphrase
+                // for a drive nothing had read.
+                if answer == .unknown {
+                    let second = await Task.detached(priority: .userInitiated) {
+                        BootSector.readWaiting(devicePath: devicePath, attempts: 20, gap: 0.5)
+                    }.value
+                    if let second { answer = BootSector.identify(second) }
+                }
+                format = answer
             } else {
                 format = await self.helper.identify(devicePath: devicePath)
             }
