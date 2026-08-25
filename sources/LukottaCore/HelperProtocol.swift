@@ -17,6 +17,18 @@ public enum HelperInfo {
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
 
+    /// Where launchd keeps the job when the daemon was installed with an
+    /// administrator password. Only root can write here, so its presence is
+    /// what says the daemon is installed that way.
+    public static var installedJobPath: String {
+        "/Library/LaunchDaemons/\(plistName)"
+    }
+
+    /// And where the binary it runs is put.
+    public static var installedToolPath: String {
+        "/Library/PrivilegedHelperTools/\(machServiceName)"
+    }
+
     /// Whether a string is safe to paste into a code requirement.
     ///
     /// The identifier comes from a signed bundle, so changing it invalidates
@@ -95,6 +107,12 @@ public enum HelperInfo {
     func identify(devicePath: String, reply: @escaping (String) -> Void)
 
     func helperVersion(reply: @escaping (String) -> Void)
+
+    /// Take yourself off this Mac: unload the job, remove it, remove the
+    /// binary. Only the daemon can do this, because only root may write where
+    /// those live -- and asking for the password a second time to undo
+    /// something is the sort of thing that makes people leave it installed.
+    func removeYourself(reply: @escaping (Bool) -> Void)
 
     /// Add loopback addresses, so more than three drives can be open at once.
     ///

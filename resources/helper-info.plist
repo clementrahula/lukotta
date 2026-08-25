@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key><string>__BUNDLE_ID__.helper</string>
+  <key>CFBundleName</key><string>__HELPER_NAME__</string>
+  <key>CFBundleShortVersionString</key><string>__VERSION__</string>
+  <key>CFBundleVersion</key><string>__BUILD__</string>
+  <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <!-- Who may install this daemon. macOS checks it before blessing anything,
+       so a copy of the app signed by anybody else cannot put a root daemon on
+       somebody's Mac in this one's name. -->
+  <key>SMAuthorizedClients</key>
+  <array><string>__APP_REQUIREMENT__</string></array>
+</dict>
+</plist>

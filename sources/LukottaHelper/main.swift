@@ -292,6 +292,29 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         reply(format.rawValue)
     }
 
+    func removeYourself(reply: @escaping (Bool) -> Void) {
+        // Nothing is removed while a drive is open: the mounts are served by
+        // machines this daemon started, and taking it away underneath them
+        // leaves them with nothing to eject them.
+        guard !LukottaCore.mountTable().contains("nfs") else {
+            Log.helper.notice("not removing myself: drives are open")
+            return reply(false)
+        }
+        let job = HelperInfo.installedJobPath
+        let tool = HelperInfo.installedToolPath
+        Log.helper.notice("removing myself at the app's request")
+        // Unloaded first, or launchd starts it again on the next connection.
+        _ = LukottaCore.run("/bin/launchctl", ["bootout", "system/\(HelperInfo.machServiceName)"])
+        let manager = FileManager.default
+        let removed =
+            ((try? manager.removeItem(atPath: job)) != nil)
+            || !manager.fileExists(atPath: job)
+        try? manager.removeItem(atPath: tool)
+        reply(removed)
+        // The reply has to leave before the process does.
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1) { exit(0) }
+    }
+
     func unmount(mountPoint: String, reply: @escaping (Int32, String) -> Void) {
         let result = EngineStatus.unmount(mountPoint: mountPoint)
         Log.helper.notice("unmount succeeded: \(result.ok, privacy: .public)")

@@ -99,6 +99,11 @@ if ! git -C "$HERE" diff --quiet HEAD 2>/dev/null; then
   printf 'note: uncommitted changes — build %s is already taken by the last build\n' "$BUILD"
 fi
 
+# The team identifier, taken from the signing identity rather than written
+# down. SMJobBless checks a requirement in each direction -- the app says which
+# helper it will bless, the helper says which app may bless it -- and both name
+# the team. Nothing of the owner's is in the repository: this is read from
+# whatever identity is signing, so a fork pins to its own.
 SIGN_ID="${LUKOTTA_SIGN_ID:-$(security find-identity -v -p codesigning 2>/dev/null \
   | awk -F'"' '/Developer ID Application/ {print $2; exit}')}"
 [ -n "$SIGN_ID" ] || SIGN_ID="-"
@@ -160,15 +165,46 @@ fi
   | grep -q "@executable_path/../Frameworks" || {
     echo "error: the app binary cannot find Contents/Frameworks" >&2; exit 1; }
 
-# The privileged helper, registered with SMAppService so unlocking does not need
-# an administrator password every time.
-swift build -c release --product LukottaHelper
-cp "$(swift build -c release --product LukottaHelper --show-bin-path)/LukottaHelper" \
-   "$CONTENTS/MacOS/$HELPER_NAME"
-mkdir -p "$CONTENTS/Library/LaunchDaemons"
+# The privileged helper.
+#
+# Installed by SMJobBless, which asks for an administrator password once and
+# runs the daemon straight away. SMAppService -- the newer API -- instead needs
+# the person to find the app in Login Items and switch it on, which is a second
+# step in another application for something they have already agreed to. Both
+# routes are kept: this is the one that is tried.
+#
+# SMJobBless requires the helper to carry its own Info.plist and launchd job
+# inside the binary, and each side to name a code requirement the other must
+# satisfy. macOS checks both before it installs anything.
+TEAM_ID="$(printf '%s' "$SIGN_ID" | sed -n 's/.*(\([A-Z0-9]*\))$/\1/p')"
+HELPER_LABEL="$BUNDLE_ID.helper"
+APP_REQUIREMENT="anchor apple generic and identifier \"$BUNDLE_ID\" and certificate leaf[subject.OU] = \"$TEAM_ID\""
+HELPER_REQUIREMENT="anchor apple generic and identifier \"$HELPER_LABEL\" and certificate leaf[subject.OU] = \"$TEAM_ID\""
+
+HELPER_PLISTS="$(mktemp -d)"
+sed -e "s|__BUNDLE_ID__|$BUNDLE_ID|g" -e "s|__HELPER_NAME__|$HELPER_NAME|" \
+  -e "s|__VERSION__|$VERSION|" -e "s|__BUILD__|$BUILD|" \
+  -e "s|__APP_REQUIREMENT__|$APP_REQUIREMENT|" \
+  "$HERE/resources/helper-info.plist" > "$HELPER_PLISTS/info.plist"
+sed -e "s|__BUNDLE_ID__|$BUNDLE_ID|g" \
+  "$HERE/resources/helper-launchd.plist" > "$HELPER_PLISTS/launchd.plist"
+
+swift build -c release --product LukottaHelper \
+  -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __info_plist \
+  -Xlinker "$HELPER_PLISTS/info.plist" \
+  -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __launchd_plist \
+  -Xlinker "$HELPER_PLISTS/launchd.plist"
+
+# Where SMJobBless looks for it. The copy in Contents/MacOS goes on being what
+# SMAppService runs, so a Mac that took that route keeps working.
+mkdir -p "$CONTENTS/Library/LaunchServices" "$CONTENTS/Library/LaunchDaemons"
+HELPER_BUILT="$(swift build -c release --product LukottaHelper --show-bin-path)/LukottaHelper"
+cp "$HELPER_BUILT" "$CONTENTS/MacOS/$HELPER_NAME"
+cp "$HELPER_BUILT" "$CONTENTS/Library/LaunchServices/$HELPER_LABEL"
 sed -e "s|__BUNDLE_ID__|$BUNDLE_ID|g" -e "s|__HELPER_NAME__|$HELPER_NAME|" \
   "$HERE/resources/helper.plist" \
   > "$CONTENTS/Library/LaunchDaemons/$BUNDLE_ID.helper.plist"
+rm -rf "$HELPER_PLISTS"
 
 # Sparkle ships as a framework and must be embedded and signed inside the
 # bundle. Its XCFramework is resolved by SwiftPM; take the built slice.
@@ -183,7 +219,8 @@ fi
 # in the environment (or a local file). Without it the app still builds and
 # runs; it simply cannot verify an update, so it must not pretend it can.
 SPARKLE_KEY="${LUKOTTA_SPARKLE_PUBLIC_KEY:-$(cat "$HERE/.sparkle-public-key" 2>/dev/null || true)}"
-sed -e "s/__VERSION__/$VERSION/" -e "s/__BUILD__/$BUILD/" \
+sed -e "s|__HELPER_REQUIREMENT__|$HELPER_REQUIREMENT|" \
+  -e "s/__VERSION__/$VERSION/" -e "s/__BUILD__/$BUILD/" \
     -e "s|__SPARKLE_PUBLIC_KEY__|${SPARKLE_KEY}|" \
     -e "s|__APP_NAME__|$APP_NAME|" -e "s|__BUNDLE_ID__|$BUNDLE_ID|" \
     -e "s|__MIN_MACOS__|$MIN_MACOS|" -e "s|__FEED_URL__|$FEED_URL|" \
@@ -325,10 +362,18 @@ if [ -f "$CONTENTS/MacOS/$APP_NAME-app" ]; then
     || { echo "error: could not sign the app binary" >&2; exit 1; }
 fi
 
-# The helper is a separate executable and must be signed in its own right.
+# The helper is a separate executable and must be signed in its own right --
+# and, for the copy SMJobBless installs, under the identifier the app's
+# requirement names. codesign takes the identifier of a bare Mach-O from its
+# file name, which for that copy is already the label.
 if [ -f "$CONTENTS/MacOS/$HELPER_NAME" ]; then
   /usr/bin/codesign --force --options runtime --sign "$SIGN_ID" \
     "$CONTENTS/MacOS/$HELPER_NAME" >/dev/null 2>&1 || true
+fi
+if [ -f "$CONTENTS/Library/LaunchServices/$HELPER_LABEL" ]; then
+  /usr/bin/codesign --force --options runtime --identifier "$HELPER_LABEL" \
+    --sign "$SIGN_ID" "$CONTENTS/Library/LaunchServices/$HELPER_LABEL" >/dev/null 2>&1 \
+    || { echo "error: could not sign the privileged helper" >&2; exit 1; }
 fi
 
 printf 'Signing with: %s\n' "$SIGN_ID"

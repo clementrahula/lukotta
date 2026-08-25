@@ -284,7 +284,8 @@ struct PermissionsPanel: View {
         let title: String
         let detail: String
         let status: PermissionStatus
-        let action: (String, () -> Void)
+        /// Nothing to press while something is already happening.
+        let action: (String, () -> Void)?
     }
 
     private var removable: Step? {
@@ -304,6 +305,23 @@ struct PermissionsPanel: View {
         switch model.helper.state {
         case .ready:
             return nil
+        case .installing:
+            return Step(
+                title: appString("Administrator password"),
+                detail: appString(
+                    "Reading a raw disk and mounting a filesystem are actions only an administrator can do. \(Brand.name) never sees your password."
+                ),
+                status: .automatic(appString("Setting up…")),
+                action: nil)
+        case .failed(let why):
+            // What went wrong, and the button that tries the whole thing again
+            // rather than leaving somebody with a screen that says no and does
+            // nothing about it.
+            return Step(
+                title: appString("Administrator password"),
+                detail: why,
+                status: .needed,
+                action: (appString("Try Again"), { model.helper.install() }))
         case .awaitingApproval:
             return Step(
                 title: appString("Administrator password"),
@@ -370,7 +388,7 @@ struct PermissionRow: View {
     let title: String
     let detail: String
     let status: PermissionStatus
-    let action: (String, () -> Void)
+    let action: (String, () -> Void)?
 
     var body: some View {
         HStack(alignment: .top, spacing: 13) {
@@ -399,10 +417,16 @@ struct PermissionRow: View {
 
             // Fixed trailing column, so the buttons line up down the list
             // instead of sitting wherever the text happens to end.
-            Button(action.0, action: action.1)
-                .controlSize(.small)
-                .buttonStyle(.bordered)
-                .frame(width: 96, alignment: .trailing)
+            // The column stays whether or not there is a button in it, so the
+            // rows below do not shuffle sideways while one of them is working.
+            Group {
+                if let action {
+                    Button(action.0, action: action.1)
+                        .controlSize(.small)
+                        .buttonStyle(.bordered)
+                }
+            }
+            .frame(width: 96, alignment: .trailing)
         }
     }
 

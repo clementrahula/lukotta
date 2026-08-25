@@ -1420,11 +1420,25 @@
       "context": "Button on the administrator row. Registers the background helper so no password is needed again.",
       "placeholders": []
     },
+    "Setting up did not finish. You can try again.": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "Shown when installing the background helper did not work -- the password panel was closed, or the daemon would not start. Beside it is a Try Again button. Says plainly that it can be retried rather than leaving somebody stuck.",
+      "placeholders": []
+    },
     "Setting up the Linux environment": {
       "screens": [
         "working"
       ],
       "context": "Shown once, on first use, while the bundled Linux system is unpacked. Takes a while and has its own percentage.",
+      "placeholders": []
+    },
+    "Setting up…": {
+      "screens": [
+        "unlock"
+      ],
+      "context": "The state shown beside the administrator step while the password panel is up and the daemon is being installed. A fragment, with an ellipsis, as macOS writes progress.",
       "placeholders": []
     },
     "Settings": {

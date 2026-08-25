@@ -20,6 +20,14 @@
   <key>NSRemovableVolumesUsageDescription</key><string>__APP_NAME__ reads the encrypted drive directly in order to unlock it. It only reads the drive you choose, and it never sends anything anywhere.</string>
   <key>NSPrincipalClass</key><string>NSApplication</string>
   <key>NSHumanReadableCopyright</key><string>Copyright © 2026 Clement Rahula. Licensed under GPL-3.0-or-later.</string>
+  <!-- The one daemon this app may install, and what it must be. macOS checks
+       this before blessing anything, so nothing else can be put on a Mac as
+       root in this app's name. Filled in at build time from the identity that
+       signs the build. -->
+  <key>SMPrivilegedExecutables</key>
+  <dict>
+    <key>__BUNDLE_ID__.helper</key><string>__HELPER_REQUIREMENT__</string>
+  </dict>
   <key>SUFeedURL</key><string>__FEED_URL__</string>
   <key>SUPublicEDKey</key><string>__SPARKLE_PUBLIC_KEY__</string>
   <key>SUEnableInstallerLauncherService</key><false/>

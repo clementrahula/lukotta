@@ -3,6 +3,7 @@
 
 import Foundation
 import LukottaCore
+import Security
 import ServiceManagement
 
 /// Talks to the privileged helper, and installs it on request.
@@ -16,6 +17,8 @@ final class HelperClient: ObservableObject {
 
     enum State: Equatable {
         case notInstalled
+        /// The password has been asked for and the answer is not in yet.
+        case installing
         case awaitingApproval
         case ready
         case failed(String)
@@ -49,6 +52,13 @@ final class HelperClient: ObservableObject {
     }
 
     func refresh() {
+        // A daemon installed with an administrator password is a launchd job,
+        // not a service this app registered, so SMAppService says nothing about
+        // it. What says so is the job itself, in the place only root can write.
+        if FileManager.default.fileExists(atPath: HelperInfo.installedJobPath) {
+            state = .ready
+            return
+        }
         switch service.status {
         case .enabled: state = .ready
         case .requiresApproval: state = .awaitingApproval
@@ -131,6 +141,24 @@ final class HelperClient: ObservableObject {
         Log.app.notice("loopback addresses left: \(left ?? -1, privacy: .public)")
     }
 
+    /// Ask the daemon to take itself off the Mac.
+    ///
+    /// Waited for, because what follows is the app deleting itself: a reply
+    /// that arrives after the app has gone is a daemon still installed.
+    private func removeItself() {
+        guard FileManager.default.fileExists(atPath: HelperInfo.installedJobPath) else { return }
+        guard proxy() != nil, let connection else { return }
+        let box = ConnectionBox(connection)
+        let finished = DispatchSemaphore(value: 0)
+        Task.detached {
+            _ = await Self.roundTrip(box) { proxy, reply in
+                proxy.removeYourself { reply($0) }
+            }
+            finished.signal()
+        }
+        _ = finished.wait(timeout: .now() + 10)
+    }
+
     private func askVersion(_ done: @escaping @MainActor (String) -> Void) {
         guard proxy() != nil, let connection else { return done("") }
         // The same rule as everything else that talks to the helper: the reply
@@ -149,19 +177,122 @@ final class HelperClient: ObservableObject {
         }
     }
 
-    /// Register the daemon. macOS then asks the user to approve it in Login
-    /// Items; until they do, the status is requiresApproval.    /// Register the daemon. macOS then asks the user to approve it in Login
-    /// Items; until they do, the status is requiresApproval.
+    /// Install the daemon, asking for an administrator password once.
+    ///
+    /// Two routes exist and they ask for different things.
+    ///
+    /// `SMJobBless` takes an administrator password, checks that the app and
+    /// the helper each satisfy the code requirement the other names, installs
+    /// the daemon and starts it. One password, and nothing else to do. It is
+    /// what every application on a Mac with a privileged helper has done for
+    /// years, and it is deprecated.
+    ///
+    /// `SMAppService` is what replaced it. It needs no password -- and instead
+    /// leaves the daemon switched off until somebody finds the app in System
+    /// Settings and turns it on. That is a second step, in another application,
+    /// for something they have already agreed to.
+    ///
+    /// So the first is tried and the second is the fallback, which is also what
+    /// happens if a future macOS finally removes the older one.
     func install() {
-        do {
-            try service.register()
-            refresh()
-        } catch {
-            state = .failed(error.localizedDescription)
+        guard state != .installing else { return }
+        state = .installing
+        Task.detached(priority: .userInitiated) { [weak self] in
+            // The password panel is put up by the system on this thread, so it
+            // is not the one drawing the interface.
+            let blessed = HelperClient.blessWithAuthorisation()
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                if blessed {
+                    Log.app.notice("the helper was installed with an administrator password")
+                } else {
+                    // The other route needs no password. It leaves the daemon
+                    // switched off until somebody turns it on in Settings, and
+                    // that is what the screen then says.
+                    do { try self.service.register() } catch {
+                        Log.app.error("the helper could not be registered: \(error)")
+                    }
+                }
+                self.confirmItIsReallyThere()
+            }
+        }
+    }
+
+    /// Ask the daemon what it is, until it answers or it is plainly not coming.
+    ///
+    /// Installing is two things -- a job written down, and a process launchd
+    /// will start -- and the first can happen without the second. Believing the
+    /// file on disk meant the screen said the helper was set up while every
+    /// unlock went on asking for a password, with nothing anywhere admitting
+    /// the two disagreed.
+    private func confirmItIsReallyThere(attempts: Int = 12) {
+        askVersion { [weak self] version in
+            guard let self else { return }
+            if !version.isEmpty {
+                self.state = .ready
+                Log.app.notice("the helper answered; it is set up")
+                return
+            }
+            guard attempts > 1 else {
+                // Not there, and not coming. Whatever the reason -- a password
+                // panel somebody closed, a job that will not start -- the
+                // screen says so and the button asks again.
+                if self.service.status == .requiresApproval {
+                    self.state = .awaitingApproval
+                } else {
+                    self.state = .failed(
+                        appString("Setting up did not finish. You can try again."))
+                }
+                Log.app.error("the helper did not answer after being installed")
+                return
+            }
+            // launchd takes a moment to start a job it has just been given.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.confirmItIsReallyThere(attempts: attempts - 1)
+            }
+        }
+    }
+
+    /// The older route: authorise, then let macOS install and start the daemon.
+    ///
+    /// Returns false for anything that did not work, including somebody
+    /// cancelling the password panel -- the caller then offers the other route
+    /// rather than treating it as a failure.
+    private nonisolated static func blessWithAuthorisation() -> Bool {
+        var authorisation: AuthorizationRef?
+        guard AuthorizationCreate(nil, nil, [], &authorisation) == errAuthorizationSuccess,
+            let authorisation
+        else { return false }
+        defer { AuthorizationFree(authorisation, []) }
+
+        var right = kSMRightBlessPrivilegedHelper.withCString { name in
+            AuthorizationItem(name: name, valueLength: 0, value: nil, flags: 0)
+        }
+        return withUnsafeMutablePointer(to: &right) { item -> Bool in
+            var rights = AuthorizationRights(count: 1, items: item)
+            let flags: AuthorizationFlags = [.interactionAllowed, .preAuthorize, .extendRights]
+            guard
+                AuthorizationCopyRights(authorisation, &rights, nil, flags, nil)
+                    == errAuthorizationSuccess
+            else { return false }
+
+            var failure: Unmanaged<CFError>?
+            let blessed = SMJobBless(
+                kSMDomainSystemLaunchd, HelperInfo.machServiceName as CFString, authorisation,
+                &failure)
+            if !blessed, let failure {
+                let error = failure.takeRetainedValue()
+                Log.app.error("the helper could not be installed: \(error, privacy: .public)")
+            }
+            return blessed
         }
     }
 
     func remove() {
+        // Whichever way it was installed. The daemon takes itself away when it
+        // is the one launchd loaded from /Library, since removing that needs
+        // root and it already has it; unregistering covers the other route.
+        removeItself()
         try? service.unregister()
         connection?.invalidate()
         connection = nil
