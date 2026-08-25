@@ -772,7 +772,7 @@
                 if model.mountedReadOnly {
                     print("      reason: \(model.readOnlyReason ?? "none given")")
                     print("      asked read-only: \(model.mountingReadOnly)")
-                    for line in model.statusLines.suffix(6) { print("      \(line)") }
+                    for line in model.statusLines.suffix(25) { print("      \(line)") }
                 }
                 check(
                     !mountTableSaysReadOnly(mountPoint),

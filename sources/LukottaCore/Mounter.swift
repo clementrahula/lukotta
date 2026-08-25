@@ -40,6 +40,18 @@ public enum Mounter {
         else {
             throw EngineError.missingEngine
         }
+        // Whatever this app left running that serves nothing, taken down before
+        // another machine is started -- and waited for, which is the whole
+        // point: an eject returns as soon as the volume leaves the mount table,
+        // while the machine that was serving it keeps the image file for
+        // another half-minute. Opening the same file again inside that window
+        // is the most ordinary thing there is, and it met either a locked file
+        // or a machine that mounted it read-only because read-write was refused
+        // -- which nothing said, until the first save.
+        //
+        // Nothing that is serving a drive is touched: one engine mount in the
+        // table, anybody's, and this does nothing at all.
+        _ = EngineProcesses.tidyWhatServesNothing()
         try EngineEnvironment.prepare(progress: progress)
         // The engine writes three logs per mount into ~/Library/Logs and never
         // takes them back. Which ones it wrote is knowable only by looking

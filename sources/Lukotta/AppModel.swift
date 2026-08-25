@@ -2039,19 +2039,6 @@ final class AppModel: ObservableObject {
         failedStage = nil
         activeCredential = credential
 
-        // Whatever this app left running that serves nothing, before another
-        // machine is started.
-        //
-        // An eject returns as soon as the volume is out of the mount table; the
-        // machine that was serving it takes another half-minute to shut down,
-        // and it holds the image file until it has. Opening the same file again
-        // in that window is the most ordinary thing there is -- eject, think
-        // better of it, open again -- and it met a locked file, or a mount that
-        // sat there for minutes waiting for one machine to let go while another
-        // was starting. This is the same sweep the app does after a failure,
-        // and it takes down nothing that is serving a drive.
-        Task.detached(priority: .userInitiated) { _ = EngineProcesses.tidyWhatServesNothing() }
-
         let ws: Workspace
         do {
             ws = try Workspace()
