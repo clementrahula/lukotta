@@ -233,6 +233,19 @@ starts, archives it with `ditto`, signs the archive with the Sparkle key,
 collects the corresponding source the GPL requires, and describes the whole lot
 in the appcast.
 
+### What each file should be
+
+Every file a release uploads is digested, and the digests go up with them:
+`SHA256SUMS.txt` as an attachment, and the same lines in the release page's own
+text. Sparkle checks its download against a signature and nobody sees that
+happen; this is for the person who takes the disk image from a page in a
+browser, or the source archive because the licence entitles them to it. In the
+format `shasum` reads back, so checking is one command:
+
+```bash
+shasum -a 256 -c SHA256SUMS.txt
+```
+
 ### The notes
 
 Nothing about a release is written by hand at release time. The notes for a

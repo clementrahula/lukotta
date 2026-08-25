@@ -294,18 +294,6 @@ grep -q "<li>" "$NOTES_FILE" || {
   exit 1
 }
 
-# What the release page carries: the same notes, then where the source is. The
-# page said only the second of those, so a reader arriving at a release from
-# outside the app was told what the licence requires and nothing about the
-# version they were looking at.
-RELEASE_BODY="$HERE/dist/$SLUG-$VERSION-body.md"
-{
-  cat "$NOTES_SOURCE"
-  printf '\n'
-  printf 'Complete corresponding source for the GPL components is attached as %s.\n' \
-    "$(basename "$SOURCES_ZIP")"
-} > "$RELEASE_BODY"
-
 printf '==> Updates from earlier versions\n'
 # Sparkle can send somebody on an earlier build only what changed, which for
 # this app is a fraction of ninety megabytes. It needs the earlier build to
@@ -372,6 +360,44 @@ fi
   || { echo "error: the disk image does not verify" >&2; exit 1; }
 printf '    %s\n' "$(du -h "$DMG" | awk '{print $1}')"
 
+printf '==> What each file should be\n'
+# A digest of everything that goes up, published beside it.
+#
+# Sparkle checks its own download against a signature and nobody sees that
+# happen. This is for the person who downloads the disk image from a page in a
+# browser, or the source archive because the licence entitles them to it, and
+# wants to know that what arrived is what left here. Written in the format
+# shasum reads back, so checking is one command and not an eyeball comparison:
+#
+#     shasum -a 256 -c SHA256SUMS.txt
+SUMS="$HERE/dist/SHA256SUMS.txt"
+(
+  cd "$HERE/dist" || exit 1
+  # Names only, so the file works wherever the downloads were put.
+  # shellcheck disable=SC2046
+  /usr/bin/shasum -a 256 "$(basename "$ZIP")" "$(basename "$DMG")" \
+    "$(basename "$SOURCES_ZIP")" \
+    $(for d in ${DELTA_FILES[@]+"${DELTA_FILES[@]}"}; do basename "$d"; done)
+) > "$SUMS"
+sed 's/^/    /' "$SUMS"
+
+# What the release page carries: the notes, where the source is, and what each
+# file should be. The page said only the second of those, so a reader arriving
+# at a release from outside the app was told what the licence requires and
+# nothing about the version they were looking at.
+RELEASE_BODY="$HERE/dist/$SLUG-$VERSION-body.md"
+{
+  cat "$NOTES_SOURCE"
+  printf '\n'
+  printf 'Complete corresponding source for the GPL components is attached as %s.\n' \
+    "$(basename "$SOURCES_ZIP")"
+  # shellcheck disable=SC2016  # backticks are markdown here, not a command
+  printf '\n**SHA-256**, also attached as `SHA256SUMS.txt` for `shasum -a 256 -c`:\n\n'
+  printf '```\n'
+  cat "$SUMS"
+  printf '```\n'
+} > "$RELEASE_BODY"
+
 printf '==> Describing it in the appcast\n'
 mkdir -p "$(dirname "$APPCAST")"
 python3 "$HERE/scripts/appcast.py" \
@@ -393,11 +419,11 @@ if [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
   # that answered 404 — Sparkle recovers by downloading the whole archive, but
   # the appcast was wrong and the saving was lost.
   if gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
-    gh release upload "$TAG" "$ZIP" "$DMG" "$SOURCES_ZIP" \
+    gh release upload "$TAG" "$ZIP" "$DMG" "$SOURCES_ZIP" "$SUMS" \
       ${DELTA_FILES[@]+"${DELTA_FILES[@]}"} --repo "$REPO" --clobber
     gh release edit "$TAG" --repo "$REPO" --notes-file "$RELEASE_BODY"
   else
-    gh release create "$TAG" "$ZIP" "$DMG" "$SOURCES_ZIP" \
+    gh release create "$TAG" "$ZIP" "$DMG" "$SOURCES_ZIP" "$SUMS" \
       ${DELTA_FILES[@]+"${DELTA_FILES[@]}"} --repo "$REPO" \
       ${PRERELEASE[@]+"${PRERELEASE[@]}"} \
       --title "$APP_NAME $VERSION" \
