@@ -96,7 +96,6 @@
     "A macOS system volume.": "macOS 系统宗卷。",
     "About %@": "关于 %@",
     "About & Help": "关于与帮助",
-    "About ten drives can stay unlocked at once": "大约可同时保持十个驱动器处于解锁状态",
     "Administrator password": "管理员密码",
     "Administrator password: asked for once when the background helper is set up, then not again. %@ never sees it": "管理员密码：设置后台助手时询问一次，此后不再询问。%@ 从不会看到它",
     "All Drives": "全部驱动器",

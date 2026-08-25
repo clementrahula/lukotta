@@ -96,7 +96,6 @@
     "A macOS system volume.": "macOS のシステムボリュームです。",
     "About %@": "%@ について",
     "About & Help": "情報とヘルプ",
-    "About ten drives can stay unlocked at once": "同時にロック解除しておけるドライブは 10 台ほどです",
     "Administrator password": "管理者パスワード",
     "Administrator password: asked for once when the background helper is set up, then not again. %@ never sees it": "管理者パスワード：バックグラウンドヘルパーを設定するときに一度だけ求められ、その後は求められません。%@ がそれを見ることはありません",
     "All Drives": "すべてのドライブ",

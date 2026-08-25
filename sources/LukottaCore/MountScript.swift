@@ -278,7 +278,7 @@ public enum MountScript {
             // time proving it twice.
             let slipped = """
                 __slipped() {
-                  grep -qiE 'broken pipe|os error 32|failed to write to pipe|connection reset|start vm error' \
+                  grep -qiE 'broken pipe|os error 32|failed to write to pipe|connection reset|start vm error|failed to acquire lock|already locked|device or resource busy' \
                     \(logQ) 2>/dev/null
                 }
                 """

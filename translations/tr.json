@@ -104,7 +104,6 @@
     "A macOS system volume.": "Bir macOS sistem birimi.",
     "About %@": "%@ Hakkında",
     "About & Help": "Hakkında ve Yardım",
-    "About ten drives can stay unlocked at once": "Aynı anda yaklaşık on sürücünün kilidi açık kalabilir",
     "Administrator password": "Yönetici parolası",
     "Administrator password: asked for once when the background helper is set up, then not again. %@ never sees it": "Yönetici parolası: arka plan yardımcısı kurulurken bir kez istenir, sonra bir daha istenmez. %@ onu hiçbir zaman görmez",
     "All Drives": "Tüm Sürücüler",

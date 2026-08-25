@@ -104,7 +104,6 @@
     "A macOS system volume.": "macOS-järjestelmän taltio.",
     "About %@": "Tietoja: %@",
     "About & Help": "Tietoja ja ohjeet",
-    "About ten drives can stay unlocked at once": "Noin kymmenen aseman lukitus voi olla avattuna yhtä aikaa",
     "Administrator password": "Pääkäyttäjän salasana",
     "Administrator password: asked for once when the background helper is set up, then not again. %@ never sees it": "Pääkäyttäjän salasana: kysytään kerran, kun taustapalvelu asennetaan, eikä sen jälkeen enää. %@ ei näe sitä koskaan",
     "All Drives": "Kaikki asemat",

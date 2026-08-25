@@ -104,7 +104,6 @@
     "A macOS system volume.": "En macOS-systemdiskenhed.",
     "About %@": "Om %@",
     "About & Help": "Om og hjælp",
-    "About ten drives can stay unlocked at once": "Omkring ti enheder kan være låst op samtidig",
     "Administrator password": "Administratoradgangskode",
     "Administrator password: asked for once when the background helper is set up, then not again. %@ never sees it": "Administratoradgangskode: spørges om én gang, når baggrundshjælperen sættes op, og derefter ikke igen. %@ ser den aldrig",
     "All Drives": "Alle enheder",

@@ -2218,7 +2218,14 @@ final class AppModel: ObservableObject {
             .options.contains("read-only") ?? false
         mountedReadOnly = mountingReadOnly || fellBack || systemSaysReadOnly
         if fellBack {
-            readOnlyReason = Self.reasonForFallback(transcript, statusLines)
+            // A reason, always. The rules name what they recognise; where none
+            // of them does, the drive still opened read-only and the person
+            // still has to be told, or they find out at their first save.
+            readOnlyReason =
+                Self.reasonForFallback(transcript, statusLines)
+                ?? appString(
+                    "This drive opened read-only: its filesystem would not accept writes. It may need repairing on the system it belongs to."
+                )
         } else if systemSaysReadOnly, !mountingReadOnly {
             readOnlyReason =
                 Self.reasonForFallback(transcript, statusLines)

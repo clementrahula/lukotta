@@ -104,7 +104,6 @@
     "A macOS system volume.": "Un volumen del sistema macOS.",
     "About %@": "Acerca de %@",
     "About & Help": "Acerca de y ayuda",
-    "About ten drives can stay unlocked at once": "Puede haber unos diez discos desbloqueados a la vez",
     "Administrator password": "Contraseña de administrador",
     "Administrator password: asked for once when the background helper is set up, then not again. %@ never sees it": "Contraseña de administrador: se pide una vez, al instalar el ayudante en segundo plano, y no vuelve a pedirse. %@ nunca la ve",
     "All Drives": "Todos los discos",

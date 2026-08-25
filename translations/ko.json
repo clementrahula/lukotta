@@ -96,7 +96,6 @@
     "A macOS system volume.": "macOS 시스템 볼륨입니다.",
     "About %@": "%@ 정보",
     "About & Help": "정보 및 도움말",
-    "About ten drives can stay unlocked at once": "동시에 약 열 개의 드라이브를 잠금 해제 상태로 둘 수 있습니다",
     "Administrator password": "관리자 암호",
     "Administrator password: asked for once when the background helper is set up, then not again. %@ never sees it": "관리자 암호: 백그라운드 도우미를 설정할 때 한 번만 묻고 이후에는 묻지 않습니다. %@은(는) 이를 절대 보지 않습니다",
     "All Drives": "모든 드라이브",

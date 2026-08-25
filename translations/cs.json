@@ -120,7 +120,6 @@
     "A macOS system volume.": "Systémový svazek macOS.",
     "About %@": "O aplikaci %@",
     "About & Help": "Informace a nápověda",
-    "About ten drives can stay unlocked at once": "Odemčených současně může zůstat asi deset disků",
     "Administrator password": "Heslo správce",
     "Administrator password: asked for once when the background helper is set up, then not again. %@ never sees it": "Heslo správce: zeptá se jednou, když se nastavuje pomocník na pozadí, a pak už ne. %@ ho nikdy nevidí",
     "All Drives": "Všechny disky",

@@ -274,13 +274,6 @@
       "context": "The name of that menu item's group.",
       "placeholders": []
     },
-    "About ten drives can stay unlocked at once": {
-      "screens": [
-        "help"
-      ],
-      "context": "A bullet in the help sheet's list of requirements. A fragment: no full stop.",
-      "placeholders": []
-    },
     "Administrator password": {
       "screens": [
         "unlock"

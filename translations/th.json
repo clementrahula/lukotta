@@ -96,7 +96,6 @@
     "A macOS system volume.": "โวลุ่มระบบของ macOS",
     "About %@": "เกี่ยวกับ %@",
     "About & Help": "เกี่ยวกับและวิธีใช้",
-    "About ten drives can stay unlocked at once": "เปิดค้างไว้พร้อมกันได้ราวสิบไดรฟ์",
     "Administrator password": "รหัสผ่านผู้ดูแลระบบ",
     "Administrator password: asked for once when the background helper is set up, then not again. %@ never sees it": "รหัสผ่านผู้ดูแลระบบ: ถามครั้งเดียวตอนตั้งค่าตัวช่วยเบื้องหลัง หลังจากนั้นไม่ถามอีก %@ ไม่เคยเห็นรหัสผ่านนั้น",
     "All Drives": "ไดรฟ์ทั้งหมด",
