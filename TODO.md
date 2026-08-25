@@ -11,9 +11,10 @@ hardware only you have.
   first-sector probe recognises one before a password is typed, and one unlock
   of a physical drive through the helper. Both need a drive at your keyboard;
   everything reachable with images is already covered end to end.
-- [ ] **[you] Screenshots** — the drive list, an unlock, a drive open with
-  several volumes, in both appearances. The README, the site and every listing
-  in Stage 2 want them.
+- [ ] **Pictures of the unlock screen.** `./scripts/screenshots.sh` draws the
+  drive list in every language and both appearances; the unlock sheet and the
+  screen shown while a drive is opening are not among them, and the site wants
+  all three.
 
 ## Stage 3 — larger bets
 
