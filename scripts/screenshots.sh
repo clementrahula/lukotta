@@ -13,6 +13,10 @@
 #
 #   ./scripts/screenshots.sh [output-directory]
 #
+# They are kept in the repository, under assets/screenshots, because the README
+# and the site point at them and because a picture nobody can redraw is one
+# nobody dares change.
+#
 # The app must carry the harnesses, which the released build does not:
 #
 #   LUKOTTA_DEVTOOLS=1 LUKOTTA_BRANDING=official LUKOTTA_INSTALL=0 ./build-app.sh
@@ -20,7 +24,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$HERE"
 
-OUT="${1:-$HERE/dist/screenshots}"
+OUT="${1:-$HERE/assets/screenshots}"
 APP="${LUKOTTA_SCREENSHOT_APP:-$HERE/dist/Lukotta.app}"
 [ -d "$APP" ] || { echo "error: no app at $APP" >&2; exit 1; }
 BINARY="$APP/Contents/MacOS/$(basename "$APP" .app)"
