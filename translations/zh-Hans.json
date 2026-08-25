@@ -260,6 +260,7 @@
     "The background helper is not set up, so %@ is holding them open itself. Quitting now disconnects them, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": "后台助手尚未设置，因此是 %@ 自己在保持它们打开。此时退出会断开它们，正在写入的内容也无法完成。\n\n设置好助手后，驱动器会自行保持打开。",
     "The background helper will be unregistered.": "后台助手的注册将被取消。",
     "The drive appears in the Finder sidebar under Locations.\nEject it in Finder before unplugging it.": "该驱动器会出现在“访达”边栏的“位置”下。\n拔下之前请在“访达”中推出它。",
+    "The drive could not be opened.": "无法打开驱动器。",
     "The drive did not finish ejecting. It may still be in use, so try again or eject it in Finder.": "驱动器未能完成推出。它可能仍在使用中，请重试或在“访达”中推出。",
     "The drive is busy. Close anything using it, then try again.": "驱动器正忙。请关闭正在使用它的程序，然后重试。",
     "The drive is handed to Finder over a local network connection, so it appears under Locations with a network icon. It reads, writes and ejects like any other drive. macOS offers no way to present it as a local disk.": "驱动器通过本地网络连接交给“访达”，因此会出现在“位置”下并带有网络图标。它像其他驱动器一样可读、可写、可推出。macOS 没有提供把它显示为本地磁盘的方式。",

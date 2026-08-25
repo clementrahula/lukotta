@@ -260,6 +260,7 @@
     "The background helper is not set up, so %@ is holding them open itself. Quitting now disconnects them, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": "Trình trợ giúp nền chưa được thiết lập, nên chính %@ đang giữ chúng mở. Thoát lúc này sẽ ngắt chúng, và những gì đang được ghi sẽ không hoàn tất.\n\nSau khi trình trợ giúp được thiết lập, các ổ đĩa tự giữ trạng thái mở.",
     "The background helper will be unregistered.": "Trình trợ giúp nền sẽ được hủy đăng ký.",
     "The drive appears in the Finder sidebar under Locations.\nEject it in Finder before unplugging it.": "Ổ đĩa xuất hiện ở thanh bên của Finder, dưới mục Vị trí.\nHãy tháo nó trong Finder trước khi rút ra.",
+    "The drive could not be opened.": "Không thể mở ổ đĩa.",
     "The drive did not finish ejecting. It may still be in use, so try again or eject it in Finder.": "Ổ đĩa chưa tháo xong. Có thể nó vẫn đang được dùng, hãy thử lại hoặc tháo trong Finder.",
     "The drive is busy. Close anything using it, then try again.": "Ổ đĩa đang bận. Hãy đóng những gì đang dùng nó rồi thử lại.",
     "The drive is handed to Finder over a local network connection, so it appears under Locations with a network icon. It reads, writes and ejects like any other drive. macOS offers no way to present it as a local disk.": "Ổ đĩa được giao cho Finder qua một kết nối mạng cục bộ, nên nó xuất hiện dưới mục Vị trí với biểu tượng mạng. Nó đọc, ghi và tháo như mọi ổ đĩa khác. macOS không có cách nào để trình bày nó như một đĩa cục bộ.",

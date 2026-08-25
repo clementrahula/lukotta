@@ -2273,7 +2273,7 @@ final class AppModel: ObservableObject {
                 }
             } catch let err as EngineError {
                 await MainActor.run {
-                    let summary = err.errorDescription ?? "The drive could not be opened."
+                    let summary = err.errorDescription ?? appString("The drive could not be opened.")
                     guard
                         !self.retriedAfterASlip(
                             drive: drive, credential: credential, summary: summary,
@@ -2283,7 +2283,7 @@ final class AppModel: ObservableObject {
                 }
             } catch {
                 await MainActor.run {
-                    self.fail(drive, "The drive could not be opened.", "\(error)")
+                    self.fail(drive, appString("The drive could not be opened."), "\(error)")
                 }
             }
         }
@@ -2316,13 +2316,13 @@ final class AppModel: ObservableObject {
                     } else {
                         self.fail(
                             drive,
-                            err.errorDescription ?? "The drive could not be opened.",
+                            err.errorDescription ?? appString("The drive could not be opened."),
                             err.detail)
                     }
                 }
             } catch {
                 await MainActor.run {
-                    self.fail(drive, "The drive could not be opened.", "\(error)")
+                    self.fail(drive, appString("The drive could not be opened."), "\(error)")
                 }
             }
         }
@@ -2362,7 +2362,7 @@ final class AppModel: ObservableObject {
                     // The failure screen carries the engine's own words, which
                     // is more than a screen naming the wrong setting would.
                     self.fail(
-                        drive, err.errorDescription ?? "The drive could not be opened.",
+                        drive, err.errorDescription ?? appString("The drive could not be opened."),
                         err.detail)
                 }
             }

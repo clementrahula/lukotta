@@ -260,6 +260,7 @@
     "The background helper is not set up, so %@ is holding them open itself. Quitting now disconnects them, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": "バックグラウンドヘルパーが未設定のため、%@ 自身がそれらを開いたままにしています。いま終了すると切断され、書き込み中のものは完了しません。\n\nヘルパーを設定すれば、ドライブはそれ自体で開いたままになります。",
     "The background helper will be unregistered.": "バックグラウンドヘルパーの登録が解除されます。",
     "The drive appears in the Finder sidebar under Locations.\nEject it in Finder before unplugging it.": "ドライブは Finder のサイドバーの「場所」に表示されます。\n取り外す前に Finder で取り出してください。",
+    "The drive could not be opened.": "ドライブを開けませんでした。",
     "The drive did not finish ejecting. It may still be in use, so try again or eject it in Finder.": "ドライブの取り出しが完了しませんでした。まだ使用中の可能性があります。もう一度試すか、Finder で取り出してください。",
     "The drive is busy. Close anything using it, then try again.": "ドライブが使用中です。使っているものを閉じてから、もう一度試してください。",
     "The drive is handed to Finder over a local network connection, so it appears under Locations with a network icon. It reads, writes and ejects like any other drive. macOS offers no way to present it as a local disk.": "ドライブはローカルのネットワーク接続で Finder に引き渡されるため、「場所」にネットワークアイコン付きで表示されます。ほかのドライブと同じように読み書きと取り出しができます。macOS には、これをローカルディスクとして見せる方法がありません。",

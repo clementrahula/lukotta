@@ -276,6 +276,7 @@
     "The background helper is not set up, so %@ is holding them open itself. Quitting now disconnects them, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": "עוזר הרקע אינו מוגדר, ולכן %@ עצמו מחזיק אותם פתוחים. יציאה עכשיו תנתק אותם, וכל מה שעדיין נכתב לא יסתיים.\n\nלאחר שעוזר הרקע מוגדר, הכוננים נשארים פתוחים מעצמם.",
     "The background helper will be unregistered.": "רישום עוזר הרקע יבוטל.",
     "The drive appears in the Finder sidebar under Locations.\nEject it in Finder before unplugging it.": "הכונן מופיע בסרגל הצד של Finder תחת מיקומים.\nהוציאו אותו ב‑Finder לפני הניתוק.",
+    "The drive could not be opened.": "לא ניתן היה לפתוח את הכונן.",
     "The drive did not finish ejecting. It may still be in use, so try again or eject it in Finder.": "הכונן לא סיים להיפלט. ייתכן שהוא עדיין בשימוש, אז נסו שוב או הוציאו אותו ב‑Finder.",
     "The drive is busy. Close anything using it, then try again.": "הכונן תפוס. סגרו כל דבר שמשתמש בו ונסו שוב.",
     "The drive is handed to Finder over a local network connection, so it appears under Locations with a network icon. It reads, writes and ejects like any other drive. macOS offers no way to present it as a local disk.": "הכונן נמסר ל‑Finder דרך חיבור רשת מקומי, ולכן הוא מופיע תחת מיקומים עם סמל רשת. אפשר לקרוא, לכתוב ולהוציא אותו כמו כל כונן אחר. ל‑macOS אין דרך להציג אותו כדיסק מקומי.",

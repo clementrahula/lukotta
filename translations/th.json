@@ -260,6 +260,7 @@
     "The background helper is not set up, so %@ is holding them open itself. Quitting now disconnects them, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": "ยังไม่ได้ตั้งค่าตัวช่วยเบื้องหลัง %@ จึงถือไดรฟ์เหล่านั้นให้เปิดอยู่ด้วยตัวเอง การออกตอนนี้จะตัดการเชื่อมต่อ และสิ่งที่กำลังเขียนอยู่จะไม่เสร็จ\n\nเมื่อตั้งค่าตัวช่วยแล้ว ไดรฟ์จะเปิดค้างอยู่ได้เอง",
     "The background helper will be unregistered.": "การลงทะเบียนตัวช่วยเบื้องหลังจะถูกยกเลิก",
     "The drive appears in the Finder sidebar under Locations.\nEject it in Finder before unplugging it.": "ไดรฟ์จะปรากฏในแถบข้างของ Finder ใต้หัวข้อตำแหน่ง\nดันออกใน Finder ก่อนถอดสาย",
+    "The drive could not be opened.": "เปิดไดรฟ์ไม่ได้",
     "The drive did not finish ejecting. It may still be in use, so try again or eject it in Finder.": "ดันไดรฟ์ออกไม่สำเร็จ อาจยังมีการใช้งานอยู่ ลองใหม่อีกครั้งหรือดันออกใน Finder",
     "The drive is busy. Close anything using it, then try again.": "ไดรฟ์กำลังถูกใช้งาน ปิดสิ่งที่ใช้งานอยู่แล้วลองใหม่",
     "The drive is handed to Finder over a local network connection, so it appears under Locations with a network icon. It reads, writes and ejects like any other drive. macOS offers no way to present it as a local disk.": "ไดรฟ์ถูกส่งให้ Finder ผ่านการเชื่อมต่อเครือข่ายภายในเครื่อง จึงปรากฏใต้หัวข้อตำแหน่ง พร้อมไอคอนเครือข่าย อ่าน เขียน และดันออกได้เหมือนไดรฟ์อื่น macOS ไม่มีวิธีให้แสดงมันเป็นดิสก์ภายในเครื่อง",

@@ -300,6 +300,7 @@
     "The background helper is not set up, so %@ is holding them open itself. Quitting now disconnects them, and anything still being written would not finish.\n\nOnce the helper is set up, drives stay open on their own.": "لم يُعد المساعد في الخلفية بعد، لذا فإن %@ نفسه هو من يُبقيها مفتوحة. الإنهاء الآن يفصلها، ولن يكتمل ما يجري كتابته.\n\nوبعد إعداد المساعد تبقى محركات الأقراص مفتوحة من تلقاء نفسها.",
     "The background helper will be unregistered.": "سيُلغى تسجيل المساعد في الخلفية.",
     "The drive appears in the Finder sidebar under Locations.\nEject it in Finder before unplugging it.": "يظهر محرك الأقراص في الشريط الجانبي للباحث ضمن المواقع.\nأخرجه في الباحث قبل فصله.",
+    "The drive could not be opened.": "تعذّر فتح محرك الأقراص.",
     "The drive did not finish ejecting. It may still be in use, so try again or eject it in Finder.": "لم يكتمل إخراج محرك الأقراص. قد يكون لا يزال قيد الاستخدام، فحاول مرة أخرى أو أخرجه في الباحث.",
     "The drive is busy. Close anything using it, then try again.": "محرك الأقراص مشغول. أغلق كل ما يستخدمه، ثم حاول مرة أخرى.",
     "The drive is handed to Finder over a local network connection, so it appears under Locations with a network icon. It reads, writes and ejects like any other drive. macOS offers no way to present it as a local disk.": "يُسلَّم محرك الأقراص إلى الباحث عبر اتصال شبكة محلي، لذا يظهر ضمن المواقع بأيقونة شبكة. ويُقرأ ويُكتب ويُخرج كأي محرك أقراص آخر. ولا يتيح macOS أي طريقة لعرضه كقرص محلي.",

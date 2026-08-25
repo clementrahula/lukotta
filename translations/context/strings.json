@@ -1633,6 +1633,13 @@
       "context": "Two lines in an information box. The first says where to find the opened drive; the second is the one instruction that matters, since pulling a drive out without ejecting it can lose data. Locations is the name of a section in Finder's sidebar.",
       "placeholders": []
     },
+    "The drive could not be opened.": {
+      "screens": [
+        "failure"
+      ],
+      "context": "The failure summary when nothing more particular is known: the attempt ended, or ran past the time this app waits, and no rule recognised what the engine said. Plain and short on purpose -- whatever the engine wrote is under it, for a report.",
+      "placeholders": []
+    },
     "The drive did not finish ejecting. It may still be in use, so try again or eject it in Finder.": {
       "screens": [
         "notices"
