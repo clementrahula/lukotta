@@ -114,6 +114,36 @@ if [ -n "$PUBLISHED" ] && [ "$PUBLISHED" != "0" ] && [ "$BUILD" -le "$PUBLISHED"
   exit 1
 fi
 
+# The notes people are shown when the update arrives, checked before anything
+# is built rather than warned about after everything is signed.
+#
+# What went wrong without this: a warning on stderr, in the middle of a release
+# that carried on regardless. Three versions went out carrying the same six
+# lines -- a description of the app rather than what had changed in it -- and
+# one of those files was the previous version's, renamed, which left the
+# version it was written for with no record at all. Fifty tags have no notes
+# file whatsoever, and each would have shipped "No notes were written for this
+# version" to everybody updating.
+#
+# So: it exists, it has something in it, and it is not a copy of another
+# version's. The last is the one that actually happened.
+NOTES_SOURCE="$HERE/releases/$VERSION.md"
+if [ ! -s "$NOTES_SOURCE" ]; then
+  echo "error: no release notes at releases/$VERSION.md" >&2
+  echo "       Sparkle shows them to everybody who updates, so write what" >&2
+  echo "       changed in this version -- one '- ' line each, in the words" >&2
+  echo "       somebody using the app would use." >&2
+  exit 1
+fi
+for other in "$HERE"/releases/*.md; do
+  [ "$other" = "$NOTES_SOURCE" ] && continue
+  cmp -s "$other" "$NOTES_SOURCE" || continue
+  echo "error: releases/$VERSION.md is a copy of $(basename "$other")" >&2
+  echo "       Notes say what changed in one version. Copying the last one" >&2
+  echo "       tells everybody updating that nothing did." >&2
+  exit 1
+done
+
 SIGN_TOOL="$(find "$HERE/.build" -name sign_update -type f -perm -111 -print -quit 2>/dev/null || true)"
 [ -n "$SIGN_TOOL" ] || { echo "error: sign_update not found; run swift build" >&2; exit 1; }
 
@@ -178,12 +208,13 @@ printf '==> Release notes\n'
 NOTES_DIR="$(dirname "$APPCAST")/notes"
 mkdir -p "$NOTES_DIR"
 NOTES_FILE="$NOTES_DIR/$VERSION.html"
-# This version's own notes, as plain HTML. Each release carries its own file
-# under releases/, which is also what GitHub shows on the release page.
-python3 - "$VERSION" > "$NOTES_FILE" <<'PYEOF'
+# This version's own notes, as plain HTML for Sparkle's panel. The same file
+# becomes the body of the GitHub release further down, so the two cannot say
+# different things.
+python3 - "$VERSION" "$NOTES_SOURCE" > "$NOTES_FILE" <<'PYEOF'
 import pathlib, re, sys
 version = sys.argv[1]
-source = pathlib.Path("releases") / f"{version}.md"
+source = pathlib.Path(sys.argv[2])
 body = source.read_text().strip() if source.exists() else ""
 items = [re.sub(r"\s+", " ", b).strip() for b in re.split(r"\n(?=- )", body) if b.strip()]
 print("<html><body style=\"font: -apple-system-body; margin: 0\">")
@@ -197,7 +228,23 @@ else:
     print("<p>No notes were written for this version.</p>")
 print("</body></html>")
 PYEOF
-grep -q "<li>" "$NOTES_FILE" || echo "warning: releases/$VERSION.md is missing or empty" >&2
+grep -q "<li>" "$NOTES_FILE" || {
+  echo "error: releases/$VERSION.md produced no notes" >&2
+  echo "       Every line has to start with '- '." >&2
+  exit 1
+}
+
+# What the release page carries: the same notes, then where the source is. The
+# page said only the second of those, so a reader arriving at a release from
+# outside the app was told what the licence requires and nothing about the
+# version they were looking at.
+RELEASE_BODY="$HERE/dist/$SLUG-$VERSION-body.md"
+{
+  cat "$NOTES_SOURCE"
+  printf '\n'
+  printf 'Complete corresponding source for the GPL components is attached as %s.\n' \
+    "$(basename "$SOURCES_ZIP")"
+} > "$RELEASE_BODY"
 
 printf '==> Updates from earlier versions\n'
 # Sparkle can send somebody on an earlier build only what changed, which for
@@ -288,12 +335,13 @@ if [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
   if gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
     gh release upload "$TAG" "$ZIP" "$DMG" "$SOURCES_ZIP" \
       ${DELTA_FILES[@]+"${DELTA_FILES[@]}"} --repo "$REPO" --clobber
+    gh release edit "$TAG" --repo "$REPO" --notes-file "$RELEASE_BODY"
   else
     gh release create "$TAG" "$ZIP" "$DMG" "$SOURCES_ZIP" \
       ${DELTA_FILES[@]+"${DELTA_FILES[@]}"} --repo "$REPO" \
       ${PRERELEASE[@]+"${PRERELEASE[@]}"} \
       --title "$APP_NAME $VERSION" \
-      --notes "Complete corresponding source for the GPL components is attached as $SLUG-$VERSION-source.zip."
+      --notes-file "$RELEASE_BODY"
   fi
 else
   printf '==> Not published. Set LUKOTTA_PUBLISH=1 to create the GitHub release.\n'
