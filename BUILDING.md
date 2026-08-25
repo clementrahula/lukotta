@@ -217,15 +217,43 @@ giving a fork its own name and artwork.
 
 ## Releasing
 
+A beta first, then the same version as the release once the beta holds up:
+
 ```bash
-./scripts/release.sh                      # build, notarise, sign, describe
-LUKOTTA_PUBLISH=1 ./scripts/release.sh    # and create the GitHub release
+LUKOTTA_CHANNEL=beta LUKOTTA_PUBLISH=1 ./scripts/release.sh
+LUKOTTA_PUBLISH=1 ./scripts/release.sh
 ```
+
+Both read the same `releases/<version>.md`, so the two cannot describe the same
+build differently. Without `LUKOTTA_PUBLISH=1` everything is built and nothing
+is published, which is how to see what a release would say.
 
 It builds with official branding, notarises and staples, checks the result
 starts, archives it with `ditto`, signs the archive with the Sparkle key,
-collects the corresponding source the GPL requires, writes the release notes
-from `releases/<version>.md`, and describes the whole lot in the appcast.
+collects the corresponding source the GPL requires, and describes the whole lot
+in the appcast.
+
+### The notes
+
+Nothing about a release is written by hand at release time. The notes for a
+version are drafted from the commits it is made of by
+`scripts/release-notes.py`, which keeps the ones that changed something the app
+ships and drops the tooling, the tests and the documents. `bump-version.sh`
+writes that draft as `releases/<version>.md` with the version itself, so it is
+in the repository from the moment the version exists.
+
+Edit that file. The draft is accurate about what changed and says it in the
+words of whoever made the change; what goes out should be in the words of the
+person reading it, and should leave out what they gain nothing from.
+
+The release reads from the last version actually **published**, not the last one
+tagged, since a version can be tagged here and never released. So the notes
+describe everything the people receiving the update have not seen.
+
+Before anything is built, the notes are printed in full and the release asks
+whether they go out. It is the one part of a release no machine can check.
+`LUKOTTA_NOTES_REVIEWED=1` says they were read somewhere else, for a release
+with nobody at the keyboard.
 
 Notarisation needs the Mac unlocked. The credential lives in the Local Items
 keychain, which locks with the session, and a locked one is reported as a
