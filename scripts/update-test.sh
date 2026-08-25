@@ -101,7 +101,9 @@ else
 fi
 FIXTURE="${LUKOTTA_UPDATE_FIXTURE:-$HOME/.lukotta-testvols/crowd/drive1.img}"
 if [ -f "$FIXTURE" ]; then
-  if "$BINARY" --e2e container="$FIXTURE" passphrase=unused plain="$FIXTURE" \
+  # Quickly: what this asks is whether a Mac with nothing of this app's on it
+  # can open a drive at all. The write battery belongs to the end-to-end run.
+  if LUKOTTA_E2E_QUICK=1 "$BINARY" --e2e container="$FIXTURE" passphrase=unused plain="$FIXTURE" \
       >"$WORK/first-mount.log" 2>&1 || grep -q "it mounts" "$WORK/first-mount.log"; then
     ok "it opens a drive with no Linux environment on the Mac to start from"
   else

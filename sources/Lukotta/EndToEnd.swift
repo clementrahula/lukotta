@@ -1221,8 +1221,13 @@ import CryptoKit
                     let read = try? String(contentsOf: probe, encoding: .utf8)
                     check(read == contents, "and reads back as what was written")
                 }
-                if written { bulk = writeInEarnest(at: mountPoint) }
-                if written, fillingUp { fillItUp(at: mountPoint) }
+                // Thirty-two megabytes, two hundred files and a volume filled
+                // to its limit is what this is for, and it is not what every
+                // caller wants: the update harness opens one drive to prove a
+                // Mac with nothing on it can, and paid ten minutes for the rest.
+                let thorough = ProcessInfo.processInfo.environment["LUKOTTA_E2E_QUICK"] != "1"
+                if written, thorough { bulk = writeInEarnest(at: mountPoint) }
+                if written, thorough, fillingUp { fillItUp(at: mountPoint) }
 
                 model.eject(mountPoint)
                 guard waitUntil("it ejects", timeout: 120, condition: { !model.isEjecting }) else {
