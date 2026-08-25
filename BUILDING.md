@@ -283,6 +283,19 @@ git clone https://github.com/clementrahula/lukotta-appcast ../lukotta-appcast
 LUKOTTA_APPCAST=../lukotta-appcast/appcast.xml LUKOTTA_PUBLISH=1 ./scripts/release.sh
 ```
 
+Both channels are served from that one site. The pre-release feed is a
+directory in it rather than a domain of its own, since a Pages site carries
+exactly one custom domain and a second hostname would mean a second repository
+and a second certificate, for one file:
+
+```bash
+LUKOTTA_CHANNEL=beta LUKOTTA_APPCAST=../lukotta-appcast/beta/appcast.xml \
+  LUKOTTA_PUBLISH=1 ./scripts/release.sh
+```
+
+The notes go beside whichever feed is being written, so the app finds them under
+`updates.lukotta.com/notes/` or `updates.lukotta.com/beta/notes/`.
+
 Then commit and push that checkout. Without it the appcast and notes are left in
 `dist/` to be copied across by hand.
 

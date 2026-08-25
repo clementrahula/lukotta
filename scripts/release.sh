@@ -88,7 +88,9 @@ case "${LUKOTTA_CHANNEL:-release}" in
     APP_NAME="Lukotta Beta"
     TAG="v$VERSION-beta"
     APPCAST_DEFAULT="$HERE/dist/appcast-beta.xml"
-    NOTES_BASE_DEFAULT="https://updates-beta.lukotta.com"
+    # Beside the feed it belongs to. Point LUKOTTA_APPCAST at the beta
+    # directory of the same checkout and the notes land under it.
+    NOTES_BASE_DEFAULT="https://updates.lukotta.com/beta"
     # Marked as such on GitHub, so nobody arrives at it from the front page
     # believing it is the release.
     PRERELEASE=(--prerelease)

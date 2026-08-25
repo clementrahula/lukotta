@@ -55,7 +55,11 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     MARK_SET="LukottaMark"
     SWITCH_SET="FullDiskAccessSwitch"
     HELPER_NAME="LukottaBetaHelper"
-    FEED_URL="https://updates-beta.lukotta.com/appcast.xml"
+    # A path on the release feed's own domain rather than a subdomain of its
+    # own. A GitHub Pages site carries exactly one custom domain, so a second
+    # hostname would mean a second repository, a second certificate and a
+    # second thing to notice when it expires -- for a file.
+    FEED_URL="https://updates.lukotta.com/beta/appcast.xml"
     ;;
   unbranded)
     APP_NAME="Drive Unlocker"
