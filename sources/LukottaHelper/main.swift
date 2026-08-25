@@ -246,6 +246,10 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             }
             streamer.start()
 
+            // What was running before this attempt, so that what it starts can
+            // be told from what is serving drives somebody has open.
+            let helpersBefore = EngineProcesses.running()
+
             let task = Process()
             task.executableURL = URL(fileURLWithPath: "/bin/sh")
             task.arguments = [scriptURL.path]
@@ -258,8 +262,40 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     try? handle.close()
                 }
             }
+
+            // Waited for, but not for ever -- the same deadline the app applies
+            // to the routes it runs itself. This is the route a physical drive
+            // takes on every Mac where the daemon is installed, which is most
+            // of them, and without a deadline here a machine that never comes
+            // up holds a spinner for as long as anybody is willing to watch it.
+            //
+            // Killing the script does not take the machine with it, so what
+            // this attempt started is taken down too. Root here, which is the
+            // one thing the app cannot do for itself.
+            var ranOut = false
+            let endBy = Date().addingTimeInterval(TransientFailure.deadline)
+            while task.isRunning {
+                if Date() >= endBy {
+                    ranOut = true
+                    task.terminate()
+                    break
+                }
+                Thread.sleep(forTimeInterval: 0.2)
+            }
             task.waitUntilExit()
             streamer.stop()
+            if ranOut {
+                EngineProcesses.stopWhatStartedSince(helpersBefore)
+                Log.helper.error("the mount did not finish inside the deadline")
+                let sofar = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
+                reply(
+                    75,
+                    Diagnostics.scrubbed(
+                        sofar + "\n\(TransientFailure.deadlineReached) "
+                            + "\(Int(TransientFailure.deadline)) seconds",
+                        secret: credential))
+                return
+            }
 
             var output = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
             // Always leave a trace. A failure whose log is empty gives the user

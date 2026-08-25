@@ -18,7 +18,7 @@ public enum TransientFailure {
 
     /// Read from the engine's own output. Lowercased before matching, since
     /// what wrote each of these disagrees about capitals.
-    static let signatures = [
+    public static let signatures = [
         "broken pipe",
         "os error 32",
         "failed to write to pipe",
@@ -43,6 +43,25 @@ public enum TransientFailure {
         deadlineReached,
     ]
 
+    /// The same list, as one case-insensitive pattern for grep.
+    ///
+    /// The mount script decides the same thing inside the shell, one attempt
+    /// earlier: whether what just failed was worth another go before falling
+    /// back to read-only. It used to carry a list written out by hand, which
+    /// drifted from this one in both directions -- phrases here that the script
+    /// never matched, phrases there that nothing in Swift knew about. Built
+    /// from the list instead, so there is one list.
+    ///
+    /// Two the script has and this does not, because they are answers rather
+    /// than slips once an attempt is over: a device the system says is busy,
+    /// and a mount point macOS refuses as an invalid file system. Inside the
+    /// script both are worth one more go -- the first is usually a machine on
+    /// its way out still holding the device, and the second a leftover mount
+    /// the sweep has just taken away.
+    public static let signaturesForTheScript =
+        (signatures + ["device or resource busy", "invalid file system"])
+        .joined(separator: "|")
+
     /// What a mount ended by the deadline leaves in the detail, so it is tried
     /// again rather than reported as a drive that would not open.
     public static let deadlineReached = "the attempt was ended after"
@@ -61,6 +80,28 @@ public enum TransientFailure {
     public static func isTransient(_ text: String) -> Bool {
         let lowered = text.lowercased()
         return signatures.contains { lowered.contains($0) }
+    }
+
+    /// Whether what ended this attempt was the machinery slipping.
+    ///
+    /// Not simply "does the transcript contain one of these phrases". Every
+    /// attempt has a virtual machine to take down afterwards, and the teardown
+    /// says "connection reset" and "connection refused" on its way out --
+    /// including the teardown that follows a wrong passphrase. Read that way, a
+    /// real answer becomes three attempts, each with a deadline of minutes,
+    /// before somebody is told the one thing they needed to know at the start.
+    ///
+    /// So the transcript is asked what it was *about* first. A rule that
+    /// recognised it and settles the question -- the passphrase, the
+    /// filesystem, a volume Windows left hibernated -- is an answer, and no
+    /// number of attempts will change it. Only where nothing settled it does
+    /// the machinery come into question.
+    public static func endedInASlip(summary: String, detail: String?) -> Bool {
+        // This app's own deadline, wherever it appears: always worth another go.
+        let text = [summary, detail ?? ""].joined(separator: "\n")
+        if text.lowercased().contains(deadlineReached) { return true }
+        if let rule = Diagnosis.rule(for: text), rule.settles { return false }
+        return isTransient(text)
     }
 
     /// How many times an attempt is made in all, the first one included.

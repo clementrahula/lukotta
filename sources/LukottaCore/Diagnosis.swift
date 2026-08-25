@@ -36,9 +36,32 @@ public enum Diagnosis {
         public let name: String
         public let source: Source
         public let patterns: [String]
+        /// Whether matching this rule settles the question.
+        ///
+        /// Most of these are answers about the drive or about what the person
+        /// using it must do: a wrong passphrase, a filesystem nothing here can
+        /// read, a volume Windows left hibernated. Trying again spends minutes
+        /// arriving at the same sentence.
+        ///
+        /// Two are not. A lock held by another instance and a hypervisor that
+        /// refused are both about the machinery of the moment, and the attempt
+        /// after them often works -- so a transcript carrying one of those is
+        /// still read for whether it is worth another go.
+        public let settles: Bool
         /// Built when it matches: the app's name and the reader's language are
         /// both known only then.
         public let message: @Sendable () -> String
+
+        init(
+            name: String, source: Source, patterns: [String], settles: Bool = true,
+            message: @escaping @Sendable () -> String
+        ) {
+            self.name = name
+            self.source = source
+            self.patterns = patterns
+            self.settles = settles
+            self.message = message
+        }
 
         func matches(_ lowercased: String) -> Bool {
             patterns.contains { lowercased.contains($0) }
@@ -125,7 +148,7 @@ public enum Diagnosis {
         // changed under it.
         Rule(
             name: "engine-lock-held", source: .engine,
-            patterns: ["another instance is already running"],
+            patterns: ["another instance is already running"], settles: false,
             message: {
                 appString(
                     "Another drive is open, and the drive engine has to run on its own the first time after it changes. Eject the other drives, open this one, then they can all be open together again."
@@ -139,7 +162,7 @@ public enum Diagnosis {
             }),
         Rule(
             name: "hypervisor-refused", source: .system,
-            patterns: ["hypervisor", "hv_", "vmm"],
+            patterns: ["hypervisor", "hv_", "vmm"], settles: false,
             message: {
                 appString(
                     "The virtualisation engine could not start. A restart usually clears this.")

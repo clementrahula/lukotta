@@ -244,10 +244,25 @@ public enum MountScript {
         // to the engine, and refused with nothing to say why.
         lines.append("IFS= read -r -d '' __cred < \(shellQuoted(i.fifoPath)) || true")
         lines.append("echo \"\(stageMarker)working\" >> \(logQ)")
+        // The script ends itself, a little before whoever is waiting on it
+        // would. Left to the waiter, an attempt that will not finish is ended
+        // by killing the shell -- and on the privileged route that shell is
+        // root's, started through `do shell script`, so nothing the app can
+        // signal belongs to it. The engine goes on working, and a drive appears
+        // in Finder minutes after somebody has been told it could not be
+        // opened, mounted by nothing that will ever eject it.
+        //
+        // Ending here instead means the shell that started the engine is the
+        // one that stops it: same privilege, no orphan, and a real exit status
+        // and transcript for the app to read.
+        lines.append(watchdog(seconds: Int(TransientFailure.deadline) - 45, logQ: logQ))
         lines.append("\(engineQ) config -n \(i.cores) -r \(i.ramMiB) >/dev/null 2>&1 || true")
         // The baseline every attempt is judged against: which mounts the
         // engine had before this one started, by name.
-        lines.append(mountHelpers(baselineQ: shellQuoted(i.discoverLogPath + ".mounts")))
+        lines.append(
+            mountHelpers(
+                baselineQ: shellQuoted(i.discoverLogPath + ".mounts"),
+                root: mountRoot(elevated: i.elevated)))
         lines.append("__rebase")
 
         var chain = attempts(i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
@@ -273,14 +288,25 @@ public enum MountScript {
             // takes no writes must not spend another minute proving it twice.
             let slipped = """
                 __slipped() {
-                  grep -qiE 'broken pipe|os error 32|failed to write to pipe|connection reset|start vm error|failed to acquire lock|already locked|device or resource busy|failed to request nfs mount|invalid file system' \
+                  grep -qiE \(shellQuoted(TransientFailure.signaturesForTheScript)) \
                     \(logQ) 2>/dev/null
                 }
                 """
             lines.append(slipped)
-            chain += attempts(i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ).prefix(1).map {
-                "{ __slipped && sleep 2 && \($0) ; }"
-            }
+            // Every attempt again, not the first one only. A Microsoft drive
+            // has two: ntfs3, which refuses a volume Windows left dirty, and
+            // ntfs-3g, which mounts it. Where the refusal is real and the
+            // ntfs-3g attempt is the one that slipped, retrying only the first
+            // re-runs ntfs3, gets the same real refusal, and falls through to
+            // read-only -- a drive silently unwritable for the rest of the
+            // session, and a sentence blaming the filesystem for a slip in the
+            // machinery.
+            //
+            // One extra pass in all: the guard is checked once before it, so a
+            // drive that genuinely takes no writes does not prove it twice.
+            let again = attempts(i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
+                .joined(separator: " || ")
+            chain.append("{ __slipped && sleep 2 && { \(again) ; } ; }")
 
             var readOnly = i
             readOnly.readOnly = true
@@ -327,6 +353,10 @@ public enum MountScript {
                     + "&& __read_only")
         }
         lines.append("unset __cred")
+        // Whichever way the attempt ended, the deadline is no longer waiting on
+        // it. Left running, it sits there for minutes and then kills nothing,
+        // and the shell reports the signal as though the mount had failed.
+        lines.append("kill -KILL \"$__watchdog\" 2>/dev/null || true")
         lines.append("exit $__rc")
         return lines.joined(separator: "\n")
     }
@@ -374,6 +404,31 @@ public enum MountScript {
         return result
     }
 
+    /// A deadline the script keeps on itself.
+    ///
+    /// `pkill -P $$` is only what this script started directly -- the engine of
+    /// this attempt -- and `$$` is the script's own pid inside the subshell as
+    /// well, since a subshell does not get one of its own. Nothing else on the
+    /// Mac is in range of it, including the engine of a drive somebody has open.
+    ///
+    /// It ignores TERM, because it is a child of `$$` too and would otherwise
+    /// be the first thing its own sweep took down -- leaving nothing to follow
+    /// up with KILL for an engine that did not answer the first signal. Which
+    /// is also why the attempt that finishes normally ends it with KILL.
+    private static func watchdog(seconds: Int, logQ: String) -> String {
+        return """
+            (
+              trap '' TERM
+              sleep \(seconds)
+              echo "\(stageMarker)ended by the script's own deadline" >> \(logQ)
+              pkill -TERM -P $$ 2>/dev/null
+              sleep 10
+              pkill -KILL -P $$ 2>/dev/null
+            ) &
+            __watchdog=$!
+            """
+    }
+
     /// The shell functions every attempt is judged by.
     ///
     /// Which mounts the engine has, by name, rather than how many there are.
@@ -387,17 +442,59 @@ public enum MountScript {
     ///
     /// Comparing the names cannot be moved by anybody else's mount: what is
     /// looked for is a mount point that was not there before.
-    private static func mountHelpers(baselineQ: String) -> String {
+    ///
+    /// Narrower still than "an engine mount": one this attempt could have made.
+    /// Two copies of this app -- a release and a pre-release, which is how it
+    /// is tested and how some people run it -- can be opening two drives at the
+    /// same moment, and a name that appeared during this window is otherwise
+    /// taken as proof that *this* mount worked. It then reports success for a
+    /// drive that did not open, hands back the other drive's mount point, and,
+    /// where it falls back to read-only, remounts the other app's drive
+    /// read-only underneath it.
+    ///
+    /// What narrows it is the directory an attempt of this kind can mount in.
+    /// An engine running as this user mounts under their own `~/Volumes` and
+    /// can mount nowhere else -- creating a directory in `/Volumes` needs a
+    /// privilege they do not have -- so everything outside it belongs to
+    /// somebody: the other channel, a Homebrew anylinuxfs, an NFS file server.
+    ///
+    /// Left empty for a privileged attempt, which mounts under `/Volumes` but
+    /// is handed the invoking user's identity as well, so both are possible.
+    /// Guessing wrong there would report every mount of a physical drive as a
+    /// failure, and no narrowing is worth that.
+    ///
+    /// The share name is not used. The engine builds it from what it found
+    /// rather than from what it was handed -- a group inside a container is
+    /// named after the group, not the container -- so a pattern made from what
+    /// this attempt knows would call some of its own mounts somebody else's.
+    private static func mountHelpers(baselineQ: String, root: String) -> String {
         return """
             __engine_mounts() {
-              /sbin/mount | awk '/\\(nfs/ && /:\\/(mnt|run)\\// \
-                { sub(/^.* on /, ""); sub(/ \\(.*$/, ""); print }' | sort
+              /sbin/mount | awk -v root=\(shellQuoted(root)) \
+                '/\\(nfs/ && /:\\/(mnt|run)\\// {
+                   sub(/^.* on /, ""); sub(/ \\(.*$/, "")
+                   if (root == "" || index($0, root) == 1) print
+                 }' | sort
             }
             __rebase() { __engine_mounts > \(baselineQ); }
             __new_mounts() { __engine_mounts | grep -vxF -f \(baselineQ) || true; }
             __mounted() { [ -n "$(__new_mounts)" ]; }
             """
     }
+
+    /// The directory this attempt's mount can appear in, or nothing when more
+    /// than one is possible.
+    static func mountRoot(elevated: Bool, home: String = NSHomeDirectory()) -> String {
+        elevated ? "" : (home as NSString).appendingPathComponent("Volumes") + "/"
+    }
+
+    /// An awk pattern matching the share names this attempt can produce.
+    ///
+    /// The device alias is what the engine names the server after, and a volume
+    /// group or array found inside is named after itself. A drive whose name
+    /// carries anything a regular expression reads is matched by its shape
+    /// alone rather than by a pattern built out of it, which is a wider net and
+    /// never a wrong one.
 
     /// Proof that a mount actually happened.
     ///

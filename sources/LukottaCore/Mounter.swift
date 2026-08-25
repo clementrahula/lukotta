@@ -164,10 +164,12 @@ public enum Mounter {
             // the machine with it.
             EngineProcesses.stopWhatStartedSince(helpersBefore)
             let transcript = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
+            // The note goes last. What ended an attempt belongs at the end of
+            // its transcript, and the decision to try again reads the end.
             throw EngineError.mountFailed(
                 summary: appString("The drive could not be opened."),
-                detail: "\(TransientFailure.deadlineReached) "
-                    + "\(Int(TransientFailure.deadline)) seconds\n" + transcript)
+                detail: transcript + "\n\(TransientFailure.deadlineReached) "
+                    + "\(Int(TransientFailure.deadline)) seconds")
         }
 
         let transcript = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
@@ -230,15 +232,17 @@ public enum Mounter {
                 .trimmingCharacters(in: CharacterSet(charactersIn: " \t\"'.,)"))
             if mounted.contains(candidate) { return candidate }
         }
-        // Fall back to asking the system for NFS mounts under /Volumes.
-        for line in mountTable().components(separatedBy: .newlines)
-        where line.contains(" on /Volumes/") {
-            guard line.contains("nfs") else { continue }
-            guard let onRange = line.range(of: " on "),
-                let typeRange = line.range(of: " (", range: onRange.upperBound..<line.endIndex)
-            else { continue }
-            return String(line[onRange.upperBound..<typeRange.lowerBound])
-        }
+        // And nothing else. There used to be one more fallback here: the first
+        // NFS mount under /Volumes, whatever it was. It predates the rule that
+        // only the mount table counts, and it was the one route left that could
+        // name the wrong one -- the other channel's drive, opened a second
+        // earlier, or a file server somebody keeps mounted there. Everything it
+        // answered went on to be presented as this drive, written to as this
+        // drive, and ejected as this drive.
+        //
+        // Saying nothing is the right answer: the caller reports that the
+        // engine claimed success and nothing appeared, which is exactly what
+        // happened.
         return nil
     }
 }
