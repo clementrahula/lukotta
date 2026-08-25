@@ -1,0 +1,51 @@
+name: Wording in my language
+description: A sentence reads badly, says the wrong thing, or is not what a Mac would call it.
+labels: [translation]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If a phrase reads badly to you, it reads badly. Saying so is enough —
+        a suggested replacement is welcome but not required.
+
+        A screenshot can carry the name of a drive, which is yours and nobody
+        else's — cover anything you would rather not publish.
+
+        Two rules a translation here is judged by: Apple's things are named as
+        your own Mac names them, and a sentence naming a button uses the
+        button's own words.
+  - type: input
+    id: language
+    attributes:
+      label: Which language
+      description: The language your Mac is set to. For example "Finnish", "Português (Portugal)".
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: What the app says now
+      description: Copy it exactly, or attach a screenshot.
+    validations:
+      required: true
+  - type: textarea
+    id: better
+    attributes:
+      label: What it should say
+      description: Leave this empty if you would rather just report that it is wrong.
+    validations:
+      required: false
+  - type: input
+    id: where
+    attributes:
+      label: Where it appears
+      description: The screen or sheet. For example "the list of drives", "the passphrase screen", "Settings".
+    validations:
+      required: false
+  - type: checkboxes
+    id: native
+    attributes:
+      label: About you
+      options:
+        - label: I speak this language natively
+          required: false

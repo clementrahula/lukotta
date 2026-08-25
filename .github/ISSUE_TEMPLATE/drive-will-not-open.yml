@@ -9,7 +9,8 @@ body:
         engine's output, and removes your passphrase from it. Paste that here
         and most of the questions below answer themselves.
 
-        If a passphrase could be exposed, email lukotta@rahula.dev instead.
+        Anything that could expose a passphrase or the contents of a drive goes
+        to the private form on the Security tab, not here.
   - type: textarea
     id: report
     attributes:
@@ -30,6 +31,16 @@ body:
     attributes:
       label: The drive
       description: How it was encrypted, and what wrote it. For example "BitLocker, from Windows 11" or "LUKS2 with LVM, from Fedora".
+    validations:
+      required: true
+  - type: dropdown
+    id: channel
+    attributes:
+      label: Which build
+      description: The pre-release calls itself Lukotta Beta, in the window and in Applications.
+      options:
+        - Lukotta
+        - Lukotta Beta
     validations:
       required: true
   - type: dropdown

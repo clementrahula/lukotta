@@ -1,6 +1,11 @@
 name: Something else
 description: Wording, interface, documentation, or a suggestion.
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Anything that could expose a passphrase or the contents of a drive goes
+        to the private form on the Security tab, not here.
   - type: textarea
     id: detail
     attributes:

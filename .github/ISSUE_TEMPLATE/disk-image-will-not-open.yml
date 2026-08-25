@@ -1,0 +1,74 @@
+name: A disk image will not open
+description: A qcow2, VMDK, VDI, VHD, VHDX or raw image is refused, opens as the wrong thing, or hangs.
+labels: [image]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The bug icon in Lukotta gathers the version, the environment and the
+        engine's output, and removes your passphrase from it. Paste that here
+        and most of the questions below answer themselves.
+
+        Anything that could expose a passphrase or the contents of a drive goes
+        to the private form on the Security tab, not here.
+  - type: textarea
+    id: report
+    attributes:
+      label: The report from the app
+      description: From the bug icon. It is scrubbed of your passphrase before you see it.
+      render: text
+    validations:
+      required: false
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, and what the app did instead.
+    validations:
+      required: true
+  - type: dropdown
+    id: format
+    attributes:
+      label: What kind of image
+      options:
+        - qcow2
+        - VMDK
+        - VDI
+        - VHD
+        - VHDX
+        - Raw (.img, .dmg, or no extension)
+        - I do not know
+    validations:
+      required: true
+  - type: input
+    id: written-by
+    attributes:
+      label: What wrote it
+      description: For example "VirtualBox 7.1", "qemu-img convert", "UTM", "Disk Utility", "it came with a virtual machine I downloaded".
+    validations:
+      required: true
+  - type: dropdown
+    id: inside
+    attributes:
+      label: Is anything inside it encrypted?
+      options:
+        - "No"
+        - "BitLocker"
+        - "LUKS"
+        - "I do not know"
+    validations:
+      required: true
+  - type: dropdown
+    id: attaches
+    attributes:
+      label: Can macOS attach it on its own?
+      description: >-
+        Double-click it in Finder, or open it in Disk Utility. macOS cannot read
+        most of these formats, and that is not the fault being reported — this
+        only says which half of the path to look at.
+      options:
+        - "It attaches"
+        - "It does not attach"
+        - "I have not tried"
+    validations:
+      required: true

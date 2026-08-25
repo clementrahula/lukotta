@@ -1,5 +1,11 @@
 blank_issues_enabled: false
 contact_links:
-  - name: A passphrase, a drive's contents, or the privileged helper
+  - name: A security fault — report it privately
+    url: https://github.com/clementrahula/lukotta/security/advisories/new
+    about: >-
+      Anything that could expose a passphrase, a recovery key or a drive's
+      contents. This form is private: only you and the maintainer see it. By
+      email instead, bugreport@lukotta.com.
+  - name: What counts as a security fault
     url: https://github.com/clementrahula/lukotta/blob/main/SECURITY.md
-    about: Anything security-related goes to lukotta@rahula.dev, not here.
+    about: What is in scope, what to include, and what happens to a report.

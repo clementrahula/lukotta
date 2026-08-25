@@ -1,0 +1,69 @@
+name: The app crashed, or would not start
+description: Lukotta quit on its own, would not open, or stopped working after an update.
+labels: [crash]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A crash report is worth more than any description of it. macOS keeps
+        them in Console, under **Crash Reports** in the sidebar, named after the
+        app and the time.
+
+        Anything that could expose a passphrase or the contents of a drive goes
+        to the private form on the Security tab, not here.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What you were doing
+      description: What was on screen, and what you had just done.
+    validations:
+      required: true
+  - type: textarea
+    id: crash
+    attributes:
+      label: The crash report
+      description: From Console, under Crash Reports. Paste as much of it as you have.
+      render: text
+    validations:
+      required: false
+  - type: dropdown
+    id: channel
+    attributes:
+      label: Which build
+      description: The pre-release calls itself Lukotta Beta, in the window and in Applications.
+      options:
+        - Lukotta
+        - Lukotta Beta
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version and macOS
+      description: The version is at the bottom of the Help screen. For example "1.18.1, macOS 15.6".
+    validations:
+      required: true
+  - type: dropdown
+    id: after-update
+    attributes:
+      label: Did this start straight after an update?
+      options:
+        - "No"
+        - "Yes — the new version would not start"
+        - "Yes — it started, then went wrong"
+        - "I do not know"
+    validations:
+      required: true
+  - type: dropdown
+    id: rolled-back
+    attributes:
+      label: If it would not start, did the previous version come back on its own?
+      description: >-
+        Opening it a few times puts the working version back. Leave this as it
+        is if the question does not apply.
+      options:
+        - "Does not apply"
+        - "Yes, it came back"
+        - "No, it stayed broken"
+    validations:
+      required: false
