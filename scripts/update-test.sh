@@ -229,7 +229,6 @@ printf '\nan update sent as only what changed\n'
 # silently ignored so that everybody downloads ninety megabytes instead of two.
 # Neither is visible from the outside, so this checks what was fetched and not
 # only what ended up installed.
-GOOD_BUILD="$TO_BUILD"
 DELTA_BUILD="$((TO_BUILD + 1))"
 DELTA_TOOL="$(find "$HERE/.build" -name BinaryDelta -type f -perm -111 -print -quit 2>/dev/null || true)"
 if [ -z "$DELTA_TOOL" ]; then
@@ -315,7 +314,6 @@ else
     same "$(defaults read "$BUNDLE_ID" lukottaUpdateProbe 2>/dev/null || echo "")" "$BEFORE_PROBE"
   that "and the Linux environment with them" \
     file_exists "$ENGINE_HOME/.anylinuxfs/alpine/rootfs.ver"
-  GOOD_BUILD="$DELTA_BUILD"
 fi
 
 printf '\nan update offered while a drive is open\n'
@@ -365,7 +363,6 @@ if [ -f "$FIXTURE" ]; then
     same "$(installed_build)" "$HOLD_BUILD"
   that "nothing of the engine is left serving nothing" \
     test -z "$(/usr/sbin/lsof -c anylinuxfs 2>/dev/null | head -1)"
-  GOOD_BUILD="$HOLD_BUILD"
 else
   printf '  ..   no fixture at %s; an update with a drive open is not tried\n' "$FIXTURE"
 fi
@@ -394,6 +391,11 @@ else
 fi
 that "and it is a working copy, not an empty directory" \
   test -x "$KEPT_APP/Contents/MacOS/$APP_NAME"
+# Which build it is, since that is what a rollback restores: the version before
+# the last update, not the newest one this run installed. Compared against the
+# newest, the check reported a rollback that had worked as a failure.
+KEPT_BUILD="$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' \
+  "$KEPT_APP/Contents/Info.plist" 2>/dev/null || echo "")"
 
 # Not a version that starts and fails -- the app puts that back itself. This is
 # one whose own code never runs: the binary inside the bundle is replaced with
@@ -418,8 +420,8 @@ else
   # Never leave this Mac worse than it was found.
   /usr/bin/ditto "$KEPT_APP" "$INSTALLED"
 fi
-that "and the app in /Applications is the one that worked" \
-  same "$(installed_build)" "$GOOD_BUILD"
+that "and the app in /Applications is the one that was kept aside" \
+  same "$(installed_build)" "$KEPT_BUILD"
 rm -rf "$KEPT" "$SUPPORT/launch-attempts"
 
 printf '\n==> Putting this Mac back\n'
