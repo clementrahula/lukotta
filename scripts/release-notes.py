@@ -3,8 +3,9 @@
 # Copyright (C) 2026 Clement Rahula
 """What changed in a version, read from the history rather than remembered.
 
-    ./scripts/release-notes.py 1.18.1            # to stdout
-    ./scripts/release-notes.py 1.18.1 --write    # to releases/1.18.1.md
+    ./scripts/release-notes.py 1.18.1                  # to stdout
+    ./scripts/release-notes.py 1.18.1 --write          # to releases/1.18.1.md
+    ./scripts/release-notes.py 1.18.1 --since v1.15.2  # from a given version
 
 Release notes were written by hand, which meant they could be forgotten and
 they could be copied. Both happened: three versions went out carrying the same
@@ -23,6 +24,12 @@ cannot be the same range twice.
 It is a draft, not the finished text. `bump-version.sh` writes it with the
 version, so it is in the repository from the moment the version exists and can
 be edited into whatever reads best before the release goes out.
+
+Where it reads from matters as much as what it keeps. By default it is the
+previous version tag, which is what a version's own notes are. A release covers
+what the people receiving it have not seen, which is everything since the last
+version actually published -- three versions may have been tagged and never
+released -- so `release.sh` hands it that one with --since.
 
 What counts as visible is a path rather than a judgement: the app's own code,
 the translations, the resources it carries, the patches to the engine, the
@@ -88,8 +95,8 @@ def changed_what_ships(commit: str) -> bool:
     return any(path.startswith(SHIPS) for path in paths if path)
 
 
-def notes(version: str) -> list[str]:
-    since = previous_tag(version)
+def notes(version: str, since: str | None = None) -> list[str]:
+    since = since or previous_tag(version)
     # The version's own tag when it has one, so that notes written after a
     # later version was tagged do not swallow that version's commits.
     until = f"v{version}" if git("tag", "--list", f"v{version}").strip() else "HEAD"
@@ -109,7 +116,13 @@ def main() -> None:
     if len(sys.argv) < 2:
         sys.exit("usage: release-notes.py <version> [--write]")
     version = sys.argv[1]
-    lines = notes(version)
+    since = None
+    if "--since" in sys.argv:
+        at = sys.argv.index("--since")
+        if len(sys.argv) <= at + 1:
+            sys.exit("usage: release-notes.py <version> [--since <ref>] [--write]")
+        since = sys.argv[at + 1]
+    lines = notes(version, since)
     if not lines:
         # A version with nothing visible in it is a version nobody needs to
         # read about, but Sparkle shows this panel either way.

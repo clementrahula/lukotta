@@ -22,6 +22,36 @@ BUILD="${LUKOTTA_BUILD:-$(git rev-list --count HEAD)}"
 # produces a number that has already been released -- and Sparkle then answers
 # "up to date" to everybody, for a release that fixes something, with nothing
 # anywhere saying why. Checked against the feed rather than trusted.
+# The version of the newest item in the published feed, as a tag name. What a
+# release has to describe is everything the people receiving it have not seen,
+# and versions get tagged here without ever being released -- three of them
+# have been. Reading from the last tag would leave those changes described to
+# nobody.
+last_published_tag() {
+  [ -f "$1" ] || return 0
+  /usr/bin/python3 - "$1" <<'PY'
+import re, sys
+try:
+    text = open(sys.argv[1], encoding="utf-8").read()
+except OSError:
+    sys.exit(0)
+# Paired with the build number, so the highest build names the version rather
+# than the highest version string sorting as text: "1.9.0" is above "1.18.1"
+# that way round, and would cut the notes short by nine versions.
+items = re.findall(
+    r'sparkle:version="(\d+)"[^>]*sparkle:shortVersionString="([^"]+)"'
+    r'|sparkle:shortVersionString="([^"]+)"[^>]*sparkle:version="(\d+)"',
+    text,
+)
+found = [
+    (int(build), version)
+    for a, b, c, d in items
+    for build, version in [(a, b) if a else (d, c)]
+]
+print(f"v{max(found)[1]}" if found else "")
+PY
+}
+
 highest_published() {
   [ -f "$1" ] || return 0
   /usr/bin/python3 - "$1" <<'PY'
@@ -123,10 +153,16 @@ fi
 # from a dirty tree, so writing a file into it here would leave the release
 # built from something the tag does not have.
 NOTES_SOURCE="$HERE/releases/$VERSION.md"
+SINCE="$(last_published_tag "$APPCAST")"
+if [ -n "$SINCE" ] && ! git rev-parse "$SINCE" >/dev/null 2>&1; then
+  SINCE=""  # published from somewhere this clone has no tag for
+fi
 if [ ! -s "$NOTES_SOURCE" ]; then
-  printf '==> No releases/%s.md. Drafting from the commits since the last version\n' "$VERSION"
+  printf '==> No releases/%s.md. Drafting it from the commits since %s\n' \
+    "$VERSION" "${SINCE:-the previous version}"
   DRAFT="$(mktemp)"
-  "$HERE/scripts/release-notes.py" "$VERSION" > "$DRAFT"
+  "$HERE/scripts/release-notes.py" "$VERSION" \
+    ${SINCE:+--since "$SINCE"} > "$DRAFT"
   NOTES_SOURCE="$DRAFT"
   printf '    to keep it: ./scripts/release-notes.py %s --write, and commit it\n' "$VERSION"
 fi
