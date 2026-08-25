@@ -65,6 +65,20 @@ fi
 export ANYLINUXFS_HOME
 mkdir -p "$ANYLINUXFS_HOME/Library/Logs"
 
+# What the other channel has, so that this run can be shown not to have touched
+# it. A beta and a release are installed side by side on the machine this is
+# run from, and the whole point of the separate directories is that neither
+# writes into the other's: the app's settings, its Linux environment, its
+# engine's logs. Nothing here can prove that by reading the code, so the state
+# is recorded and compared afterwards.
+OTHER_ID="$APP_ID.beta"
+case "$APP_ID" in *.beta) OTHER_ID="${APP_ID%.beta}" ;; esac
+OTHER_HOME="$HOME/Library/Application Support/$OTHER_ID"
+OTHER_BEFORE=""
+if [ -d "$OTHER_HOME" ]; then
+  OTHER_BEFORE="$(find "$OTHER_HOME" -exec stat -f '%m %z %N' {} + 2>/dev/null | sort)"
+fi
+
 if [ ! -f "$CONTAINER" ]; then
   echo "==> Building a LUKS container to test against (once)"
   mkdir -p "$CACHE"
@@ -229,12 +243,30 @@ clean_up() {
       kill "$pid" >/dev/null 2>&1 || true
     done < <(pgrep -f "$APP/Contents/Resources/engine/anylinuxfs" 2>/dev/null)
   fi
-  return $status
+  return "$status"
 }
 trap clean_up EXIT
 
 # Named, not positional. Adding a format is a line here and a line in
 # EndToEnd.swift, rather than a count that has to agree on both sides.
+# Compared when this run ends, however it ends.
+check_the_other_channel() {
+  [ -n "$OTHER_BEFORE" ] || return 0
+  local after
+  after="$(find "$OTHER_HOME" -exec stat -f '%m %z %N' {} + 2>/dev/null | sort)"
+  if [ "$after" = "$OTHER_BEFORE" ]; then
+    printf '  ok   %s was not touched by this run\n' "$OTHER_ID"
+  else
+    printf '  FAIL %s changed while this app ran\n' "$OTHER_ID"
+    diff <(printf '%s\n' "$OTHER_BEFORE") <(printf '%s\n' "$after") | head -10 | sed 's/^/      /'
+    OTHER_TOUCHED=1
+  fi
+}
+OTHER_TOUCHED=0
+
+# The harness's own verdict is read rather than being allowed to end the run,
+# so that what it did to the other channel is still checked when it fails.
+set +e
 "$BINARY" --e2e \
   container="$CONTAINER" \
   passphrase="$PASSPHRASE" \
@@ -254,3 +286,10 @@ trap clean_up EXIT
   vhdx="$VHDX" \
   vhdx-dirty="$VHDX_DIRTY" \
   vhdx-parent="$VHDX_PARENT"
+E2E_STATUS=$?
+set -e
+
+printf '\nthe channel installed beside this one\n'
+check_the_other_channel
+[ "$OTHER_TOUCHED" = "0" ] || exit 1
+exit "$E2E_STATUS"
