@@ -578,10 +578,50 @@ public enum Permissions {
     }
 
     public static func reading() -> Reading {
-        Reading(
+        let reading = Reading(
             fullDiskAccess: hasFullDiskAccess,
             removableVolumes: removableVolumeAccess())
+        wasGranted = reading.fullDiskAccess
+        return reading
     }
+
+    /// What the permission was the last time anybody looked.
+    ///
+    /// Reading it for real opens files, which is why it is done off the main
+    /// thread -- and that is a whole screen too late to decide which screen to
+    /// draw first. The app used to open on the drive list and replace it with
+    /// the permission screen a moment later, so the first thing anybody saw on
+    /// a new install was a flicker of a list they cannot have.
+    ///
+    /// So the answer is remembered. There is no record on a Mac that has never
+    /// run this app, and no Mac has this permission before it is granted by
+    /// hand, so the honest first answer is no.
+    public static var wasGranted: Bool {
+        get { UserDefaults.standard.bool(forKey: grantedKey) }
+        set { UserDefaults.standard.set(newValue, forKey: grantedKey) }
+    }
+
+    /// Which screen to open on, answered before the first frame is drawn.
+    ///
+    /// Granted last time is enough on its own: the permission is not taken away
+    /// while the app is closed without somebody going to System Settings to do
+    /// it, and the reading that follows a moment later catches that.
+    ///
+    /// Not granted last time is where the flicker was. Granting Full Disk
+    /// Access makes macOS quit the app, so the very next launch is the one
+    /// where the record is stale -- and opening on the permission screen and
+    /// replacing it half a second later is what somebody sees immediately after
+    /// doing what the permission screen asked. So that case, and only that
+    /// case, is worth one look at the disk here: a file that exists and an open
+    /// that fails at once when the permission is missing.
+    public static func likelyGranted() -> Bool {
+        if wasGranted { return true }
+        let granted = hasFullDiskAccess
+        wasGranted = granted
+        return granted
+    }
+
+    public static let grantedKey = "fullDiskAccessWasGranted"
 
     /// Whether access to removable volumes has been granted.
     ///

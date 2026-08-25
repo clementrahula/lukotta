@@ -31,7 +31,21 @@ struct ContentView: View {
         // about, and it is the tallest thing the window holds. Hungarian needs
         // 587 points of it at the narrowest width; the smallest window is 600
         // so that every language shows all three steps without scrolling.
-        .frame(minWidth: 580, idealWidth: 640, minHeight: 600, idealHeight: 640)
+        //
+        // It is also the only screen that needs the width. A list of drives at
+        // 640 points is mostly empty, so every other screen asks for less and
+        // the window follows -- unless somebody has sized it themselves.
+        // The ideal width follows the screen too, or the window is created at
+        // the permission screen's width and shrinks a moment later -- which is
+        // the same flicker, made by the fix for it.
+        .frame(
+            minWidth: model.phase.needsTheWiderWindow ? 580 : 500,
+            idealWidth: model.phase.needsTheWiderWindow ? 640 : 540,
+            minHeight: 600, idealHeight: 640
+        )
+        .widthWanted(
+            model.phase.needsTheWiderWindow ? 640 : 540, key: "com.lukotta.mainWindowFrame"
+        )
         .background(Color(nsColor: .windowBackgroundColor))
         .remembersFrame(as: "com.lukotta.mainWindowFrame")
         // One place for anything worth saying out loud, rather than each view

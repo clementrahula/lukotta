@@ -1214,6 +1214,55 @@ group("aRefusedPermissionSaysWhichOneAndOffersTheWayToIt") {
         "which is what puts Open Privacy Settings on the failure screen")
 }
 
+group("theFirstScreenIsTheRightOneStraightAway") {
+    // Reading the permission opens files, so it happens off the main thread --
+    // which is a whole screen too late to decide what to draw. The app opened
+    // on the drive list and replaced it with the permission screen once the
+    // answer came back, so the first thing anybody saw on a new install was a
+    // flicker of a list they cannot have.
+    let key = Permissions.grantedKey
+    let before = UserDefaults.standard.object(forKey: key)
+    defer {
+        if let before {
+            UserDefaults.standard.set(before, forKey: key)
+        } else {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+    }
+
+    UserDefaults.standard.removeObject(forKey: key)
+    expect(
+        !Permissions.wasGranted,
+        "a Mac that has never run this app is assumed not to have granted it")
+    Permissions.wasGranted = true
+    expect(Permissions.wasGranted, "and what was granted is remembered")
+    Permissions.wasGranted = false
+    expect(!Permissions.wasGranted, "and what was taken away is remembered too")
+
+    // Written by the reading itself, so nothing else has to remember to.
+    let reading = Permissions.reading()
+    expect(
+        Permissions.wasGranted == reading.fullDiskAccess,
+        "every reading records what it found for the next launch to open with")
+
+    // Granting the permission makes macOS quit the app, so the next launch is
+    // the one whose record is stale. Opening on the permission screen and
+    // replacing it half a second later is what somebody sees straight after
+    // doing what that screen asked -- so a "no" on record is looked at again
+    // before anything is drawn, and a "yes" is taken as it stands.
+    UserDefaults.standard.removeObject(forKey: key)
+    expect(
+        Permissions.likelyGranted() == Permissions.reading().fullDiskAccess,
+        "with nothing on record the disk decides, not the flicker")
+    expect(
+        Permissions.wasGranted == Permissions.likelyGranted(),
+        "and the answer is written down, so the next launch costs nothing")
+    Permissions.wasGranted = true
+    expect(
+        Permissions.likelyGranted(),
+        "a permission granted before is believed without touching the disk")
+}
+
 group("aBetaAndAReleaseShareNothingThatMatters") {
     // The two are installed side by side on purpose, so every place either
     // keeps something has to be keyed to which one it is. What is derived from

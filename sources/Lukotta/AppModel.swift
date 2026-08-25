@@ -28,9 +28,27 @@ final class AppModel: ObservableObject {
         case working(Drive)
         case mounted(Drive, String)
         case failed(Drive?, String, String?)  // drive, summary, raw detail
+
+        /// Whether this screen needs the wide window.
+        ///
+        /// Only the permission screen does: it carries a picture of the System
+        /// Settings pane it describes, and that picture sets the width. Every
+        /// other screen is a column of text, and at 640 points a list of two
+        /// drives looks like a table with a column missing.
+        var needsTheWiderWindow: Bool {
+            if case .needsPermission = self { return true }
+            return false
+        }
     }
 
-    @Published var phase: Phase = .scanning
+    /// The screen to draw before anything has been read.
+    ///
+    /// Not always scanning: a Mac without Full Disk Access cannot scan, and
+    /// opening on the list and swapping it for the permission screen once the
+    /// reading came back is a flicker on the first launch of every new install.
+    /// What was true last time is the best answer available at this instant,
+    /// and the reading that follows corrects it either way.
+    @Published var phase: Phase = Permissions.likelyGranted() ? .scanning : .needsPermission
 
     /// What just happened, in a sentence, for anyone who is not watching.
     ///
@@ -781,7 +799,12 @@ final class AppModel: ObservableObject {
     /// Live permission state, re-checked whenever the app is brought forward
     /// rather than captured once. Granting a permission happens in System
     /// Settings, so the app has to look again when the user comes back.
-    @Published var hasFullDiskAccess = true
+    /// Started from what was recorded, not from an optimistic yes.
+    ///
+    /// Assuming granted meant the permission screen drew its first frame with
+    /// the row already ticked, on the very screen that exists to say the
+    /// permission is missing.
+    @Published var hasFullDiskAccess = Permissions.wasGranted
     /// nil when it cannot be determined.
     @Published var removableAccess: Bool?
 
@@ -1065,7 +1088,9 @@ final class AppModel: ObservableObject {
                 "\(part.id, privacy: .public) installed is \(part.installed ?? "unknown", privacy: .public), this app ships \(part.shipped ?? "unknown", privacy: .public)"
             )
         }
-        phase = .scanning
+        // Same reasoning as the initial value: do not put the list up in front
+        // of somebody who is about to be shown the permission screen instead.
+        phase = Permissions.likelyGranted() ? .scanning : .needsPermission
         let images = Set(openedImages.keys)
         Task.detached(priority: .userInitiated) {
             // A run that ended badly, or a machine that slept through one, can
@@ -1293,7 +1318,12 @@ final class AppModel: ObservableObject {
     /// Read from the machine rather than assumed: the answer moves when the
     /// helper adds addresses, and it would be wrong to promise a dozen on a Mac
     /// where the helper never arrived.
-    @Published var capacity: (limitCount: Int, openCount: Int) = (Capacity.wanted, 0)
+    /// Read from the machine rather than assumed to be the ceiling.
+    ///
+    /// It started at twelve, and a Mac whose helper has never been installed
+    /// can serve three: the list said twelve until the first scan replaced it,
+    /// which is the wrong number shown to somebody who is counting.
+    @Published var capacity: (limitCount: Int, openCount: Int) = Capacity.now(mounts: 0)
 
     var canOpenAnother: Bool {
         Capacity.hasRoom(limitCount: capacity.limitCount, openCount: capacity.openCount)

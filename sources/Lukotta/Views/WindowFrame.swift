@@ -58,6 +58,15 @@ struct RememberFrame: NSViewRepresentable {
             guard self.window == nil else { return }
             self.window = window
             settle(window)
+            // Not shown until it is where it belongs.
+            //
+            // SwiftUI puts the window up at its own size and position, and the
+            // remembered frame is applied a moment later -- which is a window
+            // that appears in one place, at one size, and jumps to another
+            // while somebody is looking at it. On a Mac with two displays the
+            // jump crosses displays, so the app appears to open on the wrong
+            // one. Drawn transparent until the frame is settled instead.
+            window.alphaValue = 0
             restore(into: window)
 
             // And again, once SwiftUI has had its turn.
@@ -78,7 +87,14 @@ struct RememberFrame: NSViewRepresentable {
                     guard let self, let window = self.window else { return }
                     self.restore(into: window)
                     self.watch(window)
+                    window.alphaValue = 1
                 }
+            }
+            // Whatever happens above, the window becomes visible. A window that
+            // stayed transparent because something went wrong is an app that
+            // does nothing when opened, which is worse than any jump.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak window] in
+                window?.alphaValue = 1
             }
         }
 
@@ -123,7 +139,14 @@ struct RememberFrame: NSViewRepresentable {
             // the smallest size the window goes to, and the baselines only
             // matched on the machine that recorded them.
             guard !CommandLine.arguments.contains("--snapshots") else { return }
-            guard let saved = UserDefaults.standard.string(forKey: key) else { return }
+            guard let saved = UserDefaults.standard.string(forKey: key) else {
+                // Nothing remembered, which is every first launch. Centred on
+                // the display the pointer is on -- where the person is looking
+                // -- rather than wherever the window server cascades it, which
+                // on a Mac with two displays is as likely to be the other one.
+                centreOnTheActiveScreen(window)
+                return
+            }
             let frame = NSRectFromString(saved)
             guard frame.width > 0, frame.height > 0 else { return }
 
@@ -133,6 +156,20 @@ struct RememberFrame: NSViewRepresentable {
             guard visible else { return }
 
             window.setFrame(frame, display: true)
+        }
+
+        private func centreOnTheActiveScreen(_ window: NSWindow) {
+            let pointer = NSEvent.mouseLocation
+            let screen =
+                NSScreen.screens.first { $0.frame.contains(pointer) }
+                ?? NSScreen.main
+            guard let visible = screen?.visibleFrame else { return }
+            var frame = window.frame
+            frame.origin.x = visible.midX - frame.width / 2
+            // A shade above centre, which is where a window looks placed rather
+            // than dropped: the same proportion AppKit uses for its own.
+            frame.origin.y = visible.midY - frame.height / 2 + visible.height * 0.08
+            window.setFrame(frame, display: false)
         }
 
         private func save() {
@@ -146,5 +183,58 @@ extension View {
     /// Keep this window's size and position across launches.
     func remembersFrame(as key: String) -> some View {
         background(RememberFrame(key: key).frame(width: 0, height: 0))
+    }
+
+    /// Narrow the window to what this screen actually needs.
+    ///
+    /// Only the permission screen is wide: it carries a picture of the pane it
+    /// describes. Everything after it is a list of drives and a row of buttons,
+    /// and leaving the window at the width the picture wanted made the list
+    /// look like a table with a column missing.
+    ///
+    /// Only ever on a window nobody has sized themselves. Somebody who has
+    /// dragged an edge has said what they want, and no screen overrides that.
+    func widthWanted(_ width: CGFloat, key: String) -> some View {
+        background(WindowWidth(width: width, key: key).frame(width: 0, height: 0))
+    }
+}
+
+private struct WindowWidth: NSViewRepresentable {
+    let width: CGFloat
+    let key: String
+
+    func makeNSView(context: Context) -> NSView {
+        let view = RememberFrame.WindowWatcher()
+        view.onWindow = { window in
+            MainActor.assumeIsolated { context.coordinator.apply(width, to: window, key: key) }
+        }
+        return view
+    }
+
+    func updateNSView(_ view: NSView, context: Context) {
+        guard let window = view.window else { return }
+        MainActor.assumeIsolated { context.coordinator.apply(width, to: window, key: key) }
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    @MainActor
+    final class Coordinator {
+        private var applied: CGFloat?
+
+        func apply(_ width: CGFloat, to window: NSWindow, key: String) {
+            guard applied != width else { return }
+            applied = width
+            // A remembered frame is somebody's own decision about how big this
+            // window should be.
+            guard UserDefaults.standard.string(forKey: key) == nil else { return }
+            guard abs(window.frame.width - width) > 1 else { return }
+            var frame = window.frame
+            // Grown or shrunk about the middle, so the window does not walk
+            // across the display each time a screen changes.
+            frame.origin.x += (frame.width - width) / 2
+            frame.size.width = width
+            window.setFrame(frame, display: true, animate: window.isVisible)
+        }
     }
 }

@@ -21,7 +21,19 @@ final class HelperClient: ObservableObject {
         case failed(String)
     }
 
-    @Published private(set) var state: State = .notInstalled
+    /// Asked at once rather than assumed absent.
+    ///
+    /// launchd answers this without touching a disk, and starting at
+    /// notInstalled meant every screen that mentions the helper drew "not set
+    /// up" first and corrected itself a moment later, on a Mac where it has
+    /// been set up for months.
+    @Published private(set) var state: State = {
+        switch SMAppService.daemon(plistName: HelperInfo.plistName).status {
+        case .enabled: return .ready
+        case .requiresApproval: return .awaitingApproval
+        default: return .notInstalled
+        }
+    }()
 
     /// The build of the daemon actually running, as it last answered.
     ///

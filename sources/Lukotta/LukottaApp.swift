@@ -254,6 +254,11 @@ struct LukottaApp: App {
     @AppStorage(MenuBarPreference.key) private var showMenuBarIcon = true
 
     init() {
+        // Before any window exists. Applying it once the app had finished
+        // launching meant a window on a Mac set to the other appearance was
+        // drawn in the system's and repainted in ours, which is a flash of the
+        // wrong colours on every launch.
+        MainActor.assumeIsolated { Appearance.current.apply() }
         runSmokeTestIfAsked()
         unregisterHelperIfAsked()
         reinstallHelperIfAsked()
@@ -385,7 +390,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var systemIsPoweringOff = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Here rather than in the App's init, where NSApp does not exist yet.
+        // Again, harmlessly: it is set before the first window is made, and
+        // this covers anything AppKit creates for itself afterwards.
         Appearance.current.apply()
 
         // Started at login the window goes away again: the drives come back by
