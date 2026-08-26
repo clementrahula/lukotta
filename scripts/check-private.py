@@ -35,7 +35,14 @@ import sys
 # "kim" is invented, and short on purpose: it stands in for a home directory in
 # the pictures drawn for the listings, where a longer one pushes the mount point
 # past the width of the window and every path comes out with an ellipsis in it.
-ALLOWED_USERS = {"someone", "u", "Shared", "kim"}
+#
+# The last four belong to nobody: they are what a machine calls itself when no
+# person is logged into it. A hosted runner runs as "runner", and this check
+# then read every sentence about a runner in the workflows, in AGENTS.md and in
+# two source files as somebody's account name leaking into the repository --
+# so the one place that would catch a real leak before it is published failed
+# on every build instead, which is the same as not running.
+ALLOWED_USERS = {"someone", "u", "Shared", "kim", "runner", "root", "build", "ci"}
 
 # Values that are deliberately in the repository, each shaped like the real
 # thing so the code around it is exercised, none of it anyone's.
