@@ -31,6 +31,13 @@
   </a>
 </p>
 
+Or with [Homebrew](https://brew.sh):
+
+```bash
+brew install --cask clementrahula/tap/lukotta         # the release
+brew install --cask clementrahula/tap/lukotta@beta    # the pre-release
+```
+
 <p align="center">
   <img src="assets/screenshots/en-light.png" width="380"
     alt="The drive list in the light appearance: a BitLocker drive, two LUKS disk images and a VirtualBox disk open, and a second BitLocker drive still locked.">

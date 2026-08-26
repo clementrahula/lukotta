@@ -481,7 +481,11 @@ if [ -n "$NOTARY_ARGS" ] && [ "$SIGN_ID" != "-" ]; then
     # Items keychain, which locks with the session, and reads then exactly like
     # a credential that was never stored.
     printf 'error: notarisation failed; the build is signed but not notarised\n' >&2
-    printf '  ./scripts/notary-status.sh says whether the credential is there\n' >&2
+    printf '  If it said no keychain item was found: the screen is probably\n' >&2
+    printf '  locked. The credential is in the Local Items keychain, which\n' >&2
+    printf '  locks with the session and then reads exactly like a credential\n' >&2
+    printf '  that was never stored. Unlock the Mac and run this again.\n' >&2
+    printf '  ./scripts/notary-status.sh tells the two apart.\n' >&2
     rm -f "$ZIP"
     exit 1
   fi
