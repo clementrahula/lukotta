@@ -72,25 +72,36 @@ def cask(channel: str, version: str, checksum: str) -> str:
 
   app "{c["app"]}"
 
-  # The privileged daemon, which needs root to remove and so cannot be taken
-  # away by the app once the app itself has gone. Nothing here is reached on a
-  # Mac where the daemon was never set up.
+  # Stopping the daemon is all an ordinary uninstall does here.
+  #
+  # The files it leaves in /Library belong to root, and Homebrew removes those
+  # by shelling out to `sudo rm` -- which it does whether or not they are
+  # there. Naming them here therefore asked for an administrator password on
+  # every upgrade, on every Mac, including the ones where the daemon was never
+  # set up and there was nothing to delete. `brew upgrade` cannot answer a
+  # password prompt, so it did not upgrade; it failed.
+  #
+  # They belong under zap, which is the stanza for what only somebody asking to
+  # be rid of the app entirely should pay for.
   uninstall launchctl: "{identifier}.helper",
-            delete:    [
-              "/Library/LaunchDaemons/{identifier}.helper.plist",
-              "/Library/PrivilegedHelperTools/{identifier}.helper",
-            ]
+            quit:      "{identifier}"
 
-  # Everything the app keeps, all of it under its own identifier. Saved
-  # passphrases are Keychain items and are not files, so they outlive this;
-  # the app's own uninstaller is what clears those.
-  zap trash: [
-    "~/Library/Application Support/{identifier}",
-    "~/Library/Caches/{identifier}",
-    "~/Library/HTTPStorages/{identifier}",
-    "~/Library/Preferences/{identifier}.plist",
-    "~/Library/Saved Application State/{identifier}.savedState",
-  ]
+  # Everything the app keeps. The two under /Library need root and are why
+  # `brew uninstall --zap` asks for a password; the rest are this user's own.
+  # Saved passphrases are Keychain items rather than files, so they outlive
+  # this -- the app's own uninstaller is what clears those.
+  zap launchctl: "{identifier}.helper",
+      delete:    [
+        "/Library/LaunchDaemons/{identifier}.helper.plist",
+        "/Library/PrivilegedHelperTools/{identifier}.helper",
+      ],
+      trash:     [
+        "~/Library/Application Support/{identifier}",
+        "~/Library/Caches/{identifier}",
+        "~/Library/HTTPStorages/{identifier}",
+        "~/Library/Preferences/{identifier}.plist",
+        "~/Library/Saved Application State/{identifier}.savedState",
+      ]
 end
 '''
 

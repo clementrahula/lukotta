@@ -34,6 +34,11 @@ printf 'nothing private…\n'
 # this cannot.
 "$HERE/scripts/check-private.py" || status=1
 
+printf 'casks…\n'
+# Skipped where there is no tap beside this checkout, which is every clone but
+# the one releases are cut from.
+"$HERE/scripts/check-casks.sh" || status=1
+
 printf 'pinned actions…\n'
 # Every action a workflow runs, pinned to a commit. A tag is a name its owner
 # can move, and a moved tag runs somebody else's code with this repository's
