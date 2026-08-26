@@ -13,7 +13,7 @@ import LukottaCore
 enum Rollback {
     private static let recordKey = "com.lukotta.launchRecord"
 
-    /// What the app and the shim in front of it both file this under: the
+    /// What the app and the update watcher beside it both file this under: the
     /// identifier, as everything else this app keeps is filed. The name on disk
     /// is the fallback on both sides, for a bundle whose Info.plist cannot be
     /// read.
@@ -44,10 +44,15 @@ enum Rollback {
         support?.appendingPathComponent("previous/\(bundleName).app", isDirectory: true)
     }
 
-    /// Where the shim counts launches. Cleared from here, because this is the
-    /// place that knows a launch worked.
+    /// The count the launcher that used to stand in front of the app kept.
+    /// Nothing writes it now; it is taken away where it is found.
     private static var launchAttempts: URL? {
         support?.appendingPathComponent("launch-attempts")
+    }
+
+    /// The watcher that outlives this process when an update installs.
+    private static var watcher: URL {
+        Bundle.main.bundleURL.appendingPathComponent("Contents/MacOS/update-check")
     }
 
     static var currentVersion: String {
@@ -65,6 +70,41 @@ enum Rollback {
 
     // MARK: Installing
 
+    /// Set something going that will still be here after the swap.
+    ///
+    /// Sparkle replaces the bundle once this app has quit and then starts what
+    /// it installed. If that binary will not load, nothing of ours runs and
+    /// nothing notices: the person is left with an application that does
+    /// nothing when opened. So a small program with no framework to load is
+    /// started now, detached, to watch the swap happen and ask the version
+    /// that arrives to prove it starts.
+    ///
+    /// Started rather than waited for. This process is about to end, which is
+    /// the point.
+    @MainActor static func watchTheUpdateLand() {
+        guard !watching else { return }
+        watching = true
+        guard FileManager.default.isExecutableFile(atPath: watcher.path) else {
+            // Worth a line: without it an update that will not load is one
+            // nobody puts back, and this is the only place that knows.
+            Log.updates.error("no update watcher in the bundle; a version that cannot load would stay")
+            return
+        }
+        let task = Process()
+        task.executableURL = watcher
+        task.arguments = [Bundle.main.bundleURL.path, currentVersion]
+        do {
+            try task.run()
+            Log.updates.notice(
+                "watching for build \(currentVersion, privacy: .public) to be replaced")
+        } catch {
+            Log.updates.error("the update watcher would not start: \(error)")
+        }
+    }
+
+    /// Asked for from more than one of Sparkle's callbacks, and started once.
+    @MainActor private static var watching = false
+
     /// Copy the running bundle aside, before an update replaces it.
     ///
     /// Called from Sparkle's willInstallUpdate, which runs in the version that
@@ -72,8 +112,8 @@ enum Rollback {
     static func keepCurrentAside() {
         guard let keptAside else { return }
         let manager = FileManager.default
-        // Copied under another name and moved into place at the end. The shim
-        // in front of the app decides by whether the copy is there, and a copy
+        // Copied under another name and moved into place at the end. Both the
+        // app and the watcher decide by whether the copy is there, and a copy
         // interrupted half way -- the quit that follows this is what interrupts
         // it -- is a bundle that exists, restores, and does not start. The move
         // is the moment it becomes something to fall back to.
@@ -103,6 +143,13 @@ enum Rollback {
     /// Returns false when the previous version has been put back and opened, in
     /// which case this process should stop.
     static func evaluateLaunch() -> Bool {
+        // What the launcher that used to stand in front of the app left behind.
+        // It counted launches into this file, and nothing writes or reads it
+        // now that the app is what the bundle starts.
+        if let launchAttempts, FileManager.default.fileExists(atPath: launchAttempts.path) {
+            try? FileManager.default.removeItem(at: launchAttempts)
+        }
+
         // What this mechanism itself left under the old name, which was the
         // application's rather than its identifier's. A copy of a version two
         // updates ago is not worth carrying across, and the uninstaller removes
@@ -145,9 +192,6 @@ enum Rollback {
     /// until the next update arms it again.
     static func confirmHealthy() {
         write(nil)
-        // The shim counts every launch and cannot tell whether any of them
-        // worked; this is the answer it is waiting for.
-        if let launchAttempts { try? FileManager.default.removeItem(at: launchAttempts) }
         // A copy of the version that is running is not spent: it was made for
         // an update that has been fetched but not yet swapped in, and the swap
         // can be one quit away. Dropping it here — on any healthy launch in

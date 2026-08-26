@@ -142,23 +142,27 @@ else
   DEVTOOLS=()
 fi
 
+# The app is the bundle's executable, and nothing stands in front of it. It
+# used to: a C launcher that counted the attempt and handed over with execv.
+# macOS gives no menu bar item to a process whose running image is not the
+# executable the bundle declares, so the item was created, registered, and
+# never laid out.
 swift build -c release --product Lukotta ${DEVTOOLS[@]+"${DEVTOOLS[@]}"}
 cp "$(swift build -c release --product Lukotta ${DEVTOOLS[@]+"${DEVTOOLS[@]}"} --show-bin-path)/Lukotta" \
-   "$CONTENTS/MacOS/$APP_NAME-app"
+   "$CONTENTS/MacOS/$APP_NAME"
 
-# What the bundle actually starts is a few lines of C, which records that a
-# launch was attempted and hands over to the app. It is the only thing able to
-# notice a version that never runs at all -- a binary the system refuses to
-# load takes the app's own rollback with it, since none of its code runs to
-# count the attempt. See sources/LukottaLaunch/main.c.
+# That launcher's job, beside the app rather than in front of it: it is started
+# as the app hands over to Sparkle's installer, outlives it, and puts the
+# previous version back if the one that arrives will not load. See
+# sources/LukottaLaunch/main.c.
 swift build -c release --product LukottaLaunch >/dev/null
 cp "$(swift build -c release --product LukottaLaunch --show-bin-path)/LukottaLaunch" \
-   "$CONTENTS/MacOS/$APP_NAME"
+   "$CONTENTS/MacOS/update-check"
 
 # What the binary will actually load on, against what the plist promises. These
 # come from two places — Package.swift's platform and the engine's bottle — and
 # nothing else notices when they part company.
-BINARY_MIN="$(/usr/bin/otool -l "$CONTENTS/MacOS/$APP_NAME-app" \
+BINARY_MIN="$(/usr/bin/otool -l "$CONTENTS/MacOS/$APP_NAME" \
   | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print $2; exit}')"
 if [ -n "$BINARY_MIN" ] && [ "$BINARY_MIN" != "$MIN_MACOS" ]; then
   echo "error: the binary loads on macOS $BINARY_MIN but the engine needs $MIN_MACOS." >&2
@@ -170,13 +174,12 @@ fi
 # build tree. Inside a bundle they live in Contents/Frameworks, so the loader
 # needs to be told. Without this the app fails to launch at all.
 /usr/bin/install_name_tool -add_rpath "@executable_path/../Frameworks" \
-  "$CONTENTS/MacOS/$APP_NAME-app" 2>/dev/null || true
+  "$CONTENTS/MacOS/$APP_NAME" 2>/dev/null || true
 
-# And the loader has to find them from the real binary, whose name is not the
-# bundle's. Checked rather than assumed: without the rpath the app does not
-# start at all, and the shim in front of it would put the previous version back
-# three launches later, which reads as an update that undoes itself.
-/usr/bin/otool -l "$CONTENTS/MacOS/$APP_NAME-app" \
+# Checked rather than assumed: without the rpath the app does not start at all,
+# and what notices that is the update watcher, which would put the previous
+# version back -- reading as an update that undoes itself.
+/usr/bin/otool -l "$CONTENTS/MacOS/$APP_NAME" \
   | grep -q "@executable_path/../Frameworks" || {
     echo "error: the app binary cannot find Contents/Frameworks" >&2; exit 1; }
 
@@ -367,27 +370,14 @@ if [ -d "$CONTENTS/Frameworks/Sparkle.framework" ]; then
     "$CONTENTS/Frameworks/Sparkle.framework" >/dev/null 2>&1 || true
 fi
 
-# The app's real binary is no longer the bundle's executable, so it is signed in
-# its own right like any other Mach-O inside -- and under the bundle's
-# identifier, not its own file name.
-#
-# codesign takes the identifier of a bare Mach-O from the file it is signing, so
-# this one announced itself as "<name>-app". The helper admits a caller by code
-# requirement, and the requirement names the bundle identifier: after the shim
-# hands over, the process talking to the helper was a different identity and was
-# refused. Everything the helper does then stops -- unlocking a physical drive
-# without a password panel, reading a first sector to tell BitLocker from NTFS,
-# making room for a fourth drive -- and nothing says why except a line in the
-# helper's log. Loosening the requirement instead would weaken the one check
-# standing between any process on the Mac and a root daemon.
-if [ -f "$CONTENTS/MacOS/$APP_NAME-app" ]; then
+# The update watcher is a bare Mach-O and is signed in its own right, under a
+# name of its own. codesign otherwise takes a bare Mach-O's identifier from its
+# file name, and "update-check" is not an identifier anybody should see.
+if [ -f "$CONTENTS/MacOS/update-check" ]; then
   /usr/bin/codesign --force --options runtime \
-    --entitlements "$HERE/lukotta.entitlements" \
-    --identifier "$BUNDLE_ID" \
-    --sign "$SIGN_ID" "$CONTENTS/MacOS/$APP_NAME-app" >/dev/null 2>&1 \
-    || /usr/bin/codesign --force --identifier "$BUNDLE_ID" \
-      --sign "$SIGN_ID" "$CONTENTS/MacOS/$APP_NAME-app" >/dev/null 2>&1 \
-    || { echo "error: could not sign the app binary" >&2; exit 1; }
+    --identifier "$BUNDLE_ID.update-check" \
+    --sign "$SIGN_ID" "$CONTENTS/MacOS/update-check" >/dev/null 2>&1 \
+    || { echo "error: could not sign the update watcher" >&2; exit 1; }
 fi
 
 # The helper is a separate executable and must be signed in its own right --
@@ -407,24 +397,33 @@ if [ -f "$CONTENTS/Library/LaunchServices/$HELPER_LABEL" ]; then
     || { echo "error: could not sign the privileged helper" >&2; exit 1; }
 fi
 
+# The entitlements are given here, not to a binary inside: the app's executable
+# is the bundle's, so signing the bundle is what signs it. Handed to a nested
+# Mach-O -- which is what this used to do -- they would be signed onto a file
+# the app no longer runs, and the hypervisor would be refused to the process
+# that needs it.
 printf 'Signing with: %s\n' "$SIGN_ID"
-/usr/bin/codesign --force --options runtime --sign "$SIGN_ID" "$OUT" >/dev/null 2>&1 \
-  || /usr/bin/codesign --force --sign "$SIGN_ID" "$OUT" >/dev/null
+/usr/bin/codesign --force --options runtime \
+  --entitlements "$HERE/lukotta.entitlements" \
+  --sign "$SIGN_ID" "$OUT" >/dev/null 2>&1 \
+  || /usr/bin/codesign --force --entitlements "$HERE/lukotta.entitlements" \
+    --sign "$SIGN_ID" "$OUT" >/dev/null
 /usr/bin/codesign --verify --strict "$OUT" && printf 'Signature verified\n'
 
-# What the helper will actually admit. The bundle's executable is the shim and
-# the process that talks to the helper is the binary behind it, so both have to
-# satisfy the requirement the helper pins -- and only one of them did, silently,
-# for as long as it took somebody to try a physical drive.
-for binary in "$CONTENTS/MacOS/$APP_NAME" "$CONTENTS/MacOS/$APP_NAME-app"; do
-  [ -f "$binary" ] || continue
-  /usr/bin/codesign --verify -R "=identifier \"$BUNDLE_ID\"" "$binary" 2>/dev/null || {
-    echo "error: $(basename "$binary") does not satisfy identifier \"$BUNDLE_ID\"," >&2
-    echo "       so the privileged helper would refuse it." >&2
-    exit 1
-  }
-done
-printf 'Both binaries satisfy the helper'"'"'s requirement\n'
+# What the helper will actually admit. It admits a caller by code requirement,
+# and the requirement names the bundle identifier; a process that does not
+# satisfy it is refused everything the helper does -- unlocking a physical
+# drive without a password panel, reading a first sector to tell BitLocker from
+# NTFS, making room for a fourth drive -- and nothing says why except a line in
+# the helper's log. Loosening the requirement instead would weaken the one
+# check standing between any process on the Mac and a root daemon.
+/usr/bin/codesign --verify -R "=identifier \"$BUNDLE_ID\"" \
+  "$CONTENTS/MacOS/$APP_NAME" 2>/dev/null || {
+  echo "error: $APP_NAME does not satisfy identifier \"$BUNDLE_ID\"," >&2
+  echo "       so the privileged helper would refuse it." >&2
+  exit 1
+}
+printf 'The app satisfies the helper'"'"'s requirement\n'
 
 # How to prove to Apple who is submitting. notarytool takes credentials three
 # ways and this takes whichever is there, since which one a machine has depends

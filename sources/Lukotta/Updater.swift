@@ -18,6 +18,8 @@ import SwiftUI
 final class UpdaterRelay: NSObject, SPUUpdaterDelegate {
     var onFailure: ((String) -> Void)?
     var onWillInstall: (() -> Void)?
+    /// This version is done; the installer takes it from here.
+    var onWillHandOver: (() -> Void)?
     /// Answers whether a drive is open that the app itself is holding.
     var isHoldingADrive: (() -> Bool)?
 
@@ -38,6 +40,10 @@ final class UpdaterRelay: NSObject, SPUUpdaterDelegate {
 
     func updater(_ updater: SPUUpdater, willInstallUpdate item: SUAppcastItem) {
         onWillInstall?()
+        // Belt and braces with willRelaunch: which of Sparkle's callbacks
+        // arrive is not a matter of reading the documentation, and the watcher
+        // is started once however many times it is asked for.
+        onWillHandOver?()
     }
 
     /// Do not replace the app while it is the thing holding a drive open.
@@ -47,6 +53,16 @@ final class UpdaterRelay: NSObject, SPUUpdaterDelegate {
     /// so only the case where the app itself owns it has to wait — and it waits
     /// rather than refuses, so the update installs on quit.
     func updaterShouldRelaunchApplication(_ updater: SPUUpdater) -> Bool { true }
+
+    /// The last moment this version is the one running.
+    ///
+    /// Sparkle replaces the bundle after this app has quit, so nothing here
+    /// can look at what arrives. What it can do is leave something behind that
+    /// will.
+    func updaterWillRelaunchApplication(_ updater: SPUUpdater) {
+        onWillHandOver?()
+    }
+
 
     func updater(
         _ updater: SPUUpdater,
@@ -131,6 +147,7 @@ final class Updater: ObservableObject {
         downloadsAutomatically = controller.updater.automaticallyDownloadsUpdates
         canCheck = controller.updater.canCheckForUpdates
         relay.onWillInstall = { Rollback.keepCurrentAside() }
+        relay.onWillHandOver = { Rollback.watchTheUpdateLand() }
         // Only the app holding a drive itself has to postpone: a drive held by
         // the helper belongs to launchd and survives the app being replaced.
         relay.isHoldingADrive = { [weak self] in self?.holdsADrive?() ?? false }

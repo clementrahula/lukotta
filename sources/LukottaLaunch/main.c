@@ -1,40 +1,52 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Clement Rahula
 //
-// The first thing that runs, and the only thing that can notice a version of
-// this app which never runs at all.
+// Watches an update land, and puts the previous version back if the one that
+// arrived will not start.
 //
-// The app already puts itself back when a new version starts and fails: three
-// launches that never reach a working window and the previous bundle returns.
-// That is the app's own code doing it, so it cannot cover the one failure that
-// matters most -- a binary the system refuses to load. Nothing of ours runs
-// then, nothing counts the attempt, and the person is left with an application
+// The app already undoes an update that starts and never gets as far as a
+// window: three such launches and the kept-aside bundle returns. What its own
+// code cannot cover is a binary the system refuses to load -- a framework that
+// did not come across, an architecture this Mac cannot run. Nothing of ours
+// runs then, so nothing notices, and the person is left with an application
 // that does nothing when opened and no way back.
 //
-// So the bundle's executable is this: plain C, linked against libSystem and
-// nothing else, which records that a launch was attempted and hands over to the
-// real binary. The app clears the record once it has a window up. Three
-// attempts with no window between them, and the kept-aside bundle is put back
-// before the fourth.
+// This is what notices. The app starts it, detached, as it hands over to
+// Sparkle's installer; it outlives the app, waits for the swap, and asks the
+// version that arrived to prove it starts. `--verify-launch` reaches `main`
+// and exits, which is the whole question: a binary that will not load never
+// gets there.
 //
-// It cannot fail in the way it exists to catch: it has no framework to load, no
-// Swift runtime, and no library of ours. If this will not run, the Mac has
-// bigger problems than an update.
+// It cannot fail in the way it exists to catch: plain C against libSystem, no
+// framework to load, no Swift runtime, nothing of ours. If this will not run,
+// the Mac has bigger problems than an update.
+//
+// It is deliberately not the bundle's executable. It used to be, handing over
+// with execv, and macOS will not give a menu bar item to a process whose
+// running image is not the executable the bundle declares -- the item was
+// created, registered, and never laid out, at x = -1 and no width. A launcher
+// in front of the app buys this much and costs that, so it stands beside the
+// app instead of in front of it.
+//
+//   update-check <bundle path> <the build number being replaced>
 
 #include <errno.h>
 #include <fcntl.h>
-#include <libgen.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <time.h>
 #include <sys/wait.h>
+#include <time.h>
 #include <unistd.h>
 
-// Three, matching what the app itself allows before putting the old one back.
-#define ATTEMPTS_ALLOWED 3
+// How long to wait for the installer to put the new version in place. Sparkle
+// asks the app to quit, replaces the bundle and relaunches, which is seconds;
+// this is long enough for a slow disk and short enough that a watcher left
+// behind by an update that never happened does not sit there for an afternoon.
+#define SWAP_WAIT_SECONDS 180
+#define POLL_MICROSECONDS 500000
 
 static int join(char *out, size_t size, const char *a, const char *b) {
   int written = snprintf(out, size, "%s%s", a, b);
@@ -42,7 +54,7 @@ static int join(char *out, size_t size, const char *a, const char *b) {
 }
 
 // ~/Library/Application Support/<bundle name>, where the app keeps the copy it
-// set aside and where the count of attempts lives beside it.
+// set aside.
 static int support_directory(char *out, size_t size, const char *bundle_name) {
   const char *home = getenv("HOME");
   if (home == NULL || *home == '\0') return 0;
@@ -50,29 +62,19 @@ static int support_directory(char *out, size_t size, const char *bundle_name) {
   return written > 0 && (size_t)written < size;
 }
 
-static long attempts_so_far(const char *path) {
-  FILE *file = fopen(path, "r");
-  if (file == NULL) return 0;
-  long count = 0;
-  if (fscanf(file, "%ld", &count) != 1) count = 0;
-  fclose(file);
-  return count < 0 ? 0 : count;
-}
-
-static void record_attempt(const char *path, long count) {
-  FILE *file = fopen(path, "w");
-  if (file == NULL) return;
-  fprintf(file, "%ld\n", count);
-  fclose(file);
-}
-
-// CFBundleIdentifier out of Contents/Info.plist, without a plist parser.
+// One string out of Contents/Info.plist, without a plist parser.
 //
 // The file is a few hundred bytes of XML written by our own build. The key is
 // found, then the next <string> after it. Anything unexpected -- a binary
-// plist, a missing key, a value too long -- answers no, and the caller falls
-// back to the name on disk, which is what it did before.
-static int bundle_identifier(const char *contents_dir, char *out, size_t size) {
+// plist, a missing key, a value too long -- answers no, and every caller here
+// reads that as "leave the application alone", which is the safe direction.
+//
+// `spaces` because the values wanted differ in what they may contain: an
+// identifier may not carry a space and an executable called "Drive Unlocker"
+// must. Neither may carry a slash, which is the only character that could
+// point the result somewhere other than inside the bundle.
+static int plist_string(
+    const char *contents_dir, const char *key, int spaces, char *out, size_t size) {
   char path[PATH_MAX];
   if (!join(path, sizeof(path), contents_dir, "/Info.plist")) return 0;
   FILE *file = fopen(path, "r");
@@ -84,9 +86,11 @@ static int bundle_identifier(const char *contents_dir, char *out, size_t size) {
   if (read == 0) return 0;
   text[read] = '\0';
 
-  const char *key = strstr(text, "<key>CFBundleIdentifier</key>");
-  if (key == NULL) return 0;
-  const char *open_tag = strstr(key, "<string>");
+  char wanted[128];
+  if (snprintf(wanted, sizeof(wanted), "<key>%s</key>", key) >= (int)sizeof(wanted)) return 0;
+  const char *found = strstr(text, wanted);
+  if (found == NULL) return 0;
+  const char *open_tag = strstr(found, "<string>");
   if (open_tag == NULL) return 0;
   open_tag += strlen("<string>");
   const char *close_tag = strstr(open_tag, "</string>");
@@ -98,7 +102,8 @@ static int bundle_identifier(const char *contents_dir, char *out, size_t size) {
   for (size_t i = 0; i < length; i++) {
     char c = open_tag[i];
     int allowed = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
-                  || (c >= '0' && c <= '9') || c == '.' || c == '-' || c == '_';
+                  || (c >= '0' && c <= '9') || c == '.' || c == '-' || c == '_'
+                  || (spaces && c == ' ');
     if (!allowed) return 0;
   }
   memcpy(out, open_tag, length);
@@ -181,17 +186,16 @@ static int restore(const char *kept_aside, const char *bundle) {
   return 1;
 }
 
-// Only one launch may restore.
+// Only one of these may restore.
 //
-// Two copies opened at the same moment -- a double-click on a Dock icon, or a
-// Sparkle relaunch meeting somebody opening the app -- both read the same count
-// and both start copying a bundle over the same destination. Two writers, one
-// application, and what is left is neither version.
+// Two updates cannot overlap, but two watchers can: an install postponed until
+// a drive is ejected leaves one waiting while the app carries on and starts
+// another. Two writers, one application, and what is left is neither version.
 //
 // O_EXCL is the whole of the lock: whoever creates the file restores, and the
-// other carries on and runs the app that is there. A stale one from a launch
-// that died mid-copy is ignored after a minute, since a copy takes seconds and
-// a lock nobody can clear is an application that never starts again.
+// other leaves the application alone. A stale one from a watcher that died
+// mid-copy is ignored after a minute, since a copy takes seconds and a lock
+// nobody can clear is an application that never comes back.
 #define LOCK_STALE_AFTER 60
 
 static int take_restore_lock(const char *support) {
@@ -202,11 +206,11 @@ static int take_restore_lock(const char *support) {
   if (stat(path, &info) == 0) {
     time_t now = time(NULL);
     if (now - info.st_mtime < LOCK_STALE_AFTER) return 0;
-    // Stale, so it is cleared -- but two launches can reach this line together,
-    // and the second unlink would take away the lock the first has just made.
-    // Only the process whose unlink removed the file it actually looked at goes
-    // on to create one, and creation is exclusive, so exactly one wins either
-    // way.
+    // Stale, so it is cleared -- but two watchers can reach this line
+    // together, and the second unlink would take away the lock the first has
+    // just made. Only the process whose unlink removed the file it actually
+    // looked at goes on to create one, and creation is exclusive, so exactly
+    // one wins either way.
     if (unlink(path) != 0) return 0;
   }
   int fd = open(path, O_CREAT | O_EXCL | O_WRONLY, 0600);
@@ -220,85 +224,90 @@ static void release_restore_lock(const char *support) {
   if (join(path, sizeof(path), support, "/restoring")) unlink(path);
 }
 
-int main(int argc, char *argv[]) {
-  char self[PATH_MAX];
-  if (realpath(argv[0], self) == NULL) {
-    fprintf(stderr, "cannot resolve %s: %s\n", argv[0], strerror(errno));
+// Whether the version that arrived can be started at all.
+//
+// Not "did it draw a window": that is the app's own question, asked over three
+// launches, and answering it needs somebody to be looking. This one is
+// narrower and is answered in a second. `--verify-launch` reaches `main` and
+// exits without raising anything, so a zero here means dyld resolved every
+// library and our code ran. A binary the system refuses to load cannot reach
+// it.
+//
+// A bundle this cannot read the executable name out of answers yes. Being
+// unsure is not evidence that an update is broken, and undoing one on no
+// evidence is the worse mistake.
+static int the_new_version_starts(const char *bundle, const char *contents) {
+  char executable[256];
+  if (!plist_string(contents, "CFBundleExecutable", 1, executable, sizeof(executable))) return 1;
+
+  char path[PATH_MAX];
+  if (snprintf(path, sizeof(path), "%s/Contents/MacOS/%s", bundle, executable)
+      >= (int)sizeof(path)) {
     return 1;
   }
+  if (!exists(path)) return 0;
 
-  // .../<name>.app/Contents/MacOS/<name>
-  char macos_dir[PATH_MAX], contents[PATH_MAX], bundle[PATH_MAX];
-  char copy[PATH_MAX];
-  strncpy(copy, self, sizeof(copy) - 1);
-  copy[sizeof(copy) - 1] = '\0';
-  strncpy(macos_dir, dirname(copy), sizeof(macos_dir) - 1);
-  strncpy(copy, macos_dir, sizeof(copy) - 1);
-  strncpy(contents, dirname(copy), sizeof(contents) - 1);
-  strncpy(copy, contents, sizeof(copy) - 1);
-  strncpy(bundle, dirname(copy), sizeof(bundle) - 1);
+  char *const argv[] = { path, "--verify-launch", NULL };
+  return run_to_completion(path, argv);
+}
 
-  // The real binary sits beside this one under a name of its own.
-  char real[PATH_MAX];
-  if (!join(real, sizeof(real), self, "-app")) return 1;
+int main(int argc, char *argv[]) {
+  if (argc < 3) {
+    fprintf(stderr, "usage: %s <bundle path> <outgoing build>\n", argv[0]);
+    return 2;
+  }
+  const char *bundle = argv[1];
+  const char *outgoing = argv[2];
+
+  char contents[PATH_MAX];
+  if (!join(contents, sizeof(contents), bundle, "/Contents")) return 1;
 
   // What this application calls itself, which is its identifier and not the
   // name of the file. Renaming an app in Finder is somebody tidying up; it
-  // should not orphan the copy kept aside for putting back, the count of
-  // launches, or a hundred megabytes of Linux.
-  //
-  // Read out of Contents/Info.plist by hand: this program links nothing, and a
-  // property list read for one string is a scan for one key.
-  char bundle_copy[PATH_MAX];
-  strncpy(bundle_copy, bundle, sizeof(bundle_copy) - 1);
-  bundle_copy[sizeof(bundle_copy) - 1] = '\0';
-  char *bundle_name = basename(bundle_copy);
-  char *dot = strrchr(bundle_name, '.');
-  if (dot != NULL && strcmp(dot, ".app") == 0) *dot = '\0';
-
-  char identifier[256];
-  if (bundle_identifier(contents, identifier, sizeof(identifier))) {
-    bundle_name = identifier;
+  // should not orphan the copy kept aside for putting back.
+  char bundle_name[256];
+  if (!plist_string(contents, "CFBundleIdentifier", 0, bundle_name, sizeof(bundle_name))) {
+    return 1;
   }
 
-  char support[PATH_MAX], attempts_path[PATH_MAX], kept_aside[PATH_MAX];
-  int have_support = support_directory(support, sizeof(support), bundle_name);
-  if (have_support) {
-    have_support = join(attempts_path, sizeof(attempts_path), support, "/launch-attempts");
+  char support[PATH_MAX], kept_aside[PATH_MAX];
+  if (!support_directory(support, sizeof(support), bundle_name)) return 1;
+  if (snprintf(kept_aside, sizeof(kept_aside), "%s/previous/%s.app", support, bundle_name)
+      >= (int)sizeof(kept_aside)) {
+    return 1;
   }
-  if (have_support) {
-    char previous[PATH_MAX];
-    if (snprintf(previous, sizeof(previous), "%s/previous/%s.app", support, bundle_name) > 0) {
-      strncpy(kept_aside, previous, sizeof(kept_aside) - 1);
-      kept_aside[sizeof(kept_aside) - 1] = '\0';
-    } else {
-      have_support = 0;
+  // Nothing to put back, so there is nothing worth watching for. This is what
+  // an update whose keep-aside copy failed looks like, and what a stray
+  // invocation looks like.
+  if (!exists(kept_aside)) return 0;
+
+  // Wait for the swap. The installer runs after the app has quit, so the build
+  // number in the bundle is the outgoing one until the moment it is not.
+  char build[256];
+  int swapped = 0;
+  for (long waited = 0; waited < (long)SWAP_WAIT_SECONDS * 1000000L;
+       waited += POLL_MICROSECONDS) {
+    if (plist_string(contents, "CFBundleVersion", 0, build, sizeof(build))
+        && strcmp(build, outgoing) != 0) {
+      swapped = 1;
+      break;
     }
+    usleep(POLL_MICROSECONDS);
   }
+  // The update was turned down, or postponed past this watch. What is
+  // installed is what was already there.
+  if (!swapped) return 0;
 
-  if (have_support) {
-    long count = attempts_so_far(attempts_path);
-    if (count >= ATTEMPTS_ALLOWED && exists(kept_aside) && take_restore_lock(support)) {
-      // This version has been opened three times and has never got as far as
-      // saying it was working. Whatever is wrong with it, the previous one ran.
-      int put_back = restore(kept_aside, bundle);
-      release_restore_lock(support);
-      if (put_back) {
-        record_attempt(attempts_path, 0);
-        execv(real, argv);
-        // The restored bundle's own executable, if the name differed.
-        char restored[PATH_MAX];
-        if (join(restored, sizeof(restored), self, "")) execv(restored, argv);
-        return 1;
-      }
-    }
-    record_attempt(attempts_path, count + 1);
-  }
+  if (the_new_version_starts(bundle, contents)) return 0;
 
-  execv(real, argv);
+  if (!take_restore_lock(support)) return 0;
+  int put_back = restore(kept_aside, bundle);
+  release_restore_lock(support);
+  if (!put_back) return 1;
 
-  // The real binary is not there, or is not something this Mac can run. That is
-  // the same fault, found earlier, so it counts as one of the three.
-  fprintf(stderr, "%s: %s\n", real, strerror(errno));
-  return 1;
+  // Open what was put back, so the person ends up looking at an application
+  // that works rather than at whatever the failed launch left on screen.
+  char *const open_it[] = { "open", "-n", (char *)bundle, NULL };
+  run_to_completion("/usr/bin/open", open_it);
+  return 0;
 }

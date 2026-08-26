@@ -6,6 +6,24 @@ import LukottaCore
 import ServiceManagement
 import SwiftUI
 
+/// Answer the update watcher: this build starts.
+///
+/// Narrower than `--smoke-test`, and deliberately so. Reaching this line means
+/// dyld resolved every library and our own code ran, which is the one thing
+/// the watcher beside the app cannot find out by looking at the bundle. It
+/// says nothing about whether a window ever appears — that is the app's own
+/// question, asked over three launches — and it leaves the launch record
+/// alone, because a build that starts and then hangs is what that record is
+/// for.
+///
+/// First, before anything at all: the question is whether this binary runs,
+/// and every line put in front of it is a line that could answer no for some
+/// other reason.
+private func answerVerifyLaunchIfAsked() {
+    guard CommandLine.arguments.contains("--verify-launch") else { return }
+    exit(0)
+}
+
 /// Prove the binary starts before it is released.
 ///
 /// Reaching `main` means dyld resolved every library, including the embedded
@@ -143,6 +161,13 @@ enum MenuBarPreference {
 /// a condition or left in place, and whether its contents read the model or a
 /// snapshot of it. An NSStatusItem is placed by AppKit in the menu bar, which
 /// is where a menu bar item goes.
+///
+/// It was not drawn for a while, and none of that was this code's doing: the
+/// bundle used to start a C launcher which handed over to the app with execv,
+/// and macOS gives no menu bar item to a process whose running image is not
+/// the executable the bundle declares. The item was made, registered, listed
+/// by accessibility with the right menu -- and left at x = -1 in a window no
+/// pixels high. Nothing here can work around that, so the launcher moved.
 @MainActor
 final class MenuBarItem {
     static let shared = MenuBarItem()
@@ -324,6 +349,7 @@ struct LukottaApp: App {
     @AppStorage(MenuBarPreference.key) private var showMenuBarIcon = true
 
     init() {
+        answerVerifyLaunchIfAsked()
         // Before any window exists. Applying it once the app had finished
         // launching meant a window on a Mac set to the other appearance was
         // drawn in the system's and repainted in ours, which is a flash of the

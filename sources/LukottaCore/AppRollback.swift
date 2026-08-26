@@ -36,16 +36,16 @@ public enum LaunchAction: Equatable, Sendable {
 
 public enum AppRollback {
 
-    /// The directory the app and the shim in front of it both keep this in.
+    /// The directory the app and the update watcher beside it both keep this in.
     ///
-    /// They have to agree: the app writes the kept-aside copy and the shim
+    /// They have to agree: the app writes the kept-aside copy and the watcher
     /// decides whether to put it back, so a disagreement is a rollback that
     /// never happens and nothing to say so.
     ///
     /// The identifier, then, as everything else this app keeps is filed, and it
     /// survives the application being renamed. The name on disk is the fallback
     /// on both sides for a bundle whose Info.plist cannot be read --
-    /// `bundle_identifier()` in sources/LukottaLaunch/main.c does the same.
+    /// `plist_string()` in sources/LukottaLaunch/main.c reads the same key.
     public static func supportName(identifier: String?, bundleName: String) -> String {
         guard let identifier, !identifier.isEmpty else { return bundleName }
         return identifier
