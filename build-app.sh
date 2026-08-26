@@ -77,7 +77,12 @@ esac
 OUT="${1:-$HERE/dist/$APP_NAME.app}"
 CONTENTS="$OUT/Contents"
 
-VERSION="$(tr -d ' \n' < "$HERE/VERSION")"
+# LUKOTTA_VERSION overrides the file, and only the release script sets it: a
+# beta is a pre-release of the version being worked towards, and the suffix is
+# worked out there from what has actually been published. Without this the
+# bundle said 1.21.0 while the feed, the tag and the release all said
+# 1.21.0-beta.1 -- the About sheet naming a version that does not exist.
+VERSION="${LUKOTTA_VERSION:-$(tr -d ' \n' < "$HERE/VERSION")}"
 # Digits and dots only. The shell glob this used to be accepted "1x.2.3" and
 # "1..", because * matches anything, and a version like that reaches the
 # appcast and every installed copy before anybody reads it.

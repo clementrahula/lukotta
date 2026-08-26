@@ -299,7 +299,7 @@ fi
 rm -rf "$HERE/dist"
 # A release is the one build that carries the marks. See TRADEMARKS.txt.
 LUKOTTA_BRANDING="$BRANDING" LUKOTTA_NOTARY_PROFILE="$PROFILE" \
-  "$HERE/build-app.sh" "$APP" >/dev/null
+  LUKOTTA_VERSION="$VERSION" "$HERE/build-app.sh" "$APP" >/dev/null
 
 # Refuse to ship something Gatekeeper will refuse to open.
 spctl -a -vv -t install "$APP" 2>&1 | grep -q "source=Notarized Developer ID" || {
