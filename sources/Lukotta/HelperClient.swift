@@ -100,16 +100,36 @@ final class HelperClient: ObservableObject {
         // again -- so it is offered rather than done, and the drive in front of
         // somebody still opens through the older daemon meanwhile.
         if FileManager.default.fileExists(atPath: HelperInfo.installedJobPath) {
-            askVersion { [weak self] theirs in
-                guard let self else { return }
-                let mine =
-                    Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
-                guard !mine.isEmpty, !theirs.isEmpty, theirs != mine else { return }
+            // Installed with an administrator password, so its binary lives
+            // where only root may write -- and it is root. It replaces itself
+            // from this bundle and stands down; launchd starts what it put
+            // there. Nobody is asked for anything.
+            //
+            // Compared by what it promises rather than which build it came
+            // from: the build moves every release and would have asked to be
+            // set up again after almost all of them.
+            askContract { [weak self] theirs in
+                guard let self, theirs < HelperInfo.contract else { return }
                 Log.app.notice(
-                    "the installed helper is build \(theirs, privacy: .public), this is \(mine, privacy: .public); asking to set it up again"
+                    "the installed helper answers contract \(theirs, privacy: .public), this build wants \(HelperInfo.contract, privacy: .public); asking it to replace itself"
                 )
-                self.state = .failed(
-                    appString("This version needs setting up again. It takes one password."))
+                self.askItToRefreshItself { [weak self] replaced in
+                    guard let self else { return }
+                    guard replaced else {
+                        Log.app.error("the daemon would not replace itself")
+                        self.state = .failed(
+                            appString("This version needs setting up again. It takes one password.")
+                        )
+                        return
+                    }
+                    self.connection?.invalidate()
+                    self.connection = nil
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                        self?.hasConfirmed = false
+                        self?.refresh()
+                        self?.makeRoomForDrives()
+                    }
+                }
             }
             return
         }
