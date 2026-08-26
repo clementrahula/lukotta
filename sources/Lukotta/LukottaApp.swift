@@ -212,16 +212,26 @@ final class MenuBarItem {
             action: #selector(MenuBarItem.bringToFront), keyEquivalent: "")
         show.target = self
         menu.addItem(show)
-        menu.addItem(
-            NSMenuItem(
-                title: String(localized: "Quit \(Brand.name)"),
-                action: #selector(NSApplication.terminate(_:)), keyEquivalent: ""))
+        // Quitting through a selector of our own rather than through
+        // `terminate:`. macOS draws a symbol beside the standard actions, and
+        // one item in three carrying a glyph indents the other two off the
+        // edge of it -- a menu that looks like it lost an icon rather than one
+        // that never had any.
+        let quit = NSMenuItem(
+            title: String(localized: "Quit \(Brand.name)"),
+            action: #selector(MenuBarItem.quit), keyEquivalent: "")
+        quit.target = self
+        menu.addItem(quit)
         item.menu = menu
     }
 
     @objc private func ejectChosen(_ sender: NSMenuItem) {
         guard let point = sender.representedObject as? String else { return }
         eject?(point)
+    }
+
+    @objc private func quit() {
+        NSApp.terminate(nil)
     }
 
     @objc private func bringToFront() {
