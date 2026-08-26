@@ -225,10 +225,29 @@ public enum EngineEnvironment {
         // hundred-megabyte unpack, and no sight of the copy kept aside for
         // putting a bad update back. The shim in front of the app reads the
         // same value out of Info.plist, so both arrive at one directory.
-        let identifier = Bundle.main.bundleIdentifier
-        if let identifier, !identifier.isEmpty { return identifier }
-        let name = Bundle.main.bundleURL.deletingPathExtension().lastPathComponent
-        return name.isEmpty || name == "/" ? "Lukotta" : name
+        directoryName(
+            identifier: Bundle.main.bundleIdentifier,
+            fileName: Bundle.main.bundleURL.deletingPathExtension().lastPathComponent)
+    }
+
+    /// The identifier, with the daemon's suffix taken off.
+    ///
+    /// The privileged helper carries its own Info.plist inside its binary --
+    /// SMJobBless requires one -- and an embedded plist wins over the bundle
+    /// the executable sits in. So the helper reads `<app>.helper` here where
+    /// the app reads `<app>`, and the two compose different directories.
+    ///
+    /// They must compose the same one. The helper mounts on the app's behalf
+    /// and hands the engine `ANYLINUXFS_HOME`: disagreeing, it unpacks a second
+    /// Linux environment beside the app's, serves drives from that, and writes
+    /// its logs where nothing looks for them. The first drive opened through
+    /// the daemon after this diverged failed with "Failed to create log file"
+    /// and nothing to say why.
+    public static func directoryName(identifier: String?, fileName: String) -> String {
+        if let identifier, !identifier.isEmpty {
+            return HelperInfo.identifierOfTheApp(behind: identifier)
+        }
+        return fileName.isEmpty || fileName == "/" ? "Lukotta" : fileName
     }
 
     /// The engine's directory inside a given home.

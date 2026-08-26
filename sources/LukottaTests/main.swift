@@ -797,6 +797,23 @@ group("mountStages") {
         AppRollback.supportName(identifier: "", bundleName: "Drive Unlocker") == "Drive Unlocker",
         "an empty identifier counting as none")
 
+    // The app and the daemon have to compose one engine directory. The daemon
+    // reads its own embedded identifier, which is the app's with ".helper" on
+    // the end, and a directory of its own means a second Linux environment, a
+    // second place for logs, and a drive served from neither.
+    expect(
+        EngineEnvironment.directoryName(identifier: "com.lukotta.helper", fileName: "Lukotta")
+            == EngineEnvironment.directoryName(identifier: "com.lukotta", fileName: "Lukotta"),
+        "the daemon and the app name the same engine directory")
+    expect(
+        EngineEnvironment.directoryName(identifier: "com.lukotta.beta.helper", fileName: "x")
+            == "com.lukotta.beta",
+        "and so do the pre-release and its own daemon")
+    expect(
+        EngineEnvironment.directoryName(identifier: nil, fileName: "Drive Unlocker")
+            == "Drive Unlocker",
+        "a build with no identifier falls back to the name on disk")
+
     // A mount whose server has gone looks exactly like a drive somebody has
     // open, and deciding wrongly either leaves the next mount wedged or takes
     // away a volume in use.
