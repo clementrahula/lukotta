@@ -139,9 +139,19 @@ final class HelperClient: ObservableObject {
                     return
                 }
                 // A daemon too old to know the question, or one busy serving a
-                // drive. Registering again is what there is; it takes effect
-                // when the process it cannot reach finally exits.
-                self.reregister()
+                // drive. Ask it to take itself off instead: every version has
+                // known how to do that, it is root and can, and it exits when
+                // it has. Registering again then starts the binary that is in
+                // the bundle now, rather than waiting on a process nothing here
+                // can reach.
+                //
+                // This is the path out for a Mac that already has an old daemon
+                // on it. Without it the only ways across are a restart and a
+                // command with a password in front of it, and neither is
+                // somebody else's job.
+                self.askItToTakeItselfOff { [weak self] in
+                    self?.reregister()
+                }
             }
             return
         }
@@ -158,6 +168,26 @@ final class HelperClient: ObservableObject {
                 proxy.stepAside { reply($0) }
             }
             await MainActor.run { done(stepped ?? false) }
+        }
+    }
+
+    /// Ask the daemon to unload itself, whatever version it is.
+    ///
+    /// `removeYourself` unloads the job and ends the process. It has been in
+    /// the protocol since the first daemon, so it reaches one too old for
+    /// anything newer.
+    private func askItToTakeItselfOff(_ done: @escaping @MainActor () -> Void) {
+        guard proxy() != nil, let connection else { return done() }
+        let box = ConnectionBox(connection)
+        Task.detached {
+            _ = await Self.roundTrip(box, within: 10) { proxy, reply in
+                proxy.removeYourself { reply($0) }
+            }
+            // launchd needs a moment to notice the job has gone before it can
+            // be given a new one; registering into a job still tearing down
+            // leaves it notRegistered.
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            await MainActor.run { done() }
         }
     }
 
