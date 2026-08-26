@@ -125,6 +125,20 @@ public enum HelperInfo {
 
     func helperVersion(reply: @escaping (String) -> Void)
 
+    /// Stop, so launchd starts the build that is on disk now.
+    ///
+    /// launchd keeps a registered daemon running across an app update: the
+    /// binary inside the bundle is replaced and the process is not, and
+    /// unregistering and registering again does not disturb one that is already
+    /// running. So a fixed app went on being served by the broken daemon, with
+    /// nothing to say so beyond a version the app noticed and could do nothing
+    /// about.
+    ///
+    /// Only the daemon can end the daemon: it is root and the app is not. It
+    /// replies first, then exits; launchd starts it again on the next call, and
+    /// that one comes from the bundle as it is now.
+    func stepAside(reply: @escaping (Bool) -> Void)
+
     /// Take yourself off this Mac: unload the job, remove it, remove the
     /// binary. Only the daemon can do this, because only root may write where
     /// those live -- and asking for the password a second time to undo

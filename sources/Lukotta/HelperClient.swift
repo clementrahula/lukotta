@@ -118,8 +118,52 @@ final class HelperClient: ObservableObject {
         askVersion { [weak self] theirs in
             guard let self, theirs != mine else { return }
             Log.app.notice(
-                "the running helper is build \(theirs.isEmpty ? "unknown" : theirs, privacy: .public), this is \(mine, privacy: .public); registering it again"
+                "the running helper is build \(theirs.isEmpty ? "unknown" : theirs, privacy: .public), this is \(mine, privacy: .public); asking it to step aside"
             )
+            // Ask it to stop first. launchd keeps a registered daemon running
+            // across an app update -- the binary in the bundle is replaced and
+            // the process is not -- and unregistering does not disturb one that
+            // is already going, so this used to notice the mismatch every
+            // launch and change nothing. Only the daemon can end the daemon.
+            self.askToStepAside { [weak self] stepped in
+                guard let self else { return }
+                if stepped {
+                    self.connection?.invalidate()
+                    self.connection = nil
+                    // launchd starts it again on the next call, from the bundle
+                    // as it is now.
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                        self?.refresh()
+                        self?.makeRoomForDrives()
+                    }
+                    return
+                }
+                // A daemon too old to know the question, or one busy serving a
+                // drive. Registering again is what there is; it takes effect
+                // when the process it cannot reach finally exits.
+                self.reregister()
+            }
+            return
+        }
+    }
+
+    /// Ask the running daemon to stop. False when it will not, or cannot be
+    /// asked -- an older one does not implement this and its error handler
+    /// answers instead.
+    private func askToStepAside(_ done: @escaping @MainActor (Bool) -> Void) {
+        guard proxy() != nil, let connection else { return done(false) }
+        let box = ConnectionBox(connection)
+        Task.detached {
+            let stepped: Bool? = await Self.roundTrip(box, within: 10) { proxy, reply in
+                proxy.stepAside { reply($0) }
+            }
+            await MainActor.run { done(stepped ?? false) }
+        }
+    }
+
+    private func reregister() {
+        askVersion { [weak self] _ in
+            guard let self else { return }
             self.connection?.invalidate()
             self.connection = nil
             try? self.service.unregister()

@@ -430,6 +430,25 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         reply(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown")
     }
 
+    /// Exit, so that launchd starts the binary that is in the bundle now.
+    ///
+    /// Never while a mount is running: the drive somebody is opening is being
+    /// served by this process, and going away in the middle of it would leave
+    /// them with a failure and a machine nothing will take down. The app asks
+    /// again after the mount it is waiting on has finished.
+    func stepAside(reply: @escaping (Bool) -> Void) {
+        let busy = progressQueue.sync { !running.isEmpty }
+        if busy {
+            Log.helper.notice("asked to step aside while serving a mount; staying")
+            reply(false)
+            return
+        }
+        Log.helper.notice("stepping aside so the newer daemon can start")
+        reply(true)
+        // After the reply has left the process, not before.
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1) { exit(0) }
+    }
+
     /// The engine's own directory inside that user's Application Support.
     ///
     /// The same place the app uses, composed here from the invoking user's home
