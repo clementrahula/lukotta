@@ -415,6 +415,30 @@ RELEASE_BODY="$HERE/dist/$SLUG-$VERSION-body.md"
   printf '```\n'
 } > "$RELEASE_BODY"
 
+# The Homebrew cask, written from the disk image that was just uploaded.
+#
+# Homebrew's own cask repository refuses this app on notability rather than on
+# quality, so a tap of our own is the distribution. It is the same cask file
+# either way and moves across unchanged if that ever stops being true.
+#
+# Written here, from the checksum of the image this release actually published,
+# because a cask is a version and a checksum and nothing else: maintained by
+# hand it is wrong by one release for as long as nobody notices, and a wrong
+# checksum is an install that fails with nothing to say why.
+TAP="${LUKOTTA_TAP:-$HERE/../homebrew-tap}"
+DMG_SHA="$(shasum -a 256 "$DMG" | cut -d' ' -f1)"
+if [ -d "$TAP/Casks" ]; then
+  case "${LUKOTTA_CHANNEL:-release}" in
+    beta) CASK_FILE="$TAP/Casks/lukotta@beta.rb"; CASK_CHANNEL=beta ;;
+    *)    CASK_FILE="$TAP/Casks/lukotta.rb";      CASK_CHANNEL=release ;;
+  esac
+  python3 "$HERE/scripts/cask.py" "$CASK_CHANNEL" "$VERSION" "$DMG_SHA" > "$CASK_FILE"
+  printf '==> Cask written: %s\n' "$CASK_FILE"
+else
+  printf '==> No tap at %s; the cask was not written\n' "$TAP"
+  printf '    git clone https://github.com/clementrahula/homebrew-tap %s\n' "$TAP"
+fi
+
 printf '==> Describing it in the appcast\n'
 mkdir -p "$(dirname "$APPCAST")"
 python3 "$HERE/scripts/appcast.py" \
@@ -472,4 +496,11 @@ else
   printf '  LUKOTTA_APPCAST=<that checkout>/appcast.xml %s\n' "$0"
   printf 'so they are served at\n'
   printf '  %s\n' "$FEED_URL"
+fi
+if [ -d "$TAP/.git" ]; then
+  printf '\nCommit and push %s so the cask is installable with\n' "$TAP"
+  case "${LUKOTTA_CHANNEL:-release}" in
+    beta) printf '  brew install --cask clementrahula/tap/lukotta@beta\n' ;;
+    *)    printf '  brew install --cask clementrahula/tap/lukotta\n' ;;
+  esac
 fi
