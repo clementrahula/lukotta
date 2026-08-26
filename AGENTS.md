@@ -134,7 +134,7 @@ else can reach it.
 Everything is logged with `os.Logger` under the running bundle's identifier,
 which `Log.subsystem` is the only definition of. To read it back:
 
-    log show --predicate 'subsystem == "com.clementrahula.lukotta"' --last 30m
+    log show --predicate 'subsystem == "com.lukotta"' --last 30m
 
 An unbranded build logs under `com.example.driveunlocker`, and the privileged
 helper logs under the same subsystem as the app it came from, so one predicate

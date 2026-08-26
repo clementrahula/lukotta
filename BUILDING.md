@@ -175,7 +175,7 @@ staples the ticket into the bundle so a first launch works offline.
 ```bash
 ./scripts/run-tests.sh
 ./scripts/lint.sh
-./scripts/preflight.sh    # what a release needs, in about half an hour
+./scripts/preflight.sh    # what a release needs, in ten minutes
 ./scripts/e2e.sh          # everything, over an hour, a real Mac
 ./dist/Lukotta.app/Contents/MacOS/Lukotta --smoke-test
 ```
@@ -185,7 +185,9 @@ library, then exits. A build that installs and then refuses to launch is the one
 failure an update cannot undo.
 
 `preflight.sh` is what to run before a release: a fresh install, a drive opened
-and written to and ejected, an update applied and rolled back, on both channels.
+and written to and ejected, an update applied as a whole archive and again as a
+delta, one offered while a drive is open, a version that cannot start being put
+back, and the disk image somebody downloads -- on both channels.
 `e2e.sh` is the whole thing — every image format, every filesystem it can build
 a fixture for, the awkward names and the unhappy paths — and takes long enough
 that it belongs to a night rather than to a release.
@@ -198,7 +200,14 @@ filesystem fewer and says so.
 
 `scripts/make-test-volumes.sh` builds the LUKS layouts, including a volume group
 of three volumes; `e2e.sh` uses those where they exist and says so where they do
-not.
+not. To run either against the pre-release instead of the release:
+
+```bash
+LUKOTTA_E2E_APP="/Applications/Lukotta Beta.app" ./scripts/e2e.sh
+```
+
+Both leave the Mac as they found it. Neither unmounts a drive that was already
+open when it started, or takes down an engine that was already serving one.
 
 `build-app.sh` already compares the binary's minimum macOS with the floor the
 engine's bottle sets, and refuses to finish if they disagree. To look at every
@@ -212,20 +221,26 @@ done | sort -V | tail -1
 
 ## Branding
 
-The build carries one of two identities.
+The build carries one of three identities.
 
-| | Default | `LUKOTTA_BRANDING=official` |
-| --- | --- | --- |
-| Name | Drive Unlocker | Lukotta |
-| Bundle identifier | `com.example.driveunlocker` | `com.clementrahula.lukotta` |
-| Icon and mark | A grey placeholder | The Lukotta artwork |
+| | Default | `LUKOTTA_BRANDING=official` | `LUKOTTA_BRANDING=beta` |
+| --- | --- | --- | --- |
+| Name | Drive Unlocker | Lukotta | Lukotta Beta |
+| Bundle identifier | `com.example.driveunlocker` | `com.lukotta` | `com.lukotta.beta` |
+| Icon and mark | A grey placeholder | The Lukotta artwork | The mark with a band across its foot |
+| Update feed | none | `updates.lukotta.com/appcast.xml` | `updates.lukotta.com/beta/appcast.xml` |
+
+The pre-release is the release everybody else gets a week later, not a
+different program. It carries its own identifier, daemon, saved passphrases and
+feed, so it can sit in the same Dock as the release without either standing on
+the other.
 
 `example.com` is reserved by RFC 2606, so the unbranded identifier can never
 collide with a real vendor.
 
-The two builds are the same software. They differ in artwork, name and
-identifier, all three of which the code reads from the bundle at run time rather
-than having them compiled in.
+All three are the same software. They differ in artwork, name, identifier and
+feed, every one of which the code reads from the bundle at run time rather than
+having it compiled in.
 
 Use official branding to check a release against its source. Do not distribute
 the result under that name: the GPL grants everything about the software and

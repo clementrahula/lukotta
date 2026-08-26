@@ -115,6 +115,24 @@ closed. Every attempt in the generated script is followed by the same attempt
 read-only, and the script writes a `read-only` stage marker when one of those
 succeeds, so a drive is never described as writable when it is not.
 
+Read-only is the last answer, not the first. Where every writable attempt
+failed but the transcript says the machinery slipped -- a broken pipe, an image
+the last virtual machine had not finished letting go of -- every one of them is
+made again before the read-only ones are reached. A Microsoft drive has two,
+`ntfs3` and `ntfs-3g`, and retrying only the first re-ran the driver that had
+already refused for a real reason: the drive went read-only for the rest of the
+session, and the sentence explaining it blamed the filesystem for a fault in
+the machinery.
+
+An attempt has an end, on all three routes. The application stops waiting after
+eight minutes; the privileged daemon keeps the same deadline for the mount it
+runs itself; and the generated script keeps a shorter one on top of both, and
+ends the engine it started rather than being killed from outside. That last one
+matters because a privileged attempt belongs to root: killing the shell from
+the application reaches the shell and not the engine under it, which went on
+mounting and produced a drive in Finder minutes after somebody had been told it
+could not be opened, served by nothing that would ever eject it.
+
 ---
 
 ## 3. Images that name other files
