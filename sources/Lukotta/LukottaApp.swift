@@ -459,8 +459,18 @@ struct LukottaApp: App {
         MainActor.assumeIsolated { Appearance.current.apply() }
         runSmokeTestIfAsked()
         unregisterHelperIfAsked()
-        reinstallHelperIfAsked()
-        MainActor.assumeIsolated { checkHelperIfAsked() }
+        // Development switches, and not in a build anybody receives.
+        //
+        // --reinstall-helper registers the daemon through SMAppService, which
+        // is what raises "can run in the background for all users" -- a
+        // question this app answers for itself with one administrator
+        // password and never puts to the person twice. Shipped, it was a
+        // switch that could produce a permission prompt the app is designed
+        // not to need.
+        #if DEVTOOLS
+            reinstallHelperIfAsked()
+            MainActor.assumeIsolated { checkHelperIfAsked() }
+        #endif
         #if DEVTOOLS
             MainActor.assumeIsolated { EndToEnd.runIfAsked() }
             MainActor.assumeIsolated { Snapshots.runIfAsked() }
