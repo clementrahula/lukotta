@@ -88,6 +88,7 @@ struct SettingsView: View {
 
             Section {
                 Toggle("Show \(Brand.name) in the menu bar", isOn: $showMenuBarIcon)
+                    .onChange(of: showMenuBarIcon) { model.refreshEjectables() }
                 Text("Appears only while a drive is unlocked, for ejecting it.")
                     .font(.caption).foregroundStyle(.secondary)
             } header: {

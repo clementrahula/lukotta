@@ -1038,6 +1038,7 @@ final class AppModel: ObservableObject {
             uniquingKeysWith: { first, _ in first })
         // Counted from the engine's own mounts rather than from the rows: a
         // drive serving several volumes is one machine on one address.
+        refreshEjectables()
         refreshCapacity(mounts: Set(sighting.mounts.map(\.devicePath)).count)
         refreshSpace()
         return listed
@@ -2092,6 +2093,27 @@ final class AppModel: ObservableObject {
     /// By mount point rather than by drive, because that is what the row has
     /// and what survives a rebuild of the list.
     @Published var readOnlyMounts: Set<String> = []
+
+    /// What the menu bar offers to eject: a plain list with an identity of its
+    /// own, so building the menu reads nothing that can publish while it does.
+    struct Ejectable: Identifiable, Equatable, Sendable {
+        var id: String { point }
+        let point: String
+        let name: String
+    }
+
+    @Published var ejectables: [Ejectable] = []
+
+    /// Also called when the setting is toggled, which is the other thing that
+    /// decides whether the item is there.
+    func refreshEjectables() {
+        let now = drives.compactMap { drive -> Ejectable? in
+            guard let point = mountPoint(for: drive) else { return nil }
+            return Ejectable(point: point, name: drive.name)
+        }
+        if now != ejectables { ejectables = now }
+        MenuBarItem.shared.update(drives: now) { [weak self] point in self?.eject(point) }
+    }
 
     func unlock(_ drive: Drive, readOnly: Bool = false) {
         credentialProblem = nil

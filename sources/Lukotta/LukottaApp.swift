@@ -135,6 +135,76 @@ enum MenuBarPreference {
     static let key = "com.lukotta.showMenuBarIcon"
 }
 
+/// The menu bar item.
+///
+/// AppKit rather than `MenuBarExtra`. A MenuBarExtra in this app sends SwiftUI
+/// into rebuilding the main menu without stopping the moment it is inserted --
+/// a gigabyte every ten seconds, and a beachball -- whether it is inserted from
+/// a condition or left in place, and whether its contents read the model or a
+/// snapshot of it. An NSStatusItem is placed by AppKit in the menu bar, which
+/// is where a menu bar item goes.
+@MainActor
+final class MenuBarItem {
+    static let shared = MenuBarItem()
+    private var item: NSStatusItem?
+    private var eject: ((String) -> Void)?
+
+    /// - Parameter drives: what to offer to eject, in the order the list shows.
+    func update(drives: [AppModel.Ejectable], eject: @escaping (String) -> Void) {
+        self.eject = eject
+        let wanted = UserDefaults.standard.object(forKey: MenuBarPreference.key) as? Bool ?? true
+        guard wanted else {
+            if let item { NSStatusBar.system.removeStatusItem(item) }
+            item = nil
+            return
+        }
+        let item = item ?? NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        self.item = item
+        item.isVisible = true
+        if let button = item.button {
+            let symbol = NSImage(
+                systemSymbolName: "externaldrive.fill", accessibilityDescription: Brand.name)
+            symbol?.isTemplate = true
+            button.image = symbol
+            // Never nothing. A button with neither an image nor a title has no
+            // width, which is an item present in every way except on screen.
+            if symbol == nil { button.title = Brand.name }
+            button.toolTip = Brand.name
+        }
+
+        let menu = NSMenu()
+        for drive in drives {
+            let entry = NSMenuItem(
+                title: String(localized: "Eject \(drive.name)"),
+                action: #selector(MenuBarItem.ejectChosen(_:)), keyEquivalent: "")
+            entry.target = self
+            entry.representedObject = drive.point
+            menu.addItem(entry)
+        }
+        if !drives.isEmpty { menu.addItem(.separator()) }
+        let show = NSMenuItem(
+            title: String(localized: "Open \(Brand.name)"),
+            action: #selector(MenuBarItem.bringToFront), keyEquivalent: "")
+        show.target = self
+        menu.addItem(show)
+        menu.addItem(
+            NSMenuItem(
+                title: String(localized: "Quit \(Brand.name)"),
+                action: #selector(NSApplication.terminate(_:)), keyEquivalent: ""))
+        item.menu = menu
+    }
+
+    @objc private func ejectChosen(_ sender: NSMenuItem) {
+        guard let point = sender.representedObject as? String else { return }
+        eject?(point)
+    }
+
+    @objc private func bringToFront() {
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.windows.first?.makeKeyAndOrderFront(nil)
+    }
+}
+
 /// Unregister the privileged helper and exit.
 ///
 /// Dragging the app to the Bin leaves the daemon registered, because launchd
@@ -302,79 +372,13 @@ struct LukottaApp: App {
                 }
         }
         .windowResizability(.contentMinSize)
-        // Present only while something is open, so it does not clutter the menu
-        // bar for a tool used occasionally.
-        // The systemImage initialiser, not a custom label: a label built from a
-        // view is rendered as-is, without the template treatment and sizing the
-        // menu bar applies to a symbol, and comes out heavy and misaligned.
-        MenuBarExtra(
-            Brand.name, systemImage: "externaldrive.fill",
-            isInserted: Binding(
-                get: { showMenuBarIcon && !model.openMounts.isEmpty },
-                set: { _ in })
-        ) {
-            // The list's own order, and the list's own names. Sorting the
-            // mount points instead gave a menu in a different order from the
-            // window behind it, naming drives after the folder they landed in.
-            ForEach(model.drives) { drive in
-                if let point = model.mountPoint(for: drive) {
-                    Button("Eject \(drive.name)") { model.eject(point) }
-                }
-            }
-            Divider()
-            Button("Open \(Brand.name)") {
-                NSApp.activate(ignoringOtherApps: true)
-                NSApp.windows.first?.makeKeyAndOrderFront(nil)
-            }
-            Button("Quit \(Brand.name)") { NSApp.terminate(nil) }
-        }
-
+        .commands { LukottaCommands(model: model, updater: updater) }
         Settings {
             SettingsView()
                 .environmentObject(updater)
                 .environmentObject(model)
         }
 
-        .commands {
-            // The File menu is otherwise removed: there are no documents to
-            // make. Opening a container file is the one thing that belongs
-            // there, and it is where anyone would look for it.
-            CommandGroup(replacing: .newItem) {
-                Button("Open Disk Image…") { chooseImage(model) }
-                    .keyboardShortcut("o", modifiers: .command)
-                    .disabled(!model.canOpenAnother)
-                // Where to look when the list is empty and the drive is
-                // plainly plugged in.
-                Button("Open Drive…") { model.showOpenDrive = true }
-                    .keyboardShortcut("o", modifiers: [.command, .shift])
-                    .disabled(!model.canOpenAnother)
-                // Said once, where both are greyed out, rather than as a
-                // failure after a minute of work.
-                if !model.canOpenAnother {
-                    Text("Eject a drive or an image before opening another.")
-                }
-            }
-            // The standard About panel says the version and the licence and
-            // stops there. This one says what the app does, what it can open
-            // and what it cannot, so it is the one the menu should reach.
-            CommandGroup(replacing: .appInfo) {
-                Button("About \(Brand.name)") { model.showHelp = true }
-            }
-            CommandGroup(after: .appInfo) {
-                Button("Check for Updates…") { updater.checkForUpdates() }
-                    .disabled(!updater.canCheck)
-                Divider()
-                Button("Uninstall \(Brand.name)…") { confirmUninstall(model) }
-            }
-            CommandGroup(replacing: .help) {
-                // Named for what it opens rather than for the menu it sits in,
-                // so the app menu, the Help menu and the sheet all say the same
-                // thing.
-                Button("About & Help") { model.showHelp = true }
-                    .keyboardShortcut("?", modifiers: .command)
-                Button("Report an Issue…") { model.showReport = true }
-            }
-        }
     }
 }
 
@@ -522,5 +526,58 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
         task.arguments = ["-n", Bundle.main.bundleURL.path]
         try? task.run()
+    }
+}
+
+/// The app's own menus.
+///
+/// A type of its own rather than a `.commands` block written inline. Inline it
+/// was attached to the Settings scene, which is not where an application's
+/// menus belong, and the whole scene body grew large enough that the type
+/// checker gave up on it. Both of those are the sort of thing that shows up as
+/// a menu bar behaving strangely rather than as an error.
+struct LukottaCommands: Commands {
+    @ObservedObject var model: AppModel
+    @ObservedObject var updater: Updater
+
+    var body: some Commands {
+        // The File menu is otherwise removed: there are no documents to
+        // make. Opening a container file is the one thing that belongs
+        // there, and it is where anyone would look for it.
+        CommandGroup(replacing: .newItem) {
+            Button("Open Disk Image…") { chooseImage(model) }
+                .keyboardShortcut("o", modifiers: .command)
+                .disabled(!model.canOpenAnother)
+            // Where to look when the list is empty and the drive is
+            // plainly plugged in.
+            Button("Open Drive…") { model.showOpenDrive = true }
+                .keyboardShortcut("o", modifiers: [.command, .shift])
+                .disabled(!model.canOpenAnother)
+            // Said once, where both are greyed out, rather than as a
+            // failure after a minute of work.
+            if !model.canOpenAnother {
+                Text("Eject a drive or an image before opening another.")
+            }
+        }
+        // The standard About panel says the version and the licence and
+        // stops there. This one says what the app does, what it can open
+        // and what it cannot, so it is the one the menu should reach.
+        CommandGroup(replacing: .appInfo) {
+            Button("About \(Brand.name)") { model.showHelp = true }
+        }
+        CommandGroup(after: .appInfo) {
+            Button("Check for Updates…") { updater.checkForUpdates() }
+                .disabled(!updater.canCheck)
+            Divider()
+            Button("Uninstall \(Brand.name)…") { confirmUninstall(model) }
+        }
+        CommandGroup(replacing: .help) {
+            // Named for what it opens rather than for the menu it sits in,
+            // so the app menu, the Help menu and the sheet all say the same
+            // thing.
+            Button("About & Help") { model.showHelp = true }
+                .keyboardShortcut("?", modifiers: .command)
+            Button("Report an Issue…") { model.showReport = true }
+        }
     }
 }
