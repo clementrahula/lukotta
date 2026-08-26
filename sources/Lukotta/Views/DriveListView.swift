@@ -12,7 +12,39 @@ struct DriveListView: View {
 
     /// The row a dragged row is currently over, so it can show where it would
     /// land. Nothing else depends on it.
-    @State private var dropping: String?
+    /// Which gap between rows the dragged row would land in, while it is over
+    /// one. Nil when nothing is being dragged over the list.
+    @State private var landingSlot: Int?
+
+    /// The gap above row `slot`, which is what a drag is dropped into.
+    ///
+    /// It keeps the spacing the rows used to get from the stack, so nothing
+    /// moves when a line appears in it: the line is drawn inside the gap rather
+    /// than added to it.
+    @ViewBuilder
+    private func landingGap(_ slot: Int) -> some View {
+        ZStack {
+            Color.clear
+            if landingSlot == slot {
+                Capsule().fill(Color.accentColor).frame(height: 3)
+                    .padding(.horizontal, 2)
+            }
+        }
+        .frame(height: 10)
+        .contentShape(Rectangle())
+        .dropDestination(for: String.self) { items, _ in
+            landingSlot = nil
+            guard let dragged = items.first else { return false }
+            model.move(dragged, toSlot: slot)
+            return true
+        } isTargeted: { over in
+            if over {
+                landingSlot = slot
+            } else if landingSlot == slot {
+                landingSlot = nil
+            }
+        }
+    }
 
     var body: some View {
         list
@@ -68,11 +100,17 @@ struct DriveListView: View {
                 // reorders its own rows and never started here: a row is a
                 // button, and the button takes the press before the list sees a
                 // drag. A row carries its device identifier while it is being
-                // dragged, and dropping it on another row is what moves it.
+                // dragged.
+                //
+                // What takes the drop is the gap between two rows, not a row.
+                // Dropping onto a row says "put it there" and leaves it to the
+                // list to guess whether "there" is above or below; the gaps say
+                // exactly where it will land and show a line at that place.
                 ScrollView {
-                    VStack(spacing: 10) {
+                    VStack(spacing: 0) {
                         ForEach(Array(model.drives.enumerated()), id: \.element.id) {
                             position, drive in
+                            landingGap(position)
                             let point = model.mountPoint(for: drive)
                             DriveRow(
                                 drive: drive,
@@ -90,7 +128,7 @@ struct DriveListView: View {
                                 // first is running is how a drive ends up half
                                 // ejected.
                                 otherEjectInFlight: model.isEjecting,
-                                dropping: dropping == drive.id,
+                                dropping: false,
                                 // A locked row does nothing while there is
                                 // nowhere to serve another drive from.
                                 unopenable: !model.canOpenAnother
@@ -101,27 +139,17 @@ struct DriveListView: View {
                                 Label(drive.name, systemImage: "externaldrive.fill")
                                     .padding(6)
                             }
-                            .dropDestination(for: String.self) { items, _ in
-                                dropping = nil
-                                guard let dragged = items.first else { return false }
-                                model.move(dragged, onto: drive)
-                                return true
-                            } isTargeted: { over in
-                                if over {
-                                    dropping = drive.id
-                                } else if dropping == drive.id {
-                                    dropping = nil
-                                }
-                            }
                             ForEach(model.departed.filter { $0.index == position + 1 }) { gone in
                                 DepartedRow(name: gone.name)
                             }
                         }
+                        // Below the last row, so a row can be dragged to the end.
+                        landingGap(model.drives.count)
                     }
                     // Once the rows have moved, nothing is being dragged over
                     // anything: the row that was marked has changed places, and
                     // the mark would sit on whatever took its position.
-                    .onChange(of: model.drives.map(\.id)) { dropping = nil }
+                    .onChange(of: model.drives.map(\.id)) { landingSlot = nil }
                 }
                 // The line under the header, mirrored. Without it the list runs
                 // straight into the footer and the two read as one block. The

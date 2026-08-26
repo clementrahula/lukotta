@@ -406,6 +406,17 @@ final class AppModel: ObservableObject {
     /// The row carries its device identifier while it is being dragged, which
     /// is what comes back here. Moving down lands after the row it was dropped
     /// on, moving up lands before it, which is where the gap was drawn.
+    /// Put the dragged row at this place in the list.
+    ///
+    /// `slot` is a gap between rows: 0 is above the first, `drives.count` below
+    /// the last. Dropping a row back into either gap beside itself changes
+    /// nothing, which is what somebody who thought better of it expects.
+    func move(_ dragged: String, toSlot slot: Int) {
+        guard let from = drives.firstIndex(where: { $0.id == dragged }) else { return }
+        guard slot != from, slot != from + 1 else { return }
+        moveDrives(from: IndexSet(integer: from), to: slot)
+    }
+
     func move(_ dragged: String, onto target: Drive) {
         guard let from = drives.firstIndex(where: { $0.id == dragged }),
             let to = drives.firstIndex(where: { $0.id == target.id }),
