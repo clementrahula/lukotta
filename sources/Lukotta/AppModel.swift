@@ -2006,6 +2006,16 @@ final class AppModel: ObservableObject {
             openedImages[attached.identifier] = url
             containerFormats[attached.identifier] = .raw
             if format != .unknown, let row = mine.first { knownFormats[row.id] = format }
+            // The row standing for the file itself, which is what carries its
+            // name and what is in it. Opening a file from the menu records
+            // this; opening one quietly -- which is what a relaunch does for
+            // every file that is still being served -- did not, so the drive
+            // came back as a nameless "Disk Image" with its format unread.
+            if let synthesised = all.first(where: {
+                $0.id == attached.identifier && $0.uuid == url.path
+            }) {
+                imageDrives[attached.identifier] = synthesised
+            }
             drives = inArrivalOrder(reconcileImages(all, attachments: nil))
             return drives.first { $0.uuid == url.path }
         }
