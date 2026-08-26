@@ -45,41 +45,57 @@ brew install --cask clementrahula/tap/lukotta@beta    # the pre-release
     alt="The same drive list in the dark appearance.">
 </p>
 
+macOS cannot mount BitLocker volumes, Linux filesystems such as ext4, btrfs and
+XFS, LUKS encryption, or most virtual machine disk images. Lukotta can. It costs
+nothing and is free software under the GPL, version 3 or later. It needs macOS
+15 Sequoia or later on an Apple Silicon Mac.
+
 ## How It Works
 
-macOS cannot read BitLocker or Linux filesystems; Linux can. Lukotta starts a
-small Linux virtual machine, unlocks the drive inside it, and hands the drive
-back to Finder.
-
-A disk image opens the same way. The volume
-appears in your home folder.
+Linux reads all of it. Lukotta starts a small Linux virtual machine, unlocks the
+drive inside it, and hands the volume back to Finder.
 
 ## What It Can Open
 
-**Drives**
+**Encryption**
 
-| | |
-| --- | --- |
-| **BitLocker** | Unlocked with the volume password or a 48-digit recovery key |
-| **Windows NTFS** | Including ones Windows left hibernated or not shut down properly |
-| **LUKS** | From Linux, both LUKS1 and LUKS2 |
-| **LVM inside LUKS** | As Ubuntu, Debian, Mint and Fedora set it up. Several volumes on one drive all unlock together |
-| **Filesystems** | ext4, btrfs and XFS inside them |
+| Format | Read | Write |
+| --- | --- | --- |
+| BitLocker | Yes | Yes |
+| LUKS1, LUKS2 | Yes | Yes |
+| LVM inside LUKS | Yes | Yes |
+
+**Filesystems**
+
+| Format | Read | Write |
+| --- | --- | --- |
+| NTFS | Yes | Yes |
+| ext2, ext3, ext4, btrfs, XFS | Yes | Yes |
+| exFAT, FAT † | Yes | Yes |
 
 **Disk images**
 
-| | |
-| --- | --- |
-| **Virtual machine disks** | qcow2, VMDK, VDI, VHD and VHDX, as VMware, VirtualBox, Hyper-V, QEMU and UTM write them |
-| **Raw images** | `.img`, `.dmg`, and anything else macOS can attach |
-| **What is inside them** | A BitLocker or LUKS volume inside any image, which unlocks like one on a drive |
+| Format | Read | Write |
+| --- | --- | --- |
+| IMG, DMG † | Yes | Yes |
+| qcow2 | Yes | Yes |
+| VMDK \* | Yes | Yes |
+| VMDK, stream-optimized \* | Yes | No |
+| VDI \* | Yes | Yes |
+| VHD \* | Yes | Yes |
+| VHDX \* | Yes | No |
 
-qcow2, VMDK, VDI and VHD are written as well as read, so files can be copied
-into a virtual machine's disk. Writing them is untested, and the screen that
-opens one provides a warning. A VHDX is read and never written, as is the stream-optimized
-VMDK an OVA carries; both open read-only.
+† Supported by macOS natively.
 
-An exFAT image is handed to macOS, which reads and writes that format itself.
+\* Support for these formats is experimental. Writing to them has not been
+extensively tested.
+
+BitLocker volumes unlock with the volume password or a 48-digit recovery key.
+NTFS opens whether or not Windows shut down cleanly. LVM is read as Ubuntu,
+Debian, Mint and Fedora set it up, and several volumes on one drive unlock
+together. A BitLocker or LUKS volume inside an image unlocks like one on a
+drive.
+
 [SPECS.md][specs] specifies every filesystem, encryption and image format, what
 is written and what is not, and how each is read.
 
@@ -126,8 +142,6 @@ Latvian · Lithuanian · Malay · Norwegian (Bokmål) · Polish ·
 Portuguese (Portugal) · Romanian · Russian · Slovenian · Spanish · Swedish ·
 Thai · Turkish · Ukrainian · Vietnamese
 
-Arabic and Hebrew read right to left, and the interface turns round with them.
-
 If a translation reads wrongly, or you would like a translation that is not listed here,
 write to [support@lukotta.com][email] or to GitHub Issues. Corrections and
 requests are both welcome.
@@ -136,6 +150,13 @@ requests are both welcome.
 
 Download Lukotta from [Releases][releases], drag it to Applications, and open
 it. It is signed and notarised.
+
+Or with [Homebrew](https://brew.sh):
+
+```bash
+brew install --cask clementrahula/tap/lukotta         # the release
+brew install --cask clementrahula/tap/lukotta@beta    # the pre-release
+```
 
 ## Permissions
 
@@ -176,7 +197,7 @@ the Linux environment, and moves the app to the Bin.
 
 If you asked Lukotta to remember any passphrases, it offers to delete those too
 and names the drives they belong to. The offer is off by default: some are
-48-digit recovery keys that exist nowhere else.
+48-digit recovery keys that might exist nowhere else.
 
 ## Building
 
