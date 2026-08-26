@@ -7,35 +7,29 @@ hardware only you have.
 
 ## Stage 1 — the first release
 
-- [ ] **[you] The hardware pass.** A BitLocker drive, to prove the
-  first-sector probe recognises one before a password is typed, and one unlock
-  of a physical drive through the helper. Both need a drive at your keyboard;
-  everything reachable with images is already covered end to end.
+- [ ] **A test that reaches the privileged route.** Every fixture here is a
+  container file, and a container file opens without a password — so nothing
+  in the harnesses has ever been through the daemon or an administrator
+  prompt. The deadline the daemon keeps, the mount root it clears and the
+  unmount it lends the sweep are reachable no other way. Two faults shipped
+  through it in one night, and a person found both. AGENTS.md lists the gap
+  under what has never run against a real disk.
+- [ ] **Pictures of the unlock sheet and the opening screen.**
+  `./scripts/screenshots.sh` draws the drive list in every language and both
+  appearances. The site wants the other two screens as well.
+- [ ] **[you] The documents that are yours.** README.md, CONTRIBUTING.md and
+  the legal files have been left alone throughout. Two things in them are
+  behind: CONTRIBUTING names three tests and there are four, the fourth being
+  `preflight.sh`, which is what a release has to pass; and the README's
+  screenshots are the drive list only.
+- [ ] **[you] Publish the feed and the casks.** Neither has been pushed. The
+  appcast repository serves `updates.lukotta.com`, with the pre-release feed a
+  `beta/` directory inside it; the first beta release writes it. The tap,
+  `clementrahula/homebrew-tap`, carries `lukotta` and `lukotta@beta`, both
+  written by `release.sh` from the disk image it uploaded. Nothing is
+  installable until both are pushed and the repository is public.
 
-  It has grown a little since: the privileged route is now the only one whose
-  deadline, whose cleanup of a mount root left behind, and whose daemon-lent
-  unmount have never run against a real disk. Every fixture here is a container
-  file, which opens without a password, so none of that is reached. AGENTS.md
-  lists it under what has never run against a real disk.
-- [ ] **Pictures of the unlock screen.** `./scripts/screenshots.sh` draws the
-  drive list in every language and both appearances; the unlock sheet and the
-  screen shown while a drive is opening are not among them, and the site wants
-  all three.
-- [ ] **[you] The documents that are yours.** README.md, CONTRIBUTING.md and the
-  legal files were left alone through two nights of changes. Three things in
-  them may now be worth a look: CONTRIBUTING describes the tests as
-  `run-tests.sh`, `lint.sh` and `e2e.sh`, and there is a third now —
-  `preflight.sh`, which is what a release has to pass; the README's Download
-  button points at `releases/latest/download/Lukotta.dmg`, which resolves from
-  the first release that uploads one; and the README's screenshots are the
-  drive list only, while `scripts/screenshots.sh` can now draw it in every
-  language and both appearances.
-- [ ] **[you] The pre-release feed's directory.** The appcast repository serves
-  `updates.lukotta.com`; the beta feed is a `beta/` directory in the same
-  repository now, rather than a second domain. The first beta release writes it:
-  `LUKOTTA_CHANNEL=beta LUKOTTA_APPCAST=../lukotta-appcast/beta/appcast.xml`.
-
-## Stage 3 — larger bets
+## Stage 2 — larger bets
 
 ### A native volume instead of a network share
 
