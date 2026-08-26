@@ -565,7 +565,9 @@ extension DiskImage {
             // the second reads to a person as "there is nothing in it that can
             // be opened" about an image that opens a second later.
             let complaint = (result.out + result.err).lowercased()
-            let wentWrong = result.status != 0 || !result.err.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            let wentWrong =
+                result.status != 0
+                || !result.err.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             let busy =
                 complaint.contains("locked") || complaint.contains("busy")
                 || complaint.contains("in use") || complaint.contains("resource temporarily")

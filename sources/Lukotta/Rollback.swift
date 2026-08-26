@@ -87,7 +87,8 @@ enum Rollback {
         guard FileManager.default.isExecutableFile(atPath: watcher.path) else {
             // Worth a line: without it an update that will not load is one
             // nobody puts back, and this is the only place that knows.
-            Log.updates.error("no update watcher in the bundle; a version that cannot load would stay")
+            Log.updates.error(
+                "no update watcher in the bundle; a version that cannot load would stay")
             return
         }
         let task = Process()

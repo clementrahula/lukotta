@@ -478,7 +478,8 @@ final class HelperClient: ObservableObject {
         await withCheckedContinuation { (continuation: CheckedContinuation<T?, Never>) in
             let once = ResumeOnce(continuation)
             if let within {
-                Log.helper.debug("asking the daemon, with \(Int(within), privacy: .public)s to answer")
+                Log.helper.debug(
+                    "asking the daemon, with \(Int(within), privacy: .public)s to answer")
                 DispatchQueue.global().asyncAfter(deadline: .now() + within) {
                     once.resume(late)
                 }

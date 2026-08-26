@@ -63,7 +63,6 @@ final class UpdaterRelay: NSObject, SPUUpdaterDelegate {
         onWillHandOver?()
     }
 
-
     func updater(
         _ updater: SPUUpdater,
         shouldPostponeRelaunchForUpdate item: SUAppcastItem,

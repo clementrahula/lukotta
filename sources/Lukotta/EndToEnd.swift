@@ -8,7 +8,7 @@
 #if DEVTOOLS
 
     import AppKit
-import CryptoKit
+    import CryptoKit
     import LukottaCore
     import SwiftUI
 
@@ -107,7 +107,8 @@ import CryptoKit
             if let group = fixtures["lvm"], FileManager.default.fileExists(atPath: group.path) {
                 print("")
                 print("the same, for a container holding a volume group")
-                afterARelaunchFlow(image: group, passphrase: lvmPassphrase.isEmpty ? nil : lvmPassphrase)
+                afterARelaunchFlow(
+                    image: group, passphrase: lvmPassphrase.isEmpty ? nil : lvmPassphrase)
             }
 
             print("")
@@ -604,11 +605,12 @@ import CryptoKit
                 let lockedDrive = model.drives.first(where: { $0.uuid == locked.path })
             else {
                 check(false, "both the images this flow needs are listed")
-                print("      the list holds \(model.drives.count): "
-                    + model.drives.map { ($0.uuid as NSString).lastPathComponent }
+                print(
+                    "      the list holds \(model.drives.count): "
+                        + model.drives.map { ($0.uuid as NSString).lastPathComponent }
                         .joined(separator: ", "))
-                for (what, url) in images where !model.drives.contains(where: { $0.uuid == url.path })
-                {
+                for (what, url) in images
+                where !model.drives.contains(where: { $0.uuid == url.path }) {
                     print("      \(what) is not in it: \(url.lastPathComponent)")
                 }
                 return
@@ -855,7 +857,10 @@ import CryptoKit
                 return nil
             }
             let seconds = Date().timeIntervalSince(started)
-            check(true, "thirty-two megabytes go in, at \(Int(Double(size) / 1_048_576 / max(seconds, 0.001))) MB/s")
+            check(
+                true,
+                "thirty-two megabytes go in, at \(Int(Double(size) / 1_048_576 / max(seconds, 0.001))) MB/s"
+            )
 
             // A crowd of small files, which is metadata rather than data: the
             // part of a filesystem that a mount serving one file never touches.
@@ -947,7 +952,10 @@ import CryptoKit
                 ("a name with an emoji", "holiday 🏖 2026.txt"),
                 ("a name with spaces and quotes", "the \"good\" one - final (2).txt"),
                 ("a name that starts with a dot", ".hidden-by-name"),
-                ("a name as long as the filesystem allows", String(repeating: "n", count: 250) + ".txt"),
+                (
+                    "a name as long as the filesystem allows",
+                    String(repeating: "n", count: 250) + ".txt"
+                ),
             ]
             for (what, name) in candidates {
                 let file = names.appendingPathComponent(name)
@@ -965,7 +973,9 @@ import CryptoKit
 
             // Folders inside folders, which is a filesystem's other dimension.
             var deep = root.appendingPathComponent("deep", isDirectory: true)
-            for level in 1...12 { deep = deep.appendingPathComponent("level-\(level)", isDirectory: true) }
+            for level in 1...12 {
+                deep = deep.appendingPathComponent("level-\(level)", isDirectory: true)
+            }
             let buried = deep.appendingPathComponent("buried.txt")
             let madeDeep =
                 (try? manager.createDirectory(at: deep, withIntermediateDirectories: true)) != nil
@@ -993,8 +1003,9 @@ import CryptoKit
             // are checked. A run where the accented one starts working is a run
             // that has found the option changed underneath it.
             let plainTarget = root.appendingPathComponent("runnable.sh")
-            let simple = (try? manager.createSymbolicLink(
-                at: symbolic, withDestinationURL: plainTarget)) != nil
+            let simple =
+                (try? manager.createSymbolicLink(
+                    at: symbolic, withDestinationURL: plainTarget)) != nil
             check(simple, "a symbolic link with an ordinary target is made")
 
             let awkwardLink = root.appendingPathComponent("a-symlink-to-an-accented-name")
@@ -1037,7 +1048,8 @@ import CryptoKit
             let attributed = forked.withUnsafeFileSystemRepresentation { path -> Bool in
                 guard let path else { return false }
                 let value = Array("green".utf8)
-                return setxattr(path, "com.apple.metadata:kMDItemFinderComment", value, value.count, 0, 0) == 0
+                return setxattr(
+                    path, "com.apple.metadata:kMDItemFinderComment", value, value.count, 0, 0) == 0
             }
             check(
                 manager.fileExists(atPath: finder.path) && manager.fileExists(atPath: double.path),
@@ -1090,7 +1102,8 @@ import CryptoKit
             // Read as an answer or as nothing, never as zero: unreadable
             // attributes default to zero, and zero is under every limit, so the
             // check passed on a file nothing could measure.
-            let onDisk = (try? FileManager.default.attributesOfItem(atPath: hog.path))?[.size]
+            let onDisk =
+                (try? FileManager.default.attributesOfItem(atPath: hog.path))?[.size]
                 as? Int
             check(onDisk != nil, "and the file it half-wrote can be measured")
             check(
@@ -1139,7 +1152,8 @@ import CryptoKit
                     .replacingOccurrences(of: ".txt", with: "")
                 let expected =
                     index == "7" ? written.overwritten : "file number \(index)\n"
-                let got = try? String(contentsOf: many.appendingPathComponent(name), encoding: .utf8)
+                let got = try? String(
+                    contentsOf: many.appendingPathComponent(name), encoding: .utf8)
                 if got != expected { wrong += 1 }
             }
             check(wrong == 0, "and each of them says what it was last told to (\(wrong) wrong)")
@@ -1165,7 +1179,8 @@ import CryptoKit
             check(missing.isEmpty, nameVerdict)
             // Listed as well as opened: a name the mount hands back differently
             // from the one it was given opens by luck and lists wrongly.
-            let listed = Set((try? FileManager.default.contentsOfDirectory(atPath: names.path)) ?? [])
+            let listed = Set(
+                (try? FileManager.default.contentsOfDirectory(atPath: names.path)) ?? [])
             let expectedNames = Set(written.awkward.map(\.name))
             check(
                 listed.isSuperset(of: expectedNames),
@@ -1537,7 +1552,8 @@ import CryptoKit
             let now = Set(after.drives.map(\.uuid))
             check(
                 before.subtracting(now).isEmpty,
-                "every drive that was listed is listed again (\(before.count) before, \(now.count) after)")
+                "every drive that was listed is listed again (\(before.count) before, \(now.count) after)"
+            )
             // And the open one says so at the first paint, not a moment later.
             check(
                 after.openMounts.values.contains(point),
@@ -1566,7 +1582,13 @@ import CryptoKit
                 return false
             }
             check(
-                ours.contains { if case .openHere(let p, _) = $0.verdict { return p == point } else { return false } }
+                ours.contains {
+                    if case .openHere(let p, _) = $0.verdict {
+                        return p == point
+                    } else {
+                        return false
+                    }
+                }
                     || after.survey.allSatisfy { $0.drive?.devicePath != listed.devicePath },
                 "and the sheet calls it open here rather than offering to open it again")
 
@@ -1612,7 +1634,9 @@ import CryptoKit
             guard
                 waitUntil(
                     "the image opens", timeout: 120,
-                    condition: { model.phaseIsUnlock || model.drives.contains { $0.uuid == image.path } })
+                    condition: {
+                        model.phaseIsUnlock || model.drives.contains { $0.uuid == image.path }
+                    })
             else { return }
             guard let drive = model.drives.first(where: { $0.uuid == image.path }) else {
                 check(false, "the image is listed")
@@ -1798,13 +1822,17 @@ import CryptoKit
                 // an image already attached is handed back the device it has,
                 // and nothing new is mounted.
                 let devices = DiskImage.attachedDevices(forImages: [image.path])
-                print("      attached as: \(devices.isEmpty ? "nothing" : devices.joined(separator: ", "))")
+                print(
+                    "      attached as: \(devices.isEmpty ? "nothing" : devices.joined(separator: ", "))"
+                )
                 let table = mountTable()
                 for device in devices {
                     let mounted = MountTableEntry.all(in: table)
                         .filter { $0.source.hasPrefix(device) }
                         .map(\.mountPoint)
-                    print("      \(device) is mounted at: \(mounted.isEmpty ? "nothing" : mounted.joined(separator: ", "))")
+                    print(
+                        "      \(device) is mounted at: \(mounted.isEmpty ? "nothing" : mounted.joined(separator: ", "))"
+                    )
                 }
                 return
             }
@@ -2281,13 +2309,16 @@ import CryptoKit
                         print("      \(point): \(error.localizedDescription)")
                     }
                 }
-                check(wrote == points.count, "each of them takes a file (\(wrote) of \(points.count))")
+                check(
+                    wrote == points.count, "each of them takes a file (\(wrote) of \(points.count))"
+                )
                 check(
                     !model.mountedReadOnly,
                     "and the group opened read-write, nobody having asked otherwise")
 
                 model.eject(mountPoint)
-                _ = waitUntil("they all eject together", timeout: 180, condition: { !model.isEjecting })
+                _ = waitUntil(
+                    "they all eject together", timeout: 180, condition: { !model.isEjecting })
                 check(model.ejectProblem == nil, "ejecting reported no problem")
             }
 

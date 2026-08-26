@@ -2502,7 +2502,8 @@ final class AppModel: ObservableObject {
                 }
             } catch let err as EngineError {
                 await MainActor.run {
-                    let summary = err.errorDescription ?? appString("The drive could not be opened.")
+                    let summary =
+                        err.errorDescription ?? appString("The drive could not be opened.")
                     guard
                         !self.retriedAfterASlip(
                             drive: drive, credential: credential, summary: summary,

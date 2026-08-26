@@ -100,8 +100,10 @@
             }
             model.openImage(image)
             let opened = Date().addingTimeInterval(120)
-            while model.imageOpening != nil || !model.drives.contains(where: { $0.uuid == image.path }
-            ), Date() < opened {
+            while model.imageOpening != nil
+                || !model.drives.contains(where: { $0.uuid == image.path }
+                ), Date() < opened
+            {
                 RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
             }
             guard let drive = model.drives.first(where: { $0.uuid == image.path }) else {

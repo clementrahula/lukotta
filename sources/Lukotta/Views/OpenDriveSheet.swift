@@ -175,11 +175,14 @@ private struct SurveyRow: View {
 
     var body: some View {
         HStack(spacing: 13) {
-            Image(systemName: openable ? "lock.fill" : (openHere != nil ? "lock.open.fill" : "externaldrive"))
-                .font(.system(size: 19))
-                .foregroundStyle(tint)
-                .frame(width: 26)
-                .accessibilityHidden(true)
+            Image(
+                systemName: openable
+                    ? "lock.fill" : (openHere != nil ? "lock.open.fill" : "externaldrive")
+            )
+            .font(.system(size: 19))
+            .foregroundStyle(tint)
+            .frame(width: 26)
+            .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 7) {

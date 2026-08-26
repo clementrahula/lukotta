@@ -726,7 +726,8 @@ group("mountStages") {
     let checkedMS = MountScript.build(sampleInputs(kind: .microsoft))
     expect(
         checkedMS.components(separatedBy: "&& __mounted").count - 1 == 6,
-        "every attempt is verified: both NTFS drivers, both again after a slip, then both read-only")
+        "every attempt is verified: both NTFS drivers, both again after a slip, then both read-only"
+    )
     // The extra one is the retry for a machine that slipped, and it must be
     // unreachable without the evidence for it. Unguarded, it would be a second
     // full attempt on every drive that cannot be written to.
@@ -885,7 +886,8 @@ group("mountStages") {
     // What counts as the machinery slipping, which decides whether somebody is
     // told their drive will not open or the attempt is quietly made again.
     expect(
-        TransientFailure.isTransient("macOS: Error: Failed to write to pipe: Broken pipe (os error 32)"),
+        TransientFailure.isTransient(
+            "macOS: Error: Failed to write to pipe: Broken pipe (os error 32)"),
         "a broken pipe is the machinery, not the drive")
     expect(
         TransientFailure.isTransient("Failed to acquire lock on image file: file already locked"),
