@@ -1,0 +1,13 @@
+# Prod releases the owner has approved, and the notes they approved with them.
+#
+# One line per release: <version> <first 12 hex of sha256 of releases/<version>.md>
+#
+# scripts/release.sh refuses to publish anything to the release channel unless
+# the version it is cutting appears here AND the notes on disk still hash to
+# what is written beside it. Editing a word of the notes after approval breaks
+# the match, so what ships is the text that was read.
+#
+# Nothing here affects the beta channel, which publishes freely.
+#
+# Add a line only when you have read the notes. The release script prints them
+# and the hash to paste.

@@ -246,6 +246,43 @@ fi
 SIGN_TOOL="$(find "$HERE/.build" -name sign_update -type f -perm -111 -print -quit 2>/dev/null || true)"
 [ -n "$SIGN_TOOL" ] || { echo "error: sign_update not found; run swift build" >&2; exit 1; }
 
+# Nothing reaches the release channel without the owner having said so, in
+# writing, about this version and about these words.
+#
+# Two things are checked and they are one act: releases/APPROVED names the
+# version, and the line beside it is the hash of the notes as they stand. So
+# approval cannot be given in advance for a version not yet written, cannot be
+# carried over from the last release, and cannot survive the notes being edited
+# after they were read -- which is the only way "approved the changelog" means
+# anything.
+#
+# The beta channel is not gated. It exists to be published from.
+if [ "${LUKOTTA_CHANNEL:-release}" = "release" ] && [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
+  APPROVALS="$HERE/releases/APPROVED"
+  NOTES_FILE="$HERE/releases/$VERSION.md"
+  [ -f "$NOTES_FILE" ] || { echo "error: no $NOTES_FILE to approve" >&2; exit 1; }
+  NOTES_HASH="$(shasum -a 256 "$NOTES_FILE" | cut -c1-12)"
+  APPROVED_HASH="$(grep -E "^${VERSION//./\.}[[:space:]]" "$APPROVALS" 2>/dev/null | awk '{print $2}' | head -1)"
+
+  if [ -z "$APPROVED_HASH" ]; then
+    printf '\n'
+    printf 'This is a release build. It goes to everybody, and it is not published\n' >&2
+    printf 'until you have read what it says and approved it.\n\n' >&2
+    printf 'The notes for %s:\n\n' "$VERSION" >&2
+    sed 's/^/    /' "$NOTES_FILE" >&2
+    printf '\nIf those are right, add this line to releases/APPROVED and commit it:\n\n' >&2
+    printf '    %s %s\n\n' "$VERSION" "$NOTES_HASH" >&2
+    exit 1
+  fi
+  if [ "$APPROVED_HASH" != "$NOTES_HASH" ]; then
+    printf '\nerror: the notes for %s changed after they were approved.\n' "$VERSION" >&2
+    printf '       approved: %s\n       now:      %s\n\n' "$APPROVED_HASH" "$NOTES_HASH" >&2
+    printf 'Read them again and update releases/APPROVED, or put the notes back.\n' >&2
+    exit 1
+  fi
+  printf '==> %s is approved, and the notes are the ones approved\n' "$VERSION"
+fi
+
 printf '==> Building and notarising %s (build %s)\n' "$VERSION" "$BUILD"
 # The archives previous releases were built from, kept out of the way before the
 # wipe. They live in dist/previous by default, and the wipe below deleted them
