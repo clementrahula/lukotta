@@ -1484,6 +1484,10 @@ import CryptoKit
                 point = where_
             }
 
+            // Every row that was there before, so the check is "nothing
+            // disappeared" rather than "something is there".
+            let before = Set(rowsNow().map(\.uuid))
+
             // A new model and a fresh scan, which is all a relaunch is as far as
             // this app's own state goes: the process forgets, the mount does not.
             let after = AppModel()
@@ -1492,6 +1496,14 @@ import CryptoKit
                 return
             }
             check(!after.drives.isEmpty, "the list is there, and not empty")
+            let now = Set(after.drives.map(\.uuid))
+            check(
+                before.subtracting(now).isEmpty,
+                "every drive that was listed is listed again (\(before.count) before, \(now.count) after)")
+            // And the open one says so at the first paint, not a moment later.
+            check(
+                after.openMounts.values.contains(point),
+                "and the one that is open says so straight away, without a second scan")
             check(
                 after.openMounts.values.contains(point),
                 "and the drive that is open is in it, at the point it is open at")
@@ -1522,6 +1534,15 @@ import CryptoKit
 
             after.eject(point)
             waitUntil("it ejects", timeout: 120, condition: { !after.isEjecting })
+        }
+
+        /// Every drive the app is listing at this moment.
+        @MainActor
+        private static func rowsNow() -> [Drive] {
+            let model = AppModel()
+            model.start()
+            _ = waitUntil("a list to compare against", condition: { !model.isScanning })
+            return model.drives
         }
 
         /// Opening a drive on a Mac that has just started.

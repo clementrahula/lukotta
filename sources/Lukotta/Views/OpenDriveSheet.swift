@@ -213,10 +213,23 @@ private struct SurveyRow: View {
                     .accessibilityLabel("Open \(entry.name)")
                     .disabled(!model.canOpenAnother)
             } else if let openHere {
-                Button("Eject") { model.eject(openHere.point) }
-                    .controlSize(.small)
-                    .accessibilityLabel("Eject \(entry.name)")
-                    .disabled(model.isEjecting)
+                // The same treatment as the drive list: ejecting takes seconds,
+                // and a button that looks untouched for that long reads as
+                // broken and gets pressed again.
+                if model.ejectingPath == openHere.point {
+                    HStack(spacing: 6) {
+                        ProgressView().controlSize(.small).scaleEffect(0.7)
+                            .accessibilityHidden(true)
+                        Text("Ejecting…").font(.caption).foregroundStyle(.secondary)
+                    }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Ejecting \(entry.name)")
+                } else {
+                    Button("Eject") { model.eject(openHere.point) }
+                        .controlSize(.small)
+                        .accessibilityLabel("Eject \(entry.name)")
+                        .disabled(model.isEjecting)
+                }
             }
         }
         .padding(13)

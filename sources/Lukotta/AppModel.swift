@@ -995,8 +995,31 @@ final class AppModel: ObservableObject {
     /// list, the generation that tells a waiting test a scan was applied, the
     /// open mounts, and the space they have left.
     private func applyScan(_ sighting: Sighting) -> [Drive] {
-        let listed = inArrivalOrder(
+        var listed = inArrivalOrder(
             reconcileImages(sighting.found, attachments: sighting.attachments))
+
+        // A drive that is mounted keeps its row, whatever the scan made of it.
+        //
+        // The scan reads the machine afresh every time, and a disk busy at the
+        // moment it is read -- being served, being unlocked, replying slowly --
+        // can come back missing from it. Taking the row away then leaves a
+        // volume mounted in Finder with nothing in this app to eject it by, and
+        // the row returns on its own a scan later, which reads as the list
+        // inventing and losing drives.
+        //
+        // Only what is mounted this moment: the mount table is the evidence, so
+        // nothing is held on to once it is genuinely gone.
+        let live = Set(MountTableEntry.all(in: LukottaCore.mountTable()).map(\.mountPoint))
+        let kept = drives.filter { was in
+            guard !listed.contains(where: { $0.id == was.id }) else { return false }
+            guard let point = mountPoint(for: was) else { return false }
+            return live.contains(point)
+        }
+        if !kept.isEmpty {
+            Log.drives.notice(
+                "keeping \(kept.count, privacy: .public) rows for drives that are still mounted")
+            listed = inArrivalOrder(listed + kept)
+        }
         drives = listed
         scanGeneration += 1
         openMounts = Dictionary(
