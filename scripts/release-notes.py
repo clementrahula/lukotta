@@ -66,10 +66,31 @@ def git(*args: str) -> str:
     ).stdout
 
 
-def as_version(tag: str) -> tuple[int, ...] | None:
-    """(1, 18, 1) from "v1.18.1", or None from anything else."""
-    match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", tag.strip())
-    return tuple(int(part) for part in match.groups()) if match else None
+def as_version(tag: str) -> tuple | None:
+    """A sortable version from a tag, or None from anything else.
+
+    "v1.18.1" and "v1.21.0-beta.1" both parse. They sort as semver says they
+    should: a pre-release comes before the release it leads to, so
+    1.21.0-beta.1 is below 1.21.0 and the notes for the release read from the
+    beta rather than from the version before it.
+
+    Each pre-release identifier is compared as (0, number) or (1, text),
+    because semver orders a numeric identifier below an alphanumeric one and
+    comparing an int with a str raises instead.
+    """
+    match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?", tag.strip())
+    if match is None:
+        return None
+    major, minor, patch, pre = match.groups()
+    numbers = (int(major), int(minor), int(patch))
+    if pre is None:
+        # No pre-release sorts above every pre-release of the same numbers.
+        return numbers + (1, ())
+    parts = tuple(
+        (0, int(part), "") if part.isdigit() else (1, 0, part)
+        for part in pre.split(".")
+    )
+    return numbers + (0, parts)
 
 
 def previous_tag(version: str) -> str | None:
