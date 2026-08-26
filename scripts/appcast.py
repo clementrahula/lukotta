@@ -13,12 +13,16 @@ from xml.etree import ElementTree as ET
 SPARKLE = "http://www.andymatuschak.org/xml-namespaces/sparkle"
 ET.register_namespace("sparkle", SPARKLE)
 
+# The channel a feed is created with. Written once, when the file does not
+# exist yet, and never touched afterwards -- so a feed that was made under the
+# wrong name keeps it, which is how the release feed spent four versions
+# advertising an address the project had moved off.
 EMPTY = """<?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
   <channel>
-    <title>Lukotta</title>
-    <link>https://updates.lukotta.com/appcast.xml</link>
-    <description>Updates for Lukotta.</description>
+    <title>{title}</title>
+    <link>{link}</link>
+    <description>Updates for {title}.</description>
     <language>en</language>
   </channel>
 </rss>
@@ -28,6 +32,12 @@ EMPTY = """<?xml version="1.0" encoding="utf-8"?>
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--appcast", required=True)
+    # Only used when the feed is being created. Each channel is its own feed
+    # and says its own name and address; a beta that called itself the release
+    # would be read as the release by anything looking at the feed rather than
+    # at the app.
+    ap.add_argument("--title", default="Lukotta")
+    ap.add_argument("--link", default="https://updates.lukotta.com/appcast.xml")
     ap.add_argument("--version", required=True, help="marketing version, e.g. 1.7.0")
     ap.add_argument("--build", required=True, help="CFBundleVersion, the number Sparkle compares")
     ap.add_argument("--url", required=True)
@@ -47,7 +57,7 @@ def main():
 
     if not os.path.exists(args.appcast):
         with open(args.appcast, "w") as f:
-            f.write(EMPTY)
+            f.write(EMPTY.format(title=args.title, link=args.link))
 
     tree = ET.parse(args.appcast)
     channel = tree.getroot().find("channel")

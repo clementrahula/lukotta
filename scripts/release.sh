@@ -81,6 +81,7 @@ case "${LUKOTTA_CHANNEL:-release}" in
     TAG="v$VERSION"
     APPCAST_DEFAULT="$HERE/dist/appcast.xml"
     NOTES_BASE_DEFAULT="https://updates.lukotta.com"
+    FEED_LINK="https://updates.lukotta.com/appcast.xml"
     PRERELEASE=()
     ;;
   beta)
@@ -91,6 +92,7 @@ case "${LUKOTTA_CHANNEL:-release}" in
     # Beside the feed it belongs to. Point LUKOTTA_APPCAST at the beta
     # directory of the same checkout and the notes land under it.
     NOTES_BASE_DEFAULT="https://updates.lukotta.com/beta"
+    FEED_LINK="https://updates.lukotta.com/beta/appcast.xml"
     # Marked as such on GitHub, so nobody arrives at it from the front page
     # believing it is the release.
     PRERELEASE=(--prerelease)
@@ -443,6 +445,8 @@ printf '==> Describing it in the appcast\n'
 mkdir -p "$(dirname "$APPCAST")"
 python3 "$HERE/scripts/appcast.py" \
   --appcast "$APPCAST" \
+  --title "$APP_NAME" \
+  --link "$FEED_LINK" \
   --version "$VERSION" \
   --build "$BUILD" \
   --url "$BASE_URL/$(basename "$ZIP")" \

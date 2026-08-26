@@ -32,7 +32,7 @@ BINARY="$APP/Contents/MacOS/$(basename "$APP" .app)"
 # fifteen bytes or fewer is compiled into the instruction stream rather than
 # stored as text, so grepping for "--screenshots" finds nothing in a build that
 # has it.
-HARNESS_FOUND="$(LC_ALL=C grep -a -c "usage: --screenshots" "$BINARY-app" || true)"
+HARNESS_FOUND="$(LC_ALL=C grep -a -c "usage: --screenshots" "$BINARY" || true)"
 if [ "${HARNESS_FOUND:-0}" -eq 0 ]; then
   echo "error: $(basename "$APP") was built without the harnesses." >&2
   echo "       LUKOTTA_DEVTOOLS=1 LUKOTTA_BRANDING=official ./build-app.sh" >&2

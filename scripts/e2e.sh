@@ -41,7 +41,7 @@ HARNESS_CHECK="$APP/Contents/MacOS/$(basename "$APP" .app)"
 # and strings dies of SIGPIPE, so the pipeline reports a failure that means
 # "found it". This check refused every app it was given, including the ones
 # built correctly.
-HARNESS_FOUND="$(/usr/bin/strings "$HARNESS_CHECK-app" 2>/dev/null | grep -c -- "--e2e" || true)"
+HARNESS_FOUND="$(/usr/bin/strings "$HARNESS_CHECK" 2>/dev/null | grep -c -- "--e2e" || true)"
 if [ "${HARNESS_FOUND:-0}" -eq 0 ]; then
   echo "error: $(basename "$APP") was built without the harnesses." >&2
   echo "       Rebuild it with LUKOTTA_DEVTOOLS=1 and run this again." >&2

@@ -1,6 +1,10 @@
 name: CI
 
-# Every push and every pull request. Everything here is what can be checked
+# Every push to main, every pull request, and on request. It ran on pull
+# requests alone while the repository was private, a macOS runner being billed
+# at ten times a Linux one; a public repository is not billed at all.
+#
+# Everything here is what can be checked
 # without a real drive: the package builds, the unit checks pass, the bundle is
 # assembled, every screen is drawn and compared with its baseline, the binary
 # starts, and the whole lot is linted.
@@ -26,6 +30,8 @@ name: CI
 # requests and asking for it are enough until the repository is public, when
 # the minutes stop being counted.
 on:
+  push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -82,11 +88,18 @@ jobs:
       - name: Smoke test
         run: |
           "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker" --smoke-test
-          # What the bundle starts is the shim, and the app it hands over to
-          # sits beside it. A build that lost either starts here and nowhere
-          # else -- there is no window on a runner to notice it missing.
+          # The app is the bundle's executable and nothing stands in front of
+          # it: macOS gives no menu bar item to a process whose running image
+          # is not the executable the bundle declares, which is what a launcher
+          # handing over with execv produced. A build that puts one back starts
+          # here and nowhere else -- there is no menu bar on a runner to notice
+          # the item missing from.
           test -x "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker"
-          test -x "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker-app"
+          test ! -e "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker-app"
+          # And the watcher that puts the previous version back when an update
+          # will not load, which is the one thing the app cannot notice itself.
+          test -x "./dist/Drive Unlocker.app/Contents/MacOS/update-check"
+          "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker" --verify-launch
 
       # Before anything is built: what a scanner can know, over the whole
       # history rather than the tip. The hook that runs the same checks before

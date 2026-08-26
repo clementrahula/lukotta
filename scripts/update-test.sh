@@ -465,9 +465,9 @@ KEPT_BUILD="$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' \
 BROKEN="$WORK/broken"
 rm -rf "$BROKEN"; mkdir -p "$BROKEN"
 /usr/bin/ditto "$INSTALLED" "$BROKEN/$APP_NAME.app"
-printf 'not a Mach-O\n' > "$BROKEN/$APP_NAME.app/Contents/MacOS/$APP_NAME-app"
+printf 'not a Mach-O\n' > "$BROKEN/$APP_NAME.app/Contents/MacOS/$APP_NAME"
 /usr/bin/ditto "$BROKEN/$APP_NAME.app" "$INSTALLED"
-# The copy to put back, restored to where the shim looks for it.
+# The copy to put back, restored to where the watcher looks for it.
 mkdir -p "$KEPT"
 rm -rf "$KEPT_APP"
 /usr/bin/ditto "$HELD/$APP_NAME.app" "$KEPT_APP"

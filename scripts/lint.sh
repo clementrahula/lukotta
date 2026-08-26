@@ -19,8 +19,11 @@ fi
 
 printf 'shellcheck…\n'
 if command -v shellcheck >/dev/null 2>&1; then
-  # SC1091: sourced files are not followed. SC2317: unreachable in trap handlers.
-  shellcheck -e SC1091,SC2317 "$HERE"/*.sh "$HERE"/scripts/*.sh || status=1
+  # SC1091: sourced files are not followed. SC2317 and SC2329: a trap handler
+  # is neither reachable nor invoked as far as shellcheck can see, and both
+  # fire on the same `trap clean_up EXIT` that every one of these scripts ends
+  # with.
+  shellcheck -e SC1091,SC2317,SC2329 "$HERE"/*.sh "$HERE"/scripts/*.sh || status=1
 else
   printf '  shellcheck not installed — brew install shellcheck\n'
 fi
