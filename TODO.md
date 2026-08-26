@@ -1,11 +1,5 @@
 # Plan
 
-**[you]** marks what needs credentials, a decision or hardware only you have.
-
-- [ ] **[you]** Push the `beta/` directory to the appcast repository, so the
-  pre-release feed answers at `updates.lukotta.com/beta/appcast.xml`.
-- [ ] **[you]** Push `clementrahula/homebrew-tap`, so `lukotta` and
-  `lukotta@beta` install.
 - [ ] Re-test FSKit on the current macOS. Third-party extensions were broken on
   26.1 and 26.2 — `fskitd` rejects unprivileged clients, which breaks Apple's
   own sample. One afternoon, and it decides whether the route is open.
