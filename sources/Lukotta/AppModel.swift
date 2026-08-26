@@ -88,7 +88,11 @@ final class AppModel: ObservableObject {
     func refreshRecentLog() {
         Task.detached(priority: .utility) { [weak self] in
             let text = Diagnostics.recentLog()
-            await MainActor.run { self?.recentLog = text }
+            // Captured again here rather than carried in. The outer capture
+            // belongs to the detached task, and handing it to a main-actor
+            // closure sends it across isolation -- which the compiler refuses
+            // on a clean build and let through on an incremental one.
+            await MainActor.run { [weak self] in self?.recentLog = text }
         }
     }
     /// Whether to keep this drive's credential in the Keychain. Opt-in.
@@ -2576,7 +2580,7 @@ final class AppModel: ObservableObject {
     private func reportRefusal(_ drive: Drive, _ err: EngineError) {
         Task.detached(priority: .userInitiated) { [weak self] in
             let reading = Permissions.reading()
-            await MainActor.run {
+            await MainActor.run { [weak self] in
                 guard let self else { return }
                 self.applyPermissions(reading)
                 if !reading.fullDiskAccess {
