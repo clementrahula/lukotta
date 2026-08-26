@@ -51,6 +51,25 @@ for cask in "$TAP"/Casks/*.rb; do
 done
 
 [ "$found" -gt 0 ] || printf '  no casks in %s/Casks\n' "$TAP"
+
+# And the link everything else points at.
+#
+# The README, the website and every "Download" button name
+# releases/latest/download/..., which GitHub resolves to the newest release
+# that is not a pre-release. That is the right link -- it never names a version
+# and never goes stale -- but it answers 404 until a stable release exists, and
+# a beta does not count as one. Between making the repository public and
+# cutting the first stable release, every download link on the site was dead.
+LATEST="https://github.com/${LUKOTTA_REPO:-clementrahula/lukotta}/releases/latest/download/Lukotta.dmg"
+code="$(curl -sSL -o /dev/null -w '%{http_code}' --max-time 60 "$LATEST" 2>/dev/null || echo 000)"
+if [ "$code" = "200" ]; then
+  printf '  the latest stable download is there\n'
+else
+  printf '  %s answered %s\n' "$LATEST" "$code" >&2
+  printf '  Every download link points here. Until a release that is not a\n' >&2
+  printf '  pre-release exists, all of them are dead.\n' >&2
+  status=1
+fi
 if [ "$status" -ne 0 ]; then
   printf '\nA cask naming a download that is not there is an install that fails\n' >&2
   printf 'with nothing to say why. Cut the release it names, or take the cask out\n' >&2
