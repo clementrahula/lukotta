@@ -253,36 +253,28 @@ final class HelperClient: ObservableObject {
     /// What the running daemon promises. A daemon too old to know the question
     /// answers through its error handler, and nothing older than contract 2
     /// knows it -- so nought is the honest answer for those.
+    /// What the running daemon promises.
+    ///
+    /// Through the same round trip as every other question, for the same
+    /// reason: the reply and the error both arrive on XPC's own queue, and a
+    /// main-actor closure called from there traps under Swift 6. It did --
+    /// 1.20.3 crashed on launch on any Mac with an older daemon, in the error
+    /// block of this very call.
+    ///
+    /// Three seconds, and nought if it does not answer. A daemon too old to
+    /// know this method neither replies nor errors -- the message goes and
+    /// nothing on the other side responds to the selector -- and that daemon
+    /// is exactly the one this question exists to find, so waiting on it is
+    /// waiting for the wrong thing.
     private func askContract(_ done: @escaping @MainActor (Int) -> Void) {
         guard proxy() != nil, let connection else { return done(0) }
-
-        // Answered once, whichever arrives first.
-        //
-        // A daemon that does not implement this method neither replies nor
-        // errors: the message is sent, nothing on the other side responds to
-        // the selector, and the completion is never called at all. Silence,
-        // for ever -- which is precisely the daemon this question exists to
-        // find, so waiting for it to answer is waiting for the wrong thing.
-        var answered = false
-        let settle: @MainActor (Int) -> Void = { answer in
-            guard !answered else { return }
-            answered = true
-            done(answer)
-        }
-
         let box = ConnectionBox(connection)
-        guard
-            let helper = box.connection.remoteObjectProxyWithErrorHandler({ _ in
-                Task { @MainActor in settle(0) }
-            }) as? LukottaHelperProtocol
-        else { return done(0) }
-        helper.helperContract { answer in
-            Task { @MainActor in settle(answer) }
-        }
-        // Long enough for a daemon that is going to answer, short enough that
-        // one that never will is not waited on.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            MainActor.assumeIsolated { settle(0) }
+        Task.detached {
+            let answer: Int? = await Self.roundTrip(box, within: 3, orAfterThat: 0) {
+                proxy, reply in
+                proxy.helperContract { reply($0) }
+            }
+            await MainActor.run { done(answer ?? 0) }
         }
     }
 
@@ -290,14 +282,13 @@ final class HelperClient: ObservableObject {
     private func askItToRefreshItself(_ done: @escaping @MainActor (Bool) -> Void) {
         guard proxy() != nil, let connection else { return done(false) }
         let box = ConnectionBox(connection)
-        guard
-            let helper = box.connection.remoteObjectProxyWithErrorHandler({ error in
-                Log.app.error("the daemon could not be asked to replace itself: \(error)")
-                Task { @MainActor in done(false) }
-            }) as? LukottaHelperProtocol
-        else { return done(false) }
-        helper.refreshYourself { replaced in
-            Task { @MainActor in done(replaced) }
+        Task.detached {
+            // Copying a binary and standing down; a minute is generous.
+            let replaced: Bool? = await Self.roundTrip(box, within: 60, orAfterThat: false) {
+                proxy, reply in
+                proxy.refreshYourself { reply($0) }
+            }
+            await MainActor.run { done(replaced ?? false) }
         }
     }
 
