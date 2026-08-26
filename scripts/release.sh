@@ -67,6 +67,13 @@ PY
 REPO="${LUKOTTA_REPO:-clementrahula/lukotta}"
 PROFILE="${LUKOTTA_NOTARY_PROFILE:-lukotta}"
 
+# Who signs the disk image, read the same way build-app.sh reads it for the
+# app. Nothing of the owner's is written down: it comes from whatever identity
+# is on the machine doing the building, so a fork signs as itself.
+SIGN_ID="${LUKOTTA_SIGN_ID:-$(security find-identity -v -p codesigning 2>/dev/null \
+  | awk -F'"' '/Developer ID Application/ {print $2; exit}')}"
+[ -n "$SIGN_ID" ] || SIGN_ID="-"
+
 # Which channel this release is for.
 #
 # The two are the same software and separate everything else: identifier,
@@ -361,6 +368,17 @@ printf '==> Building the disk image\n'
 # and stapled in its own right rather than inheriting it from the app inside:
 # Gatekeeper checks the thing that was downloaded, and that is the image.
 "$HERE/scripts/make-dmg.sh" "$APP" "$DMG" "$APP_NAME" "$VERSION"
+
+# Signed as well as notarised. A stapled ticket is enough for the image to
+# open, so this was easy to leave out and nothing complained -- but an unsigned
+# image carries no identity of its own, and `spctl -a -t open` rejects it for
+# having none. Signing costs a second and makes the file say who built it
+# whether or not anything has asked Apple about it.
+if [ "$SIGN_ID" != "-" ]; then
+  /usr/bin/codesign --force --sign "$SIGN_ID" "$DMG" >/dev/null 2>&1 \
+    || { echo "error: the disk image could not be signed" >&2; exit 1; }
+fi
+
 if [ -n "${LUKOTTA_NOTARY_PROFILE:-}" ]; then
   NOTARYTOOL="/Applications/Xcode.app/Contents/Developer/usr/bin/notarytool"
   [ -x "$NOTARYTOOL" ] || NOTARYTOOL="$(xcrun --find notarytool 2>/dev/null || true)"
