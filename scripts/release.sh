@@ -535,6 +535,38 @@ fi
 # release this run just made, and releases/latest resolves to it only once it
 # is there. Checked over every cask in the tap rather than only the new one,
 # since the other channel's may name something withdrawn since.
+# The version the website tells people about.
+#
+# It said 1.16.0 while 1.19 was out, because saying it was a step somebody had
+# to remember after everything else was done -- and the step nobody remembers
+# is the one that is wrong for four versions. Only the release channel: the
+# site describes the application people download, and a pre-release is not it.
+if [ "${LUKOTTA_PUBLISH:-0}" = "1" ] && [ "${LUKOTTA_CHANNEL:-release}" = "release" ]; then
+  SITE="${LUKOTTA_SITE:-$HERE/../lukotta-website}"
+  if [ -f "$SITE/site.config.json" ]; then
+    printf '==> Saying %s on the website\n' "$VERSION"
+    /usr/bin/python3 - "$SITE/site.config.json" "$VERSION" <<'PY_SITE'
+import json, sys
+path, version = sys.argv[1], sys.argv[2]
+with open(path, encoding="utf-8") as f:
+    text = f.read()
+config = json.loads(text)
+was = config.get("appVersion")
+if was == version:
+    print(f"    already {version}")
+    raise SystemExit(0)
+config["appVersion"] = version
+# Written back the way it was found, so the diff is the one line that changed.
+with open(path, "w", encoding="utf-8") as f:
+    json.dump(config, f, indent=2, ensure_ascii=False)
+    f.write("\n")
+print(f"    {was} -> {version}")
+PY_SITE
+  else
+    printf '==> No website at %s; its version was not updated\n' "$SITE"
+  fi
+fi
+
 if [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
   printf '==> What the downloads point at\n'
   "$HERE/scripts/check-casks.sh" "$TAP" || {

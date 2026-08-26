@@ -41,7 +41,13 @@ concurrency:
 
 jobs:
   check:
-    runs-on: macos-15
+    # macos-latest rather than a pinned image. A pinned one is a label GitHub
+    # provisions for a while and then does not: runs against macos-15 stopped
+    # being picked up mid-afternoon and sat queued for hours, with no error and
+    # nothing in the run to say why, which is indistinguishable from a runner
+    # shortage. The toolchain is pinned below instead, where it can be checked
+    # and where a wrong one fails loudly rather than never starting.
+    runs-on: macos-latest
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
