@@ -2113,6 +2113,17 @@ final class AppModel: ObservableObject {
         }
         if now != ejectables { ejectables = now }
         MenuBarItem.shared.update(drives: now) { [weak self] point in self?.eject(point) }
+
+        // Nothing left open, and nothing left of the app but the item this was
+        // just about to redraw. It stayed behind to keep a drive reachable and
+        // that drive is gone, so there is nothing here to come back to --
+        // unless drives are meant to return by themselves, which is the one
+        // reason to sit in the menu bar with nothing open.
+        if now.isEmpty, MenuBarItem.shared.isTheWholeApp, !RestorePreference.isOn {
+            // Not from inside a scan: this is called while the list is being
+            // rebuilt, and quitting there ends the app mid-rebuild.
+            DispatchQueue.main.async { NSApp.terminate(nil) }
+        }
     }
 
     func unlock(_ drive: Drive, readOnly: Bool = false) {

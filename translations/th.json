@@ -158,6 +158,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "กลุ่มที่ %lld ของคีย์กู้คืนไม่ถูกต้อง ตรวจสอบตัวเลขหกหลักนั้นอีกครั้ง",
     "Handing the drive to Finder": "กำลังส่งไดรฟ์ให้ Finder",
     "Hide": "ซ่อน",
+    "Hide Menu Bar Icon": "ซ่อนไอคอนบนแถบเมนู",
     "Hide the credential": "ซ่อนข้อมูลรับรอง",
     "How %@ works, and what it supports": "%@ ทำงานอย่างไร และรองรับอะไรบ้าง",
     "How it works": "หลักการทำงาน",

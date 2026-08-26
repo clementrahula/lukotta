@@ -179,13 +179,18 @@ final class MenuBarItem {
         self.eject = eject
         let wanted = UserDefaults.standard.object(forKey: MenuBarPreference.key) as? Bool ?? true
         guard wanted else {
-            if let item { NSStatusBar.system.removeStatusItem(item) }
-            item = nil
+            putAway()
             return
         }
+        let fresh = item == nil
         let item = item ?? NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         self.item = item
-        item.isVisible = true
+        // Named, so that dragging it out of the menu bar is remembered as
+        // itself rather than under whichever number AppKit handed out this
+        // launch. And set once: forcing it true on every scan would put back
+        // an item somebody had just dragged away, which is the app arguing.
+        item.autosaveName = "menu-bar"
+        if fresh { item.isVisible = true }
         if let button = item.button {
             let symbol = NSImage(
                 systemSymbolName: "externaldrive.fill", accessibilityDescription: Brand.name)
@@ -197,6 +202,7 @@ final class MenuBarItem {
             button.toolTip = Brand.name
         }
 
+        hasSomethingToEject = !drives.isEmpty
         let menu = NSMenu()
         for drive in drives {
             let entry = NSMenuItem(
@@ -212,13 +218,28 @@ final class MenuBarItem {
             action: #selector(MenuBarItem.bringToFront), keyEquivalent: "")
         show.target = self
         menu.addItem(show)
+
+        // The setting for this item, in the item itself. Somebody who wants it
+        // gone is looking at it, not at a settings window.
+        let hide = NSMenuItem(
+            title: String(localized: "Hide Menu Bar Icon"),
+            action: #selector(MenuBarItem.hide), keyEquivalent: "")
+        hide.target = self
+        menu.addItem(hide)
+        // Named for what it does. Quitting from here while a drive is open
+        // would leave it served by something nobody can reach any more, so it
+        // ejects -- in the words the dialog's own button uses for that act,
+        // rather than a second name for one thing.
+        //
         // Quitting through a selector of our own rather than through
         // `terminate:`. macOS draws a symbol beside the standard actions, and
         // one item in three carrying a glyph indents the other two off the
         // edge of it -- a menu that looks like it lost an icon rather than one
         // that never had any.
         let quit = NSMenuItem(
-            title: String(localized: "Quit \(Brand.name)"),
+            title: drives.isEmpty
+                ? String(localized: "Quit \(Brand.name)")
+                : String(localized: "Eject and Quit"),
             action: #selector(MenuBarItem.quit), keyEquivalent: "")
         quit.target = self
         menu.addItem(quit)
@@ -230,11 +251,82 @@ final class MenuBarItem {
         eject?(point)
     }
 
+    @objc private func hide() {
+        // Through the same setting the settings window writes, so the two say
+        // the same thing about it afterwards.
+        UserDefaults.standard.set(false, forKey: MenuBarPreference.key)
+        putAway()
+    }
+
+    /// Take the item out of the menu bar, whoever asked.
+    private func putAway() {
+        if let item { NSStatusBar.system.removeStatusItem(item) }
+        item = nil
+        // It was the whole of the app there was: no window, no Dock icon, and
+        // now nothing in the menu bar either. Quitting is the only honest end
+        // to that, and it goes through the usual question about open drives.
+        if isTheWholeApp { NSApp.terminate(nil) }
+    }
+
     @objc private func quit() {
+        // The item says what it will do, so it is not worth a dialog asking
+        // the same question again with a third answer -- and "leave it open"
+        // is not on offer from a menu that is about to stop existing.
+        askedToEjectAndQuit = hasSomethingToEject
         NSApp.terminate(nil)
     }
 
+    /// Set while a quit came from this menu, where the answer is already given.
+    /// Read once and cleared, so a quit that does not go through does not
+    /// answer the next one on its behalf.
+    func tookTheMenuBarsAnswer() -> Bool {
+        defer { askedToEjectAndQuit = false }
+        return askedToEjectAndQuit
+    }
+
+    private var askedToEjectAndQuit = false
+
+    /// What the menu last offered to eject, which is what its quit item is
+    /// named after.
+    private var hasSomethingToEject = false
+
+    /// Whether there is an item in the menu bar somebody can actually reach.
+    ///
+    /// Not "was one asked for": the setting is one way to be rid of it and
+    /// dragging it out of the menu bar is another, and an app that stays
+    /// running behind an item that is not there is one nothing can reopen.
+    var isReachable: Bool { item?.isVisible == true }
+
+    /// Whether this item is all that is left of the app on screen.
+    private(set) var isTheWholeApp = false
+
+    /// Put the app away without ending it, leaving this item as the way back.
+    ///
+    /// The windows are ordered out rather than closed. Closing the last one
+    /// asks whether the app should end, which is the question being answered
+    /// here, and a closed `WindowGroup` window is one SwiftUI has to be talked
+    /// into making again.
+    func keepOnlyTheMenuBar() {
+        for window in NSApp.windows where window.isVisible { window.orderOut(nil) }
+        NSApp.setActivationPolicy(.accessory)
+        isTheWholeApp = true
+    }
+
+    /// Somebody asked for the app again — from the Dock, from Finder, or from
+    /// this item's own menu.
+    func comeBack() {
+        guard isTheWholeApp else { return }
+        isTheWholeApp = false
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.windows.first?.makeKeyAndOrderFront(nil)
+    }
+
     @objc private func bringToFront() {
+        if isTheWholeApp {
+            comeBack()
+            return
+        }
         NSApp.activate(ignoringOtherApps: true)
         NSApp.windows.first?.makeKeyAndOrderFront(nil)
     }
@@ -459,6 +551,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         !RestorePreference.isOn
     }
 
+    /// Clicking the app in the Dock, or opening it again from Finder, while it
+    /// is living in the menu bar.
+    func applicationShouldHandleReopen(_ app: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        MainActor.assumeIsolated { MenuBarItem.shared.comeBack() }
+        return true
+    }
+
     /// A mounted drive means a microVM is still running. Quitting without
     /// ejecting would leave it behind, so ask.
     func applicationShouldTerminate(_ app: NSApplication) -> NSApplication.TerminateReply {
@@ -475,11 +574,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return .terminateNow
         }
 
+        // Asked from the menu bar, by an item that says it ejects. The answer
+        // this dialog exists to collect has been given.
+        if MainActor.assumeIsolated({ MenuBarItem.shared.tookTheMenuBarsAnswer() }) {
+            MainActor.assumeIsolated {
+                model.ejectAll { NSApp.reply(toApplicationShouldTerminate: true) }
+            }
+            return .terminateLater
+        }
+
         // Without the helper the virtual machine is tied to this process, so
         // leaving a drive open would drop it the moment the app quits, and macOS
         // would report the connection as interrupted. Only offer that choice
         // when the drive would actually survive.
         let survives = MainActor.assumeIsolated { model.helper.isReady }
+
+        // Somewhere to go that is not away.
+        //
+        // With an item in the menu bar the app does not have to end to get out
+        // of the way: the window and the Dock icon go, the item stays, and the
+        // drive can be ejected from it. That also makes leaving a drive open
+        // safe without the helper, since the process holding it is still here.
+        //
+        // Only from a full app, and only while there is an item somebody can
+        // reach. Asked from the menu bar item itself there is nowhere further
+        // to retreat to, and an app hidden behind an item that was switched
+        // off or dragged away is one nothing can reopen.
+        let retreat = MainActor.assumeIsolated {
+            MenuBarItem.shared.isReachable && !MenuBarItem.shared.isTheWholeApp
+        }
 
         let names = MainActor.assumeIsolated {
             model.openMounts.values.sorted().map { ($0 as NSString).lastPathComponent }
@@ -522,7 +645,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // and it is the one choice here that cannot lose anything: the drives
         // keep working. Ejecting is the deliberate act, so it does not get the
         // return key.
-        if survives { alert.addButton(withTitle: String(localized: "Leave Open")) }
+        if retreat || survives { alert.addButton(withTitle: String(localized: "Leave Open")) }
         alert.addButton(withTitle: String(localized: "Eject and Quit"))
         alert.addButton(withTitle: String(localized: "Cancel"))
         alert.buttons.last?.keyEquivalent = "\u{1b}"
@@ -534,9 +657,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // path that quits the app.
 
         let ejectButton: NSApplication.ModalResponse =
-            survives ? .alertSecondButtonReturn : .alertFirstButtonReturn
+            retreat || survives ? .alertSecondButtonReturn : .alertFirstButtonReturn
+        // An app living in the menu bar has no window to raise this in front
+        // of, and a modal dialogue nobody can see reads as a quit that hung.
+        NSApp.activate(ignoringOtherApps: true)
         let answer = alert.runModal()
 
+        if retreat, answer == .alertFirstButtonReturn {
+            // Not a quit that was turned down: it was answered, by going to
+            // the menu bar. The relaunch goes with it for the same reason a
+            // cancelled quit drops it.
+            AppModel.wantsRelaunch = false
+            MainActor.assumeIsolated { MenuBarItem.shared.keepOnlyTheMenuBar() }
+            return .terminateCancel
+        }
         if survives, answer == .alertFirstButtonReturn { return .terminateNow }
         let eject = answer == ejectButton
         // Turning the quit down turns the relaunch down with it, or the next

@@ -158,6 +158,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "복구 키의 %lld번째 그룹이 올바르지 않습니다. 해당 여섯 자리를 다시 확인하십시오.",
     "Handing the drive to Finder": "드라이브를 Finder에 넘기는 중",
     "Hide": "가리기",
+    "Hide Menu Bar Icon": "메뉴 막대 아이콘 가리기",
     "Hide the credential": "자격 증명 가리기",
     "How %@ works, and what it supports": "%@의 작동 방식과 지원 범위",
     "How it works": "작동 방식",

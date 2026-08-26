@@ -623,7 +623,7 @@
       "screens": [
         "menus"
       ],
-      "context": "Button in the dialogue shown when quitting with drives open.",
+      "context": "Button in the dialogue shown when quitting with drives open, and the status menu's own quit item while a drive is open. The same words in both places, for the same act.",
       "placeholders": []
     },
     "Eject it in Finder when you are finished.": {
@@ -799,6 +799,13 @@
         "unlock"
       ],
       "context": "Tooltip on the eye button while the typed passphrase is visible.",
+      "placeholders": []
+    },
+    "Hide Menu Bar Icon": {
+      "screens": [
+        "menus"
+      ],
+      "context": "Item in the status menu that takes the icon out of the menu bar. The same setting as the Settings toggle “Show %@ in the menu bar”, offered where somebody who wants the icon gone is already looking. An instruction, not a question.",
       "placeholders": []
     },
     "Hide the credential": {

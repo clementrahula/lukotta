@@ -166,6 +166,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "रिकवरी कुंजी का समूह %lld मान्य नहीं है। उन छह अंकों की दोबारा जाँच करें।",
     "Handing the drive to Finder": "ड्राइव Finder को सौंपी जा रही है",
     "Hide": "छिपाएँ",
+    "Hide Menu Bar Icon": "मेन्यू बार आइकन छिपाएँ",
     "Hide the credential": "क्रेडेंशियल छिपाएँ",
     "How %@ works, and what it supports": "%@ कैसे काम करता है और क्या समर्थित करता है",
     "How it works": "यह कैसे काम करता है",

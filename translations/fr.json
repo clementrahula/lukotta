@@ -166,6 +166,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "Le groupe %lld de la clé de récupération n'est pas valide. Vérifiez à nouveau ces six chiffres.",
     "Handing the drive to Finder": "Transmission du disque au Finder",
     "Hide": "Masquer",
+    "Hide Menu Bar Icon": "Masquer l’icône de la barre des menus",
     "Hide the credential": "Masquer la saisie",
     "How %@ works, and what it supports": "Comment %@ fonctionne et ce qu’il prend en charge",
     "How it works": "Fonctionnement",

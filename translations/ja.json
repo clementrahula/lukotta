@@ -158,6 +158,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "回復キーの %lld 番目のグループが正しくありません。その 6 桁を確認してください。",
     "Handing the drive to Finder": "ドライブを Finder に引き渡し中",
     "Hide": "隠す",
+    "Hide Menu Bar Icon": "メニューバーアイコンを非表示",
     "Hide the credential": "資格情報を隠す",
     "How %@ works, and what it supports": "%@ の仕組みと対応範囲",
     "How it works": "仕組み",

@@ -158,6 +158,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "恢复密钥的第 %lld 组无效。请重新检查这六位数字。",
     "Handing the drive to Finder": "正在把驱动器交给“访达”",
     "Hide": "隐藏",
+    "Hide Menu Bar Icon": "隐藏菜单栏图标",
     "Hide the credential": "隐藏凭据",
     "How %@ works, and what it supports": "%@ 如何工作，以及支持哪些内容",
     "How it works": "工作原理",

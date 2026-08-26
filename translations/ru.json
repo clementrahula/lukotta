@@ -182,6 +182,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "Группа %lld ключа восстановления неверна. Проверьте эти шесть цифр ещё раз.",
     "Handing the drive to Finder": "Передача диска в Finder",
     "Hide": "Скрыть",
+    "Hide Menu Bar Icon": "Скрыть значок из строки меню",
     "Hide the credential": "Скрыть учётные данные",
     "How %@ works, and what it supports": "Как работает %@ и что поддерживает",
     "How it works": "Как это работает",

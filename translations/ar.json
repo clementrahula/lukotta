@@ -198,6 +198,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "المجموعة %lld من مفتاح الاسترداد غير صالحة. أعد التحقق من هذه الأرقام الستة.",
     "Handing the drive to Finder": "يجري تسليم محرك الأقراص إلى الباحث",
     "Hide": "إخفاء",
+    "Hide Menu Bar Icon": "إخفاء الأيقونة من شريط القوائم",
     "Hide the credential": "إخفاء بيانات الاعتماد",
     "How %@ works, and what it supports": "كيف يعمل %@ وما الذي يدعمه",
     "How it works": "كيف يعمل",

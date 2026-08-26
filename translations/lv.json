@@ -174,6 +174,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "Atkopšanas atslēgas %lld. grupa nav derīga. Pārbaudiet šos sešus ciparus vēlreiz.",
     "Handing the drive to Finder": "Diska nodošana programmai Finder",
     "Hide": "Slēpt",
+    "Hide Menu Bar Icon": "Slēpt ikonu izvēļņu joslā",
     "Hide the credential": "Slēpt ievadīto",
     "How %@ works, and what it supports": "Kā %@ darbojas un ko tā atbalsta",
     "How it works": "Kā tas darbojas",

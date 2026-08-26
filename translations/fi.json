@@ -166,6 +166,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "Palautusavaimen ryhmä %lld ei kelpaa. Tarkista nämä kuusi numeroa.",
     "Handing the drive to Finder": "Luovutetaan asema Finderille",
     "Hide": "Kätke",
+    "Hide Menu Bar Icon": "Kätke kuvake valikkoriviltä",
     "Hide the credential": "Kätke kirjoitettu teksti",
     "How %@ works, and what it supports": "Miten %@ toimii ja mitä se tukee",
     "How it works": "Miten se toimii",

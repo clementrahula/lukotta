@@ -166,6 +166,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "Kurtarma anahtarının %lld. grubu geçerli değil. Bu altı haneyi yeniden denetleyin.",
     "Handing the drive to Finder": "Sürücü Finder'a devrediliyor",
     "Hide": "Gizle",
+    "Hide Menu Bar Icon": "Menü çubuğu simgesini gizle",
     "Hide the credential": "Kimlik bilgisini gizle",
     "How %@ works, and what it supports": "%@ nasıl çalışır ve neleri destekler",
     "How it works": "Nasıl çalışır",

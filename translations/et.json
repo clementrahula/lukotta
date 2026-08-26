@@ -166,6 +166,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "Taastevõtme %lld. rühm ei ole korrektne. Kontrolli need kuus numbrit üle.",
     "Handing the drive to Finder": "Ketta üleandmine Finderile",
     "Hide": "Peida",
+    "Hide Menu Bar Icon": "Peida ikoon menüüribalt",
     "Hide the credential": "Peida sisestatu",
     "How %@ works, and what it supports": "Kuidas %@ töötab ja mida see toetab",
     "How it works": "Kuidas see töötab",

@@ -166,6 +166,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "A helyreállítási kulcs %lld. csoportja érvénytelen. Ellenőrizze újra ezt a hat számjegyet.",
     "Handing the drive to Finder": "A meghajtó átadása a Findernek",
     "Hide": "Elrejtés",
+    "Hide Menu Bar Icon": "Menüsor ikonjának elrejtése",
     "Hide the credential": "A beírtak elrejtése",
     "How %@ works, and what it supports": "Hogyan működik a(z) %@, és mit támogat",
     "How it works": "Hogyan működik",

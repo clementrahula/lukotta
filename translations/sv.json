@@ -166,6 +166,7 @@
     "Group %lld of the recovery key is not valid. Recheck those six digits.": "Grupp %lld i återställningsnyckeln är inte giltig. Kontrollera de sex siffrorna igen.",
     "Handing the drive to Finder": "Lämnar över enheten till Finder",
     "Hide": "Dölj",
+    "Hide Menu Bar Icon": "Göm symbol i menyraden",
     "Hide the credential": "Dölj det du skriver",
     "How %@ works, and what it supports": "Hur %@ fungerar och vad det stöder",
     "How it works": "Så fungerar det",
