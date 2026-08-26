@@ -1,4 +1,4 @@
-name: CI
+name: Checks
 
 # Every push to main, every pull request, and on request. It ran on pull
 # requests alone while the repository was private, a macOS runner being billed
@@ -44,7 +44,14 @@ on:
 
 jobs:
   check:
-    # macos-latest rather than a pinned image. A pinned one is a label GitHub
+    # Named Checks, not CI, and that is not cosmetic. A workflow run that GitHub
+# wedges in "queued" cannot be cancelled, force-cancelled or deleted -- all
+# three are refused -- and while one sat there, pushes created no run at all:
+# not a failure, not a queue, nothing. Two releases went out today with no
+# checks behind them for that reason. A run belongs to a workflow, so a
+# workflow with a new identity starts with none of them.
+#
+# macos-latest rather than a pinned image. A pinned one is a label GitHub
     # provisions for a while and then does not: runs against macos-15 stopped
     # being picked up mid-afternoon and sat queued for hours, with no error and
     # nothing in the run to say why, which is indistinguishable from a runner
