@@ -181,7 +181,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         // somebody's home directory, and building it against root's — or
         // against whichever account happens to be first on this Mac — either
         // fails or quietly uses a stranger's settings.
-        guard hasAnInvokingUser(), let home = invokingHome() else {
+        guard hasAnInvokingUser(), let userHome = invokingHome() else {
             Log.helper.error("no user to mount for; refusing")
             reply(71, "Could not tell which user this is for.")
             return
@@ -195,11 +195,21 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             // /var/root -- a hundred megabytes unpacked where nothing will ever
             // look for it, while the script written below points somewhere
             // else entirely and the mount finds no environment at all.
-            let home = engineHome(of: home)
-            try FileManager.default.createDirectory(
-                atPath: home + "/Library/Logs", withIntermediateDirectories: true)
+            //
+            // Composed once, and the two names are kept apart on purpose. This
+            // used to shadow the user's home with the engine's, and the two
+            // uses further down composed the already-composed path a second
+            // time: the engine was handed
+            //   ~/Library/Application Support/<id>/engine
+            //     /Library/Application Support/<id>/engine
+            // It creates that directory, because it creates whatever
+            // ANYLINUXFS_HOME names -- and then cannot open its log inside it,
+            // because on macOS it does not create the log directory. Every
+            // mount through this daemon failed with "Failed to create log file:
+            // No such file or directory", which says nothing about any of that.
+            let stateHome = engineHome(of: userHome)
             try EngineEnvironment.prepare(
-                into: URL(fileURLWithPath: home).appendingPathComponent(
+                into: URL(fileURLWithPath: stateHome).appendingPathComponent(
                     ".anylinuxfs/alpine", isDirectory: true)
             ) { _ in }
             let fifo = try workspace.makeCredentialPipe()
@@ -225,8 +235,8 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     logPath: log.path,
                     discoverLogPath: workspace.root.appendingPathComponent("discover.log").path,
                     expectScriptPath: expect.path,
-                    configPath: engineHome(of: home) + "/.anylinuxfs/config.toml",
-                    engineHome: engineHome(of: home),
+                    configPath: stateHome + "/.anylinuxfs/config.toml",
+                    engineHome: stateHome,
                     libraryPaths: EnginePaths.libraryPaths(),
                     uid: invokingUID(), gid: invokingGID(),
                     cores: MountScript.VirtualMachine.cores,

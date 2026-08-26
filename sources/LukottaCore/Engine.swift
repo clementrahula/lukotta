@@ -281,7 +281,24 @@ public enum EngineEnvironment {
     /// belongs to them and not to root.
     @discardableResult
     public static func makeHomeReady() -> Bool {
-        let logs = engineHome.appendingPathComponent("Library/Logs", isDirectory: true)
+        makeHomeReady(at: engineHome)
+    }
+
+    /// The same, for a home somebody else composed.
+    ///
+    /// The engine creates whatever `ANYLINUXFS_HOME` names, and then opens its
+    /// log inside `Library/Logs` of it -- which on macOS it does not create.
+    /// So a home that exists is not a home that works, and "Failed to create
+    /// log file: No such file or directory" is the whole of what the engine
+    /// says about the difference: nothing about which directory, and nothing
+    /// about it having been almost right.
+    ///
+    /// Every route composes this path for itself -- the app for its own runs,
+    /// the daemon for the user it mounts on behalf of -- so making the log
+    /// directory belongs to the home, not to whichever caller remembered.
+    @discardableResult
+    public static func makeHomeReady(at home: URL) -> Bool {
+        let logs = home.appendingPathComponent("Library/Logs", isDirectory: true)
         return
             (try? FileManager.default.createDirectory(
                 at: logs, withIntermediateDirectories: true)) != nil
@@ -436,6 +453,10 @@ public enum EngineEnvironment {
             .appendingPathComponent(directory.lastPathComponent + ".unpacking", isDirectory: true)
         try? FileManager.default.removeItem(at: staging)
 
+        // The home this unpack is for, which is not always this process's own:
+        // the daemon prepares the home of the user it mounts on behalf of, and
+        // `directory` is `<that home>/.anylinuxfs/alpine`.
+        makeHomeReady(at: directory.deletingLastPathComponent().deletingLastPathComponent())
         makeHomeReady()
 
         // An environment this app unpacked before it had a directory of its

@@ -797,6 +797,22 @@ group("mountStages") {
         AppRollback.supportName(identifier: "", bundleName: "Drive Unlocker") == "Drive Unlocker",
         "an empty identifier counting as none")
 
+    // A home the engine is given has to carry Library/Logs, because the engine
+    // creates the home and not the log directory inside it -- and says only
+    // "Failed to create log file: No such file or directory" about the
+    // difference. Every route composes this path for itself, so it belongs to
+    // the home rather than to whoever remembered.
+    let madeUpHome = FileManager.default.temporaryDirectory
+        .appendingPathComponent("lukotta-home-\(UUID().uuidString)", isDirectory: true)
+    defer { try? FileManager.default.removeItem(at: madeUpHome) }
+    expect(
+        EngineEnvironment.makeHomeReady(at: madeUpHome),
+        "a home the engine is handed can be made ready")
+    expect(
+        FileManager.default.fileExists(
+            atPath: madeUpHome.appendingPathComponent("Library/Logs").path),
+        "and it has the directory the engine opens its log in")
+
     // The app and the daemon have to compose one engine directory. The daemon
     // reads its own embedded identifier, which is the app's with ".helper" on
     // the end, and a directory of its own means a second Linux environment, a
