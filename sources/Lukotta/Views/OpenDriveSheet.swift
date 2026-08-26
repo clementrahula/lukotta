@@ -132,6 +132,14 @@ private struct SurveyRow: View {
         return false
     }
 
+    /// Where this app has it open, when it does.
+    private var openHere: (point: String, readOnly: Bool)? {
+        if case .openHere(let point, let readOnly) = entry.verdict {
+            return (point, readOnly)
+        }
+        return nil
+    }
+
     /// Why this one cannot be opened, in ordinary terms rather than the
     /// partition table's.
     private var reason: String {
@@ -141,6 +149,10 @@ private struct SurveyRow: View {
             // it may hold is in the subtitle already; this line is for what
             // can be done about it.
             return String(localized: "A drive \(Brand.name) can open.")
+        case .openHere(let point, _):
+            // The same sentence the drive list uses for the same fact, rather
+            // than a second one saying it differently in thirty-six languages.
+            return String(localized: "Unlocked at \(point)")
         case .macOSHasIt(let point):
             return String(localized: "macOS has this open at \(point).")
         case .macOSReadsIt:
@@ -155,6 +167,7 @@ private struct SurveyRow: View {
     private var tint: Color {
         switch entry.verdict {
         case .openable: return .orange
+        case .openHere: return .green
         case .macOSHasIt, .macOSReadsIt: return .green
         case .system, .unreadable: return .secondary
         }
@@ -162,7 +175,7 @@ private struct SurveyRow: View {
 
     var body: some View {
         HStack(spacing: 13) {
-            Image(systemName: openable ? "lock.fill" : "externaldrive")
+            Image(systemName: openable ? "lock.fill" : (openHere != nil ? "lock.open.fill" : "externaldrive"))
                 .font(.system(size: 19))
                 .foregroundStyle(tint)
                 .frame(width: 26)
@@ -171,6 +184,12 @@ private struct SurveyRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 7) {
                     Text(entry.name).font(.callout.weight(.medium))
+                    // The same two pills the drive list uses, so a drive says
+                    // the same thing about itself wherever it is shown.
+                    if let openHere {
+                        StatePill(open: true)
+                        if openHere.readOnly { ReadOnlyPill() }
+                    }
                     Text(verbatim: entry.id)
                         .font(.system(.caption2, design: .monospaced))
                         .environment(\.layoutDirection, .leftToRight)
@@ -193,6 +212,11 @@ private struct SurveyRow: View {
                 Button("Open", action: open).controlSize(.small)
                     .accessibilityLabel("Open \(entry.name)")
                     .disabled(!model.canOpenAnother)
+            } else if let openHere {
+                Button("Eject") { model.eject(openHere.point) }
+                    .controlSize(.small)
+                    .accessibilityLabel("Eject \(entry.name)")
+                    .disabled(model.isEjecting)
             }
         }
         .padding(13)

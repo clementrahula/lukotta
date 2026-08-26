@@ -21,8 +21,47 @@ enum Language {
 
     /// The languages this build actually carries, taken from the bundle rather
     /// than a list to keep up to date. Adding a table adds a choice.
+    ///
+    /// Ordered by the name each is shown under, not by its code. The codes are
+    /// invisible, so sorting by them put Čeština under "cs" between "ca" and
+    /// "da" and Ελληνικά under "el" between "de" and "en" -- a list in no order
+    /// a reader could see, which is the same as no order at all.
+    ///
+    /// Latin first, then Cyrillic, then the rest. Somebody looking for their
+    /// own language finds it among the ones written like it, and the scripts
+    /// that read right to left are not scattered through the middle.
     static var available: [String] {
-        Bundle.main.localizations.filter { $0 != "Base" }.sorted()
+        Bundle.main.localizations
+            .filter { $0 != "Base" }
+            .sorted { a, b in
+                let scripts = (script(of: a), script(of: b))
+                if scripts.0 != scripts.1 { return scripts.0 < scripts.1 }
+                let names = (name(of: a), name(of: b))
+                // Diacritic-insensitive, so Čeština sorts where a reader looks
+                // for it rather than after Z, where its code point puts it.
+                let order = names.0.compare(
+                    names.1, options: [.caseInsensitive, .diacriticInsensitive],
+                    range: nil, locale: Locale(identifier: "en_US_POSIX"))
+                if order != .orderedSame { return order == .orderedAscending }
+                return a < b
+            }
+    }
+
+    /// Which group a language's own name belongs to: 0 Latin, 1 Cyrillic,
+    /// 2 everything else.
+    ///
+    /// Read from the first letter of the name as it is written, since that is
+    /// what the reader is scanning down.
+    static func script(of code: String) -> Int {
+        let letters = CharacterSet.letters
+        guard let first = name(of: code).unicodeScalars.first(where: { letters.contains($0) })
+        else { return 2 }
+        switch first.value {
+        // Latin, through the extended blocks, so Čeština and Español are Latin.
+        case 0x0041...0x024F: return 0
+        case 0x0400...0x04FF: return 1
+        default: return 2
+        }
     }
 
     /// Languages written differently in different countries, and which country

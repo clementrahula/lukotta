@@ -14,6 +14,14 @@ public enum DriveSurvey {
     public enum Verdict: Equatable, Sendable {
         /// This app can open it.
         case openable
+        /// This app already has it open, at this mount point. Read-only where
+        /// the flag says so.
+        ///
+        /// Separate from `openable` because the difference is what the row
+        /// offers to do. Without it a drive somebody had just unlocked was
+        /// listed as one to open, and opening it again started a second machine
+        /// for a device the first was still serving.
+        case openHere(String, readOnly: Bool)
         /// macOS reads it already, and has it mounted here.
         case macOSHasIt(String)
         /// macOS reads it, but has not mounted it.
@@ -85,11 +93,14 @@ public enum DriveSurvey {
     ///
     /// `openable` is answered by the scanner the main list uses, so the two
     /// cannot disagree about what this app will open.
+    /// - Parameter openHere: what this app has open, by device path, with
+    ///   where each one is mounted and whether it went read-only.
     public static func survey(
         list plist: [String: Any],
         info: (String) -> [String: Any],
         mountTable: String,
-        openable: [Drive]
+        openable: [Drive],
+        openHere: [String: (point: String, readOnly: Bool)] = [:]
     ) -> [Entry] {
         guard let disks = plist["AllDisksAndPartitions"] as? [[String: Any]] else { return [] }
         let byIdentifier = Dictionary(openable.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
@@ -129,8 +140,19 @@ public enum DriveSurvey {
                     || systemVolumeNames.contains(label ?? "")
                 {
                     verdict = .system
-                } else if byIdentifier[identifier] != nil {
-                    verdict = .openable
+                } else if let drive = byIdentifier[identifier] {
+                    // Already open, here, is a different offer from openable.
+                    // Matched the way the app matches it: a volume inside a
+                    // container is served under the group's name rather than
+                    // the device's, so the device path alone finds nothing.
+                    let mine =
+                        openHere["/dev/" + identifier]
+                        ?? openHere.first { drive.owns($0.key) }?.value
+                    if let mine {
+                        verdict = .openHere(mine.point, readOnly: mine.readOnly)
+                    } else {
+                        verdict = .openable
+                    }
                 } else if let mount {
                     verdict = .macOSHasIt(mount)
                 } else if VolumeKind.holding(content) != nil {

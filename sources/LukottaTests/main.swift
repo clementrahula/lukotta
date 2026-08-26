@@ -3333,6 +3333,7 @@ group("surveyingEveryDisk") {
         guard let e = entries.first(where: { $0.id == id }) else { return "absent" }
         switch e.verdict {
         case .openable: return "openable"
+        case .openHere(let p, let ro): return "ours:" + p + (ro ? ":ro" : "")
         case .macOSHasIt(let p): return "mounted:" + p
         case .macOSReadsIt: return "macOS"
         case .system: return "system"
@@ -3341,6 +3342,33 @@ group("surveyingEveryDisk") {
     }
 
     expect(verdict("disk4s1"), "openable", "a locked drive is offered")
+
+    // A drive this app has already unlocked is not one to unlock again. Opening
+    // it a second time started another machine for a device the first was still
+    // serving, and the row said "Open" beside a drive that was already open.
+    let ours = DriveSurvey.survey(
+        list: list, info: { info[$0] ?? [:] }, mountTable: mounts, openable: openable,
+        openHere: ["/dev/disk4s1": (point: "/Users/someone/Volumes/BACKUP", readOnly: false)])
+    func ourVerdict(_ id: String) -> String {
+        guard let e = ours.first(where: { $0.id == id }) else { return "absent" }
+        if case .openHere(let p, let ro) = e.verdict { return "ours:" + p + (ro ? ":ro" : "") }
+        if case .openable = e.verdict { return "openable" }
+        return "other"
+    }
+    expect(
+        ourVerdict("disk4s1"), "ours:/Users/someone/Volumes/BACKUP",
+        "a drive this app already has open says so, and offers to eject it")
+    let readOnly = DriveSurvey.survey(
+        list: list, info: { info[$0] ?? [:] }, mountTable: mounts, openable: openable,
+        openHere: ["/dev/disk4s1": (point: "/Users/someone/Volumes/BACKUP", readOnly: true)])
+    expect(
+        {
+            if case .openHere(_, let ro) = readOnly.first(where: { $0.id == "disk4s1" })?.verdict {
+                return ro
+            }
+            return false
+        }(), "and one opened read-only carries that too")
+
     expect(entries.first(where: { $0.id == "disk4s1" })?.drive != nil, "and carries the drive")
     expect(verdict("disk6s1"), "mounted:/Volumes/STICK", "one macOS already has says where")
     expect(verdict("disk0s1"), "system", "the boot disk's own partitions are not offered")

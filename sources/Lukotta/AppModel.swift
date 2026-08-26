@@ -198,13 +198,19 @@ final class AppModel: ObservableObject {
     /// Survey every disk, including those this app will not open.
     func surveyDrives() {
         let images = Set(openedImages.keys)
+        // What this app has open, so the sheet can offer to eject rather than
+        // to open again. Read here, on the main actor, because it is this
+        // model's own state.
+        let mine = openMounts.mapValues {
+            (point: $0, readOnly: readOnlyMounts.contains($0))
+        }
         Task.detached(priority: .userInitiated) {
             let plist = DriveSurvey.diskutilList()
             let table = mountTable()
             let openable = DriveScanner.scan(images: images)
             let entries = DriveSurvey.survey(
                 list: plist, info: { DriveScanner.info(for: $0) ?? [:] },
-                mountTable: table, openable: openable)
+                mountTable: table, openable: openable, openHere: mine)
             await MainActor.run { self.survey = entries }
         }
     }
@@ -329,6 +335,22 @@ final class AppModel: ObservableObject {
                 openedImages[identifier] = nil
                 imageDrives[identifier] = nil
                 forget(under: identifier)
+            }
+            // And the other direction, which nothing did: a file this app
+            // attached and is still attached, that this process has never heard
+            // of. That is every launch after the first while a drive is open --
+            // relaunching to change the language is the ordinary way to get
+            // there. The volume stayed mounted and the row for it vanished, so
+            // the list said nothing was open and there was no way to eject it
+            // from the app.
+            //
+            // Only files this app attached: the record is its own, and an image
+            // somebody else has open is not this app's to list.
+            let ours = DiskImage.OpenedFiles.all()
+            for (identifier, path) in attachments
+            where openedImages[identifier] == nil && ours.contains(path) {
+                Log.drives.notice("adopting a container file this app left attached")
+                openedImages[identifier] = URL(fileURLWithPath: path)
             }
         }
         return ImageList.merge(found: found, images: imageDrives) + engineRead
@@ -1001,10 +1023,22 @@ final class AppModel: ObservableObject {
     }
 
     private nonisolated static func look(for images: Set<String>) -> Sighting {
-        Sighting(
-            found: DriveScanner.scan(images: images),
+        let attachments = DiskImage.attachments()
+        // Files this app attached that are still attached, whether or not this
+        // process is the one that attached them. At the first scan after a
+        // launch that is all of them, and scanning without them is a list with
+        // no row for a drive that is open.
+        var known = images
+        if let attachments {
+            let ours = DiskImage.OpenedFiles.all()
+            for (identifier, path) in attachments where ours.contains(path) {
+                known.insert(identifier)
+            }
+        }
+        return Sighting(
+            found: DriveScanner.scan(images: known),
             mounts: EngineStatus.current(),
-            attachments: DiskImage.attachments())
+            attachments: attachments)
     }
 
     /// What to say when mounts went away without anybody ejecting them.

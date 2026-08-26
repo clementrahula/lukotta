@@ -83,6 +83,14 @@ import CryptoKit
             print("the same container, opened read-only")
             readOnlyFlow(container: container, passphrase: passphrase)
 
+            print("")
+            print("the list, after the app is started again with a drive open")
+            afterARelaunchFlow(image: container, passphrase: passphrase)
+
+            print("")
+            print("opening a drive on a Mac that has just started")
+            afterARestartFlow(image: container, passphrase: passphrase)
+
             let encrypted = fixtures["qcow2-encrypted"]
             if let plain = fixtures["qcow2"], FileManager.default.fileExists(atPath: plain.path) {
                 print("")
@@ -1441,7 +1449,151 @@ import CryptoKit
                 "ejecting it means it does not come back next time")
         }
 
+        /// The list, after the app has been started again with a drive open.
+        ///
+        /// Somebody changes the language, the app relaunches, and what is on
+        /// screen has to be the truth as it is now -- not an empty list, and not
+        /// a drive offered for opening that is already open. Opening one a
+        /// second time starts a second machine for a device the first is still
+        /// serving.
+        @MainActor
+        private static func afterARelaunchFlow(image: URL, passphrase: String?) {
+            var point = ""
+            do {
+                guard let (model, drive) = openAndChoose(image) else { return }
+                guard
+                    waitUntil(
+                        "it is identified", timeout: 60,
+                        condition: { model.phaseIsUnlock && model.chosenFormat != nil })
+                else { return }
+                if let passphrase { model.credential = passphrase }
+                model.unlock(drive, readOnly: false)
+                guard
+                    waitUntil(
+                        "it opens", timeout: 240,
+                        condition: {
+                            if case .mounted = model.phase { return true }
+                            if case .failed = model.phase { return true }
+                            return false
+                        })
+                else { return }
+                guard case .mounted(_, let where_) = model.phase else {
+                    check(false, "it opened, rather than failing")
+                    return
+                }
+                point = where_
+            }
+
+            // A new model and a fresh scan, which is all a relaunch is as far as
+            // this app's own state goes: the process forgets, the mount does not.
+            let after = AppModel()
+            after.start()
+            guard waitUntil("the app starts again", condition: { !after.isScanning }) else {
+                return
+            }
+            check(!after.drives.isEmpty, "the list is there, and not empty")
+            check(
+                after.openMounts.values.contains(point),
+                "and the drive that is open is in it, at the point it is open at")
+            guard let listed = after.drives.first(where: { after.mountPoint(for: $0) == point })
+            else {
+                check(false, "the open drive is one of the rows")
+                return
+            }
+            check(
+                after.mountPoint(for: listed) == point,
+                "the row says where it is open, so it offers to eject rather than to open")
+
+            // And the Open Drive sheet, which reads the disks for itself and had
+            // no idea any of them were already open.
+            after.surveyDrives()
+            guard
+                waitUntil(
+                    "every disk is surveyed", timeout: 60, condition: { !after.survey.isEmpty })
+            else { return }
+            let ours = after.survey.filter {
+                if case .openHere = $0.verdict { return true }
+                return false
+            }
+            check(
+                ours.contains { if case .openHere(let p, _) = $0.verdict { return p == point } else { return false } }
+                    || after.survey.allSatisfy { $0.drive?.devicePath != listed.devicePath },
+                "and the sheet calls it open here rather than offering to open it again")
+
+            after.eject(point)
+            waitUntil("it ejects", timeout: 120, condition: { !after.isEjecting })
+        }
+
+        /// Opening a drive on a Mac that has just started.
+        ///
+        /// Nothing of the engine is running, no machine is warm, and whatever
+        /// was open before the restart is gone without anybody having ejected
+        /// it. This is the state nobody can get into on purpose more than once
+        /// or twice a day, so it is made here rather than waited for.
+        @MainActor
+        private static func afterARestartFlow(image: URL, passphrase: String?) {
+            // What a restart leaves: no engine, no mounts, and a record of a
+            // drive that was open pointing at a mount point that is not there.
+            EngineProcesses.stop(EngineProcesses.running())
+            OpenedHere.add("/Users/someone/Volumes/GONE")
+            defer { OpenedHere.remove("/Users/someone/Volumes/GONE") }
+
+            let model = AppModel()
+            model.start()
+            guard waitUntil("the app starts from cold", condition: { !model.isScanning }) else {
+                return
+            }
+            check(model.openMounts.isEmpty, "nothing is open, because the restart took it")
+            check(
+                EngineStatus.current().isEmpty,
+                "and no engine is serving anything on a Mac that has just started")
+
+            // Then the thing somebody actually does next.
+            model.openImage(image)
+            guard
+                waitUntil(
+                    "the image opens", timeout: 120,
+                    condition: { model.phaseIsUnlock || model.drives.contains { $0.uuid == image.path } })
+            else { return }
+            guard let drive = model.drives.first(where: { $0.uuid == image.path }) else {
+                check(false, "the image is listed")
+                return
+            }
+            model.choose(drive)
+            guard
+                waitUntil(
+                    "it is identified", timeout: 60,
+                    condition: { model.phaseIsUnlock && model.chosenFormat != nil })
+            else { return }
+            if let passphrase { model.credential = passphrase }
+            model.unlock(drive, readOnly: false)
+            guard
+                waitUntil(
+                    "it mounts from a cold start", timeout: 240,
+                    condition: {
+                        if case .mounted = model.phase { return true }
+                        if case .failed = model.phase { return true }
+                        return false
+                    })
+            else { return }
+            guard case .mounted(_, let point) = model.phase else {
+                check(false, "it opened, rather than failing")
+                if case .failed(_, let summary, _) = model.phase { print("      \(summary)") }
+                return
+            }
+            check(
+                FileManager.default.fileExists(atPath: point),
+                "and the volume is there to write to")
+            check(
+                !OpenedHere.all().contains("/Users/someone/Volumes/GONE"),
+                "the record of what the restart took is forgotten, not carried for ever")
+
+            model.eject(point)
+            waitUntil("it ejects", timeout: 120, condition: { !model.isEjecting })
+        }
+
         /// An image holding an ordinary filesystem, which has no password to ask
+        /// for and should not ask for one.        /// An image holding an ordinary filesystem, which has no password to ask
         /// for and should not ask for one.
         @MainActor
         private static func plainFlow(image: URL) {
