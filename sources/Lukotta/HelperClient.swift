@@ -113,12 +113,17 @@ final class HelperClient: ObservableObject {
             }
             return
         }
-        let mine = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
-        guard !mine.isEmpty else { return }
-        askVersion { [weak self] theirs in
-            guard let self, theirs != mine else { return }
+        // What the daemon promises, not which build it came from.
+        //
+        // The build number moves on every release, and comparing against it
+        // asked the daemon to be replaced after almost every update -- which,
+        // where it was installed with an administrator password, meant asking
+        // for one again. The contract moves only when the daemon itself
+        // changes, so most updates ask for nothing at all.
+        askContract { [weak self] theirs in
+            guard let self, theirs < HelperInfo.contract else { return }
             Log.app.notice(
-                "the running helper is build \(theirs.isEmpty ? "unknown" : theirs, privacy: .public), this is \(mine, privacy: .public); asking it to step aside"
+                "the running helper answers contract \(theirs, privacy: .public), this build wants \(HelperInfo.contract, privacy: .public); replacing it"
             )
             // Ask it to stop first. launchd keeps a registered daemon running
             // across an app update -- the binary in the bundle is replaced and
@@ -138,6 +143,40 @@ final class HelperClient: ObservableObject {
                     }
                     return
                 }
+                // A daemon installed with an administrator password lives in
+                // /Library/PrivilegedHelperTools, and only another blessing
+                // replaces the binary there. Stepping aside restarts the same
+                // old one from the same place, for ever: the fix in the bundle
+                // never reaches the daemon, and the fault it carries outlives
+                // every update.
+                if FileManager.default.fileExists(atPath: HelperInfo.installedJobPath) {
+                    // Installed with an administrator password, so its binary
+                    // lives where only root may write. It is root: it replaces
+                    // itself from this bundle and stands down, and launchd
+                    // starts what it put there. No password, and the fix
+                    // reaches a Mac that already has a daemon -- which is the
+                    // whole difficulty, since blessing again is the only other
+                    // way across and that asks for one every time.
+                    Log.app.notice("the installed daemon is older; asking it to replace itself")
+                    self.askItToRefreshItself { [weak self] replaced in
+                        guard let self else { return }
+                        if !replaced {
+                            Log.app.error("the daemon would not replace itself; blessing again")
+                            self.hasConfirmed = false
+                            self.install()
+                            return
+                        }
+                        self.connection?.invalidate()
+                        self.connection = nil
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                            self?.hasConfirmed = false
+                            self?.refresh()
+                            self?.makeRoomForDrives()
+                        }
+                    }
+                    return
+                }
+
                 // A daemon too old to know the question, or one busy serving a
                 // drive. Ask it to take itself off instead: every version has
                 // known how to do that, it is root and can, and it exits when
@@ -188,6 +227,37 @@ final class HelperClient: ObservableObject {
             // leaves it notRegistered.
             try? await Task.sleep(nanoseconds: 2_000_000_000)
             await MainActor.run { done() }
+        }
+    }
+
+    /// What the running daemon promises. A daemon too old to know the question
+    /// answers through its error handler, and nothing older than contract 2
+    /// knows it -- so nought is the honest answer for those.
+    private func askContract(_ done: @escaping @MainActor (Int) -> Void) {
+        guard proxy() != nil, let connection else { return done(0) }
+        let box = ConnectionBox(connection)
+        guard
+            let helper = box.connection.remoteObjectProxyWithErrorHandler({ _ in
+                Task { @MainActor in done(0) }
+            }) as? LukottaHelperProtocol
+        else { return done(0) }
+        helper.helperContract { answer in
+            Task { @MainActor in done(answer) }
+        }
+    }
+
+    /// Ask the running daemon to replace its own binary from this bundle.
+    private func askItToRefreshItself(_ done: @escaping @MainActor (Bool) -> Void) {
+        guard proxy() != nil, let connection else { return done(false) }
+        let box = ConnectionBox(connection)
+        guard
+            let helper = box.connection.remoteObjectProxyWithErrorHandler({ error in
+                Log.app.error("the daemon could not be asked to replace itself: \(error)")
+                Task { @MainActor in done(false) }
+            }) as? LukottaHelperProtocol
+        else { return done(false) }
+        helper.refreshYourself { replaced in
+            Task { @MainActor in done(replaced) }
         }
     }
 

@@ -2331,10 +2331,17 @@ final class AppModel: ObservableObject {
                     readOnly: readOnly)
                 poll.cancel()
                 guard let outcome else {
-                    // The helper went away; take the ordinary route.
+                    // The helper did not answer. It is not replaced here by an
+                    // authorised command: that puts a password panel titled
+                    // "osascript" in front of somebody who set the helper up
+                    // precisely so they would never see one, and it says
+                    // nothing about the daemon having stopped answering -- the
+                    // drive opens, the fault is hidden, and it happens again
+                    // every time.
                     self.helper.refresh()
-                    self.runMountWithAuthorisation(
-                        drive: drive, credential: credential, workspace: ws)
+                    self.appendStatus("the background helper did not answer")
+                    let detail = self.statusLines.joined(separator: "\n")
+                    self.fail(drive, appString("The drive could not be opened."), detail)
                     return
                 }
                 self.showHelperTranscript(outcome.transcript)

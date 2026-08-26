@@ -31,6 +31,19 @@ public enum HelperInfo {
         return String(identifier.dropLast(suffix.count))
     }
 
+    /// What the daemon promises the app, as a number the app can compare.
+    ///
+    /// Not the app's build: that moves on every release, and comparing against
+    /// it would ask for an administrator password after almost every update.
+    /// This moves only when the daemon itself changes in a way that matters --
+    /// a new method, a fixed one, a different answer to an old question -- and
+    /// whoever changes the daemon is who raises it.
+    ///
+    /// 2: the daemon finds the engine in the application that called it, so a
+    ///    drive opened through it works when the daemon was installed with an
+    ///    administrator password rather than run from inside the bundle.
+    public static let contract = 2
+
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
 
@@ -125,6 +138,11 @@ public enum HelperInfo {
 
     func helperVersion(reply: @escaping (String) -> Void)
 
+    /// What this daemon promises, as a number the app compares against
+    /// `HelperInfo.contract`. A daemon too old to answer this is older than
+    /// contract 2 by definition, and its error handler says so.
+    func helperContract(reply: @escaping (Int) -> Void)
+
     /// Stop, so launchd starts the build that is on disk now.
     ///
     /// launchd keeps a registered daemon running across an app update: the
@@ -144,6 +162,21 @@ public enum HelperInfo {
     /// those live -- and asking for the password a second time to undo
     /// something is the sort of thing that makes people leave it installed.
     func removeYourself(reply: @escaping (Bool) -> Void)
+
+    /// Replace this daemon's own binary with the one in the application that
+    /// is asking, and exit so launchd starts it.
+    ///
+    /// This is how a fix to the daemon reaches a Mac that already has one.
+    /// SMJobBless copies the binary into /Library/PrivilegedHelperTools, and
+    /// only root may write there -- so without this the only way across is
+    /// another administrator password, on every update that changes the
+    /// daemon, for ever. It is already root; it does not need permission to
+    /// replace itself.
+    ///
+    /// The binary is taken from the caller's own code signature, never from a
+    /// path it sends, and is refused unless it satisfies the same requirement
+    /// this daemon admits callers by.
+    func refreshYourself(reply: @escaping (Bool) -> Void)
 
     /// Add loopback addresses, so more than three drives can be open at once.
     ///

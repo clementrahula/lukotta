@@ -137,6 +137,96 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         return FileManager.default.fileExists(atPath: engine.path) ? engine : nil
     }
 
+    func helperContract(reply: @escaping (Int) -> Void) {
+        reply(HelperInfo.contract)
+    }
+
+    /// The bundle of the process on the other end, from its code signature.
+    private func bundleOfTheCaller(_ connection: NSXPCConnection) -> URL? {
+        let attributes =
+            [kSecGuestAttributePid: NSNumber(value: connection.processIdentifier)] as CFDictionary
+        var code: SecCode?
+        guard SecCodeCopyGuestWithAttributes(nil, attributes, [], &code) == errSecSuccess,
+            let code
+        else { return nil }
+        var still: SecStaticCode?
+        guard SecCodeCopyStaticCode(code, [], &still) == errSecSuccess, let still else {
+            return nil
+        }
+        var path: CFURL?
+        guard SecCodeCopyPath(still, [], &path) == errSecSuccess else { return nil }
+        return path as URL?
+    }
+
+    /// Whether a binary on disk satisfies a code requirement.
+    private func meetsRequirement(_ url: URL, _ text: String) -> Bool {
+        var still: SecStaticCode?
+        guard SecStaticCodeCreateWithPath(url as CFURL, [], &still) == errSecSuccess, let still
+        else { return false }
+        var requirement: SecRequirement?
+        guard SecRequirementCreateWithString(text as CFString, [], &requirement) == errSecSuccess,
+            let requirement
+        else { return false }
+        return SecStaticCodeCheckValidity(still, [], requirement) == errSecSuccess
+    }
+
+    /// Replace this daemon's binary with the one in the application asking,
+    /// and stand down so launchd starts what was put there.
+    ///
+    /// This is how a fix to the daemon reaches a Mac that already has one.
+    /// SMJobBless copies the binary into /Library/PrivilegedHelperTools, where
+    /// only root may write -- so without this the way across is another
+    /// administrator password, on every update that changes the daemon, for
+    /// ever. It is already root; it needs nobody's permission to replace
+    /// itself.
+    ///
+    /// Written beside the target and moved onto it. macOS refuses a write to a
+    /// running executable, and truncating one would leave the Mac with no
+    /// daemon at all if anything failed half way; the replace is atomic, and
+    /// the running process keeps the file it started from until it exits.
+    func refreshYourself(reply: @escaping (Bool) -> Void) {
+        guard let connection = NSXPCConnection.current(),
+            let bundle = bundleOfTheCaller(connection),
+            let team = Self.signingTeam
+        else { return reply(false) }
+
+        let incoming = bundle.appendingPathComponent(
+            "Contents/Library/LaunchServices/\(HelperInfo.machServiceName)")
+        guard FileManager.default.fileExists(atPath: incoming.path) else {
+            Log.helper.error("the application carries no daemon to install")
+            return reply(false)
+        }
+        // Root is about to copy this over itself. Sitting inside a bundle that
+        // satisfied the requirement is not the same as satisfying it.
+        let wanted =
+            "anchor apple generic and identifier \"\(HelperInfo.machServiceName)\" "
+            + "and certificate leaf[subject.OU] = \"\(team)\""
+        guard meetsRequirement(incoming, wanted) else {
+            Log.helper.error("the daemon offered does not satisfy the requirement; refused")
+            return reply(false)
+        }
+
+        let target = URL(fileURLWithPath: HelperInfo.installedToolPath)
+        let staged = target.deletingLastPathComponent()
+            .appendingPathComponent(".\(HelperInfo.machServiceName).incoming")
+        do {
+            try? FileManager.default.removeItem(at: staged)
+            try FileManager.default.copyItem(at: incoming, to: staged)
+            try FileManager.default.setAttributes(
+                [.posixPermissions: 0o555], ofItemAtPath: staged.path)
+            _ = try FileManager.default.replaceItemAt(target, withItemAt: staged)
+        } catch {
+            Log.helper.error("could not put the new daemon in place: \(error)")
+            try? FileManager.default.removeItem(at: staged)
+            return reply(false)
+        }
+        Log.helper.notice("replaced by the daemon in the application; standing down")
+        reply(true)
+        // Long enough for the reply to reach the app. launchd starts the new
+        // binary the next time anything asks for the service.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { exit(0) }
+    }
+
     private func isTrusted(_ connection: NSXPCConnection) -> Bool {
         let pid = connection.processIdentifier
         let attributes = [kSecGuestAttributePid: NSNumber(value: pid)] as CFDictionary
