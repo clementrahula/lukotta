@@ -37,7 +37,9 @@ CHANNELS = {
         "app": "Lukotta Beta.app",
         "identifier": "com.lukotta.beta",
         "image": "Lukotta-Beta.dmg",
-        "tag": "v#{version}-beta",
+        # The version carries "-beta.N" itself now, so the tag is the version
+        # with a v in front of it, the same as the release channel.
+        "tag": "v#{version}",
         "name": "Lukotta Beta",
         # Every release, including the ones marked pre-release. The other
         # strategy passes over this channel entirely.

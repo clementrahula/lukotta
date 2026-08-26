@@ -56,6 +56,30 @@ Sources are in `sources/`, lowercase, and every target in `Package.swift`
 carries an explicit `path:`. The conventional `Sources/` fails on a
 case-sensitive volume.
 
+## Versions
+
+`VERSION` holds the version being worked towards, as plain semver: `1.20.1`.
+Nothing else goes in it.
+
+A beta of that version is `1.20.1-beta.1`, then `-beta.2`, and the release it
+leads to is `1.20.1` with nothing after it. **The suffix is not written into
+`VERSION`** — `scripts/release.sh` adds it when the channel is `beta`, and
+numbers it from the beta feed rather than from a file, so it cannot disagree
+with what has actually been published. The tag is the version with a `v` in
+front: `v1.20.1-beta.1`, `v1.20.1`.
+
+Both channels used to carry the same number, so "1.20.1" meant two different
+builds depending on which app you were holding. Semver orders the pre-releases
+correctly and says which is which out loud.
+
+Neither Sparkle nor Homebrew minds. Sparkle decides what is newer from
+`sparkle:version`, which is the commit count and never the display string;
+`CFBundleShortVersionString` is shown and not compared. A cask takes the
+version as written and its tag is now `v#{version}` on both channels.
+
+Written where somebody reads it: the About sheet says the version with the
+build in brackets after it, `1.20.1-beta.1 (612)`.
+
 The build number is the git commit count. Rebuilding without committing
 reuses the previous number, so two different binaries claim the same build.
 Commit before building anything you intend to compare; `build-app.sh` says so

@@ -81,8 +81,13 @@ VERSION="$(tr -d ' \n' < "$HERE/VERSION")"
 # Digits and dots only. The shell glob this used to be accepted "1x.2.3" and
 # "1..", because * matches anything, and a version like that reaches the
 # appcast and every installed copy before anybody reads it.
-printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || {
-  echo "error: VERSION must be semver (found '$VERSION')" >&2; exit 1; }
+# Semver, with the pre-release part allowed: a beta is 1.20.1-beta.1 and the
+# release it leads to is 1.20.1. Digits and dots only in the first three, so
+# "1x.2.3" and "1.." are still refused -- a version like that reaches the
+# appcast and every installed copy before anybody reads it.
+printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+(\.[0-9A-Za-z]+)*)?$' || {
+  echo "error: VERSION must be semver, optionally with a pre-release" >&2
+  echo "       (found '$VERSION'; wanted 1.20.1 or 1.20.1-beta.1)" >&2; exit 1; }
 
 # The lowest macOS this build can run on comes from the engine, not from a
 # number typed into the plist. libblkid is taken from a Homebrew bottle and

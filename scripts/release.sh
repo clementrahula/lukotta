@@ -94,7 +94,9 @@ case "${LUKOTTA_CHANNEL:-release}" in
   beta)
     BRANDING="beta"
     APP_NAME="Lukotta Beta"
-    TAG="v$VERSION-beta"
+    # The tag is set once the feed is known: a beta is numbered from what has
+    # actually been published, and that is read out of the feed below.
+    TAG=""
     APPCAST_DEFAULT="$HERE/dist/appcast-beta.xml"
     # Beside the feed it belongs to. Point LUKOTTA_APPCAST at the beta
     # directory of the same checkout and the notes land under it.
@@ -127,6 +129,39 @@ ZIP="$HERE/dist/$SLUG-$VERSION.zip"
 DMG="$HERE/dist/$SLUG.dmg"
 # Point this at a checkout of the updates repository to update it in place.
 APPCAST="${LUKOTTA_APPCAST:-$APPCAST_DEFAULT}"
+
+# A pre-release of the version being worked towards, numbered in order.
+#
+# VERSION holds where this is going -- 1.20.1 -- and a beta of it is
+# 1.20.1-beta.1, then -beta.2, and the release that follows is 1.20.1 with
+# nothing after it. Semver orders those correctly and says so out loud, which
+# "1.20.1 on the beta channel and 1.20.1 on the release channel, two different
+# builds" never did.
+#
+# Numbered from the feed rather than from a file, so it cannot disagree with
+# what has been published. Sparkle is unaffected either way: it compares
+# sparkle:version, which is the count of commits.
+if [ "${LUKOTTA_CHANNEL:-release}" = "beta" ]; then
+  if printf '%s' "$VERSION" | grep -q -- '-'; then
+    echo "error: VERSION is $VERSION; it holds the version being worked" >&2
+    echo "       towards, and the beta suffix is added here." >&2
+    exit 1
+  fi
+  NEXT_BETA="$(/usr/bin/python3 - "$APPCAST" "$VERSION" <<'PY_BETA'
+import re, sys
+path, version = sys.argv[1], sys.argv[2]
+try:
+    text = open(path, encoding="utf-8").read()
+except OSError:
+    text = ""
+seen = [int(n) for n in re.findall(
+    r'sparkle:shortVersionString="%s-beta\.(\d+)"' % re.escape(version), text)]
+print(max(seen) + 1 if seen else 1)
+PY_BETA
+)"
+  VERSION="$VERSION-beta.$NEXT_BETA"
+  TAG="v$VERSION"
+fi
 NOTES_BASE="${LUKOTTA_NOTES_BASE:-$NOTES_BASE_DEFAULT}"
 BASE_URL="${LUKOTTA_DOWNLOAD_BASE:-https://github.com/$REPO/releases/download/$TAG}"
 
