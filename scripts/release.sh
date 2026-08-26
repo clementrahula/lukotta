@@ -262,7 +262,10 @@ if [ "${LUKOTTA_CHANNEL:-release}" = "release" ] && [ "${LUKOTTA_PUBLISH:-0}" = 
   NOTES_FILE="$HERE/releases/$VERSION.md"
   [ -f "$NOTES_FILE" ] || { echo "error: no $NOTES_FILE to approve" >&2; exit 1; }
   NOTES_HASH="$(shasum -a 256 "$NOTES_FILE" | cut -c1-12)"
-  APPROVED_HASH="$(grep -E "^${VERSION//./\.}[[:space:]]" "$APPROVALS" 2>/dev/null | awk '{print $2}' | head -1)"
+  # `|| true` because a version that is not approved is the ordinary case here,
+  # and under `set -e` with pipefail a grep that matches nothing ends the script
+  # where it stands -- silently, with status 1 and not a word about approval.
+  APPROVED_HASH="$(grep -E "^${VERSION//./\.}[[:space:]]" "$APPROVALS" 2>/dev/null | awk '{print $2}' | head -1 || true)"
 
   if [ -z "$APPROVED_HASH" ]; then
     printf '\n'
