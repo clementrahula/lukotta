@@ -454,14 +454,6 @@ if [ -d "$TAP/Casks" ]; then
   esac
   python3 "$HERE/scripts/cask.py" "$CASK_CHANNEL" "$VERSION" "$DMG_SHA" > "$CASK_FILE"
   printf '==> Cask written: %s\n' "$CASK_FILE"
-  # Every cask in the tap, not only the one just written: the other channel's
-  # may name a release that has since been withdrawn, and nothing else looks.
-  # A cask pointing at a 404 is an install that fails with nothing to say why.
-  if [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
-    printf '==> What the casks point at\n'
-    "$HERE/scripts/check-casks.sh" "$TAP" || {
-      echo "error: a cask names a download that is not there" >&2; exit 1; }
-  fi
 else
   printf '==> No tap at %s; the cask was not written\n' "$TAP"
   printf '    git clone https://github.com/clementrahula/homebrew-tap %s\n' "$TAP"
@@ -502,6 +494,16 @@ if [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
   fi
 else
   printf '==> Not published. Set LUKOTTA_PUBLISH=1 to create the GitHub release.\n'
+fi
+
+# After publishing, never before: the cask this run just wrote names the
+# release this run just made, and releases/latest resolves to it only once it
+# is there. Checked over every cask in the tap rather than only the new one,
+# since the other channel's may name something withdrawn since.
+if [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
+  printf '==> What the downloads point at\n'
+  "$HERE/scripts/check-casks.sh" "$TAP" || {
+    echo "error: something people are pointed at is not there" >&2; exit 1; }
 fi
 
 printf '\nArchive : %s\n' "$ZIP"
