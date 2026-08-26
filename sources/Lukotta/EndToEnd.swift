@@ -86,6 +86,29 @@ import CryptoKit
             print("")
             print("the list, after the app is started again with a drive open")
             afterARelaunchFlow(image: container, passphrase: passphrase)
+            // And again with a file the engine reads itself. It is never
+            // attached, so nothing but the mount it is serving says it exists:
+            // the row for one simply vanished at the next launch.
+            if let vdi = fixtures["vdi"], FileManager.default.fileExists(atPath: vdi.path) {
+                print("")
+                print("the same, for a file the engine reads itself: \(vdi.lastPathComponent)")
+                afterARelaunchFlow(image: vdi, passphrase: nil)
+            }
+            // A qcow2 as well: every format the engine reads itself takes the
+            // same route, and one of them passing is not the others passing.
+            if let qcow = fixtures["qcow2"], FileManager.default.fileExists(atPath: qcow.path) {
+                print("")
+                print("the same, for a qcow2: \(qcow.lastPathComponent)")
+                afterARelaunchFlow(image: qcow, passphrase: nil)
+            }
+            // And a volume group, whose mounts are shaped differently again:
+            // several of them for one drive, reported under the group's name
+            // rather than a device or a file.
+            if let group = fixtures["lvm"], FileManager.default.fileExists(atPath: group.path) {
+                print("")
+                print("the same, for a container holding a volume group")
+                afterARelaunchFlow(image: group, passphrase: lvmPassphrase.isEmpty ? nil : lvmPassphrase)
+            }
 
             print("")
             print("opening a drive on a Mac that has just started")
@@ -1486,7 +1509,12 @@ import CryptoKit
 
             // Every row that was there before, so the check is "nothing
             // disappeared" rather than "something is there".
-            let before = Set(rowsNow().map(\.uuid))
+            let rowsBefore = rowsNow()
+            let before = Set(rowsBefore.map(\.uuid))
+            // What the open one looked like, so it comes back as itself rather
+            // than as a nameless disk of thirty-two bytes -- which is the size
+            // of the symlink the engine is handed when a path holds a space.
+            let was = rowsBefore.first { $0.uuid == image.path }
 
             // A new model and a fresh scan, which is all a relaunch is as far as
             // this app's own state goes: the process forgets, the mount does not.
@@ -1496,6 +1524,16 @@ import CryptoKit
                 return
             }
             check(!after.drives.isEmpty, "the list is there, and not empty")
+            let again = after.drives.first { $0.uuid == image.path }
+            check(again != nil, "the file that is open is a row of its own")
+            if let again, let was {
+                check(
+                    again.name == was.name,
+                    "it comes back under its own name (\(again.name), was \(was.name))")
+                check(
+                    again.sizeBytes == was.sizeBytes,
+                    "and its own size (\(again.sizeBytes) bytes, was \(was.sizeBytes))")
+            }
             let now = Set(after.drives.map(\.uuid))
             check(
                 before.subtracting(now).isEmpty,

@@ -1045,6 +1045,59 @@ final class AppModel: ObservableObject {
         var attachments: [String: String]?
     }
 
+    /// The files this app is serving drives from, as the person chose them.
+    ///
+    /// A mount names one of two things, and neither of them is the file. An
+    /// image the engine reads itself is named by the path it was handed, which
+    /// for a file with a space in its name is a symlink under a hash -- rebuild
+    /// from that and the row is called `85c26a14…` and is thirty-two bytes. An
+    /// image macOS attached is named by its device, and the file behind it is
+    /// only in the attachment table.
+    ///
+    /// Both are resolved back to the file, and only files this app recorded
+    /// opening are returned: what somebody else has attached is not this app's
+    /// to list.
+    private nonisolated static func filesBehind(_ sighting: Sighting) -> [String] {
+        let ours = DiskImage.OpenedFiles.all()
+        let manager = FileManager.default
+        var found: Set<String> = []
+        for mount in sighting.mounts {
+            let device = mount.devicePath
+            if device.hasPrefix("/dev/") {
+                // The whole disk, since a mount names the partition and the
+                // attachment table is keyed by the disk it was attached as.
+                let identifier = String(device.dropFirst("/dev/".count))
+                let whole = DriveScanner.wholeDisk(of: identifier)
+                // Whatever file this disk was attached from. Not gated on the
+                // record either: the engine is serving this device, so the file
+                // behind it is one this app opened, whether or not the record
+                // of it survived.
+                for key in [identifier, whole] {
+                    if let file = sighting.attachments?[key],
+                        manager.fileExists(atPath: file)
+                    {
+                        found.insert(file)
+                    }
+                }
+                continue
+            }
+            guard manager.fileExists(atPath: device) else { continue }
+            // The symlink made to keep spaces out of the engine's way, back to
+            // what it points at.
+            let real = URL(fileURLWithPath: device).resolvingSymlinksInPath().path
+            // Not gated on the record of what this app attached. A file the
+            // engine reads itself is never attached, and the sweep that lets go
+            // of files nothing is attached from drops it from that record --
+            // so requiring it there meant the one case this exists for could
+            // never pass it. The mount is the proof: these are this app's own
+            // engine's mounts, and it is serving them from this file.
+            found.insert(ours.contains(device) ? device : real)
+        }
+        // Claimed again, since this app is plainly the one serving it.
+        for file in found where !ours.contains(file) { DiskImage.OpenedFiles.add(file) }
+        return Array(found).sorted()
+    }
+
     private nonisolated static func look(for images: Set<String>) -> Sighting {
         let attachments = DiskImage.attachments()
         // Files this app attached that are still attached, whether or not this
@@ -1242,8 +1295,39 @@ final class AppModel: ObservableObject {
             for point in abandoned { EngineStatus.forceUnmount(mountPoint: point) }
 
             let sighting = Self.look(for: images)
+            // Every container file this app is serving right now, rebuilt the
+            // way it was built when somebody opened it.
+            //
+            // A file the engine reads itself -- VDI, VHDX, qcow2, VMDK -- is
+            // never attached by hdiutil: it has no device, and the only trace of
+            // it on this Mac is the mount the engine is serving from it. So a
+            // launch that looked at attached disks found nothing of it and its
+            // row was simply missing, while the volume sat in Finder with
+            // nothing here to eject it by. A raw image is attached, and came
+            // back as a bare disk called "Disk Image" with its format unread,
+            // because what made it a named container was in the process that
+            // opened it.
+            //
+            // The mount is the evidence, and the file it names is the same file
+            // somebody chose. Rebuilding from it gives back the name, the
+            // container and the format together.
+            let servedFiles = Self.filesBehind(sighting)
+            await MainActor.run { _ = self.applyScan(sighting) }
+
+            // Rebuilt before the list is ever shown, so a served file is a row
+            // at the first paint rather than one that appears a moment later.
+            for path in servedFiles {
+                let known = await MainActor.run { self.drives.contains { $0.uuid == path } }
+                if known { continue }
+                _ = await self.openImageQuietly(URL(fileURLWithPath: path))
+            }
+
+            // One last look, now that everything being served has a row, so the
+            // mounts and the rows are from the same moment.
+            let images2 = await MainActor.run { Set(self.openedImages.keys) }
+            let settledSighting = Self.look(for: images2)
             await MainActor.run {
-                _ = self.applyScan(sighting)
+                _ = self.applyScan(settledSighting)
                 let names = abandoned.map { URL(fileURLWithPath: $0).lastPathComponent }
                 if let sentence = self.stoppedRespondingNotice(names) { self.notice = sentence }
                 // Always the list, even when a drive is already open. The list
