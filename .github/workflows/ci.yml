@@ -35,9 +35,12 @@ on:
   pull_request:
   workflow_dispatch:
 
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+# No concurrency group. It existed to cancel a superseded run, and instead it
+# wedged: a run that sat queued -- which is what a macOS runner shortage looks
+# like -- held the group, and pushes after it created no run at all. Not a
+# failed run, not a queued one: nothing, with nothing anywhere saying why. A
+# gate that silently stops running is worse than one that runs twice, and on a
+# public repository the second run costs nothing.
 
 jobs:
   check:
