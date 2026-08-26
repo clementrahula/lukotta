@@ -99,6 +99,44 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     /// API. The window for reuse here is the moment between a connection
     /// arriving and this check, with the peer already having had to know the
     /// mach service name.
+    /// Where the application that is asking keeps the engine.
+    ///
+    /// The daemon cannot find it in its own bundle, because it has not got
+    /// one: SMJobBless installs it as a bare binary in
+    /// /Library/PrivilegedHelperTools, and `Bundle.main.resourceURL` there
+    /// points at a directory with nothing in it. Every mount through the
+    /// helper therefore answered "the mounting engine is missing" -- a daemon
+    /// that installs, connects, is trusted, and cannot do the one thing it is
+    /// for.
+    ///
+    /// Taken from the caller, and from the caller's signature rather than from
+    /// anything it says: this is the same code object `isTrusted` has just
+    /// checked against the requirement, so the path is one macOS resolved for
+    /// a bundle signed by the team that signed this daemon. A path sent over
+    /// the connection would be a string from a client, and root would be
+    /// following it.
+    private func engineOfTheCaller(_ connection: NSXPCConnection) -> URL? {
+        let attributes =
+            [kSecGuestAttributePid: NSNumber(value: connection.processIdentifier)] as CFDictionary
+        var code: SecCode?
+        guard SecCodeCopyGuestWithAttributes(nil, attributes, [], &code) == errSecSuccess,
+            let code
+        else { return nil }
+        var still: SecStaticCode?
+        guard SecCodeCopyStaticCode(code, [], &still) == errSecSuccess, let still else {
+            return nil
+        }
+        var path: CFURL?
+        guard SecCodeCopyPath(still, [], &path) == errSecSuccess,
+            let bundle = path as URL?
+        else { return nil }
+
+        let engine =
+            bundle
+            .appendingPathComponent("Contents/Resources/engine/anylinuxfs/bin/anylinuxfs")
+        return FileManager.default.fileExists(atPath: engine.path) ? engine : nil
+    }
+
     private func isTrusted(_ connection: NSXPCConnection) -> Bool {
         let pid = connection.processIdentifier
         let attributes = [kSecGuestAttributePid: NSNumber(value: pid)] as CFDictionary
@@ -172,11 +210,28 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         Log.helper.notice(
             "mount requested, linux \(isLinux, privacy: .public), read-only \(readOnly, privacy: .public)"
         )
-        guard let engine = EnginePaths.anylinuxfs else {
+        // This daemon's own bundle first, which is where a helper running from
+        // inside the application finds it, and the caller's otherwise: a
+        // helper installed by SMJobBless is a bare binary in
+        // /Library/PrivilegedHelperTools with no resources of its own.
+        let engineOfMine = EnginePaths.anylinuxfs.flatMap {
+            FileManager.default.fileExists(atPath: $0.path) ? $0 : nil
+        }
+        guard
+            let engine = engineOfMine
+                ?? NSXPCConnection.current().flatMap({ self.engineOfTheCaller($0) })
+        else {
             Log.helper.error("the mounting engine is missing")
             reply(70, "The mounting engine is missing.")
             return
         }
+        // So that the library paths, the Alpine image and the record of which
+        // patches were applied all come from the same place the binary did.
+        EnginePaths.useEngine(
+            at: engine.deletingLastPathComponent()
+                .deletingLastPathComponent().deletingLastPathComponent())
+        Log.helper.notice(
+            "engine at \(EnginePaths.engineRoot?.path ?? "nowhere", privacy: .public)")
         // Refused rather than guessed at. Everything below is composed against
         // somebody's home directory, and building it against root's — or
         // against whichever account happens to be first on this Mac — either

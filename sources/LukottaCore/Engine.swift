@@ -19,7 +19,34 @@ public enum EnginePaths {
         return FileManager.default.fileExists(atPath: root.path) ? root : nil
     }
 
-    public static var engineRoot: URL? { embeddedEngineRoot }
+    /// Where the engine is, when it is not inside this process's own bundle.
+    ///
+    /// A helper installed by SMJobBless is a bare binary in
+    /// /Library/PrivilegedHelperTools: it has no resources, so
+    /// `embeddedEngineRoot` is nil for it and everything derived from it --
+    /// the binary, the library paths, the Alpine image, the record of which
+    /// patches were applied -- is nil too. Every mount through that daemon
+    /// answered "the mounting engine is missing".
+    ///
+    /// The daemon sets this to the engine inside the application that
+    /// connected, resolved from that application's own code signature after
+    /// the connection has been checked against the requirement. Set to the
+    /// same path on every connection, and set nowhere else.
+    private static let overrideLock = NSLock()
+    nonisolated(unsafe) private static var overriddenRoot: URL?
+
+    public static func useEngine(at root: URL?) {
+        overrideLock.lock()
+        defer { overrideLock.unlock() }
+        overriddenRoot = root
+    }
+
+    public static var engineRoot: URL? {
+        overrideLock.lock()
+        let overridden = overriddenRoot
+        overrideLock.unlock()
+        return overridden ?? embeddedEngineRoot
+    }
 
     public static var anylinuxfs: URL? {
         engineRoot?.appendingPathComponent("anylinuxfs/bin/anylinuxfs")
