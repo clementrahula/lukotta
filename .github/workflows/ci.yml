@@ -80,26 +80,49 @@ jobs:
           codesign --force --sign - .build/release/LukottaTests
           ./.build/release/LukottaTests
 
-      # Without vendor/engine it warns and carries on, which is what is wanted
+      # The two applications that are actually shipped. The unbranded build is
+      # a local convenience and nobody receives it, so checking it here would
+      # check a bundle identifier, an icon set, a daemon name and a feed that
+      # no release ever uses -- and would miss the ones that do.
+      #
+      # Without vendor/engine both warn and carry on, which is what is wanted
       # here. The checks have already run above.
-      - name: Build the app
-        run: LUKOTTA_INSTALL=0 LUKOTTA_SKIP_TESTS=1 ./build-app.sh
-
-      - name: Smoke test
+      - name: Build both applications
         run: |
-          "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker" --smoke-test
-          # The app is the bundle's executable and nothing stands in front of
-          # it: macOS gives no menu bar item to a process whose running image
-          # is not the executable the bundle declares, which is what a launcher
-          # handing over with execv produced. A build that puts one back starts
-          # here and nowhere else -- there is no menu bar on a runner to notice
-          # the item missing from.
-          test -x "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker"
-          test ! -e "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker-app"
-          # And the watcher that puts the previous version back when an update
-          # will not load, which is the one thing the app cannot notice itself.
-          test -x "./dist/Drive Unlocker.app/Contents/MacOS/update-check"
-          "./dist/Drive Unlocker.app/Contents/MacOS/Drive Unlocker" --verify-launch
+          LUKOTTA_INSTALL=0 LUKOTTA_SKIP_TESTS=1 LUKOTTA_BRANDING=official ./build-app.sh
+          LUKOTTA_INSTALL=0 LUKOTTA_SKIP_TESTS=1 LUKOTTA_BRANDING=beta ./build-app.sh
+
+      - name: Smoke test both
+        run: |
+          for app in "Lukotta" "Lukotta Beta"; do
+            bundle="./dist/$app.app"
+            echo "== $app =="
+            "$bundle/Contents/MacOS/$app" --smoke-test
+            # The app is the bundle's executable and nothing stands in front of
+            # it: macOS gives no menu bar item to a process whose running image
+            # is not the executable the bundle declares, which is what a
+            # launcher handing over with execv produced. A build that puts one
+            # back starts here and nowhere else -- there is no menu bar on a
+            # runner to notice the item missing from.
+            test -x "$bundle/Contents/MacOS/$app"
+            test ! -e "$bundle/Contents/MacOS/$app-app"
+            # And the watcher that puts the previous version back when an
+            # update will not load, which is the one thing the app cannot
+            # notice about itself.
+            test -x "$bundle/Contents/MacOS/update-check"
+            "$bundle/Contents/MacOS/$app" --verify-launch
+          done
+          # The two must never collide: same Mac, both installed, and every
+          # name that decides whose daemon, whose feed and whose saved
+          # passphrases is which has to differ.
+          release_id="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' './dist/Lukotta.app/Contents/Info.plist')"
+          beta_id="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' './dist/Lukotta Beta.app/Contents/Info.plist')"
+          test "$release_id" != "$beta_id"
+          release_feed="$(/usr/libexec/PlistBuddy -c 'Print :SUFeedURL' './dist/Lukotta.app/Contents/Info.plist')"
+          beta_feed="$(/usr/libexec/PlistBuddy -c 'Print :SUFeedURL' './dist/Lukotta Beta.app/Contents/Info.plist')"
+          test "$release_feed" != "$beta_feed"
+          echo "release $release_id -> $release_feed"
+          echo "beta    $beta_id -> $beta_feed"
 
       # Before anything is built: what a scanner can know, over the whole
       # history rather than the tip. The hook that runs the same checks before
