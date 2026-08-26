@@ -56,6 +56,20 @@ Sources are in `sources/`, lowercase, and every target in `Package.swift`
 carries an explicit `path:`. The conventional `Sources/` fails on a
 case-sensitive volume.
 
+## Which channel work goes to
+
+**Beta, unless the owner has said otherwise.** The release channel is settled
+and is not published to without them asking for it.
+
+`scripts/release.sh` enforces the second half of that: a release build is
+refused unless `releases/APPROVED` names the version and the line beside it is
+the hash of `releases/<version>.md` as it stands. Approval is therefore about
+one version and one set of words, cannot be given in advance, cannot be carried
+over, and does not survive the notes being edited afterwards. The script prints
+the notes and the line to add when it refuses.
+
+The beta channel is not gated. Publish to it freely.
+
 ## Versions
 
 `VERSION` holds the version being worked towards, as plain semver: `1.20.1`.
