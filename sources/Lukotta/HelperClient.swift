@@ -255,14 +255,34 @@ final class HelperClient: ObservableObject {
     /// knows it -- so nought is the honest answer for those.
     private func askContract(_ done: @escaping @MainActor (Int) -> Void) {
         guard proxy() != nil, let connection else { return done(0) }
+
+        // Answered once, whichever arrives first.
+        //
+        // A daemon that does not implement this method neither replies nor
+        // errors: the message is sent, nothing on the other side responds to
+        // the selector, and the completion is never called at all. Silence,
+        // for ever -- which is precisely the daemon this question exists to
+        // find, so waiting for it to answer is waiting for the wrong thing.
+        var answered = false
+        let settle: @MainActor (Int) -> Void = { answer in
+            guard !answered else { return }
+            answered = true
+            done(answer)
+        }
+
         let box = ConnectionBox(connection)
         guard
             let helper = box.connection.remoteObjectProxyWithErrorHandler({ _ in
-                Task { @MainActor in done(0) }
+                Task { @MainActor in settle(0) }
             }) as? LukottaHelperProtocol
         else { return done(0) }
         helper.helperContract { answer in
-            Task { @MainActor in done(answer) }
+            Task { @MainActor in settle(answer) }
+        }
+        // Long enough for a daemon that is going to answer, short enough that
+        // one that never will is not waited on.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            MainActor.assumeIsolated { settle(0) }
         }
     }
 
