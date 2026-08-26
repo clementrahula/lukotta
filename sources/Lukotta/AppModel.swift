@@ -2272,6 +2272,35 @@ final class AppModel: ObservableObject {
             return
         }
 
+        // One password panel, never two.
+        //
+        // Without the helper this drive needs an authorised command, and the
+        // app used to offer the helper afterwards -- so unlocking a physical
+        // drive for the first time meant typing a password into a panel named
+        // "osascript", and then into a second panel a moment later named after
+        // the app. Two in a row, for one act, the first of them under the name
+        // of a scripting tool nobody asked for.
+        //
+        // Installing first asks once, under the app's own name, and the mount
+        // then goes through the helper with nothing left to approve. Declined,
+        // the state stops being notInstalled and the authorised route below
+        // carries this mount on its own.
+        if case .notInstalled = helper.state {
+            helper.install()
+            mountTask = Task { @MainActor [weak self] in
+                guard let self else { return }
+                // Long enough for the panel to be answered, and bounded so a
+                // panel nobody is looking at does not hold the drive for ever.
+                for _ in 0..<600 {
+                    if self.helper.state != .installing { break }
+                    try? await Task.sleep(nanoseconds: 500_000_000)
+                }
+                guard !Task.isCancelled else { return }
+                self.runMount(drive: drive, credential: credential)
+            }
+            return
+        }
+
         // With the helper approved, this needs no password at all. Without it,
         // fall back to asking macOS to authorise a single command.
         mountAsksApproval = !helper.isReady
@@ -2462,12 +2491,9 @@ final class AppModel: ObservableObject {
         OpenedHere.add(mountPoint)
         switch route {
         case .authorised:
-            // Authorisation has just been demonstrated, so this is the moment to
-            // offer the helper and spare the next unlock the panel. macOS still
-            // wants approval in Login Items, for which the panel then prompts.
-            // Only here: the helper route already has one, and a container file
-            // authorises nothing.
-            if case .notInstalled = helper.state { helper.install() }
+            // The helper is offered before the mount, not after it: asking here
+            // put a second password panel in front of somebody who had just
+            // answered one.
             Log.mount.notice("mounted with authorisation")
         case .helper:
             Log.mount.notice("mounted through the helper")
