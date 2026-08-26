@@ -123,43 +123,61 @@ static int run_to_completion(const char *program, char *const argv[]) {
   return WIFEXITED(status) && WEXITSTATUS(status) == 0;
 }
 
-// Put the kept-aside bundle back over this one, with ditto, which copies a
-// signed bundle as a signed bundle -- extended attributes, symlinks and all.
+// Put the kept-aside bundle back where the broken one is.
 //
-// The broken one is moved out of the way first. ditto merges into what is
-// already there: a version that added a framework, renamed a resource or
-// shipped a helper the old one never had would leave those files behind inside
-// the restored bundle, and a bundle carrying files its signature does not cover
-// is one macOS refuses to open -- a rollback that produces a second app that
-// will not start.
+// Everything that moves, moves inside the folder the application is in, so no
+// rename crosses a volume: `/Applications` reaches the same disk as a home
+// directory through a firmlink, and a rename across one of those is refused.
+// The copy that does cross is done by ditto, which copies a signed bundle as a
+// signed bundle -- extended attributes, symlinks and all.
 //
-// Moved rather than deleted, and put back if the copy fails, so there is an
-// application on this Mac at every moment of this.
-static int restore(const char *kept_aside, const char *bundle, const char *support) {
-  char broken[PATH_MAX];
-  if (snprintf(broken, sizeof(broken), "%s/previous/broken.app", support)
-      >= (int)sizeof(broken)) {
+// The broken one is moved aside rather than written over. ditto merges into
+// what is already there, so a version that added a framework, renamed a
+// resource or shipped a helper the old one never had would leave those files
+// inside the restored bundle -- and a bundle carrying files its signature does
+// not cover is one macOS refuses to open. That is a rollback that produces a
+// second application that will not start.
+//
+// And it is moved, not deleted, and moved back if anything fails: there is an
+// application in place at every moment of this.
+static int restore(const char *kept_aside, const char *bundle) {
+  char folder[PATH_MAX];
+  strncpy(folder, bundle, sizeof(folder) - 1);
+  folder[sizeof(folder) - 1] = '\0';
+  char *slash = strrchr(folder, '/');
+  if (slash == NULL || slash == folder) return 0;
+  *slash = '\0';
+  const char *name = slash + 1;
+
+  char coming[PATH_MAX];
+  char going[PATH_MAX];
+  if (snprintf(coming, sizeof(coming), "%s/.%s.restoring", folder, name)
+          >= (int)sizeof(coming)
+      || snprintf(going, sizeof(going), "%s/.%s.broken", folder, name)
+          >= (int)sizeof(going)) {
     return 0;
   }
-  char *const away[] = { "rm", "-rf", broken, NULL };
-  run_to_completion("/bin/rm", away);
 
-  char *const copy[] = { "ditto", (char *)kept_aside, (char *)bundle, NULL };
-  if (rename(bundle, broken) != 0) {
-    // The two are on different volumes -- an app kept somewhere other than
-    // /Applications -- so it cannot be moved aside. Copied over where it
-    // stands, then, which is what this did before it knew better: a merged
-    // bundle is a poor rollback and no rollback is a worse one.
-    return run_to_completion("/usr/bin/ditto", copy);
-  }
+  char *const clear_coming[] = { "rm", "-rf", coming, NULL };
+  char *const clear_going[] = { "rm", "-rf", going, NULL };
+  run_to_completion("/bin/rm", clear_coming);
+  run_to_completion("/bin/rm", clear_going);
 
+  char *const copy[] = { "ditto", (char *)kept_aside, coming, NULL };
   if (!run_to_completion("/usr/bin/ditto", copy)) {
-    // Nothing was put back, so the version that was there goes back.
-    rename(broken, bundle);
+    run_to_completion("/bin/rm", clear_coming);
     return 0;
   }
-  char *const clean[] = { "rm", "-rf", broken, NULL };
-  run_to_completion("/bin/rm", clean);
+  if (rename(bundle, going) != 0) {
+    run_to_completion("/bin/rm", clear_coming);
+    return 0;
+  }
+  if (rename(coming, bundle) != 0) {
+    rename(going, bundle);
+    run_to_completion("/bin/rm", clear_coming);
+    return 0;
+  }
+  run_to_completion("/bin/rm", clear_going);
   return 1;
 }
 
@@ -263,7 +281,7 @@ int main(int argc, char *argv[]) {
     if (count >= ATTEMPTS_ALLOWED && exists(kept_aside) && take_restore_lock(support)) {
       // This version has been opened three times and has never got as far as
       // saying it was working. Whatever is wrong with it, the previous one ran.
-      int put_back = restore(kept_aside, bundle, support);
+      int put_back = restore(kept_aside, bundle);
       release_restore_lock(support);
       if (put_back) {
         record_attempt(attempts_path, 0);

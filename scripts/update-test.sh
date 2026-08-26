@@ -432,11 +432,31 @@ else
 fi
 that "and it is a working copy, not an empty directory" \
   test -x "$KEPT_APP/Contents/MacOS/$APP_NAME"
+
+# Held somewhere this section owns, before anything else can happen to it.
+#
+# The update above relaunches the app, and that app -- correctly -- drops the
+# copy as soon as it has started: it is of the version before the one now
+# running, and the swap it was made for has happened. It lands in the middle of
+# the launches below, and the shim then finds nothing to put back and says so
+# in a way that reads as a broken rollback rather than a harness racing its own
+# fixture. The checks above are about the app making the copy; the ones below
+# need one to exist.
+HELD="$WORK/kept"
+rm -rf "$HELD"; mkdir -p "$HELD"
+if [ -d "$KEPT_APP" ]; then
+  /usr/bin/ditto "$KEPT_APP" "$HELD/$APP_NAME.app"
+else
+  /usr/bin/ditto "$INSTALLED" "$HELD/$APP_NAME.app"
+fi
+# And nothing of this app left running, for the same reason.
+pkill -f "$INSTALLED/Contents/MacOS/" >/dev/null 2>&1 || true
+/bin/sleep 1
 # Which build it is, since that is what a rollback restores: the version before
 # the last update, not the newest one this run installed. Compared against the
 # newest, the check reported a rollback that had worked as a failure.
 KEPT_BUILD="$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' \
-  "$KEPT_APP/Contents/Info.plist" 2>/dev/null || echo "")"
+  "$HELD/$APP_NAME.app/Contents/Info.plist" 2>/dev/null || echo "")"
 
 # Not a version that starts and fails -- the app puts that back itself. This is
 # one whose own code never runs: the binary inside the bundle is replaced with
@@ -447,6 +467,10 @@ rm -rf "$BROKEN"; mkdir -p "$BROKEN"
 /usr/bin/ditto "$INSTALLED" "$BROKEN/$APP_NAME.app"
 printf 'not a Mach-O\n' > "$BROKEN/$APP_NAME.app/Contents/MacOS/$APP_NAME-app"
 /usr/bin/ditto "$BROKEN/$APP_NAME.app" "$INSTALLED"
+# The copy to put back, restored to where the shim looks for it.
+mkdir -p "$KEPT"
+rm -rf "$KEPT_APP"
+/usr/bin/ditto "$HELD/$APP_NAME.app" "$KEPT_APP"
 rm -f "$SUPPORT/launch-attempts"
 
 that "the broken version really cannot start" \
