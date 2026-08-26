@@ -2,16 +2,6 @@
 
 **[you]** marks what needs credentials, a decision or hardware only you have.
 
-- [ ] Cover the privileged route with a test. Nothing does: every fixture is a
-  container file, and those open without a password, so the deadline the daemon
-  keeps, the mount root it clears and the unmount it lends the sweep are never
-  reached.
-- [ ] Draw the unlock sheet and the screen shown while a drive is opening.
-  `scripts/screenshots.sh` draws the drive list only, and the site wants three.
-- [ ] **[you]** Name `preflight.sh` in CONTRIBUTING, which lists three tests
-  and not the one a release has to pass.
-- [ ] **[you]** Put the other two screens in the README, whose pictures are the
-  drive list only.
 - [ ] **[you]** Push the `beta/` directory to the appcast repository, so the
   pre-release feed answers at `updates.lukotta.com/beta/appcast.xml`.
 - [ ] **[you]** Push `clementrahula/homebrew-tap`, so `lukotta` and
