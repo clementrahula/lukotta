@@ -377,15 +377,25 @@ final class HelperClient: ObservableObject {
     /// The error handler is not optional either: an XPC call to a method the
     /// peer does not implement never calls its reply, so without it this would
     /// hang, and leak, on every attempt.
-    /// `within` and `orAfterThat` are for the one call that can genuinely take
-    /// minutes. A daemon that has wedged calls neither the reply nor the error
-    /// handler, and without a deadline the app waits on it exactly as long as
-    /// somebody is willing to watch a spinner. The answer given in its place is
-    /// the caller's to choose, because "no answer" and "no helper" want
-    /// different things done about them.
+    /// Every question to the daemon has a deadline, and the answer when it
+    /// passes is "no daemon" -- which every caller here already knows what to
+    /// do with, because it is also the answer on a Mac where none is installed.
+    ///
+    /// A daemon that has wedged, or one launchd has registered but cannot
+    /// start, calls neither the reply nor the error handler. Without a deadline
+    /// the app then waits for ever: not a spinner somebody eventually gives up
+    /// on, but an await that no longer has anything to wake it, in an
+    /// application whose window is still perfectly responsive. This was found
+    /// on a Mac with a daemon registered under an old identifier, exiting 78
+    /// every time launchd tried to start it.
+    ///
+    /// Half a minute by default, which is long for questions that are answered
+    /// in milliseconds and short beside a person's patience. The one call that
+    /// can genuinely take minutes -- the mount -- asks for its own, and says
+    /// what it wants in place of the answer.
     private nonisolated static func roundTrip<T: Sendable>(
         _ box: ConnectionBox,
-        within: TimeInterval? = nil,
+        within: TimeInterval? = 30,
         orAfterThat late: T? = nil,
         _ send:
             @escaping @Sendable (LukottaHelperProtocol, @escaping @Sendable (T?) -> Void) ->
@@ -394,6 +404,7 @@ final class HelperClient: ObservableObject {
         await withCheckedContinuation { (continuation: CheckedContinuation<T?, Never>) in
             let once = ResumeOnce(continuation)
             if let within {
+                Log.helper.debug("asking the daemon, with \(Int(within), privacy: .public)s to answer")
                 DispatchQueue.global().asyncAfter(deadline: .now() + within) {
                     once.resume(late)
                 }
