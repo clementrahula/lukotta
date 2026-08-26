@@ -33,9 +33,16 @@
 
 Or with [Homebrew](https://brew.sh):
 
+Release:
+
 ```bash
-brew install --cask clementrahula/tap/lukotta         # the release
-brew install --cask clementrahula/tap/lukotta@beta    # the pre-release
+brew install --cask clementrahula/tap/lukotta
+```
+
+Pre-release (Beta):
+
+```bash
+brew install --cask clementrahula/tap/lukotta@beta
 ```
 
 <p align="center">
@@ -45,15 +52,12 @@ brew install --cask clementrahula/tap/lukotta@beta    # the pre-release
     alt="The same drive list in the dark appearance.">
 </p>
 
-macOS cannot mount BitLocker volumes, Linux filesystems such as ext4, btrfs and
-XFS, LUKS encryption, or most virtual machine disk images. Lukotta can. It costs
-nothing and is free software under the GPL, version 3 or later. It needs macOS
-15 Sequoia or later on an Apple Silicon Mac.
-
 ## How It Works
 
-Linux reads all of it. Lukotta starts a small Linux virtual machine, unlocks the
-drive inside it, and hands the volume back to Finder.
+macOS cannot mount BitLocker volumes, Linux filesystems such as ext4, btrfs and
+XFS, LUKS encryption, or most virtual machine disk images. Lukotta can. It
+starts a small Linux virtual machine, unlocks the drive inside it, and hands the
+volume back to Finder.
 
 ## What It Can Open
 
@@ -103,7 +107,7 @@ is written and what is not, and how each is read.
 > **Writing to qcow2, VMDK, VDI and VHD images is untested.** These drivers were
 > written for Lukotta and are checked against `qemu-img` when the engine is
 > built from source, but
-> they have not been in use long enough for anyone to call them thoroughly tested. Writing
+> they have not been in use long enough to call them thoroughly tested. Writing
 > to an image is at your own risk: open it read-only to copy files out safely,
 > or make a backup first.
 
@@ -133,7 +137,7 @@ is written and what is not, and how each is read.
 
 ## Languages
 
-Lukotta is available in thirty-seven languages. English, and these thirty-six:
+Lukotta is available in thirty-seven languages. English, and thirty-six more:
 
 Albanian · Arabic · Bulgarian · Chinese (Simplified) · Croatian · Czech ·
 Danish · Dutch · Estonian · Filipino · Finnish · French · German · Greek ·
@@ -142,7 +146,7 @@ Latvian · Lithuanian · Malay · Norwegian (Bokmål) · Polish ·
 Portuguese (Portugal) · Romanian · Russian · Slovenian · Spanish · Swedish ·
 Thai · Turkish · Ukrainian · Vietnamese
 
-If a translation reads wrongly, or you would like a translation that is not listed here,
+If a translation reads wrongly, or you would like one that is not listed here,
 write to [support@lukotta.com][email] or to GitHub Issues. Corrections and
 requests are both welcome.
 
@@ -153,9 +157,16 @@ it. It is signed and notarised.
 
 Or with [Homebrew](https://brew.sh):
 
+Release:
+
 ```bash
-brew install --cask clementrahula/tap/lukotta         # the release
-brew install --cask clementrahula/tap/lukotta@beta    # the pre-release
+brew install --cask clementrahula/tap/lukotta
+```
+
+Pre-release (Beta):
+
+```bash
+brew install --cask clementrahula/tap/lukotta@beta
 ```
 
 ## Permissions
@@ -178,8 +189,9 @@ Eject it from Lukotta, from the menu bar, or from Finder.
 
 Lukotta can also auto-mount what was open after a restart. Switch on **Open drives
 again after restarting** at the top of Settings: it then opens in the background
-when you log in and mounts the drives and images that were open, as they were. A drive that needs a password comes back only if the
-password is saved in your Keychain, and anything that is not connected is simply
+when you log in and mounts the drives and images that were open, as they were.
+A drive that needs a password comes back only if the password is saved in your
+Keychain, and anything that is not connected is simply
 passed over. It is off until you turn it on.
 
 Lukotta remembers a passphrase in your Keychain when you ask it to.
