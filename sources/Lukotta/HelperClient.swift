@@ -78,6 +78,25 @@ final class HelperClient: ObservableObject {
         }
     }
 
+    /// Whether the daemon installed on disk is not the one this bundle carries.
+    ///
+    /// Only asked of a daemon installed with an administrator password, which
+    /// is the one launchd keeps running across an application update. A daemon
+    /// registered by the application runs out of the bundle and is therefore
+    /// always whatever the bundle holds.
+    ///
+    /// Read off the two files rather than asked of the daemon, so it answers
+    /// when the daemon is stale, wedged, or not running at all -- the states a
+    /// question over XPC cannot be answered in.
+    var installedToolIsStale: Bool {
+        guard FileManager.default.fileExists(atPath: HelperInfo.installedJobPath) else {
+            return false
+        }
+        return !HelperInfo.installedToolIsCurrent(
+            installed: HelperInfo.installedToolPath,
+            bundled: HelperInfo.bundledToolPath(inBundle: Bundle.main.bundlePath))
+    }
+
     /// Replace the running daemon when it is not the one in this app.
     ///
     /// launchd keeps a registered daemon running across an app update: the
@@ -108,18 +127,32 @@ final class HelperClient: ObservableObject {
             // Compared by what it promises rather than which build it came
             // from: the build moves every release and would have asked to be
             // set up again after almost all of them.
+            // Either signal is enough. The contract is what the daemon says of
+            // itself and cannot be got from one that will not answer; the
+            // binaries are what it is, and can be compared while it is dead.
+            let stale = installedToolIsStale
             askContract { [weak self] theirs in
-                guard let self, theirs < HelperInfo.contract else { return }
+                guard let self, theirs < HelperInfo.contract || stale else { return }
                 Log.app.notice(
-                    "the installed helper answers contract \(theirs, privacy: .public), this build wants \(HelperInfo.contract, privacy: .public); asking it to replace itself"
+                    "the installed helper answers contract \(theirs, privacy: .public), this build wants \(HelperInfo.contract, privacy: .public), binary differs: \(stale, privacy: .public); asking it to replace itself"
                 )
                 self.askItToRefreshItself { [weak self] replaced in
                     guard let self else { return }
                     guard replaced else {
-                        Log.app.error("the daemon would not replace itself")
-                        self.state = .failed(
-                            appString("This version needs setting up again. It takes one password.")
-                        )
+                        // Not a sentence on a screen and a person left to work
+                        // out what to do with it. A daemon that will not replace
+                        // itself is usually one that is not running to be asked
+                        // -- its binary still sits in /Library where only root
+                        // may write, and the application cannot get there on its
+                        // own. Blessing again is the one route across, and it is
+                        // the application's to take: it puts up the authorisation
+                        // macOS insists on, under the application's own name, and
+                        // comes back working. Telling somebody their app "needs
+                        // setting up again" and stopping is not a fix, it is a
+                        // fault with an apology attached.
+                        Log.app.error("the daemon would not replace itself; blessing again")
+                        self.hasConfirmed = false
+                        self.install()
                         return
                     }
                     self.connection?.invalidate()
@@ -140,10 +173,11 @@ final class HelperClient: ObservableObject {
         // where it was installed with an administrator password, meant asking
         // for one again. The contract moves only when the daemon itself
         // changes, so most updates ask for nothing at all.
+        let stale = installedToolIsStale
         askContract { [weak self] theirs in
-            guard let self, theirs < HelperInfo.contract else { return }
+            guard let self, theirs < HelperInfo.contract || stale else { return }
             Log.app.notice(
-                "the running helper answers contract \(theirs, privacy: .public), this build wants \(HelperInfo.contract, privacy: .public); replacing it"
+                "the running helper answers contract \(theirs, privacy: .public), this build wants \(HelperInfo.contract, privacy: .public), binary differs: \(stale, privacy: .public); replacing it"
             )
             // Ask it to stop first. launchd keeps a registered daemon running
             // across an app update -- the binary in the bundle is replaced and
