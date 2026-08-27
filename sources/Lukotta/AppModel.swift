@@ -20,6 +20,11 @@ final class AppModel: ObservableObject {
     /// Whether `start()` has already run, since two places can call it.
     private var didStart = false
 
+    /// Bumped every time a scan result is applied. A rescan waits for this to
+    /// move rather than for `isScanning`, which is only ever true during the
+    /// opening scan and so was never true when the button asked.
+    @Published private var scansApplied = 0
+
     enum Phase {
         case needsPermission
         case scanning
@@ -1064,6 +1069,7 @@ final class AppModel: ObservableObject {
         refreshCapacity(mounts: Set(sighting.mounts.map(\.devicePath)).count)
         refreshSpace()
         return listed
+            scansApplied &+= 1
     }
 
     /// One look at the machine: what is attached, what is mounted, and which
@@ -1576,12 +1582,21 @@ final class AppModel: ObservableObject {
 
         let before = drives.count
         isRescanning = true
-        start()
+        // refreshDrives, not start: start is guarded by didStart, which is set
+        // once at launch and never cleared, so the button was calling a method
+        // that returned immediately without looking at a single disk. The
+        // spinner and the "No new drives found." underneath it were reporting
+        // on a scan that never ran.
+        let seen = scansApplied
+        refreshDrives()
 
         Task { @MainActor in
             let began = ContinuousClock.now
-            // Wait for the scan itself, then for the floor, whichever is later.
-            while isScanning { try? await Task.sleep(for: .milliseconds(60)) }
+            // Wait for a scan result to land, and give up rather than spin for
+            // ever if one never does.
+            while scansApplied == seen, ContinuousClock.now - began < .seconds(10) {
+                try? await Task.sleep(for: .milliseconds(60))
+            }
             let spent = ContinuousClock.now - began
             if spent < Self.rescanFloor {
                 try? await Task.sleep(for: Self.rescanFloor - spent)

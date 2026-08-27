@@ -50,7 +50,16 @@ public enum HelperInfo {
     ///    in LukottaCore, which the daemon links and runs, so the daemon is
     ///    the one that has to change -- a new script in the bundle reaches
     ///    nobody while the old daemon is still generating the old one.
-    public static let contract = 4
+    ///
+    ///    That order was reverted the same day: the reading of the log that
+    ///    prompted it was wrong, and ntfs3 leads again. The number is left
+    ///    describing what it shipped as rather than what is true now, because
+    ///    a daemon out there answers 4 and that is what it does.
+    /// 5: the mount script joins driver options and read-only into one --options.
+    ///    A daemon on 4 keeps generating two, which the engine refuses outright,
+    ///    so a stale daemon does not merely mount differently: it cannot mount a
+    ///    read-only NTFS volume at all.
+    public static let contract = 5
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"

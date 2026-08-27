@@ -549,9 +549,24 @@ public enum MountScript {
     ///
     /// ntfs3 is in the kernel and has no such crossing, so it is given
     /// nothing.
-    static func driverOptions(_ driver: String?) -> String {
-        guard driver == "ntfs-3g" else { return "" }
-        return " -o big_writes"
+    /// The engine takes one --options and refuses a second: clap answers
+    /// "the argument '--options <OPTIONS>' cannot be used multiple times" and
+    /// exits before touching the disk. So driver options and read-only cannot
+    /// each contribute their own -o; they are joined into one.
+    ///
+    /// This is not hypothetical. Emitting both separately shipped for part of a
+    /// day and broke every read-only ntfs-3g mount: the last resort for a drive
+    /// Windows hibernated, and the whole path for anyone who chooses to open
+    /// NTFS read-only. mountOptions is the only place allowed to build the flag.
+    static func driverOptions(_ driver: String?) -> [String] {
+        guard driver == "ntfs-3g" else { return [] }
+        return ["big_writes"]
+    }
+
+    /// One -o carrying everything, or nothing at all.
+    public static func mountOptions(driver: String?, readOnly: Bool) -> String {
+        let opts = driverOptions(driver) + (readOnly ? ["ro"] : [])
+        return opts.isEmpty ? "" : " -o \(opts.joined(separator: ","))"
     }
 
     private static func mountCommand(
@@ -567,7 +582,7 @@ public enum MountScript {
         // --nfs-options must use the joined form. The flag is variadic, and the
         // separated form consumes the target that follows it.
         return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount\(ownership)"
-            + "\(typeFlag)\(driverOptions(driver))\(readOnlyFlags(readOnly)) -w false"
+            + "\(typeFlag)\(mountOptions(driver: driver, readOnly: readOnly)) -w false"
             + " --nfs-options=\(shellQuoted(options))"
             + " \(target) >> \(logQ) 2>&1 && \(mountedCheck)"
     }

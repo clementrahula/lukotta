@@ -405,6 +405,50 @@ group("theElevatedMountScript") {
 
     let msScript = MountScript.build(sampleInputs())
 
+    // The regression that shipped for part of a day: driver options and
+    // read-only each emitted their own -o, and the engine takes exactly one.
+    // clap answers "the argument '--options <OPTIONS>' cannot be used multiple
+    // times" and exits before touching the disk, so every read-only ntfs-3g
+    // mount failed on a usage error -- the last resort for a hibernated drive,
+    // and the whole path for anyone who opens NTFS read-only on purpose.
+    //
+    // Checked on the generated text rather than on the helper, because the
+    // helper was correct in isolation both times and the fault was in what the
+    // caller did with two correct answers.
+    // Per invocation, not per line: one line of the script holds the whole
+    // fallback chain, and each attempt in it gets its own -o.
+    for (label, inputs) in [
+        ("read-write NTFS", sampleInputs(kind: .microsoft)),
+        ("read-only NTFS", sampleInputs(kind: .microsoft, readOnly: true)),
+        ("read-only Linux", sampleInputs(kind: .linux, readOnly: true)),
+    ] {
+        let script = MountScript.build(inputs)
+        var invocations = 0
+        for chunk in script.components(separatedBy: "anylinuxfs' mount").dropFirst() {
+            // A command ends where its output is redirected to the log.
+            let command = chunk.components(separatedBy: ">>").first ?? chunk
+            let flags = command.components(separatedBy: " -o ").count - 1
+            invocations += 1
+            expect(flags <= 1,
+                   "\(label): a mount command carries \(flags) -o flags, and the engine takes one")
+        }
+        expect(invocations > 0, "\(label): the script must contain a mount command to check")
+    }
+
+    // And the options that must survive being joined.
+    expect(
+        MountScript.mountOptions(driver: "ntfs-3g", readOnly: true) == " -o big_writes,ro",
+        "ntfs-3g read-only joins big_writes and ro into one -o")
+    expect(
+        MountScript.mountOptions(driver: "ntfs-3g", readOnly: false) == " -o big_writes",
+        "ntfs-3g read-write carries big_writes alone")
+    expect(
+        MountScript.mountOptions(driver: "ntfs3", readOnly: true) == " -o ro",
+        "ntfs3 is given no driver options, so read-only stands alone")
+    expect(
+        MountScript.mountOptions(driver: nil, readOnly: false) == "",
+        "a mount with nothing to say emits no -o at all")
+
     // The regression that broke v1.1.0: --nfs-options is variadic, so the separated
     // form consumes the device path and the engine reports "mount with no disk".
     expect(!msScript.contains("-n '"), "NFS options must never use the separated form")
