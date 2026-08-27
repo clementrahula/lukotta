@@ -40,8 +40,14 @@ public enum EngineStatus {
         guard let engine = EnginePaths.anylinuxfs,
             FileManager.default.fileExists(atPath: engine.path)
         else { return nil }
+        // Bounded. Without a deadline this waits for a process that may never
+        // return, and the engine being wedged is exactly the case it is asked
+        // about. Ten seconds is far longer than the call takes when anything is
+        // working -- it reads a socket and prints a line -- and a run that
+        // outlives it lands on `.silent` below, which is treated as no answer
+        // rather than as an answer of none.
         switch LukottaCore.ask(
-            engine.path, ["status"],
+            engine.path, ["status"], timeout: 10,
             environment: EngineEnvironment.environmentForEngine())
         {
         // Ran, finished, and said it succeeded. Only this is an answer.

@@ -2397,6 +2397,9 @@ group("anUnansweredEngineNeverClearsAMount") {
         status.contains("case .silent: return nil"),
         "and neither is one still going when the deadline passed")
     expect(
+        status.contains("[\"status\"], timeout: 10"),
+        "and the question is bounded, so a wedged engine cannot hang the asker")
+    expect(
         status.contains("guard let answered = currentIfAnswered() else { return [] }"),
         "stale() clears nothing when the engine was never reached")
 
@@ -2412,6 +2415,28 @@ group("anUnansweredEngineNeverClearsAMount") {
     // would justify unmounting was never obtained. Before the fix this returned
     // every engine mount on the machine, and the caller unmounted them.
     let realEngine = EnginePaths.engineRoot
+
+    // An engine that runs and fails, which is the case the first version of
+    // this fix missed: the process starts, exits non-zero, prints nothing, and
+    // an empty output parses to an empty list of mounts.
+    let fakeRoot = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        .appendingPathComponent(
+            "failing-engine-\(UInt32.random(in: 0..<999999))", isDirectory: true)
+    let fakeBin = fakeRoot.appendingPathComponent("anylinuxfs/bin", isDirectory: true)
+    try? FileManager.default.createDirectory(at: fakeBin, withIntermediateDirectories: true)
+    let fake = fakeBin.appendingPathComponent("anylinuxfs")
+    try? "#!/bin/sh\nexit 1\n".write(to: fake, atomically: true, encoding: .utf8)
+    try? FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: fake.path)
+    defer { try? FileManager.default.removeItem(at: fakeRoot) }
+
+    EnginePaths.useEngine(at: fakeRoot)
+    expect(
+        EngineStatus.currentIfAnswered() == nil,
+        "an engine that runs and fails has not answered")
+    expect(
+        EngineStatus.stale().isEmpty,
+        "so nothing is stale, whatever this Mac has mounted")
+
     EnginePaths.useEngine(at: URL(fileURLWithPath: "/nonexistent-engine-for-this-test"))
     expect(
         EngineStatus.currentIfAnswered() == nil,
