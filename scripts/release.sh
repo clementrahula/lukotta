@@ -170,6 +170,22 @@ BASE_URL="${LUKOTTA_DOWNLOAD_BASE:-https://github.com/$REPO/releases/download/$T
   echo "error: working tree is dirty; commit before releasing" >&2; exit 1; }
 git rev-parse "$TAG" >/dev/null 2>&1 || git rev-parse "v$VERSION" >/dev/null 2>&1 || {
   echo "error: no tag $TAG; run scripts/bump-version.sh first" >&2; exit 1; }
+# And pointing at what is about to be built. A tag left behind by an abandoned
+# release still exists, so the check above passes while the tag names a commit
+# from weeks ago -- the build comes from the working tree either way, and the
+# release is published against a tree nobody can get back to. Numbering a beta
+# from the feed makes this likely rather than exotic: the number is reused the
+# moment a release does not finish.
+TAGGED="$(git rev-parse "$TAG^{commit}")"
+if [ "$TAGGED" != "$(git rev-parse HEAD)" ]; then
+  echo "error: $TAG is on $(git rev-parse --short "$TAG^{commit}"), not on HEAD" >&2
+  echo "       ($(git rev-parse --short HEAD)). The build would come from HEAD and be" >&2
+  echo "       published as $TAG, and no one could get that tree back from the tag." >&2
+  echo "       Move the tag if the earlier release was abandoned:" >&2
+  echo "           git tag -d $TAG && git push origin :refs/tags/$TAG" >&2
+  echo "           git tag -a $TAG -m 'Lukotta $TAG'" >&2
+  exit 1
+fi
 
 # Against the feed that is actually published, not a copy left in dist by the
 # last run on this machine -- which the wipe above has just deleted, and which a
