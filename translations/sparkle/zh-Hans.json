@@ -1,6 +1,7 @@
 {
   "%1$@ %2$@ has been downloaded and is ready to use! This is an important update; would you like to install it and relaunch %1$@ now?": "%1$@ %2$@已下载完毕并可以使用。这是重要更新，要立刻安装并重启%1$@吗？",
   "%1$@ %2$@ has been downloaded and is ready to use! Would you like to install it and relaunch %1$@ now?": "%1$@ %2$@已下载完毕并可以使用。要立刻安装并重启%1$@吗？",
+  "%1$@ %2$@ is available but this update requires a new Apple silicon Mac.": "%1$@ %2$@ 可用，但此更新需要配备 Apple 芯片的 Mac。",
   "%1$@ %2$@ is available but your macOS version is too new for this update. This update only supports up to macOS %3$@.": "%1$@ %2$@可供下载，但您的macOS版本因太新而无法安装本次更新。本次更新仅支持至macOS %3$@。",
   "%1$@ %2$@ is available but your macOS version is too old to install it. At least macOS %3$@ is required.": "%1$@ %2$@可供下载，但您的macOS版本因太旧而无法安装。最低版本要求为macOS %3$@。",
   "%1$@ can’t be updated because it was opened from a read-only or a temporary location.": "无法更新%1$@，因为它打开自一个只读或临时位置。",
@@ -18,6 +19,7 @@
   "A new version of %@ is ready to install!": "新版本的%@可以安装了",
   "An error occurred in retrieving update information. Please try again later.": "获取升级信息时出现错误，请稍后再试。",
   "An error occurred while connecting to the installer. Please try again later.": "连接到安装程序时出现错误，请稍后再试。",
+  "An error occurred while downloading the release notes.": "下载发行说明时出错。",
   "An error occurred while downloading the update. Please try again later.": "下载更新时出现错误，请稍后再试。",
   "An error occurred while extracting the archive. Please try again later.": "解压时出现错误，请稍后再试。",
   "An error occurred while launching the installer. Please try again later.": "打开安装程序时出现错误，请稍后再试。",
@@ -63,6 +65,8 @@
   "Skip This Version": "跳过这个版本",
   "Software Update": "软件更新",
   "The installation failed due to not having permission to write the new update.": "安装失败，没有权限写入更新。",
+  "The release notes is improperly signed and could not be validated. Please contact the app developer for more information.": "发行说明的签名不正确，无法验证。请联系应用开发者以获取更多信息。",
+  "The update feed is improperly signed and could not be validated. Please try again later or contact the app developer.": "更新源的签名不正确，无法验证。请稍后再试，或联系应用开发者。",
   "The update is improperly signed and could not be validated. Please try again later or contact the app developer.": "此更新未正确签名，无法验证其真实性。请稍后再试或联系App开发者。",
   "The updater failed to start. Please verify you have the latest version of %@ and contact the app developer if the issue still persists. Check the Console logs for more information.": "无法启动更新程序。请验证是否有最新版本的%@，并联系App开发者如果此问题持续。请查看控制台以获得更多信息。",
   "Unable to Check For Updates": "无法检查更新",
@@ -73,6 +77,7 @@
   "Version History": "版本历史记录",
   "Yes": "是",
   "You may need to allow modifications from %1$@ in System Settings under Privacy & Security and App Management to install future updates.": "为了正常安装后续更新，您需要在“系统设置 → 隐私与安全 → App管理”内允许%1$@更新应用。",
+  "Your Mac is too old": "您的 Mac 过旧",
   "Your macOS version is too new": "您的macOS版本太新了",
   "Your macOS version is too old": "您的macOS版本太旧了",
   "You’re up to date!": "您使用的就是最新版！"

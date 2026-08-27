@@ -84,7 +84,7 @@ def where(text):
     return ""
 
 
-def sheet(lang, english, drafts):
+def sheet(lang, english, drafts, drafted):
     """One language, English beside draft, numbered so a finding can point."""
     out = [f"# {lang} — Sparkle's update interface", "",
            f"{len(drafts)} of {len(english)} strings. Any not here fall back "
@@ -96,12 +96,13 @@ def sheet(lang, english, drafts):
            "or invented.", "", "---", ""]
     for i, key in enumerate(sorted(drafts), 1):
         note = where(english[key])
-        out += [f"### {i}",
+        source = "drafted here" if key in drafted else "Sparkle's own"
+        out += [f"### {i} — {source}",
                 "",
                 f"- **English:** {english[key]}"]
         if note:
             out.append(f"- **Where:** {note}")
-        out += [f"- **Draft ({lang}):** {drafts[key]}", ""]
+        out += [f"- **{lang}:** {drafts[key]}", ""]
     return "\n".join(out) + "\n"
 
 
@@ -187,10 +188,26 @@ Rules for that:
   `Not assessed — insufficient competence.` That is a useful answer. A
   confident wrong one is worse than none, because it will be believed.
 
+## Two kinds of string, and both are in scope
+
+Each string is labelled **drafted here** or **Sparkle's own**.
+
+**Drafted here** was written by a language model for this application. Assume
+nothing about it.
+
+**Sparkle's own** came from the update framework upstream. Do not assume it is
+correct because it shipped. Four were already found wrong without looking for
+them: Finnish said `pävitys` for `päivitys` and used a plural where the English
+was singular; Arabic had one string cut off mid-word and another never
+translated at all. Those four have been replaced and are now labelled as
+drafted. There may be more, and finding them is as useful as anything else
+here.
+
 ## What is in this pack
 
-- `<language>/strings.md` — one file per language, English beside draft,
-  numbered. This is what you are auditing.
+- `<language>/strings.md` — one file per language, English beside the
+  translation, numbered, each labelled with where it came from. This is what
+  you are auditing.
 - `glossary.md` — the words that are not free to translate, and the rule for
   each. Generated from the application's own term list.
 - `english/_source.json` — all {total} English strings as Sparkle ships them,
@@ -200,9 +217,16 @@ Languages in this pack: {languages}.
 """
 
 NAMES = {
-    "bg": "Bulgarian", "et": "Estonian", "fil": "Filipino", "hi": "Hindi",
-    "id": "Indonesian", "lt": "Lithuanian", "lv": "Latvian", "ms": "Malay",
-    "sq": "Albanian", "zh-Hans": "Chinese (Simplified)",
+    "ar": "Arabic", "bg": "Bulgarian", "cs": "Czech", "da": "Danish",
+    "de": "German", "el": "Greek", "es": "Spanish", "et": "Estonian",
+    "fi": "Finnish", "fil": "Filipino", "fr": "French", "he": "Hebrew",
+    "hi": "Hindi", "hr": "Croatian", "hu": "Hungarian", "id": "Indonesian",
+    "it": "Italian", "ja": "Japanese", "ko": "Korean", "lt": "Lithuanian",
+    "lv": "Latvian", "ms": "Malay", "nb": "Norwegian Bokmål", "nl": "Dutch",
+    "pl": "Polish", "pt-PT": "Portuguese (Portugal)", "ro": "Romanian",
+    "ru": "Russian", "sl": "Slovenian", "sq": "Albanian", "sv": "Swedish",
+    "th": "Thai", "tr": "Turkish", "uk": "Ukrainian", "vi": "Vietnamese",
+    "zh-Hans": "Chinese (Simplified)",
 }
 
 
@@ -214,7 +238,10 @@ def main():
     args = ap.parse_args()
 
     english = json.loads((SOURCE / ENGLISH).read_text())
-    langs = sorted(p.stem for p in SOURCE.glob("*.json") if p.name != ENGLISH)
+    provenance = json.loads(
+        (SOURCE / "_provenance.json").read_text())["languages"]
+    langs = sorted(p.stem for p in SOURCE.glob("*.json")
+                   if not p.stem.startswith("_"))
     if not langs:
         sys.exit("error: no drafts in translations/sparkle/")
 
@@ -229,8 +256,10 @@ def main():
 
     for lang in langs:
         drafts = json.loads((SOURCE / f"{lang}.json").read_text())
+        drafted = set(provenance.get(lang, {}).get("drafted", []))
         (out / lang).mkdir(parents=True, exist_ok=True)
-        (out / lang / "strings.md").write_text(sheet(lang, english, drafts))
+        (out / lang / "strings.md").write_text(
+            sheet(lang, english, drafts, drafted))
 
     described = ", ".join(f"{l} ({NAMES.get(l, l)})" for l in langs)
     (out / "PROMPT.md").write_text(PROMPT.format(
