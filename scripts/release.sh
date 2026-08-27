@@ -60,7 +60,11 @@ try:
     text = open(sys.argv[1], encoding="utf-8").read()
 except OSError:
     sys.exit(0)
-found = [int(v) for v in re.findall(r'sparkle:version="(\d+)"', text)]
+# Sparkle takes either form and the generator here writes elements, so a
+# reader that knows only about attributes finds nothing and reports 0 --
+# which reads exactly like an empty feed, and waves the release through.
+found = [int(a or b) for a, b in re.findall(
+    r'sparkle:version(?:="(\d+)"|>\s*(\d+)\s*<)', text)]
 print(max(found) if found else 0)
 PY
 }
@@ -154,8 +158,11 @@ try:
     text = open(path, encoding="utf-8").read()
 except OSError:
     text = ""
-seen = [int(n) for n in re.findall(
-    r'sparkle:shortVersionString="%s-beta\.(\d+)"' % re.escape(version), text)]
+# Element or attribute; see highest_published. Missing them here hands back
+# beta.1 for ever, over the top of the beta.1 people already have.
+seen = [int(a or b) for a, b in re.findall(
+    r'sparkle:shortVersionString(?:="%(v)s-beta\.(\d+)"|>\s*%(v)s-beta\.(\d+)\s*<)'
+    % {"v": re.escape(version)}, text)]
 print(max(seen) + 1 if seen else 1)
 PY_BETA
 )"
