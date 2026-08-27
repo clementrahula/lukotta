@@ -2281,7 +2281,11 @@ group("aDaemonThatIsNotThisBuildsNeverServesAMount") {
         "and either signal is enough to replace it")
     expect(
         !client.contains("This version needs setting up again. It takes one password."),
-        "a daemon that will not replace itself is blessed again, not reported at somebody")
+        "a daemon that will not replace itself is not reported at somebody")
+
+    expect(
+        !client.contains("self.install()"),
+        "nothing on the launch path can raise an administrator panel")
 
     let model =
         (try? String(contentsOfFile: "sources/Lukotta/AppModel.swift", encoding: .utf8)) ?? ""
@@ -2291,6 +2295,17 @@ group("aDaemonThatIsNotThisBuildsNeverServesAMount") {
     expect(
         model.contains("let mountThroughHelper = helper.isReady && !helper.installedToolIsStale"),
         "and a stale daemon never serves the mount")
+
+    // One authorisation per installation, at the first mount, and never again.
+    // replaceIfStale() runs on the way in, so an install() reachable from there
+    // is a password panel raised by starting the application -- which happened,
+    // and shipped, and is why this is checked rather than remembered.
+    let installSites = model.components(separatedBy: "helper.install()").count - 1
+    expect(installSites == 1, "the application asks to be set up in exactly one place")
+    let beforeInstall = model.components(separatedBy: "helper.install()")[0]
+    expect(
+        beforeInstall.hasSuffix("if case .notInstalled = helper.state {\n            "),
+        "and that place is the first mount, where somebody has asked for a drive")
 }
 
 group("aReadOnlyMountAsksForItInOneFlag") {

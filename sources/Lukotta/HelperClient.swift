@@ -139,20 +139,20 @@ final class HelperClient: ObservableObject {
                 self.askItToRefreshItself { [weak self] replaced in
                     guard let self else { return }
                     guard replaced else {
-                        // Not a sentence on a screen and a person left to work
-                        // out what to do with it. A daemon that will not replace
-                        // itself is usually one that is not running to be asked
-                        // -- its binary still sits in /Library where only root
-                        // may write, and the application cannot get there on its
-                        // own. Blessing again is the one route across, and it is
-                        // the application's to take: it puts up the authorisation
-                        // macOS insists on, under the application's own name, and
-                        // comes back working. Telling somebody their app "needs
-                        // setting up again" and stopping is not a fix, it is a
-                        // fault with an apology attached.
-                        Log.app.error("the daemon would not replace itself; blessing again")
-                        self.hasConfirmed = false
-                        self.install()
+                        // Written down and left there. This runs on the way in,
+                        // and an administrator panel raised by starting an
+                        // application is not something anybody can answer: they
+                        // opened an app and were asked for a password by
+                        // something that had not yet said what it wanted. Once
+                        // per installation, at the first mount, is the whole
+                        // budget -- and this is not that moment.
+                        //
+                        // Nothing is lost by waiting. The mount refuses to go
+                        // through a daemon that is not this build's and runs out
+                        // of the application instead, and the first mount is
+                        // where setting one up belongs.
+                        Log.app.error(
+                            "the daemon would not replace itself; the mount will go without it")
                         return
                     }
                     self.connection?.invalidate()
@@ -215,9 +215,9 @@ final class HelperClient: ObservableObject {
                     self.askItToRefreshItself { [weak self] replaced in
                         guard let self else { return }
                         if !replaced {
-                            Log.app.error("the daemon would not replace itself; blessing again")
-                            self.hasConfirmed = false
-                            self.install()
+                            // Same reason as above: never at launch.
+                            Log.app.error(
+                                "the daemon would not replace itself; the mount will go without it")
                             return
                         }
                         self.connection?.invalidate()
