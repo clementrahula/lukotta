@@ -378,6 +378,15 @@ grep -q "<li>" "$NOTES_FILE" || {
 # Betas stay in English by decision rather than by omission.
 NOTES_LANG_ARGS=()
 NOTES_TRANSLATED="$HERE/releases/notes/$VERSION"
+if [ "${LUKOTTA_CHANNEL:-release}" = "release" ] && [ ! -d "$NOTES_TRANSLATED" ]; then
+  # Said rather than enforced. A release that has to go out today should not be
+  # held up by thirty-six translations, and a gate that blocks a fix is a gate
+  # somebody learns to work around. But it is said every time, because a
+  # release going out English-only should be a decision rather than something
+  # noticed afterwards.
+  printf '    none in releases/notes/%s/ — this release goes out in English\n' "$VERSION"
+  printf '    to translate: draft them there, then ./scripts/notes-audit.py %s --zip\n' "$VERSION"
+fi
 if [ "${LUKOTTA_CHANNEL:-release}" = "release" ] && [ -d "$NOTES_TRANSLATED" ]; then
   printf '==> Release notes in other languages\n'
   for translated in "$NOTES_TRANSLATED"/*.md; do

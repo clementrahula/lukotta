@@ -474,6 +474,43 @@ recur when a model edits it:
 - A replacement spanning a line break drops the words on the far side of it.
   Match the whole line.
 
+## Translating a Changelog
+
+The release channel only. A pre-release's notes stay in English: a beta goes
+out often and to few people, and translating it every time is work out of
+proportion to that. This is a decision, not an omission -- do not "fix" it.
+
+The order matters, and each step exists because doing it earlier wastes the
+one after it.
+
+1. **The English is written and cut back.** `releases/<version>.md`, one
+   bullet a line.
+2. **The owner de-slops it and approves it**, which means a line in
+   `releases/APPROVED` naming the version and the hash of those exact words.
+   Nothing is translated before this. A draft made against notes that then
+   change is thirty-six drafts thrown away.
+3. **Draft the translations** into `releases/notes/<version>/<lang>.md`, same
+   bullet-a-line shape. First line is `<!-- heading: … -->`, that language's
+   word for "Version"; without it an English heading sits over a translated
+   list.
+4. **Build the pack**: `./scripts/notes-audit.py <version> --zip`. It carries
+   the approved English, the drafts, and the glossary built from
+   `translations/context/terms.json`. It carries no earlier releases on
+   purpose -- a term that must stay consistent between versions belongs in the
+   glossary, and if it is not there, that is the thing to fix.
+5. **The owner audits it in a different model** and brings back review notes.
+   The result is advisory: it proposes, it does not decide. Every proposal
+   carries its reason, and one without a reason is discarded, because a change
+   nobody can weigh is a change nobody can accept.
+6. **Apply what survives**, read against the translation already there, and
+   release. `release.sh` finds the files, writes a page per language, and
+   names each one in the appcast with its `xml:lang`. A language nobody wrote
+   is absent and gets the English notes.
+
+A release with no translations still goes out; `release.sh` says so every time
+rather than refusing. A gate that blocks a fix is a gate somebody learns to
+work around.
+
 ## When to Bump
 
 `VERSION` is bumped as work lands, not at release time: `patch` for a fix,
