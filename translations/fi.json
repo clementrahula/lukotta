@@ -225,6 +225,7 @@
     "Quit %@": "Lopeta %@",
     "Quit App": "Lopeta",
     "Quit and leave “%@” open?": "Lopetetaanko ja jätetäänkö ”%@” auki?",
+    "Quitting…": "Lopetetaan…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Raakalevykuvat sekä missä tahansa levykuvassa oleva BitLocker- tai LUKS-taltio, jonka lukitus avataan samalla tavoin kuin asemalla olevan taltion",
     "Read-Only": "Vain luku",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Levyn suora lukeminen ja tiedostojärjestelmän käyttöönotto onnistuvat vain pääkäyttäjältä. %@ ei koskaan näe salasanaasi.",

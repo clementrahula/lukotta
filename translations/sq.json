@@ -225,6 +225,7 @@
     "Quit %@": "Dil nga %@",
     "Quit App": "Dil nga aplikacioni",
     "Quit and leave “%@” open?": "Të dilet duke e lënë “%@” të hapur?",
+    "Quitting…": "Po mbyllet…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Imazhe disqesh të papërpunuara, dhe një volum BitLocker ose LUKS brenda çdo imazhi, që shkyçet si ai në një disk",
     "Read-Only": "Vetëm-lexim",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Leximi i një disku të papërpunuar dhe montimi i një sistemi skedarësh janë veprime që i bën vetëm një administrator. %@ nuk e sheh kurrë fjalëkalimin tënd.",

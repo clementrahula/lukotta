@@ -241,6 +241,7 @@
     "Quit %@": "Baigti %@",
     "Quit App": "Baigti",
     "Quit and leave “%@” open?": "Baigti ir palikti „%@“ atvertą?",
+    "Quitting…": "Uždaroma…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Neapdoroti diskų atvaizdžiai ir BitLocker arba LUKS tomas bet kuriame atvaizdyje, kuris atrakinamas kaip esantis diske",
     "Read-Only": "Tik skaitymui",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Tiesioginį disko skaitymą ir failų sistemos prijungimą gali atlikti tik administratorius. %@ niekada nemato jūsų slaptažodžio.",

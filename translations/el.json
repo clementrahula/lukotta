@@ -225,6 +225,7 @@
     "Quit %@": "Τερματισμός %@",
     "Quit App": "Τερματισμός",
     "Quit and leave “%@” open?": "Τερματισμός και διατήρηση του «%@» ανοιχτού;",
+    "Quitting…": "Τερματισμός…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Ακατέργαστα είδωλα δίσκων, καθώς και τόμος BitLocker ή LUKS μέσα σε οποιοδήποτε είδωλο, που ξεκλειδώνει όπως ένας τόμος σε δίσκο",
     "Read-Only": "Μόνο ανάγνωση",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Η απευθείας ανάγνωση δίσκου και η προσάρτηση συστήματος αρχείων είναι ενέργειες που μόνο διαχειριστής μπορεί να κάνει. Το %@ δεν βλέπει ποτέ το συνθηματικό σας.",

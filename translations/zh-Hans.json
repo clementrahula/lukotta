@@ -217,6 +217,7 @@
     "Quit %@": "退出 %@",
     "Quit App": "退出 App",
     "Quit and leave “%@” open?": "退出并让“%@”保持打开？",
+    "Quitting…": "正在退出…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "原始磁盘映像，以及任何映像内部的 BitLocker 或 LUKS 宗卷，其解锁方式与驱动器上的一样",
     "Read-Only": "只读",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "读取原始磁盘和挂载文件系统只有管理员才能做。%@ 从不会看到你的密码。",

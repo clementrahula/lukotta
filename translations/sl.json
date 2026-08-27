@@ -241,6 +241,7 @@
     "Quit %@": "Končaj %@",
     "Quit App": "Končaj",
     "Quit and leave “%@” open?": "Končati in pustiti »%@« odprt?",
+    "Quitting…": "Zapiranje…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Surove slike diskov ter nosilec BitLocker ali LUKS znotraj katere koli slike, ki se odklene enako kot tisti na disku",
     "Read-Only": "Samo za branje",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Neposredno branje diska in priklop datotečnega sistema sta dejanji, ki ju lahko izvede le skrbnik. %@ vašega gesla nikoli ne vidi.",

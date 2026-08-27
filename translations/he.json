@@ -233,6 +233,7 @@
     "Quit %@": "יציאה מ‑%@",
     "Quit App": "יציאה מהיישום",
     "Quit and leave “%@” open?": "לצאת ולהשאיר את “%@” פתוח?",
+    "Quitting…": "סוגר…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "תמונות דיסק גולמיות, ואמצעי אחסון BitLocker או LUKS בתוך כל תמונה, שנעילתו מתבטלת כמו זו של אמצעי אחסון בכונן",
     "Read-Only": "קריאה בלבד",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "קריאת דיסק גולמי ועגינת מערכת קבצים הן פעולות שרק מנהל יכול לבצע. ‏%@ לעולם אינו רואה את הסיסמה שלך.",

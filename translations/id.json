@@ -217,6 +217,7 @@
     "Quit %@": "Keluar dari %@",
     "Quit App": "Keluar dari Aplikasi",
     "Quit and leave “%@” open?": "Keluar dan biarkan “%@” tetap terbuka?",
+    "Quitting…": "Menutup…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Image disk mentah, dan volume BitLocker atau LUKS di dalam image mana pun, yang dibuka kuncinya seperti volume pada sebuah drive",
     "Read-Only": "Baca-Saja",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Membaca disk mentah dan memasang sistem berkas hanya dapat dilakukan administrator. %@ tidak pernah melihat kata sandi Anda.",

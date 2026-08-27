@@ -217,6 +217,7 @@
     "Quit %@": "Thoát %@",
     "Quit App": "Thoát ứng dụng",
     "Quit and leave “%@” open?": "Thoát và để “%@” vẫn mở?",
+    "Quitting…": "Đang thoát…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Ảnh đĩa thô, và ổ BitLocker hay LUKS bên trong bất kỳ ảnh đĩa nào, mở khóa giống như trên một ổ đĩa",
     "Read-Only": "Chỉ đọc",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Đọc đĩa thô và gắn kết hệ thống tệp là những việc chỉ quản trị viên mới làm được. %@ không bao giờ nhìn thấy mật khẩu của bạn.",

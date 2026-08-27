@@ -225,6 +225,7 @@
     "Quit %@": "Quitter %@",
     "Quit App": "Quitter",
     "Quit and leave “%@” open?": "Quitter et laisser « %@ » ouvert ?",
+    "Quitting…": "Fermeture…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Images disque brutes, ainsi qu’un volume BitLocker ou LUKS à l’intérieur d’une image, qui se déverrouille comme celui d’un disque",
     "Read-Only": "Lecture seule",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Lire un disque brut et monter un système de fichiers sont des actions réservées à un administrateur. %@ ne voit jamais votre mot de passe.",

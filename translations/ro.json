@@ -233,6 +233,7 @@
     "Quit %@": "Ieșiți din %@",
     "Quit App": "Ieșire",
     "Quit and leave “%@” open?": "Ieșiți și lăsați „%@” deschis?",
+    "Quitting…": "Se închide…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Imagini de disc brute și un volum BitLocker sau LUKS în interiorul oricărei imagini, care se deblochează ca unul de pe un disc",
     "Read-Only": "Doar citire",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Citirea directă a unui disc și montarea unui sistem de fișiere sunt acțiuni pe care le poate face doar un administrator. %@ nu vă vede niciodată parola.",

@@ -241,6 +241,7 @@
     "Quit %@": "Завершить %@",
     "Quit App": "Выйти из приложения",
     "Quit and leave “%@” open?": "Выйти, оставив «%@» открытым?",
+    "Quitting…": "Завершение…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Необработанные образы дисков, а также том BitLocker или LUKS внутри любого образа, который разблокируется так же, как на диске",
     "Read-Only": "Только чтение",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Чтение необработанного диска и монтирование файловой системы — действия, доступные только администратору. %@ никогда не видит ваш пароль.",

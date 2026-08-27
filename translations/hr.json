@@ -233,6 +233,7 @@
     "Quit %@": "Izađi iz %@",
     "Quit App": "Zatvori",
     "Quit and leave “%@” open?": "Izaći i ostaviti „%@” otvorenim?",
+    "Quitting…": "Zatvaranje…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Sirove slike diskova te BitLocker ili LUKS jedinica unutar bilo koje slike, koja se otključava kao ona na disku",
     "Read-Only": "Samo za čitanje",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Izravno čitanje diska i montiranje datotečnog sustava radnje su koje može obaviti samo administrator. %@ nikada ne vidi vašu lozinku.",

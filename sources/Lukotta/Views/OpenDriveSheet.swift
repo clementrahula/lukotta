@@ -57,13 +57,15 @@ struct OpenDriveSheet: View {
                         // the same thing rather than leaving a blank sheet
                         // under a collapsed row.
                         if theirs.isEmpty {
+                            // No button of its own. This sheet keeps one at
+                            // the bottom whether the list is empty or not, and
+                            // two Rescans on one sheet is a choice where there
+                            // is none.
                             EmptyStateView(
                                 icon: "externaldrive.badge.questionmark",
                                 title: "No drives found",
                                 message:
-                                    "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.",
-                                actionTitle: "Rescan",
-                                action: model.surveyDrives
+                                    "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image."
                             )
                             .frame(maxWidth: .infinity)
                             .padding(.bottom, 8)
@@ -103,7 +105,7 @@ struct OpenDriveSheet: View {
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer()
-                RescanButton(title: "Rescan", busy: model.isSurveying) { model.surveyDrives() }
+                RescanButton(title: "Rescan", busy: model.isSurveying) { model.surveyDrivesAsked() }
             }
             .padding(.horizontal, 22).padding(.vertical, 14)
         }

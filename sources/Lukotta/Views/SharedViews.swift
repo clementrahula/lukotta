@@ -62,8 +62,8 @@ struct EmptyStateView: View {
     let icon: String
     let title: LocalizedStringKey
     let message: LocalizedStringKey
-    let actionTitle: LocalizedStringKey
-    let action: () -> Void
+    var actionTitle: LocalizedStringKey?
+    var action: (() -> Void)?
 
     /// Whether the action is still running, and what it found when it stopped.
     ///
@@ -86,26 +86,28 @@ struct EmptyStateView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: 380)
 
-            Button(action: action) {
-                if busy {
-                    HStack(spacing: 6) {
-                        ProgressView().controlSize(.small)
+            if let action, let actionTitle {
+                Button(action: action) {
+                    if busy {
+                        HStack(spacing: 6) {
+                            ProgressView().controlSize(.small)
+                            Text(actionTitle)
+                        }
+                    } else {
                         Text(actionTitle)
                     }
-                } else {
-                    Text(actionTitle)
                 }
-            }
-            .keyboardShortcut(.defaultAction)
-            .disabled(busy)
+                .keyboardShortcut(.defaultAction)
+                .disabled(busy)
 
-            // Kept in the layout whether or not there is anything to say, so
-            // the button does not jump when the answer arrives.
-            Text(result ?? " ")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .accessibilityHidden(result == nil)
-                .animation(.default, value: result)
+                // Kept in the layout whether or not there is anything to say,
+                // so the button does not jump when the answer arrives.
+                Text(result ?? " ")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(result == nil)
+                    .animation(.default, value: result)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

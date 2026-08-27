@@ -225,6 +225,7 @@
     "Quit %@": "Изход от %@",
     "Quit App": "Затваряне",
     "Quit and leave “%@” open?": "Изход и оставяне на „%@“ отворен?",
+    "Quitting…": "Затваряне…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Сурови дискови образи, както и том с BitLocker или LUKS във всеки образ, който се отключва като том на диск",
     "Read-Only": "Само за четене",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Прякото четене на диск и монтирането на файлова система са действия, които може да извърши само администратор. %@ никога не вижда вашата парола.",

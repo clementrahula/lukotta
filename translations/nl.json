@@ -225,6 +225,7 @@
     "Quit %@": "Stop %@",
     "Quit App": "Stop",
     "Quit and leave “%@” open?": "Stoppen en ‘%@’ open laten?",
+    "Quitting…": "Bezig met stoppen…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Onbewerkte schijfkopieën, en een BitLocker- of LUKS-volume in een schijfkopie, dat net zo wordt ontgrendeld als een volume op een schijf",
     "Read-Only": "Alleen-lezen",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Een schijf rechtstreeks lezen en een bestandssysteem activeren kan alleen een beheerder. %@ ziet je wachtwoord nooit.",

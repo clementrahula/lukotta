@@ -200,19 +200,25 @@ final class AppModel: ObservableObject {
     @Published var showOpenDrive = false
 
     /// Survey every disk, including those this app will not open.
-    /// Whether the survey sheet's own Rescan is still running.
+    /// Whether a survey somebody asked for is still running.
+    ///
+    /// Only ever true for the button. The sheet surveys when it opens and again
+    /// whenever a drive is plugged in or taken out, and a spinner appearing on
+    /// its own for work nobody asked for is noise: it reads as the app doing
+    /// something it should not be, on a button nobody pressed.
     @Published var isSurveying = false
 
-    func surveyDrives() {
+    /// The survey behind the button, which says so while it runs.
+    func surveyDrivesAsked() {
         isSurveying = true
+        surveyDrives()
         Task { @MainActor in
-            let began = ContinuousClock.now
-            while isSurveying == false { break }
-            try? await Task.sleep(for: .milliseconds(60))
-            let spent = ContinuousClock.now - began
-            if spent < Self.rescanFloor { try? await Task.sleep(for: Self.rescanFloor - spent) }
+            try? await Task.sleep(for: Self.rescanFloor)
             isSurveying = false
         }
+    }
+
+    func surveyDrives() {
         let images = Set(openedImages.keys)
         // What this app has open, so the sheet can offer to eject rather than
         // to open again. Read here, on the main actor, because it is this

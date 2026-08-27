@@ -217,6 +217,7 @@
     "Quit %@": "%@ 종료",
     "Quit App": "앱 종료",
     "Quit and leave “%@” open?": "“%@”을(를) 열어 둔 채 종료하시겠습니까?",
+    "Quitting…": "종료하는 중…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "원시 디스크 이미지, 그리고 어떤 이미지 안에 있든 드라이브의 것과 똑같이 잠금 해제되는 BitLocker 또는 LUKS 볼륨",
     "Read-Only": "읽기 전용",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "원시 디스크를 읽고 파일 시스템을 마운트하는 일은 관리자만 할 수 있습니다. %@은(는) 사용자의 암호를 절대 보지 않습니다.",

@@ -257,6 +257,7 @@
     "Quit %@": "إنهاء %@",
     "Quit App": "إنهاء التطبيق",
     "Quit and leave “%@” open?": "هل تريد الإنهاء وترك “%@” مفتوحًا؟",
+    "Quitting…": "جارٍ الإنهاء…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "صور الأقراص الخام، ووحدة تخزين BitLocker أو LUKS داخل أي صورة، ويُلغى قفلها كما يُلغى قفل وحدة تخزين على محرك أقراص",
     "Read-Only": "للقراءة فقط",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "قراءة قرص خام وتركيب نظام ملفات إجراءان لا يقوم بهما إلا المسؤول. ولا يرى %@ كلمة سرك أبدًا.",

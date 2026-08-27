@@ -233,6 +233,7 @@
     "Quit %@": "Iziet no %@",
     "Quit App": "Iziet",
     "Quit and leave “%@” open?": "Vai iziet un atstāt “%@” atvērtu?",
+    "Quitting…": "Aizver…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Neapstrādāti disku attēli, kā arī BitLocker vai LUKS sējums jebkurā attēlā, kas atveras tāpat kā sējums diskā",
     "Read-Only": "Tikai lasāms",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Diska tiešu lasīšanu un failu sistēmas montēšanu var veikt tikai administrators. %@ nekad neredz jūsu paroli.",

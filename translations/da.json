@@ -225,6 +225,7 @@
     "Quit %@": "Slut %@",
     "Quit App": "Slut",
     "Quit and leave “%@” open?": "Slut og lade “%@” være åben?",
+    "Quitting…": "Slutter…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Rå diskbilleder, og en BitLocker- eller LUKS-diskenhed inde i et hvilket som helst diskbillede, som låses op ligesom en på en disk",
     "Read-Only": "Kun læsning",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "At læse en disk direkte og aktivere et filsystem kan kun en administrator. %@ ser aldrig din adgangskode.",

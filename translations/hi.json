@@ -225,6 +225,7 @@
     "Quit %@": "%@ से बाहर निकलें",
     "Quit App": "ऐप से बाहर निकलें",
     "Quit and leave “%@” open?": "“%@” को खुला छोड़कर बाहर निकलें?",
+    "Quitting…": "बंद हो रहा है…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "रॉ डिस्क इमेज, और किसी भी इमेज के भीतर का BitLocker या LUKS वॉल्यूम, जो ड्राइव पर मौजूद वॉल्यूम की तरह ही अनलॉक होता है",
     "Read-Only": "केवल पढ़ने के लिए",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "रॉ डिस्क पढ़ना और फ़ाइल सिस्टम माउंट करना ऐसे काम हैं जो केवल व्यवस्थापक कर सकता है। %@ आपका पासवर्ड कभी नहीं देखता।",

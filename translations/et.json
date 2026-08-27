@@ -225,6 +225,7 @@
     "Quit %@": "Välju: %@",
     "Quit App": "Välju",
     "Quit and leave “%@” open?": "Kas väljuda ja jätta „%@“ avatuks?",
+    "Quitting…": "Väljumine…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Töötlemata kettatõmmised ning BitLockeri või LUKS-i köide mis tahes tõmmise sees, mille lukk avatakse nagu kettal oleval köitel",
     "Read-Only": "Ainult lugemiseks",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Ketta otse lugemine ja failisüsteemi haakimine on toimingud, mida saab teha ainult administraator. %@ ei näe kunagi sinu parooli.",

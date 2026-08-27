@@ -225,6 +225,7 @@
     "Quit %@": "Avsluta %@",
     "Quit App": "Avsluta",
     "Quit and leave “%@” open?": "Avsluta och lämna ”%@” öppen?",
+    "Quitting…": "Avslutar…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Råa skivavbilder, och en BitLocker- eller LUKS-volym inuti valfri avbild, som låses upp som en på en disk",
     "Read-Only": "Skrivskyddad",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Att läsa en disk direkt och montera ett filsystem kan bara en administratör göra. %@ ser aldrig ditt lösenord.",

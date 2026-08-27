@@ -17,7 +17,11 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 LOCK="$HERE/vendor/engine.lock"
 
-field() { /usr/bin/python3 -c "import json;print(json.load(open('$LOCK'))['$1']['$2'])"; }
+# Empty rather than a traceback for a key a crate does not carry: _declined is
+# only present on the ones somebody has looked at and decided against.
+field() {
+  /usr/bin/python3 -c "import json;print(json.load(open('$LOCK')).get('$1',{}).get('$2',''))"
+}
 
 MOVED=0
 UNKNOWN=0
@@ -46,8 +50,16 @@ for crate in imago krun-devices; do
   if latest="$(/usr/bin/curl -fsSL --max-time 30 "https://crates.io/api/v1/crates/$crate" \
     -H 'User-Agent: lukotta-engine-check' 2>/dev/null \
     | /usr/bin/python3 -c 'import json,sys;print(json.load(sys.stdin)["crate"]["max_version"])' 2>/dev/null)"; then
+    # A version already looked at and deliberately not taken is recorded in
+    # the lock as _declined. Reporting it every Monday is not a reminder, it is
+    # a thing to learn to ignore -- and the week it says something new, nobody
+    # reads it. So a declined version is stated and passes; anything past it
+    # has not been assessed and is reported.
+    declined="$(field "$crate" _declined)"
     if [ "$have" = "$latest" ]; then
       printf '  %-13s %-14s current\n' "$crate" "$have"
+    elif [ -n "$declined" ] && [ "$declined" = "$latest" ]; then
+      printf '  %-13s %-14s %s declined, see _why_declined\n' "$crate" "$have" "$latest"
     else
       printf '  %-13s %-14s -> %s\n' "$crate" "$have" "$latest"
       MOVED=1

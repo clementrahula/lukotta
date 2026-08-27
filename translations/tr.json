@@ -225,6 +225,7 @@
     "Quit %@": "%@ Uygulamasından Çık",
     "Quit App": "Uygulamadan Çık",
     "Quit and leave “%@” open?": "“%@” açık bırakılarak çıkılsın mı?",
+    "Quitting…": "Kapatılıyor…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Ham disk imajları ve herhangi bir imajın içindeki BitLocker veya LUKS birimi; bir sürücüdeki gibi kilidi açılır",
     "Read-Only": "Salt Okunur",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Ham bir diski okumak ve bir dosya sistemini bağlamak yalnızca yöneticinin yapabileceği işlerdir. %@ parolanızı hiçbir zaman görmez.",

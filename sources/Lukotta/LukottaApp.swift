@@ -520,6 +520,63 @@ struct LukottaApp: App {
     }
 }
 
+/// A small window that says the app is going, while it goes.
+///
+/// Ejecting takes a second or two: the drives have to be handed back and the
+/// virtual machine stopped. Until that finishes the app is still on screen and
+/// still answering, so from the outside a quit that was asked for looks like a
+/// quit that was ignored, and the usual response is to press Quit again.
+///
+/// Deliberately not an NSAlert. runModal would block the very work this is
+/// reporting on, and an alert with no buttons is a dialogue nobody can dismiss
+/// if the eject stalls.
+@MainActor
+enum QuitProgress {
+    private static var window: NSWindow?
+
+    static func show(_ what: String) {
+        guard window == nil else { return }
+        let spinner = NSProgressIndicator()
+        spinner.style = .spinning
+        spinner.controlSize = .small
+        spinner.startAnimation(nil)
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+
+        let label = NSTextField(labelWithString: what)
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        let row = NSView()
+        row.addSubview(spinner)
+        row.addSubview(label)
+        NSLayoutConstraint.activate([
+            spinner.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 22),
+            spinner.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+            label.leadingAnchor.constraint(equalTo: spinner.trailingAnchor, constant: 12),
+            label.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -22),
+            label.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+        ])
+
+        let panel = NSPanel(
+            contentRect: NSRect(x: 0, y: 0, width: 260, height: 64),
+            styleMask: [.titled, .fullSizeContentView], backing: .buffered, defer: false)
+        panel.titleVisibility = .hidden
+        panel.titlebarAppearsTransparent = true
+        panel.isMovableByWindowBackground = true
+        panel.contentView = row
+        panel.center()
+        panel.level = .modalPanel
+        panel.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        window = panel
+    }
+
+    static func hide() {
+        window?.orderOut(nil)
+        window = nil
+    }
+}
+
+
 final class AppDelegate: NSObject, NSApplicationDelegate {
     var model: AppModel?
 
@@ -570,8 +627,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// A mounted drive means a microVM is still running. Quitting without
     /// ejecting would leave it behind, so ask.
+    /// Whether the quit question is already on screen.
+    ///
+    /// runModal runs a nested event loop, so everything carries on underneath
+    /// it -- including another quit. Command-Q twice, or Quit from the menu bar
+    /// while the dialogue is up, and AppKit calls this again and a second alert
+    /// is built on top of the first. The second one lands wherever AppKit puts
+    /// an alert with no window behind it, which on more than one display is
+    /// usually not the display the first is on: two dialogues, on two screens,
+    /// asking the same question.
+    private var isAskingAboutQuit = false
+
     func applicationShouldTerminate(_ app: NSApplication) -> NSApplication.TerminateReply {
         guard !systemIsPoweringOff else { return .terminateNow }
+
+        // Already asking. Bring the dialogue that exists forward rather than
+        // building another, and tell AppKit this attempt is answered: the one
+        // on screen is what decides.
+        if isAskingAboutQuit {
+            NSApp.activate(ignoringOtherApps: true)
+            MainActor.assumeIsolated { NSApp.modalWindow?.makeKeyAndOrderFront(nil) }
+            return .terminateCancel
+        }
 
         // Coming straight back is not leaving. The drives are held by the
         // helper and are still there a second later, so there is nothing to
@@ -588,7 +665,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // this dialog exists to collect has been given.
         if MainActor.assumeIsolated({ MenuBarItem.shared.tookTheMenuBarsAnswer() }) {
             MainActor.assumeIsolated {
-                model.ejectAll { NSApp.reply(toApplicationShouldTerminate: true) }
+                QuitProgress.show(String(localized: "Quitting\u{2026}"))
+                model.ejectAll {
+                    QuitProgress.hide()
+                    NSApp.reply(toApplicationShouldTerminate: true)
+                }
             }
             return .terminateLater
         }
@@ -671,7 +752,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // An app living in the menu bar has no window to raise this in front
         // of, and a modal dialogue nobody can see reads as a quit that hung.
         NSApp.activate(ignoringOtherApps: true)
+        isAskingAboutQuit = true
         let answer = alert.runModal()
+        isAskingAboutQuit = false
 
         if retreat, answer == .alertFirstButtonReturn {
             // Not a quit that was turned down: it was answered, by going to
@@ -688,7 +771,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if !eject { AppModel.wantsRelaunch = false }
         if eject {
             MainActor.assumeIsolated {
-                model.ejectAll { NSApp.reply(toApplicationShouldTerminate: true) }
+                QuitProgress.show(String(localized: "Quitting\u{2026}"))
+                model.ejectAll {
+                    QuitProgress.hide()
+                    NSApp.reply(toApplicationShouldTerminate: true)
+                }
             }
             return .terminateLater
         }

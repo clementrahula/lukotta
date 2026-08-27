@@ -241,6 +241,7 @@
     "Quit %@": "Ukončit %@",
     "Quit App": "Ukončit",
     "Quit and leave “%@” open?": "Ukončit a nechat „%@“ otevřený?",
+    "Quitting…": "Ukončování…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Surové obrazy disků a svazek s BitLockerem nebo LUKS uvnitř libovolného obrazu, který se odemkne jako svazek na disku",
     "Read-Only": "Jen ke čtení",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Přímé čtení disku a připojení souborového systému může provést jen správce. %@ vaše heslo nikdy nevidí.",

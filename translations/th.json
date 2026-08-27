@@ -217,6 +217,7 @@
     "Quit %@": "ออกจาก %@",
     "Quit App": "ออกจากแอป",
     "Quit and leave “%@” open?": "ออกโดยให้ “%@” เปิดค้างไว้ไหม",
+    "Quitting…": "กำลังปิด…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "อิมเมจดิสก์ดิบ และโวลุ่ม BitLocker หรือ LUKS ภายในอิมเมจใดก็ตาม ซึ่งปลดล็อกเหมือนที่อยู่บนไดรฟ์",
     "Read-Only": "อ่านอย่างเดียว",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "การอ่านดิสก์ดิบและการเมานต์ระบบไฟล์เป็นสิ่งที่มีเพียงผู้ดูแลระบบทำได้ %@ ไม่เคยเห็นรหัสผ่านของคุณ",

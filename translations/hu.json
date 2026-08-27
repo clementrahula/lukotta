@@ -225,6 +225,7 @@
     "Quit %@": "Kilépés: %@",
     "Quit App": "Kilépés",
     "Quit and leave “%@” open?": "Kilép, és nyitva hagyja a következőt: „%@”?",
+    "Quitting…": "Kilépés…",
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": "Nyers lemezképek, valamint bármely lemezképen belüli BitLocker- vagy LUKS-kötet, amely úgy nyílik meg, mint egy meghajtón lévő",
     "Read-Only": "Csak olvasható",
     "Reading a raw disk and mounting a filesystem are actions only an administrator can do. %@ never sees your password.": "Egy lemez közvetlen olvasása és egy fájlrendszer csatolása csak rendszergazdai művelet. A(z) %@ soha nem látja a jelszavát.",
