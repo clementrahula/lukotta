@@ -76,41 +76,6 @@ public enum HelperInfo {
         "/Library/PrivilegedHelperTools/\(machServiceName)"
     }
 
-    /// Where the application carries the daemon it wants installed.
-    public static func bundledToolPath(inBundle bundle: String) -> String {
-        "\(bundle)/Contents/Library/LaunchServices/\(machServiceName)"
-    }
-
-    /// Whether the daemon on disk is the one this application carries.
-    ///
-    /// The contract number above is raised by hand, and the note against 4
-    /// records what that costs: it shipped naming a change that was reverted
-    /// the same day, so a daemon answering 4 does something the number does
-    /// not describe. A number somebody must remember to raise is a number
-    /// somebody will forget to raise, and the failure is silent in the worst
-    /// way -- launchd keeps the running daemon across an update, so the
-    /// application is new, the daemon is old, the mount is built the old way,
-    /// and nothing anywhere says so. That is not a fault to be found by
-    /// noticing; it has to be impossible.
-    ///
-    /// So the two binaries are compared instead of trusting either to describe
-    /// itself. The daemon replaces itself without a password now, which is the
-    /// whole reason the number was worth keeping: matching on the build no
-    /// longer costs anybody a password, so there is nothing left to trade.
-    ///
-    /// Unreadable, missing, or different all answer false. "Cannot prove it is
-    /// the right one" and "is the wrong one" lead to the same place, and the
-    /// safe place is replacing it.
-    public static func installedToolIsCurrent(
-        installed: String, bundled: String, fileManager: FileManager = .default
-    ) -> Bool {
-        guard fileManager.contents(atPath: bundled) != nil else { return false }
-        guard let running = fileManager.contents(atPath: installed),
-            let carried = fileManager.contents(atPath: bundled)
-        else { return false }
-        return running == carried
-    }
-
     /// Whether a string is safe to paste into a code requirement.
     ///
     /// The identifier comes from a signed bundle, so changing it invalidates
