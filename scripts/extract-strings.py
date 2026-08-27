@@ -106,7 +106,12 @@ def keys_in(path: pathlib.Path):
         key = to_key(unwrap_block(m.group(1)))
         if key.strip() and " " in key:
             yield key
-    for m in TERNARY.finditer(text):
+    # Interface files only, for the same reason the block scan above is: a
+    # ternary in the core picks between two pieces of a shell command, and
+    # " -o \(options)" is not a sentence anybody reads. It was being extracted
+    # as one, reported as a string the catalogue was missing, and the checks
+    # went red with nothing wrong.
+    for m in TERNARY.finditer(text) if is_interface else []:
         if "systemName" in text[max(0, m.start() - 90) : m.start()]:
             continue
         for raw in m.groups():
