@@ -380,11 +380,23 @@ public enum MountScript {
             ]
         }
 
-        // ntfs3 is the in-kernel driver and much faster, and refuses a volume
-        // marked dirty, which is what Windows Fast Startup and hibernation
-        // leave behind. ntfs-3g mounts those. A Linux volume gets no override,
-        // so the engine detects ext4, btrfs or xfs itself.
-        let drivers: [String?] = i.kind == .microsoft ? ["ntfs3", "ntfs-3g"] : [nil]
+        // ntfs-3g first, not ntfs3.
+        //
+        // ntfs3 is the in-kernel driver and much faster, and it is the wrong
+        // one to serve over NFS. It reuses an MFT record as soon as a file is
+        // deleted and keeps no generation count on it, so a file handle the
+        // client is still holding resolves to a record the driver now says is
+        // free: "Inode r=1da66 is not in use!", thousands of them, and the
+        // operation fails. Copying anything that creates and deletes many
+        // small files -- a photo library, a node_modules, a Time Machine
+        // sparsebundle -- walks into it within minutes.
+        //
+        // ntfs-3g is FUSE and slower, and it keeps inodes stable for as long
+        // as anything refers to them, which is what an NFS export needs.
+        //
+        // It also mounts a volume Windows left dirty, which ntfs3 refuses --
+        // so the order below still covers that, from the other side.
+        let drivers: [String?] = i.kind == .microsoft ? ["ntfs-3g", "ntfs3"] : [nil]
         // The engine resolves whatever target it is handed by prefixing /dev/,
         // so an alias elsewhere never resolves and produced a
         // "disk /dev//var/folders/… not found" line ahead of every mount.

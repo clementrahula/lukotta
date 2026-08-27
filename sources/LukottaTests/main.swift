@@ -433,13 +433,19 @@ group("theElevatedMountScript") {
     expect(msScript.contains("export SUDO_GID=20"), "invoking gid exported")
     expect(msScript.contains("export DYLD_LIBRARY_PATH='/engine/lib'"), "dyld path exported")
 
-    // Microsoft volumes try the fast kernel driver, then the one that copes with a
-    // dirty volume left by Windows Fast Startup.
-    expect(msScript.contains("-t ntfs3"), "ntfs3 attempted")
-    expect(msScript.contains("-t ntfs-3g"), "ntfs-3g attempted as fallback")
+    // Microsoft volumes try ntfs-3g first, then the kernel driver.
+    //
+    // ntfs3 is faster and cannot be served over NFS: it reuses an MFT record
+    // the moment a file is deleted and keeps no generation count, so a handle
+    // the client still holds resolves to a record it now calls free. Copying
+    // anything made of many small files walks into it. ntfs-3g keeps inodes
+    // stable while anything refers to them, and mounts a volume Windows left
+    // dirty besides.
+    expect(msScript.contains("-t ntfs-3g"), "ntfs-3g attempted")
+    expect(msScript.contains("-t ntfs3"), "ntfs3 attempted as fallback")
     expect(
-        msScript.range(of: "-t ntfs3")!.lowerBound < msScript.range(of: "-t ntfs-3g")!.lowerBound,
-        "ntfs3 is tried before ntfs-3g")
+        msScript.range(of: "-t ntfs-3g")!.lowerBound < msScript.range(of: "-t ntfs3")!.lowerBound,
+        "ntfs-3g is tried before ntfs3")
     expect(
         !msScript.contains("/usr/bin/expect"),
         "no LVM discovery for a Microsoft volume")

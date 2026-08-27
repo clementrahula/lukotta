@@ -42,7 +42,15 @@ public enum HelperInfo {
     /// 2: the daemon finds the engine in the application that called it, so a
     ///    drive opened through it works when the daemon was installed with an
     ///    administrator password rather than run from inside the bundle.
-    public static let contract = 2
+    /// 3: spent. A build carrying it was installed on the author's Mac while
+    ///    the replacement was being proved, so a daemon out there answers 3
+    ///    without the change that number was meant to name. Numbers are cheap;
+    ///    a daemon that says it has something it has not is not.
+    /// 4: NTFS is mounted with ntfs-3g rather than ntfs3. The mount script is
+    ///    in LukottaCore, which the daemon links and runs, so the daemon is
+    ///    the one that has to change -- a new script in the bundle reaches
+    ///    nobody while the old daemon is still generating the old one.
+    public static let contract = 4
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
