@@ -1,0 +1,19 @@
+# Temporarily restored, and about to be removed again.
+#
+# The run this workflow left behind when it was renamed to checks.yml has sat
+# queued ever since, with no jobs and no runner that will ever pick it up.
+# GitHub will not let go of it: cancel answers "already completed",
+# force-cancel answers "not queued yet", delete answers 403 and disable
+# answers "not active" -- because the workflow it belongs to reads as deleted,
+# and every one of those verbs wants a workflow that exists.
+#
+# So it exists again for as long as it takes to cancel the run.
+name: CI
+on:
+  workflow_dispatch:
+permissions: {}
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'true'
