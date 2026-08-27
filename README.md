@@ -103,6 +103,7 @@ drive.
 [SPECS.md][specs] specifies every filesystem, encryption and image format, what
 is written and what is not, and how each is read.
 
+> [!WARNING]
 > **Writing to qcow2, VMDK, VDI and VHD images is untested.** These drivers were
 > written for Lukotta and are checked against `qemu-img` when the engine is
 > built from source, but
@@ -193,6 +194,7 @@ passed over. It is off until you turn it on.
 
 Lukotta remembers a passphrase in your Keychain when you ask it to.
 
+> [!NOTE]
 > The drive is handed to Finder over a local network connection, so it appears
 > under Locations with a network icon. It reads, writes and ejects like any
 > other drive. macOS offers no way to present it as a local disk.

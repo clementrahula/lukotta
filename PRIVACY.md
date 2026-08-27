@@ -9,7 +9,7 @@ the Republic of Estonia (the "Developer").
 
 For privacy questions or requests, contact **legal@lukotta.com**.
 
-## Plain-English Summary
+## Summary
 
 Lukotta has no accounts, no analytics and no telemetry. It does not read what
 is on your drives beyond mounting them, and your passphrase never leaves your
@@ -21,7 +21,7 @@ version. That can be turned off in Settings, after which it makes none.
 The Developer receives nothing unless you send it: an email, or a bug report
 you have read and chosen to send.
 
-## The App
+## Processing Within the Application
 
 Lukotta unlocks drives and disk images on your Mac. Nothing about either is
 transmitted: not its contents, not the names or sizes of files on it, not which
@@ -31,7 +31,7 @@ often.
 Your passphrase is never written to disk in the clear and never appears in a
 command line. [SECURITY.md](SECURITY.md) describes how it is handled.
 
-### Checking for Updates
+### Update Checks
 
 While the app is running, it asks `updates.lukotta.com` once a day
 whether a newer version exists. That request carries your IP address, as any
@@ -45,7 +45,7 @@ Turn it off in **Settings → Updates** and the app makes no requests at all.
 You can still check by hand whenever you want. Updates themselves are
 downloaded from GitHub only when you choose to install one.
 
-## Bug Reports and Email
+## Diagnostic Reports and Correspondence
 
 The bug icon in the app gathers the app version and build, the macOS version,
 the model of Mac, whether the engine is present, whether Full Disk Access is
@@ -65,7 +65,7 @@ with what you chose to send: your address, your message, and any attachment.
 This is used to reply, to investigate problems, and to maintain Lukotta. The
 legal basis is the Developer's legitimate interest in supporting the software.
 
-## The Website and the Update Feed
+## Website and Update Feed
 
 The website at `lukotta.com` is hosted on GitHub Pages and delivered through
 Cloudflare. The update feed at `updates.lukotta.com` is served by GitHub Pages
@@ -73,14 +73,14 @@ directly, without Cloudflare.
 
 Neither uses cookies, advertising trackers, visitor profiling or analytics.
 
-## Passphrases You Ask to Be Remembered
+## Stored Passphrases
 
 Storing a passphrase is off unless you turn it on. It then goes to your login
 Keychain, reachable only while your Mac is unlocked and marked not to sync, so
 it does not reach iCloud or another device. It is never transmitted. Forgetting
 it in the app deletes the entry.
 
-## Service Providers
+## Third-Party Service Providers
 
 - **GitHub** hosts the website, the update feed, the source repository and the
   downloads. Requests to any of them appear in GitHub's logs.
@@ -91,7 +91,7 @@ it in the app deletes the entry.
 The app does not connect to Cloudflare, and neither provider receives anything
 about your drives.
 
-## How Long Data Is Kept
+## Retention
 
 There are no accounts, no telemetry and no analytics, so the Developer keeps
 no database of users or drives.
@@ -103,7 +103,7 @@ with a legal obligation, or to establish, exercise or defend a legal claim.
 Server logs are kept by GitHub and Cloudflare under their own retention
 policies, linked above. The Developer does not receive or store them.
 
-## Your Rights
+## Data Subject Rights
 
 Where the GDPR applies, you may have rights over personal data processed about
 you: access, correction, deletion, restriction, objection and portability. To
@@ -117,7 +117,7 @@ right to lodge a complaint with a data-protection supervisory authority. In
 the Republic of Estonia, this is the Estonian Data Protection Inspectorate
 (Andmekaitse Inspektsioon).
 
-## Changes to This Policy
+## Amendments
 
 This policy may change as Lukotta changes. The effective date at the top is
 updated when it does, and previous versions are visible in the repository's
