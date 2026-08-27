@@ -643,6 +643,20 @@ public enum MountScript {
     /// attempted; with it the volume is read-only in the mount table, Finder
     /// marks it so, and a write fails as "Read-only file system".
     static func nfsOptions(_ i: Inputs) -> String {
+        // No "soft", and no timeo. This is a hard mount, which means that if
+        // the guest stops answering the client retries rather than failing, and
+        // a copy in progress hangs instead of stopping.
+        //
+        // That is the lesser evil and it is chosen, not overlooked. A soft NFS
+        // mount returns an error to a write that may already be half done, and
+        // the caller -- Finder, cp, whatever is copying -- treats that as a
+        // finished file. This application exists to move data off drives macOS
+        // cannot read, often the only copy somebody has. A hang is visible and
+        // recoverable; a short write reported as success is neither.
+        //
+        // An audit read the missing timeo as an oversight. Anyone reaching for
+        // it should know what it buys and what it costs first.
+        //
         // Deliberately the same either way.
         //
         // Adding "ro" here asks the engine for a read-only NFS export, and on

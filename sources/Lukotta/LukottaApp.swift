@@ -588,8 +588,12 @@ enum QuitProgress {
             panel.center()
         }
         panel.level = .modalPanel
-        panel.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
+        // orderFrontRegardless, not makeKeyAndOrderFront plus activate. Quit
+        // can be asked for from the menu bar while another application is in
+        // front, and this panel is telling you something rather than asking:
+        // pulling the whole app forward to say "Quitting" takes the screen
+        // away from whatever you had turned to instead.
+        panel.orderFrontRegardless()
         window = panel
     }
 
@@ -842,7 +846,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 guard !isLeaving else { return }
                 isLeaving = true
                 QuitProgress.show(String(localized: "Quitting\u{2026}"))
-                model.ejectAll { NSApp.reply(toApplicationShouldTerminate: true) }
+                let needs = model.whatLeavingNeeds()
+                model.ejectAll {
+                    // The ejects are done. The rest of the leaving still has to
+                    // happen, and doing it here would be on the main thread
+                    // with the panel unable to redraw -- which is the beachball
+                    // this panel was added to replace. It ran in
+                    // applicationWillTerminate before, which is the same thread
+                    // and the same stall, just later and less visible.
+                    Task.detached(priority: .userInitiated) {
+                        AppModel.finishLeaving(detaching: needs.detaching, files: needs.files)
+                        await MainActor.run {
+                            AppModel.leftTidily = true
+                            NSApp.reply(toApplicationShouldTerminate: true)
+                        }
+                    }
+                }
             }
             return .terminateLater
         }
