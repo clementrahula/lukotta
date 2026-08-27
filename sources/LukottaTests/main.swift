@@ -2232,6 +2232,67 @@ group("theHelperSaysWhichBuildItIs") {
     expect(model.contains("helper.replaceIfStale()"), "on the way in, before anything is mounted")
 }
 
+group("aDaemonThatIsNotThisBuildsNeverServesAMount") {
+    // The fault this exists to make impossible: launchd keeps the running
+    // daemon across an application update, the daemon is what builds the
+    // mount, so a fixed application mounted exactly as the broken one had and
+    // nothing said so. An NTFS fix shipped, installed, and changed nothing.
+    //
+    // The contract number cannot be the whole answer -- it is raised by hand,
+    // and the note against 4 in HelperProtocol records it shipping with the
+    // wrong meaning. So the binaries are compared, which needs nothing of the
+    // daemon and works while it is dead.
+    let dir = NSTemporaryDirectory() + "helper-staleness-\(UInt32.random(in: 0..<999999))"
+    try? FileManager.default.createDirectory(
+        atPath: dir, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(atPath: dir) }
+    let installed = dir + "/installed", bundled = dir + "/bundled"
+
+    FileManager.default.createFile(atPath: installed, contents: Data("same".utf8))
+    FileManager.default.createFile(atPath: bundled, contents: Data("same".utf8))
+    expect(
+        HelperInfo.installedToolIsCurrent(installed: installed, bundled: bundled),
+        "the same binary in both places is current")
+
+    try? Data("older".utf8).write(to: URL(fileURLWithPath: installed))
+    expect(
+        !HelperInfo.installedToolIsCurrent(installed: installed, bundled: bundled),
+        "a daemon that differs from the one the bundle carries is stale")
+
+    try? FileManager.default.removeItem(atPath: installed)
+    expect(
+        !HelperInfo.installedToolIsCurrent(installed: installed, bundled: bundled),
+        "and one that is not there at all is stale, not fine")
+
+    // Unreadable answers the same as wrong. Both lead to replacing it, and a
+    // check that cannot prove currency must never report it.
+    expect(
+        !HelperInfo.installedToolIsCurrent(
+            installed: bundled, bundled: dir + "/never-written"),
+        "nothing to compare against is stale too")
+
+    let client =
+        (try? String(contentsOfFile: "sources/Lukotta/HelperClient.swift", encoding: .utf8)) ?? ""
+    expect(
+        client.contains("var installedToolIsStale: Bool"),
+        "the client can tell without asking the daemon anything")
+    expect(
+        client.contains("theirs < HelperInfo.contract || stale"),
+        "and either signal is enough to replace it")
+    expect(
+        !client.contains("This version needs setting up again. It takes one password."),
+        "a daemon that will not replace itself is blessed again, not reported at somebody")
+
+    let model =
+        (try? String(contentsOfFile: "sources/Lukotta/AppModel.swift", encoding: .utf8)) ?? ""
+    expect(
+        model.contains("if helper.installedToolIsStale {"),
+        "the mount checks before it goes near the daemon")
+    expect(
+        model.contains("let mountThroughHelper = helper.isReady && !helper.installedToolIsStale"),
+        "and a stale daemon never serves the mount")
+}
+
 group("aReadOnlyMountAsksForItInOneFlag") {
     // --ignore-permissions and a read-only export are the same job to the
     // engine -- taking charge of the NFS export -- so it refuses the two

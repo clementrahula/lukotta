@@ -2366,10 +2366,48 @@ final class AppModel: ObservableObject {
             return
         }
 
+        // A daemon that is not the one this build carries does not get to serve
+        // this mount.
+        //
+        // launchd keeps a registered daemon running across an application
+        // update, and the daemon is what builds the mount. So a fixed
+        // application went on mounting exactly as the broken one had, with
+        // nothing on screen to say why: the version in the About box was new,
+        // the behaviour was old, and the two never met. Found the hard way,
+        // with an NTFS fix that had shipped, been installed, and changed
+        // nothing at all.
+        //
+        // It replaces itself without a password, so the cost of insisting is a
+        // second at the front of the first mount after an update. Whatever it
+        // costs, mounting through a daemon known to be the wrong one is not on
+        // the table -- and if it will not be replaced, the route below runs the
+        // mount out of this application, which is current by construction.
+        if helper.installedToolIsStale {
+            appendStatus("Updating the background helper")
+            helper.replaceIfStale()
+            mountTask = Task { @MainActor [weak self] in
+                guard let self else { return }
+                // Copying a binary and standing down. Bounded, because a daemon
+                // that never comes back must not hold the drive for ever.
+                for _ in 0..<60 {
+                    if !self.helper.installedToolIsStale { break }
+                    try? await Task.sleep(nanoseconds: 500_000_000)
+                }
+                guard !Task.isCancelled else { return }
+                if self.helper.installedToolIsStale {
+                    Log.app.error(
+                        "the installed daemon is still not this build's; mounting without it")
+                }
+                self.runMount(drive: drive, credential: credential)
+            }
+            return
+        }
+
         // With the helper approved, this needs no password at all. Without it,
         // fall back to asking macOS to authorise a single command.
-        mountAsksApproval = !helper.isReady
-        if helper.isReady {
+        let mountThroughHelper = helper.isReady && !helper.installedToolIsStale
+        mountAsksApproval = !mountThroughHelper
+        if mountThroughHelper {
             appendStatus("Using the background helper — no password needed")
             let aliasPath = (try? ws.makeDeviceAlias(named: drive.name, target: drive.devicePath))?
                 .path
