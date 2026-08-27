@@ -35,6 +35,13 @@ on:
   pull_request:
   workflow_dispatch:
 
+# The only thing this workflow's token is for is the checkout above it. Left
+# unsaid, the token is whatever the repository hands out by default, which is
+# a wider grant than any step here asks for and one that changes with a
+# setting nobody edits while thinking about this file.
+permissions:
+  contents: read
+
 # No concurrency group. It existed to cancel a superseded run, and instead it
 # wedged: a run that sat queued -- which is what a macOS runner shortage looks
 # like -- held the group, and pushes after it created no run at all. Not a
