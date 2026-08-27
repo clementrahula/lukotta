@@ -55,7 +55,7 @@ brew install --cask clementrahula/tap/lukotta@beta
 ## How It Works
 
 macOS cannot mount BitLocker volumes, Linux filesystems such as ext4, btrfs and
-XFS, LUKS encryption, or most virtual machine disk images. Lukotta can. It
+XFS, LUKS encryption, or most virtual machine disk images. Linux can. Lukotta
 starts a small Linux virtual machine, unlocks the drive inside it, and hands the
 volume back to Finder.
 
