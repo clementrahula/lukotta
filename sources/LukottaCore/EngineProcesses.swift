@@ -197,16 +197,33 @@ public enum EngineProcesses {
         }
         guard !quiet.isEmpty else { return [] }
 
-        // Asked again, once, after a moment. Only a mount that is silent both
-        // times is taken to have lost its server.
-        pause(1)
-        var dead: [String] = []
-        for point in quiet {
-            switch answers(point) {
-            case .silent: dead.append(point)
-            case .alive: continue
-            case .couldNotAsk: return []
+        // Asked again and again, over a minute, and only a mount that is silent
+        // every single time has lost its server.
+        //
+        // It used to be one more probe a second later: about five seconds of
+        // silence before `umount -f` and `rmdir`. That is not enough to justify
+        // an action that cannot be undone. A microVM frozen by a busy Mac was
+        // measured silent for forty seconds and came back serving its drive
+        // perfectly; a drive that had gone slow was silent for fifteen minutes
+        // and its copy would have continued. Five seconds of quiet cannot tell
+        // any of those from a server that has actually gone.
+        //
+        // A minute is still fast enough for the thing this exists for -- macOS
+        // refuses the next mount at a name still held by a dead one -- and that
+        // is a wait, where the other way is somebody's copy destroyed.
+        var dead = quiet
+        for delay in [1.0, 4.0, 10.0, 20.0, 25.0] {
+            guard !dead.isEmpty else { break }
+            pause(delay)
+            var stillQuiet: [String] = []
+            for point in dead {
+                switch answers(point) {
+                case .silent: stillQuiet.append(point)
+                case .alive: continue
+                case .couldNotAsk: return []
+                }
             }
+            dead = stillQuiet
         }
         return dead
     }

@@ -944,7 +944,49 @@ group("mountStages") {
                 return asked == 1 ? .silent : .alive
             }, pause: noWait
         ).isEmpty,
-        "one silence is a busy machine; only two in a row is a server that has gone")
+        "one silence is a busy machine; only silence throughout is a server that has gone")
+
+    // The window that matters. Two silences used to be enough, about five
+    // seconds, and then `umount -f` and `rmdir` -- irreversible, on somebody's
+    // copy. Measured against that: a microVM frozen by a busy Mac went forty
+    // seconds without answering and came back serving its drive; a drive gone
+    // slow was silent for fifteen minutes with its copy still viable. So a
+    // mount that answers late still counts as alive.
+    var round = 0
+    expect(
+        EngineProcesses.deadEngineMounts(
+            in: serving, opened: mine,
+            answers: { _ in
+                round += 1
+                return round <= 3 ? .silent : .alive
+            }, pause: noWait
+        ).isEmpty,
+        "a mount silent three times and then answering is alive, not dead")
+    var late = 0
+    expect(
+        EngineProcesses.deadEngineMounts(
+            in: serving, opened: mine,
+            answers: { _ in
+                late += 1
+                return late <= 5 ? .silent : .alive
+            }, pause: noWait
+        ).isEmpty,
+        "and one that answers on the last probe is still alive")
+    var counted = 0
+    _ = EngineProcesses.deadEngineMounts(
+        in: serving, opened: mine,
+        answers: { _ in
+            counted += 1
+            return .silent
+        }, pause: noWait)
+    expect(counted >= 6, "a mount is asked at least six times before it is destroyed")
+    var waited: [TimeInterval] = []
+    _ = EngineProcesses.deadEngineMounts(
+        in: serving, opened: mine, answers: { _ in .silent },
+        pause: { waited.append($0) })
+    expect(
+        waited.reduce(0, +) >= 55,
+        "spread over a minute, not five seconds")
     expect(
         EngineProcesses.isOursToForce(ourMount, opened: mine),
         "a mount point this app wrote down is its own to force")
