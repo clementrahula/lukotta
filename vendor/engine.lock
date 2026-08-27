@@ -23,7 +23,8 @@
     "version": "0.2.3",
     "licence": "MIT",
     "source_url": "https://static.crates.io/crates/imago/imago-0.2.3.crate",
-    "source_sha256": "ae7cfee876c698a1a2ed9c705ab18f21acbed82110f19b51cc458de73426fe2c"
+    "source_sha256": "ae7cfee876c698a1a2ed9c705ab18f21acbed82110f19b51cc458de73426fe2c",
+    "_upgrade": "0.2.4 exists and is deliberately not taken. Upstream changed 1,897 lines of src across 34 files, dropped the vector_select module for sync_primitives, and reworked the vmdk mapping function that imago-sparse-vmdk.patch rewrites. Both of this project's patches fail against it: 1 of 20 hunks in imago-sparse-vmdk, 1 of 2 in imago-vdi-vhd-and-vhdx. Porting them is a re-vendoring job with qemu-img checks behind it, per BUILDING.md, not a version bump. Nothing in 0.2.4 is known to fix anything this app hits."
   },
   "krun-devices": {
     "_why": "libkrun's block device. Patched to ask imago for VDI and VHD.",
