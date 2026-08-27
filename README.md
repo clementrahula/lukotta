@@ -103,7 +103,6 @@ drive.
 [SPECS.md][specs] specifies every filesystem, encryption and image format, what
 is written and what is not, and how each is read.
 
-> [!WARNING]
 > **Writing to qcow2, VMDK, VDI and VHD images is untested.** These drivers were
 > written for Lukotta and are checked against `qemu-img` when the engine is
 > built from source, but
@@ -185,8 +184,6 @@ recovery key. It appears in Finder under Locations.
 For a disk image, choose **File → Open Disk Image…**, or **File → Open Drive…**
 to see every disk attached to this Mac and what Lukotta can do with each.
 
-Eject it from Lukotta, from the menu bar, or from Finder.
-
 Lukotta can also auto-mount what was open after a restart. Switch on **Open drives
 again after restarting** at the top of Settings: it then opens in the background
 when you log in and mounts the drives and images that were open, as they were.
@@ -196,7 +193,6 @@ passed over. It is off until you turn it on.
 
 Lukotta remembers a passphrase in your Keychain when you ask it to.
 
-> [!NOTE]
 > The drive is handed to Finder over a local network connection, so it appears
 > under Locations with a network icon. It reads, writes and ejects like any
 > other drive. macOS offers no way to present it as a local disk.
