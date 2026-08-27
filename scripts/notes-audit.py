@@ -141,6 +141,27 @@ Rules for that:
   `Not assessed — insufficient competence.` That is a useful answer. A
   confident wrong one is not.
 
+## Do this in as many runs as it takes
+
+Do not try to finish in one pass. Each language is short, but there are many
+of them, and a model that sets out to do all of them in one go tends to go
+quiet somewhere in the middle and produce nothing usable at all.
+
+So work in runs:
+
+- **Take as many as you need.** Cover a few languages per run, properly,
+  rather than all of them badly.
+- **Write your findings to a Markdown file at the end of every run**, before
+  you run out of room. Name them `findings-01.md`, `findings-02.md`, and so
+  on. A run that ends without writing its file is a run that never happened.
+- **Finish every file with a `## Where this run stopped` section** naming what
+  you covered and what is still untouched, so the next run knows where to
+  begin and nothing is quietly skipped.
+- **Never stop mid-language.** End at a boundary, or say plainly in that
+  section that you stopped part-way through one, and where.
+
+Partial work written down beats complete work that never arrives.
+
 ## What is in this pack
 
 - `english/{version}.md` — the approved English. Settled; do not change it.
