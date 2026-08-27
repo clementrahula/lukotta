@@ -31,6 +31,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 # Everything the trademark covers, in one place. The unbranded identifier uses
 # example.com, reserved by RFC 2606, so it cannot collide with a real vendor and
 # is recognisable as a placeholder.
+AUTO_CHECKS="true"
 case "${LUKOTTA_BRANDING:-unbranded}" in
   official)
     APP_NAME="Lukotta"
@@ -61,6 +62,29 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     # second thing to notice when it expires -- for a file.
     FEED_URL="https://updates.lukotta.com/beta/appcast.xml"
     ;;
+  dev)
+    # Where work happens. Its own identifier, its own daemon, its own saved
+    # passphrases and no feed worth the name, so nothing built here can reach
+    # the application somebody is actually using -- which is the whole point:
+    # a fix is proved on this before a beta is cut, and a beta is cut only once
+    # it is proved. Iterating on the beta channel is what put a build that asked
+    # for an administrator on every launch onto the owner's Mac.
+    #
+    # The unbranded artwork rather than the beta's, so three of them in one Dock
+    # are three different pictures. See TRADEMARKS.txt: the marks belong to
+    # releases.
+    APP_NAME="Lukotta Dev"
+    BUNDLE_ID="com.lukotta.dev"
+    ICON_SET="AppIconUnbranded"
+    MARK_SET="MarkUnbranded"
+    SWITCH_SET="FullDiskAccessSwitchUnbranded"
+    HELPER_NAME="LukottaDevHelper"
+    # Nothing is served here and nothing is meant to be. A development build
+    # that updated itself would replace what is being tested, halfway through
+    # testing it.
+    FEED_URL="https://updates.lukotta.com/dev/appcast.xml"
+    AUTO_CHECKS="false"
+    ;;
   unbranded)
     APP_NAME="Drive Unlocker"
     BUNDLE_ID="com.example.driveunlocker"
@@ -71,7 +95,7 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     FEED_URL="https://updates.lukotta.com/appcast.xml"
     ;;
   *)
-    echo "error: LUKOTTA_BRANDING must be 'official', 'beta' or 'unbranded'" >&2; exit 1 ;;
+    echo "error: LUKOTTA_BRANDING must be 'official', 'beta', 'dev' or 'unbranded'" >&2; exit 1 ;;
 esac
 
 OUT="${1:-$HERE/dist/$APP_NAME.app}"
@@ -280,6 +304,7 @@ sed -e "s|__HELPER_REQUIREMENT__|$HELPER_REQUIREMENT|" \
     -e "s|__SPARKLE_PUBLIC_KEY__|${SPARKLE_KEY}|" \
     -e "s|__APP_NAME__|$APP_NAME|" -e "s|__BUNDLE_ID__|$BUNDLE_ID|" \
     -e "s|__MIN_MACOS__|$MIN_MACOS|" -e "s|__FEED_URL__|$FEED_URL|" \
+    -e "s|__AUTO_CHECKS__|$AUTO_CHECKS|" \
     -e "s|__ICON_SET__|$ICON_SET|" -e "s|__MARK_SET__|$MARK_SET|" \
     -e "s|__SWITCH_SET__|$SWITCH_SET|" \
   "$HERE/sources/Info.plist" > "$CONTENTS/Info.plist"

@@ -34,7 +34,7 @@
   <!-- Checking is on by default, and there is no first-run question about it.
        Installing is not: replacing the app is the user's call to make, and
        Lukotta may be holding a drive open when the moment arrives. -->
-  <key>SUEnableAutomaticChecks</key><true/>
+  <key>SUEnableAutomaticChecks</key><__AUTO_CHECKS__/>
   <key>SUAutomaticallyUpdate</key><false/>
   <!-- Daily. The default is a week, which is a long time to carry a fix. -->
   <key>SUScheduledCheckInterval</key><integer>86400</integer>
