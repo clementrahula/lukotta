@@ -1001,6 +1001,13 @@
       "context": "Title when the scan found nothing to offer. Not \"encrypted\": the list carries every drive this app can open, encrypted or not.",
       "placeholders": []
     },
+    "No new drives found.": {
+      "screens": [
+        "notices"
+      ],
+      "context": "Shown for a few seconds under the drive list after Rescan, when looking again turned up nothing that was not already listed. Not a failure: the scan worked and there was nothing new.",
+      "placeholders": []
+    },
     "No reason was reported. The details below may say more.": {
       "screens": [
         "diagnosis"
@@ -1277,6 +1284,13 @@
           "is": "the drive name, in typographic quotes"
         }
       ]
+    },
+    "Quitting…": {
+      "screens": [
+        "menus"
+      ],
+      "context": "A small panel shown while the app is closing, when open drives have to be ejected first and that takes a moment. Present participle, with an ellipsis: the app is going, and has not gone yet.",
+      "placeholders": []
     },
     "Raw disk images, and a BitLocker or LUKS volume inside any image, which unlocks like one on a drive": {
       "screens": [
