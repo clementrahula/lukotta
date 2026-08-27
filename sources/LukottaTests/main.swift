@@ -2328,6 +2328,33 @@ group("aDaemonThatIsNotThisBuildsNeverServesAMount") {
         "a daemon already installed the old way is never blessed a second time")
 }
 
+group("theMountIsSoftAndTheCodeSaysSo") {
+    // The engine merges its own NFS defaults over whatever the application
+    // passes, and on macOS those include "soft", timeo=100 and retrans=3. So
+    // every mount is soft with a ten-second timeout, which is precisely the
+    // configuration the old comment here called unacceptable -- while claiming
+    // this was a hard mount because it had not asked for a soft one.
+    //
+    // Read off a real mount before writing this down:
+    //   mount -t nfs -o deadtimeout=45,intr,...,retrans=3,...,soft,timeo=100,...
+    //
+    // Checked as text because the fact lives in a comment, and a comment that
+    // is wrong about safety is worse than no comment: the previous one talked
+    // an audit out of a finding that was correct.
+    let script =
+        (try? String(contentsOfFile: "sources/LukottaCore/MountScript.swift", encoding: .utf8))
+        ?? ""
+    expect(
+        !script.contains("This is a hard mount"),
+        "the code does not claim a hard mount it does not have")
+    expect(
+        script.contains("soft, intr, timeo=100, retrans=3, deadtimeout=45"),
+        "it records what the engine actually merges in")
+    expect(
+        script.contains("panics the kernel once"),
+        "and why soft cannot simply be removed")
+}
+
 group("aReadOnlyMountAsksForItInOneFlag") {
     // --ignore-permissions and a read-only export are the same job to the
     // engine -- taking charge of the NFS export -- so it refuses the two

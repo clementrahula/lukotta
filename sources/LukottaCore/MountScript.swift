@@ -643,19 +643,39 @@ public enum MountScript {
     /// attempted; with it the volume is read-only in the mount table, Finder
     /// marks it so, and a write fails as "Read-only file system".
     static func nfsOptions(_ i: Inputs) -> String {
-        // No "soft", and no timeo. This is a hard mount, which means that if
-        // the guest stops answering the client retries rather than failing, and
-        // a copy in progress hangs instead of stopping.
+        // This is NOT a hard mount, whatever the absence of "soft" here
+        // suggests. Not specifying an option is not the same as choosing its
+        // opposite: the engine has its own defaults and merges them over the
+        // top, and on macOS they are
         //
-        // That is the lesser evil and it is chosen, not overlooked. A soft NFS
-        // mount returns an error to a write that may already be half done, and
-        // the caller -- Finder, cp, whatever is copying -- treats that as a
-        // finished file. This application exists to move data off drives macOS
-        // cannot read, often the only copy somebody has. A hang is visible and
-        // recoverable; a short write reported as success is neither.
+        //     soft, intr, timeo=100, retrans=3, deadtimeout=45
         //
-        // An audit read the missing timeo as an oversight. Anyone reaching for
-        // it should know what it buys and what it costs first.
+        // (anylinuxfs, fsutil.rs, NfsOptions::default). Every mount this
+        // application has ever made has been soft, with a ten-second timeout
+        // and three retries. Read back from a real mount's log, not deduced.
+        //
+        // Which matters, because the paragraph that used to sit here was right
+        // about the danger and wrong about the facts. A soft mount does return
+        // an error to a write that may already be half done, and Finder does
+        // treat that as a finished file, and this application does exist to
+        // move data that is often the only copy somebody has. All true, and all
+        // describing what we ship rather than what we avoid.
+        //
+        // Upstream did not do this carelessly. A hard mount against a microVM
+        // that has gone away -- a drive pulled without unmounting -- retries
+        // for ever, holds IOMediaBSDClient busy, and panics the kernel once
+        // watchdogd sees a registry entry stuck for sixty seconds. "soft" is
+        // there to stop a panic, and removing it would bring the panic back.
+        //
+        // Nor can it simply be overridden from here: the merge is keyed by
+        // option name, so passing "hard" adds a second key beside "soft"
+        // rather than replacing it. "timeo" and "retrans" can be overridden,
+        // being the same keys -- but what they should be is a question about
+        // how long a slow drive is allowed to stall before its writes are
+        // failed, and that wants measurement rather than a number picked here.
+        //
+        // An earlier audit flagged the missing timeo. It was answered from the
+        // belief written above, which was mistaken. It was right.
         //
         // Deliberately the same either way.
         //
