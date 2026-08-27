@@ -43,19 +43,65 @@ def strings_file(pairs):
     return "\n".join(out) + "\n"
 
 
-def placeholders(text):
-    """Which format specifiers a string uses, in the order they appear."""
-    found, i = [], 0
+def specifiers(text):
+    """Every format specifier, and every stray % that is not one.
+
+    Cocoa accepts two forms: positional (%1$@) and plain (%@), taken in order.
+    A % that begins neither is a fault: Sparkle's own Ukrainian shipped
+    "%У данний момент", where %У is not a conversion at all and what the
+    formatter does with it is undefined.
+    """
+    found, stray, i = [], [], 0
     while i < len(text):
-        if text[i] == "%":
-            j = i + 1
-            while j < len(text) and text[j] not in "@dsflu%":
-                j += 1
-            if j < len(text):
-                found.append(text[i:j + 1])
-                i = j
-        i += 1
-    return [f for f in found if f != "%%"]
+        if text[i] != "%":
+            i += 1
+            continue
+        if text.startswith("%%", i):
+            i += 2
+            continue
+        j = i + 1
+        while j < len(text) and text[j].isdigit():
+            j += 1
+        if j > i + 1 and j < len(text) and text[j] == "$":
+            j += 1                       # positional: %12$
+        if j < len(text) and text[j] in "@dsfluxX":
+            found.append(text[i:j + 1])
+            i = j + 1
+        else:
+            stray.append(text[i:i + 6])
+            i += 1
+    return found, stray
+
+
+def arguments(specs):
+    """How many arguments a format string consumes."""
+    highest = 0
+    for spec in specs:
+        digits = "".join(c for c in spec if c.isdigit())
+        highest = max(highest, int(digits) if digits else 0)
+    return highest if highest else len(specs)
+
+
+def disagrees(english, translation):
+    """Why this translation cannot stand in for that English, or None.
+
+    Deliberately not "they must match". A translation may repeat a positional
+    specifier or leave one out -- naming the application once instead of twice
+    is a choice, not a fault. What it may not do is reach for an argument that
+    is not there, mix the two forms, or carry a % that means nothing.
+    """
+    want, _ = specifiers(english)
+    got, stray = specifiers(translation)
+    if stray:
+        return f"has {stray[0]!r}, which is not a format specifier"
+    positional = [g for g in got if "$" in g]
+    if positional and len(positional) != len(got):
+        return "mixes %1$@ and %@, which Cocoa does not allow in one string"
+    available = arguments(want)
+    if arguments(got) > available:
+        return (f"reaches for argument {arguments(got)} "
+                f"but only {available} are supplied")
+    return None
 
 
 def main():
@@ -71,7 +117,10 @@ def main():
 
     written, problems = [], []
     for path in sorted(source.glob("*.json")):
-        if path.name == ENGLISH:
+        # Anything beginning with an underscore is about the translations
+        # rather than one of them: the English reference, the record of what
+        # was drafted here. A language is never named that way.
+        if path.name.startswith("_"):
             continue
         lang = path.stem
         pairs = json.loads(path.read_text())
@@ -83,10 +132,9 @@ def main():
             if key not in english:
                 problems.append(f"{lang}: {key[:48]!r} is not a Sparkle string")
                 continue
-            want, got = placeholders(english[key]), placeholders(value)
-            if sorted(want) != sorted(got):
-                problems.append(
-                    f"{lang}: {key[:40]!r} wants {want} but the translation has {got}")
+            wrong = disagrees(english[key], value)
+            if wrong:
+                problems.append(f"{lang}: {key[:44]!r} {wrong}")
 
         missing = len(english) - len(pairs)
         target = resources / f"{lang}.lproj"
