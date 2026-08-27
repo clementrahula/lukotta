@@ -165,8 +165,9 @@ struct DriveListView: View {
                         .font(.caption).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer()
-                    RescanButton(title: "Rescan", busy: model.isRescanning,
-                                 result: model.rescanResult, action: model.rescan)
+                    RescanButton(
+                        title: "Rescan", busy: model.isRescanning,
+                        result: model.rescanResult, action: model.rescan)
                 }
             }
         }

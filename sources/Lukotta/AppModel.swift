@@ -20,7 +20,6 @@ final class AppModel: ObservableObject {
     /// Whether `start()` has already run, since two places can call it.
     private var didStart = false
 
-
     enum Phase {
         case needsPermission
         case scanning
@@ -1597,7 +1596,8 @@ final class AppModel: ObservableObject {
                 try? await Task.sleep(for: Self.rescanFloor - spent)
             }
             isRescanning = false
-            rescanResult = drives.count == before
+            rescanResult =
+                drives.count == before
                 ? String(localized: "No new drives found.")
                 : nil
             guard rescanResult != nil else { return }

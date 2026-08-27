@@ -429,8 +429,9 @@ group("theElevatedMountScript") {
             let command = chunk.components(separatedBy: ">>").first ?? chunk
             let flags = command.components(separatedBy: " -o ").count - 1
             invocations += 1
-            expect(flags <= 1,
-                   "\(label): a mount command carries \(flags) -o flags, and the engine takes one")
+            expect(
+                flags <= 1,
+                "\(label): a mount command carries \(flags) -o flags, and the engine takes one")
         }
         expect(invocations > 0, "\(label): the script must contain a mount command to check")
     }

@@ -601,7 +601,6 @@ enum QuitProgress {
     // the process ends only produces a window sitting there saying nothing.
 }
 
-
 final class AppDelegate: NSObject, NSApplicationDelegate {
     var model: AppModel?
 
@@ -671,7 +670,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// starts a second finishLeaving beside the first, and the two rewrite the
     /// engine's config.toml at the same time.
     private var isLeaving = false
-
 
     /// Leave, without holding the main thread while doing it.
     ///
