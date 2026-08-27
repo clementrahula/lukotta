@@ -382,21 +382,28 @@ public enum MountScript {
 
         // ntfs-3g first, not ntfs3.
         //
-        // ntfs3 is the in-kernel driver and much faster, and it is the wrong
-        // one to serve over NFS. It reuses an MFT record as soon as a file is
-        // deleted and keeps no generation count on it, so a file handle the
-        // client is still holding resolves to a record the driver now says is
-        // free: "Inode r=1da66 is not in use!", thousands of them, and the
-        // operation fails. Copying anything that creates and deletes many
-        // small files -- a photo library, a node_modules, a Time Machine
-        // sparsebundle -- walks into it within minutes.
+        // ntfs3 first, because it is the kernel driver and the only one whose
+        // metadata is fast enough to feel like a disk. Deleting a folder of
+        // forty thousand files is forty thousand unlinks whichever driver runs
+        // them; in the kernel that is seconds, and through FUSE it is an hour.
         //
-        // ntfs-3g is FUSE and slower, and it keeps inodes stable for as long
-        // as anything refers to them, which is what an NFS export needs.
+        // It is safe to serve over NFS, which an earlier version of this
+        // comment denied. ntfs3 registers generic_encode_ino32_fh, so every
+        // file handle carries the inode's generation, and on the way back
+        // ntfs_export_get_inode puts it in ref.seq for ntfs_iget5 to compare
+        // against the MFT record's own sequence number. A record reused after
+        // a delete fails that comparison and the handle is refused with
+        // -ESTALE. It is never resolved to the wrong file.
         //
-        // It also mounts a volume Windows left dirty, which ntfs3 refuses --
-        // so the order below still covers that, from the other side.
-        let drivers: [String?] = i.kind == .microsoft ? ["ntfs-3g", "ntfs3"] : [nil]
+        // What it does do is shout. Every refusal logs "Inode r=%x is not in
+        // use!" at error level, so a copy that deletes as it goes fills the
+        // log with hundreds of them. They are the driver working, not failing,
+        // and they were read here as the cause of a failed copy once already.
+        //
+        // ntfs-3g stays as the fallback, for the one thing it is genuinely
+        // needed for: a volume Windows left dirty, which ntfs3 refuses to
+        // touch. See ntfsOptions for why it is given big_writes.
+        let drivers: [String?] = i.kind == .microsoft ? ["ntfs3", "ntfs-3g"] : [nil]
         // The engine resolves whatever target it is handed by prefixing /dev/,
         // so an alias elsewhere never resolves and produced a
         // "disk /dev//var/folders/… not found" line ahead of every mount.
@@ -531,6 +538,22 @@ public enum MountScript {
     /// failure.
     private static let mountedCheck = "__mounted"
 
+    /// What a driver is mounted with, beyond read-only.
+    ///
+    /// ntfs-3g is FUSE, so every write crosses from the kernel out to a
+    /// userspace process and back. Without big_writes that crossing happens
+    /// once per 4 KiB, which is the whole of why it copies at about a megabyte
+    /// a second here: not the disk, not the link, just context switches. With
+    /// it, a write is up to 128 KiB and costs one crossing instead of thirty.
+    /// Tuxera recommend it, and it is the first thing anyone reaches for.
+    ///
+    /// ntfs3 is in the kernel and has no such crossing, so it is given
+    /// nothing.
+    static func driverOptions(_ driver: String?) -> String {
+        guard driver == "ntfs-3g" else { return "" }
+        return " -o big_writes"
+    }
+
     private static func mountCommand(
         engineQ: String,
         target: String,
@@ -544,7 +567,7 @@ public enum MountScript {
         // --nfs-options must use the joined form. The flag is variadic, and the
         // separated form consumes the target that follows it.
         return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount\(ownership)"
-            + "\(typeFlag)\(readOnlyFlags(readOnly)) -w false"
+            + "\(typeFlag)\(driverOptions(driver))\(readOnlyFlags(readOnly)) -w false"
             + " --nfs-options=\(shellQuoted(options))"
             + " \(target) >> \(logQ) 2>&1 && \(mountedCheck)"
     }

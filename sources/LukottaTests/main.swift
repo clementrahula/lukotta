@@ -433,19 +433,29 @@ group("theElevatedMountScript") {
     expect(msScript.contains("export SUDO_GID=20"), "invoking gid exported")
     expect(msScript.contains("export DYLD_LIBRARY_PATH='/engine/lib'"), "dyld path exported")
 
-    // Microsoft volumes try ntfs-3g first, then the kernel driver.
+    // Microsoft volumes try the kernel driver first, then ntfs-3g.
     //
-    // ntfs3 is faster and cannot be served over NFS: it reuses an MFT record
-    // the moment a file is deleted and keeps no generation count, so a handle
-    // the client still holds resolves to a record it now calls free. Copying
-    // anything made of many small files walks into it. ntfs-3g keeps inodes
-    // stable while anything refers to them, and mounts a volume Windows left
-    // dirty besides.
-    expect(msScript.contains("-t ntfs-3g"), "ntfs-3g attempted")
-    expect(msScript.contains("-t ntfs3"), "ntfs3 attempted as fallback")
+    // ntfs3 is in the kernel, so its metadata is fast enough that deleting a
+    // large folder finishes rather than crawling. It is safe over NFS:
+    // generic_encode_ino32_fh puts the inode's generation in every handle and
+    // ntfs_iget5 checks it against the MFT record's sequence number, so a
+    // reused record is refused with -ESTALE rather than resolved to the wrong
+    // file. It logs every refusal at error level, which reads alarmingly and
+    // is not a failure.
+    //
+    // ntfs-3g is the fallback, for a volume Windows left dirty that ntfs3
+    // refuses. It is FUSE, so it gets big_writes.
+    expect(msScript.contains("-t ntfs3"), "ntfs3 attempted")
+    expect(msScript.contains("-t ntfs-3g"), "ntfs-3g attempted as fallback")
     expect(
-        msScript.range(of: "-t ntfs-3g")!.lowerBound < msScript.range(of: "-t ntfs3")!.lowerBound,
-        "ntfs-3g is tried before ntfs3")
+        msScript.range(of: "-t ntfs3")!.lowerBound < msScript.range(of: "-t ntfs-3g")!.lowerBound,
+        "ntfs3 is tried before ntfs-3g")
+    expect(
+        msScript.contains("-t ntfs-3g -o big_writes"),
+        "ntfs-3g is given big_writes")
+    expect(
+        !msScript.contains("-t ntfs3 -o big_writes"),
+        "ntfs3 is not, having no FUSE crossing to amortise")
     expect(
         !msScript.contains("/usr/bin/expect"),
         "no LVM discovery for a Microsoft volume")
