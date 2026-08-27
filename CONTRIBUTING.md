@@ -179,7 +179,7 @@ send a patch.
 The English is the source. If a string is awkward in English, fix that first —
 thirty-six translations of a bad sentence is thirty-six problems.
 
-### Right to left
+### Right to Left
 
 Arabic and Hebrew mirror the interface. Three things keep that working, and all
 three are easy to undo by accident:
@@ -192,7 +192,7 @@ three are easy to undo by accident:
   path, a device identifier, the engine's own output. Those are read as
   characters in the order they were written.
 
-## How It Fits Together
+## Architecture
 
 | Target | What it is |
 | --- | --- |
@@ -223,7 +223,7 @@ Everything else is in one of these:
 | `assets/` | Artwork. `assets/brand/` holds the originals and the renderings made from them. |
 | `vendor/` | The Linux engine, fetched by the build. Ignored apart from `engine.lock`, which pins it. |
 
-## Test Drives Without Encrypted Hardware
+## Testing Without Encrypted Hardware
 
 ```bash
 ./scripts/make-test-volumes.sh

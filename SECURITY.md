@@ -40,7 +40,7 @@ A reply usually follows within a few days.
 - macOS asking for Full Disk Access, or the system's own dialogs.
 - Anything requiring an attacker who is already root on the machine.
 
-## Your Passphrase
+## Passphrase Handling
 
 It is never written to disk in the clear, and never appears in a command line.
 
@@ -60,7 +60,7 @@ Storing it is optional and off by default. If you turn it on, it goes to the
 login Keychain, reachable only while the Mac is unlocked, and never synced to
 iCloud or another device. Forgetting it deletes the entry.
 
-## The Privileged Helper
+## Privilege Separation
 
 Unlocking a drive requires root. Without the helper, macOS asks for an
 administrator password each time. With it, a small daemon holds that privilege
@@ -83,7 +83,7 @@ or is signed by anyone else, is refused.
 The helper can be removed at any time from Login Items in System Settings.
 Lukotta falls back to asking for an administrator password.
 
-## Disk Images
+## Disk Image Handling
 
 An image is opened without any privilege. The helper is not involved, no device
 is attached for the formats the engine reads itself, and the volume is mounted
@@ -119,7 +119,7 @@ or a card with its write-protect switch set, is opened for reading instead and
 the guest is told the device is read-only. Refusing outright would leave no way
 into a file that could be read.
 
-## What the App Can Reach
+## Filesystem Access
 
 Full Disk Access is required to read a drive. macOS blocks reading a drive's
 raw contents without it, and an encrypted drive is nothing but raw contents
@@ -130,7 +130,7 @@ The engine is inside the app, so no component is downloaded at first run. The
 only outbound request Lukotta makes on its own is the update check, described in
 [PRIVACY.md](PRIVACY.md).
 
-## Updates
+## Update Integrity
 
 An update is verified twice before it is installed: by an EdDSA signature over
 the archive, made with a key held only by the author, and by macOS against the
@@ -140,7 +140,7 @@ refused.
 If an update installs and then will not start, the previous version is put
 back after two failed starts.
 
-## What This Does Not Protect Against
+## Limitations
 
 - A Mac that is already compromised. A process running as root can read the
   environment of another root process, and can talk to anything.

@@ -177,7 +177,7 @@ brew install --cask clementrahula/tap/lukotta@beta
 - **Administrator password**: asked for once when the background helper is set
   up. Lukotta never sees it
 
-## Using the App
+## Opening a Drive
 
 Plug in the drive and pick it from the list. Type the password or paste the
 recovery key. It appears in Finder under Locations.

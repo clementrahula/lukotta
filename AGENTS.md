@@ -8,7 +8,7 @@ details and are not.
 [BUILDING.md](BUILDING.md) covers requirements, switches, and signing. Read
 those for everything this file leaves out.
 
-## Commands That Report The Wrong Thing
+## Commands That Report the Wrong Thing
 
 `swift test` prints `no tests found`. The checks are a plain executable target,
 run by `./scripts/run-tests.sh`, which reports the count. `swift test` is not
@@ -56,7 +56,7 @@ Sources are in `sources/`, lowercase, and every target in `Package.swift`
 carries an explicit `path:`. The conventional `Sources/` fails on a
 case-sensitive volume.
 
-## Which channel work goes to
+## Which Channel Work Goes To
 
 **Beta, unless the owner has said otherwise.** The release channel is settled
 and is not published to without them asking for it.
@@ -70,7 +70,7 @@ the notes and the line to add when it refuses.
 
 The beta channel is not gated. Publish to it freely.
 
-## Versions
+## Version Numbering
 
 `VERSION` holds the version being worked towards, as plain semver: `1.20.1`.
 Nothing else goes in it.
@@ -167,7 +167,7 @@ with `awk -v s=… -v q="'" -v ro=…` over a captured listing. It is the only
 reader of the engine's volume list that decides what gets mounted, and nothing
 else can reach it.
 
-## Finding Out What The App Did
+## Finding Out What the App Did
 
 Everything is logged with `os.Logger` under the running bundle's identifier,
 which `Log.subsystem` is the only definition of. To read it back:
@@ -183,7 +183,7 @@ as `<private>`, which is correct for a drive's name and for a path on someone's
 disk. Anything meant to be legible says `privacy: .public`. A passphrase is
 never logged.
 
-## Every source file says what it is under
+## Every Source File Says What It Is Under
 
 Two lines at the top of each Swift, shell and Python file:
 
@@ -198,7 +198,7 @@ imago, Apache-2.0 for krun-devices, GPL-3.0-or-later for anylinuxfs.
 The grant itself is in README's licence section, in full, because "GPL-3.0-or-
 later" is a shorthand for a sentence somebody has to have written.
 
-## Fixtures are invented, never captured
+## Fixtures Are Invented, Never Captured
 
 Nothing of the owner's goes in this repository: no account name, no path from
 their machine, no identifier of a disk they own, no recovery key that a drive
@@ -240,7 +240,7 @@ afternoon and re-cut any release whose source archive carries it. Search for
 fragments as well as whole values: a key survives as its undashed form, and as
 the six digits somebody quoted in an assertion.
 
-## Checking notarisation
+## Checking Notarisation
 
 `xcrun` resolves through whatever `xcode-select` points at. Pointed at the
 Command Line Tools, it finds a copy of `notarytool` that cannot read every kind
@@ -320,7 +320,7 @@ scenes are hosted in an off-screen `NSWindow` instead.
 `.accessibility3` came out byte-identical to `.large`, so the second axis is
 window size.
 
-## A Closure Handed To An Objective-C API
+## A Closure Handed to an Objective-C API
 
 Under Swift 6 a closure written inside `@MainActor` code **is** main-actor
 isolated, and an Objective-C API that calls it on its own queue traps:
@@ -347,7 +347,7 @@ old helper resident**, answering with whatever methods it was built with. A
 hand-installed build then appears to have a broken probe. Sparkle updates do not
 need this; hand-installed ones do.
 
-## End-To-End
+## End-to-End
 
 `./scripts/e2e.sh` drives a whole flow through the built app with no window and
 no person: open a container file, unlock it, rebuild the list underneath it,
@@ -474,7 +474,7 @@ recur when a model edits it:
 - A replacement spanning a line break drops the words on the far side of it.
   Match the whole line.
 
-## Versions
+## When to Bump
 
 `VERSION` is bumped as work lands, not at release time: `patch` for a fix,
 `minor` for a feature. Run `./scripts/bump-version.sh minor` once the work is
@@ -495,7 +495,7 @@ release body by `scripts/release.sh`. The draft is a starting point: rewrite it
 for the person reading it, then again to take out what they gain nothing from.
 The release prints the result and asks somebody to read it before it builds.
 
-## What The Runs Are For
+## What the Runs Are For
 
 Three, and they answer different questions.
 
@@ -517,7 +517,7 @@ updates through Sparkle against a feed served from this Mac: a full archive, a
 delta, one offered while a drive is open, and a build that cannot start being
 put back.
 
-## What Is Not A Bug
+## What Is Not a Bug
 
 Properties of the design. Each has been decided, and arriving at one and
 "fixing" it undoes a decision rather than a mistake.
@@ -546,7 +546,7 @@ Properties of the design. Each has been decided, and arriving at one and
   run asserts both halves so that a change underneath is noticed. SPECS.md §5
   has the reasoning.
 
-## What Has Never Run Against A Real Disk
+## What Has Never Run Against a Real Disk
 
 - **The plain-NTFS path.** The first-sector probe recognises three formats and
   there is no unencrypted NTFS drive to hand, so the note saying a drive is not

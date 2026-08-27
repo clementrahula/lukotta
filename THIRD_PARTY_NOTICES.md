@@ -183,7 +183,7 @@ packages required to unlock and mount the supported filesystems. It contains
 no ZFS components: neither the `zfs` and `zfs-libs` packages nor the `zfs.ko`
 and `spl.ko` kernel modules are distributed with Lukotta.
 
-## Notes
+## Notes on the Listings
 
 - Licence identifiers are reproduced verbatim from each package's own
   metadata. Packages under more than one licence retain the full expression
