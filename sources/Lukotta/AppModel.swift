@@ -2943,25 +2943,55 @@ final class AppModel: ObservableObject {
 
     /// Remove the private workspace. Called when the app quits so nothing of
     /// this session is left behind.
-    func cleanUp() {
-        // What was attached is put back. A container file opened during a
-        // session used to stay attached after the app had gone, and turned up
-        // in the list next time as a disk with no name and no explanation --
-        // attaching being this app's business and nobody else's.
-        let leaving = ImageList.detachingOnQuit(
-            opened: openedImages, mountedDevices: Array(openMounts.keys))
-        if !leaving.isEmpty {
-            Log.drives.notice("detaching \(leaving.count, privacy: .public) container files")
-            for identifier in leaving {
+    /// The part of leaving that takes time, off the main thread.
+    ///
+    /// Detaching a container file shells out to hdiutil, and the sweep reads
+    /// the mount table and walks the workspaces. Run where it used to be -- on
+    /// the main actor, inside applicationWillTerminate -- that is two or three
+    /// seconds during which the app cannot draw or answer, which is a spinning
+    /// cursor and no way to say what is happening. Nothing here touches this
+    /// object; it is handed what it needs.
+    nonisolated static func finishLeaving(detaching: [String], files: [String: String]) {
+        if !detaching.isEmpty {
+            Log.drives.notice("detaching \(detaching.count, privacy: .public) container files")
+            for identifier in detaching {
                 DiskImage.detach("/dev/" + identifier)
-                if let file = openedImages[identifier] { DiskImage.OpenedFiles.remove(file.path) }
+                if let path = files[identifier] { DiskImage.OpenedFiles.remove(path) }
             }
         }
-        tidyUpAfterMounting()
         EngineConfig.removeGeneratedAction()
-        // On the way out, and synchronously: after this the process is gone and
-        // nothing else will do it. Everything in use fails the sweep's own
-        // rules, so a drive somebody chose to leave open is untouched.
         Housekeeping.sweep()
     }
+
+    /// What finishLeaving needs, read here because it is this model's state.
+    func whatLeavingNeeds() -> (detaching: [String], files: [String: String]) {
+        let leaving = ImageList.detachingOnQuit(
+            opened: openedImages, mountedDevices: Array(openMounts.keys))
+        var files: [String: String] = [:]
+        for identifier in leaving {
+            if let file = openedImages[identifier] { files[identifier] = file.path }
+        }
+        return (leaving, files)
+    }
+
+    /// The last thing, on the way out.
+    ///
+    /// The slow half of this now runs before the app agrees to terminate, in
+    /// finishLeaving, so the window can still draw while it happens. What is
+    /// left is cheap and stays here because applicationWillTerminate is also
+    /// reached by routes that never asked -- a log-out, a restart -- where
+    /// there is no time to be had anyway.
+    func cleanUp() {
+        tidyUpAfterMounting()
+        // Only where the orderly route did not already do it. Doing it twice is
+        // harmless; not doing it at all leaves a workspace behind.
+        if !hasLeftTidily {
+            let needs = whatLeavingNeeds()
+            AppModel.finishLeaving(detaching: needs.detaching, files: needs.files)
+        }
+    }
+
+    /// Whether finishLeaving has already run for this quit.
+    nonisolated(unsafe) static var leftTidily = false
+    var hasLeftTidily: Bool { AppModel.leftTidily }
 }

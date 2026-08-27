@@ -545,35 +545,56 @@ enum QuitProgress {
         let label = NSTextField(labelWithString: what)
         label.translatesAutoresizingMaskIntoConstraints = false
 
+        // The word first, the spinner under it. Side by side the spinner reads
+        // as an icon belonging to the sentence; below, it is plainly the thing
+        // still happening.
+        label.alignment = .center
+
         let row = NSView()
-        row.addSubview(spinner)
         row.addSubview(label)
+        row.addSubview(spinner)
         NSLayoutConstraint.activate([
-            spinner.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 22),
-            spinner.centerYAnchor.constraint(equalTo: row.centerYAnchor),
-            label.leadingAnchor.constraint(equalTo: spinner.trailingAnchor, constant: 12),
-            label.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -22),
-            label.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+            label.centerXAnchor.constraint(equalTo: row.centerXAnchor),
+            label.topAnchor.constraint(equalTo: row.topAnchor, constant: 20),
+            label.leadingAnchor.constraint(
+                greaterThanOrEqualTo: row.leadingAnchor, constant: 16),
+            label.trailingAnchor.constraint(
+                lessThanOrEqualTo: row.trailingAnchor, constant: -16),
+            spinner.centerXAnchor.constraint(equalTo: row.centerXAnchor),
+            spinner.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 12),
         ])
 
+        let size = NSSize(width: 240, height: 108)
         let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 260, height: 64),
+            contentRect: NSRect(origin: .zero, size: size),
             styleMask: [.titled, .fullSizeContentView], backing: .buffered, defer: false)
         panel.titleVisibility = .hidden
         panel.titlebarAppearsTransparent = true
         panel.isMovableByWindowBackground = true
         panel.contentView = row
-        panel.center()
+
+        // Over the window it belongs to, not wherever the screen's middle
+        // happens to be. NSWindow.center puts a window a third of the way down
+        // the screen with the main display's geometry, which on a second
+        // display or beside an off-centre window lands nowhere in particular.
+        let over = NSApp.windows.first { $0.isVisible && $0 !== panel && $0.canBecomeMain }
+        let frame = over?.frame ?? NSScreen.main?.visibleFrame
+        if let frame {
+            panel.setFrameOrigin(
+                NSPoint(
+                    x: frame.midX - size.width / 2,
+                    y: frame.midY - size.height / 2))
+        } else {
+            panel.center()
+        }
         panel.level = .modalPanel
         panel.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         window = panel
     }
 
-    static func hide() {
-        window?.orderOut(nil)
-        window = nil
-    }
+    // No hide(). Once this is up the app is going, and taking it down before
+    // the process ends only produces a window sitting there saying nothing.
 }
 
 
@@ -638,6 +659,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// asking the same question.
     private var isAskingAboutQuit = false
 
+
+    /// Leave, without holding the main thread while doing it.
+    ///
+    /// Detaching container files and sweeping the workspaces takes a second or
+    /// two of shelling out. Done on the main actor it is a spinning cursor and
+    /// a window that cannot repaint, so the panel saying what is happening
+    /// could never appear. Done here it is off the main thread, the panel
+    /// draws, and AppKit is told when it is finished.
+    @MainActor
+    private func leave(after: (() -> Void)? = nil) -> NSApplication.TerminateReply {
+        guard let model else { return .terminateNow }
+        QuitProgress.show(String(localized: "Quitting\u{2026}"))
+        let needs = model.whatLeavingNeeds()
+        after?()
+        Task.detached(priority: .userInitiated) {
+            AppModel.finishLeaving(detaching: needs.detaching, files: needs.files)
+            AppModel.leftTidily = true
+            await MainActor.run {
+                // The panel is not taken down here. Saying yes is not the end:
+                // AppKit still runs applicationWillTerminate and tears the app
+                // down afterwards, and hiding the panel first leaves a gap
+                // where the window is still on screen saying nothing. It goes
+                // when the process does.
+                NSApp.reply(toApplicationShouldTerminate: true)
+            }
+        }
+        return .terminateLater
+    }
+
     func applicationShouldTerminate(_ app: NSApplication) -> NSApplication.TerminateReply {
         guard !systemIsPoweringOff else { return .terminateNow }
 
@@ -655,10 +705,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // decide and asking only gets in the way. Without the helper they would
         // drop, and then the question is a real one.
         if AppModel.wantsRelaunch, let model, MainActor.assumeIsolated({ model.helper.isReady }) {
-            return .terminateNow
+            return MainActor.assumeIsolated { leave() }
         }
         guard let model, MainActor.assumeIsolated({ model.hasOpenDrive }) else {
-            return .terminateNow
+            return MainActor.assumeIsolated { leave() }
         }
 
         // Asked from the menu bar, by an item that says it ejects. The answer
@@ -666,10 +716,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if MainActor.assumeIsolated({ MenuBarItem.shared.tookTheMenuBarsAnswer() }) {
             MainActor.assumeIsolated {
                 QuitProgress.show(String(localized: "Quitting\u{2026}"))
-                model.ejectAll {
-                    QuitProgress.hide()
-                    NSApp.reply(toApplicationShouldTerminate: true)
-                }
+                model.ejectAll { NSApp.reply(toApplicationShouldTerminate: true) }
             }
             return .terminateLater
         }
@@ -764,7 +811,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             MainActor.assumeIsolated { MenuBarItem.shared.keepOnlyTheMenuBar() }
             return .terminateCancel
         }
-        if survives, answer == .alertFirstButtonReturn { return .terminateNow }
+        if survives, answer == .alertFirstButtonReturn {
+            return MainActor.assumeIsolated { leave() }
+        }
         let eject = answer == ejectButton
         // Turning the quit down turns the relaunch down with it, or the next
         // quit would reopen the app for no reason anyone would remember.
@@ -772,10 +821,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if eject {
             MainActor.assumeIsolated {
                 QuitProgress.show(String(localized: "Quitting\u{2026}"))
-                model.ejectAll {
-                    QuitProgress.hide()
-                    NSApp.reply(toApplicationShouldTerminate: true)
-                }
+                model.ejectAll { NSApp.reply(toApplicationShouldTerminate: true) }
             }
             return .terminateLater
         }
