@@ -659,6 +659,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// asking the same question.
     private var isAskingAboutQuit = false
 
+    /// Whether the app has already agreed to go and is doing the leaving.
+    ///
+    /// isAskingAboutQuit covers the dialogue. This covers what comes after it:
+    /// between returning .terminateLater and NSApp.reply arriving, the app is
+    /// still running and still answering Cmd-Q. Without this a second one
+    /// starts a second finishLeaving beside the first, and the two rewrite the
+    /// engine's config.toml at the same time.
+    private var isLeaving = false
+
 
     /// Leave, without holding the main thread while doing it.
     ///
@@ -670,13 +679,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @MainActor
     private func leave(after: (() -> Void)? = nil) -> NSApplication.TerminateReply {
         guard let model else { return .terminateNow }
+        // Already going. The panel is up and the work is running; say yes to
+        // this attempt too and let the one in flight finish and reply.
+        guard !isLeaving else { return .terminateLater }
+        isLeaving = true
         QuitProgress.show(String(localized: "Quitting\u{2026}"))
         let needs = model.whatLeavingNeeds()
         after?()
         Task.detached(priority: .userInitiated) {
             AppModel.finishLeaving(detaching: needs.detaching, files: needs.files)
-            AppModel.leftTidily = true
             await MainActor.run {
+                // Set here rather than on the detached task. It is read on the
+                // main actor by cleanUp, and a nonisolated(unsafe) var written
+                // from one thread and read on another is a race whether or not
+                // it happens to hold today.
+                AppModel.leftTidily = true
                 // The panel is not taken down here. Saying yes is not the end:
                 // AppKit still runs applicationWillTerminate and tears the app
                 // down afterwards, and hiding the panel first leaves a gap
@@ -820,6 +837,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if !eject { AppModel.wantsRelaunch = false }
         if eject {
             MainActor.assumeIsolated {
+                // Same guard as leave(): a second Cmd-Q while the ejects are
+                // running must not start them again.
+                guard !isLeaving else { return }
+                isLeaving = true
                 QuitProgress.show(String(localized: "Quitting\u{2026}"))
                 model.ejectAll { NSApp.reply(toApplicationShouldTerminate: true) }
             }

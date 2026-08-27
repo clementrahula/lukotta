@@ -20,10 +20,6 @@ final class AppModel: ObservableObject {
     /// Whether `start()` has already run, since two places can call it.
     private var didStart = false
 
-    /// Bumped every time a scan result is applied. A rescan waits for this to
-    /// move rather than for `isScanning`, which is only ever true during the
-    /// opening scan and so was never true when the button asked.
-    @Published private var scansApplied = 0
 
     enum Phase {
         case needsPermission
@@ -1069,7 +1065,6 @@ final class AppModel: ObservableObject {
         refreshCapacity(mounts: Set(sighting.mounts.map(\.devicePath)).count)
         refreshSpace()
         return listed
-            scansApplied &+= 1
     }
 
     /// One look at the machine: what is attached, what is mounted, and which
@@ -1587,14 +1582,14 @@ final class AppModel: ObservableObject {
         // that returned immediately without looking at a single disk. The
         // spinner and the "No new drives found." underneath it were reporting
         // on a scan that never ran.
-        let seen = scansApplied
+        let seen = scanGeneration
         refreshDrives()
 
         Task { @MainActor in
             let began = ContinuousClock.now
             // Wait for a scan result to land, and give up rather than spin for
             // ever if one never does.
-            while scansApplied == seen, ContinuousClock.now - began < .seconds(10) {
+            while scanGeneration == seen, ContinuousClock.now - began < .seconds(10) {
                 try? await Task.sleep(for: .milliseconds(60))
             }
             let spent = ContinuousClock.now - began
@@ -3007,6 +3002,10 @@ final class AppModel: ObservableObject {
     }
 
     /// Whether finishLeaving has already run for this quit.
-    nonisolated(unsafe) static var leftTidily = false
+    ///
+    /// On the main actor, not nonisolated(unsafe): it is written at the end of
+    /// the orderly quit and read by cleanUp, and letting the compiler enforce
+    /// where it may be touched is cheaper than being right about it by hand.
+    @MainActor static var leftTidily = false
     var hasLeftTidily: Bool { AppModel.leftTidily }
 }

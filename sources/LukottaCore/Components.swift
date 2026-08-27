@@ -68,7 +68,14 @@ public enum Components {
     /// is what makes an engine log answerable a year later: the same log line
     /// means different things either side of a change to the script that
     /// produced it.
-    public static let mountScriptVersion = "1"
+    /// Bumped when the generated script changes in a way a reader of a log
+    /// would need to tell apart. It sat at "1" through three different scripts,
+    /// which made it useless for the one thing it is for: reading a log back
+    /// later and knowing which script produced it.
+    ///
+    /// 2: NTFS tries ntfs3 first and falls back to ntfs-3g with big_writes,
+    ///    and driver options and read-only share a single --options.
+    public static let mountScriptVersion = "2"
 
     /// The parts recorded by the build, read from the bundle.
     ///
