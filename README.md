@@ -46,9 +46,9 @@ brew install --cask clementrahula/tap/lukotta@beta
 ```
 
 <p align="center">
-  <img src="assets/screenshots/en-light.png" width="380"
+  <img src="assets/screenshots/en-light-readme.png" width="400"
     alt="The drive list in the light appearance: a BitLocker drive, two LUKS disk images and a VirtualBox disk open, and a second BitLocker drive still locked.">
-  <img src="assets/screenshots/en-dark.png" width="380"
+  <img src="assets/screenshots/en-dark-readme.png" width="400"
     alt="The same drive list in the dark appearance.">
 </p>
 

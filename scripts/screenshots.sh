@@ -59,6 +59,14 @@ done
 printf '  %s languages, two appearances, %s pictures in %s\n' \
   "$count" "$(find "$OUT" -name '*.png' | wc -l | tr -d ' ')" "$OUT"
 
+# The window the README shows them in.
+#
+# GitHub strips style attributes, so a README cannot draw the frame the site
+# draws in CSS, cannot round a corner and cannot space two pictures apart. All
+# of that has to be in the file.
+printf 'Drawing the window round the two the README shows\n'
+python3 "$HERE/scripts/readme-shots.py" "$OUT"
+
 # Nothing in a picture but the picture.
 #
 # What AppKit writes is already free of anything personal -- no date, no name,
