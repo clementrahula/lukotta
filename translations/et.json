@@ -191,6 +191,7 @@
     "Moving %@ to the Bin": "%@ teisaldamine kausta Bin",
     "Needed": "Vajalik",
     "No drives found": "Kettaid ei leitud",
+    "No new drives found.": "Uusi kettaid ei leitud.",
     "No reason was reported. The details below may say more.": "Põhjust ei teatatud. Allolevad üksikasjad võivad rohkem öelda.",
     "Not a format %@ can open.": "Pole vorming, mida %@ avada saaks.",
     "Not found in this build.": "Selles versioonis puudub.",

@@ -191,6 +191,7 @@
     "Moving %@ to the Bin": "Flytter %@ til papirkurven",
     "Needed": "Kreves",
     "No drives found": "Ingen enheter funnet",
+    "No new drives found.": "Fant ingen nye disker.",
     "No reason was reported. The details below may say more.": "Ingen årsak ble oppgitt. Detaljene nedenfor sier kanskje mer.",
     "Not a format %@ can open.": "Ikke et format %@ kan åpne.",
     "Not found in this build.": "Finnes ikke i denne versjonen.",

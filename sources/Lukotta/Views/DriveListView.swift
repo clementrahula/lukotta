@@ -58,7 +58,9 @@ struct DriveListView: View {
                 message:
                     "Connect the drive and choose Rescan. If it is already connected, macOS may have it mounted, in which case eject it in Finder first. To open a disk image instead, choose File → Open Disk Image.",
                 actionTitle: "Rescan",
-                action: model.rescan)
+                action: model.rescan,
+                busy: model.isRescanning,
+                result: model.rescanResult)
         } else {
             VStack(alignment: .leading, spacing: 14) {
                 // Nothing more can be opened, and every way of trying is shut
@@ -163,7 +165,8 @@ struct DriveListView: View {
                         .font(.caption).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer()
-                    Button("Rescan", action: model.rescan)
+                    RescanButton(title: "Rescan", busy: model.isRescanning,
+                                 result: model.rescanResult, action: model.rescan)
                 }
             }
         }

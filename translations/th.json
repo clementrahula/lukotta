@@ -183,6 +183,7 @@
     "Moving %@ to the Bin": "กำลังย้าย %@ ไปที่ถังขยะ",
     "Needed": "จำเป็น",
     "No drives found": "ไม่พบไดรฟ์",
+    "No new drives found.": "ไม่พบไดรฟ์ใหม่",
     "No reason was reported. The details below may say more.": "ไม่มีการรายงานสาเหตุ รายละเอียดด้านล่างอาจบอกได้มากกว่านี้",
     "Not a format %@ can open.": "ไม่ใช่รูปแบบที่ %@ เปิดได้",
     "Not found in this build.": "ไม่พบในบิลด์นี้",

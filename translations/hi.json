@@ -191,6 +191,7 @@
     "Moving %@ to the Bin": "%@ को ट्रैश में ले जाया जा रहा है",
     "Needed": "आवश्यक",
     "No drives found": "कोई ड्राइव नहीं मिली",
+    "No new drives found.": "कोई नई ड्राइव नहीं मिली।",
     "No reason was reported. The details below may say more.": "कोई कारण नहीं बताया गया। नीचे दिए विवरण अधिक बता सकते हैं।",
     "Not a format %@ can open.": "यह ऐसा फ़ॉर्मैट नहीं है जिसे %@ खोल सके।",
     "Not found in this build.": "इस बिल्ड में नहीं मिला।",

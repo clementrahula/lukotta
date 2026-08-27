@@ -191,6 +191,7 @@
     "Moving %@ to the Bin": "Po zhvendoset %@ në Bin",
     "Needed": "Nevojitet",
     "No drives found": "Nuk u gjetën disqe",
+    "No new drives found.": "Nuk u gjetën disqe të reja.",
     "No reason was reported. The details below may say more.": "Nuk u raportua asnjë arsye. Detajet më poshtë mund të thonë më shumë.",
     "Not a format %@ can open.": "Nuk është format që %@ mund ta hapë.",
     "Not found in this build.": "Nuk u gjet në këtë ndërtim.",

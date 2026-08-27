@@ -191,6 +191,7 @@
     "Moving %@ to the Bin": "Siirretään %@ roskakoriin",
     "Needed": "Tarvitaan",
     "No drives found": "Asemia ei löytynyt",
+    "No new drives found.": "Uusia levyjä ei löytynyt.",
     "No reason was reported. The details below may say more.": "Syytä ei ilmoitettu. Alla olevat tiedot voivat kertoa enemmän.",
     "Not a format %@ can open.": "Ei ole muoto, jonka %@ voi avata.",
     "Not found in this build.": "Ei mukana tässä versiossa.",

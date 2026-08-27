@@ -191,6 +191,7 @@
     "Moving %@ to the Bin": "Преместване на %@ в Bin",
     "Needed": "Необходимо",
     "No drives found": "Няма намерени дискове",
+    "No new drives found.": "Не са намерени нови дискове.",
     "No reason was reported. The details below may say more.": "Не беше посочена причина. Подробностите по-долу може да кажат повече.",
     "Not a format %@ can open.": "Не е формат, който %@ може да отвори.",
     "Not found in this build.": "Не е налично в тази версия.",

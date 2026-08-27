@@ -223,6 +223,7 @@
     "Moving %@ to the Bin": "يجري نقل %@ إلى المهملات",
     "Needed": "مطلوب",
     "No drives found": "لم يُعثر على محركات أقراص",
+    "No new drives found.": "لم يتم العثور على أقراص جديدة.",
     "No reason was reported. The details below may say more.": "لم يُذكر أي سبب. قد تقول التفاصيل أدناه المزيد.",
     "Not a format %@ can open.": "ليست صيغة يستطيع %@ فتحها.",
     "Not found in this build.": "غير موجود في هذه النسخة.",

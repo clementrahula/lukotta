@@ -191,6 +191,7 @@
     "Moving %@ to the Bin": "A(z) %@ áthelyezése a Kukába",
     "Needed": "Szükséges",
     "No drives found": "Nem található meghajtó",
+    "No new drives found.": "Nem található új meghajtó.",
     "No reason was reported. The details below may say more.": "Nem érkezett indoklás. Az alábbi részletek többet elárulhatnak.",
     "Not a format %@ can open.": "Nem olyan formátum, amit a(z) %@ meg tud nyitni.",
     "Not found in this build.": "Ebben a verzióban nem található.",

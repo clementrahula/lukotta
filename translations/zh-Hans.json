@@ -183,6 +183,7 @@
     "Moving %@ to the Bin": "正在把 %@ 移到“废纸篓”",
     "Needed": "需要",
     "No drives found": "未找到驱动器",
+    "No new drives found.": "未找到新驱动器。",
     "No reason was reported. The details below may say more.": "未报告任何原因。下方的详细信息也许能说明更多。",
     "Not a format %@ can open.": "这不是 %@ 能打开的格式。",
     "Not found in this build.": "在此构建中未找到。",

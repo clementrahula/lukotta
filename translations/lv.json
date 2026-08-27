@@ -199,6 +199,7 @@
     "Moving %@ to the Bin": "Notiek %@ pārvietošana uz “Bin”",
     "Needed": "Nepieciešama",
     "No drives found": "Diski nav atrasti",
+    "No new drives found.": "Jauni diski netika atrasti.",
     "No reason was reported. The details below may say more.": "Iemesls netika norādīts. Tālāk redzamā informācija var pastāstīt vairāk.",
     "Not a format %@ can open.": "Nav formāts, ko %@ varētu atvērt.",
     "Not found in this build.": "Šajā versijā nav iekļauts.",

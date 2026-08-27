@@ -183,6 +183,7 @@
     "Moving %@ to the Bin": "%@을(를) 휴지통으로 옮기는 중",
     "Needed": "필요함",
     "No drives found": "드라이브를 찾지 못했습니다",
+    "No new drives found.": "새로운 드라이브를 찾을 수 없습니다.",
     "No reason was reported. The details below may say more.": "보고된 이유가 없습니다. 아래 세부 정보에 더 많은 단서가 있을 수 있습니다.",
     "Not a format %@ can open.": "%@이(가) 열 수 있는 형식이 아닙니다.",
     "Not found in this build.": "이 빌드에서 찾을 수 없습니다.",

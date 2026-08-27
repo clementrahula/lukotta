@@ -207,6 +207,7 @@
     "Moving %@ to the Bin": "Premikanje %@ v Koš",
     "Needed": "Potrebno",
     "No drives found": "Ni najdenih diskov",
+    "No new drives found.": "Novih diskov ni bilo mogoče najti.",
     "No reason was reported. The details below may say more.": "Razlog ni bil naveden. Spodnje podrobnosti morda povedo več.",
     "Not a format %@ can open.": "Ni zapis, ki bi ga %@ znal odpreti.",
     "Not found in this build.": "V tej različici ni vključeno.",

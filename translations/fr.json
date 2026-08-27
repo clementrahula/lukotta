@@ -191,6 +191,7 @@
     "Moving %@ to the Bin": "Placement de %@ dans la corbeille",
     "Needed": "Requise",
     "No drives found": "Aucun disque trouvé",
+    "No new drives found.": "Aucun nouveau disque trouvé.",
     "No reason was reported. The details below may say more.": "Aucune raison n’a été signalée. Les détails ci-dessous en disent peut-être davantage.",
     "Not a format %@ can open.": "Pas un format que %@ sait ouvrir.",
     "Not found in this build.": "Absent de cette version.",

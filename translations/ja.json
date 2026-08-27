@@ -183,6 +183,7 @@
     "Moving %@ to the Bin": "%@ をゴミ箱に移動中",
     "Needed": "必要",
     "No drives found": "ドライブが見つかりません",
+    "No new drives found.": "新しいドライブは見つかりませんでした。",
     "No reason was reported. The details below may say more.": "理由は報告されませんでした。下の詳細に手がかりがあるかもしれません。",
     "Not a format %@ can open.": "%@ が開ける形式ではありません。",
     "Not found in this build.": "このビルドには見つかりません。",

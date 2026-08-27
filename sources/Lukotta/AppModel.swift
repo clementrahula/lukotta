@@ -200,7 +200,19 @@ final class AppModel: ObservableObject {
     @Published var showOpenDrive = false
 
     /// Survey every disk, including those this app will not open.
+    /// Whether the survey sheet's own Rescan is still running.
+    @Published var isSurveying = false
+
     func surveyDrives() {
+        isSurveying = true
+        Task { @MainActor in
+            let began = ContinuousClock.now
+            while isSurveying == false { break }
+            try? await Task.sleep(for: .milliseconds(60))
+            let spent = ContinuousClock.now - began
+            if spent < Self.rescanFloor { try? await Task.sleep(for: Self.rescanFloor - spent) }
+            isSurveying = false
+        }
         let images = Set(openedImages.keys)
         // What this app has open, so the sheet can offer to eject rather than
         // to open again. Read here, on the main actor, because it is this
@@ -1532,6 +1544,21 @@ final class AppModel: ObservableObject {
         driveSetChanged()
     }
 
+    /// Whether a rescan asked for by hand is still running.
+    ///
+    /// Separate from `isScanning`, which is also true at launch and while the
+    /// app is starting. This one is only ever set by the button, so the button
+    /// can show something happening without the whole window doing it too.
+    @Published var isRescanning = false
+
+    /// What the last rescan found, shown for a few seconds and then dropped.
+    @Published var rescanResult: String?
+
+    /// A scan is quick. Left to run at its own speed the button flickers and
+    /// nothing appears to happen, which reads as a button that does not work,
+    /// so the spinner is held for long enough to be seen.
+    private static let rescanFloor: Duration = .milliseconds(900)
+
     func rescan() {
         choiceGeneration += 1
         ejectProblem = nil
@@ -1539,7 +1566,29 @@ final class AppModel: ObservableObject {
         credential = ""
         credentialProblem = nil
         statusLines = []
+        rescanResult = nil
+
+        let before = drives.count
+        isRescanning = true
         start()
+
+        Task { @MainActor in
+            let began = ContinuousClock.now
+            // Wait for the scan itself, then for the floor, whichever is later.
+            while isScanning { try? await Task.sleep(for: .milliseconds(60)) }
+            let spent = ContinuousClock.now - began
+            if spent < Self.rescanFloor {
+                try? await Task.sleep(for: Self.rescanFloor - spent)
+            }
+            isRescanning = false
+            rescanResult = drives.count == before
+                ? String(localized: "No new drives found.")
+                : nil
+            guard rescanResult != nil else { return }
+            let said = rescanResult
+            try? await Task.sleep(for: .seconds(4))
+            if rescanResult == said { rescanResult = nil }
+        }
     }
 
     /// Selecting a drive keeps whatever was typed for that same drive, so a

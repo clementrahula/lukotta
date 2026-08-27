@@ -191,6 +191,7 @@
     "Moving %@ to the Bin": "Moviendo %@ a la papelera",
     "Needed": "Necesario",
     "No drives found": "No se han encontrado discos",
+    "No new drives found.": "No se han encontrado unidades nuevas.",
     "No reason was reported. The details below may say more.": "No se ha indicado ningún motivo. Los detalles de abajo pueden decir más.",
     "Not a format %@ can open.": "No es un formato que %@ pueda abrir.",
     "Not found in this build.": "No está en esta versión.",

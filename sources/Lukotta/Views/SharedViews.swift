@@ -65,6 +65,15 @@ struct EmptyStateView: View {
     let actionTitle: LocalizedStringKey
     let action: () -> Void
 
+    /// Whether the action is still running, and what it found when it stopped.
+    ///
+    /// A button that does its work in a tenth of a second and says nothing
+    /// reads as a button that does nothing. Both are optional so the other
+    /// empty states, whose actions open a window rather than go away and think,
+    /// are unchanged.
+    var busy: Bool = false
+    var result: String?
+
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: icon).font(.system(size: 40)).foregroundStyle(.secondary)
@@ -76,7 +85,27 @@ struct EmptyStateView: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: 380)
-            Button(actionTitle, action: action).keyboardShortcut(.defaultAction)
+
+            Button(action: action) {
+                if busy {
+                    HStack(spacing: 6) {
+                        ProgressView().controlSize(.small)
+                        Text(actionTitle)
+                    }
+                } else {
+                    Text(actionTitle)
+                }
+            }
+            .keyboardShortcut(.defaultAction)
+            .disabled(busy)
+
+            // Kept in the layout whether or not there is anything to say, so
+            // the button does not jump when the answer arrives.
+            Text(result ?? " ")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(result == nil)
+                .animation(.default, value: result)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -109,5 +138,42 @@ struct NoticeLine: View {
             .help("Dismiss")
         }
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// A button that goes away and looks for something.
+///
+/// A scan finishes in a fraction of a second, so a plain button appears to do
+/// nothing at all: no delay, no change, no answer. This holds a spinner for
+/// long enough to be seen and puts what was found beside it, which is the
+/// difference between a button that works and a button that looks broken.
+struct RescanButton: View {
+    let title: LocalizedStringKey
+    let busy: Bool
+    var result: String?
+    let action: () -> Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            if let result {
+                Text(result)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .transition(.opacity)
+            }
+            Button(action: action) {
+                if busy {
+                    HStack(spacing: 6) {
+                        ProgressView().controlSize(.small)
+                        Text(title)
+                    }
+                } else {
+                    Text(title)
+                }
+            }
+            .disabled(busy)
+        }
+        .animation(.default, value: busy)
+        .animation(.default, value: result)
     }
 }

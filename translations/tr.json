@@ -191,6 +191,7 @@
     "Moving %@ to the Bin": "%@ Çöp Kutusu'na taşınıyor",
     "Needed": "Gerekli",
     "No drives found": "Sürücü bulunamadı",
+    "No new drives found.": "Yeni sürücü bulunamadı.",
     "No reason was reported. The details below may say more.": "Herhangi bir neden bildirilmedi. Aşağıdaki ayrıntılar daha fazlasını söyleyebilir.",
     "Not a format %@ can open.": "%@ uygulamasının açabileceği bir biçim değil.",
     "Not found in this build.": "Bu derlemede bulunamadı.",

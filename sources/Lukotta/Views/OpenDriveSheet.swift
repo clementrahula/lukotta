@@ -103,7 +103,7 @@ struct OpenDriveSheet: View {
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer()
-                Button("Rescan") { model.surveyDrives() }
+                RescanButton(title: "Rescan", busy: model.isSurveying) { model.surveyDrives() }
             }
             .padding(.horizontal, 22).padding(.vertical, 14)
         }
