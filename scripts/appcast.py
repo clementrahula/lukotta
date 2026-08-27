@@ -46,6 +46,13 @@ def main():
     ap.add_argument("--min-system", default="15.0")
     ap.add_argument("--pubdate", required=True, help="RFC 822")
     ap.add_argument("--notes-link", default="", help="URL of the release notes for this version")
+    # One per language that has notes somebody has approved, as
+    # "<lang>=<url>". Sparkle picks by the reader's preferred languages and
+    # falls back to the unqualified link above when none of them match, so a
+    # language nobody has written notes for is simply not named here and gets
+    # the English ones -- which is what every language got before this.
+    ap.add_argument("--notes-link-lang", action="append", default=[],
+                    metavar="LANG=URL")
     ap.add_argument(
         "--delta",
         action="append",
@@ -82,6 +89,21 @@ def main():
     # signed build.
     if args.notes_link:
         ET.SubElement(item, f"{{{SPARKLE}}}releaseNotesLink").text = args.notes_link
+    # The unqualified link stays first and stays the fallback. Sparkle reads
+    # every releaseNotesLink in the item and takes the one whose xml:lang
+    # matches the reader; without a match it takes the one with no xml:lang.
+    seen = set()
+    for pair in args.notes_link_lang:
+        lang, _, url = pair.partition("=")
+        lang, url = lang.strip(), url.strip()
+        if not lang or not url:
+            sys.exit(f"--notes-link-lang wants <lang>=<url>, not {pair!r}")
+        if lang in seen:
+            sys.exit(f"--notes-link-lang names {lang} twice")
+        seen.add(lang)
+        localised = ET.SubElement(item, f"{{{SPARKLE}}}releaseNotesLink")
+        localised.set("xml:lang", lang)
+        localised.text = url
     enclosure = ET.SubElement(item, "enclosure")
     enclosure.set("url", args.url)
     enclosure.set("length", args.length)

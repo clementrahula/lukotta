@@ -356,32 +356,46 @@ NOTES_FILE="$NOTES_DIR/$VERSION.html"
 # This version's own notes, as plain HTML for Sparkle's panel. The same file
 # becomes the body of the GitHub release further down, so the two cannot say
 # different things.
-python3 - "$VERSION" "$NOTES_SOURCE" > "$NOTES_FILE" <<'PYEOF'
-import html, pathlib, re, sys
-version = sys.argv[1]
-source = pathlib.Path(sys.argv[2])
-body = source.read_text().strip() if source.exists() else ""
-items = [re.sub(r"\s+", " ", b).strip() for b in re.split(r"\n(?=- )", body) if b.strip()]
-print("<html><body style=\"font: -apple-system-body; margin: 0\">")
-print(f"<h2>Version {html.escape(version)}</h2>")
-if items:
-    print("<ul>")
-    # Escaped, because these are somebody's sentences, not markup. A note
-    # mentioning <Enter>, "AT&T" or a comparison of two numbers otherwise
-    # produces a panel with half a line missing and a release page to match.
-    for item in items:
-        print(f"  <li>{html.escape(item.lstrip('- '))}</li>")
-    print("</ul>")
-else:
-    print("<p>No notes were written for this version.</p>")
-print("</body></html>")
-PYEOF
+python3 "$HERE/scripts/notes-html.py" "$VERSION" "$NOTES_SOURCE" > "$NOTES_FILE"
 grep -q "<li>" "$NOTES_FILE" || {
   echo "error: $NOTES_SOURCE produced no notes at all, which cannot happen" >&2
   echo "       from a generated file -- it has been edited into something the" >&2
   echo "       reader cannot parse. Every line starts with '- '." >&2
   exit 1
 }
+
+# The same notes in every language somebody has approved them in.
+#
+# releases/notes/<version>/<lang>.md, one bullet a line, exactly like the
+# English source beside it. Sparkle reads every releaseNotesLink in an item,
+# takes the one whose xml:lang matches the reader, and falls back to the
+# unqualified one when none match -- so a language nobody has written notes
+# for is simply absent and gets the English ones, which is what every language
+# got before this existed.
+#
+# The release channel only. A pre-release goes out often and to few people,
+# and translating its notes every time is work out of proportion to that.
+# Betas stay in English by decision rather than by omission.
+NOTES_LANG_ARGS=()
+NOTES_TRANSLATED="$HERE/releases/notes/$VERSION"
+if [ "${LUKOTTA_CHANNEL:-release}" = "release" ] && [ -d "$NOTES_TRANSLATED" ]; then
+  printf '==> Release notes in other languages\n'
+  for translated in "$NOTES_TRANSLATED"/*.md; do
+    [ -f "$translated" ] || continue
+    lang="$(basename "$translated" .md)"
+    # The word above the list comes from a "<!-- heading: … -->" line in the
+    # notes themselves, so each translation carries its own.
+    python3 "$HERE/scripts/notes-html.py" "$VERSION" "$translated" \
+      > "$NOTES_DIR/$VERSION.$lang.html"
+    grep -q "<li>" "$NOTES_DIR/$VERSION.$lang.html" || {
+      echo "error: releases/notes/$VERSION/$lang.md produced no notes." >&2
+      echo "       Every line starts with '- ', as the English source does." >&2
+      exit 1
+    }
+    NOTES_LANG_ARGS+=(--notes-link-lang "$lang=$NOTES_BASE/notes/$VERSION.$lang.html")
+    printf '    %s\n' "$VERSION.$lang.html"
+  done
+fi
 
 printf '==> Updates from earlier versions\n'
 # Sparkle can send somebody on an earlier build only what changed, which for
@@ -547,6 +561,7 @@ python3 "$HERE/scripts/appcast.py" \
   --signature "$SIGNATURE" \
   --min-system "$(/usr/libexec/PlistBuddy -c 'Print LSMinimumSystemVersion' "$APP/Contents/Info.plist")" \
   --notes-link "$NOTES_BASE/notes/$VERSION.html" \
+  ${NOTES_LANG_ARGS[@]+"${NOTES_LANG_ARGS[@]}"} \
   --pubdate "$(LC_ALL=C date -u '+%a, %d %b %Y %H:%M:%S +0000')" \
   ${DELTA_ARGS[@]+"${DELTA_ARGS[@]}"}
 
