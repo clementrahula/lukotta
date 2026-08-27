@@ -2306,6 +2306,26 @@ group("aDaemonThatIsNotThisBuildsNeverServesAMount") {
     expect(
         beforeInstall.hasSuffix("if case .notInstalled = helper.state {\n            "),
         "and that place is the first mount, where somebody has asked for a drive")
+
+    // And when it does ask, it asks for the route that cannot go stale.
+    // SMJobBless puts the daemon in /Library, where an application update
+    // cannot reach it; SMAppService runs it out of the bundle, so replacing the
+    // bundle replaces the daemon. The released application has used the second
+    // across four updates without a password; the beta used the first and
+    // stranded a daemon that could neither serve a mount nor be replaced.
+    let registerAt = client.range(of: "try self.service.register()")
+    let blessAt = client.range(of: "HelperClient.blessWithAuthorisation()", options: .backwards)
+    expect(registerAt != nil && blessAt != nil, "both routes are still there")
+    if let r = registerAt, let b = blessAt {
+        expect(
+            r.lowerBound < b.lowerBound,
+            "registering is tried first; the password is the fallback")
+    }
+    expect(
+        client.contains(
+            "FileManager.default.fileExists(atPath: HelperInfo.installedJobPath)\n                ? false : HelperClient.blessWithAuthorisation()"
+        ),
+        "a daemon already installed the old way is never blessed a second time")
 }
 
 group("aReadOnlyMountAsksForItInOneFlag") {

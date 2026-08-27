@@ -432,8 +432,23 @@ final class HelperClient: ObservableObject {
     /// Settings and turns it on. That is a second step, in another application,
     /// for something they have already agreed to.
     ///
-    /// So the first is tried and the second is the fallback, which is also what
-    /// happens if a future macOS finally removes the older one.
+    /// The newer one is tried first, and the reason is not tidiness. `SMJobBless`
+    /// copies the daemon into /Library/PrivilegedHelperTools, where only root
+    /// may write -- so an application update replaces the binary in the bundle
+    /// and cannot touch the one that is actually running. It stays behind. When
+    /// it is running it can be asked to replace itself, root to root, and that
+    /// works; when its job has been torn down it can be asked nothing at all,
+    /// and there is no way back that does not go through another password.
+    ///
+    /// `SMAppService` runs the daemon out of the bundle. An update replaces the
+    /// bundle, so it replaces the daemon: there is no second copy to fall behind
+    /// and nothing to keep in step. It can also be registered again by the
+    /// application alone, so a job that has gone away is something the
+    /// application can put back by itself.
+    ///
+    /// This is not a guess. On this machine the released application has used
+    /// the newer route across four updates without a password or a stale daemon,
+    /// and the beta used the older one and produced exactly the failure above.
     func install() {
         guard state != .installing else { return }
         hasConfirmed = true
@@ -441,24 +456,28 @@ final class HelperClient: ObservableObject {
         Task.detached(priority: .userInitiated) { [weak self] in
             // The password panel is put up by the system on this thread, so it
             // is not the one drawing the interface.
-            let blessed = HelperClient.blessWithAuthorisation()
+            let registered = await MainActor.run { [weak self] () -> Bool in
+                guard let self else { return false }
+                do {
+                    try self.service.register()
+                    Log.app.notice("the helper was registered; it runs from the bundle")
+                    return true
+                } catch {
+                    Log.app.error("the helper could not be registered: \(error)")
+                    return false
+                }
+            }
+            // Only where the newer route is not available. A daemon already
+            // installed the older way is left where it is rather than blessed
+            // again: registering put the bundle's own beside it, both claiming
+            // the same mach service, and that one is current by construction.
+            let blessed =
+                registered || FileManager.default.fileExists(atPath: HelperInfo.installedJobPath)
+                ? false : HelperClient.blessWithAuthorisation()
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 if blessed {
                     Log.app.notice("the helper was installed with an administrator password")
-                } else if FileManager.default.fileExists(atPath: HelperInfo.installedJobPath) {
-                    // One is already installed the other way. Registering now
-                    // would put a second daemon beside it, both claiming the
-                    // same mach service, and which one answered would be
-                    // whichever launchd reached first.
-                    Log.app.notice("a daemon is already installed; not registering a second")
-                } else {
-                    // The other route needs no password. It leaves the daemon
-                    // switched off until somebody turns it on in Settings, and
-                    // that is what the screen then says.
-                    do { try self.service.register() } catch {
-                        Log.app.error("the helper could not be registered: \(error)")
-                    }
                 }
                 self.confirmItIsReallyThere()
             }
