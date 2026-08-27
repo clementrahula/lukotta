@@ -256,6 +256,21 @@ if [ -n "$SPARKLE" ]; then
   printf 'Embedded Sparkle\n'
 fi
 
+# Sparkle in the languages it does not ship.
+#
+# It carries 35 localisations; this application has 37. macOS resolves a
+# localisation per bundle, so the framework falling back to English is not
+# something the app's own tables can answer for -- a reader with the whole
+# interface in Estonian was still asked about updates in English.
+#
+# This has to write inside the framework, which is only safe because the
+# re-signing below runs after it.
+if [ -d "$CONTENTS/Frameworks/Sparkle.framework" ] && [ -d "$HERE/translations/sparkle" ]; then
+  /usr/bin/python3 "$HERE/scripts/sparkle-strings.py" \
+    "$CONTENTS/Frameworks/Sparkle.framework" "$HERE/translations/sparkle" || {
+      echo "error: Sparkle's own strings would not build" >&2; exit 1; }
+fi
+
 # The Sparkle public key is generated once with scripts/sparkle-keys.sh and set
 # in the environment (or a local file). Without it the app still builds and
 # runs; it simply cannot verify an update, so it must not pretend it can.
