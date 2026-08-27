@@ -116,7 +116,6 @@ esac
 SLUG="$(printf '%s' "$APP_NAME" | tr ' ' '-')"
 
 APP="$HERE/dist/$APP_NAME.app"
-ZIP="$HERE/dist/$SLUG-$VERSION.zip"
 # The disk image carries no version in its name, and that is deliberate: it is
 # what makes
 #
@@ -169,6 +168,13 @@ PY_BETA
   VERSION="$VERSION-beta.$NEXT_BETA"
   TAG="v$VERSION"
 fi
+# After the beta suffix, not before. Set with the other paths further up it was
+# named from the version being worked towards rather than the one being built,
+# so every beta of 1.21.0 was published as Lukotta-Beta-1.21.0.zip -- the same
+# filename for beta.1 and beta.2, told apart only by the tag in the URL. The
+# comment above claims the archive keeps its version so two of them cannot
+# collide; for a pre-release it did not.
+ZIP="$HERE/dist/$SLUG-$VERSION.zip"
 NOTES_BASE="${LUKOTTA_NOTES_BASE:-$NOTES_BASE_DEFAULT}"
 BASE_URL="${LUKOTTA_DOWNLOAD_BASE:-https://github.com/$REPO/releases/download/$TAG}"
 
