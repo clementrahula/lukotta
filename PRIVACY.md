@@ -1,10 +1,10 @@
 # Privacy Policy
 
-Applies to: Lukotta 1.x
-Website: lukotta.com
+Applies to: Lukotta 1.x\
+Website: lukotta.com\
 Effective: 21 August 2026
 
-Lukotta is written and published by Clement Rahula, an individual residing in
+Lukotta is authored and published by Clement Rahula, an individual residing in
 the Republic of Estonia (the "Developer").
 
 For privacy questions or requests, contact **legal@lukotta.com**.
