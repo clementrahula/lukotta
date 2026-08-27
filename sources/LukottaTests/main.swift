@@ -454,8 +454,16 @@ group("theElevatedMountScript") {
     // form consumes the device path and the engine reports "mount with no disk".
     expect(!msScript.contains("-n '"), "NFS options must never use the separated form")
     expect(
-        msScript.contains("--nfs-options='rsize=1048576,wsize=1048576,readahead=128'"),
+        msScript.contains(
+            "--nfs-options='rsize=1048576,wsize=1048576,readahead=128,timeo=600,retrans=5'"),
         "NFS options use the joined form")
+
+    // The engine merges its own defaults over ours by option name, so these two
+    // are how a slow drive is given time. At the engine's timeo=100 a mount of
+    // the same export failed 174 writes with "Operation timed out" under a
+    // starved backing store; at timeo=600 it failed none.
+    expect(msScript.contains("timeo=600"), "a slow drive gets sixty seconds, not ten")
+    expect(msScript.contains("retrans=5"), "and five tries, not three")
     expect(
         msScript.contains("'/dev/disk4s1' >>"),
         "the device is a positional argument, not swallowed by a preceding flag")

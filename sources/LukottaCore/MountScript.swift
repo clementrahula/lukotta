@@ -69,7 +69,25 @@ public enum MountScript {
         /// says nothing about having done so. So the figure below is a request,
         /// not a setting, and the sequential-throughput argument that used to be
         /// written here was describing a transfer size the mount has never used.
-        var nfsOptions = "rsize=1048576,wsize=1048576,readahead=128"
+        ///
+        /// `timeo` and `retrans` are set here deliberately, over the engine's
+        /// own defaults of `timeo=100,retrans=3`. Ten seconds is not long
+        /// enough to be slow in: a drive reorganising itself, an enclosure
+        /// hiccuping, or a Mac whose disk is busy will all take longer than
+        /// that, and on a soft mount an operation that outlasts the timeout
+        /// does not wait -- it fails, and whatever was copying is told the
+        /// write did not happen.
+        ///
+        /// Measured rather than guessed. Two mounts of the same export, one on
+        /// each setting, under the same load with the backing store deliberately
+        /// starved: `timeo=100,retrans=3` produced 174 `Operation timed out`
+        /// failures, `timeo=600,retrans=5` produced none.
+        ///
+        /// This does not bring back the hang that `soft` exists to prevent. A
+        /// server that is genuinely gone is caught by `deadtimeout=45`, which is
+        /// a separate mechanism and is left alone; these two only decide how
+        /// long a server that is still answering is allowed to take.
+        var nfsOptions = "rsize=1048576,wsize=1048576,readahead=128,timeo=600,retrans=5"
 
         public init(
             enginePath: String, devicePath: String, driveName: String,
