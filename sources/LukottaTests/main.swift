@@ -2328,6 +2328,49 @@ group("aDaemonThatIsNotThisBuildsNeverServesAMount") {
         "a daemon already installed the old way is never blessed a second time")
 }
 
+group("aMountPointLeftWithFilesInItIsReported") {
+    // The defect this exists for, reproduced twice on real mounts: the guest
+    // stops answering for longer than deadtimeout=45, macOS drops the mount,
+    // and the directory it was mounted on stays behind as an ordinary
+    // directory on the startup disk. A copy still running writes into it and
+    // succeeds. 115 of 150 files landed there, byte-correct and on the wrong
+    // disk, with Finder reporting the copy finished.
+    //
+    // Empty leftovers are litter and are removed. These are not: removing one
+    // would destroy the only copy of what is in it. They are reported instead.
+    let base = URL(
+        fileURLWithPath: NSTemporaryDirectory(), isDirectory: true
+    ).appendingPathComponent("stranded-\(UInt32.random(in: 0..<999999))", isDirectory: true)
+    let volumes = base.appendingPathComponent("Volumes", isDirectory: true)
+    let empty = volumes.appendingPathComponent("EMPTY", isDirectory: true)
+    let full = volumes.appendingPathComponent("FULL", isDirectory: true)
+    let mountedOn = volumes.appendingPathComponent("LIVE", isDirectory: true)
+    for d in [empty, full, mountedOn] {
+        try? FileManager.default.createDirectory(at: d, withIntermediateDirectories: true)
+    }
+    defer { try? FileManager.default.removeItem(at: base) }
+    FileManager.default.createFile(atPath: full.appendingPathComponent("a").path, contents: Data())
+    FileManager.default.createFile(atPath: full.appendingPathComponent("b").path, contents: Data())
+    // A live mount must never be reported, however full it is.
+    FileManager.default.createFile(
+        atPath: mountedOn.appendingPathComponent("c").path, contents: Data())
+    let table = "server:/export on \(mountedOn.path) (nfs, nodev, nosuid, mounted by someone)\n"
+
+    let stranded = Housekeeping.strandedMountPoints(in: table, home: base)
+    expect(stranded.count == 1, "only the unmounted one holding files is reported")
+    expect(stranded.first?.path == full.path, "and it is the right one")
+    expect(stranded.first?.files == 2, "with how much is in it")
+
+    let removed = Housekeeping.removeEmptyMountPoints(in: table, home: base)
+    expect(removed == 1, "the empty one is swept")
+    expect(
+        FileManager.default.fileExists(atPath: full.path),
+        "the one with files in it is never removed -- that would be the only copy")
+    expect(
+        FileManager.default.fileExists(atPath: mountedOn.path),
+        "and a live mount is left alone")
+}
+
 group("theMountIsSoftAndTheCodeSaysSo") {
     // The engine merges its own NFS defaults over whatever the application
     // passes, and on macOS those include "soft", timeo=100 and retrans=3. So

@@ -63,6 +63,13 @@ public enum Housekeeping {
         EngineProcesses.deadMountsCleared(in: mountTable)
         result.workspaces = removeFinishedWorkspaces(now: now)
         result.mountPoints = removeEmptyMountPoints(in: mountTable)
+        // Said loudly and separately. An empty one is litter; one with files in
+        // it is somebody's data sitting on the wrong disk.
+        for stranded in strandedMountPoints(in: mountTable) {
+            Log.app.error(
+                "\(stranded.files, privacy: .public) files are in \(stranded.path, privacy: .public), which is not a mounted drive: the mount went away and they were written to the startup disk"
+            )
+        }
         result.engineLogs = EngineLogs.removeOld(now: now)
         // Mount points this app made that are not mounted any more: ejected in
         // Finder, or gone with a restart.
@@ -129,6 +136,48 @@ public enum Housekeeping {
             if rmdir(point.path) == 0 { removed += 1 }
         }
         return removed
+    }
+
+    /// Mount points this app made that nothing is mounted on **and that are not
+    /// empty**, with how many files each holds.
+    ///
+    /// These are the dangerous ones, and they are why the sweep above only ever
+    /// removes empty directories.
+    ///
+    /// When a mount goes away underneath a copy -- the guest stops answering
+    /// for longer than the engine's `deadtimeout=45`, so macOS drops the mount
+    /// -- the directory it was mounted on stays behind as an ordinary directory
+    /// on the startup disk. A copy still running writes straight into it, and
+    /// succeeds, because there is nothing wrong with writing to a directory.
+    /// Finder shows a completed copy. The files are on the Mac. They are not on
+    /// the drive, and nothing anywhere says so.
+    ///
+    /// Reproduced twice while this was written: of 150 files copied across a
+    /// seventy-second outage, the ones attempted during it failed honestly, the
+    /// ones before it vanished with the mount, and 115 landed on the startup
+    /// disk byte-for-byte correct and entirely in the wrong place.
+    ///
+    /// So they are not swept -- removing them would destroy the only copy of
+    /// whatever is in them -- and they are not ignored either. They are
+    /// reported, so somebody can be told where their files actually went.
+    public static func strandedMountPoints(in mountTable: String, home: URL? = nil) -> [(
+        path: String, files: Int
+    )] {
+        let base = (home ?? FileManager.default.homeDirectoryForCurrentUser)
+            .appendingPathComponent("Volumes", isDirectory: true)
+        let manager = FileManager.default
+        guard let entries = try? manager.contentsOfDirectory(atPath: base.path) else { return [] }
+        let mounted = Set(MountTableEntry.all(in: mountTable).map(\.mountPoint))
+        var stranded: [(path: String, files: Int)] = []
+        for name in entries.sorted() {
+            let point = base.appendingPathComponent(name, isDirectory: true)
+            guard !mounted.contains(point.path) else { continue }
+            guard let inside = try? manager.contentsOfDirectory(atPath: point.path),
+                !inside.isEmpty
+            else { continue }
+            stranded.append((path: point.path, files: inside.count))
+        }
+        return stranded
     }
 
     // MARK: The engine's own logs
