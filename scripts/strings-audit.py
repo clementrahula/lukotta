@@ -89,7 +89,7 @@ def sheet(lang, english, drafts, drafted):
     out = [f"# {lang} — Sparkle's update interface", "",
            f"{len(drafts)} of {len(english)} strings. Any not here fall back "
            f"to English one string at a time.", "",
-           "`%@`, `%1$@`, `%2$@`, `%3$@` are substituted at runtime with the "
+           "A `⏎` in a string is a line break: keep it exactly where it is, and write it back the same way. `%@`, `%1$@`, `%2$@`, `%3$@` are substituted at runtime with the "
            "application's name, a version number or a size. They must survive "
            "translation. Their **order may change** to suit the language — "
            "that is what the numbered forms are for — but none may be dropped "
@@ -97,12 +97,16 @@ def sheet(lang, english, drafts, drafted):
     for i, key in enumerate(sorted(drafts), 1):
         note = where(english[key])
         source = "drafted here" if key in drafted else "Sparkle's own"
+        # A raw newline inside a Markdown list item breaks the item, and the
+        # finding that comes back then quotes only the first line. Shown as a
+        # visible marker instead, and the same marker is expected back.
+        show = lambda t: t.replace("\n", " ⏎ ")
         out += [f"### {i} — {source}",
                 "",
-                f"- **English:** {english[key]}"]
+                f"- **English:** {show(english[key])}"]
         if note:
             out.append(f"- **Where:** {note}")
-        out += [f"- **{lang}:** {drafts[key]}", ""]
+        out += [f"- **{lang}:** {show(drafts[key])}", ""]
     return "\n".join(out) + "\n"
 
 
