@@ -59,8 +59,16 @@ public enum MountScript {
         /// dirty also mounts this way where read-write is refused.
         var readOnly = false
 
-        /// macOS negotiates 32 KiB NFS transfers by default and supports 1 MiB,
-        /// which matters for sequential throughput over this loopback mount.
+        /// Asked for at 1 MiB. **Granted at 128 KiB**, which is worth knowing
+        /// before anybody tunes this again.
+        ///
+        /// Read off a live mount with `nfsstat -m`: the "original mount
+        /// options" repeat what was asked for, and the "current mount
+        /// parameters" -- what is actually in force -- say
+        /// `rsize=131072,wsize=131072`. macOS caps it there for this mount and
+        /// says nothing about having done so. So the figure below is a request,
+        /// not a setting, and the sequential-throughput argument that used to be
+        /// written here was describing a transfer size the mount has never used.
         var nfsOptions = "rsize=1048576,wsize=1048576,readahead=128"
 
         public init(
