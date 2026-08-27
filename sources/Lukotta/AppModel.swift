@@ -970,7 +970,17 @@ final class AppModel: ObservableObject {
             // mount must be cleared before macOS begins asking about a server
             // that will not answer, or it is running and slow, and a running one
             // is left alone.
-            let live = EngineStatus.current().map(\.mountPoint)
+            // Only on an answer. If the engine cannot be asked -- and after a
+            // wake, with the disk busy, that is exactly when it cannot -- then
+            // every mount looks dead, and what follows unmounts them and drops
+            // them from the interface. A question that went unanswered must not
+            // be the reason somebody's drive is closed under them.
+            guard let answered = EngineStatus.currentIfAnswered() else {
+                Log.sleep.error("the engine could not be asked; leaving every mount alone")
+                await MainActor.run { self.refreshSpace() }
+                return
+            }
+            let live = answered.map(\.mountPoint)
             let dead = points.filter { point in
                 !live.contains(point) && !live.contains { point.hasPrefix($0 + "/") }
             }

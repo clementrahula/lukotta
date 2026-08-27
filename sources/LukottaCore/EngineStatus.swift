@@ -17,14 +17,45 @@ public struct EngineMount: Equatable, Sendable {
 /// What the engine itself reports, rather than what we can infer by parsing
 /// `mount` output. Runs unprivileged, so the app can check state at any time.
 public enum EngineStatus {
-    public static func current() -> [EngineMount] {
+
+    /// What the engine says is mounted, or **nothing at all** when it could not
+    /// be asked.
+    ///
+    /// The difference is the whole point. An engine that answers "no mounts"
+    /// and an engine that cannot be reached produce the same empty list, and
+    /// they mean opposite things: the first says a mount is finished with, the
+    /// second says we do not know. `stale()` acts on that answer by unmounting,
+    /// so treating the second as the first destroys a mount that is perfectly
+    /// alive -- and with it whatever was being copied through it.
+    ///
+    /// Reproduced: under heavy disk load the engine's own `status` call fails
+    /// to return, every live mount is read as abandoned, and the application
+    /// force-unmounts the drive somebody is copying to and tells the microVM to
+    /// quit. The engine log shows it plainly -- "Share was unmounted",
+    /// "Received command: 'Quit'" -- and the copy ends there.
+    ///
+    /// So the two are kept apart here, and nothing destructive runs on a
+    /// question that was never answered.
+    public static func currentIfAnswered() -> [EngineMount]? {
         guard let engine = EnginePaths.anylinuxfs,
-            FileManager.default.fileExists(atPath: engine.path),
-            let result = LukottaCore.run(
-                engine.path, ["status"],
-                environment: EngineEnvironment.environmentForEngine())
-        else { return [] }
-        return parse(result.out)
+            FileManager.default.fileExists(atPath: engine.path)
+        else { return nil }
+        switch LukottaCore.ask(
+            engine.path, ["status"],
+            environment: EngineEnvironment.environmentForEngine())
+        {
+        case .finished(let output): return parse(output.out)
+        // Ran, said nothing: an engine with nothing mounted says nothing.
+        case .silent: return []
+        case .couldNotAsk: return nil
+        }
+    }
+
+    /// The same, for callers that only read it. An unanswered question and an
+    /// empty answer are both "nothing to show", which is harmless where nothing
+    /// is torn down as a result.
+    public static func current() -> [EngineMount] {
+        currentIfAnswered() ?? []
     }
 
     /// "/dev/disk4s1 on /Volumes/BACKUP (ntfs3, ...) VM[cpus: 4, ram: 2048 MiB]"
@@ -54,7 +85,11 @@ public enum EngineStatus {
     /// That dialog belongs to the system and cannot be suppressed; the dead
     /// mount behind it can be removed, which is the part we can do.
     public static func stale() -> [String] {
-        let live = current().map(\.mountPoint)
+        // Nothing is cleared on a question the engine never answered. Silence
+        // is not "no mounts"; it is no information, and the action taken on the
+        // answer is irreversible.
+        guard let answered = currentIfAnswered() else { return [] }
+        let live = answered.map(\.mountPoint)
         // A multi-volume mount nests per-volume mounts inside the primary, and
         // the engine reports only the primary: anything under a live mount is
         // alive too, not abandoned. What is genuinely stale is cleared deepest

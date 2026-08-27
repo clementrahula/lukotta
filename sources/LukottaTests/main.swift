@@ -2328,6 +2328,123 @@ group("aDaemonThatIsNotThisBuildsNeverServesAMount") {
         "a daemon already installed the old way is never blessed a second time")
 }
 
+group("anUnansweredEngineNeverClearsAMount") {
+    // The fault that ended a copy. Under heavy disk load the engine's own
+    // `status` call does not return. `current()` reported that as an empty
+    // list -- the same thing it reports when the engine answers and nothing is
+    // mounted -- so `stale()` read every live mount as abandoned and the
+    // application force-unmounted the drive being copied to and told the
+    // microVM to quit. Straight out of the engine log:
+    //
+    //     macOS: Share /Users/someone/Volumes/FEDORAROOT was unmounted
+    //     Linux: Received command: 'Quit'
+    //     macOS: Removing mount point /Users/someone/Volumes/FEDORAROOT
+    //
+    // "Could not ask" and "asked, and the answer was none" are opposite facts.
+    // Only the second may unmount anything.
+    let engineSays = """
+        lvm:fedoravg:disk5s1:root on /Users/someone/Volumes/FEDORAROOT (btrfs) VM[cpus: 2]
+        """
+    let table = """
+        lvm-fedoravg.local:/mnt/FEDORAROOT on /Users/someone/Volumes/FEDORAROOT (nfs, mounted by someone)
+        other.local:/mnt/GONE on /Users/someone/Volumes/GONE (nfs, mounted by someone)
+        """
+
+    // Asked, and answered: the one the engine does not name is genuinely stale.
+    let answered = EngineStatus.parse(engineSays).map(\.mountPoint)
+    let staleGivenAnswer = EngineStatus.engineMountPoints(in: table)
+        .filter { point in
+            !answered.contains(point) && !answered.contains { point.hasPrefix($0 + "/") }
+        }
+    expect(
+        staleGivenAnswer == ["/Users/someone/Volumes/GONE"],
+        "a mount the engine does not report, when it did report, is stale")
+
+    // Parsing an empty answer yields nothing, which is what made the two
+    // indistinguishable before.
+    expect(EngineStatus.parse("").isEmpty, "an empty answer parses to no mounts")
+
+    // The source now separates them, and nothing destructive runs without one.
+    let status =
+        (try? String(contentsOfFile: "sources/LukottaCore/EngineStatus.swift", encoding: .utf8))
+        ?? ""
+    expect(
+        status.contains("public static func currentIfAnswered() -> [EngineMount]?"),
+        "there is a way to tell an unanswered question from an empty answer")
+    expect(
+        status.contains("case .couldNotAsk: return nil"),
+        "an engine that could not be asked answers nothing, not none")
+    expect(
+        status.contains("guard let answered = currentIfAnswered() else { return [] }"),
+        "stale() clears nothing when the engine was never reached")
+
+    let model =
+        (try? String(contentsOfFile: "sources/Lukotta/AppModel.swift", encoding: .utf8)) ?? ""
+    expect(
+        model.contains("guard let answered = EngineStatus.currentIfAnswered() else {"),
+        "and waking does not drop mounts on an unanswered question either")
+
+    // The condition itself, at run time: point the engine somewhere that does
+    // not exist and it genuinely cannot be asked. Whatever this Mac happens to
+    // have mounted, nothing may be reported stale -- because the answer that
+    // would justify unmounting was never obtained. Before the fix this returned
+    // every engine mount on the machine, and the caller unmounted them.
+    let realEngine = EnginePaths.engineRoot
+    EnginePaths.useEngine(at: URL(fileURLWithPath: "/nonexistent-engine-for-this-test"))
+    expect(
+        EngineStatus.currentIfAnswered() == nil,
+        "an engine that is not there cannot be asked")
+    // The two answers the old code could not tell apart, side by side. current()
+    // still says "no mounts", because that is all a list can say; the fix is
+    // that the destructive path no longer asks it.
+    expect(
+        EngineStatus.current().isEmpty,
+        "the list form still reports nothing -- which is why it must not be the one consulted")
+    expect(
+        EngineStatus.stale().isEmpty,
+        "and so nothing is stale, whatever is mounted on this machine")
+    EnginePaths.useEngine(at: realEngine)
+}
+
+group("aStalledMountIsNoticedAndSaidOnce") {
+    // The fault: a copy froze at 23:22 and the window looked identical at
+    // 23:37. The mount stays in the table throughout, so "is it mounted" is
+    // useless; what stops is answers. Reproduced by duty-cycling the guest --
+    // mostly stopped, briefly running -- which leaves the mount up while a
+    // stat of it stops returning, exactly what was seen.
+    var watch = StallWatch()
+
+    // One unanswered probe is a hiccup, not a stall.
+    expect(watch.record(answered: false) == .quiet, "one miss says nothing")
+    expect(watch.record(answered: false) == .quiet, "two misses say nothing")
+    expect(watch.record(answered: false) == .stalled, "three in a row is a stall")
+    expect(watch.isStalled, "and it knows it is in one")
+
+    // Said once, however long it lasts.
+    expect(watch.record(answered: false) == .quiet, "a stall is announced once")
+    expect(watch.record(answered: false) == .quiet, "and not again")
+
+    // Coming back is worth one sentence too.
+    expect(watch.record(answered: true) == .recovered, "recovery is said")
+    expect(!watch.isStalled, "and the stall is over")
+    expect(watch.record(answered: true) == .quiet, "but only once")
+
+    // A miss that does not reach the count leaves nothing behind.
+    var flaky = StallWatch()
+    expect(flaky.record(answered: false) == .quiet, "")
+    expect(flaky.record(answered: true) == .quiet, "a recovered hiccup says nothing at all")
+    expect(flaky.record(answered: false) == .quiet, "and the count started again")
+    expect(flaky.record(answered: false) == .quiet, "")
+    expect(flaky.record(answered: false) == .stalled, "three fresh misses still stall")
+
+    // The numbers themselves: three probes at twenty seconds is a little over a
+    // minute of silence before anybody is told, and each probe waits five
+    // seconds, which is thousands of times a healthy loopback answer.
+    expect(StallWatch.strikes == 3, "three strikes")
+    expect(StallWatch.interval == 20, "twenty seconds apart")
+    expect(StallWatch.probeDeadline == 5, "five seconds to answer")
+}
+
 group("aMountPointLeftWithFilesInItIsReported") {
     // The defect this exists for, reproduced twice on real mounts: the guest
     // stops answering for longer than deadtimeout=45, macOS drops the mount,
