@@ -13,8 +13,7 @@ dist/
 
 # Agent worktrees are checkouts of this repo, not content of it.
 .claude/worktrees/
-# A preview-server config carrying an absolute path from whichever machine
-# wrote it. Local by nature, and personal paths stay out of the repository.
+# Written by the preview tool, with this machine's paths in it.
 .claude/launch.json
 
 # The Sparkle PUBLIC key is not a secret, and a clone without it builds an app
