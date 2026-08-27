@@ -2382,6 +2382,20 @@ group("anUnansweredEngineNeverClearsAMount") {
     expect(
         status.contains("case .couldNotAsk: return nil"),
         "an engine that could not be asked answers nothing, not none")
+    // Three ways to fail to get an answer, and all three must be nil. The first
+    // version of this fix caught only one of them: a `status` that ran and
+    // exited non-zero printing nothing parses to an empty list, which is
+    // indistinguishable from an engine serving no drives -- and that is the
+    // reading that force-unmounts them.
+    expect(
+        status.contains("case .finished(let output) where output.status == 0"),
+        "only a run that succeeded counts as an answer")
+    expect(
+        status.contains("case .finished: return nil"),
+        "a run that failed is not an answer of none")
+    expect(
+        status.contains("case .silent: return nil"),
+        "and neither is one still going when the deadline passed")
     expect(
         status.contains("guard let answered = currentIfAnswered() else { return [] }"),
         "stale() clears nothing when the engine was never reached")

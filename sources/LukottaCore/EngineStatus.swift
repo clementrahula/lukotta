@@ -44,9 +44,15 @@ public enum EngineStatus {
             engine.path, ["status"],
             environment: EngineEnvironment.environmentForEngine())
         {
-        case .finished(let output): return parse(output.out)
-        // Ran, said nothing: an engine with nothing mounted says nothing.
-        case .silent: return []
+        // Ran, finished, and said it succeeded. Only this is an answer.
+        case .finished(let output) where output.status == 0: return parse(output.out)
+        // Ran and failed. Its output is not a list of no mounts, it is no list
+        // at all -- and `status` exiting non-zero while printing nothing looks
+        // exactly like an engine serving nothing.
+        case .finished: return nil
+        // Ran and was still going when the deadline passed. A wedged engine,
+        // which is the state this whole question exists to survive.
+        case .silent: return nil
         case .couldNotAsk: return nil
         }
     }
