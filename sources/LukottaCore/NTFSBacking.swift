@@ -190,6 +190,15 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     /// would race the first.
     private var marked = false
 
+    /// Where the last record was found, so the next search starts there.
+    ///
+    /// Without it every create scans the record bitmap from the first
+    /// available slot, and on a volume with fifty thousand records in use that
+    /// is fifty thousand bits per file -- which is nearly all the time a create
+    /// takes. The hint is only a hint: the search falls back to the beginning,
+    /// so a wrong one costs a scan and never a wrong answer.
+    private var recordHint: UInt64 = NTFSRecordAllocator.firstAvailable
+
     /// Whether this volume has been marked as ours.
     public var isMarked: Bool { lock.withLock { marked } }
 
@@ -326,7 +335,10 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 let tableSize = reader.size(ofFile: NTFSTable.mftRecord)
             else { return nil }
             let records = tableSize / UInt64(reader.geometry.bytesPerFileRecord)
-            guard let choice = NTFSRecordAllocator.choose(in: bitmap, recordCount: records) else {
+            guard
+                let choice = NTFSRecordAllocator.choose(
+                    in: bitmap, recordCount: records, near: recordHint)
+            else {
                 // No free record. The table has to grow, which is an allocation
                 // and a runlist change, and is not here. Nil is "no room".
                 return nil
@@ -385,7 +397,33 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 writeIndexBlockLocked(spliced, at: node.diskOffset)
             else { return nil }
 
+            recordHint = choice.record
             return Handle(record: choice.record, name: name, isDirectory: false)
+        }
+    }
+
+    /// Why a create was refused, in words.
+    ///
+    /// Only for saying so in a log or a measurement. Nothing depends on it, and
+    /// it repeats the checks rather than recording them, so a create and this
+    /// can in principle disagree -- which is why it is not what create returns.
+    public func whyCreateFailed(_ name: String, in directory: FSHandle) -> String {
+        guard let parent = ours(directory), parent.isDirectory else { return "not a directory" }
+        return lock.withLock {
+            guard volumeIsSafeToWrite else { return "the volume is not safe to write" }
+            guard let collation = reader.collation() else { return "no $UpCase" }
+            if reader.find(name, inDirectory: parent.record) != nil { return "the name is taken" }
+            guard let bitmap = reader.contents(ofFile: NTFSTable.mftRecord, attribute: .bitmap),
+                let tableSize = reader.size(ofFile: NTFSTable.mftRecord)
+            else { return "$MFT's bitmap does not read" }
+            let records = tableSize / UInt64(reader.geometry.bytesPerFileRecord)
+            guard NTFSRecordAllocator.choose(in: bitmap, recordCount: records) != nil else {
+                return "no free record in a table of \(records)"
+            }
+            guard let node = leafNode(of: parent.record, for: name, collation: collation) else {
+                return "no leaf node for the name"
+            }
+            return "the leaf node has \(node.room) bytes free"
         }
     }
 
@@ -629,6 +667,9 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                     changedFrom: bitmap)
             else { return .missing }
 
+            // The slot just freed is below the hint, and the next create
+            // should take it rather than walk past it to the end of the table.
+            recordHint = min(recordHint, number)
             return .removed
         }
     }

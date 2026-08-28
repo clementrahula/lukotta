@@ -61,6 +61,20 @@ public enum NTFSBitmap {
         var run: UInt64 = 0
         var cluster = start
         while cluster < totalClusters {
+            // A byte of all ones is eight taken clusters, and on a volume with
+            // fifty thousand records in use, stepping through those one bit at
+            // a time is the whole cost of allocating. Skipping them whole is
+            // the same answer eight times faster, and only where the run has
+            // not started -- a byte in the middle of a candidate run has to be
+            // looked at properly.
+            if run == 0, cluster % 8 == 0, cluster + 8 <= totalClusters {
+                let byte = Int(cluster / 8)
+                guard byte < bitmap.count else { break }
+                if bitmap[bitmap.startIndex + byte] == 0xFF {
+                    cluster += 8
+                    continue
+                }
+            }
             guard let used = isInUse(cluster: cluster, bitmap: bitmap) else { break }
             if used {
                 run = 0

@@ -5753,6 +5753,176 @@ group("aRunlistPackedBackDecodesToWhatItWas") {
         "a run of no clusters is refused")
 }
 
+group("whatEachPieceOfACreateCosts") {
+    // Where the time in a create actually goes. Guarded the same way, because
+    // it is a measurement and not a check.
+    guard ProcessInfo.processInfo.environment["LUKOTTA_BENCH_FILES"] != nil,
+        let path = ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"]
+            ?? Optional(NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img"),
+        FileManager.default.fileExists(atPath: path),
+        let handle = FileHandle(forReadingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    // A class, because the closure the reader holds is @Sendable and cannot
+    // capture a mutable local. The counting is under the same lock as the
+    // reading, so it counts what actually happened.
+    final class Tally: @unchecked Sendable {
+        var reads = 0
+        var bytes = 0
+    }
+    let tally = Tally()
+    let read: NTFSVolumeReader.ReadBytes = { offset, length in
+        lock.lock()
+        defer { lock.unlock() }
+        tally.reads += 1
+        tally.bytes += length
+        try? handle.seek(toOffset: offset)
+        return try? handle.read(upToCount: length)
+    }
+    guard let reader = NTFSVolumeReader(read: read) else {
+        expect(false, "the volume reads")
+        return
+    }
+    _ = reader.collation()
+
+    func time(_ what: String, _ rounds: Int, _ body: () -> Void) {
+        tally.reads = 0
+        tally.bytes = 0
+        let start = Date()
+        for _ in 0..<rounds { body() }
+        let each = Date().timeIntervalSince(start) / Double(rounds) * 1_000_000
+        print(
+            String(
+                format: "    %-32@ %8.1f us  %5.1f reads %8.0f bytes", what as NSString, each,
+                Double(tally.reads) / Double(rounds), Double(tally.bytes) / Double(rounds)))
+    }
+
+    let rounds = 300
+    time("record(0)", rounds) { _ = reader.record(NTFSTable.mftRecord) }
+    time("size(ofFile: $MFT)", rounds) { _ = reader.size(ofFile: NTFSTable.mftRecord) }
+    time("$MFT $BITMAP contents", rounds) {
+        _ = reader.contents(ofFile: NTFSTable.mftRecord, attribute: .bitmap)
+    }
+    time("find in root", rounds) {
+        _ = reader.find("bench-000000.txt", inDirectory: NTFSTable.rootRecord)
+    }
+    time("indexNodes(root)", 20) { _ = reader.indexNodes(ofDirectory: NTFSTable.rootRecord) }
+    if let bitmap = reader.contents(ofFile: NTFSTable.mftRecord, attribute: .bitmap),
+        let size = reader.size(ofFile: NTFSTable.mftRecord)
+    {
+        let records = size / UInt64(reader.geometry.bytesPerFileRecord)
+        time("choose a record from 24", rounds) {
+            _ = NTFSRecordAllocator.choose(in: bitmap, recordCount: records)
+        }
+        time("choose a record from the hint", rounds) {
+            _ = NTFSRecordAllocator.choose(in: bitmap, recordCount: records, near: records - 400)
+        }
+    }
+    time("collation()", rounds) { _ = reader.collation() }
+
+    // The write side, through the same kind of handle the backing is given.
+    if let writePath = ProcessInfo.processInfo.environment["LUKOTTA_WRITE_IMAGE"],
+        FileManager.default.fileExists(atPath: writePath),
+        let writable = FileHandle(forUpdatingAtPath: writePath)
+    {
+        defer { try? writable.close() }
+        let writeLock = NSLock()
+        let write: NTFSBacking.WriteBytes = { offset, bytes in
+            writeLock.lock()
+            defer { writeLock.unlock() }
+            try? writable.seek(toOffset: offset)
+            writable.write(bytes)
+            return true
+        }
+        let sector = Data(count: 512)
+        let record = Data(count: 1024)
+        let block = Data(count: 4096)
+        // Into the free space past everything, so nothing on the volume moves.
+        let scratch: UInt64 = 3_500_000_000
+        time("write 512 bytes", rounds) { _ = write(scratch, sector) }
+        time("write 1024 bytes", rounds) { _ = write(scratch, record) }
+        time("write 4096 bytes", rounds) { _ = write(scratch, block) }
+        time("write 4096 then read it", rounds) {
+            _ = write(scratch, block)
+            _ = read(scratch, 4096)
+        }
+    }
+    expect(true, "measured")
+}
+
+group("makingAndUnmakingFilesAtSpeed") {
+    // What create and remove actually cost. Guarded, because it changes a
+    // volume and takes time: set LUKOTTA_BENCH_FILES to how many.
+    guard let count = ProcessInfo.processInfo.environment["LUKOTTA_BENCH_FILES"].flatMap(Int.init),
+        count > 0,
+        let path = ProcessInfo.processInfo.environment["LUKOTTA_WRITE_IMAGE"],
+        FileManager.default.fileExists(atPath: path),
+        let handle = FileHandle(forUpdatingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    let read: NTFSVolumeReader.ReadBytes = { offset, length in
+        lock.lock()
+        defer { lock.unlock() }
+        try? handle.seek(toOffset: offset)
+        return try? handle.read(upToCount: length)
+    }
+    let write: NTFSBacking.WriteBytes = { offset, bytes in
+        lock.lock()
+        defer { lock.unlock() }
+        try? handle.seek(toOffset: offset)
+        handle.write(bytes)
+        return true
+    }
+    guard let backing = NTFSBacking(read: read, write: write) else {
+        expect(false, "the volume opens writable")
+        return
+    }
+    let root = backing.rootHandle
+    let names = (0..<count).map { "bench-\(String(format: "%06d", $0)).txt" }
+
+    // Stops at the first refusal, so the time divided by the count is the cost
+    // of a create that happened. Carrying on and dividing by the successes
+    // charges every refusal to them, which is how a create looked thirty times
+    // dearer than the sum of its parts.
+    var made: [String] = []
+    var refused: String?
+    let startMaking = Date()
+    for name in names {
+        guard backing.create(name, isDirectory: false, in: root, mode: 0o644) != nil else {
+            refused = name
+            break
+        }
+        made.append(name)
+    }
+    let making = Date().timeIntervalSince(startMaking)
+    if let refused {
+        print("    stopped at \(refused) after \(made.count)")
+        print("    why: \(backing.whyCreateFailed(refused, in: root))")
+    }
+
+    var gone = 0
+    let startUnmaking = Date()
+    for name in made where backing.remove(name, from: root) == .removed { gone += 1 }
+    let unmaking = Date().timeIntervalSince(startUnmaking)
+
+    print(
+        String(
+            format: "    %d created in %.2fs, %.0f us each, %.0f/s",
+            made.count, making, making / Double(max(made.count, 1)) * 1_000_000,
+            Double(made.count) / max(making, 0.000_001)))
+    print(
+        String(
+            format: "    %d removed in %.2fs, %.0f us each, %.0f/s",
+            gone, unmaking, unmaking / Double(max(gone, 1)) * 1_000_000,
+            Double(gone) / max(unmaking, 0.000_001)))
+    expect(
+        made.count == count, "every file asked for was made: \(made.count) of \(count)")
+    expect(gone == made.count, "and every one was removed again: \(gone)")
+    expect(backing.release(), "and the volume is released")
+}
+
 group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
     // The whole of create, on a copy of a real volume. Three structures change
     // and they have to agree: the bitmap says the record is taken, the record
