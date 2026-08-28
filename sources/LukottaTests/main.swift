@@ -2172,15 +2172,8 @@ group("whatComesBackFromMountingThroughTheExtension") {
         ExtensionMount.outcome(status: 1, output: "Module x is disabled!\r\n") == .unavailable,
         "carriage returns do not stop a phrase matching")
 
-    // Every outcome except a mount falls back. A failure is not a reason to
-    // leave somebody without their drive: the route that has always worked is
-    // still there, and it is the one they had yesterday.
-    expect(ExtensionMount.shouldFallBack(.unavailable), "an unavailable module falls back")
-    expect(ExtensionMount.shouldFallBack(.failed("x")), "so does a failure")
-    expect(!ExtensionMount.shouldFallBack(.mounted), "and a mounted volume does not")
-
-    // A switch that is off is the ordinary state of every Mac where nobody has
-    // turned the extension on. Logging it on every mount would bury the
+    // A switch that is off is the ordinary state of a Mac where nobody has
+    // turned the extension on yet. Logging it on every attempt would bury the
     // failures that mean something.
     expect(!ExtensionMount.isWorthLogging(.unavailable), "a switched-off module is not logged")
     expect(!ExtensionMount.isWorthLogging(.mounted), "nor is success")
@@ -2206,44 +2199,51 @@ group("whatComesBackFromMountingThroughTheExtension") {
         "and a read-only one does")
 }
 
-group("aDriveOpensWhetherOrNotTheExtensionIsThere") {
-    // The extension cannot be turned on by this application: isEnabled is
-    // readonly, FSClient only reads, and FSKit has no equivalent of the request
-    // that gets a system extension its prompt. Somebody has to find a switch,
-    // once, and on current macOS that switch is reported not to stick.
-    //
-    // So it is never the way a drive opens, only the fast way. Everything below
-    // is that rule written down, because the failure this guards against is not
-    // a crash: it is a drive that stops opening after an ordinary update,
-    // which is worse than the problem v2 set out to fix.
+group("theExtensionIsOnlyReachedWhereItCouldWork") {
+    // FSKit arrives in macOS 15.4 and the application supports 15.0, so the
+    // floor is checked rather than assumed. Getting this wrong does not crash:
+    // it makes every mount on an older Mac try a route that cannot exist and
+    // fall back, which costs a process launch on every single drive.
+    func version(_ major: Int, _ minor: Int) -> OperatingSystemVersion {
+        OperatingSystemVersion(majorVersion: major, minorVersion: minor, patchVersion: 0)
+    }
     expect(
-        FilesystemRoute.first(extensionAvailable: true) == .fileSystemExtension,
-        "where the extension exists, it is tried first")
+        !ExtensionMount.systemSupportsExtensions(version(15, 0)),
+        "macOS 15.0 has no FSKit, and the app supports it")
     expect(
-        FilesystemRoute.first(extensionAvailable: false) == .network,
-        "and where it does not, the drive still opens over NFS")
+        !ExtensionMount.systemSupportsExtensions(version(15, 3)),
+        "nor does 15.3, which is the last one without it")
     expect(
-        FilesystemRoute.first(extensionAvailable: true, readOnly: true) == .network,
-        "a read-only drive stays on NFS -- the reason to reach for the extension is writing")
+        ExtensionMount.systemSupportsExtensions(version(15, 4)),
+        "15.4 is where it arrives")
     expect(
-        FilesystemRoute.first(extensionAvailable: false, preferred: .fileSystemExtension)
-            == .fileSystemExtension,
-        "asking for one explicitly is honoured, which is how a harness pins it")
+        ExtensionMount.systemSupportsExtensions(version(26, 6)),
+        "and everything after has it")
+    expect(
+        !ExtensionMount.systemSupportsExtensions(version(14, 9)),
+        "an older major version does not, whatever its minor")
 
-    // The fallback is once, not a loop. One that can be taken twice can be
-    // taken for ever, and a mount that keeps retrying is the wedge this
-    // application spent a version getting rid of.
-    expect(
-        FilesystemRoute.after(.fileSystemExtension) == .network,
-        "the extension falls back to NFS")
-    expect(
-        FilesystemRoute.after(.network) == nil,
-        "and NFS falls back to nothing: it is the floor, and a failure there is reported")
-
-    // The whole point of the design.
-    expect(
-        !FilesystemRoute.fallbackIsWorthSaying,
-        "and nobody is told any of this: the drive opened, which is all they asked for")
+    // Whether a build carries one is read from the bundle rather than from a
+    // build flag, for the reason the app reads its own name and identifier the
+    // same way: a build states what it can do instead of a constant claiming it.
+    let empty = FileManager.default.temporaryDirectory
+        .appendingPathComponent("bundle-\(UUID().uuidString)")
+    try? FileManager.default.createDirectory(
+        at: empty.appendingPathComponent("Contents/PlugIns"), withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: empty) }
+    if let plain = Bundle(url: empty) {
+        expect(
+            !ExtensionMount.isCarried(in: plain),
+            "a bundle with no extension in it does not claim one")
+    }
+    try? FileManager.default.createDirectory(
+        at: empty.appendingPathComponent("Contents/Extensions/LukottaFS.appex"),
+        withIntermediateDirectories: true)
+    if let carrying = Bundle(url: empty) {
+        expect(
+            ExtensionMount.isCarried(in: carrying),
+            "and one with an appex beside its plug-ins does")
+    }
 }
 
 group("aDriveGetsATrashSoDeletingIsARename") {

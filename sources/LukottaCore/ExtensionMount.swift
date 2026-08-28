@@ -17,20 +17,23 @@ import Foundation
 ///     mount: Unable to invoke task
 ///
 /// That is the switch in System Settings that this application cannot set --
-/// `FSModuleIdentity.enabled` is readonly and `FSClient` only reads. It means
-/// "serve this drive over NFS instead", and it means nothing to the person
-/// using the Mac, who is never told about it. See `FilesystemRoute`.
+/// `FSModuleIdentity.enabled` is readonly and `FSClient` only reads.
+///
+/// **There is no second route.** v2 serves drives through the extension and
+/// through nothing else: no NFS, no engine mount, no network volume. The whole
+/// reason v2 exists is that a network volume cannot behave like a disk, so
+/// keeping one behind it as a fallback would mean shipping the problem v2 was
+/// built to remove and calling it a safety net.
 public enum ExtensionMount {
 
     /// What an attempt came to.
     public enum Outcome: Equatable, Sendable {
         /// Mounted. The volume is local.
         case mounted
-        /// The extension is not enabled, or not installed. Take the other route
-        /// and say nothing.
+        /// The extension is not enabled, or not installed. Nothing can be
+        /// served until it is; there is nothing else to try.
         case unavailable
-        /// It could have worked and did not. Worth a diagnosis, and still worth
-        /// falling back rather than failing in front of somebody.
+        /// It could have worked and did not. Worth a diagnosis.
         case failed(String)
     }
 
@@ -55,8 +58,8 @@ public enum ExtensionMount {
     ///
     /// Matched on the words, because the exit status does not distinguish a
     /// module that is switched off from a drive that could not be read, and
-    /// those two mean opposite things: one is "use the other route quietly",
-    /// the other is "this drive has a problem".
+    /// those two mean opposite things: one is about this Mac's settings, the
+    /// other is about the drive. They are not the same sentence to anybody.
     public static func outcome(status: Int32, output: String) -> Outcome {
         let text = output.replacingOccurrences(of: "\r", with: "")
         let lowered = text.lowercased()
@@ -82,24 +85,47 @@ public enum ExtensionMount {
         return .failed(summary ?? "The drive did not open through the filesystem extension.")
     }
 
-    /// Whether an outcome means "take the other route".
-    ///
-    /// Everything except a mount does. A failure is not a reason to leave
-    /// somebody without their drive: the route that has always worked is still
-    /// there, and it is the one they had yesterday.
-    public static func shouldFallBack(_ outcome: Outcome) -> Bool {
-        outcome != .mounted
-    }
-
     /// Whether an outcome is worth putting in the log.
     ///
-    /// A switch that is off is not: it is the ordinary state of every Mac where
-    /// nobody has turned the extension on, and logging it on every mount would
-    /// bury the failures that mean something.
+    /// A switch that is off is not: it is the ordinary state of a Mac where
+    /// nobody has turned the extension on yet, and logging it on every attempt
+    /// would bury the failures that mean something.
     public static func isWorthLogging(_ outcome: Outcome) -> Bool {
         switch outcome {
         case .mounted, .unavailable: return false
         case .failed: return true
         }
+    }
+}
+
+extension ExtensionMount {
+
+    /// Whether this build carries a filesystem extension at all.
+    ///
+    /// Only the v2 channel does. Checked by looking inside the running bundle
+    /// rather than by a build flag, for the same reason the app reads its own
+    /// name and identifier from the bundle: a build states what it can do
+    /// instead of a constant claiming it can.
+    ///
+    /// This says nothing about whether the module is *enabled*. Nothing can:
+    /// `FSModuleIdentity.enabled` is readonly and there is no way to ask. The
+    /// answer to that question is the attempt itself.
+    public static func isCarried(in bundle: Bundle = .main) -> Bool {
+        guard
+            let extensions = bundle.builtInPlugInsURL?
+                .deletingLastPathComponent()
+                .appendingPathComponent("Extensions", isDirectory: true)
+        else { return false }
+        let names = (try? FileManager.default.contentsOfDirectory(atPath: extensions.path)) ?? []
+        return names.contains { $0.hasSuffix(".appex") }
+    }
+
+    /// Whether this Mac could run one. FSKit arrives in macOS 15.4, and the
+    /// application supports 15.0.
+    public static func systemSupportsExtensions(
+        _ version: OperatingSystemVersion = ProcessInfo.processInfo.operatingSystemVersion
+    ) -> Bool {
+        if version.majorVersion > 15 { return true }
+        return version.majorVersion == 15 && version.minorVersion >= 4
     }
 }
