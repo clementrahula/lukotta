@@ -2079,6 +2079,75 @@ group("spaceIsReservedBeforeALargeCopyRatherThanDiscovered") {
     }
 }
 
+group("aWriteThatIsNotWholeBlocksHasToReadFirst") {
+    // A block device moves whole blocks whichever byte was asked for, so a
+    // write of less than a block has to read the block, change the part that
+    // moved and put it back. Getting this arithmetic wrong is not slow, it is
+    // somebody else's bytes written over or a file that reads back with a hole
+    // in it -- so every edge of it is checked here rather than trusted inside a
+    // method that is also talking to FSKit.
+    let block = 4096
+
+    // The ordinary case: a byte in the middle of a block.
+    let one = FSBlockRange.covering(offset: 100, length: 10, blockSize: block)
+    expect(one?.start == 0, "a read inside the first block starts at zero")
+    expect(one?.span == block, "and spans one whole block")
+    expect(
+        FSBlockRange.offsetWithinBlocks(offset: 100, blockSize: block) == 100,
+        "with the wanted bytes 100 in")
+
+    // Straddling a boundary: two blocks, not one.
+    let two = FSBlockRange.covering(offset: 4090, length: 20, blockSize: block)
+    expect(two?.start == 0, "a range crossing a boundary still starts at the block before")
+    expect(two?.span == block * 2, "and covers both blocks")
+
+    // Exactly aligned, which is the only shape that reaches the device's speed.
+    expect(FSBlockRange.isAligned(offset: 0, length: block, blockSize: block), "one whole block")
+    expect(
+        FSBlockRange.isAligned(offset: block * 3, length: block * 2, blockSize: block),
+        "several whole blocks from a block boundary")
+    expect(
+        !FSBlockRange.isAligned(offset: 1, length: block, blockSize: block),
+        "a block-sized write one byte in is not aligned")
+    expect(
+        !FSBlockRange.isAligned(offset: 0, length: block - 1, blockSize: block),
+        "and neither is a write one byte short")
+    let aligned = FSBlockRange.covering(offset: block, length: block, blockSize: block)
+    expect(
+        aligned?.start == block && aligned?.span == block, "an aligned range spans exactly itself")
+
+    // The cost of not being aligned, which is the number worth watching when a
+    // copy is slower than the drive it is copying to.
+    expect(
+        FSBlockRange.readModifyWriteBytes(offset: 0, length: block, blockSize: block) == 0,
+        "an aligned write reads nothing first")
+    expect(
+        FSBlockRange.readModifyWriteBytes(offset: 100, length: 10, blockSize: block)
+            == block - 10,
+        "and a ten-byte write pays for the rest of the block around it")
+
+    // Nothing, which is not the same as one block.
+    expect(
+        FSBlockRange.covering(offset: 100, length: 0, blockSize: block)?.span == 0,
+        "a zero-length range touches no blocks")
+
+    // Values from outside are refused rather than dividing by zero or wrapping.
+    expect(FSBlockRange.covering(offset: 0, length: 10, blockSize: 0) == nil, "no block size")
+    expect(
+        FSBlockRange.covering(offset: -1, length: 10, blockSize: block) == nil, "before the start")
+    expect(
+        FSBlockRange.covering(offset: 0, length: -1, blockSize: block) == nil, "a negative length")
+    expect(
+        FSBlockRange.covering(offset: 0, length: Int.max, blockSize: block) == nil,
+        "and a length that would overflow rounding up, rather than a wrapped answer")
+    expect(
+        FSBlockRange.offsetWithinBlocks(offset: -1, blockSize: block) == nil,
+        "an impossible offset has no position within a block")
+    expect(
+        !FSBlockRange.isAligned(offset: 0, length: 0, blockSize: 0),
+        "and no block size is never aligned")
+}
+
 group("bothBackingsKeepTheSamePromises") {
     // The extension is written once, against a seam, and two things sit behind
     // it: memory, which prices the framework and nothing else, and a real
