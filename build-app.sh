@@ -393,9 +393,29 @@ if [ -d "$HERE/vendor/engine" ]; then
   /usr/bin/find "$ENGINE/anylinuxfs" -type f -print0 | while IFS= read -r -d "" f; do
     /usr/bin/file "$f" 2>/dev/null | /usr/bin/grep -q "Mach-O" || continue
     case "$f" in
-      */bin/anylinuxfs)
+      */bin/anylinuxfs | */libexec/init-rootfs)
+        # Both of these start a microVM of their own -- the engine to serve the
+        # drive, init-rootfs to build the Linux image the engine then boots. A
+        # binary without the hypervisor entitlement cannot start one, and
+        # libkrun says only "start vm error: Invalid argument (errno 22)",
+        # which reads like a bad argument and not like a missing entitlement.
+        # Unsigned, init-rootfs fails the first time the image needs building
+        # or rebuilding, which is exactly when nobody is watching.
         /usr/bin/codesign --force --options runtime \
           --entitlements "$HERE/lukotta.entitlements" \
+          --sign "$SIGN_ID" "$f" >/dev/null 2>&1 \
+          || { printf "error: could not sign %s\n" "$f" >&2; exit 1; }
+        ;;
+      */libexec/vmnet-helper)
+        # Upstream ships this signed with com.apple.security.virtualization,
+        # which is what lets it open a vmnet interface without root. Re-signing
+        # strips it, and it then fails with VMNET_FAILURE while printing
+        # nothing at all -- which the engine reports as a config it could not
+        # parse. Signed with the entitlement back, or not shipped: a helper
+        # that cannot start is worse than one that is absent, because the
+        # engine waits for it.
+        /usr/bin/codesign --force --options runtime \
+          --entitlements "$HERE/vmnet-helper.entitlements" \
           --sign "$SIGN_ID" "$f" >/dev/null 2>&1 \
           || { printf "error: could not sign %s\n" "$f" >&2; exit 1; }
         ;;

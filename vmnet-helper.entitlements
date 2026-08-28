@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- vmnet-helper opens a vmnet interface, which macOS allows an unprivileged
+       process to do only with this entitlement. Upstream ships the binary
+       signed with it; re-signing it here without one takes it away, and the
+       helper then fails with VMNET_FAILURE and prints nothing, which the
+       engine reports as "Failed to parse vmnet-helper config: EOF". That is
+       what kept the app on gvproxy. -->
+  <key>com.apple.security.virtualization</key>
+  <true/>
+</dict>
+</plist>
