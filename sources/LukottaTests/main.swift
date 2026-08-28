@@ -1944,6 +1944,91 @@ group("theFilesystemBehindTheExtensionKeepsItsPromises") {
     expect(usage.bytes >= 6, "including the bytes")
 }
 
+group("theExtensionCanServeSomewhereRealAsWellAsMemory") {
+    // FSStore holds its files in memory, which prices the framework and nothing
+    // else. This one keeps them in a real directory, which is what lets the
+    // write path be measured against a backing store that is not the
+    // bottleneck -- and it is the shape of the real thing, where what is behind
+    // the module is a guest holding the volume rather than a dictionary.
+    let base = FileManager.default.temporaryDirectory
+        .appendingPathComponent("passthrough-\(UUID().uuidString)")
+    try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: base) }
+
+    let store = FSPassthrough(root: base)
+    guard let root = store.rootEntry() else {
+        expect(false, "the root has to be readable")
+        return
+    }
+    expect(root.isDirectory, "the root is a directory")
+
+    // A name from the kernel is one component and never a path. One carrying a
+    // slash or .. would reach outside the volume entirely, which in a process
+    // that answers the filesystem is the whole of a directory traversal.
+    expect(!FSPassthrough.isSafe("../escape"), "a name that climbs out is refused")
+    expect(!FSPassthrough.isSafe("a/b"), "so is one with a separator in it")
+    expect(!FSPassthrough.isSafe(""), "and an empty one")
+    expect(FSPassthrough.isSafe("Report 2026.txt"), "an ordinary name is fine")
+    expect(
+        store.create("../escape", isDirectory: false, in: root, mode: 0o644) == nil,
+        "and creating through one fails rather than writing outside the volume")
+
+    // Identity has to survive a rename, so it cannot come from the path. The
+    // inode is what the filesystem underneath already uses for this.
+    let file = store.create("report.txt", isDirectory: false, in: root, mode: 0o644)
+    expect(file != nil, "a file can be made")
+    expect(
+        store.create("report.txt", isDirectory: false, in: root, mode: 0o644) == nil,
+        "and the same name twice is EEXIST")
+    let before = file?.id
+    let folder = store.create("Archive", isDirectory: true, in: root, mode: 0o755)!
+    expect(store.rename("report.txt", in: root, to: "report.txt", in: folder), "it moves")
+    expect(
+        store.lookup("report.txt", in: folder)?.id == before,
+        "and is the same item afterwards, which is what FSKit holds on to")
+    expect(store.lookup("report.txt", in: root) == nil, "and gone from where it was")
+
+    // Contents, including a write past the end.
+    let moved = store.lookup("report.txt", in: folder)!
+    let data = Data("hello".utf8)
+    expect(
+        store.write(moved, contents: data, offset: 0) == data.count, "a write reports what it took")
+    expect(store.read(moved, offset: 0, length: 99) == data, "and reads back exactly that")
+    expect(store.read(moved, offset: 99, length: 10).isEmpty, "past the end is empty, not an error")
+    _ = store.write(moved, contents: Data("!".utf8), offset: 10)
+    expect(store.lookup("report.txt", in: folder)?.size == 11, "a write past the end grows it")
+    store.truncate(moved, to: 2)
+    expect(store.lookup("report.txt", in: folder)?.size == 2, "truncating shortens it")
+
+    // Removal outcomes, each a different errno.
+    expect(store.remove("absent", from: root) == .missing, "what is not there is ENOENT")
+    expect(store.remove("Archive", from: root) == .notEmpty, "a directory with something in it")
+    expect(store.remove("report.txt", from: folder) == .removed, "the file goes")
+    expect(store.remove("Archive", from: root) == .removed, "and then the directory")
+
+    // Extended attributes, answered natively so the volume never collects
+    // AppleDouble sidecars.
+    let tagged = store.create("tagged", isDirectory: false, in: root, mode: 0o644)!
+    let value = Data([0x01, 0x02])
+    expect(store.setXattr("com.lukotta.test", to: value, on: tagged) == .set, "one can be set")
+    expect(store.xattr("com.lukotta.test", of: tagged) == value, "and read back")
+    expect(store.xattrNames(of: tagged).contains("com.lukotta.test"), "and listed")
+    expect(
+        store.setXattr("com.lukotta.test", to: value, on: tagged, mustCreate: true) == .exists,
+        "creating one that exists is EEXIST rather than an overwrite")
+    expect(store.setXattr("com.lukotta.test", to: nil, on: tagged) == .set, "nil removes it")
+    expect(!store.xattrNames(of: tagged).contains("com.lukotta.test"), "and it is gone")
+
+    // Enumeration order, which FSKit's directory cookie is an index into.
+    for name in ["delta", "alpha", "charlie"] {
+        _ = store.create(name, isDirectory: false, in: root, mode: 0o644)
+    }
+    let listing = store.children(of: root).map { $0.url.lastPathComponent }
+    expect(
+        listing == listing.sorted(), "children come back sorted, so a resumed listing skips nothing"
+    )
+}
+
 group("aDriveGetsATrashSoDeletingIsARename") {
     // Finder does not delete when somebody presses command-delete: it renames
     // into .Trashes/<uid> at the top of the volume, which costs the same
