@@ -102,6 +102,49 @@ public enum NTFSIndexBlock {
         return Data(bytes)
     }
 
+    /// Where the node header sits inside a block.
+    ///
+    /// After the block's own twenty-four bytes, and its offsets are relative to
+    /// itself rather than to the block -- getting that wrong reads entries
+    /// twenty-four bytes from where they are.
+    public static let nodeHeaderOffset = 0x18
+
+    /// Take the fixup off, ready to write the block back.
+    ///
+    /// The exact inverse of `applyFixup`, and the same reasoning as for a
+    /// record: a block written without its per-sector signatures is one the
+    /// next reader refuses as torn, which is a directory that loses names.
+    ///
+    /// The signature moves on with every write. Passing the same one twice
+    /// would let a block caught half-written pass for a whole one, which is the
+    /// single thing the scheme exists to prevent.
+    public static func removeFixup(
+        _ block: Data, header: Header, sectorSize: Int = 512
+    ) -> Data? {
+        guard sectorSize > 2, header.fixupCount >= 1 else { return nil }
+        var bytes = [UInt8](block)
+        guard header.fixupOffset + header.fixupCount * 2 <= bytes.count else { return nil }
+
+        let current =
+            UInt16(bytes[header.fixupOffset]) | (UInt16(bytes[header.fixupOffset + 1]) << 8)
+        let signature = NTFSRecord.nextSignature(after: current)
+        let low = UInt8(signature & 0xFF)
+        let high = UInt8(signature >> 8)
+        bytes[header.fixupOffset] = low
+        bytes[header.fixupOffset + 1] = high
+
+        for sector in 1..<header.fixupCount {
+            let end = sector * sectorSize - 2
+            guard end + 1 < bytes.count else { return nil }
+            let entry = header.fixupOffset + sector * 2
+            bytes[entry] = bytes[end]
+            bytes[entry + 1] = bytes[end + 1]
+            bytes[end] = low
+            bytes[end + 1] = high
+        }
+        return Data(bytes)
+    }
+
     /// Where a block sits inside `$INDEX_ALLOCATION`, as a byte offset into
     /// that attribute as a file.
     ///

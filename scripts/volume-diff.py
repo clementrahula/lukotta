@@ -74,10 +74,67 @@ def regions(first, second):
     return found
 
 
-def describe(offset, g, mirrored_records):
-    if g["mft"] <= offset < g["mft"] + 4096 * g["record"]:
-        number = (offset - g["mft"]) // g["record"]
-        return f"$MFT record {number} +{(offset - g['mft']) % g['record']}"
+def fixup(record, sector):
+    """Put back the bytes NTFS displaced, so attributes can be walked."""
+    data = bytearray(record)
+    where = struct.unpack_from("<H", data, 4)[0]
+    count = struct.unpack_from("<H", data, 6)[0]
+    for index in range(1, count):
+        end = index * sector - 2
+        if end + 2 > len(data):
+            break
+        data[end : end + 2] = data[where + index * 2 : where + index * 2 + 2]
+    return data
+
+
+def mft_extents(f, g):
+    """Where $MFT actually is.
+
+    It is a file, and a file can be in pieces. Assuming it is contiguous names
+    the wrong record for every byte past the first extent -- which is most of
+    the table on a volume that has been used.
+    """
+    f.seek(g["mft"])
+    record = fixup(f.read(g["record"]), g["sector"])
+    if record[:4] != b"FILE":
+        return [(g["mft"] // g["cluster"], 1 << 40)]
+    offset = struct.unpack_from("<H", record, 0x14)[0]
+    used = struct.unpack_from("<I", record, 0x18)[0]
+    while offset < used:
+        kind = struct.unpack_from("<I", record, offset)[0]
+        if kind == 0xFFFFFFFF:
+            break
+        length = struct.unpack_from("<I", record, offset + 4)[0]
+        if length == 0:
+            break
+        if kind == 0x80 and record[offset + 8]:
+            at = offset + struct.unpack_from("<H", record, offset + 0x20)[0]
+            runs, cluster = [], 0
+            while record[at]:
+                head = record[at]
+                count_bytes, offset_bytes = head & 0xF, head >> 4
+                at += 1
+                span = int.from_bytes(record[at : at + count_bytes], "little")
+                at += count_bytes
+                cluster += int.from_bytes(
+                    record[at : at + offset_bytes], "little", signed=True
+                )
+                at += offset_bytes
+                runs.append((cluster, span))
+            return runs
+        offset += length
+    return []
+
+
+def describe(offset, g, mirrored_records, extents):
+    per_cluster = g["cluster"] // g["record"]
+    first = 0
+    for cluster, span in extents:
+        start = cluster * g["cluster"]
+        if start <= offset < start + span * g["cluster"]:
+            number = first + (offset - start) // g["record"]
+            return f"$MFT record {number} +{(offset - start) % g['record']}"
+        first += span * per_cluster
     if g["mirror"] <= offset < g["mirror"] + mirrored_records * g["record"]:
         number = (offset - g["mirror"]) // g["record"]
         return f"$MFTMirr record {number} +{(offset - g['mirror']) % g['record']}"
@@ -91,6 +148,7 @@ def main():
         raise SystemExit(__doc__.strip().splitlines()[-1].strip())
     with open(sys.argv[1], "rb") as first, open(sys.argv[2], "rb") as second:
         g = geometry(first.read(512))
+        extents = mft_extents(first, g)
         first.seek(0)
         found = regions(first, second)
 
@@ -98,7 +156,7 @@ def main():
     total = 0
     for start, end in found:
         total += end - start
-        print(f"  {start:>14}..{end:<14} {end - start:>7} bytes   {describe(start, g, 4)}")
+        print(f"  {start:>14}..{end:<14} {end - start:>7} bytes   {describe(start, g, 4, extents)}")
     print(f"{total} bytes in all")
     # Nothing is returned as a failure: what counts as too much depends on what
     # the write was meant to do, and that is the reader's judgement.

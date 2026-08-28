@@ -283,9 +283,278 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
 
     // MARK: - Everything that would write
 
+    /// Make a file.
+    ///
+    /// Three structures change and they must agree: `$MFT`'s `$BITMAP` says the
+    /// record is taken, the record itself describes the file, and the parent's
+    /// index carries the name. Without a journal none of that can be made
+    /// atomic, so the order is chosen so that **every interrupted state is a
+    /// leak and never a dangling reference.**
+    ///
+    /// 1. The bitmap bit. A crash here loses one record slot until chkdsk runs,
+    ///    and nothing points anywhere.
+    /// 2. The record. A crash here leaves a record nothing refers to -- an
+    ///    orphan, which chkdsk either frees or files under found.000.
+    /// 3. The index entry. Once this lands the file exists.
+    ///
+    /// The other order -- name first -- would put a name in a directory
+    /// pointing at a record that is not a file. That is a directory somebody
+    /// opens and gets an error from, or worse, a different file.
+    ///
+    /// Directories are not made here yet: a directory needs an index of its
+    /// own, and the entries of a new one are not the same problem as an entry
+    /// in an existing one.
     public func create(_ name: String, isDirectory: Bool, in directory: FSHandle, mode: UInt32)
         -> FSHandle?
-    { nil }
+    {
+        guard writeBytes != nil, !isDirectory, !name.isEmpty,
+            let parent = ours(directory), parent.isDirectory
+        else { return nil }
+
+        return lock.withLock {
+            guard volumeIsSafeToWrite, markLocked(), let collation = reader.collation() else {
+                return nil
+            }
+            // A name already in the directory is not made again. NTFS has one
+            // entry per name, and a second is a file that lists twice and
+            // deletes once.
+            guard reader.find(name, inDirectory: parent.record) == nil else { return nil }
+
+            guard let parentRecord = reader.record(parent.record),
+                let bitmap = reader.contents(
+                    ofFile: NTFSTable.mftRecord, attribute: .bitmap),
+                let tableSize = reader.size(ofFile: NTFSTable.mftRecord)
+            else { return nil }
+            let records = tableSize / UInt64(reader.geometry.bytesPerFileRecord)
+            guard let choice = NTFSRecordAllocator.choose(in: bitmap, recordCount: records) else {
+                // No free record. The table has to grow, which is an allocation
+                // and a runlist change, and is not here. Nil is "no room".
+                return nil
+            }
+
+            // Permissions are the parent's. NTFS keeps them in $Secure and
+            // records only the entry number; inventing one would be inventing
+            // permissions, and copying the parent is what every implementation
+            // that writes NTFS does.
+            let security = securityID(of: parentRecord) ?? 0
+            let now = Date()
+            let plan = NTFSNewRecord.Plan(
+                record: choice.record,
+                sequence: reader.nextSequence(forRecord: choice.record),
+                parent: parent.record,
+                parentSequence: sequenceOf(parentRecord),
+                name: name, namespace: .posix,
+                times: NTFSTimestamps.Times(
+                    created: now, modified: now, recordChanged: now, accessed: now),
+                securityID: security)
+            guard
+                let composed = NTFSNewRecord.compose(
+                    plan, recordSize: reader.geometry.bytesPerFileRecord,
+                    sectorSize: reader.geometry.bytesPerSector),
+                let header = NTFSRecord.header(
+                    composed, expectedLength: reader.geometry.bytesPerFileRecord),
+                let key = NTFSIndexWrite.entry(
+                    key: NTFSNewRecord.fileNameValue(plan, units: Array(name.utf16)),
+                    record: choice.record, sequence: plan.sequence)
+            else { return nil }
+
+            // Find the node the name belongs in before anything is written. A
+            // directory with no room in the right node needs a split, and
+            // finding that out after the record is on the disk means an orphan
+            // for no reason.
+            guard let node = leafNode(of: parent.record, for: name, collation: collation),
+                node.room >= key.count
+            else { return nil }
+
+            // 1. The bitmap.
+            guard
+                writeAttributeLocked(
+                    record: NTFSTable.mftRecord, attribute: .bitmap, contents: choice.bitmap,
+                    changedFrom: bitmap)
+            else { return nil }
+
+            // 2. The record.
+            guard writeRecordLocked(choice.record, composed, header: header, mirrorLast: true)
+            else { return nil }
+
+            // 3. The name.
+            guard
+                let spliced = NTFSIndexWrite.inserting(
+                    entry: key, into: node.bytes, nodeHeaderAt: node.headerOffset,
+                    collation: collation),
+                writeIndexBlockLocked(spliced, at: node.diskOffset)
+            else { return nil }
+
+            return Handle(record: choice.record, name: name, isDirectory: false)
+        }
+    }
+
+    /// Which entry of `$Secure` a record points at.
+    private func securityID(of record: (data: Data, header: NTFSRecord.Header)) -> UInt32? {
+        guard
+            let information = reader.attributes(of: record).first(where: {
+                $0.kind == .standardInformation
+            }), information.isResident, information.valueLength >= 56
+        else { return nil }
+        let at = record.data.startIndex + information.valueOffset + 52
+        guard at + 3 < record.data.endIndex else { return nil }
+        var value: UInt32 = 0
+        for byte in 0..<4 { value |= UInt32(record.data[at + byte]) << (8 * UInt32(byte)) }
+        return value
+    }
+
+    private func sequenceOf(_ record: (data: Data, header: NTFSRecord.Header)) -> UInt16 {
+        guard record.data.count > 0x11 else { return 1 }
+        let at = record.data.startIndex
+        return UInt16(record.data[at + 0x10]) | (UInt16(record.data[at + 0x11]) << 8)
+    }
+
+    /// One index block, ready to be spliced.
+    private struct Leaf {
+        let bytes: Data
+        let headerOffset: Int
+        let diskOffset: UInt64
+        let blockSize: Int
+        let room: Int
+    }
+
+    /// Walk down to the node a name belongs in.
+    ///
+    /// The same descent a search does, and it has to be: a name filed anywhere
+    /// but where the search would look for it is a name nothing finds.
+    ///
+    /// Must be called with `lock` held.
+    private func leafNode(of directory: UInt64, for name: String, collation: NTFSCollation)
+        -> Leaf?
+    {
+        guard let record = reader.record(directory), record.header.isDirectory else { return nil }
+        let attributes = reader.attributes(of: record)
+        guard let indexRoot = attributes.first(where: { $0.kind == .indexRoot }),
+            indexRoot.isResident
+        else { return nil }
+
+        var blockSize = 0
+        let value = record.data.startIndex + indexRoot.valueOffset
+        guard value + 16 <= record.data.endIndex else { return nil }
+        for byte in 0..<4 { blockSize |= Int(record.data[value + 8 + byte]) << (8 * byte) }
+        guard blockSize >= 512 else { return nil }
+
+        let node = indexRoot.valueOffset + 16
+        guard let first = NTFSIndex.firstEntryOffset(nodeHeader: record.data, at: node) else {
+            return nil
+        }
+        let rootEntries = NTFSIndex.entries(
+            record.data, from: first,
+            limit: min(indexRoot.valueOffset + indexRoot.valueLength, record.data.count))
+        var step = NTFSIndex.find(name, in: rootEntries, collation: collation)
+        guard case .descend(var block) = step else {
+            // The whole index lives inside the record, which means growing a
+            // resident attribute -- a record rewrite, and not this.
+            return nil
+        }
+
+        guard let allocation = attributes.first(where: { $0.kind == .indexAllocation }),
+            !allocation.isResident,
+            let runs = NTFSRunlist.decode(
+                record.data, at: allocation.runlistOffset, limit: record.data.count)
+        else { return nil }
+
+        // A tree this deep is a tree that is not a tree. The bound stops a
+        // cycle in a damaged index from being followed for ever.
+        for _ in 0..<32 {
+            guard
+                let placed = NTFSTable.diskOffset(
+                    forFileOffset: block * UInt64(blockSize), runs: runs,
+                    bytesPerCluster: reader.geometry.bytesPerCluster),
+                let raw = reader.read(placed.offset, blockSize),
+                let blockHeader = NTFSIndexBlock.header(raw, blockSize: blockSize),
+                let bytes = NTFSIndexBlock.applyFixup(
+                    raw, header: blockHeader, sectorSize: reader.geometry.bytesPerSector)
+            else { return nil }
+
+            let entries = NTFSIndex.entries(
+                bytes, from: blockHeader.firstEntryOffset, limit: blockHeader.endOfEntries)
+            step = NTFSIndex.find(name, in: entries, collation: collation)
+            switch step {
+            case .descend(let next):
+                block = next
+            case .found:
+                // Already there. The caller checked, so this is a directory
+                // changing under us.
+                return nil
+            case .absent:
+                guard
+                    let room = NTFSIndexWrite.room(
+                        of: bytes, nodeHeaderAt: NTFSIndexBlock.nodeHeaderOffset)
+                else { return nil }
+                return Leaf(
+                    bytes: bytes, headerOffset: NTFSIndexBlock.nodeHeaderOffset,
+                    diskOffset: placed.offset, blockSize: blockSize, room: room.free)
+            }
+        }
+        return nil
+    }
+
+    /// Write an index block back, with its fixup put on and its signature moved
+    /// on.
+    ///
+    /// Must be called with `lock` held.
+    private func writeIndexBlockLocked(_ bytes: Data, at offset: UInt64) -> Bool {
+        guard let writeBytes,
+            let header = NTFSIndexBlock.header(bytes, blockSize: bytes.count),
+            let onDisk = NTFSIndexBlock.removeFixup(
+                bytes, header: header, sectorSize: reader.geometry.bytesPerSector)
+        else { return false }
+        return writeBytes(offset, onDisk)
+    }
+
+    /// Write the changed part of a non-resident attribute.
+    ///
+    /// Only the bytes that differ, and only in whole sectors around them: a
+    /// bitmap is megabytes on a large volume and rewriting all of it to set one
+    /// bit would take a second and put every one of those bytes at risk.
+    ///
+    /// Must be called with `lock` held.
+    private func writeAttributeLocked(
+        record number: UInt64, attribute kind: NTFSAttribute.Kind, contents: Data,
+        changedFrom previous: Data
+    ) -> Bool {
+        guard let writeBytes, contents.count == previous.count,
+            let record = reader.record(number),
+            let attribute = reader.attributes(of: record).first(where: { $0.kind == kind }),
+            !attribute.isResident, attribute.isReadableAsIs,
+            let runs = NTFSRunlist.decode(
+                record.data, at: attribute.runlistOffset, limit: record.data.count)
+        else { return false }
+
+        let sector = reader.geometry.bytesPerSector
+        guard sector > 0 else { return false }
+        var changed: Set<Int> = []
+        for index in 0..<contents.count
+        where contents[contents.startIndex + index] != previous[previous.startIndex + index] {
+            changed.insert(index / sector)
+        }
+        guard !changed.isEmpty else { return true }
+
+        for block in changed.sorted() {
+            let from = block * sector
+            let slice = contents[
+                contents.startIndex
+                    + from..<min(contents.endIndex, contents.startIndex + from + sector)]
+            guard
+                let pieces = NTFSFileWrite.pieces(
+                    offset: UInt64(from), length: slice.count, runs: runs,
+                    bytesPerCluster: reader.geometry.bytesPerCluster, size: attribute.dataSize)
+            else { return false }
+            for piece in pieces {
+                let part = slice[
+                    slice.startIndex + piece.range.lowerBound..<slice.startIndex
+                        + piece.range.upperBound]
+                guard writeBytes(piece.diskOffset, Data(part)) else { return false }
+            }
+        }
+        return true
+    }
 
     public func remove(_ name: String, from directory: FSHandle) -> FSStore.RemoveOutcome {
         .missing

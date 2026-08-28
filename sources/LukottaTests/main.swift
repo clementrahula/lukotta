@@ -5753,6 +5753,169 @@ group("aRunlistPackedBackDecodesToWhatItWas") {
         "a run of no clusters is refused")
 }
 
+group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
+    // The whole of create, on a copy of a real volume. Three structures change
+    // and they have to agree: the bitmap says the record is taken, the record
+    // describes the file, the directory carries the name.
+    guard let path = ProcessInfo.processInfo.environment["LUKOTTA_WRITE_IMAGE"],
+        FileManager.default.fileExists(atPath: path),
+        let handle = FileHandle(forUpdatingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    let read: NTFSVolumeReader.ReadBytes = { offset, length in
+        lock.lock()
+        defer { lock.unlock() }
+        try? handle.seek(toOffset: offset)
+        return try? handle.read(upToCount: length)
+    }
+    let write: NTFSBacking.WriteBytes = { offset, bytes in
+        lock.lock()
+        defer { lock.unlock() }
+        try? handle.seek(toOffset: offset)
+        handle.write(bytes)
+        return true
+    }
+    guard let backing = NTFSBacking(read: read, write: write) else {
+        expect(false, "the volume opens writable")
+        return
+    }
+
+    let root = backing.rootHandle
+    let before = backing.children(of: root).map { $0.name }
+    expect(!before.contains("lukotta-made-me.txt"), "the file is not there to begin with")
+
+    guard
+        let made = backing.create(
+            "lukotta-made-me.txt", isDirectory: false, in: root, mode: 0o644)
+    else {
+        expect(false, "the file is made")
+        return
+    }
+    guard let attributes = backing.attributes(of: made) else {
+        expect(false, "and has attributes")
+        return
+    }
+    expect(!attributes.isDirectory, "it is a file")
+    expect(attributes.size == 0, "of no length, as a new file is")
+    expect(attributes.linkCount == 1, "with one name")
+    expect(
+        attributes.id >= NTFSRecordAllocator.firstAvailable,
+        "in a record that is not one of the volume's own: \(attributes.id)")
+
+    // Through the same backing.
+    expect(
+        backing.lookup("lukotta-made-me.txt", in: root) != nil,
+        "and it can be looked up again")
+    expect(
+        backing.children(of: root).map { $0.name }.contains("lukotta-made-me.txt"),
+        "and it is in the listing")
+    expect(
+        backing.children(of: root).count == before.count + 1,
+        "which is one longer than it was")
+    expect(
+        Set(before).isSubset(of: Set(backing.children(of: root).map { $0.name })),
+        "with everything that was there still there")
+
+    // A second file with the same name is not made. NTFS has one entry per
+    // name; a second is a file that lists twice and deletes once.
+    expect(
+        backing.create("lukotta-made-me.txt", isDirectory: false, in: root, mode: 0o644) == nil,
+        "the same name is not made twice")
+    expect(
+        backing.create("LUKOTTA-MADE-ME.TXT", isDirectory: false, in: root, mode: 0o644) == nil,
+        "and neither is it in another case, because to NTFS that is the same name")
+
+    // The name that closes the gap the collation left open: a file whose name
+    // Swift's uppercasing would confuse with another. Until now nothing on this
+    // volume had one.
+    guard backing.create("stra\u{00DF}e.txt", isDirectory: false, in: root, mode: 0o644) != nil,
+        backing.create("strasse.txt", isDirectory: false, in: root, mode: 0o644) != nil
+    else {
+        expect(false, "both spellings are made")
+        return
+    }
+    guard let sharp = backing.lookup("stra\u{00DF}e.txt", in: root),
+        let plain = backing.lookup("strasse.txt", in: root),
+        let sharpID = backing.attributes(of: sharp)?.id,
+        let plainID = backing.attributes(of: plain)?.id
+    else {
+        expect(false, "and both are found")
+        return
+    }
+    expect(
+        sharpID != plainID,
+        "and they are two different files -- with Swift's uppercasing one of these lookups "
+            + "returns the other file's record, which is the wrong file's bytes under the "
+            + "right file's name")
+
+    // A second, independent reader on the same bytes. Everything above went
+    // through objects that have been holding this volume open; this one has
+    // never seen it.
+    guard let fresh = NTFSVolumeReader(read: read) else {
+        expect(false, "the volume opens again")
+        return
+    }
+    guard let found = fresh.find("lukotta-made-me.txt", inDirectory: NTFSTable.rootRecord),
+        let record = fresh.record(found)
+    else {
+        expect(false, "and a reader that has never seen this volume finds the file")
+        return
+    }
+    expect(found == attributes.id, "at the record it was made in")
+    expect(record.header.inUse, "whose record says it is in use")
+    expect(!record.header.isDirectory, "and is a file")
+    expect(fresh.name(of: record) == "lukotta-made-me.txt", "with the name it was given")
+    expect(fresh.size(ofFile: found) == 0, "and no contents")
+    expect(
+        fresh.contents(ofDirectory: NTFSTable.rootRecord)?
+            .contains(where: { $0.name == "lukotta-made-me.txt" }) == true,
+        "and it lists")
+
+    // The bitmap and the record agree, which is the invariant a create must
+    // leave behind.
+    guard let bitmap = fresh.contents(ofFile: NTFSTable.mftRecord, attribute: .bitmap) else {
+        expect(false, "$MFT's bitmap reads")
+        return
+    }
+    expect(
+        NTFSRecordAllocator.isInUse(found, in: bitmap) == true,
+        "the bitmap says the record is taken")
+    for name in ["stra\u{00DF}e.txt", "strasse.txt"] {
+        guard let other = fresh.find(name, inDirectory: NTFSTable.rootRecord) else {
+            expect(false, "\(name) is found by a fresh reader")
+            continue
+        }
+        expect(
+            NTFSRecordAllocator.isInUse(other, in: bitmap) == true,
+            "and \(name)'s record is taken too")
+    }
+
+    // The directory is still sorted the way the volume sorts, node by node.
+    guard let collation = fresh.collation() else {
+        expect(false, "the table reads")
+        return
+    }
+    var outOfOrder: [String] = []
+    for node in fresh.indexNodes(ofDirectory: NTFSTable.rootRecord) {
+        let names = NTFSIndex.names(node.entries)
+        guard names.count > 1 else { continue }
+        for index in 1..<names.count
+        where collation.compare(names[index - 1], names[index]) != .orderedAscending {
+            outOfOrder.append("\(names[index - 1]) then \(names[index])")
+        }
+    }
+    expect(
+        outOfOrder.isEmpty,
+        "and every node of it is still in order: \(outOfOrder.prefix(3))")
+
+    // Put the volume back clean, as a mount that ends properly does.
+    expect(backing.release(), "the volume is released")
+    expect(
+        NTFSVolumeReader(read: read)?.state()?.isSafeToWrite == true,
+        "and reads as clean afterwards")
+}
+
 group("aNameGoesIntoTheDirectoryWhereItBelongs") {
     // Real index blocks off a real volume, spliced in memory. What must come
     // out is a node the reader parses, holding every name it held plus the new

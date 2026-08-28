@@ -22,7 +22,13 @@ public final class NTFSVolumeReader: @unchecked Sendable {
     public typealias ReadBytes = @Sendable (_ offset: UInt64, _ length: Int) -> Data?
 
     public let geometry: NTFSGeometry
-    private let read: ReadBytes
+    /// Reading bytes off the device.
+    ///
+    /// Open to callers that need a place the reader has already worked out --
+    /// an index block whose offset came from a descent, say. Everything the
+    /// reader itself understands has a method; this is for the bytes it has
+    /// just told somebody where to find.
+    public let read: ReadBytes
     private let mftRuns: [NTFSRunlist.Run]
     private let tableSize: UInt64
     /// Read once, because Finder asks for free space on every window.
@@ -203,6 +209,27 @@ public final class NTFSVolumeReader: @unchecked Sendable {
                 raw, header: header, sectorSize: geometry.bytesPerSector)
         else { return nil }
         return (repaired, header)
+    }
+
+    /// The sequence number a record should be written with when it is taken.
+    ///
+    /// Every reuse of a slot bumps it, so a reference made to the file that
+    /// used to live here is recognised as stale rather than followed to a
+    /// different file. A slot never used before starts at one; a slot that has
+    /// been used carries the last file's number and gets the next.
+    ///
+    /// Never zero: zero is what an unwritten record holds, and a reference to
+    /// sequence zero could match a slot nothing ever wrote.
+    public func nextSequence(forRecord number: UInt64) -> UInt16 {
+        guard let offset = diskOffset(ofRecord: number),
+            let raw = read(offset, geometry.bytesPerFileRecord),
+            raw.count >= 0x12,
+            Array(raw[raw.startIndex..<raw.startIndex + 4]) == NTFSRecord.signature
+        else { return 1 }
+        let current =
+            UInt16(raw[raw.startIndex + 0x10]) | (UInt16(raw[raw.startIndex + 0x11]) << 8)
+        let next = current &+ 1
+        return next == 0 ? 1 : next
     }
 
     public func attributes(of record: (data: Data, header: NTFSRecord.Header))
