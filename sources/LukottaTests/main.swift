@@ -2148,6 +2148,53 @@ group("aWriteThatIsNotWholeBlocksHasToReadFirst") {
         "and no block size is never aligned")
 }
 
+group("theGeometryReaderAgreesWithARealNtfsVolume") {
+    // Synthetic boot sectors prove the arithmetic and the refusals. They cannot
+    // prove the offsets are the ones Microsoft actually writes at, because a
+    // fixture built from the same belief as the reader agrees with it whatever
+    // that belief is. So when a real NTFS volume is on this machine, it is read.
+    //
+    // Skipped rather than failed where there is none: a check that needs a
+    // fixture nobody has built is not a broken check.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path),
+        let sector = try? handle.read(upToCount: 4096), !sector.isEmpty
+    else {
+        expect(true, "no NTFS volume on this machine to read; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+
+    expect(BootSector.identify(sector) == .ntfs, "the real volume identifies as NTFS")
+    guard let g = NTFSGeometry.read(sector) else {
+        expect(false, "and its geometry is read rather than refused")
+        return
+    }
+
+    // Everything that must be true of any volume mkntfs produces, checked
+    // against the reader rather than against numbers copied from it.
+    expect([512, 1024, 2048, 4096].contains(g.bytesPerSector), "its sector size is one NTFS uses")
+    expect(
+        g.sectorsPerCluster > 0 && g.sectorsPerCluster & (g.sectorsPerCluster - 1) == 0,
+        "its cluster is a power of two sectors")
+    expect(g.bytesPerCluster >= 512, "a cluster is at least a sector")
+    expect(g.totalSectors > 0, "the volume has an extent")
+    expect(
+        g.mftStartCluster > 0 && g.mftByteOffset < g.totalBytes,
+        "the master file table is on the volume, past its boot sector")
+    expect(
+        g.mftMirrorStartCluster > 0 && g.mftMirrorStartCluster != g.mftStartCluster,
+        "and the backup table is elsewhere, which is the whole point of it")
+    expect(
+        g.bytesPerFileRecord >= 256 && g.bytesPerFileRecord % 256 == 0,
+        "the file record size is a sensible multiple")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
