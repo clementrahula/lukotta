@@ -2791,6 +2791,94 @@ group("theNameReaderAgreesWithARealVolume") {
         "in record 5, which is the root directory on every NTFS volume ever made")
 }
 
+group("aRecordIsFoundThroughTheTablesOwnRuns") {
+    // Everything on an NTFS volume refers to a file by its record number, so
+    // turning a number into a place on the disk is the operation the whole
+    // reader stands on. The table's records are laid out one after another --
+    // but the table is a file like any other and fragments like one, so the
+    // multiplication only means anything through $MFT's own runs.
+    //
+    // A reader that skips that step and reads at start + n * recordSize gets
+    // the right answer on a fresh volume and somebody else's data on a used
+    // one, which is the worst way for a bug to behave.
+
+    expect(
+        NTFSTable.offsetInTable(record: 5, bytesPerFileRecord: 1024) == 5120,
+        "record five is five records into the table")
+    expect(
+        NTFSTable.offsetInTable(record: 0, bytesPerFileRecord: 1024) == 0,
+        "and record zero is at its start")
+    expect(
+        NTFSTable.offsetInTable(record: 5, bytesPerFileRecord: 0) == nil,
+        "a record size of zero has no arithmetic")
+    expect(
+        NTFSTable.offsetInTable(record: UInt64.max, bytesPerFileRecord: 1024) == nil,
+        "and a number that overflows on multiplying is refused rather than wrapped")
+
+    // A contiguous table: one run, so file offsets and disk offsets differ by a
+    // constant.
+    let contiguous = [
+        NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 4, clusterCount: 100)
+    ]
+    let first = NTFSTable.diskOffset(forFileOffset: 0, runs: contiguous, bytesPerCluster: 4096)
+    expect(first?.offset == 4 * 4096, "the start of the table is where its first run begins")
+    expect(first?.availableBytes == 100 * 4096, "with the whole run available from there")
+    let into = NTFSTable.diskOffset(forFileOffset: 8192, runs: contiguous, bytesPerCluster: 4096)
+    expect(into?.offset == 4 * 4096 + 8192, "and an offset inside it lands that far in")
+    expect(into?.availableBytes == 100 * 4096 - 8192, "with the rest of the run left")
+
+    // A fragmented table, which is what a used volume has. The second run sits
+    // somewhere else entirely.
+    let fragmented = [
+        NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 4, clusterCount: 2),
+        NTFSRunlist.Run(logicalCluster: 2, physicalCluster: 900, clusterCount: 2),
+    ]
+    let second = NTFSTable.diskOffset(
+        forFileOffset: 2 * 4096, runs: fragmented, bytesPerCluster: 4096)
+    expect(
+        second?.offset == 900 * 4096,
+        "an offset in the second run reads where that run is, not where the first one ended")
+    expect(
+        second?.availableBytes == 2 * 4096,
+        "and only that run's bytes are available -- reading further needs the next run")
+    expect(
+        NTFSTable.diskOffset(forFileOffset: 99 * 4096, runs: fragmented, bytesPerCluster: 4096)
+            == nil,
+        "an offset past every run has no address on the disk")
+
+    // A hole has no disk address at all. Producing zeroes is the caller's job.
+    let sparse = [
+        NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 4, clusterCount: 1),
+        NTFSRunlist.Run(logicalCluster: 1, physicalCluster: nil, clusterCount: 4),
+    ]
+    expect(
+        NTFSTable.diskOffset(forFileOffset: 2 * 4096, runs: sparse, bytesPerCluster: 4096) == nil,
+        "an offset inside a hole has nowhere on the disk to be read from")
+    expect(
+        NTFSTable.diskOffset(forFileOffset: 0, runs: sparse, bytesPerCluster: 4096)?.offset
+            == 4 * 4096,
+        "while the run before it still reads normally")
+
+    // A record past the end of the table.
+    expect(
+        NTFSTable.isWithin(record: 5, tableSizeInBytes: 1024 * 100, bytesPerFileRecord: 1024),
+        "a record inside the table is within it")
+    expect(
+        !NTFSTable.isWithin(record: 500, tableSizeInBytes: 1024 * 100, bytesPerFileRecord: 1024),
+        "and one past the end is not -- following it reads whatever is on the disk after")
+    expect(
+        NTFSTable.isWithin(record: 99, tableSizeInBytes: 1024 * 100, bytesPerFileRecord: 1024),
+        "the last record that fits is within")
+
+    // File references, and the sequence number that makes a stale one
+    // detectable rather than silently pointing at whatever took the slot.
+    let (record, sequence) = NTFSTable.reference(5 | (7 << 48))
+    expect(record == 5, "a reference's record number is its low 48 bits")
+    expect(sequence == 7, "and the sequence number is kept rather than masked away")
+    expect(NTFSTable.rootRecord == 5, "the root directory is record five on every NTFS volume")
+    expect(NTFSTable.mftRecord == 0, "and the table itself is record zero")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged

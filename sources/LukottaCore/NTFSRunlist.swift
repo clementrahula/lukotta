@@ -36,6 +36,12 @@ public enum NTFSRunlist {
         /// How many clusters long.
         public let clusterCount: UInt64
 
+        public init(logicalCluster: UInt64, physicalCluster: UInt64?, clusterCount: UInt64) {
+            self.logicalCluster = logicalCluster
+            self.physicalCluster = physicalCluster
+            self.clusterCount = clusterCount
+        }
+
         public var isHole: Bool { physicalCluster == nil }
     }
 
