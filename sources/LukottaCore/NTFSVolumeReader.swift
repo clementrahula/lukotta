@@ -100,6 +100,41 @@ public final class NTFSVolumeReader: @unchecked Sendable {
         return ((total - free) * cluster, total * cluster)
     }
 
+    /// The volume's `$UpCase` table, read once and kept.
+    ///
+    /// Every name lookup needs it, and it is 128 KB read off the disk, so it is
+    /// loaded on the first lookup rather than at open: a volume that is only
+    /// listed never pays for it.
+    private var cachedCollation: NTFSCollation?
+    private var triedCollation = false
+
+    /// The comparison this volume's own directories are filed with.
+    ///
+    /// Nil when `$UpCase` cannot be read, and a nil is honest: the caller falls
+    /// back to Swift's uppercasing, which finds every name that does not
+    /// involve one of the code units the two disagree about. Refusing to look
+    /// anything up at all would be worse -- this is a reader, and somebody with
+    /// a damaged drive wants their files.
+    public func collation() -> NTFSCollation? {
+        cacheLock.lock()
+        if triedCollation {
+            let ready = cachedCollation
+            cacheLock.unlock()
+            return ready
+        }
+        cacheLock.unlock()
+
+        // Read outside the lock, as the bitmap is. Two threads arriving
+        // together both read and both store, which costs one extra read of a
+        // table that cannot change under a mount.
+        let loaded = contents(ofFile: NTFSCollation.record).flatMap(NTFSCollation.init)
+        cacheLock.lock()
+        cachedCollation = loaded
+        triedCollation = true
+        cacheLock.unlock()
+        return loaded
+    }
+
     /// `$Bitmap` is record 6 on every NTFS volume.
     public static let bitmapRecord: UInt64 = 6
     private var bitmapRecord: UInt64 { Self.bitmapRecord }
@@ -411,7 +446,7 @@ public final class NTFSVolumeReader: @unchecked Sendable {
             let entries = NTFSIndex.entries(
                 record.data, from: first,
                 limit: min(indexRoot.valueOffset + indexRoot.valueLength, record.data.count))
-            switch NTFSIndex.find(name, in: entries) {
+            switch NTFSIndex.find(name, in: entries, collation: collation()) {
             case .found(let entry): return entry.record
             case .descend(let block): next = block
             case .absent: return nil
@@ -442,7 +477,7 @@ public final class NTFSVolumeReader: @unchecked Sendable {
             else { return nil }
             let entries = NTFSIndex.entries(
                 node, from: header.firstEntryOffset, limit: header.endOfEntries)
-            switch NTFSIndex.find(name, in: entries) {
+            switch NTFSIndex.find(name, in: entries, collation: collation()) {
             case .found(let entry): return entry.record
             case .descend(let child):
                 // A block that points at itself, or back up the tree, would

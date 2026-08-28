@@ -3959,6 +3959,51 @@ group("findingANameUsesTheOrderTheTreeIsIn") {
         "while a name that is present is found rather than descended past")
 
     // An empty node, and one that is only a marker.
+    // The comparison is the volume's, not the language's, and the difference is
+    // not academic. A node holding both spellings of the same German word:
+    // NTFS uppercases sharp s to itself, so it sorts after every S, while Swift
+    // uppercases it to SS and makes the two names one.
+    let german = [
+        named("strasse.txt", record: 40), named("stra\u{00DF}e.txt", record: 41), marker(),
+    ]
+    expect(
+        NTFSIndex.find("stra\u{00DF}e.txt", in: german) == .found(german[0]),
+        "without the volume's table, asking for the sharp-s name returns the other file -- one "
+            + "file's bytes handed over for another file's name, with nothing reporting a fault")
+
+    let volume = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }.first(where: { FileManager.default.fileExists(atPath: $0) })
+    if let volume, let handle = FileHandle(forReadingAtPath: volume) {
+        defer { try? handle.close() }
+        let lock = NSLock()
+        let reader = NTFSVolumeReader(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        })
+        if let collation = reader?.collation() {
+            expect(
+                NTFSIndex.find("stra\u{00DF}e.txt", in: german, collation: collation)
+                    == .found(german[1]),
+                "and with it, the right one")
+            expect(
+                NTFSIndex.find("strasse.txt", in: german, collation: collation)
+                    == .found(german[0]),
+                "and the other name still finds the other file")
+            expect(
+                NTFSIndex.find("MANGO.TXT", in: node, collation: collation) == .found(node[1]),
+                "case still does not make a new file")
+            expect(
+                NTFSIndex.find("Nectarine.txt", in: node, collation: collation) == .absent,
+                "and a name that is not there is still not there")
+        } else {
+            expect(false, "the volume's table loads")
+        }
+    }
+
     expect(NTFSIndex.find("anything", in: []) == .absent, "an empty node holds nothing")
     expect(NTFSIndex.find("anything", in: [marker()]) == .absent, "nor does a bare marker")
     expect(
@@ -5875,6 +5920,39 @@ group("namesAreOrderedTheWayTheVolumeOrdersThem") {
                 "and \(deeper) with its \(inner.count) entries is in order too")
         }
     }
+
+    // The reader hands its own table out, and hands out the same one twice --
+    // it is 128 KB off the disk and every lookup wants it.
+    guard let fromReader = reader.collation() else {
+        expect(false, "the reader loads the volume's table")
+        return
+    }
+    expect(fromReader.upper(0x61) == 0x41, "and it is a real table")
+    expect(
+        reader.collation()?.upper(0x00DF) == 0x00DF,
+        "asked twice, it says the same thing")
+
+    // And every name in the biggest directory is still found through it, so
+    // filing by this comparison and searching by it agree.
+    var lookedUp = 0
+    var missed: [String] = []
+    if let big = reader.contents(ofDirectory: NTFSTable.rootRecord)?
+        .first(where: { entry in
+            (reader.contents(ofDirectory: entry.record)?.count ?? 0) > 1000
+        })
+    {
+        for entry in (reader.contents(ofDirectory: big.record) ?? []).prefix(2000)
+        where entry.name != "." && entry.name != ".." {
+            lookedUp += 1
+            if reader.find(entry.name, inDirectory: big.record) != entry.record {
+                missed.append(entry.name)
+            }
+        }
+    }
+    expect(lookedUp > 1000, "every name in a directory of thousands is looked up: \(lookedUp)")
+    expect(
+        missed.isEmpty,
+        "and every one of them is found again: missed \(missed.prefix(3))")
 
     // The identity table is not the volume's, and saying so is the point: a
     // caller that writes must have the real one.

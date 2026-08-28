@@ -144,18 +144,37 @@ public enum NTFSIndex {
     }
 
     /// Search one node.
-    public static func find(_ name: String, in entries: [Entry]) -> Step {
-        let wanted = name.uppercased()
+    ///
+    /// - Parameter collation: the volume's own `$UpCase` table. Passing nil
+    ///   falls back to Swift's uppercasing, which is **not** how NTFS orders
+    ///   names and is kept only for callers with no volume to read a table
+    ///   from. The difference is not academic: in a node holding both
+    ///   `strasse` and `straße`, Swift uppercases the second to the first and
+    ///   this returns the wrong entry -- one file's bytes handed over for
+    ///   another file's name, with nothing reporting a fault.
+    public static func find(
+        _ name: String, in entries: [Entry], collation: NTFSCollation? = nil
+    ) -> Step {
+        let wanted = Array(name.utf16)
+        let fallback = name.uppercased()
         for entry in entries {
             if entry.isLast {
                 if let child = entry.childBlock { return .descend(child) }
                 return .absent
             }
             guard let candidate = entry.name?.name else { continue }
-            let upper = candidate.uppercased()
-            if upper == wanted { return .found(entry) }
+            let order: ComparisonResult
+            if let collation {
+                order = collation.compare(Array(candidate.utf16), wanted)
+            } else {
+                let upper = candidate.uppercased()
+                order =
+                    upper == fallback
+                    ? .orderedSame : (upper < fallback ? .orderedAscending : .orderedDescending)
+            }
+            if order == .orderedSame { return .found(entry) }
             // Past where it would have been: it is below this entry, or nowhere.
-            if upper > wanted {
+            if order == .orderedDescending {
                 if let child = entry.childBlock { return .descend(child) }
                 return .absent
             }
