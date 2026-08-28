@@ -87,6 +87,21 @@ public enum MountScript {
         /// server that is genuinely gone is caught by `deadtimeout=45`, which is
         /// a separate mechanism and is left alone; these two only decide how
         /// long a server that is still answering is allowed to take.
+        ///
+        /// And `deadtimeout` is left alone deliberately, having been measured
+        /// rather than assumed. It looks like the thing that gives up on a
+        /// drive, so it looks like the thing to raise. It is the opposite. Two
+        /// mounts of one export, both `timeo=600`, through a ninety-second
+        /// outage:
+        ///
+        ///     deadtimeout=45   131 files copied, 9 failed
+        ///     no deadtimeout    13 files copied, 76 failed
+        ///
+        /// Without it the mount never comes back: it stays wedged after the
+        /// server returns and every later write fails. With it, macOS marks the
+        /// mount dead, and revives it when the server answers again -- which is
+        /// what let the copy carry on. Raising or removing it would cost the
+        /// recovery it looks like it is preventing.
         var nfsOptions = "rsize=1048576,wsize=1048576,readahead=128,timeo=600,retrans=5"
 
         public init(
