@@ -195,10 +195,22 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     // MARK: - Statistics
 
     public func usage() -> (files: UInt64, bytes: UInt64) {
-        // What the volume holds, not what has been walked. Counting every
-        // record would mean reading the whole table to answer statfs, which
-        // Finder asks for every time a window opens.
-        (0, 0)
+        // Real numbers, from $Bitmap. Reporting zero used on a full drive is
+        // what Finder shows in Get Info and beside every window, and a volume
+        // that claims to be empty when it is not invites somebody to copy onto
+        // it until the write fails.
+        //
+        // The file count is not answered: knowing it means reading the whole
+        // master file table, and Finder does not show it anywhere.
+        lock.withLock {
+            guard let space = reader.spaceInUse() else { return (0, 0) }
+            return (0, space.used)
+        }
+    }
+
+    /// How large the volume is, which statfs needs beside what is used.
+    public func capacity() -> UInt64 {
+        lock.withLock { reader.spaceInUse()?.total ?? 0 }
     }
 }
 

@@ -25,6 +25,8 @@ public final class NTFSVolumeReader: @unchecked Sendable {
     private let read: ReadBytes
     private let mftRuns: [NTFSRunlist.Run]
     private let tableSize: UInt64
+    /// Read once, because Finder asks for free space on every window.
+    private var cachedBitmap: Data?
 
     /// Open a volume, or refuse.
     ///
@@ -52,6 +54,37 @@ public final class NTFSVolumeReader: @unchecked Sendable {
         self.mftRuns = runs
         self.tableSize = data.dataSize
     }
+
+    /// How much of the volume is in use, in bytes, and how large it is.
+    ///
+    /// Read from `$Bitmap`, which is the only structure that knows. Counting
+    /// records instead would mean reading the whole master file table to answer
+    /// a question Finder asks every time a window opens.
+    ///
+    /// The bitmap is read once and kept: it is 128 KB on a 4 GB volume and
+    /// grows with the disk, and reading it per call would make every window a
+    /// disk read. It goes stale only if something else writes to the drive,
+    /// which for a read-only volume means somebody has unplugged it and put it
+    /// back.
+    public func spaceInUse() -> (used: UInt64, total: UInt64)? {
+        let total = geometry.totalSectors / UInt64(geometry.sectorsPerCluster)
+        guard total > 0 else { return nil }
+        let bitmap: Data
+        if let cached = cachedBitmap {
+            bitmap = cached
+        } else {
+            guard let read = contents(ofFile: bitmapRecord), !read.isEmpty else { return nil }
+            cachedBitmap = read
+            bitmap = read
+        }
+        let free = NTFSBitmap.freeClusters(in: bitmap, totalClusters: total)
+        let cluster = UInt64(geometry.bytesPerCluster)
+        return ((total - free) * cluster, total * cluster)
+    }
+
+    /// `$Bitmap` is record 6 on every NTFS volume.
+    public static let bitmapRecord: UInt64 = 6
+    private var bitmapRecord: UInt64 { Self.bitmapRecord }
 
     /// What the volume says about itself: its name, its version, and whether
     /// it was unmounted cleanly.

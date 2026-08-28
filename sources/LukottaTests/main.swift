@@ -4767,6 +4767,33 @@ group("theRealVolumeReportsItsOwnState") {
     expect(
         backing.volumeLabel == info.label,
         "with the volume's name, which is what Finder would put on the desktop")
+
+    // Free space, which Finder shows in Get Info and beside every window. A
+    // volume claiming to be empty when it is not invites somebody to copy onto
+    // it until the write fails.
+    guard let space = reader.spaceInUse() else {
+        expect(false, "the volume reports how much of it is in use")
+        return
+    }
+    let totalBytes = reader.geometry.totalSectors * UInt64(reader.geometry.bytesPerSector)
+    expect(space.total > 0, "the volume has a size")
+    expect(
+        space.total <= totalBytes + UInt64(reader.geometry.bytesPerCluster),
+        "which matches what the boot sector says, to within a cluster")
+    expect(space.used > 0, "some of it is in use -- it has files on it")
+    expect(space.used < space.total, "and some of it is free")
+
+    // The same number through the backing, which is what statfs would answer.
+    expect(
+        backing.usage().bytes == space.used,
+        "and the backing reports the same, so statfs and the reader cannot disagree")
+    expect(backing.capacity() == space.total, "with the same capacity")
+
+    if ProcessInfo.processInfo.environment["LUKOTTA_SHOW_LISTING"] != nil {
+        print(
+            "    volume: \(space.used / 1_048_576) MB used of "
+                + "\(space.total / 1_048_576) MB")
+    }
 }
 
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
