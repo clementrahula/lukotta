@@ -387,8 +387,22 @@ public final class NTFSVolumeReader: @unchecked Sendable {
 
     /// A file's contents, or the part of them asked for.
     public func contents(ofFile number: UInt64, offset: UInt64 = 0, length: Int? = nil) -> Data? {
+        contents(ofFile: number, attribute: .data, offset: offset, length: length)
+    }
+
+    /// The contents of any one attribute of a record.
+    ///
+    /// `$DATA` is the file's bytes and is what almost everything wants, but not
+    /// everything. `$MFT` keeps a `$BITMAP` saying which records exist, and a
+    /// directory keeps its entries in `$INDEX_ALLOCATION` -- both are read the
+    /// same way as a file, because on NTFS they are files: an attribute with a
+    /// runlist and clusters behind it.
+    public func contents(
+        ofFile number: UInt64, attribute kind: NTFSAttribute.Kind, offset: UInt64 = 0,
+        length: Int? = nil
+    ) -> Data? {
         guard let record = record(number), !spillsAttributes(record),
-            let data = attributes(of: record).first(where: { $0.kind == .data })
+            let data = attributes(of: record).first(where: { $0.kind == kind })
         else { return nil }
         // A compressed or encrypted attribute's clusters do not hold the file's
         // contents. Handing them over returns garbage with nothing reporting a

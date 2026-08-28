@@ -5708,6 +5708,186 @@ group("aRunlistPackedBackDecodesToWhatItWas") {
         "a run of no clusters is refused")
 }
 
+group("aNewFileTakesARecordNobodyElseHas") {
+    // $MFT keeps a $BITMAP saying which of its records describe files that
+    // exist. Creating one means finding a clear bit -- and never one of the
+    // first twenty-four, which are the volume's own files and the slots every
+    // implementation holds in reserve.
+
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    guard
+        let reader = NTFSVolumeReader(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        })
+    else {
+        expect(false, "the volume reads")
+        return
+    }
+
+    guard let bitmap = reader.contents(ofFile: NTFSTable.mftRecord, attribute: .bitmap),
+        let tableSize = reader.size(ofFile: NTFSTable.mftRecord)
+    else {
+        expect(false, "$MFT has a $BITMAP and a size")
+        return
+    }
+    let records = tableSize / UInt64(reader.geometry.bytesPerFileRecord)
+    expect(records > NTFSRecordAllocator.firstAvailable, "the table holds more than the reserve")
+    expect(
+        UInt64(bitmap.count) * 8 >= records,
+        "and its bitmap has a bit for every record, which is what makes the search bounded")
+
+    // The bitmap agrees with the records themselves. Two independent things
+    // saying the same about the same volume is what makes either believable.
+    var checked = 0
+    var agreed = 0
+    for number in 0..<min(records, 512) {
+        guard let claimed = NTFSRecordAllocator.isInUse(number, in: bitmap) else { continue }
+        checked += 1
+        let present = reader.record(number)?.header.inUse ?? false
+        if claimed == present { agreed += 1 }
+    }
+    expect(checked > 100, "enough records to be worth saying anything about: \(checked)")
+    expect(
+        agreed == checked,
+        "and the bitmap agrees with every record's own header, \(agreed) of \(checked)")
+
+    guard let choice = NTFSRecordAllocator.choose(in: bitmap, recordCount: records) else {
+        expect(false, "there is a free record on a volume this empty")
+        return
+    }
+    expect(
+        choice.record >= NTFSRecordAllocator.firstAvailable,
+        "the record chosen is not one of the volume's own -- handing out record \(choice.record) "
+            + "would be handing out a slot Windows expects to find where it left it")
+    expect(choice.record < records, "and is inside the table")
+    expect(
+        NTFSRecordAllocator.isInUse(choice.record, in: bitmap) == false,
+        "it was free before")
+    expect(
+        NTFSRecordAllocator.isInUse(choice.record, in: choice.bitmap) == true,
+        "and is taken after")
+    expect(
+        reader.record(choice.record)?.header.inUse != true,
+        "and the record itself is not in use either, so the two agree")
+    expect(choice.bitmap.count == bitmap.count, "claiming a record does not resize the bitmap")
+
+    // Only that one bit moved.
+    let moved = zip([UInt8](bitmap), [UInt8](choice.bitmap)).enumerated()
+        .filter { $0.element.0 != $0.element.1 }
+    expect(moved.count == 1, "exactly one byte of the bitmap changed")
+    if let (index, pair) = moved.first.map({ ($0.offset, $0.element) }) {
+        expect(
+            UInt64(index) == choice.record / 8,
+            "and it is the byte the chosen record lives in")
+        expect(
+            pair.1 == pair.0 | (1 << UInt8(choice.record % 8)),
+            "with one bit set and nothing else disturbed")
+    }
+
+    // Asking twice with the first taken gives a different record. Two files
+    // created in a row must not be handed the same slot.
+    guard let second = NTFSRecordAllocator.choose(in: choice.bitmap, recordCount: records) else {
+        expect(false, "a second record is free too")
+        return
+    }
+    expect(second.record != choice.record, "a second file gets a different record")
+
+    // Giving it back.
+    guard
+        let returned = NTFSRecordAllocator.releasing(
+            choice.record, in: choice.bitmap, recordCount: records)
+    else {
+        expect(false, "a record can be given back")
+        return
+    }
+    expect(returned == bitmap, "and the bitmap is exactly as it was")
+
+    // The reserve is not for handing out, and not for taking back either.
+    for reserved in [UInt64(0), 3, 5, 15, 23] {
+        expect(
+            NTFSRecordAllocator.releasing(reserved, in: bitmap, recordCount: records) == nil,
+            "record \(reserved) is never released -- clearing that bit tells the next "
+                + "allocation that one of the volume's own files is free")
+    }
+    guard
+        let hinted = NTFSRecordAllocator.choose(in: bitmap, recordCount: records, near: 0)
+    else {
+        expect(false, "a hint below the reserve still finds a record")
+        return
+    }
+    expect(
+        hinted.record >= NTFSRecordAllocator.firstAvailable,
+        "and a hint pointing into the reserve does not get you into it")
+
+    // A hint past every free record. The search only goes forwards, so without
+    // a second pass from the beginning this volume would report itself full
+    // while most of its table is empty -- and a file that could have been
+    // created would fail instead.
+    var crowded = [UInt8](repeating: 0x00, count: 16)
+    crowded[0] = 0xFF
+    crowded[1] = 0xFF
+    crowded[2] = 0xFF  // records 0 to 23, the reserve
+    for byte in 5..<16 { crowded[byte] = 0xFF }  // records 40 upwards, taken
+    expect(
+        NTFSRecordAllocator.choose(in: Data(crowded), recordCount: 128, near: 100)?.record == 24,
+        "a hint past the last free record still finds the free ones behind it")
+    expect(
+        NTFSRecordAllocator.choose(in: Data(crowded), recordCount: 128, near: 30)?.record == 30,
+        "while a hint that lands on free space is followed, so files made together sit together")
+
+    // A table with nothing but reserve in it has nowhere to put a file, and
+    // says so rather than handing out a record past its end.
+    expect(
+        NTFSRecordAllocator.choose(in: bitmap, recordCount: 24) == nil,
+        "a table of only reserved records is full")
+    expect(
+        NTFSRecordAllocator.choose(in: bitmap, recordCount: 0) == nil,
+        "and so is one with no records at all")
+    expect(
+        NTFSRecordAllocator.choose(in: Data(), recordCount: records) == nil,
+        "a bitmap with nothing in it yields nothing")
+
+    // On this volume the bitmap has exactly one bit per record and not one
+    // more -- mkntfs sized both to the same cluster. That is not guaranteed:
+    // the bitmap is bytes, the table is records, and a table whose count is not
+    // a multiple of eight leaves bits describing records that do not exist.
+    // Handing one of those out is handing out a slot past the end of the table.
+    expect(
+        UInt64(bitmap.count) * 8 == records,
+        "this volume has no spare bits: \(UInt64(bitmap.count) * 8) for \(records) records")
+    let full = Data(repeating: 0xFF, count: bitmap.count)
+    expect(
+        NTFSRecordAllocator.choose(in: full, recordCount: records) == nil,
+        "and when every record is taken, none is offered")
+    // A table three records short of filling its last byte. The five spare bits
+    // are clear, and must still not be offered.
+    let roomy = Data(repeating: 0xFF, count: 8)
+    expect(
+        NTFSRecordAllocator.choose(in: roomy, recordCount: 61) == nil,
+        "a full table is full even when its bitmap has bits left over")
+    var lastByteFree = [UInt8](repeating: 0xFF, count: 8)
+    // Set means in use, so clearing the top three bits frees records 61 to 63.
+    // Records 56 to 60 stay taken, and 61 is past the end of a 61-record table.
+    lastByteFree[7] = 0x1F
+    expect(
+        NTFSRecordAllocator.choose(in: Data(lastByteFree), recordCount: 61) == nil,
+        "and a bit past the end of the table is not a free record")
+    expect(
+        NTFSRecordAllocator.choose(in: Data(lastByteFree), recordCount: 62)?.record == 61,
+        "while the same bit is a free record once the table is long enough to hold it")
+}
+
 group("aRecordGoesBackToEveryPlaceItLives") {
     // $MFTMirr holds a copy of the beginning of the table, and $Volume -- where
     // the dirty flag lives -- is inside it. So the very first write this
