@@ -3593,6 +3593,85 @@ group("theWholeVolumeReadsThroughOneObject") {
     }
 }
 
+group("anNtfsVolumeServesThroughTheSameSeamAsTheOthers") {
+    // The point of the seam: the volume is written once and cannot tell what is
+    // behind it. Memory and a host directory were there to measure. This is the
+    // one the application exists for, and it answers the same calls.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    guard
+        let fs: any FSBacking = NTFSBacking(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        })
+    else {
+        expect(false, "an NTFS volume opens behind the seam")
+        return
+    }
+
+    // Everything below is the same shape as the checks the other two backings
+    // pass, which is what makes the seam worth having.
+    let root = fs.rootHandle
+    expect(fs.attributes(of: root)?.isDirectory == true, "the root is a directory")
+    expect(
+        fs.attributes(of: root)?.id == NTFSTable.rootRecord,
+        "and is record five, which is the root on every NTFS volume")
+
+    let children = fs.children(of: root)
+    let names = children.map(\.name)
+    expect(!names.isEmpty, "the root lists")
+    expect(names.contains("$MFT"), "with the master file table in it")
+    expect(!names.contains("."), "and without a folder inside itself, which Finder would show")
+    expect(names == names.sorted(), "sorted, because an enumeration resumes by index into this")
+
+    // Looking a name up gives the same file the listing gave.
+    guard let found = fs.lookup("$MFT", in: root) else {
+        expect(false, "a name looks up")
+        return
+    }
+    expect(fs.attributes(of: found)?.id == 0, "$MFT is record zero")
+    expect(fs.lookup("no-such-file-here", in: root) == nil, "and a name that is not there is not")
+
+    // Reading through the seam.
+    if let entry = children.first(where: { $0.name == "readback.txt" }) {
+        let contents = fs.read(entry.handle, offset: 0, length: 64)
+        expect(
+            String(decoding: contents, as: UTF8.self) == "LUKOTTA-V2-READBACK-CHECK-0123456789",
+            "and a file's contents come back through the same read the other backings answer")
+        expect(
+            fs.attributes(of: entry.handle)?.size == 36,
+            "with the size the volume says it has")
+    }
+
+    // Read-only, said by refusing rather than by pretending. A write that
+    // returned success and changed nothing is the worst of both.
+    expect(
+        fs.create("new.txt", isDirectory: false, in: root, mode: 0o644) == nil,
+        "creating a file is refused")
+    expect(fs.remove("$MFT", from: root) == .missing, "removing one is refused")
+    expect(
+        !fs.rename("$MFT", in: root, to: "x", in: root), "renaming one is refused")
+    expect(
+        fs.write(root, contents: Data([1, 2, 3]), offset: 0) == 0,
+        "and a write takes nothing rather than reporting bytes it did not store")
+    expect(
+        fs.attributes(of: root)?.mode == 0o555,
+        "the mode says read-only, so nothing has to try a write to find out")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
