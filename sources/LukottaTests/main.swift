@@ -2879,6 +2879,98 @@ group("aRecordIsFoundThroughTheTablesOwnRuns") {
     expect(NTFSTable.mftRecord == 0, "and the table itself is record zero")
 }
 
+group("theRootDirectoryIsReachedByNumberOnARealVolume") {
+    // Every layer at once, on a real volume, reaching a record the boot sector
+    // does not point at. $MFT is found because the boot sector says where it
+    // is; record 5 is found because the reader walked $MFT's runs and did the
+    // arithmetic. That is the difference between parsing one blessed record and
+    // being able to read the volume.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path),
+        let boot = try? handle.read(upToCount: 4096),
+        let geometry = NTFSGeometry.read(boot)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+
+    // 1. $MFT's own record, where the boot sector says.
+    try? handle.seek(toOffset: geometry.mftByteOffset)
+    guard let mftRaw = try? handle.read(upToCount: geometry.bytesPerFileRecord),
+        let mftHeader = NTFSRecord.header(mftRaw, expectedLength: geometry.bytesPerFileRecord),
+        let mftRecord = NTFSRecord.applyFixup(
+            mftRaw, header: mftHeader, sectorSize: geometry.bytesPerSector),
+        let mftData = NTFSAttribute.all(
+            in: mftRecord, startingAt: mftHeader.firstAttributeOffset,
+            usedLength: mftHeader.usedLength
+        ).first(where: { $0.kind == .data }),
+        let runs = NTFSRunlist.decode(mftRecord, at: mftData.runlistOffset, limit: mftRecord.count)
+    else {
+        expect(false, "the table's own record and runs are read")
+        return
+    }
+
+    // 2. Where record 5 sits inside the table as a file.
+    guard
+        let inTable = NTFSTable.offsetInTable(
+            record: NTFSTable.rootRecord, bytesPerFileRecord: geometry.bytesPerFileRecord)
+    else {
+        expect(false, "record five has a place in the table")
+        return
+    }
+
+    // 3. Where that is on the disk, through the runs.
+    guard
+        let placed = NTFSTable.diskOffset(
+            forFileOffset: inTable, runs: runs, bytesPerCluster: geometry.bytesPerCluster),
+        placed.availableBytes >= UInt64(geometry.bytesPerFileRecord)
+    else {
+        expect(false, "and a place on the disk, with the whole record inside one run")
+        return
+    }
+
+    // 4. Read it.
+    try? handle.seek(toOffset: placed.offset)
+    guard let raw = try? handle.read(upToCount: geometry.bytesPerFileRecord),
+        let header = NTFSRecord.header(raw, expectedLength: geometry.bytesPerFileRecord),
+        let record = NTFSRecord.applyFixup(
+            raw, header: header, sectorSize: geometry.bytesPerSector)
+    else {
+        expect(false, "the root directory's record reads and repairs")
+        return
+    }
+
+    // What record 5 must be, on any NTFS volume anybody has ever made.
+    expect(header.inUse, "the root directory is in use")
+    expect(header.isDirectory, "and is a directory, which is how the flag is read")
+
+    let attributes = NTFSAttribute.all(
+        in: record, startingAt: header.firstAttributeOffset, usedLength: header.usedLength)
+    let kinds = attributes.compactMap(\.kind)
+    expect(kinds.contains(.indexRoot), "a directory carries an index root -- its B-tree of names")
+    expect(
+        kinds.contains(.standardInformation), "and its standard information, as every record does")
+
+    // And it is called "." -- the root's name for itself.
+    let names =
+        attributes
+        .filter { $0.kind == .fileName && $0.isResident }
+        .compactMap { attribute -> NTFSFileName.Name? in
+            let start = record.startIndex + attribute.valueOffset
+            guard start + attribute.valueLength <= record.endIndex else { return nil }
+            return NTFSFileName.read(record[start..<start + attribute.valueLength])
+        }
+    expect(
+        NTFSFileName.preferred(names)?.name == ".",
+        "and the root directory is named \".\", which is what NTFS calls it")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
