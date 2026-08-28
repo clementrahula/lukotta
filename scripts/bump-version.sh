@@ -32,21 +32,16 @@ done
 CUR="$(tr -d ' \n' < "$HERE/VERSION")"
 IFS=. read -r MA MI PA <<< "$CUR"
 
-# Which line of versions this branch carries, and whether it owns the README.
+# Which line of versions this branch carries.
 #
 # v2 is written on its own branch beside the application people are running.
 # Its versions are 2.x and v1's are 1.x, and a bump on either branch must move
 # its own line and nothing of the other's. Reading the line from the branch
 # rather than from the file is what makes that automatic: on v2 there is no way
 # to bump v1's version by accident, and no reason to ask anybody first.
-#
-# The badge in README.md is v1's. It says which version people can install, and
-# on the v2 branch that is still whatever main has released -- so bumping here
-# leaves it alone, which is both true and one guaranteed conflict fewer on
-# every merge from main.
 case "$(git -C "$HERE" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '')" in
-  v2 | v2/*) LINE=2; TOUCH_README=false ;;
-  *)         LINE="$MA"; TOUCH_README=true ;;
+  v2 | v2/*) LINE=2 ;;
+  *)         LINE="$MA" ;;
 esac
 
 case "$PART" in
@@ -80,17 +75,12 @@ printf '%s\n' "$NEW" > "$HERE/VERSION"
 # whatever reads best -- it is a starting point, and it is already right about
 # what changed.
 "$HERE/scripts/release-notes.py" "$NEW" --write
-# The README carries the version as a badge, which would otherwise be wrong from
-# the moment this runs -- on the line that owns it. See TOUCH_README above.
-CHANGED=(VERSION "releases/$NEW.md")
-if [ "$TOUCH_README" = true ]; then
-  /usr/bin/sed -i '' \
-    -e "s|badge/version-[0-9.]*-|badge/version-$NEW-|" \
-    -e "s|alt=\"Version [0-9.]*\"|alt=\"Version $NEW\"|" \
-    "$HERE/README.md"
-  CHANGED+=(README.md)
-fi
-git -C "$HERE" add "${CHANGED[@]}"
+# The README is not touched. It carried the version as a literal in a badge
+# once, and this rewrote it; since 88e9c33 the badge asks GitHub for the latest
+# release instead, so the rewrite has matched nothing and changed nothing. It is
+# gone rather than left looking as though the README still needs a bump -- and
+# it is one file fewer for a v2 bump to disturb.
+git -C "$HERE" add VERSION "releases/$NEW.md"
 git -C "$HERE" commit -q -m "Version $NEW"
 if [ "$TAG" = true ]; then
   git -C "$HERE" tag -a "v$NEW" -m "Lukotta v$NEW"
