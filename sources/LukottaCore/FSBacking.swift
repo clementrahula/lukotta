@@ -82,4 +82,18 @@ public protocol FSBacking: AnyObject, Sendable {
     ) -> FSStore.XattrOutcome
 
     func usage() -> (files: UInt64, bytes: UInt64)
+
+    /// How large the volume is, in bytes.
+    ///
+    /// Zero means "no fixed size", which is true of the memory backing and of a
+    /// directory on somebody else's filesystem. The extension invents a size
+    /// for those, because Finder refuses to copy onto a volume that reports
+    /// none free -- but it must not invent one for a real disk, where the
+    /// number is knowable and wrong would show in Get Info.
+    var capacityInBytes: UInt64 { get }
+}
+
+extension FSBacking {
+    /// Backings with nothing real behind them do not have to answer.
+    public var capacityInBytes: UInt64 { 0 }
 }

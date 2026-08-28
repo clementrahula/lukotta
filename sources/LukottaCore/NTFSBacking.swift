@@ -209,7 +209,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     }
 
     /// How large the volume is, which statfs needs beside what is used.
-    public func capacity() -> UInt64 {
+    public var capacityInBytes: UInt64 {
         lock.withLock { reader.spaceInUse()?.total ?? 0 }
     }
 }

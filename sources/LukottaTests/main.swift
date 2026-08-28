@@ -4787,7 +4787,7 @@ group("theRealVolumeReportsItsOwnState") {
     expect(
         backing.usage().bytes == space.used,
         "and the backing reports the same, so statfs and the reader cannot disagree")
-    expect(backing.capacity() == space.total, "with the same capacity")
+    expect(backing.capacityInBytes == space.total, "with the same capacity")
 
     if ProcessInfo.processInfo.environment["LUKOTTA_SHOW_LISTING"] != nil {
         print(

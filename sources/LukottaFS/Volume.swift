@@ -105,11 +105,13 @@ extension LukottaVolume: FSVolume.Operations {
     var volumeStatistics: FSStatFSResult {
         let used = store.usage()
         let result = FSStatFSResult(fileSystemTypeName: "lukottafs")
-        // A gigabyte of imaginary space. Finder refuses to copy anything onto a
-        // volume that reports none free, so the number has to be a real one
-        // even when nothing is behind it.
+        // A real disk knows how large it is. Only the backings with nothing
+        // behind them -- memory, a directory on somebody else's filesystem --
+        // get an invented gigabyte, because Finder refuses to copy onto a
+        // volume that reports no free space at all.
         let blockSize: UInt64 = 4096
-        let total: UInt64 = 1 << 30
+        let declared = store.capacityInBytes
+        let total: UInt64 = declared > 0 ? declared : (1 << 30)
         result.blockSize = Int(blockSize)
         result.ioSize = Int(blockSize)
         result.totalBlocks = total / blockSize
