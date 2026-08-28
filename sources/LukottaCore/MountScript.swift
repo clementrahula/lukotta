@@ -70,39 +70,27 @@ public enum MountScript {
         /// not a setting, and the sequential-throughput argument that used to be
         /// written here was describing a transfer size the mount has never used.
         ///
-        /// `timeo` and `retrans` are set here deliberately, over the engine's
-        /// own defaults of `timeo=100,retrans=3`. Ten seconds is not long
-        /// enough to be slow in: a drive reorganising itself, an enclosure
-        /// hiccuping, or a Mac whose disk is busy will all take longer than
-        /// that, and on a soft mount an operation that outlasts the timeout
-        /// does not wait -- it fails, and whatever was copying is told the
-        /// write did not happen.
+        /// `timeo` and `retrans` are left to the engine, which sets
+        /// `timeo=100,retrans=3`. Ten seconds looks short for a drive that can
+        /// legitimately stall, and raising it was tried here and taken out
+        /// again, for two reasons.
         ///
-        /// Measured rather than guessed. Two mounts of the same export, one on
-        /// each setting, under the same load with the backing store deliberately
-        /// starved: `timeo=100,retrans=3` produced 174 `Operation timed out`
-        /// failures, `timeo=600,retrans=5` produced none.
+        /// The measurement did not hold. One run of two mounts of the same
+        /// export under a starved backing store gave 174 `Operation timed out`
+        /// failures at `timeo=100` and none at `timeo=600`; two attempts to
+        /// reproduce it gave none on either. The volume in the first run was
+        /// nearly full, which is a likelier cause of what was seen than the
+        /// timeout was.
         ///
-        /// This does not bring back the hang that `soft` exists to prevent. A
-        /// server that is genuinely gone is caught by `deadtimeout=45`, which is
-        /// a separate mechanism and is left alone; these two only decide how
-        /// long a server that is still answering is allowed to take.
+        /// And it could not have helped much anyway. `deadtimeout=45` marks the
+        /// mount dead after forty-five seconds whatever `timeo` says, so a
+        /// sixty-second timeout never finishes a single try first. Anything
+        /// above the deadtimeout is decoration.
         ///
-        /// And `deadtimeout` is left alone deliberately, having been measured
-        /// rather than assumed. It looks like the thing that gives up on a
-        /// drive, so it looks like the thing to raise. It is the opposite. Two
-        /// mounts of one export, both `timeo=600`, through a ninety-second
-        /// outage:
-        ///
-        ///     deadtimeout=45   131 files copied, 9 failed
-        ///     no deadtimeout    13 files copied, 76 failed
-        ///
-        /// Without it the mount never comes back: it stays wedged after the
-        /// server returns and every later write fails. With it, macOS marks the
-        /// mount dead, and revives it when the server answers again -- which is
-        /// what let the copy carry on. Raising or removing it would cost the
-        /// recovery it looks like it is preventing.
-        var nfsOptions = "rsize=1048576,wsize=1048576,readahead=128,timeo=600,retrans=5"
+        /// If this is revisited, the number to think about is one below the
+        /// deadtimeout, not above it -- and with a reproduction that survives
+        /// being run twice.
+        var nfsOptions = "rsize=1048576,wsize=1048576,readahead=128"
 
         public init(
             enginePath: String, devicePath: String, driveName: String,
