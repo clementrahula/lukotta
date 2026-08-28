@@ -82,10 +82,30 @@ extension LukottaFileSystem: FSUnaryFileSystemOperations {
         // FAT32 cannot give. What ships names the guest's volume here.
         let backing: any FSBacking
         if let device = resource as? FSBlockDeviceResource {
+            // What is on it decides what can be done with it. The probe claims
+            // BitLocker and LUKS as well as NTFS, because a locked drive is
+            // still ours to open -- but opening one needs a key, and a
+            // filesystem extension has nowhere to ask for a passphrase.
+            //
+            // So an encrypted volume is refused here, deliberately and with the
+            // reason written down. The decrypting reader exists and is checked
+            // (DecryptingReader, AESXTS); what is missing is the key, which
+            // means unwrapping BitLocker's FVEK or deriving LUKS's, and a way
+            // for the application to hand it over. Serving the ciphertext as a
+            // filesystem would present a drive full of noise.
+            let held = HeldDevice(device)
+            if let boot = held.read(0, 4096) {
+                let format = BootSector.identify(boot)
+                if format == .bitlocker || format == .luks {
+                    Log.app.notice(
+                        "the drive is encrypted (\(format.name, privacy: .public)) and the extension has no key for it yet"
+                    )
+                    return reply(nil, fsError(POSIXError.ENOTSUP))
+                }
+            }
             // The real thing: an NTFS volume, read straight off the device.
             // Every read the volume makes comes back through here, so the
             // parsers never learn what a block device is.
-            let held = HeldDevice(device)
             guard let ntfs = NTFSBacking(read: { offset, length in held.read(offset, length) })
             else {
                 // Not NTFS, or a table that cannot be read. Refusing is the
