@@ -1,0 +1,4 @@
+- As cópias grandes já não param a meio quando uma unidade fica lenta.
+- Uma unidade permanece aberta enquanto a estiver a usar.
+- A configuração pede a sua palavra-passe uma única vez.
+- As mensagens de atualização aparecem no seu idioma.

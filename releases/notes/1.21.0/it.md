@@ -1,0 +1,4 @@
+- Le copie grandi non si fermano più a metà quando un disco rallenta.
+- Un disco resta aperto finché lo stai usando.
+- La configurazione chiede la password una sola volta.
+- I messaggi di aggiornamento appaiono nella tua lingua.

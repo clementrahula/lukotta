@@ -1,0 +1,4 @@
+- Les copies volumineuses ne s'arrêtent plus en route quand un disque ralentit.
+- Un disque reste ouvert tant que vous l'utilisez.
+- La configuration demande votre mot de passe une seule fois.
+- Les messages de mise à jour s'affichent dans votre langue.

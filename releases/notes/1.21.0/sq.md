@@ -1,0 +1,4 @@
+- Kopjimet e mëdha nuk ndalen më në mes kur një disk ngadalësohet.
+- Disku qëndron i hapur për sa kohë e përdorni.
+- Konfigurimi e kërkon fjalëkalimin vetëm një herë.
+- Mesazhet e përditësimit shfaqen në gjuhën tuaj.

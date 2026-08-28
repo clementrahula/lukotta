@@ -1,0 +1,4 @@
+- Việc sao chép lớn không còn dừng giữa chừng khi ổ đĩa chậm lại.
+- Ổ đĩa vẫn mở trong khi bạn đang dùng nó.
+- Thiết lập chỉ hỏi mật khẩu của bạn một lần.
+- Thông báo cập nhật hiển thị bằng ngôn ngữ của bạn.

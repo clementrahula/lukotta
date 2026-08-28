@@ -1,0 +1,4 @@
+- Copierile mari nu se mai opresc pe drum când un disc încetinește.
+- Un disc rămâne deschis cât timp îl folosiți.
+- Configurarea vă cere parola o singură dată.
+- Mesajele de actualizare apar în limba dumneavoastră.

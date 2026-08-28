@@ -1,0 +1,4 @@
+- Suured kopeerimised ei katke enam poole pealt, kui ketas aeglustub.
+- Ketas jääb avatuks nii kauaks, kuni sa seda kasutad.
+- Seadistamine küsib parooli ainult üks kord.
+- Uuenduste teated on sinu keeles.

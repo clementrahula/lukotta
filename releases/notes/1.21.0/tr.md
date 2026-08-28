@@ -1,0 +1,4 @@
+- Büyük kopyalamalar bir sürücü yavaşladığında artık yarıda durmuyor.
+- Kullandığınız sürece sürücü açık kalır.
+- Kurulum parolanızı yalnızca bir kez sorar.
+- Güncelleme iletileri kendi dilinizde görünür.

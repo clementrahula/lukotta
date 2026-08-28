@@ -1,0 +1,4 @@
+- Suuret kopioinnit eivät enää keskeydy kesken, kun asema hidastuu.
+- Asema pysyy auki niin kauan kuin käytät sitä.
+- Käyttöönotto kysyy salasanaa vain kerran.
+- Päivitysviestit näkyvät omalla kielelläsi.

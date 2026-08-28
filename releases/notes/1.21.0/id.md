@@ -1,0 +1,4 @@
+- Penyalinan besar tidak lagi berhenti di tengah jalan saat drive melambat.
+- Drive tetap terbuka selama Anda menggunakannya.
+- Penyiapan meminta kata sandi Anda satu kali saja.
+- Pesan pembaruan muncul dalam bahasa Anda.

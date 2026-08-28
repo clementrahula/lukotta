@@ -1,0 +1,4 @@
+- A nagy másolások többé nem állnak le félúton, ha egy meghajtó lelassul.
+- A meghajtó nyitva marad, amíg használod.
+- A beállítás csak egyszer kéri a jelszavadat.
+- A frissítési üzenetek a nyelveden jelennek meg.

@@ -1,0 +1,4 @@
+- Velké kopírování se už nezastaví v půli, když disk zpomalí.
+- Disk zůstane otevřený, dokud ho používáte.
+- Nastavení se na heslo zeptá jen jednou.
+- Zprávy o aktualizacích se zobrazují ve vašem jazyce.

@@ -1,0 +1,4 @@
+- Duże kopiowania nie zatrzymują się już w połowie, gdy dysk zwolni.
+- Dysk pozostaje otwarty tak długo, jak go używasz.
+- Konfiguracja pyta o hasło tylko raz.
+- Komunikaty o aktualizacjach pojawiają się w twoim języku.

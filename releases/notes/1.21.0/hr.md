@@ -1,0 +1,4 @@
+- Velika kopiranja više ne staju na pola kada disk uspori.
+- Disk ostaje otvoren dok ga koristite.
+- Postavljanje traži lozinku samo jednom.
+- Poruke o ažuriranjima prikazuju se na vašem jeziku.

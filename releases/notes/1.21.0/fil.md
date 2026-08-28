@@ -1,0 +1,4 @@
+- Hindi na humihinto sa kalagitnaan ang malalaking pagkopya kapag bumagal ang drive.
+- Nananatiling bukas ang drive habang ginagamit mo ito.
+- Isang beses lang hinihingi ng setup ang iyong password.
+- Lumalabas sa iyong wika ang mga mensahe ng update.

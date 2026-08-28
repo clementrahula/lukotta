@@ -1,0 +1,4 @@
+- Lielas kopēšanas vairs neapstājas pusceļā, kad disks palēninās.
+- Disks paliek atvērts tik ilgi, kamēr to lietojat.
+- Iestatīšana parolei prasa tikai vienu reizi.
+- Atjauninājumu ziņojumi ir jūsu valodā.

@@ -1,0 +1,4 @@
+- Dideli kopijavimai nebesustoja pusiaukelėje, kai diskas sulėtėja.
+- Diskas lieka atvertas tol, kol jį naudojate.
+- Sąranka slaptažodžio paprašo tik vieną kartą.
+- Atnaujinimų pranešimai rodomi jūsų kalba.

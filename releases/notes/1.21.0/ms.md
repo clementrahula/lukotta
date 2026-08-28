@@ -1,0 +1,4 @@
+- Penyalinan besar tidak lagi berhenti di pertengahan apabila pemacu menjadi perlahan.
+- Pemacu kekal terbuka selagi anda menggunakannya.
+- Persediaan meminta kata laluan anda sekali sahaja.
+- Mesej kemas kini muncul dalam bahasa anda.

@@ -1,0 +1,4 @@
+- Velika kopiranja se ne ustavijo več na pol poti, ko disk upočasni.
+- Disk ostane odprt, dokler ga uporabljate.
+- Nastavitev vpraša za geslo samo enkrat.
+- Sporočila o posodobitvah se prikažejo v vašem jeziku.

@@ -1,0 +1,4 @@
+- Las copias grandes ya no se detienen a medio camino cuando una unidad se vuelve lenta.
+- Una unidad permanece abierta mientras la estás usando.
+- La configuración pide tu contraseña una sola vez.
+- Los mensajes de actualización aparecen en tu idioma.
