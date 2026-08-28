@@ -4446,6 +4446,144 @@ group("anEncryptedVolumeReadsAsIfItWereNot") {
     }
 }
 
+group("theClusterBitmapSaysWhichClustersNotHowMany") {
+    // $Bitmap is one bit per cluster and is what a write path stands on:
+    // allocating means finding a zero bit, and getting it wrong hands out a
+    // cluster that already holds somebody's file. Every other mistake in this
+    // reader misreads a drive. This one destroys it.
+    //
+    // The bit order is the trap. Bit 0 of byte 0 is cluster 0, least
+    // significant first. Reading most-significant-first gives a bitmap that is
+    // right about how many clusters are free and wrong about which -- so the
+    // volume looks healthy and the writes land on other people's data.
+
+    // 0b0000_0101: clusters 0 and 2 in use, 1 and 3..7 free.
+    let byte = Data([0b0000_0101])
+    expect(NTFSBitmap.isInUse(cluster: 0, bitmap: byte) == true, "bit zero is cluster zero")
+    expect(NTFSBitmap.isInUse(cluster: 1, bitmap: byte) == false, "bit one is cluster one")
+    expect(
+        NTFSBitmap.isInUse(cluster: 2, bitmap: byte) == true,
+        "and bit two is cluster two -- least significant first, which is the whole question")
+    expect(NTFSBitmap.isInUse(cluster: 7, bitmap: byte) == false, "the top bit is cluster seven")
+
+    // The second byte holds clusters 8 to 15.
+    let two = Data([0x00, 0b0000_0001])
+    expect(
+        NTFSBitmap.isInUse(cluster: 8, bitmap: two) == true,
+        "the first bit of the second byte is cluster eight")
+    expect(NTFSBitmap.isInUse(cluster: 0, bitmap: two) == false, "and cluster zero is free")
+
+    // Past the end is not "free". A caller that confuses them allocates past
+    // the end of the volume.
+    expect(
+        NTFSBitmap.isInUse(cluster: 99, bitmap: byte) == nil,
+        "a cluster the bitmap does not cover is unknown rather than free")
+
+    // Finding room.
+    let free = Data([0b1111_0001])  // clusters 0, 4, 5, 6, 7 used; 1, 2, 3 free
+    expect(
+        NTFSBitmap.firstFreeRun(count: 1, in: free, totalClusters: 8) == 1,
+        "one free cluster is found at the first zero bit")
+    expect(
+        NTFSBitmap.firstFreeRun(count: 3, in: free, totalClusters: 8) == 1,
+        "and a run of three at the start of the free stretch")
+    expect(
+        NTFSBitmap.firstFreeRun(count: 4, in: free, totalClusters: 8) == nil,
+        "a run longer than any free stretch is not found rather than half found")
+    expect(
+        NTFSBitmap.firstFreeRun(count: 1, in: free, totalClusters: 8, from: 4) == nil,
+        "and searching past the free stretch finds nothing")
+    expect(
+        NTFSBitmap.firstFreeRun(count: 0, in: free, totalClusters: 8) == nil,
+        "asking for no clusters is refused rather than answered with cluster zero")
+
+    // The volume's count bounds the search, not the bitmap's length. The
+    // bitmap is rounded up to whole bytes, so its last bits describe clusters
+    // that do not exist -- allocating one writes past the end of the partition.
+    let padded = Data([0b0000_0001])  // cluster 0 used, 1..7 free in the bitmap
+    expect(
+        NTFSBitmap.firstFreeRun(count: 1, in: padded, totalClusters: 2) == 1,
+        "a free cluster inside the volume is found")
+    expect(
+        NTFSBitmap.firstFreeRun(count: 3, in: padded, totalClusters: 2) == nil,
+        "but a run running past the volume's own count is not, though the bits are there")
+    expect(
+        NTFSBitmap.freeClusters(in: padded, totalClusters: 2) == 1,
+        "and free space counts clusters the volume has, not bits the bitmap holds")
+    expect(
+        NTFSBitmap.capacity(of: padded) == 8,
+        "while the bitmap's own capacity is every bit in it")
+}
+
+group("theRealVolumesBitmapAgreesWithItsFiles") {
+    // The check the synthetic bits cannot make. If the bit order were reversed,
+    // a bitmap of the right length with the right number of set bits would
+    // still be produced -- and the clusters $MFT actually occupies would read
+    // as free. So: read the volume's own bitmap, and ask whether the clusters
+    // its own files sit on are claimed.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    guard
+        let reader = NTFSVolumeReader(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        })
+    else {
+        expect(false, "the volume opens")
+        return
+    }
+
+    // $Bitmap is record 6 on every NTFS volume.
+    guard let bitmap = reader.contents(ofFile: 6), !bitmap.isEmpty else {
+        expect(false, "the cluster bitmap reads")
+        return
+    }
+    let totalClusters = reader.geometry.totalSectors / UInt64(reader.geometry.sectorsPerCluster)
+    expect(
+        NTFSBitmap.capacity(of: bitmap) >= totalClusters,
+        "the bitmap has a bit for every cluster on the volume")
+
+    // Cluster 0 holds the boot sector. It is in use on every volume ever made.
+    expect(
+        NTFSBitmap.isInUse(cluster: 0, bitmap: bitmap) == true,
+        "cluster zero holds the boot sector and is in use -- reversed bit order fails here")
+
+    // And every cluster $MFT occupies is claimed. That is thirteen thousand
+    // clusters whose numbers came from a runlist, checked against a bitmap read
+    // separately: two structures written by mkntfs that have to agree.
+    guard let mft = reader.record(0),
+        let data = reader.attributes(of: mft).first(where: { $0.kind == .data }),
+        let runs = NTFSRunlist.decode(mft.data, at: data.runlistOffset, limit: mft.data.count)
+    else {
+        expect(false, "the table's runs read")
+        return
+    }
+    expect(
+        NTFSBitmap.allInUse(runs, bitmap: bitmap, totalClusters: totalClusters),
+        "every cluster the master file table occupies is marked in use in the bitmap")
+
+    // Free space is a real number, neither zero nor everything.
+    let free = NTFSBitmap.freeClusters(in: bitmap, totalClusters: totalClusters)
+    expect(free > 0, "the volume has some free space")
+    expect(free < totalClusters, "and some of it is in use")
+    if ProcessInfo.processInfo.environment["LUKOTTA_SHOW_LISTING"] != nil {
+        let bytes = free * UInt64(reader.geometry.bytesPerCluster)
+        print("    free space: \(free) of \(totalClusters) clusters, \(bytes / 1_048_576) MB")
+    }
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
