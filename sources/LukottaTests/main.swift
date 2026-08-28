@@ -2318,6 +2318,53 @@ group("anUpdateMustNotTakeTheExtensionAway") {
     expect(ExtensionRegistration.isWorthLogging(.failed), "and so is one that did not work")
 }
 
+group("theOnlyChannelIntoTheExtensionIsItsMountOptions") {
+    // An appex is launched by fskitd, not by whoever ran the command, so it
+    // inherits no environment and no working directory. The mount options are
+    // the only way to tell it anything. An earlier version of the extension
+    // read its backing directory out of LUKOTTA_FS_ROOT, which meant it was
+    // unset in the one situation it existed for.
+    let options = ["-o", "ro,root=/tmp/somewhere,uid=501"]
+    let values = FSMountOptions.values(in: options)
+    expect(values["root"] == "/tmp/somewhere", "a value after = is the value")
+    expect(values["ro"] == "", "one without is present and empty, not absent")
+    expect(values["uid"] == "501", "and the rest come through beside it")
+    expect(values["missing"] == nil, "what was not asked for is not there")
+
+    // mount hands -o through as one comma-separated argument, which is the
+    // convention every filesystem uses.
+    expect(
+        FSMountOptions.values(in: ["-o", "a=1", "-o", "b=2"])["b"] == "2",
+        "more than one -o is read")
+    expect(
+        FSMountOptions.values(in: ["root=/x"]).isEmpty,
+        "and a bare argument that was not after -o is not an option")
+
+    // A read-only mount served writable is a drive somebody asked not to change
+    // and changed. Both spellings are in use.
+    expect(FSMountOptions.isReadOnly(["-o", "ro"]), "ro means read-only")
+    expect(FSMountOptions.isReadOnly(["-o", "rdonly"]), "and so does rdonly")
+    expect(!FSMountOptions.isReadOnly(["-o", "rw"]), "rw does not")
+    expect(!FSMountOptions.isReadOnly([]), "and neither does saying nothing")
+
+    // Only absolute paths. A relative one would be resolved against whatever
+    // directory fskitd happened to start the extension in.
+    expect(
+        FSMountOptions.backingRoot(["-o", "root=/tmp/x"]) == "/tmp/x",
+        "an absolute path is taken")
+    expect(
+        FSMountOptions.backingRoot(["-o", "root=tmp/x"]) == nil,
+        "a relative one is refused rather than resolved somewhere arbitrary")
+    expect(FSMountOptions.backingRoot(["-o", "root="]) == nil, "an empty one is refused")
+    expect(FSMountOptions.backingRoot([]) == nil, "and saying nothing means memory")
+
+    // The value is somebody else's text and is never taken apart twice: a path
+    // with an = in it keeps it.
+    expect(
+        FSMountOptions.values(in: ["-o", "root=/tmp/a=b"])["root"] == "/tmp/a=b",
+        "only the first = separates, so a path may contain one")
+}
+
 group("aDriveGetsATrashSoDeletingIsARename") {
     // Finder does not delete when somebody presses command-delete: it renames
     // into .Trashes/<uid> at the top of the volume, which costs the same

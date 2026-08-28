@@ -458,6 +458,11 @@ pathlib.Path(out).write_bytes(plistlib.dumps({
         "EXExtensionPointIdentifier": "com.apple.fskit.fsmodule",
         "FSName": "LukottaFS",
         "FSShortName": "lukottafs",
+        # Without this, mount does not pass -o through to the module at all,
+        # and the module has no other channel: an appex is launched by fskitd
+        # and inherits no environment. Apple's own msdos module declares the
+        # same key for the same reason.
+        "FSActivateOptionSyntax": {"shortOptions": "o:"},
     },
 }))
 FSPLIST

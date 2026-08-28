@@ -41,12 +41,19 @@ extension LukottaFileSystem: FSUnaryFileSystemOperations {
         resource: FSResource, options: FSTaskOptions,
         replyHandler reply: @escaping (FSVolume?, (any Error)?) -> Void
     ) {
-        // Which backing this serves is the one decision this makes. Memory
-        // prices the framework; a directory named by LUKOTTA_FS_ROOT prices the
-        // write path against a store that is not the bottleneck, which is the
-        // measurement FAT32 cannot give. What ships puts the guest here.
+        // Which backing this serves is the one decision this makes, and it is
+        // read from the mount options rather than the environment: an appex is
+        // launched by fskitd, not by whoever ran the command, so it inherits no
+        // environment at all. This read LUKOTTA_FS_ROOT once, which meant it
+        // was unset in the only situation it existed for.
+        //
+        //     mount -F -t lukottafs -o root=/some/directory device point
+        //
+        // Memory prices the framework; a real directory prices the write path
+        // against a store that is not the bottleneck, which is the measurement
+        // FAT32 cannot give. What ships names the guest's volume here.
         let backing: any FSBacking
-        if let root = ProcessInfo.processInfo.environment["LUKOTTA_FS_ROOT"], !root.isEmpty {
+        if let root = FSMountOptions.backingRoot(options.taskOptions) {
             backing = FSPassthroughBacking(root: URL(fileURLWithPath: root, isDirectory: true))
         } else {
             backing = FSStoreBacking()
