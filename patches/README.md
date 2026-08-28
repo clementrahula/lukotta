@@ -125,6 +125,47 @@ separate format.
 the application, including a VMDK holding a LUKS container. The end-to-end test
 constructs one of each and opens it.
 
+## anylinuxfs-vmnet-reachable.patch
+
+**Defect.** With `--net-helper vmnet`, nothing on the host could reach the
+guest. The mount ended at
+
+    macOS: Checking NFS server on 172.27.1.2:2049...
+    macOS: Error connecting to port 2049: No route to host (os error 65)
+
+while inside the guest everything looked right: `eth0` up, addressed
+`172.27.1.2/30`, a default route through `172.27.1.1`, the drive mounted, and
+`nfsd` listening. The guest could ping the host in 0.4 ms. The host had a route
+and a resolved ARP entry for the guest, and could reach nothing.
+
+vmnet assigns a MAC address when the interface is created, reports it in the
+JSON the helper prints, and afterwards delivers unicast only to that address.
+The guest NIC was given `random_mac_address()` instead, so it wore an address
+vmnet had never heard of. Broadcast still arrives, which is why ARP was answered
+and the host learned a neighbour it could never talk to; every unicast frame was
+dropped by vmnet before it reached the guest. The guest's own counters showed
+frames coming in, all of them broadcast, and `/proc/net/snmp` recorded
+`Icmp: InEchos 0` while the host was pinging it.
+
+**Second defect, behind the first.** vmnet forwards to a guest it has heard
+from. A guest that only ever listens is never heard from, so even addressed
+correctly it stays unreachable: the NFS server comes up and waits, and the host
+cannot open a connection to it. The host's ARP entry for the guest stays
+`(incomplete)`.
+
+**Change.** The MAC vmnet reports is parsed when the helper starts and given to
+`krun_add_net_unixgram` in place of a random one. gvproxy is unaffected: it is a
+user-mode stack that answers for whatever address the guest picks, so where no
+vmnet helper ran, a random address is still generated. In the guest, the
+interface announces itself once it is configured, by gratuitous ARP where
+`arping` is present and otherwise by pinging the gateway; one frame out is
+enough, and neither command's result is examined.
+
+**Verification.** With the patch, a host-initiated TCP connection to the guest
+succeeds, `ping` from the host is answered, and an NTFS volume mounts through
+vmnet end to end. Without it, the same volume reaches "No route to host" every
+time.
+
 ## imago-vdi-vhd-and-vhdx.patch
 
 **Purpose.** Adds three drivers to imago, the crate that reads image formats for

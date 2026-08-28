@@ -1,0 +1,118 @@
+diff -ruN -x target -x Cargo.lock a/anylinuxfs/src/vm.rs b/anylinuxfs/src/vm.rs
+--- pristine/anylinuxfs-0.19.0/anylinuxfs/src/vm.rs	2026-07-20 19:00:52
++++ work/anylinuxfs/src/vm.rs	2026-08-28 15:22:16
+@@ -1,3 +1,6 @@
++// Modified on 2026-08-28 by Clement Rahula <lukotta@rahula.dev>: gave the guest NIC the MAC address vmnet assigned.
++// SPDX-License-Identifier: GPL-3.0-or-later
++
+ use anyhow::Context;
+ use bstr::BString;
+ use common_utils::{Deferred, FromPath, NetHelper, OSType, host_eprintln, host_println};
+@@ -219,12 +222,15 @@
+                 };
+             #[cfg(not(target_os = "macos"))]
+             let net_features = 0u32;
++            // The address vmnet assigned, not a fresh random one: vmnet only
++            // delivers unicast to the address it handed out.
++            let mac = vm_network::vm_mac_address();
+             unsafe {
+                 bindings::krun_add_net_unixgram(
+                     ctx_id,
+                     CString::from_path(&config.network.unixgram_sock_path).as_ptr(),
+                     -1,
+-                    vm_network::random_mac_address().as_ptr(),
++                    mac.as_ptr(),
+                     net_features,
+                     0,
+                 )
+diff -ruN -x target -x Cargo.lock a/anylinuxfs/src/vm_network/darwin.rs b/anylinuxfs/src/vm_network/darwin.rs
+--- pristine/anylinuxfs-0.19.0/anylinuxfs/src/vm_network/darwin.rs	2026-07-20 19:00:52
++++ work/anylinuxfs/src/vm_network/darwin.rs	2026-08-28 15:22:16
+@@ -1,3 +1,6 @@
++// Modified on 2026-08-28 by Clement Rahula <lukotta@rahula.dev>: gave the guest NIC the MAC address vmnet assigned.
++// SPDX-License-Identifier: GPL-3.0-or-later
++
+ use std::env;
+ use std::fs::File;
+ use std::io::BufReader;
+@@ -170,6 +173,17 @@
+     let mut config_de = Deserializer::from_reader(child_out);
+     let _helper_output = VmnetConfigJson::deserialize(&mut config_de)
+         .context("Failed to parse vmnet-helper config")?;
++
++    // Wear the address vmnet gave out. Skipping this leaves the guest with a
++    // random one that vmnet will not deliver unicast to, and the mount then
++    // fails at "No route to host" with a guest that looks perfectly healthy.
++    match super::parse_mac_address(&_helper_output.vmnet_mac_address) {
++        Some(mac) => super::set_vmnet_mac_address(mac),
++        None => host_println!(
++            "Warning: vmnet-helper gave a MAC address that could not be read: {:?}",
++            _helper_output.vmnet_mac_address
++        ),
++    }
+ 
+     let vmnet_config = VmnetConfig {
+         _helper_output,
+diff -ruN -x target -x Cargo.lock a/anylinuxfs/src/vm_network/mod.rs b/anylinuxfs/src/vm_network/mod.rs
+--- pristine/anylinuxfs-0.19.0/anylinuxfs/src/vm_network/mod.rs	2026-07-20 19:00:52
++++ work/anylinuxfs/src/vm_network/mod.rs	2026-08-28 15:22:16
+@@ -1,9 +1,13 @@
++// Modified on 2026-08-28 by Clement Rahula <lukotta@rahula.dev>: gave the guest NIC the MAC address vmnet assigned.
++// SPDX-License-Identifier: GPL-3.0-or-later
++
+ use std::{
+     fs::{self, File},
+     io::{self, Read, Write},
+     net::{Ipv4Addr, TcpStream},
+     os::unix::net::UnixStream,
+     process::{Child, Command},
++    sync::OnceLock,
+     time::Duration,
+ };
+ 
+@@ -47,6 +51,45 @@
+         rng.random_range(0x00..=0xff),
+         rng.random_range(0x00..=0xff),
+     ];
++}
++
++/// The MAC address vmnet handed out for this interface, once one has started.
++///
++/// vmnet assigns the address when the interface is created and afterwards
++/// delivers unicast to that address alone. A guest NIC carrying any other
++/// address still receives broadcast, so ARP is answered and the host learns a
++/// neighbour it can never actually reach: every unicast frame is dropped by
++/// vmnet before it arrives, and the host reports "No route to host" for a
++/// route that plainly exists. Nothing in the guest looks wrong -- its
++/// interface is up, addressed and routed, and its counters show frames coming
++/// in, because broadcast still arrives.
++static VMNET_MAC: OnceLock<[u8; 6]> = OnceLock::new();
++
++/// Record what vmnet assigned, before the VM that must wear it is created.
++pub fn set_vmnet_mac_address(mac: [u8; 6]) {
++    let _ = VMNET_MAC.set(mac);
++}
++
++/// The address to give the guest NIC.
++///
++/// A random one is right for gvproxy, a user-mode stack that answers for
++/// whatever address the guest picks. It is wrong for vmnet, which picked one
++/// already.
++pub fn vm_mac_address() -> [u8; 6] {
++    VMNET_MAC.get().copied().unwrap_or_else(random_mac_address)
++}
++
++/// Read a MAC address in the form vmnet-helper prints, "0a:1b:2c:3d:4e:5f".
++pub fn parse_mac_address(text: &str) -> Option<[u8; 6]> {
++    let mut mac = [0u8; 6];
++    let mut parts = text.trim().split(':');
++    for octet in mac.iter_mut() {
++        *octet = u8::from_str_radix(parts.next()?, 16).ok()?;
++    }
++    if parts.next().is_some() {
++        return None;
++    }
++    Some(mac)
+ }
+ 
+ pub fn vfkit_sock_cleanup(vfkit_sock_path: &str) -> anyhow::Result<()> {

@@ -1,0 +1,31 @@
+diff -ruN -x target -x Cargo.lock a/vmproxy/src/main.rs b/vmproxy/src/main.rs
+--- base/vmproxy/src/main.rs	2026-08-28 15:42:23
++++ guest/vmproxy/src/main.rs	2026-08-28 15:42:23
+@@ -1,4 +1,6 @@
+ // Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: unlock an
++// Modified on 2026-08-28 by Clement Rahula <lukotta@rahula.dev>: announce the
++// network interface so that vmnet forwards to it.
+ // encrypted volume detected inside a disk image.
+ // SPDX-License-Identifier: GPL-3.0-or-later
+ use anyhow::Context;
+@@ -198,11 +200,19 @@
+ 
+         let net_prefix_len = native_network.map(|net| net.prefix_len()).unwrap_or(24);
+ 
++        // The last step announces the interface. vmnet forwards to a guest it
++        // has heard from, and a guest that only ever listens is never heard
++        // from: the NFS server comes up, waits, and the host cannot open a
++        // connection to it. One frame out of the interface is enough, and
++        // whether it is answered does not matter, so neither command's result
++        // is examined.
+         #[cfg(target_os = "linux")]
+         let script = format!(
+             "ip addr add {vm_ip}/{net_prefix_len} dev eth0 \
+                 && ip link set eth0 up \
+-                && ip route add default via {vm_gateway_ip} dev eth0",
++                && ip route add default via {vm_gateway_ip} dev eth0 \
++                && (arping -A -c 1 -I eth0 {vm_ip} >/dev/null 2>&1; \
++                    ping -c 1 -W 1 {vm_gateway_ip} >/dev/null 2>&1; true)",
+         );
+         #[cfg(any(target_os = "freebsd", target_os = "macos"))]
+         let script = format!(
