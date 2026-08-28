@@ -22,7 +22,7 @@
 # applications are not read, not written and not looked at.
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$HERE"
+cd "$HERE" || exit 1
 
 APP="/Applications/Lukotta v2.app"
 APPEX_ID="com.lukotta.v2.fs"
