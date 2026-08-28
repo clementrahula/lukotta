@@ -129,3 +129,25 @@ extension ExtensionMount {
         return version.majorVersion == 15 && version.minorVersion >= 4
     }
 }
+
+extension ExtensionMount {
+
+    /// Whether the extension should claim a volume of this format.
+    ///
+    /// Narrow on purpose. Saying yes to a filesystem macOS already handles
+    /// takes that volume away from the driver that handles it properly, and a
+    /// drive that opens worse than it did before is not an improvement. exFAT
+    /// and FAT are read and written natively; APFS and HFS+ are macOS's own.
+    ///
+    /// The list is the reason this application exists: what macOS cannot open.
+    /// NTFS above all, and the two encrypted containers it has to get through
+    /// first -- an encrypted drive that cannot be unlocked is a drive that
+    /// cannot be opened at all, which is the hard constraint on the whole
+    /// design.
+    public static func claims(_ format: VolumeFormat) -> Bool {
+        switch format {
+        case .ntfs, .bitlocker, .luks: return true
+        case .exfat, .ext, .btrfs, .xfs, .unknown: return false
+        }
+    }
+}

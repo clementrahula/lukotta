@@ -60,15 +60,9 @@ extension LukottaFileSystem: FSUnaryFileSystemOperations {
         }
 
         let format = BootSector.identify(Data(sector.prefix(max(0, read))))
-        switch format {
-        case .ntfs, .bitlocker, .luks:
-            reply(
-                .usable(
-                    name: format.name, containerID: FSContainerIdentifier(uuid: UUID())),
-                nil)
-        default:
-            reply(.notRecognized, nil)
-        }
+        guard ExtensionMount.claims(format) else { return reply(.notRecognized, nil) }
+        reply(
+            .usable(name: format.name, containerID: FSContainerIdentifier(uuid: UUID())), nil)
     }
 
     func loadResource(

@@ -2140,6 +2140,52 @@ group("bothBackingsKeepTheSamePromises") {
     }
 }
 
+group("theExtensionClaimsOnlyWhatMacOSCannotOpen") {
+    // Claiming a volume macOS already handles takes it away from the driver
+    // that handles it properly. A drive that opens worse than it did before is
+    // not an improvement, and the person would have no way to know why.
+    expect(ExtensionMount.claims(.ntfs), "NTFS is the whole point")
+    expect(ExtensionMount.claims(.bitlocker), "BitLocker, because it has to be got through first")
+    expect(ExtensionMount.claims(.luks), "and LUKS for the same reason")
+
+    // An encrypted drive that cannot be unlocked cannot be opened at all, which
+    // is the hard constraint on the design: the two containers above are not
+    // optional extras, they are the door.
+    expect(
+        ExtensionMount.claims(.bitlocker) && ExtensionMount.claims(.luks),
+        "both encrypted containers are claimed, or encrypted drives stop opening")
+
+    expect(!ExtensionMount.claims(.exfat), "exFAT is read and written natively")
+    expect(!ExtensionMount.claims(.ext), "ext is not what this is for yet")
+    expect(!ExtensionMount.claims(.btrfs), "nor btrfs")
+    expect(!ExtensionMount.claims(.xfs), "nor XFS")
+    expect(
+        !ExtensionMount.claims(.unknown),
+        "and a sector that identified as nothing is never claimed -- an unreadable "
+            + "device is a question that could not be asked, not an answer of 'not ours'")
+
+    // The probe reads a real sector and asks BootSector, the same reader the
+    // drive list uses. One reader, so the two cannot come to disagree about
+    // what a disk holds.
+    var ntfs = [UInt8](repeating: 0, count: 512)
+    for (i, b) in Array("NTFS    ".utf8).enumerated() { ntfs[3 + i] = b }
+    expect(
+        BootSector.identify(Data(ntfs)) == .ntfs,
+        "an NTFS boot sector identifies as NTFS")
+    expect(
+        ExtensionMount.claims(BootSector.identify(Data(ntfs))),
+        "and the extension claims it")
+
+    var exfat = [UInt8](repeating: 0, count: 512)
+    for (i, b) in Array("EXFAT   ".utf8).enumerated() { exfat[3 + i] = b }
+    expect(
+        !ExtensionMount.claims(BootSector.identify(Data(exfat))),
+        "an exFAT one identifies and is left to macOS")
+    expect(
+        !ExtensionMount.claims(BootSector.identify(Data(count: 512))),
+        "and an empty sector is left alone")
+}
+
 group("whatComesBackFromMountingThroughTheExtension") {
     // mount(8) reports a module that is switched off and a drive that cannot be
     // read with the same exit status, and those two mean opposite things: one
