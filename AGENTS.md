@@ -598,3 +598,84 @@ Properties of the design. Each has been decided, and arriving at one and
   are all on that route. Their unprivileged twins are exercised on every run,
   and the shell the deadline is built from is covered by a test of its own --
   but the route itself waits on a drive nobody here has.
+
+## The NFS Mount Options Are Not What This Code Asks For
+
+Every mount goes through the vendored engine, and the engine merges its own
+defaults over whatever `MountScript.nfsOptions` supplies. The merge is a
+`BTreeMap` keyed by option name (`anylinuxfs`, `fsutil.rs`, `NfsOptions::
+default`, and `cmd_mount.rs` calls `.extend`), so supplying a key replaces the
+engine's value and supplying a *different* key sits beside it. Three
+consequences, each of which has already misled somebody:
+
+- **The mount is soft, always.** The engine adds `soft,intr,timeo=100,
+  retrans=3`. A comment here once argued at length that this was a hard mount
+  because it had not asked for a soft one, and an audit that flagged the missing
+  `timeo` was answered from that belief. Not asking for an option is not the
+  same as choosing its opposite. `soft` cannot be removed by passing `hard`
+  either -- that is a second key, not a replacement -- and it is there to stop a
+  kernel panic when a drive is pulled without unmounting, so it should not be.
+- **`rsize`/`wsize` are asked for at 1 MiB and granted at 128 KiB.** `nfsstat
+  -m` prints both: "original mount options" is the request, "current mount
+  parameters" is what is in force. Any argument about transfer size should be
+  made from the second.
+- **`deadtimeout` decides whether a slow drive survives.** See below.
+
+Read a real mount before reasoning about any of this. The engine logs the exact
+command it ran, under `~/Library/Application Support/<bundle id>/engine/Library/
+Logs/anylinuxfs-*.log`.
+
+## Why a Copy to a Slow Drive Used to Die
+
+A drive that goes quiet -- shingled media reorganising, an enclosure stalling, a
+Mac whose disk is saturated -- stops answering NFS for far longer than it takes
+macOS to give up on it. At `deadtimeout=45` the client marks the mount dead and
+unmounts it; the engine watches its own share, sees it go, and shuts the microVM
+down. The copy ends there and cannot resume. From the outside it looks like a
+freeze: writes at zero, `df` still answering out of the client's cache, and a
+progress bar that never moves again.
+
+`deadtimeout=300` is the fix, and it is a balance rather than a maximum.
+Removing the option entirely is worse: a mount that loses its server then never
+recovers at all.
+
+Reproducing it needs a volume large enough to build a real dirty backlog in the
+guest -- the 64 MB fixtures cannot, and neither can 252 MB. On a 40 GB NTFS
+volume with the host disk deliberately saturated, the behaviour is reliable:
+
+    deadtimeout=45    unmounted within 90 seconds, every run
+    deadtimeout=300   mounted throughout ten minutes, still writing, back to
+                      full speed once the load lifts
+
+**Making a large test volume needs no password.** The engine fails with `start
+vm error: Invalid argument (errno 22)` when run from a shell, with or without
+`sudo`, because it is missing `ANYLINUXFS_HOME` -- which the app sets and a bare
+invocation does not. Set it and the guest shell works unprivileged:
+
+    export ANYLINUXFS_HOME="$HOME/Library/Application Support/com.lukotta/engine"
+    dd if=/dev/zero of=big.img bs=1m count=0 seek=40960
+    "$ENGINE" shell big.img -c "mkfs.ntfs -f -F -L BIG /dev/vda"
+
+The guest truncates the image to the last byte written, so restore its length
+afterwards. Saturate the host disk with a dozen `dd` writers to starve the
+backing store; that is what turns a working mount into the failure above.
+
+## Silence Is Not Evidence That a Mount Is Gone
+
+Three places used to act on a question that had not been answered, and each of
+them force-unmounts:
+
+- `EngineStatus.current()` returned an empty list when the engine could not be
+  asked, could not be run, exited non-zero, or outlived its deadline -- the same
+  answer it gives when the engine replies that nothing is mounted. `stale()`
+  then read every live mount as abandoned. Use `currentIfAnswered()`, which
+  returns nil for all four, and never act destructively without an answer.
+- `deadEngineMounts` called a mount dead after two silent probes a second apart.
+  A microVM frozen by a busy Mac was measured silent for forty seconds and came
+  back serving its drive. It now needs a minute of silence, and refuses outright
+  while any microVM is still running -- `serving()`, which matches the `mount`
+  process and deliberately not `gvproxy`, since gvproxy outlives a failed mount
+  and is what the sweep exists to clear.
+- A mount point left behind after a mount vanishes is an ordinary directory on
+  the startup disk, and a copy still running writes into it and succeeds. Those
+  are reported and never swept; only empty ones are removed.
