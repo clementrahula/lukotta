@@ -70,6 +70,10 @@ the notes and the line to add when it refuses.
 
 The beta channel is not gated. Publish to it freely.
 
+Work on the FSKit rewrite goes to neither of them. It has a branch and a
+channel of its own and publishes to nothing at all; see "v2 Is a Second Line
+of Work in the Same Repository" below.
+
 ## Version Numbering
 
 `VERSION` holds the version being worked towards, as plain semver: `1.20.1`.
@@ -120,6 +124,63 @@ more than it saves. Swift's `private` is file-scoped, so members moved into
 extensions elsewhere must become visible to the whole module, `activeCredential`
 among them, which holds the passphrase while a mount is in flight. Navigate it
 by its marked sections.
+
+## v2 Is a Second Line of Work in the Same Repository
+
+The FSKit rewrite is written on the `v2` branch. It may take months and it may
+come to nothing, and v1 goes on being fixed on `main` the whole time. The two
+must never stand on each other, so everything below is mechanical rather than
+remembered.
+
+**It is a fifth channel.** `LUKOTTA_BRANDING=v2` builds "Lukotta v2" under
+`com.lukotta.v2`, with its own daemon, its own saved passphrases, its own copy
+in /Applications and, later, its own filesystem extension -- which registers
+under the identifier and would otherwise stand on the one v1 is using. It
+carries the mark with a `V2` band across the foot, as the beta carries one
+saying `BETA`. Four builds of this application can sit in one Dock, and a fault
+reported against the wrong one costs an evening.
+`scripts/make-channel-icon.py beta|v2` draws whichever is asked for from the
+picture it is a variant of; run for `beta` it reproduces the bytes already
+committed, which is how a change to it is checked.
+
+`dev` is not reused for this. v1's own fixes are proved on `com.lukotta.dev`
+while the rewrite is being written, and a v2 build landing there would replace
+the build they are being proved on -- the same mistake as iterating on the beta
+channel, one channel further down.
+
+It never checks for updates. Every feed that exists carries v1, so a v2 build
+that looked would be offered a v1 release and would take it.
+
+**Nothing is released from the branch.** `scripts/release.sh` refuses outright.
+The build number is the count of commits on this line of history, and the feeds,
+the casks and `releases/APPROVED` all belong to v1: a release cut here would put
+the rewrite in front of the people using the application and spend a build
+number v1 could then never use. v2 reaches anybody by being merged into `main`
+and released from there, which is also the point at which somebody has decided
+it is ready to be.
+
+**There are two lines of versions.** `VERSION` holds one number and the branch
+says which line that number is on: `bump-version.sh` reads 2 on `v2` and
+whatever the file already says everywhere else. Putting a freshly cut branch
+onto its own line is not raising the application's version -- v1's is untouched
+on `main` -- so it needs no approval and asks for none. Raising the first number
+past the line the branch carries still does. Bumping on either branch changes
+`VERSION` and one file in `releases/`, and nothing else.
+
+**Both halves are checked rather than intended.** `scripts/check-coverage.sh`
+fails when two channels share a name, an identifier or a daemon, when v2 sets
+`AUTO_CHECKS=true`, when v2 names a feed v1 uses, or when the release refusal
+goes missing from `release.sh`. `aV2BuildCannotReachAnythingOfV1s` checks the
+same separation from the other side: what `com.lukotta.v2` derives is not what
+`com.lukotta` derives, for the engine's directory, the support name and the
+daemon behind an app. That group exists because the identifier begins with the
+release's own, so anything matching the start of a value rather than the whole
+of it would quietly join the two back together.
+
+**A branch cannot be called `v2/something`.** Git will not create
+`refs/heads/v2/*` while `refs/heads/v2` exists. The `v2/*` arm in both guards is
+unreachable today and covers only a future rename, and a working branch off v2
+needs a name that does not sit under it.
 
 ## The Engine
 
