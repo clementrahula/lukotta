@@ -96,6 +96,62 @@ public enum NTFSBitmap {
         return free
     }
 
+    /// Claim a run of clusters, in a copy of the bitmap.
+    ///
+    /// Returns the bitmap as it would be, rather than changing one in place.
+    /// The caller then has to write it to the disk, and a caller that forgets
+    /// has changed nothing -- which is the safe direction. A function that
+    /// mutated a shared bitmap would leave the disk and memory disagreeing at
+    /// every point between the two.
+    ///
+    /// - Returns: nil if any cluster in the run is already claimed, or outside
+    ///   the volume. Claiming a cluster twice is how two files come to share
+    ///   the same bytes, and neither of them survives it.
+    public static func claiming(
+        _ start: UInt64, count: UInt64, in bitmap: Data, totalClusters: UInt64
+    ) -> Data? {
+        guard count > 0, start < totalClusters else { return nil }
+        guard start + count <= totalClusters, start + count > start else { return nil }
+
+        var bytes = [UInt8](bitmap)
+        for offset in 0..<count {
+            let cluster = start + offset
+            let index = Int(cluster / 8)
+            guard index < bytes.count else { return nil }
+            let bit = UInt8(1 << (cluster % 8))
+            // Already claimed. Refusing is the whole point: two files sharing
+            // clusters is unrecoverable, and it looks like nothing until one of
+            // them is read.
+            guard bytes[index] & bit == 0 else { return nil }
+            bytes[index] |= bit
+        }
+        return Data(bytes)
+    }
+
+    /// Release a run of clusters, in a copy of the bitmap.
+    ///
+    /// - Returns: nil if any cluster in the run is not currently claimed.
+    ///   Freeing a cluster that is already free means the caller's idea of what
+    ///   a file owns disagrees with the volume's, and carrying on from there
+    ///   hands live data to the next allocation.
+    public static func releasing(
+        _ start: UInt64, count: UInt64, in bitmap: Data, totalClusters: UInt64
+    ) -> Data? {
+        guard count > 0, start < totalClusters else { return nil }
+        guard start + count <= totalClusters, start + count > start else { return nil }
+
+        var bytes = [UInt8](bitmap)
+        for offset in 0..<count {
+            let cluster = start + offset
+            let index = Int(cluster / 8)
+            guard index < bytes.count else { return nil }
+            let bit = UInt8(1 << (cluster % 8))
+            guard bytes[index] & bit != 0 else { return nil }
+            bytes[index] &= ~bit
+        }
+        return Data(bytes)
+    }
+
     /// Whether every cluster a runlist names is marked in use.
     ///
     /// Nothing calls this on a mounted volume -- it walks the whole runlist --

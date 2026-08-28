@@ -5169,6 +5169,82 @@ group("theVolumeSurvivesBeingAskedFromEveryQueueAtOnce") {
         "and all got the same answer, filling its cache without treading on each other")
 }
 
+group("aClusterIsNeverHandedOutTwice") {
+    // Claiming a cluster that is already claimed is how two files come to share
+    // the same bytes, and neither survives it. It also looks like nothing until
+    // one of them is read, which may be months later on another machine.
+    //
+    // The functions return a new bitmap rather than changing one, so a caller
+    // that forgets to write it has changed nothing. A version that mutated a
+    // shared bitmap would leave the disk and memory disagreeing at every point
+    // between the two.
+    let empty = Data([0x00, 0x00])  // sixteen clusters, all free
+
+    guard let claimed = NTFSBitmap.claiming(0, count: 3, in: empty, totalClusters: 16) else {
+        expect(false, "three free clusters can be claimed")
+        return
+    }
+    expect(NTFSBitmap.isInUse(cluster: 0, bitmap: claimed) == true, "the first is claimed")
+    expect(NTFSBitmap.isInUse(cluster: 2, bitmap: claimed) == true, "and the last")
+    expect(NTFSBitmap.isInUse(cluster: 3, bitmap: claimed) == false, "and no more than asked")
+    expect(
+        NTFSBitmap.isInUse(cluster: 0, bitmap: empty) == false,
+        "while the bitmap handed in is untouched -- a caller that does not write it back has "
+            + "changed nothing, which is the safe direction")
+
+    // The refusal that matters.
+    expect(
+        NTFSBitmap.claiming(1, count: 3, in: claimed, totalClusters: 16) == nil,
+        "a run overlapping a claimed cluster is refused -- two files sharing bytes is "
+            + "unrecoverable and silent")
+    expect(
+        NTFSBitmap.claiming(2, count: 1, in: claimed, totalClusters: 16) == nil,
+        "even by one cluster")
+    expect(
+        NTFSBitmap.claiming(3, count: 2, in: claimed, totalClusters: 16) != nil,
+        "while a run beside it is fine")
+
+    // Nothing may be claimed outside the volume, whatever the bitmap's length.
+    expect(
+        NTFSBitmap.claiming(14, count: 4, in: empty, totalClusters: 16) == nil,
+        "a run running past the volume is refused")
+    expect(
+        NTFSBitmap.claiming(20, count: 1, in: empty, totalClusters: 16) == nil,
+        "and one starting past it")
+    expect(
+        NTFSBitmap.claiming(0, count: 0, in: empty, totalClusters: 16) == nil,
+        "claiming nothing is refused rather than answered with an unchanged bitmap")
+    expect(
+        NTFSBitmap.claiming(UInt64.max, count: 2, in: empty, totalClusters: 16) == nil,
+        "and a start that would overflow when the count is added")
+
+    // Releasing, and its own refusal.
+    guard let released = NTFSBitmap.releasing(0, count: 3, in: claimed, totalClusters: 16) else {
+        expect(false, "claimed clusters can be released")
+        return
+    }
+    expect(
+        NTFSBitmap.isInUse(cluster: 0, bitmap: released) == false,
+        "a released cluster is free again")
+    expect(
+        NTFSBitmap.freeClusters(in: released, totalClusters: 16) == 16,
+        "and releasing everything claimed gives the volume back")
+    expect(
+        NTFSBitmap.releasing(0, count: 1, in: empty, totalClusters: 16) == nil,
+        "freeing a cluster that is already free is refused -- it means the caller's idea of "
+            + "what a file owns disagrees with the volume's, and the next allocation would "
+            + "hand out live data")
+
+    // Claim and release are exact inverses, which is what makes an undo safe.
+    guard let round = NTFSBitmap.claiming(5, count: 4, in: empty, totalClusters: 16),
+        let back = NTFSBitmap.releasing(5, count: 4, in: round, totalClusters: 16)
+    else {
+        expect(false, "a claim can be undone")
+        return
+    }
+    expect(back == empty, "and claiming then releasing leaves the bitmap exactly as it was")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
