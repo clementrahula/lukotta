@@ -1,0 +1,4 @@
+- Grote kopieeropdrachten stoppen niet meer halverwege als een schijf trager wordt.
+- Een schijf blijft open zolang u hem gebruikt.
+- Bij het instellen wordt één keer om uw wachtwoord gevraagd.
+- Updateberichten verschijnen in uw taal.

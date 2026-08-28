@@ -1,0 +1,4 @@
+- Große Kopiervorgänge brechen nicht mehr ab, wenn ein Laufwerk langsamer wird.
+- Ein Laufwerk bleibt geöffnet, solange Sie es benutzen.
+- Beim Einrichten werden Sie einmal nach Ihrem Passwort gefragt.
+- Update-Meldungen erscheinen in Ihrer Sprache.

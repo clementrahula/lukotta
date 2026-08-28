@@ -1,0 +1,4 @@
+- Stora kopieringar avbryts inte längre på vägen när en enhet blir långsam.
+- En enhet förblir öppen så länge du använder den.
+- Vid installationen ombeds du ange ditt lösenord en gång.
+- Uppdateringsmeddelanden visas på ditt språk.

@@ -1,0 +1,4 @@
+- Store kopieringer stopper ikke længere undervejs, når et drev bliver langsomt.
+- Et drev forbliver åbent, så længe du bruger det.
+- Ved opsætningen bliver du bedt om din adgangskode én gang.
+- Opdateringsbeskeder vises på dit sprog.

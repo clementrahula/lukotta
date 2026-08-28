@@ -1,0 +1,4 @@
+- Store kopieringer stopper ikke lenger underveis når en stasjon blir treg.
+- En stasjon forblir åpen så lenge du bruker den.
+- Ved oppsettet blir du bedt om passordet ditt én gang.
+- Oppdateringsmeldinger vises på ditt språk.

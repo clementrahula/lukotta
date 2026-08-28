@@ -207,6 +207,94 @@ sys.exit(1 if bad else 0)
 CONTEXT
 
 printf '\n'
+# 8. A changelog is a few short lines of plain language.
+#
+#    Enforced rather than remembered. Every draft of these notes has come back
+#    too long: a paragraph per item, the mechanism, thresholds in seconds,
+#    component names. Nobody reading an update dialog wants any of it, and a
+#    style rule nobody can run is a style rule that lasts one release.
+#
+#    A bullet is one line. That is the whole trick: a line that has to fit
+#    cannot hold an explanation, and wrapping is how the paragraphs got in.
+printf 'The changelog is short and plain…\n'
+/usr/bin/python3 - <<'NOTES' || FAIL=1
+import pathlib, re, sys
+
+MAX_BULLETS = 8
+MAX_CHARS = 100
+
+# The version being worked towards, and any pre-release of it. Notes already
+# published are a record of what shipped and are left exactly as they are;
+# rewriting them to satisfy a rule added later would be a lie about history.
+version = pathlib.Path("VERSION").read_text().strip()
+current = [p for p in [pathlib.Path(f"releases/{version}.md")] if p.exists()]
+
+bad = False
+for path in current:
+    lines = path.read_text(encoding="utf-8").rstrip("\n").split("\n")
+    if not lines or not lines[0].startswith("- "):
+        continue
+    bullets = [l for l in lines if l.startswith("- ")]
+    wrapped = [l for l in lines if l and not l.startswith("- ")]
+    if wrapped:
+        print(f"  TOO LONG  {path.name}: {len(wrapped)} wrapped line(s); "
+              f"a bullet is one line")
+        bad = True
+    if len(bullets) > MAX_BULLETS:
+        print(f"  TOO MANY  {path.name}: {len(bullets)} bullets, at most {MAX_BULLETS}")
+        bad = True
+    for b in bullets:
+        if len(b) > MAX_CHARS:
+            print(f"  TOO LONG  {path.name}: {len(b)} chars in \"{b[2:42]}…\"")
+            bad = True
+
+print(f"  {len(current)} changelog(s) for {version}")
+sys.exit(1 if bad else 0)
+NOTES
+
+# 9. Nothing is translated before the English has been approved.
+#
+#    Translating a draft wastes the work when a line changes, and puts the
+#    owner in front of thirty-six files they never agreed to. The order is:
+#    write, de-slop, approve, translate. Enforced here because an order that
+#    lives in somebody's head is an order that gets skipped when it is late.
+printf 'Translations come after approval…\n'
+/usr/bin/python3 - <<'ORDER' || FAIL=1
+import hashlib, pathlib, sys
+
+version = pathlib.Path("VERSION").read_text().strip()
+notes = pathlib.Path(f"releases/notes/{version}")
+if not notes.is_dir():
+    print("  nothing translated yet")
+    sys.exit(0)
+
+english = pathlib.Path(f"releases/{version}.md")
+if not english.exists():
+    print(f"  TRANSLATED WITHOUT NOTES  releases/notes/{version}/ exists, {english} does not")
+    sys.exit(1)
+
+digest = hashlib.sha256(english.read_bytes()).hexdigest()[:12]
+approved = {}
+for line in pathlib.Path("releases/APPROVED").read_text().splitlines():
+    line = line.strip()
+    if not line or line.startswith("#"):
+        continue
+    parts = line.split()
+    if len(parts) == 2:
+        approved[parts[0]] = parts[1]
+
+if version not in approved:
+    print(f"  NOT APPROVED  {len(list(notes.glob('*.md')))} translations exist, "
+          f"{version} is not in releases/APPROVED")
+    sys.exit(1)
+if approved[version] != digest:
+    print(f"  CHANGED SINCE APPROVAL  approved {approved[version]}, notes now {digest}; "
+          f"the translations describe text nobody approved")
+    sys.exit(1)
+
+print(f"  {len(list(notes.glob('*.md')))} translations, English approved as {digest}")
+ORDER
+
 if [ "$FAIL" = "1" ]; then
   printf 'Something is not covered. Add the missing check rather than the exception.\n'
   exit 1
