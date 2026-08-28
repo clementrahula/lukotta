@@ -382,3 +382,32 @@ extension MemoryVolume: FSVolume.XattrOperations {
         reply(store.xattrNames(of: item.node).map { FSFileName(string: $0) }, nil)
     }
 }
+
+// MARK: - Opening and closing
+
+/// FSKit tells the module when a file is opened and closed so that a
+/// filesystem which needs to hold something per-open can. This one does not,
+/// and says so: `openCloseInhibited` stops the kernel making the calls at all,
+/// which is two crossings saved on every single file anybody opens.
+///
+/// Measured reason to care: a crossing that misses the VFS cache costs ~200 us
+/// against the kernel's 5. Operations a module does not need are operations it
+/// should not be asked to answer.
+extension MemoryVolume: FSVolume.OpenCloseOperations {
+
+    var isOpenCloseInhibited: Bool { true }
+
+    func openItem(
+        _ item: FSItem, modes: FSVolume.OpenModes,
+        replyHandler reply: @escaping ((any Error)?) -> Void
+    ) {
+        reply(nil)
+    }
+
+    func closeItem(
+        _ item: FSItem, modes: FSVolume.OpenModes,
+        replyHandler reply: @escaping ((any Error)?) -> Void
+    ) {
+        reply(nil)
+    }
+}
