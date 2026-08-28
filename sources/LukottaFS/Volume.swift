@@ -3,14 +3,15 @@
 
 import FSKit
 import Foundation
+import LukottaCore
 
 /// An FSItem that knows which node of the tree it stands for.
 ///
 /// FSKit hands the same object back on every later call about that file, so the
 /// identity has to be the item rather than a name looked up again each time.
 final class Item: FSItem {
-    let node: Store.Node
-    init(_ node: Store.Node) {
+    let node: FSStore.Node
+    init(_ node: FSStore.Node) {
         self.node = node
         super.init()
     }
@@ -23,12 +24,12 @@ final class Item: FSItem {
 /// and adding a scheduler to it would measure the scheduler.
 final class MemoryVolume: FSVolume, @unchecked Sendable {
 
-    private let store: Store
+    private let store: FSStore
     private let rootItem: Item
     private let volumeName: String
 
     init(name: String) {
-        self.store = Store()
+        self.store = FSStore()
         self.rootItem = Item(store.root)
         self.volumeName = name
         super.init(
@@ -38,7 +39,7 @@ final class MemoryVolume: FSVolume, @unchecked Sendable {
 
     // MARK: - Attributes
 
-    private func attributes(of node: Store.Node) -> FSItem.Attributes {
+    private func attributes(of node: FSStore.Node) -> FSItem.Attributes {
         let attributes = FSItem.Attributes()
         attributes.fileID = FSItem.Identifier(rawValue: node.id) ?? .invalid
         attributes.parentID =

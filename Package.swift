@@ -46,7 +46,7 @@ let package = Package(
         // package. So this one target is compiled against a later minimum and
         // nothing else changes. It is Apple Silicon only, as the app is.
         .executableTarget(
-            name: "LukottaFS", path: "sources/LukottaFS",
+            name: "LukottaFS", dependencies: ["LukottaCore"], path: "sources/LukottaFS",
             swiftSettings: [.unsafeFlags(["-target", "arm64-apple-macos15.4"])]),
 
         // Run with `swift run LukottaTests`. Not a .testTarget: XCTest and

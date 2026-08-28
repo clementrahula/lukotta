@@ -1820,6 +1820,96 @@ group("aV2BuildCannotReachAnythingOfV1s") {
         "so the release cannot mistake the rewrite's scratch directories for its own")
 }
 
+group("theFilesystemBehindTheExtensionKeepsItsPromises") {
+    // What the FSKit module answers the kernel with. Every one of these is a
+    // promise the VFS makes to whoever is using the drive, and getting one
+    // wrong shows up as a folder that looks empty, a file that will not open,
+    // or a rename that loses the file rather than as an error anybody can read.
+    let store = FSStore()
+    let root = store.root
+
+    expect(root.isDirectory, "the root is a directory")
+    expect(store.lookup("nothing", in: root) == nil, "and starts empty")
+
+    // Creating, and refusing to create twice.
+    let file = store.create("report.txt", isDirectory: false, in: root, mode: 0o644)
+    expect(file != nil, "a file can be made")
+    expect(
+        store.create("report.txt", isDirectory: false, in: root, mode: 0o644) == nil,
+        "and the same name cannot be made twice -- that is EEXIST, not a second file")
+    expect(store.lookup("report.txt", in: root) === file, "looking it up finds the same item")
+
+    // Identity. FSKit hands an item back on every later call and expects it to
+    // still mean the same file, so two files may never share an id.
+    let other = store.create("other.txt", isDirectory: false, in: root, mode: 0o644)
+    expect(file?.id != other?.id, "no two items share an identifier")
+
+    // Directories, and the link count Finder reads to decide a folder is empty.
+    let folder = store.create("Photos", isDirectory: true, in: root, mode: 0o755)!
+    expect(folder.linkCount == 2, "a new directory links to itself and its parent")
+    _ = store.create("Trip", isDirectory: true, in: folder, mode: 0o755)
+    expect(folder.linkCount == 3, "and gains one for each directory inside it")
+
+    // Removing. Each outcome is a different errno, and the wrong one is a
+    // dialog that says the wrong thing.
+    expect(store.remove("absent", from: root) == .missing, "removing what is not there is ENOENT")
+    expect(
+        store.remove("Photos", from: root) == .notEmpty,
+        "a directory with anything in it is ENOTEMPTY")
+    expect(store.remove("Trip", from: folder) == .removed, "an empty one goes")
+    expect(store.remove("Photos", from: root) == .removed, "and then so does its parent")
+
+    // Writing, reading back, and growing into a hole.
+    let data = Data("hello".utf8)
+    expect(
+        store.write(file!, contents: data, offset: 0) == data.count, "a write reports what it took")
+    expect(store.read(file!, offset: 0, length: 99) == data, "and reads back exactly that")
+    expect(
+        store.read(file!, offset: 3, length: 99) == data.dropFirst(3),
+        "reading from an offset skips")
+    expect(
+        store.read(file!, offset: 99, length: 10).isEmpty,
+        "reading past the end is empty, not an error")
+    _ = store.write(file!, contents: Data("!".utf8), offset: 10)
+    expect(file!.size == 11, "a write past the end grows the file")
+    expect(store.read(file!, offset: 5, length: 5) == Data(count: 5), "and the gap reads as zeroes")
+
+    store.truncate(file!, to: 2)
+    expect(file!.size == 2, "truncating shortens it")
+    store.truncate(file!, to: 6)
+    expect(file!.size == 6, "and truncating upwards grows it")
+
+    // Renaming, including the move-to-Trash case: across directories, over
+    // something already there.
+    let trash = store.create(".Trashes", isDirectory: true, in: root, mode: 0o700)!
+    expect(
+        store.rename("report.txt", in: root, to: "report.txt", in: trash),
+        "a file moves to another directory")
+    expect(store.lookup("report.txt", in: root) == nil, "and is gone from where it was")
+    expect(store.lookup("report.txt", in: trash) === file, "and is the same item where it landed")
+    expect(file?.parent === trash, "with its parent updated, which is what fileID/parentID report")
+    expect(
+        !store.rename("absent", in: root, to: "x", in: trash),
+        "renaming what is not there fails rather than inventing a file")
+
+    // Enumeration order. FSKit resumes a directory listing from a cookie that
+    // is an index into this, so an order that moves between calls skips
+    // entries -- a folder that shows some of its files and not others.
+    let listing = store.create("many", isDirectory: true, in: root, mode: 0o755)!
+    for name in ["delta", "alpha", "charlie", "bravo"] {
+        _ = store.create(name, isDirectory: false, in: listing, mode: 0o644)
+    }
+    let first = store.children(of: listing).map(\.name)
+    expect(first == ["alpha", "bravo", "charlie", "delta"], "children come back sorted")
+    expect(store.children(of: listing).map(\.name) == first, "and in the same order every time")
+
+    // What statfs reports. A volume claiming no free space is one Finder will
+    // not copy onto.
+    let usage = store.usage()
+    expect(usage.files > 0, "the volume counts what is on it")
+    expect(usage.bytes >= 6, "including the bytes")
+}
+
 group("aDriveGetsATrashSoDeletingIsARename") {
     // Finder does not delete when somebody presses command-delete: it renames
     // into .Trashes/<uid> at the top of the volume, which costs the same

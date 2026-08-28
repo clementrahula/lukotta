@@ -22,22 +22,22 @@ import Foundation
 /// under Swift 6 a closure written inside actor-isolated code traps outright
 /// when an Objective-C API calls it back on a queue of its own. See AGENTS.md,
 /// "A Closure Handed to an Objective-C API".
-final class Store: @unchecked Sendable {
+public final class FSStore: @unchecked Sendable {
 
     /// One file or directory. A class rather than a struct so that the item
     /// FSKit holds on to and the one in the tree are the same object: FSKit
     /// hands back the FSItem it was given and expects it to still mean
     /// something.
-    final class Node {
-        let id: UInt64
-        var name: String
-        let isDirectory: Bool
-        var data: Data
-        var children: [String: Node]
-        weak var parent: Node?
-        var created: Date
-        var modified: Date
-        var mode: UInt32
+    public final class Node {
+        public let id: UInt64
+        public var name: String
+        public let isDirectory: Bool
+        public var data: Data
+        public var children: [String: Node]
+        public weak var parent: Node?
+        public var created: Date
+        public var modified: Date
+        public var mode: UInt32
 
         init(id: UInt64, name: String, isDirectory: Bool, parent: Node?, mode: UInt32) {
             self.id = id
@@ -52,12 +52,12 @@ final class Store: @unchecked Sendable {
             self.mode = mode
         }
 
-        var size: UInt64 { isDirectory ? 0 : UInt64(data.count) }
+        public var size: UInt64 { isDirectory ? 0 : UInt64(data.count) }
 
         /// What a directory reports as its link count: itself, its entry in its
         /// parent, and one per child directory. Finder shows a folder as empty
         /// when this is wrong.
-        var linkCount: UInt32 {
+        public var linkCount: UInt32 {
             guard isDirectory else { return 1 }
             return UInt32(2 + children.values.filter(\.isDirectory).count)
         }
@@ -65,9 +65,9 @@ final class Store: @unchecked Sendable {
 
     private let lock = NSLock()
     private var nextID: UInt64 = 2
-    let root: Node
+    public let root: Node
 
-    init() {
+    public init() {
         // 1 is reserved; a root of 2 is what a real volume reports.
         root = Node(id: 2, name: "", isDirectory: true, parent: nil, mode: 0o755)
         nextID = 3
@@ -78,7 +78,7 @@ final class Store: @unchecked Sendable {
         return nextID
     }
 
-    func withLock<T>(_ body: () -> T) -> T {
+    public func withLock<T>(_ body: () -> T) -> T {
         lock.lock()
         defer { lock.unlock() }
         return body()
@@ -86,11 +86,12 @@ final class Store: @unchecked Sendable {
 
     // MARK: - The operations the volume forwards
 
-    func lookup(_ name: String, in directory: Node) -> Node? {
+    public func lookup(_ name: String, in directory: Node) -> Node? {
         withLock { directory.children[name] }
     }
 
-    func create(_ name: String, isDirectory: Bool, in directory: Node, mode: UInt32) -> Node? {
+    public func create(_ name: String, isDirectory: Bool, in directory: Node, mode: UInt32) -> Node?
+    {
         withLock {
             guard directory.isDirectory, directory.children[name] == nil else { return nil }
             let node = Node(
@@ -104,9 +105,9 @@ final class Store: @unchecked Sendable {
 
     /// Whether the name was there to take away. A directory with anything in it
     /// is refused, which is what ENOTEMPTY means.
-    enum RemoveOutcome { case removed, missing, notEmpty }
+    public enum RemoveOutcome { case removed, missing, notEmpty }
 
-    func remove(_ name: String, from directory: Node) -> RemoveOutcome {
+    public func remove(_ name: String, from directory: Node) -> RemoveOutcome {
         withLock {
             guard let node = directory.children[name] else { return .missing }
             if node.isDirectory, !node.children.isEmpty { return .notEmpty }
@@ -117,7 +118,7 @@ final class Store: @unchecked Sendable {
         }
     }
 
-    func rename(
+    public func rename(
         _ name: String, in source: Node, to newName: String, in destination: Node
     ) -> Bool {
         withLock {
@@ -133,14 +134,14 @@ final class Store: @unchecked Sendable {
         }
     }
 
-    func children(of directory: Node) -> [Node] {
+    public func children(of directory: Node) -> [Node] {
         // Sorted, so that a directory enumerated twice comes back in the same
         // order. FSKit resumes an enumeration from a cookie that is an index
         // into this, and an order that moves between calls skips entries.
         withLock { directory.children.values.sorted { $0.name < $1.name } }
     }
 
-    func read(_ node: Node, offset: Int, length: Int) -> Data {
+    public func read(_ node: Node, offset: Int, length: Int) -> Data {
         withLock {
             guard offset < node.data.count else { return Data() }
             let end = min(node.data.count, offset + length)
@@ -148,7 +149,7 @@ final class Store: @unchecked Sendable {
         }
     }
 
-    func write(_ node: Node, contents: Data, offset: Int) -> Int {
+    public func write(_ node: Node, contents: Data, offset: Int) -> Int {
         withLock {
             let end = offset + contents.count
             if node.data.count < end {
@@ -160,7 +161,7 @@ final class Store: @unchecked Sendable {
         }
     }
 
-    func truncate(_ node: Node, to size: Int) {
+    public func truncate(_ node: Node, to size: Int) {
         withLock {
             if size < node.data.count {
                 node.data.removeSubrange(size..<node.data.count)
@@ -172,7 +173,7 @@ final class Store: @unchecked Sendable {
     }
 
     /// Everything in the tree, for the statfs reply.
-    func usage() -> (files: UInt64, bytes: UInt64) {
+    public func usage() -> (files: UInt64, bytes: UInt64) {
         withLock {
             var files: UInt64 = 0
             var bytes: UInt64 = 0
