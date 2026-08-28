@@ -3358,6 +3358,161 @@ group("readingAFileNeverReadsPastTheEndOfIt") {
         "and an attribute claiming more than the record holds is refused")
 }
 
+group("aFileWrittenByNtfsIsReadBackByteForByte") {
+    // The end of the whole reader: a file whose contents are known, put on the
+    // volume by the NTFS driver in the guest, found by name in the directory
+    // listing and read back through nine layers of our own parsing.
+    //
+    // Everything before this proves a parser agrees with a structure. This
+    // proves the bytes come back, which is the only claim that matters.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    let expected = "LUKOTTA-V2-READBACK-CHECK-0123456789"
+
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path),
+        let boot = try? handle.read(upToCount: 4096),
+        let geometry = NTFSGeometry.read(boot)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+
+    func record(_ number: UInt64, mftRuns: [NTFSRunlist.Run]?) -> (Data, NTFSRecord.Header)? {
+        var offset = geometry.mftByteOffset
+        if let mftRuns {
+            guard
+                let inTable = NTFSTable.offsetInTable(
+                    record: number, bytesPerFileRecord: geometry.bytesPerFileRecord),
+                let placed = NTFSTable.diskOffset(
+                    forFileOffset: inTable, runs: mftRuns,
+                    bytesPerCluster: geometry.bytesPerCluster)
+            else { return nil }
+            offset = placed.offset
+        }
+        try? handle.seek(toOffset: offset)
+        guard let raw = try? handle.read(upToCount: geometry.bytesPerFileRecord),
+            let header = NTFSRecord.header(raw, expectedLength: geometry.bytesPerFileRecord),
+            let fixed = NTFSRecord.applyFixup(
+                raw, header: header, sectorSize: geometry.bytesPerSector)
+        else { return nil }
+        return (fixed, header)
+    }
+    func attributes(_ r: Data, _ h: NTFSRecord.Header) -> [NTFSAttribute.Header] {
+        NTFSAttribute.all(in: r, startingAt: h.firstAttributeOffset, usedLength: h.usedLength)
+    }
+
+    guard let (mftRecord, mftHeader) = record(0, mftRuns: nil),
+        let mftData = attributes(mftRecord, mftHeader).first(where: { $0.kind == .data }),
+        let mftRuns = NTFSRunlist.decode(
+            mftRecord, at: mftData.runlistOffset, limit: mftRecord.count),
+        let (root, rootHeader) = record(NTFSTable.rootRecord, mftRuns: mftRuns)
+    else {
+        expect(false, "the table and the root directory are read")
+        return
+    }
+    let rootAttributes = attributes(root, rootHeader)
+
+    // Find the file by name in the root's index blocks.
+    guard let indexRoot = rootAttributes.first(where: { $0.kind == .indexRoot }),
+        indexRoot.isResident,
+        let allocation = rootAttributes.first(where: { $0.kind == .indexAllocation }),
+        let allocationRuns = NTFSRunlist.decode(
+            root, at: allocation.runlistOffset, limit: root.count)
+    else {
+        expect(false, "the root's index is found")
+        return
+    }
+    var blockSize = 0
+    let sizeStart = root.startIndex + indexRoot.valueOffset + 8
+    for i in 0..<4 { blockSize |= Int(root[sizeStart + i]) << (8 * i) }
+
+    var target: UInt64?
+    var block = 0
+    while target == nil, block < 32 {
+        guard
+            let placed = NTFSTable.diskOffset(
+                forFileOffset: UInt64(block * blockSize), runs: allocationRuns,
+                bytesPerCluster: geometry.bytesPerCluster)
+        else { break }
+        try? handle.seek(toOffset: placed.offset)
+        guard let rawBlock = try? handle.read(upToCount: blockSize),
+            let blockHeader = NTFSIndexBlock.header(rawBlock, blockSize: blockSize),
+            let node = NTFSIndexBlock.applyFixup(
+                rawBlock, header: blockHeader, sectorSize: geometry.bytesPerSector)
+        else { break }
+        for entry in NTFSIndex.entries(
+            node, from: blockHeader.firstEntryOffset, limit: blockHeader.endOfEntries)
+        where entry.name?.name == "readback.txt" {
+            target = entry.record
+        }
+        block += 1
+    }
+
+    guard let number = target else {
+        expect(true, "readback.txt is not on this volume; nothing to read back")
+        return
+    }
+    expect(true, "readback.txt was found in the directory listing")
+
+    guard let (file, fileHeader) = record(number, mftRuns: mftRuns) else {
+        expect(false, "its record reads")
+        return
+    }
+    expect(fileHeader.inUse, "the file's record is in use")
+    expect(!fileHeader.isDirectory, "and it is a file rather than a directory")
+
+    guard let data = attributes(file, fileHeader).first(where: { $0.kind == .data }) else {
+        expect(false, "it has a DATA attribute")
+        return
+    }
+    expect(
+        data.dataSize == UInt64(expected.utf8.count),
+        "whose size is the number of bytes that were written")
+
+    // Read the contents, resident or not.
+    var contents = Data()
+    if data.isResident {
+        guard
+            let range = NTFSFileData.residentRange(
+                data, offset: 0, length: Int(data.dataSize), recordSize: file.count)
+        else {
+            expect(false, "a resident file's bytes are located")
+            return
+        }
+        contents = file[file.startIndex + range.lowerBound..<file.startIndex + range.upperBound]
+    } else {
+        guard let runs = NTFSRunlist.decode(file, at: data.runlistOffset, limit: file.count),
+            let pieces = NTFSFileData.pieces(
+                offset: 0, length: Int(data.dataSize), runs: runs,
+                bytesPerCluster: geometry.bytesPerCluster, size: data.dataSize)
+        else {
+            expect(false, "a non-resident file's reads are planned")
+            return
+        }
+        for piece in pieces {
+            switch piece {
+            case .zeroes(let length): contents.append(Data(count: length))
+            case .disk(let offset, let length):
+                try? handle.seek(toOffset: offset)
+                guard let chunk = try? handle.read(upToCount: length) else { break }
+                contents.append(chunk)
+            }
+        }
+    }
+
+    expect(
+        contents.count == expected.utf8.count,
+        "the read returns exactly as many bytes as the file holds")
+    expect(
+        String(decoding: contents, as: UTF8.self) == expected,
+        "and every one of them is what was written -- read off a real NTFS volume by our own "
+            + "code, through geometry, record, fixup, attributes, index, and data")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
