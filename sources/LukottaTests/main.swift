@@ -2602,6 +2602,71 @@ group("aRunlistSaysWhereAFileActuallyIs") {
         "a runlist covering less than the file claims is a truncated file, not a short read")
 }
 
+group("theRunlistDecoderAgreesWithARealVolume") {
+    // $MFT's own DATA runlist. Every NTFS volume has one, it can never be
+    // resident, and where it points is knowable independently: the boot sector
+    // already said which cluster the master file table starts at, so the first
+    // run has to begin exactly there. That makes this the one runlist whose
+    // answer can be checked rather than merely parsed.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path),
+        let boot = try? handle.read(upToCount: 4096),
+        let geometry = NTFSGeometry.read(boot)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+    try? handle.seek(toOffset: geometry.mftByteOffset)
+    guard let raw = try? handle.read(upToCount: geometry.bytesPerFileRecord),
+        let header = NTFSRecord.header(raw, expectedLength: geometry.bytesPerFileRecord),
+        let record = NTFSRecord.applyFixup(
+            raw, header: header, sectorSize: geometry.bytesPerSector),
+        let data = NTFSAttribute.all(
+            in: record, startingAt: header.firstAttributeOffset, usedLength: header.usedLength
+        ).first(where: { $0.kind == .data })
+    else {
+        expect(false, "$MFT's DATA attribute is found")
+        return
+    }
+
+    guard let runs = NTFSRunlist.decode(record, at: data.runlistOffset, limit: record.count) else {
+        expect(false, "and its runlist decodes")
+        return
+    }
+    expect(!runs.isEmpty, "there is at least one run")
+    expect(runs.allSatisfy { !$0.isHole }, "$MFT is never sparse -- none of its runs is a hole")
+
+    // The check that makes this worth doing: the boot sector said where the
+    // table starts, and the runlist has to agree. Two independent statements
+    // about the same fact, one decoded through five layers of parsing.
+    expect(
+        runs[0].physicalCluster == geometry.mftStartCluster,
+        "the first run begins at exactly the cluster the boot sector named for the MFT")
+    expect(
+        runs[0].logicalCluster == 0,
+        "and at the beginning of the file, since a runlist starts where the file starts")
+
+    // And the runs have to account for the whole attribute, or the file is
+    // truncated.
+    let claimed = data.lastCluster - data.startingCluster + 1
+    expect(
+        NTFSRunlist.covers(runs, clusters: claimed),
+        "the runs cover exactly the clusters the attribute claims, with none missing or spare")
+
+    // Every run lands inside the volume. One that did not would be a read of
+    // whatever is past the partition.
+    let totalClusters = geometry.totalSectors / UInt64(geometry.sectorsPerCluster)
+    expect(
+        runs.allSatisfy { ($0.physicalCluster ?? 0) + $0.clusterCount <= totalClusters },
+        "and every run lies inside the volume rather than past the end of it")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
