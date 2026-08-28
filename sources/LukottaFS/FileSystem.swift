@@ -81,7 +81,20 @@ extension LukottaFileSystem: FSUnaryFileSystemOperations {
         // against a store that is not the bottleneck, which is the measurement
         // FAT32 cannot give. What ships names the guest's volume here.
         let backing: any FSBacking
-        if let root = FSMountOptions.backingRoot(options.taskOptions) {
+        if let device = resource as? FSBlockDeviceResource {
+            // The real thing: an NTFS volume, read straight off the device.
+            // Every read the volume makes comes back through here, so the
+            // parsers never learn what a block device is.
+            let held = HeldDevice(device)
+            guard let ntfs = NTFSBacking(read: { offset, length in held.read(offset, length) })
+            else {
+                // Not NTFS, or a table that cannot be read. Refusing is the
+                // answer: a volume served empty looks like a drive that lost
+                // everything on it.
+                return reply(nil, fsError(POSIXError.EINVAL))
+            }
+            backing = ntfs
+        } else if let root = FSMountOptions.backingRoot(options.taskOptions) {
             backing = FSPassthroughBacking(root: URL(fileURLWithPath: root, isDirectory: true))
         } else {
             backing = FSStoreBacking()
@@ -105,4 +118,36 @@ extension LukottaFileSystem: FSUnaryFileSystemOperations {
 @main
 struct LukottaFSExtension: UnaryFileSystemExtension {
     var fileSystem: LukottaFileSystem { LukottaFileSystem() }
+}
+
+/// A block device, carried into the reader's closure.
+///
+/// `FSBlockDeviceResource` is not `Sendable`, and the closure it is used from
+/// is: the reader is handed to a backing that FSKit calls on its own queues.
+/// Wrapping it is a claim, so here is the basis for it.
+///
+/// Every call arrives through `NTFSBacking`, which takes a lock around each one,
+/// so no two reads of this device overlap. The resource is never mutated -- only
+/// `read` is called, and the buffer belongs to this function. And it outlives
+/// the closure, because FSKit holds the resource for as long as the volume is
+/// mounted, which is longer than the backing that reads from it.
+///
+/// If any of those three stops being true, this is where the reasoning is
+/// written down and where it has to be revisited.
+final class HeldDevice: @unchecked Sendable {
+    private let device: FSBlockDeviceResource
+
+    init(_ device: FSBlockDeviceResource) {
+        self.device = device
+    }
+
+    func read(_ offset: UInt64, _ length: Int) -> Data? {
+        guard length > 0 else { return nil }
+        var buffer = [UInt8](repeating: 0, count: length)
+        let read = try? buffer.withUnsafeMutableBytes {
+            try device.read(into: $0, startingAt: off_t(offset), length: length)
+        }
+        guard let read, read > 0 else { return nil }
+        return Data(buffer.prefix(read))
+    }
 }
