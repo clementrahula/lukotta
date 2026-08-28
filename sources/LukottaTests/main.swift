@@ -2971,6 +2971,113 @@ group("theRootDirectoryIsReachedByNumberOnARealVolume") {
         "and the root directory is named \".\", which is what NTFS calls it")
 }
 
+group("aDirectoryListingKeepsItsEndMarker") {
+    // A directory's contents are a B-tree of entries sorted by name. The last
+    // entry in every node carries no name at all -- only the pointer to the
+    // subtree past the final key. A reader that treats it as a file shows an
+    // empty-named entry in every folder; one that stops at it without following
+    // its child misses everything in the last subtree, which on a real volume
+    // is where most of the names are.
+
+    func entry(
+        record: UInt64 = 30, name: String? = "Report.txt", child: UInt64? = nil,
+        last: Bool = false, entryLength: Int? = nil
+    ) -> [UInt8] {
+        var content = [UInt8]()
+        if let name {
+            content = [UInt8](repeating: 0, count: 66)
+            for i in 0..<8 { content[i] = UInt8((UInt64(5) >> (8 * UInt64(i))) & 0xFF) }
+            let units = Array(name.utf16)
+            content[64] = UInt8(units.count)
+            content[65] = 1
+            for u in units { content.append(UInt8(u & 0xFF)); content.append(UInt8(u >> 8)) }
+        }
+        var length = 16 + content.count
+        if child != nil { length += 8 }
+        length = (length + 7) / 8 * 8
+        let total = entryLength ?? length
+        var e = [UInt8](repeating: 0, count: max(total, 16))
+        for i in 0..<8 { e[i] = UInt8((record >> (8 * UInt64(i))) & 0xFF) }
+        e[8] = UInt8(total & 0xFF); e[9] = UInt8(total >> 8)
+        e[10] = UInt8(content.count & 0xFF); e[11] = UInt8(content.count >> 8)
+        var flags: UInt8 = 0
+        if child != nil { flags |= 0x01 }
+        if last { flags |= 0x02 }
+        e[12] = flags
+        for (i, b) in content.enumerated() where 16 + i < e.count { e[16 + i] = b }
+        if let child, e.count >= 8 {
+            for i in 0..<8 { e[e.count - 8 + i] = UInt8((child >> (8 * UInt64(i))) & 0xFF) }
+        }
+        return e
+    }
+
+    // A node holding two names and an end marker.
+    var node = entry(record: 30, name: "Alpha.txt")
+    node += entry(record: 31, name: "Beta.txt")
+    node += entry(name: nil, last: true)
+    let data = Data(node)
+
+    let all = NTFSIndex.entries(data, from: 0, limit: data.count)
+    expect(all.count == 3, "both names and the marker that ends the node")
+    expect(NTFSIndex.names(all) == ["Alpha.txt", "Beta.txt"], "the listing is the names, in order")
+    expect(all[0].record == 30, "each entry names the record it points at")
+    expect(all[2].isLast, "and the last entry says it is the last")
+    expect(all[2].name == nil, "carrying no name, whatever its content length says")
+    expect(
+        !NTFSIndex.names(all).contains(""),
+        "so no folder shows an entry with an empty name")
+
+    // The end marker with a child: the subtree past the final key. Dropping it
+    // loses every name in that subtree, which on a real volume is most of them.
+    let withChild = Data(entry(name: nil, child: 4, last: true))
+    let ended = NTFSIndex.entries(withChild, from: 0, limit: withChild.count)
+    expect(ended.count == 1, "a node that is only an end marker still yields it")
+    expect(ended[0].childBlock == 4, "carrying the block of the subtree past the last name")
+    expect(
+        NTFSIndex.names(ended).isEmpty,
+        "and contributing no name of its own to the listing")
+
+    // An interior entry with both a name and a child.
+    let interior = Data(entry(record: 40, name: "Middle.txt", child: 9))
+    if let (one, _) = NTFSIndex.entry(interior, at: 0, limit: interior.count) {
+        expect(one.name?.name == "Middle.txt", "an interior entry has a name")
+        expect(one.childBlock == 9, "and a subtree below it")
+        expect(!one.isLast, "and is not the end of the node")
+    } else {
+        expect(false, "an interior entry reads")
+    }
+
+    // The lengths that would loop or overrun.
+    expect(
+        NTFSIndex.entry(Data(entry(entryLength: 0)), at: 0, limit: 200) == nil,
+        "an entry of no length is refused -- believing it walks the node for ever")
+    let short = Data(entry(name: "Alpha.txt").prefix(20))
+    expect(
+        NTFSIndex.entry(short, at: 0, limit: short.count) == nil,
+        "an entry longer than the node is refused rather than read past the end")
+    expect(NTFSIndex.entry(data, at: 100_000, limit: data.count) == nil, "an offset past the node")
+    expect(NTFSIndex.entry(data, at: -1, limit: data.count) == nil, "and one before it")
+
+    // An entry that is not the last and has no readable name is a corrupt node,
+    // not a nameless file.
+    let nameless = Data(entry(name: nil, last: false, entryLength: 32))
+    expect(
+        NTFSIndex.entry(nameless, at: 0, limit: nameless.count) == nil,
+        "a non-final entry with no name is a corrupt node rather than a file without one")
+
+    // Where a node's entries begin is read from its header rather than assumed:
+    // an index root and an index block carry different amounts in front.
+    var header = [UInt8](repeating: 0, count: 32)
+    header[0] = 24
+    expect(
+        NTFSIndex.firstEntryOffset(nodeHeader: Data(header), at: 0) == 24,
+        "the node header says where its entries start")
+    header[0] = 4
+    expect(
+        NTFSIndex.firstEntryOffset(nodeHeader: Data(header), at: 0) == nil,
+        "and one claiming they start inside the header itself is refused")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
