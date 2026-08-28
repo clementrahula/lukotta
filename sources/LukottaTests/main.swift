@@ -2140,6 +2140,46 @@ group("bothBackingsKeepTheSamePromises") {
     }
 }
 
+group("aDriveOpensWhetherOrNotTheExtensionIsThere") {
+    // The extension cannot be turned on by this application: isEnabled is
+    // readonly, FSClient only reads, and FSKit has no equivalent of the request
+    // that gets a system extension its prompt. Somebody has to find a switch,
+    // once, and on current macOS that switch is reported not to stick.
+    //
+    // So it is never the way a drive opens, only the fast way. Everything below
+    // is that rule written down, because the failure this guards against is not
+    // a crash: it is a drive that stops opening after an ordinary update,
+    // which is worse than the problem v2 set out to fix.
+    expect(
+        FilesystemRoute.first(extensionAvailable: true) == .fileSystemExtension,
+        "where the extension exists, it is tried first")
+    expect(
+        FilesystemRoute.first(extensionAvailable: false) == .network,
+        "and where it does not, the drive still opens over NFS")
+    expect(
+        FilesystemRoute.first(extensionAvailable: true, readOnly: true) == .network,
+        "a read-only drive stays on NFS -- the reason to reach for the extension is writing")
+    expect(
+        FilesystemRoute.first(extensionAvailable: false, preferred: .fileSystemExtension)
+            == .fileSystemExtension,
+        "asking for one explicitly is honoured, which is how a harness pins it")
+
+    // The fallback is once, not a loop. One that can be taken twice can be
+    // taken for ever, and a mount that keeps retrying is the wedge this
+    // application spent a version getting rid of.
+    expect(
+        FilesystemRoute.after(.fileSystemExtension) == .network,
+        "the extension falls back to NFS")
+    expect(
+        FilesystemRoute.after(.network) == nil,
+        "and NFS falls back to nothing: it is the floor, and a failure there is reported")
+
+    // The whole point of the design.
+    expect(
+        !FilesystemRoute.fallbackIsWorthSaying,
+        "and nobody is told any of this: the drive opened, which is all they asked for")
+}
+
 group("aDriveGetsATrashSoDeletingIsARename") {
     // Finder does not delete when somebody presses command-delete: it renames
     // into .Trashes/<uid> at the top of the volume, which costs the same
