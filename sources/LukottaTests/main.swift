@@ -4626,6 +4626,124 @@ group("theRealVolumesBitmapAgreesWithItsFiles") {
     }
 }
 
+group("aDirtyVolumeIsNeverWrittenTo") {
+    // $Volume carries the flag Windows sets when a drive is mounted for writing
+    // and clears on a clean unmount. A drive pulled out mid-write, or left in
+    // Windows fast-startup hibernation, still has it set -- and its metadata may
+    // be half-updated, with $LogFile holding what is needed to finish or undo
+    // the change.
+    //
+    // Writing on top of that produces a volume chkdsk cannot fully repair. It
+    // is also exactly the state a drive is in after the failure that made
+    // somebody reach for this application in the first place.
+
+    func info(flags: UInt16, label: String? = "DRIVE") -> NTFSVolumeState.Info? {
+        var value = [UInt8](repeating: 0, count: 12)
+        value[8] = 3
+        value[9] = 1
+        value[10] = UInt8(flags & 0xFF)
+        value[11] = UInt8(flags >> 8)
+        var record = [UInt8](repeating: 0, count: 512)
+        for (i, b) in value.enumerated() { record[100 + i] = b }
+        var attributes = [
+            NTFSAttribute.Header(
+                type: 0x70, length: 40, isResident: true, valueOffset: 100, valueLength: 12,
+                runlistOffset: 0, startingCluster: 0, lastCluster: 0, dataSize: 12)
+        ]
+        if let label {
+            let units = Array(label.utf16)
+            for (i, u) in units.enumerated() {
+                record[200 + i * 2] = UInt8(u & 0xFF)
+                record[200 + i * 2 + 1] = UInt8(u >> 8)
+            }
+            attributes.append(
+                NTFSAttribute.Header(
+                    type: 0x60, length: 40, isResident: true, valueOffset: 200,
+                    valueLength: units.count * 2, runlistOffset: 0, startingCluster: 0,
+                    lastCluster: 0, dataSize: UInt64(units.count * 2)))
+        }
+        return NTFSVolumeState.read(record: Data(record), attributes: attributes)
+    }
+
+    guard let clean = info(flags: 0x0000) else {
+        expect(false, "a clean volume's information reads")
+        return
+    }
+    expect(!clean.isDirty, "a volume unmounted cleanly is not dirty")
+    expect(clean.isSafeToWrite, "and is safe to write to")
+    expect(clean.majorVersion == 3 && clean.minorVersion == 1, "NTFS 3.1, which is what ships")
+    expect(clean.label == "DRIVE", "and its name is read")
+
+    guard let dirty = info(flags: 0x0001) else {
+        expect(false, "a dirty volume's information reads")
+        return
+    }
+    expect(dirty.isDirty, "a volume that was not unmounted cleanly says so")
+    expect(
+        !dirty.isSafeToWrite,
+        "and is never written to -- its metadata may be half-updated and $LogFile holds the "
+            + "record needed to finish or undo it")
+
+    guard let wantsCheck = info(flags: 0x0002) else {
+        expect(false, "a volume wanting chkdsk reads")
+        return
+    }
+    expect(wantsCheck.wantsCheck, "a volume Windows wants to check says so")
+    expect(!wantsCheck.isSafeToWrite, "and is not written to either")
+
+    // Read-only is always allowed. Somebody holding a drive in this state most
+    // likely wants their files off it, and refusing to show them anything would
+    // be this application failing at the one job it has.
+    expect(
+        info(flags: 0x0001)?.isDirty == true,
+        "a dirty volume is still readable -- the flag stops writes, not the drive opening")
+
+    // A volume with no name at all is ordinary.
+    expect(info(flags: 0, label: nil)?.label == nil, "a drive with no label has none")
+}
+
+group("theRealVolumeReportsItsOwnState") {
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    guard
+        let reader = NTFSVolumeReader(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        }), let record = reader.record(NTFSVolumeState.volumeRecord)
+    else {
+        expect(false, "the volume record reads")
+        return
+    }
+    guard
+        let info = NTFSVolumeState.read(
+            record: record.data, attributes: reader.attributes(of: record))
+    else {
+        expect(false, "and its state is readable")
+        return
+    }
+    expect(info.majorVersion == 3, "the volume is NTFS 3.x, which every modern one is")
+    expect(
+        info.label == "BENCHNTFS" || info.label != nil,
+        "and carries the label it was formatted with")
+    expect(
+        !info.isDirty,
+        "this volume was unmounted cleanly, so it is not dirty -- which is what makes the "
+            + "dirty check above mean something rather than always being false")
+    expect(info.isSafeToWrite, "and would be safe to write to")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
