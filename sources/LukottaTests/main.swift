@@ -2368,6 +2368,156 @@ group("theRecordReaderAgreesWithARealMasterFileTable") {
             + "end of each sector were the signature and are now the file's own")
 }
 
+group("attributesAreWalkedOnceAndNeverOffTheEnd") {
+    // Everything NTFS knows about a file is an attribute, laid out one after
+    // another until an end marker. Walking that list means trusting a length
+    // out of each header, so a zero loops for ever and a large one walks off
+    // the end of the record -- both from bytes that came off somebody's disk.
+
+    func attribute(
+        type: UInt32, length: Int, resident: Bool = true,
+        valueOffset: Int = 24, valueLength: Int = 8, runlistOffset: Int = 64,
+        start: UInt64 = 0, last: UInt64 = 0, dataSize: UInt64 = 0
+    ) -> [UInt8] {
+        var a = [UInt8](repeating: 0, count: max(length, 16))
+        for i in 0..<4 { a[i] = UInt8((type >> (8 * UInt32(i))) & 0xFF) }
+        for i in 0..<4 { a[4 + i] = UInt8((length >> (8 * i)) & 0xFF) }
+        a[8] = resident ? 0 : 1
+        if resident {
+            if a.count > 23 {
+                for i in 0..<4 { a[16 + i] = UInt8((valueLength >> (8 * i)) & 0xFF) }
+                a[20] = UInt8(valueOffset & 0xFF); a[21] = UInt8(valueOffset >> 8)
+            }
+        } else if a.count > 63 {
+            for i in 0..<8 { a[16 + i] = UInt8((start >> (8 * UInt64(i))) & 0xFF) }
+            for i in 0..<8 { a[24 + i] = UInt8((last >> (8 * UInt64(i))) & 0xFF) }
+            a[32] = UInt8(runlistOffset & 0xFF); a[33] = UInt8(runlistOffset >> 8)
+            for i in 0..<8 { a[48 + i] = UInt8((dataSize >> (8 * UInt64(i))) & 0xFF) }
+        }
+        return a
+    }
+
+    // A resident attribute: the file's contents live inside the record, which
+    // is why a volume of tiny files is faster on NTFS than its cluster size
+    // suggests.
+    var record = attribute(type: 0x10, length: 96)
+    record += attribute(
+        type: 0x80, length: 200, resident: false, start: 10, last: 19,
+        dataSize: 40_960)
+    record += [0xFF, 0xFF, 0xFF, 0xFF]
+    record += [UInt8](repeating: 0, count: 32)
+    let data = Data(record)
+
+    guard let first = NTFSAttribute.header(data, at: 0) else {
+        expect(false, "the first attribute is read")
+        return
+    }
+    expect(first.kind == .standardInformation, "and it is the one it says it is")
+    expect(first.isResident, "a resident attribute says so")
+    expect(first.length == 96, "with its own length, which is how the list is walked")
+    expect(first.valueLength == 8, "and its value's length")
+
+    guard let second = NTFSAttribute.header(data, at: 96) else {
+        expect(false, "the second attribute is read at the offset the first's length gives")
+        return
+    }
+    expect(second.kind == .data, "the file's contents are a DATA attribute")
+    expect(!second.isResident, "a large one lives out on the disk")
+    expect(second.startingCluster == 10 && second.lastCluster == 19, "over a range of clusters")
+    expect(second.dataSize == 40_960, "and reports the file's real size, not its allocation")
+
+    let all = NTFSAttribute.all(in: data, startingAt: 0, usedLength: data.count)
+    expect(all.count == 2, "walking the record finds both and stops at the end marker")
+    expect(all.map(\.type) == [0x10, 0x80], "in the order they are written")
+
+    // The numbers that would loop or walk off the end.
+    let zeroLength = Data(attribute(type: 0x10, length: 0) + [UInt8](repeating: 0, count: 64))
+    expect(
+        NTFSAttribute.header(zeroLength, at: 0) == nil,
+        "an attribute of no length is refused -- believing it walks the list for ever")
+    // A short record whose header claims a long attribute, which is the shape a
+    // corrupt record actually has: the bytes end, the number does not.
+    let huge = Data(attribute(type: 0x10, length: 99999).prefix(64))
+    expect(
+        NTFSAttribute.header(huge, at: 0) == nil,
+        "and one longer than the record is refused rather than read past the end")
+    expect(NTFSAttribute.header(data, at: 100_000) == nil, "an offset past the end reads nothing")
+    expect(NTFSAttribute.header(data, at: -1) == nil, "and so does one before the start")
+
+    // A resident value has to sit inside its own attribute. One that points
+    // past it reads the next attribute's bytes as this file's contents.
+    let overreaching = Data(attribute(type: 0x10, length: 96, valueOffset: 24, valueLength: 500))
+    expect(
+        NTFSAttribute.header(overreaching, at: 0) == nil,
+        "a value claiming more than its attribute holds is refused")
+
+    // The end marker closes the list, and nothing after it is read.
+    let onlyEnd = Data([0xFF, 0xFF, 0xFF, 0xFF] + [UInt8](repeating: 0x41, count: 64))
+    expect(
+        NTFSAttribute.all(in: onlyEnd, startingAt: 0, usedLength: 68).isEmpty,
+        "a record that begins with the end marker holds no attributes")
+}
+
+group("theAttributeReaderAgreesWithARealFileRecord") {
+    // $MFT's own record on a real volume. Every NTFS volume has it and nothing
+    // mounts without it, so it is the one record whose contents can be asserted
+    // without knowing anything about the disk it came from.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path),
+        let boot = try? handle.read(upToCount: 4096),
+        let geometry = NTFSGeometry.read(boot)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+    try? handle.seek(toOffset: geometry.mftByteOffset)
+    guard let raw = try? handle.read(upToCount: geometry.bytesPerFileRecord),
+        let header = NTFSRecord.header(raw, expectedLength: geometry.bytesPerFileRecord),
+        let record = NTFSRecord.applyFixup(
+            raw, header: header, sectorSize: geometry.bytesPerSector)
+    else {
+        expect(false, "the first MFT record reads and repairs")
+        return
+    }
+
+    let attributes = NTFSAttribute.all(
+        in: record, startingAt: header.firstAttributeOffset, usedLength: header.usedLength)
+    expect(!attributes.isEmpty, "the record holds attributes")
+
+    // What $MFT must have, on any volume any tool produced.
+    let kinds = attributes.compactMap(\.kind)
+    expect(
+        kinds.contains(.standardInformation),
+        "every file record begins with its standard information")
+    expect(kinds.contains(.fileName), "and carries a name")
+    expect(kinds.contains(.data), "$MFT has a DATA attribute -- it is a file like any other")
+
+    guard let data = attributes.first(where: { $0.kind == .data }) else { return }
+    expect(
+        !data.isResident,
+        "and $MFT's own data is never resident: the table cannot fit inside a record of itself")
+    expect(data.dataSize > 0, "it reports a real size")
+    expect(
+        data.lastCluster >= data.startingCluster,
+        "over a cluster range that does not run backwards")
+    expect(
+        data.runlistOffset > 0 && data.runlistOffset < record.count,
+        "and points at a runlist inside the record -- which is the list of extents "
+            + "kernel-offloaded I/O would hand to the kernel")
+
+    // The parser walked the whole record and stopped where the record stops.
+    let total = attributes.reduce(header.firstAttributeOffset) { $0 + $1.length }
+    expect(
+        total <= header.usedLength,
+        "walking every attribute lands inside the used length rather than past it")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
