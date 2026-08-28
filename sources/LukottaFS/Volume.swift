@@ -475,3 +475,65 @@ extension LukottaVolume: FSVolume.ItemDeactivation {
         reply(nil)
     }
 }
+
+// MARK: - Renaming the volume
+
+/// Renaming the drive itself, from Finder's Get Info.
+///
+/// Refused, and refused rather than silently ignored. A drive opened by this
+/// application belongs to whatever wrote it -- a Windows install, a camera, a
+/// NAS -- and its label lives in the filesystem's own metadata. Writing a new
+/// one means writing to a drive somebody asked us to open, which is a thing
+/// this application does not do, and getting it wrong on NTFS means editing the
+/// boot sector of a volume that is not ours.
+///
+/// `volumeRenameInhibited` is what tells Finder so before anybody types
+/// anything: the field is not offered, rather than offered and then rejected
+/// with an error nobody can act on.
+extension LukottaVolume: FSVolume.RenameOperations {
+
+    var isVolumeRenameInhibited: Bool { true }
+
+    func setVolumeName(
+        _ name: FSFileName, replyHandler reply: @escaping (FSFileName?, (any Error)?) -> Void
+    ) {
+        reply(nil, fsError(POSIXError.EPERM))
+    }
+}
+
+// MARK: - Reserving space before a write
+
+/// `F_PREALLOCATE`, which is what a large copy asks for before it starts.
+///
+/// Finder and anything else moving a big file ask for the space up front so
+/// that a copy fails at the beginning rather than nine tenths of the way
+/// through. Answering it honestly is worth a crossing: a refusal makes the
+/// caller fall back to writing and discovering, which is the slow and
+/// disappointing order.
+///
+/// The memory backing has nothing to reserve and the passthrough is a directory
+/// on a filesystem doing its own allocation, so neither can promise blocks. What
+/// both can do is grow the file to the length asked for, which is what makes the
+/// caller's next write land in space that already exists.
+extension LukottaVolume: FSVolume.PreallocateOperations {
+
+    func preallocateSpace(
+        for item: FSItem, at offset: off_t, length: Int, flags: FSVolume.PreallocateFlags,
+        replyHandler reply: @escaping (Int, (any Error)?) -> Void
+    ) {
+        guard let item = item as? Item else { return reply(0, fsError(POSIXError.EINVAL)) }
+        guard let facts = store.attributes(of: item.handle) else {
+            return reply(0, fsError(POSIXError.EIO))
+        }
+        let wanted = Int(offset) + length
+        guard wanted > Int(facts.size) else {
+            // Already that long. Nothing was allocated and nothing failed.
+            return reply(0, nil)
+        }
+        store.truncate(item.handle, to: wanted)
+        guard let after = store.attributes(of: item.handle), after.size >= UInt64(wanted) else {
+            return reply(0, fsError(POSIXError.ENOSPC))
+        }
+        reply(wanted - Int(facts.size), nil)
+    }
+}
