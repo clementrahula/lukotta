@@ -2148,6 +2148,87 @@ group("aWriteThatIsNotWholeBlocksHasToReadFirst") {
         "and no block size is never aligned")
 }
 
+group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
+    // Where things are on an NTFS volume, which is the first thing anything
+    // reading one has to know. Every field comes off a disk somebody plugged
+    // in, so it is input rather than fact: a cluster size of zero divides by
+    // zero, a huge one allocates for ever, and an MFT past the end of the
+    // volume reads the next volume along.
+
+    // A boot sector as Windows writes one: 512-byte sectors, 8 per cluster,
+    // 1024-byte records written the negative way.
+    func bootSector(
+        bytesPerSector: Int = 512, sectorsPerCluster: Int = 8,
+        totalSectors: UInt64 = 200_000, mft: UInt64 = 4, mftMirror: UInt64 = 100,
+        recordSizeByte: Int8 = -10
+    ) -> Data {
+        var sector = [UInt8](repeating: 0, count: 512)
+        for (i, b) in Array("NTFS    ".utf8).enumerated() { sector[3 + i] = b }
+        sector[0x0B] = UInt8(bytesPerSector & 0xFF)
+        sector[0x0C] = UInt8((bytesPerSector >> 8) & 0xFF)
+        sector[0x0D] = UInt8(sectorsPerCluster)
+        for i in 0..<8 { sector[0x28 + i] = UInt8((totalSectors >> (8 * UInt64(i))) & 0xFF) }
+        for i in 0..<8 { sector[0x30 + i] = UInt8((mft >> (8 * UInt64(i))) & 0xFF) }
+        for i in 0..<8 { sector[0x38 + i] = UInt8((mftMirror >> (8 * UInt64(i))) & 0xFF) }
+        sector[0x40] = UInt8(bitPattern: recordSizeByte)
+        for i in 0..<8 { sector[0x48 + i] = UInt8((0xDEAD_BEEF >> (8 * UInt64(i))) & 0xFF) }
+        return Data(sector)
+    }
+
+    guard let g = NTFSGeometry.read(bootSector()) else {
+        expect(false, "an ordinary NTFS boot sector is read")
+        return
+    }
+    expect(g.bytesPerSector == 512, "the sector size is read")
+    expect(g.sectorsPerCluster == 8, "and the cluster size")
+    expect(g.bytesPerCluster == 4096, "which multiply out to a cluster in bytes")
+    expect(g.mftStartCluster == 4, "the master file table's cluster is read")
+    expect(g.mftByteOffset == 4 * 4096, "and turns into a byte offset, which is what a read needs")
+    expect(g.totalBytes == 200_000 * 512, "the volume's size comes out in bytes")
+    expect(g.bytesPerFileRecord == 1024, "a negative record byte is a power of two: -10 is 1024")
+    expect(g.serialNumber == 0xDEAD_BEEF, "and the serial number is read")
+
+    // The other spelling: a positive byte means clusters per record.
+    let positive = NTFSGeometry.read(bootSector(recordSizeByte: 1))
+    expect(positive?.bytesPerFileRecord == 4096, "a positive record byte is a count of clusters")
+
+    // Not NTFS at all.
+    expect(NTFSGeometry.read(Data(count: 512)) == nil, "an empty sector is not a volume")
+    expect(NTFSGeometry.read(Data(count: 100)) == nil, "and a short read is not one either")
+
+    // Everything that would divide by zero, hang, or read another volume.
+    expect(
+        NTFSGeometry.read(bootSector(bytesPerSector: 0)) == nil,
+        "a sector size of zero is refused rather than divided by")
+    expect(
+        NTFSGeometry.read(bootSector(bytesPerSector: 777)) == nil,
+        "and so is one that is not a size NTFS uses")
+    expect(
+        NTFSGeometry.read(bootSector(sectorsPerCluster: 0)) == nil,
+        "a cluster of no sectors is refused")
+    expect(
+        NTFSGeometry.read(bootSector(sectorsPerCluster: 3)) == nil,
+        "so is one that is not a power of two")
+    expect(
+        NTFSGeometry.read(bootSector(sectorsPerCluster: 255)) == nil,
+        "and one large enough to allocate for ever")
+    expect(
+        NTFSGeometry.read(bootSector(totalSectors: 0)) == nil,
+        "a volume of no sectors is refused")
+    expect(
+        NTFSGeometry.read(bootSector(mft: 999_999_999)) == nil,
+        "an MFT past the end of the volume is refused -- that read is the next volume along")
+    expect(
+        NTFSGeometry.read(bootSector(mftMirror: 999_999_999)) == nil,
+        "and so is a backup MFT past the end")
+    expect(
+        NTFSGeometry.read(bootSector(recordSizeByte: -2)) == nil,
+        "a record smaller than a sector is not a record")
+    expect(
+        NTFSGeometry.read(bootSector(recordSizeByte: -30)) == nil,
+        "and one larger than any cluster is a number nobody writes")
+}
+
 group("bothBackingsKeepTheSamePromises") {
     // The extension is written once, against a seam, and two things sit behind
     // it: memory, which prices the framework and nothing else, and a real
