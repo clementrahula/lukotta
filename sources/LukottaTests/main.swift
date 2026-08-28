@@ -2518,6 +2518,90 @@ group("theAttributeReaderAgreesWithARealFileRecord") {
         "walking every attribute lands inside the used length rather than past it")
 }
 
+group("aRunlistSaysWhereAFileActuallyIs") {
+    // The extents of a file, packed as tightly as NTFS could manage: a header
+    // byte giving the width of the two numbers after it, then a length in
+    // clusters, then the first cluster *relative to the previous run's*.
+    //
+    // That relative offset is the trap. Runs are not ascending -- a file
+    // written over time scatters, and a later run can sit before an earlier one
+    // -- so the delta is signed. Decoding it unsigned gives extents pointing at
+    // the wrong end of the disk, which reads as a file full of somebody else's
+    // data rather than as an error.
+
+    // 0x21: one byte of length, two of offset. 8 clusters at +0x0100.
+    let simple = Data([0x21, 0x08, 0x00, 0x01, 0x00])
+    guard let one = NTFSRunlist.decode(simple, at: 0, limit: simple.count) else {
+        expect(false, "an ordinary runlist decodes")
+        return
+    }
+    expect(one.count == 1, "one run")
+    expect(one[0].clusterCount == 8, "of eight clusters")
+    expect(one[0].physicalCluster == 0x0100, "starting where the offset says")
+    expect(one[0].logicalCluster == 0, "at the beginning of the file")
+    expect(!one[0].isHole, "and it is real data")
+
+    // Two runs, the second going backwards. 0x11 0x04 0xF0 is +4 clusters at a
+    // delta of -16, which is what a fragmented file looks like.
+    let backwards = Data([0x21, 0x08, 0x00, 0x01, 0x11, 0x04, 0xF0, 0x00])
+    guard let two = NTFSRunlist.decode(backwards, at: 0, limit: backwards.count) else {
+        expect(false, "a runlist whose second run goes backwards decodes")
+        return
+    }
+    expect(two.count == 2, "two runs")
+    expect(two[1].physicalCluster == 0x0100 - 16, "the second sits before the first on the disk")
+    expect(
+        two[1].logicalCluster == 8,
+        "but after it in the file, which is what makes the delta signed rather than an error")
+
+    // A hole: a length and no offset at all. Sparse files read these as zeroes
+    // and they occupy nothing -- FSKit calls it FSExtentTypeZeroFill.
+    let sparse = Data([0x21, 0x04, 0x00, 0x01, 0x01, 0x08, 0x21, 0x04, 0x00, 0x01, 0x00])
+    guard let holes = NTFSRunlist.decode(sparse, at: 0, limit: sparse.count) else {
+        expect(false, "a sparse runlist decodes")
+        return
+    }
+    expect(holes.count == 3, "three runs")
+    expect(holes[1].isHole, "the middle one is a hole")
+    expect(holes[1].physicalCluster == nil, "pointing nowhere on the disk")
+    expect(holes[1].clusterCount == 8, "but occupying eight clusters of the file")
+    expect(holes[2].logicalCluster == 12, "and the run after it continues where the hole ended")
+
+    // The clean way out.
+    expect(
+        NTFSRunlist.decode(Data([0x00]), at: 0, limit: 1)?.isEmpty == true,
+        "a runlist that is only its terminator holds no runs")
+
+    // Everything malformed. Nil rather than a partial list: half a file's
+    // extents is a file that reads as truncated, which is worse than one that
+    // will not open.
+    expect(
+        NTFSRunlist.decode(Data([0x21, 0x08]), at: 0, limit: 2) == nil,
+        "a run whose bytes end early is refused")
+    expect(
+        NTFSRunlist.decode(Data([0x21, 0x08, 0x00, 0x01]), at: 0, limit: 4) == nil,
+        "and one with no terminator is refused rather than assumed to end")
+    expect(
+        NTFSRunlist.decode(Data([0x20, 0x00, 0x01]), at: 0, limit: 3) == nil,
+        "a run with no length bytes is meaningless and refused")
+    expect(
+        NTFSRunlist.decode(Data([0x11, 0x00, 0x01, 0x00]), at: 0, limit: 4) == nil,
+        "a run of zero clusters is refused")
+    // A delta that would put the run before the start of the disk.
+    expect(
+        NTFSRunlist.decode(Data([0x11, 0x04, 0x80, 0x00]), at: 0, limit: 4) == nil,
+        "a run before the start of the disk is refused rather than wrapped")
+    expect(NTFSRunlist.decode(Data([0x21]), at: 5, limit: 1) == nil, "an offset past the limit")
+    expect(NTFSRunlist.decode(Data([0x21]), at: -1, limit: 1) == nil, "and one before the start")
+
+    // What the caller checks before trusting the file.
+    expect(NTFSRunlist.clusterCount(holes) == 16, "the runs cover sixteen clusters in total")
+    expect(NTFSRunlist.covers(holes, clusters: 16), "which is what the attribute should claim")
+    expect(
+        !NTFSRunlist.covers(holes, clusters: 20),
+        "a runlist covering less than the file claims is a truncated file, not a short read")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
