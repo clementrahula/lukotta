@@ -633,6 +633,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ) { [weak self] _ in
             self?.systemIsPoweringOff = true
         }
+
+        // An update takes the filesystem extension away. Replacing the
+        // application -- which is all an updater does -- leaves the appex on
+        // disk and de-registers it, and the module is one somebody had to
+        // switch on by hand and that this app cannot switch on. So a drive that
+        // opened yesterday would not open today, and nothing would say why.
+        //
+        // Off the main thread because it spawns pluginkit, and after the
+        // window rather than before it: nothing about the first frame waits on
+        // this. It does nothing at all unless the extension has actually gone
+        // -- see ExtensionRegistration for why that condition is the whole of
+        // the safety rather than an optimisation.
+        DispatchQueue.global(qos: .utility).async {
+            let outcome = ExtensionRegistration.repairIfMissing(
+                identifier: (Bundle.main.bundleIdentifier ?? "com.lukotta") + ".fs")
+            if ExtensionRegistration.isWorthLogging(outcome) {
+                Log.app.notice(
+                    "filesystem extension registration: \(String(describing: outcome), privacy: .public)"
+                )
+            }
+        }
     }
 
     /// Closing the window quits, as it does for any tool used occasionally —
