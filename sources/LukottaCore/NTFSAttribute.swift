@@ -63,13 +63,32 @@ public enum NTFSAttribute {
         /// The size a reader should report, which for a non-resident attribute
         /// is the real length rather than the space allocated for it.
         public let dataSize: UInt64
+        /// How the bytes on the disk relate to the file's contents.
+        ///
+        /// Compressed and encrypted attributes are **not** what they appear to
+        /// be: the clusters a runlist names hold compressed or ciphered bytes,
+        /// and handing them over as file contents returns garbage with nothing
+        /// reporting a fault. That is the worst thing a reader can do -- a
+        /// refusal is visible and a wrong answer is not.
+        public let isCompressed: Bool
+        public let isEncrypted: Bool
+        public let isSparse: Bool
+
+        /// Whether this attribute's bytes can be served as they lie on the
+        /// disk. Sparse is fine -- the runlist already says which parts are
+        /// holes. Compressed and encrypted are not.
+        public var isReadableAsIs: Bool { !isCompressed && !isEncrypted }
 
         public var kind: Kind? { Kind(rawValue: type) }
 
         public init(
             type: UInt32, length: Int, isResident: Bool, valueOffset: Int, valueLength: Int,
-            runlistOffset: Int, startingCluster: UInt64, lastCluster: UInt64, dataSize: UInt64
+            runlistOffset: Int, startingCluster: UInt64, lastCluster: UInt64, dataSize: UInt64,
+            isCompressed: Bool = false, isEncrypted: Bool = false, isSparse: Bool = false
         ) {
+            self.isCompressed = isCompressed
+            self.isEncrypted = isEncrypted
+            self.isSparse = isSparse
             self.type = type
             self.length = length
             self.isResident = isResident
@@ -110,6 +129,10 @@ public enum NTFSAttribute {
         guard length >= 16, offset + length <= record.count else { return nil }
 
         let resident = record[base + offset + 8] == 0
+        let flags = word(offset + 12)
+        let compressed = flags & 0x0001 != 0
+        let encrypted = flags & 0x4000 != 0
+        let sparse = flags & 0x8000 != 0
 
         if resident {
             guard offset + 24 <= record.count else { return nil }
@@ -123,7 +146,8 @@ public enum NTFSAttribute {
                 type: type, length: length, isResident: true,
                 valueOffset: offset + valueOffset, valueLength: valueLength,
                 runlistOffset: 0, startingCluster: 0, lastCluster: 0,
-                dataSize: UInt64(valueLength))
+                dataSize: UInt64(valueLength),
+                isCompressed: compressed, isEncrypted: encrypted, isSparse: sparse)
         }
 
         guard offset + 64 <= record.count else { return nil }
@@ -137,7 +161,8 @@ public enum NTFSAttribute {
             valueOffset: 0, valueLength: 0,
             runlistOffset: offset + runlistOffset,
             startingCluster: start, lastCluster: last,
-            dataSize: quad(offset + 48))
+            dataSize: quad(offset + 48),
+            isCompressed: compressed, isEncrypted: encrypted, isSparse: sparse)
     }
 
     /// Every attribute in a record, in order.

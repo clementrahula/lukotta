@@ -4023,6 +4023,67 @@ group("theNtfsReaderIsFastEnoughToBeWorthHaving") {
             + "   \(Int(megabytes / (streamed / 1000))) MB/s")
 }
 
+group("compressedAndEncryptedFilesAreRefusedNotGuessedAt") {
+    // A compressed or EFS-encrypted attribute's clusters hold compressed or
+    // ciphered bytes, not the file's contents. Serving them as contents returns
+    // noise, and nothing reports a fault -- the file simply opens as garbage,
+    // which reads to whoever opened it as a damaged drive rather than as an
+    // unsupported feature.
+    //
+    // Refusing is visible. Guessing is not. So the flags are read and acted on.
+    func attribute(flags: Int) -> Data {
+        var a = [UInt8](repeating: 0, count: 96)
+        a[0] = 0x80  // $DATA
+        for i in 0..<4 { a[4 + i] = UInt8((96 >> (8 * i)) & 0xFF) }
+        a[8] = 1  // non-resident
+        a[12] = UInt8(flags & 0xFF); a[13] = UInt8((flags >> 8) & 0xFF)
+        a[32] = 64  // runlist offset
+        for i in 0..<8 { a[48 + i] = UInt8((UInt64(4096) >> (8 * UInt64(i))) & 0xFF) }
+        return Data(a)
+    }
+
+    guard let plain = NTFSAttribute.header(attribute(flags: 0), at: 0) else {
+        expect(false, "an ordinary attribute reads")
+        return
+    }
+    expect(!plain.isCompressed, "an ordinary file is not compressed")
+    expect(!plain.isEncrypted, "nor encrypted")
+    expect(!plain.isSparse, "nor sparse")
+    expect(plain.isReadableAsIs, "and its bytes are its contents")
+
+    guard let compressed = NTFSAttribute.header(attribute(flags: 0x0001), at: 0) else {
+        expect(false, "a compressed attribute reads")
+        return
+    }
+    expect(compressed.isCompressed, "a compressed attribute says so")
+    expect(
+        !compressed.isReadableAsIs,
+        "and its clusters are refused rather than served as the file's contents")
+
+    guard let encrypted = NTFSAttribute.header(attribute(flags: 0x4000), at: 0) else {
+        expect(false, "an encrypted attribute reads")
+        return
+    }
+    expect(encrypted.isEncrypted, "an EFS-encrypted attribute says so")
+    expect(!encrypted.isReadableAsIs, "and is refused rather than served as ciphertext")
+
+    guard let sparse = NTFSAttribute.header(attribute(flags: 0x8000), at: 0) else {
+        expect(false, "a sparse attribute reads")
+        return
+    }
+    expect(sparse.isSparse, "a sparse attribute says so")
+    expect(
+        sparse.isReadableAsIs,
+        "but is readable: the runlist already says which parts are holes, so nothing is guessed")
+
+    // Both at once, which Windows allows.
+    guard let both = NTFSAttribute.header(attribute(flags: 0x0001 | 0x8000), at: 0) else {
+        expect(false, "a compressed sparse attribute reads")
+        return
+    }
+    expect(!both.isReadableAsIs, "compressed and sparse together is still refused")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged

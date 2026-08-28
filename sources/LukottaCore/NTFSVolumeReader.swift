@@ -281,6 +281,11 @@ public final class NTFSVolumeReader: @unchecked Sendable {
         guard let record = record(number),
             let data = attributes(of: record).first(where: { $0.kind == .data })
         else { return nil }
+        // A compressed or encrypted attribute's clusters do not hold the file's
+        // contents. Handing them over returns garbage with nothing reporting a
+        // fault, which is worse than refusing: a refusal is visible, and a file
+        // full of noise looks like a damaged drive.
+        guard data.isReadableAsIs else { return nil }
         let wanted = length ?? Int(data.dataSize)
 
         if data.isResident {
