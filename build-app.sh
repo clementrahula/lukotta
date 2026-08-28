@@ -71,9 +71,9 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     # it is proved. Iterating on the beta channel is what put a build that asked
     # for an administrator on every launch onto the owner's Mac.
     #
-    # The unbranded artwork rather than the beta's, so three of them in one Dock
-    # are three different pictures. See TRADEMARKS.txt: the marks belong to
-    # releases.
+    # The unbranded artwork rather than the beta's, so four of them in one Dock
+    # are four different pictures. See TRADEMARKS.txt: the marks belong to
+    # releases, and to the rewrite of one, which v2 is.
     APP_NAME="Lukotta Dev"
     BUNDLE_ID="com.lukotta.dev"
     ICON_SET="AppIconUnbranded"
@@ -99,15 +99,17 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     # fixes are being proved on -- which is the same mistake as iterating on
     # the beta channel, one channel further down.
     #
-    # The unbranded artwork, as dev has: the marks belong to releases. See
-    # TRADEMARKS.txt. That leaves this and dev wearing the same picture, told
-    # apart by name; a mark of its own is worth drawing when there is something
-    # to show somebody.
+    # Branded, as the beta is: this is the same application rewritten, not a
+    # different one, and it carries the mark with a band across its foot saying
+    # which it is. Four of these sit in the same Dock and a fault reported
+    # against the wrong one costs an evening, so each is a different picture --
+    # the mark, the mark banded BETA, the mark banded V2, and dev's unbranded
+    # placeholder. scripts/make-channel-icon.py draws the banded two.
     APP_NAME="Lukotta v2"
     BUNDLE_ID="com.lukotta.v2"
-    ICON_SET="AppIconUnbranded"
-    MARK_SET="MarkUnbranded"
-    SWITCH_SET="FullDiskAccessSwitchUnbranded"
+    ICON_SET="AppIconV2"
+    MARK_SET="LukottaMark"
+    SWITCH_SET="FullDiskAccessSwitch"
     HELPER_NAME="LukottaV2Helper"
     # Nothing is served here and nothing is meant to be, for dev's reason and
     # one of its own: the feeds that exist carry v1, so a build that checked
