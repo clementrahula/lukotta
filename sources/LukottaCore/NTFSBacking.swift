@@ -111,6 +111,17 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             return
                 entries
                 .filter { $0.name != "." && $0.name != ".." }
+                // NTFS's own metadata files -- $MFT, $Bitmap, $LogFile and the
+                // rest -- live in the root directory of every volume. Windows
+                // does not show them and neither should this: a drive that
+                // opens with a dozen dollar-signed files in it looks broken,
+                // and deleting one would be worse than looking broken.
+                //
+                // They are the reserved records, 0 to 15, plus $Extend. Hidden
+                // by number rather than by name, because a file somebody made
+                // and called $MFT is theirs and should be shown.
+                .filter { $0.record >= NTFSTable.reservedRecords || $0.name == "." }
+                .filter { $0.name != "$Extend" }
                 // Sorted, because FSKit resumes an enumeration from an index
                 // into this and an order that moves between calls skips files.
                 .sorted { $0.name < $1.name }

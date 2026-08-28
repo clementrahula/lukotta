@@ -3633,8 +3633,20 @@ group("anNtfsVolumeServesThroughTheSameSeamAsTheOthers") {
     let children = fs.children(of: root)
     let names = children.map(\.name)
     expect(!names.isEmpty, "the root lists")
-    expect(names.contains("$MFT"), "with the master file table in it")
+    expect(
+        !names.contains("$MFT"),
+        "without NTFS's own metadata files, which Windows does not show either -- a drive "
+            + "that opens with a dozen dollar-signed files in it looks broken")
+    expect(!names.contains("$Bitmap"), "nor the cluster bitmap")
+    expect(!names.contains("$LogFile"), "nor the journal")
+    expect(!names.contains("$Extend"), "nor the extend directory")
     expect(!names.contains("."), "and without a folder inside itself, which Finder would show")
+    expect(
+        names.contains("readback.txt") || names.contains("sidecar-test"),
+        "but the files somebody actually put there are still listed")
+    if ProcessInfo.processInfo.environment["LUKOTTA_SHOW_LISTING"] != nil {
+        print("    the drive as somebody would see it: \(names.joined(separator: "  "))")
+    }
     expect(names == names.sorted(), "sorted, because an enumeration resumes by index into this")
 
     // Looking a name up gives the same file the listing gave.
