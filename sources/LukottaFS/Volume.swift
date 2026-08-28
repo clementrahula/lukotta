@@ -453,3 +453,25 @@ extension LukottaVolume: FSVolume.AccessCheckOperations {
         reply(true, nil)
     }
 }
+
+// MARK: - Letting go of an item
+
+/// When FSKit is finished with a file for now.
+///
+/// The volume holds nothing per-item that has to be torn down: a handle is a
+/// node in a tree or a URL, and both are cheap and owned by the backing rather
+/// than by FSKit's view of them. So there is nothing to do here, and the policy
+/// says never rather than answering a call that would do nothing.
+///
+/// The alternative -- accepting the calls and returning immediately -- costs a
+/// crossing per file, on a path where a crossing that misses the cache measured
+/// 200 us against the kernel's 5. An operation a module does not need is an
+/// operation it should not be asked to answer.
+extension LukottaVolume: FSVolume.ItemDeactivation {
+
+    var itemDeactivationPolicy: FSVolume.ItemDeactivationOptions { [] }
+
+    func deactivateItem(_ item: FSItem, replyHandler reply: @escaping ((any Error)?) -> Void) {
+        reply(nil)
+    }
+}
