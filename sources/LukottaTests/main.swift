@@ -5062,6 +5062,91 @@ group("theBackingWritesOnlyWhenGivenTheMeansAndThePermission") {
     expect(
         writable.write(writable.rootHandle, contents: marker, offset: 0) == 0,
         "a directory is never written to")
+
+    // The mark. Writing set it, and while it is set the volume says out loud
+    // that somebody without a journal has touched it.
+    expect(writable.isMarked, "the write marked the volume dirty")
+    expect(!readOnly.isMarked, "and a backing that cannot write never marks anything")
+
+    func flagOnDisk() -> Bool? {
+        guard let checker = NTFSVolumeReader(read: read),
+            let record = checker.record(NTFSVolumeState.volumeRecord),
+            let state = NTFSVolumeState.read(
+                record: record.data, attributes: checker.attributes(of: record))
+        else { return nil }
+        return state.isDirty
+    }
+    expect(flagOnDisk() == true, "and it is on the disk, not only in memory")
+
+    // Both copies. A mark in the table alone is a mismatch chkdsk would find.
+    let geometry = writable.geometry
+    let mirrorOffset =
+        geometry.mftMirrorStartCluster * UInt64(geometry.bytesPerCluster)
+        + NTFSVolumeState.volumeRecord * UInt64(geometry.bytesPerFileRecord)
+    func mirrorSaysDirty() -> Bool? {
+        guard let raw = read(mirrorOffset, geometry.bytesPerFileRecord),
+            let header = NTFSRecord.header(raw, expectedLength: geometry.bytesPerFileRecord),
+            let repaired = NTFSRecord.applyFixup(
+                raw, header: header, sectorSize: geometry.bytesPerSector),
+            let state = NTFSVolumeState.read(
+                record: repaired,
+                attributes: NTFSAttribute.all(
+                    in: repaired, startingAt: header.firstAttributeOffset,
+                    usedLength: header.usedLength))
+        else { return nil }
+        return state.isDirty
+    }
+    expect(
+        mirrorSaysDirty() == true,
+        "and in $MFTMirr too, because $Volume is one of the records it keeps and two copies "
+            + "disagreeing is what chkdsk looks for")
+
+    // A second write does not mark again: the flag is set once, and $Volume is
+    // not rewritten on every byte stored.
+    let before = read(mirrorOffset, geometry.bytesPerFileRecord)
+    expect(
+        writable.write(file, contents: marker, offset: at) == marker.count,
+        "a second write still stores its bytes")
+    expect(
+        read(mirrorOffset, geometry.bytesPerFileRecord) == before,
+        "and does not touch $Volume again -- the signature would have moved if it had")
+
+    // Releasing puts it back, in both places.
+    expect(writable.release(), "the volume is released")
+    expect(!writable.isMarked, "and is no longer ours")
+    expect(flagOnDisk() == false, "the flag is off in the table")
+    expect(mirrorSaysDirty() == false, "and off in the mirror")
+    expect(writable.release(), "releasing twice is harmless")
+
+    // A volume opened while still marked is not written to at all -- ours or
+    // anybody's. That is the same refusal a drive Windows left mid-write gets,
+    // and it is why release matters: without it the next mount is read-only.
+    expect(
+        NTFSBacking(read: read, write: write)?.volumeIsSafeToWrite == true,
+        "the released volume is safe to write again, which is what release is for")
+    guard let held = NTFSBacking(read: read, write: write),
+        let again = held.lookup("big.bin", in: held.rootHandle)
+    else {
+        expect(false, "it reopens")
+        return
+    }
+    expect(held.write(again, contents: marker, offset: at) == marker.count, "and writes")
+    expect(held.isMarked, "marking it once more")
+    guard let refused = NTFSBacking(read: read, write: write) else {
+        expect(false, "a second backing opens on the marked volume")
+        return
+    }
+    expect(
+        !refused.volumeIsSafeToWrite,
+        "but a volume opened while marked refuses to be written to, because the mark means "
+            + "somebody without a journal has work outstanding on it")
+    if let file = refused.lookup("big.bin", in: refused.rootHandle) {
+        expect(
+            refused.write(file, contents: marker, offset: at) == 0,
+            "and stores nothing when asked")
+    }
+    expect(held.release(), "and the volume is put back clean at the end")
+    expect(flagOnDisk() == false, "with the flag off where a mount reads it")
 }
 
 group("theVolumeSurvivesBeingAskedFromEveryQueueAtOnce") {

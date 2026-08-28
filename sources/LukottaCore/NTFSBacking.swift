@@ -70,6 +70,11 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         self.volumeLabel = state?.label
     }
 
+    /// The volume's shape. A caller checking what was written needs it, and
+    /// working it out a second time somewhere else is how a checker ends up
+    /// looking at a different place than the writer wrote to.
+    public var geometry: NTFSGeometry { reader.geometry }
+
     public var rootHandle: FSHandle {
         Handle(record: NTFSTable.rootRecord, name: "", isDirectory: true)
     }
@@ -176,6 +181,106 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         }
     }
 
+    // MARK: - Holding the volume
+
+    /// Whether the dirty flag is currently ours.
+    ///
+    /// Only ever changed under `lock`, because two threads both deciding they
+    /// are the first writer would write `$Volume` twice, and the second write
+    /// would race the first.
+    private var marked = false
+
+    /// Whether this volume has been marked as ours.
+    public var isMarked: Bool { lock.withLock { marked } }
+
+    /// Set `$Volume`'s dirty flag, once, before the first write.
+    ///
+    /// **A write that cannot mark the volume does not happen.** Without the
+    /// mark, a crash part way through leaves a volume Windows believes is
+    /// clean, and it will mount it and trust structures that were being
+    /// changed. Refusing the write costs somebody a copy that did not happen;
+    /// not refusing it costs them the volume.
+    ///
+    /// The table copy goes first. Between the two writes the flag is already
+    /// on where a mount reads it, so a crash in that gap is a volume that says
+    /// it needs checking -- which it does.
+    ///
+    /// Must be called with `lock` held.
+    private func markLocked() -> Bool {
+        if marked { return true }
+        guard let record = reader.record(NTFSVolumeState.volumeRecord) else { return false }
+        let attributes = reader.attributes(of: record)
+        guard let state = NTFSVolumeState.read(record: record.data, attributes: attributes),
+            state.isSafeToWrite,
+            let dirtied = NTFSVolumeState.setting(
+                dirty: true, in: record.data, attributes: attributes),
+            writeRecordLocked(
+                NTFSVolumeState.volumeRecord, dirtied, header: record.header,
+                mirrorLast: true)
+        else { return false }
+        marked = true
+        return true
+    }
+
+    /// Clear the flag, and only on the way out.
+    ///
+    /// The mirror goes first here, so the table's copy is the last thing to
+    /// change. At every instant in between, the flag a mount reads is still
+    /// set -- a crash in the gap leaves a volume that says it needs checking,
+    /// never one that says it is clean while a copy of its own metadata
+    /// disagrees.
+    ///
+    /// - Returns: false when the flag could not be cleared, which leaves the
+    ///   volume marked. That is the safe direction to fail in: chkdsk runs
+    ///   once for nothing.
+    @discardableResult
+    public func release() -> Bool {
+        lock.withLock {
+            guard marked else { return true }
+            guard let record = reader.record(NTFSVolumeState.volumeRecord) else { return false }
+            let attributes = reader.attributes(of: record)
+            guard
+                let cleaned = NTFSVolumeState.setting(
+                    dirty: false, in: record.data, attributes: attributes),
+                writeRecordLocked(
+                    NTFSVolumeState.volumeRecord, cleaned, header: record.header,
+                    mirrorLast: false)
+            else { return false }
+            marked = false
+            return true
+        }
+    }
+
+    /// Put a record back everywhere it lives.
+    ///
+    /// - Parameter mirrorLast: which copy is written second. Whichever it is,
+    ///   the other one is what a reader between the two writes sees, so the
+    ///   order is chosen by what that reader should conclude.
+    ///
+    /// Must be called with `lock` held.
+    private func writeRecordLocked(
+        _ number: UInt64, _ data: Data, header: NTFSRecord.Header, mirrorLast: Bool
+    ) -> Bool {
+        guard let writeBytes,
+            let tableOffset = reader.diskOffset(ofRecord: number),
+            let mirrorLength = reader.size(ofFile: NTFSRecordWrite.mirrorRecord),
+            let bytes = NTFSRecordWrite.onDisk(
+                data, header: header, sectorSize: reader.geometry.bytesPerSector),
+            var places = NTFSRecordWrite.destinations(
+                record: number, tableOffset: tableOffset,
+                mirrorOffset: reader.geometry.mftMirrorStartCluster
+                    * UInt64(reader.geometry.bytesPerCluster),
+                mirrorLength: mirrorLength,
+                bytesPerFileRecord: reader.geometry.bytesPerFileRecord)
+        else { return false }
+
+        if !mirrorLast { places.reverse() }
+        for place in places {
+            guard writeBytes(place.offset, bytes) else { return false }
+        }
+        return true
+    }
+
     // MARK: - Everything that would write
 
     public func create(_ name: String, isDirectory: Bool, in directory: FSHandle, mode: UInt32)
@@ -203,7 +308,10 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         else { return 0 }
 
         return lock.withLock {
-            guard volumeIsSafeToWrite,
+            // Nothing is written to a volume that does not carry our mark. See
+            // markLocked: the mark is what makes a crash recoverable, and a
+            // write without it is a write onto a volume Windows will trust.
+            guard volumeIsSafeToWrite, markLocked(),
                 let record = reader.record(handle.record),
                 !reader.spillsAttributes(record),
                 let data = reader.attributes(of: record).first(where: { $0.kind == .data }),
