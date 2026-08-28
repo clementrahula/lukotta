@@ -3996,6 +3996,31 @@ group("theNtfsReaderIsFastEnoughToBeWorthHaving") {
     print(
         "    read \(sample.count) files' contents   \(Int(reads)) ms"
             + "   \(Int(reads * 1000 / Double(sample.count))) us each")
+
+    // Streaming a large file, which is the number requirement 4 turns on. The
+    // small files above are resident -- their contents sit inside their
+    // records -- so none of the numbers above touches a runlist at all.
+    guard let big = fs.lookup("big.bin", in: root),
+        let size = fs.attributes(of: big)?.size, size > 0
+    else {
+        print("    (no big.bin on this volume; streaming not measured)")
+        return
+    }
+    let chunk = 1 << 20
+    var read = 0
+    let streamed = ms {
+        var offset = 0
+        while offset < Int(size) {
+            let got = fs.read(big, offset: offset, length: min(chunk, Int(size) - offset))
+            if got.isEmpty { break }
+            read += got.count
+            offset += got.count
+        }
+    }
+    let megabytes = Double(read) / 1_048_576
+    print(
+        "    stream \(Int(megabytes)) MB              \(Int(streamed)) ms"
+            + "   \(Int(megabytes / (streamed / 1000))) MB/s")
 }
 
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
