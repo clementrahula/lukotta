@@ -1903,6 +1903,40 @@ group("theFilesystemBehindTheExtensionKeepsItsPromises") {
     expect(first == ["alpha", "bravo", "charlie", "delta"], "children come back sorted")
     expect(store.children(of: listing).map(\.name) == first, "and in the same order every time")
 
+    // Extended attributes, stored natively. This is the whole reason a
+    // Lukotta volume would stop collecting AppleDouble sidecars: macOS puts
+    // com.apple.provenance on every file it makes, and a filesystem that
+    // cannot hold it gets a ._name file beside every single file instead --
+    // measured on the NFS volume today, 6000 files and 6000 sidecars.
+    let target = store.create("tagged", isDirectory: false, in: root, mode: 0o644)!
+    expect(store.xattrNames(of: target).isEmpty, "a new file carries none")
+    expect(store.xattr("com.apple.provenance", of: target) == nil, "and asking gives nothing")
+
+    let prov = Data([0x01, 0x02])
+    expect(store.setXattr("com.apple.provenance", to: prov, on: target) == .set, "one can be set")
+    expect(store.xattr("com.apple.provenance", of: target) == prov, "and read back")
+    expect(store.xattrNames(of: target) == ["com.apple.provenance"], "and listed")
+
+    // The policies. A create that quietly overwrites loses what was there, and
+    // a replace that quietly creates invents an attribute nobody set.
+    expect(
+        store.setXattr("com.apple.provenance", to: prov, on: target, mustCreate: true) == .exists,
+        "creating one that exists is EEXIST rather than an overwrite")
+    expect(
+        store.setXattr("absent", to: prov, on: target, mustReplace: true) == .missing,
+        "replacing one that does not exist is ENOATTR rather than a new attribute")
+    expect(
+        store.setXattr("second", to: prov, on: target, mustCreate: true) == .set,
+        "creating a new one is allowed")
+    expect(store.xattrNames(of: target) == ["com.apple.provenance", "second"], "listed in order")
+
+    // Removal is a set to nil, which is how removexattr arrives.
+    expect(store.setXattr("second", to: nil, on: target) == .set, "setting nil removes it")
+    expect(store.xattrNames(of: target) == ["com.apple.provenance"], "and it is gone")
+    expect(
+        store.setXattr("second", to: nil, on: target) == .missing,
+        "removing it twice is ENOATTR, not silence")
+
     // What statfs reports. A volume claiming no free space is one Finder will
     // not copy onto.
     let usage = store.usage()

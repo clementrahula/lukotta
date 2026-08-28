@@ -38,6 +38,16 @@ public final class FSStore: @unchecked Sendable {
         public var created: Date
         public var modified: Date
         public var mode: UInt32
+        /// Extended attributes, stored natively.
+        ///
+        /// This is what stops the sidecars. macOS attaches com.apple.provenance
+        /// to every file it creates, and where the filesystem cannot hold an
+        /// xattr it writes an AppleDouble file called `._name` beside it
+        /// instead -- so every file becomes two, and every create pays twice.
+        /// Measured on the NFS volume this application serves: 6000 files
+        /// created, 6000 sidecars beside them. A volume that answers
+        /// getxattr/setxattr itself never gets any.
+        public var xattrs: [String: Data]
 
         init(id: UInt64, name: String, isDirectory: Bool, parent: Node?, mode: UInt32) {
             self.id = id
@@ -50,6 +60,7 @@ public final class FSStore: @unchecked Sendable {
             self.created = now
             self.modified = now
             self.mode = mode
+            self.xattrs = [:]
         }
 
         public var size: UInt64 { isDirectory ? 0 : UInt64(data.count) }
@@ -169,6 +180,40 @@ public final class FSStore: @unchecked Sendable {
                 node.data.append(Data(count: size - node.data.count))
             }
             node.modified = Date()
+        }
+    }
+
+    // MARK: - Extended attributes
+
+    public func xattr(_ name: String, of node: Node) -> Data? {
+        withLock { node.xattrs[name] }
+    }
+
+    public func xattrNames(of node: Node) -> [String] {
+        withLock { node.xattrs.keys.sorted() }
+    }
+
+    /// What `setxattr` asked for, and whether it was allowed.
+    public enum XattrOutcome { case set, missing, exists }
+
+    /// `create` fails when it is already there, `replace` fails when it is not,
+    /// and the default does neither. Getting this wrong is not a wrong value: a
+    /// create that quietly overwrites loses whatever was there.
+    public func setXattr(
+        _ name: String, to value: Data?, on node: Node,
+        mustCreate: Bool = false, mustReplace: Bool = false
+    ) -> XattrOutcome {
+        withLock {
+            let present = node.xattrs[name] != nil
+            if mustCreate, present { return .exists }
+            if mustReplace, !present { return .missing }
+            if let value {
+                node.xattrs[name] = value
+            } else {
+                guard present else { return .missing }
+                node.xattrs.removeValue(forKey: name)
+            }
+            return .set
         }
     }
 
