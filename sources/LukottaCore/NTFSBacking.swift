@@ -556,8 +556,148 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         return true
     }
 
+    /// Take a file away.
+    ///
+    /// The reverse of create, in the reverse order, for the same reason: every
+    /// interrupted state has to be a leak rather than a dangling reference.
+    ///
+    /// 1. The name comes out of the directory. From here on nothing refers to
+    ///    the file, and a crash leaves an orphan record and some clusters
+    ///    nobody owns -- space, which chkdsk reclaims.
+    /// 2. The record is marked free and its sequence moved on, so a reference
+    ///    made to it before now is recognised as stale rather than followed to
+    ///    whatever takes the slot next.
+    /// 3. The bitmap bit goes back, and the record can be reused.
+    ///
+    /// **Nothing is overwritten.** A deleted file's record and clusters keep
+    /// their contents until something else takes them, which is exactly what
+    /// makes recovery possible -- and this application exists to recover
+    /// things.
+    ///
+    /// Directories are refused: an empty one still has an index of its own to
+    /// take apart, and a directory with anything in it must not go at all.
     public func remove(_ name: String, from directory: FSHandle) -> FSStore.RemoveOutcome {
-        .missing
+        guard writeBytes != nil, let parent = ours(directory), parent.isDirectory else {
+            return .missing
+        }
+        return lock.withLock {
+            guard volumeIsSafeToWrite, let collation = reader.collation() else { return .missing }
+            guard let number = reader.find(name, inDirectory: parent.record),
+                let record = reader.record(number)
+            else { return .missing }
+            guard !record.header.isDirectory else { return .notEmpty }
+            guard markLocked() else { return .missing }
+
+            guard let leaf = nodeHolding(name, in: parent.record, collation: collation) else {
+                return .missing
+            }
+
+            // 1. The name.
+            guard
+                let spliced = NTFSIndexWrite.removing(
+                    name: name, from: leaf.bytes, nodeHeaderAt: leaf.headerOffset,
+                    collation: collation),
+                writeIndexBlockLocked(spliced, at: leaf.diskOffset)
+            else { return .missing }
+
+            // 2. The record. The in-use flag goes off and the sequence moves
+            // on; the attributes stay exactly where they are, because a record
+            // that still describes its file is a file that can be recovered.
+            var freed = [UInt8](record.data)
+            let base = record.data.startIndex
+            let flags = UInt16(freed[base + 0x16]) | (UInt16(freed[base + 0x17]) << 8)
+            let cleared = flags & ~UInt16(0x0001)
+            freed[base + 0x16] = UInt8(cleared & 0xFF)
+            freed[base + 0x17] = UInt8(cleared >> 8)
+            let sequence = UInt16(freed[base + 0x10]) | (UInt16(freed[base + 0x11]) << 8)
+            let next = NTFSRecord.nextSignature(after: sequence)
+            freed[base + 0x10] = UInt8(next & 0xFF)
+            freed[base + 0x11] = UInt8(next >> 8)
+            guard
+                writeRecordLocked(
+                    number, Data(freed), header: record.header, mirrorLast: true)
+            else { return .missing }
+
+            // 3. The bitmap.
+            guard let bitmap = reader.contents(ofFile: NTFSTable.mftRecord, attribute: .bitmap),
+                let tableSize = reader.size(ofFile: NTFSTable.mftRecord),
+                let released = NTFSRecordAllocator.releasing(
+                    number, in: bitmap,
+                    recordCount: tableSize / UInt64(reader.geometry.bytesPerFileRecord)),
+                writeAttributeLocked(
+                    record: NTFSTable.mftRecord, attribute: .bitmap, contents: released,
+                    changedFrom: bitmap)
+            else { return .missing }
+
+            return .removed
+        }
+    }
+
+    /// The node a name is actually in.
+    ///
+    /// The same descent as `leafNode`, stopping when the name is found rather
+    /// than when it is not.
+    ///
+    /// Must be called with `lock` held.
+    private func nodeHolding(_ name: String, in directory: UInt64, collation: NTFSCollation)
+        -> Leaf?
+    {
+        guard let record = reader.record(directory), record.header.isDirectory,
+            let indexRoot = reader.attributes(of: record).first(where: { $0.kind == .indexRoot }),
+            indexRoot.isResident
+        else { return nil }
+
+        var blockSize = 0
+        let value = record.data.startIndex + indexRoot.valueOffset
+        guard value + 16 <= record.data.endIndex else { return nil }
+        for byte in 0..<4 { blockSize |= Int(record.data[value + 8 + byte]) << (8 * byte) }
+        guard blockSize >= 512 else { return nil }
+
+        let node = indexRoot.valueOffset + 16
+        guard let first = NTFSIndex.firstEntryOffset(nodeHeader: record.data, at: node) else {
+            return nil
+        }
+        let rootEntries = NTFSIndex.entries(
+            record.data, from: first,
+            limit: min(indexRoot.valueOffset + indexRoot.valueLength, record.data.count))
+        guard
+            case .descend(var block) = NTFSIndex.find(
+                name, in: rootEntries, collation: collation)
+        else { return nil }
+
+        guard
+            let allocation = reader.attributes(of: record).first(where: {
+                $0.kind == .indexAllocation
+            }), !allocation.isResident,
+            let runs = NTFSRunlist.decode(
+                record.data, at: allocation.runlistOffset, limit: record.data.count)
+        else { return nil }
+
+        for _ in 0..<32 {
+            guard
+                let placed = NTFSTable.diskOffset(
+                    forFileOffset: block * UInt64(blockSize), runs: runs,
+                    bytesPerCluster: reader.geometry.bytesPerCluster),
+                let raw = reader.read(placed.offset, blockSize),
+                let blockHeader = NTFSIndexBlock.header(raw, blockSize: blockSize),
+                let bytes = NTFSIndexBlock.applyFixup(
+                    raw, header: blockHeader, sectorSize: reader.geometry.bytesPerSector),
+                let room = NTFSIndexWrite.room(
+                    of: bytes, nodeHeaderAt: NTFSIndexBlock.nodeHeaderOffset)
+            else { return nil }
+
+            let entries = NTFSIndex.entries(
+                bytes, from: blockHeader.firstEntryOffset, limit: blockHeader.endOfEntries)
+            switch NTFSIndex.find(name, in: entries, collation: collation) {
+            case .descend(let next): block = next
+            case .absent: return nil
+            case .found:
+                return Leaf(
+                    bytes: bytes, headerOffset: NTFSIndexBlock.nodeHeaderOffset,
+                    diskOffset: placed.offset, blockSize: blockSize, room: room.free)
+            }
+        }
+        return nil
     }
 
     public func rename(

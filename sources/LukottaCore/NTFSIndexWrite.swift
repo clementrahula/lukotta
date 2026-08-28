@@ -129,6 +129,63 @@ public enum NTFSIndexWrite {
         return Data(out)
     }
 
+    /// Take a name out of a node.
+    ///
+    /// The reverse of inserting, and the same arithmetic: everything after the
+    /// entry moves back by its length, the node says it is shorter, and the
+    /// block stays the size it was. The bytes freed at the end are cleared --
+    /// not for tidiness, but because an entry left lying past `endOfEntries` is
+    /// a name any reader that trusts the wrong number would list.
+    ///
+    /// - Returns: nil when the name is not there, or when the entry holding it
+    ///   points at a node below. Removing one of those means rebalancing the
+    ///   tree, which is a much larger operation, and splicing it out anyway
+    ///   orphans every name underneath it.
+    public static func removing(
+        name: String, from bytes: Data, nodeHeaderAt header: Int, collation: NTFSCollation
+    ) -> Data? {
+        guard let room = room(of: bytes, nodeHeaderAt: header) else { return nil }
+        let firstEntry = Int(read32(bytes, header + firstEntryField))
+        guard firstEntry >= nodeHeaderLength, firstEntry <= room.used else { return nil }
+
+        let wanted = Array(name.utf16)
+        var at = header + firstEntry
+        let end = header + room.used
+        var seen = 0
+        while at + keyField <= end, seen < 8192 {
+            seen += 1
+            let length = Int(read16(bytes, at + entryLengthField))
+            let flags = read16(bytes, at + entryFlagsField)
+            guard length >= keyField, at + length <= end else { return nil }
+            if flags & isLast != 0 { return nil }
+            guard let existing = key(of: bytes, at: at) else { return nil }
+            // Walked to the marker rather than stopped at the first name that
+            // sorts after this one. Stopping early would be an ordinary
+            // shortcut in a sorted node and the same answer in one that is
+            // not, and a branch that cannot change the answer is a branch
+            // nothing can check.
+            switch collation.compare(existing, wanted) {
+            case .orderedAscending, .orderedDescending: at += length
+            case .orderedSame:
+                // An entry with a child below it holds the tree together as
+                // well as naming a file. Taking it out orphans everything
+                // underneath.
+                guard flags & hasChild == 0 else { return nil }
+                var out = [UInt8](bytes)
+                let base = bytes.startIndex
+                let tail = Array(out[(base + at + length)..<(base + end)])
+                out.replaceSubrange((base + at)..<(base + at + tail.count), with: tail)
+                // Clear what the move left behind. An entry lying past the end
+                // is a name a reader trusting the wrong number would list.
+                for index in (base + at + tail.count)..<(base + end) { out[index] = 0 }
+                write32(
+                    &out, base + header + endOfEntriesField, UInt32(room.used - length))
+                return Data(out)
+            }
+        }
+        return nil
+    }
+
     /// Where an entry with this name belongs, as a byte offset into `bytes`.
     ///
     /// Walks the node in order and stops at the first entry that sorts after
@@ -178,15 +235,15 @@ public enum NTFSIndexWrite {
 
     // MARK: - Arithmetic
 
-    static func read16(_ bytes: Data, _ at: Int) -> UInt16 {
+    public static func read16(_ bytes: Data, _ at: Int) -> UInt16 {
         let base = bytes.startIndex + at
         guard base + 1 < bytes.endIndex else { return 0 }
         return UInt16(bytes[base]) | (UInt16(bytes[base + 1]) << 8)
     }
-    static func read32(_ bytes: Data, _ at: Int) -> UInt32 {
+    public static func read32(_ bytes: Data, _ at: Int) -> UInt32 {
         UInt32(read16(bytes, at)) | (UInt32(read16(bytes, at + 2)) << 16)
     }
-    static func write16(_ bytes: inout [UInt8], _ at: Int, _ value: UInt16) {
+    public static func write16(_ bytes: inout [UInt8], _ at: Int, _ value: UInt16) {
         bytes[at] = UInt8(value & 0xFF)
         bytes[at + 1] = UInt8(value >> 8)
     }
