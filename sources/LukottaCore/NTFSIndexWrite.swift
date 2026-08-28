@@ -218,7 +218,7 @@ public enum NTFSIndexWrite {
     }
 
     /// The name inside an entry's `$FILE_NAME` key.
-    static func key(of bytes: Data, at entry: Int) -> [UInt16]? {
+    public static func key(of bytes: Data, at entry: Int) -> [UInt16]? {
         let keyLength = Int(read16(bytes, entry + keyLengthField))
         guard keyLength >= 66, entry + keyField + keyLength <= bytes.count else { return nil }
         let key = entry + keyField

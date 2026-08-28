@@ -145,6 +145,69 @@ public enum NTFSIndexBlock {
         return Data(bytes)
     }
 
+    /// Build a block from scratch, holding the entries given.
+    ///
+    /// Used when a node splits and half its names need somewhere to live. The
+    /// entries go in as they are -- they are already in order, because they
+    /// came out of a node that was.
+    ///
+    /// The fixup array is left with a signature of one and the per-sector
+    /// bytes untouched: `removeFixup` puts the real signature in when the block
+    /// is written, and that is the one place that decides what a signature is.
+    ///
+    /// - Returns: nil when the entries do not fit, which is a caller that
+    ///   picked the wrong place to split.
+    public static func compose(
+        blockNumber: UInt64, blockSize: Int, sectorSize: Int, entries: [Data], marker: Data
+    ) -> Data? {
+        guard blockSize >= 512, sectorSize > 2, blockSize % sectorSize == 0 else { return nil }
+        let fixupCount = blockSize / sectorSize + 1
+        let fixupOffset = 40
+        let nodeStart = nodeHeaderOffset
+        // The fixup array sits at 40, which is past the node header at 24. So
+        // the entries begin after the array rather than after the header, and
+        // on an eight-byte boundary like everything else. Starting them at the
+        // header would put the first entry underneath the array, and the array
+        // is written last.
+        let firstEntry = max(
+            16, (fixupOffset + fixupCount * 2 - nodeStart + 7) & ~7)
+        guard nodeStart + firstEntry < blockSize else { return nil }
+
+        var bytes = [UInt8](repeating: 0, count: blockSize)
+        bytes.replaceSubrange(0..<4, with: signature)
+        write16(&bytes, 0x04, UInt16(fixupOffset))
+        write16(&bytes, 0x06, UInt16(fixupCount))
+        write64(&bytes, 0x10, blockNumber)
+        // A signature of one to begin with. Zero is what an unwritten sector
+        // holds, so a block whose signature was zero could match one that was
+        // never written at all.
+        write16(&bytes, fixupOffset, 1)
+
+        var at = nodeStart + firstEntry
+        for entry in entries + [marker] {
+            guard at + entry.count <= blockSize else { return nil }
+            bytes.replaceSubrange(at..<at + entry.count, with: [UInt8](entry))
+            at += entry.count
+        }
+
+        write32(&bytes, nodeStart + 0, UInt32(firstEntry))
+        write32(&bytes, nodeStart + 4, UInt32(at - nodeStart))
+        write32(&bytes, nodeStart + 8, UInt32(blockSize - nodeStart))
+        write32(&bytes, nodeStart + 12, 0)  // a leaf: nothing below it
+        return Data(bytes)
+    }
+
+    static func write16(_ bytes: inout [UInt8], _ at: Int, _ value: UInt16) {
+        bytes[at] = UInt8(value & 0xFF)
+        bytes[at + 1] = UInt8(value >> 8)
+    }
+    static func write32(_ bytes: inout [UInt8], _ at: Int, _ value: UInt32) {
+        for i in 0..<4 { bytes[at + i] = UInt8((value >> (8 * UInt32(i))) & 0xFF) }
+    }
+    static func write64(_ bytes: inout [UInt8], _ at: Int, _ value: UInt64) {
+        for i in 0..<8 { bytes[at + i] = UInt8((value >> (8 * UInt64(i))) & 0xFF) }
+    }
+
     /// Where a block sits inside `$INDEX_ALLOCATION`, as a byte offset into
     /// that attribute as a file.
     ///

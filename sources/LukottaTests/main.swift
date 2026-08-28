@@ -6190,6 +6190,311 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
         "and reads as clean afterwards")
 }
 
+group("aFullNodeIsCutInTwo") {
+    // Splitting real index blocks, in memory. What has to come out is two
+    // nodes that between them hold every name the one node held, in order, and
+    // a median that a parent can point at both halves with.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    let read: NTFSVolumeReader.ReadBytes = { offset, length in
+        lock.lock()
+        defer { lock.unlock() }
+        try? handle.seek(toOffset: offset)
+        return try? handle.read(upToCount: length)
+    }
+    guard let reader = NTFSVolumeReader(read: read), let collation = reader.collation() else {
+        expect(false, "the volume reads and has its table")
+        return
+    }
+    let sectorSize = reader.geometry.bytesPerSector
+
+    guard let root = reader.contents(ofDirectory: NTFSTable.rootRecord),
+        let big = root.first(where: { (reader.contents(ofDirectory: $0.record)?.count ?? 0) > 1000 }
+        ),
+        let target = reader.indexNodes(ofDirectory: big.record)
+            .first(where: { $0.diskOffset != nil && $0.entries.count > 6 }),
+        let diskOffset = target.diskOffset
+    else {
+        expect(false, "the volume has a directory with a full-looking node")
+        return
+    }
+    let blockSize = target.allocatedBytes
+    guard let raw = read(diskOffset, blockSize),
+        let blockHeader = NTFSIndexBlock.header(raw, blockSize: blockSize),
+        let node = NTFSIndexBlock.applyFixup(raw, header: blockHeader, sectorSize: sectorSize)
+    else {
+        expect(false, "and it reads")
+        return
+    }
+    let nodeHeader = NTFSIndexBlock.nodeHeaderOffset
+    let names = NTFSIndex.names(
+        NTFSIndex.entries(node, from: blockHeader.firstEntryOffset, limit: blockHeader.endOfEntries)
+    )
+    expect(names.count > 6, "with names in it: \(names.count)")
+
+    guard let (readEntries, marker) = NTFSIndexSplit.entries(of: node, nodeHeaderAt: nodeHeader)
+    else {
+        expect(false, "its entries come out as bytes")
+        return
+    }
+    expect(readEntries.count == names.count, "as many as the reader sees")
+    expect(
+        NTFSIndexWrite.read16(marker, NTFSIndexWrite.entryFlagsField) & NTFSIndexWrite.isLast != 0,
+        "and the marker comes out separately, still flagged as the end")
+    expect(
+        readEntries.allSatisfy {
+            NTFSIndexWrite.read16($0, NTFSIndexWrite.entryFlagsField) & NTFSIndexWrite.isLast == 0
+        },
+        "with no marker among them")
+
+    guard let plan = NTFSIndexSplit.plan(of: node, nodeHeaderAt: nodeHeader) else {
+        expect(false, "the node can be cut")
+        return
+    }
+    expect(!plan.below.isEmpty, "the lower half has something in it")
+    expect(
+        !plan.above.isEmpty,
+        "and so does the upper -- an empty node is one no search can "
+            + "pass through")
+    expect(
+        plan.below.count + plan.above.count + 1 == readEntries.count,
+        "and between them, with the median, they are every entry: "
+            + "\(plan.below.count) + 1 + \(plan.above.count) of \(readEntries.count)")
+
+    // Cut by bytes, not by count, so two nodes of similar fullness come out of
+    // names of different lengths.
+    let belowBytes = plan.below.reduce(0) { $0 + $1.count }
+    let aboveBytes = plan.above.reduce(0) { $0 + $1.count }
+    let bigger = max(belowBytes, aboveBytes)
+    let smaller = max(min(belowBytes, aboveBytes), 1)
+    expect(
+        bigger <= smaller * 3,
+        "the halves are of comparable size: \(belowBytes) and \(aboveBytes)")
+
+    func nameOf(_ entry: Data) -> String? {
+        NTFSIndexWrite.key(of: entry, at: 0).map { String(decoding: $0, as: UTF16.self) }
+    }
+    let belowNames = plan.below.compactMap(nameOf)
+    let aboveNames = plan.above.compactMap(nameOf)
+    guard let medianName = nameOf(plan.median) else {
+        expect(false, "the median has a name")
+        return
+    }
+    expect(
+        belowNames + [medianName] + aboveNames == names,
+        "and in order, they are exactly the names the node held")
+    expect(
+        belowNames.allSatisfy { collation.compare($0, medianName) == .orderedAscending },
+        "everything in the lower half sorts below the median")
+    expect(
+        aboveNames.allSatisfy { collation.compare($0, medianName) == .orderedDescending },
+        "and everything in the upper half above it -- which is what makes a search still work: "
+            + "below goes to the new block, the median is found in the parent, above stays here")
+
+    // The median made into a parent entry, pointing at the new block.
+    guard let promoted = NTFSIndexSplit.promoting(plan.median, toChild: 7) else {
+        expect(false, "the median can be promoted")
+        return
+    }
+    expect(promoted.count % 8 == 0, "the promoted entry is a multiple of eight long")
+    expect(
+        promoted.count == plan.median.count + 8 || promoted.count == plan.median.count,
+        "and longer than the median by its child pointer: \(plan.median.count) to "
+            + "\(promoted.count)")
+    expect(NTFSIndexSplit.child(of: promoted) == 7, "which points at the block it was given")
+    expect(NTFSIndexSplit.child(of: plan.median) == nil, "while the median itself points nowhere")
+    expect(nameOf(promoted) == medianName, "and it still carries the median's name")
+    expect(
+        NTFSIndexWrite.read16(promoted, NTFSIndexWrite.entryLengthField) == UInt16(promoted.count),
+        "with a length that says how long it is")
+
+    // The new block, built from the lower half.
+    guard
+        let built = NTFSIndexBlock.compose(
+            blockNumber: 7, blockSize: blockSize, sectorSize: sectorSize, entries: plan.below,
+            marker: marker),
+        let builtHeader = NTFSIndexBlock.header(built, blockSize: blockSize)
+    else {
+        expect(false, "a block is built from the lower half")
+        return
+    }
+    expect(built.count == blockSize, "of exactly one block")
+    expect(
+        builtHeader.blockNumber == 7,
+        "carrying its own number, so a block read from the "
+            + "wrong place can be noticed")
+    let builtNames = NTFSIndex.names(
+        NTFSIndex.entries(
+            built, from: builtHeader.firstEntryOffset, limit: builtHeader.endOfEntries))
+    expect(builtNames == belowNames, "and exactly the names of the lower half")
+    expect(collation.isSorted(builtNames), "in order")
+    expect(
+        builtHeader.endOfEntries <= blockSize, "with its entries inside the block")
+
+    // A search through the new block finds what should be there and not what
+    // should not.
+    let builtEntries = NTFSIndex.entries(
+        built, from: builtHeader.firstEntryOffset, limit: builtHeader.endOfEntries)
+    for name in belowNames.prefix(20) {
+        guard case .found = NTFSIndex.find(name, in: builtEntries, collation: collation) else {
+            expect(false, "\(name) is found in the new block")
+            return
+        }
+    }
+    expect(true, "every name in the lower half is found in the new block")
+    expect(
+        NTFSIndex.find(medianName, in: builtEntries, collation: collation) == .absent,
+        "the median is not in it -- it belongs to the parent now")
+    if let firstAbove = aboveNames.first {
+        expect(
+            NTFSIndex.find(firstAbove, in: builtEntries, collation: collation) == .absent,
+            "and neither is anything from the upper half")
+    }
+
+    // And the block goes down and comes back.
+    guard
+        let onDisk = NTFSIndexBlock.removeFixup(
+            built, header: builtHeader, sectorSize: sectorSize),
+        let backHeader = NTFSIndexBlock.header(onDisk, blockSize: blockSize),
+        let backAgain = NTFSIndexBlock.applyFixup(
+            onDisk, header: backHeader, sectorSize: sectorSize)
+    else {
+        expect(false, "the built block survives being written and read")
+        return
+    }
+    expect(onDisk.count == blockSize, "still one block long")
+    expect(
+        NTFSIndex.names(
+            NTFSIndex.entries(
+                backAgain, from: backHeader.firstEntryOffset, limit: backHeader.endOfEntries))
+            == belowNames,
+        "with the same names in it")
+
+    // Every name on this volume is the same length, so cutting by count and
+    // cutting by bytes give the same answer here and neither test says
+    // anything. A node of names of wildly different lengths does: cut by count
+    // it comes out lopsided, and the fuller half splits again on the next file.
+    let times = NTFSTimestamps.Times(
+        created: Date(timeIntervalSince1970: 1_700_000_000),
+        modified: Date(timeIntervalSince1970: 1_700_000_000),
+        recordChanged: Date(timeIntervalSince1970: 1_700_000_000),
+        accessed: Date(timeIntervalSince1970: 1_700_000_000))
+    func madeEntry(_ name: String, _ record: UInt64) -> Data? {
+        NTFSIndexWrite.entry(
+            key: NTFSNewRecord.fileNameValue(
+                NTFSNewRecord.Plan(
+                    record: record, sequence: 1, parent: 5, parentSequence: 5, name: name,
+                    namespace: .posix, times: times, securityID: 258),
+                units: Array(name.utf16)),
+            record: record, sequence: 1)
+    }
+    // "a" is short; the rest are 200 characters each. Sorted, the long ones all
+    // come after it, so a cut by count puts one name on one side and four on
+    // the other -- by bytes it lands in the middle of the long ones.
+    let uneven = ["a"] + (0..<4).map { "b\(String(repeating: "x", count: 200))\($0)" }
+    let unevenEntries = uneven.enumerated().compactMap { madeEntry($1, UInt64(6100 + $0)) }
+    guard unevenEntries.count == uneven.count,
+        let unevenBlock = NTFSIndexBlock.compose(
+            blockNumber: 2, blockSize: blockSize, sectorSize: sectorSize,
+            entries: unevenEntries, marker: marker),
+        let unevenPlan = NTFSIndexSplit.plan(of: unevenBlock, nodeHeaderAt: nodeHeader)
+    else {
+        expect(false, "a node of uneven names builds and splits")
+        return
+    }
+    let unevenBelow = unevenPlan.below.reduce(0) { $0 + $1.count }
+    let unevenAbove = unevenPlan.above.reduce(0) { $0 + $1.count }
+    expect(!unevenPlan.below.isEmpty, "with something in the lower half")
+    expect(!unevenPlan.above.isEmpty, "and something in the upper")
+    expect(
+        max(unevenBelow, unevenAbove) <= max(min(unevenBelow, unevenAbove), 1) * 2,
+        "and the halves within a factor of two by bytes: \(unevenBelow) and \(unevenAbove) "
+            + "from \(unevenPlan.below.count) and \(unevenPlan.above.count) entries")
+    expect(
+        unevenPlan.below.compactMap(nameOf) + [nameOf(unevenPlan.median) ?? ""]
+            + unevenPlan.above.compactMap(nameOf) == uneven,
+        "still every name, in order")
+
+    // A node whose first entry is most of it. Cutting where the bytes say puts
+    // nothing in the lower half, and an empty node is one no search can pass
+    // through, so the cut is moved.
+    let lopsided = [String(repeating: "a", count: 250), "b", "c", "d"]
+    let lopsidedEntries = lopsided.enumerated().compactMap { madeEntry($1, UInt64(6200 + $0)) }
+    guard lopsidedEntries.count == lopsided.count,
+        let lopsidedBlock = NTFSIndexBlock.compose(
+            blockNumber: 3, blockSize: blockSize, sectorSize: sectorSize,
+            entries: lopsidedEntries, marker: marker),
+        let lopsidedPlan = NTFSIndexSplit.plan(of: lopsidedBlock, nodeHeaderAt: nodeHeader)
+    else {
+        expect(false, "a lopsided node splits at all")
+        return
+    }
+    expect(
+        !lopsidedPlan.below.isEmpty && !lopsidedPlan.above.isEmpty,
+        "with neither half empty: \(lopsidedPlan.below.count) and \(lopsidedPlan.above.count)")
+    expect(
+        lopsidedPlan.below.compactMap(nameOf) + [nameOf(lopsidedPlan.median) ?? ""]
+            + lopsidedPlan.above.compactMap(nameOf) == lopsided,
+        "and every name still there, in order")
+
+    // The node flags. A leaf says it has nothing below it, and a block built
+    // here has to say the same thing a leaf on the volume says.
+    let realFlags = NTFSIndexWrite.read32(node, nodeHeader + NTFSIndexWrite.flagsField)
+    expect(realFlags == 0, "a leaf on the volume says it has nothing below it")
+    expect(
+        NTFSIndexWrite.read32(built, nodeHeader + NTFSIndexWrite.flagsField) == realFlags,
+        "and so does the one built here -- a node claiming children it has not got is one "
+            + "Windows follows into nothing")
+
+    // What cannot be split.
+    guard
+        let tiny = NTFSIndexBlock.compose(
+            blockNumber: 1, blockSize: blockSize, sectorSize: sectorSize,
+            entries: Array(readEntries.prefix(1)), marker: marker)
+    else {
+        expect(false, "a one-entry block builds")
+        return
+    }
+    expect(
+        NTFSIndexSplit.plan(of: tiny, nodeHeaderAt: nodeHeader) == nil,
+        "a node with one entry is not split -- one of the halves would be empty, and an empty "
+            + "node is one no search can pass through")
+    guard
+        let two = NTFSIndexBlock.compose(
+            blockNumber: 1, blockSize: blockSize, sectorSize: sectorSize,
+            entries: Array(readEntries.prefix(2)), marker: marker)
+    else { return }
+    expect(
+        NTFSIndexSplit.plan(of: two, nodeHeaderAt: nodeHeader) == nil,
+        "and neither is one with two, for the same reason")
+    guard
+        let three = NTFSIndexBlock.compose(
+            blockNumber: 1, blockSize: blockSize, sectorSize: sectorSize,
+            entries: Array(readEntries.prefix(3)), marker: marker)
+    else { return }
+    guard let threePlan = NTFSIndexSplit.plan(of: three, nodeHeaderAt: nodeHeader) else {
+        expect(false, "while one with three is, which makes the refusal a boundary")
+        return
+    }
+    expect(
+        threePlan.below.count == 1 && threePlan.above.count == 1,
+        "one either side of the median")
+    expect(
+        NTFSIndexSplit.plan(of: Data(), nodeHeaderAt: 0) == nil, "and nothing is not a node")
+    expect(
+        NTFSIndexBlock.compose(
+            blockNumber: 1, blockSize: blockSize, sectorSize: sectorSize, entries: readEntries,
+            marker: marker) != nil,
+        "a block holding everything the original held still fits, since it came out of one")
+}
+
 group("aNameGoesIntoTheDirectoryWhereItBelongs") {
     // Real index blocks off a real volume, spliced in memory. What must come
     // out is a node the reader parses, holding every name it held plus the new
