@@ -413,6 +413,69 @@ json.dump(parts, open(out, "w"), indent=2, sort_keys=True)
 print(f"  {len(parts)} parts recorded")
 PARTS
 
+# The filesystem extension, on the v2 channel only.
+#
+# It is what makes a Lukotta volume local rather than a network mount: macOS
+# asks this process for every read, lookup and create instead of going through
+# the NFS client. FSKit arrives in macOS 15.4 and the application supports 15.0,
+# so the target is compiled against a later minimum of its own -- see
+# Package.swift -- and no other channel carries it.
+#
+# It signs with com.apple.developer.fskit.fsmodule using nothing but the
+# Developer ID identity: no provisioning profile is needed for that entitlement,
+# which was the open question in architecture.md and is now settled by doing it.
+#
+# What it still costs is one switch. macOS registers the module and then refuses
+# to mount with "Module ... is disabled" until somebody turns it on once in
+# System Settings > General > Login Items & Extensions > File System Extensions.
+# FSModuleIdentity.isEnabled is readonly and there is no API to set it, so the
+# application cannot do this for them. Nothing here pretends otherwise.
+if [ "${LUKOTTA_BRANDING:-unbranded}" = "v2" ]; then
+  printf 'Building the filesystem extension…\n'
+  swift build -c release --product LukottaFS \
+    -Xswiftc -target -Xswiftc arm64-apple-macos15.4 >/dev/null
+  FSEXT="$CONTENTS/Extensions/LukottaFS.appex"
+  rm -rf "$FSEXT"
+  mkdir -p "$FSEXT/Contents/MacOS"
+  /bin/cp "$HERE/.build/release/LukottaFS" "$FSEXT/Contents/MacOS/LukottaFS"
+  /usr/bin/python3 - "$FSEXT/Contents/Info.plist" "$BUNDLE_ID" "$VERSION" "$BUILD" <<'FSPLIST'
+import plistlib, pathlib, sys
+out, bundle_id, version, build = sys.argv[1:5]
+pathlib.Path(out).write_bytes(plistlib.dumps({
+    "CFBundleDevelopmentRegion": "en",
+    "CFBundleDisplayName": "Lukotta File System",
+    "CFBundleExecutable": "LukottaFS",
+    "CFBundleIdentifier": f"{bundle_id}.fs",
+    "CFBundleInfoDictionaryVersion": "6.0",
+    "CFBundleName": "LukottaFS",
+    # XPC! rather than APPL: an appex is a bundle macOS launches on demand,
+    # not something anybody opens.
+    "CFBundlePackageType": "XPC!",
+    "CFBundleShortVersionString": version,
+    "CFBundleVersion": build,
+    "LSMinimumSystemVersion": "15.4",
+    "EXAppExtensionAttributes": {
+        "EXExtensionPointIdentifier": "com.apple.fskit.fsmodule",
+        "FSName": "LukottaFS",
+        "FSShortName": "lukottafs",
+    },
+}))
+FSPLIST
+  /usr/bin/python3 - "$HERE/dist/.fs.entitlements" <<'FSENT'
+import plistlib, pathlib, sys
+pathlib.Path(sys.argv[1]).parent.mkdir(parents=True, exist_ok=True)
+pathlib.Path(sys.argv[1]).write_bytes(plistlib.dumps({
+    "com.apple.developer.fskit.fsmodule": True,
+    "com.apple.security.app-sandbox": True,
+}))
+FSENT
+  /usr/bin/codesign --force --options runtime \
+    --entitlements "$HERE/dist/.fs.entitlements" \
+    --sign "$SIGN_ID" "$FSEXT" >/dev/null 2>&1 \
+    && printf '  signed, entitled as a filesystem module\n' \
+    || printf '  WARNING: the extension did not sign\n'
+fi
+
 if [ -d "$HERE/vendor/engine" ]; then
   printf 'Embedding engine…\n'
   /usr/bin/ditto "$HERE/vendor/engine" "$CONTENTS/Resources/engine"
