@@ -4,6 +4,7 @@
 import ExtensionFoundation
 import FSKit
 import Foundation
+import LukottaCore
 
 /// The extension macOS loads to serve a Lukotta volume.
 ///
@@ -15,7 +16,7 @@ final class LukottaFileSystem: FSUnaryFileSystem, @unchecked Sendable {
     // Held so the volume outlives the reply that handed it over. FSKit keeps
     // no strong reference of its own, and a volume released here comes back as
     // a mount that answers nothing.
-    private var volume: MemoryVolume?
+    private var volume: LukottaVolume?
 }
 
 extension LukottaFileSystem: FSUnaryFileSystemOperations {
@@ -40,7 +41,17 @@ extension LukottaFileSystem: FSUnaryFileSystemOperations {
         resource: FSResource, options: FSTaskOptions,
         replyHandler reply: @escaping (FSVolume?, (any Error)?) -> Void
     ) {
-        let volume = MemoryVolume(name: "Lukotta")
+        // Which backing this serves is the one decision this makes. Memory
+        // prices the framework; a directory named by LUKOTTA_FS_ROOT prices the
+        // write path against a store that is not the bottleneck, which is the
+        // measurement FAT32 cannot give. What ships puts the guest here.
+        let backing: any FSBacking
+        if let root = ProcessInfo.processInfo.environment["LUKOTTA_FS_ROOT"], !root.isEmpty {
+            backing = FSPassthroughBacking(root: URL(fileURLWithPath: root, isDirectory: true))
+        } else {
+            backing = FSStoreBacking()
+        }
+        let volume = LukottaVolume(name: "Lukotta", backing: backing)
         self.volume = volume
         reply(volume, nil)
     }

@@ -5,32 +5,40 @@ import FSKit
 import Foundation
 import LukottaCore
 
-/// An FSItem that knows which node of the tree it stands for.
+/// An FSItem carrying a handle on whatever is behind the seam.
 ///
 /// FSKit hands the same object back on every later call about that file, so the
 /// identity has to be the item rather than a name looked up again each time.
 final class Item: FSItem {
-    let node: FSStore.Node
-    init(_ node: FSStore.Node) {
-        self.node = node
+    let handle: FSHandle
+    init(_ handle: FSHandle) {
+        self.handle = handle
         super.init()
     }
 }
 
-/// A volume served entirely from memory, to price FSKit itself.
+/// A Lukotta volume, over whatever is holding the files.
+///
+/// Written once against FSBacking: memory prices the framework and nothing
+/// else, a real directory prices the write path against a backing store that is
+/// not the bottleneck, and the thing that ships puts a guest holding the NTFS
+/// volume there instead. The volume cannot tell them apart, which is the whole
+/// point of the seam.
 ///
 /// Every reply is made on the thread FSKit called in on. Nothing here hops to
-/// an actor or a queue of its own: the whole point is to measure the crossing,
-/// and adding a scheduler to it would measure the scheduler.
-final class MemoryVolume: FSVolume, @unchecked Sendable {
+/// an actor or a queue of its own: the crossing is what is being measured, and
+/// adding a scheduler would measure the scheduler. Under Swift 6 a closure
+/// written inside actor-isolated code traps outright when an Objective-C API
+/// calls it back on its own queue -- see AGENTS.md.
+final class LukottaVolume: FSVolume, @unchecked Sendable {
 
-    private let store: FSStore
+    private let store: any FSBacking
     private let rootItem: Item
     private let volumeName: String
 
-    init(name: String) {
-        self.store = FSStore()
-        self.rootItem = Item(store.root)
+    init(name: String, backing: any FSBacking) {
+        self.store = backing
+        self.rootItem = Item(backing.rootHandle)
         self.volumeName = name
         super.init(
             volumeID: FSVolume.Identifier(uuid: UUID()),
@@ -39,25 +47,24 @@ final class MemoryVolume: FSVolume, @unchecked Sendable {
 
     // MARK: - Attributes
 
-    private func attributes(of node: FSStore.Node) -> FSItem.Attributes {
+    private func attributes(of handle: FSHandle) -> FSItem.Attributes? {
+        guard let source = store.attributes(of: handle) else { return nil }
         let attributes = FSItem.Attributes()
-        attributes.fileID = FSItem.Identifier(rawValue: node.id) ?? .invalid
-        attributes.parentID =
-            FSItem.Identifier(rawValue: node.parent?.id ?? node.id) ?? .invalid
-        attributes.type = node.isDirectory ? .directory : .file
-        attributes.mode = node.mode
-        attributes.linkCount = node.linkCount
-        attributes.size = node.size
+        attributes.fileID = FSItem.Identifier(rawValue: source.id) ?? .invalid
+        attributes.parentID = FSItem.Identifier(rawValue: source.parentID) ?? .invalid
+        attributes.type = source.isDirectory ? .directory : .file
+        attributes.mode = source.mode
+        attributes.linkCount = source.linkCount
+        attributes.size = source.size
         // Rounded to a block, as a real filesystem reports it: du and Finder's
         // "size on disk" both read this rather than size.
-        attributes.allocSize = (node.size + 4095) / 4096 * 4096
+        attributes.allocSize = (source.size + 4095) / 4096 * 4096
         attributes.uid = UInt32(getuid())
         attributes.gid = UInt32(getgid())
         attributes.flags = 0
         let modified = timespec(
-            tv_sec: Int(node.modified.timeIntervalSince1970), tv_nsec: 0)
-        let created = timespec(
-            tv_sec: Int(node.created.timeIntervalSince1970), tv_nsec: 0)
+            tv_sec: Int(source.modified.timeIntervalSince1970), tv_nsec: 0)
+        let created = timespec(tv_sec: Int(source.created.timeIntervalSince1970), tv_nsec: 0)
         attributes.modifyTime = modified
         attributes.changeTime = modified
         attributes.accessTime = modified
@@ -69,7 +76,7 @@ final class MemoryVolume: FSVolume, @unchecked Sendable {
 
 // MARK: - The required operations
 
-extension MemoryVolume: FSVolume.Operations {
+extension LukottaVolume: FSVolume.Operations {
 
     var supportedVolumeCapabilities: FSVolume.SupportedCapabilities {
         let capabilities = FSVolume.SupportedCapabilities()
@@ -146,7 +153,7 @@ extension MemoryVolume: FSVolume.Operations {
         guard let item = item as? Item else {
             return reply(nil, fsError(POSIXError.EINVAL))
         }
-        reply(attributes(of: item.node), nil)
+        reply(attributes(of: item.handle), nil)
     }
 
     func setAttributes(
@@ -156,18 +163,13 @@ extension MemoryVolume: FSVolume.Operations {
         guard let item = item as? Item else {
             return reply(nil, fsError(POSIXError.EINVAL))
         }
-        store.withLock {
-            if new.consumedAttributes.contains(.mode) { item.node.mode = new.mode }
-            if new.consumedAttributes.contains(.size) {
-                // Set outside the lock would race a concurrent write; the
-                // store's own truncate takes it, so the value is captured here
-                // and applied after.
-            }
+        if new.consumedAttributes.contains(.mode) {
+            store.setMode(new.mode, on: item.handle)
         }
         if new.consumedAttributes.contains(.size) {
-            store.truncate(item.node, to: Int(new.size))
+            store.truncate(item.handle, to: Int(new.size))
         }
-        reply(attributes(of: item.node), nil)
+        reply(attributes(of: item.handle), nil)
     }
 
     func lookupItem(
@@ -177,10 +179,10 @@ extension MemoryVolume: FSVolume.Operations {
         guard let directory = directory as? Item, let string = name.string else {
             return reply(nil, nil, fsError(POSIXError.EINVAL))
         }
-        guard let node = store.lookup(string, in: directory.node) else {
+        guard let handle = store.lookup(string, in: directory.handle) else {
             return reply(nil, nil, fsError(POSIXError.ENOENT))
         }
-        reply(Item(node), name, nil)
+        reply(Item(handle), name, nil)
     }
 
     func reclaimItem(_ item: FSItem, replyHandler reply: @escaping ((any Error)?) -> Void) {
@@ -205,12 +207,12 @@ extension MemoryVolume: FSVolume.Operations {
             newAttributes.consumedAttributes.contains(.mode)
             ? newAttributes.mode : (type == .directory ? 0o755 : 0o644)
         guard
-            let node = store.create(
-                string, isDirectory: type == .directory, in: directory.node, mode: mode)
+            let handle = store.create(
+                string, isDirectory: type == .directory, in: directory.handle, mode: mode)
         else {
             return reply(nil, nil, fsError(POSIXError.EEXIST))
         }
-        reply(Item(node), name, nil)
+        reply(Item(handle), name, nil)
     }
 
     func createSymbolicLink(
@@ -235,7 +237,7 @@ extension MemoryVolume: FSVolume.Operations {
         guard let directory = directory as? Item, let string = name.string else {
             return reply(fsError(POSIXError.EINVAL))
         }
-        switch store.remove(string, from: directory.node) {
+        switch store.remove(string, from: directory.handle) {
         case .removed: reply(nil)
         case .missing: reply(fsError(POSIXError.ENOENT))
         case .notEmpty: reply(fsError(POSIXError.ENOTEMPTY))
@@ -255,8 +257,8 @@ extension MemoryVolume: FSVolume.Operations {
         }
         // A rename over something that is already there replaces it, which is
         // what rename(2) promises and what Finder's move-to-Trash relies on.
-        if overItem != nil { _ = store.remove(to, from: destination.node) }
-        guard store.rename(from, in: source.node, to: to, in: destination.node) else {
+        if overItem != nil { _ = store.remove(to, from: destination.handle) }
+        guard store.rename(from, in: source.handle, to: to, in: destination.handle) else {
             return reply(nil, fsError(POSIXError.ENOENT))
         }
         reply(destinationName, nil)
@@ -271,19 +273,20 @@ extension MemoryVolume: FSVolume.Operations {
         guard let directory = directory as? Item else {
             return reply(verifier, fsError(POSIXError.EINVAL))
         }
-        let entries = store.children(of: directory.node)
+        let entries = store.children(of: directory.handle)
         // The cookie is where the last call stopped. Names are sorted, so the
         // same index means the same entry on the next call.
         var index = Int(cookie.rawValue)
         while index < entries.count {
-            let node = entries[index]
+            let entry = entries[index]
             index += 1
+            guard let facts = store.attributes(of: entry.handle) else { continue }
             let packed = packer.packEntry(
-                name: FSFileName(string: node.name),
-                itemType: node.isDirectory ? .directory : .file,
-                itemID: FSItem.Identifier(rawValue: node.id) ?? .invalid,
+                name: FSFileName(string: entry.name),
+                itemType: facts.isDirectory ? .directory : .file,
+                itemID: FSItem.Identifier(rawValue: facts.id) ?? .invalid,
                 nextCookie: FSDirectoryCookie(rawValue: UInt64(index)),
-                attributes: attributes == nil ? nil : self.attributes(of: node))
+                attributes: attributes == nil ? nil : self.attributes(of: entry.handle))
             // Packing stops when the buffer the kernel gave us is full. What is
             // left is asked for again with the cookie we just handed over.
             if !packed { break }
@@ -294,14 +297,14 @@ extension MemoryVolume: FSVolume.Operations {
 
 // MARK: - Reading and writing
 
-extension MemoryVolume: FSVolume.ReadWriteOperations {
+extension LukottaVolume: FSVolume.ReadWriteOperations {
 
     func read(
         from item: FSItem, at offset: off_t, length: Int, into buffer: FSMutableFileDataBuffer,
         replyHandler reply: @escaping (Int, (any Error)?) -> Void
     ) {
         guard let item = item as? Item else { return reply(0, fsError(POSIXError.EINVAL)) }
-        let slice = store.read(item.node, offset: Int(offset), length: length)
+        let slice = store.read(item.handle, offset: Int(offset), length: length)
         let written = slice.withUnsafeBytes { bytes -> Int in
             guard let base = bytes.baseAddress, !slice.isEmpty else { return 0 }
             return buffer.withUnsafeMutableBytes { destination -> Int in
@@ -318,7 +321,7 @@ extension MemoryVolume: FSVolume.ReadWriteOperations {
         replyHandler reply: @escaping (Int, (any Error)?) -> Void
     ) {
         guard let item = item as? Item else { return reply(0, fsError(POSIXError.EINVAL)) }
-        reply(store.write(item.node, contents: contents, offset: Int(offset)), nil)
+        reply(store.write(item.handle, contents: contents, offset: Int(offset)), nil)
     }
 }
 
@@ -340,7 +343,7 @@ func fsError(_ code: POSIXError.Code) -> NSError {
 /// measured on the NFS volume this application serves today, 6000 files created
 /// came with 6000 sidecars, so every create cost two. A volume that answers
 /// getxattr and setxattr itself never gets one.
-extension MemoryVolume: FSVolume.XattrOperations {
+extension LukottaVolume: FSVolume.XattrOperations {
 
     func getXattr(
         named name: FSFileName, of item: FSItem,
@@ -349,7 +352,7 @@ extension MemoryVolume: FSVolume.XattrOperations {
         guard let item = item as? Item, let key = name.string else {
             return reply(nil, fsError(POSIXError.EINVAL))
         }
-        guard let value = store.xattr(key, of: item.node) else {
+        guard let value = store.xattr(key, of: item.handle) else {
             // ENOATTR, which is what a caller checking for an attribute that is
             // not there expects. ENOENT would mean the file is gone.
             return reply(nil, NSError(domain: NSPOSIXErrorDomain, code: Int(ENOATTR)))
@@ -366,7 +369,7 @@ extension MemoryVolume: FSVolume.XattrOperations {
             return reply(fsError(POSIXError.EINVAL))
         }
         switch store.setXattr(
-            key, to: value, on: item.node,
+            key, to: value, on: item.handle,
             mustCreate: policy == .mustCreate, mustReplace: policy == .mustReplace)
         {
         case .set: reply(nil)
@@ -379,7 +382,7 @@ extension MemoryVolume: FSVolume.XattrOperations {
         of item: FSItem, replyHandler reply: @escaping ([FSFileName]?, (any Error)?) -> Void
     ) {
         guard let item = item as? Item else { return reply(nil, fsError(POSIXError.EINVAL)) }
-        reply(store.xattrNames(of: item.node).map { FSFileName(string: $0) }, nil)
+        reply(store.xattrNames(of: item.handle).map { FSFileName(string: $0) }, nil)
     }
 }
 
@@ -393,7 +396,7 @@ extension MemoryVolume: FSVolume.XattrOperations {
 /// Measured reason to care: a crossing that misses the VFS cache costs ~200 us
 /// against the kernel's 5. Operations a module does not need are operations it
 /// should not be asked to answer.
-extension MemoryVolume: FSVolume.OpenCloseOperations {
+extension LukottaVolume: FSVolume.OpenCloseOperations {
 
     var isOpenCloseInhibited: Bool { true }
 
