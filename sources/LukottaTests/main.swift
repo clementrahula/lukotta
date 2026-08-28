@@ -5331,6 +5331,34 @@ group("aRecordWrittenBackIsStillReadableByAnybody") {
             == UInt8(next & 0xFF),
         "carrying the new signature, so a half-written record cannot match the old one")
 
+    // The case that actually matters: a record whose contents changed. For an
+    // unmodified record the fixup array already holds the right bytes, so
+    // putting them back is redundant and a broken removeFixup round-trips
+    // anyway. A record is only ever written because something in it changed,
+    // and if that change landed on the last two bytes of a sector it has to
+    // reach the array or it is lost.
+    var modified = [UInt8](repaired)
+    let lastOfFirstSector = geometry.bytesPerSector - 2
+    modified[lastOfFirstSector] = 0x5A
+    modified[lastOfFirstSector + 1] = 0xA5
+    guard
+        let storedForm = NTFSRecord.removeFixup(
+            Data(modified), header: header, signature: next, sectorSize: geometry.bytesPerSector),
+        let readAgain = NTFSRecord.applyFixup(
+            storedForm, header: header, sectorSize: geometry.bytesPerSector)
+    else {
+        expect(false, "a modified record can be stored and read again")
+        return
+    }
+    expect(
+        readAgain[readAgain.startIndex + lastOfFirstSector] == 0x5A
+            && readAgain[readAgain.startIndex + lastOfFirstSector + 1] == 0xA5,
+        "a change to the last two bytes of a sector survives being written and read -- those "
+            + "are the bytes the signature displaces, and losing them loses the change")
+    expect(
+        storedForm[storedForm.startIndex + lastOfFirstSector] == UInt8(next & 0xFF),
+        "while on the disk those bytes hold the signature, as every NTFS reader expects")
+
     // The signature wraps without ever landing on zero.
     expect(NTFSRecord.nextSignature(after: UInt16.max) == 1, "the signature wraps past zero")
 }
