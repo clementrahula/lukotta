@@ -470,6 +470,36 @@ group("theElevatedMountScript") {
         msScript.contains("'/dev/disk4s1' >>"),
         "the device is a positional argument, not swallowed by a preceding flag")
 
+    // Stage 0: the microVM's NFS server is reached over vmnet rather than
+    // gvproxy, which measured 2.5 times the write throughput on this machine.
+    // Opening a vmnet interface without root arrived in macOS 26; below that
+    // the engine refuses the helper outright rather than falling back, so a
+    // build that asked for it everywhere would break every mount on macOS 15.
+    expect(
+        MountScript.netHelper(forMajorVersion: 26) == "vmnet",
+        "macOS 26 opens vmnet without root, so it gets the faster network")
+    expect(
+        MountScript.netHelper(forMajorVersion: 27) == "vmnet",
+        "anything above 26 keeps vmnet")
+    expect(
+        MountScript.netHelper(forMajorVersion: 15) == "gvproxy",
+        "macOS 15 cannot open vmnet unprivileged, so it keeps gvproxy")
+    expect(
+        MountScript.netHelper(forMajorVersion: 25) == "gvproxy",
+        "the boundary is 26, not 'recent'")
+    // Every command that starts a microVM carries the choice: a mount that
+    // asked for one network while a sibling asked for the other would leave
+    // two helpers running and the second unable to reach its own guest.
+    let engineMounts = msScript.split(separator: "\n").filter {
+        $0.contains("ALFS_PASSPHRASE=") && $0.contains(" mount")
+    }
+    expect(!engineMounts.isEmpty, "the script does invoke the engine to mount")
+    for line in engineMounts {
+        expect(
+            line.contains("--net-helper "),
+            "every engine mount names the network helper: \(line.prefix(60))")
+    }
+
     // The credential is read from the pipe, never written into the script --
     // and read byte for byte. Command substitution strips trailing newlines, so
     // a passphrase ending in one was altered on its way to the engine and
