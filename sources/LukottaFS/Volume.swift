@@ -427,3 +427,29 @@ extension LukottaVolume: FSVolume.OpenCloseOperations {
         reply(nil)
     }
 }
+
+// MARK: - Access checks
+
+/// Who may open what.
+///
+/// Every drive this application opens is opened by one person, on their own
+/// Mac, because they asked for it. The permissions written on the files came
+/// from whatever system last owned the drive -- a Windows install, another
+/// Linux machine, a NAS -- and mean nothing about who is sitting here now. v1
+/// says the same thing to the engine as `--ignore-permissions`, and the volume
+/// reports every file as owned by whoever opened the drive.
+///
+/// So the check is inhibited rather than answered permissively: the kernel does
+/// not ask at all, which is a crossing saved on every open rather than a
+/// crossing spent saying yes.
+extension LukottaVolume: FSVolume.AccessCheckOperations {
+
+    var isAccessCheckInhibited: Bool { true }
+
+    func checkAccess(
+        to item: FSItem, requestedAccess access: FSVolume.AccessMask,
+        replyHandler reply: @escaping (Bool, (any Error)?) -> Void
+    ) {
+        reply(true, nil)
+    }
+}
