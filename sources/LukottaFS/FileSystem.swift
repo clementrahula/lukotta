@@ -107,7 +107,19 @@ extension LukottaFileSystem: FSUnaryFileSystemOperations {
             // The real thing: an NTFS volume, read straight off the device.
             // Every read the volume makes comes back through here, so the
             // parsers never learn what a block device is.
-            guard let ntfs = NTFSBacking(read: { offset, length in held.read(offset, length) })
+            // A write function only where the device will take one. Passing
+            // nil is what makes a read-only mount incapable of writing rather
+            // than merely unwilling -- see NTFSBacking.
+            // Written out rather than as a ternary: a closure inside one loses
+            // its @Sendable, and this one crosses into a backing FSKit calls
+            // on its own queues.
+            var writer: NTFSBacking.WriteBytes?
+            if held.isWritable {
+                writer = { @Sendable offset, bytes in held.write(offset, bytes) }
+            }
+            guard
+                let ntfs = NTFSBacking(
+                    read: { offset, length in held.read(offset, length) }, write: writer)
             else {
                 // Not NTFS, or a table that cannot be read. Refusing is the
                 // answer: a volume served empty looks like a drive that lost
@@ -174,5 +186,21 @@ final class HeldDevice: @unchecked Sendable {
         }
         guard let read, read > 0 else { return nil }
         return Data(buffer.prefix(read))
+    }
+
+    /// Whether the device itself will take a write.
+    ///
+    /// A drive can be read-only for reasons that have nothing to do with the
+    /// filesystem on it -- a card with its switch set, a device the system
+    /// opened read-only. Asking is cheaper than finding out by failing half way
+    /// through somebody's copy.
+    var isWritable: Bool { device.isWritable }
+
+    func write(_ offset: UInt64, _ bytes: Data) -> Bool {
+        guard !bytes.isEmpty else { return false }
+        let written = try? bytes.withUnsafeBytes {
+            try device.write(from: $0, startingAt: off_t(offset), length: bytes.count)
+        }
+        return written == bytes.count
     }
 }
