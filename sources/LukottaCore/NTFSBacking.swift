@@ -40,9 +40,21 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     /// is the common case, but a cache that can go stale on a volume somebody
     /// else is writing is a source of wrong answers rather than of speed.
 
+    /// Whether the volume underneath could be written to, if there were a
+    /// write path. Nothing consults it to allow a write -- there are none --
+    /// but a drive Windows left mid-write must never become writable by
+    /// somebody later adding one and not knowing to ask.
+    public let volumeIsSafeToWrite: Bool
+
+    /// What the volume calls itself, which is what Finder puts on the desktop.
+    public let volumeLabel: String?
+
     public init?(read: @escaping NTFSVolumeReader.ReadBytes) {
         guard let reader = NTFSVolumeReader(read: read) else { return nil }
         self.reader = reader
+        let state = reader.state()
+        self.volumeIsSafeToWrite = state?.isSafeToWrite ?? false
+        self.volumeLabel = state?.label
     }
 
     public var rootHandle: FSHandle {

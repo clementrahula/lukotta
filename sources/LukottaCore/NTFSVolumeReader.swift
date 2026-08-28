@@ -53,6 +53,28 @@ public final class NTFSVolumeReader: @unchecked Sendable {
         self.tableSize = data.dataSize
     }
 
+    /// What the volume says about itself: its name, its version, and whether
+    /// it was unmounted cleanly.
+    ///
+    /// Read on demand rather than at open, because a volume that cannot answer
+    /// is still a volume worth reading. A drive whose `$Volume` record is
+    /// damaged is precisely one somebody wants their files off.
+    public func state() -> NTFSVolumeState.Info? {
+        guard let record = record(NTFSVolumeState.volumeRecord) else { return nil }
+        return NTFSVolumeState.read(record: record.data, attributes: attributes(of: record))
+    }
+
+    /// Whether this volume may be written to.
+    ///
+    /// Nothing writes yet, so this is the gate being put in place before there
+    /// is anything to gate -- which is the right order for a rule whose whole
+    /// purpose is to stop a change that cannot be undone. A volume that cannot
+    /// say is treated as unsafe: not knowing is not the same as knowing it is
+    /// clean, and the expensive mistake here is only in one direction.
+    public var isSafeToWrite: Bool {
+        state()?.isSafeToWrite ?? false
+    }
+
     // MARK: - Records
 
     /// One record, repaired, with its header.

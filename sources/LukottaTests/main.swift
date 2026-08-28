@@ -4742,6 +4742,31 @@ group("theRealVolumeReportsItsOwnState") {
         "this volume was unmounted cleanly, so it is not dirty -- which is what makes the "
             + "dirty check above mean something rather than always being false")
     expect(info.isSafeToWrite, "and would be safe to write to")
+
+    // The same answer through the reader and the backing, since a rule that
+    // only one of them knows is a rule somebody adding a write path can miss.
+    expect(reader.isSafeToWrite, "the reader agrees the volume is writable")
+    expect(reader.state()?.label == info.label, "and reports the same label")
+
+    let lock2 = NSLock()
+    guard let handle2 = FileHandle(forReadingAtPath: path),
+        let backing = NTFSBacking(read: { offset, length in
+            lock2.lock()
+            defer { lock2.unlock() }
+            try? handle2.seek(toOffset: offset)
+            return try? handle2.read(upToCount: length)
+        })
+    else {
+        expect(false, "the backing opens the same volume")
+        return
+    }
+    defer { try? handle2.close() }
+    expect(
+        backing.volumeIsSafeToWrite,
+        "and the backing carries the same answer, so a write path added later cannot miss it")
+    expect(
+        backing.volumeLabel == info.label,
+        "with the volume's name, which is what Finder would put on the desktop")
 }
 
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
