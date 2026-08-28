@@ -4226,6 +4226,101 @@ group("aBigDirectoryComesBackWhole") {
     }
 }
 
+group("aesXtsMatchesTheNumbersSomebodyElsePublished") {
+    // Both BitLocker and LUKS encrypt a disk with AES-XTS, and macOS does not
+    // expose it: CommonCrypto's mode enum stops at CFB8 and CryptoKit has no
+    // block-cipher modes at all. So it is built here on AES-ECB, which is the
+    // primitive XTS is defined over.
+    //
+    // Cryptography written from a specification and checked against itself is
+    // worth nothing. These are the IEEE 1619 vectors -- somebody else's
+    // plaintext, key and expected ciphertext -- so the check can fail.
+    func bytes(_ hex: String) -> [UInt8] {
+        stride(from: 0, to: hex.count, by: 2).map {
+            let i = hex.index(hex.startIndex, offsetBy: $0)
+            let j = hex.index(i, offsetBy: 2)
+            return UInt8(hex[i..<j], radix: 16) ?? 0
+        }
+    }
+    func hex(_ b: [UInt8]) -> String { b.map { String(format: "%02x", $0) }.joined() }
+
+    // IEEE 1619 vector 1: all-zero keys, sector 0, all-zero plaintext.
+    let key1 = bytes("0000000000000000000000000000000000000000000000000000000000000000")
+    let plain1 = bytes("0000000000000000000000000000000000000000000000000000000000000000")
+    let cipher1 = "917cf69ebd68b2ec9b9fe9a3eadda692cd43d2f59598ed858c02c2652fbf922e"
+    expect(
+        AESXTS.encrypt(plain1, key: key1, sector: 0).map(hex) == cipher1,
+        "IEEE 1619 vector 1 encrypts to the published ciphertext")
+    expect(
+        AESXTS.decrypt(bytes(cipher1), key: key1, sector: 0).map(hex) == hex(plain1),
+        "and decrypts back to the published plaintext")
+
+    // Vector 2: different keys, and a non-zero sector number -- which is what
+    // catches a tweak assembled the wrong way round. Vector 1 cannot: sector
+    // zero is the same in either byte order.
+    let key2 = bytes("1111111111111111111111111111111122222222222222222222222222222222")
+    let plain2 = bytes("4444444444444444444444444444444444444444444444444444444444444444")
+    let cipher2 = "c454185e6a16936e39334038acef838bfb186fff7480adc4289382ecd6d394f0"
+    expect(
+        AESXTS.encrypt(plain2, key: key2, sector: 0x3333333333).map(hex) == cipher2,
+        "IEEE 1619 vector 2, with a non-zero sector, matches -- which vector 1 cannot check")
+    expect(
+        AESXTS.decrypt(bytes(cipher2), key: key2, sector: 0x3333333333).map(hex) == hex(plain2),
+        "and decrypts back")
+
+    // The tweak is little-endian. Getting it wrong decrypts sector zero
+    // correctly and nothing else, which is the worst way to be wrong.
+    expect(
+        AESXTS.tweak(forSector: 1)[0] == 1 && AESXTS.tweak(forSector: 1)[15] == 0,
+        "a sector number goes into the tweak little-endian")
+    expect(
+        AESXTS.tweak(forSector: 0) == [UInt8](repeating: 0, count: 16),
+        "and sector zero is all zeroes either way round, which is why vector 2 is needed")
+
+    // The GF(2^128) doubling, and its reduction constant.
+    expect(
+        AESXTS.doubled([UInt8](repeating: 0, count: 16))
+            == [UInt8](repeating: 0, count: 16),
+        "doubling zero is zero")
+    var one = [UInt8](repeating: 0, count: 16)
+    one[0] = 1
+    expect(AESXTS.doubled(one)[0] == 2, "doubling shifts left")
+    var top = [UInt8](repeating: 0, count: 16)
+    top[15] = 0x80
+    let reduced = AESXTS.doubled(top)
+    expect(
+        reduced[0] == 0x87 && reduced[15] == 0,
+        "and a bit falling off the top comes back as 0x87, which is the reduction polynomial")
+
+    // Round trip on something longer than one block, over several sectors.
+    let key = bytes("2718281828459045235360287471352662497757247093699959574966967627")
+    let sample = (0..<128).map { UInt8($0 & 0xFF) }
+    for sector: UInt64 in [0, 1, 2, 0xFFFF_FFFF] {
+        guard let ciphered = AESXTS.encrypt(sample, key: key, sector: sector),
+            let back = AESXTS.decrypt(ciphered, key: key, sector: sector)
+        else {
+            expect(false, "a longer buffer round-trips at sector \(sector)")
+            continue
+        }
+        expect(back == sample, "a longer buffer round-trips at sector \(sector)")
+        expect(
+            ciphered != sample,
+            "and the ciphertext is not the plaintext at sector \(sector)")
+    }
+
+    // The same plaintext at two sectors must not encrypt the same, or the
+    // shape of the filesystem shows through the encryption.
+    expect(
+        AESXTS.encrypt(sample, key: key, sector: 0)
+            != AESXTS.encrypt(sample, key: key, sector: 1),
+        "identical plaintext in two sectors encrypts differently, which is the point of XTS")
+
+    // Refusals.
+    expect(AESXTS.decrypt([1, 2, 3], key: key, sector: 0) == nil, "a partial block is refused")
+    expect(AESXTS.decrypt(sample, key: [1, 2, 3], sector: 0) == nil, "so is a key of no use")
+    expect(AESXTS.decrypt([], key: key, sector: 0) == nil, "and nothing at all")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
