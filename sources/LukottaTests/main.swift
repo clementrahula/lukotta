@@ -5245,6 +5245,96 @@ group("aClusterIsNeverHandedOutTwice") {
     expect(back == empty, "and claiming then releasing leaves the bitmap exactly as it was")
 }
 
+group("aRecordWrittenBackIsStillReadableByAnybody") {
+    // Writing a record back means undoing the fixup: the last two bytes of each
+    // sector go into the array and the signature takes their place. A record
+    // written without that has no signature in any sector, and the next reader
+    // -- ours, Windows's, or chkdsk -- sees a torn write and refuses it. That
+    // is a file that vanishes.
+    //
+    // Checked against a real record rather than one we composed, because a
+    // fixture written from the same belief as the code round-trips whatever
+    // that belief is.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path),
+        let boot = try? handle.read(upToCount: 4096),
+        let geometry = NTFSGeometry.read(boot)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+
+    try? handle.seek(toOffset: geometry.mftByteOffset)
+    guard let onDisk = try? handle.read(upToCount: geometry.bytesPerFileRecord),
+        let header = NTFSRecord.header(onDisk, expectedLength: geometry.bytesPerFileRecord),
+        let repaired = NTFSRecord.applyFixup(
+            onDisk, header: header, sectorSize: geometry.bytesPerSector)
+    else {
+        expect(false, "a real record reads and repairs")
+        return
+    }
+    expect(repaired != onDisk, "the repair changed it, as it must")
+
+    // Written back with the same signature, it should be byte-identical to what
+    // the disk holds.
+    let signature =
+        UInt16(onDisk[onDisk.startIndex + header.fixupOffset])
+        | (UInt16(onDisk[onDisk.startIndex + header.fixupOffset + 1]) << 8)
+    guard
+        let back = NTFSRecord.removeFixup(
+            repaired, header: header, signature: signature, sectorSize: geometry.bytesPerSector)
+    else {
+        expect(false, "the record can be put back into disk form")
+        return
+    }
+    expect(
+        back == onDisk,
+        "and comes out byte for byte as the disk holds it -- which is the only way a record "
+            + "written back is still readable by Windows")
+
+    // With a new signature, as a real write would use, it must still repair.
+    let next = NTFSRecord.nextSignature(after: signature)
+    expect(next != signature, "a written record gets a new signature")
+    expect(next != 0, "and never zero, which is what an unwritten sector holds")
+    guard
+        let rewritten = NTFSRecord.removeFixup(
+            repaired, header: header, signature: next, sectorSize: geometry.bytesPerSector),
+        let reread = NTFSRecord.applyFixup(
+            rewritten, header: header, sectorSize: geometry.bytesPerSector)
+    else {
+        expect(false, "a record written with a new signature repairs again")
+        return
+    }
+    // Everything but the two signature bytes in the fixup array, which are
+    // meant to differ: the record was written with a new signature and the
+    // array is where that signature lives. applyFixup restores the sector ends
+    // and deliberately leaves the array alone, so a byte-for-byte comparison
+    // here would be asserting that a rewritten record still carries its old
+    // signature -- which is the opposite of what is wanted.
+    var expected = [UInt8](repaired)
+    var actual = [UInt8](reread)
+    expected[header.fixupOffset] = 0
+    expected[header.fixupOffset + 1] = 0
+    actual[header.fixupOffset] = 0
+    actual[header.fixupOffset + 1] = 0
+    expect(
+        actual == expected,
+        "and reads back as the same record apart from the signature, which is what makes a "
+            + "write survivable")
+    expect(
+        reread[reread.startIndex + header.fixupOffset]
+            == UInt8(next & 0xFF),
+        "carrying the new signature, so a half-written record cannot match the old one")
+
+    // The signature wraps without ever landing on zero.
+    expect(NTFSRecord.nextSignature(after: UInt16.max) == 1, "the signature wraps past zero")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged

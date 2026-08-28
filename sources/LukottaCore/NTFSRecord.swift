@@ -95,6 +95,55 @@ public enum NTFSRecord {
             isDirectory: flags & 0x0002 != 0)
     }
 
+    /// Take a repaired record back to the form the disk holds.
+    ///
+    /// The exact inverse of `applyFixup`: the last two bytes of each sector are
+    /// moved into the fixup array and replaced with the signature. A record
+    /// written back without this has the signature missing from every sector,
+    /// and the next reader -- ours, Windows's, or chkdsk -- sees a torn write
+    /// and refuses the record. That is a file that vanishes.
+    ///
+    /// The signature must also change every time a record is written, so that
+    /// a half-written record cannot happen to match. NTFS increments it, and
+    /// the caller supplies the new one rather than this inventing one, because
+    /// the value belongs to the volume's sequence and not to this function.
+    public static func removeFixup(
+        _ record: Data, header: Header, signature: UInt16, sectorSize: Int = 512
+    ) -> Data? {
+        guard sectorSize > 2, header.fixupCount >= 1 else { return nil }
+        var bytes = [UInt8](record)
+        guard header.fixupOffset + header.fixupCount * 2 <= bytes.count else { return nil }
+
+        let low = UInt8(signature & 0xFF)
+        let high = UInt8(signature >> 8)
+        bytes[header.fixupOffset] = low
+        bytes[header.fixupOffset + 1] = high
+
+        for sector in 1..<header.fixupCount {
+            let end = sector * sectorSize - 2
+            guard end + 1 < bytes.count else { return nil }
+            // The bytes that were there go into the array, and the signature
+            // takes their place.
+            let entry = header.fixupOffset + sector * 2
+            bytes[entry] = bytes[end]
+            bytes[entry + 1] = bytes[end + 1]
+            bytes[end] = low
+            bytes[end + 1] = high
+        }
+        return Data(bytes)
+    }
+
+    /// The signature a record should be written with, given the one it was read
+    /// with.
+    ///
+    /// Incremented, and never zero: zero is what an unwritten sector holds, so
+    /// a record whose signature was zero could match a sector that was never
+    /// written at all.
+    public static func nextSignature(after current: UInt16) -> UInt16 {
+        let next = current &+ 1
+        return next == 0 ? 1 : next
+    }
+
     /// Put back the bytes NTFS displaced, and say whether the record is whole.
     ///
     /// - Returns: the repaired record, or nil when a sector's signature does not
