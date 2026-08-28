@@ -26,7 +26,15 @@ public final class NTFSVolumeReader: @unchecked Sendable {
     private let mftRuns: [NTFSRunlist.Run]
     private let tableSize: UInt64
     /// Read once, because Finder asks for free space on every window.
+    ///
+    /// Guarded by a lock of its own rather than by whoever happens to be
+    /// calling. The class says `@unchecked Sendable`, and that claim has to be
+    /// true on its own terms: FSKit calls a volume on several queues at once,
+    /// and a reader used directly -- as a check does, and as anything that
+    /// skipped the backing would -- has nothing else protecting it. Two threads
+    /// filling this at once is a data race whatever the outcome looks like.
     private var cachedBitmap: Data?
+    private let cacheLock = NSLock()
 
     /// Open a volume, or refuse.
     ///
@@ -70,11 +78,21 @@ public final class NTFSVolumeReader: @unchecked Sendable {
         let total = geometry.totalSectors / UInt64(geometry.sectorsPerCluster)
         guard total > 0 else { return nil }
         let bitmap: Data
-        if let cached = cachedBitmap {
+        cacheLock.lock()
+        let cached = cachedBitmap
+        cacheLock.unlock()
+        if let cached {
             bitmap = cached
         } else {
+            // Read outside the lock: it is a disk read, and holding a lock
+            // across one blocks every other window. Two threads arriving
+            // together both read and both store, which costs one extra read
+            // and is correct -- the bitmap does not change under a read-only
+            // volume.
             guard let read = contents(ofFile: bitmapRecord), !read.isEmpty else { return nil }
+            cacheLock.lock()
             cachedBitmap = read
+            cacheLock.unlock()
             bitmap = read
         }
         let free = NTFSBitmap.freeClusters(in: bitmap, totalClusters: total)

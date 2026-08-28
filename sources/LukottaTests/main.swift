@@ -5064,6 +5064,111 @@ group("theBackingWritesOnlyWhenGivenTheMeansAndThePermission") {
         "a directory is never written to")
 }
 
+group("theVolumeSurvivesBeingAskedFromEveryQueueAtOnce") {
+    // FSKit calls a volume on several queues at once. Every check above asks
+    // one question at a time, which is the one way this code will never be
+    // used, so none of them would notice a data race.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+    let ioLock = NSLock()
+    guard
+        let fs: any FSBacking = NTFSBacking(read: { offset, length in
+            ioLock.lock()
+            defer { ioLock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        })
+    else {
+        expect(false, "the volume opens")
+        return
+    }
+
+    let root = fs.rootHandle
+    let expected = fs.children(of: root).map(\.name)
+    guard !expected.isEmpty else { return }
+
+    // Sixteen queues, all asking at once, including the free-space call that
+    // fills a cache the first time anybody asks.
+    let results = NSMutableArray()
+    let resultsLock = NSLock()
+    DispatchQueue.concurrentPerform(iterations: 16) { index in
+        var mine: [String] = []
+        for _ in 0..<4 {
+            mine = fs.children(of: root).map(\.name)
+            _ = fs.usage()
+            _ = fs.capacityInBytes
+            if let found = fs.lookup(expected[0], in: root) {
+                _ = fs.attributes(of: found)
+            }
+        }
+        resultsLock.lock()
+        results.add(mine)
+        resultsLock.unlock()
+    }
+
+    expect(results.count == 16, "every queue finished")
+    let everyListing = (results as? [[String]]) ?? []
+    expect(
+        everyListing.allSatisfy { $0 == expected },
+        "and every one of them saw the same directory, in the same order")
+
+    // The cached bitmap is what several threads race to fill. Whatever order
+    // they arrive in, the number has to be the one number.
+    let sizes = NSMutableArray()
+    DispatchQueue.concurrentPerform(iterations: 16) { _ in
+        let used = fs.usage().bytes
+        resultsLock.lock()
+        sizes.add(used)
+        resultsLock.unlock()
+    }
+    expect(
+        Set((sizes as? [UInt64]) ?? []).count == 1,
+        "and free space is the same answer however many threads asked for it first")
+
+    // All of the above goes through NTFSBacking, which takes a lock around
+    // every call -- so it exercises that lock and not the reader's own. A
+    // reader used directly has nothing else protecting it, and the class claims
+    // Sendable, so the claim has to hold on its own terms.
+    let readerLock = NSLock()
+    guard let handle2 = FileHandle(forReadingAtPath: path),
+        let bare = NTFSVolumeReader(read: { offset, length in
+            readerLock.lock()
+            defer { readerLock.unlock() }
+            try? handle2.seek(toOffset: offset)
+            return try? handle2.read(upToCount: length)
+        })
+    else {
+        expect(false, "a bare reader opens")
+        return
+    }
+    defer { try? handle2.close() }
+
+    let spaces = NSMutableArray()
+    let spacesLock = NSLock()
+    DispatchQueue.concurrentPerform(iterations: 16) { _ in
+        // spaceInUse fills a cache the first time anybody asks, so sixteen
+        // threads arriving together all reach for it at once. This is the
+        // access the reader's own lock exists for.
+        let used = bare.spaceInUse()?.used ?? 0
+        spacesLock.lock()
+        spaces.add(used)
+        spacesLock.unlock()
+    }
+    expect(spaces.count == 16, "sixteen threads asked a bare reader for free space")
+    expect(
+        Set((spaces as? [UInt64]) ?? []).count == 1,
+        "and all got the same answer, filling its cache without treading on each other")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
