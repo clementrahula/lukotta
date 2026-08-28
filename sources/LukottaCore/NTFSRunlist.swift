@@ -55,6 +55,19 @@ public enum NTFSRunlist {
     /// - Returns: the runs, or nil when the list is malformed. Nil rather than
     ///   a partial list: half a file's extents is a file that reads as
     ///   truncated, which is worse than one that refuses to open.
+    /// The largest cluster number this reader will accept.
+    ///
+    /// Every consumer of a run multiplies its cluster number by the cluster
+    /// size to get a byte offset, and on UInt64 an overflow is a trap rather
+    /// than a wrong answer -- the extension dies instead of refusing the drive.
+    /// A runlist can encode a cluster number up to 64 bits wide, so the bound
+    /// has to be here, where the numbers are made, rather than at each of the
+    /// eleven places they are used.
+    ///
+    /// 2^48 clusters is 1 exabyte at 4 KB, which is far past any volume and far
+    /// short of overflowing when multiplied by any cluster size NTFS permits.
+    public static let maximumCluster: UInt64 = 1 << 48
+
     public static func decode(_ data: Data, at offset: Int, limit: Int) -> [Run]? {
         let base = data.startIndex
         guard offset >= 0, limit <= data.count, offset < limit else { return nil }
@@ -85,7 +98,11 @@ public enum NTFSRunlist {
                 count |= UInt64(data[base + cursor + i]) << (8 * UInt64(i))
             }
             cursor += lengthBytes
-            guard count > 0 else { return nil }
+            guard count > 0, count < maximumCluster else { return nil }
+            // The file's own extent has to stay inside the same bound: a run
+            // starting low and running for 2^63 clusters overflows just as
+            // surely as one starting high.
+            guard logical < maximumCluster, logical + count <= maximumCluster else { return nil }
 
             if offsetBytes == 0 {
                 // A hole. It advances the file's position and points nowhere.
@@ -108,8 +125,10 @@ public enum NTFSRunlist {
             cursor += offsetBytes
 
             let physical = previousPhysical + delta
-            // A run before the start of the disk is not a run.
-            guard physical >= 0 else { return nil }
+            // A run before the start of the disk is not a run, and one past
+            // what any volume can hold would overflow when it is turned into a
+            // byte offset -- which traps rather than answering wrongly.
+            guard physical >= 0, UInt64(physical) < maximumCluster else { return nil }
             previousPhysical = physical
 
             runs.append(

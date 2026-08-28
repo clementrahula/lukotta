@@ -2594,6 +2594,31 @@ group("aRunlistSaysWhereAFileActuallyIs") {
     expect(NTFSRunlist.decode(Data([0x21]), at: 5, limit: 1) == nil, "an offset past the limit")
     expect(NTFSRunlist.decode(Data([0x21]), at: -1, limit: 1) == nil, "and one before the start")
 
+    // A cluster number so large that turning it into a byte offset overflows.
+    // Every consumer multiplies by the cluster size, and on UInt64 an overflow
+    // is a trap rather than a wrong answer: the extension dies instead of
+    // refusing the drive. The bound belongs here, where the numbers are made,
+    // rather than at each of the eleven places they are used.
+    //
+    // 0x48 says eight bytes of offset and eight of length, so this names a
+    // cluster near 2^63 -- reachable from a corrupt disk, and fatal downstream.
+    let vast = Data(
+        [0x88, 0x01, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0x00])
+    expect(
+        NTFSRunlist.decode(vast, at: 0, limit: vast.count) == nil,
+        "a cluster number that would overflow a byte offset is refused rather than trapped on")
+
+    // And a run that starts low but is long enough to reach the same place.
+    let endless = Data([0x18, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0x04, 0x00])
+    expect(
+        NTFSRunlist.decode(endless, at: 0, limit: endless.count) == nil,
+        "and so is a run long enough to run off the end of the arithmetic")
+
+    // The bound is far past any real volume: an exabyte at four kilobytes.
+    expect(
+        NTFSRunlist.maximumCluster == 1 << 48,
+        "the bound is 2^48 clusters, which no volume reaches and no multiplication overflows")
+
     // What the caller checks before trusting the file.
     expect(NTFSRunlist.clusterCount(holes) == 16, "the runs cover sixteen clusters in total")
     expect(NTFSRunlist.covers(holes, clusters: 16), "which is what the attribute should claim")
