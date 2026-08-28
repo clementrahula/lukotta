@@ -2140,6 +2140,72 @@ group("bothBackingsKeepTheSamePromises") {
     }
 }
 
+group("whatComesBackFromMountingThroughTheExtension") {
+    // mount(8) reports a module that is switched off and a drive that cannot be
+    // read with the same exit status, and those two mean opposite things: one
+    // is "serve this over NFS and say nothing", the other is "this drive has a
+    // problem". So the words are read, exactly as Diagnosis reads the engine's.
+    let disabled = """
+        Module com.lukotta.v2.fs is disabled!
+        mount: Unable to invoke task
+        """
+    expect(
+        ExtensionMount.outcome(status: 1, output: disabled) == .unavailable,
+        "a module nobody has switched on means take the other route")
+    expect(
+        ExtensionMount.outcome(status: 1, output: "mount: unknown file system type")
+            == .unavailable,
+        "and so does a build with no extension in it at all")
+    expect(
+        ExtensionMount.outcome(status: 0, output: "") == .mounted,
+        "nothing said and a clean exit is a mounted volume")
+
+    let broken = "mount: /Volumes/X failed with 5\ninput/output error"
+    expect(
+        ExtensionMount.outcome(status: 1, output: broken)
+            == .failed("mount: /Volumes/X failed with 5"),
+        "a real failure keeps its first line, which is the one worth showing")
+
+    // The engine's output arrives through a pty and carries carriage returns;
+    // the same is true of anything read from a terminal-shaped pipe.
+    expect(
+        ExtensionMount.outcome(status: 1, output: "Module x is disabled!\r\n") == .unavailable,
+        "carriage returns do not stop a phrase matching")
+
+    // Every outcome except a mount falls back. A failure is not a reason to
+    // leave somebody without their drive: the route that has always worked is
+    // still there, and it is the one they had yesterday.
+    expect(ExtensionMount.shouldFallBack(.unavailable), "an unavailable module falls back")
+    expect(ExtensionMount.shouldFallBack(.failed("x")), "so does a failure")
+    expect(!ExtensionMount.shouldFallBack(.mounted), "and a mounted volume does not")
+
+    // A switch that is off is the ordinary state of every Mac where nobody has
+    // turned the extension on. Logging it on every mount would bury the
+    // failures that mean something.
+    expect(!ExtensionMount.isWorthLogging(.unavailable), "a switched-off module is not logged")
+    expect(!ExtensionMount.isWorthLogging(.mounted), "nor is success")
+    expect(ExtensionMount.isWorthLogging(.failed("x")), "a real failure is")
+
+    // The command is arguments and never a shell line: a volume name is
+    // somebody else's text, and a drive called "; rm -rf ~" is a filename.
+    let command = ExtensionMount.command(
+        device: "/dev/disk4s2", mountPoint: "/Users/someone/Volumes/; rm -rf ~", readOnly: false)
+    expect(command.first == "/sbin/mount", "it runs mount")
+    expect(command.contains("-F"), "with -F, which is what names an FSKit module")
+    expect(command.contains("lukottafs"), "and the filesystem the module registers under")
+    expect(
+        command.last == "/Users/someone/Volumes/; rm -rf ~",
+        "and a hostile name arrives as one argument rather than as a command")
+    expect(
+        !ExtensionMount.command(device: "/dev/disk4s2", mountPoint: "/x", readOnly: false)
+            .contains("ro"),
+        "a writable mount does not ask for read-only")
+    expect(
+        ExtensionMount.command(device: "/dev/disk4s2", mountPoint: "/x", readOnly: true)
+            .contains("ro"),
+        "and a read-only one does")
+}
+
 group("aDriveOpensWhetherOrNotTheExtensionIsThere") {
     // The extension cannot be turned on by this application: isEnabled is
     // readonly, FSClient only reads, and FSKit has no equivalent of the request
