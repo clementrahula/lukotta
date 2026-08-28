@@ -141,7 +141,7 @@ public enum NTFSNewRecord {
     // MARK: - The attributes
 
     /// `$STANDARD_INFORMATION`: when, and what kind of file.
-    static func standardInformationValue(_ plan: Plan) -> Data {
+    public static func standardInformationValue(_ plan: Plan) -> Data {
         var value = [UInt8](repeating: 0, count: 72)
         writeTimes(&value, 0, plan.times)
         write32(&value, 32, plan.dosFlags)
@@ -161,7 +161,7 @@ public enum NTFSNewRecord {
     /// out of the index without opening any record. They are a cache, and like
     /// any cache they can go stale -- which is why a reader that wants the
     /// truth asks the record.
-    static func fileNameValue(_ plan: Plan, units: [UInt16]) -> Data {
+    public static func fileNameValue(_ plan: Plan, units: [UInt16]) -> Data {
         var value = [UInt8](repeating: 0, count: 66 + units.count * 2)
         write64(&value, 0, reference(plan.parent, sequence: plan.parentSequence))
         writeTimes(&value, 8, plan.times)
