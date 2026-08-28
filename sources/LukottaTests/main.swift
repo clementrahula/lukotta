@@ -4796,6 +4796,110 @@ group("theRealVolumeReportsItsOwnState") {
     }
 }
 
+group("aWriteGoesOnlyWhereTheFileAlreadyIs") {
+    // The smallest write worth anything, and the only one safe to do first:
+    // bytes into clusters the file already owns. Nothing about the volume's
+    // structure changes -- no cluster allocated, no bitmap bit set, no record
+    // created, no index touched.
+    //
+    // What it refuses matters more than what it does. Every refusal here is a
+    // write that would land on somebody else's data.
+    let cluster = 4096
+    let runs = [
+        NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 100, clusterCount: 1),
+        NTFSRunlist.Run(logicalCluster: 1, physicalCluster: 900, clusterCount: 1),
+    ]
+    let size: UInt64 = 8192
+
+    guard
+        let one = NTFSFileWrite.pieces(
+            offset: 0, length: 100, runs: runs, bytesPerCluster: cluster, size: size)
+    else {
+        expect(false, "a write inside the first run is placed")
+        return
+    }
+    expect(one.count == 1, "in one piece")
+    expect(one[0].diskOffset == 100 * UInt64(cluster), "at the run's own place on the disk")
+    expect(one[0].range == 0..<100, "covering the bytes asked for")
+
+    // Across two runs, which is what a fragmented file needs.
+    guard
+        let across = NTFSFileWrite.pieces(
+            offset: 4000, length: 200, runs: runs, bytesPerCluster: cluster, size: size)
+    else {
+        expect(false, "a write crossing two runs is placed")
+        return
+    }
+    expect(across.count == 2, "as two writes, because the file is in two places")
+    expect(across[0].diskOffset == 100 * UInt64(cluster) + 4000, "the first where the run is")
+    expect(across[0].range == 0..<96, "stopping at the end of that run")
+    expect(across[1].diskOffset == 900 * UInt64(cluster), "the second where the next run is")
+    expect(across[1].range == 96..<200, "carrying on from where the first stopped")
+    expect(
+        across.map(\.range.count).reduce(0, +) == 200,
+        "and together covering exactly what was asked for, with nothing dropped")
+
+    // Past the end of the file means growing it, which means allocating.
+    expect(
+        NTFSFileWrite.pieces(
+            offset: 8000, length: 1000, runs: runs, bytesPerCluster: cluster, size: size) == nil,
+        "a write running past the end of the file is refused, not clamped -- a clamped write "
+            + "stores less than was asked for and the caller cannot tell which bytes landed")
+    expect(
+        NTFSFileWrite.pieces(
+            offset: 9000, length: 10, runs: runs, bytesPerCluster: cluster, size: size) == nil,
+        "and one starting past the end is refused")
+    expect(
+        NTFSFileWrite.pieces(
+            offset: 0, length: 0, runs: runs, bytesPerCluster: cluster, size: size) == nil,
+        "a write of nothing is refused rather than answered with no pieces")
+
+    // A hole has no clusters behind it. Writing into one means allocating.
+    let sparse = [
+        NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 100, clusterCount: 1),
+        NTFSRunlist.Run(logicalCluster: 1, physicalCluster: nil, clusterCount: 1),
+    ]
+    expect(
+        NTFSFileWrite.pieces(
+            offset: 4096, length: 10, runs: sparse, bytesPerCluster: cluster, size: size) == nil,
+        "a write into a hole is refused rather than dropped silently")
+    expect(
+        NTFSFileWrite.pieces(
+            offset: 0, length: 10, runs: sparse, bytesPerCluster: cluster, size: size) != nil,
+        "while the run before it still writes")
+
+    // The gates that come before any of that.
+    let plain = NTFSAttribute.Header(
+        type: 0x80, length: 96, isResident: false, valueOffset: 0, valueLength: 0,
+        runlistOffset: 64, startingCluster: 0, lastCluster: 1, dataSize: size)
+    expect(
+        NTFSFileWrite.isAllowed(attribute: plain, volumeIsClean: true, volumeIsWritable: true),
+        "an ordinary file on a clean volume may be written")
+    expect(
+        !NTFSFileWrite.isAllowed(attribute: plain, volumeIsClean: false, volumeIsWritable: true),
+        "a dirty volume is never written to, whatever the file is")
+    expect(
+        !NTFSFileWrite.isAllowed(attribute: plain, volumeIsClean: true, volumeIsWritable: false),
+        "nor is a read-only one")
+
+    let compressed = NTFSAttribute.Header(
+        type: 0x80, length: 96, isResident: false, valueOffset: 0, valueLength: 0,
+        runlistOffset: 64, startingCluster: 0, lastCluster: 1, dataSize: size,
+        isCompressed: true)
+    expect(
+        !NTFSFileWrite.isAllowed(
+            attribute: compressed, volumeIsClean: true, volumeIsWritable: true),
+        "a compressed file is not written -- plaintext into its clusters destroys it")
+
+    let resident = NTFSAttribute.Header(
+        type: 0x80, length: 96, isResident: true, valueOffset: 24, valueLength: 50,
+        runlistOffset: 0, startingCluster: 0, lastCluster: 0, dataSize: 50)
+    expect(
+        !NTFSFileWrite.isAllowed(attribute: resident, volumeIsClean: true, volumeIsWritable: true),
+        "and a small file living inside its record is not, because that is a metadata write")
+    expect(!NTFSFileWrite.residentIsWritable(resident), "which is said plainly rather than implied")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
