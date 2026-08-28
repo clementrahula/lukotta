@@ -5538,6 +5538,91 @@ group("theAllocatorWorksOnARealVolumesFreeSpace") {
     }
 }
 
+group("aRunlistPackedBackDecodesToWhatItWas") {
+    // Writing a file's extents means packing them back into NTFS's form. The
+    // strongest check is that decode and encode are inverses, because decode is
+    // already checked against a real volume -- so anything encode gets wrong
+    // shows up as a round trip that does not match.
+
+    @MainActor func roundTrips(_ runs: [NTFSRunlist.Run], _ what: String) {
+        guard let packed = NTFSRunlist.encode(runs) else {
+            expect(false, "\(what) encodes")
+            return
+        }
+        guard let back = NTFSRunlist.decode(packed, at: 0, limit: packed.count) else {
+            expect(false, "\(what) decodes again")
+            return
+        }
+        expect(back == runs, "\(what) survives being packed and unpacked")
+    }
+
+    roundTrips(
+        [NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 100, clusterCount: 8)],
+        "one ordinary run")
+    roundTrips(
+        [
+            NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 100, clusterCount: 8),
+            NTFSRunlist.Run(logicalCluster: 8, physicalCluster: 200, clusterCount: 4),
+        ], "two runs going forwards")
+    // The case the signed delta exists for.
+    roundTrips(
+        [
+            NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 5000, clusterCount: 4),
+            NTFSRunlist.Run(logicalCluster: 4, physicalCluster: 100, clusterCount: 4),
+        ], "a second run sitting before the first on the disk")
+    roundTrips(
+        [
+            NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 100, clusterCount: 4),
+            NTFSRunlist.Run(logicalCluster: 4, physicalCluster: nil, clusterCount: 8),
+            NTFSRunlist.Run(logicalCluster: 12, physicalCluster: 200, clusterCount: 4),
+        ], "a sparse file with a hole in the middle")
+    roundTrips(
+        [NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 1_000_000, clusterCount: 500_000)],
+        "a run needing several bytes for each number")
+
+    // The width rule. 127 fits a signed byte and 128 does not, because 0x80
+    // read back is -128 -- a run that would land at the wrong end of the disk.
+    expect(NTFSRunlist.signedWidth(127) == 1, "127 fits one signed byte")
+    expect(NTFSRunlist.signedWidth(128) == 2, "128 needs two, because 0x80 alone reads as -128")
+    expect(NTFSRunlist.signedWidth(-128) == 1, "while -128 does fit one")
+    expect(NTFSRunlist.signedWidth(-129) == 2, "and -129 does not")
+    expect(NTFSRunlist.unsignedWidth(255) == 1, "an unsigned 255 fits one byte")
+    expect(NTFSRunlist.unsignedWidth(256) == 2, "and 256 needs two")
+
+    // Exactly at the boundary, both ways, through a real round trip.
+    roundTrips(
+        [
+            NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 0, clusterCount: 1),
+            NTFSRunlist.Run(logicalCluster: 1, physicalCluster: 128, clusterCount: 1),
+        ], "a delta of exactly 128")
+    roundTrips(
+        [
+            NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 200, clusterCount: 1),
+            NTFSRunlist.Run(logicalCluster: 1, physicalCluster: 72, clusterCount: 1),
+        ], "a delta of exactly -128")
+
+    // The terminator, without which a reader carries on into whatever follows
+    // the runlist in the record.
+    guard
+        let packed = NTFSRunlist.encode(
+            [NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 1, clusterCount: 1)])
+    else {
+        expect(false, "a run encodes")
+        return
+    }
+    expect(packed.last == 0, "an encoded runlist ends with its terminator")
+    expect(
+        NTFSRunlist.encode([])?.first == 0,
+        "and an empty one is just a terminator rather than nothing at all")
+
+    // What cannot be encoded.
+    expect(
+        NTFSRunlist.encode([
+            NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 1, clusterCount: 0)
+        ]) == nil,
+        "a run of no clusters is refused")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged

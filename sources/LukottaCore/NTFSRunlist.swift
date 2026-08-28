@@ -140,6 +140,89 @@ public enum NTFSRunlist {
         return nil
     }
 
+    /// Pack runs back into the form NTFS stores them in.
+    ///
+    /// The inverse of `decode`. Each entry is a header byte giving the width of
+    /// the two numbers after it, the length in clusters, and the run's first
+    /// cluster *relative to the previous run's* -- signed, because a later run
+    /// may sit before an earlier one.
+    ///
+    /// **The widths must be the smallest that fit, and signed.** A delta of
+    /// -1 needs one byte holding 0xFF; written in two bytes as 0xFFFF it is
+    /// still -1 and still correct, but written as the *unsigned* 0xFF in one
+    /// byte by a reader that forgot the sign, it is +255. So the width is
+    /// chosen by asking how many bytes the signed value needs, not the
+    /// magnitude.
+    ///
+    /// - Returns: nil for anything that cannot be encoded: a run of no
+    ///   clusters, a hole where NTFS would need a length it cannot express, or
+    ///   a delta too large for eight bytes.
+    public static func encode(_ runs: [Run]) -> Data? {
+        guard !runs.isEmpty else { return Data([0]) }
+        var out = [UInt8]()
+        var previousPhysical: Int64 = 0
+
+        for run in runs {
+            guard run.clusterCount > 0 else { return nil }
+            let lengthBytes = unsignedWidth(run.clusterCount)
+            guard lengthBytes >= 1, lengthBytes <= 8 else { return nil }
+
+            var offsetBytes = 0
+            var delta: Int64 = 0
+            if let physical = run.physicalCluster {
+                guard physical <= UInt64(Int64.max) else { return nil }
+                let (d, overflow) = Int64(physical).subtractingReportingOverflow(previousPhysical)
+                guard !overflow else { return nil }
+                delta = d
+                offsetBytes = signedWidth(delta)
+                guard offsetBytes >= 1, offsetBytes <= 8 else { return nil }
+                previousPhysical = Int64(physical)
+            }
+            // A hole is a length with no offset at all, which is what the zero
+            // high nibble means.
+
+            out.append(UInt8((offsetBytes << 4) | lengthBytes))
+            for i in 0..<lengthBytes {
+                out.append(UInt8((run.clusterCount >> (8 * UInt64(i))) & 0xFF))
+            }
+            for i in 0..<offsetBytes {
+                out.append(UInt8(truncatingIfNeeded: delta >> (8 * Int64(i))))
+            }
+        }
+        // The terminator, without which a reader keeps going into whatever
+        // follows the runlist in the record.
+        out.append(0)
+        return Data(out)
+    }
+
+    /// How many bytes an unsigned value needs.
+    public static func unsignedWidth(_ value: UInt64) -> Int {
+        var width = 1
+        var remaining = value >> 8
+        while remaining > 0 {
+            width += 1
+            remaining >>= 8
+        }
+        return width
+    }
+
+    /// How many bytes a signed value needs, keeping its sign.
+    ///
+    /// One more than the magnitude needs, when the top bit of the last byte
+    /// would otherwise be taken as the sign. 127 fits one byte; 128 does not,
+    /// because 0x80 read back is -128.
+    public static func signedWidth(_ value: Int64) -> Int {
+        var width = 1
+        while width < 8 {
+            let bits = Int64(8 * width - 1)
+            let low = -(Int64(1) << bits)
+            let high = (Int64(1) << bits) - 1
+            if value >= low && value <= high { return width }
+            width += 1
+        }
+        return 8
+    }
+
     /// How many clusters the runs cover, holes included.
     public static func clusterCount(_ runs: [Run]) -> UInt64 {
         runs.reduce(0) { $0 + $1.clusterCount }
