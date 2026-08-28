@@ -5638,12 +5638,13 @@ group("theDirtyFlagIsSetWhileWeHoldTheVolume") {
     else { return }
     defer { try? handle.close() }
     let lock = NSLock()
-    guard let reader = NTFSVolumeReader(read: { offset, length in
-        lock.lock()
-        defer { lock.unlock() }
-        try? handle.seek(toOffset: offset)
-        return try? handle.read(upToCount: length)
-    }), let volume = reader.record(NTFSVolumeState.volumeRecord)
+    guard
+        let reader = NTFSVolumeReader(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        }), let volume = reader.record(NTFSVolumeState.volumeRecord)
     else {
         expect(false, "$Volume reads")
         return
@@ -5679,7 +5680,8 @@ group("theDirtyFlagIsSetWhileWeHoldTheVolume") {
     expect(readBack.label == before.label, "the label is untouched")
     expect(readBack.majorVersion == before.majorVersion, "and the version")
     expect(readBack.minorVersion == before.minorVersion, "both halves of it")
-    expect(readBack.wantsCheck == before.wantsCheck, "and a chkdsk Windows scheduled stays scheduled")
+    expect(
+        readBack.wantsCheck == before.wantsCheck, "and a chkdsk Windows scheduled stays scheduled")
     expect(
         readBack.wantsLogFileUpdate == before.wantsLogFileUpdate,
         "and a log update it wants stays wanted -- those are Windows's bits, not ours")
@@ -5734,10 +5736,12 @@ group("theDirtyFlagIsSetWhileWeHoldTheVolume") {
         withoutSignature(restored) == withoutSignature(marked),
         "and comes back exactly as it went down")
     expect(
-        restored[restored.startIndex + markedHeader.fixupOffset] != volume.data[
-            volume.data.startIndex + markedHeader.fixupOffset]
-            || restored[restored.startIndex + markedHeader.fixupOffset + 1] != volume.data[
-                volume.data.startIndex + markedHeader.fixupOffset + 1],
+        restored[restored.startIndex + markedHeader.fixupOffset]
+            != volume.data[
+                volume.data.startIndex + markedHeader.fixupOffset]
+            || restored[restored.startIndex + markedHeader.fixupOffset + 1]
+                != volume.data[
+                    volume.data.startIndex + markedHeader.fixupOffset + 1],
         "with a signature that moved on, so a torn write cannot pass for a whole one")
 
     // This volume has no other flags set, so checking that they survive proves
@@ -5864,12 +5868,13 @@ group("aVolumeWithUnfinishedWorkIsNotWrittenTo") {
     else { return }
     defer { try? handle.close() }
     let lock = NSLock()
-    guard let reader = NTFSVolumeReader(read: { offset, length in
-        lock.lock()
-        defer { lock.unlock() }
-        try? handle.seek(toOffset: offset)
-        return try? handle.read(upToCount: length)
-    }), let page = reader.contents(ofFile: NTFSJournal.record, offset: 0, length: 4096)
+    guard
+        let reader = NTFSVolumeReader(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        }), let page = reader.contents(ofFile: NTFSJournal.record, offset: 0, length: 4096)
     else {
         expect(false, "the journal's first page reads")
         return
