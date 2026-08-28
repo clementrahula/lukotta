@@ -2667,6 +2667,130 @@ group("theRunlistDecoderAgreesWithARealVolume") {
         "and every run lies inside the volume rather than past the end of it")
 }
 
+group("aFileIsShownUnderTheNameSomebodyGaveIt") {
+    // A record usually carries more than one $FILE_NAME: NTFS keeps a short
+    // DOS name beside the real one, PROGRA~1 beside Program Files. A reader
+    // that takes the first it finds shows eight-character names for half a
+    // disk, and nothing about that looks like an error.
+
+    func fileName(_ text: String, parent: UInt64 = 5, namespace: UInt8 = 1) -> Data {
+        var v = [UInt8](repeating: 0, count: 66)
+        for i in 0..<8 { v[i] = UInt8((parent >> (8 * UInt64(i))) & 0xFF) }
+        let units = Array(text.utf16)
+        v[64] = UInt8(units.count)
+        v[65] = namespace
+        for u in units { v.append(UInt8(u & 0xFF)); v.append(UInt8(u >> 8)) }
+        return Data(v)
+    }
+
+    guard let ordinary = NTFSFileName.read(fileName("Report.txt")) else {
+        expect(false, "an ordinary name is read")
+        return
+    }
+    expect(ordinary.name == "Report.txt", "and comes back as it was written")
+    expect(ordinary.namespace == .win32, "in the namespace somebody typed it in")
+    expect(ordinary.parentRecord == 5, "with the directory holding it -- 5 is the root")
+
+    // The length is in UTF-16 characters, not bytes. Read as bytes a name comes
+    // out doubled and truncated.
+    expect(
+        NTFSFileName.read(fileName("A"))?.name == "A",
+        "a one-character name is one character, not two bytes of one")
+    expect(
+        NTFSFileName.read(fileName("Ölandsvägen"))?.name == "Ölandsvägen",
+        "and a name outside ASCII survives, which byte-length reading would cut in half")
+    expect(
+        NTFSFileName.read(fileName("写真フォルダ"))?.name == "写真フォルダ",
+        "including one with no ASCII in it at all")
+    // Outside the basic plane, where one character is two UTF-16 units.
+    expect(
+        NTFSFileName.read(fileName("holiday 🏖.jpg"))?.name == "holiday 🏖.jpg",
+        "and a surrogate pair is one character rather than two broken ones")
+
+    // The parent is a file reference: 48 bits of record and 16 of sequence.
+    // Taking all 64 gives a directory number no volume has.
+    let withSequence = fileName("x.txt", parent: 5 | (0x0007 << 48))
+    expect(
+        NTFSFileName.read(withSequence)?.parentRecord == 5,
+        "the sequence number in the top sixteen bits is not part of the record number")
+
+    // Choosing between them.
+    let names = [
+        NTFSFileName.Name(parentRecord: 5, namespace: .dos, name: "PROGRA~1"),
+        NTFSFileName.Name(parentRecord: 5, namespace: .win32, name: "Program Files"),
+    ]
+    expect(
+        NTFSFileName.preferred(names)?.name == "Program Files",
+        "the name somebody typed is shown, not the short one NTFS keeps beside it")
+    expect(
+        NTFSFileName.preferred(names.reversed())?.name == "Program Files",
+        "whichever order the record happens to hold them in")
+    expect(
+        NTFSFileName.preferred([names[0]])?.name == "PROGRA~1",
+        "and a record with only a short name still has a name to show")
+    expect(NTFSFileName.preferred([]) == nil, "a record with no name at all has none")
+
+    // Refusals.
+    expect(NTFSFileName.read(Data(count: 20)) == nil, "an attribute too short to hold a name")
+    expect(NTFSFileName.read(fileName("")) == nil, "a name of no characters")
+    expect(
+        NTFSFileName.read(fileName("a/b")) == nil,
+        "a name with a separator in it, which would let a listing escape its directory")
+    // A length claiming more characters than the attribute holds.
+    var truncated = [UInt8](fileName("Report.txt"))
+    truncated[64] = 200
+    expect(
+        NTFSFileName.read(Data(truncated)) == nil,
+        "and a length claiming more than is there, rather than reading past the attribute")
+}
+
+group("theNameReaderAgreesWithARealVolume") {
+    // $MFT is called "$MFT" on every NTFS volume ever made, and it lives in the
+    // root directory, which is record 5. Both are knowable without reading the
+    // disk, which is what makes this a check rather than a parse.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path),
+        let boot = try? handle.read(upToCount: 4096),
+        let geometry = NTFSGeometry.read(boot)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+    try? handle.seek(toOffset: geometry.mftByteOffset)
+    guard let raw = try? handle.read(upToCount: geometry.bytesPerFileRecord),
+        let header = NTFSRecord.header(raw, expectedLength: geometry.bytesPerFileRecord),
+        let record = NTFSRecord.applyFixup(
+            raw, header: header, sectorSize: geometry.bytesPerSector)
+    else {
+        expect(false, "the first record reads and repairs")
+        return
+    }
+
+    let names = NTFSAttribute.all(
+        in: record, startingAt: header.firstAttributeOffset, usedLength: header.usedLength
+    )
+    .filter { $0.kind == .fileName && $0.isResident }
+    .compactMap { attribute -> NTFSFileName.Name? in
+        let start = record.startIndex + attribute.valueOffset
+        guard start + attribute.valueLength <= record.endIndex else { return nil }
+        return NTFSFileName.read(record[start..<start + attribute.valueLength])
+    }
+
+    expect(!names.isEmpty, "the record carries a name")
+    guard let shown = NTFSFileName.preferred(names) else { return }
+    expect(
+        shown.name == "$MFT", "and it is $MFT, which is what that record is called on any volume")
+    expect(
+        shown.parentRecord == 5,
+        "in record 5, which is the root directory on every NTFS volume ever made")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
