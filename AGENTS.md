@@ -679,3 +679,51 @@ them force-unmounts:
 - A mount point left behind after a mount vanishes is an ordinary directory on
   the startup disk, and a copy still running writes into it and succeeds. Those
   are reported and never swept; only empty ones are removed.
+
+## What "No Route to Host" Over vmnet Actually Meant
+
+The engine can serve its NFS over gvproxy, a user-space TCP/IP stack, or over
+vmnet, the framework macOS itself uses. vmnet is much faster -- two and a half
+times the write throughput, measured -- and every attempt to use it ended at
+
+    macOS: Checking NFS server on 172.27.1.2:2049...
+    macOS: Error connecting to port 2049: No route to host (os error 65)
+
+with a guest that was plainly fine: `eth0` up, addressed, routed, the drive
+mounted, `nfsd` listening, and the host answering its pings in 0.13 ms. Four
+separate causes, each of which fully explained the symptom on its own.
+
+**The build script.** `vmnet-helper` ships signed with
+`com.apple.security.virtualization`. Re-signing it without one takes that away,
+after which it fails with `VMNET_FAILURE` and prints nothing at all, which the
+engine reports as a config it could not parse. `init-rootfs` had no entitlements
+either, so any rebuild of the Linux image died with `start vm error: Invalid
+argument (errno 22)` -- which reads like a bad argument, not a missing
+entitlement, and cost three attempts at `sudo` once already.
+
+**The MAC address.** vmnet assigns one and reports it; the engine gave the guest
+a random one instead. Broadcast reaches a guest wearing the wrong address, so
+ARP was answered and the host learned a neighbour it could never talk to.
+
+**Announcing.** vmnet forwards to a guest it has heard from. A guest that only
+listens is never heard from, and its ARP entry on the host stays `(incomplete)`.
+
+**Stale helpers, which is the one that wasted the day.** A `vmnet-helper` left
+running from an earlier attempt keeps its `bridge100` and its subnet. The next
+run picks the same subnet, macOS routes to the *old* bridge, and everything
+above is invisible behind a failure that looks identical to the three real ones.
+Kill every `anylinuxfs mount` and `libexec/vmnet-helper` and wait for the bridge
+to disappear between runs, or measure nothing.
+
+Useful ground truth, in order of how much it settles:
+
+- `/proc/net/snmp` in the guest. `Icmp: InEchos` and `Tcp: InSegs` say whether
+  the frames arrived at all, which `ping` on the host cannot.
+- `ifconfig bridge100` -- the address cache says which MAC vmnet has learned on
+  `vmenet0`, and `arp -an` says which one the host is sending to. They must
+  agree, and comparing them across two different runs proves nothing.
+- A socket client of your own on the helper's socket, answering ARP and ICMP in
+  thirty lines of Python, takes libkrun out of the picture entirely. That is
+  what showed the frames were arriving from vmnet and being lost afterwards.
+- `tcpdump` is not available: `/dev/bpf*` is root-only here, and asking for a
+  password is not allowed.
