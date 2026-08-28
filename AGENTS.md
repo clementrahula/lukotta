@@ -727,3 +727,37 @@ Useful ground truth, in order of how much it settles:
   what showed the frames were arriving from vmnet and being lost afterwards.
 - `tcpdump` is not available: `/dev/bpf*` is root-only here, and asking for a
   password is not allowed.
+
+## Nothing Installs Over the Release or the Pre-Release
+
+`build-app.sh` installs a `dev` or `unbranded` build and refuses the other two.
+`LUKOTTA_INSTALL=1` does not reach past that refusal and there is deliberately
+no way to ask, because the copies of `Lukotta.app` and `Lukotta Beta.app` on
+this Mac are the ones being used, and the only thing allowed to replace either
+is the updater inside it. That updater is the thing being shipped: installing
+over the top proves nothing about it and destroys the version there was to
+update from. It has happened to a beta in the middle of testing that very
+update.
+
+`dev` and `unbranded` still install, and cannot reach the other two: dev is
+"Lukotta Dev" under `com.lukotta.dev`, unbranded is "Drive Unlocker" under
+`com.example.driveunlocker`, and each has its own daemon and its own saved
+passphrases. An earlier version of this guard blocked those as well, which
+broke the plain `./build-app.sh` that CONTRIBUTING describes and protected
+nothing.
+
+A first install of a release or a pre-release comes from the disk image or the
+Homebrew cask that `scripts/release.sh` produces:
+
+    brew install --cask clementrahula/tap/lukotta
+    brew install --cask clementrahula/tap/lukotta@beta
+
+That is what everybody else installs, so it is the thing worth testing.
+`scripts/update-test.sh` is the one script permitted to replace an installed
+app, because driving Sparkle against the installed pre-release *is* the update
+mechanism, and it keeps a copy of what was there and puts it back.
+
+`check-coverage.sh` enforces all of this: the refusal in `build-app.sh`, the
+`LUKOTTA_INSTALL=0` that `release.sh` passes as well, that `release.sh` writes
+nothing into `/Applications`, and that no other script copies over an installed
+app.

@@ -562,22 +562,31 @@ if [ -n "$NOTARY_ARGS" ] && [ "$SIGN_ID" != "-" ]; then
 fi
 printf 'Built %s\n' "$OUT"
 
-# Only a dev build is ever installed over what is on the Mac.
+# The release and the pre-release on this Mac are never installed over.
 #
-# A release and a pre-release on this machine are the copies somebody is
-# actually using, and the only thing allowed to replace either is the update
-# mechanism inside it: that is the path being shipped, and installing over the
-# top proves nothing about it while destroying the version that was there to
-# update from. It has happened, to a beta, in the middle of testing the very
-# update it was meant to receive.
+# They are the copies somebody is actually using, and the only thing allowed to
+# replace either is the update mechanism inside it. That mechanism is the thing
+# being shipped: installing over the top proves nothing about it, and destroys
+# the version there was to update from. It has happened to a beta in the middle
+# of testing the very update it was meant to receive.
 #
 # Not a flag with a default. LUKOTTA_INSTALL=1 does not reach past this, and
-# there is deliberately no way to ask for it: the dev channel is where work is
-# tried out, and there is nothing a branded build installed by hand can show
-# that the dev build cannot.
-if [ "${LUKOTTA_INSTALL:-1}" = "1" ] && [ "${LUKOTTA_BRANDING:-unbranded}" != "dev" ]; then
-  printf 'Not installing %s: only a dev build replaces what is on this Mac.\n' "$APP_NAME"
-  printf 'The installed release and pre-release are updated from inside them.\n'
+# there is deliberately no way to ask. A first install of either channel comes
+# from the disk image or the Homebrew cask that scripts/release.sh produces,
+# which is what everybody else installs and therefore the thing worth testing.
+#
+# dev and unbranded still install. Neither can reach the other two: dev is
+# "Lukotta Dev" under com.lukotta.dev, unbranded is "Drive Unlocker" under
+# com.example.driveunlocker, and each has its own daemon and its own saved
+# passphrases. Blocking those as well broke the plain ./build-app.sh that
+# CONTRIBUTING describes, and protected nothing.
+case "${LUKOTTA_BRANDING:-unbranded}" in
+  official | beta) MAY_INSTALL=false ;;
+  *) MAY_INSTALL=true ;;
+esac
+if [ "${LUKOTTA_INSTALL:-1}" = "1" ] && [ "$MAY_INSTALL" = "false" ]; then
+  printf 'Not installing %s: the release and the pre-release on this Mac are\n' "$APP_NAME"
+  printf 'replaced only by the updater inside them. Built at %s\n' "$OUT"
 elif [ "${LUKOTTA_INSTALL:-1}" = "1" ]; then
   APPS="/Applications/$APP_NAME.app"
   rm -rf "$APPS"

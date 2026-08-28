@@ -295,17 +295,18 @@ if approved[version] != digest:
 print(f"  {len(list(notes.glob('*.md')))} translations, English approved as {digest}")
 ORDER
 
-printf '\nOnly a dev build installs itself…\n'
+printf '\nThe release and the pre-release are never installed over…\n'
 # A release or a pre-release installed over the top of the copy on this Mac
 # destroys the version somebody would have updated *from*, and proves nothing
 # about the update path that is the thing being shipped. It happened to a beta
 # in the middle of testing that very update. The guard is in build-app.sh; this
 # is here so it cannot quietly come back.
-if /usr/bin/grep -qE 'LUKOTTA_INSTALL:-1.*=.*"1".*LUKOTTA_BRANDING:-unbranded.*!=.*"dev"' \
-    "$HERE/build-app.sh"; then
-  printf '  build-app.sh installs only a dev build\n'
+if /usr/bin/grep -qE '^\s*official \| beta\) MAY_INSTALL=false' "$HERE/build-app.sh" \
+    && /usr/bin/grep -qE 'LUKOTTA_INSTALL:-1.*=.*"1".*MAY_INSTALL.*=.*"false"' \
+      "$HERE/build-app.sh"; then
+  printf '  build-app.sh never installs over the release or the pre-release\n'
 else
-  printf '  MISSING  build-app.sh must refuse to install anything but a dev build\n'
+  printf '  MISSING  build-app.sh must refuse to install an official or beta build\n'
   FAIL=1
 fi
 if /usr/bin/grep -qE '^\s*(rm -rf|/usr/bin/ditto).*"?/Applications/' "$HERE/scripts/release.sh"; then
