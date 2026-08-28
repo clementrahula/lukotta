@@ -286,19 +286,22 @@ extension LukottaVolume: FSVolume.Operations {
         guard let directory = directory as? Item else {
             return reply(verifier, fsError(POSIXError.EINVAL))
         }
+        // The cookie is where the last call stopped, and the arithmetic for it
+        // lives in LukottaCore where it can be checked: one off in either
+        // direction makes a file vanish from the folder or appear twice, and
+        // neither reads as an error. Names come back sorted, so the same index
+        // means the same entry on the next call.
         let entries = store.children(of: directory.handle)
-        // The cookie is where the last call stopped. Names are sorted, so the
-        // same index means the same entry on the next call.
-        var index = Int(cookie.rawValue)
-        while index < entries.count {
+        for step in DirectoryEnumeration.steps(entries.map(\.name), from: cookie.rawValue) {
+            let index = Int(step.nextCookie) - 1
+            guard index >= 0, index < entries.count else { break }
             let entry = entries[index]
-            index += 1
             guard let facts = store.attributes(of: entry.handle) else { continue }
             let packed = packer.packEntry(
                 name: FSFileName(string: entry.name),
                 itemType: facts.isDirectory ? .directory : .file,
                 itemID: FSItem.Identifier(rawValue: facts.id) ?? .invalid,
-                nextCookie: FSDirectoryCookie(rawValue: UInt64(index)),
+                nextCookie: FSDirectoryCookie(rawValue: step.nextCookie),
                 attributes: attributes == nil ? nil : self.attributes(of: entry.handle))
             // Packing stops when the buffer the kernel gave us is full. What is
             // left is asked for again with the cookie we just handed over.

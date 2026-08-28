@@ -4093,6 +4093,77 @@ group("compressedAndEncryptedFilesAreRefusedNotGuessedAt") {
         "the attribute list has a type of its own, so its presence is detectable")
 }
 
+group("aFolderIsHandedOverABufferfulAtATime") {
+    // FSKit does not ask for a directory in one call. It gives the module a
+    // buffer, the module packs entries until it is full, and each entry carries
+    // the place to resume from. One off in either direction is not an error
+    // anybody sees: too high and a file vanishes from the folder, too low and
+    // one appears twice.
+    let files = ["alpha", "bravo", "charlie", "delta"]
+
+    let all = DirectoryEnumeration.steps(files, from: 0)
+    expect(all.count == 4, "starting from nothing hands over the whole folder")
+    expect(all.map(\.entry) == files, "in the order it was given")
+    expect(
+        all[0].nextCookie == 1,
+        "and the first entry's cookie names the second, not itself -- naming itself would "
+            + "show it twice for ever")
+    expect(all[3].nextCookie == 4, "the last entry's cookie is past the end, which ends the list")
+
+    // Resuming, which is the case a full buffer creates.
+    let rest = DirectoryEnumeration.steps(files, from: 2)
+    expect(rest.map(\.entry) == ["charlie", "delta"], "resuming from two gives the rest")
+    expect(rest[0].nextCookie == 3, "with cookies that continue rather than restart")
+
+    // The ends.
+    expect(
+        DirectoryEnumeration.steps(files, from: 4).isEmpty,
+        "a cookie at the end hands over nothing, which is how a listing finishes")
+    expect(
+        DirectoryEnumeration.steps(files, from: 99).isEmpty,
+        "and one past the end does the same rather than reading off the array")
+    expect(
+        DirectoryEnumeration.steps(files, from: UInt64.max).isEmpty,
+        "including one that could not be an index at all")
+    expect(
+        DirectoryEnumeration.steps([String](), from: 0).isEmpty,
+        "an empty folder hands over nothing")
+
+    expect(DirectoryEnumeration.isFinished(files, cookie: 4), "four entries end at cookie four")
+    expect(!DirectoryEnumeration.isFinished(files, cookie: 3), "and not before")
+    expect(
+        DirectoryEnumeration.isFinished(files, cookie: UInt64.max),
+        "a cookie that cannot be an index is finished rather than trusted")
+
+    // What happens when the buffer fills. The kernel resumes from the last
+    // entry that fitted, so the one that did not is asked for again -- handing
+    // back the cookie of the entry that failed would skip it.
+    let fitted = Array(all.prefix(2))
+    expect(
+        DirectoryEnumeration.resumeCookie(after: fitted, from: 0) == 2,
+        "after two entries fitted, the next call starts at the third")
+    expect(
+        DirectoryEnumeration.steps(files, from: 2).first?.entry == "charlie",
+        "which is the entry that did not fit, so it is not skipped")
+    expect(
+        DirectoryEnumeration.resumeCookie(after: [DirectoryEnumeration.Step<String>](), from: 7)
+            == 7,
+        "and a call where nothing fitted at all resumes where it began rather than moving on")
+
+    // Whole folder, one buffer at a time, losing and repeating nothing.
+    var seen: [String] = []
+    var cookie: UInt64 = 0
+    var rounds = 0
+    while !DirectoryEnumeration.isFinished(files, cookie: cookie), rounds < 10 {
+        rounds += 1
+        // A buffer that fits exactly one entry, which is the hardest case.
+        let batch = Array(DirectoryEnumeration.steps(files, from: cookie).prefix(1))
+        seen += batch.map(\.entry)
+        cookie = DirectoryEnumeration.resumeCookie(after: batch, from: cookie)
+    }
+    expect(seen == files, "a folder read one entry at a time comes back whole, in order, once")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
