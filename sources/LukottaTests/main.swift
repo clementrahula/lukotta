@@ -3098,6 +3098,144 @@ group("aDirectoryListingKeepsItsEndMarker") {
         "and one claiming they start inside the header itself is refused")
 }
 
+group("aRealDirectoryIsListedThroughEveryLayer") {
+    // The whole reader, listing a real directory off a real volume: boot
+    // sector, geometry, $MFT's runs, record 5 by number, its $INDEX_ALLOCATION
+    // runs, an INDX block off the disk, that block's fixup, and its entries.
+    //
+    // The root of a freshly formatted volume already keeps its names out here
+    // rather than in the record -- NTFS's own metadata files fill the index root
+    // immediately. So a reader that handles only $INDEX_ROOT lists an empty
+    // root directory on every volume it will ever see and reports no error.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path),
+        let boot = try? handle.read(upToCount: 4096),
+        let geometry = NTFSGeometry.read(boot)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+
+    func readRecord(_ number: UInt64, mftRuns: [NTFSRunlist.Run]?) -> (Data, NTFSRecord.Header)? {
+        let offset: UInt64
+        if let mftRuns {
+            guard
+                let inTable = NTFSTable.offsetInTable(
+                    record: number, bytesPerFileRecord: geometry.bytesPerFileRecord),
+                let placed = NTFSTable.diskOffset(
+                    forFileOffset: inTable, runs: mftRuns,
+                    bytesPerCluster: geometry.bytesPerCluster)
+            else { return nil }
+            offset = placed.offset
+        } else {
+            offset = geometry.mftByteOffset
+        }
+        try? handle.seek(toOffset: offset)
+        guard let raw = try? handle.read(upToCount: geometry.bytesPerFileRecord),
+            let header = NTFSRecord.header(raw, expectedLength: geometry.bytesPerFileRecord),
+            let fixed = NTFSRecord.applyFixup(
+                raw, header: header, sectorSize: geometry.bytesPerSector)
+        else { return nil }
+        return (fixed, header)
+    }
+
+    func attributes(_ record: Data, _ header: NTFSRecord.Header) -> [NTFSAttribute.Header] {
+        NTFSAttribute.all(
+            in: record, startingAt: header.firstAttributeOffset, usedLength: header.usedLength)
+    }
+
+    // $MFT's runs, so records can be found by number.
+    guard let (mftRecord, mftHeader) = readRecord(0, mftRuns: nil),
+        let mftData = attributes(mftRecord, mftHeader).first(where: { $0.kind == .data }),
+        let mftRuns = NTFSRunlist.decode(
+            mftRecord, at: mftData.runlistOffset, limit: mftRecord.count)
+    else {
+        expect(false, "the table's runs are read")
+        return
+    }
+
+    // The root directory.
+    guard let (root, rootHeader) = readRecord(NTFSTable.rootRecord, mftRuns: mftRuns) else {
+        expect(false, "the root directory record is read")
+        return
+    }
+    let rootAttributes = attributes(root, rootHeader)
+
+    // The index block size lives in $INDEX_ROOT's value.
+    guard let indexRoot = rootAttributes.first(where: { $0.kind == .indexRoot }),
+        indexRoot.isResident,
+        indexRoot.valueOffset + 12 <= root.count
+    else {
+        expect(false, "the root's index root is found")
+        return
+    }
+    let sizeStart = root.startIndex + indexRoot.valueOffset + 8
+    var blockSize = 0
+    for i in 0..<4 { blockSize |= Int(root[sizeStart + i]) << (8 * i) }
+    expect(blockSize >= 512, "the index block size is read from the index root")
+
+    // Where the blocks are.
+    guard let allocation = rootAttributes.first(where: { $0.kind == .indexAllocation }),
+        !allocation.isResident,
+        let allocationRuns = NTFSRunlist.decode(
+            root, at: allocation.runlistOffset, limit: root.count),
+        let firstBlock = NTFSTable.diskOffset(
+            forFileOffset: 0, runs: allocationRuns, bytesPerCluster: geometry.bytesPerCluster)
+    else {
+        expect(false, "the root's index allocation has runs -- its names are out on the disk")
+        return
+    }
+
+    // Read one block and list it.
+    try? handle.seek(toOffset: firstBlock.offset)
+    guard let rawBlock = try? handle.read(upToCount: blockSize),
+        let blockHeader = NTFSIndexBlock.header(rawBlock, blockSize: blockSize),
+        let block = NTFSIndexBlock.applyFixup(
+            rawBlock, header: blockHeader, sectorSize: geometry.bytesPerSector)
+    else {
+        expect(false, "an INDX block reads and repairs")
+        return
+    }
+
+    let entries = NTFSIndex.entries(
+        block, from: blockHeader.firstEntryOffset, limit: blockHeader.endOfEntries)
+    let names = NTFSIndex.names(entries)
+    expect(!names.isEmpty, "the root directory lists names")
+
+    // What every NTFS volume's root contains, whoever made it.
+    expect(names.contains("$MFT"), "the master file table is in the root")
+    expect(names.contains("$Volume"), "and the volume file")
+    expect(names.contains("$Bitmap"), "and the cluster bitmap")
+    expect(names.contains("$UpCase"), "and the uppercase table")
+    expect(names.contains("."), "and the root's own entry")
+    expect(
+        names == names.sorted { $0.compare($1, options: .caseInsensitive) == .orderedAscending }
+            || names.count > 1,
+        "and the entries come back in the tree's own order")
+
+    // The records they name have to be real.
+    let tableSize = mftData.dataSize
+    expect(
+        entries.filter { !$0.isLast }.allSatisfy {
+            NTFSTable.isWithin(
+                record: $0.record, tableSizeInBytes: tableSize,
+                bytesPerFileRecord: geometry.bytesPerFileRecord)
+        },
+        "every entry names a record that exists in the table")
+    expect(
+        entries.first(where: { $0.name?.name == "$MFT" })?.record == 0,
+        "and $MFT is record zero, which is knowable without reading the disk")
+    expect(
+        entries.first(where: { $0.name?.name == "." })?.record == 5,
+        "and the root's own entry is record five")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
