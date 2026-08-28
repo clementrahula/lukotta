@@ -59,6 +59,58 @@ public enum NTFSVolumeState {
         public var isSafeToWrite: Bool { !isDirty && !wantsCheck }
     }
 
+    /// The bit Windows sets while a volume is mounted for writing.
+    public static let dirtyFlag: UInt16 = 0x0001
+
+    /// Set or clear the dirty flag in a `$Volume` record.
+    ///
+    /// **This is how a filesystem without a journal stays honest.** v2 cannot
+    /// write `$LogFile`, so it cannot promise that a change touching two
+    /// structures survives a power cut. What it can do is say so on the volume
+    /// itself: set dirty before the first write, clear it only after everything
+    /// is on the disk and the volume is being let go. A session that ends any
+    /// other way -- a crash, a cable pulled, a panic -- leaves the flag set, and
+    /// the next Windows mount runs chkdsk and repairs it.
+    ///
+    /// That is not a workaround. It is what every NTFS implementation outside
+    /// Microsoft does, ntfs-3g and the kernel's ntfs3 included, which is to say
+    /// it is what v1 already does through its engine. The flag is the contract:
+    /// *somebody who does not journal has touched this, check it before you
+    /// trust it.*
+    ///
+    /// The record is returned with the fixup still applied, the same way it was
+    /// read. Writing it back means `NTFSRecord.removeFixup` with a fresh
+    /// signature first -- a record written without that is a file that vanishes.
+    ///
+    /// - Returns: nil when the record has no resident `$VOLUME_INFORMATION`, or
+    ///   when the flags do not sit inside it. Refusing beats writing two bytes
+    ///   at a guessed offset in record 3.
+    public static func setting(
+        dirty: Bool, in record: Data, attributes: [NTFSAttribute.Header]
+    ) -> Data? {
+        guard let information = attributes.first(where: { $0.kind == .volumeInformation }),
+            information.isResident, information.valueLength >= 12
+        else { return nil }
+        // Copied out, so the offsets below are from the start of the record
+        // whether or not it arrived as a slice of something larger.
+        var bytes = [UInt8](record)
+        let flagsAt = information.valueOffset + 10
+        guard flagsAt + 1 < bytes.count else { return nil }
+
+        var flags = UInt16(bytes[flagsAt]) | (UInt16(bytes[flagsAt + 1]) << 8)
+        // Only this bit. The others are Windows's -- a pending chkdsk, a
+        // pending log update -- and clearing one of those would be telling
+        // Windows that work it scheduled has been done.
+        if dirty {
+            flags |= dirtyFlag
+        } else {
+            flags &= ~dirtyFlag
+        }
+        bytes[flagsAt] = UInt8(flags & 0xFF)
+        bytes[flagsAt + 1] = UInt8(flags >> 8)
+        return Data(bytes)
+    }
+
     /// Read `$VOLUME_INFORMATION` and `$VOLUME_NAME` out of a record.
     public static func read(
         record: Data, attributes: [NTFSAttribute.Header]

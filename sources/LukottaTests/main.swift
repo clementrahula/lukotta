@@ -5623,6 +5623,192 @@ group("aRunlistPackedBackDecodesToWhatItWas") {
         "a run of no clusters is refused")
 }
 
+group("theDirtyFlagIsSetWhileWeHoldTheVolume") {
+    // Without a journal, the only honest thing to do is say so on the volume:
+    // dirty before the first write, clear only on a clean release. A session
+    // that ends any other way leaves it set, and Windows runs chkdsk. That is
+    // what ntfs-3g and ntfs3 do, which is what v1 already does.
+
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    guard let reader = NTFSVolumeReader(read: { offset, length in
+        lock.lock()
+        defer { lock.unlock() }
+        try? handle.seek(toOffset: offset)
+        return try? handle.read(upToCount: length)
+    }), let volume = reader.record(NTFSVolumeState.volumeRecord)
+    else {
+        expect(false, "$Volume reads")
+        return
+    }
+    let attributes = reader.attributes(of: volume)
+    guard let before = NTFSVolumeState.read(record: volume.data, attributes: attributes) else {
+        expect(false, "and parses")
+        return
+    }
+    expect(!before.isDirty, "this volume is clean, which is why it was safe to write to")
+
+    guard let marked = NTFSVolumeState.setting(dirty: true, in: volume.data, attributes: attributes)
+    else {
+        expect(false, "the flag can be set")
+        return
+    }
+    expect(marked.count == volume.data.count, "setting it changes the length not at all")
+    guard let markedHeader = NTFSRecord.header(marked, expectedLength: marked.count),
+        let readBack = NTFSVolumeState.read(
+            record: marked,
+            attributes: NTFSAttribute.all(
+                in: marked, startingAt: markedHeader.firstAttributeOffset,
+                usedLength: markedHeader.usedLength))
+    else {
+        expect(false, "and the marked record still parses")
+        return
+    }
+    expect(readBack.isDirty, "and it reads back dirty")
+    expect(!readBack.isSafeToWrite, "so the volume refuses further writes while marked")
+
+    // Every other thing $Volume says must survive untouched. A flag setter that
+    // rewrites the label or the version is a flag setter that loses data.
+    expect(readBack.label == before.label, "the label is untouched")
+    expect(readBack.majorVersion == before.majorVersion, "and the version")
+    expect(readBack.minorVersion == before.minorVersion, "both halves of it")
+    expect(readBack.wantsCheck == before.wantsCheck, "and a chkdsk Windows scheduled stays scheduled")
+    expect(
+        readBack.wantsLogFileUpdate == before.wantsLogFileUpdate,
+        "and a log update it wants stays wanted -- those are Windows's bits, not ours")
+
+    // Exactly two bytes differ, and they are the flags.
+    let differing = zip([UInt8](volume.data), [UInt8](marked)).enumerated()
+        .filter { $0.element.0 != $0.element.1 }.map { $0.offset }
+    expect(differing.count == 1, "one byte differs, since the flag is in the low half")
+    expect(
+        differing.allSatisfy { $0 >= 42 && $0 < volume.data.count },
+        "and it is inside the record, not in its header")
+
+    // And clearing it puts the volume back exactly as found.
+    guard let cleared = NTFSVolumeState.setting(dirty: false, in: marked, attributes: attributes)
+    else {
+        expect(false, "the flag can be cleared")
+        return
+    }
+    expect(cleared == volume.data, "clearing restores the record byte for byte")
+
+    // Clearing an already-clean volume is a no-op, so a release that runs twice
+    // cannot damage anything.
+    expect(
+        NTFSVolumeState.setting(dirty: false, in: volume.data, attributes: attributes)
+            == volume.data,
+        "and clearing a clean volume changes nothing at all")
+    expect(
+        NTFSVolumeState.setting(dirty: true, in: marked, attributes: attributes) == marked,
+        "as does marking one already marked")
+
+    // The record still survives being written: fixup off with a fresh
+    // signature, fixup back on, and the bytes are the ones we meant.
+    let signature = NTFSRecord.nextSignature(
+        after: UInt16(volume.data[volume.data.startIndex + volume.header.fixupOffset])
+            | (UInt16(volume.data[volume.data.startIndex + volume.header.fixupOffset + 1]) << 8))
+    guard
+        let onDisk = NTFSRecord.removeFixup(marked, header: markedHeader, signature: signature),
+        let restored = NTFSRecord.applyFixup(onDisk, header: markedHeader)
+    else {
+        expect(false, "the marked record survives a write and a read")
+        return
+    }
+    // Everything but the fixup signature itself, which is meant to change on
+    // every write -- that is how a torn write is told from a whole one.
+    func withoutSignature(_ data: Data) -> Data {
+        var bytes = [UInt8](data)
+        bytes[markedHeader.fixupOffset] = 0
+        bytes[markedHeader.fixupOffset + 1] = 0
+        return Data(bytes)
+    }
+    expect(
+        withoutSignature(restored) == withoutSignature(marked),
+        "and comes back exactly as it went down")
+    expect(
+        restored[restored.startIndex + markedHeader.fixupOffset] != volume.data[
+            volume.data.startIndex + markedHeader.fixupOffset]
+            || restored[restored.startIndex + markedHeader.fixupOffset + 1] != volume.data[
+                volume.data.startIndex + markedHeader.fixupOffset + 1],
+        "with a signature that moved on, so a torn write cannot pass for a whole one")
+
+    // This volume has no other flags set, so checking that they survive proves
+    // nothing on it -- both a setter that touches one bit and one that
+    // overwrites the word leave it identical. So set them, and check against a
+    // volume that has something to lose. The offset is worked out here the same
+    // way the setter works it out; what is being checked is what happens to the
+    // bits, not where they are, which the wrong-offset mutation covers.
+    guard let information = attributes.first(where: { $0.kind == .volumeInformation })
+    else {
+        expect(false, "$VOLUME_INFORMATION is there")
+        return
+    }
+    var pending = [UInt8](volume.data)
+    pending[information.valueOffset + 10] = 0x06  // chkdsk wanted, log update wanted
+    pending[information.valueOffset + 11] = 0x00
+    guard
+        let pendingMarked = NTFSVolumeState.setting(
+            dirty: true, in: Data(pending), attributes: attributes),
+        let pendingHeader = NTFSRecord.header(pendingMarked, expectedLength: pendingMarked.count),
+        let pendingInfo = NTFSVolumeState.read(
+            record: pendingMarked,
+            attributes: NTFSAttribute.all(
+                in: pendingMarked, startingAt: pendingHeader.firstAttributeOffset,
+                usedLength: pendingHeader.usedLength))
+    else {
+        expect(false, "a volume with work Windows scheduled can still be marked")
+        return
+    }
+    expect(pendingInfo.isDirty, "marking it sets our bit")
+    expect(
+        pendingInfo.wantsCheck && pendingInfo.wantsLogFileUpdate,
+        "and leaves Windows's alone -- clearing those would be telling Windows work it "
+            + "scheduled has been done, and the check it wanted would never run")
+    expect(
+        NTFSVolumeState.setting(dirty: false, in: pendingMarked, attributes: attributes)
+            == Data(pending),
+        "and releasing it clears ours and only ours")
+
+    // A record with no volume information is refused rather than written at a
+    // guessed offset. Record 3 is not somewhere to write two hopeful bytes.
+    expect(
+        NTFSVolumeState.setting(dirty: true, in: volume.data, attributes: []) == nil,
+        "no $VOLUME_INFORMATION means no write")
+    expect(
+        NTFSVolumeState.setting(dirty: true, in: Data(), attributes: attributes) == nil,
+        "and neither does an empty record")
+    expect(
+        NTFSVolumeState.setting(
+            dirty: true, in: volume.data.prefix(64), attributes: attributes) == nil,
+        "nor one cut off before the flags")
+
+    // An attribute that says its value is shorter than the flags it is supposed
+    // to contain is refused too. Believing it means writing two bytes past the
+    // end of somebody else's attribute.
+    let stunted = NTFSAttribute.Header(
+        type: information.type, length: information.length, isResident: true,
+        valueOffset: information.valueOffset, valueLength: 8, runlistOffset: 0,
+        startingCluster: 0, lastCluster: 0, dataSize: 8)
+    expect(
+        NTFSVolumeState.setting(dirty: true, in: volume.data, attributes: [stunted]) == nil,
+        "a $VOLUME_INFORMATION too short to hold flags is not written to")
+    let outboard = NTFSAttribute.Header(
+        type: information.type, length: information.length, isResident: false,
+        valueOffset: 0, valueLength: 0, runlistOffset: information.valueOffset,
+        startingCluster: 0, lastCluster: 0, dataSize: 12)
+    expect(
+        NTFSVolumeState.setting(dirty: true, in: volume.data, attributes: [outboard]) == nil,
+        "and neither is one whose value is out on the disk rather than in the record")
+}
+
 group("aVolumeWithUnfinishedWorkIsNotWrittenTo") {
     // NTFS writes down what it is about to do before doing it, so that a change
     // touching two structures can be finished or undone after a power cut. v2
