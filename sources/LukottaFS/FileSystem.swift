@@ -23,18 +23,52 @@ extension LukottaFileSystem: FSUnaryFileSystemOperations {
 
     /// Whether this module can serve what it has been handed.
     ///
-    /// It says yes to anything. A module that probes properly reads the
-    /// resource and recognises a signature; this one is not deciding whether a
-    /// disk is ours, it is standing in for one while the cost of the framework
-    /// around it is measured. The real module reuses BootSector.swift here.
+    /// A block device is read and identified, by the same `BootSector.identify`
+    /// the rest of the application uses to decide what a drive holds. One
+    /// reader, so the extension and the drive list cannot disagree about what a
+    /// disk is -- and they would, eventually, if this had a signature table of
+    /// its own.
+    ///
+    /// What it claims is deliberately narrow. Saying "usable" for a filesystem
+    /// macOS already handles would take that volume away from the driver that
+    /// handles it properly, which is a worse outcome than not appearing at all.
+    /// So: NTFS and the two encrypted containers, and nothing else.
+    ///
+    /// Anything that is not a block device -- the memory case, which is what a
+    /// measurement mounts -- is accepted, because there is nothing to read and
+    /// nothing to be wrong about.
     func probeResource(
         resource: FSResource,
         replyHandler reply: @escaping (FSProbeResult?, (any Error)?) -> Void
     ) {
-        reply(
-            .usable(
-                name: "Lukotta", containerID: FSContainerIdentifier(uuid: UUID())),
-            nil)
+        guard let device = resource as? FSBlockDeviceResource else {
+            return reply(
+                .usable(name: "Lukotta", containerID: FSContainerIdentifier(uuid: UUID())), nil)
+        }
+
+        var sector = [UInt8](repeating: 0, count: 4096)
+        let read: Int
+        do {
+            read = try sector.withUnsafeMutableBytes {
+                try device.read(into: $0, startingAt: 0, length: $0.count)
+            }
+        } catch {
+            // Unreadable is not "not ours": it is a question that could not be
+            // asked, and claiming the volume on a failed read would take it
+            // from whatever can read it.
+            return reply(.notRecognized, nil)
+        }
+
+        let format = BootSector.identify(Data(sector.prefix(max(0, read))))
+        switch format {
+        case .ntfs, .bitlocker, .luks:
+            reply(
+                .usable(
+                    name: format.name, containerID: FSContainerIdentifier(uuid: UUID())),
+                nil)
+        default:
+            reply(.notRecognized, nil)
+        }
     }
 
     func loadResource(
