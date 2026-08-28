@@ -5623,6 +5623,81 @@ group("aRunlistPackedBackDecodesToWhatItWas") {
         "a run of no clusters is refused")
 }
 
+group("aVolumeWithUnfinishedWorkIsNotWrittenTo") {
+    // NTFS writes down what it is about to do before doing it, so that a change
+    // touching two structures can be finished or undone after a power cut. v2
+    // cannot journal, so it may only make changes that touch exactly one thing
+    // -- and it must refuse a volume that has unfinished work in it, because
+    // that work is Windows's or chkdsk's to complete.
+
+    let empty = Data([UInt8](repeating: 0xFF, count: 4096))
+    expect(NTFSJournal.state(firstPage: empty) == .empty, "an unused journal is empty")
+    expect(NTFSJournal.mayWrite(.empty), "and a volume with one may be written")
+
+    var restart = [UInt8](repeating: 0, count: 4096)
+    for (i, b) in Array("RSTR".utf8).enumerated() { restart[i] = b }
+    expect(NTFSJournal.state(firstPage: Data(restart)) == .inUse, "a restart page means in use")
+    expect(
+        !NTFSJournal.mayWrite(.inUse),
+        "and a journal in use is not written over -- it may hold a transaction nothing has "
+            + "finished, and writing over it leaves a volume no implementation can reason about")
+
+    var records = [UInt8](repeating: 0, count: 4096)
+    for (i, b) in Array("RCRD".utf8).enumerated() { records[i] = b }
+    expect(NTFSJournal.state(firstPage: Data(records)) == .inUse, "so does a page of records")
+
+    expect(
+        NTFSJournal.state(firstPage: Data(repeating: 0x41, count: 4096)) == .unrecognised,
+        "anything else is unrecognised")
+    expect(
+        !NTFSJournal.mayWrite(.unrecognised),
+        "and unrecognised is refused, because not understanding something is not the same as "
+            + "knowing it is harmless")
+    expect(NTFSJournal.state(firstPage: Data()) == .unrecognised, "as is nothing at all")
+
+    // Four bytes of 0xFF could be a coincidence in a page holding something
+    // else, so a generous prefix is checked rather than a signature-length one.
+    var almost = [UInt8](repeating: 0xFF, count: 4096)
+    almost[100] = 0x00
+    expect(
+        NTFSJournal.state(firstPage: Data(almost)) != .empty,
+        "a page that is nearly all 0xFF but not quite is not called empty")
+
+    // Reading is always allowed. A drive with unfinished work in its journal is
+    // exactly the drive somebody wants their files off.
+    expect(NTFSJournal.mayRead(.inUse), "a volume with work outstanding is still readable")
+    expect(NTFSJournal.mayRead(.unrecognised), "and so is one we do not understand")
+
+    // The real volume.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    guard let reader = NTFSVolumeReader(read: { offset, length in
+        lock.lock()
+        defer { lock.unlock() }
+        try? handle.seek(toOffset: offset)
+        return try? handle.read(upToCount: length)
+    }), let page = reader.contents(ofFile: NTFSJournal.record, offset: 0, length: 4096)
+    else {
+        expect(false, "the journal's first page reads")
+        return
+    }
+    expect(page.count == 4096, "a page of it comes back")
+    expect(
+        NTFSJournal.state(firstPage: page) == .empty,
+        "and this volume's journal is empty -- it was formatted and never mounted read-write "
+            + "by Windows, which is what makes it safe to write to")
+    expect(
+        reader.size(ofFile: NTFSJournal.record) ?? 0 > 1_000_000,
+        "the journal is megabytes, as NTFS sizes it")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged

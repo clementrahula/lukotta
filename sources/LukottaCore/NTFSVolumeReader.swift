@@ -123,7 +123,17 @@ public final class NTFSVolumeReader: @unchecked Sendable {
     /// say is treated as unsafe: not knowing is not the same as knowing it is
     /// clean, and the expensive mistake here is only in one direction.
     public var isSafeToWrite: Bool {
-        state()?.isSafeToWrite ?? false
+        guard state()?.isSafeToWrite == true else { return false }
+        // And the journal. A volume whose $LogFile holds unfinished work has a
+        // change half made in it, and finishing or undoing that is what a mount
+        // is meant to do. v2 cannot, so it must not write over the evidence --
+        // that leaves a volume no implementation can reason about, chkdsk
+        // included.
+        guard let page = contents(ofFile: NTFSJournal.record, offset: 0, length: 4096) else {
+            // No journal readable is not "no journal outstanding".
+            return false
+        }
+        return NTFSJournal.mayWrite(NTFSJournal.state(firstPage: page))
     }
 
     // MARK: - Records
