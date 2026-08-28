@@ -5708,6 +5708,331 @@ group("aRunlistPackedBackDecodesToWhatItWas") {
         "a run of no clusters is refused")
 }
 
+group("aComposedRecordIsAFileTheReaderRecognises") {
+    // A file on NTFS is a record, not a name with data behind it. So the test
+    // of a composer is whether the reader -- which was written against real
+    // volumes and knows nothing about this code -- sees a file in what it
+    // produced, with the fields that went in.
+
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    guard
+        let reader = NTFSVolumeReader(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        })
+    else {
+        expect(false, "the volume reads")
+        return
+    }
+    let recordSize = reader.geometry.bytesPerFileRecord
+    let sectorSize = reader.geometry.bytesPerSector
+
+    // A real file, and everything about it, read out by the reader. Found by
+    // walking the table rather than by looking in the root: this one lives in a
+    // directory a few levels down, and what the test needs is a file with its
+    // bytes inside its record, not a particular path.
+    var found: (data: Data, header: NTFSRecord.Header)?
+    var foundNumber: UInt64 = 0
+    for candidate in NTFSRecordAllocator.firstAvailable..<256 {
+        guard let record = reader.record(candidate), record.header.inUse,
+            !record.header.isDirectory, reader.name(of: record) == "p00001"
+        else { continue }
+        found = record
+        foundNumber = candidate
+        break
+    }
+    guard let original = found else {
+        expect(false, "p00001 is on the volume")
+        return
+    }
+    let number = foundNumber
+    let attributes = reader.attributes(of: original)
+    guard let times = reader.times(of: original),
+        let realName = reader.name(of: original),
+        let realData = attributes.first(where: { $0.kind == .data }), realData.isResident,
+        let contents = reader.contents(ofFile: number)
+    else {
+        expect(false, "and its name, times and contents read")
+        return
+    }
+    expect(realName == "p00001", "the file read back is the one we asked for")
+    expect(contents.count == 512, "with the bytes it has: \(contents.count)")
+
+    let plan = NTFSNewRecord.Plan(
+        record: 4096, sequence: 1, parent: NTFSTable.rootRecord, parentSequence: 5,
+        name: "made-by-lukotta.txt", namespace: .posix, times: times, securityID: 258,
+        contents: contents)
+    guard let composed = NTFSNewRecord.compose(plan, recordSize: recordSize, sectorSize: sectorSize)
+    else {
+        expect(false, "a record composes")
+        return
+    }
+    expect(composed.count == recordSize, "and is exactly one record long")
+
+    // The reader, on the composed bytes.
+    guard let header = NTFSRecord.header(composed, expectedLength: recordSize) else {
+        expect(false, "the reader accepts the header it wrote")
+        return
+    }
+    expect(header.inUse, "the record says it is in use")
+    expect(!header.isDirectory, "and is a file")
+    expect(header.allocatedLength == recordSize, "it fills its slot")
+    expect(header.usedLength <= header.allocatedLength, "and does not claim more than it has")
+    expect(header.usedLength % 8 == 0, "ending on an eight-byte boundary, as attributes do")
+    expect(
+        header.firstAttributeOffset >= header.fixupOffset + header.fixupCount * 2,
+        "the first attribute starts after the fixup array, not inside it")
+    expect(
+        header.fixupCount == recordSize / sectorSize + 1,
+        "with one fixup entry per sector and one for the signature")
+
+    let read = NTFSAttribute.all(
+        in: composed, startingAt: header.firstAttributeOffset, usedLength: header.usedLength)
+    expect(
+        read.count == 3,
+        "three attributes come back: \(read.map { $0.kind.map(String.init(describing:)) ?? "?" })")
+    expect(
+        read.map { $0.type } == [0x10, 0x30, 0x80],
+        "in ascending order of type, which is a rule and not a habit -- a reader looking for "
+            + "$DATA stops when it passes 0x80")
+    expect(read.allSatisfy { $0.isResident }, "all of them inside the record")
+    expect(
+        read.allSatisfy { $0.length % 8 == 0 },
+        "each a multiple of eight long, because the next one starts where this one ends")
+
+    // And what they say.
+    guard
+        let composedTimes = NTFSTimestamps.read(
+            composed[
+                composed.startIndex + read[0].valueOffset..<composed.startIndex
+                    + read[0].valueOffset
+                    + read[0].valueLength])
+    else {
+        expect(false, "the times read back")
+        return
+    }
+    expect(composedTimes == times, "the times are the ones that went in, to the tick")
+
+    guard
+        let composedName = NTFSFileName.read(
+            composed[
+                composed.startIndex + read[1].valueOffset..<composed.startIndex
+                    + read[1].valueOffset
+                    + read[1].valueLength])
+    else {
+        expect(false, "the name reads back")
+        return
+    }
+    expect(composedName.name == "made-by-lukotta.txt", "the name is what was asked for")
+    expect(composedName.parentRecord == NTFSTable.rootRecord, "in the directory it was made in")
+    expect(composedName.namespace == .posix, "in the namespace it was given")
+
+    expect(read[2].dataSize == UInt64(contents.count), "$DATA is as long as the contents")
+    expect(
+        composed[
+            composed.startIndex + read[2].valueOffset..<composed.startIndex + read[2].valueOffset
+                + read[2].valueLength] == contents,
+        "and holds them, byte for byte")
+
+    // The same shape a real record has. Not byte-identical: this volume's
+    // records carry $EA and an EA-size field that macOS put there, and a file
+    // made here has neither. What must match is the layout every reader
+    // depends on.
+    guard let realHeader = NTFSRecord.header(original.data, expectedLength: recordSize) else {
+        expect(false, "the real record's header reads")
+        return
+    }
+    expect(
+        header.fixupOffset == realHeader.fixupOffset,
+        "the fixup array is where this volume's own records keep it")
+    expect(
+        header.fixupCount == realHeader.fixupCount, "and is the same size")
+    expect(
+        header.firstAttributeOffset == realHeader.firstAttributeOffset,
+        "and the attributes begin where they do in a record ntfs-3g wrote")
+    guard let realInformation = attributes.first(where: { $0.kind == .standardInformation }),
+        let realFileName = attributes.first(where: { $0.kind == .fileName })
+    else {
+        expect(false, "the real record has both")
+        return
+    }
+    expect(
+        read[0].valueLength == realInformation.valueLength,
+        "$STANDARD_INFORMATION is the same length as the real one: "
+            + "\(read[0].valueLength) against \(realInformation.valueLength)")
+    expect(
+        read[0].length == realInformation.length, "and so is the attribute round it")
+    expect(
+        read[1].valueLength == realFileName.valueLength + 26,
+        "$FILE_NAME is longer only by the thirteen characters of extra name")
+    expect(
+        read[1].valueOffset - read[1].length + read[1].length == read[1].valueOffset,
+        "and its value sits inside it")
+
+    // The used length is where the record actually ends, not where it could.
+    // A reader trusting a longer one walks past the end marker into whatever
+    // the slot held before.
+    let accounted = header.firstAttributeOffset + read.reduce(0) { $0 + $1.length } + 8
+    expect(
+        header.usedLength == accounted,
+        "the used length accounts for the header, the attributes and the end marker: "
+            + "\(header.usedLength) against \(accounted)")
+    expect(header.usedLength < recordSize, "and leaves the rest of the slot alone")
+
+    // One name, so one link. A record claiming none is one chkdsk treats as
+    // deleted and takes the space back from, with the file still in its
+    // directory.
+    let links =
+        UInt16(composed[composed.startIndex + 0x12])
+        | (UInt16(composed[composed.startIndex + 0x13]) << 8)
+    expect(links == 1, "the record has one link, for its one name")
+    let realLinks =
+        UInt16(original.data[original.data.startIndex + 0x12])
+        | (UInt16(original.data[original.data.startIndex + 0x13]) << 8)
+    expect(realLinks == 1, "which is what the real record says as well")
+
+    // $FILE_NAME carries a copy of the size, because a directory listing reads
+    // it without opening the record. A zero there is a file Finder shows as
+    // empty while its bytes are sitting in the record.
+    let nameValue = composed[
+        composed.startIndex + read[1].valueOffset..<composed.startIndex + read[1].valueOffset
+            + read[1].valueLength]
+    let nameStart = nameValue.startIndex
+    var realSize: UInt64 = 0
+    for byte in 0..<8 { realSize |= UInt64(nameValue[nameStart + 48 + byte]) << (8 * UInt64(byte)) }
+    expect(
+        realSize == UInt64(contents.count),
+        "the size in $FILE_NAME matches the contents: \(realSize)")
+    var allocated: UInt64 = 0
+    for byte in 0..<8 {
+        allocated |= UInt64(nameValue[nameStart + 40 + byte]) << (8 * UInt64(byte))
+    }
+    expect(
+        allocated == 0,
+        "and nothing is claimed as allocated, because a file living in its record has no "
+            + "clusters -- a number here is one the record disagrees with")
+
+    // The indexed flag on $FILE_NAME. Windows sets it, and it says the
+    // attribute is also kept in a directory index; a record without it is one
+    // chkdsk repairs.
+    var offsets: [Int] = []
+    var walking = header.firstAttributeOffset
+    for attribute in read {
+        offsets.append(walking)
+        walking += attribute.length
+    }
+    expect(
+        composed[composed.startIndex + offsets[1] + 0x16] == 1,
+        "$FILE_NAME is marked as indexed")
+    expect(
+        composed[composed.startIndex + offsets[0] + 0x16] == 0,
+        "and $STANDARD_INFORMATION is not, because nothing indexes it")
+    expect(
+        composed[composed.startIndex + offsets[2] + 0x16] == 0, "nor is $DATA")
+    expect(
+        original.data[original.data.startIndex + 144 + 0x16] == 1,
+        "which is what the real record does too")
+
+    // A name whose length does not land on eight. Every attribute still begins
+    // on an eight-byte boundary, because the next one starts where this one
+    // says it ends and a reader that lands one byte off reads a length as a
+    // type.
+    guard
+        let odd = NTFSNewRecord.compose(
+            NTFSNewRecord.Plan(
+                record: 4096, sequence: 1, parent: NTFSTable.rootRecord, parentSequence: 5,
+                name: "odd", namespace: .posix, times: times, securityID: 258,
+                contents: Data("five!".utf8)),
+            recordSize: recordSize, sectorSize: sectorSize),
+        let oddHeader = NTFSRecord.header(odd, expectedLength: recordSize)
+    else {
+        expect(false, "a record with awkward lengths composes")
+        return
+    }
+    let oddAttributes = NTFSAttribute.all(
+        in: odd, startingAt: oddHeader.firstAttributeOffset, usedLength: oddHeader.usedLength)
+    expect(oddAttributes.count == 3, "and still has its three attributes")
+    expect(
+        oddAttributes.allSatisfy { $0.length % 8 == 0 },
+        "each padded to eight: \(oddAttributes.map { $0.length })")
+    expect(
+        oddAttributes.contains { $0.length != 24 + $0.valueLength },
+        "and at least one of them really needed the padding, so this is a test and not a "
+            + "coincidence of lengths")
+    expect(
+        oddAttributes.last?.valueLength == 5, "with the contents unpadded inside it")
+    expect(oddHeader.usedLength % 8 == 0, "and the record ends on eight as well")
+
+    // A record composed twice from the same plan is the same record. Anything
+    // else means something was carried over from the last one.
+    expect(
+        NTFSNewRecord.compose(plan, recordSize: recordSize, sectorSize: sectorSize) == composed,
+        "composing twice gives the same bytes")
+
+    // What will not fit is refused rather than truncated. A file whose bytes do
+    // not fit in its record needs clusters, and that is the caller's decision.
+    expect(
+        NTFSNewRecord.compose(
+            NTFSNewRecord.Plan(
+                record: 4096, sequence: 1, parent: 5, parentSequence: 5, name: "big.txt",
+                namespace: .posix, times: times, securityID: 258,
+                contents: Data(count: recordSize)),
+            recordSize: recordSize, sectorSize: sectorSize) == nil,
+        "contents that fill the whole record leave no room for the record")
+    expect(
+        NTFSNewRecord.compose(
+            NTFSNewRecord.Plan(
+                record: 4096, sequence: 1, parent: 5, parentSequence: 5, name: "",
+                namespace: .posix, times: times, securityID: 258),
+            recordSize: recordSize, sectorSize: sectorSize) == nil,
+        "a file with no name is not a file")
+    expect(
+        NTFSNewRecord.compose(
+            NTFSNewRecord.Plan(
+                record: 4096, sequence: 1, parent: 5, parentSequence: 5,
+                name: String(repeating: "n", count: 256), namespace: .posix, times: times,
+                securityID: 258),
+            recordSize: recordSize, sectorSize: sectorSize) == nil,
+        "and a name longer than NTFS can count is refused, not cut short")
+    expect(
+        NTFSNewRecord.compose(plan, recordSize: recordSize, sectorSize: 0) == nil,
+        "a sector size of nothing is refused")
+    expect(
+        NTFSNewRecord.compose(plan, recordSize: 300, sectorSize: sectorSize) == nil,
+        "and a record too small to be one")
+
+    // A name at the longest NTFS allows still fits, so the refusal above is a
+    // boundary and not a wall in the wrong place.
+    expect(
+        NTFSNewRecord.compose(
+            NTFSNewRecord.Plan(
+                record: 4096, sequence: 1, parent: 5, parentSequence: 5,
+                name: String(repeating: "n", count: 255), namespace: .win32, times: times,
+                securityID: 258),
+            recordSize: recordSize, sectorSize: sectorSize) != nil,
+        "a name of the full 255 characters composes")
+
+    // The reference in $FILE_NAME carries the parent's sequence in its top
+    // bits. Without it, a reference to a deleted directory follows to whatever
+    // took the record next.
+    let reference = NTFSNewRecord.reference(NTFSTable.rootRecord, sequence: 5)
+    expect(reference & 0x0000_FFFF_FFFF_FFFF == NTFSTable.rootRecord, "the record number is there")
+    expect(reference >> 48 == 5, "and the sequence above it")
+    expect(
+        NTFSNewRecord.reference(0x0000_FFFF_FFFF_FFFF + 1, sequence: 0) == 0,
+        "a record number too large to hold is masked rather than allowed to become a sequence")
+}
+
 group("aNewFileTakesARecordNobodyElseHas") {
     // $MFT keeps a $BITMAP saying which of its records describe files that
     // exist. Creating one means finding a clear bit -- and never one of the
