@@ -197,6 +197,13 @@ public enum Mounter {
                 summary: "The engine reported success but the drive did not appear in Finder.",
                 detail: transcript)
         }
+        // Finder renames into .Trashes rather than deleting, when there is one.
+        // Without it, deleting a folder of six thousand files takes four
+        // seconds and ends in "some items had to be skipped"; with it, the same
+        // folder is one rename of about three milliseconds, and a million files
+        // is the same rename. See Trash.swift for what this writes and why that
+        // is worth an exception to leaving an opened drive alone.
+        Trash.prepare(onVolumeAt: mountPoint, readOnly: readOnly)
         return MountResult(mountPoint: mountPoint, transcript: transcript)
     }
 

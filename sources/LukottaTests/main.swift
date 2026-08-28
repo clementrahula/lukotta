@@ -1820,6 +1820,55 @@ group("aV2BuildCannotReachAnythingOfV1s") {
         "so the release cannot mistake the rewrite's scratch directories for its own")
 }
 
+group("aDriveGetsATrashSoDeletingIsARename") {
+    // Finder does not delete when somebody presses command-delete: it renames
+    // into .Trashes/<uid> at the top of the volume, which costs the same
+    // whether the folder holds one file or a million. Where it cannot, it
+    // unlinks one at a time and gives up part way with "some items had to be
+    // skipped", which is what a Lukotta drive did for its whole life: 4028 ms
+    // for six thousand files, against 2.9 ms for the rename.
+    let base = FileManager.default.temporaryDirectory
+        .appendingPathComponent("trash-check-\(UUID().uuidString)")
+    try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: base) }
+    let volume = base.path
+
+    expect(
+        Trash.prepare(onVolumeAt: volume, readOnly: false, uid: 501),
+        "a writable volume gets a trash directory")
+    var isDirectory: ObjCBool = false
+    expect(
+        FileManager.default.fileExists(
+            atPath: Trash.directory(onVolumeAt: volume, uid: 501), isDirectory: &isDirectory)
+            && isDirectory.boolValue,
+        "and it is where Finder looks for it, .Trashes/<uid>")
+
+    // Somebody else's deleted files are not ours to read.
+    let mode = (try? FileManager.default.attributesOfItem(
+        atPath: Trash.directory(onVolumeAt: volume, uid: 501))[.posixPermissions]) as? NSNumber
+    expect(mode?.int16Value == 0o700, "readable by whoever opened the drive and nobody else")
+
+    // Asked twice is the ordinary case: every mount of a drive somebody uses.
+    expect(
+        Trash.prepare(onVolumeAt: volume, readOnly: false, uid: 501),
+        "preparing one that is already there is not a failure")
+
+    // A read-only drive cannot take one, and must not be asked -- a write error
+    // in the log of every read-only mount is noise that means nothing.
+    let readOnlyVolume = base.appendingPathComponent("ro").path
+    expect(
+        !Trash.prepare(onVolumeAt: readOnlyVolume, readOnly: true, uid: 501),
+        "a read-only drive is not asked for one")
+    expect(
+        !FileManager.default.fileExists(atPath: readOnlyVolume + "/.Trashes"),
+        "and nothing is written to it")
+
+    // A volume that will not take one is the old behaviour, not a broken mount.
+    expect(
+        !Trash.prepare(onVolumeAt: "/dev/null/nowhere", readOnly: false, uid: 501),
+        "a volume that refuses one says so rather than throwing")
+}
+
 group("theEngineWorksInThisAppsOwnDirectoryAndNobodyElses") {
     // The engine as published keeps everything under ~/.anylinuxfs, which is
     // one directory for every program on the Mac that uses it: a release, a
