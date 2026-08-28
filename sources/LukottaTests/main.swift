@@ -2246,6 +2246,78 @@ group("theExtensionIsOnlyReachedWhereItCouldWork") {
     }
 }
 
+group("anUpdateMustNotTakeTheExtensionAway") {
+    // Measured on this Mac: replacing the installed application de-registers
+    // the filesystem extension completely -- the appex is still on disk with a
+    // valid signature and pluginkit reports nothing at all. lsregister -f does
+    // not bring it back on the app or on the appex; pluginkit -a does.
+    //
+    // It matters more here than it would elsewhere, because the module has to
+    // be switched on by hand once and the application cannot switch it on. An
+    // update that removes it leaves somebody with a drive that will not open
+    // until they find a switch nobody told them about.
+
+    // A build with no extension does nothing at all. That is every channel but
+    // v2, so it is the case that runs on almost every Mac.
+    let plain = FileManager.default.temporaryDirectory
+        .appendingPathComponent("plain-\(UUID().uuidString).app")
+    try? FileManager.default.createDirectory(
+        at: plain.appendingPathComponent("Contents/PlugIns"), withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: plain) }
+    if let bundle = Bundle(url: plain) {
+        expect(
+            ExtensionRegistration.appex(in: bundle) == nil,
+            "a build with no extension has none to find")
+        expect(
+            ExtensionRegistration.repairIfMissing(identifier: "com.example.none", in: bundle)
+                == .noExtension,
+            "and repairs nothing, without asking the system anything")
+    }
+
+    // One that carries an extension knows where it is.
+    let carrying = FileManager.default.temporaryDirectory
+        .appendingPathComponent("carrying-\(UUID().uuidString).app")
+    try? FileManager.default.createDirectory(
+        at: carrying.appendingPathComponent("Contents/PlugIns"), withIntermediateDirectories: true)
+    try? FileManager.default.createDirectory(
+        at: carrying.appendingPathComponent("Contents/Extensions/LukottaFS.appex"),
+        withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: carrying) }
+    if let bundle = Bundle(url: carrying) {
+        expect(
+            ExtensionRegistration.appex(in: bundle)?.lastPathComponent == "LukottaFS.appex",
+            "and one that carries an extension finds it beside its plug-ins")
+    }
+
+    // A module macOS already knows about is left alone. This is the whole of
+    // the safety: registering one that is already registered issues a new
+    // extension UUID, and doing that four times in one evening reset the
+    // owner's System Settings switch under them every time. A repair that ran
+    // unconditionally at launch would do that to everybody, for ever.
+    expect(
+        ExtensionRegistration.isRegistered("com.apple.fskit.msdos"),
+        "a module the system knows about reads as registered")
+    expect(
+        !ExtensionRegistration.isRegistered("com.example.definitely.not.installed"),
+        "and one it does not know about reads as missing")
+    if let bundle = Bundle(url: carrying) {
+        expect(
+            ExtensionRegistration.repairIfMissing(
+                identifier: "com.apple.fskit.msdos", in: bundle) == .alreadyRegistered,
+            "so an extension that is already registered is never registered again")
+    }
+
+    // Doing nothing is what happens at every launch on every Mac where nothing
+    // has gone wrong. A line each time would bury the one launch where
+    // something did.
+    expect(
+        !ExtensionRegistration.isWorthLogging(.alreadyRegistered),
+        "the ordinary case is not logged")
+    expect(!ExtensionRegistration.isWorthLogging(.noExtension), "nor is a build without one")
+    expect(ExtensionRegistration.isWorthLogging(.repaired), "a repair is")
+    expect(ExtensionRegistration.isWorthLogging(.failed), "and so is one that did not work")
+}
+
 group("aDriveGetsATrashSoDeletingIsARename") {
     // Finder does not delete when somebody presses command-delete: it renames
     // into .Trashes/<uid> at the top of the volume, which costs the same
