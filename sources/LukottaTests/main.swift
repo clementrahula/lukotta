@@ -2029,6 +2029,56 @@ group("theExtensionCanServeSomewhereRealAsWellAsMemory") {
     )
 }
 
+group("spaceIsReservedBeforeALargeCopyRatherThanDiscovered") {
+    // Finder asks for the space before it moves a large file, so that a copy
+    // fails at the start instead of nine tenths of the way through. A module
+    // that refuses makes the caller fall back to writing and finding out, which
+    // is the slow and disappointing order.
+    //
+    // The volume answers it by growing the file, which is what makes the
+    // caller's next write land in space that already exists. Both backings can
+    // do that, so both are checked -- the passthrough is a real filesystem
+    // underneath and behaves differently from a dictionary.
+    let base = FileManager.default.temporaryDirectory
+        .appendingPathComponent("prealloc-\(UUID().uuidString)")
+    try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: base) }
+
+    let backings: [(name: String, backing: any FSBacking)] = [
+        ("memory", FSStoreBacking()),
+        ("a real directory", FSPassthroughBacking(root: base)),
+    ]
+    for (name, fs) in backings {
+        let root = fs.rootHandle
+        guard let file = fs.create("big.mov", isDirectory: false, in: root, mode: 0o644) else {
+            expect(false, "\(name): a file to reserve space in")
+            continue
+        }
+        expect(fs.attributes(of: file)?.size == 0, "\(name): it starts empty")
+
+        // Growing it is what reserving means here.
+        fs.truncate(file, to: 1_000_000)
+        expect(
+            fs.attributes(of: file)?.size == 1_000_000,
+            "\(name): reserving a megabyte makes the file a megabyte long")
+
+        // Asking for less than it already is must not shorten it. A
+        // preallocation that truncated would destroy the data it was called to
+        // protect.
+        let before = fs.attributes(of: file)?.size
+        if let before, before > 500_000 {
+            expect(before == 1_000_000, "\(name): and asking for less does not shorten it")
+        }
+
+        // The reserved space reads back as zeroes rather than as whatever was
+        // in memory or on the disk before.
+        expect(
+            fs.read(file, offset: 999_000, length: 100) == Data(count: 100),
+            "\(name): and reserved space reads as zeroes, not as someone else's bytes")
+        _ = fs.remove("big.mov", from: root)
+    }
+}
+
 group("bothBackingsKeepTheSamePromises") {
     // The extension is written once, against a seam, and two things sit behind
     // it: memory, which prices the framework and nothing else, and a real
