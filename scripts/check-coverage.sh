@@ -314,6 +314,22 @@ if /usr/bin/grep -qE '^\s*(rm -rf|/usr/bin/ditto).*"?/Applications/' "$HERE/scri
 else
   printf '  release.sh writes nothing into /Applications\n'
 fi
+if /usr/bin/grep -q 'LUKOTTA_INSTALL=0' "$HERE/scripts/release.sh"; then
+  printf '  release.sh says so at the call site too\n'
+else
+  printf '  MISSING  release.sh must pass LUKOTTA_INSTALL=0 to build-app.sh\n'
+  FAIL=1
+fi
+# update-test.sh is the exception, and deliberately so: driving Sparkle against
+# the installed pre-release *is* the update mechanism, and it keeps a copy of
+# what was there and puts it back. Nothing else may replace an installed app.
+for s in "$HERE"/scripts/*.sh; do
+  case "$(basename "$s")" in update-test.sh|check-coverage.sh) continue ;; esac
+  if /usr/bin/grep -qE '/usr/bin/ditto[^|]*"?/Applications/' "$s"; then
+    printf '  MISSING  %s replaces an installed app\n' "$(basename "$s")"
+    FAIL=1
+  fi
+done
 
 if [ "$FAIL" = "1" ]; then
   printf 'Something is not covered. Add the missing check rather than the exception.\n'

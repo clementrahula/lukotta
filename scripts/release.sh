@@ -327,7 +327,12 @@ if [ -d "${LUKOTTA_PREVIOUS:-$HERE/dist/previous}" ]; then
 fi
 rm -rf "$HERE/dist"
 # A release is the one build that carries the marks. See TRADEMARKS.txt.
+#
+# LUKOTTA_INSTALL=0 is said here as well as refused there. build-app.sh installs
+# nothing but a dev build, so this cannot install either way; saying it at the
+# call site means nobody reading a release has to go and check.
 LUKOTTA_BRANDING="$BRANDING" LUKOTTA_NOTARY_PROFILE="$PROFILE" \
+  LUKOTTA_INSTALL=0 \
   LUKOTTA_VERSION="$VERSION" "$HERE/build-app.sh" "$APP" >/dev/null
 
 # Refuse to ship something Gatekeeper will refuse to open.
