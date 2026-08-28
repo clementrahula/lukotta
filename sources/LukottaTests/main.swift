@@ -2029,6 +2029,117 @@ group("theExtensionCanServeSomewhereRealAsWellAsMemory") {
     )
 }
 
+group("bothBackingsKeepTheSamePromises") {
+    // The extension is written once, against a seam, and two things sit behind
+    // it: memory, which prices the framework and nothing else, and a real
+    // directory, which is the shape of the thing that ships -- a module in
+    // front, something holding the volume behind. The whole value of the seam
+    // is that the volume cannot tell them apart, so the same promises are run
+    // against both rather than against whichever was written first.
+    let base = FileManager.default.temporaryDirectory
+        .appendingPathComponent("backing-\(UUID().uuidString)")
+    try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: base) }
+
+    let backings: [(name: String, backing: any FSBacking)] = [
+        ("memory", FSStoreBacking()),
+        ("a real directory", FSPassthroughBacking(root: base)),
+    ]
+
+    for (name, fs) in backings {
+        let root = fs.rootHandle
+        expect(fs.attributes(of: root)?.isDirectory == true, "\(name): the root is a directory")
+        expect(fs.lookup("absent", in: root) == nil, "\(name): and starts without that file")
+
+        // Creating, and refusing the same name twice.
+        guard let file = fs.create("report.txt", isDirectory: false, in: root, mode: 0o644) else {
+            expect(false, "\(name): a file can be made")
+            continue
+        }
+        expect(
+            fs.create("report.txt", isDirectory: false, in: root, mode: 0o644) == nil,
+            "\(name): the same name twice is EEXIST, not a second file")
+
+        // Identity, which FSKit holds across the whole life of a file and which
+        // has to survive a rename.
+        let id = fs.attributes(of: file)?.id
+        expect(id != nil && id != 0, "\(name): a file has an identifier")
+        guard let folder = fs.create("Archive", isDirectory: true, in: root, mode: 0o755) else {
+            expect(false, "\(name): a directory can be made")
+            continue
+        }
+        expect(
+            fs.rename("report.txt", in: root, to: "report.txt", in: folder),
+            "\(name): a file moves to another directory")
+        let moved = fs.lookup("report.txt", in: folder)
+        expect(moved != nil, "\(name): and is found where it landed")
+        expect(
+            moved.flatMap { fs.attributes(of: $0)?.id } == id,
+            "\(name): with the same identifier, which is what FSKit holds")
+        expect(fs.lookup("report.txt", in: root) == nil, "\(name): and gone from where it was")
+
+        // Contents, including a write past the end reading back as zeroes.
+        guard let moved else { continue }
+        let hello = Data("hello".utf8)
+        expect(
+            fs.write(moved, contents: hello, offset: 0) == hello.count,
+            "\(name): a write reports what it took")
+        expect(
+            fs.read(moved, offset: 0, length: 99) == hello, "\(name): and reads back exactly that")
+        expect(
+            fs.read(moved, offset: 99, length: 10).isEmpty,
+            "\(name): reading past the end is empty, not an error")
+        _ = fs.write(moved, contents: Data("!".utf8), offset: 10)
+        expect(fs.attributes(of: moved)?.size == 11, "\(name): a write past the end grows the file")
+        expect(
+            fs.read(moved, offset: 5, length: 5) == Data(count: 5),
+            "\(name): and the gap reads as zeroes")
+        fs.truncate(moved, to: 2)
+        expect(fs.attributes(of: moved)?.size == 2, "\(name): truncating shortens it")
+
+        // Extended attributes, which are what stop the volume collecting an
+        // AppleDouble file beside every single file on it.
+        let value = Data([0x01, 0x02])
+        expect(
+            fs.setXattr(
+                "com.lukotta.test", to: value, on: moved, mustCreate: false,
+                mustReplace: false) == .set,
+            "\(name): an extended attribute can be set")
+        expect(fs.xattr("com.lukotta.test", of: moved) == value, "\(name): and read back")
+        expect(fs.xattrNames(of: moved).contains("com.lukotta.test"), "\(name): and listed")
+        expect(
+            fs.setXattr(
+                "com.lukotta.test", to: value, on: moved, mustCreate: true,
+                mustReplace: false) == .exists,
+            "\(name): creating one that exists is EEXIST rather than an overwrite")
+        expect(
+            fs.setXattr(
+                "com.lukotta.test", to: nil, on: moved, mustCreate: false,
+                mustReplace: false) == .set,
+            "\(name): and setting nil removes it")
+
+        // Removal outcomes, each of which is a different errno and a different
+        // sentence in front of somebody.
+        expect(fs.remove("absent", from: root) == .missing, "\(name): what is not there is ENOENT")
+        expect(
+            fs.remove("Archive", from: root) == .notEmpty,
+            "\(name): a directory with something in it is ENOTEMPTY")
+        expect(fs.remove("report.txt", from: folder) == .removed, "\(name): the file goes")
+        expect(fs.remove("Archive", from: root) == .removed, "\(name): and then the directory")
+
+        // Enumeration order, which FSKit's directory cookie is an index into.
+        // An order that moves between calls silently skips files.
+        for entry in ["delta", "alpha", "charlie"] {
+            _ = fs.create(entry, isDirectory: false, in: root, mode: 0o644)
+        }
+        let names = fs.children(of: root).map(\.name)
+        expect(names == names.sorted(), "\(name): children come back sorted")
+        expect(fs.children(of: root).map(\.name) == names, "\(name): and in the same order twice")
+
+        expect(fs.usage().files > 0, "\(name): the volume counts what is on it")
+    }
+}
+
 group("aDriveGetsATrashSoDeletingIsARename") {
     // Finder does not delete when somebody presses command-delete: it renames
     // into .Trashes/<uid> at the top of the volume, which costs the same

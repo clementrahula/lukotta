@@ -52,7 +52,7 @@ public final class FSPassthrough: @unchecked Sendable {
         public let linkCount: UInt32
     }
 
-    private func entry(at url: URL) -> Entry? {
+    func entry(at url: URL) -> Entry? {
         var status = stat()
         guard lstat(url.path, &status) == 0 else { return nil }
         let isDirectory = (status.st_mode & S_IFMT) == S_IFDIR

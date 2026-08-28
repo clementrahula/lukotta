@@ -28,7 +28,7 @@ public final class FSStore: @unchecked Sendable {
     /// FSKit holds on to and the one in the tree are the same object: FSKit
     /// hands back the FSItem it was given and expects it to still mean
     /// something.
-    public final class Node {
+    public final class Node: FSHandle {
         public let id: UInt64
         public var name: String
         public let isDirectory: Bool
@@ -61,6 +61,7 @@ public final class FSStore: @unchecked Sendable {
             self.modified = now
             self.mode = mode
             self.xattrs = [:]
+            super.init()
         }
 
         public var size: UInt64 { isDirectory ? 0 : UInt64(data.count) }

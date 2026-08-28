@@ -1,0 +1,85 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Clement Rahula
+
+import Foundation
+
+/// A handle on one file or directory, as the extension holds it.
+///
+/// FSKit hands the same object back on every later call about a file and expects
+/// it to still mean that file, so identity has to be the handle rather than a
+/// name looked up again. A class, and a shared base, so that a volume can be
+/// written once against whatever is underneath it.
+public class FSHandle {
+    public init() {}
+}
+
+/// What a file looks like to the kernel, without any of FSKit's types in it.
+///
+/// Kept plain so that LukottaCore does not import FSKit: FSKit needs macOS 15.4
+/// and the application supports 15.0, so nothing outside the extension may
+/// depend on it. The extension turns this into `FSItem.Attributes`.
+public struct FSAttributes: Sendable, Equatable {
+    public var id: UInt64
+    public var parentID: UInt64
+    public var isDirectory: Bool
+    public var size: UInt64
+    public var mode: UInt32
+    public var linkCount: UInt32
+    public var modified: Date
+    public var created: Date
+
+    public init(
+        id: UInt64, parentID: UInt64, isDirectory: Bool, size: UInt64,
+        mode: UInt32, linkCount: UInt32, modified: Date, created: Date
+    ) {
+        self.id = id
+        self.parentID = parentID
+        self.isDirectory = isDirectory
+        self.size = size
+        self.mode = mode
+        self.linkCount = linkCount
+        self.modified = modified
+        self.created = created
+    }
+}
+
+/// Everything the volume asks of whatever is holding the files.
+///
+/// Two things implement it. `FSStore` keeps them in memory, which prices the
+/// framework and nothing else. `FSPassthrough` keeps them in a real directory,
+/// which is what measures the write path against a backing store that is not
+/// the bottleneck, and is the shape the real one takes: the architecture puts a
+/// module in front and a guest holding the NTFS volume behind it, and the seam
+/// between them is exactly this.
+///
+/// Every call answers on the thread it was made on. FSKit calls in on its own
+/// queues and expects the reply there, and under Swift 6 a closure written
+/// inside actor-isolated code traps outright when an Objective-C API calls it
+/// back on a queue of its own -- see AGENTS.md, "A Closure Handed to an
+/// Objective-C API". So nothing here is an actor and nothing hops.
+public protocol FSBacking: AnyObject, Sendable {
+    var rootHandle: FSHandle { get }
+
+    func attributes(of handle: FSHandle) -> FSAttributes?
+    func setMode(_ mode: UInt32, on handle: FSHandle)
+
+    func lookup(_ name: String, in directory: FSHandle) -> FSHandle?
+    func children(of directory: FSHandle) -> [(name: String, handle: FSHandle)]
+    func create(_ name: String, isDirectory: Bool, in directory: FSHandle, mode: UInt32)
+        -> FSHandle?
+    func remove(_ name: String, from directory: FSHandle) -> FSStore.RemoveOutcome
+    func rename(_ name: String, in source: FSHandle, to newName: String, in destination: FSHandle)
+        -> Bool
+
+    func read(_ handle: FSHandle, offset: Int, length: Int) -> Data
+    func write(_ handle: FSHandle, contents: Data, offset: Int) -> Int
+    func truncate(_ handle: FSHandle, to size: Int)
+
+    func xattr(_ name: String, of handle: FSHandle) -> Data?
+    func xattrNames(of handle: FSHandle) -> [String]
+    func setXattr(
+        _ name: String, to value: Data?, on handle: FSHandle, mustCreate: Bool, mustReplace: Bool
+    ) -> FSStore.XattrOutcome
+
+    func usage() -> (files: UInt64, bytes: UInt64)
+}
