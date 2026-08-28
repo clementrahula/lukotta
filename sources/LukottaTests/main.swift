@@ -3027,6 +3027,26 @@ group("aDirectoryListingKeepsItsEndMarker") {
         !NTFSIndex.names(all).contains(""),
         "so no folder shows an entry with an empty name")
 
+    // A last entry that *does* carry content bytes. Real NTFS usually writes
+    // none, but the flag is what decides, not the length -- and reading the
+    // content of a marker gives every folder an entry named after whatever
+    // happened to be in those bytes.
+    var markerWithContent = entry(record: 99, name: "Ghost.txt")
+    markerWithContent[12] |= 0x02
+    let ghost = Data(markerWithContent)
+    if let (marker, _) = NTFSIndex.entry(ghost, at: 0, limit: ghost.count) {
+        expect(marker.isLast, "an entry flagged last is the marker")
+        expect(
+            marker.name == nil,
+            "and carries no name even when there are name bytes sitting in it -- the flag "
+                + "decides, not the length")
+        expect(
+            NTFSIndex.names([marker]).isEmpty,
+            "so those bytes never reach a listing as a file called Ghost.txt")
+    } else {
+        expect(false, "a last entry with content still reads")
+    }
+
     // The end marker with a child: the subtree past the final key. Dropping it
     // loses every name in that subtree, which on a real volume is most of them.
     let withChild = Data(entry(name: nil, child: 4, last: true))
