@@ -2195,6 +2195,119 @@ group("theGeometryReaderAgreesWithARealNtfsVolume") {
         "the file record size is a sensible multiple")
 }
 
+group("aFileRecordIsRepairedBeforeItIsBelieved") {
+    // NTFS writes a two-byte signature at the end of every sector of a record
+    // and keeps the displaced bytes at the front. A record read straight off
+    // the disk has two bytes of rubbish at the end of each sector, and anything
+    // parsing it without putting them back reads garbage exactly where a long
+    // attribute crosses a sector boundary.
+    //
+    // The point of the scheme is that a torn write is detectable: if the
+    // signatures do not match, the record was half-written and must be refused.
+
+    func record(
+        used: Int = 200, allocated: Int = 1024, firstAttribute: Int = 56,
+        fixupOffset: Int = 48, fixupCount: Int = 3, flags: Int = 0x0001,
+        signature: [UInt8] = Array("FILE".utf8), sectorSignature: [UInt8] = [0xAA, 0xBB],
+        tearSecondSector: Bool = false
+    ) -> Data {
+        var r = [UInt8](repeating: 0, count: allocated)
+        for (i, b) in signature.enumerated() where i < 4 { r[i] = b }
+        r[0x04] = UInt8(fixupOffset & 0xFF); r[0x05] = UInt8(fixupOffset >> 8)
+        r[0x06] = UInt8(fixupCount & 0xFF); r[0x07] = UInt8(fixupCount >> 8)
+        r[0x14] = UInt8(firstAttribute & 0xFF); r[0x15] = UInt8(firstAttribute >> 8)
+        r[0x16] = UInt8(flags & 0xFF); r[0x17] = UInt8(flags >> 8)
+        for i in 0..<4 { r[0x18 + i] = UInt8((used >> (8 * i)) & 0xFF) }
+        for i in 0..<4 { r[0x1C + i] = UInt8((allocated >> (8 * i)) & 0xFF) }
+        // The fixup array: the signature, then the bytes displaced from each
+        // sector's last two. The invalid cases below deliberately name an array
+        // that does not fit, so every write here is bounded -- a fixture that
+        // crashes proves nothing about the parser.
+        if fixupOffset + 1 < r.count {
+            r[fixupOffset] = sectorSignature[0]
+            r[fixupOffset + 1] = sectorSignature[1]
+        }
+        for sector in 1..<max(fixupCount, 1) {
+            let entry = fixupOffset + sector * 2
+            if entry + 1 < r.count {
+                r[entry] = UInt8(0x10 + sector)
+                r[entry + 1] = UInt8(0x20 + sector)
+            }
+            let end = sector * 512 - 2
+            if end + 1 < r.count {
+                r[end] = sectorSignature[0]
+                r[end + 1] = sectorSignature[1]
+            }
+        }
+        if tearSecondSector, 2 * 512 - 2 < r.count { r[2 * 512 - 2] = 0xFF }
+        return Data(r)
+    }
+
+    guard let h = NTFSRecord.header(record(), expectedLength: 1024) else {
+        expect(false, "an ordinary file record has a readable header")
+        return
+    }
+    expect(h.usedLength == 200, "the used length is read")
+    expect(h.allocatedLength == 1024, "and the allocated length")
+    expect(h.firstAttributeOffset == 56, "and where the attributes start")
+    expect(h.inUse, "a record in use says so")
+    expect(!h.isDirectory, "and this one is a file")
+    expect(
+        NTFSRecord.header(record(flags: 0x0003), expectedLength: 1024)?.isDirectory == true,
+        "a directory record says that instead")
+    expect(
+        NTFSRecord.header(record(flags: 0x0000), expectedLength: 1024)?.inUse == false,
+        "and a free slot waiting to be reused is not in use")
+
+    // Not a record.
+    expect(
+        NTFSRecord.header(record(signature: Array("BAAD".utf8)), expectedLength: 1024) == nil,
+        "a record chkdsk marked corrupt is not read")
+    expect(NTFSRecord.header(Data(count: 1024), expectedLength: 1024) == nil, "nor are zeroes")
+    expect(NTFSRecord.header(Data(count: 10), expectedLength: 1024) == nil, "nor a short read")
+
+    // Every number that would read past the end of the buffer if believed.
+    expect(
+        NTFSRecord.header(record(allocated: 1024), expectedLength: 512) == nil,
+        "a record claiming to be longer than what was read is refused")
+    expect(
+        NTFSRecord.header(record(used: 5000, allocated: 1024), expectedLength: 1024) == nil,
+        "a used length past the end of the record is refused")
+    expect(
+        NTFSRecord.header(record(firstAttribute: 5000), expectedLength: 1024) == nil,
+        "an attribute offset past the end is refused")
+    expect(
+        NTFSRecord.header(record(firstAttribute: 10), expectedLength: 1024) == nil,
+        "and one inside the header is refused too")
+    expect(
+        NTFSRecord.header(record(fixupOffset: 1000, fixupCount: 40), expectedLength: 1024) == nil,
+        "a fixup array that does not fit before the attributes is refused")
+    expect(
+        NTFSRecord.header(record(fixupCount: 0), expectedLength: 1024) == nil,
+        "and one with no entries at all")
+
+    // The repair itself.
+    let whole = record()
+    guard let header = NTFSRecord.header(whole, expectedLength: 1024),
+        let fixed = NTFSRecord.applyFixup(whole, header: header)
+    else {
+        expect(false, "a whole record is repaired")
+        return
+    }
+    expect(fixed[510] == 0x11 && fixed[511] == 0x21, "the first sector's displaced bytes are back")
+    expect(fixed[1022] == 0x12 && fixed[1023] == 0x22, "and the second sector's")
+    expect(fixed.count == whole.count, "and the record is the same length it was")
+
+    // The case the whole scheme exists for.
+    let torn = record(tearSecondSector: true)
+    if let h2 = NTFSRecord.header(torn, expectedLength: 1024) {
+        expect(
+            NTFSRecord.applyFixup(torn, header: h2) == nil,
+            "a record whose sector signature does not match was half-written, and is refused "
+                + "rather than half believed")
+    }
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
