@@ -42,6 +42,28 @@ public enum EngineProcesses {
         return found
     }
 
+    /// The microVMs running right now: the processes that actually serve
+    /// mounts, as opposed to the network helper beside them.
+    ///
+    /// `running()` matches everything started from the engine directory, which
+    /// includes gvproxy -- and gvproxy outlives a mount that failed, which is
+    /// the whole reason the sweep exists. So it cannot answer "is anything
+    /// still serving this drive". A `mount` process can.
+    public static func serving() -> Set<Int32> {
+        guard let engine = EnginePaths.anylinuxfs else { return [] }
+        guard let result = run("/bin/ps", ["-axo", "pid=,args="]) else { return [] }
+        var found: Set<Int32> = []
+        for line in result.out.components(separatedBy: .newlines) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard let space = trimmed.firstIndex(of: " ") else { continue }
+            guard let pid = Int32(trimmed[trimmed.startIndex..<space]) else { continue }
+            let arguments = String(trimmed[space...])
+            guard arguments.contains(engine.path), arguments.contains(" mount") else { continue }
+            found.insert(pid)
+        }
+        return found
+    }
+
     /// End the helpers in `pids`, having asked first.
     ///
     /// `SIGTERM` lets gvproxy remove its own sockets. The second signal is for
@@ -184,6 +206,25 @@ public enum EngineProcesses {
         let candidates = MountTableEntry.all(in: table).filter(\.isEngineMount).map(\.mountPoint)
             .filter { isOursToForce($0, opened: opened) }
         guard !candidates.isEmpty else { return [] }
+
+        // A microVM that is still running has not lost anything. It may be
+        // taking minutes to answer -- a drive gone slow, a Mac whose disk is
+        // busy -- and that is not the same as a server that has gone, which is
+        // the only thing this may act on.
+        //
+        // Silence alone was the test before, and silence is what a slow drive
+        // produces. Reproduced on a 40 GB NTFS volume with the backing store
+        // starved: writes stopped, probes went quiet, the mounts were called
+        // dead, and the application unmounted the drive and quit the machine
+        // that was still serving it -- mid-copy, twice, once with every earlier
+        // fix already in place.
+        //
+        // Deliberately not gvproxy, which lingers after a mount that failed and
+        // is exactly what the sweep is for.
+        if !serving().isEmpty {
+            Log.mount.notice("a microVM is still running; leaving its mounts alone")
+            return []
+        }
 
         var quiet: [String] = []
         for point in candidates {

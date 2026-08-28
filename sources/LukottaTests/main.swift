@@ -947,6 +947,23 @@ group("mountStages") {
     // seconds without answering and came back serving its drive; a drive gone
     // slow was silent for fifteen minutes with its copy still viable. So a
     // mount that answers late still counts as alive.
+    // A running microVM is not a server that has gone. Silence is what a slow
+    // drive produces, and acting on silence alone unmounted a live drive
+    // mid-copy on a 40 GB NTFS volume with the backing store starved -- twice,
+    // the second time with every earlier fix already in.
+    let serves =
+        (try? String(contentsOfFile: "sources/LukottaCore/EngineProcesses.swift", encoding: .utf8))
+        ?? ""
+    expect(
+        serves.contains("public static func serving() -> Set<Int32>"),
+        "there is a way to ask whether any microVM is still serving")
+    expect(
+        serves.contains("arguments.contains(\" mount\")"),
+        "and it means a mount process, not gvproxy, which outlives a failed mount")
+    expect(
+        serves.contains("if !serving().isEmpty {"),
+        "nothing is called dead while a microVM is still running")
+
     var round = 0
     expect(
         EngineProcesses.deadEngineMounts(
