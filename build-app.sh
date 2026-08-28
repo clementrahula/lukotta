@@ -562,32 +562,22 @@ if [ -n "$NOTARY_ARGS" ] && [ "$SIGN_ID" != "-" ]; then
 fi
 printf 'Built %s\n' "$OUT"
 
-# The release and the pre-release on this Mac are never installed over.
+# A branded build is not copied into /Applications.
 #
-# They are the copies somebody is actually using, and the only thing allowed to
-# replace either is the update mechanism inside it. That mechanism is the thing
-# being shipped: installing over the top proves nothing about it, and destroys
-# the version there was to update from. It has happened to a beta in the middle
-# of testing the very update it was meant to receive.
+# Lukotta.app and Lukotta Beta.app on this Mac are the copies being used, and
+# they change only when the updater inside them updates them. A release goes to
+# GitHub; that is the whole of it. Installing over the top destroys the version
+# there was to update from, which has happened to a beta in the middle of
+# testing that very update.
 #
-# Not a flag with a default. LUKOTTA_INSTALL=1 does not reach past this, and
-# there is deliberately no way to ask. A first install of either channel comes
-# from the disk image or the Homebrew cask that scripts/release.sh produces,
-# which is what everybody else installs and therefore the thing worth testing.
-#
-# dev and unbranded still install. Neither can reach the other two: dev is
-# "Lukotta Dev" under com.lukotta.dev, unbranded is "Drive Unlocker" under
-# com.example.driveunlocker, and each has its own daemon and its own saved
-# passphrases. Blocking those as well broke the plain ./build-app.sh that
-# CONTRIBUTING describes, and protected nothing.
+# dev and unbranded still install: dev is "Lukotta Dev" under com.lukotta.dev,
+# unbranded is "Drive Unlocker" under com.example.driveunlocker, each with its
+# own daemon and its own saved passphrases, and neither can reach the two above.
 case "${LUKOTTA_BRANDING:-unbranded}" in
   official | beta) MAY_INSTALL=false ;;
   *) MAY_INSTALL=true ;;
 esac
-if [ "${LUKOTTA_INSTALL:-1}" = "1" ] && [ "$MAY_INSTALL" = "false" ]; then
-  printf 'Not installing %s: the release and the pre-release on this Mac are\n' "$APP_NAME"
-  printf 'replaced only by the updater inside them. Built at %s\n' "$OUT"
-elif [ "${LUKOTTA_INSTALL:-1}" = "1" ]; then
+if [ "${LUKOTTA_INSTALL:-1}" = "1" ] && [ "$MAY_INSTALL" = "true" ]; then
   APPS="/Applications/$APP_NAME.app"
   rm -rf "$APPS"
   /usr/bin/ditto "$OUT" "$APPS"

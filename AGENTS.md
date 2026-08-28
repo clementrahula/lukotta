@@ -728,36 +728,34 @@ Useful ground truth, in order of how much it settles:
 - `tcpdump` is not available: `/dev/bpf*` is root-only here, and asking for a
   password is not allowed.
 
-## Nothing Installs Over the Release or the Pre-Release
+## A Branded Build Is Not Copied Into /Applications
 
-`build-app.sh` installs a `dev` or `unbranded` build and refuses the other two.
-`LUKOTTA_INSTALL=1` does not reach past that refusal and there is deliberately
-no way to ask, because the copies of `Lukotta.app` and `Lukotta Beta.app` on
-this Mac are the ones being used, and the only thing allowed to replace either
-is the updater inside it. That updater is the thing being shipped: installing
-over the top proves nothing about it and destroys the version there was to
-update from. It has happened to a beta in the middle of testing that very
-update.
+`Lukotta.app` and `Lukotta Beta.app` on this Mac are the copies being used, and
+they change only when the updater inside them updates them. A release is built,
+signed, notarised and pushed to GitHub; that is the whole of it. Copying it into
+`/Applications` destroys the version there was to update from, which has
+happened to a beta in the middle of testing that very update.
 
-`dev` and `unbranded` still install, and cannot reach the other two: dev is
-"Lukotta Dev" under `com.lukotta.dev`, unbranded is "Drive Unlocker" under
-`com.example.driveunlocker`, and each has its own daemon and its own saved
-passphrases. An earlier version of this guard blocked those as well, which
-broke the plain `./build-app.sh` that CONTRIBUTING describes and protected
-nothing.
+So `build-app.sh` builds a branded app and does not copy it. It says nothing
+about this and fails at nothing -- the step simply does not apply.
 
-A first install of a release or a pre-release comes from the disk image or the
-Homebrew cask that `scripts/release.sh` produces:
+`dev` and `unbranded` still install: "Lukotta Dev" under `com.lukotta.dev` and
+"Drive Unlocker" under `com.example.driveunlocker`, each with its own daemon and
+its own saved passphrases, neither able to reach the two above. An earlier
+version of this guard blocked those too and printed a refusal, which broke the
+plain `./build-app.sh` in CONTRIBUTING and protected nothing.
+
+A first install of either channel comes from the disk image or the Homebrew cask
+`scripts/release.sh` produces:
 
     brew install --cask clementrahula/tap/lukotta
     brew install --cask clementrahula/tap/lukotta@beta
 
 That is what everybody else installs, so it is the thing worth testing.
-`scripts/update-test.sh` is the one script permitted to replace an installed
-app, because driving Sparkle against the installed pre-release *is* the update
+`scripts/update-test.sh` is the one script that may replace an installed app,
+because driving Sparkle against the installed pre-release *is* the update
 mechanism, and it keeps a copy of what was there and puts it back.
 
-`check-coverage.sh` enforces all of this: the refusal in `build-app.sh`, the
-`LUKOTTA_INSTALL=0` that `release.sh` passes as well, that `release.sh` writes
-nothing into `/Applications`, and that no other script copies over an installed
-app.
+`check-coverage.sh` holds all of it: that `build-app.sh` copies neither branded
+build, that `release.sh` passes `LUKOTTA_INSTALL=0` and writes nothing into
+`/Applications`, and that no other script copies over an installed app.
