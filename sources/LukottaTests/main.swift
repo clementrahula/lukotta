@@ -3834,6 +3834,87 @@ group("aRealVolumesDatesAreThisCenturyNotTheSeventeenth") {
         "and this volume was made recently, which it was -- tonight")
 }
 
+group("findingANameUsesTheOrderTheTreeIsIn") {
+    // A directory's entries are sorted, so a lookup stops at the first entry
+    // that is not less than the name wanted rather than reading them all. On a
+    // folder of a hundred thousand files that is the difference between a
+    // Finder window opening and a Finder window hanging.
+    //
+    // NTFS sorts case-insensitively. A search that compares any other way walks
+    // past the entry it wants and reports a file that is plainly there as
+    // missing, which looks like a corrupt directory rather than a comparison
+    // bug.
+    func named(_ name: String, record: UInt64 = 30, child: UInt64? = nil) -> NTFSIndex.Entry {
+        NTFSIndex.Entry(
+            record: record, sequence: 1,
+            name: NTFSFileName.Name(parentRecord: 5, namespace: .win32, name: name),
+            childBlock: child, isLast: false)
+    }
+    func marker(child: UInt64? = nil) -> NTFSIndex.Entry {
+        NTFSIndex.Entry(record: 0, sequence: 0, name: nil, childBlock: child, isLast: true)
+    }
+
+    let node = [
+        named("Alpha.txt", record: 30), named("Mango.txt", record: 31),
+        named("Zebra.txt", record: 32), marker(),
+    ]
+
+    expect(
+        NTFSIndex.find("Mango.txt", in: node) == .found(node[1]),
+        "a name in the node is found")
+    expect(
+        NTFSIndex.find("Alpha.txt", in: node) == .found(node[0]),
+        "including the first one")
+    expect(
+        NTFSIndex.find("Zebra.txt", in: node) == .found(node[2]),
+        "and the last one before the marker")
+
+    // Case. NTFS sorts and matches case-insensitively.
+    expect(
+        NTFSIndex.find("mango.txt", in: node) == .found(node[1]),
+        "a name typed in the wrong case is still found, because NTFS matches that way")
+    expect(
+        NTFSIndex.find("MANGO.TXT", in: node) == .found(node[1]),
+        "whichever case it is typed in")
+
+    // Not there, in each of the three positions that matter.
+    expect(
+        NTFSIndex.find("Aardvark.txt", in: node) == .absent,
+        "a name before every entry is absent when there is no subtree")
+    expect(
+        NTFSIndex.find("Nectarine.txt", in: node) == .absent,
+        "so is one between two entries")
+    expect(
+        NTFSIndex.find("Zzz.txt", in: node) == .absent,
+        "and one past every entry")
+
+    // With subtrees, which is what makes it a search rather than a scan.
+    let withChildren = [
+        named("Alpha.txt", child: 7), named("Mango.txt", child: 8),
+        marker(child: 9),
+    ]
+    expect(
+        NTFSIndex.find("Aardvark.txt", in: withChildren) == .descend(7),
+        "a name before the first entry is in the subtree below it")
+    expect(
+        NTFSIndex.find("Ballroom.txt", in: withChildren) == .descend(8),
+        "a name between two entries is below the one after it")
+    expect(
+        NTFSIndex.find("Zzz.txt", in: withChildren) == .descend(9),
+        "and a name past every entry is below the marker -- which is the whole reason the "
+            + "marker is kept")
+    expect(
+        NTFSIndex.find("Alpha.txt", in: withChildren) == .found(withChildren[0]),
+        "while a name that is present is found rather than descended past")
+
+    // An empty node, and one that is only a marker.
+    expect(NTFSIndex.find("anything", in: []) == .absent, "an empty node holds nothing")
+    expect(NTFSIndex.find("anything", in: [marker()]) == .absent, "nor does a bare marker")
+    expect(
+        NTFSIndex.find("anything", in: [marker(child: 3)]) == .descend(3),
+        "but a marker with a subtree points into it")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged

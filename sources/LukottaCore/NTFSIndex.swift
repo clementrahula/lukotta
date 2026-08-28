@@ -122,6 +122,47 @@ public enum NTFSIndex {
         return found
     }
 
+    /// Which way to go, looking for a name in a node.
+    ///
+    /// The entries are sorted, so a search does not read them all: it stops at
+    /// the first entry that is not less than the name it wants. If that entry
+    /// *is* the name, it is found; otherwise the answer is in the subtree below
+    /// it, if there is one.
+    ///
+    /// **NTFS sorts case-insensitively, by uppercased UTF-16 code unit.** Not
+    /// by byte, not by Unicode collation, and not case-sensitively. A search
+    /// that compares any other way walks past the entry it is looking for and
+    /// reports a file that is plainly there as missing -- which looks like a
+    /// corrupt directory rather than a comparison bug.
+    public enum Step: Equatable, Sendable {
+        /// The name is this entry.
+        case found(Entry)
+        /// It is not in this node; look in the block below this entry.
+        case descend(UInt64)
+        /// It is not here and there is nowhere further down.
+        case absent
+    }
+
+    /// Search one node.
+    public static func find(_ name: String, in entries: [Entry]) -> Step {
+        let wanted = name.uppercased()
+        for entry in entries {
+            if entry.isLast {
+                if let child = entry.childBlock { return .descend(child) }
+                return .absent
+            }
+            guard let candidate = entry.name?.name else { continue }
+            let upper = candidate.uppercased()
+            if upper == wanted { return .found(entry) }
+            // Past where it would have been: it is below this entry, or nowhere.
+            if upper > wanted {
+                if let child = entry.childBlock { return .descend(child) }
+                return .absent
+            }
+        }
+        return .absent
+    }
+
     /// The names in a node, in order, with the end marker left out.
     public static func names(_ entries: [Entry]) -> [String] {
         entries.compactMap { $0.isLast ? nil : $0.name?.name }
