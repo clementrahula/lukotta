@@ -65,6 +65,21 @@ public enum NTFSAttribute {
         public let dataSize: UInt64
 
         public var kind: Kind? { Kind(rawValue: type) }
+
+        public init(
+            type: UInt32, length: Int, isResident: Bool, valueOffset: Int, valueLength: Int,
+            runlistOffset: Int, startingCluster: UInt64, lastCluster: UInt64, dataSize: UInt64
+        ) {
+            self.type = type
+            self.length = length
+            self.isResident = isResident
+            self.valueOffset = valueOffset
+            self.valueLength = valueLength
+            self.runlistOffset = runlistOffset
+            self.startingCluster = startingCluster
+            self.lastCluster = lastCluster
+            self.dataSize = dataSize
+        }
     }
 
     /// Read one attribute header at an offset inside a record.

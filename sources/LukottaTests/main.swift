@@ -3236,6 +3236,128 @@ group("aRealDirectoryIsListedThroughEveryLayer") {
         "and the root's own entry is record five")
 }
 
+group("readingAFileNeverReadsPastTheEndOfIt") {
+    // A file's last run is rounded up to a whole cluster, so the bytes between
+    // the end of the file and the end of its allocation are whatever was on the
+    // disk before -- somebody else's deleted mail, most often. A reader that
+    // trusts the runs rather than the size hands those over as file contents.
+    let cluster = 4096
+    let runs = [
+        NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 100, clusterCount: 2)
+    ]
+
+    // 5000 bytes of file in 8192 bytes of allocation.
+    guard
+        let all = NTFSFileData.pieces(
+            offset: 0, length: 8192, runs: runs, bytesPerCluster: cluster, size: 5000)
+    else {
+        expect(false, "a whole-file read is planned")
+        return
+    }
+    expect(
+        NTFSFileData.totalLength(all) == 5000,
+        "asking for the whole allocation gives the file's length, not the allocation's")
+    expect(all.count == 1, "from one run, in one piece")
+    if case .disk(let offset, _) = all[0] {
+        expect(offset == 100 * UInt64(cluster), "starting where the run says")
+    } else {
+        expect(false, "and it is a read from the disk")
+    }
+
+    // Reading from an offset, and off the end.
+    let tail = NTFSFileData.pieces(
+        offset: 4900, length: 1000, runs: runs, bytesPerCluster: cluster, size: 5000)
+    expect(NTFSFileData.totalLength(tail ?? []) == 100, "a read overlapping the end stops at it")
+    expect(
+        NTFSFileData.pieces(
+            offset: 5000, length: 10, runs: runs, bytesPerCluster: cluster, size: 5000)?.isEmpty
+            == true,
+        "a read starting exactly at the end returns nothing rather than slack space")
+    expect(
+        NTFSFileData.pieces(
+            offset: 6000, length: 10, runs: runs, bytesPerCluster: cluster, size: 5000) == nil,
+        "and one starting past the end is refused")
+
+    // Crossing runs: a fragmented file is read in the pieces it is stored in.
+    let fragmented = [
+        NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 100, clusterCount: 1),
+        NTFSRunlist.Run(logicalCluster: 1, physicalCluster: 900, clusterCount: 1),
+    ]
+    guard
+        let across = NTFSFileData.pieces(
+            offset: 4000, length: 200, runs: fragmented, bytesPerCluster: cluster, size: 8192)
+    else {
+        expect(false, "a read crossing two runs is planned")
+        return
+    }
+    expect(across.count == 2, "it comes back as two reads, because the file is in two places")
+    expect(NTFSFileData.totalLength(across) == 200, "covering exactly what was asked for")
+    if case .disk(let first, let firstLength) = across[0],
+        case .disk(let second, _) = across[1]
+    {
+        expect(first == 100 * UInt64(cluster) + 4000, "the first picks up where the run is")
+        expect(firstLength == 96, "and stops at the end of that run")
+        expect(second == 900 * UInt64(cluster), "the second starts where the next run is")
+    } else {
+        expect(false, "both pieces are disk reads")
+    }
+
+    // A hole produces zeroes rather than a read. Reading it would hand back
+    // whatever is at cluster zero.
+    let sparse = [
+        NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 100, clusterCount: 1),
+        NTFSRunlist.Run(logicalCluster: 1, physicalCluster: nil, clusterCount: 1),
+        NTFSRunlist.Run(logicalCluster: 2, physicalCluster: 900, clusterCount: 1),
+    ]
+    guard
+        let holed = NTFSFileData.pieces(
+            offset: 0, length: 3 * cluster, runs: sparse, bytesPerCluster: cluster, size: 12288)
+    else {
+        expect(false, "a sparse file is planned")
+        return
+    }
+    expect(holed.count == 3, "three pieces for three runs")
+    expect(holed[1] == .zeroes(length: cluster), "the hole is zeroes, not a read of cluster zero")
+    expect(NTFSFileData.totalLength(holed) == 12288, "and the whole file is accounted for")
+
+    // Runs that do not cover the file they claim to.
+    expect(
+        NTFSFileData.pieces(
+            offset: 0, length: 100, runs: [], bytesPerCluster: cluster, size: 5000) == nil,
+        "a file with no runs but a size is refused rather than read short")
+    expect(
+        NTFSFileData.pieces(
+            offset: 0, length: 100, runs: runs, bytesPerCluster: 0, size: 5000) == nil,
+        "and a cluster size of zero has no arithmetic")
+    expect(
+        NTFSFileData.pieces(
+            offset: 0, length: 0, runs: runs, bytesPerCluster: cluster, size: 5000)?.isEmpty
+            == true,
+        "asking for nothing reads nothing")
+
+    // A small file lives inside its record and is never read from the disk.
+    let resident = NTFSAttribute.Header(
+        type: 0x80, length: 200, isResident: true, valueOffset: 100, valueLength: 50,
+        runlistOffset: 0, startingCluster: 0, lastCluster: 0, dataSize: 50)
+    expect(
+        NTFSFileData.residentRange(resident, offset: 0, length: 50, recordSize: 1024)
+            == 100..<150,
+        "a resident file's bytes are a range inside the record")
+    expect(
+        NTFSFileData.residentRange(resident, offset: 10, length: 999, recordSize: 1024)
+            == 110..<150,
+        "and a read longer than the file stops at its end")
+    expect(
+        NTFSFileData.residentRange(resident, offset: 50, length: 10, recordSize: 1024) == nil,
+        "a read starting past it is refused")
+    let overreaching = NTFSAttribute.Header(
+        type: 0x80, length: 200, isResident: true, valueOffset: 1000, valueLength: 500,
+        runlistOffset: 0, startingCluster: 0, lastCluster: 0, dataSize: 500)
+    expect(
+        NTFSFileData.residentRange(overreaching, offset: 0, length: 10, recordSize: 1024) == nil,
+        "and an attribute claiming more than the record holds is refused")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
