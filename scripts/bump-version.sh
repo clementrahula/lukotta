@@ -61,4 +61,7 @@ if [ "$TAG" = true ]; then
 else
   printf 'Bumped %s -> %s\n' "$CUR" "$NEW"
 fi
-printf 'Push with: git push origin main --follow-tags\n'
+# The branch this was bumped on, not always main: v2 carries its own line of
+# versions, and a hint naming the wrong branch is a push to the wrong place.
+BRANCH="$(git -C "$HERE" rev-parse --abbrev-ref HEAD)"
+printf 'Push with: git push origin %s --follow-tags\n' "$BRANCH"

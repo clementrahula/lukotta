@@ -178,6 +178,23 @@ ZIP="$HERE/dist/$SLUG-$VERSION.zip"
 NOTES_BASE="${LUKOTTA_NOTES_BASE:-$NOTES_BASE_DEFAULT}"
 BASE_URL="${LUKOTTA_DOWNLOAD_BASE:-https://github.com/$REPO/releases/download/$TAG}"
 
+# v2 is developed on its own branch and released from none of it.
+#
+# Everything a release touches belongs to v1: the build number is the count of
+# commits on this line of history, the feeds and the casks are the ones running
+# copies read, and releases/APPROVED names v1's versions. A release cut here
+# would put the rewrite in front of the people using the application, spend a
+# build number v1 could then never use, and do both from a history main has
+# never seen. v2 reaches anybody by being merged into main first, which is the
+# point at which somebody has decided it is ready to be.
+case "$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '')" in
+  v2 | v2/*)
+    echo "error: this is the v2 branch, and it releases nothing." >&2
+    echo "       v2 goes out by being merged into main and released from there," >&2
+    echo "       with the version bumped and approved there like any other." >&2
+    exit 1 ;;
+esac
+
 # A release built from uncommitted work cannot be reproduced from the tag.
 [ -z "$(git status --porcelain)" ] || {
   echo "error: working tree is dirty; commit before releasing" >&2; exit 1; }

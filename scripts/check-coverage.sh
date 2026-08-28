@@ -332,6 +332,73 @@ for s in "$HERE"/scripts/*.sh; do
   fi
 done
 
+printf '\nv2 and v1 cannot reach each other…\n'
+# 10. The rewrite is developed in the same repository as the application people
+#     are running, for months, and may never ship. The one thing it may never
+#     do is disturb v1 -- not its installed copies, not its daemon, not its
+#     saved passphrases, not its feed, not its build numbers. That separation
+#     is two facts and nothing else: every channel is a different application
+#     down to its identifier, and nothing is ever published from the v2 branch.
+#     Both are checked here because both are one careless line from gone.
+/usr/bin/python3 - <<'CHANNELS' || FAIL=1
+import pathlib, re, sys
+
+text = pathlib.Path("build-app.sh").read_text()
+start = text.index('case "${LUKOTTA_BRANDING:-unbranded}" in')
+block = text[start:text.index("\nesac", start)]
+
+# Each arm of the case, as the values it sets. A channel that sets none of them
+# is the error arm, which has no identity to collide with.
+channels = {}
+for arm in re.split(r"\n  (\w+)\)\n", block)[1:]:
+    if arm in ("official", "beta", "dev", "v2", "unbranded"):
+        name = arm
+        continue
+    values = dict(re.findall(r'^\s*(APP_NAME|BUNDLE_ID|HELPER_NAME|FEED_URL|AUTO_CHECKS)="([^"]*)"',
+                             arm, re.M))
+    if values:
+        channels[name] = values
+
+missing = [c for c in ("official", "beta", "dev", "v2", "unbranded") if c not in channels]
+if missing:
+    print(f"  MISSING  build-app.sh defines no {', '.join(missing)} channel")
+    sys.exit(1)
+
+# Every one of these keys something macOS separates for us, and only because
+# the values differ: preferences, the Keychain service holding passphrases, the
+# log subsystem, Sparkle's cache, the daemon's label, Application Support, and
+# the copy in /Applications. Two channels sharing one is two applications
+# standing on each other, and the one that loses is whichever ran last.
+for key in ("APP_NAME", "BUNDLE_ID", "HELPER_NAME"):
+    seen = {}
+    for channel, values in channels.items():
+        seen.setdefault(values.get(key, ""), []).append(channel)
+    for value, sharers in seen.items():
+        if len(sharers) > 1:
+            print(f"  SHARED  {' and '.join(sorted(sharers))} both use {key}={value}")
+            sys.exit(1)
+
+# The rewrite must not check for updates. Every feed that exists carries v1, so
+# a v2 build that looked would be offered a v1 release and would take it.
+if channels["v2"].get("AUTO_CHECKS") != "false":
+    print("  MISSING  the v2 channel must set AUTO_CHECKS=false; every feed carries v1")
+    sys.exit(1)
+for other in ("official", "beta"):
+    if channels["v2"].get("FEED_URL") == channels[other].get("FEED_URL"):
+        print(f"  SHARED  v2 and {other} name the same feed")
+        sys.exit(1)
+
+print(f"  {len(channels)} channels, none sharing a name, an identifier or a daemon")
+CHANNELS
+# Nothing is published from the v2 branch. The guard is in release.sh; this is
+# here so that it cannot quietly come back out.
+if /usr/bin/grep -qE '^\s*v2 \| v2/\*\)' "$HERE/scripts/release.sh"; then
+  printf '  release.sh publishes nothing from the v2 branch\n'
+else
+  printf '  MISSING  release.sh must refuse to release from the v2 branch\n'
+  FAIL=1
+fi
+
 if [ "$FAIL" = "1" ]; then
   printf 'Something is not covered. Add the missing check rather than the exception.\n'
   exit 1

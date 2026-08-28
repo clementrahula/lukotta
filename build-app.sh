@@ -9,6 +9,7 @@
 #   LUKOTTA_NOTARY_PROFILE="name" ./build-app.sh   also notarise and staple
 #   LUKOTTA_BRANDING=official ./build-app.sh        build as Lukotta
 #   LUKOTTA_BRANDING=beta ./build-app.sh            build the pre-release
+#   LUKOTTA_BRANDING=v2 ./build-app.sh              build the FSKit rewrite
 #
 # Builds are unbranded by default. The Lukotta name, wordmark and logo are
 # trademarks and are not licensed under the GPL, so a build carries them only
@@ -85,6 +86,35 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     FEED_URL="https://updates.lukotta.com/dev/appcast.xml"
     AUTO_CHECKS="false"
     ;;
+  v2)
+    # The FSKit rewrite, developed beside the application rather than inside it.
+    # It may take months and it may not work, so nothing it does is allowed to
+    # reach the three channels above: its own identifier, its own daemon, its
+    # own saved passphrases, its own copy in /Applications, and later its own
+    # filesystem extension, which registers under the identifier and would
+    # otherwise stand on the one v1 is using.
+    #
+    # dev is not reused for this. v1 goes on being fixed while v2 is written,
+    # and a v2 build landing on com.lukotta.dev would replace the build those
+    # fixes are being proved on -- which is the same mistake as iterating on
+    # the beta channel, one channel further down.
+    #
+    # The unbranded artwork, as dev has: the marks belong to releases. See
+    # TRADEMARKS.txt. That leaves this and dev wearing the same picture, told
+    # apart by name; a mark of its own is worth drawing when there is something
+    # to show somebody.
+    APP_NAME="Lukotta v2"
+    BUNDLE_ID="com.lukotta.v2"
+    ICON_SET="AppIconUnbranded"
+    MARK_SET="MarkUnbranded"
+    SWITCH_SET="FullDiskAccessSwitchUnbranded"
+    HELPER_NAME="LukottaV2Helper"
+    # Nothing is served here and nothing is meant to be, for dev's reason and
+    # one of its own: the feeds that exist carry v1, so a build that checked
+    # for updates could pull a v1 release over a v2 one.
+    FEED_URL="https://updates.lukotta.com/v2/appcast.xml"
+    AUTO_CHECKS="false"
+    ;;
   unbranded)
     APP_NAME="Drive Unlocker"
     BUNDLE_ID="com.example.driveunlocker"
@@ -95,7 +125,7 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     FEED_URL="https://updates.lukotta.com/appcast.xml"
     ;;
   *)
-    echo "error: LUKOTTA_BRANDING must be 'official', 'beta', 'dev' or 'unbranded'" >&2; exit 1 ;;
+    echo "error: LUKOTTA_BRANDING must be 'official', 'beta', 'dev', 'v2' or 'unbranded'" >&2; exit 1 ;;
 esac
 
 OUT="${1:-$HERE/dist/$APP_NAME.app}"
@@ -570,9 +600,10 @@ printf 'Built %s\n' "$OUT"
 # there was to update from, which has happened to a beta in the middle of
 # testing that very update.
 #
-# dev and unbranded still install: dev is "Lukotta Dev" under com.lukotta.dev,
-# unbranded is "Drive Unlocker" under com.example.driveunlocker, each with its
-# own daemon and its own saved passphrases, and neither can reach the two above.
+# dev, v2 and unbranded still install: dev is "Lukotta Dev" under
+# com.lukotta.dev, v2 is "Lukotta v2" under com.lukotta.v2, unbranded is "Drive
+# Unlocker" under com.example.driveunlocker, each with its own daemon and its
+# own saved passphrases, and none of them can reach the two above.
 case "${LUKOTTA_BRANDING:-unbranded}" in
   official | beta) MAY_INSTALL=false ;;
   *) MAY_INSTALL=true ;;

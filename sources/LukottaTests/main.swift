@@ -1746,6 +1746,80 @@ group("aBetaAndAReleaseShareNothingThatMatters") {
         "a mount point that is no longer mounted is forgotten rather than kept for ever")
 }
 
+group("aV2BuildCannotReachAnythingOfV1s") {
+    // v2 is the FSKit rewrite, written and installed beside the channels v1
+    // goes on being fixed on. build-app.sh makes it a different application --
+    // "Lukotta v2" under com.lukotta.v2, with its own daemon -- and everything
+    // either of them keeps is filed under one of those two values. So what is
+    // checked here is the filing, not the intention.
+    //
+    // The identifier is the part that needs checking rather than asserting.
+    // "com.lukotta.v2" begins with "com.lukotta" and "Lukotta v2" begins with
+    // "Lukotta", so anything matching on the start of a value rather than on
+    // the whole of it would have the release sweeping up the rewrite's
+    // directories, or the rewrite's daemon answering as the release's. Neither
+    // would look like a mistake until months of work were in the way.
+    let channels = [
+        (name: "Lukotta", identifier: "com.lukotta"),
+        (name: "Lukotta Beta", identifier: "com.lukotta.beta"),
+        (name: "Lukotta Dev", identifier: "com.lukotta.dev"),
+        (name: "Lukotta v2", identifier: "com.lukotta.v2"),
+        (name: "Drive Unlocker", identifier: "com.example.driveunlocker"),
+    ]
+    let home = "/Users/someone"
+
+    // Application Support: the Linux environment, the engine's logs, and the
+    // copy kept aside to put a bad update back.
+    let homes = channels.map {
+        EngineEnvironment.engineHome(
+            inHome: home,
+            named: EngineEnvironment.directoryName(identifier: $0.identifier, fileName: $0.name)
+        ).path
+    }
+    expect(
+        Set(homes).count == channels.count,
+        "every channel keeps its Linux environment in a directory of its own")
+    for mine in homes {
+        expect(
+            !homes.contains { $0 != mine && mine.hasPrefix($0 + "/") },
+            "and none sits inside another, where deleting one would take the other")
+    }
+
+    // Where the rest of what a build keeps is filed: preferences, the Keychain
+    // service holding saved passphrases, Sparkle's cache, the log subsystem.
+    // macOS separates all of those by identifier itself, given the identifiers
+    // differ, so this checks that they do.
+    let supports = channels.map {
+        AppRollback.supportName(identifier: $0.identifier, bundleName: $0.name)
+    }
+    expect(Set(supports).count == channels.count, "and files everything else under its own name")
+
+    // The daemon. Its label is the identifier with .helper after it, and the
+    // app behind a daemon is worked out by taking that suffix off -- exactly,
+    // not by looking for a value the label starts with.
+    for channel in channels {
+        expect(
+            HelperInfo.identifierOfTheApp(behind: "\(channel.identifier).helper")
+                == channel.identifier,
+            "the daemon of \(channel.name) belongs to \(channel.name)")
+    }
+    expect(
+        HelperInfo.identifierOfTheApp(behind: "com.lukotta.v2.helper") != "com.lukotta",
+        "and the rewrite's daemon is not the release's, though its identifier sits under it")
+
+    // The scratch directory a mount makes, which is swept by name at launch.
+    // The sweep matches on the start of the name, and this is what stops the
+    // release's sweep taking a mount the rewrite has open: the prefix ends in a
+    // hyphen, and what follows com.lukotta in com.lukotta.v2 is a dot.
+    let scratch = { (identifier: String) in "Lukotta-\(identifier)-" }
+    expect(
+        Workspace.prefix == scratch(Bundle.main.bundleIdentifier ?? "com.lukotta"),
+        "a mount's scratch directory is named after the identifier")
+    expect(
+        !scratch("com.lukotta.v2").hasPrefix(scratch("com.lukotta")),
+        "so the release cannot mistake the rewrite's scratch directories for its own")
+}
+
 group("theEngineWorksInThisAppsOwnDirectoryAndNobodyElses") {
     // The engine as published keeps everything under ~/.anylinuxfs, which is
     // one directory for every program on the Mac that uses it: a release, a
