@@ -62,6 +62,19 @@ final class LukottaVolume: FSVolume, @unchecked Sendable {
         attributes.uid = UInt32(getuid())
         attributes.gid = UInt32(getgid())
         attributes.flags = 0
+        // Kernel-offloaded I/O is off for everything this volume serves.
+        //
+        // KOIO is how an FSKit module reaches the throughput of a kernel
+        // filesystem: instead of moving file data through the module, it hands
+        // the kernel a map of extents and the kernel transfers them itself.
+        // FSExtentPacker.packExtent takes an FSBlockDeviceResource, so the data
+        // has to physically live on a block device the kernel can address.
+        //
+        // Neither backing here is one. Memory is memory, and the passthrough is
+        // a directory on another filesystem -- there are no physical extents to
+        // hand over. Saying so explicitly means the kernel uses the read/write
+        // path rather than asking for a map that cannot be made.
+        attributes.inhibitKernelOffloadedIO = true
         let modified = timespec(
             tv_sec: Int(source.modified.timeIntervalSince1970), tv_nsec: 0)
         let created = timespec(tv_sec: Int(source.created.timeIntervalSince1970), tv_nsec: 0)
