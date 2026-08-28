@@ -4321,6 +4321,131 @@ group("aesXtsMatchesTheNumbersSomebodyElsePublished") {
     expect(AESXTS.decrypt([], key: key, sector: 0) == nil, "and nothing at all")
 }
 
+group("anEncryptedVolumeReadsAsIfItWereNot") {
+    // The claim the architecture rests on: NTFSVolumeReader takes one function
+    // -- bytes at an offset -- so an encrypted volume needs no change to any of
+    // the parsing above it. This is that claim, tried.
+    //
+    // A real NTFS volume is encrypted here with AES-XTS, sector by sector, and
+    // then read through the decrypting reader. If the arithmetic is right the
+    // NTFS reader lists the volume without knowing anything happened.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+
+    let key = (0..<64).map { UInt8(($0 * 7 + 13) & 0xFF) }
+    let sectorSize = 512
+    let lock = NSLock()
+
+    // Standing in for an encrypted device: read the plain volume and encrypt
+    // whatever was asked for, sector by sector, exactly as a real one would
+    // already hold it.
+    let encryptedDevice: NTFSVolumeReader.ReadBytes = { offset, length in
+        lock.lock()
+        defer { lock.unlock() }
+        guard offset % UInt64(sectorSize) == 0, length % sectorSize == 0 else { return nil }
+        try? handle.seek(toOffset: offset)
+        guard let plain = try? handle.read(upToCount: length), !plain.isEmpty else { return nil }
+        var out = Data()
+        let whole = plain.count / sectorSize * sectorSize
+        for index in 0..<(whole / sectorSize) {
+            let from = plain.startIndex + index * sectorSize
+            let sector = Array(plain[from..<from + sectorSize])
+            guard
+                let ciphered = AESXTS.encrypt(
+                    sector, key: key, sector: offset / UInt64(sectorSize) + UInt64(index))
+            else { return nil }
+            out.append(contentsOf: ciphered)
+        }
+        return out
+    }
+
+    // A read that starts near the end of a sector and runs into the next one.
+    // This is the case the widening arithmetic exists for, and the one the
+    // volume checks above do not reach: at offset 8 for 7 bytes, widening by
+    // length alone and widening by offset-plus-length both give one sector, so
+    // a wrong formula is invisible there.
+    let plainSectors = (0..<(4 * 512)).map { UInt8($0 & 0xFF) }
+    let straddleDevice: NTFSVolumeReader.ReadBytes = { offset, length in
+        guard offset % 512 == 0, length % 512 == 0 else { return nil }
+        var out = Data()
+        for index in 0..<(length / 512) {
+            let sector = UInt64(offset / 512) + UInt64(index)
+            let from = Int(sector) * 512
+            guard from + 512 <= plainSectors.count else { break }
+            guard
+                let ciphered = AESXTS.encrypt(
+                    Array(plainSectors[from..<from + 512]), key: key, sector: sector)
+            else { return nil }
+            out.append(contentsOf: ciphered)
+        }
+        return out.isEmpty ? nil : out
+    }
+    let straddling = DecryptingReader(
+        sectorSize: 512, dataOffset: 0, key: key, reading: straddleDevice)
+
+    expect(
+        straddling.read(500, 100).map(Array.init) == Array(plainSectors[500..<600]),
+        "a read beginning near the end of a sector and running into the next comes back whole")
+    expect(
+        straddling.read(0, 512).map(Array.init) == Array(plainSectors[0..<512]),
+        "an aligned whole sector reads")
+    expect(
+        straddling.read(511, 2).map(Array.init) == Array(plainSectors[511..<513]),
+        "and one byte either side of a boundary reads as two bytes, not as noise")
+    expect(
+        straddling.read(1000, 1000).map(Array.init) == Array(plainSectors[1000..<2000]),
+        "a read spanning three sectors from an unaligned start comes back whole")
+
+    // Reading it without decrypting must not work, or the check proves nothing.
+    let ciphered = NTFSVolumeReader(read: encryptedDevice)
+    expect(
+        ciphered == nil,
+        "the encrypted volume does not open as NTFS -- otherwise nothing below is a test")
+
+    // And with the decrypting reader in the way.
+    let decrypting = DecryptingReader(
+        sectorSize: sectorSize, dataOffset: 0, key: key, reading: encryptedDevice)
+    guard let reader = NTFSVolumeReader(read: { decrypting.read($0, $1) }) else {
+        expect(false, "the same volume opens through the decrypting reader")
+        return
+    }
+    expect(true, "the same volume opens through the decrypting reader")
+    expect(reader.geometry.bytesPerCluster >= 512, "with the geometry it always had")
+
+    guard let root = reader.contents(ofDirectory: NTFSTable.rootRecord) else {
+        expect(false, "and lists its root")
+        return
+    }
+    let names = root.map(\.name)
+    expect(names.contains("$MFT"), "with the master file table in it")
+    expect(names.contains("readback.txt") || names.contains("."), "and the files that are on it")
+
+    // The whole point: a file read through the encryption comes back as itself.
+    if let entry = root.first(where: { $0.name == "readback.txt" }) {
+        expect(
+            reader.contents(ofFile: entry.record)
+                .map { String(decoding: $0, as: UTF8.self) }
+                == "LUKOTTA-V2-READBACK-CHECK-0123456789",
+            "and a file's contents come back through the encryption byte for byte")
+        // An unaligned read, which is the arithmetic that goes wrong quietly:
+        // XTS works a sector at a time, so a read from the middle of one has to
+        // be widened, decrypted, and trimmed back.
+        expect(
+            reader.contents(ofFile: entry.record, offset: 8, length: 7)
+                .map { String(decoding: $0, as: UTF8.self) } == "V2-READ",
+            "including a read that begins in the middle of a sector")
+    }
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
