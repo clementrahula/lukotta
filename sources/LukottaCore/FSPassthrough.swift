@@ -34,7 +34,14 @@ public final class FSPassthrough: @unchecked Sendable {
     /// they have to survive a rename, so they cannot be derived from the path.
     /// The inode number of the file underneath is exactly the right thing: it
     /// is what the backing filesystem already uses for the same purpose.
-    private let lock = NSLock()
+    ///
+    /// There is no lock here and none is needed: every method is a POSIX call
+    /// against a path, holding nothing between calls. The filesystem underneath
+    /// does its own serialising, which is more than a lock here could offer --
+    /// another process can change that directory whatever this class does.
+    ///
+    /// A lock was declared here once and never used, which is worse than none:
+    /// it reads as protection that is not there.
 
     public init(root: URL) {
         self.root = root

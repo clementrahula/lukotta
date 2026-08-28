@@ -16,7 +16,20 @@ final class LukottaFileSystem: FSUnaryFileSystem, @unchecked Sendable {
     // Held so the volume outlives the reply that handed it over. FSKit keeps
     // no strong reference of its own, and a volume released here comes back as
     // a mount that answers nothing.
+    ///
+    /// Guarded, because FSKit gives no promise about which queue calls
+    /// loadResource and unloadResource, and a mount arriving while an unmount
+    /// is finishing would otherwise be two threads writing this at once. The
+    /// class claims Sendable; the claim has to be true rather than true by
+    /// luck.
     private var volume: LukottaVolume?
+    private let volumeLock = NSLock()
+
+    func setVolume(_ new: LukottaVolume?) {
+        volumeLock.lock()
+        defer { volumeLock.unlock() }
+        volume = new
+    }
 }
 
 extension LukottaFileSystem: FSUnaryFileSystemOperations {
@@ -137,7 +150,7 @@ extension LukottaFileSystem: FSUnaryFileSystemOperations {
             backing = FSStoreBacking()
         }
         let volume = LukottaVolume(name: name, backing: backing)
-        self.volume = volume
+        setVolume(volume)
         reply(volume, nil)
     }
 
@@ -145,7 +158,7 @@ extension LukottaFileSystem: FSUnaryFileSystemOperations {
         resource: FSResource, options: FSTaskOptions,
         replyHandler reply: @escaping ((any Error)?) -> Void
     ) {
-        volume = nil
+        setVolume(nil)
         reply(nil)
     }
 }
