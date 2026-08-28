@@ -268,9 +268,24 @@ public final class NTFSVolumeReader: @unchecked Sendable {
 
     // MARK: - Files
 
+    /// Whether a record's attributes spill into other records.
+    ///
+    /// A badly fragmented file, or one with many named streams, can have more
+    /// attributes than a single record holds. NTFS then writes an
+    /// `$ATTRIBUTE_LIST` saying which records the rest are in, and the record
+    /// somebody looks at first may hold no `$DATA` at all.
+    ///
+    /// This reader does not follow that list. What it must not do is treat the
+    /// absence as an empty file: a fragmented file reported as zero bytes is
+    /// data loss that looks like a successful read. Saying so lets every caller
+    /// refuse rather than each one having to notice.
+    public func spillsAttributes(_ record: (data: Data, header: NTFSRecord.Header)) -> Bool {
+        attributes(of: record).contains { $0.kind == .attributeList }
+    }
+
     /// How long a file is.
     public func size(ofFile number: UInt64) -> UInt64? {
-        guard let record = record(number),
+        guard let record = record(number), !spillsAttributes(record),
             let data = attributes(of: record).first(where: { $0.kind == .data })
         else { return nil }
         return data.dataSize
@@ -278,7 +293,7 @@ public final class NTFSVolumeReader: @unchecked Sendable {
 
     /// A file's contents, or the part of them asked for.
     public func contents(ofFile number: UInt64, offset: UInt64 = 0, length: Int? = nil) -> Data? {
-        guard let record = record(number),
+        guard let record = record(number), !spillsAttributes(record),
             let data = attributes(of: record).first(where: { $0.kind == .data })
         else { return nil }
         // A compressed or encrypted attribute's clusters do not hold the file's

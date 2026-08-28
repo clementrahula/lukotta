@@ -4082,6 +4082,15 @@ group("compressedAndEncryptedFilesAreRefusedNotGuessedAt") {
         return
     }
     expect(!both.isReadableAsIs, "compressed and sparse together is still refused")
+
+    // The other way a file's contents can fail to be where they look. A badly
+    // fragmented file can have more attributes than one record holds, and NTFS
+    // then writes an $ATTRIBUTE_LIST saying where the rest are. The record
+    // somebody reads first may hold no $DATA at all -- and reporting that as an
+    // empty file is data loss that looks like a successful read.
+    expect(
+        NTFSAttribute.Kind(rawValue: 0x20) == .attributeList,
+        "the attribute list has a type of its own, so its presence is detectable")
 }
 
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
