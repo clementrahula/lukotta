@@ -3931,6 +3931,73 @@ group("findingANameUsesTheOrderTheTreeIsIn") {
         "but a marker with a subtree points into it")
 }
 
+group("theNtfsReaderIsFastEnoughToBeWorthHaving") {
+    // What the read path costs, with no mount and no framework in the way.
+    // This is the floor: whatever FSKit adds on top, the reader cannot be
+    // faster than this, and if this is slow nothing above it can rescue it.
+    //
+    // Reported rather than asserted at a threshold. A number that fails on a
+    // busy machine teaches people to ignore a red suite; a number printed
+    // beside v1's is one somebody can act on.
+    guard ProcessInfo.processInfo.environment["LUKOTTA_BENCH"] != nil else { return }
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    guard
+        let fs: any FSBacking = NTFSBacking(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        })
+    else { return }
+
+    let root = fs.rootHandle
+    guard let many = fs.lookup("many", in: root) else {
+        print("    (no 'many' directory on this volume; nothing to measure)")
+        return
+    }
+
+    func ms(_ body: () -> Void) -> Double {
+        let t0 = Date()
+        body()
+        return Date().timeIntervalSince(t0) * 1000
+    }
+
+    var children: [(name: String, handle: FSHandle)] = []
+    let listing = ms { children = fs.children(of: many) }
+    print("    list \(children.count) files          \(Int(listing)) ms")
+
+    guard !children.isEmpty else { return }
+    let sample = Array(children.prefix(2000))
+    let lookups = ms {
+        for entry in sample { _ = fs.lookup(entry.name, in: many) }
+    }
+    print(
+        "    look up \(sample.count) by name       \(Int(lookups)) ms"
+            + "   \(Int(lookups * 1000 / Double(sample.count))) us each")
+
+    let stats = ms {
+        for entry in sample { _ = fs.attributes(of: entry.handle) }
+    }
+    print(
+        "    read \(sample.count) files' attributes \(Int(stats)) ms"
+            + "   \(Int(stats * 1000 / Double(sample.count))) us each")
+
+    let reads = ms {
+        for entry in sample { _ = fs.read(entry.handle, offset: 0, length: 64) }
+    }
+    print(
+        "    read \(sample.count) files' contents   \(Int(reads)) ms"
+            + "   \(Int(reads * 1000 / Double(sample.count))) us each")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
