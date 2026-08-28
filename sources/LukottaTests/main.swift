@@ -4900,6 +4900,89 @@ group("aWriteGoesOnlyWhereTheFileAlreadyIs") {
     expect(!NTFSFileWrite.residentIsWritable(resident), "which is said plainly rather than implied")
 }
 
+group("aByteWrittenByUsIsThereWhenLinuxLooks") {
+    // The first write. Guarded, because it changes a volume: only runs when
+    // LUKOTTA_WRITE_IMAGE names an image that exists, and that image is a copy
+    // made for the purpose.
+    //
+    // Reading it back with our own reader would prove only that we are
+    // self-consistent. The verification is done afterwards by mounting the
+    // volume with Linux's ntfs3 driver, which shares nothing with this code.
+    guard let path = ProcessInfo.processInfo.environment["LUKOTTA_WRITE_IMAGE"],
+        FileManager.default.fileExists(atPath: path),
+        let handle = FileHandle(forUpdatingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+
+    let lock = NSLock()
+    guard
+        let reader = NTFSVolumeReader(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        })
+    else {
+        expect(false, "the volume to write to opens")
+        return
+    }
+
+    // Every gate, before anything moves.
+    guard let state = reader.state(), state.isSafeToWrite else {
+        expect(false, "the volume is clean and writable")
+        return
+    }
+    guard let target = reader.find("big.bin", inDirectory: NTFSTable.rootRecord),
+        let record = reader.record(target),
+        let data = reader.attributes(of: record).first(where: { $0.kind == .data })
+    else {
+        expect(false, "the file to write to is found")
+        return
+    }
+    expect(
+        NTFSFileWrite.isAllowed(
+            attribute: data, volumeIsClean: !state.isDirty, volumeIsWritable: state.isSafeToWrite),
+        "and writing to it is allowed: non-resident, not compressed, clean volume")
+
+    guard
+        let runs = NTFSRunlist.decode(
+            record.data, at: data.runlistOffset, limit: record.data.count)
+    else {
+        expect(false, "its runs decode")
+        return
+    }
+
+    // A marker at a known offset, far enough in to be in a real cluster rather
+    // than anything the format left behind.
+    let marker = Array("LUKOTTA-V2-WROTE-THIS-AT-1048576".utf8)
+    let at: UInt64 = 1_048_576
+    guard
+        let pieces = NTFSFileWrite.pieces(
+            offset: at, length: marker.count, runs: runs,
+            bytesPerCluster: reader.geometry.bytesPerCluster, size: data.dataSize)
+    else {
+        expect(false, "the write is placed")
+        return
+    }
+    expect(!pieces.isEmpty, "with at least one piece")
+
+    for piece in pieces {
+        lock.lock()
+        try? handle.seek(toOffset: piece.diskOffset)
+        handle.write(Data(marker[piece.range]))
+        lock.unlock()
+    }
+    try? handle.synchronize()
+    expect(true, "the bytes are written to the volume")
+
+    // Our own reader agreeing is necessary but not sufficient; the real check
+    // runs outside this process.
+    expect(
+        reader.contents(ofFile: target, offset: at, length: marker.count)
+            .map { Array($0) } == marker,
+        "and our reader sees them, which is the weaker half of the check")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
