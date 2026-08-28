@@ -5363,6 +5363,102 @@ group("aRecordWrittenBackIsStillReadableByAnybody") {
     expect(NTFSRecord.nextSignature(after: UInt16.max) == 1, "the signature wraps past zero")
 }
 
+group("anAllocationIsAllOfItOrNoneOfIt") {
+    // Choosing which clusters a file takes. The decision outlives the write: a
+    // file scattered badly costs a seek per fragment for the rest of its life,
+    // and its runlist grows until it no longer fits its record.
+    //
+    // Nothing here writes. It produces a plan and the bitmap as it would be, so
+    // a plan can be checked or discarded -- an allocator that changed the
+    // bitmap as it searched would leave the disk disagreeing with memory at
+    // every step of a search that might still fail.
+
+    // Sixteen clusters, all free.
+    let empty = Data([0x00, 0x00])
+
+    guard let one = NTFSAllocator.plan(clusters: 4, in: empty, totalClusters: 16) else {
+        expect(false, "a file fits on an empty volume")
+        return
+    }
+    expect(one.fragments == 1, "and takes it in one piece, which is what a file wants")
+    expect(one.clusterCount == 4, "covering what was asked for")
+    expect(one.runs[0].physicalCluster == 0, "from the start of the free space")
+    expect(one.runs[0].logicalCluster == 0, "beginning at the start of the file")
+    expect(
+        NTFSBitmap.freeClusters(in: one.bitmap, totalClusters: 16) == 12,
+        "and the bitmap it hands back has them claimed")
+    expect(
+        NTFSBitmap.freeClusters(in: empty, totalClusters: 16) == 16,
+        "while the bitmap handed in is untouched")
+
+    // A hint, so a file being extended lands beside itself rather than at the
+    // other end of the disk.
+    guard let hinted = NTFSAllocator.plan(clusters: 2, in: empty, totalClusters: 16, near: 8)
+    else {
+        expect(false, "a hinted allocation succeeds")
+        return
+    }
+    expect(
+        hinted.runs[0].physicalCluster == 8,
+        "a hint puts the clusters where the file already is, not at the front of the disk")
+
+    // A volume too fragmented for one run: 0b0101_0101 twice leaves eight
+    // single free clusters.
+    let fragmented = Data([0b0101_0101, 0b0101_0101])
+    expect(
+        NTFSBitmap.freeClusters(in: fragmented, totalClusters: 16) == 8,
+        "the fragmented volume has eight free clusters")
+    guard let scattered = NTFSAllocator.plan(clusters: 3, in: fragmented, totalClusters: 16)
+    else {
+        expect(false, "a file still fits, in pieces")
+        return
+    }
+    expect(scattered.clusterCount == 3, "covering what was asked for")
+    expect(scattered.fragments == 3, "in three pieces, because no two free clusters adjoin")
+    expect(
+        scattered.runs.map(\.logicalCluster) == [0, 1, 2],
+        "and the pieces run consecutively through the file, whatever order they sit on the disk")
+
+    // All of it or none. A file half allocated is worse than one refused: the
+    // clusters are gone and nothing owns them.
+    expect(
+        NTFSAllocator.plan(clusters: 9, in: fragmented, totalClusters: 16) == nil,
+        "a file larger than the free space is refused outright")
+    expect(
+        NTFSAllocator.plan(clusters: 100, in: empty, totalClusters: 16) == nil,
+        "and one larger than the volume")
+    expect(
+        NTFSAllocator.plan(clusters: 0, in: empty, totalClusters: 16) == nil,
+        "asking for nothing is refused rather than answered with an empty plan")
+
+    // Refusing to scatter beyond what a runlist can hold. A file in more pieces
+    // than its record can describe needs an $ATTRIBUTE_LIST, which does not
+    // exist here -- so producing one would be producing a file that cannot be
+    // written down.
+    expect(
+        NTFSAllocator.plan(
+            clusters: 3, in: fragmented, totalClusters: 16, maximumFragments: 2) == nil,
+        "a file that would need more pieces than allowed is refused, not scattered")
+    expect(
+        NTFSAllocator.plan(
+            clusters: 2, in: fragmented, totalClusters: 16, maximumFragments: 2) != nil,
+        "while one that fits within the limit is allowed")
+
+    // A full volume is not a fault.
+    let full = Data([0xFF, 0xFF])
+    expect(
+        NTFSAllocator.plan(clusters: 1, in: full, totalClusters: 16) == nil,
+        "a full volume has no room, which is a full disk and not an error")
+
+    // The stretches themselves.
+    let stretches = NTFSAllocator.freeStretches(in: Data([0b1100_0011]), totalClusters: 8)
+    expect(stretches.count == 1, "one stretch of free clusters")
+    expect(stretches[0].start == 2 && stretches[0].count == 4, "found at its true place and size")
+    expect(
+        NTFSAllocator.freeStretches(in: full, totalClusters: 16).isEmpty,
+        "and a full volume has none")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
