@@ -80,6 +80,7 @@ extension LukottaFileSystem: FSUnaryFileSystemOperations {
         // Memory prices the framework; a real directory prices the write path
         // against a store that is not the bottleneck, which is the measurement
         // FAT32 cannot give. What ships names the guest's volume here.
+        var name = "Lukotta"
         let backing: any FSBacking
         if let device = resource as? FSBlockDeviceResource {
             // What is on it decides what can be done with it. The probe claims
@@ -114,12 +115,16 @@ extension LukottaFileSystem: FSUnaryFileSystemOperations {
                 return reply(nil, fsError(POSIXError.EINVAL))
             }
             backing = ntfs
+            // The drive's own name, which is what Finder puts on the desktop.
+            // Calling every volume "Lukotta" would be this application putting
+            // its own name on somebody else's disk.
+            name = ntfs.volumeLabel ?? name
         } else if let root = FSMountOptions.backingRoot(options.taskOptions) {
             backing = FSPassthroughBacking(root: URL(fileURLWithPath: root, isDirectory: true))
         } else {
             backing = FSStoreBacking()
         }
-        let volume = LukottaVolume(name: "Lukotta", backing: backing)
+        let volume = LukottaVolume(name: name, backing: backing)
         self.volume = volume
         reply(volume, nil)
     }
