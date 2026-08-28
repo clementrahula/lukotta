@@ -200,7 +200,8 @@ extension MemoryVolume: FSVolume.Operations {
         guard let directory = directory as? Item, let string = name.string else {
             return reply(nil, nil, fsError(POSIXError.EINVAL))
         }
-        let mode = newAttributes.consumedAttributes.contains(.mode)
+        let mode =
+            newAttributes.consumedAttributes.contains(.mode)
             ? newAttributes.mode : (type == .directory ? 0o755 : 0o644)
         guard
             let node = store.create(

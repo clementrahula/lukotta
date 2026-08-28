@@ -1844,8 +1844,9 @@ group("aDriveGetsATrashSoDeletingIsARename") {
         "and it is where Finder looks for it, .Trashes/<uid>")
 
     // Somebody else's deleted files are not ours to read.
-    let mode = (try? FileManager.default.attributesOfItem(
-        atPath: Trash.directory(onVolumeAt: volume, uid: 501))[.posixPermissions]) as? NSNumber
+    let mode =
+        (try? FileManager.default.attributesOfItem(
+            atPath: Trash.directory(onVolumeAt: volume, uid: 501))[.posixPermissions]) as? NSNumber
     expect(mode?.int16Value == 0o700, "readable by whoever opened the drive and nobody else")
 
     // Asked twice is the ordinary case: every mount of a drive somebody uses.
