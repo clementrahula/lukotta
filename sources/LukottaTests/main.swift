@@ -3513,6 +3513,86 @@ group("aFileWrittenByNtfsIsReadBackByteForByte") {
             + "code, through geometry, record, fixup, attributes, index, and data")
 }
 
+group("theWholeVolumeReadsThroughOneObject") {
+    // Everything the layers do, behind one thing that can be handed to a
+    // volume. What "the disk" is stays outside it: here a file handle, on a
+    // mounted volume an FSBlockDeviceResource.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    let reader = NTFSVolumeReader { offset, length in
+        lock.lock()
+        defer { lock.unlock() }
+        try? handle.seek(toOffset: offset)
+        return try? handle.read(upToCount: length)
+    }
+
+    guard let reader else {
+        expect(false, "the volume opens")
+        return
+    }
+    expect(reader.geometry.bytesPerCluster >= 512, "with a cluster size")
+
+    // The root directory, listed.
+    guard let root = reader.contents(ofDirectory: NTFSTable.rootRecord) else {
+        expect(false, "the root directory lists")
+        return
+    }
+    let names = root.map(\.name)
+    expect(names.contains("$MFT"), "the listing has the master file table in it")
+    expect(names.contains("$Volume"), "and the volume file")
+    expect(
+        root.first(where: { $0.name == "$MFT" })?.record == 0,
+        "and each name carries the record it points at")
+
+    // A record that is not a directory is not listed as one.
+    expect(
+        reader.contents(ofDirectory: 0) == nil,
+        "$MFT is a file, not a directory, and listing it gives nothing rather than nonsense")
+    expect(
+        reader.contents(ofDirectory: 999_999_999) == nil,
+        "and a record past the end of the table is refused")
+
+    // A file, read through the same object.
+    if let entry = root.first(where: { $0.name == "readback.txt" }) {
+        expect(
+            reader.size(ofFile: entry.record) == 36,
+            "the file's size comes back")
+        let contents = reader.contents(ofFile: entry.record)
+        expect(
+            contents.map { String(decoding: $0, as: UTF8.self) }
+                == "LUKOTTA-V2-READBACK-CHECK-0123456789",
+            "and its contents, byte for byte, through one call")
+        // Reading part of it.
+        let part = reader.contents(ofFile: entry.record, offset: 8, length: 7)
+        expect(
+            part.map { String(decoding: $0, as: UTF8.self) } == "V2-READ",
+            "a read from an offset gives that part and no other")
+    } else {
+        expect(true, "readback.txt is not on this volume")
+    }
+
+    // $UpCase is on every NTFS volume and is always 128 KB, which makes it the
+    // one non-resident file whose size is knowable without reading it.
+    if let upcase = root.first(where: { $0.name == "$UpCase" }) {
+        expect(
+            reader.size(ofFile: upcase.record) == 128 * 1024,
+            "$UpCase is 128 KB on every NTFS volume, which is a size not read off this one")
+        let head = reader.contents(ofFile: upcase.record, offset: 0, length: 8)
+        expect(head?.count == 8, "and a large non-resident file reads through its runs")
+    }
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
