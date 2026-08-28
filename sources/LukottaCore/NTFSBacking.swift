@@ -49,9 +49,22 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     /// What the volume calls itself, which is what Finder puts on the desktop.
     public let volumeLabel: String?
 
-    public init?(read: @escaping NTFSVolumeReader.ReadBytes) {
+    /// Putting bytes on the device, where the caller can do that at all.
+    ///
+    /// Separate from reading and optional, so that a volume opened without one
+    /// cannot write by accident: the absence of a function is a stronger
+    /// guarantee than a flag somebody has to check.
+    public typealias WriteBytes = @Sendable (_ offset: UInt64, _ bytes: Data) -> Bool
+
+    private let writeBytes: WriteBytes?
+
+    public init?(
+        read: @escaping NTFSVolumeReader.ReadBytes,
+        write: WriteBytes? = nil
+    ) {
         guard let reader = NTFSVolumeReader(read: read) else { return nil }
         self.reader = reader
+        self.writeBytes = write
         let state = reader.state()
         self.volumeIsSafeToWrite = state?.isSafeToWrite ?? false
         self.volumeLabel = state?.label
@@ -177,7 +190,48 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         _ name: String, in source: FSHandle, to newName: String, in destination: FSHandle
     ) -> Bool { false }
 
-    public func write(_ handle: FSHandle, contents: Data, offset: Int) -> Int { 0 }
+    /// Write into clusters the file already owns.
+    ///
+    /// Everything that would change the volume's structure is refused, so this
+    /// answers zero far more often than it writes. Zero is the honest answer:
+    /// the caller learns nothing was stored rather than being told a write
+    /// succeeded that did not.
+    public func write(_ handle: FSHandle, contents: Data, offset: Int) -> Int {
+        guard let writeBytes,
+            let handle = ours(handle), !handle.isDirectory,
+            offset >= 0, !contents.isEmpty
+        else { return 0 }
+
+        return lock.withLock {
+            guard volumeIsSafeToWrite,
+                let record = reader.record(handle.record),
+                !reader.spillsAttributes(record),
+                let data = reader.attributes(of: record).first(where: { $0.kind == .data }),
+                NTFSFileWrite.isAllowed(
+                    attribute: data, volumeIsClean: true, volumeIsWritable: true),
+                let runs = NTFSRunlist.decode(
+                    record.data, at: data.runlistOffset, limit: record.data.count),
+                let pieces = NTFSFileWrite.pieces(
+                    offset: UInt64(offset), length: contents.count, runs: runs,
+                    bytesPerCluster: reader.geometry.bytesPerCluster, size: data.dataSize)
+            else { return 0 }
+
+            // All or nothing. A write that stores some pieces and fails on a
+            // later one leaves a file half old and half new with nobody told,
+            // so a failure part way through is still reported as bytes written
+            // -- the caller cannot unwrite them, but it must not be told they
+            // did not happen.
+            var written = 0
+            for piece in pieces {
+                let slice = contents[
+                    contents.startIndex + piece.range.lowerBound..<contents.startIndex
+                        + piece.range.upperBound]
+                guard writeBytes(piece.diskOffset, Data(slice)) else { break }
+                written += piece.range.count
+            }
+            return written
+        }
+    }
 
     public func truncate(_ handle: FSHandle, to size: Int) {}
 

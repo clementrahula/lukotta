@@ -3717,6 +3717,16 @@ group("anNtfsVolumeServesThroughTheSameSeamAsTheOthers") {
     expect(fs.remove("$MFT", from: root) == .missing, "removing one is refused")
     expect(
         !fs.rename("$MFT", in: root, to: "x", in: root), "renaming one is refused")
+
+    // A volume opened with no way to write cannot write, whatever is asked of
+    // it. The absence of a function is a stronger guarantee than a flag
+    // somebody has to remember to check, and this is the guarantee the whole
+    // read-only path rests on.
+    if let entry = children.first(where: { $0.name == "readback.txt" }) {
+        expect(
+            fs.write(entry.handle, contents: Data([0x41]), offset: 0) == 0,
+            "a backing opened without a write function stores nothing, even into a real file")
+    }
     expect(
         fs.write(root, contents: Data([1, 2, 3]), offset: 0) == 0,
         "and a write takes nothing rather than reporting bytes it did not store")
@@ -4981,6 +4991,77 @@ group("aByteWrittenByUsIsThereWhenLinuxLooks") {
         reader.contents(ofFile: target, offset: at, length: marker.count)
             .map { Array($0) } == marker,
         "and our reader sees them, which is the weaker half of the check")
+}
+
+group("theBackingWritesOnlyWhenGivenTheMeansAndThePermission") {
+    // The write path, through the seam rather than through the arithmetic. Runs
+    // against a copy, because it changes a volume.
+    guard let path = ProcessInfo.processInfo.environment["LUKOTTA_WRITE_IMAGE"],
+        FileManager.default.fileExists(atPath: path),
+        let handle = FileHandle(forUpdatingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+    let lock = NSLock()
+
+    let read: NTFSVolumeReader.ReadBytes = { offset, length in
+        lock.lock()
+        defer { lock.unlock() }
+        try? handle.seek(toOffset: offset)
+        return try? handle.read(upToCount: length)
+    }
+    let write: NTFSBacking.WriteBytes = { offset, bytes in
+        lock.lock()
+        defer { lock.unlock() }
+        try? handle.seek(toOffset: offset)
+        handle.write(bytes)
+        return true
+    }
+
+    // Opened without the means: cannot write, whatever is asked.
+    guard let readOnly = NTFSBacking(read: read) else {
+        expect(false, "the volume opens read-only")
+        return
+    }
+    guard let target = readOnly.lookup("big.bin", in: readOnly.rootHandle) else {
+        expect(true, "no big.bin on the write copy")
+        return
+    }
+    expect(
+        readOnly.write(target, contents: Data([0x41]), offset: 0) == 0,
+        "a backing with no write function stores nothing")
+
+    // Opened with it: writes, into clusters the file already owns.
+    guard let writable = NTFSBacking(read: read, write: write),
+        let file = writable.lookup("big.bin", in: writable.rootHandle)
+    else {
+        expect(false, "the volume opens writable")
+        return
+    }
+    let marker = Data("THROUGH-THE-SEAM-AT-2097152".utf8)
+    let at = 2_097_152
+    expect(
+        writable.write(file, contents: marker, offset: at) == marker.count,
+        "a write into clusters the file owns stores every byte asked for")
+    expect(
+        writable.read(file, offset: at, length: marker.count) == marker,
+        "and reads back as itself")
+
+    // And everything that must still be refused, now that writing is possible.
+    guard let size = writable.attributes(of: file)?.size else { return }
+    expect(
+        writable.write(file, contents: marker, offset: Int(size)) == 0,
+        "a write at the end of the file is refused -- growing it means allocating")
+    expect(
+        writable.write(file, contents: Data(), offset: 0) == 0,
+        "a write of nothing stores nothing")
+    if let small = writable.lookup("readback.txt", in: writable.rootHandle) {
+        expect(
+            writable.write(small, contents: Data([0x41]), offset: 0) == 0,
+            "and a small file living inside its record is refused, because that is metadata")
+    }
+    expect(
+        writable.write(writable.rootHandle, contents: marker, offset: 0) == 0,
+        "a directory is never written to")
 }
 
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
