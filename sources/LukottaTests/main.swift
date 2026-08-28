@@ -4164,6 +4164,68 @@ group("aFolderIsHandedOverABufferfulAtATime") {
     expect(seen == files, "a folder read one entry at a time comes back whole, in order, once")
 }
 
+group("aBigDirectoryComesBackWhole") {
+    // The root has nine entries in one index block. A folder of five thousand
+    // spans many, and a listing that stops early is invisible: the folder just
+    // has fewer files in it than it should, and nothing reports anything.
+    //
+    // The count is knowable independently -- the files were made by a loop --
+    // so this is a check rather than a description of what turned up.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    guard
+        let fs: any FSBacking = NTFSBacking(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        })
+    else {
+        expect(false, "the volume opens")
+        return
+    }
+
+    guard let many = fs.lookup("many", in: fs.rootHandle) else {
+        expect(true, "no large directory on this volume to check")
+        return
+    }
+    let children = fs.children(of: many)
+    expect(
+        children.count == 5000,
+        "a folder of five thousand files lists five thousand, not one index block's worth "
+            + "-- a listing that stops early is a folder with files missing and no error")
+
+    // Every name is unique. A block read twice would double entries, and the
+    // count alone would not catch it if another block were dropped.
+    expect(
+        Set(children.map(\.name)).count == children.count,
+        "with no name appearing twice, which a block read twice would cause")
+
+    // Sorted, because an enumeration resumes by index into this order.
+    expect(
+        children.map(\.name) == children.map(\.name).sorted(),
+        "and in a stable order, or a resumed listing skips files")
+
+    // Every one is findable through the tree, which is a different code path
+    // from the listing and would disagree if the descent were wrong.
+    let sample = children.indices.filter { $0 % 500 == 0 }.map { children[$0].name }
+    for name in sample {
+        expect(
+            fs.lookup(name, in: many) != nil,
+            "and findable by name through the tree: \(name)")
+    }
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
