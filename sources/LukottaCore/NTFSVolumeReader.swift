@@ -139,19 +139,30 @@ public final class NTFSVolumeReader: @unchecked Sendable {
     // MARK: - Records
 
     /// One record, repaired, with its header.
-    public func record(_ number: UInt64) -> (data: Data, header: NTFSRecord.Header)? {
+    /// Where a record physically lies, without reading it.
+    ///
+    /// A writer needs this and a reader does not, which is why it is separate:
+    /// putting a record back means knowing the byte it came from, and working
+    /// that out a second time somewhere else is how a writer ends up writing to
+    /// a different place than the reader read from.
+    public func diskOffset(ofRecord number: UInt64) -> UInt64? {
         guard
             NTFSTable.isWithin(
                 record: number, tableSizeInBytes: tableSize,
-                bytesPerFileRecord: geometry.bytesPerFileRecord)
-        else { return nil }
-        guard
+                bytesPerFileRecord: geometry.bytesPerFileRecord),
             let inTable = NTFSTable.offsetInTable(
                 record: number, bytesPerFileRecord: geometry.bytesPerFileRecord),
             let placed = NTFSTable.diskOffset(
                 forFileOffset: inTable, runs: mftRuns, bytesPerCluster: geometry.bytesPerCluster),
-            placed.availableBytes >= UInt64(geometry.bytesPerFileRecord),
-            let raw = read(placed.offset, geometry.bytesPerFileRecord),
+            placed.availableBytes >= UInt64(geometry.bytesPerFileRecord)
+        else { return nil }
+        return placed.offset
+    }
+
+    public func record(_ number: UInt64) -> (data: Data, header: NTFSRecord.Header)? {
+        guard
+            let offset = diskOffset(ofRecord: number),
+            let raw = read(offset, geometry.bytesPerFileRecord),
             let header = NTFSRecord.header(raw, expectedLength: geometry.bytesPerFileRecord),
             let repaired = NTFSRecord.applyFixup(
                 raw, header: header, sectorSize: geometry.bytesPerSector)

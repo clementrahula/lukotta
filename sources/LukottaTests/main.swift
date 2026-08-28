@@ -5623,6 +5623,172 @@ group("aRunlistPackedBackDecodesToWhatItWas") {
         "a run of no clusters is refused")
 }
 
+group("aRecordGoesBackToEveryPlaceItLives") {
+    // $MFTMirr holds a copy of the beginning of the table, and $Volume -- where
+    // the dirty flag lives -- is inside it. So the very first write this
+    // filesystem makes is one that has to go to two places.
+
+    let size = 1024
+    let table: UInt64 = 16384
+    let mirror: UInt64 = 2_147_479_552
+
+    for record in 0..<4 {
+        guard
+            let places = NTFSRecordWrite.destinations(
+                record: UInt64(record), tableOffset: table + UInt64(record * size),
+                mirrorOffset: mirror, mirrorLength: 4096, bytesPerFileRecord: size)
+        else {
+            expect(false, "record \(record) has somewhere to go")
+            continue
+        }
+        expect(places.count == 2, "record \(record) is written twice")
+        guard places.count == 2 else { continue }
+        expect(places[0].offset == table + UInt64(record * size), "once where it was read")
+        expect(
+            places[1].offset == mirror + UInt64(record * size),
+            "and once into the mirror, at the same place within it")
+        expect(places[1].isMirror && !places[0].isMirror, "and they are told apart")
+    }
+
+    let beyond = NTFSRecordWrite.destinations(
+        record: 4, tableOffset: table + 4096, mirrorOffset: mirror, mirrorLength: 4096,
+        bytesPerFileRecord: size)
+    expect(beyond?.count == 1, "a record past the mirror is written once")
+    expect(
+        beyond?.first?.isMirror == false,
+        "and into the table, not off the end of the mirror -- that would be writing over "
+            + "whatever the volume keeps after it")
+
+    expect(
+        NTFSRecordWrite.destinations(
+            record: 0, tableOffset: table, mirrorOffset: mirror, mirrorLength: 0,
+            bytesPerFileRecord: size)?.count == 1,
+        "a volume with no mirror at all still writes its table copy")
+    expect(
+        NTFSRecordWrite.destinations(
+            record: 0, tableOffset: table, mirrorOffset: mirror, mirrorLength: 4096,
+            bytesPerFileRecord: 0) == nil,
+        "and a record of no length is refused rather than written at offset zero")
+    // A record number the mirror claims to cover but whose offset would not fit
+    // in the arithmetic. Refused, not wrapped round to the start of the disk --
+    // where it would land on the boot sector.
+    expect(
+        NTFSRecordWrite.destinations(
+            record: UInt64.max / UInt64(size) - 1, tableOffset: table, mirrorOffset: mirror,
+            mirrorLength: UInt64.max, bytesPerFileRecord: size) == nil,
+        "an offset that would overflow is refused")
+    expect(
+        NTFSRecordWrite.destinations(
+            record: UInt64.max / UInt64(size) + 1, tableOffset: table, mirrorOffset: mirror,
+            mirrorLength: UInt64.max, bytesPerFileRecord: size)?.count == 1,
+        "while one simply past the mirror is written once, as any unmirrored record is")
+
+    // And against the volume itself: the mirror really does hold records 0-3
+    // byte for byte, so the two-destination rule is not a guess.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    let raw: @Sendable (UInt64, Int) -> Data? = { offset, length in
+        lock.lock()
+        defer { lock.unlock() }
+        try? handle.seek(toOffset: offset)
+        return try? handle.read(upToCount: length)
+    }
+    guard let reader = NTFSVolumeReader(read: raw) else {
+        expect(false, "the volume reads")
+        return
+    }
+    let geometry = reader.geometry
+    let mirrorOffset = geometry.mftMirrorStartCluster * UInt64(geometry.bytesPerCluster)
+    guard let mirrorLength = reader.size(ofFile: NTFSRecordWrite.mirrorRecord) else {
+        expect(false, "$MFTMirr says how long it is")
+        return
+    }
+    expect(
+        mirrorLength / UInt64(geometry.bytesPerFileRecord) == 4,
+        "it covers four records on this volume, $MFT $MFTMirr $LogFile $Volume")
+    expect(
+        NTFSVolumeState.volumeRecord < mirrorLength / UInt64(geometry.bytesPerFileRecord),
+        "and $Volume is one of them, which is why marking dirty is a two-place write")
+
+    for number in 0..<(mirrorLength / UInt64(geometry.bytesPerFileRecord)) {
+        guard
+            let tableOffset = reader.diskOffset(ofRecord: number),
+            let places = NTFSRecordWrite.destinations(
+                record: number, tableOffset: tableOffset, mirrorOffset: mirrorOffset,
+                mirrorLength: mirrorLength, bytesPerFileRecord: geometry.bytesPerFileRecord),
+            places.count == 2,
+            let inTable = raw(places[0].offset, geometry.bytesPerFileRecord),
+            let inMirror = raw(places[1].offset, geometry.bytesPerFileRecord)
+        else {
+            expect(false, "record \(number) is in both places")
+            continue
+        }
+        expect(
+            inTable == inMirror,
+            "record \(number) is identical in the table and the mirror, so a write that "
+                + "changed one and not the other is what chkdsk would find")
+    }
+
+    // A record the mirror does not cover is not the same in both -- which is
+    // what makes the check above mean something rather than comparing a place
+    // with itself.
+    if let fifth = reader.diskOffset(ofRecord: 4),
+        let inTable = raw(fifth, geometry.bytesPerFileRecord),
+        let past = raw(
+            mirrorOffset + 4 * UInt64(geometry.bytesPerFileRecord),
+            geometry.bytesPerFileRecord)
+    {
+        expect(inTable != past, "and record 4 is not mirrored, so the comparison is a real one")
+    }
+
+    // The bytes that go down: fixup off, and a signature that has moved on.
+    guard let volume = reader.record(NTFSVolumeState.volumeRecord),
+        let onDisk = NTFSRecordWrite.onDisk(
+            volume.data, header: volume.header, sectorSize: geometry.bytesPerSector),
+        let backAgain = NTFSRecord.applyFixup(
+            onDisk, header: volume.header, sectorSize: geometry.bytesPerSector)
+    else {
+        expect(false, "$Volume can be laid out for writing")
+        return
+    }
+    expect(onDisk.count == volume.data.count, "which is the same length it was read at")
+    func withoutSignature(_ data: Data) -> Data {
+        var bytes = [UInt8](data)
+        bytes[volume.header.fixupOffset] = 0
+        bytes[volume.header.fixupOffset + 1] = 0
+        return Data(bytes)
+    }
+    expect(
+        withoutSignature(backAgain) == withoutSignature(volume.data),
+        "and reads back as what it was")
+    let was =
+        UInt16(volume.data[volume.data.startIndex + volume.header.fixupOffset])
+        | (UInt16(volume.data[volume.data.startIndex + volume.header.fixupOffset + 1]) << 8)
+    let now =
+        UInt16(onDisk[onDisk.startIndex + volume.header.fixupOffset])
+        | (UInt16(onDisk[onDisk.startIndex + volume.header.fixupOffset + 1]) << 8)
+    expect(now == NTFSRecord.nextSignature(after: was), "with the signature moved on")
+    expect(now != 0, "and never zero, which is what an unwritten sector holds")
+
+    // Every sector of what goes down carries that signature in its last two
+    // bytes. That is the whole scheme: a record caught half-written has some
+    // sectors old and some new, and the mismatch is what makes it detectable.
+    for sector in 1..<volume.header.fixupCount {
+        let end = onDisk.startIndex + sector * geometry.bytesPerSector - 2
+        guard end + 1 < onDisk.endIndex else { continue }
+        expect(
+            UInt16(onDisk[end]) | (UInt16(onDisk[end + 1]) << 8) == now,
+            "sector \(sector) carries the signature")
+    }
+}
+
 group("theDirtyFlagIsSetWhileWeHoldTheVolume") {
     // Without a journal, the only honest thing to do is say so on the volume:
     // dirty before the first write, clear only on a clean release. A session
