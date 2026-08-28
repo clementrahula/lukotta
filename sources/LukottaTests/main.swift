@@ -2308,6 +2308,66 @@ group("aFileRecordIsRepairedBeforeItIsBelieved") {
     }
 }
 
+group("theRecordReaderAgreesWithARealMasterFileTable") {
+    // The synthetic record proves the arithmetic and the refusals. This proves
+    // the offsets are the ones NTFS actually writes at, by reading the first
+    // record of a real volume's master file table -- $MFT's own record, which
+    // every NTFS volume has and which nothing can be mounted without.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path),
+        let boot = try? handle.read(upToCount: 4096),
+        let geometry = NTFSGeometry.read(boot)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+
+    try? handle.seek(toOffset: geometry.mftByteOffset)
+    guard let raw = try? handle.read(upToCount: geometry.bytesPerFileRecord),
+        raw.count == geometry.bytesPerFileRecord
+    else {
+        expect(false, "the first MFT record is where the geometry said it would be")
+        return
+    }
+
+    guard let header = NTFSRecord.header(raw, expectedLength: geometry.bytesPerFileRecord) else {
+        expect(false, "and it reads as a file record")
+        return
+    }
+    expect(header.inUse, "$MFT's own record is in use, as it is on every volume")
+    expect(
+        header.allocatedLength == geometry.bytesPerFileRecord,
+        "and is exactly as long as the boot sector said a record is")
+    expect(header.usedLength <= header.allocatedLength, "with a used length inside it")
+    expect(
+        header.firstAttributeOffset >= 42 && header.firstAttributeOffset < header.usedLength,
+        "and attributes beginning after the header and before the end")
+    expect(header.fixupCount >= 1, "it carries a fixup array")
+    expect(
+        header.fixupCount - 1 <= geometry.bytesPerFileRecord / geometry.bytesPerSector,
+        "with one entry per sector of the record, and no more")
+
+    // The repair, on bytes nobody here wrote.
+    guard
+        let repaired = NTFSRecord.applyFixup(
+            raw, header: header, sectorSize: geometry.bytesPerSector)
+    else {
+        expect(false, "a real record read cleanly off the disk repairs rather than refusing")
+        return
+    }
+    expect(repaired.count == raw.count, "the repaired record is the same length")
+    expect(
+        repaired != raw,
+        "and differs from what was on disk -- which is the whole point: the bytes at the "
+            + "end of each sector were the signature and are now the file's own")
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
