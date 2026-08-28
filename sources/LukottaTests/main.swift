@@ -3657,6 +3657,22 @@ group("anNtfsVolumeServesThroughTheSameSeamAsTheOthers") {
     expect(fs.attributes(of: found)?.id == 0, "$MFT is record zero")
     expect(fs.lookup("no-such-file-here", in: root) == nil, "and a name that is not there is not")
 
+    // The lookup goes through the tree, not down a listing. The root's index
+    // root holds nothing but a marker pointing at a block, so anything found at
+    // all was found by descending -- and every name in the listing has to be
+    // findable, or the descent is going wrong somewhere the listing does not.
+    for entry in children {
+        expect(
+            fs.lookup(entry.name, in: root) != nil,
+            "every name the listing shows can also be looked up: \(entry.name)")
+    }
+    // NTFS matches case-insensitively, and so must the lookup.
+    if let any = children.first(where: { $0.name.lowercased() != $0.name.uppercased() }) {
+        expect(
+            fs.lookup(any.name.uppercased(), in: root) != nil,
+            "and a name in the wrong case is found, because NTFS matches that way")
+    }
+
     // Reading through the seam.
     if let entry = children.first(where: { $0.name == "readback.txt" }) {
         let contents = fs.read(entry.handle, offset: 0, length: 64)

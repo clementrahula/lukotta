@@ -196,6 +196,76 @@ public final class NTFSVolumeReader: @unchecked Sendable {
         return found
     }
 
+    /// One name in a directory, found through the tree rather than by listing
+    /// it.
+    ///
+    /// A listing reads every block of a directory. A lookup does not have to:
+    /// the entries are sorted, so each node says whether the name is here or
+    /// which block to look in next. On a folder of a hundred thousand files the
+    /// difference is every open of every file in it.
+    public func find(_ name: String, inDirectory number: UInt64) -> UInt64? {
+        guard let record = record(number), record.header.isDirectory else { return nil }
+        let attributes = attributes(of: record)
+
+        var blockSize = 0
+        var next: UInt64?
+
+        // The root of the tree, in the record itself.
+        if let indexRoot = attributes.first(where: { $0.kind == .indexRoot }), indexRoot.isResident
+        {
+            let value = record.data.startIndex + indexRoot.valueOffset
+            guard value + 16 <= record.data.endIndex else { return nil }
+            for i in 0..<4 { blockSize |= Int(record.data[value + 8 + i]) << (8 * i) }
+            let node = indexRoot.valueOffset + 16
+            guard let first = NTFSIndex.firstEntryOffset(nodeHeader: record.data, at: node)
+            else { return nil }
+            let entries = NTFSIndex.entries(
+                record.data, from: first,
+                limit: min(indexRoot.valueOffset + indexRoot.valueLength, record.data.count))
+            switch NTFSIndex.find(name, in: entries) {
+            case .found(let entry): return entry.record
+            case .descend(let block): next = block
+            case .absent: return nil
+            }
+        }
+
+        // Then down through the blocks on the disk.
+        guard blockSize >= 512,
+            let allocation = attributes.first(where: { $0.kind == .indexAllocation }),
+            !allocation.isResident,
+            let runs = NTFSRunlist.decode(
+                record.data, at: allocation.runlistOffset, limit: record.data.count)
+        else { return nil }
+
+        // A B-tree of any plausible depth is far shallower than this; the bound
+        // stops a corrupt tree whose blocks point at each other from being
+        // followed for ever.
+        var depth = 0
+        while let block = next, depth < 64 {
+            depth += 1
+            guard let offset = NTFSIndexBlock.offsetOfBlock(block, blockSize: blockSize),
+                let placed = NTFSTable.diskOffset(
+                    forFileOffset: offset, runs: runs, bytesPerCluster: geometry.bytesPerCluster),
+                let raw = read(placed.offset, blockSize),
+                let header = NTFSIndexBlock.header(raw, blockSize: blockSize),
+                let node = NTFSIndexBlock.applyFixup(
+                    raw, header: header, sectorSize: geometry.bytesPerSector)
+            else { return nil }
+            let entries = NTFSIndex.entries(
+                node, from: header.firstEntryOffset, limit: header.endOfEntries)
+            switch NTFSIndex.find(name, in: entries) {
+            case .found(let entry): return entry.record
+            case .descend(let child):
+                // A block that points at itself, or back up the tree, would
+                // otherwise be followed until the bound above stops it.
+                guard child != block else { return nil }
+                next = child
+            case .absent: return nil
+            }
+        }
+        return nil
+    }
+
     // MARK: - Files
 
     /// How long a file is.

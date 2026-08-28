@@ -94,11 +94,15 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     public func lookup(_ name: String, in directory: FSHandle) -> FSHandle? {
         guard let directory = ours(directory), directory.isDirectory else { return nil }
         return lock.withLock {
-            guard let entries = reader.contents(ofDirectory: directory.record),
-                let found = entries.first(where: { $0.name == name })
-            else { return nil }
-            let isDirectory = reader.record(found.record)?.header.isDirectory ?? false
-            return Handle(record: found.record, name: name, isDirectory: isDirectory)
+            // Through the tree rather than by listing the directory: the
+            // entries are sorted, so each node says where to look next. On a
+            // folder of a hundred thousand files, listing it to open one file
+            // is what makes a window hang.
+            guard let record = reader.find(name, inDirectory: directory.record) else {
+                return nil
+            }
+            let isDirectory = reader.record(record)?.header.isDirectory ?? false
+            return Handle(record: record, name: name, isDirectory: isDirectory)
         }
     }
 
