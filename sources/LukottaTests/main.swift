@@ -3670,6 +3670,156 @@ group("anNtfsVolumeServesThroughTheSameSeamAsTheOthers") {
     expect(
         fs.attributes(of: root)?.mode == 0o555,
         "the mode says read-only, so nothing has to try a write to find out")
+
+    // Dates reach the seam, not just the parser. A volume where every file
+    // shows 1 January 1970 is one nothing reports as broken and everybody sees.
+    let year2000 = Date(timeIntervalSince1970: 946_684_800)
+    expect(
+        (fs.attributes(of: root)?.created ?? Date(timeIntervalSince1970: 0)) > year2000,
+        "the root's creation date arrives through the seam as a real date")
+    if let entry = children.first(where: { $0.name == "readback.txt" }),
+        let attributes = fs.attributes(of: entry.handle)
+    {
+        expect(attributes.created > year2000, "and so does a file's")
+        expect(
+            attributes.modified >= attributes.created,
+            "with modification no earlier than creation")
+    }
+}
+
+group("ntfsDatesAreNotUnixDates") {
+    // NTFS counts 100-nanosecond intervals since 1601, not seconds since 1970.
+    // Reading it as a Unix time puts every file in 1601; reading the ticks as
+    // seconds puts them hundreds of millions of years out. Both look like a
+    // corrupt disk rather than a units mistake, which is why they survive.
+
+    // A known conversion: 1970-01-01 in NTFS ticks is exactly the epoch gap.
+    let unixEpoch = UInt64(NTFSTimestamps.epochDifference * NTFSTimestamps.ticksPerSecond)
+    expect(
+        NTFSTimestamps.date(fromTicks: unixEpoch)?.timeIntervalSince1970 == 0,
+        "the NTFS tick count for 1970 converts to the Unix epoch exactly")
+    expect(
+        NTFSTimestamps.date(fromTicks: unixEpoch + UInt64(NTFSTimestamps.ticksPerSecond))?
+            .timeIntervalSince1970 == 1,
+        "and one second later is one second later, not ten million")
+
+    // Sub-second precision survives, which is the point of the unit.
+    let halfSecond = unixEpoch + UInt64(NTFSTimestamps.ticksPerSecond / 2)
+    expect(
+        NTFSTimestamps.date(fromTicks: halfSecond)?.timeIntervalSince1970 == 0.5,
+        "half a second is half a second rather than rounded away")
+
+    // Zero means never set, not 1601.
+    expect(
+        NTFSTimestamps.date(fromTicks: 0) == nil,
+        "an unset timestamp is nothing rather than a file dated 1601")
+    // A count that would land outside any sensible calendar.
+    expect(
+        NTFSTimestamps.date(fromTicks: UInt64.max) == nil,
+        "and a corrupt count is refused rather than shown as a date in the year 60000")
+
+    // The four timestamps out of a standard information value.
+    var value = [UInt8](repeating: 0, count: 48)
+    func put(_ ticks: UInt64, at offset: Int) {
+        for i in 0..<8 { value[offset + i] = UInt8((ticks >> (8 * UInt64(i))) & 0xFF) }
+    }
+    let oneDay = UInt64(86_400 * NTFSTimestamps.ticksPerSecond)
+    put(unixEpoch, at: 0)
+    put(unixEpoch + oneDay, at: 8)
+    put(unixEpoch + 2 * oneDay, at: 16)
+    put(unixEpoch + 3 * oneDay, at: 24)
+    value[32] = 0x01 | 0x02  // read-only and hidden
+
+    guard let times = NTFSTimestamps.read(Data(value)) else {
+        expect(false, "a standard information value reads")
+        return
+    }
+    expect(times.created.timeIntervalSince1970 == 0, "creation time is the first of the four")
+    expect(times.modified.timeIntervalSince1970 == 86_400, "then modification")
+    expect(
+        times.recordChanged.timeIntervalSince1970 == 172_800,
+        "then when the record changed, which a rename moves and modification does not")
+    expect(times.accessed.timeIntervalSince1970 == 259_200, "then last access")
+
+    guard let flags = NTFSTimestamps.flags(Data(value)) else {
+        expect(false, "the flags read from the same value")
+        return
+    }
+    expect(flags.isReadOnly, "the read-only flag is read")
+    expect(flags.isHidden, "and the hidden flag")
+    expect(!flags.isSystem, "and one that is not set is not")
+
+    // A value too short to hold what it claims.
+    expect(NTFSTimestamps.read(Data(count: 20)) == nil, "a short value is refused")
+    expect(NTFSTimestamps.flags(Data(count: 20)) == nil, "and has no flags either")
+    // A record whose creation time is unset is not trusted; the rest may fall
+    // back to it on an old volume, but nothing falls back to 1601.
+    expect(NTFSTimestamps.read(Data(count: 48)) == nil, "and one with no creation time at all")
+}
+
+group("aRealVolumesDatesAreThisCenturyNotTheSeventeenth") {
+    // The one thing a synthetic fixture cannot catch: an epoch off by 369
+    // years. A volume formatted and written tonight has files whose dates are
+    // within hours of now, and no arithmetic mistake produces that by accident
+    // -- 1601, 1970 and the year 60000 are all equally wrong and equally
+    // obvious against a real disk.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    guard
+        let reader = NTFSVolumeReader(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        })
+    else {
+        expect(false, "the volume opens")
+        return
+    }
+
+    // $MFT's own record. It is created when the volume is formatted, so its
+    // creation date is when mkntfs ran.
+    guard let record = reader.record(0),
+        let info = reader.attributes(of: record)
+            .first(where: { $0.kind == .standardInformation && $0.isResident })
+    else {
+        expect(false, "the table's standard information is found")
+        return
+    }
+    let start = record.data.startIndex + info.valueOffset
+    guard start + info.valueLength <= record.data.endIndex,
+        let times = NTFSTimestamps.read(record.data[start..<start + info.valueLength])
+    else {
+        expect(false, "and reads")
+        return
+    }
+
+    // The volume was made on this machine. Anything outside a wide window
+    // around now means the epoch or the unit is wrong.
+    let year2000 = Date(timeIntervalSince1970: 946_684_800)
+    let soon = Date(timeIntervalSinceNow: 86_400)
+    expect(
+        times.created > year2000,
+        "the volume's creation date is this century, not 1601 -- which is what reading "
+            + "NTFS ticks as a Unix time gives")
+    expect(
+        times.created < soon,
+        "and not in the far future, which is what reading the ticks as seconds gives")
+    expect(times.modified >= times.created, "modification is not before creation")
+    expect(
+        times.created.timeIntervalSinceNow > -86_400 * 400,
+        "and this volume was made recently, which it was -- tonight")
 }
 
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {

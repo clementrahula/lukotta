@@ -96,6 +96,36 @@ public final class NTFSVolumeReader: @unchecked Sendable {
         return NTFSFileName.preferred(names)?.name
     }
 
+    /// When a record's file was made and last changed.
+    ///
+    /// Without this every file on the volume shows the same date, which no
+    /// error reports and anybody looking at a Finder window sees at once.
+    public func times(of record: (data: Data, header: NTFSRecord.Header))
+        -> NTFSTimestamps.Times?
+    {
+        guard
+            let info = attributes(of: record)
+                .first(where: { $0.kind == .standardInformation && $0.isResident })
+        else { return nil }
+        let start = record.data.startIndex + info.valueOffset
+        guard start + info.valueLength <= record.data.endIndex else { return nil }
+        return NTFSTimestamps.read(record.data[start..<start + info.valueLength])
+    }
+
+    /// The DOS-era flags, of which hidden is the one that matters: a volume
+    /// that shows its own metadata files to whoever opens it looks broken.
+    public func flags(of record: (data: Data, header: NTFSRecord.Header))
+        -> NTFSTimestamps.Flags?
+    {
+        guard
+            let info = attributes(of: record)
+                .first(where: { $0.kind == .standardInformation && $0.isResident })
+        else { return nil }
+        let start = record.data.startIndex + info.valueOffset
+        guard start + info.valueLength <= record.data.endIndex else { return nil }
+        return NTFSTimestamps.flags(record.data[start..<start + info.valueLength])
+    }
+
     // MARK: - Directories
 
     /// What is in a directory, by record number.

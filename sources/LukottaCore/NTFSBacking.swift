@@ -60,6 +60,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             let size =
                 reader.attributes(of: record)
                 .first(where: { $0.kind == .data })?.dataSize ?? 0
+            let times = reader.times(of: record)
             return FSAttributes(
                 id: handle.record,
                 // NTFS records do not carry their parent; the name does, and a
@@ -73,8 +74,12 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 // accepting a write and losing it.
                 mode: record.header.isDirectory ? 0o555 : 0o444,
                 linkCount: 1,
-                modified: Date(timeIntervalSince1970: 0),
-                created: Date(timeIntervalSince1970: 0))
+                // Real dates, from $STANDARD_INFORMATION. The epoch is a
+                // fallback for a record that genuinely has none, which is rare
+                // and noticeable -- rather than being every file on the drive,
+                // which is what it was a moment ago.
+                modified: times?.modified ?? Date(timeIntervalSince1970: 0),
+                created: times?.created ?? Date(timeIntervalSince1970: 0))
         }
     }
 
