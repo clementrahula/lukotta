@@ -3,8 +3,8 @@
 # Copyright (C) 2026 Clement Rahula
 # Build, sign and install Lukotta.
 #
-#   ./build-app.sh                 build, sign, install to /Applications
-#   LUKOTTA_INSTALL=0 ./build-app.sh   build only
+#   ./build-app.sh                 build and sign; a dev build also installs
+#   LUKOTTA_INSTALL=0 ./build-app.sh   never install
 #   LUKOTTA_SIGN_ID="..." ./build-app.sh
 #   LUKOTTA_NOTARY_PROFILE="name" ./build-app.sh   also notarise and staple
 #   LUKOTTA_BRANDING=official ./build-app.sh        build as Lukotta
@@ -562,7 +562,23 @@ if [ -n "$NOTARY_ARGS" ] && [ "$SIGN_ID" != "-" ]; then
 fi
 printf 'Built %s\n' "$OUT"
 
-if [ "${LUKOTTA_INSTALL:-1}" = "1" ]; then
+# Only a dev build is ever installed over what is on the Mac.
+#
+# A release and a pre-release on this machine are the copies somebody is
+# actually using, and the only thing allowed to replace either is the update
+# mechanism inside it: that is the path being shipped, and installing over the
+# top proves nothing about it while destroying the version that was there to
+# update from. It has happened, to a beta, in the middle of testing the very
+# update it was meant to receive.
+#
+# Not a flag with a default. LUKOTTA_INSTALL=1 does not reach past this, and
+# there is deliberately no way to ask for it: the dev channel is where work is
+# tried out, and there is nothing a branded build installed by hand can show
+# that the dev build cannot.
+if [ "${LUKOTTA_INSTALL:-1}" = "1" ] && [ "${LUKOTTA_BRANDING:-unbranded}" != "dev" ]; then
+  printf 'Not installing %s: only a dev build replaces what is on this Mac.\n' "$APP_NAME"
+  printf 'The installed release and pre-release are updated from inside them.\n'
+elif [ "${LUKOTTA_INSTALL:-1}" = "1" ]; then
   APPS="/Applications/$APP_NAME.app"
   rm -rf "$APPS"
   /usr/bin/ditto "$OUT" "$APPS"
