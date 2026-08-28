@@ -4497,6 +4497,23 @@ group("theClusterBitmapSaysWhichClustersNotHowMany") {
         NTFSBitmap.firstFreeRun(count: 0, in: free, totalClusters: 8) == nil,
         "asking for no clusters is refused rather than answered with cluster zero")
 
+    // A volume whose very first cluster is free. Every fixture above has
+    // cluster zero in use, which is true of any real NTFS volume -- the boot
+    // sector is there -- and that is exactly why this case hid: the subtraction
+    // that finds the start of a run underflows when the run ends at cluster
+    // count-1, and the process traps rather than returning an answer.
+    let firstFree = Data([0b1111_1110])  // cluster 0 free, 1..7 in use
+    expect(
+        NTFSBitmap.firstFreeRun(count: 1, in: firstFree, totalClusters: 8) == 0,
+        "one cluster wanted, and the free one is cluster zero")
+    let allFree = Data([0x00])
+    expect(
+        NTFSBitmap.firstFreeRun(count: 1, in: allFree, totalClusters: 8) == 0,
+        "an empty volume allocates its first cluster")
+    expect(
+        NTFSBitmap.firstFreeRun(count: 8, in: allFree, totalClusters: 8) == 0,
+        "and a run covering the whole of it starts at zero rather than underflowing")
+
     // The volume's count bounds the search, not the bitmap's length. The
     // bitmap is rounded up to whole bytes, so its last bits describe clusters
     // that do not exist -- allocating one writes past the end of the partition.

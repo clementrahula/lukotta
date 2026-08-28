@@ -66,7 +66,14 @@ public enum NTFSBitmap {
                 run = 0
             } else {
                 run += 1
-                if run == count { return cluster - count + 1 }
+                // cluster + 1 - count, and in that order. Written as
+                // `cluster - count + 1` this underflows whenever the run
+                // completes at cluster count-1 -- which is exactly the case of
+                // a volume whose first cluster is free, asking for one. Every
+                // fixture here had cluster zero in use, so it hid until a
+                // deliberately broken bitmap made cluster zero read as free and
+                // trapped the process.
+                if run == count { return cluster + 1 - count }
             }
             cluster += 1
         }
