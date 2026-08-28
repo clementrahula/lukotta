@@ -5459,6 +5459,85 @@ group("anAllocationIsAllOfItOrNoneOfIt") {
         "and a full volume has none")
 }
 
+group("theAllocatorWorksOnARealVolumesFreeSpace") {
+    // Sixteen-cluster bitmaps prove the arithmetic. This is a million clusters
+    // with real fragmentation left by a real filesystem, which is the only
+    // place the "largest stretches first" behaviour means anything -- on a
+    // synthetic bitmap every stretch is one cluster.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else {
+        expect(true, "no NTFS volume on this machine; the synthetic checks stand alone")
+        return
+    }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    guard
+        let reader = NTFSVolumeReader(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        }), let bitmap = reader.contents(ofFile: NTFSVolumeReader.bitmapRecord), !bitmap.isEmpty
+    else {
+        expect(false, "the volume's bitmap reads")
+        return
+    }
+    let total = reader.geometry.totalSectors / UInt64(reader.geometry.sectorsPerCluster)
+    let free = NTFSBitmap.freeClusters(in: bitmap, totalClusters: total)
+    expect(free > 0 && free < total, "the volume is partly used, which makes this worth doing")
+
+    // A small file: one run, and it must not overlap anything already there.
+    guard let small = NTFSAllocator.plan(clusters: 8, in: bitmap, totalClusters: total) else {
+        expect(false, "a small file fits")
+        return
+    }
+    expect(small.fragments == 1, "in one piece on a volume with this much room")
+    expect(
+        NTFSBitmap.allInUse(small.runs, bitmap: small.bitmap, totalClusters: total),
+        "and the plan's own bitmap has every one of its clusters claimed")
+    for run in small.runs {
+        guard let start = run.physicalCluster else { continue }
+        for offset in 0..<run.clusterCount {
+            expect(
+                NTFSBitmap.isInUse(cluster: start + offset, bitmap: bitmap) == false,
+                "and every cluster it chose was free before it chose it -- an allocator that "
+                    + "hands out a claimed cluster destroys two files at once")
+        }
+    }
+    expect(
+        NTFSBitmap.freeClusters(in: small.bitmap, totalClusters: total) == free - 8,
+        "the volume has exactly eight fewer free clusters afterwards, no more and no fewer")
+
+    // Something large enough to need real free space, but not the whole disk.
+    let big = free / 2
+    guard let large = NTFSAllocator.plan(clusters: big, in: bitmap, totalClusters: total) else {
+        expect(false, "half the free space can be allocated")
+        return
+    }
+    expect(large.clusterCount == big, "covering exactly what was asked for")
+    expect(
+        NTFSBitmap.freeClusters(in: large.bitmap, totalClusters: total) == free - big,
+        "and taking exactly that much away")
+
+    // More than the volume has left.
+    expect(
+        NTFSAllocator.plan(clusters: free + 1, in: bitmap, totalClusters: total) == nil,
+        "one cluster more than the volume has free is refused")
+
+    if ProcessInfo.processInfo.environment["LUKOTTA_SHOW_LISTING"] != nil {
+        let stretches = NTFSAllocator.freeStretches(in: bitmap, totalClusters: total)
+        let largest = stretches.map(\.count).max() ?? 0
+        print(
+            "    free space: \(free) clusters in \(stretches.count) stretches, "
+                + "largest \(largest)")
+    }
+}
+
 group("theShapeOfAnNtfsVolumeIsReadOrRefused") {
     // Where things are on an NTFS volume, which is the first thing anything
     // reading one has to know. Every field comes off a disk somebody plugged
