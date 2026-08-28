@@ -37,6 +37,18 @@ let package = Package(
         // See its own file for why it is not what the bundle starts.
         .executableTarget(name: "LukottaLaunch", path: "sources/LukottaLaunch"),
 
+        // The FSKit extension: a filesystem served from this process rather
+        // than from the kernel, which is what lets a volume be local instead of
+        // a network mount. macOS 15.4 is where FSKit arrives, and the app
+        // supports 15, so nothing outside this target may depend on it.
+        // FSKit arrives in macOS 15.4 and the application supports 15.0, which
+        // SwiftPM cannot express: `platforms:` is one setting for the whole
+        // package. So this one target is compiled against a later minimum and
+        // nothing else changes. It is Apple Silicon only, as the app is.
+        .executableTarget(
+            name: "LukottaFS", path: "sources/LukottaFS",
+            swiftSettings: [.unsafeFlags(["-target", "arm64-apple-macos15.4"])]),
+
         // Run with `swift run LukottaTests`. Not a .testTarget: XCTest and
         // swift-testing both require a full Xcode installation, and the tests
         // should run anywhere the app can be built.
