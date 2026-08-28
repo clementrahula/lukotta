@@ -5708,6 +5708,188 @@ group("aRunlistPackedBackDecodesToWhatItWas") {
         "a run of no clusters is refused")
 }
 
+group("namesAreOrderedTheWayTheVolumeOrdersThem") {
+    // A directory is a B-tree, and a B-tree only works if everybody agrees on
+    // the order. An entry filed by a different comparison is one Windows walks
+    // straight past: the file is on the disk, in its record, with its bytes,
+    // and not in the directory as far as anything asking Windows can tell.
+
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    guard
+        let reader = NTFSVolumeReader(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        })
+    else {
+        expect(false, "the volume reads")
+        return
+    }
+
+    guard let raw = reader.contents(ofFile: NTFSCollation.record),
+        let collation = NTFSCollation(raw)
+    else {
+        expect(false, "$UpCase reads off the volume")
+        return
+    }
+    expect(
+        raw.count == NTFSCollation.entries * 2,
+        "and is the full table, \(raw.count) bytes -- a partial one would order some names "
+            + "right and others silently wrong")
+
+    // What the table actually says, read from this volume rather than from a
+    // specification.
+    expect(collation.upper(0x61) == 0x41, "a uppercases to A")
+    expect(collation.upper(0x41) == 0x41, "and A to itself")
+    expect(collation.upper(0x30) == 0x30, "a digit is left alone")
+    expect(collation.upper(0x00E9) == 0x00C9, "and an accented letter is not")
+
+    // The two places Swift disagrees, which is the reason this exists.
+    expect(
+        collation.upper(0x00DF) == 0x00DF,
+        "the volume leaves sharp s alone, while Swift makes it SS -- a different length as "
+            + "well as a different value")
+    expect("ß".uppercased() == "SS", "which is what Swift really does")
+    expect(
+        collation.upper(0x0131) == 0x0131,
+        "and it leaves the dotless i alone, while Swift makes it I")
+    expect("ı".uppercased() == "I", "which is what Swift really does")
+    expect(
+        collation.compare("straße.txt", "strasse.txt") != .orderedSame,
+        "so these are two names to the volume")
+    expect(
+        "straße.txt".uppercased() == "STRASSE.TXT",
+        "which Swift's uppercasing would have made one")
+
+    // Case-insensitive, which is what makes NTFS NTFS.
+    expect(collation.isSameName("README.txt", "readme.TXT"), "case does not make a new file")
+    expect(!collation.isSameName("readme", "readme2"), "but a different name does")
+    expect(collation.compare("", "") == .orderedSame, "two empty names are the same name")
+    expect(collation.compare("", "a") == .orderedAscending, "and nothing sorts before something")
+    expect(
+        collation.compare("file", "file.txt") == .orderedAscending,
+        "a name that is a prefix of another comes first")
+
+    // The real test: a directory the volume filed itself. If this comparison
+    // is not the comparison that filed them, anything inserted with it lands
+    // where nothing will look.
+    guard let listing = reader.contents(ofDirectory: NTFSTable.rootRecord) else {
+        expect(false, "the root directory lists")
+        return
+    }
+    let names = listing.map { $0.name }.filter { $0 != "." }
+    expect(names.count > 10, "with names in it: \(names.count)")
+
+    // A whole-directory listing is not sorted, and is not meant to be: the
+    // reader sweeps the index blocks in the order they lie on the disk rather
+    // than walking the tree, which is faster and gives the same set. What the
+    // volume actually keeps sorted is each node within itself, and that is the
+    // invariant an insertion has to match.
+    var checked = 0
+    var nodes = 0
+    var directories = 0
+    var outOfOrder: [(String, String, String)] = []
+    var queue: [(UInt64, String)] = [(NTFSTable.rootRecord, "/")]
+    while let (record, label) = queue.popLast(), directories < 64 {
+        guard let entries = reader.contents(ofDirectory: record) else { continue }
+        directories += 1
+        for node in reader.indexNodes(ofDirectory: record) {
+            let inside = NTFSIndex.names(node.entries)
+            guard inside.count > 1 else { continue }
+            nodes += 1
+            checked += inside.count
+            for index in 1..<inside.count
+            where collation.compare(inside[index - 1], inside[index]) != .orderedAscending {
+                outOfOrder.append((label, inside[index - 1], inside[index]))
+            }
+        }
+        for entry in entries where entry.name != "." && entry.name != ".." {
+            if reader.record(entry.record)?.header.isDirectory == true {
+                queue.append((entry.record, label + entry.name + "/"))
+            }
+        }
+    }
+    expect(directories > 1, "across more than one directory: \(directories)")
+    expect(nodes > 20, "and more than one node of the tree: \(nodes)")
+    expect(checked > 1000, "with enough names to be worth saying anything about: \(checked)")
+    expect(
+        outOfOrder.isEmpty,
+        "every node is in the order this comparison says, or: "
+            + "\(outOfOrder.prefix(3).map { "\($0.0): \($0.1) then \($0.2)" })")
+
+    // And somewhere on this volume a whole-directory sweep is *not* sorted, so
+    // the paragraph above is a statement about how the tree is kept rather than
+    // something that happens to be true of any list of names. A directory small
+    // enough to live in one node is sorted either way; one that has grown past
+    // it is not.
+    var sweepUnsorted: String?
+    var largest = 0
+    queue = [(NTFSTable.rootRecord, "/")]
+    var visited = 0
+    while let (record, label) = queue.popLast(), visited < 64 {
+        guard let entries = reader.contents(ofDirectory: record) else { continue }
+        visited += 1
+        let sweep = entries.map { $0.name }.filter { $0 != "." && $0 != ".." }
+        largest = max(largest, sweep.count)
+        if sweep.count > 2, !collation.isSorted(sweep), sweepUnsorted == nil {
+            sweepUnsorted = "\(label) with \(sweep.count) entries"
+        }
+        for entry in entries where entry.name != "." && entry.name != ".." {
+            if reader.record(entry.record)?.header.isDirectory == true {
+                queue.append((entry.record, label + entry.name + "/"))
+            }
+        }
+    }
+    expect(largest > 1000, "the volume has a directory big enough to span nodes: \(largest)")
+    expect(
+        sweepUnsorted != nil,
+        "and its sweep across blocks is not sorted, which is why the check above is per node: "
+            + "\(sweepUnsorted ?? "every sweep was sorted")")
+
+    // Every name the volume holds is the same name as itself under this
+    // comparison, which is the property an insertion needs and is not implied
+    // by the ordering above.
+    let selfSame = names.prefix(200).allSatisfy { collation.isSameName($0, $0) }
+    expect(selfSame, "and each of them is the same name as itself")
+
+    // A deeper directory too, so this is not one node's worth of luck.
+    if let deeper = names.first(where: { name in
+        reader.find(name, inDirectory: NTFSTable.rootRecord)
+            .flatMap { reader.record($0)?.header.isDirectory } == true
+    }), let inside = reader.find(deeper, inDirectory: NTFSTable.rootRecord),
+        let children = reader.contents(ofDirectory: inside)
+    {
+        let inner = children.map { $0.name }.filter { $0 != "." && $0 != ".." }
+        if inner.count > 1 {
+            expect(
+                collation.isSorted(inner),
+                "and \(deeper) with its \(inner.count) entries is in order too")
+        }
+    }
+
+    // The identity table is not the volume's, and saying so is the point: a
+    // caller that writes must have the real one.
+    expect(
+        NTFSCollation.identity.upper(0x61) == 0x61,
+        "the identity table leaves a as a")
+    expect(
+        NTFSCollation.identity.compare("A", "a") != .orderedSame,
+        "so it is not case-insensitive and must not be used to file anything")
+    expect(NTFSCollation(Data()) == nil, "a table that is not there is refused")
+    expect(
+        NTFSCollation(Data(count: NTFSCollation.entries * 2 - 1)) == nil,
+        "and one a byte short, because half a table orders half the names wrongly")
+}
+
 group("aComposedRecordIsAFileTheReaderRecognises") {
     // A file on NTFS is a record, not a name with data behind it. So the test
     // of a composer is whether the reader -- which was written against real

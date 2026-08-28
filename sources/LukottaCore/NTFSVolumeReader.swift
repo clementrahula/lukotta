@@ -226,6 +226,101 @@ public final class NTFSVolumeReader: @unchecked Sendable {
     ///
     /// Reads the entries held in the record and then those in each index block,
     /// which is where the names of any directory worth listing actually live.
+    /// One node of a directory's B-tree, and where it lives.
+    ///
+    /// A listing does not need to know which node a name came from, but an
+    /// insertion needs nothing else: the entry goes into one node, that node is
+    /// written back, and the disk offset is where it goes.
+    public struct IndexNode: Sendable {
+        /// The entries, in the order the volume keeps them -- which is sorted,
+        /// within this node.
+        public let entries: [NTFSIndex.Entry]
+        /// Where the block lies on the disk, or nil for `$INDEX_ROOT`, which
+        /// lives inside the directory's record.
+        public let diskOffset: UInt64?
+        /// Its number within `$INDEX_ALLOCATION`, which is what a parent entry
+        /// points at.
+        public let blockNumber: UInt64?
+        /// How many bytes of the block are used, and how many it has.
+        public let usedBytes: Int
+        public let allocatedBytes: Int
+
+        public init(
+            entries: [NTFSIndex.Entry], diskOffset: UInt64?, blockNumber: UInt64?,
+            usedBytes: Int, allocatedBytes: Int
+        ) {
+            self.entries = entries
+            self.diskOffset = diskOffset
+            self.blockNumber = blockNumber
+            self.usedBytes = usedBytes
+            self.allocatedBytes = allocatedBytes
+        }
+
+        /// Room left for another entry.
+        public var freeBytes: Int { max(0, allocatedBytes - usedBytes) }
+    }
+
+    /// Every node of a directory's index.
+    ///
+    /// The blocks are swept in the order they lie in `$INDEX_ALLOCATION`, not
+    /// walked as a tree. For a listing that is the faster of the two and the
+    /// order does not matter; for anything that cares about order, each node is
+    /// sorted within itself and that is the invariant the volume keeps.
+    public func indexNodes(ofDirectory number: UInt64) -> [IndexNode] {
+        guard let record = record(number), record.header.isDirectory else { return [] }
+        let attributes = attributes(of: record)
+        var nodes: [IndexNode] = []
+
+        var blockSize = 0
+        if let indexRoot = attributes.first(where: { $0.kind == .indexRoot }), indexRoot.isResident
+        {
+            let value = record.data.startIndex + indexRoot.valueOffset
+            guard value + 16 <= record.data.endIndex else { return nodes }
+            for i in 0..<4 { blockSize |= Int(record.data[value + 8 + i]) << (8 * i) }
+            let node = indexRoot.valueOffset + 16
+            if let first = NTFSIndex.firstEntryOffset(nodeHeader: record.data, at: node) {
+                let limit = min(indexRoot.valueOffset + indexRoot.valueLength, record.data.count)
+                nodes.append(
+                    IndexNode(
+                        entries: NTFSIndex.entries(record.data, from: first, limit: limit),
+                        diskOffset: nil, blockNumber: nil,
+                        usedBytes: indexRoot.valueLength, allocatedBytes: indexRoot.valueLength))
+            }
+        }
+
+        guard blockSize >= 512,
+            let allocation = attributes.first(where: { $0.kind == .indexAllocation }),
+            !allocation.isResident,
+            let runs = NTFSRunlist.decode(
+                record.data, at: allocation.runlistOffset, limit: record.data.count)
+        else { return nodes }
+
+        let total = NTFSRunlist.clusterCount(runs) * UInt64(geometry.bytesPerCluster)
+        var offset: UInt64 = 0
+        var guardCount = 0
+        while offset + UInt64(blockSize) <= total, guardCount < 4096 {
+            guardCount += 1
+            let at = offset
+            defer { offset += UInt64(blockSize) }
+            guard
+                let placed = NTFSTable.diskOffset(
+                    forFileOffset: at, runs: runs, bytesPerCluster: geometry.bytesPerCluster),
+                let raw = read(placed.offset, blockSize),
+                let header = NTFSIndexBlock.header(raw, blockSize: blockSize),
+                let block = NTFSIndexBlock.applyFixup(
+                    raw, header: header, sectorSize: geometry.bytesPerSector)
+            else { continue }
+            nodes.append(
+                IndexNode(
+                    entries: NTFSIndex.entries(
+                        block, from: header.firstEntryOffset, limit: header.endOfEntries),
+                    diskOffset: placed.offset,
+                    blockNumber: at / UInt64(blockSize),
+                    usedBytes: header.endOfEntries, allocatedBytes: blockSize))
+        }
+        return nodes
+    }
+
     public func contents(ofDirectory number: UInt64) -> [(name: String, record: UInt64)]? {
         guard let record = record(number), record.header.isDirectory else { return nil }
         let attributes = attributes(of: record)
