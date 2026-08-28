@@ -454,11 +454,18 @@ group("theElevatedMountScript") {
     // form consumes the device path and the engine reports "mount with no disk".
     expect(!msScript.contains("-n '"), "NFS options must never use the separated form")
     expect(
-        msScript.contains("--nfs-options='rsize=1048576,wsize=1048576,readahead=128'"),
+        msScript.contains(
+            "--nfs-options='rsize=1048576,wsize=1048576,readahead=128,deadtimeout=300'"),
         "NFS options use the joined form")
     // Raising timeo was tried and taken out: the measurement behind it did not
     // reproduce, and deadtimeout=45 dominates anything above it anyway.
     expect(!msScript.contains("timeo="), "the timeout is left to the engine")
+    // The measured fix: at the engine's deadtimeout=45 the same load unmounted
+    // the drive by 90 seconds and the engine shut the microVM down with it; at
+    // 300 the mount lived through ten minutes and recovered.
+    expect(
+        msScript.contains("deadtimeout=300"),
+        "a slow drive gets five minutes, not forty-five seconds")
     expect(
         msScript.contains("'/dev/disk4s1' >>"),
         "the device is a positional argument, not swallowed by a preceding flag")

@@ -90,7 +90,7 @@ public enum MountScript {
         /// If this is revisited, the number to think about is one below the
         /// deadtimeout, not above it -- and with a reproduction that survives
         /// being run twice.
-        var nfsOptions = "rsize=1048576,wsize=1048576,readahead=128"
+        var nfsOptions = "rsize=1048576,wsize=1048576,readahead=128,deadtimeout=300"
 
         public init(
             enginePath: String, devicePath: String, driveName: String,
