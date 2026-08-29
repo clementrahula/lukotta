@@ -29,7 +29,21 @@ public enum NTFSNewRecord {
     public static let standardInformation: UInt32 = 0x10
     public static let fileName: UInt32 = 0x30
     public static let data: UInt32 = 0x80
+    public static let indexRoot: UInt32 = 0x90
+
+    /// The DOS attribute bit that says a name is a directory.
+    ///
+    /// It goes in `$STANDARD_INFORMATION`, in `$FILE_NAME`, and in the parent's
+    /// index entry, and the record header carries its own flag as well. A
+    /// directory that says so in three places out of four is one Finder shows
+    /// as a file and Windows shows as a directory.
     public static let endMarker: UInt32 = 0xFFFF_FFFF
+    public static let directoryFlag: UInt32 = 0x1000_0000
+
+    /// What a directory's index is called and how it is arranged.
+    public static let indexName = "$I30"
+    /// Names are compared case-insensitively through `$UpCase`. Rule 1.
+    public static let fileNameCollation: UInt32 = 1
 
     /// Where the fixup array starts, on the volumes this reads.
     ///
@@ -60,12 +74,17 @@ public enum NTFSNewRecord {
         public let securityID: UInt32
         /// The file's bytes, held inside the record.
         public let contents: Data
+        /// Whether this is a directory. A directory carries an empty index
+        /// instead of contents, and says so in its flags.
+        public let isDirectory: Bool
 
         public init(
             record: UInt64, sequence: UInt16, parent: UInt64, parentSequence: UInt16,
             name: String, namespace: NTFSFileName.Namespace, times: NTFSTimestamps.Times,
-            dosFlags: UInt32 = 0x20, securityID: UInt32, contents: Data = Data()
+            dosFlags: UInt32 = 0x20, securityID: UInt32, contents: Data = Data(),
+            isDirectory: Bool = false
         ) {
+            self.isDirectory = isDirectory
             self.record = record
             self.sequence = sequence
             self.parent = parent
@@ -103,9 +122,18 @@ public enum NTFSNewRecord {
             let information = resident(
                 type: standardInformation, value: standardInformationValue(plan), id: 0),
             let name = resident(
-                type: fileName, value: fileNameValue(plan, units: units), id: 1, indexed: true),
-            let contents = resident(type: data, value: plan.contents, id: 2)
+                type: fileName, value: fileNameValue(plan, units: units), id: 1, indexed: true)
         else { return nil }
+        // A directory carries an empty index where a file carries its bytes.
+        let third: [UInt8]?
+        if plan.isDirectory {
+            third = resident(
+                type: indexRoot, value: emptyIndexValue(blockSize: 4096, bytesPerCluster: 4096),
+                id: 2, name: indexName)
+        } else {
+            third = resident(type: data, value: plan.contents, id: 2)
+        }
+        guard let contents = third else { return nil }
 
         // Ascending order of type, which is not a convention but a rule: a
         // reader looking for $DATA stops when it passes 0x80.
@@ -127,7 +155,7 @@ public enum NTFSNewRecord {
         write16(&bytes, 0x10, plan.sequence)
         write16(&bytes, 0x12, 1)  // one name, so one link
         write16(&bytes, 0x14, UInt16(firstAttribute))
-        write16(&bytes, 0x16, 0x0001)  // in use, not a directory
+        write16(&bytes, 0x16, plan.isDirectory ? 0x0003 : 0x0001)
         write32(&bytes, 0x18, UInt32(at))
         write32(&bytes, 0x1C, UInt32(recordSize))
         write16(&bytes, 0x28, 3)  // the next attribute id to hand out
@@ -144,7 +172,7 @@ public enum NTFSNewRecord {
     public static func standardInformationValue(_ plan: Plan) -> Data {
         var value = [UInt8](repeating: 0, count: 72)
         writeTimes(&value, 0, plan.times)
-        write32(&value, 32, plan.dosFlags)
+        write32(&value, 32, plan.dosFlags | (plan.isDirectory ? directoryFlag : 0))
         // 36 maximum versions, 40 version number, 44 class id: all zero, and
         // all unused by anything that reads NTFS today.
         write32(&value, 52, plan.securityID)
@@ -170,7 +198,7 @@ public enum NTFSNewRecord {
         // showed a size here would be showing one the record disagrees with.
         write64(&value, 40, 0)
         write64(&value, 48, UInt64(plan.contents.count))
-        write32(&value, 56, plan.dosFlags)
+        write32(&value, 56, plan.dosFlags | (plan.isDirectory ? directoryFlag : 0))
         write32(&value, 60, 0)  // no reparse point and no extended attributes
         value[64] = UInt8(units.count)
         value[65] = plan.namespace.rawValue
@@ -181,24 +209,61 @@ public enum NTFSNewRecord {
     }
 
     /// A resident attribute: its header, its value, and padding to eight.
-    static func resident(type: UInt32, value: Data, id: UInt16, indexed: Bool = false) -> [UInt8]? {
-        let length = align(24 + value.count)
-        guard length <= 0xFFFF else { return nil }
+    static func resident(
+        type: UInt32, value: Data, id: UInt16, indexed: Bool = false, name: String? = nil
+    ) -> [UInt8]? {
+        let nameUnits = name.map { Array($0.utf16) } ?? []
+        let nameAt = 24
+        let valueAt = align(nameAt + nameUnits.count * 2)
+        let length = align(valueAt + value.count)
+        guard length <= 0xFFFF, nameUnits.count <= 255 else { return nil }
         var bytes = [UInt8](repeating: 0, count: length)
         write32(&bytes, 0x00, type)
         write32(&bytes, 0x04, UInt32(length))
         bytes[0x08] = 0  // resident
-        bytes[0x09] = 0  // the attribute itself has no name
-        write16(&bytes, 0x0A, 0x18)
+        bytes[0x09] = UInt8(nameUnits.count)
+        write16(&bytes, 0x0A, UInt16(nameUnits.isEmpty ? 0 : nameAt))
         write16(&bytes, 0x0C, 0)  // not compressed, encrypted or sparse
         write16(&bytes, 0x0E, id)
         write32(&bytes, 0x10, UInt32(value.count))
-        write16(&bytes, 0x14, 0x18)
+        write16(&bytes, 0x14, UInt16(valueAt))
         // Set on $FILE_NAME, and it means the attribute is also kept in an
         // index. Windows sets it; a record without it is one chkdsk repairs.
         bytes[0x16] = indexed ? 1 : 0
-        bytes.replaceSubrange(24..<24 + value.count, with: value)
+        for (index, unit) in nameUnits.enumerated() {
+            write16(&bytes, nameAt + index * 2, unit)
+        }
+        bytes.replaceSubrange(valueAt..<valueAt + value.count, with: value)
         return bytes
+    }
+
+    /// An `$INDEX_ROOT` holding nothing: a directory with no names in it yet.
+    ///
+    /// Sixteen bytes saying what the index is over and how it is compared, a
+    /// node header, and an end marker. Every directory begins as this, and
+    /// grows a `$BITMAP` and an `$INDEX_ALLOCATION` only when it needs blocks.
+    public static func emptyIndexValue(blockSize: Int, bytesPerCluster: Int) -> Data {
+        var value = [UInt8](repeating: 0, count: 16 + 16 + 16)
+        write32(&value, 0x00, fileName)  // the index is over $FILE_NAME
+        write32(&value, 0x04, fileNameCollation)
+        write32(&value, 0x08, UInt32(blockSize))
+        // Clusters per index block. NTFS writes the count when a block is at
+        // least a cluster, and a negative log when it is smaller.
+        value[0x0C] =
+            blockSize >= bytesPerCluster
+            ? UInt8(max(blockSize / max(bytesPerCluster, 1), 1))
+            : UInt8(bitPattern: Int8(-3))
+
+        // The node: entries begin straight after its own header, and there is
+        // one -- the marker that says the node ends here.
+        write32(&value, 0x10, 16)  // first entry, from the node header
+        write32(&value, 0x14, 32)  // and the entries end after the marker
+        write32(&value, 0x18, 32)  // with no room to spare: this is a record
+        write32(&value, 0x1C, 0)  // nothing below it
+
+        write32(&value, 0x20 + 8, 16)  // the marker's length
+        write16(&value, 0x20 + 12, 0x0002)  // and its flag: the end
+        return Data(value)
     }
 
     // MARK: - Arithmetic

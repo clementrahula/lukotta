@@ -172,7 +172,7 @@ public enum NTFSFileGrow {
 
     // MARK: - Arithmetic
 
-    static func read16(_ bytes: Data, _ at: Int) -> UInt16 {
+    public static func read16(_ bytes: Data, _ at: Int) -> UInt16 {
         let base = bytes.startIndex + at
         guard base + 1 < bytes.endIndex else { return 0 }
         return UInt16(bytes[base]) | (UInt16(bytes[base + 1]) << 8)

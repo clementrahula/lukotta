@@ -85,6 +85,37 @@ public enum NTFSRecordEdit {
         return lay(out, into: record, header: header)
     }
 
+    /// Put an attribute into a record that has not got one.
+    ///
+    /// Attributes are kept in ascending order of type, and NTFS relies on it: a
+    /// reader looking for one stops when it passes the type. So the new one
+    /// goes where its number puts it, not on the end.
+    ///
+    /// - Returns: nil when the record already has that attribute with that
+    ///   name, or when it will not fit. A second attribute of the same name is
+    ///   not an addition, it is a record with two answers to one question.
+    public static func adding(
+        _ bytes: Data, type: UInt32, named name: String?, to record: Data,
+        header: NTFSRecord.Header
+    ) -> Data? {
+        guard let pieces = attributes(of: record, header: header) else { return nil }
+        guard !pieces.contains(where: { $0.kind == type && $0.name == name }) else { return nil }
+        let piece = Piece(
+            kind: type, name: name, isResident: false, id: 0, indexed: 0, value: Data(),
+            whole: bytes)
+        var out: [Piece] = []
+        var placed = false
+        for existing in pieces {
+            if !placed, existing.kind > type {
+                out.append(piece)
+                placed = true
+            }
+            out.append(existing)
+        }
+        if !placed { out.append(piece) }
+        return lay(out, into: record, header: header)
+    }
+
     /// One attribute, taken apart.
     struct Piece {
         let kind: UInt32

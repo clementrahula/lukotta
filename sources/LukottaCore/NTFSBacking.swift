@@ -215,6 +215,11 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     /// so a wrong one costs a scan and never a wrong answer.
     private var recordHint: UInt64 = NTFSRecordAllocator.firstAvailable
 
+    /// Why the last split or deepening gave up. For diagnosis only; nothing
+    /// reads it to decide anything.
+    private var lastGrief = ""
+    public var whyTheTreeWouldNotGrow: String { lock.withLock { lastGrief } }
+
     /// Whether this volume has been marked as ours.
     public var isMarked: Bool { lock.withLock { marked } }
 
@@ -354,7 +359,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     public func create(_ name: String, isDirectory: Bool, in directory: FSHandle, mode: UInt32)
         -> FSHandle?
     {
-        guard writeBytes != nil, !isDirectory, !name.isEmpty,
+        guard writeBytes != nil, !name.isEmpty,
             let parent = ours(directory), parent.isDirectory
         else { return nil }
 
@@ -393,7 +398,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 name: name, namespace: .posix,
                 times: NTFSTimestamps.Times(
                     created: now, modified: now, recordChanged: now, accessed: now),
-                securityID: security)
+                securityID: security, isDirectory: isDirectory)
             guard
                 let composed = NTFSNewRecord.compose(
                     plan, recordSize: reader.geometry.bytesPerFileRecord,
@@ -421,13 +426,14 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             // has no node with spare bytes in it -- what it has is spare room
             // in the record, which is a different question and the only one
             // that matters there.
-            var fits = leaf.free >= key.count
+            var fits = leaf.freeBytes(sectorSize: reader.geometry.bytesPerSector) >= key.count
             if case .root = leaf.site {
                 fits =
                     shape.record.header.allocatedLength - shape.record.header.usedLength
                     >= key.count + 8
             }
             if !fits {
+                lastGrief = "(the split reported nothing)"
                 // Split, then look again: the name now belongs in one of the
                 // two halves, and which one is the descent's answer rather than
                 // a guess.
@@ -444,14 +450,30 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                     return splitLocked(again, in: fresh, collation: collation)
                 }
                 if !trySplit() {
-                    guard deepenLocked(directory: parent.record, collation: collation),
-                        trySplit()
-                    else { return nil }
+                    let deepened = deepenLocked(directory: parent.record, collation: collation)
+                    if !deepened || !trySplit() {
+                        if deepened { lastGrief += " | and again after deepening" }
+                        return nil
+                    }
                 }
                 guard let fresh = indexShape(of: parent.record),
-                    let after = descent(to: name, in: fresh, collation: collation)?.last,
-                    after.free >= key.count
-                else { return nil }
+                    let after = descent(to: name, in: fresh, collation: collation)?.last
+                else {
+                    lastGrief += " | and no leaf afterwards"
+                    return nil
+                }
+                var roomNow =
+                    after.freeBytes(sectorSize: reader.geometry.bytesPerSector) >= key.count
+                if case .root = after.site {
+                    roomNow =
+                        fresh.record.header.allocatedLength - fresh.record.header.usedLength
+                        >= key.count + 8
+                }
+                guard roomNow else {
+                    lastGrief +=
+                        " | the leaf still has only \(after.freeBytes(sectorSize: reader.geometry.bytesPerSector)) bytes"
+                    return nil
+                }
                 leaf = after
             }
 
@@ -474,7 +496,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             }
 
             recordHint = choice.record
-            return Handle(record: choice.record, name: name, isDirectory: false)
+            return Handle(record: choice.record, name: name, isDirectory: isDirectory)
         }
     }
 
@@ -497,9 +519,19 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 return "no free record in a table of \(records)"
             }
             guard let shape = indexShape(of: parent.record),
-                let leaf = descent(to: name, in: shape, collation: collation)?.last
+                let path = descent(to: name, in: shape, collation: collation),
+                let leaf = path.last
             else { return "no leaf node for the name" }
-            return "the leaf node has \(leaf.free) bytes free"
+            // Deliberately nothing that allocates. An earlier version of
+            // this asked the shape for a free index block, which claims a
+            // cluster and writes the bitmap -- a question that changed the
+            // volume it was asked about.
+            var why =
+                "the leaf node has "
+                + "\(leaf.freeBytes(sectorSize: reader.geometry.bytesPerSector)) bytes free, "
+                + "\(path.count) deep, \(leaf.entries.count) entries"
+            if !lastGrief.isEmpty { why += " | \(lastGrief)" }
+            return why
         }
     }
 
@@ -615,12 +647,24 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     private func splitLocked(_ path: [NodeAt], in shape: IndexShape, collation: NTFSCollation)
         -> Bool
     {
-        guard path.count >= 2, let leaf = path.last else { return false }
+        guard path.count >= 2, let leaf = path.last else {
+            lastGrief = "split: the leaf is the root, nothing above it to promote into"
+            return false
+        }
         let parent = path[path.count - 2]
-        guard case .block(let leafOffset, let leafNumber) = leaf.site else { return false }
-        guard let plan = split(leaf) else { return false }
+        guard case .block(let leafOffset, let leafNumber) = leaf.site else {
+            lastGrief = "split: the leaf is not a block"
+            return false
+        }
+        guard let plan = split(leaf) else {
+            lastGrief = "split: the node cannot be cut, \(leaf.entries.count) entries"
+            return false
+        }
 
-        guard let room = freeIndexBlockLocked(shape: shape) else { return false }
+        guard let room = freeIndexBlockLocked(shape: shape) else {
+            lastGrief = "split: no block to put the lower half in"
+            return false
+        }
         guard
             let built = NTFSIndexBlock.compose(
                 blockNumber: room.block, blockSize: shape.blockSize,
@@ -631,7 +675,10 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 forFileOffset: room.block * UInt64(shape.blockSize), runs: room.runs,
                 bytesPerCluster: reader.geometry.bytesPerCluster),
             writeIndexBlockLocked(built, at: placed.offset)
-        else { return false }
+        else {
+            lastGrief = "split: the new block could not be built or written"
+            return false
+        }
 
         // Where the median belongs among the parent's own keys.
         guard let key = NTFSIndexWrite.key(of: promoted, at: 0) else { return false }
@@ -650,7 +697,10 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             writeParentLocked(
                 parent, entries: entries, in: shape, grown: room.grownAllocation,
                 claiming: room.block)
-        else { return false }
+        else {
+            lastGrief = "split: the parent would not take the median"
+            return false
+        }
 
         // 4. The old leaf, trimmed to the names above the median.
         guard
@@ -784,11 +834,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         guard let record = reader.record(directory) else { return false }
         let attributes = reader.attributes(of: record)
         guard let indexRoot = attributes.first(where: { $0.kind == .indexRoot }),
-            indexRoot.isResident,
-            let allocation = attributes.first(where: { $0.kind == .indexAllocation }),
-            !allocation.isResident,
-            let blockBitmap = attributes.first(where: { $0.kind == .bitmap }),
-            blockBitmap.isResident
+            indexRoot.isResident
         else { return false }
 
         var blockSize = 0
@@ -797,6 +843,25 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             blockSize |= Int(record.data[base + indexRoot.valueOffset + 8 + byte]) << (8 * byte)
         }
         guard blockSize >= 512 else { return false }
+
+        // A directory made here has no blocks at all: its whole index is the
+        // root, because that is what an empty directory is. The first time it
+        // outgrows its record it has to acquire the two attributes that hold
+        // blocks -- an $INDEX_ALLOCATION to keep them in and a $BITMAP to say
+        // which of them exist.
+        guard attributes.contains(where: { $0.kind == .indexAllocation }),
+            attributes.contains(where: { $0.kind == .bitmap })
+        else {
+            let gave = giveBlocksLocked(directory: directory, blockSize: blockSize)
+            if !gave { lastGrief = "deepen: the directory could not be given blocks" }
+            return gave
+        }
+
+        guard let allocation = attributes.first(where: { $0.kind == .indexAllocation }),
+            !allocation.isResident,
+            let blockBitmap = attributes.first(where: { $0.kind == .bitmap }),
+            blockBitmap.isResident
+        else { return false }
 
         let rootValue = Data(
             record.data[
@@ -811,7 +876,10 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         // A block for them. Growing the index if there is none free, exactly as
         // a split does.
         guard let shape = indexShape(of: directory), let room = freeIndexBlockLocked(shape: shape)
-        else { return false }
+        else {
+            lastGrief = "deepen: no block for the root's entries"
+            return false
+        }
 
         guard
             let built = NTFSIndexBlock.compose(
@@ -855,6 +923,156 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 withRoot, expectedLength: reader.geometry.bytesPerFileRecord)
         else { return false }
         return writeRecordLocked(directory, withRoot, header: finalHeader, mirrorLast: true)
+    }
+
+    /// Give a directory somewhere to keep index blocks.
+    ///
+    /// A directory made here starts with nothing but its root, which is what an
+    /// empty directory is. When the root fills it needs two more attributes: an
+    /// `$INDEX_ALLOCATION` holding the blocks and a `$BITMAP` saying which of
+    /// them exist. Both are added in one record write, along with the root
+    /// emptied into the first block -- so a reader either sees a directory with
+    /// no blocks and a full root, or one with a block and an empty root, and
+    /// never a root pointing at a block the record does not know about.
+    ///
+    /// Must be called with `lock` held.
+    private func giveBlocksLocked(directory: UInt64, blockSize: Int) -> Bool {
+        guard blockSize == reader.geometry.bytesPerCluster,
+            let record = reader.record(directory),
+            let indexRoot = reader.attributes(of: record).first(where: { $0.kind == .indexRoot }),
+            indexRoot.isResident,
+            let volumeBitmap = clusterBitmapLocked()
+        else { return false }
+        let base = record.data.startIndex
+        let rootValue = Data(
+            record.data[
+                (base + indexRoot.valueOffset)..<(base + indexRoot.valueOffset
+                    + indexRoot.valueLength)])
+        guard
+            let (entries, marker) = NTFSIndexSplit.entries(
+                of: rootValue, nodeHeaderAt: NTFSIndexWrite.indexRootHeaderLength), !entries.isEmpty
+        else { return false }
+
+        // One cluster, near the directory's own record so a listing does not
+        // cross the disk.
+        let total = reader.geometry.totalSectors / UInt64(reader.geometry.sectorsPerCluster)
+        guard
+            let claim = NTFSAllocator.plan(
+                clusters: 1, in: volumeBitmap, totalClusters: total,
+                near: (reader.diskOffset(ofRecord: directory) ?? 0)
+                    / UInt64(reader.geometry.bytesPerCluster), maximumFragments: 1),
+            let cluster = claim.runs.first?.physicalCluster,
+            let built = NTFSIndexBlock.compose(
+                blockNumber: 0, blockSize: blockSize,
+                sectorSize: reader.geometry.bytesPerSector, entries: entries, marker: marker,
+                hasChildren: NTFSIndexSplit.child(of: marker) != nil),
+            let allocationBytes = NTFSFileGrow.nonResident(
+                type: 0xA0, id: 3, runs: claim.runs, bytesPerCluster: blockSize,
+                size: UInt64(blockSize), initialised: UInt64(blockSize)),
+            let emptied = NTFSIndexWrite.rootPointingAt(0, keeping: rootValue)
+        else { return false }
+
+        // The $INDEX_ALLOCATION attribute carries a name, and the one built
+        // above does not: it is the general non-resident builder. Put the name
+        // in, and move the runlist along to make room for it.
+        guard let named = naming(allocationBytes, "$I30") else { return false }
+
+        // Eight bytes of bitmap, sixty-four blocks' worth, with the first taken.
+        var bits = [UInt8](repeating: 0, count: 8)
+        bits[0] = 0x01
+
+        // 1. The cluster. A crash from here leaks it and nothing else.
+        guard
+            writeVolumeBitmapLocked(
+                claim.bitmap, touching: claim.runs, changedFrom: volumeBitmap)
+        else { return false }
+        // 2. The block, which nothing points at yet.
+        guard writeIndexBlockLocked(built, at: cluster * UInt64(blockSize)) else { return false }
+        // 3. The record: both new attributes and the emptied root, at once.
+        //
+        // The root is emptied first. It is what filled the record in the first
+        // place, and the two new attributes have to fit in what it gives back
+        // -- adding them to a record that is still full fails, which is what it
+        // did.
+        guard
+            let withRoot = NTFSRecordEdit.replacing(
+                .indexRoot, named: "$I30", with: emptied, in: record.data, header: record.header),
+            let emptyHeader = NTFSRecord.header(
+                withRoot, expectedLength: reader.geometry.bytesPerFileRecord),
+            let withAllocation = NTFSRecordEdit.adding(
+                named, type: 0xA0, named: "$I30", to: withRoot, header: emptyHeader),
+            let step = NTFSRecord.header(
+                withAllocation, expectedLength: reader.geometry.bytesPerFileRecord),
+            let bitmapBytes = residentAttribute(type: 0xB0, id: 4, name: "$I30", value: Data(bits)),
+            let withBitmap = NTFSRecordEdit.adding(
+                bitmapBytes, type: 0xB0, named: "$I30", to: withAllocation, header: step),
+            let finalHeader = NTFSRecord.header(
+                withBitmap, expectedLength: reader.geometry.bytesPerFileRecord)
+        else { return false }
+        return writeRecordLocked(directory, withBitmap, header: finalHeader, mirrorLast: true)
+    }
+
+    /// A non-resident attribute with a name put into it.
+    ///
+    /// The general builder makes nameless attributes; `$I30` needs one, and the
+    /// runlist has to move along to make room. Doing it here rather than in the
+    /// builder keeps the builder to one job.
+    private func naming(_ attribute: Data, _ name: String) -> Data? {
+        let units = Array(name.utf16)
+        let nameAt = NTFSFileGrow.nonResidentHeaderLength
+        let runlistAt = (nameAt + units.count * 2 + 7) & ~7
+        let oldRunlistAt = Int(NTFSFileGrow.read16(attribute, NTFSFileGrow.runlistOffsetField))
+        guard oldRunlistAt >= nameAt, oldRunlistAt <= attribute.count else { return nil }
+        let runlist = [UInt8](attribute[(attribute.startIndex + oldRunlistAt)...])
+        let length = (runlistAt + runlist.count + 7) & ~7
+        guard length <= 0xFFFF else { return nil }
+
+        var bytes = [UInt8](attribute.prefix(nameAt))
+        bytes.append(contentsOf: [UInt8](repeating: 0, count: length - nameAt))
+        for (index, unit) in units.enumerated() {
+            bytes[nameAt + index * 2] = UInt8(unit & 0xFF)
+            bytes[nameAt + index * 2 + 1] = UInt8(unit >> 8)
+        }
+        bytes.replaceSubrange(runlistAt..<(runlistAt + runlist.count), with: runlist)
+        bytes[0x09] = UInt8(units.count)
+        bytes[0x0A] = UInt8(nameAt & 0xFF)
+        bytes[0x0B] = UInt8(nameAt >> 8)
+        bytes[NTFSFileGrow.runlistOffsetField] = UInt8(runlistAt & 0xFF)
+        bytes[NTFSFileGrow.runlistOffsetField + 1] = UInt8(runlistAt >> 8)
+        for byte in 0..<4 {
+            bytes[0x04 + byte] = UInt8((UInt32(length) >> (8 * UInt32(byte))) & 0xFF)
+        }
+        return Data(bytes)
+    }
+
+    /// A resident attribute with a name, built whole.
+    private func residentAttribute(type: UInt32, id: UInt16, name: String, value: Data) -> Data? {
+        let units = Array(name.utf16)
+        let nameAt = 24
+        let valueAt = (nameAt + units.count * 2 + 7) & ~7
+        let length = (valueAt + value.count + 7) & ~7
+        guard length <= 0xFFFF else { return nil }
+        var bytes = [UInt8](repeating: 0, count: length)
+        for byte in 0..<4 { bytes[byte] = UInt8((type >> (8 * UInt32(byte))) & 0xFF) }
+        for byte in 0..<4 {
+            bytes[0x04 + byte] = UInt8((UInt32(length) >> (8 * UInt32(byte))) & 0xFF)
+        }
+        bytes[0x08] = 0
+        bytes[0x09] = UInt8(units.count)
+        bytes[0x0A] = UInt8(nameAt & 0xFF)
+        bytes[0x0E] = UInt8(id & 0xFF)
+        bytes[0x0F] = UInt8(id >> 8)
+        for byte in 0..<4 {
+            bytes[0x10 + byte] = UInt8((UInt32(value.count) >> (8 * UInt32(byte))) & 0xFF)
+        }
+        bytes[0x14] = UInt8(valueAt & 0xFF)
+        bytes[0x15] = UInt8(valueAt >> 8)
+        for (index, unit) in units.enumerated() {
+            bytes[nameAt + index * 2] = UInt8(unit & 0xFF)
+            bytes[nameAt + index * 2 + 1] = UInt8(unit >> 8)
+        }
+        bytes.replaceSubrange(valueAt..<(valueAt + value.count), with: [UInt8](value))
+        return Data(bytes)
     }
 
     /// A free index block, growing the index by one if it has none.
@@ -1279,11 +1497,20 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         /// room the entries disagree with is a write past the end of the node.
         /// A root has none by definition -- it lives in a record, and every
         /// byte it does not use belongs to another attribute.
-        var free: Int {
+        var free: Int { 0 }
+
+        /// How many bytes the node has left, for a given sector size.
+        ///
+        /// Measured from where a composed block actually puts its first entry,
+        /// which is past the fixup array and not at the node header. Measuring
+        /// from the header over-reports by the length of the array, and then
+        /// the node says it has room while the block refuses to lay out --
+        /// which looks like a create failing for no reason.
+        func freeBytes(sectorSize: Int) -> Int {
             if case .root = site { return 0 }
             let used =
-                NTFSIndexWrite.nodeHeaderLength + entries.reduce(0) { $0 + $1.count }
-                + marker.count
+                NTFSIndexBlock.firstEntry(blockSize: blockSize, sectorSize: sectorSize)
+                + entries.reduce(0) { $0 + $1.count } + marker.count
             return max(0, blockSize - NTFSIndexBlock.nodeHeaderOffset - used)
         }
     }

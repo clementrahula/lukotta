@@ -6734,13 +6734,147 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
             "leaving \(small.name) exactly as it was found")
     }
 
-    // Directories are refused everywhere, for now, and said so plainly rather
-    // than half made.
+    // A folder, made here, with files put in it.
+    guard let folder = backing.create("a-folder", isDirectory: true, in: root, mode: 0o755),
+        let folderAttributes = backing.attributes(of: folder)
+    else {
+        expect(false, "a folder is made")
+        return
+    }
+    expect(folderAttributes.isDirectory, "and it is a directory")
     expect(
-        backing.create("a-folder", isDirectory: true, in: root, mode: 0o755) == nil,
-        "a directory is not made, because it needs an index of its own")
+        backing.children(of: folder).isEmpty,
+        "with nothing in it: \(backing.children(of: folder).map { $0.name })")
     expect(
-        backing.lookup("a-folder", in: root) == nil, "and nothing of it is left behind")
+        backing.children(of: root).map { $0.name }.contains("a-folder"),
+        "and it lists in the directory it was made in")
+
+    var putIn = 0
+    for index in 0..<120 {
+        if backing.create("inside-\(index).txt", isDirectory: false, in: folder, mode: 0o644)
+            != nil
+        {
+            putIn += 1
+        } else {
+            print(
+                "    folder refused inside-\(index).txt after \(putIn): "
+                    + backing.whyCreateFailed("inside-\(index).txt", in: folder)
+                    + " | " + backing.whyTheTreeWouldNotGrow)
+            break
+        }
+    }
+    // Enough to fill the record, force the folder to acquire blocks, and then
+    // split one -- all inside a directory that did not exist a moment ago.
+    expect(putIn == 120, "a hundred and twenty files go into the folder: \(putIn)")
+    let inside = backing.children(of: folder).map { $0.name }.sorted()
+    expect(inside.count == 120, "the folder holds them all: \(inside.count)")
+    expect(
+        inside == (0..<120).map { "inside-\($0).txt" }.sorted(),
+        "and they are the ones that were put there")
+
+    // A reader that has never seen the volume, which is the opinion that
+    // counts.
+    guard let fromScratch = NTFSVolumeReader(read: read),
+        let folderNumber = fromScratch.find("a-folder", inDirectory: NTFSTable.rootRecord),
+        let folderRecord = fromScratch.record(folderNumber)
+    else {
+        expect(false, "a fresh reader finds the folder")
+        return
+    }
+    expect(folderRecord.header.isDirectory, "its record says it is a directory")
+    expect(
+        fromScratch.attributes(of: folderRecord).contains { $0.kind == .indexRoot },
+        "and carries an index of its own")
+    expect(
+        !fromScratch.attributes(of: folderRecord).contains { $0.kind == .data },
+        "and no $DATA, because a directory has no bytes")
+    guard let listed = fromScratch.contents(ofDirectory: folderNumber) else {
+        expect(false, "and the folder lists")
+        return
+    }
+    expect(
+        listed.map { $0.name }.sorted() == inside,
+        "with the same names in it: \(listed.count)")
+    var lost: [String] = []
+    for index in 0..<120
+    where fromScratch.find("inside-\(index).txt", inDirectory: folderNumber) == nil {
+        lost.append("inside-\(index).txt")
+    }
+    expect(lost.isEmpty, "and every one can be found by descending: missing \(lost.prefix(4))")
+    expect(
+        fromScratch.attributes(of: folderRecord).contains { $0.kind == .indexAllocation },
+        "the folder has grown blocks of its own by now")
+    expect(
+        fromScratch.attributes(of: folderRecord).contains { $0.kind == .bitmap },
+        "and a bitmap saying which of them exist")
+    if let collation = fromScratch.collation() {
+        var wrong: [String] = []
+        for node in fromScratch.indexNodes(ofDirectory: folderNumber) {
+            let names = NTFSIndex.names(node.entries)
+            guard names.count > 1 else { continue }
+            for at in 1..<names.count
+            where collation.compare(names[at - 1], names[at]) != .orderedAscending {
+                wrong.append("\(names[at - 1]) then \(names[at])")
+            }
+        }
+        expect(wrong.isEmpty, "and every node of it is in order: \(wrong.prefix(3))")
+    }
+
+    // The flags a directory carries, in each of the places it has to carry
+    // them. Three out of four is a directory Finder shows as a file.
+    guard
+        let folderName = fromScratch.attributes(of: folderRecord).first(where: {
+            $0.kind == .fileName
+        })
+    else {
+        expect(false, "the folder has a $FILE_NAME")
+        return
+    }
+    var nameFlags: UInt32 = 0
+    for byte in 0..<4 {
+        nameFlags |=
+            UInt32(
+                folderRecord.data[folderRecord.data.startIndex + folderName.valueOffset + 56 + byte]
+            )
+            << (8 * UInt32(byte))
+    }
+    expect(
+        nameFlags & NTFSNewRecord.directoryFlag != 0,
+        "its $FILE_NAME says directory: 0x\(String(nameFlags, radix: 16))")
+    guard
+        let folderInformation = fromScratch.attributes(of: folderRecord).first(where: {
+            $0.kind == .standardInformation
+        })
+    else {
+        expect(false, "and a $STANDARD_INFORMATION")
+        return
+    }
+    var infoFlags: UInt32 = 0
+    for byte in 0..<4 {
+        infoFlags |=
+            UInt32(
+                folderRecord.data[
+                    folderRecord.data.startIndex + folderInformation.valueOffset + 32 + byte])
+            << (8 * UInt32(byte))
+    }
+    expect(
+        infoFlags & NTFSNewRecord.directoryFlag != 0,
+        "and so does its $STANDARD_INFORMATION: 0x\(String(infoFlags, radix: 16))")
+
+    // And it can be emptied and taken away.
+    var takenOut = 0
+    for index in 0..<120 where backing.remove("inside-\(index).txt", from: folder) == .removed {
+        takenOut += 1
+    }
+    expect(takenOut == 120, "and all of them come out again: \(takenOut)")
+    expect(backing.children(of: folder).isEmpty, "leaving the folder empty")
+    expect(
+        backing.remove("a-folder", from: root) == .notEmpty,
+        "and the folder itself is still refused, because taking a directory away means taking "
+            + "its index apart -- which is a different thing, and not half-doing it is the "
+            + "point")
+    expect(
+        backing.lookup("a-folder", in: root) != nil, "so it is still there")
 
     // Put the volume back clean, as a mount that ends properly does.
     expect(backing.release(), "the volume is released")

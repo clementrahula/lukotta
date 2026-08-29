@@ -102,6 +102,24 @@ public enum NTFSIndexBlock {
         return Data(bytes)
     }
 
+    /// Where a composed block's entries begin, counted from its node header.
+    ///
+    /// The fixup array sits at 40, which is past the node header at 24, so the
+    /// entries begin after the array rather than after the header -- on an
+    /// eight-byte boundary, like everything else. Starting them at the header
+    /// would put the first entry underneath the array, and the array is written
+    /// last.
+    ///
+    /// **Anything asking how much room a node has must ask this too.** Working
+    /// the answer out from the node header alone over-reports the free space by
+    /// the length of the array, and the write then fails silently: the node
+    /// says it has room, the block will not lay out, and the caller is left
+    /// with a refusal it has no reason for.
+    public static func firstEntry(blockSize: Int, sectorSize: Int) -> Int {
+        let fixupCount = blockSize / max(sectorSize, 1) + 1
+        return max(16, (40 + fixupCount * 2 - nodeHeaderOffset + 7) & ~7)
+    }
+
     /// Where the node header sits inside a block.
     ///
     /// After the block's own twenty-four bytes, and its offsets are relative to
@@ -165,13 +183,7 @@ public enum NTFSIndexBlock {
         let fixupCount = blockSize / sectorSize + 1
         let fixupOffset = 40
         let nodeStart = nodeHeaderOffset
-        // The fixup array sits at 40, which is past the node header at 24. So
-        // the entries begin after the array rather than after the header, and
-        // on an eight-byte boundary like everything else. Starting them at the
-        // header would put the first entry underneath the array, and the array
-        // is written last.
-        let firstEntry = max(
-            16, (fixupOffset + fixupCount * 2 - nodeStart + 7) & ~7)
+        let firstEntry = firstEntry(blockSize: blockSize, sectorSize: sectorSize)
         guard nodeStart + firstEntry < blockSize else { return nil }
 
         var bytes = [UInt8](repeating: 0, count: blockSize)
