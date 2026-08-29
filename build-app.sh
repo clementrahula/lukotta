@@ -130,6 +130,18 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     echo "error: LUKOTTA_BRANDING must be 'official', 'beta', 'dev', 'v2' or 'unbranded'" >&2; exit 1 ;;
 esac
 
+# The first argument is where to build, not what to build. Typing a channel
+# name there -- which is the obvious thing to try, and which I did -- builds
+# whatever LUKOTTA_BRANDING says into a directory of that name, reports
+# success, and leaves a hundred and fifty megabytes in the repository under a
+# name that looks deliberate. Refused, with the line that actually works.
+case "${1:-}" in
+  official | beta | dev | v2 | unbranded)
+    printf 'error: "%s" is a channel, and this argument is an output path.\n' "$1" >&2
+    printf '       Use: LUKOTTA_BRANDING=%s %s\n' "$1" "$0" >&2
+    exit 2 ;;
+esac
+
 OUT="${1:-$HERE/dist/$APP_NAME.app}"
 CONTENTS="$OUT/Contents"
 
