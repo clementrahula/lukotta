@@ -469,13 +469,13 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             }
             let entry = found.node.entries[found.index]
             let child = NTFSIndexSplit.child(of: entry)
-            var where_ = "a leaf"
-            if case .root = found.node.site { where_ = "the root" }
-            if child != nil { where_ += " with a child at \(child!)" }
+            var place = "a leaf"
+            if case .root = found.node.site { place = "the root" }
+            if child != nil { place += " with a child at \(child!)" }
             if child != nil, largestBelow(entry, in: shape) == nil {
-                return "in \(where_), and there is no largest name below it"
+                return "in \(place), and there is no largest name below it"
             }
-            return "in \(where_), entry \(found.index) of \(found.node.entries.count)"
+            return "in \(place), entry \(found.index) of \(found.node.entries.count)"
         }
     }
 
