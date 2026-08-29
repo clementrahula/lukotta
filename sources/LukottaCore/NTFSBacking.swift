@@ -447,10 +447,10 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             guard NTFSRecordAllocator.choose(in: bitmap, recordCount: records) != nil else {
                 return "no free record in a table of \(records)"
             }
-            guard let node = leafNode(of: parent.record, for: name, collation: collation) else {
-                return "no leaf node for the name"
-            }
-            return "the leaf node has \(node.room) bytes free"
+            guard let shape = indexShape(of: parent.record),
+                let leaf = descent(to: name, in: shape, collation: collation)?.last
+            else { return "no leaf node for the name" }
+            return "the leaf node has \(leaf.free) bytes free"
         }
     }
 
@@ -543,92 +543,6 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         guard record.data.count > 0x11 else { return 1 }
         let at = record.data.startIndex
         return UInt16(record.data[at + 0x10]) | (UInt16(record.data[at + 0x11]) << 8)
-    }
-
-    /// One index block, ready to be spliced.
-    private struct Leaf {
-        let bytes: Data
-        let headerOffset: Int
-        let diskOffset: UInt64
-        let blockSize: Int
-        let room: Int
-    }
-
-    /// Walk down to the node a name belongs in.
-    ///
-    /// The same descent a search does, and it has to be: a name filed anywhere
-    /// but where the search would look for it is a name nothing finds.
-    ///
-    /// Must be called with `lock` held.
-    private func leafNode(of directory: UInt64, for name: String, collation: NTFSCollation)
-        -> Leaf?
-    {
-        guard let record = reader.record(directory), record.header.isDirectory else { return nil }
-        let attributes = reader.attributes(of: record)
-        guard let indexRoot = attributes.first(where: { $0.kind == .indexRoot }),
-            indexRoot.isResident
-        else { return nil }
-
-        var blockSize = 0
-        let value = record.data.startIndex + indexRoot.valueOffset
-        guard value + 16 <= record.data.endIndex else { return nil }
-        for byte in 0..<4 { blockSize |= Int(record.data[value + 8 + byte]) << (8 * byte) }
-        guard blockSize >= 512 else { return nil }
-
-        let node = indexRoot.valueOffset + 16
-        guard let first = NTFSIndex.firstEntryOffset(nodeHeader: record.data, at: node) else {
-            return nil
-        }
-        let rootEntries = NTFSIndex.entries(
-            record.data, from: first,
-            limit: min(indexRoot.valueOffset + indexRoot.valueLength, record.data.count))
-        var step = NTFSIndex.find(name, in: rootEntries, collation: collation)
-        guard case .descend(var block) = step else {
-            // The whole index lives inside the record, which means growing a
-            // resident attribute -- a record rewrite, and not this.
-            return nil
-        }
-
-        guard let allocation = attributes.first(where: { $0.kind == .indexAllocation }),
-            !allocation.isResident,
-            let runs = NTFSRunlist.decode(
-                record.data, at: allocation.runlistOffset, limit: record.data.count)
-        else { return nil }
-
-        // A tree this deep is a tree that is not a tree. The bound stops a
-        // cycle in a damaged index from being followed for ever.
-        for _ in 0..<32 {
-            guard
-                let placed = NTFSTable.diskOffset(
-                    forFileOffset: block * UInt64(blockSize), runs: runs,
-                    bytesPerCluster: reader.geometry.bytesPerCluster),
-                let raw = reader.read(placed.offset, blockSize),
-                let blockHeader = NTFSIndexBlock.header(raw, blockSize: blockSize),
-                let bytes = NTFSIndexBlock.applyFixup(
-                    raw, header: blockHeader, sectorSize: reader.geometry.bytesPerSector)
-            else { return nil }
-
-            let entries = NTFSIndex.entries(
-                bytes, from: blockHeader.firstEntryOffset, limit: blockHeader.endOfEntries)
-            step = NTFSIndex.find(name, in: entries, collation: collation)
-            switch step {
-            case .descend(let next):
-                block = next
-            case .found:
-                // Already there. The caller checked, so this is a directory
-                // changing under us.
-                return nil
-            case .absent:
-                guard
-                    let room = NTFSIndexWrite.room(
-                        of: bytes, nodeHeaderAt: NTFSIndexBlock.nodeHeaderOffset)
-                else { return nil }
-                return Leaf(
-                    bytes: bytes, headerOffset: NTFSIndexBlock.nodeHeaderOffset,
-                    diskOffset: placed.offset, blockSize: blockSize, room: room.free)
-            }
-        }
-        return nil
     }
 
     /// Split a full leaf, so the name that would not fit has somewhere to go.
@@ -1520,73 +1434,6 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                     & NTFSIndexWrite.hasChild == 0
             else { return nil }
             return (current, last)
-        }
-        return nil
-    }
-
-    /// The node a name is actually in.
-    ///
-    /// The same descent as `leafNode`, stopping when the name is found rather
-    /// than when it is not.
-    ///
-    /// Must be called with `lock` held.
-    private func nodeHolding(_ name: String, in directory: UInt64, collation: NTFSCollation)
-        -> Leaf?
-    {
-        guard let record = reader.record(directory), record.header.isDirectory,
-            let indexRoot = reader.attributes(of: record).first(where: { $0.kind == .indexRoot }),
-            indexRoot.isResident
-        else { return nil }
-
-        var blockSize = 0
-        let value = record.data.startIndex + indexRoot.valueOffset
-        guard value + 16 <= record.data.endIndex else { return nil }
-        for byte in 0..<4 { blockSize |= Int(record.data[value + 8 + byte]) << (8 * byte) }
-        guard blockSize >= 512 else { return nil }
-
-        let node = indexRoot.valueOffset + 16
-        guard let first = NTFSIndex.firstEntryOffset(nodeHeader: record.data, at: node) else {
-            return nil
-        }
-        let rootEntries = NTFSIndex.entries(
-            record.data, from: first,
-            limit: min(indexRoot.valueOffset + indexRoot.valueLength, record.data.count))
-        guard
-            case .descend(var block) = NTFSIndex.find(
-                name, in: rootEntries, collation: collation)
-        else { return nil }
-
-        guard
-            let allocation = reader.attributes(of: record).first(where: {
-                $0.kind == .indexAllocation
-            }), !allocation.isResident,
-            let runs = NTFSRunlist.decode(
-                record.data, at: allocation.runlistOffset, limit: record.data.count)
-        else { return nil }
-
-        for _ in 0..<32 {
-            guard
-                let placed = NTFSTable.diskOffset(
-                    forFileOffset: block * UInt64(blockSize), runs: runs,
-                    bytesPerCluster: reader.geometry.bytesPerCluster),
-                let raw = reader.read(placed.offset, blockSize),
-                let blockHeader = NTFSIndexBlock.header(raw, blockSize: blockSize),
-                let bytes = NTFSIndexBlock.applyFixup(
-                    raw, header: blockHeader, sectorSize: reader.geometry.bytesPerSector),
-                let room = NTFSIndexWrite.room(
-                    of: bytes, nodeHeaderAt: NTFSIndexBlock.nodeHeaderOffset)
-            else { return nil }
-
-            let entries = NTFSIndex.entries(
-                bytes, from: blockHeader.firstEntryOffset, limit: blockHeader.endOfEntries)
-            switch NTFSIndex.find(name, in: entries, collation: collation) {
-            case .descend(let next): block = next
-            case .absent: return nil
-            case .found:
-                return Leaf(
-                    bytes: bytes, headerOffset: NTFSIndexBlock.nodeHeaderOffset,
-                    diskOffset: placed.offset, blockSize: blockSize, room: room.free)
-            }
         }
         return nil
     }

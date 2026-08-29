@@ -6820,11 +6820,16 @@ group("aFullNodeIsCutInTwo") {
         "a block holding everything the original held still fits, since it came out of one")
 }
 
-group("aNameGoesIntoTheDirectoryWhereItBelongs") {
-    // Real index blocks off a real volume, spliced in memory. What must come
-    // out is a node the reader parses, holding every name it held plus the new
-    // one, in the order the volume files them, in a block the same size it was.
-
+group("theBytesOfADirectoryEntry") {
+    // What goes into a directory is the file's whole $FILE_NAME, the same bytes
+    // its own record carries. That duplication is NTFS's: a listing reads names
+    // and times straight out of the index without opening a record, which is
+    // what makes listing a million files one pass rather than a million reads.
+    //
+    // The splice tests that used to be here went with the code they tested. The
+    // backing builds a node from its entries now rather than moving bytes about
+    // inside one, and that path is covered where it runs -- against a volume,
+    // in the group that fills a directory and empties it thirty times over.
     let candidates = [
         ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
         NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
@@ -6844,393 +6849,86 @@ group("aNameGoesIntoTheDirectoryWhereItBelongs") {
         expect(false, "the volume reads and has its table")
         return
     }
-    let sectorSize = reader.geometry.bytesPerSector
 
-    // The biggest directory on the volume, so the blocks are real ones with
-    // hundreds of names in them rather than a node holding three.
-    guard let root = reader.contents(ofDirectory: NTFSTable.rootRecord),
-        let big = root.first(where: { (reader.contents(ofDirectory: $0.record)?.count ?? 0) > 1000 }
-        )
-    else {
-        expect(false, "the volume has a large directory")
-        return
-    }
-    let nodes = reader.indexNodes(ofDirectory: big.record)
-    guard let target = nodes.first(where: { $0.diskOffset != nil && $0.entries.count > 4 }),
-        let diskOffset = target.diskOffset
-    else {
-        expect(false, "with index blocks in it")
-        return
-    }
-    let blockSize = target.allocatedBytes
-    guard let raw = read(diskOffset, blockSize),
-        let blockHeader = NTFSIndexBlock.header(raw, blockSize: blockSize),
-        let node = NTFSIndexBlock.applyFixup(raw, header: blockHeader, sectorSize: sectorSize)
-    else {
-        expect(false, "and the block reads")
-        return
-    }
-    // The node header sits after the block's own twenty-four bytes.
-    let nodeHeader = 24
-    guard let room = NTFSIndexWrite.room(of: node, nodeHeaderAt: nodeHeader) else {
-        expect(false, "the node says how full it is")
-        return
-    }
-    expect(room.allocated <= blockSize - nodeHeader, "and does not claim more than the block")
-    expect(room.used <= room.allocated, "nor more used than allocated")
-
-    let before = NTFSIndex.names(
-        NTFSIndex.entries(node, from: blockHeader.firstEntryOffset, limit: blockHeader.endOfEntries)
-    )
-    expect(before.count > 4, "the node has names in it: \(before.count)")
-    expect(collation.isSorted(before), "and they are in order to begin with")
-
-    // A name that sorts into the middle of them, built the same way a new
-    // file's own record builds it.
     let times = NTFSTimestamps.Times(
         created: Date(timeIntervalSince1970: 1_700_000_000),
         modified: Date(timeIntervalSince1970: 1_700_000_000),
         recordChanged: Date(timeIntervalSince1970: 1_700_000_000),
         accessed: Date(timeIntervalSince1970: 1_700_000_000))
-    let middle = before[before.count / 2]
-    let newName = middle + "-lukotta"
-    let plan = NTFSNewRecord.Plan(
-        record: 5000, sequence: 1, parent: big.record, parentSequence: 1, name: newName,
-        namespace: .posix, times: times, securityID: 258)
-    let key = NTFSNewRecord.fileNameValue(plan, units: Array(newName.utf16))
-    guard let entry = NTFSIndexWrite.entry(key: key, record: 5000, sequence: 1) else {
+    let name = "an-entry.txt"
+    let key = NTFSNewRecord.fileNameValue(
+        NTFSNewRecord.Plan(
+            record: 900, sequence: 3, parent: NTFSTable.rootRecord, parentSequence: 5, name: name,
+            namespace: .posix, times: times, securityID: 258),
+        units: Array(name.utf16))
+    guard let entry = NTFSIndexWrite.entry(key: key, record: 900, sequence: 3) else {
         expect(false, "an entry composes")
         return
     }
-    expect(entry.count % 8 == 0, "and is a multiple of eight long, as entries are")
     expect(
         entry.count == (16 + key.count + 7) & ~7,
-        "sixteen bytes of entry, the whole $FILE_NAME as its key, padded")
-
-    guard room.free >= entry.count else {
-        expect(false, "the node has room, \(room.free) free for \(entry.count)")
-        return
+        "sixteen bytes of entry, the whole $FILE_NAME as its key, padded to eight")
+    expect(
+        Int(NTFSIndexWrite.read16(entry, NTFSIndexWrite.entryLengthField)) == entry.count,
+        "with a length saying how long it is -- a reader walks a node by adding these")
+    expect(
+        Int(NTFSIndexWrite.read16(entry, NTFSIndexWrite.keyLengthField)) == key.count,
+        "and a key length saying how much of it is the name")
+    expect(
+        NTFSIndexWrite.read16(entry, NTFSIndexWrite.entryFlagsField) == 0,
+        "it is neither the end of a node nor a pointer to one below")
+    expect(
+        NTFSIndexWrite.key(of: entry, at: 0).map { String(decoding: $0, as: UTF16.self) } == name,
+        "and the name reads back out of it")
+    var reference: UInt64 = 0
+    for byte in 0..<8 {
+        reference |= UInt64(entry[entry.startIndex + byte]) << (8 * UInt64(byte))
     }
-    guard
-        let spliced = NTFSIndexWrite.inserting(
-            entry: entry, into: node, nodeHeaderAt: nodeHeader, collation: collation)
+    expect(reference & 0x0000_FFFF_FFFF_FFFF == 900, "it names the record it was made for")
+    expect(
+        reference >> 48 == 3,
+        "with the sequence that record had -- without it a stale entry follows to whatever "
+            + "took the slot next")
+    expect(
+        NTFSIndexWrite.entry(key: Data(), record: 1, sequence: 1) == nil,
+        "an empty key is not an entry")
+    expect(
+        NTFSIndexWrite.entry(key: Data(count: 40), record: 1, sequence: 1) == nil,
+        "and neither is one too short to hold a name")
+
+    // How full a node is, read off a real one.
+    guard let root = reader.contents(ofDirectory: NTFSTable.rootRecord),
+        let big = root.first(where: {
+            (reader.contents(ofDirectory: $0.record)?.count ?? 0) > 1000
+        }),
+        let target = reader.indexNodes(ofDirectory: big.record)
+            .first(where: { $0.diskOffset != nil && $0.entries.count > 4 }),
+        let diskOffset = target.diskOffset,
+        let raw = read(diskOffset, target.allocatedBytes),
+        let header = NTFSIndexBlock.header(raw, blockSize: target.allocatedBytes),
+        let node = NTFSIndexBlock.applyFixup(
+            raw, header: header, sectorSize: reader.geometry.bytesPerSector),
+        let room = NTFSIndexWrite.room(of: node, nodeHeaderAt: NTFSIndexBlock.nodeHeaderOffset)
     else {
-        expect(false, "the entry goes in")
+        expect(false, "a real index block reads")
         return
     }
-    expect(spliced.count == node.count, "the block is exactly the size it was")
-
-    guard let after = NTFSIndexBlock.header(spliced, blockSize: blockSize) else {
-        expect(false, "and the reader still accepts its header")
-        return
-    }
+    expect(room.used >= NTFSIndexWrite.nodeHeaderLength, "a node uses at least its own header")
+    expect(room.allocated >= room.used, "and never claims more used than it has")
     expect(
-        after.endOfEntries == blockHeader.endOfEntries + entry.count,
-        "which now says it holds one more entry's worth")
-    expect(
-        after.firstEntryOffset == blockHeader.firstEntryOffset,
-        "and still begins where it did")
-
-    let names = NTFSIndex.names(
-        NTFSIndex.entries(spliced, from: after.firstEntryOffset, limit: after.endOfEntries))
-    expect(names.count == before.count + 1, "one more name than before: \(names.count)")
-    expect(names.contains(newName), "and it is the one we put in")
-    expect(Set(before).isSubset(of: Set(names)), "with every name that was there still there")
-    expect(collation.isSorted(names), "and the node is still in the volume's own order")
-    expect(
-        names.firstIndex(of: newName) == names.firstIndex(of: middle).map { $0 + 1 },
-        "filed directly after the name it sorts after")
-
-    // The reader finds it, through the same search Windows would use.
-    let entries = NTFSIndex.entries(
-        spliced, from: after.firstEntryOffset, limit: after.endOfEntries)
-    guard case .found(let hit) = NTFSIndex.find(newName, in: entries, collation: collation) else {
-        expect(false, "and the search finds it")
-        return
-    }
-    expect(hit.record == 5000, "at the record it was filed under")
-    expect(hit.sequence == 1, "with the sequence that went in")
-    for name in before {
-        guard case .found = NTFSIndex.find(name, in: entries, collation: collation) else {
-            expect(false, "and every name that was findable still is: \(name)")
-            return
-        }
-    }
-    expect(true, "and every name that was findable still is")
-
-    // Nothing outside the node moved. The block's own header, and the free
-    // space past the entries, are as they were.
-    expect(
-        spliced.prefix(24) == node.prefix(24),
-        "the block header is untouched apart from the node's own numbers")
-
-    // A name already there is refused. Two entries for one name is a file that
-    // appears twice in a listing and can be deleted once.
-    let duplicateKey = NTFSNewRecord.fileNameValue(
-        NTFSNewRecord.Plan(
-            record: 5001, sequence: 1, parent: big.record, parentSequence: 1, name: middle,
-            namespace: .posix, times: times, securityID: 258),
-        units: Array(middle.utf16))
-    guard let duplicate = NTFSIndexWrite.entry(key: duplicateKey, record: 5001, sequence: 1) else {
-        expect(false, "a duplicate entry composes")
-        return
-    }
-    expect(
-        NTFSIndexWrite.inserting(
-            entry: duplicate, into: node, nodeHeaderAt: nodeHeader, collation: collation) == nil,
-        "a name already in the node is refused")
-    let differentCase = NTFSNewRecord.fileNameValue(
-        NTFSNewRecord.Plan(
-            record: 5002, sequence: 1, parent: big.record, parentSequence: 1,
-            name: middle.uppercased(), namespace: .posix, times: times, securityID: 258),
-        units: Array(middle.uppercased().utf16))
-    if middle.uppercased() != middle,
-        let cased = NTFSIndexWrite.entry(key: differentCase, record: 5002, sequence: 1)
-    {
-        expect(
-            NTFSIndexWrite.inserting(
-                entry: cased, into: node, nodeHeaderAt: nodeHeader, collation: collation) == nil,
-            "and so is the same name in a different case, because to NTFS it is the same name")
-    }
-
-    // A node with no room refuses rather than writing past its end. That is not
-    // a fault: it means the node must split, which is a different and much
-    // larger operation, and doing something else instead is how a directory
-    // ends up with a name in two places.
-    var cramped = [UInt8](node)
-    NTFSIndexWrite.write32(
-        &cramped, nodeHeader + NTFSIndexWrite.endOfAllocationField, UInt32(room.used + 8))
-    expect(
-        NTFSIndexWrite.inserting(
-            entry: entry, into: Data(cramped), nodeHeaderAt: nodeHeader, collation: collation)
-            == nil,
-        "a node with no room for the entry refuses it")
-    NTFSIndexWrite.write32(
-        &cramped, nodeHeader + NTFSIndexWrite.endOfAllocationField,
-        UInt32(room.used + entry.count))
-    expect(
-        NTFSIndexWrite.inserting(
-            entry: entry, into: Data(cramped), nodeHeaderAt: nodeHeader, collation: collation)
-            != nil,
-        "and one with exactly enough takes it, so the refusal is a boundary and not a wall "
-            + "in the wrong place")
-
-    // Nonsense in, nothing out.
-    expect(
-        NTFSIndexWrite.inserting(
-            entry: Data(), into: node, nodeHeaderAt: nodeHeader, collation: collation) == nil,
-        "an empty entry goes nowhere")
-    expect(
-        NTFSIndexWrite.inserting(
-            entry: entry, into: node, nodeHeaderAt: blockSize - 4, collation: collation) == nil,
-        "and a node header past the end of the block is refused")
-    expect(NTFSIndexWrite.entry(key: Data(), record: 1, sequence: 1) == nil, "as is an empty key")
+        room.allocated <= target.allocatedBytes - NTFSIndexBlock.nodeHeaderOffset,
+        "nor more than the block it sits in")
+    expect(room.free == room.allocated - room.used, "with the rest free")
     expect(
         NTFSIndexWrite.room(of: Data(), nodeHeaderAt: 0) == nil,
-        "and a node with nothing in it has no room to report")
+        "and nothing at all has no room to report")
 
-    // Taking one out again. The same arithmetic backwards, and the node has to
-    // come back exactly as it was.
-    guard
-        let removed = NTFSIndexWrite.removing(
-            name: newName, from: spliced, nodeHeaderAt: nodeHeader, collation: collation),
-        let removedHeader = NTFSIndexBlock.header(removed, blockSize: blockSize)
-    else {
-        expect(false, "the entry comes out")
-        return
-    }
-    expect(removed.count == node.count, "the block is still the size it was")
-    expect(
-        removedHeader.endOfEntries == blockHeader.endOfEntries,
-        "and the node says it holds what it held before the insertion: "
-            + "\(removedHeader.endOfEntries) against \(blockHeader.endOfEntries)")
-    let backAgain = NTFSIndex.names(
-        NTFSIndex.entries(
-            removed, from: removedHeader.firstEntryOffset, limit: removedHeader.endOfEntries))
-    expect(backAgain == before, "and the names are exactly the ones it started with")
-    expect(collation.isSorted(backAgain), "still in order")
-    expect(
-        removed[removed.startIndex + nodeHeader..<removed.startIndex + nodeHeader + 16]
-            == node[node.startIndex + nodeHeader..<node.startIndex + nodeHeader + 16],
-        "and the node header is byte for byte what it was")
-    expect(
-        removed.prefix(removedHeader.endOfEntries) == node.prefix(blockHeader.endOfEntries),
-        "and everything up to the end of the entries is byte for byte what it was")
-    // Past the end of the entries the block is not what it was, and should not
-    // be: the bytes the removed entry left behind are cleared. The volume left
-    // an old entry lying there, which is harmless while endOfEntries is
-    // believed and a name in a listing the moment it is not.
-    // room.used is measured from the node header, endOfEntries from the start
-    // of the block: the two differ by the block's own twenty-four bytes, and
-    // subtracting the wrong one gives a range that runs backwards.
-    let usedInBlock = nodeHeader + room.used
-    expect(usedInBlock >= removedHeader.endOfEntries, "the node's end is inside its used space")
-    let past = removed[
-        (removed.startIndex + removedHeader.endOfEntries)..<(removed.startIndex + usedInBlock)]
-    expect(
-        past.allSatisfy { $0 == 0 },
-        "while what lies past it is cleared, so nothing there can be read as an entry")
-    let volumeLeft = node[
-        (node.startIndex + blockHeader.endOfEntries)..<(node.startIndex + usedInBlock)]
-    expect(
-        volumeLeft.isEmpty || !volumeLeft.allSatisfy { $0 == 0 } || past.isEmpty,
-        "where the volume itself leaves whatever was there: \(volumeLeft.count) bytes, "
-            + "\(volumeLeft.filter { $0 != 0 }.count) of them not zero")
-
-    // Removing each of the names that were there, one at a time, from the
-    // untouched node.
-    for name in before {
-        guard
-            let one = NTFSIndexWrite.removing(
-                name: name, from: node, nodeHeaderAt: nodeHeader, collation: collation),
-            let header = NTFSIndexBlock.header(one, blockSize: blockSize)
-        else {
-            expect(false, "\(name) comes out")
-            continue
-        }
-        let left = NTFSIndex.names(
-            NTFSIndex.entries(one, from: header.firstEntryOffset, limit: header.endOfEntries))
-        expect(left == before.filter { $0 != name }, "leaving the others, without \(name)")
-        expect(header.endOfEntries < blockHeader.endOfEntries, "and a shorter node, \(name)")
-        expect(collation.isSorted(left), "still in order, \(name)")
-        // The bytes the entry left behind are cleared. One lying past the end
-        // of the entries is a name any reader trusting the wrong number would
-        // list -- and this is the case where there are such bytes, which the
-        // insert-then-remove round trip above does not produce.
-        let freed = one[
-            (one.startIndex + header.endOfEntries)..<(one.startIndex + blockHeader.endOfEntries)]
-        expect(!freed.isEmpty, "with bytes freed by it, \(name)")
-        expect(freed.allSatisfy { $0 == 0 }, "and those bytes cleared, \(name)")
-    }
-
-    // What is not there does not come out, and neither does what holds the tree
-    // together.
-    expect(
-        NTFSIndexWrite.removing(
-            name: "no-such-name-anywhere", from: node, nodeHeaderAt: nodeHeader,
-            collation: collation) == nil,
-        "a name that is not in the node is not removed")
-    expect(
-        NTFSIndexWrite.removing(
-            name: before[0].uppercased() + "-x", from: node, nodeHeaderAt: nodeHeader,
-            collation: collation) == nil,
-        "nor is one that merely looks like one that is")
-    expect(
-        NTFSIndexWrite.removing(
-            name: before[0], from: node, nodeHeaderAt: blockSize - 4, collation: collation)
-            == nil,
-        "and a node header past the end of the block is refused")
-
-    // An entry with a node below it holds the tree together as well as naming a
-    // file. Splicing it out orphans every name underneath, so it is refused.
-    var withChild = [UInt8](node)
-    let firstEntryAt =
-        nodeHeader
-        + Int(
-            NTFSIndexWrite.read32(Data(withChild), nodeHeader + NTFSIndexWrite.firstEntryField))
-    NTFSIndexWrite.write16(
-        &withChild, firstEntryAt + NTFSIndexWrite.entryFlagsField, NTFSIndexWrite.hasChild)
-    expect(
-        NTFSIndexWrite.removing(
-            name: before[0], from: Data(withChild), nodeHeaderAt: nodeHeader,
-            collation: collation) == nil,
-        "an entry with a node below it is not removed, because taking it out orphans every "
-            + "name underneath")
-    expect(
-        NTFSIndexWrite.removing(
-            name: before[1], from: Data(withChild), nodeHeaderAt: nodeHeader,
-            collation: collation) != nil,
-        "while the next one along, which has no child, still comes out -- so the refusal is "
-            + "about the child and not about the node")
-
-    // A marker that carries a key. NTFS's marker has none, but a damaged or
-    // hostile node can have one, and the flag is what says it is the end.
-    // Splicing it out takes the node's terminator with it, and every reader
-    // then walks off the end of the entries into whatever follows.
-    var markerWithKey = [UInt8](node)
-    var walk =
-        nodeHeader
-        + Int(
-            NTFSIndexWrite.read32(node, nodeHeader + NTFSIndexWrite.firstEntryField))
-    let entriesEnd = nodeHeader + room.used
-    var markerAt = -1
-    while walk + NTFSIndexWrite.keyField <= entriesEnd {
-        if NTFSIndexWrite.read16(node, walk + NTFSIndexWrite.entryFlagsField)
-            & NTFSIndexWrite.isLast != 0
-        {
-            markerAt = walk
-            break
-        }
-        let length = Int(NTFSIndexWrite.read16(node, walk + NTFSIndexWrite.entryLengthField))
-        guard length > 0 else { break }
-        walk += length
-    }
-    expect(markerAt > 0, "the node ends with a marker, at \(markerAt)")
-
-    // A name only the marker carries, so nothing else can be what comes out.
-    let markerName = "only-the-marker-has-this"
-    let markerKey = NTFSNewRecord.fileNameValue(
-        NTFSNewRecord.Plan(
-            record: 6000, sequence: 1, parent: big.record, parentSequence: 1, name: markerName,
-            namespace: .posix, times: times, securityID: 258),
-        units: Array(markerName.utf16))
-    let markerLength = (NTFSIndexWrite.keyField + markerKey.count + 7) & ~7
-    if markerAt > 0, markerAt + markerLength <= markerWithKey.count {
-        markerWithKey.replaceSubrange(
-            (markerAt + NTFSIndexWrite.keyField)..<(markerAt + NTFSIndexWrite.keyField
-                + markerKey.count), with: [UInt8](markerKey))
-        NTFSIndexWrite.write16(
-            &markerWithKey, markerAt + NTFSIndexWrite.entryLengthField, UInt16(markerLength))
-        NTFSIndexWrite.write16(
-            &markerWithKey, markerAt + NTFSIndexWrite.keyLengthField, UInt16(markerKey.count))
-        NTFSIndexWrite.write16(
-            &markerWithKey, markerAt + NTFSIndexWrite.entryFlagsField, NTFSIndexWrite.isLast)
-        // Room for the longer marker, so the node is well formed apart from the
-        // one thing being tested.
-        NTFSIndexWrite.write32(
-            &markerWithKey, nodeHeader + NTFSIndexWrite.endOfEntriesField,
-            UInt32(markerAt - nodeHeader + markerLength))
-        expect(
-            NTFSIndexWrite.removing(
-                name: markerName, from: Data(markerWithKey), nodeHeaderAt: nodeHeader,
-                collation: collation) == nil,
-            "a name that only the node's end marker carries is not removed -- the flag is what "
-                + "says the node ends there, and splicing it out leaves every reader walking "
-                + "off the end of the entries into whatever follows")
-        expect(
-            NTFSIndexWrite.removing(
-                name: before[0], from: Data(markerWithKey), nodeHeaderAt: nodeHeader,
-                collation: collation) != nil,
-            "while a real entry in the same node still comes out, so the refusal is about the "
-                + "marker and not about the node")
-    }
-
-    // A name that sorts before everything and one that sorts after everything:
-    // the ends of the node are where an off-by-one lives.
-    for (label, name) in [("first", "!!!-lukotta-first"), ("last", "\u{FFFD}-lukotta-last")] {
-        let ends = NTFSNewRecord.fileNameValue(
-            NTFSNewRecord.Plan(
-                record: 5003, sequence: 1, parent: big.record, parentSequence: 1, name: name,
-                namespace: .posix, times: times, securityID: 258),
-            units: Array(name.utf16))
-        guard let atEnd = NTFSIndexWrite.entry(key: ends, record: 5003, sequence: 1),
-            let put = NTFSIndexWrite.inserting(
-                entry: atEnd, into: node, nodeHeaderAt: nodeHeader, collation: collation),
-            let putHeader = NTFSIndexBlock.header(put, blockSize: blockSize)
-        else {
-            expect(false, "a name sorting \(label) goes in")
-            continue
-        }
-        let all = NTFSIndex.names(
-            NTFSIndex.entries(put, from: putHeader.firstEntryOffset, limit: putHeader.endOfEntries))
-        expect(collation.isSorted(all), "and the node stays in order with it, \(label)")
-        expect(all.count == before.count + 1, "with one more name, \(label)")
-        if label == "first" {
-            expect(all.first == name, "and it is first")
-        } else {
-            expect(all.last == name, "and it is last")
-        }
-    }
+    // The names in it are in the volume's order, which is what all of this is
+    // in service of.
+    let names = NTFSIndex.names(
+        NTFSIndex.entries(node, from: header.firstEntryOffset, limit: header.endOfEntries))
+    expect(names.count > 4, "the node has names in it: \(names.count)")
+    expect(collation.isSorted(names), "and they are in the volume's own order")
 }
 
 group("namesAreOrderedTheWayTheVolumeOrdersThem") {
