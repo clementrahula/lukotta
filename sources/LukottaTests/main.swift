@@ -5888,6 +5888,9 @@ group("whatEachPieceOfACreateCosts") {
                     time("list \(count) again, as a page does", 200) {
                         _ = backing.children(of: handle)
                     }
+                    time("one page of \(count)", 2000) {
+                        _ = backing.children(of: handle, from: 2000, limit: 100)
+                    }
                 }
             }
         }
@@ -6923,6 +6926,30 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
             backing.attributes(of: sized)?.size == UInt64(grewBy.count),
             "changes its length where a listing would read it")
     }
+
+    // A page of a directory, which is what an enumeration asks for. Paging
+    // through must give every name once and in the order a whole listing does,
+    // or a folder shows a file twice and misses another.
+    let whole = backing.children(of: root).map { $0.name }
+    var paged: [String] = []
+    var at = 0
+    while true {
+        let page = backing.children(of: root, from: at, limit: 3)
+        if page.isEmpty { break }
+        paged += page.map { $0.name }
+        at += page.count
+        if at > whole.count + 10 { break }
+    }
+    expect(paged == whole, "paging three at a time gives the whole directory, in order")
+    expect(
+        Set(paged).count == paged.count, "with nothing appearing twice: \(paged.count) names")
+    expect(
+        backing.children(of: root, from: whole.count, limit: 10).isEmpty,
+        "and asking past the end gives nothing rather than starting again")
+    expect(
+        backing.children(of: root, from: 0, limit: 0).isEmpty, "as does asking for no names")
+    expect(
+        backing.children(of: root, from: -1, limit: 5).isEmpty, "or for a page before the first")
 
     // Extended attributes. This filesystem does not keep them yet, and saying
     // so is a different answer from saying a particular one is missing: told

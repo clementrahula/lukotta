@@ -152,6 +152,30 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         return childrenUncached(of: directory)
     }
 
+    /// One page of a directory, without copying the rest of it.
+    ///
+    /// With the listing already in hand, a page is a slice. Copying the whole
+    /// directory to hand back a hundred names is thirty milliseconds on a
+    /// million of them, once per page -- which is the same quadratic cost the
+    /// cache was meant to remove, moved one step along.
+    public func children(of directory: FSHandle, from: Int, limit: Int)
+        -> [(name: String, handle: FSHandle)]
+    {
+        guard let mine = ours(directory), from >= 0, limit > 0 else { return [] }
+        let ready: Bool = lock.withLock { listedDirectory == mine.record }
+        if !ready {
+            let fresh = childrenUncached(of: directory)
+            lock.withLock {
+                listedDirectory = mine.record
+                listedEntries = fresh
+            }
+        }
+        return lock.withLock {
+            guard listedDirectory == mine.record, from < listedEntries.count else { return [] }
+            return Array(listedEntries[from..<min(listedEntries.count, from + limit)])
+        }
+    }
+
     private func childrenUncached(of directory: FSHandle) -> [(name: String, handle: FSHandle)] {
         guard let directory = ours(directory), directory.isDirectory else { return [] }
         return lock.withLock {

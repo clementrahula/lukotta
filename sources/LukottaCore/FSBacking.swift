@@ -65,6 +65,14 @@ public protocol FSBacking: AnyObject, Sendable {
 
     func lookup(_ name: String, in directory: FSHandle) -> FSHandle?
     func children(of directory: FSHandle) -> [(name: String, handle: FSHandle)]
+    /// The part of a directory a page of an enumeration needs.
+    ///
+    /// A listing is asked for a page at a time, and handing back the whole of a
+    /// directory each time is what makes listing a large one cost the square of
+    /// its size. The default is the whole list sliced, which is right for a
+    /// backing small enough not to care.
+    func children(of directory: FSHandle, from: Int, limit: Int)
+        -> [(name: String, handle: FSHandle)]
     func create(_ name: String, isDirectory: Bool, in directory: FSHandle, mode: UInt32)
         -> FSHandle?
     func remove(_ name: String, from directory: FSHandle) -> FSStore.RemoveOutcome
@@ -96,4 +104,12 @@ public protocol FSBacking: AnyObject, Sendable {
 extension FSBacking {
     /// Backings with nothing real behind them do not have to answer.
     public var capacityInBytes: UInt64 { 0 }
+
+    public func children(of directory: FSHandle, from: Int, limit: Int)
+        -> [(name: String, handle: FSHandle)]
+    {
+        let all = children(of: directory)
+        guard from >= 0, from < all.count, limit > 0 else { return [] }
+        return Array(all[from..<min(all.count, from + limit)])
+    }
 }

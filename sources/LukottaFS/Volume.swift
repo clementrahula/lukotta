@@ -339,8 +339,14 @@ extension LukottaVolume: FSVolume.Operations {
         // direction makes a file vanish from the folder or appear twice, and
         // neither reads as an error. Names come back sorted, so the same index
         // means the same entry on the next call.
-        let entries = store.children(of: directory.handle)
-        for step in DirectoryEnumeration.steps(entries.map(\.name), from: cookie.rawValue) {
+        // Only the part of the directory this page can hold, rather than all of
+        // it. A page that copies the whole listing costs the size of the
+        // directory, once per page, which on a large one is the size squared.
+        // The number is generous: packing stops when the kernel's buffer is
+        // full, and asking for more than fits costs a slice and not a read.
+        let start = Int(cookie.rawValue)
+        let entries = store.children(of: directory.handle, from: start, limit: 4096)
+        for step in DirectoryEnumeration.steps(entries.map(\.name), from: 0) {
             let index = Int(step.nextCookie) - 1
             guard index >= 0, index < entries.count else { break }
             let entry = entries[index]
@@ -349,7 +355,7 @@ extension LukottaVolume: FSVolume.Operations {
                 name: FSFileName(string: entry.name),
                 itemType: facts.isDirectory ? .directory : .file,
                 itemID: FSItem.Identifier(rawValue: facts.id) ?? .invalid,
-                nextCookie: FSDirectoryCookie(rawValue: step.nextCookie),
+                nextCookie: FSDirectoryCookie(rawValue: UInt64(start) + step.nextCookie),
                 attributes: attributes == nil ? nil : self.attributes(of: entry.handle))
             // Packing stops when the buffer the kernel gave us is full. What is
             // left is asked for again with the cookie we just handed over.
