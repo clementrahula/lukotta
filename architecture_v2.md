@@ -2430,3 +2430,62 @@ Route A is not wasted if B is chosen: the shell, the alignment, the ordering and
 the crypto all survive, and the Swift NTFS reader remains useful as an
 independent check on the C one, which is exactly the kind of second opinion §33
 showed this work needs.
+
+## 37. Three blockers, not one -- and only one of them was known
+
+§35 said the System Settings switch was "the one thing that blocks everything".
+That was wrong, and it was wrong because everything in §30-§34 was proven
+against a disk **image**. Images were not chosen for convenience. Verified
+2026-08-29 from
+[Apple Developer Forums 788609](https://developer.apple.com/forums/thread/788609),
+where a DTS engineer confirms the following:
+
+### Blocker 1 -- the switch (known)
+
+Per user, once, no API. Documented in §36. Unavoidable on any route.
+
+### Blocker 2 -- fskitd cannot open a physical disk
+
+`mount -F` against a real disk fails with `NSPOSIXErrorDomain Code=13`,
+Permission denied, logged as
+`+[FSBlockDeviceResource(Project) openWithBSDName:writable:auditToken:replyHandler:]`
+returning 13. **Disk images work. RAM disks work. Physical disks fail**,
+including external USB volumes -- which is the entire use case.
+
+Apple has acknowledged this and says fixes are awaiting OS updates. The
+workaround reported in the thread is `sudo chown $(whoami) /dev/rdiskNsM` on the
+device node before mounting.
+
+**This one may be survivable here and nowhere else.** Lukotta already installs a
+privileged helper (`com.lukotta.v2.helper`) and already elevates to open
+physical drives -- §1 of `Mounter.mount` takes `elevated:` for exactly this
+reason, because `/dev/diskNsM` is mode 640 root:operator. Handing the device
+node to the user before the mount is something the helper can already do, with
+no new prompt and no new click. **Untested. It is the first thing to try.**
+
+### Blocker 3 -- Apple's NTFS kext wins the probe
+
+> "all FSKit modules are allowed to probe anything only after all kext modules"
+
+So macOS's own read-only NTFS driver claims an NTFS partition before any
+third-party FSKit module is offered it (Apple bug
+[FB18230524](https://feedbackassistant.apple.com/feedback/18230524/)). Apple
+calls this architectural and allows that NTFS "may warrant special-casing".
+`-t nontfs` is suggested in the thread and reported not to work.
+
+**This kills plug-and-play auto-mount, and Lukotta does not use it.** The app is
+driven by a person choosing a drive and unlocking it; v1 already unmounts what
+macOS mounted and mounts its own. So the sequence is: macOS auto-mounts NTFS
+read-only, Lukotta unmounts it and issues `mount -F -t lukottafs` itself. That
+is what v1 does today with NFS, so the machinery exists.
+
+It is still a real cost: a moment where the drive appears read-only before
+Lukotta takes it over, and a race with anything that opens a file in between.
+
+### What this means for the estimates in §35
+
+The performance numbers stand -- they are arithmetic and I/O, and nothing about
+them depends on where the bytes came from. **The claim that the work was "proven"
+does not stand for physical drives.** Nothing in this branch has ever touched
+one. Every number, every consistency check and every mutation was against an
+image, and blocker 2 is the reason.
