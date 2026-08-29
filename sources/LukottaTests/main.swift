@@ -5277,6 +5277,7 @@ group("theVolumeSurvivesBeingAskedFromEveryQueueAtOnce") {
         var mine: [String] = []
         for _ in 0..<4 {
             mine = fs.children(of: root).map(\.name)
+            _ = fs.children(of: root, from: index, limit: 4)
             _ = fs.usage()
             _ = fs.capacityInBytes
             if let found = fs.lookup(expected[0], in: root) {
@@ -5306,6 +5307,92 @@ group("theVolumeSurvivesBeingAskedFromEveryQueueAtOnce") {
     expect(
         Set((sizes as? [UInt64]) ?? []).count == 1,
         "and free space is the same answer however many threads asked for it first")
+
+    // Writing from every queue at once, which is what the caches are exposed
+    // to: the listing, the record bitmap and the cluster bitmap are all
+    // mutable state now, and a write on one queue changes what another is
+    // holding. Runs against a copy, because it changes a volume.
+    if let writePath = ProcessInfo.processInfo.environment["LUKOTTA_WRITE_IMAGE"],
+        FileManager.default.fileExists(atPath: writePath),
+        let writable = FileHandle(forUpdatingAtPath: writePath)
+    {
+        defer { try? writable.close() }
+        let deviceLock = NSLock()
+        guard
+            let busy = NTFSBacking(
+                read: { offset, length in
+                    deviceLock.lock()
+                    defer { deviceLock.unlock() }
+                    try? writable.seek(toOffset: offset)
+                    return try? writable.read(upToCount: length)
+                },
+                write: { offset, bytes in
+                    deviceLock.lock()
+                    defer { deviceLock.unlock() }
+                    try? writable.seek(toOffset: offset)
+                    writable.write(bytes)
+                    return true
+                })
+        else {
+            expect(false, "the writable volume opens")
+            return
+        }
+        let busyRoot = busy.rootHandle
+        let made = NSMutableArray()
+        let madeLock = NSLock()
+        DispatchQueue.concurrentPerform(iterations: 8) { queue in
+            for round in 0..<4 {
+                let name = "race-\(queue)-\(round).txt"
+                if busy.create(name, isDirectory: false, in: busyRoot, mode: 0o644) != nil {
+                    _ = busy.children(of: busyRoot)
+                    // The paged listing too, which is what an enumeration
+                    // actually calls -- and which reads the same cached state
+                    // the creates are throwing away underneath it.
+                    _ = busy.children(of: busyRoot, from: round * 3, limit: 5)
+                    madeLock.lock()
+                    made.add(name)
+                    madeLock.unlock()
+                }
+            }
+        }
+        let names = (made as? [String]) ?? []
+        expect(names.count == 32, "every queue made its files: \(names.count) of 32")
+        expect(Set(names).count == names.count, "and no two of them made the same one")
+
+        // Every name is really there, and each is at a record of its own. Two
+        // queues handed the same free record would both write to it, and one
+        // file would silently be the other.
+        let listing = Set(busy.children(of: busyRoot).map { $0.name })
+        let missing = names.filter { !listing.contains($0) }
+        expect(missing.isEmpty, "all of them are in the directory: missing \(missing.count)")
+        var records = Set<UInt64>()
+        var shared: [String] = []
+        for name in names {
+            guard let handle = busy.lookup(name, in: busyRoot),
+                let id = busy.attributes(of: handle)?.id
+            else {
+                shared.append(name)
+                continue
+            }
+            if !records.insert(id).inserted { shared.append(name) }
+        }
+        expect(
+            shared.isEmpty,
+            "and each has a record of its own: \(shared.count) sharing or missing -- two "
+                + "queues handed the same free record would both write to it, and one file "
+                + "would silently be the other")
+
+        DispatchQueue.concurrentPerform(iterations: 8) { queue in
+            for round in 0..<4 {
+                _ = busy.remove("race-\(queue)-\(round).txt", from: busyRoot)
+            }
+        }
+        let left = Set(busy.children(of: busyRoot).map { $0.name })
+        expect(
+            names.allSatisfy { !left.contains($0) },
+            "and all of them come out again from every queue at once")
+        expect(busy.release(), "and the volume is released")
+    }
 
     // All of the above goes through NTFSBacking, which takes a lock around
     // every call -- so it exercises that lock and not the reader's own. A
