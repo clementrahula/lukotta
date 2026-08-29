@@ -2261,3 +2261,141 @@ a write, which is what it costs on every filesystem.
 **Search for functions nothing calls. It found, in one morning, a mount option
 that was ignored, the entire path from the app to the extension, and the reason
 none of this would have worked on real hardware.**
+
+## 36. Closing §2.6: dropping the guest, with the evidence
+
+§2.6 asked whether the VM could go entirely and answered "not the primary",
+with the note that a native NTFS backend could be added later. This section
+closes that question. Everything below was verified on 2026-08-29 -- on this
+machine where it says so, and against a primary source where it does not.
+
+### What was verified
+
+**The System Settings switch is permanent and has no API.** Enabling a module
+writes `~/Library/Group Containers/group.com.apple.fskit.settings/enabledModules.plist`.
+Read on this machine, it holds Apple's five (`apfs`, `exfat`, `msdos`, the
+read-only `ntfs`, `ftp`) and not `com.lukotta.v2.fs`. The file is user-writable,
+Apple explicitly discourages relying on it, and the setting is **per user** --
+enable as user A and it reads as disabled for user B
+([Apple Developer Forums 808594](https://developer.apple.com/forums/thread/808594)).
+It is one click per person, once, and no route avoids it. NTFSKit's users make
+the same click.
+
+**FSKit modules must be sandboxed**
+([Apple Developer Forums 808246](https://developer.apple.com/forums/thread/808246)).
+Checked on the built extension: its entitlements are exactly
+`com.apple.developer.fskit.fsmodule` and `com.apple.security.app-sandbox`. The
+*app* is not sandboxed, and a privileged helper `com.lukotta.v2.helper` already
+ships, so a key can be handed over without going through a command line.
+
+**macFUSE 5.1 added an FSKit backend** (`-o backend=fskit`), running FUSE
+filesystems entirely in user space with no kext and no Recovery-mode change
+([macFUSE 5.1.0](https://macfuse.github.io/2025/10/30/macFUSE-5.1.0.html)).
+macFUSE stays excluded on licence, but it is proof on shipping hardware that
+FSKit can host a mature user-space driver.
+
+**BitLocker is fully specified.** From
+[libbde's format documentation](https://github.com/libyal/libbde/blob/main/documentation/BitLocker%20Drive%20Encryption%20(BDE)%20format.asciidoc):
+ciphers are AES-CBC 128/256 with or without the Elephant diffuser (0x8000-0x8003)
+and AES-XTS 128/256 (0x8004, 0x8005). Three FVE metadata blocks, offsets at boot
+sector bytes 176, 184 and 192, signature `-FVE-FS-`. A 48-digit recovery password
+-- every group divisible by 11 -- becomes a 128-bit key, then a SHA-256 loop of
+**1,048,576 iterations** over (previous hash, initial hash, 16-byte salt,
+counter) produces the 256-bit key. A user password is UTF-16LE, SHA-256 twice,
+then the same loop. That key unwraps the VMK with **AES-CCM**; the VMK unwraps
+the FVEK the same way.
+
+**LUKS2 is fully specified.** Default `aes-xts-plain64`, 512-bit keyslot key,
+Argon2id, AF stripes 4000, AF hash SHA-256.
+
+### What that means for the crypto layer
+
+Both formats are AES-XTS at the data layer on any volume made this decade, and
+`AESXTS.swift` already passes the IEEE 1619 vectors. `DecryptingReader` already
+sits between a device and a parser. **The data path is done.** What is missing is
+header parsing and key derivation, and both are specified above rather than
+guessed at.
+
+Two things macOS does not provide and would have to be written: **AES-CCM** (for
+the BitLocker unwrap -- CommonCrypto stops at GCM, CryptoKit has no CCM) and
+**Argon2id** (for LUKS2). Both are small and both have public test vectors.
+
+**This layer is the same in both routes below.** There is no mature, linkable,
+write-capable BitLocker library to reuse: libbde's write support is marked
+experimental and dislocker is shaped as a FUSE filesystem rather than a library.
+So the decryption layer is ours either way -- which is fine, because it is the
+part that is small and specified.
+
+### The two routes
+
+They differ in exactly one thing: **who parses NTFS.**
+
+#### Route A -- our own NTFS, in Swift
+
+```
+FSBlockDeviceResource → block alignment → AES-XTS → NTFS (Swift) → FSKit → Finder
+```
+
+This is what exists today. Read and write, create, delete, rename, truncate,
+folders, B-tree splits. 74 us to create a file against APFS's 64 on this Mac.
+
+*For:* one process, no C, no interop boundary, memory-safe, no vendored
+dependency to sign, notarise and track for CVEs. Measured metadata speed is
+already good.
+
+*Against:* every edge case in the wild is ours to find and fix, and we cannot
+test against the variety of drives that exist. Still missing: NTFS compression
+(real drives have it), `$MFT` growth, intermediate node splits, `$EA`. The
+compatibility tail is unbounded and cannot be estimated honestly.
+
+#### Route B -- libntfs-3g behind the same shell
+
+```
+FSBlockDeviceResource → block alignment → AES-XTS → libntfs-3g → FSKit → Finder
+```
+
+libntfs-3g exposes `struct ntfs_device_operations` -- a device abstraction with
+caller-supplied read, write and seek. That is exactly the seam needed: hand it a
+virtual device backed by the decrypting reader and it never learns what is
+underneath. NTFSKit ([whereteam/ntfskit](https://github.com/whereteam/ntfskit))
+already does this on this exact route.
+
+Licence: ntfs-3g is GPL-2.0-or-later, this app is GPL-3.0-or-later, so linking
+is permitted.
+
+*For:* twenty years of field testing. Compression, hibernation files, volumes
+chkdsk has repaired, malformed things in the wild -- all handled. Days of
+integration rather than months of implementation.
+
+*Against:* C in a sandboxed extension, where a memory error takes the volume down
+mid-copy. A vendored dependency to build, sign, notarise and watch for CVEs.
+Less control over the FSKit-facing behaviour, which is where nine of last
+night's defects lived.
+
+### What is common to both, and is done
+
+The FSKit-facing shell is the same either way, and it is the part that had the
+defects: mount and unmount, the dirty-flag protocol, read-only honouring, block
+alignment, the ordering rules, `ENOSPC` reporting, the paged directory listing.
+`FSBacking` is a seam precisely so the thing behind it can be swapped, and
+swapping it does not touch any of that.
+
+### What neither route removes
+
+- **The one click.** Verified above. Unavoidable.
+- **The VM, for ext4, btrfs and XFS.** §2.6's finding stands: no credible
+  user-space btrfs write implementation exists to port. Those keep the guest.
+  The goal is the VM off the *common* path, not deleted.
+
+### Recommendation
+
+Route B for NTFS, ours for the crypto layer, VM retained for the Linux
+filesystems. The crypto has to be written whichever route is taken and is
+specified well enough to write; NTFS does not have to be, and the part that
+cannot be estimated -- the compatibility tail -- is the part libntfs-3g has
+already paid for.
+
+Route A is not wasted if B is chosen: the shell, the alignment, the ordering and
+the crypto all survive, and the Swift NTFS reader remains useful as an
+independent check on the C one, which is exactly the kind of second opinion §33
+showed this work needs.
