@@ -9584,6 +9584,38 @@ group("aBlockDeviceOnlyTakesWholeBlocks") {
         !FSBlockRange.isAligned(offset: 15324, length: 1, blockSize: block),
         "and one byte of a bitmap is not, which is a read, a copy and a write")
 
+    // The read-modify-write itself, which is the part that can destroy a
+    // neighbour. A block holds other people's bytes, and putting one back after
+    // changing twenty-seven of them must leave the rest exactly as they were.
+    var device = [UInt8](repeating: 0, count: block * 8)
+    for index in device.indices { device[index] = UInt8(truncatingIfNeeded: index &* 31 &+ 7) }
+    let before = device
+    let put = Data("twenty-seven bytes of change".utf8.prefix(27))
+    let at = block * 3 + 91
+
+    guard let range = FSBlockRange.covering(offset: at, length: put.count, blockSize: block),
+        let within = FSBlockRange.offsetWithinBlocks(offset: at, blockSize: block)
+    else {
+        expect(false, "the unaligned write has blocks covering it")
+        return
+    }
+    var whole = Array(device[range.start..<(range.start + range.span)])
+    whole.replaceSubrange(within..<(within + put.count), with: [UInt8](put))
+    device.replaceSubrange(range.start..<(range.start + range.span), with: whole)
+
+    expect(
+        Array(device[at..<(at + put.count)]) == [UInt8](put),
+        "the bytes asked for are where they were asked to go")
+    expect(
+        Array(device[0..<at]) == Array(before[0..<at]),
+        "everything before them is untouched, including the rest of their own block")
+    expect(
+        Array(device[(at + put.count)...]) == Array(before[(at + put.count)...]),
+        "and everything after them -- a read-modify-write that loses its neighbours is worse "
+            + "than one that fails")
+    expect(
+        device.count == before.count, "and the device is the size it was")
+
     // Nonsense in, nothing out, rather than a write somewhere unintended.
     expect(
         FSBlockRange.covering(offset: -1, length: 4, blockSize: block) == nil,
