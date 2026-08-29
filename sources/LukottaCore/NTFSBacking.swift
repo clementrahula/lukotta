@@ -1882,9 +1882,143 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         return nil
     }
 
+    /// Give a file another name, or another directory, or both.
+    ///
+    /// Three things change: the entry in the old directory, the `$FILE_NAME` in
+    /// the file's own record, and the entry in the new directory. **The record
+    /// is not the name -- the index is** -- so the order is chosen by what a
+    /// reader finds between the writes:
+    ///
+    /// 1. The new entry goes in. The file is now reachable by both names, and
+    ///    both lead to the same record. A crash here leaves a file with two
+    ///    names, which chkdsk resolves and nobody loses anything over.
+    /// 2. The record's `$FILE_NAME` is rewritten to the new name and parent.
+    /// 3. The old entry comes out.
+    ///
+    /// The other order -- old entry first -- leaves the file reachable by no
+    /// name at all for as long as the writes take, which is a file that has
+    /// vanished.
+    ///
+    /// Renaming onto a name that is taken is refused. NTFS has one entry per
+    /// name; replacing means removing the other file first, and doing that
+    /// silently inside a rename is how somebody loses the wrong one.
     public func rename(
         _ name: String, in source: FSHandle, to newName: String, in destination: FSHandle
-    ) -> Bool { false }
+    ) -> Bool {
+        guard writeBytes != nil, !name.isEmpty, !newName.isEmpty,
+            let from = ours(source), from.isDirectory,
+            let into = ours(destination), into.isDirectory
+        else { return false }
+
+        return lock.withLock {
+            guard volumeIsSafeToWrite, let collation = reader.collation() else { return false }
+            if from.record == into.record, collation.isSameName(name, newName) { return true }
+
+            guard let fromShape = indexShape(of: from.record),
+                let found = findNode(name, in: fromShape, collation: collation)
+            else { return false }
+            let entry = found.node.entries[found.index]
+            var reference: UInt64 = 0
+            for byte in 0..<8 {
+                reference |= UInt64(entry[entry.startIndex + byte]) << (8 * UInt64(byte))
+            }
+            let number = reference & 0x0000_FFFF_FFFF_FFFF
+            guard let record = reader.record(number), let intoRecord = reader.record(into.record)
+            else { return false }
+            guard markLocked() else { return false }
+
+            // The entry that will carry the new name is built before anything
+            // is written: finding out it cannot be means a file with two names
+            // and no way back.
+            //
+            // Whether the name is already taken is not asked here. `place`
+            // refuses a name that is already in the node, and that is the check
+            // that has to hold -- asking twice makes one of the two answers
+            // untestable, and the untestable one is the one that rots.
+            guard let intoShape = indexShape(of: into.record) else { return false }
+
+            let attributes = reader.attributes(of: record)
+            guard let existing = attributes.first(where: { $0.kind == .fileName }),
+                existing.isResident,
+                let times = reader.times(of: record)
+            else { return false }
+            let base = record.data.startIndex
+            var flags: UInt32 = 0
+            for byte in 0..<4 {
+                flags |=
+                    UInt32(record.data[base + existing.valueOffset + 56 + byte])
+                    << (8 * UInt32(byte))
+            }
+            var size: UInt64 = 0
+            var allocated: UInt64 = 0
+            for byte in 0..<8 {
+                allocated |=
+                    UInt64(record.data[base + existing.valueOffset + 40 + byte])
+                    << (8 * UInt64(byte))
+                size |=
+                    UInt64(record.data[base + existing.valueOffset + 48 + byte])
+                    << (8 * UInt64(byte))
+            }
+            let plan = NTFSNewRecord.Plan(
+                record: number, sequence: 1, parent: into.record,
+                parentSequence: sequenceOf(intoRecord), name: newName, namespace: .posix,
+                times: times, dosFlags: flags & ~NTFSNewRecord.directoryFlag, securityID: 0,
+                isDirectory: record.header.isDirectory)
+            var value = [UInt8](
+                NTFSNewRecord.fileNameValue(plan, units: Array(newName.utf16)))
+            // The sizes the old name carried, kept: they are a copy of what the
+            // record says, and a rename does not change how long a file is.
+            for byte in 0..<8 {
+                value[40 + byte] = UInt8((allocated >> (8 * UInt64(byte))) & 0xFF)
+                value[48 + byte] = UInt8((size >> (8 * UInt64(byte))) & 0xFF)
+            }
+            guard
+                let carried = NTFSIndexWrite.entry(
+                    key: Data(value), record: number,
+                    sequence: sequenceOf(record))
+            else { return false }
+
+            // 1. The new name.
+            guard let target = descent(to: newName, in: intoShape, collation: collation)?.last
+            else { return false }
+            var room = target.freeBytes(sectorSize: reader.geometry.bytesPerSector) >= carried.count
+            if case .root = target.site {
+                room =
+                    intoShape.record.header.allocatedLength - intoShape.record.header.usedLength
+                    >= carried.count + 8
+            }
+            guard room, let placed = place(carried, into: target, collation: collation) else {
+                // No room means the node must split, which a rename does not
+                // do. Refusing is a rename that did not happen; going on is a
+                // file in two directories or none.
+                return false
+            }
+            if case .root = target.site {
+                guard let fresh = indexShape(of: into.record),
+                    writeNodeLocked(target, entries: placed, in: fresh)
+                else { return false }
+            } else {
+                guard writeNodeLockedRaw(target, entries: placed) else { return false }
+            }
+
+            // 2. The record.
+            guard
+                let edited = NTFSRecordEdit.replacing(
+                    .fileName, named: nil, with: Data(value), in: record.data,
+                    header: record.header),
+                let header = NTFSRecord.header(
+                    edited, expectedLength: reader.geometry.bytesPerFileRecord),
+                writeRecordLocked(number, edited, header: header, mirrorLast: true)
+            else { return false }
+
+            // 3. The old name.
+            guard let againShape = indexShape(of: from.record),
+                let old = findNode(name, in: againShape, collation: collation),
+                takeOutLocked(old.index, of: old.node, in: againShape, collation: collation)
+            else { return false }
+            return true
+        }
+    }
 
     /// Write into clusters the file already owns.
     ///
@@ -2010,9 +2144,13 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                             .data, named: nil, with: Data(value), in: held.data,
                             header: held.header),
                         let header = NTFSRecord.header(
-                            edited, expectedLength: reader.geometry.bytesPerFileRecord)
+                            edited, expectedLength: reader.geometry.bytesPerFileRecord),
+                        let sized = sizedFileName(
+                            edited, header: header, size: UInt64(value.count), allocated: 0),
+                        let sizedHeader = NTFSRecord.header(
+                            sized, expectedLength: reader.geometry.bytesPerFileRecord)
                     else { return false }
-                    return writeRecordLocked(number, edited, header: header, mirrorLast: true)
+                    return writeRecordLocked(number, sized, header: sizedHeader, mirrorLast: true)
                 }
 
                 // Out to the disk, all of it, since the bytes already in the
@@ -2027,9 +2165,14 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                     let edited = NTFSRecordEdit.replacingWhole(
                         .data, named: nil, with: attribute, in: held.data, header: held.header),
                     let header = NTFSRecord.header(
-                        edited, expectedLength: reader.geometry.bytesPerFileRecord)
+                        edited, expectedLength: reader.geometry.bytesPerFileRecord),
+                    let sized = sizedFileName(
+                        edited, header: header, size: size,
+                        allocated: NTFSRunlist.clusterCount(claimed) * UInt64(cluster)),
+                    let sizedHeader = NTFSRecord.header(
+                        sized, expectedLength: reader.geometry.bytesPerFileRecord)
                 else { return false }
-                return writeRecordLocked(number, edited, header: header, mirrorLast: true)
+                return writeRecordLocked(number, sized, header: sizedHeader, mirrorLast: true)
             }
 
             // Already out on the disk. More clusters if it needs them, then the
@@ -2076,11 +2219,50 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 let edited = NTFSRecordEdit.replacingWhole(
                     .data, named: nil, with: attribute, in: held.data, header: held.header),
                 let header = NTFSRecord.header(
-                    edited, expectedLength: reader.geometry.bytesPerFileRecord)
+                    edited, expectedLength: reader.geometry.bytesPerFileRecord),
+                let sized = sizedFileName(
+                    edited, header: header, size: size,
+                    allocated: NTFSRunlist.clusterCount(runs) * UInt64(cluster)),
+                let sizedHeader = NTFSRecord.header(
+                    sized, expectedLength: reader.geometry.bytesPerFileRecord)
             else { return false }
             _ = writeBytes
-            return writeRecordLocked(number, edited, header: header, mirrorLast: true)
+            return writeRecordLocked(number, sized, header: sizedHeader, mirrorLast: true)
         }
+    }
+
+    /// Write the file's length into the copy `$FILE_NAME` keeps of it.
+    ///
+    /// **A directory listing reads sizes out of the index, not out of the
+    /// record.** `$FILE_NAME` carries a copy, the index entry carries a copy of
+    /// that copy, and neither is updated by writing to the file. So a file
+    /// created and then filled reads as its full length through any code that
+    /// opens it -- ours does -- and as nothing at all in a listing, which is
+    /// what Finder and Windows Explorer show.
+    ///
+    /// This updates the record's copy. The index entry's copy is stale until
+    /// the name is written again, which is what NTFS itself does: Windows
+    /// refreshes index entries lazily and chkdsk repairs the rest. A stale
+    /// size in a listing is wrong; a zero in one is a file that looks empty.
+    private func sizedFileName(
+        _ record: Data, header: NTFSRecord.Header, size: UInt64,
+        allocated: UInt64
+    ) -> Data? {
+        guard
+            let name = NTFSAttribute.all(
+                in: record, startingAt: header.firstAttributeOffset, usedLength: header.usedLength
+            ).first(where: { $0.kind == .fileName }), name.isResident, name.valueLength >= 56
+        else { return nil }
+        var value = [UInt8](
+            record[
+                (record.startIndex + name.valueOffset)..<(record.startIndex + name.valueOffset
+                    + name.valueLength)])
+        for byte in 0..<8 {
+            value[40 + byte] = UInt8((allocated >> (8 * UInt64(byte))) & 0xFF)
+            value[48 + byte] = UInt8((size >> (8 * UInt64(byte))) & 0xFF)
+        }
+        return NTFSRecordEdit.replacing(
+            .fileName, named: nil, with: Data(value), in: record, header: header)
     }
 
     /// One attribute's own bytes, found by walking to it.

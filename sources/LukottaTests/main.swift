@@ -6503,6 +6503,39 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
     expect(
         filledRuns.allSatisfy { $0.physicalCluster != nil },
         "none of them a hole, since every one was written")
+    // The size a listing reads, which is not the size a reader reads. Finder
+    // and Explorer take it out of the index rather than opening the record,
+    // and a file created and then filled would otherwise list as empty.
+    guard
+        let filledName = onDisk.attributes(of: filledRecord).first(where: {
+            $0.kind == .fileName
+        })
+    else {
+        expect(false, "the filled file has a $FILE_NAME")
+        return
+    }
+    var listedLength: UInt64 = 0
+    var listedRoom: UInt64 = 0
+    for byte in 0..<8 {
+        listedRoom |=
+            UInt64(
+                filledRecord.data[filledRecord.data.startIndex + filledName.valueOffset + 40 + byte]
+            )
+            << (8 * UInt64(byte))
+        listedLength |=
+            UInt64(
+                filledRecord.data[filledRecord.data.startIndex + filledName.valueOffset + 48 + byte]
+            )
+            << (8 * UInt64(byte))
+    }
+    expect(
+        listedLength == UInt64(payload.count),
+        "a listing would show the file at its real length: \(listedLength) of \(payload.count) "
+            + "-- a zero here is a file Finder shows as empty however full it is")
+    expect(
+        listedRoom >= listedLength,
+        "with room for it: \(listedRoom)")
+
     expect(
         filledRuns.count <= 4,
         "in few pieces: \(filledRuns.count) -- runs that come out next to each other are "
@@ -6707,6 +6740,146 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
             initialised: 200) == nil,
         "and more written than the file is long is refused, since the space between them is "
             + "what reads as zeroes")
+
+    // Renaming. The record is not the name -- the index is -- so what a reader
+    // finds between the writes is what decides the order.
+    guard let renamed = backing.create("before.txt", isDirectory: false, in: root, mode: 0o644)
+    else {
+        expect(false, "a file to rename is made")
+        return
+    }
+    let mark = Data("this file was renamed".utf8)
+    expect(backing.write(renamed, contents: mark, offset: 0) == mark.count, "with bytes in it")
+    guard let renamedID = backing.attributes(of: renamed)?.id else {
+        expect(false, "and a record")
+        return
+    }
+
+    expect(
+        backing.rename("before.txt", in: root, to: "after.txt", in: root),
+        "a file is renamed inside its own directory")
+    expect(backing.lookup("before.txt", in: root) == nil, "the old name is gone")
+    guard let underNewName = backing.lookup("after.txt", in: root),
+        let newID = backing.attributes(of: underNewName)?.id
+    else {
+        expect(false, "and the new one is there")
+        return
+    }
+    expect(newID == renamedID, "at the same record, so it is the same file")
+    expect(
+        backing.read(underNewName, offset: 0, length: mark.count) == mark,
+        "with the same bytes in it")
+
+    // A reader that has never seen the volume, and the record's own idea of
+    // what it is called.
+    guard let afterRename = NTFSVolumeReader(read: read),
+        let byNewName = afterRename.find("after.txt", inDirectory: NTFSTable.rootRecord),
+        let renamedRecord = afterRename.record(byNewName)
+    else {
+        expect(false, "a fresh reader finds it under the new name")
+        return
+    }
+    expect(byNewName == renamedID, "at the record it always was")
+    expect(
+        afterRename.find("before.txt", inDirectory: NTFSTable.rootRecord) == nil,
+        "and not under the old one")
+    expect(
+        afterRename.name(of: renamedRecord) == "after.txt",
+        "and the record itself says the new name, not only the directory: "
+            + "\(afterRename.name(of: renamedRecord) ?? "?")")
+    expect(
+        (afterRename.contents(ofDirectory: NTFSTable.rootRecord) ?? [])
+            .filter { $0.record == renamedID }.count == 1,
+        "and it appears once in the listing, not twice")
+
+    // The sizes $FILE_NAME carries are a copy of what the record says, and a
+    // listing reads them without opening the record. A rename that drops them
+    // is a file Finder shows as empty. Nothing else here would notice: our own
+    // reader asks the record.
+    guard
+        let renamedName = afterRename.attributes(of: renamedRecord).first(where: {
+            $0.kind == .fileName
+        })
+    else {
+        expect(false, "the renamed record has a $FILE_NAME")
+        return
+    }
+    var listedSize: UInt64 = 0
+    for byte in 0..<8 {
+        listedSize |=
+            UInt64(
+                renamedRecord.data[
+                    renamedRecord.data.startIndex + renamedName.valueOffset + 48 + byte])
+            << (8 * UInt64(byte))
+    }
+    expect(
+        listedSize == UInt64(mark.count),
+        "and the size a listing would read is still the file's: \(listedSize) of \(mark.count)")
+
+    // Onto a name that is taken: refused. NTFS has one entry per name, and
+    // replacing means removing the other file first -- doing that silently
+    // inside a rename is how somebody loses the wrong one.
+    guard backing.create("occupied.txt", isDirectory: false, in: root, mode: 0o644) != nil else {
+        expect(false, "a second file is made")
+        return
+    }
+    expect(
+        !backing.rename("after.txt", in: root, to: "occupied.txt", in: root),
+        "renaming onto a name that is taken is refused")
+    expect(backing.lookup("after.txt", in: root) != nil, "and the file keeps the name it had")
+    expect(backing.lookup("occupied.txt", in: root) != nil, "and the other one is untouched")
+    expect(
+        !backing.rename("never-was.txt", in: root, to: "somewhere.txt", in: root),
+        "and renaming something that is not there does nothing")
+
+    // Into another directory, which is the same three writes with a different
+    // parent in the middle one.
+    guard let moveTo = backing.create("move-into", isDirectory: true, in: root, mode: 0o755)
+    else {
+        expect(false, "a directory to move into is made")
+        return
+    }
+    expect(
+        backing.rename("after.txt", in: root, to: "moved.txt", in: moveTo),
+        "a file moves to another directory")
+    expect(backing.lookup("after.txt", in: root) == nil, "and is out of the old one")
+    expect(
+        backing.children(of: moveTo).map { $0.name } == ["moved.txt"],
+        "and in the new one: \(backing.children(of: moveTo).map { $0.name })")
+    guard let afterMove = NTFSVolumeReader(read: read),
+        let movedNumber = backing.attributes(of: moveTo)?.id,
+        let movedTo = afterMove.find("moved.txt", inDirectory: movedNumber),
+        let movedRecord = afterMove.record(movedTo)
+    else {
+        expect(false, "a fresh reader finds it in the new directory")
+        return
+    }
+    expect(movedTo == renamedID, "still the same record")
+    expect(
+        afterMove.contents(ofFile: movedTo)?.prefix(mark.count) == mark,
+        "with its bytes intact")
+    guard
+        let movedName = afterMove.attributes(of: movedRecord).first(where: {
+            $0.kind == .fileName
+        })
+    else {
+        expect(false, "and a $FILE_NAME")
+        return
+    }
+    var parentReference: UInt64 = 0
+    for byte in 0..<8 {
+        parentReference |=
+            UInt64(movedRecord.data[movedRecord.data.startIndex + movedName.valueOffset + byte])
+            << (8 * UInt64(byte))
+    }
+    expect(
+        parentReference & 0x0000_FFFF_FFFF_FFFF == movedNumber,
+        "and its record names the new directory as its parent -- a record still naming the old "
+            + "one is a file chkdsk moves back")
+
+    expect(backing.remove("moved.txt", from: moveTo) == .removed, "the moved file is removed")
+    expect(backing.remove("move-into", from: root) == .removed, "and the directory with it")
+    expect(backing.remove("occupied.txt", from: root) == .removed, "as is the other file")
 
     // A directory small enough to keep its whole index inside its own record.
     // Making a file in one means growing a resident attribute, which this does
