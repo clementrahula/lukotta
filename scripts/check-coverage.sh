@@ -399,6 +399,68 @@ else
   FAIL=1
 fi
 
+# Things the source declares and nothing but a test ever calls.
+#
+# Three of those cost a morning: a mount option parsed, tested four ways and
+# never asked, so `-o ro` got a writable volume; the whole path from the
+# application to the filesystem extension, so no drive was ever handed to it;
+# and the arithmetic that turns a write into whole blocks, without which every
+# write would have failed the first time it met a real disk.
+#
+# Tests are not use. A function only a test calls is a function whose behaviour
+# is guaranteed and whose absence from the product is not noticed.
+printf 'Nothing important is only called by its own test…\n'
+/usr/bin/python3 - "$HERE" <<'CALLED' || FAIL=1
+import pathlib, re, sys
+
+here = pathlib.Path(sys.argv[1])
+# The ones that must be reached from the product, named rather than inferred:
+# each was once declared and uncalled, and each cost something.
+required = {
+    "isReadOnly": "a read-only mount would be written to",
+    "isAligned": "every write would fail on a real block device",
+    "covering": "an unaligned write would go to the wrong place",
+    "offsetWithinBlocks": "the bytes would be trimmed out of the wrong offset",
+}
+
+# Known to be uncalled, on purpose, with the reason. Listed rather than
+# forgotten: an acknowledged gap that is printed every run is a different thing
+# from one nobody can see. When one of these is wired up it moves to `required`
+# above, and this list is meant to empty.
+pending = {
+    "attempt": (
+        "ExtensionMount.attempt: no drive reaches the filesystem extension yet. "
+        "The call belongs in Mounter, which is the v1 path, and it should be made "
+        "by somebody who can then plug a drive in and watch."
+    ),
+}
+
+sources = [
+    f for f in here.glob("sources/Lukotta*/*.swift") if "Tests" not in str(f)
+]
+text = "\n".join(f.read_text() for f in sources)
+
+missing = []
+for name, cost in required.items():
+    declared = len(re.findall(r"func " + re.escape(name) + r"\s*\(", text))
+    used = len(re.findall(r"\b" + re.escape(name) + r"\s*\(", text))
+    if used <= declared:
+        missing.append(f"  UNCALLED  {name}() is declared and never used: {cost}")
+
+if missing:
+    print("\n".join(missing))
+    sys.exit(1)
+print(f"  {len(required)} of them, every one reached from the product")
+
+for name, why in pending.items():
+    declared = len(re.findall(r"func " + re.escape(name) + r"\s*\(", text))
+    used = len(re.findall(r"\b" + re.escape(name) + r"\s*\(", text))
+    if used > declared:
+        print(f"  {name}() is wired up now; move it to the required list")
+        sys.exit(1)
+    print(f"  still to wire -- {why}")
+CALLED
+
 if [ "$FAIL" = "1" ]; then
   printf 'Something is not covered. Add the missing check rather than the exception.\n'
   exit 1
