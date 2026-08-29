@@ -2089,7 +2089,88 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         }
     }
 
-    public func truncate(_ handle: FSHandle, to size: Int) {}
+    /// Set a file's length.
+    ///
+    /// **This is how anything overwrites a file.** `cp`, Finder, every editor:
+    /// open it, cut it to nothing, write the new contents. A filesystem that
+    /// ignores the cutting leaves the tail of whatever was there before hanging
+    /// off the end of the new file, and the person sees a file that is part
+    /// theirs and part somebody else's.
+    ///
+    /// Shrinking keeps the clusters. NTFS allows `allocatedSize` to exceed
+    /// `dataSize` -- that is what it is for -- and a file that is cut and
+    /// rewritten, which is the common case, then needs no allocation at all.
+    /// The bytes past the new end stay on the disk and are unreachable, exactly
+    /// as they are for a removed file, and for the same reason.
+    ///
+    /// Growing past what is allocated goes through the same path a write does.
+    /// The space between what is written and the new end reads as zeroes
+    /// without touching the disk, which is what `initialisedSize` is for.
+    public func truncate(_ handle: FSHandle, to size: Int) {
+        guard writeBytes != nil, let handle = ours(handle), !handle.isDirectory, size >= 0
+        else { return }
+        let wanted = UInt64(size)
+        if (reader.size(ofFile: handle.record) ?? 0) < wanted {
+            // Longer. The same operation as a write, with nothing to write.
+            _ = growLocked(handle.record, to: wanted, writing: Data(), at: 0)
+        } else {
+            _ = shortenLocked(handle.record, to: wanted)
+        }
+        lock.withLock {
+            if let collation = reader.collation() {
+                refreshEntryLocked(for: handle.record, collation: collation)
+            }
+        }
+    }
+
+    /// Cut a file down, without giving its clusters back.
+    private func shortenLocked(_ number: UInt64, to size: UInt64) -> Bool {
+        lock.withLock {
+            guard volumeIsSafeToWrite, markLocked(), let held = reader.record(number),
+                !reader.spillsAttributes(held)
+            else { return false }
+            let attributes = reader.attributes(of: held)
+            guard let data = attributes.first(where: { $0.kind == .data }), data.isReadableAsIs
+            else { return false }
+            let base = held.data.startIndex
+
+            if data.isResident {
+                guard size <= UInt64(data.valueLength) else { return false }
+                let value = held.data[
+                    (base + data.valueOffset)..<(base + data.valueOffset + Int(size))]
+                guard
+                    let edited = NTFSRecordEdit.replacing(
+                        .data, named: nil, with: Data(value), in: held.data, header: held.header),
+                    let header = NTFSRecord.header(
+                        edited, expectedLength: reader.geometry.bytesPerFileRecord),
+                    let sized = sizedFileName(edited, header: header, size: size, allocated: 0),
+                    let sizedHeader = NTFSRecord.header(
+                        sized, expectedLength: reader.geometry.bytesPerFileRecord)
+                else { return false }
+                return writeRecordLocked(number, sized, header: sizedHeader, mirrorLast: true)
+            }
+
+            guard
+                let runs = NTFSRunlist.decode(
+                    held.data, at: data.runlistOffset, limit: held.data.count),
+                let bytes = attributeBytes(data, in: held.data),
+                let attribute = NTFSFileGrow.extended(
+                    bytes, runs: runs, bytesPerCluster: reader.geometry.bytesPerCluster,
+                    size: size, initialised: min(size, data.dataSize)),
+                let edited = NTFSRecordEdit.replacingWhole(
+                    .data, named: nil, with: attribute, in: held.data, header: held.header),
+                let header = NTFSRecord.header(
+                    edited, expectedLength: reader.geometry.bytesPerFileRecord),
+                let sized = sizedFileName(
+                    edited, header: header, size: size,
+                    allocated: NTFSRunlist.clusterCount(runs)
+                        * UInt64(reader.geometry.bytesPerCluster)),
+                let sizedHeader = NTFSRecord.header(
+                    sized, expectedLength: reader.geometry.bytesPerFileRecord)
+            else { return false }
+            return writeRecordLocked(number, sized, header: sizedHeader, mirrorLast: true)
+        }
+    }
 
     /// Whether a file's bytes are inside its record.
     private func isResident(_ record: UInt64) -> Bool {
@@ -2222,7 +2303,11 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             guard putLocked(contents, into: runs, at: offset),
                 let attribute = NTFSFileGrow.extended(
                     attributeBytes, runs: runs, bytesPerCluster: cluster, size: size,
-                    initialised: max(data.dataSize, size)),
+                    // How much has been written, not how long the file is. A
+                    // file extended past what anybody wrote has clusters in it
+                    // that still hold the last file's bytes, and claiming they
+                    // are written is handing those bytes over under a new name.
+                    initialised: min(size, max(data.dataSize, offset + UInt64(contents.count)))),
                 let edited = NTFSRecordEdit.replacingWhole(
                     .data, named: nil, with: attribute, in: held.data, header: held.header),
                 let header = NTFSRecord.header(

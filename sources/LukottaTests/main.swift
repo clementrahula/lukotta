@@ -6675,6 +6675,66 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
         "in few pieces after three allocations: \(appendedRuns.count) -- clusters that came "
             + "out adjacent were joined onto the run before them")
 
+    // Cutting it down, which is how anything overwrites a file: open it, cut it
+    // to nothing, write the new contents. A filesystem that ignores the cutting
+    // leaves the tail of what was there hanging off the end of the new file.
+    backing.truncate(filled, to: 5000)
+    expect(
+        backing.attributes(of: filled)?.size == 5000,
+        "a file cut down is the length it was cut to: "
+            + "\(backing.attributes(of: filled)?.size ?? 0)")
+    expect(
+        backing.read(filled, offset: 0, length: 5000)
+            == grown[grown.startIndex..<grown.startIndex + 5000],
+        "with the bytes it kept still its own")
+    expect(
+        backing.read(filled, offset: 5000, length: 100).isEmpty
+            || backing.read(filled, offset: 5000, length: 100).count == 0,
+        "and nothing past the end")
+
+    // Cut to nothing, then written again, which is the whole of overwriting.
+    backing.truncate(filled, to: 0)
+    expect(backing.attributes(of: filled)?.size == 0, "cut to nothing, it is empty")
+    let replacement = Data("the file this became".utf8)
+    expect(
+        backing.write(filled, contents: replacement, offset: 0) == replacement.count,
+        "and takes what replaces it")
+    expect(
+        backing.attributes(of: filled)?.size == UInt64(replacement.count),
+        "coming out the length of the new contents and not of the old: "
+            + "\(backing.attributes(of: filled)?.size ?? 0)")
+    expect(
+        backing.read(filled, offset: 0, length: replacement.count) == replacement,
+        "with the new bytes in it")
+
+    // A reader that has never seen the volume, because the tail of a file is
+    // exactly the thing a stale length hides.
+    guard let afterCut = NTFSVolumeReader(read: read),
+        let cutNumber = afterCut.find("filled.bin", inDirectory: NTFSTable.rootRecord)
+    else {
+        expect(false, "a fresh reader finds the overwritten file")
+        return
+    }
+    expect(
+        afterCut.size(ofFile: cutNumber) == UInt64(replacement.count),
+        "it is the new length: \(afterCut.size(ofFile: cutNumber) ?? 0)")
+    expect(
+        afterCut.contents(ofFile: cutNumber) == replacement,
+        "and holds the new contents and nothing after them -- the old two hundred thousand "
+            + "bytes are still on the disk, and none of them belongs to this file any more")
+
+    // Grow it again by cutting upwards. The space between what was written and
+    // the new end reads as zeroes without touching the disk.
+    backing.truncate(filled, to: 100_000)
+    expect(
+        backing.attributes(of: filled)?.size == 100_000,
+        "a file cut upwards is longer: \(backing.attributes(of: filled)?.size ?? 0)")
+    let tailBytes = backing.read(filled, offset: 50_000, length: 4096)
+    expect(
+        tailBytes.count == 4096 && tailBytes.allSatisfy { $0 == 0 },
+        "and the part nobody wrote reads as zeroes, not as whatever was in the clusters: "
+            + "\(tailBytes.prefix(8).map { $0 })")
+
     // Its clusters, before it goes.
     let heldClusters = filledRuns.compactMap { run -> ClosedRange<UInt64>? in
         guard let start = run.physicalCluster, run.clusterCount > 0 else { return nil }

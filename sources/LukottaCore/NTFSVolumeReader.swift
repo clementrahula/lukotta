@@ -577,13 +577,36 @@ public final class NTFSVolumeReader: @unchecked Sendable {
             return record.data[start + range.lowerBound..<start + range.upperBound]
         }
 
+        // How much of the file has actually been written. Everything past it
+        // reads as zeroes **and must**: those clusters belong to this file now
+        // but still hold whatever the last one left in them, and handing them
+        // over is handing one person another person's bytes under their own
+        // file's name. NTFS keeps the number precisely so that extending a file
+        // costs nothing and leaks nothing.
+        let written = min(
+            data.dataSize, initialisedSize(of: data, in: record.data) ?? data.dataSize)
+        let reaches = min(offset + UInt64(wanted), data.dataSize)
+        guard reaches > offset else { return Data() }
+
+        // The part of what was asked for that somebody actually wrote, and the
+        // part past it. The second is zeroes and never a read: those clusters
+        // belong to this file and still hold what the last one left in them.
+        let fromDisk = written > offset ? Int(min(reaches, written) - offset) : 0
+        let padding = Int(reaches - offset) - fromDisk
+
         guard
             let runs = NTFSRunlist.decode(
-                record.data, at: data.runlistOffset, limit: record.data.count),
-            let pieces = NTFSFileData.pieces(
-                offset: offset, length: wanted, runs: runs,
-                bytesPerCluster: geometry.bytesPerCluster, size: data.dataSize)
+                record.data, at: data.runlistOffset, limit: record.data.count)
         else { return nil }
+        var pieces: [NTFSFileData.Piece] = []
+        if fromDisk > 0 {
+            guard
+                let read = NTFSFileData.pieces(
+                    offset: offset, length: fromDisk, runs: runs,
+                    bytesPerCluster: geometry.bytesPerCluster, size: written)
+            else { return nil }
+            pieces = read
+        }
 
         var out = Data()
         out.reserveCapacity(NTFSFileData.totalLength(pieces))
@@ -596,6 +619,40 @@ public final class NTFSVolumeReader: @unchecked Sendable {
                 out.append(chunk)
             }
         }
+        if padding > 0 { out.append(Data(count: padding)) }
         return out
+    }
+
+    /// How much of a file has been written, as its attribute records it.
+    ///
+    /// Not in `NTFSAttribute.Header`, because nothing reading a whole file
+    /// needed it until a file could be extended without being written. It sits
+    /// eight bytes past the real size in a non-resident attribute's header.
+    func initialisedSize(of attribute: NTFSAttribute.Header, in record: Data) -> UInt64? {
+        guard !attribute.isResident else { return nil }
+        var at = header(of: record)?.firstAttributeOffset ?? 0
+        guard at > 0 else { return nil }
+        let base = record.startIndex
+        while at + 8 <= record.count {
+            var kind: UInt32 = 0
+            for byte in 0..<4 { kind |= UInt32(record[base + at + byte]) << (8 * UInt32(byte)) }
+            if kind == 0xFFFF_FFFF { return nil }
+            var length = 0
+            for byte in 0..<4 { length |= Int(record[base + at + 4 + byte]) << (8 * byte) }
+            guard length >= 24, at + length <= record.count else { return nil }
+            if kind == attribute.type, record[base + at + 8] == 1, at + 0x40 <= record.count {
+                var value: UInt64 = 0
+                for byte in 0..<8 {
+                    value |= UInt64(record[base + at + 0x38 + byte]) << (8 * UInt64(byte))
+                }
+                return value
+            }
+            at += length
+        }
+        return nil
+    }
+
+    private func header(of record: Data) -> NTFSRecord.Header? {
+        NTFSRecord.header(record, expectedLength: record.count)
     }
 }
