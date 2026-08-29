@@ -57,8 +57,14 @@ final class LukottaVolume: FSVolume, @unchecked Sendable {
         attributes.linkCount = source.linkCount
         attributes.size = source.size
         // Rounded to a block, as a real filesystem reports it: du and Finder's
-        // "size on disk" both read this rather than size.
-        attributes.allocSize = (source.size + 4095) / 4096 * 4096
+        // "size on disk" both read this rather than size. The block is the
+        // volume's own -- an NTFS volume can be formatted with anything from
+        // 512 bytes to 64 KB, and rounding everything to four thousand and
+        // ninety-six reports the wrong number on most of them.
+        let block = store.blockSizeInBytes
+        attributes.allocSize =
+            block > 0
+            ? (source.size + UInt64(block) - 1) / UInt64(block) * UInt64(block) : source.size
         attributes.uid = UInt32(getuid())
         attributes.gid = UInt32(getgid())
         attributes.flags = 0
@@ -70,10 +76,18 @@ final class LukottaVolume: FSVolume, @unchecked Sendable {
         // FSExtentPacker.packExtent takes an FSBlockDeviceResource, so the data
         // has to physically live on a block device the kernel can address.
         //
-        // Neither backing here is one. Memory is memory, and the passthrough is
-        // a directory on another filesystem -- there are no physical extents to
-        // hand over. Saying so explicitly means the kernel uses the read/write
-        // path rather than asking for a map that cannot be made.
+        // **The NTFS backing is one, and this is the one thing left on the
+        // table.** It reads and writes an FSBlockDeviceResource, so its files
+        // do have physical extents, and handing the kernel a map of them is how
+        // an FSKit module reaches the throughput of a kernel filesystem instead
+        // of moving every byte through a process.
+        //
+        // It stays off because the map is not built yet. Saying a file can be
+        // offloaded and then failing to describe where it is would be worse
+        // than not offering: the kernel asks for a map, gets nothing, and the
+        // read fails rather than falling back. The other two backings can never
+        // offer it -- memory is memory, and a directory on somebody else's
+        // filesystem has no extents of its own to give.
         attributes.inhibitKernelOffloadedIO = true
         let modified = timespec(
             tv_sec: Int(source.modified.timeIntervalSince1970), tv_nsec: 0)
@@ -507,6 +521,16 @@ extension LukottaVolume: FSVolume.AccessCheckOperations {
 
     var isAccessCheckInhibited: Bool { true }
 
+    /// Anybody may do anything, which is the right answer for a removable
+    /// drive and not laziness.
+    ///
+    /// NTFS keeps permissions as Windows security descriptors in `$Secure`,
+    /// naming Windows accounts. There is no honest mapping from those to the
+    /// user sitting at this Mac -- the same drive plugged into two machines
+    /// would answer differently, and refusing somebody their own files because
+    /// a Windows account they have never heard of owns them is the worst thing
+    /// this application could do. Every other NTFS driver for macOS answers the
+    /// same way, and v1 does too.
     func checkAccess(
         to item: FSItem, requestedAccess access: FSVolume.AccessMask,
         replyHandler reply: @escaping (Bool, (any Error)?) -> Void

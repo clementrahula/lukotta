@@ -99,11 +99,21 @@ public protocol FSBacking: AnyObject, Sendable {
     /// none free -- but it must not invent one for a real disk, where the
     /// number is knowable and wrong would show in Get Info.
     var capacityInBytes: UInt64 { get }
+
+    /// How much of the disk the smallest file takes.
+    ///
+    /// `du` and Finder's "size on disk" both report the space a file occupies
+    /// rather than its length, and the difference is a whole block. Zero means
+    /// there is no such thing here, and the caller should not invent one.
+    var blockSizeInBytes: Int { get }
 }
 
 extension FSBacking {
     /// Backings with nothing real behind them do not have to answer.
     public var capacityInBytes: UInt64 { 0 }
+
+    /// Backings with nothing real behind them have no block size either.
+    public var blockSizeInBytes: Int { 0 }
 
     public func children(of directory: FSHandle, from: Int, limit: Int)
         -> [(name: String, handle: FSHandle)]

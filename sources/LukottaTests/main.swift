@@ -6951,6 +6951,19 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
     expect(
         backing.children(of: root, from: -1, limit: 5).isEmpty, "or for a page before the first")
 
+    // The block size is the volume's own, not a number this code chose. An NTFS
+    // volume can be formatted with anything from 512 bytes to 64 KB, and
+    // rounding every file to four thousand and ninety-six reports the wrong
+    // "size on disk" on most of them -- which is what du and Finder show.
+    expect(
+        backing.blockSizeInBytes == NTFSVolumeReader(read: read)?.geometry.bytesPerCluster,
+        "the backing reports the volume's own cluster as its block: "
+            + "\(backing.blockSizeInBytes)")
+    expect(backing.blockSizeInBytes > 0, "which is a real number")
+    expect(
+        FSStoreBacking().blockSizeInBytes == 0,
+        "while a backing with no disk behind it reports none rather than inventing one")
+
     // Extended attributes. This filesystem does not keep them yet, and saying
     // so is a different answer from saying a particular one is missing: told
     // the filesystem does not keep them, macOS writes them into a `._` file

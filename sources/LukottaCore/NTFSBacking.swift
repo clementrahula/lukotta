@@ -2604,6 +2604,10 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     }
 
     /// How large the volume is, which statfs needs beside what is used.
+    /// A cluster, which is what this volume was formatted with -- not a number
+    /// this code chose. A file of one byte takes one of these.
+    public var blockSizeInBytes: Int { reader.geometry.bytesPerCluster }
+
     public var capacityInBytes: UInt64 {
         lock.withLock { reader.spaceInUse()?.total ?? 0 }
     }
