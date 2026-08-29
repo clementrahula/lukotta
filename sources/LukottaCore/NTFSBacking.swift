@@ -2040,6 +2040,13 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         if (reader.size(ofFile: handle.record) ?? 0) < end || isResident(handle.record) {
             guard growLocked(handle.record, to: end, writing: contents, at: UInt64(offset))
             else { return 0 }
+            // The directory entry carries its own copy of the length, and it is
+            // the copy a listing reads.
+            lock.withLock {
+                if let collation = reader.collation() {
+                    refreshEntryLocked(for: handle.record, collation: collation)
+                }
+            }
             // A resident file's bytes went in with the record, so nothing is
             // left to write.
             if isResident(handle.record) { return contents.count }
@@ -2229,6 +2236,56 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             _ = writeBytes
             return writeRecordLocked(number, sized, header: sizedHeader, mirrorLast: true)
         }
+    }
+
+    /// Write the file's length into the copy its directory entry keeps.
+    ///
+    /// The record's `$FILE_NAME` is one copy; the entry in the parent's index
+    /// is a copy of that copy, and **it is the one a listing reads**. Windows
+    /// and Finder both take names, times and sizes straight out of the index
+    /// without opening a single record -- which is what makes listing a million
+    /// files one pass rather than a million reads, and what makes a stale entry
+    /// a file that looks empty.
+    ///
+    /// The parent is found through the record's own `$FILE_NAME`, because a
+    /// handle does not carry one: a file knows which directory it is in, and
+    /// that is where the reference lives.
+    ///
+    /// Its failure is not the write's failure. By this point the bytes are on
+    /// the disk and the record says how many; an entry left stale is a wrong
+    /// number in a listing, which is worse than right and better than losing
+    /// the write.
+    ///
+    /// Must be called with `lock` held.
+    @discardableResult
+    private func refreshEntryLocked(for number: UInt64, collation: NTFSCollation) -> Bool {
+        guard let record = reader.record(number),
+            let name = reader.attributes(of: record).first(where: { $0.kind == .fileName }),
+            name.isResident, name.valueLength >= 66
+        else { return false }
+        let base = record.data.startIndex
+        let value = Data(
+            record.data[
+                (base + name.valueOffset)..<(base + name.valueOffset + name.valueLength)])
+        guard let parsed = NTFSFileName.read(value) else { return false }
+
+        guard let shape = indexShape(of: parsed.parentRecord),
+            let found = findNode(parsed.name, in: shape, collation: collation)
+        else { return false }
+        let existing = found.node.entries[found.index]
+        // The entry keeps whatever it kept -- its reference, its flags, its
+        // child if it has one -- and only the key changes.
+        var rebuilt = [UInt8](existing)
+        let keyLength = Int(NTFSIndexWrite.read16(existing, NTFSIndexWrite.keyLengthField))
+        guard keyLength == value.count,
+            NTFSIndexWrite.keyField + keyLength <= rebuilt.count
+        else { return false }
+        rebuilt.replaceSubrange(
+            NTFSIndexWrite.keyField..<(NTFSIndexWrite.keyField + keyLength), with: [UInt8](value))
+
+        var entries = found.node.entries
+        entries[found.index] = Data(rebuilt)
+        return writeNodeLocked(found.node, entries: entries, in: shape)
     }
 
     /// Write the file's length into the copy `$FILE_NAME` keeps of it.

@@ -6536,6 +6536,40 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
         listedRoom >= listedLength,
         "with room for it: \(listedRoom)")
 
+    // And the copy the directory entry keeps, which is the one Windows and
+    // Finder actually read. A record that is right and an entry that is stale
+    // is still a file that lists as empty.
+    var inEntry: UInt64?
+    for node in onDisk.indexNodes(ofDirectory: NTFSTable.rootRecord) {
+        guard let offset = node.diskOffset,
+            let raw = read(offset, node.allocatedBytes),
+            let header = NTFSIndexBlock.header(raw, blockSize: node.allocatedBytes),
+            let bytes = NTFSIndexBlock.applyFixup(
+                raw, header: header, sectorSize: onDisk.geometry.bytesPerSector),
+            let (entries, _) = NTFSIndexSplit.entries(
+                of: bytes, nodeHeaderAt: NTFSIndexBlock.nodeHeaderOffset)
+        else { continue }
+        for entry in entries {
+            guard
+                NTFSIndexWrite.key(of: entry, at: 0).map({ String(decoding: $0, as: UTF16.self) })
+                    == "filled.bin"
+            else { continue }
+            var found: UInt64 = 0
+            for byte in 0..<8 {
+                found |=
+                    UInt64(entry[entry.startIndex + NTFSIndexWrite.keyField + 48 + byte])
+                    << (8 * UInt64(byte))
+            }
+            inEntry = found
+        }
+    }
+    expect(inEntry != nil, "the filled file has an entry in its directory")
+    expect(
+        inEntry == UInt64(payload.count),
+        "and its directory entry says the same length: \(inEntry.map(String.init) ?? "none") "
+            + "of \(payload.count) -- the "
+            + "record being right and the entry being stale is still a file that lists as empty")
+
     expect(
         filledRuns.count <= 4,
         "in few pieces: \(filledRuns.count) -- runs that come out next to each other are "
