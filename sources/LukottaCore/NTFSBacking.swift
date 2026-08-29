@@ -1430,7 +1430,13 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             }
             let number = reference & 0x0000_FFFF_FFFF_FFFF
             guard let record = reader.record(number) else { return .missing }
-            guard !record.header.isDirectory else { return .notEmpty }
+            if record.header.isDirectory {
+                // An empty directory can go. One with anything in it must not,
+                // and NTFS does not say so anywhere but in the index itself.
+                guard (reader.contents(ofDirectory: number)?.isEmpty ?? false) else {
+                    return .notEmpty
+                }
+            }
             guard markLocked() else { return .missing }
 
             // 1. The name, out of whichever node a search would find it in --
@@ -1465,6 +1471,21 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                     recordCount: tableSize / UInt64(reader.geometry.bytesPerFileRecord)),
                 writeRecordBitmapLocked(released, changedFrom: bitmap)
             else { return .missing }
+
+            // 4. A directory's index blocks go back to the volume. A file's
+            // clusters are deliberately left claimed -- its record still points
+            // at them and that is what makes it recoverable -- but a directory
+            // that is gone has no names to recover, and its blocks are pure
+            // bookkeeping.
+            // Only a directory's. A file's clusters are deliberately left
+            // claimed: its record still points at them, and that is what makes
+            // it recoverable. Freeing them would hand the next write the bytes
+            // somebody may want back. (A file has no $INDEX_ALLOCATION, so
+            // calling this on one does nothing either way -- the check is here
+            // to say which of the two rules is the one being followed.)
+            if record.header.isDirectory {
+                _ = releaseIndexBlocksLocked(of: record)
+            }
 
             // The slot just freed is below the hint, and the next create
             // should take it rather than walk past it to the end of the table.
@@ -1774,6 +1795,40 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             current = deeper
         }
         return false
+    }
+
+    /// Give a removed directory's index blocks back to the volume.
+    ///
+    /// Done last, and its failure is not the removal's failure: by this point
+    /// the directory is gone from its parent and its record is free, and a
+    /// crash here leaves clusters nobody owns. That is space, which chkdsk
+    /// reclaims. Refusing the whole removal because the tidying failed would
+    /// leave a directory somebody asked to be rid of.
+    ///
+    /// Must be called with `lock` held.
+    private func releaseIndexBlocksLocked(of record: (data: Data, header: NTFSRecord.Header))
+        -> Bool
+    {
+        guard
+            let allocation = reader.attributes(of: record).first(where: {
+                $0.kind == .indexAllocation
+            }), !allocation.isResident,
+            let runs = NTFSRunlist.decode(
+                record.data, at: allocation.runlistOffset, limit: record.data.count),
+            let bitmap = clusterBitmapLocked()
+        else { return true }  // no blocks to give back
+
+        let total = reader.geometry.totalSectors / UInt64(reader.geometry.sectorsPerCluster)
+        var working = bitmap
+        for run in runs {
+            guard let start = run.physicalCluster, run.clusterCount > 0 else { continue }
+            guard
+                let released = NTFSBitmap.releasing(
+                    start, count: run.clusterCount, in: working, totalClusters: total)
+            else { return false }
+            working = released
+        }
+        return writeVolumeBitmapLocked(working, touching: runs, changedFrom: bitmap)
     }
 
     /// Give an index block back to the directory that owned it.

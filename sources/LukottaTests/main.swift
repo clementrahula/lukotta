@@ -6608,7 +6608,37 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
         "in few pieces after three allocations: \(appendedRuns.count) -- clusters that came "
             + "out adjacent were joined onto the run before them")
 
+    // Its clusters, before it goes.
+    let heldClusters = filledRuns.compactMap { run -> ClosedRange<UInt64>? in
+        guard let start = run.physicalCluster, run.clusterCount > 0 else { return nil }
+        return start...(start + run.clusterCount - 1)
+    }
     expect(backing.remove("filled.bin", from: root) == .removed, "and the file can be removed")
+
+    // And they are still claimed afterwards. A removed file's record still
+    // points at its clusters, and that is what makes it recoverable -- freeing
+    // them hands the next write the bytes somebody may want back. This is a
+    // recovery application; that is not a detail.
+    guard let afterFile = NTFSVolumeReader(read: read),
+        let afterFileBitmap = afterFile.contents(ofFile: NTFSVolumeReader.bitmapRecord)
+    else {
+        expect(false, "the cluster bitmap reads after the removal")
+        return
+    }
+    var freed = 0
+    var counted = 0
+    for range in heldClusters {
+        for cluster in range {
+            counted += 1
+            if NTFSBitmap.isInUse(cluster: cluster, bitmap: afterFileBitmap) != true { freed += 1 }
+        }
+    }
+    expect(counted > 0, "the removed file had clusters: \(counted)")
+    expect(
+        freed == 0,
+        "and every one of them is still claimed: \(freed) of \(counted) given back -- a "
+            + "removed file's bytes stay where they are until something else takes them, "
+            + "which is what makes it recoverable")
 
     // Joining runs, on its own, because whether the allocator happens to hand
     // back an adjacent cluster is not something a test should depend on.
@@ -6868,13 +6898,75 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
     }
     expect(takenOut == 120, "and all of them come out again: \(takenOut)")
     expect(backing.children(of: folder).isEmpty, "leaving the folder empty")
+
+    // A directory with something in it is refused, and NTFS says so nowhere
+    // except in the index itself -- there is no count to consult.
+    expect(
+        backing.create("one-more.txt", isDirectory: false, in: folder, mode: 0o644) != nil,
+        "one file goes back into it")
     expect(
         backing.remove("a-folder", from: root) == .notEmpty,
-        "and the folder itself is still refused, because taking a directory away means taking "
-            + "its index apart -- which is a different thing, and not half-doing it is the "
-            + "point")
+        "and a directory with something in it is refused")
+    expect(backing.lookup("a-folder", in: root) != nil, "and is still there")
     expect(
-        backing.lookup("a-folder", in: root) != nil, "so it is still there")
+        backing.remove("one-more.txt", from: folder) == .removed, "the file comes out again")
+
+    // Empty, it can go. Its blocks go back to the volume with it: a file's
+    // clusters are deliberately left claimed, because its record still points
+    // at them and that is what makes it recoverable, but a directory that is
+    // gone has no names to recover.
+    let claimedBefore = NTFSVolumeReader(read: read)
+        .flatMap { $0.contents(ofFile: NTFSVolumeReader.bitmapRecord) }
+    guard
+        let folderRuns = NTFSVolumeReader(read: read).flatMap({ reader -> [NTFSRunlist.Run]? in
+            guard let record = reader.record(folderNumber),
+                let allocation = reader.attributes(of: record).first(where: {
+                    $0.kind == .indexAllocation
+                })
+            else { return nil }
+            return NTFSRunlist.decode(
+                record.data, at: allocation.runlistOffset, limit: record.data.count)
+        })
+    else {
+        expect(false, "the folder's blocks are found before it goes")
+        return
+    }
+    expect(!folderRuns.isEmpty, "it has blocks to give back: \(folderRuns.count) run(s)")
+    expect(
+        backing.remove("a-folder", from: root) == .removed, "an empty directory is removed")
+    expect(backing.lookup("a-folder", in: root) == nil, "and is gone")
+    expect(
+        NTFSVolumeReader(read: read)?.find("a-folder", inDirectory: NTFSTable.rootRecord) == nil,
+        "as a reader that has never seen the volume agrees")
+    guard let afterRemoval = NTFSVolumeReader(read: read),
+        let claimedAfter = afterRemoval.contents(ofFile: NTFSVolumeReader.bitmapRecord),
+        let claimedBefore
+    else {
+        expect(false, "the cluster bitmap reads either side of it")
+        return
+    }
+    var stillClaimed = 0
+    var wereClaimed = 0
+    for run in folderRuns {
+        guard let start = run.physicalCluster else { continue }
+        for cluster in start..<(start + run.clusterCount) {
+            if NTFSBitmap.isInUse(cluster: cluster, bitmap: claimedBefore) == true {
+                wereClaimed += 1
+            }
+            if NTFSBitmap.isInUse(cluster: cluster, bitmap: claimedAfter) == true {
+                stillClaimed += 1
+            }
+        }
+    }
+    expect(wereClaimed > 0, "its blocks were claimed while it existed: \(wereClaimed)")
+    expect(
+        stillClaimed == 0,
+        "and none of them is claimed now: \(stillClaimed) of \(wereClaimed) left behind")
+    if let freedBitmap = afterRemoval.contents(ofFile: NTFSTable.mftRecord, attribute: .bitmap) {
+        expect(
+            NTFSRecordAllocator.isInUse(folderNumber, in: freedBitmap) == false,
+            "and its record is free again")
+    }
 
     // Put the volume back clean, as a mount that ends properly does.
     expect(backing.release(), "the volume is released")
