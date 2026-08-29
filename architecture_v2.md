@@ -2360,8 +2360,39 @@ virtual device backed by the decrypting reader and it never learns what is
 underneath. NTFSKit ([whereteam/ntfskit](https://github.com/whereteam/ntfskit))
 already does this on this exact route.
 
-Licence: ntfs-3g is GPL-2.0-or-later, this app is GPL-3.0-or-later, so linking
-is permitted.
+**Licence, checked properly rather than assumed.** The first pass here said
+"ntfs-3g is GPL-2.0-or-later, so linking is permitted" without reading anything.
+That was right by luck, and the project contains a component for which it is
+wrong.
+
+Verified 2026-08-29 against the project's own text:
+
+- The [README](https://github.com/tuxera/ntfs-3g/blob/edge/README) states that
+  the drivers, the ntfsprogs utilities and **the shared library libntfs-3g** are
+  under the GPL "either version 2 of the License, or (at your option) any later
+  version". GPL-2.0-**or-later** converts to GPL-3.0 at our option, so it
+  combines with this app.
+- The same README states that **fuse-lite is under "the GNU LGPLv2"**, with no
+  "or later". LGPL-2.0-**only** does not combine with GPL-3.0. **That component
+  must not be built or linked.**
+- `configure.ac` provides `--disable-ntfs-3g`, which sets `with_fuse="none"`.
+  fuse-lite is then never compiled. We want the library and our own
+  `ntfs_device_operations` regardless, so the FUSE driver is not wanted anyway --
+  but this has to be a deliberate build flag, not an accident of packaging.
+- The README is the project's statement; the file headers govern. Sampled
+  `libntfs-3g/volume.c`, `libntfs-3g/attrib.c`, `libntfs-3g/device.c` and
+  `include/ntfs-3g/device.h` -- the last two being exactly the ones the device
+  seam uses. All four carry "either version 2 of the License, or (at your
+  option) any later version".
+
+Still to do before committing to this route: audit **every** file that ends up
+in the build rather than four, and record the result in `NOTICES`. A single
+GPL-2.0-only file among them would sink it, and four samples is not an audit.
+
+Two things that do *not* change: the app is already GPL-3.0-or-later, so nothing
+about its own licensing shifts; and it is distributed by Developer ID and
+notarised rather than through the App Store, so the App Store terms that
+conflict with the GPL do not apply.
 
 *For:* twenty years of field testing. Compression, hibernation files, volumes
 chkdsk has repaired, malformed things in the wild -- all handled. Days of
