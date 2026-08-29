@@ -201,14 +201,45 @@ final class HeldDevice: @unchecked Sendable {
         self.device = device
     }
 
+    /// What the device moves at once. Everything read or written has to be a
+    /// whole number of these, at a multiple of one.
+    private var blockSize: Int { max(Int(device.blockSize), 1) }
+
+    /// Take bytes off the device, in whole blocks.
+    ///
+    /// The same rule as writing, for the same reason: the device moves blocks.
+    /// A reader asking for a hundred and four bytes of a directory entry gets
+    /// the block it sits in and the bytes trimmed out of it, rather than an
+    /// error or a short read it has no way to interpret.
+    ///
+    /// A short read is not padded. Reading past the end of a device is a
+    /// question that has a real answer -- fewer bytes -- and inventing zeroes
+    /// for the rest turns the end of a disk into a run of nulls that looks like
+    /// data.
     func read(_ offset: UInt64, _ length: Int) -> Data? {
-        guard length > 0 else { return nil }
-        var buffer = [UInt8](repeating: 0, count: length)
-        let read = try? buffer.withUnsafeMutableBytes {
-            try device.read(into: $0, startingAt: off_t(offset), length: length)
+        guard length > 0, offset <= UInt64(Int.max) else { return nil }
+        let block = blockSize
+        let at = Int(offset)
+
+        if FSBlockRange.isAligned(offset: at, length: length, blockSize: block) {
+            var buffer = [UInt8](repeating: 0, count: length)
+            let read = try? buffer.withUnsafeMutableBytes {
+                try device.read(into: $0, startingAt: off_t(offset), length: length)
+            }
+            guard let read, read > 0 else { return nil }
+            return Data(buffer.prefix(read))
         }
-        guard let read, read > 0 else { return nil }
-        return Data(buffer.prefix(read))
+
+        guard
+            let range = FSBlockRange.covering(offset: at, length: length, blockSize: block),
+            let within = FSBlockRange.offsetWithinBlocks(offset: at, blockSize: block)
+        else { return nil }
+        var buffer = [UInt8](repeating: 0, count: range.span)
+        let read = try? buffer.withUnsafeMutableBytes {
+            try device.read(into: $0, startingAt: off_t(range.start), length: range.span)
+        }
+        guard let read, read > within else { return nil }
+        return Data(buffer[within..<min(read, within + length)])
     }
 
     /// Whether the device itself will take a write.
@@ -218,10 +249,6 @@ final class HeldDevice: @unchecked Sendable {
     /// opened read-only. Asking is cheaper than finding out by failing half way
     /// through somebody's copy.
     var isWritable: Bool { device.isWritable }
-
-    /// What the device moves at once. Everything written has to be a whole
-    /// number of these, at a multiple of one.
-    private var blockSize: Int { max(Int(device.blockSize), 1) }
 
     /// Put bytes on the device, in whole blocks.
     ///
