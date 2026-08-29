@@ -405,7 +405,16 @@ extension LukottaVolume: FSVolume.ReadWriteOperations {
         replyHandler reply: @escaping (Int, (any Error)?) -> Void
     ) {
         guard let item = item as? Item else { return reply(0, fsError(POSIXError.EINVAL)) }
-        reply(store.write(item.handle, contents: contents, offset: Int(offset)), nil)
+        let written = store.write(item.handle, contents: contents, offset: Int(offset))
+        // Nothing stored, when something was asked for, is not a short write.
+        // Reported as one, the kernel asks again for the same bytes and gets
+        // the same answer, and a copy either spins or ends silently truncated
+        // -- somebody is told their file was copied and half of it is there.
+        // The honest answer is that there was no room.
+        if written == 0, !contents.isEmpty {
+            return reply(0, fsError(POSIXError.ENOSPC))
+        }
+        reply(written, nil)
     }
 }
 
