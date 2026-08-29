@@ -6888,6 +6888,37 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
         !backing.rename("never-was.txt", in: root, to: "somewhere.txt", in: root),
         "and renaming something that is not there does nothing")
 
+    // Renaming over something is the extension's job, not the backing's, and it
+    // does it by trying the rename first and only then removing what is in the
+    // way. Removing first and finding the rename cannot be done destroys a file
+    // to accomplish nothing. Both halves of that are checked here at the level
+    // the backing offers: the rename refuses, the target survives.
+    guard let occupiedBefore = backing.lookup("occupied.txt", in: root),
+        let occupiedID = backing.attributes(of: occupiedBefore)?.id
+    else {
+        expect(false, "the file in the way is there to begin with")
+        return
+    }
+    expect(
+        !backing.rename("after.txt", in: root, to: "occupied.txt", in: root),
+        "the rename onto it is refused")
+    expect(
+        backing.attributes(of: occupiedBefore)?.id == occupiedID,
+        "and it is still the same file, untouched -- a rename that failed must not have "
+            + "destroyed what it was going to replace")
+    expect(
+        backing.remove("occupied.txt", from: root) == .removed,
+        "and once it is out of the way")
+    expect(
+        backing.rename("after.txt", in: root, to: "occupied.txt", in: root),
+        "the rename goes through")
+    expect(
+        backing.rename("occupied.txt", in: root, to: "after.txt", in: root),
+        "and back again, so the rest of this reads as it did")
+    expect(
+        backing.create("occupied.txt", isDirectory: false, in: root, mode: 0o644) != nil,
+        "with the other file remade")
+
     // Into another directory, which is the same three writes with a different
     // parent in the middle one.
     guard let moveTo = backing.create("move-into", isDirectory: true, in: root, mode: 0o755)

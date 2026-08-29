@@ -254,7 +254,14 @@ extension LukottaVolume: FSVolume.Operations {
             let handle = store.create(
                 string, isDirectory: type == .directory, in: directory.handle, mode: mode)
         else {
-            return reply(nil, nil, fsError(POSIXError.EEXIST))
+            // Why it failed decides what somebody is told. A name already in
+            // the directory is EEXIST; anything else -- no free record, no room
+            // in the node, a volume that must not be written to -- is a full
+            // disk as far as whoever asked is concerned. Reporting EEXIST for
+            // all of them tells a person a file is already there when it is
+            // not, and they go looking for it.
+            let taken = store.lookup(string, in: directory.handle) != nil
+            return reply(nil, nil, fsError(taken ? POSIXError.EEXIST : POSIXError.ENOSPC))
         }
         reply(Item(handle), name, nil)
     }
@@ -301,8 +308,18 @@ extension LukottaVolume: FSVolume.Operations {
         }
         // A rename over something that is already there replaces it, which is
         // what rename(2) promises and what Finder's move-to-Trash relies on.
-        if overItem != nil { _ = store.remove(to, from: destination.handle) }
-        guard store.rename(from, in: source.handle, to: to, in: destination.handle) else {
+        //
+        // **The rename is tried first.** Removing what is in the way and then
+        // finding the rename cannot be done -- no room in the node, a volume
+        // that turned read-only -- destroys a file to accomplish nothing.
+        // Trying first costs an attempt that fails on the name being taken,
+        // and only then is anything removed.
+        if store.rename(from, in: source.handle, to: to, in: destination.handle) {
+            return reply(destinationName, nil)
+        }
+        guard overItem != nil, store.remove(to, from: destination.handle) == .removed,
+            store.rename(from, in: source.handle, to: to, in: destination.handle)
+        else {
             return reply(nil, fsError(POSIXError.ENOENT))
         }
         reply(destinationName, nil)
