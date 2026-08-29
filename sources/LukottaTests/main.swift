@@ -9522,6 +9522,80 @@ group("theExtensionClaimsOnlyWhatMacOSCannotOpen") {
         "and an empty sector is left alone")
 }
 
+group("aBlockDeviceOnlyTakesWholeBlocks") {
+    // A block device does not take twenty-seven bytes at an odd offset. It
+    // moves a block whichever byte was asked for, so a write smaller than one
+    // has to read the block it lands in, change the part that moved, and put
+    // the whole thing back. Handing the raw offset and length straight to the
+    // device works against a file and fails against a disk -- which is exactly
+    // the difference between how the write path was tested and where it runs.
+    //
+    // The arithmetic is checked here against the sizes this filesystem actually
+    // writes: one byte of a bitmap, a thousand-and-twenty-four-byte record, a
+    // spliced index block, a megabyte of file data.
+    let block = 512
+    for (name, offset, length) in [
+        ("a bit of the record bitmap", 15324, 1),
+        ("a fixup signature", 19504, 1),
+        ("a whole record", 58446848, 1024),
+        ("a record at an odd place", 58446864, 284),
+        ("an index block", 536891392, 4096),
+        ("a megabyte of file data", 3208216576, 1 << 20),
+        ("twenty-seven bytes of a file", 2371452928, 27),
+    ] {
+        guard
+            let range = FSBlockRange.covering(
+                offset: offset, length: length, blockSize: block),
+            let within = FSBlockRange.offsetWithinBlocks(offset: offset, blockSize: block)
+        else {
+            expect(false, "\(name) has blocks covering it")
+            continue
+        }
+        expect(range.start % block == 0, "\(name): the write starts on a block")
+        expect(range.span % block == 0, "\(name): and is a whole number of them")
+        expect(range.start <= offset, "\(name): beginning at or before the bytes")
+        expect(
+            range.start + range.span >= offset + length,
+            "\(name): and ending at or after them")
+        expect(
+            within == offset - range.start,
+            "\(name): with the bytes this far in: \(within)")
+        expect(
+            within + length <= range.span,
+            "\(name): and fitting inside what was read")
+        let extra = FSBlockRange.readModifyWriteBytes(
+            offset: offset, length: length, blockSize: block)
+        expect(
+            extra == range.span - length,
+            "\(name): \(extra) bytes read and put back that nobody asked to change")
+        expect(
+            FSBlockRange.isAligned(offset: offset, length: length, blockSize: block)
+                == (extra == 0),
+            "\(name): aligned exactly when nothing extra is moved")
+    }
+
+    // The two that matter: file data written a megabyte at a time is aligned
+    // and costs one write, and metadata is not and costs three operations.
+    expect(
+        FSBlockRange.isAligned(offset: 3208216576, length: 1 << 20, blockSize: block),
+        "a megabyte of file data at a cluster boundary is one write, which is the only path "
+            + "that reaches the device's own speed")
+    expect(
+        !FSBlockRange.isAligned(offset: 15324, length: 1, blockSize: block),
+        "and one byte of a bitmap is not, which is a read, a copy and a write")
+
+    // Nonsense in, nothing out, rather than a write somewhere unintended.
+    expect(
+        FSBlockRange.covering(offset: -1, length: 4, blockSize: block) == nil,
+        "a negative offset covers nothing")
+    expect(
+        FSBlockRange.covering(offset: 0, length: 4, blockSize: 0) == nil,
+        "and a device that has not said its block size is not guessed at")
+    expect(
+        FSBlockRange.readModifyWriteBytes(offset: 0, length: 0, blockSize: block) == 0,
+        "writing nothing reads nothing back")
+}
+
 group("theExtensionIsTriedAndNeverInTheWay") {
     // The extension is an optimisation, not a requirement. A Mac where the
     // switch has never been turned on is the ordinary case, and nobody should

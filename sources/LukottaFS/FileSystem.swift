@@ -219,11 +219,47 @@ final class HeldDevice: @unchecked Sendable {
     /// through somebody's copy.
     var isWritable: Bool { device.isWritable }
 
+    /// What the device moves at once. Everything written has to be a whole
+    /// number of these, at a multiple of one.
+    private var blockSize: Int { max(Int(device.blockSize), 1) }
+
+    /// Put bytes on the device, in whole blocks.
+    ///
+    /// **A block device does not take twenty-seven bytes at an odd offset.** It
+    /// moves a block whichever byte was asked for, so a write smaller than one
+    /// has to read the block it lands in, change the part that moved, and put
+    /// the whole thing back. Handing the raw offset and length straight to the
+    /// device -- which is what this did -- works against a file and fails
+    /// against a disk, which is exactly the difference between how the write
+    /// path was tested and where it has to run.
+    ///
+    /// The aligned case is one write and is the common one for file data. The
+    /// rest -- a record, a bit in a bitmap, a spliced index block -- is a read,
+    /// a copy and a write.
     func write(_ offset: UInt64, _ bytes: Data) -> Bool {
-        guard !bytes.isEmpty else { return false }
-        let written = try? bytes.withUnsafeBytes {
-            try device.write(from: $0, startingAt: off_t(offset), length: bytes.count)
+        guard !bytes.isEmpty, offset <= UInt64(Int.max) else { return false }
+        let block = blockSize
+        let at = Int(offset)
+
+        if FSBlockRange.isAligned(offset: at, length: bytes.count, blockSize: block) {
+            let written = try? bytes.withUnsafeBytes {
+                try device.write(from: $0, startingAt: off_t(offset), length: bytes.count)
+            }
+            return written == bytes.count
         }
-        return written == bytes.count
+
+        guard
+            let range = FSBlockRange.covering(
+                offset: at, length: bytes.count, blockSize: block),
+            let within = FSBlockRange.offsetWithinBlocks(offset: at, blockSize: block),
+            let existing = read(UInt64(range.start), range.span), existing.count == range.span
+        else { return false }
+
+        var whole = [UInt8](existing)
+        whole.replaceSubrange(within..<(within + bytes.count), with: [UInt8](bytes))
+        let written = try? whole.withUnsafeBytes {
+            try device.write(from: $0, startingAt: off_t(range.start), length: range.span)
+        }
+        return written == range.span
     }
 }
