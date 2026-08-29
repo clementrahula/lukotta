@@ -5888,18 +5888,18 @@ group("makingAndUnmakingFilesAtSpeed") {
     // nodes and reused record slots all only happen the second time round.
     let settled = Set(backing.children(of: root).map { $0.name })
     for round in 1..<max(rounds, 1) {
-        var round_made = 0
+        var roundMade = 0
         for name in names
         where backing.create(name, isDirectory: false, in: root, mode: 0o644)
             != nil
         {
-            round_made += 1
+            roundMade += 1
         }
-        var round_gone = 0
-        for name in names where backing.remove(name, from: root) == .removed { round_gone += 1 }
+        var roundGone = 0
+        for name in names where backing.remove(name, from: root) == .removed { roundGone += 1 }
         expect(
-            round_made == count && round_gone == count,
-            "round \(round): \(round_made) made and \(round_gone) removed of \(count)")
+            roundMade == count && roundGone == count,
+            "round \(round): \(roundMade) made and \(roundGone) removed of \(count)")
         let now = Set(backing.children(of: root).map { $0.name })
         expect(
             now == settled,
