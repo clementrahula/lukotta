@@ -36,4 +36,6 @@ translation_audit/
 /TONIGHT.md
 nfs-stall.md
 .claude/
+# architecture_v2.md is tracked: it is the v2 design record.
+# This name stays ignored for a private working copy.
 architecture.md
