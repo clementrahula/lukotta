@@ -2489,3 +2489,70 @@ them depends on where the bytes came from. **The claim that the work was "proven
 does not stand for physical drives.** Nothing in this branch has ever touched
 one. Every number, every consistency check and every mutation was against an
 image, and blocker 2 is the reason.
+
+## 38. Stage-1 spike (a), run at last: FSKit's per-operation floor
+
+§4 named this the go/no-go gate for the whole plan -- *"benchmark Apple's msdos
+FSKit module... if Apple can't go fast through fskitd, neither can we"* -- and
+set the fail threshold at **worse than 0.3 ms per metadata op**. It had never
+been run. It needs no VM, no physical drive and no code. Run 2026-08-29.
+
+### The controlled measurement
+
+One FAT32 disk image, 1 GB, attached with `hdiutil`. 800 files of 512 bytes
+created then deleted in one directory. **The same image mounted two ways, one
+after the other, differing only in which driver serves it.**
+
+    msdos via the kernel extension     create   207 µs    delete    53 µs   [E]
+    msdos via FSKit (mount -F)         create  1363 µs    delete   743 µs   [E]
+
+    for reference, same machine, same day:
+    APFS on the internal SSD           create    55 µs    delete    30 µs   [E]
+    v1, NTFS over NFS from the guest   create  1110 µs                      [E]
+
+**FSKit costs about 1160 µs more per create and 690 µs more per delete than the
+kernel path, for identical filesystem code on identical bytes.** 6.6x on create,
+14x on delete.
+
+It is not the filesystem. Per-file cost was measured at 50, 200, 800 and 2000
+files in one directory and is flat (1980, 1314, 1341, 1371 µs) -- so it is not
+FAT32's linear directory scan, which would grow. It is fixed per-operation
+overhead in the path between the kernel and the module.
+
+Streaming is fine: **1218 MB/s** written to the same FSKit mount. Bulk data is
+not the problem; the per-operation crossing is.
+
+### What this does to the plan
+
+The gate in §4 fails, by a factor of 4.5. **FSKit's metadata floor on this
+machine is worse than the VM-and-NFS path v2 exists to replace.** No amount of
+work on the NTFS code below it changes that: 1363 µs is what it costs before
+our first byte is read.
+
+It also corrects §30-§35. Every per-operation number in those sections -- 74 µs
+to create, 55 to remove, "86% of APFS" -- was measured by calling `NTFSBacking`
+directly, in process, with a file handle standing in for the device. **None of
+it ever crossed FSKit.** The honest projection for the same code behind a real
+mount is 74 + ~1160 ≈ 1230 µs, which is v1's number, not APFS's.
+
+Kernel-offloaded I/O does not rescue this. KOIO moves *file data* and exists
+precisely because crossing is expensive; metadata operations cross regardless.
+
+### What this does not establish
+
+- It prices **Apple's msdos module**, which §4 nominated as the yardstick, not
+  the framework floor in isolation. A module that batches or defers metadata
+  might do better. Ours cannot be measured until it can mount, which is
+  blocker 2 in §37.
+- The FSKit mount carried `noatime` and the kext mount did not; that is a
+  difference in the wrong direction (it should favour FSKit) but it is a
+  difference.
+- One macOS version, one machine, one day.
+
+### The measurement that is now worth most
+
+Whether the ~1.2 ms is fskitd's XPC round trip, or msdos's own behaviour through
+it. If it is the framework, FSKit cannot meet the target on this OS and the
+answer is to ship the fallback and re-test each release, exactly as §4 says. If
+it is the module, a careful one might still land near 0.3 ms and the plan
+survives. Blocker 2 stands in the way of settling it with our own code.
