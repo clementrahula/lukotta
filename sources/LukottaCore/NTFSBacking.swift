@@ -1454,6 +1454,19 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             offset >= 0, !contents.isEmpty
         else { return 0 }
 
+        // A write past the end of the file is a write that has to make the file
+        // longer, which is a different operation and is done first. Afterwards
+        // the write below is the ordinary one: bytes into clusters the file
+        // already owns.
+        let end = UInt64(offset) + UInt64(contents.count)
+        if (reader.size(ofFile: handle.record) ?? 0) < end || isResident(handle.record) {
+            guard growLocked(handle.record, to: end, writing: contents, at: UInt64(offset))
+            else { return 0 }
+            // A resident file's bytes went in with the record, so nothing is
+            // left to write.
+            if isResident(handle.record) { return contents.count }
+        }
+
         return lock.withLock {
             // Nothing is written to a volume that does not carry our mark. See
             // markLocked: the mark is what makes a crash recoverable, and a
@@ -1489,6 +1502,183 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     }
 
     public func truncate(_ handle: FSHandle, to size: Int) {}
+
+    /// Whether a file's bytes are inside its record.
+    private func isResident(_ record: UInt64) -> Bool {
+        lock.withLock {
+            guard let held = reader.record(record) else { return false }
+            return reader.attributes(of: held).first(where: { $0.kind == .data })?.isResident
+                ?? false
+        }
+    }
+
+    /// Make a file longer, and put the bytes in while doing it.
+    ///
+    /// A new file's bytes live inside its record. Beyond a few hundred they go
+    /// out to clusters, and the record stops carrying the bytes and starts
+    /// carrying a list of where they are. A file crosses between those two
+    /// shapes exactly once.
+    ///
+    /// The order is the same as everywhere else here: clusters are claimed
+    /// first, the bytes go into them second, and the record saying the file
+    /// owns them is written last. A crash anywhere before that last write
+    /// leaves clusters nobody owns -- space, which chkdsk reclaims -- and never
+    /// a file claiming bytes that were never written.
+    private func growLocked(
+        _ number: UInt64, to size: UInt64, writing contents: Data, at offset: UInt64
+    ) -> Bool {
+        lock.withLock {
+            guard let writeBytes, volumeIsSafeToWrite, markLocked(),
+                let held = reader.record(number), !reader.spillsAttributes(held)
+            else { return false }
+            let attributes = reader.attributes(of: held)
+            guard let data = attributes.first(where: { $0.kind == .data }), data.isReadableAsIs
+            else { return false }
+            let cluster = reader.geometry.bytesPerCluster
+            let base = held.data.startIndex
+
+            if data.isResident {
+                // The bytes as they will be: what is there, extended with
+                // zeroes to the write, then the write itself.
+                var value = [UInt8](
+                    held.data[
+                        (base + data.valueOffset)..<(base + data.valueOffset + data.valueLength)])
+                if UInt64(value.count) < size {
+                    value.append(
+                        contentsOf: [UInt8](repeating: 0, count: Int(size) - value.count))
+                }
+                let at = Int(offset)
+                guard at + contents.count <= value.count else { return false }
+                value.replaceSubrange(at..<(at + contents.count), with: [UInt8](contents))
+
+                // Still inside the record? Then it is one write and nothing is
+                // allocated.
+                let others = attributes.filter { $0.kind != .data }.reduce(0) { $0 + $1.length }
+                if value.count
+                    <= NTFSFileGrow.residentRoom(
+                        header: held.header, otherAttributesLength: others)
+                {
+                    guard
+                        let edited = NTFSRecordEdit.replacing(
+                            .data, named: nil, with: Data(value), in: held.data,
+                            header: held.header),
+                        let header = NTFSRecord.header(
+                            edited, expectedLength: reader.geometry.bytesPerFileRecord)
+                    else { return false }
+                    return writeRecordLocked(number, edited, header: header, mirrorLast: true)
+                }
+
+                // Out to the disk, all of it, since the bytes already in the
+                // record have to go somewhere too.
+                guard
+                    let claimed = claimClustersLocked(
+                        NTFSFileGrow.clusters(for: size, bytesPerCluster: cluster) ?? 0, near: 0),
+                    let attribute = NTFSFileGrow.nonResident(
+                        type: data.type, id: 0, runs: claimed, bytesPerCluster: cluster,
+                        size: size, initialised: size),
+                    putLocked(Data(value), into: claimed, at: 0),
+                    let edited = NTFSRecordEdit.replacingWhole(
+                        .data, named: nil, with: attribute, in: held.data, header: held.header),
+                    let header = NTFSRecord.header(
+                        edited, expectedLength: reader.geometry.bytesPerFileRecord)
+                else { return false }
+                return writeRecordLocked(number, edited, header: header, mirrorLast: true)
+            }
+
+            // Already out on the disk. More clusters if it needs them, then the
+            // bytes, then the record.
+            guard
+                var runs = NTFSRunlist.decode(
+                    held.data, at: data.runlistOffset, limit: held.data.count),
+                let attributeBytes = attributeBytes(data, in: held.data)
+            else { return false }
+            let have = NTFSRunlist.clusterCount(runs)
+            guard let want = NTFSFileGrow.clusters(for: size, bytesPerCluster: cluster) else {
+                return false
+            }
+            if want > have {
+                guard
+                    let more = claimClustersLocked(
+                        want - have,
+                        near: runs.last.flatMap {
+                            $0.physicalCluster.map { last in last + (runs.last?.clusterCount ?? 0) }
+                        } ?? 0),
+                    let joined = NTFSFileGrow.joining(runs, with: more)
+                else { return false }
+                runs = joined
+            }
+            guard putLocked(contents, into: runs, at: offset),
+                let attribute = NTFSFileGrow.extended(
+                    attributeBytes, runs: runs, bytesPerCluster: cluster, size: size,
+                    initialised: max(data.dataSize, size)),
+                let edited = NTFSRecordEdit.replacingWhole(
+                    .data, named: nil, with: attribute, in: held.data, header: held.header),
+                let header = NTFSRecord.header(
+                    edited, expectedLength: reader.geometry.bytesPerFileRecord)
+            else { return false }
+            _ = writeBytes
+            return writeRecordLocked(number, edited, header: header, mirrorLast: true)
+        }
+    }
+
+    /// One attribute's own bytes, found by walking to it.
+    private func attributeBytes(_ attribute: NTFSAttribute.Header, in record: Data) -> Data? {
+        guard let header = NTFSRecord.header(record, expectedLength: record.count) else {
+            return nil
+        }
+        var at = header.firstAttributeOffset
+        let base = record.startIndex
+        while at + 8 <= header.usedLength {
+            var kind: UInt32 = 0
+            for byte in 0..<4 { kind |= UInt32(record[base + at + byte]) << (8 * UInt32(byte)) }
+            if kind == 0xFFFF_FFFF { return nil }
+            var length = 0
+            for byte in 0..<4 { length |= Int(record[base + at + 4 + byte]) << (8 * byte) }
+            guard length >= 24, at + length <= header.usedLength else { return nil }
+            if kind == attribute.type {
+                return Data(record[(base + at)..<(base + at + length)])
+            }
+            at += length
+        }
+        return nil
+    }
+
+    /// Claim clusters from the volume's bitmap and write it back.
+    ///
+    /// Must be called with `lock` held.
+    private func claimClustersLocked(_ count: UInt64, near hint: UInt64) -> [NTFSRunlist.Run]? {
+        guard count > 0, let bitmap = reader.contents(ofFile: NTFSVolumeReader.bitmapRecord)
+        else { return nil }
+        let total = reader.geometry.totalSectors / UInt64(reader.geometry.sectorsPerCluster)
+        guard
+            let plan = NTFSAllocator.plan(
+                clusters: count, in: bitmap, totalClusters: total, near: hint),
+            writeVolumeBitmapLocked(plan.bitmap, changedFrom: bitmap)
+        else { return nil }
+        return plan.runs
+    }
+
+    /// Put bytes into a file's clusters.
+    ///
+    /// Must be called with `lock` held.
+    private func putLocked(_ contents: Data, into runs: [NTFSRunlist.Run], at offset: UInt64)
+        -> Bool
+    {
+        guard let writeBytes, !contents.isEmpty else { return true }
+        let cluster = reader.geometry.bytesPerCluster
+        guard
+            let pieces = NTFSFileWrite.pieces(
+                offset: offset, length: contents.count, runs: runs, bytesPerCluster: cluster,
+                size: NTFSRunlist.clusterCount(runs) * UInt64(cluster))
+        else { return false }
+        for piece in pieces {
+            let slice = contents[
+                (contents.startIndex + piece.range.lowerBound)..<(contents.startIndex
+                    + piece.range.upperBound)]
+            guard writeBytes(piece.diskOffset, Data(slice)) else { return false }
+        }
+        return true
+    }
 
     // MARK: - Extended attributes
 

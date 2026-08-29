@@ -5091,18 +5091,41 @@ group("theBackingWritesOnlyWhenGivenTheMeansAndThePermission") {
         writable.read(file, offset: at, length: marker.count) == marker,
         "and reads back as itself")
 
-    // And everything that must still be refused, now that writing is possible.
+    // A write at the end makes the file longer. The bytes go to clusters that
+    // were free a moment ago, and the record says so afterwards.
     guard let size = writable.attributes(of: file)?.size else { return }
+    let tail = Data("PAST-THE-END".utf8)
     expect(
-        writable.write(file, contents: marker, offset: Int(size)) == 0,
-        "a write at the end of the file is refused -- growing it means allocating")
+        writable.write(file, contents: tail, offset: Int(size)) == tail.count,
+        "a write at the end of the file grows it")
+    expect(
+        writable.attributes(of: file)?.size == size + UInt64(tail.count),
+        "and the file is longer by exactly what went in")
+    expect(
+        writable.read(file, offset: Int(size), length: tail.count) == tail,
+        "with the new bytes where they were put")
+    expect(
+        writable.read(file, offset: 0, length: 8).count == 8,
+        "and the beginning of it still readable")
     expect(
         writable.write(file, contents: Data(), offset: 0) == 0,
         "a write of nothing stores nothing")
-    if let small = writable.lookup("readback.txt", in: writable.rootHandle) {
+
+    // A file whose bytes live inside its record can be written to as well. The
+    // record is rewritten rather than any cluster, which is a metadata write
+    // and has to go through the fixup.
+    if let small = writable.lookup("readback.txt", in: writable.rootHandle),
+        let before = writable.attributes(of: small)?.size
+    {
+        let stamp = Data("R".utf8)
         expect(
-            writable.write(small, contents: Data([0x41]), offset: 0) == 0,
-            "and a small file living inside its record is refused, because that is metadata")
+            writable.write(small, contents: stamp, offset: 0) == 1,
+            "a small file living inside its record takes a write")
+        expect(
+            writable.read(small, offset: 0, length: 1) == stamp, "and reads it back")
+        expect(
+            writable.attributes(of: small)?.size == before,
+            "without changing its length, since the write fitted inside it")
     }
     expect(
         writable.write(writable.rootHandle, contents: marker, offset: 0) == 0,
@@ -6307,6 +6330,100 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
             afterFresh.name(of: stale) == "strasse.txt",
             "the freed record still carries the file's name, so it can be recovered")
     }
+
+    // A file made here, filled, and read back. A new file's bytes live inside
+    // its record; past a few hundred they have to go out to clusters, and the
+    // record stops carrying the bytes and starts carrying a list of where they
+    // are. A file crosses between those two shapes exactly once, and this is
+    // the crossing.
+    guard let filled = backing.create("filled.bin", isDirectory: false, in: root, mode: 0o644)
+    else {
+        expect(false, "a file to fill is made")
+        return
+    }
+    let sip = Data("small enough to live in the record".utf8)
+    expect(backing.write(filled, contents: sip, offset: 0) == sip.count, "a little goes in")
+    expect(backing.read(filled, offset: 0, length: sip.count) == sip, "and comes back")
+    expect(backing.attributes(of: filled)?.size == UInt64(sip.count), "with the right length")
+
+    // Now past what a record holds. Bytes that are not a constant, so a read
+    // returning the wrong part of the disk cannot pass.
+    var payload = Data()
+    payload.reserveCapacity(200_000)
+    var seed: UInt32 = 0x1234_5678
+    while payload.count < 200_000 {
+        seed = seed &* 1_664_525 &+ 1_013_904_223
+        payload.append(UInt8(truncatingIfNeeded: seed >> 24))
+    }
+    expect(
+        backing.write(filled, contents: payload, offset: 0) == payload.count,
+        "and two hundred thousand bytes go in")
+    expect(
+        backing.attributes(of: filled)?.size == UInt64(payload.count),
+        "the file is as long as what was written: \(backing.attributes(of: filled)?.size ?? 0)")
+    expect(
+        backing.read(filled, offset: 0, length: payload.count) == payload,
+        "and every byte of it reads back as itself")
+    expect(
+        backing.read(filled, offset: 100_000, length: 4096)
+            == payload[payload.startIndex + 100_000..<payload.startIndex + 104_096],
+        "including a piece from the middle, read on its own")
+
+    // A reader that has never seen this volume agrees, which is the only
+    // opinion that counts.
+    guard let onDisk = NTFSVolumeReader(read: read),
+        let number = onDisk.find("filled.bin", inDirectory: NTFSTable.rootRecord)
+    else {
+        expect(false, "a fresh reader finds the filled file")
+        return
+    }
+    expect(
+        onDisk.size(ofFile: number) == UInt64(payload.count),
+        "it is the length it should be: \(onDisk.size(ofFile: number) ?? 0)")
+    expect(
+        onDisk.contents(ofFile: number) == payload,
+        "and holds exactly the bytes that were written")
+    guard let filledRecord = onDisk.record(number),
+        let filledData = onDisk.attributes(of: filledRecord).first(where: { $0.kind == .data })
+    else {
+        expect(false, "its $DATA reads")
+        return
+    }
+    expect(
+        !filledData.isResident,
+        "and its bytes are out on the disk now, not inside its record")
+    guard
+        let filledRuns = NTFSRunlist.decode(
+            filledRecord.data, at: filledData.runlistOffset, limit: filledRecord.data.count)
+    else {
+        expect(false, "with a runlist that decodes")
+        return
+    }
+    expect(
+        NTFSRunlist.clusterCount(filledRuns) * UInt64(onDisk.geometry.bytesPerCluster)
+            >= UInt64(payload.count),
+        "covering at least as many clusters as the file needs")
+    expect(
+        filledRuns.allSatisfy { $0.physicalCluster != nil },
+        "none of them a hole, since every one was written")
+
+    // The clusters it took are marked in the volume's own bitmap. A file whose
+    // clusters the volume thinks are free is a file the next write destroys.
+    if let volumeBitmap = onDisk.contents(ofFile: NTFSVolumeReader.bitmapRecord) {
+        var unclaimed = 0
+        for run in filledRuns {
+            guard let start = run.physicalCluster else { continue }
+            for cluster in start..<(start + run.clusterCount)
+            where NTFSBitmap.isInUse(cluster: cluster, bitmap: volumeBitmap) != true {
+                unclaimed += 1
+            }
+        }
+        expect(
+            unclaimed == 0,
+            "and every one of them is claimed in $Bitmap, or \(unclaimed) are not -- clusters "
+                + "the volume thinks are free are clusters the next write destroys")
+    }
+    expect(backing.remove("filled.bin", from: root) == .removed, "and the file can be removed")
 
     // A directory small enough to keep its whole index inside its own record.
     // Making a file in one means growing a resident attribute, which this does
