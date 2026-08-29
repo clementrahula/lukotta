@@ -417,7 +417,17 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 var leaf = descent(to: name, in: shape, collation: collation)?.last,
                 !holds(name, leaf, collation)
             else { return nil }
-            if leaf.free < key.count {
+            // A directory small enough to keep its whole index in its record
+            // has no node with spare bytes in it -- what it has is spare room
+            // in the record, which is a different question and the only one
+            // that matters there.
+            var fits = leaf.free >= key.count
+            if case .root = leaf.site {
+                fits =
+                    shape.record.header.allocatedLength - shape.record.header.usedLength
+                    >= key.count + 8
+            }
+            if !fits {
                 // Split, then look again: the name now belongs in one of the
                 // two halves, and which one is the descent's answer rather than
                 // a guess.
@@ -452,10 +462,16 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             guard writeRecordLocked(choice.record, composed, header: header, mirrorLast: true)
             else { return nil }
 
-            // 3. The name.
-            guard let placed = place(key, into: leaf, collation: collation),
-                writeNodeLockedRaw(leaf, entries: placed)
-            else { return nil }
+            // 3. The name. Into a block, or into the record itself when the
+            // directory is small enough to keep its index there.
+            guard let placed = place(key, into: leaf, collation: collation) else { return nil }
+            if case .root = leaf.site {
+                guard let fresh = indexShape(of: parent.record),
+                    writeNodeLocked(leaf, entries: placed, in: fresh)
+                else { return nil }
+            } else {
+                guard writeNodeLockedRaw(leaf, entries: placed) else { return nil }
+            }
 
             recordHint = choice.record
             return Handle(record: choice.record, name: name, isDirectory: false)

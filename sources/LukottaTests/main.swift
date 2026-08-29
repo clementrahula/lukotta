@@ -6696,20 +6696,42 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
             break
         }
     }
-    if let small {
+    if let small, let smallID = backing.attributes(of: small.handle)?.id {
         let before = backing.children(of: small.handle).map { $0.name }.sorted()
         expect(
-            backing.create("wont-fit.txt", isDirectory: false, in: small.handle, mode: 0o644)
-                == nil,
-            "a directory whose index lives inside its record refuses a new file, because "
-                + "making one means growing a resident attribute")
+            backing.create("in-a-small-one.txt", isDirectory: false, in: small.handle, mode: 0o644)
+                != nil,
+            "a file can be made in \(small.name), whose whole index lives inside its record -- "
+                + "which means growing a resident attribute rather than writing a block")
+        let now = backing.children(of: small.handle).map { $0.name }.sorted()
+        expect(now.count == before.count + 1, "the directory has one more name in it")
+        expect(
+            Set(now).subtracting(before) == ["in-a-small-one.txt"],
+            "and it is the one that was made")
+        expect(
+            backing.lookup("in-a-small-one.txt", in: small.handle) != nil,
+            "which can be looked up again")
+
+        // A reader that has never seen the volume, so this is not the same
+        // objects agreeing with themselves.
+        guard let seen = NTFSVolumeReader(read: read),
+            let madeIn = seen.find("in-a-small-one.txt", inDirectory: smallID)
+        else {
+            expect(false, "and a fresh reader finds it")
+            return
+        }
+        expect(seen.record(madeIn)?.header.inUse == true, "at a record that is in use")
+        expect(
+            seen.record(smallID).map { seen.attributes(of: $0) }?
+                .contains { $0.kind == .indexAllocation } == false,
+            "and the directory still keeps its index inside its record, so nothing grew that "
+                + "did not have to")
+        expect(
+            backing.remove("in-a-small-one.txt", from: small.handle) == .removed,
+            "and it can be taken away again")
         expect(
             backing.children(of: small.handle).map { $0.name }.sorted() == before,
-            "and \(small.name) is exactly as it was -- a refusal that half happened would be "
-                + "worse than no refusal at all")
-        expect(
-            NTFSVolumeReader(read: read)?.find("wont-fit.txt", inDirectory: 0) == nil,
-            "with no name left anywhere")
+            "leaving \(small.name) exactly as it was found")
     }
 
     // Directories are refused everywhere, for now, and said so plainly rather
