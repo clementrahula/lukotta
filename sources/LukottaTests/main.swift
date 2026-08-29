@@ -6308,6 +6308,48 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
             "the freed record still carries the file's name, so it can be recovered")
     }
 
+    // A directory small enough to keep its whole index inside its own record.
+    // Making a file in one means growing a resident attribute, which this does
+    // not do -- so it has to refuse, and refuse without touching anything.
+    var small: (handle: FSHandle, name: String)?
+    for entry in backing.children(of: root) {
+        guard let attributes = backing.attributes(of: entry.handle), attributes.isDirectory,
+            entry.name != "."
+        else { continue }
+        // No $INDEX_ALLOCATION means the whole index is in the record.
+        guard let record = NTFSVolumeReader(read: read)?.record(attributes.id) else { continue }
+        let hasBlocks =
+            NTFSVolumeReader(read: read)?.attributes(of: record)
+            .contains { $0.kind == .indexAllocation } ?? true
+        if !hasBlocks {
+            small = (entry.handle, entry.name)
+            break
+        }
+    }
+    if let small {
+        let before = backing.children(of: small.handle).map { $0.name }.sorted()
+        expect(
+            backing.create("wont-fit.txt", isDirectory: false, in: small.handle, mode: 0o644)
+                == nil,
+            "a directory whose index lives inside its record refuses a new file, because "
+                + "making one means growing a resident attribute")
+        expect(
+            backing.children(of: small.handle).map { $0.name }.sorted() == before,
+            "and \(small.name) is exactly as it was -- a refusal that half happened would be "
+                + "worse than no refusal at all")
+        expect(
+            NTFSVolumeReader(read: read)?.find("wont-fit.txt", inDirectory: 0) == nil,
+            "with no name left anywhere")
+    }
+
+    // Directories are refused everywhere, for now, and said so plainly rather
+    // than half made.
+    expect(
+        backing.create("a-folder", isDirectory: true, in: root, mode: 0o755) == nil,
+        "a directory is not made, because it needs an index of its own")
+    expect(
+        backing.lookup("a-folder", in: root) == nil, "and nothing of it is left behind")
+
     // Put the volume back clean, as a mount that ends properly does.
     expect(backing.release(), "the volume is released")
     expect(
