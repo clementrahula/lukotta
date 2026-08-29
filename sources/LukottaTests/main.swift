@@ -5864,6 +5864,35 @@ group("whatEachPieceOfACreateCosts") {
     }
     time("collation()", rounds) { _ = reader.collation() }
 
+    // Listing a big directory, which is what an enumeration does once per page.
+    if let root = reader.contents(ofDirectory: NTFSTable.rootRecord),
+        let big = root.first(where: { (reader.contents(ofDirectory: $0.record)?.count ?? 0) > 1000 }
+        )
+    {
+        let count = reader.contents(ofDirectory: big.record)?.count ?? 0
+        time("list \(count) names", 20) { _ = reader.contents(ofDirectory: big.record) }
+        if let path = ProcessInfo.processInfo.environment["LUKOTTA_WRITE_IMAGE"],
+            FileManager.default.fileExists(atPath: path),
+            let writable = FileHandle(forUpdatingAtPath: path)
+        {
+            defer { try? writable.close() }
+            let writeLock = NSLock()
+            if let backing = NTFSBacking(read: { offset, length in
+                writeLock.lock()
+                defer { writeLock.unlock() }
+                try? writable.seek(toOffset: offset)
+                return try? writable.read(upToCount: length)
+            }) {
+                let handle = backing.lookup(big.name, in: backing.rootHandle)
+                if let handle {
+                    time("list \(count) again, as a page does", 200) {
+                        _ = backing.children(of: handle)
+                    }
+                }
+            }
+        }
+    }
+
     // The write side, through the same kind of handle the backing is given.
     if let writePath = ProcessInfo.processInfo.environment["LUKOTTA_WRITE_IMAGE"],
         FileManager.default.fileExists(atPath: writePath),
@@ -6856,6 +6885,44 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
             initialised: 200) == nil,
         "and more written than the file is long is refused, since the space between them is "
             + "what reads as zeroes")
+
+    // Listing the same directory twice is what an enumeration does, once per
+    // page, and it must not sweep the whole thing again each time. It must also
+    // never show what a write has changed -- which is the only thing a cache of
+    // this shape can get wrong.
+    let firstListing = backing.children(of: root).map { $0.name }.sorted()
+    let secondListing = backing.children(of: root).map { $0.name }.sorted()
+    expect(firstListing == secondListing, "listing a directory twice gives the same names")
+    guard
+        let addedAfterListing = backing.create(
+            "appeared-after-a-listing.txt", isDirectory: false, in: root, mode: 0o644)
+    else {
+        expect(false, "a file is made after the directory has been listed")
+        return
+    }
+    expect(
+        backing.children(of: root).map { $0.name }.contains("appeared-after-a-listing.txt"),
+        "and a file made after a listing shows up in the next one")
+    expect(
+        backing.remove("appeared-after-a-listing.txt", from: root) == .removed,
+        "and taking it away again")
+    expect(
+        !backing.children(of: root).map { $0.name }.contains("appeared-after-a-listing.txt"),
+        "takes it out of the listing too -- a cache that outlives a write is a listing that "
+            + "shows somebody a file they deleted")
+    _ = addedAfterListing
+
+    // A write changes a length, and a listing carries lengths.
+    if let sized = backing.lookup("lukotta-made-me.txt", in: root) {
+        _ = backing.children(of: root)
+        let grewBy = Data("something".utf8)
+        expect(
+            backing.write(sized, contents: grewBy, offset: 0) == grewBy.count,
+            "writing to a file that has just been listed")
+        expect(
+            backing.attributes(of: sized)?.size == UInt64(grewBy.count),
+            "changes its length where a listing would read it")
+    }
 
     // Extended attributes. This filesystem does not keep them yet, and saying
     // so is a different answer from saying a particular one is missing: told

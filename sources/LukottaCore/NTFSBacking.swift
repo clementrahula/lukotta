@@ -137,6 +137,22 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     }
 
     public func children(of directory: FSHandle) -> [(name: String, handle: FSHandle)] {
+        if let mine = ours(directory) {
+            let cached: [(name: String, handle: FSHandle)]? = lock.withLock {
+                listedDirectory == mine.record ? listedEntries : nil
+            }
+            if let cached { return cached }
+            let fresh = childrenUncached(of: directory)
+            lock.withLock {
+                listedDirectory = mine.record
+                listedEntries = fresh
+            }
+            return fresh
+        }
+        return childrenUncached(of: directory)
+    }
+
+    private func childrenUncached(of directory: FSHandle) -> [(name: String, handle: FSHandle)] {
         guard let directory = ours(directory), directory.isDirectory else { return [] }
         return lock.withLock {
             guard let entries = reader.contents(ofDirectory: directory.record) else { return [] }
@@ -205,6 +221,29 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     /// them fresh.
     private var clusterBitmap: Data?
     private var recordBitmap: Data?
+
+    /// The last directory listed, kept for as long as nothing is written.
+    ///
+    /// **An enumeration asks for a directory one page at a time**, and each
+    /// page used to sweep every block of it again: 6.7 milliseconds and 256
+    /// reads for five thousand names, once per page. Fifty pages is a third of
+    /// a second for one listing, and a directory of a million files would take
+    /// hours -- the cost is quadratic in the number of names, and it is exactly
+    /// the case this is meant to handle.
+    ///
+    /// One directory is enough, because that is how an enumeration goes:
+    /// straight through one directory, page after page. Anything that writes
+    /// throws it away, so a listing can never show what a write has changed --
+    /// which is the only thing a cache of this shape can get wrong.
+    private var listedDirectory: UInt64?
+    private var listedEntries: [(name: String, handle: FSHandle)] = []
+
+    /// Everything that writes calls this. Forgetting to is a listing that shows
+    /// a file somebody deleted.
+    private func forgetListing() {
+        listedDirectory = nil
+        listedEntries = []
+    }
 
     /// Where the last record was found, so the next search starts there.
     ///
@@ -495,6 +534,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 guard writeNodeLockedRaw(leaf, entries: placed) else { return nil }
             }
 
+            forgetListing()
             recordHint = choice.record
             return Handle(record: choice.record, name: name, isDirectory: isDirectory)
         }
@@ -1490,6 +1530,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             // The slot just freed is below the hint, and the next create
             // should take it rather than walk past it to the end of the table.
             recordHint = min(recordHint, number)
+            forgetListing()
             return .removed
         }
     }
@@ -2016,6 +2057,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 let old = findNode(name, in: againShape, collation: collation),
                 takeOutLocked(old.index, of: old.node, in: againShape, collation: collation)
             else { return false }
+            forgetListing()
             return true
         }
     }
@@ -2126,6 +2168,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     /// Cut a file down, without giving its clusters back.
     private func shortenLocked(_ number: UInt64, to size: UInt64) -> Bool {
         lock.withLock {
+            forgetListing()
             guard volumeIsSafeToWrite, markLocked(), let held = reader.record(number),
                 !reader.spillsAttributes(held)
             else { return false }
@@ -2197,6 +2240,8 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         _ number: UInt64, to size: UInt64, writing contents: Data, at offset: UInt64
     ) -> Bool {
         lock.withLock {
+            // A grown file has a new length, and a listing carries lengths.
+            forgetListing()
             guard let writeBytes, volumeIsSafeToWrite, markLocked(),
                 let held = reader.record(number), !reader.spillsAttributes(held)
             else { return false }
