@@ -2503,13 +2503,20 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     // MARK: - Extended attributes
 
     /// None yet. NTFS keeps them in `$EA`, which is a separate attribute and a
-    /// separate piece of work; answering "none" is true rather than convenient,
-    /// and a volume with no xattrs is a volume macOS handles perfectly well.
+    /// separate piece of work; answering "none" is true rather than convenient.
+    ///
+    /// **Setting one says so, rather than saying it is missing.** A filesystem
+    /// that does not keep extended attributes and a file that happens not to
+    /// have the one asked for are different answers, and macOS acts on the
+    /// difference: told the filesystem does not keep them, it puts them in a
+    /// `._` file beside the real one, which is what every NTFS volume on a Mac
+    /// already has and what v1 produces. Told the attribute is missing, it has
+    /// been given a reply that makes no sense to a request to set something.
     public func xattr(_ name: String, of handle: FSHandle) -> Data? { nil }
     public func xattrNames(of handle: FSHandle) -> [String] { [] }
     public func setXattr(
         _ name: String, to value: Data?, on handle: FSHandle, mustCreate: Bool, mustReplace: Bool
-    ) -> FSStore.XattrOutcome { .missing }
+    ) -> FSStore.XattrOutcome { .unsupported }
 
     // MARK: - Statistics
 

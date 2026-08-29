@@ -195,7 +195,16 @@ public final class FSStore: @unchecked Sendable {
     }
 
     /// What `setxattr` asked for, and whether it was allowed.
-    public enum XattrOutcome { case set, missing, exists }
+    /// What came of setting one.
+    ///
+    /// `unsupported` is not a failure of the call -- it is the filesystem
+    /// saying it does not keep extended attributes at all, which is a
+    /// different thing from a particular one not being there. macOS answers it
+    /// by putting the attributes in a `._` file beside the real one, which is
+    /// what every NTFS volume on a Mac already has. Answering `missing`
+    /// instead tells whoever asked that the attribute they were setting cannot
+    /// be found, which is not an answer to "set this".
+    public enum XattrOutcome { case set, missing, exists, unsupported }
 
     /// `create` fails when it is already there, `replace` fails when it is not,
     /// and the default does neither. Getting this wrong is not a wrong value: a

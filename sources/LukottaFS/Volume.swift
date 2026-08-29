@@ -439,6 +439,10 @@ extension LukottaVolume: FSVolume.XattrOperations {
         case .set: reply(nil)
         case .exists: reply(fsError(POSIXError.EEXIST))
         case .missing: reply(NSError(domain: NSPOSIXErrorDomain, code: Int(ENOATTR)))
+        // The filesystem does not keep extended attributes at all, which is
+        // what makes macOS write them into a `._` file beside the real one
+        // instead of treating the refusal as a fault.
+        case .unsupported: reply(fsError(POSIXError.ENOTSUP))
         }
     }
 

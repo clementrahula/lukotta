@@ -6857,6 +6857,24 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
         "and more written than the file is long is refused, since the space between them is "
             + "what reads as zeroes")
 
+    // Extended attributes. This filesystem does not keep them yet, and saying
+    // so is a different answer from saying a particular one is missing: told
+    // the filesystem does not keep them, macOS writes them into a `._` file
+    // beside the real one, which is what every NTFS volume on a Mac already
+    // has. Told one is missing, it has been given a reply that makes no sense
+    // to a request to set something.
+    if let anyFile = backing.lookup("lukotta-made-me.txt", in: root) {
+        expect(
+            backing.setXattr(
+                "com.apple.metadata", to: Data([1]), on: anyFile, mustCreate: false,
+                mustReplace: false) == .unsupported,
+            "setting an extended attribute says the filesystem does not keep them")
+        expect(
+            backing.xattrNames(of: anyFile).isEmpty,
+            "and it lists none, which is true rather than convenient")
+        expect(backing.xattr("com.apple.metadata", of: anyFile) == nil, "and holds none")
+    }
+
     // Renaming. The record is not the name -- the index is -- so what a reader
     // finds between the writes is what decides the order.
     guard let renamed = backing.create("before.txt", isDirectory: false, in: root, mode: 0o644)
