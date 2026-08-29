@@ -126,8 +126,18 @@ extension LukottaFileSystem: FSUnaryFileSystemOperations {
             // Written out rather than as a ternary: a closure inside one loses
             // its @Sendable, and this one crosses into a backing FSKit calls
             // on its own queues.
+            //
+            // **And only where nobody asked for read-only.** `-o ro` is a
+            // person saying do not touch this drive -- a recovery, a disk they
+            // do not trust, an image they are about to copy. Writing to it
+            // would be bad enough; this filesystem also marks a volume dirty
+            // before its first write, so a read-only mount would leave a drive
+            // needing chkdsk that nobody wrote a byte to.
+            //
+            // The option was parsed and tested and never asked, which is worse
+            // than not having it: it looked handled.
             var writer: NTFSBacking.WriteBytes?
-            if held.isWritable {
+            if held.isWritable, !FSMountOptions.isReadOnly(options.taskOptions) {
                 writer = { @Sendable offset, bytes in held.write(offset, bytes) }
             }
             guard

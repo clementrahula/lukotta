@@ -9728,6 +9728,53 @@ group("theOnlyChannelIntoTheExtensionIsItsMountOptions") {
     expect(FSMountOptions.isReadOnly(["-o", "rdonly"]), "and so does rdonly")
     expect(!FSMountOptions.isReadOnly(["-o", "rw"]), "rw does not")
     expect(!FSMountOptions.isReadOnly([]), "and neither does saying nothing")
+    // The forms things actually pass, since an option parsed but never
+    // recognised is the same as one never parsed.
+    expect(FSMountOptions.isReadOnly(["-o", "ro,noatime"]), "ro among others is still ro")
+    expect(FSMountOptions.isReadOnly(["-o", "noatime,rdonly"]), "wherever it sits in the list")
+    expect(
+        !FSMountOptions.isReadOnly(["-o", "backingroot=/tmp"]),
+        "and an unrelated option does not make a volume read-only")
+
+    // A backing given no write function cannot write, whatever it is asked.
+    // That is what an `-o ro` mount produces, and it is stronger than a flag
+    // somebody has to remember to check.
+    if let path = ProcessInfo.processInfo.environment["LUKOTTA_WRITE_IMAGE"],
+        FileManager.default.fileExists(atPath: path),
+        let handle = FileHandle(forUpdatingAtPath: path)
+    {
+        defer { try? handle.close() }
+        let lock = NSLock()
+        if let readOnly = NTFSBacking(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        }) {
+            let before = NTFSVolumeReader(read: { offset, length in
+                lock.lock()
+                defer { lock.unlock() }
+                try? handle.seek(toOffset: offset)
+                return try? handle.read(upToCount: length)
+            })?.state()?.isDirty
+            expect(
+                readOnly.create(
+                    "must-not-appear.txt", isDirectory: false,
+                    in: readOnly.rootHandle, mode: 0o644) == nil,
+                "a volume mounted read-only makes nothing")
+            expect(!readOnly.isMarked, "and is not marked")
+            let after = NTFSVolumeReader(read: { offset, length in
+                lock.lock()
+                defer { lock.unlock() }
+                try? handle.seek(toOffset: offset)
+                return try? handle.read(upToCount: length)
+            })?.state()?.isDirty
+            expect(
+                before == after,
+                "and the dirty flag is exactly as it was -- a read-only mount that marks a "
+                    + "volume leaves a drive needing chkdsk that nobody wrote a byte to")
+        }
+    }
 
     // Only absolute paths. A relative one would be resolved against whatever
     // directory fskitd happened to start the extension in.
