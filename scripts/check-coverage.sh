@@ -409,6 +409,12 @@ fi
 #
 # Tests are not use. A function only a test calls is a function whose behaviour
 # is guaranteed and whose absence from the product is not noticed.
+#
+# What this catches is "called nowhere", not "called everywhere it should be".
+# Taking the alignment out of the write path leaves it called from the read
+# path, and this says nothing -- which was measured, not assumed. It is a floor
+# and not a proof, and saying otherwise would be the same fault it exists to
+# find.
 printf 'Nothing important is only called by its own test…\n'
 /usr/bin/python3 - "$HERE" <<'CALLED' || FAIL=1
 import pathlib, re, sys
