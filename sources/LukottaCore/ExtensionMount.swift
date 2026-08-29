@@ -85,6 +85,32 @@ public enum ExtensionMount {
         return .failed(summary ?? "The drive did not open through the filesystem extension.")
     }
 
+    /// Try the extension, and say what came of it.
+    ///
+    /// **This never throws and never blocks the caller's own path.** The
+    /// extension is an optimisation, not a requirement: a Mac where the switch
+    /// has never been turned on is the ordinary case, and the answer there is
+    /// `unavailable` and a fall through to the engine. Nobody sees an error for
+    /// a feature they have not enabled.
+    ///
+    /// - Parameter run: how to run the command. Passed in so that the whole of
+    ///   this can be checked without mounting anything.
+    public static func attempt(
+        device: String, mountPoint: String, readOnly: Bool,
+        supported: Bool,
+        run: (_ arguments: [String]) -> (status: Int32, output: String)
+    ) -> Outcome {
+        // Asking a system that has no FSKit at all produces an error about a
+        // missing command, which reads as a fault rather than as a Mac that is
+        // simply older than the feature.
+        guard supported else { return .unavailable }
+        guard !device.isEmpty, !mountPoint.isEmpty else {
+            return .failed("The drive or the place to put it was not named.")
+        }
+        let result = run(command(device: device, mountPoint: mountPoint, readOnly: readOnly))
+        return outcome(status: result.status, output: result.output)
+    }
+
     /// Whether an outcome is worth putting in the log.
     ///
     /// A switch that is off is not: it is the ordinary state of a Mac where

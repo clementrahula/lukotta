@@ -9522,6 +9522,72 @@ group("theExtensionClaimsOnlyWhatMacOSCannotOpen") {
         "and an empty sector is left alone")
 }
 
+group("theExtensionIsTriedAndNeverInTheWay") {
+    // The extension is an optimisation, not a requirement. A Mac where the
+    // switch has never been turned on is the ordinary case, and nobody should
+    // see an error for a feature they have not enabled.
+    var asked: [[String]] = []
+    func attempt(supported: Bool, status: Int32, output: String) -> ExtensionMount.Outcome {
+        ExtensionMount.attempt(
+            device: "/dev/disk4s1", mountPoint: "/Volumes/Drive", readOnly: false,
+            supported: supported,
+            run: { arguments in
+                asked.append(arguments)
+                return (status, output)
+            })
+    }
+
+    expect(
+        attempt(supported: false, status: 0, output: "") == .unavailable,
+        "a Mac too old for FSKit is unavailable, not a failure")
+    expect(
+        asked.isEmpty,
+        "and nothing is run on it -- asking produces an error about a "
+            + "missing command, which reads as a fault rather than as an older Mac")
+
+    expect(
+        attempt(supported: true, status: 0, output: "") == .mounted,
+        "a mount that worked says so")
+    expect(asked.count == 1, "having run one command")
+    expect(
+        asked[0].contains("/dev/disk4s1") && asked[0].contains("/Volumes/Drive"),
+        "naming the drive and where it goes: \(asked[0])")
+    expect(
+        asked[0].contains(ExtensionMount.filesystemName),
+        "and the filesystem the module registers under")
+
+    expect(
+        attempt(supported: true, status: 1, output: "Module com.lukotta.v2.fs is disabled!")
+            == .unavailable,
+        "the switch being off is unavailable, which is the ordinary state of a Mac")
+    expect(
+        !ExtensionMount.isWorthLogging(.unavailable),
+        "and is not worth logging, or every attempt would bury the failures that mean "
+            + "something")
+    guard case .failed = attempt(supported: true, status: 1, output: "Input/output error") else {
+        expect(false, "a real failure is a failure")
+        return
+    }
+    expect(
+        ExtensionMount.isWorthLogging(.failed("x")), "and that one is worth logging")
+
+    expect(
+        attempt(supported: true, status: 1, output: "unknown file system type") == .unavailable,
+        "a module the system does not know is unavailable rather than broken")
+
+    // Nothing is run when there is nothing to run it on.
+    asked = []
+    expect(
+        ExtensionMount.attempt(
+            device: "", mountPoint: "/Volumes/Drive", readOnly: false, supported: true,
+            run: { arguments in
+                asked.append(arguments)
+                return (0, "")
+            }) != .mounted,
+        "an unnamed drive is not mounted")
+    expect(asked.isEmpty, "and nothing is run for it")
+}
+
 group("whatComesBackFromMountingThroughTheExtension") {
     // mount(8) reports a module that is switched off and a drive that cannot be
     // read with the same exit status, and those two mean opposite things: one
