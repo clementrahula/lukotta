@@ -2556,3 +2556,72 @@ it. If it is the framework, FSKit cannot meet the target on this OS and the
 answer is to ship the fallback and re-test each release, exactly as §4 says. If
 it is the module, a careful one might still land near 0.3 ms and the plan
 survives. Blocker 2 stands in the way of settling it with our own code.
+
+## 39. The third route, which today's measurement promotes
+
+Dropping the VM but keeping NFS: the filesystem code runs in a process on the
+Mac, holds the drive directly, and exports to `localhost`. No guest kernel, no
+virtio, no gvproxy. No FSKit either, so none of §37's three blockers apply --
+no switch, no `fskitd`, no kext precedence.
+
+### What the numbers say now
+
+§1 decomposed v1's per-operation cost and found the guest free, the kernel
+transport primitives ≤40 µs, and **≥600 of the 700 µs in gvproxy plus the macOS
+NFS client's RPC turnaround**, predicted split 0.3-0.5 ms gvproxy, 0.1-0.2 ms
+client. Dropping the VM removes the gvproxy half and leaves the client half.
+
+    APFS, measured                                    55-73 µs/op   [E]
+    native NFS, no VM, estimated from §1's split     150-300 µs/op  [I]
+    v1 today, measured                                 1110 µs/op   [E]
+    FSKit, measured today (§38)                        1363 µs/op   [E]
+
+**On metadata this route is roughly 5x better than FSKit and 4-7x better than
+v1**, and it is the only one of the three whose blocking issues are all ours
+rather than Apple's.
+
+Throughput has a floor that needs no estimate: **v1 already achieves 567 MB/s
+through NFS *and* a VM** [E]. Removing the VM cannot make that worse. FSKit
+measured 1218 MB/s today, so FSKit likely still wins on streaming.
+
+### What it costs, and this is the whole objection
+
+§1's conclusion stands and is not fixed by removing the VM: *"a perfect
+transport under the present design still leaves the macOS NFS client's
+semantics: serial issue, network volume in Finder, no Trash, `deadtimeout`
+unmounts, soft-mount short writes. Tuning cannot cross that."*
+
+That is target 1 (a **local** volume) and target 3 (Trash and Put Back) from the
+goal, and no amount of speed buys them.
+
+### Contradictory evidence worth resolving
+
+fuse-t uses exactly this architecture -- a userspace NFS server on loopback --
+and the evidence about it points both ways. Its own documentation claims good
+performance from the macOS NFSv4 client
+([fuse-t.org](https://www.fuse-t.org/)), while a user pairing it with ntfs-3g
+reports **20 MB/s against macFUSE's 700-800 MB/s**
+([fuse-t#89](https://github.com/macos-fuse-t/fuse-t/issues/89)). One of those is
+wrong or workload-specific, and v1's own 567 MB/s over NFS-plus-a-VM suggests
+the 20 MB/s figure is not the general case. Worth reading before betting on it.
+
+### How to settle it, cheaply
+
+Serve a plain directory over NFS from macOS's own `nfsd` on loopback, mount it,
+and run the same 800-file create/delete used in §38. That prices the macOS NFS
+client's turnaround with no VM and no guest in the way, and it is the number the
+whole route rests on. It needs `/etc/exports` and `nfsd` started, which is a
+system configuration change and therefore the owner's to make, not this
+process's.
+
+### Where the three stand
+
+| | metadata | streaming | local volume | Trash | blocked by |
+| --- | --- | --- | --- | --- | --- |
+| FSKit | 1363 µs [E] | 1218 MB/s [E] | yes | probably | three Apple bugs |
+| native NFS, no VM | 150-300 µs [I] | ≥567 MB/s [E] | **no** | **no** | nothing |
+| v1 today | 1110 µs [E] | 567 MB/s [E] | no | no | shipping |
+
+The uncomfortable reading: **the route that meets the UX targets is the slow one,
+and the route that is fast fails the UX targets.** Neither is what the goal asks
+for, and that is a finding about macOS rather than about this code.
