@@ -140,9 +140,23 @@ extension LukottaVolume: FSVolume.Operations {
         reply(rootItem, nil)
     }
 
+    /// The volume is being let go.
+    ///
+    /// **This is where the dirty flag comes off.** While the volume is mounted
+    /// it carries a mark saying somebody without a journal is writing to it,
+    /// and a mount that ends without clearing it leaves a drive Windows runs
+    /// chkdsk on for nothing -- and that this filesystem itself refuses to
+    /// write to next time, because a marked volume is one with work
+    /// outstanding.
+    ///
+    /// Failing to clear it is not reported as a failure of the deactivation.
+    /// The mount is ending either way; refusing here would leave the volume
+    /// mounted and still marked, which is the same state and harder to get out
+    /// of.
     func deactivate(
         options: FSDeactivateOptions = [], replyHandler reply: @escaping ((any Error)?) -> Void
     ) {
+        release()
         reply(nil)
     }
 
@@ -151,14 +165,29 @@ extension LukottaVolume: FSVolume.Operations {
     }
 
     func unmount(replyHandler reply: @escaping () -> Void) {
+        // Again, because a volume can be unmounted without being deactivated
+        // first and the two are not ordered. Releasing twice is harmless: the
+        // second one finds nothing to clear.
+        release()
         reply()
     }
 
     func synchronize(
         flags: FSSyncFlags, replyHandler reply: @escaping ((any Error)?) -> Void
     ) {
-        // Nothing is behind this to flush, which is the point of it.
+        // Every write here has already gone to the device by the time it
+        // returns -- there is no buffer behind this to flush, which is what
+        // makes a sync cheap and a power cut no worse than the last write.
         reply(nil)
+    }
+
+    /// Put the volume's dirty flag back, if this volume has one to put back.
+    ///
+    /// Only an NTFS backing carries a mark; the ones that keep files in memory
+    /// or in a directory have nothing to release, and asking them is not an
+    /// error.
+    private func release() {
+        (store as? NTFSBacking)?.release()
     }
 
     func getAttributes(

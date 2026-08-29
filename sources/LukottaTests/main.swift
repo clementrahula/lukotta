@@ -7197,11 +7197,20 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
             "and its record is free again")
     }
 
-    // Put the volume back clean, as a mount that ends properly does.
+    // Put the volume back clean, as a mount that ends properly does. This is
+    // what the extension's deactivate and unmount hooks do, and a mount that
+    // ends without it leaves a drive Windows runs chkdsk on for nothing -- and
+    // that this filesystem itself then refuses to write to, because a marked
+    // volume is one with work outstanding.
+    expect(backing.isMarked, "the volume is still marked, having been written to")
     expect(backing.release(), "the volume is released")
+    expect(!backing.isMarked, "and is no longer ours")
     expect(
         NTFSVolumeReader(read: read)?.state()?.isSafeToWrite == true,
         "and reads as clean afterwards")
+    expect(
+        NTFSBacking(read: read, write: write)?.volumeIsSafeToWrite == true,
+        "so the next mount can write to it, which is the whole reason for clearing it")
 }
 
 group("anAttributeCanChangeSizeInsideItsRecord") {
