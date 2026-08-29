@@ -6680,6 +6680,28 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
         guard let start = run.physicalCluster, run.clusterCount > 0 else { return nil }
         return start...(start + run.clusterCount - 1)
     }
+    // The times. A file written to has been modified, and a filesystem that
+    // does not say so breaks every backup tool, every sort by date, and every
+    // "what changed" anybody ever asks.
+    guard let filledTimes = onDisk.times(of: filledRecord) else {
+        expect(false, "the filled file has times")
+        return
+    }
+    // Not "is it recent" -- everything here is recent, the file was made a
+    // moment ago. The question is whether the write moved it: a modified time
+    // exactly equal to the created time is one that was set once and never
+    // touched again.
+    expect(
+        filledTimes.modified > filledTimes.created,
+        "the write moved its modified time past its created time: "
+            + "\(filledTimes.modified.timeIntervalSince(filledTimes.created)) seconds apart")
+    expect(
+        filledTimes.recordChanged > filledTimes.created,
+        "and the time its record last changed, since the record did change")
+    expect(
+        filledTimes.modified.timeIntervalSince(Date()) > -300,
+        "and both are recent, not left over from whatever held the slot before")
+
     expect(backing.remove("filled.bin", from: root) == .removed, "and the file can be removed")
 
     // And they are still claimed afterwards. A removed file's record still

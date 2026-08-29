@@ -2305,6 +2305,15 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         _ record: Data, header: NTFSRecord.Header, size: UInt64,
         allocated: UInt64
     ) -> Data? {
+        // The times move as well. A file that has been written has been
+        // modified, and a filesystem that does not say so breaks every backup
+        // tool, every sort by date, and every question anybody asks about what
+        // changed. NTFS keeps four: created, modified, record-changed and
+        // accessed. A write moves the middle two -- the contents changed and
+        // the record describing them changed -- and leaves created alone,
+        // because it did not.
+        let now = NTFSNewRecord.ticks(Date())
+
         guard
             let name = NTFSAttribute.all(
                 in: record, startingAt: header.firstAttributeOffset, usedLength: header.usedLength
@@ -2315,11 +2324,37 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 (record.startIndex + name.valueOffset)..<(record.startIndex + name.valueOffset
                     + name.valueLength)])
         for byte in 0..<8 {
+            // $FILE_NAME's own copy of the times begins at 8.
+            value[16 + byte] = UInt8((now >> (8 * UInt64(byte))) & 0xFF)
+            value[24 + byte] = UInt8((now >> (8 * UInt64(byte))) & 0xFF)
             value[40 + byte] = UInt8((allocated >> (8 * UInt64(byte))) & 0xFF)
             value[48 + byte] = UInt8((size >> (8 * UInt64(byte))) & 0xFF)
         }
+        guard
+            let named = NTFSRecordEdit.replacing(
+                .fileName, named: nil, with: Data(value), in: record, header: header),
+            let namedHeader = NTFSRecord.header(named, expectedLength: record.count),
+            let information = NTFSAttribute.all(
+                in: named, startingAt: namedHeader.firstAttributeOffset,
+                usedLength: namedHeader.usedLength
+            ).first(where: { $0.kind == .standardInformation }), information.isResident,
+            information.valueLength >= 32
+        else { return nil }
+
+        // $STANDARD_INFORMATION is where the times a reader trusts live. The
+        // copy in $FILE_NAME is for listings; this is the one anything that
+        // opens the file asks.
+        var carried = [UInt8](
+            named[
+                (named.startIndex + information.valueOffset)..<(named.startIndex
+                    + information.valueOffset + information.valueLength)])
+        for byte in 0..<8 {
+            carried[8 + byte] = UInt8((now >> (8 * UInt64(byte))) & 0xFF)
+            carried[16 + byte] = UInt8((now >> (8 * UInt64(byte))) & 0xFF)
+        }
         return NTFSRecordEdit.replacing(
-            .fileName, named: nil, with: Data(value), in: record, header: header)
+            .standardInformation, named: nil, with: Data(carried), in: named,
+            header: namedHeader)
     }
 
     /// One attribute's own bytes, found by walking to it.
