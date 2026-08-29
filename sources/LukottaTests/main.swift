@@ -60,6 +60,26 @@ func expect(_ condition: Bool, _ what: String) {
     if !condition { failures += 1; print("    FAIL [\(currentGroup)] \(what)") }
 }
 
+/// One attribute's own bytes, walked to by type.
+///
+/// The reader hands back a parsed header; some of what a writer has to get
+/// right is not in it, because nothing reading a volume needs it. Windows does.
+func attributeRaw(_ record: Data, header: NTFSRecord.Header, type wanted: UInt32) -> Data? {
+    var at = header.firstAttributeOffset
+    let base = record.startIndex
+    while at + 8 <= header.usedLength {
+        var kind: UInt32 = 0
+        for byte in 0..<4 { kind |= UInt32(record[base + at + byte]) << (8 * UInt32(byte)) }
+        if kind == 0xFFFF_FFFF { return nil }
+        var length = 0
+        for byte in 0..<4 { length |= Int(record[base + at + 4 + byte]) << (8 * byte) }
+        guard length >= 24, at + length <= header.usedLength else { return nil }
+        if kind == wanted { return Data(record[(base + at)..<(base + at + length)]) }
+        at += length
+    }
+    return nil
+}
+
 func sampleInputs(
     kind: VolumeKind = .microsoft,
     volume: LogicalVolume? = nil,
@@ -6406,6 +6426,57 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
     expect(
         filledRuns.allSatisfy { $0.physicalCluster != nil },
         "none of them a hole, since every one was written")
+    expect(
+        filledRuns.count <= 4,
+        "in few pieces: \(filledRuns.count) -- runs that come out next to each other are "
+            + "joined, and a runlist that grows for no reason outgrows its record")
+
+    // The three sizes in the attribute header, read out of the bytes. Our own
+    // reader does not use two of them, so nothing else here would notice them
+    // being wrong -- and Windows uses all three.
+    guard
+        let filledBytes =
+            NTFSAttribute.all(
+                in: filledRecord.data, startingAt: filledRecord.header.firstAttributeOffset,
+                usedLength: filledRecord.header.usedLength
+            ).first(where: { $0.kind == .data }) != nil
+            ? attributeRaw(filledRecord.data, header: filledRecord.header, type: 0x80) : nil
+    else {
+        expect(false, "the $DATA attribute's own bytes are found")
+        return
+    }
+    func quad(_ at: Int) -> UInt64 {
+        var value: UInt64 = 0
+        for byte in 0..<8 {
+            value |= UInt64(filledBytes[filledBytes.startIndex + at + byte]) << (8 * UInt64(byte))
+        }
+        return value
+    }
+    let cluster = UInt64(onDisk.geometry.bytesPerCluster)
+    expect(
+        quad(NTFSFileGrow.dataSizeField) == UInt64(payload.count),
+        "the length says what the file is: \(quad(NTFSFileGrow.dataSizeField))")
+    expect(
+        quad(NTFSFileGrow.allocatedSizeField)
+            == NTFSRunlist.clusterCount(filledRuns) * cluster,
+        "the room taken says what the clusters come to, not what the file does -- chkdsk "
+            + "compares them: \(quad(NTFSFileGrow.allocatedSizeField))")
+    expect(
+        quad(NTFSFileGrow.allocatedSizeField) >= quad(NTFSFileGrow.dataSizeField),
+        "and is never less than the file")
+    expect(
+        quad(NTFSFileGrow.initialisedSizeField) == UInt64(payload.count),
+        "and the written-so-far says every byte has been written -- a zero here is a file "
+            + "Windows reads as nothing at all, however full the clusters are: "
+            + "\(quad(NTFSFileGrow.initialisedSizeField))")
+    expect(
+        quad(NTFSFileGrow.initialisedSizeField) <= quad(NTFSFileGrow.dataSizeField),
+        "and never more than the file is long")
+    expect(
+        quad(NTFSFileGrow.lastClusterField)
+            == NTFSRunlist.clusterCount(filledRuns) - 1,
+        "the last cluster is the last one, counted from zero: "
+            + "\(quad(NTFSFileGrow.lastClusterField))")
 
     // The clusters it took are marked in the volume's own bitmap. A file whose
     // clusters the volume thinks are free is a file the next write destroys.
@@ -6423,7 +6494,112 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
             "and every one of them is claimed in $Bitmap, or \(unclaimed) are not -- clusters "
                 + "the volume thinks are free are clusters the next write destroys")
     }
+    // Appended to, twice, so a second and third allocation happen. Clusters
+    // that come out next to what the file already has are joined onto the last
+    // run rather than added as new ones -- a runlist that grows for no reason
+    // outgrows its record, and then the file needs an $ATTRIBUTE_LIST it has
+    // not got.
+    var grown = payload
+    for round in 0..<2 {
+        let more = Data(repeating: UInt8(0xA0 + round), count: 60_000)
+        expect(
+            backing.write(filled, contents: more, offset: grown.count) == more.count,
+            "append \(round) goes in")
+        grown += more
+    }
+    guard let appended = NTFSVolumeReader(read: read),
+        let appendedNumber = appended.find("filled.bin", inDirectory: NTFSTable.rootRecord),
+        let appendedRecord = appended.record(appendedNumber),
+        let appendedData = appended.attributes(of: appendedRecord).first(where: {
+            $0.kind == .data
+        }),
+        let appendedRuns = NTFSRunlist.decode(
+            appendedRecord.data, at: appendedData.runlistOffset, limit: appendedRecord.data.count)
+    else {
+        expect(false, "the appended file reads")
+        return
+    }
+    expect(
+        appended.size(ofFile: appendedNumber) == UInt64(grown.count),
+        "the file is as long as everything written to it: "
+            + "\(appended.size(ofFile: appendedNumber) ?? 0) of \(grown.count)")
+    expect(
+        appended.contents(ofFile: appendedNumber) == grown,
+        "and holds all of it, the appended parts included")
+    expect(
+        appendedRuns.count <= 3,
+        "in few pieces after three allocations: \(appendedRuns.count) -- clusters that came "
+            + "out adjacent were joined onto the run before them")
+
     expect(backing.remove("filled.bin", from: root) == .removed, "and the file can be removed")
+
+    // Joining runs, on its own, because whether the allocator happens to hand
+    // back an adjacent cluster is not something a test should depend on.
+    let first = [NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 100, clusterCount: 4)]
+    let touching = [NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 104, clusterCount: 3)]
+    guard let joined = NTFSFileGrow.joining(first, with: touching) else {
+        expect(false, "adjacent runs join")
+        return
+    }
+    expect(
+        joined.count == 1,
+        "clusters that come out next to what the file has are joined onto the run before "
+            + "them: \(joined.count) run(s) -- a runlist that grows for no reason outgrows "
+            + "its record, and then the file needs an $ATTRIBUTE_LIST it has not got")
+    expect(joined.first?.clusterCount == 7, "with the run seven clusters long")
+    expect(joined.first?.physicalCluster == 100, "still starting where it did")
+    expect(joined.first?.logicalCluster == 0, "and covering the file from its beginning")
+
+    let apart = [NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 500, clusterCount: 2)]
+    guard let separate = NTFSFileGrow.joining(first, with: apart) else {
+        expect(false, "distant runs still join on")
+        return
+    }
+    expect(separate.count == 2, "clusters somewhere else become a run of their own")
+    expect(
+        separate.last?.logicalCluster == 4,
+        "carrying on from where the file left off, not from zero -- a second run starting at "
+            + "zero is a file whose second half overwrites its first")
+    expect(separate.last?.physicalCluster == 500, "and pointing where they actually are")
+    expect(
+        NTFSRunlist.clusterCount(separate) == 6, "with the file six clusters long in all")
+    expect(
+        NTFSFileGrow.joining(first, with: [])?.count == 1, "adding nothing changes nothing")
+    expect(
+        NTFSFileGrow.joining(
+            [], with: [NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 9, clusterCount: 1)])?
+            .count == 1,
+        "and a file with no clusters gets its first")
+    expect(
+        NTFSFileGrow.joining(
+            first, with: [NTFSRunlist.Run(logicalCluster: 0, physicalCluster: nil, clusterCount: 2)]
+        )
+            == nil,
+        "a hole is not something to grow a file with, since nothing was allocated for it")
+
+    // An attribute may not claim more file than it has clusters for. Nothing
+    // reachable through a write does that, because the clusters are worked out
+    // from the length -- but a caller that got it wrong would produce a file
+    // whose last bytes are somebody else's.
+    let oneCluster = [
+        NTFSRunlist.Run(logicalCluster: 0, physicalCluster: 1000, clusterCount: 1)
+    ]
+    expect(
+        NTFSFileGrow.nonResident(
+            type: 0x80, id: 0, runs: oneCluster, bytesPerCluster: 4096, size: 8192,
+            initialised: 8192) == nil,
+        "an attribute claiming two clusters of file with one cluster of disk is refused")
+    expect(
+        NTFSFileGrow.nonResident(
+            type: 0x80, id: 0, runs: oneCluster, bytesPerCluster: 4096, size: 4096,
+            initialised: 4096) != nil,
+        "while one that fits is made, so the refusal is a boundary")
+    expect(
+        NTFSFileGrow.nonResident(
+            type: 0x80, id: 0, runs: oneCluster, bytesPerCluster: 4096, size: 100,
+            initialised: 200) == nil,
+        "and more written than the file is long is refused, since the space between them is "
+            + "what reads as zeroes")
 
     // A directory small enough to keep its whole index inside its own record.
     // Making a file in one means growing a resident attribute, which this does
