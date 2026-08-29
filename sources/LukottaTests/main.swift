@@ -5880,7 +5880,32 @@ group("makingAndUnmakingFilesAtSpeed") {
         return
     }
     let root = backing.rootHandle
+    let rounds = ProcessInfo.processInfo.environment["LUKOTTA_BENCH_ROUNDS"].flatMap(Int.init) ?? 1
     let names = (0..<count).map { "bench-\(String(format: "%06d", $0)).txt" }
+
+    // Rounds before the measured one, so what is measured is a directory that
+    // has been filled and emptied rather than a fresh one. Splits, emptied
+    // nodes and reused record slots all only happen the second time round.
+    let settled = Set(backing.children(of: root).map { $0.name })
+    for round in 1..<max(rounds, 1) {
+        var round_made = 0
+        for name in names
+        where backing.create(name, isDirectory: false, in: root, mode: 0o644)
+            != nil
+        {
+            round_made += 1
+        }
+        var round_gone = 0
+        for name in names where backing.remove(name, from: root) == .removed { round_gone += 1 }
+        expect(
+            round_made == count && round_gone == count,
+            "round \(round): \(round_made) made and \(round_gone) removed of \(count)")
+        let now = Set(backing.children(of: root).map { $0.name })
+        expect(
+            now == settled,
+            "and round \(round) leaves the directory as it found it: "
+                + "\(now.symmetricDifference(settled).sorted().prefix(4))")
+    }
 
     // Stops at the first refusal, so the time divided by the count is the cost
     // of a create that happened. Carrying on and dividing by the successes
@@ -5964,7 +5989,63 @@ group("makingAndUnmakingFilesAtSpeed") {
     expect(
         made.count == count, "every file asked for was made: \(made.count) of \(count)")
     expect(gone == made.count, "and every one was removed again: \(gone)")
+    let ended = Set(backing.children(of: root).map { $0.name })
+    expect(
+        ended == settled,
+        "and the directory is as it was before any of it: "
+            + "\(ended.symmetricDifference(settled).sorted().prefix(4))")
     expect(backing.release(), "and the volume is released")
+
+    // What chkdsk would look at. Every record the bitmap claims is in use has
+    // to be a record that says so, and every name in the directory has to lead
+    // to a record that exists and can be found again by descending.
+    guard let after = NTFSVolumeReader(read: read),
+        let bitmap = after.contents(ofFile: NTFSTable.mftRecord, attribute: .bitmap),
+        let tableSize = after.size(ofFile: NTFSTable.mftRecord)
+    else {
+        expect(false, "the volume reads afterwards")
+        return
+    }
+    let records = tableSize / UInt64(after.geometry.bytesPerFileRecord)
+    var disagreed: [UInt64] = []
+    for number in NTFSRecordAllocator.firstAvailable..<min(records, 2000) {
+        guard let claimed = NTFSRecordAllocator.isInUse(number, in: bitmap) else { continue }
+        let present = after.record(number)?.header.inUse ?? false
+        if claimed != present { disagreed.append(number) }
+    }
+    expect(
+        disagreed.isEmpty,
+        "the bitmap and the records still agree, or differ at \(disagreed.prefix(5))")
+
+    let listing = after.contents(ofDirectory: NTFSTable.rootRecord) ?? []
+    var dangling: [String] = []
+    for entry in listing where entry.name != "." {
+        if after.record(entry.record)?.header.inUse != true { dangling.append(entry.name) }
+    }
+    expect(
+        dangling.isEmpty,
+        "every name in the root leads to a record that exists, or \(dangling.prefix(4))")
+
+    if let collation = after.collation() {
+        var unsorted: [String] = []
+        for node in after.indexNodes(ofDirectory: NTFSTable.rootRecord) {
+            let inside = NTFSIndex.names(node.entries)
+            guard inside.count > 1 else { continue }
+            for index in 1..<inside.count
+            where collation.compare(inside[index - 1], inside[index]) != .orderedAscending {
+                unsorted.append("\(inside[index - 1]) then \(inside[index])")
+            }
+        }
+        expect(unsorted.isEmpty, "and every node is in order: \(unsorted.prefix(3))")
+    }
+    var unfindable: [String] = []
+    for entry in listing.prefix(400)
+    where entry.name != "." && after.find(entry.name, inDirectory: NTFSTable.rootRecord) == nil {
+        unfindable.append(entry.name)
+    }
+    expect(
+        unfindable.isEmpty,
+        "and every name that lists can be found by descending: \(unfindable.prefix(4))")
 }
 
 group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
