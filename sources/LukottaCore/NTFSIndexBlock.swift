@@ -158,7 +158,8 @@ public enum NTFSIndexBlock {
     /// - Returns: nil when the entries do not fit, which is a caller that
     ///   picked the wrong place to split.
     public static func compose(
-        blockNumber: UInt64, blockSize: Int, sectorSize: Int, entries: [Data], marker: Data
+        blockNumber: UInt64, blockSize: Int, sectorSize: Int, entries: [Data], marker: Data,
+        hasChildren: Bool = false
     ) -> Data? {
         guard blockSize >= 512, sectorSize > 2, blockSize % sectorSize == 0 else { return nil }
         let fixupCount = blockSize / sectorSize + 1
@@ -193,7 +194,10 @@ public enum NTFSIndexBlock {
         write32(&bytes, nodeStart + 0, UInt32(firstEntry))
         write32(&bytes, nodeStart + 4, UInt32(at - nodeStart))
         write32(&bytes, nodeStart + 8, UInt32(blockSize - nodeStart))
-        write32(&bytes, nodeStart + 12, 0)  // a leaf: nothing below it
+        // Whether anything hangs below this node. A leaf says nothing does; a
+        // node that took over a root's entries says it does, because those
+        // entries point at the blocks the root used to point at.
+        write32(&bytes, nodeStart + 12, hasChildren ? 1 : 0)
         return Data(bytes)
     }
 

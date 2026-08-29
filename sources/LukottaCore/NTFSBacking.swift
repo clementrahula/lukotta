@@ -320,7 +320,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             let parent = ours(directory), parent.isDirectory
         else { return nil }
 
-        return lock.withLock {
+        return lock.withLock { () -> FSHandle? in
             guard volumeIsSafeToWrite, markLocked(), let collation = reader.collation() else {
                 return nil
             }
@@ -374,9 +374,35 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             // directory with no room in the right node needs a split, and
             // finding that out after the record is on the disk means an orphan
             // for no reason.
-            guard let node = leafNode(of: parent.record, for: name, collation: collation),
-                node.room >= key.count
-            else { return nil }
+            guard var node = leafNode(of: parent.record, for: name, collation: collation) else {
+                return nil
+            }
+            if node.room < key.count {
+                // Split, then look again: the name now belongs in one of the
+                // two halves, and which one is the descent's answer rather than
+                // a guess.
+                //
+                // A split that fails may be a root with no room for another key
+                // rather than anything wrong, so the tree is deepened once and
+                // the split tried again. Once, not until it works: a second
+                // failure is a real one, and retrying would be a loop that
+                // writes.
+                func trySplit() -> Bool {
+                    guard let shape = indexShape(of: parent.record),
+                        let path = descent(to: name, in: shape, collation: collation)
+                    else { return false }
+                    return splitLocked(path, in: shape, collation: collation)
+                }
+                if !trySplit() {
+                    guard deepenLocked(directory: parent.record, collation: collation),
+                        trySplit()
+                    else { return nil }
+                }
+                guard let after = leafNode(of: parent.record, for: name, collation: collation),
+                    after.room >= key.count
+                else { return nil }
+                node = after
+            }
 
             // 1. The bitmap.
             guard
@@ -424,6 +450,32 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 return "no leaf node for the name"
             }
             return "the leaf node has \(node.room) bytes free"
+        }
+    }
+
+    /// Why a removal was refused, in words. For logs and measurements only.
+    public func whyRemoveFailed(_ name: String, from directory: FSHandle) -> String {
+        guard let parent = ours(directory), parent.isDirectory else { return "not a directory" }
+        return lock.withLock {
+            guard let collation = reader.collation() else { return "no $UpCase" }
+            guard let number = reader.find(name, inDirectory: parent.record) else {
+                return "the search does not find the name"
+            }
+            guard let record = reader.record(number) else { return "no record \(number)" }
+            if record.header.isDirectory { return "it is a directory" }
+            guard let shape = indexShape(of: parent.record) else { return "no index" }
+            guard let found = findNode(name, in: shape, collation: collation) else {
+                return "the descent does not reach the node holding it"
+            }
+            let entry = found.node.entries[found.index]
+            let child = NTFSIndexSplit.child(of: entry)
+            var where_ = "a leaf"
+            if case .root = found.node.site { where_ = "the root" }
+            if child != nil { where_ += " with a child at \(child!)" }
+            if child != nil, largestBelow(entry, in: shape) == nil {
+                return "in \(where_), and there is no largest name below it"
+            }
+            return "in \(where_), entry \(found.index) of \(found.node.entries.count)"
         }
     }
 
@@ -533,6 +585,407 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         return nil
     }
 
+    /// Split a full leaf, so the name that would not fit has somewhere to go.
+    ///
+    /// The median goes to **the leaf's own parent**, which is the root only
+    /// while the tree is one level deep. Once it is deeper, the parent is a
+    /// block, and putting the median in the root instead cuts the whole tree by
+    /// a key that describes one leaf.
+    ///
+    /// The order is chosen so nothing is ever unreachable:
+    ///
+    /// 1. A cluster is claimed, if the index has to grow. A crash leaks it.
+    /// 2. The new block is written. Nothing points at it yet, so it is
+    ///    invisible rather than wrong.
+    /// 3. The parent gains the median. **This is the split.**
+    /// 4. The old leaf is trimmed. Between 3 and 4 the names below the median
+    ///    are in both blocks -- which no search can notice, because a search
+    ///    below the median goes to the new block and never looks in the old.
+    ///
+    /// Must be called with `lock` held.
+    private func splitLocked(_ path: [NodeAt], in shape: IndexShape, collation: NTFSCollation)
+        -> Bool
+    {
+        guard path.count >= 2, let leaf = path.last else { return false }
+        let parent = path[path.count - 2]
+        guard case .block(let leafOffset, let leafNumber) = leaf.site else { return false }
+        guard let plan = split(leaf) else { return false }
+
+        guard let room = freeIndexBlockLocked(shape: shape) else { return false }
+        guard
+            let built = NTFSIndexBlock.compose(
+                blockNumber: room.block, blockSize: shape.blockSize,
+                sectorSize: reader.geometry.bytesPerSector, entries: plan.below,
+                marker: plan.marker, hasChildren: leaf.hasChildren),
+            let promoted = NTFSIndexSplit.promoting(plan.median, toChild: room.block),
+            let placed = NTFSTable.diskOffset(
+                forFileOffset: room.block * UInt64(shape.blockSize), runs: room.runs,
+                bytesPerCluster: reader.geometry.bytesPerCluster),
+            writeIndexBlockLocked(built, at: placed.offset)
+        else { return false }
+
+        // Where the median belongs among the parent's own keys.
+        guard let key = NTFSIndexWrite.key(of: promoted, at: 0) else { return false }
+        var entries = parent.entries
+        var place = entries.count
+        for (index, other) in entries.enumerated() {
+            guard let otherKey = NTFSIndexWrite.key(of: other, at: 0) else { return false }
+            if collation.compare(otherKey, key) == .orderedDescending {
+                place = index
+                break
+            }
+        }
+        entries.insert(promoted, at: place)
+
+        guard
+            writeParentLocked(
+                parent, entries: entries, in: shape, grown: room.grownAllocation,
+                claiming: room.block)
+        else { return false }
+
+        // 4. The old leaf, trimmed to the names above the median.
+        guard
+            let trimmed = NTFSIndexBlock.compose(
+                blockNumber: leafNumber, blockSize: shape.blockSize,
+                sectorSize: reader.geometry.bytesPerSector, entries: plan.above,
+                marker: plan.marker, hasChildren: leaf.hasChildren)
+        else { return false }
+        return writeIndexBlockLocked(trimmed, at: leafOffset)
+    }
+
+    /// A node's entries cut in two, worked out from the entries themselves.
+    private func split(_ node: NodeAt) -> NTFSIndexSplit.Plan? {
+        guard node.entries.count >= 3 else { return nil }
+        let total = node.entries.reduce(0) { $0 + $1.count }
+        var running = 0
+        var cut = 0
+        for (index, entry) in node.entries.enumerated() {
+            running += entry.count
+            if running * 2 >= total {
+                cut = index
+                break
+            }
+        }
+        cut = max(1, min(cut, node.entries.count - 2))
+        guard
+            NTFSIndexWrite.read16(node.entries[cut], NTFSIndexWrite.entryFlagsField)
+                & NTFSIndexWrite.hasChild == 0
+        else { return nil }
+        return NTFSIndexSplit.Plan(
+            below: Array(node.entries[0..<cut]), above: Array(node.entries[(cut + 1)...]),
+            marker: node.marker, median: node.entries[cut])
+    }
+
+    /// Write a parent back, carrying the index's growth and the new block's bit
+    /// with it when the parent is the root.
+    ///
+    /// The directory's record holds `$INDEX_ROOT`, the `$I30` bitmap and
+    /// `$INDEX_ALLOCATION`, so when the parent is the root all three changes go
+    /// down in one write and the split commits at once. When the parent is a
+    /// block, the bitmap and the runlist still live in the record, so that is
+    /// written first and the block after it -- a crash between them leaks a
+    /// block, which chkdsk reclaims.
+    ///
+    /// Must be called with `lock` held.
+    private func writeParentLocked(
+        _ parent: NodeAt, entries: [Data], in shape: IndexShape, grown: Data?,
+        claiming block: UInt64
+    ) -> Bool {
+        let base = shape.record.data.startIndex
+        guard
+            let blockBitmap = reader.attributes(of: shape.record).first(where: {
+                $0.kind == .bitmap
+            }), blockBitmap.isResident
+        else { return false }
+        var bits = [UInt8](
+            shape.record.data[
+                (base + blockBitmap.valueOffset)..<(base + blockBitmap.valueOffset
+                    + blockBitmap.valueLength)])
+        guard Int(block / 8) < bits.count else { return false }
+        bits[Int(block / 8)] |= 1 << UInt8(block % 8)
+
+        var edited = shape.record.data
+        var header = shape.record.header
+        if let grown {
+            guard
+                let step = NTFSRecordEdit.replacingWhole(
+                    .indexAllocation, named: "$I30", with: grown, in: edited, header: header),
+                let stepHeader = NTFSRecord.header(
+                    step, expectedLength: reader.geometry.bytesPerFileRecord)
+            else { return false }
+            edited = step
+            header = stepHeader
+        }
+        guard
+            let withBits = NTFSRecordEdit.replacing(
+                .bitmap, named: "$I30", with: Data(bits), in: edited, header: header),
+            var withBitsHeader = NTFSRecord.header(
+                withBits, expectedLength: reader.geometry.bytesPerFileRecord)
+        else { return false }
+        var record = withBits
+
+        if case .root = parent.site {
+            let value = Data(
+                record[
+                    (record.startIndex + shape.indexRoot.valueOffset)..<(record.startIndex
+                        + shape.indexRoot.valueOffset + shape.indexRoot.valueLength)])
+            guard
+                let rebuilt = NTFSIndexWrite.laidOut(
+                    value, header: NTFSIndexWrite.indexRootHeaderLength, entries: entries,
+                    marker: parent.marker),
+                withBitsHeader.usedLength + (rebuilt.count - shape.indexRoot.valueLength)
+                    <= withBitsHeader.allocatedLength,
+                let withRoot = NTFSRecordEdit.replacing(
+                    .indexRoot, named: "$I30", with: rebuilt, in: record, header: withBitsHeader),
+                let finalHeader = NTFSRecord.header(
+                    withRoot, expectedLength: reader.geometry.bytesPerFileRecord)
+            else { return false }
+            record = withRoot
+            withBitsHeader = finalHeader
+            return writeRecordLocked(
+                shape.directory, record, header: withBitsHeader, mirrorLast: true)
+        }
+
+        guard case .block(let offset, let number) = parent.site,
+            let built = NTFSIndexBlock.compose(
+                blockNumber: number, blockSize: shape.blockSize,
+                sectorSize: reader.geometry.bytesPerSector, entries: entries,
+                marker: parent.marker, hasChildren: true),
+            writeRecordLocked(
+                shape.directory, record, header: withBitsHeader, mirrorLast: true)
+        else { return false }
+        return writeIndexBlockLocked(built, at: offset)
+    }
+
+    /// Give the tree another level, so the root has room again.
+    ///
+    /// `$INDEX_ROOT` lives inside a record and cannot grow past it. When it is
+    /// full, everything it holds moves into a block of its own and the root
+    /// keeps a single marker pointing there. The next promotion has an empty
+    /// root to go into, and a search still works: the marker's child is where
+    /// everything below the last key lives, and after this everything is below
+    /// the last key because there are no keys.
+    ///
+    /// Same order as a split, and for the same reason: the block that will hold
+    /// the entries is written while nothing points at it, and the record write
+    /// is the moment it becomes true.
+    ///
+    /// Must be called with `lock` held.
+    private func deepenLocked(directory: UInt64, collation: NTFSCollation) -> Bool {
+        guard let record = reader.record(directory) else { return false }
+        let attributes = reader.attributes(of: record)
+        guard let indexRoot = attributes.first(where: { $0.kind == .indexRoot }),
+            indexRoot.isResident,
+            let allocation = attributes.first(where: { $0.kind == .indexAllocation }),
+            !allocation.isResident,
+            let blockBitmap = attributes.first(where: { $0.kind == .bitmap }),
+            blockBitmap.isResident
+        else { return false }
+
+        var blockSize = 0
+        let base = record.data.startIndex
+        for byte in 0..<4 {
+            blockSize |= Int(record.data[base + indexRoot.valueOffset + 8 + byte]) << (8 * byte)
+        }
+        guard blockSize >= 512 else { return false }
+
+        let rootValue = Data(
+            record.data[
+                (base + indexRoot.valueOffset)..<(base + indexRoot.valueOffset
+                    + indexRoot.valueLength)])
+        guard
+            let (entries, marker) = NTFSIndexSplit.entries(
+                of: rootValue, nodeHeaderAt: NTFSIndexWrite.indexRootHeaderLength),
+            !entries.isEmpty
+        else { return false }
+
+        // A block for them. Growing the index if there is none free, exactly as
+        // a split does.
+        guard let shape = indexShape(of: directory), let room = freeIndexBlockLocked(shape: shape)
+        else { return false }
+
+        guard
+            let built = NTFSIndexBlock.compose(
+                blockNumber: room.block, blockSize: blockSize,
+                sectorSize: reader.geometry.bytesPerSector, entries: entries, marker: marker,
+                hasChildren: true),
+            let placed = NTFSTable.diskOffset(
+                forFileOffset: room.block * UInt64(blockSize), runs: room.runs,
+                bytesPerCluster: reader.geometry.bytesPerCluster),
+            writeIndexBlockLocked(built, at: placed.offset),
+            let emptied = NTFSIndexWrite.rootPointingAt(room.block, keeping: rootValue)
+        else { return false }
+
+        var bits = [UInt8](
+            record.data[
+                (base + blockBitmap.valueOffset)..<(base + blockBitmap.valueOffset
+                    + blockBitmap.valueLength)])
+        guard Int(room.block / 8) < bits.count else { return false }
+        bits[Int(room.block / 8)] |= 1 << UInt8(room.block % 8)
+
+        var edited = record.data
+        var header = record.header
+        if let grown = room.grownAllocation {
+            guard
+                let step = NTFSRecordEdit.replacingWhole(
+                    .indexAllocation, named: "$I30", with: grown, in: edited, header: header),
+                let stepHeader = NTFSRecord.header(
+                    step, expectedLength: reader.geometry.bytesPerFileRecord)
+            else { return false }
+            edited = step
+            header = stepHeader
+        }
+        guard
+            let withBits = NTFSRecordEdit.replacing(
+                .bitmap, named: "$I30", with: Data(bits), in: edited, header: header),
+            let withBitsHeader = NTFSRecord.header(
+                withBits, expectedLength: reader.geometry.bytesPerFileRecord),
+            let withRoot = NTFSRecordEdit.replacing(
+                .indexRoot, named: "$I30", with: emptied, in: withBits, header: withBitsHeader),
+            let finalHeader = NTFSRecord.header(
+                withRoot, expectedLength: reader.geometry.bytesPerFileRecord)
+        else { return false }
+        return writeRecordLocked(directory, withRoot, header: finalHeader, mirrorLast: true)
+    }
+
+    /// A free index block, growing the index by one if it has none.
+    private struct IndexRoom {
+        let block: UInt64
+        let runs: [NTFSRunlist.Run]
+        /// The rebuilt `$INDEX_ALLOCATION`, when it had to grow.
+        let grownAllocation: Data?
+    }
+
+    /// Must be called with `lock` held.
+    private func freeIndexBlockLocked(shape: IndexShape) -> IndexRoom? {
+        let record = shape.record
+        let blockSize = shape.blockSize
+        guard
+            let allocation = reader.attributes(of: record).first(where: {
+                $0.kind == .indexAllocation
+            }), !allocation.isResident,
+            let blockBitmap = reader.attributes(of: record).first(where: { $0.kind == .bitmap }),
+            blockBitmap.isResident,
+            let runs = NTFSRunlist.decode(
+                record.data, at: allocation.runlistOffset, limit: record.data.count)
+        else { return nil }
+        let base = record.data.startIndex
+        let bits = [UInt8](
+            record.data[
+                (base + blockBitmap.valueOffset)..<(base + blockBitmap.valueOffset
+                    + blockBitmap.valueLength)])
+
+        let existing = allocation.dataSize / UInt64(blockSize)
+        for number in 0..<existing where bits[Int(number / 8)] & (1 << UInt8(number % 8)) == 0 {
+            return IndexRoom(block: number, runs: runs, grownAllocation: nil)
+        }
+        guard UInt64(bits.count) * 8 > existing else { return nil }
+
+        guard blockSize == reader.geometry.bytesPerCluster,
+            let last = runs.last, let lastCluster = last.physicalCluster,
+            let volumeBitmap = reader.contents(ofFile: NTFSVolumeReader.bitmapRecord)
+        else { return nil }
+        let total = reader.geometry.totalSectors / UInt64(reader.geometry.sectorsPerCluster)
+        let after = lastCluster + last.clusterCount
+        guard
+            let claim = NTFSAllocator.plan(
+                clusters: 1, in: volumeBitmap, totalClusters: total, near: after,
+                maximumFragments: 1),
+            let got = claim.runs.first?.physicalCluster
+        else { return nil }
+
+        var extended = runs
+        if got == after {
+            extended[extended.count - 1] = NTFSRunlist.Run(
+                logicalCluster: last.logicalCluster, physicalCluster: lastCluster,
+                clusterCount: last.clusterCount + 1)
+        } else {
+            extended.append(
+                NTFSRunlist.Run(
+                    logicalCluster: last.logicalCluster + last.clusterCount, physicalCluster: got,
+                    clusterCount: 1))
+        }
+        guard let encoded = NTFSRunlist.encode(extended),
+            let rebuilt = nonResidentBytes(
+                allocation, in: record.data, runlist: encoded,
+                size: allocation.dataSize + UInt64(blockSize),
+                lastCluster: NTFSRunlist.clusterCount(extended) - 1),
+            writeVolumeBitmapLocked(claim.bitmap, changedFrom: volumeBitmap)
+        else { return nil }
+        return IndexRoom(block: existing, runs: extended, grownAllocation: rebuilt)
+    }
+
+    /// Where a non-resident attribute keeps its runlist, read from its own
+    /// header rather than assumed.
+    private func runlistOffset(of attribute: Data) -> Int {
+        Int(attribute[attribute.startIndex + 0x20])
+            | (Int(attribute[attribute.startIndex + 0x21]) << 8)
+    }
+
+    /// A non-resident attribute's bytes, with a new runlist and new sizes.
+    ///
+    /// The header stays as it was apart from the four numbers that describe the
+    /// extent of the data: the last cluster it covers, how much room it takes
+    /// on the disk, and how much of that is real. A runlist changed without
+    /// them is an attribute that ends before its own clusters do.
+    private func nonResidentBytes(
+        _ attribute: NTFSAttribute.Header, in record: Data, runlist: Data, size: UInt64,
+        lastCluster: UInt64
+    ) -> Data? {
+        // Find the attribute's own bytes by walking to it.
+        guard let header = NTFSRecord.header(record, expectedLength: record.count) else {
+            return nil
+        }
+        var at = header.firstAttributeOffset
+        let base = record.startIndex
+        while at + 8 <= header.usedLength {
+            var kind: UInt32 = 0
+            for byte in 0..<4 { kind |= UInt32(record[base + at + byte]) << (8 * UInt32(byte)) }
+            if kind == 0xFFFF_FFFF { return nil }
+            var length = 0
+            for byte in 0..<4 { length |= Int(record[base + at + 4 + byte]) << (8 * byte) }
+            guard length >= 24, at + length <= header.usedLength else { return nil }
+            if kind == attribute.type, record[base + at + 8] == 1 {
+                var bytes = [UInt8](record[(base + at)..<(base + at + length)])
+                let runlistAt = Int(bytes[0x20]) | (Int(bytes[0x21]) << 8)
+                let needed = (runlistAt + runlist.count + 7) & ~7
+                guard needed <= 0xFFFF else { return nil }
+                if needed > bytes.count {
+                    bytes.append(contentsOf: [UInt8](repeating: 0, count: needed - bytes.count))
+                } else if needed < bytes.count {
+                    bytes.removeSubrange(needed..<bytes.count)
+                }
+                for index in runlistAt..<bytes.count { bytes[index] = 0 }
+                bytes.replaceSubrange(
+                    runlistAt..<(runlistAt + runlist.count), with: [UInt8](runlist))
+                // 0x04 the attribute's length, 0x18 the last cluster, 0x28 the
+                // room taken, 0x30 the real size, 0x38 the size a reader may
+                // trust as initialised.
+                for byte in 0..<4 {
+                    bytes[0x04 + byte] = UInt8((UInt32(bytes.count) >> (8 * UInt32(byte))) & 0xFF)
+                }
+                for byte in 0..<8 {
+                    bytes[0x18 + byte] = UInt8((lastCluster >> (8 * UInt64(byte))) & 0xFF)
+                    bytes[0x28 + byte] = UInt8((size >> (8 * UInt64(byte))) & 0xFF)
+                    bytes[0x30 + byte] = UInt8((size >> (8 * UInt64(byte))) & 0xFF)
+                    bytes[0x38 + byte] = UInt8((size >> (8 * UInt64(byte))) & 0xFF)
+                }
+                return Data(bytes)
+            }
+            at += length
+        }
+        return nil
+    }
+
+    /// Write the changed part of the volume's cluster bitmap.
+    ///
+    /// Must be called with `lock` held.
+    private func writeVolumeBitmapLocked(_ contents: Data, changedFrom previous: Data) -> Bool {
+        writeAttributeLocked(
+            record: NTFSVolumeReader.bitmapRecord, attribute: .data, contents: contents,
+            changedFrom: previous)
+    }
+
     /// Write an index block back, with its fixup put on and its signature moved
     /// on.
     ///
@@ -626,16 +1079,12 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             guard !record.header.isDirectory else { return .notEmpty }
             guard markLocked() else { return .missing }
 
-            guard let leaf = nodeHolding(name, in: parent.record, collation: collation) else {
-                return .missing
-            }
-
-            // 1. The name.
-            guard
-                let spliced = NTFSIndexWrite.removing(
-                    name: name, from: leaf.bytes, nodeHeaderAt: leaf.headerOffset,
-                    collation: collation),
-                writeIndexBlockLocked(spliced, at: leaf.diskOffset)
+            // 1. The name, out of whichever node a search would find it in --
+            // which is not always a leaf, and an entry that is not in a leaf
+            // holds the tree together as well as naming a file.
+            guard let shape = indexShape(of: parent.record),
+                let found = findNode(name, in: shape, collation: collation),
+                takeOutLocked(found.index, of: found.node, in: shape, collation: collation)
             else { return .missing }
 
             // 2. The record. The in-use flag goes off and the sequence moves
@@ -672,6 +1121,336 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             recordHint = min(recordHint, number)
             return .removed
         }
+    }
+
+    /// Where a node lives, so it can be written back.
+    private enum NodeSite {
+        /// Inside the directory's own record, as `$INDEX_ROOT`.
+        case root
+        /// Out in `$INDEX_ALLOCATION`, at this byte and this block number.
+        case block(offset: UInt64, number: UInt64)
+    }
+
+    /// A node, its entries, and where it came from.
+    private struct NodeAt {
+        let entries: [Data]
+        let marker: Data
+        let site: NodeSite
+        let blockSize: Int
+        /// Whether anything hangs below it.
+        let hasChildren: Bool
+    }
+
+    /// Walk down to the node holding a name, keeping what is needed to write
+    /// it back.
+    ///
+    /// The same descent a search does, because a name has to be taken out of
+    /// the node a search would find it in and no other.
+    ///
+    /// Must be called with `lock` held.
+    private func findNode(_ name: String, in shape: IndexShape, collation: NTFSCollation)
+        -> (node: NodeAt, index: Int)?
+    {
+        let wanted = Array(name.utf16)
+        var current = shape.root
+        for _ in 0..<32 {
+            var descend: UInt64?
+            for (index, entry) in current.entries.enumerated() {
+                guard let key = NTFSIndexWrite.key(of: entry, at: 0) else { return nil }
+                switch collation.compare(key, wanted) {
+                case .orderedSame:
+                    return (current, index)
+                case .orderedDescending:
+                    // The first key past it: what we want is below this entry.
+                    descend = NTFSIndexSplit.child(of: entry)
+                    if descend == nil { return nil }
+                case .orderedAscending:
+                    continue
+                }
+                if descend != nil { break }
+            }
+            // Past every key in the node: below the marker, or nowhere.
+            let next = descend ?? NTFSIndexSplit.child(of: current.marker)
+            guard let next, let below = node(at: next, in: shape) else { return nil }
+            current = below
+        }
+        return nil
+    }
+
+    /// Every node from the root down to the one a name belongs in.
+    ///
+    /// The leaf is last and the root is first. A split needs the one before the
+    /// leaf, because that is where the median goes -- putting it in the root
+    /// instead partitions the whole tree by a key that only describes one leaf,
+    /// and every name on the wrong side of it becomes unreachable while still
+    /// sitting in a block. Which is exactly what happened: nothing was lost, a
+    /// third of the names simply could not be found.
+    ///
+    /// Must be called with `lock` held.
+    private func descent(to name: String, in shape: IndexShape, collation: NTFSCollation)
+        -> [NodeAt]?
+    {
+        let wanted = Array(name.utf16)
+        var path = [shape.root]
+        for _ in 0..<32 {
+            guard let current = path.last else { return nil }
+            var descend: UInt64?
+            for entry in current.entries {
+                guard let key = NTFSIndexWrite.key(of: entry, at: 0) else { return nil }
+                switch collation.compare(key, wanted) {
+                case .orderedSame: return path
+                case .orderedDescending:
+                    descend = NTFSIndexSplit.child(of: entry)
+                    if descend == nil { return path }
+                case .orderedAscending: continue
+                }
+                if descend != nil { break }
+            }
+            guard let next = descend ?? NTFSIndexSplit.child(of: current.marker) else {
+                return path
+            }
+            guard let below = node(at: next, in: shape) else { return nil }
+            path.append(below)
+        }
+        return nil
+    }
+
+    /// What a directory's index is made of.
+    private struct IndexShape {
+        let directory: UInt64
+        let record: (data: Data, header: NTFSRecord.Header)
+        let indexRoot: NTFSAttribute.Header
+        let blockSize: Int
+        let runs: [NTFSRunlist.Run]
+        let root: NodeAt
+    }
+
+    /// Must be called with `lock` held.
+    private func indexShape(of directory: UInt64) -> IndexShape? {
+        guard let record = reader.record(directory), record.header.isDirectory else { return nil }
+        let attributes = reader.attributes(of: record)
+        guard let indexRoot = attributes.first(where: { $0.kind == .indexRoot }),
+            indexRoot.isResident
+        else { return nil }
+        let base = record.data.startIndex
+        var blockSize = 0
+        for byte in 0..<4 {
+            blockSize |= Int(record.data[base + indexRoot.valueOffset + 8 + byte]) << (8 * byte)
+        }
+        guard blockSize >= 512 else { return nil }
+        let value = Data(
+            record.data[
+                (base + indexRoot.valueOffset)..<(base + indexRoot.valueOffset
+                    + indexRoot.valueLength)])
+        guard
+            let (entries, marker) = NTFSIndexSplit.entries(
+                of: value, nodeHeaderAt: NTFSIndexWrite.indexRootHeaderLength)
+        else { return nil }
+        let runs =
+            attributes.first(where: { $0.kind == .indexAllocation }).flatMap {
+                $0.isResident
+                    ? nil
+                    : NTFSRunlist.decode(
+                        record.data, at: $0.runlistOffset, limit: record.data.count)
+            } ?? []
+        return IndexShape(
+            directory: directory, record: record, indexRoot: indexRoot, blockSize: blockSize,
+            runs: runs,
+            root: NodeAt(
+                entries: entries, marker: marker, site: .root, blockSize: blockSize,
+                hasChildren: NTFSIndexSplit.child(of: marker) != nil))
+    }
+
+    /// Must be called with `lock` held.
+    private func node(at number: UInt64, in shape: IndexShape) -> NodeAt? {
+        guard
+            let placed = NTFSTable.diskOffset(
+                forFileOffset: number * UInt64(shape.blockSize), runs: shape.runs,
+                bytesPerCluster: reader.geometry.bytesPerCluster),
+            let raw = reader.read(placed.offset, shape.blockSize),
+            let header = NTFSIndexBlock.header(raw, blockSize: shape.blockSize),
+            let bytes = NTFSIndexBlock.applyFixup(
+                raw, header: header, sectorSize: reader.geometry.bytesPerSector),
+            let (entries, marker) = NTFSIndexSplit.entries(
+                of: bytes, nodeHeaderAt: NTFSIndexBlock.nodeHeaderOffset)
+        else { return nil }
+        return NodeAt(
+            entries: entries, marker: marker,
+            site: .block(offset: placed.offset, number: number), blockSize: shape.blockSize,
+            hasChildren: NTFSIndexSplit.child(of: marker) != nil)
+    }
+
+    /// Write a node back with the entries given.
+    ///
+    /// Must be called with `lock` held.
+    private func writeNodeLocked(
+        _ node: NodeAt, entries: [Data], in shape: IndexShape
+    ) -> Bool {
+        switch node.site {
+        case .block(let offset, let number):
+            guard
+                let built = NTFSIndexBlock.compose(
+                    blockNumber: number, blockSize: node.blockSize,
+                    sectorSize: reader.geometry.bytesPerSector, entries: entries,
+                    marker: node.marker, hasChildren: node.hasChildren)
+            else { return false }
+            return writeIndexBlockLocked(built, at: offset)
+        case .root:
+            let base = shape.record.data.startIndex
+            let value = Data(
+                shape.record.data[
+                    (base + shape.indexRoot.valueOffset)..<(base + shape.indexRoot.valueOffset
+                        + shape.indexRoot.valueLength)])
+            guard
+                let rebuilt = NTFSIndexWrite.laidOut(
+                    value, header: NTFSIndexWrite.indexRootHeaderLength, entries: entries,
+                    marker: node.marker),
+                shape.record.header.usedLength + (rebuilt.count - shape.indexRoot.valueLength)
+                    <= shape.record.header.allocatedLength,
+                let edited = NTFSRecordEdit.replacing(
+                    .indexRoot, named: "$I30", with: rebuilt, in: shape.record.data,
+                    header: shape.record.header),
+                let header = NTFSRecord.header(
+                    edited, expectedLength: reader.geometry.bytesPerFileRecord)
+            else { return false }
+            return writeRecordLocked(
+                shape.directory, edited, header: header, mirrorLast: true)
+        }
+    }
+
+    /// Take one entry out of a node, whatever kind of node it is.
+    ///
+    /// A leaf entry is simply dropped. **An entry with a node below it is not**,
+    /// because it holds the tree together as well as naming a file: everything
+    /// under it is reached by comparing against its key. So it is replaced by
+    /// the largest name below it, which is bigger than everything else down
+    /// there and smaller than everything to its right -- so every name stays on
+    /// the side of it it was on -- and that name is then taken out of the leaf
+    /// it came from.
+    ///
+    /// The replacement is written first. For as long as it takes to write the
+    /// leaf afterwards, that name is in two places, and a search finds it in
+    /// the higher one and stops -- which is the right answer. The other order
+    /// makes the name missing for exactly as long.
+    ///
+    /// Must be called with `lock` held.
+    private func takeOutLocked(
+        _ index: Int, of node: NodeAt, in shape: IndexShape, collation: NTFSCollation
+    ) -> Bool {
+        guard index < node.entries.count else { return false }
+        let entry = node.entries[index]
+
+        guard NTFSIndexSplit.child(of: entry) != nil else {
+            var left = node.entries
+            left.remove(at: index)
+            return writeNodeLocked(node, entries: left, in: shape)
+        }
+
+        // A subtree with nothing left in it. Removals have emptied it, so the
+        // key above it names nothing and describes nothing: it can go, and the
+        // block it pointed at goes back to the directory's own bitmap.
+        if isEmptyBelow(entry, in: shape) {
+            var left = node.entries
+            left.remove(at: index)
+            guard writeNodeLocked(node, entries: left, in: shape) else { return false }
+            // After the entry is gone the block is unreferenced, so freeing its
+            // bit second means a crash between the two leaks a block rather
+            // than leaving a pointer to one that is free.
+            if let block = NTFSIndexSplit.child(of: entry) {
+                _ = freeIndexBlockBitLocked(block, of: shape.directory)
+            }
+            return true
+        }
+
+        guard let (leaf, replacement) = largestBelow(entry, in: shape),
+            let key = NTFSIndexWrite.key(of: replacement, at: 0),
+            let carried = NTFSIndexSplit.child(of: entry),
+            let promoted = NTFSIndexSplit.promoting(replacement, toChild: carried),
+            let removedKey = NTFSIndexWrite.key(of: entry, at: 0)
+        else { return false }
+        // The replacement must come from below this entry and not from beside
+        // it: a leaf reached through some other key gives a name that belongs
+        // on the wrong side, and every search for it afterwards goes the wrong
+        // way.
+        guard collation.compare(key, removedKey) == .orderedAscending else { return false }
+
+        var replaced = node.entries
+        replaced[index] = promoted
+        guard writeNodeLocked(node, entries: replaced, in: shape) else { return false }
+
+        var below = leaf.entries
+        guard !below.isEmpty else { return false }
+        below.removeLast()
+        return writeNodeLocked(leaf, entries: below, in: shape)
+    }
+
+    /// Whether there is nothing at all below an entry.
+    ///
+    /// Must be called with `lock` held.
+    private func isEmptyBelow(_ entry: Data, in shape: IndexShape) -> Bool {
+        guard var current = NTFSIndexSplit.child(of: entry).flatMap({ node(at: $0, in: shape) })
+        else { return false }
+        for _ in 0..<32 {
+            if !current.entries.isEmpty { return false }
+            guard
+                let deeper = NTFSIndexSplit.child(of: current.marker).flatMap({
+                    node(at: $0, in: shape)
+                })
+            else { return true }
+            current = deeper
+        }
+        return false
+    }
+
+    /// Give an index block back to the directory that owned it.
+    ///
+    /// Must be called with `lock` held.
+    private func freeIndexBlockBitLocked(_ block: UInt64, of directory: UInt64) -> Bool {
+        guard let record = reader.record(directory),
+            let blockBitmap = reader.attributes(of: record).first(where: { $0.kind == .bitmap }),
+            blockBitmap.isResident
+        else { return false }
+        let base = record.data.startIndex
+        var bits = [UInt8](
+            record.data[
+                (base + blockBitmap.valueOffset)..<(base + blockBitmap.valueOffset
+                    + blockBitmap.valueLength)])
+        guard Int(block / 8) < bits.count else { return false }
+        bits[Int(block / 8)] &= ~(1 << UInt8(block % 8))
+        guard
+            let edited = NTFSRecordEdit.replacing(
+                .bitmap, named: "$I30", with: Data(bits), in: record.data, header: record.header),
+            let header = NTFSRecord.header(
+                edited, expectedLength: reader.geometry.bytesPerFileRecord)
+        else { return false }
+        return writeRecordLocked(directory, edited, header: header, mirrorLast: true)
+    }
+
+    /// The largest name below a node, and the leaf it lives in.
+    ///
+    /// Always down the last child, which is where the largest keys are. This is
+    /// the entry that replaces a key being taken out of an internal node: it is
+    /// bigger than everything else under that key, so putting it in the key's
+    /// place leaves every name still on the side of it that it was.
+    ///
+    /// Must be called with `lock` held.
+    private func largestBelow(_ entry: Data, in shape: IndexShape) -> (leaf: NodeAt, entry: Data)? {
+        guard var current = NTFSIndexSplit.child(of: entry).flatMap({ node(at: $0, in: shape) })
+        else { return nil }
+        for _ in 0..<32 {
+            if let deeper = NTFSIndexSplit.child(of: current.marker).flatMap({
+                node(at: $0, in: shape)
+            }) {
+                current = deeper
+                continue
+            }
+            guard let last = current.entries.last,
+                NTFSIndexWrite.read16(last, NTFSIndexWrite.entryFlagsField)
+                    & NTFSIndexWrite.hasChild == 0
+            else { return nil }
+            return (current, last)
+        }
+        return nil
     }
 
     /// The node a name is actually in.

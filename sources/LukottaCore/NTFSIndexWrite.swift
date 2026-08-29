@@ -129,6 +129,124 @@ public enum NTFSIndexWrite {
         return Data(out)
     }
 
+    /// How long an `$INDEX_ROOT`'s own header is, before the node begins.
+    ///
+    /// Four numbers: which attribute the index is over, how names in it are
+    /// compared, how big an index block is, and how many clusters that comes
+    /// to. A caller that starts the node header at zero reads the block size as
+    /// an entry offset.
+    public static let indexRootHeaderLength = 16
+
+    /// Rebuild an `$INDEX_ROOT` value with one entry added.
+    ///
+    /// Unlike a block, `$INDEX_ROOT` has no spare room: its allocated length is
+    /// its used length, because it lives inside a record and every byte it does
+    /// not need belongs to another attribute. So it is not spliced -- it is
+    /// rebuilt at the size it now needs, and the record makes room for it.
+    ///
+    /// - Returns: nil when the value does not parse, or when the name is
+    ///   already in it.
+    public static func rootValue(
+        _ value: Data, inserting entry: Data, collation: NTFSCollation
+    ) -> Data? {
+        let header = indexRootHeaderLength
+        guard value.count >= header + nodeHeaderLength, entry.count >= keyField else {
+            return nil
+        }
+        guard let room = room(of: value, nodeHeaderAt: header) else { return nil }
+        let firstEntry = Int(read32(value, header + firstEntryField))
+        guard firstEntry >= nodeHeaderLength, firstEntry <= room.used else { return nil }
+        guard let name = key(of: entry, at: 0) else { return nil }
+
+        // Take the entries out, put the new one where it belongs, lay them back.
+        var existing: [Data] = []
+        var marker: Data?
+        var at = header + firstEntry
+        let end = header + room.used
+        var seen = 0
+        while at + keyField <= end, seen < 8192 {
+            seen += 1
+            let length = Int(read16(value, at + entryLengthField))
+            guard length >= keyField, at + length <= end else { return nil }
+            let bytes = Data(value[(value.startIndex + at)..<(value.startIndex + at + length)])
+            if read16(value, at + entryFlagsField) & isLast != 0 {
+                marker = bytes
+                break
+            }
+            existing.append(bytes)
+            at += length
+        }
+        guard let marker else { return nil }
+
+        var place = existing.count
+        for (index, other) in existing.enumerated() {
+            guard let otherName = key(of: other, at: 0) else { return nil }
+            switch collation.compare(otherName, name) {
+            case .orderedSame: return nil
+            case .orderedDescending:
+                place = index
+                // The first entry that sorts after the new one; it goes here.
+                return laidOut(
+                    value, header: header,
+                    entries: Array(existing[0..<place]) + [entry] + Array(existing[place...]),
+                    marker: marker)
+            case .orderedAscending: continue
+            }
+        }
+        return laidOut(value, header: header, entries: existing + [entry], marker: marker)
+    }
+
+    /// Put an `$INDEX_ROOT` value back together from its parts.
+    public static func laidOut(_ value: Data, header: Int, entries: [Data], marker: Data) -> Data? {
+        var bytes = [UInt8](value[value.startIndex..<(value.startIndex + header)])
+        var node = [UInt8](repeating: 0, count: nodeHeaderLength)
+        var laid: [UInt8] = []
+        for entry in entries + [marker] { laid.append(contentsOf: [UInt8](entry)) }
+
+        let used = nodeHeaderLength + laid.count
+        write32(&node, firstEntryField, UInt32(nodeHeaderLength))
+        write32(&node, endOfEntriesField, UInt32(used))
+        // Allocated equals used: there is no spare room in a record, and a
+        // number saying otherwise invites the next writer to splice into
+        // somebody else's attribute.
+        write32(&node, endOfAllocationField, UInt32(used))
+        // Whether the root has nodes below it is decided by its entries, not
+        // remembered from before: a root that gains its first child pointer has
+        // to start saying so.
+        let hasChildren = (entries + [marker]).contains {
+            read16($0, entryFlagsField) & hasChild != 0
+        }
+        write32(&node, flagsField, hasChildren ? 1 : 0)
+
+        bytes.append(contentsOf: node)
+        bytes.append(contentsOf: laid)
+        return Data(bytes)
+    }
+
+    /// An `$INDEX_ROOT` emptied of its entries, pointing at one block.
+    ///
+    /// When the root has no room for another promoted key it cannot grow --
+    /// it lives in a record, and the record is full. NTFS's answer is to make
+    /// the tree deeper: everything the root held goes into a block of its own,
+    /// and the root keeps a single marker pointing at that block. The next
+    /// promotion then has an empty root to go into.
+    ///
+    /// A search still works because the marker's child is where everything
+    /// below the last key lives -- and after this, everything is below the last
+    /// key, since there are no keys.
+    public static func rootPointingAt(_ block: UInt64, keeping value: Data) -> Data? {
+        let header = indexRootHeaderLength
+        guard value.count >= header + nodeHeaderLength else { return nil }
+        var marker = [UInt8](repeating: 0, count: keyField + 8)
+        write16(&marker, entryLengthField, UInt16(keyField + 8))
+        write16(&marker, keyLengthField, 0)
+        write16(&marker, entryFlagsField, isLast | hasChild)
+        for byte in 0..<8 {
+            marker[keyField + byte] = UInt8((block >> (8 * UInt64(byte))) & 0xFF)
+        }
+        return laidOut(value, header: header, entries: [], marker: Data(marker))
+    }
+
     /// Take a name out of a node.
     ///
     /// The reverse of inserting, and the same arithmetic: everything after the

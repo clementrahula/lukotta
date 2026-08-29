@@ -5902,10 +5902,54 @@ group("makingAndUnmakingFilesAtSpeed") {
         print("    why: \(backing.whyCreateFailed(refused, in: root))")
     }
 
+    // Before removing anything: is everything that was made still there? A
+    // split that loses a name loses it silently, and a listing is the only
+    // thing that would notice.
+    if let fresh = NTFSVolumeReader(read: read) {
+        let listed = Set(
+            (fresh.contents(ofDirectory: NTFSTable.rootRecord) ?? []).map { $0.name })
+        let missing = made.filter { !listed.contains($0) }
+        expect(
+            missing.isEmpty,
+            "every name made is still in the listing, or missing \(missing.count): "
+                + "\(missing.prefix(4))")
+        var unfindable: [String] = []
+        for name in made where fresh.find(name, inDirectory: NTFSTable.rootRecord) == nil {
+            unfindable.append(name)
+        }
+        expect(
+            unfindable.isEmpty,
+            "and every one is findable, or \(unfindable.count) are not: "
+                + "\(unfindable.prefix(4))")
+        if let collation = fresh.collation() {
+            var broken: [String] = []
+            for node in fresh.indexNodes(ofDirectory: NTFSTable.rootRecord) {
+                let names = NTFSIndex.names(node.entries)
+                guard names.count > 1 else { continue }
+                for index in 1..<names.count
+                where collation.compare(names[index - 1], names[index]) != .orderedAscending {
+                    broken.append("\(names[index - 1]) then \(names[index])")
+                }
+            }
+            expect(broken.isEmpty, "and every node is in order: \(broken.prefix(3))")
+        }
+    }
+
     var gone = 0
+    var refusedRemoval: String?
     let startUnmaking = Date()
-    for name in made where backing.remove(name, from: root) == .removed { gone += 1 }
+    for name in made {
+        if backing.remove(name, from: root) == .removed {
+            gone += 1
+        } else if refusedRemoval == nil {
+            refusedRemoval = name
+        }
+    }
     let unmaking = Date().timeIntervalSince(startUnmaking)
+    if let refusedRemoval {
+        print("    would not remove \(refusedRemoval) after \(gone)")
+        print("    why: \(backing.whyRemoveFailed(refusedRemoval, from: root))")
+    }
 
     print(
         String(
@@ -6188,6 +6232,206 @@ group("aFileMadeHereIsThereWhenTheVolumeIsReadAgain") {
     expect(
         NTFSVolumeReader(read: read)?.state()?.isSafeToWrite == true,
         "and reads as clean afterwards")
+}
+
+group("anAttributeCanChangeSizeInsideItsRecord") {
+    // A record is attributes laid end to end, each saying how long it is. A
+    // length wrong by eight makes the next attribute start eight bytes into the
+    // last one, and whatever is there is read as a type and a length. There is
+    // no error -- there is a file with attributes nobody wrote. So: real
+    // records, taken apart and laid out again, and every attribute has to come
+    // back saying what it said.
+    let candidates = [
+        ProcessInfo.processInfo.environment["LUKOTTA_NTFS_IMAGE"],
+        NSHomeDirectory() + "/Library/Caches/dev.lukotta.e2e-dev/ntfs.img",
+    ].compactMap { $0 }
+    guard let path = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }),
+        let handle = FileHandle(forReadingAtPath: path)
+    else { return }
+    defer { try? handle.close() }
+    let lock = NSLock()
+    guard
+        let reader = NTFSVolumeReader(read: { offset, length in
+            lock.lock()
+            defer { lock.unlock() }
+            try? handle.seek(toOffset: offset)
+            return try? handle.read(upToCount: length)
+        })
+    else {
+        expect(false, "the volume reads")
+        return
+    }
+    let recordSize = reader.geometry.bytesPerFileRecord
+
+    func shape(_ data: Data, _ header: NTFSRecord.Header) -> [String] {
+        NTFSAttribute.all(
+            in: data, startingAt: header.firstAttributeOffset, usedLength: header.usedLength
+        ).map { "\($0.type)/\($0.isResident)/\($0.valueLength)/\($0.dataSize)" }
+    }
+
+    // Every record on the volume worth looking at, put through unchanged.
+    var checked = 0
+    var mismatched: [UInt64] = []
+    for number in NTFSTable.rootRecord..<200 {
+        guard let record = reader.record(number), record.header.inUse,
+            !reader.spillsAttributes(record)
+        else { continue }
+        let before = shape(record.data, record.header)
+        guard !before.isEmpty else { continue }
+        guard
+            let information = reader.attributes(of: record).first(where: {
+                $0.kind == .standardInformation
+            }), information.isResident,
+            let same = NTFSRecordEdit.replacing(
+                .standardInformation, named: nil,
+                with: record.data[
+                    (record.data.startIndex + information.valueOffset)..<(record.data.startIndex
+                        + information.valueOffset + information.valueLength)],
+                in: record.data, header: record.header),
+            let sameHeader = NTFSRecord.header(same, expectedLength: recordSize)
+        else {
+            mismatched.append(number)
+            continue
+        }
+        checked += 1
+        if shape(same, sameHeader) != before { mismatched.append(number) }
+        if sameHeader.usedLength > sameHeader.allocatedLength { mismatched.append(number) }
+    }
+    expect(checked > 20, "enough records to be worth saying anything about: \(checked)")
+    expect(
+        mismatched.isEmpty,
+        "and every one of them lays out again as what it was: \(mismatched.prefix(5))")
+
+    // The root directory, which is the one that has to grow.
+    guard let root = reader.record(NTFSTable.rootRecord),
+        let indexRoot = reader.attributes(of: root).first(where: { $0.kind == .indexRoot }),
+        indexRoot.isResident
+    else {
+        expect(false, "the root directory has an $INDEX_ROOT")
+        return
+    }
+    let rootValue = root.data[
+        (root.data.startIndex + indexRoot.valueOffset)..<(root.data.startIndex
+            + indexRoot.valueOffset + indexRoot.valueLength)]
+    let shapeBefore = shape(root.data, root.header)
+
+    // Growing it by a hundred bytes, which is roughly what a promoted entry
+    // costs.
+    let grown = Data(rootValue) + Data(count: 104)
+    guard
+        let bigger = NTFSRecordEdit.replacing(
+            .indexRoot, named: "$I30", with: grown, in: root.data, header: root.header),
+        let biggerHeader = NTFSRecord.header(bigger, expectedLength: recordSize)
+    else {
+        expect(false, "$INDEX_ROOT grows")
+        return
+    }
+    expect(bigger.count == recordSize, "the record is still one record long")
+    expect(
+        biggerHeader.usedLength == root.header.usedLength + 104,
+        "and uses a hundred and four more bytes: \(biggerHeader.usedLength) from "
+            + "\(root.header.usedLength)")
+    expect(
+        biggerHeader.usedLength <= biggerHeader.allocatedLength,
+        "which still fits in the slot")
+    let biggerShape = shape(bigger, biggerHeader)
+    expect(
+        biggerShape.count == shapeBefore.count,
+        "with the same attributes: \(biggerShape.count) against \(shapeBefore.count)")
+    guard
+        let grownAttribute = NTFSAttribute.all(
+            in: bigger, startingAt: biggerHeader.firstAttributeOffset,
+            usedLength: biggerHeader.usedLength
+        ).first(where: { $0.kind == .indexRoot })
+    else {
+        expect(false, "and $INDEX_ROOT among them")
+        return
+    }
+    expect(
+        grownAttribute.valueLength == indexRoot.valueLength + 104,
+        "$INDEX_ROOT is longer by what went in")
+    expect(
+        bigger[
+            (bigger.startIndex + grownAttribute.valueOffset)..<(bigger.startIndex
+                + grownAttribute.valueOffset + indexRoot.valueLength)] == rootValue,
+        "and still starts with exactly the bytes it had")
+
+    // The attributes that come after it are still readable, which is the whole
+    // point: they moved.
+    guard
+        let allocation = NTFSAttribute.all(
+            in: bigger, startingAt: biggerHeader.firstAttributeOffset,
+            usedLength: biggerHeader.usedLength
+        ).first(where: { $0.kind == .indexAllocation })
+    else {
+        expect(false, "$INDEX_ALLOCATION is still there after the one before it grew")
+        return
+    }
+    expect(!allocation.isResident, "still out on the disk")
+    guard
+        let runs = NTFSRunlist.decode(
+            bigger, at: allocation.runlistOffset, limit: bigger.count),
+        let originalRuns = reader.attributes(of: root).first(where: {
+            $0.kind == .indexAllocation
+        }).flatMap({ NTFSRunlist.decode(root.data, at: $0.runlistOffset, limit: root.data.count) })
+    else {
+        expect(false, "and its runlist still decodes")
+        return
+    }
+    expect(runs == originalRuns, "to exactly the clusters it named before")
+
+    // And the directory's own $BITMAP, which is what says which index blocks
+    // exist.
+    guard let bitmap = reader.attributes(of: root).first(where: { $0.kind == .bitmap }),
+        bitmap.isResident
+    else {
+        expect(false, "the root has a $BITMAP")
+        return
+    }
+    var bits = [UInt8](
+        root.data[
+            (root.data.startIndex + bitmap.valueOffset)..<(root.data.startIndex
+                + bitmap.valueOffset + bitmap.valueLength)])
+    expect(bits[0] & 1 == 1, "whose first block is in use")
+    bits[0] |= 0x02
+    guard
+        let withBlock = NTFSRecordEdit.replacing(
+            .bitmap, named: "$I30", with: Data(bits), in: bigger, header: biggerHeader),
+        let withBlockHeader = NTFSRecord.header(withBlock, expectedLength: recordSize),
+        let readBack = NTFSAttribute.all(
+            in: withBlock, startingAt: withBlockHeader.firstAttributeOffset,
+            usedLength: withBlockHeader.usedLength
+        ).first(where: { $0.kind == .bitmap })
+    else {
+        expect(false, "and a second block can be marked in it")
+        return
+    }
+    expect(
+        withBlock[withBlock.startIndex + readBack.valueOffset] & 0x02 == 0x02,
+        "the second block reads as in use")
+    expect(
+        withBlockHeader.usedLength == biggerHeader.usedLength,
+        "and marking it changed no lengths, because the bitmap is the same size")
+    expect(
+        shape(withBlock, withBlockHeader).count == shapeBefore.count,
+        "with every attribute still there")
+
+    // What will not fit is refused rather than written over the end of the
+    // record.
+    expect(
+        NTFSRecordEdit.replacing(
+            .indexRoot, named: "$I30", with: Data(count: recordSize), in: root.data,
+            header: root.header) == nil,
+        "a value that fills the record leaves no room for the record")
+    expect(
+        NTFSRecordEdit.replacing(
+            .data, named: nil, with: Data(), in: root.data, header: root.header) == nil,
+        "an attribute the record has not got is not replaced")
+    expect(
+        NTFSRecordEdit.replacing(
+            .indexRoot, named: "$I40", with: grown, in: root.data, header: root.header) == nil,
+        "and neither is one with a different name, because a record can hold several of a "
+            + "type and they are told apart by it")
 }
 
 group("aFullNodeIsCutInTwo") {
