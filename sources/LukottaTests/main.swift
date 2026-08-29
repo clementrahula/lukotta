@@ -6032,6 +6032,83 @@ group("makingAndUnmakingFilesAtSpeed") {
     expect(
         made.count == count, "every file asked for was made: \(made.count) of \(count)")
     expect(gone == made.count, "and every one was removed again: \(gone)")
+
+    // Throughput, which is the other half of what a filesystem is judged on.
+    // A file made here and filled, then read back, then taken away.
+    let megabytes =
+        ProcessInfo.processInfo.environment["LUKOTTA_BENCH_MB"].flatMap(Int.init) ?? 64
+    if megabytes > 0,
+        let big = backing.create("bench-big.bin", isDirectory: false, in: root, mode: 0o644)
+    {
+        let chunk = 1 << 20
+        var block = [UInt8](repeating: 0, count: chunk)
+        var seed: UInt32 = 0x9E37_79B9
+        for index in 0..<chunk {
+            seed = seed &* 1_664_525 &+ 1_013_904_223
+            block[index] = UInt8(truncatingIfNeeded: seed >> 24)
+        }
+        let payload = Data(block)
+        var written = 0
+        let startWriting = Date()
+        for round in 0..<megabytes {
+            let put = backing.write(big, contents: payload, offset: round * chunk)
+            guard put == chunk else { break }
+            written += put
+        }
+        let writing = Date().timeIntervalSince(startWriting)
+        let startReading = Date()
+        var readBack = 0
+        var matched = true
+        for round in 0..<(written / chunk) {
+            let got = backing.read(big, offset: round * chunk, length: chunk)
+            if got != payload { matched = false }
+            readBack += got.count
+        }
+        let reading = Date().timeIntervalSince(startReading)
+        print(
+            String(
+                format: "    wrote %.0f MB in %.2fs, %.0f MB/s", Double(written) / 1_048_576,
+                writing, Double(written) / 1_048_576 / max(writing, 0.000_001)))
+        print(
+            String(
+                format: "    read  %.0f MB in %.2fs, %.0f MB/s", Double(readBack) / 1_048_576,
+                reading, Double(readBack) / 1_048_576 / max(reading, 0.000_001)))
+        expect(written == megabytes * chunk, "all of it was written: \(written)")
+        expect(matched, "and every megabyte read back as what went in")
+        expect(
+            backing.remove("bench-big.bin", from: root) == .removed,
+            "and the file was taken away again")
+
+        // The same bytes, the same way, straight to a file on the Mac's own
+        // filesystem. Comparing against a `dd` to a real disk would be
+        // comparing this filesystem's overhead with somebody else's I/O path;
+        // this is the same path with the filesystem taken out of it, which is
+        // what the overhead actually is.
+        //
+        // The file is made its full size first. Extending a file as you write
+        // it is slower than writing into space it already has, and this
+        // filesystem writes into an image that already exists -- a baseline
+        // that grows as it goes measures the growing, and comes out slower than
+        // the thing it is supposed to be the ceiling for.
+        let plain = NSTemporaryDirectory() + "/lukotta-baseline.bin"
+        FileManager.default.createFile(atPath: plain, contents: nil)
+        if let bare = FileHandle(forWritingAtPath: plain) {
+            try? bare.truncate(atOffset: UInt64(megabytes) * UInt64(chunk))
+            try? bare.seek(toOffset: 0)
+            for _ in 0..<megabytes { bare.write(payload) }
+            try? bare.seek(toOffset: 0)
+            let startBare = Date()
+            for _ in 0..<megabytes { bare.write(payload) }
+            let baring = Date().timeIntervalSince(startBare)
+            try? bare.close()
+            print(
+                String(
+                    format: "    bare  %d MB in %.2fs, %.0f MB/s   (the same writes, no "
+                        + "filesystem)", megabytes, baring,
+                    Double(megabytes) / max(baring, 0.000_001)))
+        }
+        try? FileManager.default.removeItem(atPath: plain)
+    }
     let ended = Set(backing.children(of: root).map { $0.name })
     expect(
         ended == settled,

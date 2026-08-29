@@ -190,6 +190,22 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     /// would race the first.
     private var marked = false
 
+    /// The volume's cluster bitmap and `$MFT`'s record bitmap, kept while the
+    /// volume is marked.
+    ///
+    /// Both are read and written on every create, remove and growing write, and
+    /// on a four-gigabyte volume the cluster one is 128 KB -- read, compared
+    /// byte by byte against the new version, and read again next time. That is
+    /// a quarter of the cost of writing a megabyte.
+    ///
+    /// **Caching them is only safe because the mark says so.** While `$Volume`
+    /// carries our dirty flag, nothing else is writing this volume: that is
+    /// what the flag means, and what every other implementation relies on. The
+    /// cache is dropped when the volume is released, so a second mount reads
+    /// them fresh.
+    private var clusterBitmap: Data?
+    private var recordBitmap: Data?
+
     /// Where the last record was found, so the next search starts there.
     ///
     /// Without it every create scans the record bitmap from the first
@@ -256,8 +272,30 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                     mirrorLast: false)
             else { return false }
             marked = false
+            clusterBitmap = nil
+            recordBitmap = nil
             return true
         }
+    }
+
+    /// `$MFT`'s record bitmap, read once while the volume is ours.
+    ///
+    /// Must be called with `lock` held.
+    private func recordBitmapLocked() -> Data? {
+        if let recordBitmap { return recordBitmap }
+        let read = reader.contents(ofFile: NTFSTable.mftRecord, attribute: .bitmap)
+        recordBitmap = read
+        return read
+    }
+
+    /// The volume's cluster bitmap, likewise.
+    ///
+    /// Must be called with `lock` held.
+    private func clusterBitmapLocked() -> Data? {
+        if let clusterBitmap { return clusterBitmap }
+        let read = reader.contents(ofFile: NTFSVolumeReader.bitmapRecord)
+        clusterBitmap = read
+        return read
     }
 
     /// Put a record back everywhere it lives.
@@ -328,8 +366,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             // already there: it stops at the entry when it is. Two descents
             // gave the same answer twice and cost the same twice.
             guard let parentRecord = reader.record(parent.record),
-                let bitmap = reader.contents(
-                    ofFile: NTFSTable.mftRecord, attribute: .bitmap),
+                let bitmap = recordBitmapLocked(),
                 let tableSize = reader.size(ofFile: NTFSTable.mftRecord)
             else { return nil }
             let records = tableSize / UInt64(reader.geometry.bytesPerFileRecord)
@@ -409,11 +446,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             }
 
             // 1. The bitmap.
-            guard
-                writeAttributeLocked(
-                    record: NTFSTable.mftRecord, attribute: .bitmap, contents: choice.bitmap,
-                    changedFrom: bitmap)
-            else { return nil }
+            guard writeRecordBitmapLocked(choice.bitmap, changedFrom: bitmap) else { return nil }
 
             // 2. The record.
             guard writeRecordLocked(choice.record, composed, header: header, mirrorLast: true)
@@ -843,7 +876,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
 
         guard blockSize == reader.geometry.bytesPerCluster,
             let last = runs.last, let lastCluster = last.physicalCluster,
-            let volumeBitmap = reader.contents(ofFile: NTFSVolumeReader.bitmapRecord)
+            let volumeBitmap = clusterBitmapLocked()
         else { return nil }
         let total = reader.geometry.totalSectors / UInt64(reader.geometry.sectorsPerCluster)
         let after = lastCluster + last.clusterCount
@@ -870,7 +903,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 allocation, in: record.data, runlist: encoded,
                 size: allocation.dataSize + UInt64(blockSize),
                 lastCluster: NTFSRunlist.clusterCount(extended) - 1),
-            writeVolumeBitmapLocked(claim.bitmap, changedFrom: volumeBitmap)
+            writeVolumeBitmapLocked(claim.bitmap, touching: claim.runs, changedFrom: volumeBitmap)
         else { return nil }
         return IndexRoom(block: existing, runs: extended, grownAllocation: rebuilt)
     }
@@ -941,9 +974,29 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     ///
     /// Must be called with `lock` held.
     private func writeVolumeBitmapLocked(_ contents: Data, changedFrom previous: Data) -> Bool {
-        writeAttributeLocked(
-            record: NTFSVolumeReader.bitmapRecord, attribute: .data, contents: contents,
-            changedFrom: previous)
+        guard
+            writeAnyAttributeLocked(
+                record: NTFSVolumeReader.bitmapRecord, attribute: .data, contents: contents,
+                changedFrom: previous)
+        else { return false }
+        // The copy in hand is now what is on the disk. Not updating it here is
+        // how a cache starts handing out clusters that have already been given
+        // away.
+        clusterBitmap = contents
+        return true
+    }
+
+    /// Write `$MFT`'s record bitmap and keep the copy in hand in step.
+    ///
+    /// Must be called with `lock` held.
+    private func writeRecordBitmapLocked(_ contents: Data, changedFrom previous: Data) -> Bool {
+        guard
+            writeAnyAttributeLocked(
+                record: NTFSTable.mftRecord, attribute: .bitmap, contents: contents,
+                changedFrom: previous)
+        else { return false }
+        recordBitmap = contents
+        return true
     }
 
     /// Write an index block back, with its fixup put on and its signature moved
@@ -959,6 +1012,74 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         return writeBytes(offset, onDisk)
     }
 
+    /// Write back just the part of a bitmap that a set of runs touched.
+    ///
+    /// The general version finds what changed by comparing the old bytes with
+    /// the new -- 128 KB of comparison on a four-gigabyte volume, on every
+    /// write that allocates. The allocator already knows which clusters it
+    /// took, and the bits for them lie in one stretch of the bitmap, so there
+    /// is nothing to search for.
+    ///
+    /// Must be called with `lock` held.
+    private func writeVolumeBitmapLocked(
+        _ contents: Data, touching runs: [NTFSRunlist.Run], changedFrom previous: Data
+    ) -> Bool {
+        var lowest = UInt64.max
+        var highest: UInt64 = 0
+        for run in runs {
+            guard let start = run.physicalCluster, run.clusterCount > 0 else { continue }
+            lowest = min(lowest, start)
+            highest = max(highest, start + run.clusterCount - 1)
+        }
+        guard lowest != UInt64.max else { return true }
+        return writeBitmapRangeLocked(
+            contents, bits: lowest...highest, changedFrom: previous)
+    }
+
+    /// Must be called with `lock` held.
+    private func writeBitmapRangeLocked(
+        _ contents: Data, bits: ClosedRange<UInt64>, changedFrom previous: Data
+    ) -> Bool {
+        guard let writeBytes, contents.count == previous.count,
+            let record = reader.record(NTFSVolumeReader.bitmapRecord),
+            let attribute = reader.attributes(of: record).first(where: { $0.kind == .data }),
+            !attribute.isResident,
+            let runs = NTFSRunlist.decode(
+                record.data, at: attribute.runlistOffset, limit: record.data.count)
+        else { return false }
+        let sector = reader.geometry.bytesPerSector
+        guard sector > 0 else { return false }
+
+        let firstSector = Int(bits.lowerBound / 8) / sector
+        let lastSector = Int(bits.upperBound / 8) / sector
+        for block in firstSector...lastSector {
+            let from = block * sector
+            guard from < contents.count else { break }
+            let slice = contents[
+                (contents.startIndex + from)..<min(
+                    contents.endIndex, contents.startIndex + from + sector)]
+            guard
+                let pieces = NTFSFileWrite.pieces(
+                    offset: UInt64(from), length: slice.count, runs: runs,
+                    bytesPerCluster: reader.geometry.bytesPerCluster, size: attribute.dataSize)
+            else { return false }
+            for piece in pieces {
+                // The slice is already a Data. Wrapping it in another one copies
+                // every byte a second time, which on a megabyte write is most
+                // of what the write costs.
+                guard
+                    writeBytes(
+                        piece.diskOffset,
+                        slice[
+                            (slice.startIndex + piece.range.lowerBound)..<(slice.startIndex
+                                + piece.range.upperBound)])
+                else { return false }
+            }
+        }
+        clusterBitmap = contents
+        return true
+    }
+
     /// Write the changed part of a non-resident attribute.
     ///
     /// Only the bytes that differ, and only in whole sectors around them: a
@@ -966,7 +1087,29 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     /// bit would take a second and put every one of those bytes at risk.
     ///
     /// Must be called with `lock` held.
+    ///
+    /// **Not for the two bitmaps.** Those are cached while the volume is
+    /// marked, and a write that goes round the cache leaves it handing out
+    /// records and clusters that have already been given away -- which is how
+    /// four hundred files came to share one record. `writeRecordBitmapLocked`
+    /// and `writeVolumeBitmapLocked` are the only ways in, and this refuses the
+    /// two of them outright rather than trusting every future caller to
+    /// remember.
     private func writeAttributeLocked(
+        record number: UInt64, attribute kind: NTFSAttribute.Kind, contents: Data,
+        changedFrom previous: Data
+    ) -> Bool {
+        guard !(number == NTFSTable.mftRecord && kind == .bitmap),
+            !(number == NTFSVolumeReader.bitmapRecord && kind == .data)
+        else { return false }
+        return writeAnyAttributeLocked(
+            record: number, attribute: kind, contents: contents, changedFrom: previous)
+    }
+
+    /// The write itself, with no guard on which attribute it is.
+    ///
+    /// Must be called with `lock` held.
+    private func writeAnyAttributeLocked(
         record number: UInt64, attribute kind: NTFSAttribute.Kind, contents: Data,
         changedFrom previous: Data
     ) -> Bool {
@@ -998,10 +1141,15 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                     bytesPerCluster: reader.geometry.bytesPerCluster, size: attribute.dataSize)
             else { return false }
             for piece in pieces {
-                let part = slice[
-                    slice.startIndex + piece.range.lowerBound..<slice.startIndex
-                        + piece.range.upperBound]
-                guard writeBytes(piece.diskOffset, Data(part)) else { return false }
+                // A slice of Data is a Data. Making a new one copies every
+                // byte a second time.
+                guard
+                    writeBytes(
+                        piece.diskOffset,
+                        slice[
+                            slice.startIndex + piece.range.lowerBound..<slice.startIndex
+                                + piece.range.upperBound])
+                else { return false }
             }
         }
         return true
@@ -1076,14 +1224,12 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             else { return .missing }
 
             // 3. The bitmap.
-            guard let bitmap = reader.contents(ofFile: NTFSTable.mftRecord, attribute: .bitmap),
+            guard let bitmap = recordBitmapLocked(),
                 let tableSize = reader.size(ofFile: NTFSTable.mftRecord),
                 let released = NTFSRecordAllocator.releasing(
                     number, in: bitmap,
                     recordCount: tableSize / UInt64(reader.geometry.bytesPerFileRecord)),
-                writeAttributeLocked(
-                    record: NTFSTable.mftRecord, attribute: .bitmap, contents: released,
-                    changedFrom: bitmap)
+                writeRecordBitmapLocked(released, changedFrom: bitmap)
             else { return .missing }
 
             // The slot just freed is below the hint, and the next create
@@ -1491,10 +1637,13 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             // did not happen.
             var written = 0
             for piece in pieces {
-                let slice = contents[
-                    contents.startIndex + piece.range.lowerBound..<contents.startIndex
-                        + piece.range.upperBound]
-                guard writeBytes(piece.diskOffset, Data(slice)) else { break }
+                guard
+                    writeBytes(
+                        piece.diskOffset,
+                        contents[
+                            contents.startIndex + piece.range.lowerBound..<contents.startIndex
+                                + piece.range.upperBound])
+                else { break }
                 written += piece.range.count
             }
             return written
@@ -1597,12 +1746,27 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 return false
             }
             if want > have {
+                // Claim more than is needed, so the next append finds room
+                // already there. This is what allocatedSize is for: NTFS keeps
+                // it above dataSize on purpose, and a file written a megabyte
+                // at a time otherwise pays for a bitmap search, a runlist
+                // re-encode and a record rewrite on every one of them.
+                //
+                // Doubling, and never by more than sixteen megabytes at once --
+                // a file that doubles without a bound claims a gigabyte for its
+                // five-hundred-and-twelfth megabyte. If the volume has no run
+                // that long, ask again for exactly what is needed: a file that
+                // fails to grow because the greedy ask could not be met would
+                // be refusing a write there is room for.
+                var after: UInt64 = 0
+                if let tail = runs.last, let physical = tail.physicalCluster {
+                    after = physical + tail.clusterCount
+                }
+                let ceiling = max(UInt64(16 << 20) / UInt64(cluster), 1)
+                let ahead = max(want - have, min(have, ceiling))
                 guard
-                    let more = claimClustersLocked(
-                        want - have,
-                        near: runs.last.flatMap {
-                            $0.physicalCluster.map { last in last + (runs.last?.clusterCount ?? 0) }
-                        } ?? 0),
+                    let more = claimClustersLocked(ahead, near: after)
+                        ?? claimClustersLocked(want - have, near: after),
                     let joined = NTFSFileGrow.joining(runs, with: more)
                 else { return false }
                 runs = joined
@@ -1647,13 +1811,12 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
     ///
     /// Must be called with `lock` held.
     private func claimClustersLocked(_ count: UInt64, near hint: UInt64) -> [NTFSRunlist.Run]? {
-        guard count > 0, let bitmap = reader.contents(ofFile: NTFSVolumeReader.bitmapRecord)
-        else { return nil }
+        guard count > 0, let bitmap = clusterBitmapLocked() else { return nil }
         let total = reader.geometry.totalSectors / UInt64(reader.geometry.sectorsPerCluster)
         guard
             let plan = NTFSAllocator.plan(
                 clusters: count, in: bitmap, totalClusters: total, near: hint),
-            writeVolumeBitmapLocked(plan.bitmap, changedFrom: bitmap)
+            writeVolumeBitmapLocked(plan.bitmap, touching: plan.runs, changedFrom: bitmap)
         else { return nil }
         return plan.runs
     }
@@ -1675,7 +1838,7 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             let slice = contents[
                 (contents.startIndex + piece.range.lowerBound)..<(contents.startIndex
                     + piece.range.upperBound)]
-            guard writeBytes(piece.diskOffset, Data(slice)) else { return false }
+            guard writeBytes(piece.diskOffset, slice) else { return false }
         }
         return true
     }
