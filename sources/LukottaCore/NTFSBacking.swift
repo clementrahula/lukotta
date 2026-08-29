@@ -324,11 +324,9 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             guard volumeIsSafeToWrite, markLocked(), let collation = reader.collation() else {
                 return nil
             }
-            // A name already in the directory is not made again. NTFS has one
-            // entry per name, and a second is a file that lists twice and
-            // deletes once.
-            guard reader.find(name, inDirectory: parent.record) == nil else { return nil }
-
+            // The descent that finds the leaf also answers whether the name is
+            // already there: it stops at the entry when it is. Two descents
+            // gave the same answer twice and cost the same twice.
             guard let parentRecord = reader.record(parent.record),
                 let bitmap = reader.contents(
                     ofFile: NTFSTable.mftRecord, attribute: .bitmap),
@@ -374,10 +372,15 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             // directory with no room in the right node needs a split, and
             // finding that out after the record is on the disk means an orphan
             // for no reason.
-            guard var node = leafNode(of: parent.record, for: name, collation: collation) else {
-                return nil
-            }
-            if node.room < key.count {
+            // One descent, down the raw bytes: it says both whether the name
+            // is already there and which node it belongs in. Going through the
+            // reader's own search instead builds a Swift string for every entry
+            // of every node it passes, which was most of what a create cost.
+            guard let shape = indexShape(of: parent.record),
+                var leaf = descent(to: name, in: shape, collation: collation)?.last,
+                !holds(name, leaf, collation)
+            else { return nil }
+            if leaf.free < key.count {
                 // Split, then look again: the name now belongs in one of the
                 // two halves, and which one is the descent's answer rather than
                 // a guess.
@@ -388,20 +391,21 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
                 // failure is a real one, and retrying would be a loop that
                 // writes.
                 func trySplit() -> Bool {
-                    guard let shape = indexShape(of: parent.record),
-                        let path = descent(to: name, in: shape, collation: collation)
+                    guard let fresh = indexShape(of: parent.record),
+                        let again = descent(to: name, in: fresh, collation: collation)
                     else { return false }
-                    return splitLocked(path, in: shape, collation: collation)
+                    return splitLocked(again, in: fresh, collation: collation)
                 }
                 if !trySplit() {
                     guard deepenLocked(directory: parent.record, collation: collation),
                         trySplit()
                     else { return nil }
                 }
-                guard let after = leafNode(of: parent.record, for: name, collation: collation),
-                    after.room >= key.count
+                guard let fresh = indexShape(of: parent.record),
+                    let after = descent(to: name, in: fresh, collation: collation)?.last,
+                    after.free >= key.count
                 else { return nil }
-                node = after
+                leaf = after
             }
 
             // 1. The bitmap.
@@ -416,11 +420,8 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             else { return nil }
 
             // 3. The name.
-            guard
-                let spliced = NTFSIndexWrite.inserting(
-                    entry: key, into: node.bytes, nodeHeaderAt: node.headerOffset,
-                    collation: collation),
-                writeIndexBlockLocked(spliced, at: node.diskOffset)
+            guard let placed = place(key, into: leaf, collation: collation),
+                writeNodeLockedRaw(leaf, entries: placed)
             else { return nil }
 
             recordHint = choice.record
@@ -477,6 +478,51 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
             }
             return "in \(place), entry \(found.index) of \(found.node.entries.count)"
         }
+    }
+
+    /// Whether a node already holds a name.
+    private func holds(_ name: String, _ node: NodeAt, _ collation: NTFSCollation) -> Bool {
+        let wanted = Array(name.utf16)
+        return node.entries.contains { entry in
+            NTFSIndexWrite.key(of: entry, at: 0).map {
+                collation.compare($0, wanted) == .orderedSame
+            } ?? false
+        }
+    }
+
+    /// A node's entries with one more put where it belongs.
+    private func place(_ entry: Data, into node: NodeAt, collation: NTFSCollation) -> [Data]? {
+        guard let key = NTFSIndexWrite.key(of: entry, at: 0) else { return nil }
+        var entries = node.entries
+        var at = entries.count
+        for (index, other) in entries.enumerated() {
+            guard let otherKey = NTFSIndexWrite.key(of: other, at: 0) else { return nil }
+            switch collation.compare(otherKey, key) {
+            case .orderedSame: return nil
+            case .orderedDescending:
+                at = index
+            case .orderedAscending: continue
+            }
+            break
+        }
+        entries.insert(entry, at: at)
+        return entries
+    }
+
+    /// Write a block back without a shape to hand.
+    ///
+    /// Blocks only: a root needs the record it lives in, and any caller holding
+    /// a root holds a shape as well.
+    ///
+    /// Must be called with `lock` held.
+    private func writeNodeLockedRaw(_ node: NodeAt, entries: [Data]) -> Bool {
+        guard case .block(let offset, let number) = node.site,
+            let built = NTFSIndexBlock.compose(
+                blockNumber: number, blockSize: node.blockSize,
+                sectorSize: reader.geometry.bytesPerSector, entries: entries, marker: node.marker,
+                hasChildren: node.hasChildren)
+        else { return false }
+        return writeIndexBlockLocked(built, at: offset)
     }
 
     /// Which entry of `$Secure` a record points at.
@@ -1073,18 +1119,28 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         }
         return lock.withLock {
             guard volumeIsSafeToWrite, let collation = reader.collation() else { return .missing }
-            guard let number = reader.find(name, inDirectory: parent.record),
-                let record = reader.record(number)
+
+            // One descent, down the raw bytes, which finds the entry and says
+            // which node holds it. The record number is in the entry itself, so
+            // the reader's own search -- which builds a string per entry per
+            // node -- is not needed as well.
+            guard let shape = indexShape(of: parent.record),
+                let found = findNode(name, in: shape, collation: collation)
             else { return .missing }
+            let entry = found.node.entries[found.index]
+            var reference: UInt64 = 0
+            for byte in 0..<8 {
+                reference |= UInt64(entry[entry.startIndex + byte]) << (8 * UInt64(byte))
+            }
+            let number = reference & 0x0000_FFFF_FFFF_FFFF
+            guard let record = reader.record(number) else { return .missing }
             guard !record.header.isDirectory else { return .notEmpty }
             guard markLocked() else { return .missing }
 
             // 1. The name, out of whichever node a search would find it in --
             // which is not always a leaf, and an entry that is not in a leaf
             // holds the tree together as well as naming a file.
-            guard let shape = indexShape(of: parent.record),
-                let found = findNode(name, in: shape, collation: collation),
-                takeOutLocked(found.index, of: found.node, in: shape, collation: collation)
+            guard takeOutLocked(found.index, of: found.node, in: shape, collation: collation)
             else { return .missing }
 
             // 2. The record. The in-use flag goes off and the sequence moves
@@ -1139,6 +1195,21 @@ public final class NTFSBacking: FSBacking, @unchecked Sendable {
         let blockSize: Int
         /// Whether anything hangs below it.
         let hasChildren: Bool
+
+        /// How many bytes the node has left for another entry.
+        ///
+        /// Worked out from the entries rather than read from the header,
+        /// because the entries are what gets written back: a header claiming
+        /// room the entries disagree with is a write past the end of the node.
+        /// A root has none by definition -- it lives in a record, and every
+        /// byte it does not use belongs to another attribute.
+        var free: Int {
+            if case .root = site { return 0 }
+            let used =
+                NTFSIndexWrite.nodeHeaderLength + entries.reduce(0) { $0 + $1.count }
+                + marker.count
+            return max(0, blockSize - NTFSIndexBlock.nodeHeaderOffset - used)
+        }
     }
 
     /// Walk down to the node holding a name, keeping what is needed to write
