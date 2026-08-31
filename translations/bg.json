@@ -277,7 +277,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "Дискът остава във Finder, след като %@ приключи. Извадете го оттам, когато сте готови.",
     "The drive was not opened": "Дискът не беше отворен",
     "The drive was not opened. %@": "Дискът не беше отворен. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "Windows не е изключил диска правилно. Изключете бързото стартиране в Windows или изключете Windows напълно, вместо да го приспивате, и опитайте отново.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "Двигателят не разпозна файлова система на този том. Ако е шифрована, паролата или ключът за възстановяване може да са грешни.",
     "The engine reported nothing at all. The drive may have been unplugged.": "Двигателят не съобщи нищо. Възможно е дискът да е бил изключен.",
     "The language changes when %@ starts again.": "Езикът се променя, когато %@ стартира отново.",

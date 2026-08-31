@@ -285,7 +285,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "Discul rămâne în Finder după ce %@ se închide. Ejectați-l de acolo când terminați.",
     "The drive was not opened": "Discul nu a fost deschis",
     "The drive was not opened. %@": "Discul nu a fost deschis. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "Windows nu a oprit corect discul. Dezactivați pornirea rapidă în Windows sau opriți complet Windows în loc să-l hibernați, apoi reîncercați.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "Motorul nu a recunoscut niciun sistem de fișiere pe acest volum. Dacă este criptat, parola sau cheia de recuperare ar putea fi greșită.",
     "The engine reported nothing at all. The drive may have been unplugged.": "Motorul nu a raportat absolut nimic. Este posibil ca discul să fi fost deconectat.",
     "The language changes when %@ starts again.": "Limba se schimbă când %@ pornește din nou.",

@@ -277,7 +277,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "Le disque reste dans le Finder après la fermeture de %@. Éjectez-le depuis le Finder lorsque vous avez terminé.",
     "The drive was not opened": "Le disque n’a pas été ouvert",
     "The drive was not opened. %@": "Le disque n’a pas été ouvert. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "Windows n’a pas arrêté le disque proprement. Désactivez le démarrage rapide dans Windows, ou arrêtez complètement Windows au lieu de le mettre en veille prolongée, puis réessayez.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "Le moteur n’a reconnu aucun système de fichiers sur ce volume. S’il est chiffré, le mot de passe ou la clé de récupération est peut-être incorrect.",
     "The engine reported nothing at all. The drive may have been unplugged.": "Le moteur n’a rien signalé du tout. Le disque a peut-être été débranché.",
     "The language changes when %@ starts again.": "La langue change au prochain démarrage de %@.",

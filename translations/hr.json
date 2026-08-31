@@ -285,7 +285,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "Disk ostaje u Finderu nakon što %@ završi. Izbacite ga ondje kad završite.",
     "The drive was not opened": "Disk nije otvoren",
     "The drive was not opened. %@": "Disk nije otvoren. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "Windows nije uredno isključio disk. Isključite brzo pokretanje u Windowsima ili Windows isključite u potpunosti umjesto hibernacije, pa pokušajte ponovno.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "Pogon na ovoj jedinici nije prepoznao datotečni sustav. Ako je šifrirana, lozinka ili ključ za oporavak možda su pogrešni.",
     "The engine reported nothing at all. The drive may have been unplugged.": "Pogon nije prijavio baš ništa. Disk je možda odspojen.",
     "The language changes when %@ starts again.": "Jezik se mijenja kad se %@ ponovno pokrene.",

@@ -269,7 +269,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "%@이(가) 종료된 뒤에도 드라이브는 Finder에 남습니다. 끝나면 그곳에서 추출하십시오.",
     "The drive was not opened": "드라이브를 열지 못했습니다",
     "The drive was not opened. %@": "드라이브를 열지 못했습니다. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "이 드라이브는 Windows에서 정상적으로 종료되지 않았습니다. Windows에서 빠른 시작을 끄거나, 최대 절전 대신 완전히 종료한 뒤 다시 시도하십시오.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "엔진이 이 볼륨에서 파일 시스템을 인식하지 못했습니다. 암호화되어 있다면 암호나 복구 키가 틀렸을 수 있습니다.",
     "The engine reported nothing at all. The drive may have been unplugged.": "엔진이 아무것도 보고하지 않았습니다. 드라이브가 분리되었을 수 있습니다.",
     "The language changes when %@ starts again.": "언어는 %@을(를) 다시 실행할 때 바뀝니다.",

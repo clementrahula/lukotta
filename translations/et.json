@@ -277,7 +277,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "Ketas jääb Finderisse pärast seda, kui %@ väljub. Väljuta see sealt, kui oled lõpetanud.",
     "The drive was not opened": "Ketast ei avatud",
     "The drive was not opened. %@": "Ketast ei avatud. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "Windows ei sulgenud ketast korralikult. Lülita Windowsis välja kiirkäivitus või sulge Windows täielikult, selle asemel et see talveunne panna, ja proovi siis uuesti.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "Mootor ei tuvastanud sellel köitel failisüsteemi. Kui see on krüpteeritud, võib parool või taastevõti olla vale.",
     "The engine reported nothing at all. The drive may have been unplugged.": "Mootor ei teatanud üldse midagi. Ketas võis olla lahti ühendatud.",
     "The language changes when %@ starts again.": "Keel muutub, kui %@ uuesti käivitub.",

@@ -1707,13 +1707,6 @@
         }
       ]
     },
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": {
-      "screens": [
-        "diagnosis"
-      ],
-      "context": "A failure sentence, and the most common one for an NTFS drive. Fast Startup is a Windows feature and is named as Microsoft names it in this language.",
-      "placeholders": []
-    },
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": {
       "screens": [
         "diagnosis"

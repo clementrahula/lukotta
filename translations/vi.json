@@ -269,7 +269,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "Ổ đĩa vẫn ở trong Finder sau khi %@ thoát. Hãy tháo nó ở đó khi bạn xong việc.",
     "The drive was not opened": "Ổ đĩa không mở được",
     "The drive was not opened. %@": "Ổ đĩa không mở được. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "Ổ đĩa chưa được Windows tắt đúng cách. Hãy tắt Fast Startup trong Windows, hoặc tắt hẳn Windows thay vì ngủ đông, rồi thử lại.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "Bộ máy không nhận ra hệ thống tệp nào trên ổ này. Nếu nó được mã hóa, có thể mật khẩu hoặc khóa khôi phục bị sai.",
     "The engine reported nothing at all. The drive may have been unplugged.": "Bộ máy không báo gì cả. Có thể ổ đĩa đã bị rút ra.",
     "The language changes when %@ starts again.": "Ngôn ngữ thay đổi khi %@ khởi động lại.",

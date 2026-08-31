@@ -269,7 +269,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "%@ 退出后驱动器仍留在“访达”中。用完后在那里推出即可。",
     "The drive was not opened": "驱动器未打开",
     "The drive was not opened. %@": "驱动器未打开。%@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "该驱动器未被 Windows 正常关闭。请在 Windows 中关闭“快速启动”，或彻底关机而非休眠，然后重试。",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "引擎未在该宗卷上识别出文件系统。如果它是加密的，密码或恢复密钥可能不对。",
     "The engine reported nothing at all. The drive may have been unplugged.": "引擎完全没有报告。驱动器可能已被拔下。",
     "The language changes when %@ starts again.": "语言将在 %@ 下次启动时改变。",

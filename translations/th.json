@@ -269,7 +269,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "ไดรฟ์ยังอยู่ใน Finder หลังจาก %@ ปิดไปแล้ว ดันออกที่นั่นเมื่อคุณใช้เสร็จ",
     "The drive was not opened": "เปิดไดรฟ์ไม่สำเร็จ",
     "The drive was not opened. %@": "เปิดไดรฟ์ไม่สำเร็จ %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "Windows ปิดไดรฟ์นี้ไม่เรียบร้อย ปิด Fast Startup ใน Windows หรือสั่งปิดเครื่อง Windows ให้สนิทแทนการไฮเบอร์เนต แล้วลองใหม่",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "เอนจินไม่รู้จักระบบไฟล์บนโวลุ่มนี้ ถ้ามันถูกเข้ารหัส รหัสผ่านหรือคีย์กู้คืนอาจไม่ถูกต้อง",
     "The engine reported nothing at all. The drive may have been unplugged.": "เอนจินไม่ได้รายงานอะไรเลย ไดรฟ์อาจถูกถอดออกไป",
     "The language changes when %@ starts again.": "ภาษาจะเปลี่ยนเมื่อ %@ เริ่มทำงานใหม่",

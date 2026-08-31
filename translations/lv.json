@@ -285,7 +285,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "Disks paliek programmā Finder pēc tam, kad %@ ir aizvērta. Izstumiet to tur, kad esat pabeidzis.",
     "The drive was not opened": "Disks netika atvērts",
     "The drive was not opened. %@": "Disks netika atvērts. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "Windows neizslēdza disku korekti. Izslēdziet Windows ātro startēšanu vai izslēdziet Windows pilnībā, nevis pārejiet hibernācijā, un tad mēģiniet vēlreiz.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "Dzinējs šajā sējumā neatpazina failu sistēmu. Ja tas ir šifrēts, parole vai atkopšanas atslēga var būt nepareiza.",
     "The engine reported nothing at all. The drive may have been unplugged.": "Dzinējs neziņoja neko. Disks, iespējams, tika atvienots.",
     "The language changes when %@ starts again.": "Valoda mainīsies, kad %@ tiks palaista no jauna.",

@@ -357,13 +357,17 @@ group("volumeKindsAndTheDirtyVolumePath") {
     expect(d.subtitle.contains("BitLocker/NTFS"), "subtitle states what the volume might be")
     expect(d.subtitle.contains("disk4s1"), "subtitle keeps the device identifier")
 
-    // Windows Fast Startup and hibernation are the most common cause of failure,
-    // and the message must say what to do rather than repeat a driver error.
+    // A volume Windows left dirty is repaired and mounted, so there is nothing
+    // to explain and nothing for the reader to go and do. The sentence that
+    // used to be here sent them to another machine to turn off Fast Startup --
+    // for a flag ntfsfix clears in a second inside the VM. No rule matches it
+    // now, and none should: an app that says why it could not do the thing has
+    // not done the thing.
     let dirty = Diagnosis.summarise("ntfs3: volume is dirty and mounting is refused", fallback: "")
-    expect(dirty.contains("Fast Startup"), "dirty volume explains Fast Startup")
-    let hib = Diagnosis.summarise(
-        "Windows is hibernated, refused to mount (hiberfile)", fallback: "")
-    expect(hib.contains("Fast Startup"), "hibernated volume gets the same advice")
+    expect(!dirty.contains("Fast Startup"), "a dirty volume is not explained to anybody")
+    expect(
+        Diagnosis.rule(for: "ntfs3: volume is dirty") == nil,
+        "and no rule claims it, so nothing can put that sentence back by accident")
     expect(
         Diagnosis.summarise("mount: unknown filesystem type 'crypto_LUKS'", fallback: "")
             .contains("did not recognise"), "unrecognised filesystem diagnosis")
@@ -826,9 +830,9 @@ group("mountStages") {
     expect(!checked.contains("disk4s1.local:"), "the check does not guess the share's name")
     let checkedMS = MountScript.build(sampleInputs(kind: .microsoft))
     expect(
-        checkedMS.components(separatedBy: "&& __mounted").count - 1 == 6,
-        "every attempt is verified: both NTFS drivers, both again after a slip, then both read-only"
-    )
+        checkedMS.components(separatedBy: "&& __mounted").count - 1 == 8,
+        "every attempt is verified: both drivers, again after a slip, again after a repair, "
+            + "then both read-only")
     // The extra one is the retry for a machine that slipped, and it must be
     // unreachable without the evidence for it. Unguarded, it would be a second
     // full attempt on every drive that cannot be written to.
@@ -2661,9 +2665,22 @@ group("aReadOnlyMountAsksForItInOneFlag") {
     let readOnly = MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))
     expect(!readOnly.contains("--ignore-permissions"), "read-only does not ask for the pair")
     expect(readOnly.contains("--nfs-export-opts="), "it names the export instead")
+    // anonuid=0, and read out of the engine rather than guessed at. vmproxy's
+    // build_nfs_exports picks
+    //     {rw|ro},no_subtree_check,all_squash,anonuid=0,anongid=0,insecure
+    // for --ignore-permissions: squashed to root, which is what bypasses the
+    // permission check. This asked for anonuid=<the user> instead, believing
+    // that squashing to somebody reports the files as theirs. It does not --
+    // squashing rewrites the credential a request arrives with, never the
+    // ownership a GETATTR reports -- so a read-only mount performed every
+    // request as an unprivileged user and refused every directory on the drive
+    // that was not world-readable. Reported as folders of zero bytes.
     expect(
-        readOnly.contains("all_squash,anonuid=501,anongid=20"),
-        "and says the files belong to whoever opened the drive, which is what the other flag did")
+        readOnly.contains("all_squash,anonuid=0,anongid=0"),
+        "and bypasses the permission check the way --ignore-permissions does")
+    expect(
+        !readOnly.contains("anonuid=501"),
+        "not squashed to the user, which is the opposite of bypassing the check")
     expect(readOnly.contains(" -o ro"), "the guest still mounts read-only")
 
     // A writable mount is unchanged, and its read-only fallback asks the new
@@ -3486,7 +3503,6 @@ group("diagnosisRulesAreTiedToAnEngineVersion") {
         ("anylinuxfs: cannot probe /dev/disk4s1: insufficient permissions", "no-full-disk-access"),
         ("device-mapper: reload ioctl failed: Wrong key", "wrong-credential"),
         ("bdemount: unable to open BitLocker volume: no BitLocker signature", "not-bitlocker"),
-        ("ntfs3: volume is dirty and \"force\" flag is not set", "windows-hibernated"),
         ("mount: /mnt: no such device", "unrecognised-filesystem"),
         ("blkid: TYPE=\"LVM2_member\"", "container-not-understood"),
         ("Error: another instance is already running", "engine-lock-held"),
@@ -4522,11 +4538,8 @@ group("aFallbackToReadOnlySaysWhy") {
         LUKOTTA_STAGE:read-only
         """
     expect(
-        Diagnosis.rule(for: hibernated)?.name == "windows-hibernated",
-        "a hibernated volume is recognised in the transcript of a fallback")
-    expect(
-        Diagnosis.rule(for: hibernated)?.message().contains("Fast Startup") == true,
-        "and the remedy names the setting to change")
+        Diagnosis.rule(for: hibernated) == nil,
+        "a hibernated volume is repaired rather than recognised and reported")
 
     // Nothing invented where nothing is known: a transcript no rule matches
     // gives no reason at all, rather than the engine's last line, which beside
@@ -4573,6 +4586,109 @@ group("theMarkerCannotFireAfterAWritableMount") {
     expect(
         script.contains("&& echo \"\(MountScript.stageMarker)read-only\""),
         "and still marks a mount that fell back")
+}
+
+group("theGuestKernelSaysWhyAndIsRead") {
+    // A drive Windows left unclean is refused by ntfs3 with "volume is dirty
+    // and force flag is not set", and that sentence goes to the guest kernel's
+    // own log. The engine's output for the same attempt -- the half the
+    // transcript captured -- says only "wrong fs type, bad option, bad
+    // superblock", which matches no rule at all.
+    //
+    // So Diagnosis had a rule for this that could never fire, and a drive that
+    // opened read-only because of Fast Startup was explained as one that "may
+    // need repairing", with the setting that would fix it never named.
+    let plain = MountScript.build(sampleInputs())
+    expect(plain.contains("__guest_kernel"), "the transcript reaches for the kernel's account")
+    expect(
+        plain.contains("anylinuxfs_kernel-*.log"),
+        "and knows which of the engine's two logs carries it")
+
+    // Every log this attempt wrote, not the newest. A Microsoft drive tries
+    // ntfs3, then ntfs-3g, then read-only: the refusal that explains the
+    // fallback is the first of the three, and the newest belongs to the
+    // attempt that worked.
+    expect(plain.contains("-newer"), "logs are chosen by when this attempt started")
+    expect(plain.contains("__kstamp"), "which is what the stamp records")
+    let stampAt = plain.range(of: "__kstamp").map {
+        plain.distance(from: plain.startIndex, to: $0.lowerBound)
+    }
+    let usedAt = plain.range(of: "__guest_kernel").map {
+        plain.distance(from: plain.startIndex, to: $0.lowerBound)
+    }
+    expect(
+        (stampAt ?? 1) < (usedAt ?? 0),
+        "and it is stamped before the engine runs, or every log looks new")
+
+    // Filtered, not appended whole. The rules match on text and the first wins,
+    // so a boot log arriving entire would let "no such device" out of some
+    // unrelated probe answer a question about the filesystem -- an honest
+    // generic sentence traded for a confident wrong one.
+    expect(
+        plain.contains(MountScript.guestKernelPhrases),
+        "only lines naming a filesystem driver or an unclean volume get in")
+    expect(
+        Diagnosis.rule(for: "ntfs3(dm-0): volume is dirty and \"force\" flag is not set!") == nil,
+        "and it is not turned into advice: the volume is repaired instead")
+
+    // Nothing is collected where nothing went wrong: a clean writable mount has
+    // no question to answer and its transcript stays as short as it was.
+    expect(
+        plain.contains("&& __guest_kernel"),
+        "it is asked for on a condition rather than always")
+
+    // A mount asked for read-only never falls back, so the guard on that route
+    // cannot name the fallback marker -- the marker is read back out of the
+    // transcript as evidence that a fallback happened.
+    let readOnly = MountScript.build(sampleInputs(readOnly: true))
+    expect(readOnly.contains("__guest_kernel"), "a read-only mount still explains a failure")
+    expect(
+        !readOnly.contains(MountScript.stageMarker + "read-only"),
+        "without writing the word that would be read as a fallback")
+}
+
+group("aDirtyVolumeIsRepairedRatherThanDemoted") {
+    // Windows leaves a volume dirty and both drivers refuse to write to it:
+    // ntfs3 says so in the kernel, ntfs-3g answers the mount with an I/O error.
+    // The chain used to open it read-only, which is not what was asked for, and
+    // the only remedy it left was a chkdsk on a machine the drive may never be
+    // plugged into again.
+    let writable = MountScript.build(sampleInputs(kind: .microsoft))
+    expect(writable.contains("ntfsfix -d"), "the volume is repaired in the machine that refused it")
+    expect(
+        !writable.contains("__dirty && "),
+        "unguarded: reading the kernel's words back at the right moment is a race, "
+            + "and the alternative on the next line is a drive demoted to read-only")
+
+    // Before the fallback, or it would never be reached: the read-only attempts
+    // succeed, and a drive nobody asked to be read-only is opened that way.
+    let repairAt = writable.range(of: "ntfsfix").map {
+        writable.distance(from: writable.startIndex, to: $0.lowerBound)
+    }
+    let fallbackAt = writable.range(of: MountScript.stageMarker + "read-only").map {
+        writable.distance(from: writable.startIndex, to: $0.lowerBound)
+    }
+    expect(repairAt != nil && fallbackAt != nil, "both are in the chain")
+    expect((repairAt ?? 0) < (fallbackAt ?? 0), "and the repair is tried first")
+
+    // The evidence is the guest kernel's, so the test that reads it folds that
+    // log in first. Without that the transcript never carries the words and the
+    // repair never fires.
+    expect(
+        writable.contains("__guest_kernel"),
+        "the kernel's account still reaches the transcript, for whatever did fail")
+
+    // Not on a Linux drive: ntfsfix is for NTFS, and a btrfs volume that will
+    // not mount is refused for its own reasons.
+    let linux = MountScript.build(sampleInputs(kind: .linux))
+    expect(!linux.contains("ntfsfix"), "and nothing is repaired on a drive that is not NTFS")
+
+    // Read-only was asked for: nothing is written to the drive at all, repair
+    // included.
+    let readOnly = MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))
+    expect(
+        !readOnly.contains("ntfsfix"),
+        "a drive opened read-only is not written to, not even to repair it")
 }
 
 group("readOnlyIsBothSidesOfTheConnection") {

@@ -277,7 +277,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "Disku qëndron në Finder pasi %@ të dalë. Nxirre atje kur të mbarosh.",
     "The drive was not opened": "Disku nuk u hap",
     "The drive was not opened. %@": "Disku nuk u hap. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "Disku nuk u fik si duhet nga Windows. Fik Fast Startup në Windows, ose fike Windows plotësisht në vend që ta lësh në gjumë, pastaj provo sërish.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "Motori nuk njohu asnjë sistem skedarësh në këtë volum. Nëse është i enkriptuar, fjalëkalimi ose çelësi i rikuperimit mund të jetë i gabuar.",
     "The engine reported nothing at all. The drive may have been unplugged.": "Motori nuk raportoi asgjë fare. Disku mund të jetë shkëputur.",
     "The language changes when %@ starts again.": "Gjuha ndryshon kur %@ niset sërish.",

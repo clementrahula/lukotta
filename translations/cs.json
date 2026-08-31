@@ -293,7 +293,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "Disk zůstane ve Finderu i po ukončení aplikace %@. Až budete hotovi, vysuňte jej odtud.",
     "The drive was not opened": "Disk nebyl otevřen",
     "The drive was not opened. %@": "Disk nebyl otevřen. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "Windows disk řádně nevypnul. Vypněte ve Windows rychlé spuštění nebo Windows zcela vypněte místo uspání a zkuste to znovu.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "Jádro na tomto svazku nerozpoznalo souborový systém. Pokud je šifrovaný, může být heslo nebo obnovovací klíč nesprávný.",
     "The engine reported nothing at all. The drive may have been unplugged.": "Jádro nenahlásilo vůbec nic. Disk mohl být odpojen.",
     "The language changes when %@ starts again.": "Jazyk se změní, až se %@ spustí znovu.",

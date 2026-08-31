@@ -118,14 +118,6 @@ public enum Diagnosis {
                 )
             }),
         Rule(
-            name: "windows-hibernated", source: .linuxTooling,
-            patterns: ["hiberfile", "hibernated", "unclean", "dirty"],
-            message: {
-                appString(
-                    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again."
-                )
-            }),
-        Rule(
             name: "unrecognised-filesystem", source: .linuxTooling,
             patterns: ["unknown filesystem type", "no such device"],
             message: {

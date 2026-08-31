@@ -285,7 +285,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "הכונן נשאר ב‑Finder לאחר ש‑%@ יוצא. הוציאו אותו שם בכל עת שתסיימו.",
     "The drive was not opened": "הכונן לא נפתח",
     "The drive was not opened. %@": "הכונן לא נפתח. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "הכונן לא נסגר כראוי על ידי Windows. כבו את Fast Startup ב‑Windows, או כבו את Windows לגמרי במקום להעביר אותו לתרדמת, ואז נסו שוב.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "המנוע לא זיהה מערכת קבצים באמצעי האחסון הזה. אם הוא מוצפן, ייתכן שהסיסמה או מפתח השחזור שגויים.",
     "The engine reported nothing at all. The drive may have been unplugged.": "המנוע לא דיווח דבר. ייתכן שהכונן נותק.",
     "The language changes when %@ starts again.": "השפה משתנה כאשר %@ מופעל שוב.",

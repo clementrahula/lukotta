@@ -277,7 +277,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "Enheten blir værende i Finder etter at %@ avsluttes. Mat den ut derfra når du er ferdig.",
     "The drive was not opened": "Enheten ble ikke åpnet",
     "The drive was not opened. %@": "Enheten ble ikke åpnet. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "Windows slo ikke av enheten på riktig måte. Slå av hurtigstart i Windows, eller slå av Windows helt i stedet for dvale, og prøv igjen.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "Motoren gjenkjente ikke noe filsystem på dette volumet. Hvis det er kryptert, kan passordet eller gjenopprettingsnøkkelen være feil.",
     "The engine reported nothing at all. The drive may have been unplugged.": "Motoren rapporterte ingenting. Enheten kan ha blitt koblet fra.",
     "The language changes when %@ starts again.": "Språket endres når %@ starter igjen.",

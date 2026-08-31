@@ -277,7 +277,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "%@ के बंद होने के बाद भी ड्राइव Finder में रहती है। काम पूरा होने पर उसे वहीं निकालें।",
     "The drive was not opened": "ड्राइव नहीं खुली",
     "The drive was not opened. %@": "ड्राइव नहीं खुली। %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "ड्राइव को Windows ने ठीक से बंद नहीं किया। Windows में Fast Startup बंद करें, या Windows को हाइबरनेट करने के बजाय पूरी तरह बंद करें, फिर कोशिश करें।",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "इंजन ने इस वॉल्यूम पर कोई फ़ाइल सिस्टम नहीं पहचाना। यदि यह एन्क्रिप्टेड है, तो पासवर्ड या रिकवरी कुंजी गलत हो सकती है।",
     "The engine reported nothing at all. The drive may have been unplugged.": "इंजन ने कुछ भी नहीं बताया। शायद ड्राइव निकाल दी गई हो।",
     "The language changes when %@ starts again.": "%@ के दोबारा शुरू होने पर भाषा बदलेगी।",

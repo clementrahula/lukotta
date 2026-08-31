@@ -277,7 +277,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "Asema jää Finderiin sen jälkeen, kun %@ lopetetaan. Poista se sieltä käytöstä, kun olet valmis.",
     "The drive was not opened": "Asemaa ei avattu",
     "The drive was not opened. %@": "Asemaa ei avattu. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "Windows ei sammuttanut asemaa siististi. Poista nopea käynnistys käytöstä Windowsissa tai sammuta Windows kokonaan lepotilan sijaan, ja yritä sitten uudelleen.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "Moottori ei tunnistanut tästä taltiosta tiedostojärjestelmää. Jos se on salattu, salasana tai palautusavain voi olla väärä.",
     "The engine reported nothing at all. The drive may have been unplugged.": "Moottori ei ilmoittanut mitään. Asema on saatettu irrottaa.",
     "The language changes when %@ starts again.": "Kieli vaihtuu, kun %@ käynnistyy uudelleen.",

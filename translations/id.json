@@ -269,7 +269,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "Drive tetap ada di Finder setelah %@ keluar. Keluarkan di sana bila Anda sudah selesai.",
     "The drive was not opened": "Drive tidak terbuka",
     "The drive was not opened. %@": "Drive tidak terbuka. %@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "Drive tidak dimatikan dengan benar oleh Windows. Matikan Fast Startup di Windows, atau matikan Windows sepenuhnya alih-alih hibernasi, lalu coba lagi.",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "Mesin tidak mengenali sistem berkas pada volume ini. Jika terenkripsi, kata sandi atau kunci pemulihannya mungkin salah.",
     "The engine reported nothing at all. The drive may have been unplugged.": "Mesin tidak melaporkan apa pun. Drive mungkin telah dicabut.",
     "The language changes when %@ starts again.": "Bahasa berubah ketika %@ dijalankan lagi.",

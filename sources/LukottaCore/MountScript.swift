@@ -300,6 +300,11 @@ public enum MountScript {
                 baselineQ: shellQuoted(i.discoverLogPath + ".mounts"),
                 root: mountRoot(elevated: i.elevated)))
         lines.append("__rebase")
+        lines.append(
+            guestKernelHelpers(
+                stampQ: shellQuoted(i.discoverLogPath + ".kstamp"),
+                logQ: logQ))
+        lines.append("__kstamp")
 
         var chain = attempts(i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
 
@@ -344,6 +349,46 @@ public enum MountScript {
                 .joined(separator: " || ")
             chain.append("{ __slipped && sleep 2 && { \(again) ; } ; }")
 
+            // Everything below this line opens the drive read-only, which is
+            // not what was asked for. The commonest reason to get here is a
+            // volume Windows left dirty -- ntfs3 refuses it outright and
+            // ntfs-3g answers with an I/O error -- and the remedy that used to
+            // imply was not on this Mac at all: a chkdsk on a machine the drive
+            // may never be plugged into again.
+            //
+            // ntfsfix resets the NTFS journal and clears the dirty flag, which
+            // is the whole of what stops the volume being written to, and it
+            // runs inside the machine that just refused the mount.
+            //
+            // It has to be a before_mount action. The engine's own 'shell'
+            // subcommand looks like the obvious place and cannot work: vmproxy
+            // takes an early return for it, initialising the network and
+            // exec-ing the shell without ever running the disk setup -- so
+            // nothing is decrypted and /dev/mapper/btlk0 does not exist. An
+            // action does run after the decryption and before the mount.
+            //
+            // Nor is it guarded on evidence that the volume is dirty. That
+            // guard existed and did not fire: the words are the guest kernel's,
+            // they arrive in a log the script has to go and find, and reading
+            // them back at the right moment is a race this does not need to
+            // run. One VM boot is the whole cost, the alternative on the next
+            // line is handing back a drive nobody asked to be read-only, and
+            // ntfsfix on a volume that is not dirty clears a flag already
+            // clear. The driver check is what keeps this off anything that is
+            // not NTFS, and that is decided here rather than scraped.
+            if i.kind == .microsoft {
+                lines.append(
+                    repairAction(
+                        configQ: shellQuoted(i.configPath),
+                        actionQ: shellQuoted(i.discoverLogPath + ".repair"),
+                        mergedQ: shellQuoted(i.discoverLogPath + ".repairmerged")))
+                let repaired = attempts(
+                    i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ,
+                    action: repairActionName
+                ).joined(separator: " || ")
+                chain.append("{ __repair_setup && { \(repaired) ; } ; }")
+            }
+
             var readOnly = i
             readOnly.readOnly = true
             let retry = attempts(readOnly, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
@@ -359,6 +404,22 @@ public enum MountScript {
         }
         lines.append(chain.joined(separator: " || "))
         lines.append("__rc=$?")
+        // Only where something is owed an explanation: a failure, or a mount
+        // that had to give up writing. On a clean read-write mount there is
+        // nothing to diagnose and the transcript stays as short as it was.
+        //
+        // The marker is named only on the route that can produce one. A mount
+        // asked for read-only is read-only from the start and never falls back,
+        // so naming it here would put the word into a script that can never
+        // write it -- and the marker is read back out of the transcript as
+        // evidence that a fallback happened.
+        if i.readOnly {
+            lines.append("[ \"$__rc\" != 0 ] && __guest_kernel")
+        } else {
+            lines.append(
+                "{ [ \"$__rc\" != 0 ] || grep -q \"\(stageMarker)read-only\" \(logQ) "
+                    + "2>/dev/null ; } && __guest_kernel")
+        }
         // Mark the host's own mount read-only, which is the half Finder reads.
         //
         // The engine will not be asked for a read-only export and given
@@ -402,7 +463,8 @@ public enum MountScript {
         _ i: Inputs,
         engineQ: String,
         deviceQ: String,
-        logQ: String
+        logQ: String,
+        action: String? = nil
     ) -> [String] {
         // A volume already chosen by the user is mounted directly: no driver
         // override, no discovery.
@@ -413,7 +475,7 @@ public enum MountScript {
                     target: shellQuoted(volume.mountIdentifier),
                     driver: nil, options: nfsOptions(i), readOnly: i.readOnly,
                     ownership: ownershipFlags(i), netHelper: netHelperFlag(i),
-                    logQ: logQ)
+                    logQ: logQ, action: action)
             ]
         }
 
@@ -453,7 +515,7 @@ public enum MountScript {
                     engineQ: engineQ, target: target, driver: $0,
                     options: nfsOptions(i), readOnly: i.readOnly,
                     ownership: ownershipFlags(i), netHelper: netHelperFlag(i),
-                    logQ: logQ)
+                    logQ: logQ, action: action)
             }
         }
         if i.kind == .linux {
@@ -546,6 +608,117 @@ public enum MountScript {
             __mounted() { [ -n "$(__new_mounts)" ]; }
             """
     }
+
+    /// The guest kernel's account of why a filesystem refused, folded into the
+    /// transcript the app diagnoses from.
+    ///
+    /// The engine writes two logs per run and the script only ever saw one.
+    /// Its own output goes down the pipe into this transcript; the guest
+    /// kernel goes to `anylinuxfs_kernel-<id>.log` beside it, and nothing read
+    /// that -- `Housekeeping` knows the name only in order to delete it.
+    ///
+    /// Which is where the reason lives. A drive Windows left unclean is
+    /// refused by ntfs3 with
+    ///
+    ///     ntfs3(dm-0): volume is dirty and "force" flag is not set!
+    ///
+    /// while the engine's own output for the same attempt says only "wrong fs
+    /// type, bad option, bad superblock". So `Diagnosis` had a rule for this
+    /// -- windows-hibernated, matching "dirty" and "unclean" -- that could
+    /// never fire, and a drive that opened read-only because of Fast Startup
+    /// was explained as one that "may need repairing", with the one setting
+    /// that would fix it never named.
+    ///
+    /// Every log this attempt wrote, not the newest: a Microsoft drive tries
+    /// ntfs3, then ntfs-3g, then read-only, and the refusal that matters is
+    /// the first of the three. The newest belongs to the attempt that worked.
+    ///
+    /// Filtered rather than appended whole. The rules match on text and the
+    /// first of them wins, so a boot log arriving entire would let "no such
+    /// device" out of some unrelated probe answer a question about the
+    /// filesystem -- trading an honest generic sentence for a confident wrong
+    /// one. Only lines naming a filesystem driver or an unclean volume get in.
+    private static func guestKernelHelpers(stampQ: String, logQ: String) -> String {
+        return """
+            __klogs() { echo "${\(EngineEnvironment.homeVariable):-$HOME}/Library/Logs"; }
+            __kstamp() { : > \(stampQ) 2>/dev/null || true; }
+            __guest_kernel() {
+              [ -n "${__kread:-}" ] && return 0
+              __kread=1
+              __kdir=$(__klogs)
+              [ -d "$__kdir" ] || return 0
+              find "$__kdir" -name "anylinuxfs_kernel-*.log" -newer \(stampQ) 2>/dev/null               | sort | while read -r __k; do
+                  [ -r "$__k" ] || continue
+                  __said=$(grep -aiE \(shellQuoted(guestKernelPhrases)) "$__k" 2>/dev/null | tail -n 20)
+                  [ -n "$__said" ] || continue
+                  echo "\(guestKernelMarker) $__k" >> \(logQ)
+                  echo "$__said" >> \(logQ)
+                done
+              return 0
+            }
+            # Whether the volume was refused because Windows left it unclean.
+            # The words are the guest kernel's, so its log is folded in first.
+            __dirty() {
+              __guest_kernel
+              grep -qiE \(shellQuoted(dirtySignatures)) \(logQ) 2>/dev/null
+            }
+            """
+    }
+
+    /// How a filesystem says it was not shut down properly.
+    ///
+    /// ntfs3 refuses in the kernel; ntfs-3g answers the mount with an I/O
+    /// error and says nothing about why, so the kernel is the only account of
+    /// either.
+    public static let dirtySignatures =
+        "volume is dirty|unclean file system|hiberfil|needs journal recovery"
+
+    /// The name of the repair action generated into the engine's config.toml.
+    public static let repairActionName = "lukottarepair"
+
+    /// Writing that action, merged into the config rather than over it.
+    ///
+    /// The config also holds the user's own settings and the engine rewrites it
+    /// wholesale on every run, so the old copy of this action is dropped by
+    /// name and the new one appended. Truncating in place keeps whoever owns
+    /// the file owning it.
+    ///
+    /// Backticks, not $(...): the host reads every action script for `$VAR`
+    /// references and refuses to start when one names a variable it cannot
+    /// resolve -- only ALFS_VM_MOUNT_POINT is defined for it. Backticks are not
+    /// scanned, so the device can be looked up in the guest where the answer
+    /// is, rather than guessed at from here where it is /dev/mapper/btlk0
+    /// behind BitLocker and /dev/vda* without.
+    ///
+    /// A TOML literal string, so nothing inside needs escaping, and a quoted
+    /// heredoc, so the host's own shell does not run the backticks first.
+    private static func repairAction(configQ: String, actionQ: String, mergedQ: String) -> String {
+        return """
+            __repair_setup() {
+              cat > \(actionQ) <<'LUKOTTA_ACTION_EOF'
+            [custom_actions.\(repairActionName)]
+            description = 'Generated by Lukotta; clears the dirty flag so the drive opens writable'
+            before_mount = 'ntfsfix -d "`blkid -t TYPE=ntfs -o device | head -n 1`" || true'
+            LUKOTTA_ACTION_EOF
+              { awk 'BEGIN { skip = 0 }
+                     /^\\[/ { skip = ($0 == "[custom_actions.\(repairActionName)]") }
+                     !skip' \(configQ) 2>/dev/null; cat \(actionQ); } > \(mergedQ) || return 1
+              cat \(mergedQ) > \(configQ)
+            }
+            """
+    }
+
+    /// What counts as the guest kernel talking about a filesystem.
+    ///
+    /// Deliberately narrow, and every word here earns its place: the driver
+    /// names are what prefix a refusal, and the rest is the vocabulary of a
+    /// volume that was not shut down properly.
+    public static let guestKernelPhrases =
+        "ntfs|exfat|ext[234]|btrfs|xfs|hfsplus|vfat|dirty|unclean|hiberfil|chkdsk|journal"
+
+    /// Marks where the kernel's account starts, so a transcript read by a
+    /// person says which machine each half came from.
+    public static let guestKernelMarker = "LUKOTTA_GUEST_KERNEL:"
 
     /// The directory this attempt's mount can appear in, or nothing when more
     /// than one is possible.
@@ -640,13 +813,15 @@ public enum MountScript {
         readOnly: Bool,
         ownership: String,
         netHelper: String,
-        logQ: String
+        logQ: String,
+        action: String? = nil
     ) -> String {
         let typeFlag = driver.map { " -t \($0)" } ?? ""
+        let actionFlag = action.map { " -a \($0)" } ?? ""
         // --nfs-options must use the joined form. The flag is variadic, and the
         // separated form consumes the target that follows it.
         return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount\(ownership)"
-            + "\(typeFlag)\(mountOptions(driver: driver, readOnly: readOnly)) -w false"
+            + "\(typeFlag)\(actionFlag)\(mountOptions(driver: driver, readOnly: readOnly)) -w false"
             + "\(netHelper)"
             + " --nfs-options=\(shellQuoted(options))"
             + " \(target) >> \(logQ) 2>&1 && \(mountedCheck)"
@@ -665,15 +840,39 @@ public enum MountScript {
     ///            '--nfs-export-opts <NFS_EXPORT_OPTS>'
     ///
     /// A read-only mount therefore says both things in the one flag the engine
-    /// will accept: the export is read-only, and every file in it is reported
-    /// as belonging to the user, which is what --ignore-permissions was for.
+    /// will accept, and says them the way the engine itself does.
+    ///
+    /// What --ignore-permissions actually is, read out of the engine rather
+    /// than assumed -- `VmDiskContext::build_nfs_exports` in vmproxy holds two
+    /// templates, and the one it picks for that flag is
+    ///
+    ///     {rw|ro},no_subtree_check,all_squash,anonuid=0,anongid=0,insecure
+    ///
+    /// Squashed to **root**, which is what bypasses the permission check in
+    /// the guest. It is not what makes the files appear to belong to whoever
+    /// opened the drive: that is the engine adding `uid=,gid=` to the guest's
+    /// own mount, which it does on both routes and which nothing here touches.
+    ///
+    /// This asked for anonuid=<the user> instead, on the belief that squashing
+    /// to somebody is what reports the files as theirs. Export squashing
+    /// rewrites the credential a request arrives with and never the ownership
+    /// a GETATTR reports, so it did the opposite of what it was reaching for:
+    /// every request was performed as an unprivileged user, which is stricter
+    /// than the engine's own no_root_squash default and strictly less than
+    /// --ignore-permissions. A drive carrying Linux ownership -- one written
+    /// through this app, which records uid 0 -- then came back with its
+    /// directories owned by root, and every one of them that was not
+    /// world-readable was refused. Finder draws that as a folder of zero
+    /// bytes with a red badge, and the drive looks corrupt rather than shut.
+    ///
     /// The other options are the engine's own defaults, kept because naming
     /// the export at all replaces them.
     static func ownershipFlags(_ i: Inputs) -> String {
         guard i.readOnly else { return " --ignore-permissions" }
+        // anonuid=0, not i.uid. The engine's own template, with "ro" in front.
         let opts =
-            "ro,no_subtree_check,no_root_squash,insecure,"
-            + "all_squash,anonuid=\(i.uid),anongid=\(i.gid)"
+            "ro,no_subtree_check,insecure,"
+            + "all_squash,anonuid=0,anongid=0"
         return " --nfs-export-opts=" + shellQuoted(opts)
     }
 

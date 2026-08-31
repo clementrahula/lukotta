@@ -59,7 +59,15 @@ public enum HelperInfo {
     ///    A daemon on 4 keeps generating two, which the engine refuses outright,
     ///    so a stale daemon does not merely mount differently: it cannot mount a
     ///    read-only NTFS volume at all.
-    public static let contract = 5
+    /// 6: the mount script repairs a volume Windows left dirty and mounts it
+    ///    writable, instead of demoting the drive to read-only; and a read-only
+    ///    export squashes to root rather than to the invoking user, which is
+    ///    what stopped directories owned by root being readable at all.
+    ///    A daemon on 5 generates neither, so the fix reaches nobody while it
+    ///    is still the one composing the script. That is not a theory: every
+    ///    hardware test of this change ran against a daemon started before it,
+    ///    reported no repair, and looked like a fault in the repair.
+    public static let contract = 6
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"

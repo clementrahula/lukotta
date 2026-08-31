@@ -75,7 +75,7 @@ public enum Components {
     ///
     /// 2: NTFS tries ntfs3 first and falls back to ntfs-3g with big_writes,
     ///    and driver options and read-only share a single --options.
-    public static let mountScriptVersion = "2"
+    public static let mountScriptVersion = "3"
 
     /// The parts recorded by the build, read from the bundle.
     ///

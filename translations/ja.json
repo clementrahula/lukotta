@@ -269,7 +269,6 @@
     "The drive stays in Finder after %@ quits. Eject it there whenever you are finished.": "%@ の終了後もドライブは Finder に残ります。終わったらそこで取り出してください。",
     "The drive was not opened": "ドライブを開けませんでした",
     "The drive was not opened. %@": "ドライブを開けませんでした。%@",
-    "The drive was not shut down cleanly by Windows. Turn off Fast Startup in Windows, or shut Windows down fully rather than hibernating, then try again.": "このドライブは Windows によって正常に終了されていません。Windows で「高速スタートアップ」をオフにするか、休止状態ではなく完全にシャットダウンしてから、もう一度試してください。",
     "The engine did not recognise a filesystem on this volume. If it is encrypted, the password or recovery key may be wrong.": "エンジンはこのボリュームでファイルシステムを認識できませんでした。暗号化されている場合、パスワードまたは回復キーが違う可能性があります。",
     "The engine reported nothing at all. The drive may have been unplugged.": "エンジンは何も報告しませんでした。ドライブが取り外された可能性があります。",
     "The language changes when %@ starts again.": "言語は %@ を次に起動したときに変わります。",
