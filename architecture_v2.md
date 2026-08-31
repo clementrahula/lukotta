@@ -2625,3 +2625,73 @@ process's.
 The uncomfortable reading: **the route that meets the UX targets is the slow one,
 and the route that is fast fails the UX targets.** Neither is what the goal asks
 for, and that is a finding about macOS rather than about this code.
+
+## 40. The plan, given §38 and §39
+
+Two facts decide everything: FSKit costs 1363 µs per metadata operation
+(measured, §38) which is worse than the VM it would replace, and its three
+blockers are Apple's to fix (§37). Meanwhile the no-VM NFS route is 4-7x better
+than v1 on estimate, has no blockers, and cannot give a local volume or a Trash.
+
+Neither meets the goal in full. The plan is therefore staged so that the
+uncertain half is settled before anything is built on it.
+
+### Phase 0 -- two measurements, no code, days not weeks
+
+**0a. The macOS NFS client's turnaround with no VM.** Export a plain directory
+from `nfsd` on loopback, mount it, run §38's 800-file create/delete. If it lands
+near 150-300 µs, Phase 1 is worth building. If it lands near v1's 1110 µs, the
+gvproxy attribution in §1 was wrong and Phase 1 is pointless. **Needs
+`/etc/exports` and `nfsd`: a system change, the owner's to make.**
+
+**0b. Whether FSKit's 1.2 ms is the framework or Apple's module.** Beat blocker
+2 -- the privileged helper chowns `/dev/rdiskNsM` before the mount, which it
+already has the standing to do -- then mount our own module on a real partition
+and run the same test. If our module also costs ~1.2 ms it is fskitd, and FSKit
+is off the table until Apple ships fixes. If ours is near 0.3 ms, FSKit is alive.
+
+Nothing else is worth starting until these two are answered. Both are hours.
+
+### Phase 1 -- drop the VM, keep NFS (only if 0a is favourable)
+
+The filesystem code runs in a process on the Mac and exports to `localhost`. The
+`FSBacking` seam is already the boundary, so the NTFS work behind it is reused
+unchanged.
+
+What it buys: the VM gone -- with it the boot latency, the wedged mounts, the
+three-loopback-address ceiling, gvproxy and the whole guest. 4-7x on metadata
+and no worse on throughput than today.
+
+What it does not buy: a local volume, or Trash. It is strictly better than what
+ships, and it is not what the goal asks for.
+
+### Phase 2 -- encryption natively, needed by every route
+
+BitLocker and LUKS unlock in-process: header parsing and key derivation, both
+fully specified in §36. AES-XTS is written and passes the IEEE 1619 vectors;
+AES-CCM and Argon2id are the two pieces macOS does not provide. This is required
+whichever transport wins, and it is the hard constraint from the goal.
+
+### Phase 3 -- FSKit stays on the shelf
+
+The appex is built, signed, entitled and correct. It is re-tested on each macOS
+release against §38's numbers and §37's blockers. The day fskitd's per-operation
+cost comes down and physical disks open, it becomes the front end and everything
+behind it is already written. That is precisely what §4 said to do, and §38 is
+the finding that triggers it.
+
+### What does not change whatever happens
+
+The NTFS implementation is needed by every route -- it is what makes the VM
+unnecessary at all, and no route reuses the guest's ntfs3. The seam it sits
+behind is what lets the front end change without touching it. Last night's work
+is upstream of the whole decision, which is the one thing about it that went
+right.
+
+### The honest summary for the owner
+
+The goal asks for native speed *and* native behaviour. Today macOS offers one or
+the other: FSKit gives the behaviour and costs 1363 µs; NFS gives the speed and
+gives a network volume. Phase 1 makes the product substantially better than it
+is now without waiting for Apple. Phase 3 is how it eventually becomes what was
+actually asked for, and its timing is not ours to choose.
