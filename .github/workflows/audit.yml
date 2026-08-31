@@ -82,14 +82,56 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      # The guest is an OCI image pinned by digest. Scanned from the registry
-      # rather than from a running copy, so this needs no macOS and no engine.
-      - name: Read the pinned digest
-        id: image
+      # What is scanned is vendor/guest-sbom.json: the package database of the
+      # trimmed image, written by vendor-engine.sh and committed.
+      #
+      # It used to be the base image pulled from the registry by the digest in
+      # engine.lock. That is not the thing that ships. "anylinuxfs init" boots
+      # that image and installs into it, and trim-image.py takes packages back
+      # out again; the registry copy holds 16 packages and the guest holds 66.
+      # CVE-2026-14456 was caught only because OpenSSL happens to sit in the
+      # base layer -- an advisory against nfs-utils, cryptsetup, krb5-libs,
+      # python3 or sqlite-libs would have gone unseen. Scanning the inventory
+      # instead needs no macOS and no engine, which is what the registry scan
+      # was for.
+      - name: Check the inventory is the one the notices describe
+        # Both files are generated from the same package database, so they
+        # cannot disagree unless one was regenerated and the other was not. A
+        # stale SBOM is worse than no SBOM: it is a green tick over an image
+        # nobody scanned.
         run: |
-          digest=$(python3 -c "import json;print(json.load(open('vendor/engine.lock'))['guest_image']['oci_digest'])")
-          echo "digest=$digest" >> "$GITHUB_OUTPUT"
-          echo "guest image: $digest"
+          python3 - <<'PY'
+          import json, re, sys
+
+          bom = json.load(open("vendor/guest-sbom.json"))
+          sbom = {
+              (c["name"], c["version"])
+              for c in bom["components"] if c["type"] == "library"
+          }
+
+          notices, inside = set(), False
+          for line in open("THIRD_PARTY_NOTICES.md", encoding="utf-8"):
+              if line.startswith("## Linux Guest Image"):
+                  inside = True
+                  continue
+              if inside and line.startswith("## "):
+                  break
+              m = re.match(r"^\| ([a-z0-9][a-z0-9._+-]*) \| ([^|]+?) \| [^|]+ \|\s*$", line)
+              if inside and m:
+                  notices.add((m.group(1), m.group(2).strip()))
+
+          if sbom != notices:
+              for what, rows in (("only in the SBOM", sbom - notices),
+                                 ("only in the notices", notices - sbom)):
+                  for name, version in sorted(rows):
+                      print(f"  {what}: {name} {version}")
+              sys.exit(
+                  "error: vendor/guest-sbom.json and THIRD_PARTY_NOTICES.md "
+                  "describe different images.\n"
+                  "       Re-run scripts/vendor-engine.sh and "
+                  "scripts/generate-notices.sh together.")
+          print(f"{len(sbom)} packages, agreeing with the notices")
+          PY
 
       - name: Trivy
         # Pinned to the commit rather than the tag. The Trivy releases were
@@ -97,8 +139,8 @@ jobs:
         # where a commit cannot.
         uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
         with:
-          scan-type: image
-          image-ref: alpine@${{ steps.image.outputs.digest }}
+          scan-type: sbom
+          scan-ref: vendor/guest-sbom.json
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: "1"

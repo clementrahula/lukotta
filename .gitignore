@@ -10,6 +10,10 @@ dist/
 # cannot build at all.
 /vendor/*
 !/vendor/engine.lock
+# The guest's package inventory is tracked for the same reason: the audit
+# workflow scans it on a Linux runner that has no vendor tree and no macOS
+# build, so an untracked copy would leave it scanning nothing.
+!/vendor/guest-sbom.json
 
 # Agent worktrees are checkouts of this repo, not content of it.
 .claude/worktrees/

@@ -387,3 +387,12 @@ into `dist/sources`, matched to what is shipped rather than to what upstream
 offers. `THIRD_PARTY_NOTICES.md` records each component and its licence, and is
 generated from the package database of the trimmed image, so it cannot drift
 from what ships.
+
+`vendor/guest-sbom.json` is that same database as a CycloneDX SBOM, written by
+`scripts/guest-sbom.py` during `vendor-engine.sh`. It is one of the two files
+under `vendor/` that are tracked, because the audit workflow scans it on a
+Linux runner that has no vendor tree and no macOS build: an untracked copy
+would leave that job scanning nothing. Regenerating the guest means committing
+it and `THIRD_PARTY_NOTICES.md` together — the audit compares the two and fails
+if they describe different images, since a stale SBOM is a green tick over an
+image nobody scanned.
