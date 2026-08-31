@@ -155,6 +155,29 @@ PYEOF
 
 echo "Building…"
 export PATH="/opt/homebrew/opt/lld/bin:/opt/homebrew/opt/llvm/bin:$PATH"
+
+# Nothing of the machine that built this goes into a binary somebody else runs.
+#
+# rustc writes absolute source paths into panic messages and debug info, so a
+# plain build bakes in wherever the crates happened to sit: the work tree and
+# the registry, both inside a home directory. Nobody looks at a vendored binary
+# for that and check-private.py cannot -- it reads what git tracks, and vendor/
+# is ignored -- so it travelled to everyone who installed the app.
+#
+# Appended to each crate's own rustflags rather than exported as RUSTFLAGS or
+# asked for as a profile. The environment variable REPLACES target.*.rustflags
+# instead of adding to them, and vmproxy keeps its cross-linker there: set that
+# way, -Clink-arg=-fuse-ld=lld disappears, clang falls back to the host ld, and
+# the guest binary fails to link on options only GNU ld understands. The
+# profile key trim-paths does the job properly and is not stabilised in the
+# pinned cargo. Appending to what is already written also means upstream
+# changing its linker flags cannot silently drop ours.
+#
+# One mapping, not several: CARGO_HOME and the work tree both sit under the
+# home directory, so remapping it covers them with no question about which of
+# two overlapping rules wins.
+/usr/bin/python3 "$HERE/scripts/remap-build-paths.py" "$SRC" "$HOME"
+
 ( cd "$SRC/anylinuxfs" && cargo build --release --quiet )
 HOST="$SRC/anylinuxfs/target/release/anylinuxfs"
 [ -x "$HOST" ] || { echo "error: no anylinuxfs was built" >&2; exit 1; }
@@ -172,6 +195,21 @@ fi
 
 rm -rf "$OUT"; mkdir -p "$OUT"
 cp "$HOST" "$GUEST" "$OUT/"
+
+# Checked rather than intended. A remap that stops working -- a flag rustc
+# renames, a RUSTFLAGS somewhere downstream that replaces this one rather than
+# adding to it, a crate built before the export -- is silent, and the next
+# person to notice is whoever runs `strings` on a release. Fail the build
+# instead. The home directory is the thing that must not be there; the account
+# name is asked of the system, never written down here.
+for __b in "$OUT/anylinuxfs" "$OUT/vmproxy"; do
+  if LC_ALL=C strings "$__b" 2>/dev/null | grep -qF "$HOME"; then
+    echo "error: $__b carries the path of the machine that built it." >&2
+    echo "       RUSTFLAGS did not reach the compiler; nothing is shipped." >&2
+    exit 1
+  fi
+done
+
 # The host binary needs the same entitlements upstream signs it with, or
 # Hypervisor.framework refuses it.
 /usr/bin/codesign --force -s - --entitlements "$SRC/anylinuxfs.entitlements" \
