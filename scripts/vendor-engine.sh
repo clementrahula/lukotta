@@ -209,6 +209,14 @@ fi
 cp "$STAGE/lib/apk/db/installed" "$OUT/alpine/packages.db"
 [ -f "$(dirname "$STAGE")/removed-packages.txt" ] && \
   cp "$(dirname "$STAGE")/removed-packages.txt" "$OUT/alpine/removed-packages.txt"
+
+# The same database again, as an SBOM, and this one is committed. The audit
+# workflow runs on a Linux runner with nothing but a checkout: it cannot see
+# this vendor tree, so anything it is to scan has to be in the repository.
+# Written from the trimmed image, so it lists what ships and not what upstream
+# installed.
+/usr/bin/python3 "$HERE/scripts/guest-sbom.py" \
+  "$OUT/alpine/packages.db" "$HERE/vendor/guest-sbom.json"
 # Number of entries in the archive, so that the first-run unpack shows progress
 # rather than a spinner.
 /usr/bin/find "$STAGE" | wc -l | tr -d ' ' > "$OUT/alpine/rootfs.count"
