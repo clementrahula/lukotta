@@ -45,11 +45,61 @@
 #   XFS        NOT TESTED. Neither macOS nor the trimmed guest can create one,
 #              so no fixture exists on this machine. The guest kernel mounts XFS
 #              and nothing suggests it is broken -- but nothing here has opened
-#              one, and that is a gap in the evidence rather than a clean bill
+#              one, and that is a gap in the evidence rather than a clean bill.
+#
+#              A file called plain-xfs.img was in the fixture directory anyway:
+#              two gigabytes long, sixteen kilobytes allocated, no superblock.
+#              The truncate had worked and the mkfs had never run. It has been
+#              deleted, and every image this script makes is now checked by its
+#              superblock before it is called a fixture -- see verify_image.
+#              A directory listing showing xfs among the fixtures is precisely
+#              how an untested format gets counted as a tested one.
 #
 set -euo pipefail
 OUT="${1:-$HOME/.lukotta-testvols}"
 mkdir -p "$OUT"
+
+# A file named plain-xfs.img is not an XFS volume.
+#
+# One was sitting in the fixture directory: two gigabytes long, sixteen
+# kilobytes actually allocated, and not one byte of a superblock in it. The
+# truncate that reserves the file had succeeded and the mkfs that was supposed
+# to fill it had never run, so what was left behind was a stub with a
+# convincing name. A listing of the directory showed xfs among the fixtures,
+# which is exactly how a format nothing has ever opened comes to be counted as
+# covered.
+#
+# So every image is asked what it is, by its superblock, and one that cannot
+# answer is deleted rather than left to be miscounted later. `ls` is no help
+# for this either -- it is eza on this machine and its columns are not the ones
+# a script expects -- so sizes come from stat.
+magic_at() {  # file, offset, byte-count -> lowercase hex
+  dd if="$1" bs=1 skip="$2" count="$3" status=none 2>/dev/null | xxd -p | tr -d '\n'
+}
+
+verify_image() {  # file, format -> 0 if it really is that format
+  local f="$1" fmt="$2"
+  [ -s "$f" ] || return 1
+  case "$fmt" in
+    xfs)    [ "$(magic_at "$f" 0 4)" = "58465342" ] ;;          # XFSB
+    ext)    [ "$(magic_at "$f" 1080 2)" = "53ef" ] ;;           # s_magic 0xEF53
+    exfat)  [ "$(magic_at "$f" 3 5)" = "4558464154" ] ;;        # EXFAT
+    ntfs)   [ "$(magic_at "$f" 3 4)" = "4e544653" ] ;;          # NTFS
+    btrfs)  [ "$(magic_at "$f" 65600 8)" = "5f42485266535f4d" ] ;;  # _BHRfS_M
+    luks)   [ "$(magic_at "$f" 0 6)" = "4c554b53babe" ] ;;      # LUKS\xba\xbe
+    *)      return 0 ;;
+  esac
+}
+
+# Called for anything this script claims to have made.
+claim() {  # file, format, label
+  if verify_image "$1" "$2"; then
+    made+=("$3 ($(stat -c %s "$1") bytes)")
+  else
+    rm -f "$1"
+    missing+=("$3 -- mkfs left nothing behind; the stub was deleted so it is not miscounted as a fixture")
+  fi
+}
 # Two gigabytes, not six hundred megabytes. The corpus includes a sparse
 # gigabyte, and NFSv3 cannot express a hole -- so it arrives fully allocated and
 # a 600 MB volume runs out of space on that one file, which reads as a copy
