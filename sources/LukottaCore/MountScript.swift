@@ -223,6 +223,23 @@ public enum MountScript {
         /// guest memory lazily, but it is not free for being lazy: the scratch
         /// directory a container's volumes are served from is sized from it,
         /// so an inflated number reports free space that does not exist.
+        ///
+        /// This number cannot be raised much further, and that is the shape of
+        /// a problem rather than a detail. Measured with one drive open and a
+        /// copy running: 502 MB resident for the machine and its two helpers,
+        /// against 170 MB when the guest was given 256 and about 1180 MB when
+        /// it was given a gigabyte. Twelve drives open at once is therefore
+        /// about 5.9 GB before macOS has taken anything, which an eight-
+        /// gigabyte Mac does not have -- and this Mac was already down to
+        /// 102 MB free with 4.4 GB compressed while serving one.
+        ///
+        /// So a copy that does not stall and a dozen drives open together are
+        /// in direct conflict while every drive is its own machine, and no
+        /// value here settles both. The way out is not a smaller number: it is
+        /// one machine serving several drives. libkrun already attaches
+        /// several disks to one VM -- `krun_add_disk2` is called in a loop --
+        /// so the limit is the engine's model, one mount being one machine and
+        /// one export, rather than anything underneath it.
         public static let ramMiB = 512
         /// Half the machine and never more than two, the work being I/O.
         public static var cores: Int {
