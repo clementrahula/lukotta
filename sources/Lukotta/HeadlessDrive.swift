@@ -71,11 +71,33 @@
             open(device, passphrase: passphrase, readOnly: readOnly)
         }
 
+        /// What the daemon's job actually runs, as it appears in ps.
+        ///
+        /// Not the Mach service name, which is what this looked for first and
+        /// which matches nothing: the job's BundleProgram is a path inside the
+        /// bundle -- "Contents/MacOS/Lukotta<Brand>Helper" -- and that is the
+        /// string a process listing shows. Looking for the wrong one found no
+        /// daemon, decided nothing was stale, and let the run go ahead through
+        /// the old one.
+        private static func daemonProgram() -> String {
+            let plist =
+                Bundle.main.bundlePath
+                + "/Contents/Library/LaunchDaemons/" + HelperInfo.plistName
+            if let data = FileManager.default.contents(atPath: plist),
+                let job = try? PropertyListSerialization.propertyList(
+                    from: data, options: [], format: nil) as? [String: Any],
+                let program = job["BundleProgram"] as? String
+            {
+                return program
+            }
+            return HelperInfo.machServiceName
+        }
+
         /// The running daemon's process id, or nil if none is running.
         private static func daemonProcessID() -> Int32? {
             let task = Process()
             task.executableURL = URL(fileURLWithPath: "/usr/bin/pgrep")
-            task.arguments = ["-f", HelperInfo.machServiceName]
+            task.arguments = ["-f", daemonProgram()]
             let pipe = Pipe()
             task.standardOutput = pipe
             task.standardError = FileHandle.nullDevice
@@ -91,7 +113,7 @@
         /// Whether the daemon running now started before the bundle's copy was
         /// last written, which is what "stale" means here.
         private static func daemonIsOlderThanTheBundle() -> Bool {
-            let bundled = HelperInfo.bundledToolPath(inBundle: Bundle.main.bundlePath)
+            let bundled = Bundle.main.bundlePath + "/" + daemonProgram()
             guard
                 let written = (try? FileManager.default.attributesOfItem(atPath: bundled))?[
                     .modificationDate]
