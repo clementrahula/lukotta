@@ -17,7 +17,27 @@
 # osascript drives the real copy engine without anybody clicking, so this runs
 # unattended and still exercises the path that failed.
 #
-# Result on 2026-09-01, two cycles against an ext4 volume:
+# Result on 2026-09-01, two cycles against the BitLocker/NTFS stick this bug
+# was reported on -- which is the one that matters, an ext4 image on the
+# internal disk being too fast to stall:
+#
+#   cycle 1 few    417s  3 identical, 0 differing, 0 missing
+#   cycle 1 many   193s  2000 identical, 0 differing, 0 missing
+#   cycle 2 few    440s  3 identical, 0 differing, 0 missing
+#   cycle 2 many   196s  2000 identical, 0 differing, 0 missing
+#   2 cycles at both extremes, 0 failures
+#
+# And watched while it ran, for everything that reaches a screen:
+#
+#   copy-engine errors 0, items skipped 0, volumes removed 0,
+#   not responding 0
+#
+# Latency sampled through the large-file phase of the second cycle: p50 0.027s,
+# worst 0.030s, nothing past two seconds. On the same drive earlier the same day
+# the worst was 4.21s -- with one difference besides the fixes, which is that
+# six gigabytes had since been freed on it.
+#
+# Also run against an ext4 volume:
 #
 #   cycle 1 few      2s  3 identical, 0 differing, 0 missing
 #   cycle 1 many     3s  2000 identical, 0 differing, 0 missing
