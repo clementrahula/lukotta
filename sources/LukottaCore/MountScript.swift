@@ -145,6 +145,22 @@ public enum MountScript {
         /// instead of it. Keeping `soft` is deliberate -- see nfsOptions(_:)
         /// for the panic it avoids.
         ///
+        /// Measured either side of the change, same thirteen gigabytes, same
+        /// drive at 92% full, same guest:
+        ///
+        ///   nodumbtimer, retrans=3   stopped at 11,534,356,480 bytes of
+        ///                            13,631,488,000 -- 84%, four files left at
+        ///                            zero length, error 100060 on screen
+        ///   dumbtimer, retrans=5     13,631,488,000 of 13,631,488,000, in 2448
+        ///                            seconds, and every one of the twenty-six
+        ///                            files read back through the mount with a
+        ///                            matching SHA-256
+        ///
+        /// The read-back is the half that had never been done. Two earlier runs
+        /// were called complete on a byte total and a file count, neither of
+        /// which can tell thirteen gigabytes of the right bytes from thirteen
+        /// gigabytes of the wrong ones.
+        ///
         /// This is patience, not durability. Nothing here tells the server to
         /// acknowledge a write it has not made.
         ///
