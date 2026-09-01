@@ -1225,6 +1225,40 @@ group("mountStages") {
         lvs.first?.mountIdentifier == "lvm:fedoravg:disk5s1:root",
         "the engine's own lvm: form is what gets mounted")
 
+    // A RAID array, which the engine addresses by its member disks rather than
+    // by a volume group. The section header is what says so, and it has to be,
+    // because the identifier alone cannot: an array of three members is
+    // "diskA:diskB:diskC" and an LVM volume is "vg:disk:lv" -- the same shape,
+    // different meaning. Counting colons mounts the wrong thing.
+    let raidListing = """
+        raid:diskA:diskB (volume):
+           #:            TYPE NAME             SIZE       IDENTIFIER
+           0:            ext4 MIRRORED         256.0 MB   diskA:diskB
+        """
+    let raidVolumes = VolumeGroupParser.logicalVolumes(in: raidListing)
+    expect(raidVolumes.count == 1, "a two-disk array is one mountable volume")
+    expect(
+        raidVolumes.first?.mountIdentifier == "raid:diskA:diskB",
+        "an array is mounted by the raid: form, not the lvm: one")
+
+    let threeMemberArray = """
+        raid:diskA:diskB:diskC (volume):
+           #:            TYPE NAME             SIZE       IDENTIFIER
+           0:           btrfs WIDEARRAY        512.0 MB   diskA:diskB:diskC
+        """
+    expect(
+        VolumeGroupParser.logicalVolumes(in: threeMemberArray).first?.mountIdentifier
+            == "raid:diskA:diskB:diskC",
+        "a three-member array is not mistaken for a logical volume")
+
+    // And the other way: a volume group listed after an array must not inherit
+    // the array's scheme, or every LVM volume below it is addressed as RAID.
+    let bothSections = raidListing + "\n" + listing
+    expect(
+        VolumeGroupParser.logicalVolumes(in: bothSections).last?.mountIdentifier
+            == "lvm:fedoravg:disk5s1:backup",
+        "the scheme resets at each section header")
+
     // An alias outside /dev cannot resolve, so it must not become an attempt.
     let aliased = MountScript.build(
         MountScript.Inputs(

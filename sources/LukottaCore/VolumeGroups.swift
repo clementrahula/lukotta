@@ -5,20 +5,36 @@ import Foundation
 
 /// A logical volume discovered inside an unlocked container.
 public struct LogicalVolume: Equatable, Sendable {
-    public let identifier: String  // "lukottavg:disk4s1:root"
+    public let identifier: String  // "lukottavg:disk4s1:root", or "diskA:diskB"
     public let label: String  // filesystem label, or the LV name
     public let filesystem: String  // ext4, btrfs, xfs …
     public let size: String
 
+    /// Which scheme addresses this volume: `lvm` or `raid`.
+    ///
+    /// It cannot be worked out from the identifier, which is the reason this
+    /// is carried rather than derived. An LVM volume is `vg:disk:lv` -- three
+    /// parts -- and a RAID array is its member disks, which is two parts for a
+    /// mirror and three for an array of three. `disk7s1:disk8s1:disk9s1` and
+    /// `ubuntuvg:disk4s1:home` are the same shape and mean entirely different
+    /// things, so counting colons picks the wrong one on any array with three
+    /// members. The listing says which it is in the section header above the
+    /// row, and that is what decides it.
+    public let scheme: String
+
     /// What `anylinuxfs mount` expects for this volume.
-    public init(identifier: String, label: String, filesystem: String, size: String) {
+    public init(
+        identifier: String, label: String, filesystem: String, size: String,
+        scheme: String = "lvm"
+    ) {
         self.identifier = identifier
         self.label = label
         self.filesystem = filesystem
         self.size = size
+        self.scheme = scheme
     }
 
-    public var mountIdentifier: String { "lvm:\(identifier)" }
+    public var mountIdentifier: String { "\(scheme):\(identifier)" }
 }
 
 /// Parses `anylinuxfs list --decrypt` output.
@@ -53,11 +69,27 @@ public enum VolumeGroupParser {
 
     public static func logicalVolumes(in text: String) -> [LogicalVolume] {
         var found: [LogicalVolume] = []
+        // Which section the rows below belong to. The listing announces it:
+        //
+        //     lvm:lukottavg (volume group):
+        //     raid:raid1a.img:raid1b.img (volume):
+        //
+        // and everything indexed underneath is addressed that way. Defaults to
+        // lvm, which is what every listing held before RAID was read at all.
+        var scheme = "lvm"
         for line in text.components(separatedBy: .newlines) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.hasSuffix("):"), trimmed.contains(" (") {
+                if trimmed.hasPrefix("raid:") { scheme = "raid" }
+                if trimmed.hasPrefix("lvm:") { scheme = "lvm" }
+            }
             let fields = line.split(whereSeparator: { $0 == " " || $0 == "\t" }).map(String.init)
-            // A mountable row ends in vg:disk:lv and begins with an index.
+            // A mountable row begins with an index and ends with the identifier
+            // the section's scheme addresses. LVM prints vg:disk:lv; RAID
+            // prints the member disks, of which there are at least two.
+            let parts = fields.last?.split(separator: ":").count ?? 0
             guard let identifier = fields.last,
-                identifier.split(separator: ":").count == 3,
+                scheme == "raid" ? parts >= 2 : parts == 3,
                 let first = fields.first, first.hasSuffix(":"),
                 Int(first.dropLast()) != nil,
                 fields.count >= 4
@@ -84,7 +116,8 @@ public enum VolumeGroupParser {
                     identifier: identifier,
                     label: label.isEmpty ? lvName : label,
                     filesystem: filesystem,
-                    size: size))
+                    size: size,
+                    scheme: scheme))
         }
         return found
     }
