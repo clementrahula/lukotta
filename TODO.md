@@ -158,6 +158,16 @@ gap.
   concurrency cases, `xattr-forks.sh` for what macOS attaches to a file. Every
   advertised format, both directions, results written into
   `make-format-volumes.sh` beside the ones already there.
+- [ ] **Build ntfsck into the guest, and gate the ntfs3 probe on it.** The
+  probe added in MountScript.ntfs3Probe is conservative: it asks whether ntfs3
+  will mount read-only, which is a proxy for "is this volume sound" and a
+  pessimistic one. Two corpus images -- 1k_cluster_fsck_error and
+  block_overflow_hole_file -- are opened by writable ntfs3 and by nothing else,
+  and the probe now refuses them. ntfsck from ntfsprogs-plus checks structure
+  rather than inferring it from a driver's consent, and should let those two
+  through while still holding back the three that ntfs3 writes to and then
+  refuses. GPL-2, aggregates in the guest; Alpine does not package it, so it
+  means building from source.
 - [ ] While doing it, look upstream before hand-rolling. `ntfsprogs-plus`
   already provides `ntfsck`, which repairs structural damage our ladder can
   currently only refuse. The engine's own test suite (`tests/*.bats`) covers
