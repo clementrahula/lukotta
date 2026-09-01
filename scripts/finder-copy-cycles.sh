@@ -48,11 +48,16 @@ for d in $(seq 1 20); do
 done
 
 copy_through_finder() {  # source, destination
+  # "with timeout" is not optional here. An Apple event gives up after two
+  # minutes by default and osascript returns -1712 while Finder carries on
+  # copying, which reads exactly like a failed copy and is not one.
   osascript <<APPLESCRIPT 2>/dev/null
 tell application "Finder"
-    set srcFolder to POSIX file "$1" as alias
-    set dstFolder to POSIX file "$2" as alias
-    duplicate (every item of srcFolder) to dstFolder with replacing
+    with timeout of 86400 seconds
+        set srcFolder to POSIX file "$1" as alias
+        set dstFolder to POSIX file "$2" as alias
+        duplicate (every item of srcFolder) to dstFolder with replacing
+    end timeout
 end tell
 APPLESCRIPT
 }
