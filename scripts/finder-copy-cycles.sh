@@ -32,10 +32,21 @@ CYCLES="${2:-3}"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
-# A handful of large files.
+# A handful of large files, sized to what the target can actually hold. Three
+# fixed four-hundred-megabyte files into a volume with less than that free
+# fails on space in under a second and reports every file as differing, which
+# reads as corruption and is arithmetic.
+have=$(df -m "$TARGET" | awk 'NR==2 {print $4}')
+each=$(( (have - 128) / 4 ))
+[ "$each" -gt 400 ] && each=400
+if [ "$each" -lt 8 ]; then
+  echo "error: only ${have} MB free on $TARGET; not enough for the large-file case" >&2
+  exit 2
+fi
+printf 'large files: 3 x %s MB (%s MB free)\n' "$each" "$have"
 mkdir -p "$WORK/few"
 for i in 1 2 3; do
-  dd if=/dev/urandom of="$WORK/few/large-$i.bin" bs=1048576 count=400 status=none
+  dd if=/dev/urandom of="$WORK/few/large-$i.bin" bs=1048576 count="$each" status=none
 done
 
 # A great many small ones, in a tree rather than one flat directory.
@@ -51,7 +62,7 @@ copy_through_finder() {  # source, destination
   # "with timeout" is not optional here. An Apple event gives up after two
   # minutes by default and osascript returns -1712 while Finder carries on
   # copying, which reads exactly like a failed copy and is not one.
-  osascript <<APPLESCRIPT 2>/dev/null
+  osascript <<APPLESCRIPT >/dev/null 2>&1
 tell application "Finder"
     with timeout of 86400 seconds
         set srcFolder to POSIX file "$1" as alias
