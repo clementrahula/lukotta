@@ -51,6 +51,14 @@ public enum MountScript {
         /// this user needs no privilege at all.
         var elevated = true
 
+        /// What the volume's own header says an unlock will allocate, in MiB.
+        ///
+        /// Nil where it could not be read, which is where the engine's own
+        /// figure of 2560 stands: "cannot say" has to mean "keep the floor",
+        /// because the failure of guessing low is an unlock killed for want of
+        /// memory. See `LUKSHeader`.
+        var luksMinRamMiB: Int?
+
         /// Mount the filesystem read-only, and export it read-only.
         ///
         /// Both sides are set. `-o ro` makes the mount inside the guest
@@ -59,38 +67,64 @@ public enum MountScript {
         /// dirty also mounts this way where read-write is refused.
         var readOnly = false
 
-        /// Asked for at 1 MiB. **Granted at 128 KiB**, which is worth knowing
-        /// before anybody tunes this again.
+        /// The transfer size is asked for at the size that is granted.
         ///
         /// Read off a live mount with `nfsstat -m`: the "original mount
         /// options" repeat what was asked for, and the "current mount
         /// parameters" -- what is actually in force -- say
-        /// `rsize=131072,wsize=131072`. macOS caps it there for this mount and
-        /// says nothing about having done so. So the figure below is a request,
-        /// not a setting, and the sequential-throughput argument that used to be
-        /// written here was describing a transfer size the mount has never used.
+        /// `rsize=131072,wsize=131072` however large a figure went in. Asking
+        /// for a megabyte therefore set nothing and left the two disagreeing,
+        /// and the client filled the system log with
         ///
-        /// `timeo` and `retrans` are left to the engine, which sets
-        /// `timeo=100,retrans=3`. Ten seconds looks short for a drive that can
-        /// legitimately stall, and raising it was tried here and taken out
-        /// again, for two reasons.
+        ///     nfs_buf_write_rpc: Got request with invalid length 0
         ///
-        /// The measurement did not hold. One run of two mounts of the same
-        /// export under a starved backing store gave 174 `Operation timed out`
-        /// failures at `timeo=100` and none at `timeo=600`; two attempts to
-        /// reproduce it gave none on either. The volume in the first run was
-        /// nearly full, which is a likelier cause of what was seen than the
-        /// timeout was.
+        /// at about one per write RPC -- seventy thousand in a single
+        /// thirteen-gigabyte copy, against six hundred once the numbers agree,
+        /// with the socket resets and send failures alongside them gone too.
         ///
-        /// And it could not have helped much anyway. `deadtimeout=45` marks the
-        /// mount dead after forty-five seconds whatever `timeo` says, so a
-        /// sixty-second timeout never finishes a single try first. Anything
-        /// above the deadtimeout is decoration.
+        /// `timeo` is sixty seconds because a healthy copy already spends
+        /// twenty unable to answer.
         ///
-        /// If this is revisited, the number to think about is one below the
-        /// deadtimeout, not above it -- and with a reproduction that survives
-        /// being run twice.
-        var nfsOptions = "rsize=1048576,wsize=1048576,readahead=128,deadtimeout=300"
+        /// The engine's own default is `timeo=100,retrans=3` -- ten seconds a
+        /// try, which with retries is a little over a minute of patience. That
+        /// was measured against, rather than argued about: sampling
+        /// `nfsstat -m` every two seconds through a thirteen-gigabyte copy into
+        /// a USB drive, the mount was marked "not responding" ten separate
+        /// times, for a mean of nine seconds and a longest of twenty-two, and
+        /// recovered every time. Nothing was wrong on any of those occasions.
+        /// The guest was writing.
+        ///
+        /// So the margin between a normal stall and a failed copy was about
+        /// three times, and anything that widens the stall -- a fuller drive, a
+        /// slower one, another volume open beside it -- spends it. When it is
+        /// spent the copy stops with `error code 100060`, which is ETIMEDOUT
+        /// wearing macOS's offset, and Finder throws away what it had written.
+        ///
+        /// Sixty seconds a try costs nothing while the server answers, because
+        /// nothing waits for a timeout that does not happen.
+        ///
+        /// `deadtimeout` had to move with it. The older note here was right
+        /// that it dominates: at 300 the mount is called dead after five
+        /// minutes whatever `timeo` says, so raising the one without the other
+        /// changed nothing and a copy still stopped. Fifteen minutes is long
+        /// enough for a guest writing to a nearly-full drive to come back, and
+        /// still finite -- a server that has genuinely gone is a soft mount
+        /// returning errors either way.
+        ///
+        /// This is patience, not durability. Nothing here tells the server to
+        /// acknowledge a write it has not made.
+        ///
+        /// `noowners` is the other half of what --ignore-permissions does, and
+        /// the read-only route did not have it. The engine's own documentation
+        /// gives the equivalent of that flag as
+        /// `--nfs-export-opts rw,no_subtree_check,all_squash,anonuid=0,anongid=0,insecure`
+        /// **and** `-n noowners`: the export squashes who is asking, and this
+        /// stops macOS applying the ownership it is told about on top. Set for
+        /// every mount because the writable route already gets it from the flag
+        /// and cannot be given it twice.
+        var nfsOptions =
+            "rsize=\(MountScript.transferSize),wsize=\(MountScript.transferSize),"
+            + "readahead=128,timeo=600,deadtimeout=900,noowners"
 
         /// Which network the microVM's NFS server is reached over.
         ///
@@ -106,7 +140,8 @@ public enum MountScript {
             discoverLogPath: String, expectScriptPath: String,
             configPath: String, engineHome: String, libraryPaths: [String], uid: UInt32,
             gid: UInt32,
-            cores: Int, ramMiB: Int, elevated: Bool = true, readOnly: Bool = false
+            cores: Int, ramMiB: Int, elevated: Bool = true, readOnly: Bool = false,
+            luksMinRamMiB: Int? = nil
         ) {
             self.enginePath = enginePath
             self.devicePath = devicePath
@@ -127,6 +162,7 @@ public enum MountScript {
             self.ramMiB = ramMiB
             self.elevated = elevated
             self.readOnly = readOnly
+            self.luksMinRamMiB = luksMinRamMiB
         }
     }
 
@@ -167,7 +203,27 @@ public enum MountScript {
     /// container's volumes are served from is sized from it, and a larger figure
     /// reports free space that does not exist.
     public enum VirtualMachine {
-        public static let ramMiB = 1024
+        /// 512 MiB, which is upstream's default and the floor a long copy needs.
+        ///
+        /// Upstream's figure for typical usage is 256, and a machine given
+        /// exactly that fails a thirteen-gigabyte copy about three gigabytes
+        /// in. What a guest holds beyond its working set is page cache, and
+        /// page cache is what absorbs a burst of writes while a slow drive
+        /// takes them. Starve it and the guest blocks on the drive instead,
+        /// for longer than the client will wait, and the copy stops with
+        /// error 100060.
+        ///
+        /// Measured rather than reasoned: 1024 completed the copy twice, 256
+        /// failed, and a dirty-page bound at 1024 -- which starves the same
+        /// cache by another route -- failed sooner still. 512 is upstream's
+        /// own default and half what was proven; it is the number this is
+        /// being tested at rather than a number anybody has proven yet.
+        ///
+        /// The figure is a ceiling rather than an allocation, libkrun backing
+        /// guest memory lazily, but it is not free for being lazy: the scratch
+        /// directory a container's volumes are served from is sized from it,
+        /// so an inflated number reports free space that does not exist.
+        public static let ramMiB = 512
         /// Half the machine and never more than two, the work being I/O.
         public static var cores: Int {
             max(1, min(2, ProcessInfo.processInfo.activeProcessorCount / 2))
@@ -250,6 +306,16 @@ public enum MountScript {
         // which is a different image, and may be another program's.
         lines.append("export \(EngineEnvironment.homeVariable)=\(shellQuoted(i.engineHome))")
 
+        // What an unlock of this particular volume will allocate, read from its
+        // header rather than assumed. The engine gives every LUKS mount 2560
+        // MiB otherwise, which is a multiplier rather than a total when several
+        // drives are open, and about eleven times what a default header asks
+        // for. Exported inside the elevated shell for the same reason the rest
+        // is: the environment does not survive the privilege boundary.
+        if let floor = i.luksMinRamMiB {
+            lines.append("export ALFS_LUKS_MIN_RAM_MIB=\(floor)")
+        }
+
         let libs = i.libraryPaths.joined(separator: ":")
         if !libs.isEmpty {
             lines.append("export DYLD_LIBRARY_PATH=\(shellQuoted(libs))")
@@ -305,6 +371,17 @@ public enum MountScript {
                 stampQ: shellQuoted(i.discoverLogPath + ".kstamp"),
                 logQ: logQ))
         lines.append("__kstamp")
+        // Written once, before the first attempt, because every attempt names
+        // one of the two actions it defines. Tolerant of failure: a config that
+        // cannot be rewritten leaves the guest tuned as it was, which is a
+        // mount that answers slowly rather than no mount at all.
+        lines.append(
+            repairAction(
+                configQ: shellQuoted(i.configPath),
+                actionQ: shellQuoted(i.discoverLogPath + ".actions"),
+                mergedQ: shellQuoted(i.discoverLogPath + ".actionsmerged"),
+                withRepair: i.kind == .microsoft && !i.readOnly))
+        lines.append("__tune_setup || true")
 
         var chain = attempts(i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
 
@@ -377,16 +454,11 @@ public enum MountScript {
             // clear. The driver check is what keeps this off anything that is
             // not NTFS, and that is decided here rather than scraped.
             if i.kind == .microsoft {
-                lines.append(
-                    repairAction(
-                        configQ: shellQuoted(i.configPath),
-                        actionQ: shellQuoted(i.discoverLogPath + ".repair"),
-                        mergedQ: shellQuoted(i.discoverLogPath + ".repairmerged")))
                 let repaired = attempts(
                     i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ,
                     action: repairActionName
                 ).joined(separator: " || ")
-                chain.append("{ __repair_setup && { \(repaired) ; } ; }")
+                chain.append("{ \(repaired) ; }")
             }
 
             var readOnly = i
@@ -464,7 +536,7 @@ public enum MountScript {
         engineQ: String,
         deviceQ: String,
         logQ: String,
-        action: String? = nil
+        action: String? = tunedActionName
     ) -> [String] {
         // A volume already chosen by the user is mounted directly: no driver
         // override, no discovery.
@@ -676,6 +748,43 @@ public enum MountScript {
     /// The name of the repair action generated into the engine's config.toml.
     public static let repairActionName = "lukottarepair"
 
+    /// The same, for a mount that needs no repair. Every mount uses one of the
+    /// two, because both carry the guest's tuning and a mount without it is a
+    /// mount that stops answering under a long copy.
+    public static let tunedActionName = "lukottatuned"
+
+    /// How many threads the guest's NFS server runs with.
+    ///
+    /// The guest works this out for itself as one per CPU, and it is given two,
+    /// so it serves with two. Both block in writeback to a slow drive at the
+    /// same moment and nothing is answered at all -- not a write, not a
+    /// getattr -- so macOS marks the mount "not responding" and Finder freezes
+    /// mid-copy. It comes back when writeback drains, which is why it reads as
+    /// the application breaking and repairing itself rather than as a drive
+    /// that is merely busy.
+    ///
+    /// Eight is what rpc.nfsd's own manual suggests as a starting point, and
+    /// the guest reads this variable in preference to counting CPUs. It buys
+    /// the separation that matters -- being busy writing is no longer the same
+    /// as being unable to answer -- for about eight kilobytes of kernel stack
+    /// each, which is why it is not paid for in RAM or in cores.
+    public static let nfsServerThreads = 8
+
+    /// What the guest is allowed to leave unwritten is left alone.
+    ///
+    /// Bounding it looks right and is not. The reasoning was that a backlog
+    /// inside the guest is what the client is waiting on, so a smaller one
+    /// would be drained sooner; measured, 16 MB and 64 MB against a gigabyte
+    /// took a thirteen-gigabyte copy from about 8 MB/s to about 1, and the copy
+    /// then failed sooner than it had without them -- at nine minutes rather
+    /// than forty.
+    ///
+    /// Buffering is what gives a slow device its throughput. Starving it makes
+    /// every writer wait at the speed the drive takes bytes, which is the thing
+    /// being worked around, and the server is no better at answering for it.
+    /// Left at the kernel's own share of memory, which moves with whatever the
+    /// machine is given and has no number here to be wrong.
+
     /// Writing that action, merged into the config rather than over it.
     ///
     /// The config also holds the user's own settings and the engine rewrites it
@@ -692,16 +801,106 @@ public enum MountScript {
     ///
     /// A TOML literal string, so nothing inside needs escaping, and a quoted
     /// heredoc, so the host's own shell does not run the backticks first.
-    private static func repairAction(configQ: String, actionQ: String, mergedQ: String) -> String {
+    /// Decoupling the transfer size from how much memory the guest was given.
+    ///
+    /// Linux nfsd picks its maximum block size from total RAM when its first
+    /// thread starts, and the two are not related to each other by anything
+    /// except that formula. Dropping the machine from a gigabyte to 256 MiB --
+    /// which is what it actually uses -- took the size the server would grant
+    /// from 128K to 32K, which is four times the round trips for the same
+    /// bytes and puts the requested and granted numbers back out of step.
+    ///
+    /// The limit is writable while no threads are running, and this runs before
+    /// any are. `/proc/fs/nfsd` is mounted by the guest's own init afterwards,
+    /// so it is mounted here, written, and unmounted again: the value lives in
+    /// the module rather than in the mount, and the init that follows finds
+    /// everything as it expects.
+    ///
+    /// Failure is silent by design. A kernel that will not take it serves at
+    /// whatever it chose for itself, which is the behaviour without this.
+    public static var nfsBlockSize: String {
+        "modprobe nfsd > /dev/null 2>&1; "
+            + "mount -t nfsd nfsd /proc/fs/nfsd > /dev/null 2>&1; "
+            + "echo \(transferSize) > /proc/fs/nfsd/max_block_size 2>/dev/null; "
+            + "umount /proc/fs/nfsd > /dev/null 2>&1; true"
+    }
+
+    /// Clearing a dirty flag, and refusing the two cases where that is not what
+    /// it would be doing.
+    ///
+    /// The flag by itself means a volume was not unmounted cleanly. Clearing it
+    /// is what every Linux distribution does and it is what lets somebody write
+    /// to their own drive. But `ntfsfix` does not replay the NTFS journal --
+    /// nothing on Linux does -- it discards it, and the engine's own
+    /// documentation is blunt about where that leads: "will not really fix
+    /// those errors and can lead to further data corruption".
+    ///
+    /// That warning is about the cases where something is actually being thrown
+    /// away, and those are worth separating from the case where nothing is.
+    ///
+    /// A hibernated volume is refused outright. Windows left a memory image
+    /// describing state the disk does not have, so the on-disk filesystem is
+    /// not merely unclean but deliberately stale, and writing to it loses
+    /// whatever that image was going to reconcile. `hiberfil.sys` is what says
+    /// so, and it is readable without mounting anything.
+    ///
+    /// A volume with real damage is refused too. `ntfsfix -n` is a dry run that
+    /// writes nothing; where it will not answer cleanly there is more wrong
+    /// than a flag, and clearing the flag would let a filesystem be written to
+    /// that ntfs3 refused for a reason.
+    ///
+    /// Either refusal exits non-zero, which fails the action, which fails the
+    /// attempt -- and the chain below opens the drive read-only, which is
+    /// exactly what should happen to a volume nobody can safely write to.
+    /// blkid is asked twice rather than once because an action may not name a
+    /// shell variable: the engine reads every action for `$NAME` and refuses to
+    /// start when it finds one it cannot resolve.
+    public static let ntfsRepair =
+        "ntfsls -f \"`blkid -t TYPE=ntfs -o device | head -n 1`\" 2>/dev/null "
+        + "| grep -qi hiberfil && exit 1; "
+        + "ntfsfix -n \"`blkid -t TYPE=ntfs -o device | head -n 1`\" > /dev/null 2>&1 || exit 1; "
+        + "ntfsfix -d \"`blkid -t TYPE=ntfs -o device | head -n 1`\" || true"
+
+    /// What both sides are asked for, and what the server is told to allow.
+    public static let transferSize = 131072
+
+    /// The environment line both actions carry.
+    ///
+    /// This is the only way into the guest that does not mean patching the
+    /// engine: it passes a custom action's `environment` entries to the machine
+    /// it starts, and nothing else of the host's except the passphrase.
+    static var guestEnvironment: String {
+        "environment = ['NFS_SERVER_THREAD_COUNT=\(nfsServerThreads)']"
+    }
+
+    private static func repairAction(
+        configQ: String, actionQ: String, mergedQ: String, withRepair: Bool
+    ) -> String {
+        // Only where it can be reached. A drive opened read-only is not written
+        // to at all, and ntfsfix is a write; a drive that is not NTFS has
+        // nothing for it to do. Leaving the section out rather than leaving it
+        // unused keeps that readable in the script itself.
+        let repair =
+            withRepair
+            ? """
+
+                [custom_actions.\(repairActionName)]
+                description = 'Generated by Lukotta; the same, and clears the dirty flag'
+                \(guestEnvironment)
+                before_mount = '\(nfsBlockSize); \(ntfsRepair)'
+                """ : ""
         return """
-            __repair_setup() {
+            __tune_setup() {
               cat > \(actionQ) <<'LUKOTTA_ACTION_EOF'
-            [custom_actions.\(repairActionName)]
-            description = 'Generated by Lukotta; clears the dirty flag so the drive opens writable'
-            before_mount = 'ntfsfix -d "`blkid -t TYPE=ntfs -o device | head -n 1`" || true'
+            [custom_actions.\(tunedActionName)]
+            description = 'Generated by Lukotta; keeps the guest answering under a long copy'
+            \(guestEnvironment)
+            before_mount = '\(nfsBlockSize)'
+            \(repair)
             LUKOTTA_ACTION_EOF
               { awk 'BEGIN { skip = 0 }
-                     /^\\[/ { skip = ($0 == "[custom_actions.\(repairActionName)]") }
+                     /^\\[/ { skip = ($0 == "[custom_actions.\(tunedActionName)]" \\
+                                   || $0 == "[custom_actions.\(repairActionName)]") }
                      !skip' \(configQ) 2>/dev/null; cat \(actionQ); } > \(mergedQ) || return 1
               cat \(mergedQ) > \(configQ)
             }
@@ -814,14 +1013,14 @@ public enum MountScript {
         ownership: String,
         netHelper: String,
         logQ: String,
-        action: String? = nil
+        action: String? = tunedActionName
     ) -> String {
         let typeFlag = driver.map { " -t \($0)" } ?? ""
         let actionFlag = action.map { " -a \($0)" } ?? ""
         // --nfs-options must use the joined form. The flag is variadic, and the
         // separated form consumes the target that follows it.
         return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount\(ownership)"
-            + "\(typeFlag)\(actionFlag)\(mountOptions(driver: driver, readOnly: readOnly)) -w false"
+            + "\(typeFlag)\(mountOptions(driver: driver, readOnly: readOnly))\(actionFlag) -w false"
             + "\(netHelper)"
             + " --nfs-options=\(shellQuoted(options))"
             + " \(target) >> \(logQ) 2>&1 && \(mountedCheck)"
@@ -1066,6 +1265,13 @@ public enum MountScript {
           for (f = 1; f <= n; f++) subs = subs (f > 1 ? ", " : "") "\\"" names[f] "\\""
           print "[custom_actions.\(generatedAction)]"
           print "description = " q "Generated by Lukotta; removed after ejecting" q
+          # A container of volumes is served by one machine like any other, so
+          # it needs the same tuning: the thread count that keeps it answering
+          # while it writes, and the bound on what it may leave unwritten. This
+          # action replaces the tuned one rather than sitting beside it -- the
+          # engine takes a single --action -- so the settings are repeated here
+          # instead of being inherited.
+          print "environment = [" q "NFS_SERVER_THREAD_COUNT=\(nfsServerThreads)" q "]"
           print "after_mount = " q cmd q
           print "override_nfs_export = " q s q
           print "nfs_export_subdirs = [" subs "]"

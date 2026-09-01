@@ -1,0 +1,49 @@
+Let the caller say how much memory a LUKS unlock needs.
+
+The engine gives every LUKS mount 2560 MiB. cryptsetup's key derivation can
+want a great deal of memory and there is no way to know how much without asking
+the volume, so the engine asks nobody and takes the largest figure it is likely
+to need. That is a defensible thing for a program run one drive at a time from
+a terminal.
+
+It is not defensible for an application that opens a dozen at once. Each drive
+is its own machine, so the figure is not a total but a multiplier, and twelve
+of them at 2560 MiB is a number no laptop has. It is also, in the ordinary
+case, about eleven times too large: a default `cryptsetup luksFormat` writes a
+header asking for 221 MiB, and the volume records what it wants in a place
+anybody can read.
+
+Reading it is the caller's job rather than the engine's, because the caller has
+already read the first sector to identify the drive and does not want a second
+pass over a device it has not been given permission to open. So the floor
+becomes something the caller can name, and the constant stays exactly as it was
+for anybody who names nothing -- an engine run from a terminal, or a header
+Lukotta could not parse, lands where it always did.
+
+The variable is read rather than passed as a flag so that no command line
+changes: `--ram-size-mib` already exists and means something else, the maximum
+rather than the minimum, and a mount that named both would be asking two
+questions with one answer.
+
+--- a/anylinuxfs/src/cmd_mount.rs
++++ b/anylinuxfs/src/cmd_mount.rs
+@@ -529,8 +529,17 @@
+ }
+ 
+ pub(crate) fn ensure_enough_ram_for_luks(config: &mut Config) {
+-    if config.preferences.krun_ram_size_mib() < 2560 {
+-        config.preferences.user_mut().krun.ram_size_mib = Some(2560);
++    // The floor, which the caller may name when it has read the volume's own
++    // header and knows what the key derivation will actually allocate. Anything
++    // unset, unparseable or zero keeps the constant, so a caller that says
++    // nothing is treated exactly as before.
++    let floor: u32 = std::env::var("ALFS_LUKS_MIN_RAM_MIB")
++        .ok()
++        .and_then(|v| v.trim().parse::<u32>().ok())
++        .filter(|v| *v > 0)
++        .unwrap_or(2560);
++    if config.preferences.krun_ram_size_mib() < floor {
++        config.preferences.user_mut().krun.ram_size_mib = Some(floor);
+         println!(
+             "Configured RAM size is lower than the minimum required for LUKS decryption, setting to {} MiB",
+             config.preferences.krun_ram_size_mib()

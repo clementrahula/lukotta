@@ -64,7 +64,8 @@ func sampleInputs(
     kind: VolumeKind = .microsoft,
     volume: LogicalVolume? = nil,
     alias: String? = "/tmp/ws/alias/Elements",
-    readOnly: Bool = false
+    readOnly: Bool = false,
+    luksMinRamMiB: Int? = nil
 ) -> MountScript.Inputs {
     MountScript.Inputs(
         enginePath:
@@ -81,7 +82,8 @@ func sampleInputs(
         configPath: "/Users/u/Library/Application Support/Lukotta/engine/.anylinuxfs/config.toml",
         engineHome: "/Users/u/Library/Application Support/Lukotta/engine",
         libraryPaths: ["/engine/lib"],
-        uid: 501, gid: 20, cores: 4, ramMiB: 2560, readOnly: readOnly)
+        uid: 501, gid: 20, cores: 4, ramMiB: 2560, readOnly: readOnly,
+        luksMinRamMiB: luksMinRamMiB)
 }
 
 print("LukottaCore")
@@ -459,17 +461,35 @@ group("theElevatedMountScript") {
     expect(!msScript.contains("-n '"), "NFS options must never use the separated form")
     expect(
         msScript.contains(
-            "--nfs-options='rsize=1048576,wsize=1048576,readahead=128,deadtimeout=300'"),
+            "--nfs-options='rsize=131072,wsize=131072,readahead=128,timeo=600,"
+                + "deadtimeout=900,noowners'"),
         "NFS options use the joined form")
-    // Raising timeo was tried and taken out: the measurement behind it did not
-    // reproduce, and deadtimeout=45 dominates anything above it anyway.
-    expect(!msScript.contains("timeo="), "the timeout is left to the engine")
+    // The other half of what --ignore-permissions does, which the read-only
+    // route never had: the export squashes who is asking, and this stops macOS
+    // applying the ownership it is told about on top.
+    expect(msScript.contains("noowners"), "and carry the half the read-only route was missing")
+    // Asked for at the size the server grants. A megabyte is requested and
+    // 128K is given, and the client then logs a malformed write RPC per write:
+    // seventy thousand in one thirteen-gigabyte copy.
+    expect(!msScript.contains("rsize=1048576"), "and not at a size that is only ever negotiated down")
+    // Sixty seconds a try, because a healthy thirteen-gigabyte copy was
+    // measured spending up to twenty-two seconds unable to answer -- ten
+    // separate stalls, mean nine seconds, every one of them recovered. The
+    // engine's ten leaves about three times that as the whole margin between
+    // a drive that is merely writing and a copy that stops with 100060.
+    expect(msScript.contains("timeo=600"), "a slow server is waited for rather than declared dead")
+    // deadtimeout dominates timeo: at 300 the mount is called dead after five
+    // minutes whatever timeo says, so raising one without the other changed
+    // nothing and a thirteen-gigabyte copy still stopped three gigabytes in.
+    expect(
+        msScript.contains("deadtimeout=900"),
+        "and the patience above is given room to be spent")
     // The measured fix: at the engine's deadtimeout=45 the same load unmounted
     // the drive by 90 seconds and the engine shut the microVM down with it; at
     // 300 the mount lived through ten minutes and recovered.
     expect(
-        msScript.contains("deadtimeout=300"),
-        "a slow drive gets five minutes, not forty-five seconds")
+        msScript.contains("deadtimeout=900"),
+        "a slow drive gets fifteen minutes, not five")
     expect(
         msScript.contains("'/dev/disk4s1' >>"),
         "the device is a positional argument, not swallowed by a preceding flag")
@@ -4647,6 +4667,162 @@ group("theGuestKernelSaysWhyAndIsRead") {
         "without writing the word that would be read as a fallback")
 }
 
+group("theMachineIsSizedFromTheVolumesOwnHeader") {
+    // Nothing is exported where the header could not be read, so the engine's
+    // own 2560 stands. "Cannot say" has to mean "keep the floor": guessing low
+    // is an unlock killed for want of memory, which is worse than a machine
+    // that is larger than it needed to be.
+    let unknown = MountScript.build(sampleInputs(kind: .linux))
+    expect(
+        !unknown.contains("ALFS_LUKS_MIN_RAM_MIB"),
+        "a volume whose header says nothing keeps the engine's own figure")
+
+    // And where it could, the figure travels with the mount. Exported inside
+    // the elevated shell, because the environment does not survive the
+    // privilege boundary any more than DYLD_ does.
+    let script = MountScript.build(sampleInputs(kind: .linux, luksMinRamMiB: 532))
+    expect(
+        script.contains("export ALFS_LUKS_MIN_RAM_MIB=532"),
+        "and one whose header names a cost is sized to it")
+    let exportAt = script.range(of: "ALFS_LUKS_MIN_RAM_MIB").map {
+        script.distance(from: script.startIndex, to: $0.lowerBound)
+    }
+    let firstMount = script.range(of: "anylinuxfs' mount").map {
+        script.distance(from: script.startIndex, to: $0.lowerBound)
+    }
+    expect((exportAt ?? 1) < (firstMount ?? 0), "before the engine that reads it runs")
+
+    // The patch that reads it keeps the constant for anybody who names nothing,
+    // which is what makes this safe to ship: an engine run from a terminal is
+    // untouched.
+    let patch =
+        (try? String(
+            contentsOfFile: "patches/anylinuxfs-luks-ram-from-header.patch", encoding: .utf8)) ?? ""
+    expect(patch.contains("ALFS_LUKS_MIN_RAM_MIB"), "the engine patch reads the same name")
+    expect(patch.contains("unwrap_or(2560)"), "and falls back to exactly what it did before")
+}
+
+group("aLuksHeaderSaysHowMuchMemoryItWants") {
+    // The engine gives every LUKS mount 2560 MiB because the header is the only
+    // thing that says how much is wanted and nobody asked it. A default
+    // luksFormat writes a header asking for 221 MiB, so the machine is given
+    // eleven times what it needs -- and a second encrypted drive wants another
+    // one of them.
+    func luks2(memoryKiB: Int?, slots: Int = 1) -> Data {
+        var d = Data(LUKSHeader.magic)
+        d.append(contentsOf: [0x00, 0x02])
+        d.append(Data(repeating: 0, count: LUKSHeader.jsonOffset - d.count))
+        var keyslots: [String: Any] = [:]
+        for i in 0..<slots {
+            var kdf: [String: Any] = ["type": "argon2id"]
+            if let memoryKiB { kdf["memory"] = memoryKiB * (i + 1) }
+            keyslots["\(i)"] = ["kdf": kdf]
+        }
+        let json = try! JSONSerialization.data(withJSONObject: ["keyslots": keyslots])
+        d.append(json)
+        d.append(0)
+        return d
+    }
+
+    // The measured case: cryptsetup's own default on this machine.
+    let real = LUKSHeader.read(luks2(memoryKiB: 226232))
+    expect(real?.version == 2, "a LUKS2 header is read as one")
+    expect(real?.kdfMiB == 221, "and its cost is what the header records")
+    expect(
+        LUKSHeader.ramMiB(for: real, base: 256) < 600,
+        "which is a machine of about half a gigabyte, not two and a half")
+
+    // The largest keyslot, not the first. Any of them can unlock the volume and
+    // which one the passphrase belongs to is not known until it is tried, so
+    // sizing to the smallest works until somebody uses their other password.
+    let several = LUKSHeader.read(luks2(memoryKiB: 100 * 1024, slots: 3))
+    expect(several?.kdfMiB == 300, "the largest keyslot is what has to fit")
+
+    // LUKS1 is PBKDF2: iterations and a hash, and no arena to allocate.
+    var one = Data(LUKSHeader.magic)
+    one.append(contentsOf: [0x00, 0x01])
+    let older = LUKSHeader.read(one)
+    expect(older?.version == 1, "a LUKS1 header is read as one")
+    expect(older?.kdfMiB == 0, "and asks for no memory at all")
+    expect(
+        LUKSHeader.ramMiB(for: older, base: 256) == 256,
+        "so it needs no more than any other drive")
+
+    // Every way of failing answers nil, and nil keeps the engine's own floor:
+    // guessing low turns an unlock that works into one killed for want of
+    // memory, which is the one outcome worth avoiding here.
+    expect(LUKSHeader.read(Data()) == nil, "no bytes is not a header")
+    expect(LUKSHeader.read(Data(repeating: 0x41, count: 8192)) == nil, "nor is anything else")
+    var truncated = Data(LUKSHeader.magic)
+    truncated.append(contentsOf: [0x00, 0x02])
+    expect(LUKSHeader.read(truncated) == nil, "a LUKS2 header cut before its metadata says nothing")
+    expect(
+        LUKSHeader.ramMiB(for: nil, base: 256) == LUKSHeader.engineFloorMiB,
+        "and cannot-say lands exactly where it landed before any of this existed")
+
+    // A header naming no cost is not the same as one that cannot be read.
+    let noCost = LUKSHeader.read(luks2(memoryKiB: nil))
+    expect(noCost?.kdfMiB == 0, "a keyslot with no memory recorded costs nothing")
+    expect(LUKSHeader.ramMiB(for: noCost, base: 256) == 256, "and needs no allowance made for it")
+}
+
+group("theGuestIsTunedToKeepAnswering") {
+    // Two nfsd threads is what the guest works out for itself, one per CPU, and
+    // it is given two CPUs. Both block in writeback to a slow drive at the same
+    // moment and nothing is answered at all -- not a write, not a getattr -- so
+    // macOS marks the mount not responding and Finder freezes mid-copy. Being
+    // busy writing has to stop meaning being unable to answer.
+    let script = MountScript.build(sampleInputs(kind: .microsoft))
+    expect(
+        script.contains("NFS_SERVER_THREAD_COUNT=\(MountScript.nfsServerThreads)"),
+        "the guest is told how many threads to serve with")
+    expect(MountScript.nfsServerThreads >= 8, "and it is at least what rpc.nfsd's own manual suggests")
+
+    // Carried in a custom action's environment, which is the only way into the
+    // machine that does not mean patching the engine: it passes those entries
+    // to the VM it starts, and nothing else of the host's but the passphrase.
+    expect(
+        script.contains("environment = ['NFS_SERVER_THREAD_COUNT"),
+        "through the one channel the engine offers")
+
+    // What the guest may leave unwritten is left alone. Bounding it was tried
+    // here: 16 MB and 64 MB against a gigabyte took a thirteen-gigabyte copy
+    // from about 8 MB/s to about 1, and it then failed sooner than it had
+    // without them. Buffering is what gives a slow device its throughput.
+    expect(
+        !script.contains("vm.dirty_bytes="),
+        "and nothing starves the writeback that gives a slow drive its throughput")
+
+    // Every attempt, not merely the first: an attempt that mounts without the
+    // tuning is a mount that stops answering later, and which attempt won is
+    // not something anyone chose.
+    for attempt in script.components(separatedBy: "anylinuxfs' mount").dropFirst() {
+        let command = attempt.components(separatedBy: ">>").first ?? ""
+        expect(command.contains(" -a lukotta"), "every attempt names a tuned action")
+    }
+
+    // Written before the first one runs, or the first attempt names an action
+    // the engine has never heard of and refuses to start at all.
+    let setupAt = script.range(of: "__tune_setup ||").map {
+        script.distance(from: script.startIndex, to: $0.lowerBound)
+    }
+    let firstMount = script.range(of: "anylinuxfs' mount").map {
+        script.distance(from: script.startIndex, to: $0.lowerBound)
+    }
+    expect((setupAt ?? 1) < (firstMount ?? 0), "and written before anything names it")
+
+    // A container of volumes is served by one machine like any other, and its
+    // action replaces the tuned one rather than sitting beside it -- the engine
+    // takes a single --action -- so it has to carry the same settings.
+    let linux = MountScript.build(sampleInputs(kind: .linux))
+    expect(
+        linux.contains("NFS_SERVER_THREAD_COUNT"),
+        "a Linux drive is tuned too, having the same server in front of it")
+    expect(
+        MountScript.volumeAction.contains("NFS_SERVER_THREAD_COUNT"),
+        "and so is the action generated for a container of volumes")
+}
+
 group("aDirtyVolumeIsRepairedRatherThanDemoted") {
     // Windows leaves a volume dirty and both drivers refuse to write to it:
     // ntfs3 says so in the kernel, ntfs-3g answers the mount with an I/O error.
@@ -4655,6 +4831,25 @@ group("aDirtyVolumeIsRepairedRatherThanDemoted") {
     // plugged into again.
     let writable = MountScript.build(sampleInputs(kind: .microsoft))
     expect(writable.contains("ntfsfix -d"), "the volume is repaired in the machine that refused it")
+
+    // But not where clearing the flag would be discarding something. ntfsfix
+    // does not replay the NTFS journal -- nothing on Linux does -- it throws it
+    // away, and the engine's own documentation says where that leads. So the
+    // two cases where something is actually lost are refused, and the refusal
+    // fails the attempt, which opens the drive read-only instead.
+    expect(
+        writable.contains("hiberfil") && writable.contains("exit 1"),
+        "a hibernated volume is refused: its disk is deliberately stale, not merely unclean")
+    expect(
+        writable.contains("ntfsfix -n"),
+        "and a dry run gates the write, so damage beyond a flag is refused too")
+    let dryAt = writable.range(of: "ntfsfix -n").map {
+        writable.distance(from: writable.startIndex, to: $0.lowerBound)
+    }
+    let writeAt = writable.range(of: "ntfsfix -d").map {
+        writable.distance(from: writable.startIndex, to: $0.lowerBound)
+    }
+    expect((dryAt ?? 1) < (writeAt ?? 0), "the dry run comes first, or it gates nothing")
     expect(
         !writable.contains("__dirty && "),
         "unguarded: reading the kernel's words back at the right moment is a race, "

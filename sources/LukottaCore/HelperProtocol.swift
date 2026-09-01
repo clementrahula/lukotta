@@ -59,15 +59,29 @@ public enum HelperInfo {
     ///    A daemon on 4 keeps generating two, which the engine refuses outright,
     ///    so a stale daemon does not merely mount differently: it cannot mount a
     ///    read-only NTFS volume at all.
-    /// 6: the mount script repairs a volume Windows left dirty and mounts it
-    ///    writable, instead of demoting the drive to read-only; and a read-only
-    ///    export squashes to root rather than to the invoking user, which is
-    ///    what stopped directories owned by root being readable at all.
-    ///    A daemon on 5 generates neither, so the fix reaches nobody while it
-    ///    is still the one composing the script. That is not a theory: every
-    ///    hardware test of this change ran against a daemon started before it,
-    ///    reported no repair, and looked like a fault in the repair.
-    public static let contract = 6
+    /// 6-11: spent. Every one of them was installed on the author's Mac while
+    ///    this was being proved, so a daemon answering any of them does some
+    ///    part of what 12 does and not the rest. The same reasoning as 3:
+    ///    numbers are cheap, and a daemon that says it has something it has
+    ///    not is not.
+    /// 12: a long copy into a drive stops answering partway, and everything
+    ///    below is what that turned out to need. The guest's NFS server runs
+    ///    eight threads rather than one per CPU, so being busy writing is no
+    ///    longer the same as being unable to answer. The transfer size is asked
+    ///    for at the size that is granted, and the guest is told what size to
+    ///    serve at, so it no longer follows from how much memory the machine
+    ///    was given. The client waits sixty seconds for a slow server rather
+    ///    than ten, and the mount is allowed fifteen minutes of silence rather
+    ///    than five -- the second dominates the first, so raising one without
+    ///    the other changed nothing. Every mount carries `noowners`. A volume
+    ///    Windows left dirty is repaired and mounted writable rather than
+    ///    demoted, unless it is hibernated or fails a dry run, in which case it
+    ///    is still opened read-only. A LUKS machine is sized from the volume's
+    ///    own header instead of a flat 2560 MiB.
+    ///
+    ///    A daemon on 5 -- which is what the pre-release carries -- generates a
+    ///    script with none of it.
+    public static let contract = 12
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"

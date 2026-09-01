@@ -386,7 +386,8 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     uid: invokingUID(), gid: invokingGID(),
                     cores: MountScript.VirtualMachine.cores,
                     ramMiB: MountScript.VirtualMachine.ramMiB,
-                    readOnly: readOnly))
+                    readOnly: readOnly,
+                    luksMinRamMiB: luksFloor(devicePath: devicePath)))
 
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")
             try script.write(to: scriptURL, atomically: true, encoding: .utf8)
@@ -636,6 +637,23 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         // pointers either way.
         SCDynamicStoreCopyConsoleUser(nil, &uid, &gid)
         return (UInt32(uid), UInt32(gid))
+    }
+
+    /// What a LUKS unlock of this device will actually allocate, in MiB.
+    ///
+    /// Nil for everything that is not a LUKS header, and for a header this
+    /// cannot read: the engine's own 2560 then stands, which is where every
+    /// mount landed before this existed. The bytes are already being read at
+    /// this size to identify the partition, so this costs no extra pass over a
+    /// device -- and it happens here because /dev/diskNsM is mode 640 and the
+    /// daemon is the only part of this that may open it.
+    private func luksFloor(devicePath: String) -> Int? {
+        let floor = LUKSHeader.floor(
+            forDevice: devicePath, base: MountScript.VirtualMachine.ramMiB)
+        if let floor {
+            Log.helper.notice("LUKS volume; machine sized to \(floor, privacy: .public) MiB")
+        }
+        return floor
     }
 
     private func invokingUID() -> UInt32 {

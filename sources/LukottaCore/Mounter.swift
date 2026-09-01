@@ -94,7 +94,11 @@ public enum Mounter {
                 cores: MountScript.VirtualMachine.cores,
                 ramMiB: MountScript.VirtualMachine.ramMiB,
                 elevated: elevated,
-                readOnly: readOnly))
+                readOnly: readOnly,
+                // A container file this user attached, so the bytes are theirs
+                // to read without the daemon.
+                luksMinRamMiB: LUKSHeader.floor(
+                    forDevice: drive.devicePath, base: MountScript.VirtualMachine.ramMiB)))
 
         let scriptURL = workspace.root.appendingPathComponent("mount.sh")
         try script.write(to: scriptURL, atomically: true, encoding: .utf8)
