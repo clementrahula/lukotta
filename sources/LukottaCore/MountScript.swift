@@ -774,12 +774,20 @@ public enum MountScript {
         let targets = [alias.map(shellQuoted), deviceQ].compactMap { $0 }
 
         var result = targets.flatMap { target in
-            drivers.map {
-                mountCommand(
-                    engineQ: engineQ, target: target, driver: $0,
+            drivers.map { driver in
+                // The writable ntfs3 attempt, and nothing else, goes through
+                // the probe. Not the ntfs-3g rung, which must still get its
+                // turn when the probe has refused ntfs3; not the read-only
+                // retry, which cannot do the damage; and not the repair rung,
+                // which is asked for on purpose and carries its own action.
+                let chosen =
+                    (driver == "ntfs3" && !i.readOnly && action == tunedActionName)
+                    ? ntfs3ProbeActionName : action
+                return mountCommand(
+                    engineQ: engineQ, target: target, driver: driver,
                     options: nfsOptions(i), readOnly: i.readOnly,
                     ownership: ownershipFlags(i), netHelper: netHelperFlag(i),
-                    logQ: logQ, action: action)
+                    logQ: logQ, action: chosen)
             }
         }
         if i.kind == .linux {
@@ -944,6 +952,14 @@ public enum MountScript {
     /// two, because both carry the guest's tuning and a mount without it is a
     /// mount that stops answering under a long copy.
     public static let tunedActionName = "lukottatuned"
+
+    /// The action used for the writable ntfs3 attempt, and only that one.
+    ///
+    /// It carries a read-only probe that ntfs3 must pass before ntfs3 is
+    /// allowed to touch the volume writably. Separate from the tuned action
+    /// because the ntfs-3g rung and the repair rung must not inherit it: if the
+    /// probe fails, the whole point is that those two still get their turn.
+    public static let ntfs3ProbeActionName = "lukottantfs3"
 
     /// How many threads the guest's NFS server runs with.
     ///
@@ -1360,6 +1376,42 @@ public enum MountScript {
         + "ntfsfix -n \"`blkid -t TYPE=ntfs -o device | head -n 1`\" > /dev/null 2>&1 || exit 1; "
         + "ntfsfix -d \"`blkid -t TYPE=ntfs -o device | head -n 1`\" || true"
 
+    /// Let ntfs3 look before it writes.
+    ///
+    /// ntfs3 modifies a volume during a mount it then refuses. Measured on
+    /// three MFT-damage images from the ntfsprogs-plus corpus, identically on
+    /// all three: the writable attempt is declined and the image comes back
+    /// changed, before anything of ours has decided to attempt a repair. On a
+    /// ten-megabyte image it rewrote 2,080,371 bytes across five regions, and
+    /// the first of them was the `RSTR` restart signature of the NTFS journal,
+    /// overwritten with 0xFF.
+    ///
+    /// That is the journal a Windows chkdsk would have used. So a disk somebody
+    /// brought here *because* it was damaged goes home less recoverable than it
+    /// arrived, and without having been opened. It is the exact thing the
+    /// engine's own notes warn about, arriving from the driver rather than from
+    /// ntfsfix, which is where it was first looked for.
+    ///
+    /// Read-only ntfs3 does not do it. Same three images: refused, and the
+    /// image byte-identical afterwards. A healthy volume mounts read-only,
+    /// reads, and is left byte-identical too. So read-only is both a safe probe
+    /// and an accurate one, and this runs it first.
+    ///
+    /// It costs nothing a person can see. `before_mount` runs inside the
+    /// machine that is already booting for this mount, so there is no second
+    /// virtual machine and no second wait -- a mount and an unmount inside the
+    /// guest, on a volume that is about to be mounted anyway.
+    ///
+    /// No `$NAME` anywhere: the engine reads every action for a shell variable
+    /// and refuses to start when it finds one. Hence blkid asked three times
+    /// rather than once, as in ntfsRepair above.
+    public static let ntfs3Probe =
+        "blkid -t TYPE=ntfs -o device | head -n 1 | grep -q . || exit 0; "
+        + "mkdir -p /tmp/lukotta-probe; "
+        + "mount -t ntfs3 -o ro \"`blkid -t TYPE=ntfs -o device | head -n 1`\" "
+        + "/tmp/lukotta-probe 2>/dev/null || exit 1; "
+        + "umount /tmp/lukotta-probe 2>/dev/null || true"
+
     /// What both sides are asked for, and what the server is told to allow.
     public static let transferSize = 131072
 
@@ -1372,6 +1424,34 @@ public enum MountScript {
         "environment = ['NFS_SERVER_THREAD_COUNT=\(nfsServerThreads)']"
     }
 
+    /// The two NTFS actions, as they are written into `config.toml`.
+    ///
+    /// Exposed rather than buried in the heredoc so that a harness driving the
+    /// engine directly can install exactly what the app installs. The corpus
+    /// harness asked the engine for `lukottantfs3` before this existed, the
+    /// action was not in the config, the engine declined the attempt for that
+    /// reason, and three damaged volumes came back reported as "refused and
+    /// left untouched" -- a clean result produced by the check being absent.
+    /// One source of truth, or the harness measures its own omissions.
+    ///
+    /// Both live or die together, on the same condition: a volume that is not
+    /// NTFS has nothing for either to do, and one opened read-only is not
+    /// written to at all. Generating them regardless would also put "-t ntfs3"
+    /// into the script of every Linux mount.
+    public static var microsoftActionsTOML: String {
+        """
+        [custom_actions.\(ntfs3ProbeActionName)]
+        description = 'Generated by Lukotta; ntfs3 must pass a read-only probe first'
+        \(guestEnvironment)
+        before_mount = '\(nfsBlockSize); \(ntfs3Probe)'
+
+        [custom_actions.\(repairActionName)]
+        description = 'Generated by Lukotta; the same, and clears the dirty flag'
+        \(guestEnvironment)
+        before_mount = '\(nfsBlockSize); \(ntfsRepair)'
+        """
+    }
+
     private static func repairAction(
         configQ: String, actionQ: String, mergedQ: String, withRepair: Bool
     ) -> String {
@@ -1379,15 +1459,7 @@ public enum MountScript {
         // to at all, and ntfsfix is a write; a drive that is not NTFS has
         // nothing for it to do. Leaving the section out rather than leaving it
         // unused keeps that readable in the script itself.
-        let repair =
-            withRepair
-            ? """
-
-            [custom_actions.\(repairActionName)]
-            description = 'Generated by Lukotta; the same, and clears the dirty flag'
-            \(guestEnvironment)
-            before_mount = '\(nfsBlockSize); \(ntfsRepair)'
-            """ : ""
+        let repair = withRepair ? "\n" + microsoftActionsTOML : ""
         return """
             __tune_setup() {
               cat > \(actionQ) <<'LUKOTTA_ACTION_EOF'
@@ -1399,6 +1471,7 @@ public enum MountScript {
             LUKOTTA_ACTION_EOF
               { awk 'BEGIN { skip = 0 }
                      /^\\[/ { skip = ($0 == "[custom_actions.\(tunedActionName)]" \\
+                                   || $0 == "[custom_actions.\(ntfs3ProbeActionName)]" \\
                                    || $0 == "[custom_actions.\(repairActionName)]") }
                      !skip' \(configQ) 2>/dev/null; cat \(actionQ); } > \(mergedQ) || return 1
               cat \(mergedQ) > \(configQ)

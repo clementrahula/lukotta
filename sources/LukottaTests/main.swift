@@ -5204,7 +5204,16 @@ group("readOnlyIsBothSidesOfTheConnection") {
 
     // A read-write mount tries read-write first and only then read-only, so the
     // order in the chain is what makes the fallback a fallback.
-    let plain = MountScript.build(sampleInputs())
+    // Measured over the mount chain, not the whole script. The custom actions
+    // are written into config.toml by a heredoc above the chain, and one of
+    // them -- the ntfs3 probe -- contains a read-only mount of its own, inside
+    // the guest. Searching the whole text for the first "-o ro" therefore finds
+    // the probe rather than the fallback rung, and reports the fallback as
+    // coming first when the chain is unchanged.
+    let whole = MountScript.build(sampleInputs())
+    let plain =
+        whole.range(of: "LUKOTTA_ACTION_EOF", options: .backwards)
+        .map { String(whole[$0.upperBound...]) } ?? whole
     let firstRO = plain.range(of: "-o ro").map {
         plain.distance(from: plain.startIndex, to: $0.lowerBound)
     }
@@ -5215,6 +5224,21 @@ group("readOnlyIsBothSidesOfTheConnection") {
     expect(
         (firstRW ?? 0) < (firstRO ?? 0),
         "and tries writable first, so read-only is reached only when that fails")
+    // The writable ntfs3 rung goes through the probe action, and nothing else
+    // does. ntfs3 rewrote 2 MB of a damaged volume -- including the journal's
+    // RSTR signature -- during a mount it then refused, so the first rung is
+    // not allowed to be a write any more.
+    let ntfsScript = MountScript.build(sampleInputs())
+    expect(
+        ntfsScript.contains("[custom_actions.\(MountScript.ntfs3ProbeActionName)]"),
+        "an NTFS mount defines the probe action")
+    expect(
+        ntfsScript.contains("-t ntfs3") && ntfsScript.contains(MountScript.ntfs3ProbeActionName),
+        "the writable ntfs3 attempt is the one that carries it")
+    expect(
+        ntfsScript.contains("mount -t ntfs3 -o ro"),
+        "and the probe itself is a read-only mount, which does not write")
+
     expect(
         plain.contains("LUKOTTA_STAGE:read-only"),
         "a fallback that succeeds says so, so the drive is never called writable when it is not")

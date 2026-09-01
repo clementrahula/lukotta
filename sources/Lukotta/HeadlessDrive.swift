@@ -62,6 +62,14 @@
                 }
             }
 
+            // Print the guest actions the app would install, so a harness
+            // driving the engine by hand installs exactly what the app does
+            // rather than its own approximation of it.
+            if CommandLine.arguments.contains("actions") {
+                print(MountScript.microsoftActionsTOML)
+                exit(0)
+            }
+
             if let device = toEject { eject(device) }
             guard let device = toOpen else {
                 if toEject != nil { exit(0) }

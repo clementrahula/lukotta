@@ -91,6 +91,36 @@ where() {
   mount | awk '$1 ~ /case-img\.local:/ {for(i=1;i<=NF;i++) if($i=="on") {print $(i+1); exit}}'
 }
 
+# Install the app's own guest actions before driving the engine by hand.
+#
+# Without this the harness asks for -a lukottantfs3, the action is not in
+# config.toml because only a real mount writes it there, and the engine
+# declines the attempt for that reason. Which looks exactly like the probe
+# working: three damaged volumes came back "refused, left untouched" and the
+# check had never run. The tell was a healthy volume mounting through ntfs-3g
+# instead of ntfs3 -- the first rung was failing for everything.
+#
+# So the actions come from the app itself rather than being restated here.
+APP="$APP_BUNDLE/Contents/MacOS/$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' \
+  "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null)"
+CFG="$ANYLINUXFS_HOME/.anylinuxfs/config.toml"
+if [ -x "$APP" ] && LUKOTTA_DEVTOOLS=1 "$APP" --drive actions > "$WORK/actions.toml" 2>/dev/null \
+   && [ -s "$WORK/actions.toml" ]; then
+  /usr/bin/python3 - "$CFG" "$WORK/actions.toml" <<'PY'
+import sys, pathlib, re
+cfg, act = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]).read_text()
+s = cfg.read_text() if cfg.exists() else ""
+for name in ("lukottantfs3", "lukottarepair"):
+    s = re.sub(r"\n\[custom_actions\." + name + r"\][^\[]*", "\n", s)
+cfg.write_text(s.rstrip() + "\n\n" + act.strip() + "\n")
+PY
+  echo "installed the app's guest actions into config.toml"
+else
+  echo "error: could not read the app's guest actions; the ntfs3 rung would" >&2
+  echo "       fail for a missing action and be reported as a clean refusal" >&2
+  exit 2
+fi
+
 # One attempt, with whatever driver and action the ladder is up to.
 try_open() {
   pkill -f "anylinuxfs mount.*case" >/dev/null 2>&1; sleep 2
@@ -127,7 +157,12 @@ while IFS= read -r archive; do
 
   before="$(shasum -a 256 "$IMG" | awk '{print $1}')"
   outcome="refused"
-  if try_open -t ntfs3 -a lukottatuned; then outcome="mounted (ntfs3)"
+  # lukottantfs3, not lukottatuned, for the writable ntfs3 rung -- which is
+  # what the app itself uses. Getting this wrong is not a detail: the first
+  # version of this harness asked for lukottatuned here, so it exercised the
+  # ladder as it was before the read-only probe existed and reported three
+  # volumes still being written to after the fix had landed.
+  if try_open -t ntfs3 -a lukottantfs3; then outcome="mounted (ntfs3)"
   else
     close_it
     if try_open -t ntfs-3g -a lukottatuned; then outcome="mounted (ntfs-3g)"
