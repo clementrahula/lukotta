@@ -91,7 +91,24 @@ fi
 # skipped, because XFS is on the box and a format nobody can make a fixture for
 # is a format nobody tests.
 #
-# The way through is Linux for the one command, and only for that:
+# The engine can do it itself, which is better than any of the below:
+#
+#   anylinuxfs apk add xfsprogs
+#
+# "Manage custom alpine packages" -- it adds to [alpine] custom_packages in
+# config.toml and reinitialises the guest with them. It refuses while any
+# machine is running ("another instance is already running"), so the drive has
+# to be closed first.
+#
+# That is also the answer to a second gap. The shipped guest carries mkfs and
+# repair tools for btrfs, vfat and ntfs only: there is no e2fsck and no
+# xfs_repair, so ext and XFS rely entirely on the kernel replaying their
+# journals at mount and have no answer to corruption past that. NTFS is the
+# only format the app can currently repair. Adding e2fsprogs and xfsprogs the
+# same way would close it -- measured against image size before shipping,
+# since the guest is trimmed deliberately.
+#
+# The other way through is Linux for the one command, and only for that:
 #
 #   docker run --rm -v "$OUT:/out" alpine sh -c \
 #     'apk add --no-cache xfsprogs >/dev/null && \
