@@ -31,6 +31,17 @@
 #   NTFS   -> ROOTFS  7 files, 0 differing, 1s
 #   ROOTFS -> NTFS    7 files, 0 differing, 13s
 #
+# And the Fedora shape, LUKS2 -> LVM -> btrfs:
+#
+#   NTFS -> LUKOTTATEST  7 files, 0 differing, 3s
+#   LUKOTTATEST -> NTFS  7 files, 0 differing, 13s
+#
+# Three container layouts, each opened on its own and copied both ways. Note
+# "on its own": killing one machine by pattern before starting the next leaves
+# its mount in the table, answering `mount` and failing `stat`, which reads as a
+# third volume being open when two are. Ask each mount whether it answers before
+# counting it.
+#
 # Opening one of those without the app needs two things worth writing down.
 # ALFS_PASSPHRASE reaches `mount` but not `list --decrypt`, which prompts on a
 # terminal and ignores it -- the app drives that with expect, and so must
