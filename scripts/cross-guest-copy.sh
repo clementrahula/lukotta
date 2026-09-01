@@ -63,4 +63,9 @@ one_way() {  # from, to, label
 
 one_way "$A" "$B" "$(basename "$A") -> $(basename "$B")"
 one_way "$B" "$A" "$(basename "$B") -> $(basename "$A")"
-[ "$fail" -eq 0 ] && echo "both directions intact" || { echo "FAILED"; exit 1; }
+if [ "$fail" -eq 0 ]; then
+  echo "both directions intact"
+else
+  echo "FAILED"
+  exit 1
+fi
