@@ -24,7 +24,11 @@
 set -euo pipefail
 OUT="${1:-$HOME/.lukotta-testvols}"
 mkdir -p "$OUT"
-MB=600
+# Two gigabytes, not six hundred megabytes. The corpus includes a sparse
+# gigabyte, and NFSv3 cannot express a hole -- so it arrives fully allocated and
+# a 600 MB volume runs out of space on that one file, which reads as a copy
+# failure and is arithmetic.
+MB=2048
 
 made=() missing=()
 

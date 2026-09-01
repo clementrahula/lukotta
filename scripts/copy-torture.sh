@@ -89,6 +89,19 @@ printf 'bottom' > "$deep/bottom.txt"
 files=$(find "$SRC" -type f | wc -l | tr -d ' ')
 printf 'corpus: %s files, %s apparent\n' "$files" "$(du -sh "$SRC" | cut -f1)"
 
+# The sparse gigabyte is four kilobytes here and a gigabyte on the far side --
+# NFSv3 has no way to say "this range is a hole" -- so the space needed is the
+# apparent size, not the size on disk. Said before copying rather than as ENOSPC
+# on one file two thousand files in, which reads as a fault and is arithmetic.
+need=$(find "$SRC" -type f -printf '%s\n' | awk '{s+=$1} END{print int(s/1048576)+64}')
+have=$(df -m "$TARGET" | awk 'NR==2 {print $4}')
+printf 'needs about %s MB, %s MB free\n' "$need" "$have"
+if [ "${have:-0}" -lt "$need" ]; then
+  echo "error: not enough room. The sparse file arrives fully allocated, so the" >&2
+  echo "       corpus needs its apparent size, not its size on disk." >&2
+  exit 1
+fi
+
 # ditto rather than cp: it goes through copyfile(3), which is the path Finder
 # uses, so extended attributes and the sidecars travel with the data. cp is a
 # gentler workload than anybody actually generates.
