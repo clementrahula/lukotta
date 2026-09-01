@@ -171,6 +171,18 @@ public enum MountScript {
         /// instead of it. Keeping `soft` is deliberate -- see nfsOptions(_:)
         /// for the panic it avoids.
         ///
+        /// Twice now, and the second time on a configuration checked in the
+        /// guest's own transcript rather than inferred from the app binary:
+        /// 13,631,488,000 of 13,631,488,000 bytes, ditto exit 0, in 3227
+        /// seconds. The copy completing is not in doubt any more.
+        ///
+        /// What is still wrong is what it looks like while it runs. Timing a
+        /// request once a second through that same successful copy, 911
+        /// samples: p50 0.028s, p90 0.031s, p99 4.66s, worst 8.95s, with nine
+        /// past the five seconds macOS waits before saying the server has
+        /// stopped answering. Nine tenths of the run is faster than a
+        /// thirty-first of a second and the rest is a cliff.
+        ///
         /// Measured either side of the change, same thirteen gigabytes, same
         /// drive at 92% full, same guest:
         ///
