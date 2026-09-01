@@ -81,7 +81,17 @@ public enum HelperInfo {
     ///
     ///    A daemon on 5 -- which is what the pre-release carries -- generates a
     ///    script with none of it.
-    public static let contract = 12
+    /// 13 adds `mutejukebox` to the mount, which keeps a slow drive out of the
+    /// list macOS builds its "server is not responding" dialog from. A daemon
+    /// on 12 generates a mount without it, and the difference is a dialog on
+    /// somebody's screen during a copy that is going perfectly well.
+    ///
+    /// Raised because the binary comparison does not cover a daemon this app
+    /// registers itself: `installedToolIsStale` answers false the moment there
+    /// is no job in /Library. The build comparison added beside it should have
+    /// caught this one and did not, on a daemon twenty minutes older than the
+    /// bundle -- so the number does the work here, which is what it is for.
+    public static let contract = 13
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"
