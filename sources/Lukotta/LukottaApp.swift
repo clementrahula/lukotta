@@ -639,12 +639,41 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// unless the drives are meant to come back by themselves, in which case
     /// the app has to still be here when one is plugged in.
     func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool {
-        !RestorePreference.isOn
+        // Not when the question was just asked and answered with "no".
+        //
+        // Closing the window is one gesture that reaches AppKit twice: it asks
+        // whether to terminate while the window is still there, and asks again
+        // once the window has finished going. Answering the first with
+        // terminateCancel does not stop the second, so the question appears
+        // twice -- and the second one has no window left to sit over, so AppKit
+        // puts it wherever an ownerless alert goes, which on more than one
+        // display is not the display the first was on. Two dialogues, on two
+        // screens, asking the same thing.
+        //
+        // Declining a quit means the app stays. The window closing after that
+        // is the rest of the same gesture, not somebody asking again.
+        if declinedQuit { return false }
+        return !RestorePreference.isOn
+    }
+
+    /// Whether the last quit question was answered with "no".
+    ///
+    /// Cleared when a window is in front again, which is the point at which a
+    /// close really would be a new request rather than the tail of the one
+    /// already answered.
+    private var declinedQuit = false {
+        didSet {
+            guard declinedQuit else { return }
+            Log.app.notice("quit declined; not re-asking as the window finishes closing")
+        }
     }
 
     /// Clicking the app in the Dock, or opening it again from Finder, while it
     /// is living in the menu bar.
     func applicationShouldHandleReopen(_ app: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        // Back in front, so the next close is a new request rather than the
+        // tail of one already answered.
+        declinedQuit = false
         MainActor.assumeIsolated { MenuBarItem.shared.comeBack() }
         return true
     }
@@ -818,10 +847,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // An app living in the menu bar has no window to raise this in front
         // of, and a modal dialogue nobody can see reads as a quit that hung.
         NSApp.activate(ignoringOtherApps: true)
+        Log.app.notice(
+            "asking whether to quit with \(names.count, privacy: .public) open; windows on screen: \(NSApp.windows.filter(\.isVisible).count, privacy: .public)"
+        )
         isAskingAboutQuit = true
         let answer = alert.runModal()
         isAskingAboutQuit = false
 
+        // Whatever the answer, it was given. A "no" must not be asked again by
+        // the window that is still on its way out.
+        if answer != ejectButton, !(survives && answer == .alertFirstButtonReturn) {
+            MainActor.assumeIsolated { declinedQuit = true }
+        }
         if retreat, answer == .alertFirstButtonReturn {
             // Not a quit that was turned down: it was answered, by going to
             // the menu bar. The relaunch goes with it for the same reason a

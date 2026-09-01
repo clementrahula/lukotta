@@ -2707,6 +2707,39 @@ group("theGuestCarriesWhatTheRepairNeeds") {
         "no repair is attempted with a tool the guest does not have")
 }
 
+group("aDeclinedQuitIsNotAskedTwice") {
+    // Closing the window is one gesture that reaches AppKit twice: once while
+    // the window is still there, and again once it has finished going. The
+    // first raises the question over the window; the second has no window left
+    // to sit over, so it lands wherever an ownerless alert goes -- on more than
+    // one display, not where the first was. Two dialogues, two screens, one
+    // question.
+    //
+    // Checked as text because the behaviour lives in an AppKit delegate that
+    // needs a running application to exercise, and a test that cannot run it
+    // can still hold the code to what it says it does.
+    let app =
+        (try? String(contentsOfFile: "sources/Lukotta/LukottaApp.swift", encoding: .utf8)) ?? ""
+    expect(!app.isEmpty, "the delegate is readable")
+
+    // The terminate-after-last-window-closed answer consults it.
+    if let fn = app.range(of: "func applicationShouldTerminateAfterLastWindowClosed") {
+        let body = String(app[fn.lowerBound...].prefix(1400))
+        expect(body.contains("declinedQuit"), "a declined quit stops the second ask")
+        expect(
+            body.range(of: "if declinedQuit { return false }") != nil,
+            "and stops it before the restore preference is consulted")
+    } else {
+        expect(false, "the delegate still answers applicationShouldTerminateAfterLastWindowClosed")
+    }
+
+    // And it is cleared when the app is in front again, or the app would never
+    // quit by closing its window afterwards.
+    expect(
+        app.contains("declinedQuit = false"),
+        "coming back to the front makes the next close a new request")
+}
+
 group("aSlowGuestPausesTheCopyRatherThanFailingIt") {
     // The mount is soft, so a write is failed once the client stops waiting,
     // and Finder stops the whole operation on that one error. How long it waits
