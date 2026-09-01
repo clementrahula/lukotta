@@ -146,11 +146,18 @@ public enum MountScript {
         ///
         /// `retrans` is the count those intervals are spent from, and it is the
         /// other half: at the engine's 3 a write fails after three of them.
-        /// Five sixty-second tries is five minutes of silence tolerated, an
-        /// order of magnitude past the worst stall measured here (thirty-six
-        /// seconds unresponsive, recovering every time) and inside the fifteen
-        /// minutes `deadtimeout` allows, so a server that has genuinely gone is
-        /// still let go of rather than waited on for ever.
+        /// Five sixty-second tries is five minutes of silence tolerated, well
+        /// past the worst stall measured here and inside the fifteen minutes
+        /// `deadtimeout` allows, so a server that has genuinely gone is still
+        /// let go of rather than waited on for ever.
+        ///
+        /// The worst is not thirty-six seconds, which is what an earlier run
+        /// suggested. Through a thirteen-gigabyte Finder copy the mount went
+        /// unresponsive ten times, of 2, 2, 10, 10, 12, 12, 23, 24 and 60
+        /// seconds -- and the copy came through every one of them, including
+        /// the full minute. That single episode is the case for the margin:
+        /// the engine's own three tries would not have survived it, and
+        /// neither would anything sized against thirty-six.
         ///
         /// Both are overridable where `hard` is not: the engine merges by
         /// option name, so `timeo`, `retrans` and `dumbtimer` replace or join
