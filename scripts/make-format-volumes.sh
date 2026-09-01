@@ -42,18 +42,30 @@
 #              declines exFAT deliberately, VolumeFormat.macOSHandlesFully, and
 #              opening one here would turn a local volume into a network one
 #              for nothing
-#   XFS        NOT TESTED. Neither macOS nor the trimmed guest can create one,
-#              so no fixture exists on this machine. The guest kernel mounts XFS
-#              and nothing suggests it is broken -- but nothing here has opened
-#              one, and that is a gap in the evidence rather than a clean bill.
+#   XFS        TESTED, finally, and the way in was the guest rather than the
+#              host. macOS has no mkfs.xfs and Homebrew has no xfsprogs, and
+#              the trimmed guest carried none either -- so xfsprogs was put in
+#              with `anylinuxfs apk add`, and `anylinuxfs shell <image>` puts a
+#              blank image on /dev/vda where mkfs.xfs can reach it:
 #
-#              A file called plain-xfs.img was in the fixture directory anyway:
-#              two gigabytes long, sixteen kilobytes allocated, no superblock.
-#              The truncate had worked and the mkfs had never run. It has been
-#              deleted, and every image this script makes is now checked by its
-#              superblock before it is called a fixture -- see verify_image.
-#              A directory listing showing xfs among the fixtures is precisely
-#              how an untested format gets counted as a tested one.
+#                printf 'mkfs.xfs -f -L PLAINXFS /dev/vda; exit\n' \
+#                  | anylinuxfs shell path/to/plain-xfs.img
+#
+#              Checked at the superblock afterwards -- XFSB at offset 0, and
+#              blkid inside the guest reporting TYPE="xfs" -- because the last
+#              thing in that directory calling itself an XFS fixture was a
+#              sparse file with sixteen kilobytes allocated and no filesystem
+#              in it at all. That stub is gone, and verify_image now asks every
+#              image what it is before it counts as coverage.
+#
+#              Opened through the app's own path and put through the whole
+#              torture corpus: 2024 files, non-ASCII and 255-byte names, sizes
+#              on the block and transfer boundaries, a sparse gigabyte, two
+#              thousand small files, deep paths. 2024 identical, 0 differing,
+#              0 missing. The integrity vectors ran against it too: 10 of 11,
+#              and the one failure is not XFS's -- see EngineProcesses.stop,
+#              where a machine killed mid-write loses what it was holding on
+#              ext4 in exactly the same way.
 #
 set -euo pipefail
 OUT="${1:-$HOME/.lukotta-testvols}"
