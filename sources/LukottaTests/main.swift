@@ -2347,13 +2347,19 @@ group("theHelperSaysWhichBuildItIs") {
     expect(helper.contains("func helperVersion("), "the helper can say which build it is")
     expect(client.contains("func replaceIfStale()"), "and the app asks")
 
-    // And the answer is used. askVersion existed, set installedVersion, and was
-    // called from nowhere -- so for a daemon this app registers itself there
-    // was nothing left but the hand-raised contract number. installedToolIsStale
-    // answers only for one installed with an administrator password: it returns
-    // false at once when there is no job in /Library. A rebuilt app was
-    // therefore served by the daemon it was built to replace, silently, until
-    // somebody thought to raise a number.
+    // And the answer is used to decide staleness, which it was not before.
+    //
+    // askVersion was already called -- from reregister and from the screen that
+    // shows what is installed -- so the daemon's build was known and simply not
+    // consulted here. (An earlier note in this test said it was called from
+    // nowhere. That was a bad grep: a trailing-closure call does not match
+    // "askVersion(".)
+    //
+    // What was missing is that replaceIfStale asked only two questions, and
+    // neither answers for a daemon this app registers itself: the contract is
+    // raised by hand, and installedToolIsStale returns false at once when there
+    // is no job in /Library. So a rebuilt app was served by the daemon it was
+    // built to replace, silently, until somebody thought to raise a number.
     expect(
         client.contains("askVersion { [weak self] theirBuild in"),
         "the build the daemon reports is actually asked for")
