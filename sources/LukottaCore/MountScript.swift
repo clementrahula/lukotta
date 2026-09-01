@@ -269,6 +269,19 @@ public enum MountScript {
         /// own default and half what was proven; it is the number this is
         /// being tested at rather than a number anybody has proven yet.
         ///
+        /// Every one of those results is confounded, and the paragraph above
+        /// is kept only to say so. All of them were measured through a mount
+        /// carrying `nodumbtimer`, where the client gave up after three
+        /// millisecond-scale intervals whatever `timeo` said -- so each run
+        /// ended for a reason that had nothing to do with how much memory the
+        /// guest had, and "256 failed" is very likely the timeout failing at
+        /// 256 rather than the memory. See Inputs.nfsOptions.
+        ///
+        /// Which matters most where it is most expensive. The conflict below
+        /// is drawn from those same numbers, and the cheap experiment that
+        /// settles it -- re-asking 256 with the timeout fixed -- has to be run
+        /// before anything is built on the conclusion.
+        ///
         /// The figure is a ceiling rather than an allocation, libkrun backing
         /// guest memory lazily, but it is not free for being lazy: the scratch
         /// directory a container's volumes are served from is sized from it,
@@ -283,13 +296,20 @@ public enum MountScript {
         /// gigabyte Mac does not have -- and this Mac was already down to
         /// 102 MB free with 4.4 GB compressed while serving one.
         ///
-        /// So a copy that does not stall and a dozen drives open together are
-        /// in direct conflict while every drive is its own machine, and no
-        /// value here settles both. The way out is not a smaller number: it is
-        /// one machine serving several drives. libkrun already attaches
-        /// several disks to one VM -- `krun_add_disk2` is called in a loop --
-        /// so the limit is the engine's model, one mount being one machine and
-        /// one export, rather than anything underneath it.
+        /// So a copy that does not stall and a dozen drives open together look
+        /// to be in direct conflict while every drive is its own machine --
+        /// but that reading rests on 256 having failed for want of memory, and
+        /// it did not fail for a reason anybody established. If 256 carries a
+        /// thirteen-gigabyte copy now, twelve drives is about 3 GB rather than
+        /// 5.9 and there is no conflict to resolve.
+        ///
+        /// If it does not, the way out is still not a smaller number: it is one
+        /// machine serving several drives. libkrun already attaches several
+        /// disks to one VM -- `krun_add_disk2` is called in a loop -- so the
+        /// limit is the engine's model, one mount being one machine and one
+        /// export, rather than anything underneath it. That is a patch to the
+        /// engine, and this repository already carries ten of them; it is not
+        /// started until the cheaper question has an answer.
         public static let ramMiB = 512
         /// Half the machine and never more than two, the work being I/O.
         public static var cores: Int {
