@@ -4823,6 +4823,70 @@ group("theGuestIsTunedToKeepAnswering") {
         "and so is the action generated for a container of volumes")
 }
 
+group("theRepairRefusesWhatItWouldDamage") {
+    // Asserting the text of the guard proves nothing about what it does. This
+    // runs the command the action actually carries, against stub tools, and
+    // checks the two refusals are real: a non-zero exit fails the before_mount
+    // action, which fails the attempt, which opens the drive read-only.
+    let dir = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appendingPathComponent("lukotta-repair-guard", isDirectory: true)
+    let bin = dir.appendingPathComponent("bin", isDirectory: true)
+    try? FileManager.default.removeItem(at: dir)
+    try? FileManager.default.createDirectory(at: bin, withIntermediateDirectories: true)
+
+    func stub(_ name: String, _ body: String) {
+        let path = bin.appendingPathComponent(name)
+        try? ("#!/bin/sh\n" + body + "\n").write(to: path, atomically: true, encoding: .utf8)
+        try? FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: path.path)
+    }
+
+    /// Runs the real command with the stubs in front of PATH; returns its
+    /// status and whether the destructive step was reached.
+    func attempt() -> (status: Int32, repaired: Bool) {
+        let marker = dir.appendingPathComponent("did")
+        try? FileManager.default.removeItem(at: marker)
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/bin/sh")
+        p.arguments = ["-c", MountScript.ntfsRepair]
+        var env = ProcessInfo.processInfo.environment
+        env["PATH"] = bin.path + ":" + (env["PATH"] ?? "")
+        p.environment = env
+        p.standardOutput = FileHandle.nullDevice
+        p.standardError = FileHandle.nullDevice
+        try? p.run()
+        p.waitUntilExit()
+        return (p.terminationStatus, FileManager.default.fileExists(atPath: marker.path))
+    }
+
+    stub("blkid", "echo /dev/mapper/btlk0")
+    let didPath = dir.appendingPathComponent("did").path
+
+    // A volume that is merely flagged dirty: nothing is being discarded, so it
+    // is cleared and the drive opens writable.
+    stub("ntfsls", "echo Windows")
+    stub("ntfsfix", "case \"$1\" in -n) exit 0;; -d) : > \(didPath); exit 0;; esac")
+    var r = attempt()
+    expect(r.status == 0 && r.repaired, "a volume flagged dirty and nothing worse is repaired")
+
+    // Hibernated: the disk is deliberately stale against a memory image, so
+    // writing to it loses whatever that image was going to reconcile.
+    stub("ntfsls", "echo hiberfil.sys")
+    r = attempt()
+    expect(r.status != 0, "a hibernated volume is refused")
+    expect(!r.repaired, "and nothing is written to it")
+
+    // Damage beyond a flag: ntfsfix -n writes nothing and will not answer
+    // cleanly, so clearing the flag would let a filesystem be written to that
+    // ntfs3 refused for a reason.
+    stub("ntfsls", "echo Windows")
+    stub("ntfsfix", "case \"$1\" in -n) exit 1;; -d) : > \(didPath); exit 0;; esac")
+    r = attempt()
+    expect(r.status != 0, "a volume failing the dry run is refused")
+    expect(!r.repaired, "and nothing is written to that either")
+
+    try? FileManager.default.removeItem(at: dir)
+}
+
 group("aDirtyVolumeIsRepairedRatherThanDemoted") {
     // Windows leaves a volume dirty and both drivers refuse to write to it:
     // ntfs3 says so in the kernel, ntfs-3g answers the mount with an I/O error.
