@@ -1181,12 +1181,29 @@ public enum MountScript {
         // watchdogd sees a registry entry stuck for sixty seconds. "soft" is
         // there to stop a panic, and removing it would bring the panic back.
         //
-        // Nor can it simply be overridden from here: the merge is keyed by
-        // option name, so passing "hard" adds a second key beside "soft"
-        // rather than replacing it. "timeo" and "retrans" can be overridden,
-        // being the same keys -- but what they should be is a question about
-        // how long a slow drive is allowed to stall before its writes are
-        // failed, and that wants measurement rather than a number picked here.
+        // It can be overridden from here, and the sentence that used to sit
+        // here saying it could not was wrong. It claimed passing "hard" adds a
+        // second key beside "soft" rather than replacing it. Both do reach the
+        // command, but mount_nfs takes the last of the pair: mounting this
+        // server by hand with "soft,intr,nolocks,hard" reports a mount whose
+        // current parameters say "hard", with no "soft" among them. Ours are
+        // the ones that land last, which is already how "timeo=600" beats the
+        // engine's 100 in a mount table anyone can read.
+        //
+        // What that would buy is the whole class of failure rather than a
+        // wider window: a hard mount does not fail a write because the server
+        // was slow, so there is no error for Finder to end a copy on and no
+        // half-written file for it to count as finished.
+        //
+        // It is not taken, and the reason is that the cost of being wrong is
+        // not symmetric. The panic above is the claim that stands between here
+        // and a hard mount, and the only experiment that settles it is pulling
+        // a drive out from under one on somebody's machine. A failed copy is
+        // recoverable and a panicked kernel mid-write is not, so the claim is
+        // left standing until it can be tested somewhere it costs nothing.
+        //
+        // "timeo", "retrans" and "dumbtimer" are overridden instead, which is
+        // measured rather than argued: see Inputs.nfsOptions.
         //
         // An earlier audit flagged the missing timeo. It was answered from the
         // belief written above, which was mistaken. It was right.
