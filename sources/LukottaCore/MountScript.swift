@@ -1040,6 +1040,18 @@ public enum MountScript {
     /// buys the copy resilience and does nothing for what is shown on screen;
     /// only shorter round trips do that.
     ///
+    /// And the flag is a verdict, not the measurement. A run that never raises
+    /// it can still be a second away from raising it all the way through, and
+    /// one was: timing a plain `stat` on the mount once a second through a copy
+    /// that recorded no unresponsive spells at all --
+    ///
+    ///     median 0.028s, p90 2.2s, worst 3.45s, against a threshold of 5
+    ///
+    /// -- which is not a healthy mount that occasionally hesitates. It is a
+    /// mount spending much of a copy within a second and a half of telling
+    /// somebody the server has stopped answering, and reading as perfect while
+    /// it does. Anything measuring only the flag will call that fixed.
+    ///
     /// Which is a different knob from the one tried before. Bounding
     /// `vm.dirty_bytes` -- the hard limit -- at 16 MB and 64 MB took the same
     /// copy from about 8 MB/s to about 1 and made it fail sooner, because
