@@ -989,6 +989,35 @@ public enum MountScript {
     /// held there until writeback catches up, and on a slow nearly-full drive
     /// that is tens of seconds.
     ///
+    /// That is the theory this was built on, and the measurement does not fit
+    /// it. Sampled every second through an eighty-nine-second stall, with the
+    /// tuning already in force:
+    ///
+    ///     guest process CPU     0.0%, RSS unchanged at 481 MB
+    ///     physical drive        0.00 MB/s, for the whole stall
+    ///     TCP to the guest      recvq=0 sendq=0 ESTABLISHED
+    ///     TCP retransmits       0 packets, 0 retransmit timeouts
+    ///
+    /// Writeback catching up would show as disk throughput and it shows none.
+    /// A guest working through something would show as CPU and it shows none.
+    /// A lost request would show as a TCP retransmit and there are none, on a
+    /// connection that stays established throughout. Nothing anywhere is
+    /// moving, and then after about a minute it resumes on its own.
+    ///
+    /// The drive is not the ceiling either, which was the next guess: across
+    /// 178 samples of a running copy it was completely idle in 119 of them,
+    /// with a p90 of 12 MB/s and a peak of 18. It is not being kept busy.
+    ///
+    /// Stall lengths measured so far are 59, 71 and 89 seconds against a
+    /// `timeo` of 60, which is close enough to be worth suspecting the client's
+    /// own retransmit timer rather than the guest -- a request that reached the
+    /// guest's socket and was never taken off it would look exactly like this
+    /// from the host, and would end when the timer fires and asks again.
+    ///
+    /// Confirming that needs the guest's side of the socket, which needs a
+    /// machine restarted with more logging, which needs the drive reopened
+    /// through the app. Recorded here rather than guessed at.
+    ///
     /// Which is a different knob from the one tried before. Bounding
     /// `vm.dirty_bytes` -- the hard limit -- at 16 MB and 64 MB took the same
     /// copy from about 8 MB/s to about 1 and made it fail sooner, because
