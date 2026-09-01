@@ -1069,6 +1069,27 @@ public enum MountScript {
     /// mount is not slow. It is quick almost always and occasionally stops
     /// dead, and it is the tail that reaches somebody, not the median.
     ///
+    /// The slow moments are not scattered evenly through the copy either. Lined
+    /// up against when each file was actually written -- the destination's
+    /// inode change times, since ditto carries the source's mtime across --
+    /// they fall in clusters in the thirty to fifty seconds *after* a file
+    /// closes, not at the moment it closes:
+    ///
+    ///     file finished 15:16:22   slow at :32, :46, :54
+    ///     file finished 15:17:38   slow at 15:18:06, 15:18:33
+    ///     file finished 15:19:20   slow at 15:19:53, 15:20:00, 15:20:14
+    ///
+    /// Which is the shape of a flush rather than of a slow device. NFS commits
+    /// a file when it is closed, the guest then has half a gigabyte of buffered
+    /// writes to push to a drive that manages about twelve megabytes a second,
+    /// and anything asking a question during that window waits behind it.
+    ///
+    /// It is a correlation across one run and not a proof, and it points
+    /// somewhere different from where the fixes so far have gone: not at how
+    /// long the client waits, and not at how much the guest is allowed to
+    /// buffer, but at how many threads are left to answer with while one of
+    /// them is emptying that buffer.
+    ///
     /// So the flag is not merely a coarse view of the latency, it is an
     /// unreliable one: `nfsstat -m` was answering from client state that did
     /// not show a spell the timing caught plainly. "No unresponsive episodes"
