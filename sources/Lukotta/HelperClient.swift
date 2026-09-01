@@ -166,87 +166,110 @@ final class HelperClient: ObservableObject {
             }
             return
         }
-        // What the daemon promises, not which build it came from.
+        // What the daemon promises, and -- here -- which build it came from.
         //
-        // The build number moves on every release, and comparing against it
-        // asked the daemon to be replaced after almost every update -- which,
-        // where it was installed with an administrator password, meant asking
-        // for one again. The contract moves only when the daemon itself
-        // changes, so most updates ask for nothing at all.
+        // The contract is a number somebody raises by hand, and the note
+        // against it says plainly what that costs: a number somebody must
+        // remember to raise is a number somebody will forget to raise, and the
+        // failure is silent in the worst way. The binaries are compared instead
+        // so nobody has to remember. But `installedToolIsStale` answers only
+        // for a daemon installed with an administrator password: it returns
+        // false at once when there is no job in /Library, which is every daemon
+        // this app registers itself. So for those there was nothing left but
+        // the hand-raised number, and a rebuilt app went on being served by the
+        // daemon it was built to replace -- for hours, with the app new, the
+        // daemon old, the mount built the old way, and nothing anywhere saying
+        // so. Exactly the fault the comparison was added to make impossible.
+        //
+        // The build is the right comparison here, and the reason it was
+        // rejected does not apply. It was rejected because replacing a daemon
+        // that lives in /Library asks for a password, so doing it every release
+        // would ask every release. Re-registering one this app owns asks for
+        // nothing at all -- the note two branches up says so itself: "Silent:
+        // the daemon is already approved". A daemon from a different build than
+        // the app is stale, and it costs nothing to say so.
         let stale = installedToolIsStale
-        askContract { [weak self] theirs in
-            guard let self, theirs < HelperInfo.contract || stale else { return }
-            Log.app.notice(
-                "the running helper answers contract \(theirs, privacy: .public), this build wants \(HelperInfo.contract, privacy: .public), binary differs: \(stale, privacy: .public); replacing it"
-            )
-            // Ask it to stop first. launchd keeps a registered daemon running
-            // across an app update -- the binary in the bundle is replaced and
-            // the process is not -- and unregistering does not disturb one that
-            // is already going, so this used to notice the mismatch every
-            // launch and change nothing. Only the daemon can end the daemon.
-            self.askToStepAside { [weak self] stepped in
-                guard let self else { return }
-                if stepped {
-                    self.connection?.invalidate()
-                    self.connection = nil
-                    // launchd starts it again on the next call, from the bundle
-                    // as it is now.
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-                        self?.refresh()
-                        self?.makeRoomForDrives()
-                    }
+        let ourBuild = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        askVersion { [weak self] theirBuild in
+            guard let self else { return }
+            let differentBuild = !ourBuild.isEmpty && !theirBuild.isEmpty && theirBuild != ourBuild
+            self.askContract { [weak self] theirs in
+                guard let self, theirs < HelperInfo.contract || stale || differentBuild else {
                     return
                 }
-                // A daemon installed with an administrator password lives in
-                // /Library/PrivilegedHelperTools, and only another blessing
-                // replaces the binary there. Stepping aside restarts the same
-                // old one from the same place, for ever: the fix in the bundle
-                // never reaches the daemon, and the fault it carries outlives
-                // every update.
-                if FileManager.default.fileExists(atPath: HelperInfo.installedJobPath) {
-                    // Installed with an administrator password, so its binary
-                    // lives where only root may write. It is root: it replaces
-                    // itself from this bundle and stands down, and launchd
-                    // starts what it put there. No password, and the fix
-                    // reaches a Mac that already has a daemon -- which is the
-                    // whole difficulty, since blessing again is the only other
-                    // way across and that asks for one every time.
-                    Log.app.notice("the installed daemon is older; asking it to replace itself")
-                    self.askItToRefreshItself { [weak self] replaced in
-                        guard let self else { return }
-                        if !replaced {
-                            // Same reason as above: never at launch.
-                            Log.app.error(
-                                "the daemon would not replace itself; the mount will go without it")
-                            return
-                        }
+                Log.app.notice(
+                    "the running helper answers contract \(theirs, privacy: .public) build \(theirBuild, privacy: .public), this build wants \(HelperInfo.contract, privacy: .public) build \(ourBuild, privacy: .public), binary differs: \(stale, privacy: .public); replacing it"
+                )
+                // Ask it to stop first. launchd keeps a registered daemon running
+                // across an app update -- the binary in the bundle is replaced and
+                // the process is not -- and unregistering does not disturb one that
+                // is already going, so this used to notice the mismatch every
+                // launch and change nothing. Only the daemon can end the daemon.
+                self.askToStepAside { [weak self] stepped in
+                    guard let self else { return }
+                    if stepped {
                         self.connection?.invalidate()
                         self.connection = nil
+                        // launchd starts it again on the next call, from the bundle
+                        // as it is now.
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-                            self?.hasConfirmed = false
                             self?.refresh()
                             self?.makeRoomForDrives()
                         }
+                        return
                     }
-                    return
-                }
+                    // A daemon installed with an administrator password lives in
+                    // /Library/PrivilegedHelperTools, and only another blessing
+                    // replaces the binary there. Stepping aside restarts the same
+                    // old one from the same place, for ever: the fix in the bundle
+                    // never reaches the daemon, and the fault it carries outlives
+                    // every update.
+                    if FileManager.default.fileExists(atPath: HelperInfo.installedJobPath) {
+                        // Installed with an administrator password, so its binary
+                        // lives where only root may write. It is root: it replaces
+                        // itself from this bundle and stands down, and launchd
+                        // starts what it put there. No password, and the fix
+                        // reaches a Mac that already has a daemon -- which is the
+                        // whole difficulty, since blessing again is the only other
+                        // way across and that asks for one every time.
+                        Log.app.notice("the installed daemon is older; asking it to replace itself")
+                        self.askItToRefreshItself { [weak self] replaced in
+                            guard let self else { return }
+                            if !replaced {
+                                // Same reason as above: never at launch.
+                                Log.app.error(
+                                    "the daemon would not replace itself; the mount will go without it"
+                                )
+                                return
+                            }
+                            self.connection?.invalidate()
+                            self.connection = nil
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                                self?.hasConfirmed = false
+                                self?.refresh()
+                                self?.makeRoomForDrives()
+                            }
+                        }
+                        return
+                    }
 
-                // A daemon too old to know the question, or one busy serving a
-                // drive. Ask it to take itself off instead: every version has
-                // known how to do that, it is root and can, and it exits when
-                // it has. Registering again then starts the binary that is in
-                // the bundle now, rather than waiting on a process nothing here
-                // can reach.
-                //
-                // This is the path out for a Mac that already has an old daemon
-                // on it. Without it the only ways across are a restart and a
-                // command with a password in front of it, and neither is
-                // somebody else's job.
-                self.askItToTakeItselfOff { [weak self] in
-                    self?.reregister()
+                    // A daemon too old to know the question, or one busy serving a
+                    // drive. Ask it to take itself off instead: every version has
+                    // known how to do that, it is root and can, and it exits when
+                    // it has. Registering again then starts the binary that is in
+                    // the bundle now, rather than waiting on a process nothing here
+                    // can reach.
+                    //
+                    // This is the path out for a Mac that already has an old daemon
+                    // on it. Without it the only ways across are a restart and a
+                    // command with a password in front of it, and neither is
+                    // somebody else's job.
+                    self.askItToTakeItselfOff { [weak self] in
+                        self?.reregister()
+                    }
                 }
+                return
             }
-            return
         }
     }
 

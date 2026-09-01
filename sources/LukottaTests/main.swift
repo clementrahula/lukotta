@@ -2346,6 +2346,20 @@ group("theHelperSaysWhichBuildItIs") {
         (try? String(contentsOfFile: "sources/Lukotta/HelperClient.swift", encoding: .utf8)) ?? ""
     expect(helper.contains("func helperVersion("), "the helper can say which build it is")
     expect(client.contains("func replaceIfStale()"), "and the app asks")
+
+    // And the answer is used. askVersion existed, set installedVersion, and was
+    // called from nowhere -- so for a daemon this app registers itself there
+    // was nothing left but the hand-raised contract number. installedToolIsStale
+    // answers only for one installed with an administrator password: it returns
+    // false at once when there is no job in /Library. A rebuilt app was
+    // therefore served by the daemon it was built to replace, silently, until
+    // somebody thought to raise a number.
+    expect(
+        client.contains("askVersion { [weak self] theirBuild in"),
+        "the build the daemon reports is actually asked for")
+    expect(
+        client.contains("|| differentBuild"),
+        "and a daemon from another build counts as stale")
     expect(
         client.contains("try? self.service.unregister()")
             && client.contains("try? self.service.register()"),
