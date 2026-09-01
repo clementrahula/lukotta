@@ -941,7 +941,10 @@ public enum MountScript {
     /// Start writing dirty pages out early, without ever blocking the writer.
     ///
     /// The mount is marked "not responding" when a request goes unanswered for
-    /// longer than `nfs.client.initialdowndelay`, and macOS puts that on screen
+    /// longer than `nfs.client.initialdowndelay` -- **five seconds**, read from
+    /// the running kernel with an empty /etc/nfs.conf, not the twelve nfs.conf(5)
+    /// still claims. So that is the budget: a single write RPC that takes more
+    /// than five seconds is enough, and macOS puts that on screen
     /// -- which is a copy that looks broken to somebody watching it, whether or
     /// not it later finishes. Measured on a thirteen-gigabyte copy into a USB
     /// drive at 92% full: five episodes in nine minutes, of 6, 14, 16, 18 and
