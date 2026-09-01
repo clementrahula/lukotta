@@ -238,7 +238,8 @@ public enum MountScript {
         /// not help.
         var nfsOptions =
             "rsize=\(MountScript.transferSize),wsize=\(MountScript.transferSize),"
-            + "readahead=128,dumbtimer,timeo=600,retrans=5,deadtimeout=900,noowners"
+            + "readahead=128,dumbtimer,timeo=600,retrans=5,deadtimeout=900,"
+            + "mutejukebox,noowners"
 
         /// Which network the microVM's NFS server is reached over.
         ///
@@ -1184,7 +1185,33 @@ public enum MountScript {
     ///
     /// So the remaining question is not how to make the wait shorter. It is
     /// whether macOS has to call a wait of that length a server that has
-    /// stopped answering.
+    /// stopped answering. `mutejukebox` is the answer to that, and it is the
+    /// only per-mount option that speaks of the dialog at all:
+    ///
+    ///     "Use of this option will prevent the file system from being
+    ///      included in the list of unresponsive file systems that would be
+    ///      included in a dialog presented to the user."
+    ///
+    /// mount_nfs(8) describes it under jukebox errors, which is where it came
+    /// from -- a hierarchical store expected to be slow. This drive is the
+    /// same case with a different cause: a copy going perfectly well that
+    /// takes four seconds to answer because half a gigabyte is being pushed to
+    /// something managing twelve megabytes a second. Nothing is wrong, and a
+    /// dialog saying the server has stopped answering is wrong about it.
+    ///
+    /// It is asked for and it lands -- `nfsstat -m` reports `mutejukebox`
+    /// where the same mount without it says `nomutejukebox` -- and it changes
+    /// nothing about how anything is written, only whether the volume is
+    /// listed as unresponsive.
+    ///
+    /// What is not established from here is whether that exclusion covers
+    /// every cause or only the jukebox errors it is documented under. It
+    /// shows on a screen during a slow copy, and in no counter this can read.
+    ///
+    /// Taken anyway. The app knows the state of its own drives and says so in
+    /// its own window; a second opinion from macOS about a volume it is
+    /// managing, delivered as an alert in the middle of a copy that is fine,
+    /// is noise whichever cause raised it.
     ///
     /// The control says the same thing. Reading those thirteen gigabytes back
     /// off the same drive, through the same mount, minutes later:

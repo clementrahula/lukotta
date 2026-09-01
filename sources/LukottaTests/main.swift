@@ -462,7 +462,7 @@ group("theElevatedMountScript") {
     expect(
         msScript.contains(
             "--nfs-options='rsize=131072,wsize=131072,readahead=128,dumbtimer,"
-                + "timeo=600,retrans=5,deadtimeout=900,noowners'"),
+                + "timeo=600,retrans=5,deadtimeout=900,mutejukebox,noowners'"),
         "NFS options use the joined form")
     // The other half of what --ignore-permissions does, which the read-only
     // route never had: the export squashes who is asking, and this stops macOS
@@ -2838,6 +2838,15 @@ group("aSlowGuestPausesTheCopyRatherThanFailingIt") {
     // gone is let go of rather than waited on for ever, which is the whole
     // reason the mount is soft in the first place.
     expect(script.contains("deadtimeout=900"), "and a departed server is still given up on")
+
+    // And the volume is kept out of the list macOS builds its "server is not
+    // responding" dialog from. The wait itself cannot be shortened -- the same
+    // measurement against a fast device has no tail at all, so it is the drive
+    // absorbing half a gigabyte and not the path to it -- and a copy that is
+    // going perfectly well should not put an alert on somebody's screen.
+    expect(
+        script.contains("mutejukebox"),
+        "a slow drive is not reported to the user as a server that has stopped answering")
 }
 
 group("aReadOnlyMountAsksForItInOneFlag") {
