@@ -26,7 +26,41 @@
 #
 # The predicate matches subsystems rather than the word "nfs", which also
 # catches nfcd and NFStorageServer and buries the thing being looked for.
+#
+# A COUNT OF ZERO IS NOT A RESULT UNTIL THE CHANNEL IS KNOWN TO BE OPEN
+#
+# This reports "not responding: 0" and there are two ways to get that number:
+# nothing complained, or nothing was listening. After a thirteen-gigabyte copy
+# reported zero, the logs were checked and the kernel had never delivered a
+# single line through this predicate -- not one, across every run kept. That is
+# either a very quiet mount or a dead clause, and the two are indistinguishable
+# from the output.
+#
+# Checking it with `log show` said the kernel was silent. That was the wrong
+# instrument: `log show` returns nothing here at all, not even unfiltered, so
+# it had no opinion to give and was read as one anyway. `log stream` is the
+# channel that works, and asked directly it delivered 2546 kernel lines in 25
+# seconds. The clause is alive and the zero is a real zero.
+#
+# Rather than leave that to be rediscovered, --probe asks the question before a
+# run: it opens the same kernel channel for a few seconds and refuses to
+# pretend a silent one is a clean one.
 set -uo pipefail
+
+if [ "${1:-}" = "--probe" ]; then
+  echo "checking the kernel channel is open before trusting a zero…"
+  n=$(timeout 12 log stream --style compact --predicate 'process == "kernel"' \
+        2>/dev/null | grep -cv '^Filtering\|^Timestamp')
+  echo "  kernel lines in 12s: $n"
+  if [ "${n:-0}" -lt 1 ]; then
+    echo "  the kernel delivers nothing; a count of zero from this watcher" >&2
+    echo "  would mean nothing was listening, not that nothing complained" >&2
+    exit 1
+  fi
+  echo "  open. a zero from this watcher is a real zero."
+  exit 0
+fi
+
 DURATION="${1:-3600}"
 LOG="${TMPDIR:-/tmp}/lukotta-complaints.log"
 
