@@ -1096,11 +1096,23 @@ public enum MountScript {
     /// writes to push to a drive that manages about twelve megabytes a second,
     /// and anything asking a question during that window waits behind it.
     ///
-    /// It is a correlation across one run and not a proof, and it points
-    /// somewhere different from where the fixes so far have gone: not at how
-    /// long the client waits, and not at how much the guest is allowed to
-    /// buffer, but at how many threads are left to answer with while one of
-    /// them is emptying that buffer.
+    /// It points somewhere different from where the fixes so far have gone:
+    /// not at how long the client waits, and not at how much the guest is
+    /// allowed to buffer, but at how many threads are left to answer with while
+    /// one of them is emptying that buffer.
+    ///
+    /// The control says the same thing. Reading those thirteen gigabytes back
+    /// off the same drive, through the same mount, minutes later:
+    ///
+    ///     reading   p50 0.028s  p90 0.030s  p99 0.043s  worst 0.043s
+    ///     writing   p50 0.028s  p90 0.031s  p99 4.66s   worst 8.95s
+    ///
+    /// Nothing over two seconds in the whole read; forty-five over two and nine
+    /// over five in the write. Same drive, same guest, same link, two hundred
+    /// times the worst case. So it is not a slow device, not the virtio link,
+    /// and not the microVM being starved of anything: it is the write path,
+    /// and specifically what happens to everything else while committed data
+    /// is being pushed out.
     ///
     /// So the flag is not merely a coarse view of the latency, it is an
     /// unreliable one: `nfsstat -m` was answering from client state that did
