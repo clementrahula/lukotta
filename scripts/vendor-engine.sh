@@ -50,18 +50,57 @@ SRC_BLKID="$UPSTREAM/util-linux/$UTIL_VERSION/lib"
 # "anylinuxfs init" still writes to the shared one. Either is a valid source --
 # the archive is checked against the digest the lock pins whichever it came
 # from.
+# The app keeps its engine under its bundle identifier, not under its name.
+# This list used to say "Lukotta" and "Lukotta Beta", which are directories
+# that have never existed on any machine -- so every candidate missed, the
+# loop fell through to the standalone anylinuxfs install, and the guest that
+# shipped was packed from a rootfs the app does not use. It went unnoticed
+# because the fallback is a real, working rootfs; it is simply the wrong one.
+#
+# It surfaced when xfsprogs and e2fsprogs were installed into the app's engine
+# home and the repack reported them missing anyway. The check that caught it is
+# trim-image.py's "roots not present in image" warning, which is worth reading
+# rather than scrolling past: it is the only thing that says the guest being
+# packed is not the guest that was prepared.
+#
+# In practice only the standalone install can be packed from, and that is not
+# a preference but a consequence. The lock pins the guest by its OCI digest,
+# and the only record of that digest is the sha256_<digest>.mtree file that
+# `anylinuxfs init` leaves beside the rootfs. The app's engine homes are
+# extracted from the tarball this script produces, so they carry no mtree and
+# no provenance -- pointing at one gets "the guest image is not the one
+# vendor/engine.lock pins", which is the check doing its job rather than
+# getting in the way.
+#
+# So packages go in through the standalone install:
+#
+#     vendor/upstream/anylinuxfs/<version>/bin/anylinuxfs apk add <pkg>...
+#
+# with ANYLINUXFS_HOME left alone, and then this script packs ~/.anylinuxfs.
+# Installing into the app's engine home instead changes the guest the app runs
+# today and nothing that ships, which is a confusing place to end up: the
+# feature works on the machine that added it and is missing from the release.
+#
+# Which one wins is now printed rather than left to be inferred, and
+# LUKOTTA_SRC_ROOTFS overrides the lot.
 SRC_ROOTFS="${LUKOTTA_SRC_ROOTFS:-}"
 if [ -z "$SRC_ROOTFS" ]; then
   for candidate in \
-    "$HOME/Library/Application Support/Lukotta/engine/.anylinuxfs/alpine" \
-    "$HOME/Library/Application Support/Lukotta Beta/engine/.anylinuxfs/alpine" \
+    "$HOME/Library/Application Support/com.lukotta/engine/.anylinuxfs/alpine" \
+    "$HOME/Library/Application Support/com.lukotta.beta/engine/.anylinuxfs/alpine" \
+    "$HOME/Library/Application Support/com.lukotta.dev/engine/.anylinuxfs/alpine" \
     "$HOME/.anylinuxfs/alpine"; do
     [ -d "$candidate/rootfs" ] || continue
+    # Carrying its own provenance is the requirement, not an ordering
+    # preference: without the mtree the digest check below cannot pass, so a
+    # rootfs that has none is not a candidate however convenient it looks.
+    ls "$candidate"/sha256_*.mtree >/dev/null 2>&1 || continue
     SRC_ROOTFS="$candidate"
     break
   done
   SRC_ROOTFS="${SRC_ROOTFS:-$HOME/.anylinuxfs/alpine}"
 fi
+echo "Packing the guest from ${SRC_ROOTFS/#$HOME/~}"
 OUT="$HERE/vendor/engine"
 
 [ -x "$SRC_RUNTIME/anylinuxfs/$ALFS_VERSION/bin/anylinuxfs" ] || {

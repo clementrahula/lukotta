@@ -41,3 +41,4 @@ translation_audit/
 nfs-stall.md
 .claude/
 architecture.md
+scripts/__pycache__/

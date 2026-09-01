@@ -402,6 +402,58 @@
       ]
     },
     {
+      "bom-ref": "pkg:apk/alpine/e2fsprogs@1.47.4-r0?arch=aarch64&distro=alpine-3.24.1",
+      "type": "library",
+      "name": "e2fsprogs",
+      "version": "1.47.4-r0",
+      "purl": "pkg:apk/alpine/e2fsprogs@1.47.4-r0?arch=aarch64&distro=alpine-3.24.1",
+      "properties": [
+        {
+          "name": "aquasecurity:trivy:PkgType",
+          "value": "alpine"
+        },
+        {
+          "name": "aquasecurity:trivy:SrcName",
+          "value": "e2fsprogs"
+        },
+        {
+          "name": "aquasecurity:trivy:SrcVersion",
+          "value": "1.47.4-r0"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "GPL-2.0-or-later AND LGPL-2.0-or-later AND BSD-3-Clause AND MIT"
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:apk/alpine/e2fsprogs-libs@1.47.4-r0?arch=aarch64&distro=alpine-3.24.1",
+      "type": "library",
+      "name": "e2fsprogs-libs",
+      "version": "1.47.4-r0",
+      "purl": "pkg:apk/alpine/e2fsprogs-libs@1.47.4-r0?arch=aarch64&distro=alpine-3.24.1",
+      "properties": [
+        {
+          "name": "aquasecurity:trivy:PkgType",
+          "value": "alpine"
+        },
+        {
+          "name": "aquasecurity:trivy:SrcName",
+          "value": "e2fsprogs"
+        },
+        {
+          "name": "aquasecurity:trivy:SrcVersion",
+          "value": "1.47.4-r0"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "GPL-2.0-or-later AND LGPL-2.0-or-later AND BSD-3-Clause AND MIT"
+        }
+      ]
+    },
+    {
       "bom-ref": "pkg:apk/alpine/eudev-libs@3.2.14-r6?arch=aarch64&distro=alpine-3.24.1",
       "type": "library",
       "name": "eudev-libs",
@@ -450,6 +502,32 @@
       "licenses": [
         {
           "expression": "GPL-3.0-or-later"
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:apk/alpine/inih@62-r0?arch=aarch64&distro=alpine-3.24.1",
+      "type": "library",
+      "name": "inih",
+      "version": "62-r0",
+      "purl": "pkg:apk/alpine/inih@62-r0?arch=aarch64&distro=alpine-3.24.1",
+      "properties": [
+        {
+          "name": "aquasecurity:trivy:PkgType",
+          "value": "alpine"
+        },
+        {
+          "name": "aquasecurity:trivy:SrcName",
+          "value": "inih"
+        },
+        {
+          "name": "aquasecurity:trivy:SrcVersion",
+          "value": "62-r0"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
         }
       ]
     },
@@ -792,11 +870,11 @@
       ]
     },
     {
-      "bom-ref": "pkg:apk/alpine/libexpat@2.8.2-r0?arch=aarch64&distro=alpine-3.24.1",
+      "bom-ref": "pkg:apk/alpine/libexpat@2.8.3-r0?arch=aarch64&distro=alpine-3.24.1",
       "type": "library",
       "name": "libexpat",
-      "version": "2.8.2-r0",
-      "purl": "pkg:apk/alpine/libexpat@2.8.2-r0?arch=aarch64&distro=alpine-3.24.1",
+      "version": "2.8.3-r0",
+      "purl": "pkg:apk/alpine/libexpat@2.8.3-r0?arch=aarch64&distro=alpine-3.24.1",
       "properties": [
         {
           "name": "aquasecurity:trivy:PkgType",
@@ -808,7 +886,7 @@
         },
         {
           "name": "aquasecurity:trivy:SrcVersion",
-          "value": "2.8.2-r0"
+          "value": "2.8.3-r0"
         }
       ],
       "licenses": [
@@ -1624,11 +1702,11 @@
       ]
     },
     {
-      "bom-ref": "pkg:apk/alpine/sqlite-libs@3.53.2-r0?arch=aarch64&distro=alpine-3.24.1",
+      "bom-ref": "pkg:apk/alpine/sqlite-libs@3.53.4-r0?arch=aarch64&distro=alpine-3.24.1",
       "type": "library",
       "name": "sqlite-libs",
-      "version": "3.53.2-r0",
-      "purl": "pkg:apk/alpine/sqlite-libs@3.53.2-r0?arch=aarch64&distro=alpine-3.24.1",
+      "version": "3.53.4-r0",
+      "purl": "pkg:apk/alpine/sqlite-libs@3.53.4-r0?arch=aarch64&distro=alpine-3.24.1",
       "properties": [
         {
           "name": "aquasecurity:trivy:PkgType",
@@ -1640,12 +1718,64 @@
         },
         {
           "name": "aquasecurity:trivy:SrcVersion",
-          "value": "3.53.2-r0"
+          "value": "3.53.4-r0"
         }
       ],
       "licenses": [
         {
           "expression": "blessing"
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:apk/alpine/userspace-rcu@0.15.3-r0?arch=aarch64&distro=alpine-3.24.1",
+      "type": "library",
+      "name": "userspace-rcu",
+      "version": "0.15.3-r0",
+      "purl": "pkg:apk/alpine/userspace-rcu@0.15.3-r0?arch=aarch64&distro=alpine-3.24.1",
+      "properties": [
+        {
+          "name": "aquasecurity:trivy:PkgType",
+          "value": "alpine"
+        },
+        {
+          "name": "aquasecurity:trivy:SrcName",
+          "value": "userspace-rcu"
+        },
+        {
+          "name": "aquasecurity:trivy:SrcVersion",
+          "value": "0.15.3-r0"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "LGPL-2.1-or-later"
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:apk/alpine/xfsprogs@7.0.1-r0?arch=aarch64&distro=alpine-3.24.1",
+      "type": "library",
+      "name": "xfsprogs",
+      "version": "7.0.1-r0",
+      "purl": "pkg:apk/alpine/xfsprogs@7.0.1-r0?arch=aarch64&distro=alpine-3.24.1",
+      "properties": [
+        {
+          "name": "aquasecurity:trivy:PkgType",
+          "value": "alpine"
+        },
+        {
+          "name": "aquasecurity:trivy:SrcName",
+          "value": "xfsprogs"
+        },
+        {
+          "name": "aquasecurity:trivy:SrcVersion",
+          "value": "7.0.1-r0"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "LGPL-2.1-or-later"
         }
       ]
     },
@@ -1759,8 +1889,11 @@
         "pkg:apk/alpine/cryptsetup-libs@2.8.6-r0?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/device-mapper-event-libs@2.03.35-r3?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/device-mapper-libs@2.03.35-r3?arch=aarch64&distro=alpine-3.24.1",
+        "pkg:apk/alpine/e2fsprogs@1.47.4-r0?arch=aarch64&distro=alpine-3.24.1",
+        "pkg:apk/alpine/e2fsprogs-libs@1.47.4-r0?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/eudev-libs@3.2.14-r6?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/gdbm@1.26-r0?arch=aarch64&distro=alpine-3.24.1",
+        "pkg:apk/alpine/inih@62-r0?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/json-c@0.18-r1?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/keyutils-libs@1.6.3-r4?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/krb5-conf@1.0-r2?arch=aarch64&distro=alpine-3.24.1",
@@ -1774,7 +1907,7 @@
         "pkg:apk/alpine/libcrypto3@3.5.7-r0?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/libeconf@0.8.3-r0?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/libevent@2.1.13-r0?arch=aarch64&distro=alpine-3.24.1",
-        "pkg:apk/alpine/libexpat@2.8.2-r0?arch=aarch64&distro=alpine-3.24.1",
+        "pkg:apk/alpine/libexpat@2.8.3-r0?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/libffi@3.5.2-r1?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/libgcc@15.2.0-r5?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/libmount@2.42.1-r0?arch=aarch64&distro=alpine-3.24.1",
@@ -1806,7 +1939,9 @@
         "pkg:apk/alpine/readline@8.3.3-r1?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/rpcbind@1.2.9-r0?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/scanelf@1.3.9-r1?arch=aarch64&distro=alpine-3.24.1",
-        "pkg:apk/alpine/sqlite-libs@3.53.2-r0?arch=aarch64&distro=alpine-3.24.1",
+        "pkg:apk/alpine/sqlite-libs@3.53.4-r0?arch=aarch64&distro=alpine-3.24.1",
+        "pkg:apk/alpine/userspace-rcu@0.15.3-r0?arch=aarch64&distro=alpine-3.24.1",
+        "pkg:apk/alpine/xfsprogs@7.0.1-r0?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/xz-libs@5.8.3-r0?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/zlib@1.3.2-r0?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/zstd-libs@1.5.7-r2?arch=aarch64&distro=alpine-3.24.1"
@@ -1873,11 +2008,23 @@
       "dependsOn": []
     },
     {
+      "ref": "pkg:apk/alpine/e2fsprogs@1.47.4-r0?arch=aarch64&distro=alpine-3.24.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:apk/alpine/e2fsprogs-libs@1.47.4-r0?arch=aarch64&distro=alpine-3.24.1",
+      "dependsOn": []
+    },
+    {
       "ref": "pkg:apk/alpine/eudev-libs@3.2.14-r6?arch=aarch64&distro=alpine-3.24.1",
       "dependsOn": []
     },
     {
       "ref": "pkg:apk/alpine/gdbm@1.26-r0?arch=aarch64&distro=alpine-3.24.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:apk/alpine/inih@62-r0?arch=aarch64&distro=alpine-3.24.1",
       "dependsOn": []
     },
     {
@@ -1933,7 +2080,7 @@
       "dependsOn": []
     },
     {
-      "ref": "pkg:apk/alpine/libexpat@2.8.2-r0?arch=aarch64&distro=alpine-3.24.1",
+      "ref": "pkg:apk/alpine/libexpat@2.8.3-r0?arch=aarch64&distro=alpine-3.24.1",
       "dependsOn": []
     },
     {
@@ -2061,7 +2208,15 @@
       "dependsOn": []
     },
     {
-      "ref": "pkg:apk/alpine/sqlite-libs@3.53.2-r0?arch=aarch64&distro=alpine-3.24.1",
+      "ref": "pkg:apk/alpine/sqlite-libs@3.53.4-r0?arch=aarch64&distro=alpine-3.24.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:apk/alpine/userspace-rcu@0.15.3-r0?arch=aarch64&distro=alpine-3.24.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:apk/alpine/xfsprogs@7.0.1-r0?arch=aarch64&distro=alpine-3.24.1",
       "dependsOn": []
     },
     {
