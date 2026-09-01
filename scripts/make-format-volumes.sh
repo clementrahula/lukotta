@@ -1,0 +1,74 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
+#
+# Build one plain volume per format the app advertises, so every claim it
+# makes has something to test it against.
+#
+#   ./scripts/make-format-volumes.sh [outdir]
+#
+# make-test-volumes.sh builds the LUKS layouts, and every filesystem in them
+# is btrfs -- the only mkfs the trimmed guest still carries. That left ext,
+# XFS and exFAT advertised on the box and never once opened by a test.
+#
+# The guest does not have to be the one that makes them. mkfs.ext4 comes from
+# Homebrew's e2fsprogs and newfs_exfat ships with macOS, and a filesystem
+# written into a file here is the same filesystem the guest kernel mounts
+# later. XFS has no macOS mkfs at all and is reported as missing rather than
+# quietly skipped: a fixture nobody built is a format nobody tested, and the
+# run that says "everything passed" without it is the problem.
+#
+# Sizes are given in bytes rather than "1m": GNU dd wants 1M and BSD dd wants
+# 1m, and a Mac with coreutils ahead of /usr/bin has the GNU one, where the
+# lowercase spelling is an error rather than a smaller block.
+set -euo pipefail
+OUT="${1:-$HOME/.lukotta-testvols}"
+mkdir -p "$OUT"
+MB=600
+
+made=() missing=()
+
+# ext4. mkfs.ext4 takes a file directly, so no device is needed.
+if command -v mkfs.ext4 >/dev/null 2>&1; then
+  if [ ! -f "$OUT/plain-ext4.img" ]; then
+    dd if=/dev/zero of="$OUT/plain-ext4.img" bs=1048576 count=0 seek="$MB" 2>/dev/null
+    mkfs.ext4 -q -F -L PLAINEXT4 "$OUT/plain-ext4.img" >/dev/null 2>&1
+  fi
+  made+=("ext4")
+else
+  missing+=("ext4 (brew install e2fsprogs)")
+fi
+
+# exFAT. newfs_exfat wants a device, so the image is attached without being
+# mounted -- macOS would otherwise mount it and hold it open.
+if command -v newfs_exfat >/dev/null 2>&1; then
+  if [ ! -f "$OUT/plain-exfat.img" ]; then
+    dd if=/dev/zero of="$OUT/plain-exfat.img" bs=1048576 count=0 seek="$MB" 2>/dev/null
+    dev="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage \
+             "$OUT/plain-exfat.img" | awk 'NR==1{print $1}')"
+    trap 'hdiutil detach "$dev" >/dev/null 2>&1 || true' EXIT
+    newfs_exfat -v PLAINEXFAT "$dev" >/dev/null 2>&1
+    hdiutil detach "$dev" >/dev/null 2>&1
+    trap - EXIT
+  fi
+  made+=("exfat")
+else
+  missing+=("exfat (newfs_exfat is part of macOS; this should not happen)")
+fi
+
+# XFS. No mkfs on macOS and none in the guest, so there is nothing here to
+# build it with. Said out loud rather than skipped.
+if command -v mkfs.xfs >/dev/null 2>&1; then
+  if [ ! -f "$OUT/plain-xfs.img" ]; then
+    dd if=/dev/zero of="$OUT/plain-xfs.img" bs=1048576 count=0 seek="$MB" 2>/dev/null
+    mkfs.xfs -q -L PLAINXFS "$OUT/plain-xfs.img" >/dev/null 2>&1
+  fi
+  made+=("xfs")
+else
+  missing+=("xfs (no mkfs.xfs on macOS, and none in the guest either)")
+fi
+
+printf 'built:   %s\n' "${made[*]:-none}"
+printf 'missing: %s\n' "${missing[*]:-none}"
+printf 'in %s\n' "$OUT"
+[ ${#missing[@]} -eq 0 ]

@@ -43,9 +43,13 @@ export ANYLINUXFS_HOME="$HOME/Library/Application Support/${APP_ID:-com.lukotta}
 mkdir -p "$ANYLINUXFS_HOME/Library/Logs"
 mkdir -p "$OUT"
 
+# Sized in bytes rather than "1m": GNU dd wants 1M and BSD dd wants 1m, and a
+# Mac with coreutils ahead of /usr/bin has the GNU one, where the lowercase
+# spelling is an error rather than a smaller block. With stderr discarded and
+# set -e in force, that ended the script on its first fixture and said nothing.
 image() {  # name, megabytes
   [ -f "$OUT/$1.img" ] && return 0
-  dd if=/dev/zero of="$OUT/$1.img" bs=1m count=0 seek="$2" 2>/dev/null
+  dd if=/dev/zero of="$OUT/$1.img" bs=1048576 count=0 seek="$2" 2>/dev/null
 }
 
 image luks2-direct 600
@@ -122,7 +126,7 @@ if [ "${1:-}" = "--crowd" ] || [ "${2:-}" = "--crowd" ]; then
   for i in $(seq 1 "$COUNT"); do
     f="$OUT/crowd/drive$i.img"
     [ -f "$f" ] && continue
-    dd if=/dev/zero of="$f" bs=1m count=0 seek=64 2>/dev/null
+    dd if=/dev/zero of="$f" bs=1048576 count=0 seek=64 2>/dev/null
     "$ENGINE" shell "$f" -c "mkfs.ntfs -f -F -L CROWD$i /dev/vda" >/dev/null 2>&1
   done
   printf '%s volumes in %s/crowd\n' "$COUNT" "$OUT"
