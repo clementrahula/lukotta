@@ -26,6 +26,25 @@ SRC_BLKID="$UPSTREAM/util-linux/$UTIL_VERSION/lib"
 # Still from a local install: the guest image is downloaded by "anylinuxfs init"
 # rather than shipped in the bottle. Its identity is recorded in the lock.
 #
+# What that image carries decides what the app can repair, and today it carries
+# creation and repair tools for btrfs, vfat and ntfs only. There is no e2fsck
+# and no xfs_repair, so ext and XFS depend entirely on the kernel replaying
+# their journals when it mounts them, and have no answer to damage past that --
+# while NTFS has ntfsfix and is the only format the app can actually mend. The
+# keep-list in trim-image.py names e2fsprogs among the filesystems found inside
+# LUKS containers, but a keep-list only keeps what is there and nothing put it
+# there.
+#
+# Closing that is a step before this script rather than a change inside it,
+# because the packages belong in the image being vendored:
+#
+#     anylinuxfs apk add e2fsprogs xfsprogs   # no machine may be running
+#     LUKOTTA_REPACK_GUEST=1 ./scripts/vendor-engine.sh
+#
+# Measure the archive afterwards. The guest is trimmed on purpose -- 67
+# packages, and trim-image.py exists to keep it that way -- so this is a size
+# decision as much as a capability one, and it is not taken by accident.
+#
 # Two places to look. The app keeps its own copy inside its Application Support
 # directory now, so that nothing on the Mac shares an image with it; a plain
 # "anylinuxfs init" still writes to the shared one. Either is a valid source --
