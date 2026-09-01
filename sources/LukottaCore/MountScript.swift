@@ -875,19 +875,35 @@ public enum MountScript {
     /// the separation that matters -- being busy writing is no longer the same
     /// as being unable to answer -- for about eight kilobytes of kernel stack
     /// each, which is why it is not paid for in RAM or in cores.
-    /// Eight is enough, and more is not the lever it looks like.
+    /// Eight is not enough, and the reason took a dead mount to find.
     ///
-    /// Measured on the client during a copy: `nfsiod_thread_max` is 16 and
-    /// `nfsiod_thread_count` is 1. One thread is issuing the writes, so the
-    /// server is never short of somebody to answer with, and a mount that goes
-    /// quiet is not a mount whose threads are all taken. Raising this would
-    /// change nothing about that, and it was worth one sysctl to find out
-    /// rather than another forty-minute copy.
+    /// The note that stood here said more threads was not the lever, reasoning
+    /// from the client: `nfsiod_thread_max` is 16 and `nfsiod_thread_count`
+    /// was 1, so one thread issues the writes and eight servers are never all
+    /// taken. That is true of one mount and says nothing about two.
     ///
-    /// It stays at eight rather than two because two is one per vCPU and both
-    /// block in writeback together; eight is what rpc.nfsd's own manual
-    /// suggests as a floor. The quiet is latency inside the write path, which
-    /// is what `writebackLatency` is for.
+    /// With a copy running on one mount of this server and a second, idle
+    /// mount of the same server beside it, the idle one was answered so rarely
+    /// that it was declared dead:
+    ///
+    ///     kernel (nfs) nfs server disk4s1.local:/mnt/BACKUP2_TS: dead
+    ///     diskarbitrationd removed disk, id = /Volumes/BACKUP2_TS
+    ///
+    /// `deadtimeout` is fifteen minutes, and it is only reached by fifteen
+    /// unbroken minutes of not being answered. Nothing was wrong with that
+    /// mount. Every thread was inside writeback for the busy one, and a
+    /// statfs on the quiet one waited behind them until macOS gave up, took
+    /// the volume away, and the engine -- with nothing left to serve -- shut
+    /// itself down and ended the copy that had starved it.
+    ///
+    /// Which is the shape of the dozen-volumes problem, arriving early and by
+    /// accident. It is not only memory: threads are shared across everything
+    /// one machine serves, and a single drive being written to can starve the
+    /// rest until they are force-unmounted. Eight was chosen against one
+    /// mount's needs.
+    ///
+    /// It stays at eight for now because raising it is a change to test rather
+    /// than assert, and the last thing asserted here was wrong.
     public static let nfsServerThreads = 8
 
     /// What the guest is allowed to leave unwritten is left alone.
