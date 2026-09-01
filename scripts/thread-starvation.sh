@@ -43,6 +43,30 @@
 #
 # Both numbers are true. Only one of them is about the user, and the mount root
 # is not it.
+#
+# AND THE POOL IS NOT THE LEVER. MEASURED, NOT ASSUMED.
+#
+# The obvious reading of a ten-second listing is that eight nfsd threads are
+# all sitting in megabyte writes and the READDIR is queued behind them. It is
+# wrong, and one probe settles it: list the busy directory and a quiet
+# directory on the same volume, alternately, in the same seconds.
+#
+#   round 1:  busy   0.32s    quiet   0.13s
+#   round 2:  busy   6.98s    quiet   0.02s
+#   round 3:  busy   6.73s    quiet   0.02s
+#   round 4:  busy   3.43s    quiet   0.02s
+#   round 5:  busy   3.26s    quiet   0.02s
+#   round 6:  busy   4.33s    quiet   0.02s
+#
+# A starved pool cannot answer the quiet directory in twenty milliseconds while
+# the busy one waits seven seconds. There is always a free thread. The
+# contention is on the directory being written into, not on the machine.
+#
+# Which points at the filesystem rather than the export. NTFS keeps a file's
+# size in its parent's index entry, so every write that extends a file touches
+# the directory, and a READDIR wanting that directory waits on it. If that is
+# the explanation then an ext4 image under the same copy will not show it, and
+# that is the next measurement -- not more threads.
 set -uo pipefail
 IMAGE="${1:-}"
 THREADS="${2:-8}"
