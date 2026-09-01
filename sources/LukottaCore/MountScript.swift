@@ -980,8 +980,20 @@ public enum MountScript {
     /// So eight is chosen against one consumer when a drive routinely has
     /// several.
     ///
-    /// It stays at eight for now because raising it is a change to test rather
-    /// than assert, and the last thing asserted here was wrong.
+    /// It stays at eight because raising it was tested and was worse. Same
+    /// drive, one 500 MB file, the flush window after the close included, and
+    /// the guest's own log confirming the count each time:
+    ///
+    ///      8 threads   written in 64s   p99 4.10s  worst 4.21s  none over 5s
+    ///     32 threads   written in 91s   p99 3.07s  worst 6.64s  one over 5s
+    ///
+    /// Slower to write and a longer tail, over the line once. So a thread
+    /// emptying the buffer is not a thread the others are waiting for -- more
+    /// of them simply put more writers on a drive that manages twelve
+    /// megabytes a second, and the queue grows rather than drains.
+    ///
+    /// Which leaves the write path itself rather than who is servicing it, and
+    /// costs ninety seconds to have found out instead of an afternoon.
     public static let nfsServerThreads = 8
 
     /// What the guest is allowed to leave unwritten is left alone.
