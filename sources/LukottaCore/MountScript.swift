@@ -1402,37 +1402,34 @@ public enum MountScript {
     /// virtual machine and no second wait -- a mount and an unmount inside the
     /// guest, on a volume that is about to be mounted anyway.
     ///
-    /// WHAT IT COSTS THAT IS NOT FREE, AND WHY IT IS PAID
+    /// WHAT IT COSTS, MEASURED TWICE BECAUSE THE FIRST ANSWER WAS THE TOOLING
     ///
-    /// The probe is conservative, and two volumes in the corpus pay for it.
-    /// `1k_cluster_fsck_error` and `block_overflow_hole_file` are mounted by
-    /// writable ntfs3 and by nothing else -- not ntfs3 read-only, not ntfs-3g
-    /// either way, not the read-only rung. Measured, all four. So blocking the
-    /// writable attempt on those two means no access at all, where before there
-    /// was access.
+    /// Nothing. On the corpus: the three MFT-damage images are refused and come
+    /// back byte-identical, where before each was written to and then refused.
+    /// `1k_cluster_fsck_error` and `block_overflow_hole_file`, which only
+    /// writable ntfs3 will open, still open through writable ntfs3. A volume
+    /// formatted by Windows still takes the fast path.
     ///
-    /// The difference between them and the three MFT-damage images is only
-    /// visible afterwards: on all five ntfs3 writes, and on three of them it
-    /// then fails. A write inside a mount that succeeds is ordinary -- every
-    /// NTFS driver settles the log on mount. A write inside a mount that then
-    /// refuses is pure loss, and what it took on those three was the `RSTR`
-    /// restart signature of the journal.
+    /// That is the second answer. The first said the probe cost access to those
+    /// two, and a decision was written down and committed on the strength of
+    /// it: that refusing them was the right trade because a disk we cannot open
+    /// should go back as it arrived. The reasoning was sound and the number
+    /// underneath it was rubbish.
     ///
-    /// Nothing available here predicts which it will be. ntfs3 read-only is the
-    /// closest: it admits the healthy volume, refuses all three damaged ones,
-    /// and refuses those two as well.
+    /// The harness that produced it removes its custom actions from config.toml
+    /// between runs, with a regex ending `[^\[]*` -- which stops at the first
+    /// "[" it meets, and the line below the header is
     ///
-    /// So it is decided the way the goal decides things. A volume this app
-    /// cannot open should go back in the state it arrived, because chkdsk on
-    /// Windows still can open it and needs the journal this would have cleared.
-    /// Gambling a person's last route to their data on a mount that comes back
-    /// refused three times in five is not a trade to make on their behalf and
-    /// without telling them.
+    ///     environment = ['NFS_SERVER_THREAD_COUNT=8']
     ///
-    /// It is a real cost and it is not permanent. ntfsck, from ntfsprogs-plus,
-    /// checks structure properly rather than inferring it from whether a driver
-    /// consents to mount, and would let both of those volumes through while
-    /// still holding back the three. That is the way out, and it is in TODO.md.
+    /// So every run deleted a header and orphaned its body. The file degraded
+    /// one stray line at a time until the engine would not parse it at all, and
+    /// in between it produced mounts that failed for a reason that had nothing
+    /// to do with the volume. Two corpus runs and one recorded trade-off came
+    /// out of that window.
+    ///
+    /// The tell was a healthy Windows volume being refused, which no honest
+    /// account of this change could explain.
     ///
     /// No `$NAME` anywhere: the engine reads every action for a shell variable
     /// and refuses to start when it finds one. Hence blkid asked three times

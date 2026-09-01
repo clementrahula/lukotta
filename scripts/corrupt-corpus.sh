@@ -108,10 +108,34 @@ if [ -x "$APP" ] && LUKOTTA_DEVTOOLS=1 "$APP" --drive actions > "$WORK/actions.t
    && [ -s "$WORK/actions.toml" ]; then
   /usr/bin/python3 - "$CFG" "$WORK/actions.toml" <<'PY'
 import sys, pathlib, re
+
+# Remove a custom action from config.toml, line by line.
+#
+# The obvious regex -- \[custom_actions\.NAME\][^\[]* -- is wrong, and it
+# corrupted this machine's config repeatedly before anyone noticed. It stops at
+# the first "[" it meets, and the line immediately below the header is
+#     environment = ['NFS_SERVER_THREAD_COUNT=8']
+# which contains one. So the header was removed and its body left behind, the
+# file grew a stray orphan line on every run, and eventually the engine refused
+# to parse it at all -- reporting "invalid table header", by which time several
+# runs of results had already been taken through a broken config and believed.
+#
+# A section ends at the next line that STARTS with "[". That is the rule.
+def drop_action(text, name):
+    out, skipping = [], False
+    for line in text.splitlines(keepends=True):
+        if line.startswith("[custom_actions." + name + "]"):
+            skipping = True
+            continue
+        if skipping and line.lstrip().startswith("[") and not line.lstrip().startswith("['"):
+            skipping = False
+        if not skipping:
+            out.append(line)
+    return "".join(out)
 cfg, act = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]).read_text()
 s = cfg.read_text() if cfg.exists() else ""
 for name in ("lukottantfs3", "lukottarepair"):
-    s = re.sub(r"\n\[custom_actions\." + name + r"\][^\[]*", "\n", s)
+    s = drop_action(s, name)
 cfg.write_text(s.rstrip() + "\n\n" + act.strip() + "\n")
 PY
   echo "installed the app's guest actions into config.toml"
