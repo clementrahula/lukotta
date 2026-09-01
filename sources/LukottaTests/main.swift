@@ -2334,6 +2334,49 @@ group("anAttachedImageIsNotADrive") {
         "nor is one this app opened itself")
 }
 
+group("theDriveFlagIsNotInTheAppPeopleAreGiven") {
+    // --drive opens a real encrypted drive from a shell, using the key saved in
+    // the Keychain, with no window and nothing typed. That is exactly right for
+    // a harness and exactly wrong for a shipped app: it would take a locked
+    // drive and a saved key and turn them into one command anybody with a
+    // terminal could run.
+    //
+    // Compiled out, like the other harnesses. Checked from both ends, because
+    // the guard is only as good as the call site: a file wrapped in #if DEVTOOLS
+    // that is invoked from outside one does not compile, and a call wrapped in
+    // one whose file is not is a flag that ships.
+    let flag =
+        (try? String(contentsOfFile: "sources/Lukotta/HeadlessDrive.swift", encoding: .utf8)) ?? ""
+    expect(!flag.isEmpty, "the harness is there")
+    expect(flag.hasPrefix("// SPDX"), "and says what it is under")
+    // The whole file, not a part of it: the first directive in it must be the
+    // guard, and nothing may precede it but the licence header and comments.
+    let firstDirective = flag.split(separator: "\n").first {
+        $0.hasPrefix("#if") || $0.hasPrefix("#endif")
+    }
+    expect(
+        firstDirective.map(String.init) == "#if DEVTOOLS",
+        "the file is compiled out of a build people are given")
+
+    let app =
+        (try? String(contentsOfFile: "sources/Lukotta/LukottaApp.swift", encoding: .utf8)) ?? ""
+    // And the one place that calls it is inside the same guard. Found by
+    // slicing to the call and checking the nearest directive before it opens
+    // rather than closes.
+    if let call = app.range(of: "HeadlessDrive.runIfAsked()") {
+        let before = String(app[app.startIndex..<call.lowerBound])
+        let lastOpen = before.range(of: "#if DEVTOOLS", options: .backwards)
+        let lastClose = before.range(of: "#endif", options: .backwards)
+        let guarded =
+            lastOpen.map { open in
+                lastClose.map { close in open.lowerBound > close.lowerBound } ?? true
+            } ?? false
+        expect(guarded, "and the call to it is guarded too")
+    } else {
+        expect(false, "the app still calls the harness")
+    }
+}
+
 group("theHelperSaysWhichBuildItIs") {
     // launchd keeps a registered daemon running across an app update, and the
     // helper is what builds the mount -- so a fixed app went on behaving as the
