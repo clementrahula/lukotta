@@ -17,6 +17,18 @@
 # osascript drives the real copy engine without anybody clicking, so this runs
 # unattended and still exercises the path that failed.
 #
+# Result on 2026-09-01, two cycles against an ext4 volume:
+#
+#   cycle 1 few      2s  3 identical, 0 differing, 0 missing
+#   cycle 1 many     3s  2000 identical, 0 differing, 0 missing
+#   cycle 2 few      1s  3 identical, 0 differing, 0 missing
+#   cycle 2 many     3s  2000 identical, 0 differing, 0 missing
+#
+# Before the payload was sized to the target, the large-file case reported "0
+# identical, 3 differing" in under a second -- three four-hundred-megabyte files
+# into four hundred and fifty-seven megabytes free. Running out of room reads
+# exactly like corruption in a checksum comparison.
+#
 # Both extremes, because they fail differently. A handful of large files is
 # throughput and the writeback stalls that come with it; a large tree of small
 # ones is metadata, where the per-file round trips dominate and Finder's own
