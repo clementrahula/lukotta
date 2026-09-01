@@ -25,6 +25,24 @@
 # Run it at the shipped thread count and again at a higher one. If the waits
 # collapse, the count is the lever; if they do not, it is not, and the next
 # place to look is the write path rather than the pool.
+#
+# TWO PROBES, BECAUSE THE FIRST ONE FLATTERED THE MOUNT
+#
+# The second-mount probe above answers "is another consumer starved". It does
+# not answer the question a person asks, which is why the folder they are
+# copying into takes ten seconds to list. So the loop now also times a READDIR
+# of the directory being written, on the busy mount itself.
+#
+# That was added after watching a thirteen-gigabyte Finder copy onto a real
+# drive through a sampler that was timing `stat` on the mount root -- the
+# cheapest and most cached call available. It reported p50 0.027 s and p99
+# 0.031 s across 2500 samples and looked like proof that nothing stalls. A
+# listing of the busy directory on the same mount at the same moment took
+# 10.891 s, then 9.168 s, and once ran past a 40-second timeout. A quiet
+# directory elsewhere on the same volume took 1.88 s.
+#
+# Both numbers are true. Only one of them is about the user, and the mount root
+# is not it.
 set -uo pipefail
 IMAGE="${1:-}"
 THREADS="${2:-8}"
@@ -80,6 +98,7 @@ ditto "$SRC" "$BUSY/starve-test" >/dev/null 2>&1 &
 copy=$!
 
 worst=0; total=0; n=0; evicted=no
+rdworst=0; rdtotal=0; rdn=0
 end=$(( $(date +%s) + SECONDS_TO_RUN ))
 while [ "$(date +%s)" -lt "$end" ]; do
   kill -0 "$copy" 2>/dev/null || break
@@ -89,6 +108,22 @@ while [ "$(date +%s)" -lt "$end" ]; do
   w=$(python3 -c "print(f'{($t1-$t0):.2f}')")
   total=$(python3 -c "print(f'{$total+$w:.2f}')"); n=$((n+1))
   python3 -c "import sys; sys.exit(0 if $w > $worst else 1)" && worst="$w"
+
+  # Listing the directory being copied into, on the busy mount itself. This is
+  # the wait a person actually meets: the folder is open in Finder while the
+  # copy runs, and every redraw of it is a READDIR queued behind the writes.
+  #
+  # It is measured here because the sampler watching a real thirteen-gigabyte
+  # copy was timing `stat` on the mount root -- the cheapest, most cached call
+  # there is -- and reported p99 0.031 s while a listing of the busy directory
+  # on the same mount, at the same moment, took 10.891 s and then 9.168 s. The
+  # quiet number was true and answered a question nobody had asked.
+  r0=$(python3 -c 'import time;print(time.time())')
+  timeout 60 /bin/ls -1 "$BUSY/starve-test" >/dev/null 2>&1
+  r1=$(python3 -c 'import time;print(time.time())')
+  rw=$(python3 -c "print(f'{($r1-$r0):.2f}')")
+  rdtotal=$(python3 -c "print(f'{$rdtotal+$rw:.2f}')"); rdn=$((rdn+1))
+  python3 -c "import sys; sys.exit(0 if $rw > $rdworst else 1)" && rdworst="$rw"
   sleep 2
 done
 kill -9 "$copy" 2>/dev/null; wait "$copy" 2>/dev/null
@@ -96,3 +131,6 @@ kill -9 "$copy" 2>/dev/null; wait "$copy" 2>/dev/null
 printf 'threads=%s  probes=%s  worst wait=%ss  mean=%ss  evicted=%s\n' \
   "$THREADS" "$n" "$worst" \
   "$(python3 -c "print(f'{$total/max($n,1):.2f}')")" "$evicted"
+printf 'threads=%s  readdir on the busy directory: probes=%s  worst=%ss  mean=%ss\n' \
+  "$THREADS" "$rdn" "$rdworst" \
+  "$(python3 -c "print(f'{$rdtotal/max($rdn,1):.2f}')")"
