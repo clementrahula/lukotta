@@ -610,6 +610,21 @@ not obvious and both cost time to find:
   is reinstalled and the daemon replaces itself -- reading the app binary and
   finding the change there proves nothing.
 
+  Until it was fixed, a daemon of this kind was never replaced at all.
+  `installedToolIsStale` returns false the moment there is no job in
+  `/Library`, so the only signal left was the hand-raised contract number, and
+  a rebuilt app went on being served by the daemon it was built to replace. The
+  build the daemon reports is compared now, so a rebuild is enough. `--drive`
+  waits for the process id to change and refuses to mount if it does not:
+
+      the running daemon is older than this build; replacing it
+      replaced; the daemon is now this build's
+
+  Confirm it from the outside as well -- `ps -eo pid,lstart` on the daemon
+  before and after -- and confirm the change itself from the guest's own line
+  in the transcript, `Running before_mount action: ...`, rather than from the
+  config file, which is merged and can keep an older section.
+
 `config.toml` is also worth checking rather than assuming. The generated
 actions are merged into whatever is already in it, so a section written by an
 older daemon can survive a reinstall and keep being used; the engine's command
