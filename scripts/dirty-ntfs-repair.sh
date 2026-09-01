@@ -47,7 +47,7 @@ echo "made a clean NTFS volume"
 
 open_it() {  # extra engine args
   pkill -f "anylinuxfs mount.*dirty-ntfs" >/dev/null 2>&1; sleep 3
-  nohup "$ENGINE" mount --ignore-permissions -t ntfs3 "$@" "$IMG" > "$WORK/engine.log" 2>&1 &
+  nohup "$ENGINE" mount --ignore-permissions -w false -t ntfs3 "$@" "$IMG" > "$WORK/engine.log" 2>&1 &
   for _ in $(seq 1 40); do mount | grep -q 172.27 && return 0; sleep 2; done
   return 1
 }

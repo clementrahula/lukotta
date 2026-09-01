@@ -41,7 +41,7 @@ cleanup() {
 
 open_image() {
   pkill -f "anylinuxfs mount.*$IMAGE" >/dev/null 2>&1; sleep 3
-  nohup "$ENGINE" mount --ignore-permissions "$IMAGE" > "$WORK/engine.log" 2>&1 &
+  nohup "$ENGINE" mount --ignore-permissions -w false "$IMAGE" > "$WORK/engine.log" 2>&1 &
   for _ in $(seq 1 40); do
     mount | grep -q "$(basename "$IMAGE" .img)" && return 0
     sleep 2

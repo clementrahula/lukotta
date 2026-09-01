@@ -60,7 +60,7 @@ PY
 echo "thread count set to $THREADS"
 
 pkill -f "anylinuxfs mount" >/dev/null 2>&1; sleep 4
-nohup "$ENGINE" mount --ignore-permissions -a lukottatuned "$IMAGE" > "$WORK/engine.log" 2>&1 &
+nohup "$ENGINE" mount --ignore-permissions -w false -a lukottatuned "$IMAGE" > "$WORK/engine.log" 2>&1 &
 for _ in $(seq 1 40); do mount | grep -q 172.27 && break; sleep 2; done
 mount | grep -q 172.27 || { echo "error: never mounted; see $WORK/engine.log" >&2; exit 1; }
 BUSY="$(mount | awk '/172\.27/ {for(i=1;i<=NF;i++) if($i=="on") print $(i+1)}' | tail -1)"
