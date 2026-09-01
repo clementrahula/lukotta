@@ -121,7 +121,18 @@ a decision so much as an accumulation. Worth going through deliberately.
   in a RAID member gets a disk that appears, is protected from being
   initialised, and cannot be opened, with nothing saying why. Either carry
   mdadm and mount it, or stop claiming the type. Claiming and refusing is the
-  one combination that helps nobody.
+  one combination that helps nobody. mdadm is kept as of trim-image.py's roots;
+  what is left is the app side.
+
+  Read out of the engine rather than guessed at: `assemble_raid` is set only on
+  the `raid:` and `lvm:` branches of `cmd_mount.rs`. The plain multi-disk
+  branch never sets it, so handing it `/dev/diskXsY` for a member does not
+  assemble anything -- the app has to build `raid:<devA>[:<devB>...]` itself,
+  and the assembled array appears inside the guest as `/dev/md127`.
+
+  Which means the app needs to group members into arrays before it can name
+  one. `VolumeGroupParser.containers` already recognises `linux_raid_member`
+  and skips it, so the place to start is there rather than from nothing.
 - [ ] **Re-decide ZFS.** `trim-image.py` drops `zfs` and `zfs-libs`, but the
   guest still ships the kernel modules -- `lib/modules/6.12.62/fs/zfs/zfs.ko`
   and `spl.ko` are in the packed rootfs right now. So we carry the weight and
