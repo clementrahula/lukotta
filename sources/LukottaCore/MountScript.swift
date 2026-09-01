@@ -1164,10 +1164,27 @@ public enum MountScript {
     /// writes to push to a drive that manages about twelve megabytes a second,
     /// and anything asking a question during that window waits behind it.
     ///
-    /// It points somewhere different from where the fixes so far have gone:
-    /// not at how long the client waits, and not at how much the guest is
-    /// allowed to buffer, but at how many threads are left to answer with while
-    /// one of them is emptying that buffer.
+    /// And the control that settles what it is. The same measurement, through
+    /// the same guest, the same protocol and the same mount options, with only
+    /// the device underneath changed -- a 400 MB file into an ext4 image on the
+    /// internal disk instead of 500 MB into the USB stick:
+    ///
+    ///     USB stick      written in 64s   p99 4.10s   worst 4.21s
+    ///     internal disk  written in  2s   p99 0.033s  worst 0.033s
+    ///
+    /// A hundred and twenty times faster to write and no tail whatsoever. The
+    /// latency is the device, not the path to it: nothing in NFS, the guest,
+    /// the transfer size or the thread pool produces this on hardware that can
+    /// absorb the writes.
+    ///
+    /// Which is why every knob tried has been neutral or worse. A drive taking
+    /// twelve megabytes a second cannot swallow half a gigabyte quickly, and
+    /// whatever asks it a question meanwhile waits. That is arithmetic, and no
+    /// setting here repeals it.
+    ///
+    /// So the remaining question is not how to make the wait shorter. It is
+    /// whether macOS has to call a wait of that length a server that has
+    /// stopped answering.
     ///
     /// The control says the same thing. Reading those thirteen gigabytes back
     /// off the same drive, through the same mount, minutes later:
