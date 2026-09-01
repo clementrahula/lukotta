@@ -62,11 +62,32 @@
 # the busy one waits seven seconds. There is always a free thread. The
 # contention is on the directory being written into, not on the machine.
 #
-# Which points at the filesystem rather than the export. NTFS keeps a file's
+# Which pointed at the filesystem rather than the export. NTFS keeps a file's
 # size in its parent's index entry, so every write that extends a file touches
-# the directory, and a READDIR wanting that directory waits on it. If that is
-# the explanation then an ext4 image under the same copy will not show it, and
-# that is the next measurement -- not more threads.
+# the directory, and a READDIR wanting that directory waits on it. That was the
+# theory. It is wrong, and the measurement that killed it is worth keeping.
+#
+# ext4 image, internal SSD, written to continuously for seventy seconds:
+#   busy 0.04 0.05 0.02 0.03 0.02 0.04 0.02 0.03   quiet 0.02-0.03 throughout
+#
+# That looked like a confirmation until the confound was noticed: the ext4
+# image is on an internal SSD and the NTFS volume is a USB drive delivering
+# about 7 MB/s. Two variables had moved, not one. So NTFS was run on the same
+# SSD, from a 64 MB image, under the same continuous write:
+#   busy 0.03 0.02 0.03 0.03 0.02 0.03 0.02 0.02   quiet 0.02-0.03 throughout
+#
+# NTFS on a fast device behaves exactly like ext4 on a fast device. The
+# filesystem is not the variable. The device is.
+#
+# So the mechanism is queueing, not locking: on a drive that absorbs 7 MB/s the
+# metadata reads for the directory being written have to reach the platter and
+# they queue behind the bulk write stream, while a directory nobody is touching
+# is answered from the guest's page cache and never goes near the device. On an
+# SSD the queue is too short to see.
+#
+# Which moves the next question inside the guest, to how that block device
+# orders reads against a wall of writes -- an I/O scheduler question -- and not
+# to the export, the thread pool, or the filesystem driver.
 set -uo pipefail
 IMAGE="${1:-}"
 THREADS="${2:-8}"
