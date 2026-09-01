@@ -88,3 +88,49 @@ layers meet.
 - [ ] Make it more technical throughout. The audience for a tool that mounts
   BitLocker and LUKS on a Mac already knows what those words mean.
 - [ ] Rewrite the About page. It says very little and none of it is specific.
+
+## Open what the engine can open, and re-decide what we excluded
+
+The engine reaches more filesystems than this app offers, and the gap was never
+a decision so much as an accumulation. Worth going through deliberately.
+
+- [ ] **RAID is claimed and cannot be opened.** `DiskWatcher.ourContent`
+  includes the Linux RAID type GUID `A19D880F-05FC-4D3B-A006-743F0F84911E`, so
+  the app claims those disks and macOS stops offering to initialise them. But
+  `mdadm` is on `trim-image.py`'s drop list and is not in the shipped guest,
+  and nothing in the app ever builds the `raid:` identifier the engine wants --
+  `EngineStatus` only recognises one in the mount table. So somebody who plugs
+  in a RAID member gets a disk that appears, is protected from being
+  initialised, and cannot be opened, with nothing saying why. Either carry
+  mdadm and mount it, or stop claiming the type. Claiming and refusing is the
+  one combination that helps nobody.
+- [ ] **Re-decide ZFS.** `trim-image.py` drops `zfs` and `zfs-libs`, but the
+  guest still ships the kernel modules -- `lib/modules/6.12.62/fs/zfs/zfs.ko`
+  and `spl.ko` are in the packed rootfs right now. So we carry the weight and
+  not the capability. The re-decision has a licence dimension as well as a size
+  one: ZFS is CDDL, which is the long-running incompatibility with a GPL-2
+  kernel, and this app is GPL-3-or-later distributing that guest. Decide it on
+  purpose and write the reason down, whichever way it goes.
+- [ ] Go through the rest the same way: F2FS, squashfs (`squashfs-tools` is
+  also dropped), UDF, and the FreeBSD image the engine can boot for UFS. For
+  each: does the guest kernel have the driver, does the guest have the tools,
+  does the app offer it, and does `DiskWatcher` claim the type. Those four
+  should agree.
+
+## Re-test every format we claim, properly, read and write
+
+The formats were added at different times and tested to different depths. XFS
+sat in the advertised list for months with a stub file standing in for a
+fixture and nothing had ever opened one. That is unlikely to be the only such
+gap.
+
+- [ ] Run the full corpus at each: `copy-torture.sh` for byte-identical read
+  and write across the awkward shapes, `integrity-vectors.sh` for the crash and
+  concurrency cases, `xattr-forks.sh` for what macOS attaches to a file. Every
+  advertised format, both directions, results written into
+  `make-format-volumes.sh` beside the ones already there.
+- [ ] While doing it, look upstream before hand-rolling. `ntfsprogs-plus`
+  already provides `ntfsck`, which repairs structural damage our ladder can
+  currently only refuse. The engine's own test suite (`tests/*.bats`) covers
+  cases we re-derived by hand. Borrowing a maintained implementation beats
+  another bespoke one that only this project ever exercises.
