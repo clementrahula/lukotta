@@ -29,6 +29,17 @@
 # taken anything, which this Mac does not have. The machine stayed usable on
 # one -- 3.6 ms to spawn a process, 60 ms to list a home directory, 2166 MB/s
 # to the internal disk -- so the cost is memory rather than responsiveness.
+#
+# Taken again on a later run, with the guest at the same 512 MiB and the
+# configuration verified rather than assumed: 493 MB, and the machine still
+# unaffected at 2.9 ms a process and 28 ms to list a home directory. Twelve of
+# those is about 5.9 GB.
+#
+# Which is the whole of item 8's difficulty and it is one number. Nothing in
+# the responsiveness figures argues against a dozen drives; the memory does.
+# The guest size is the only lever on it, and every earlier attempt to lower it
+# was measured through a broken timeout -- so what 256 MiB actually costs is
+# still unknown, and is the next thing worth an hour.
 set -uo pipefail
 DURATION="${1:-600}"
 INTERVAL="${2:-30}"
