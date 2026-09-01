@@ -354,6 +354,26 @@ public enum MountScript {
         /// Eleven at once for 587 MB, with a home directory still listing in
         /// 21 ms throughout. About forty megabytes a volume, not five hundred.
         ///
+        /// Run again with each volume written to and read back, which is what
+        /// the claim actually says -- open for reading and writing, not merely
+        /// mounted:
+        ///
+        ///      2 open, 2 writable    185 MB     8 open,  8 writable    728 MB
+        ///      3 open, 3 writable    337 MB     9 open,  9 writable    878 MB
+        ///      4 open, 4 writable    493 MB    10 open, 10 writable   1014 MB
+        ///      5 open, 5 writable    646 MB    11 open, 11 writable   1124 MB
+        ///      6 open, 6 writable    802 MB    12 open, 12 writable   1235 MB
+        ///      7 open, 7 writable    789 MB
+        ///
+        /// Twelve open, twelve taking a write and giving the bytes back, for
+        /// 1235 MB. A home directory listed in 18 to 19 ms at every step from
+        /// two volumes to twelve -- the figure never moved, so nothing degraded
+        /// as they accumulated.
+        ///
+        /// About 150 MB a volume once written to, against 40 idle: the write is
+        /// what fills the guest's cache. Both are far from the 500 that a
+        /// single volume under a thirteen-gigabyte copy suggested.
+        ///
         /// The error was measuring one volume *under a thirteen-gigabyte copy*
         /// and calling that what a volume costs. Almost all of that 502 MB is
         /// page cache belonging to the copy, and it is not per-volume: an open
