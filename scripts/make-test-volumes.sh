@@ -144,6 +144,36 @@ if [ -n "$CROWD" ]; then
   printf 'Then open crowd/drive1.img and crowd/drive2.img and crowd/drive3.img.\n\n'
 fi
 
+# A two-disk RAID1 array, which is the fixture the app has never had.
+#
+# DiskWatcher claims the Linux RAID type GUID, so the app already stops macOS
+# offering to initialise an array member -- and until now had no way to open
+# one and no fixture to find that out with. mdadm is kept in the guest for
+# exactly this; if it is missing, the guest has been packed without it and the
+# fixture is reported missing rather than silently skipped.
+#
+# Two images, because an array member on its own is not an array. The engine
+# takes several with `img1:img2`, presenting them as /dev/vda and /dev/vdb, and
+# addresses the assembled result as `raid:<dev>[:<dev>...]`.
+if "$ENGINE" shell "$OUT/luks2-direct.img" -c 'command -v mdadm' 2>/dev/null | grep -q mdadm; then
+  image raid-a 300
+  image raid-b 300
+  echo "Building raid-a + raid-b (RAID1 -> btrfs)…"
+  "$ENGINE" shell "$OUT/raid-a.img:$OUT/raid-b.img" -c "
+set -e
+mdadm --create /dev/md0 --level=1 --raid-devices=2 --metadata=1.2 \
+  --run --assume-clean /dev/vda /dev/vdb >/dev/null 2>&1
+mkfs.btrfs -f -L RAIDTEST /dev/md0 >/dev/null 2>&1
+mdadm --stop /dev/md0 >/dev/null 2>&1" 2>&1 | grep -vE '^macOS:' || true
+  if [ -s "$OUT/raid-a.img" ]; then
+    printf '  raid-a.img + raid-b.img built; open with raid:<devA>:<devB>\n'
+  fi
+else
+  printf '  RAID fixture skipped: the guest has no mdadm.\n'
+  printf '  Keep it in trim-image.py ROOTS and repack:\n'
+  printf '    LUKOTTA_REPACK_GUEST=1 ./scripts/vendor-engine.sh\n'
+fi
+
 printf 'Test volumes in %s\n' "$OUT"
 printf 'Passphrase: %s\n' "$PASS"
 printf '\nTo exercise the volume chooser, attach the partitioned one and run the\napp with disk images included:\n'
