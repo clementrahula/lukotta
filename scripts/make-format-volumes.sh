@@ -56,8 +56,22 @@ else
   missing+=("exfat (newfs_exfat is part of macOS; this should not happen)")
 fi
 
-# XFS. No mkfs on macOS and none in the guest, so there is nothing here to
-# build it with. Said out loud rather than skipped.
+# XFS. No mkfs on macOS -- Homebrew has no xfsprogs -- and none in the guest
+# either, so there is nothing here to build it with. Said out loud rather than
+# skipped, because XFS is on the box and a format nobody can make a fixture for
+# is a format nobody tests.
+#
+# The way through is Linux for the one command, and only for that:
+#
+#   docker run --rm -v "$OUT:/out" alpine sh -c \
+#     'apk add --no-cache xfsprogs >/dev/null && \
+#      dd if=/dev/zero of=/out/plain-xfs.img bs=1048576 count=0 seek=600 && \
+#      mkfs.xfs -q -L PLAINXFS /out/plain-xfs.img'
+#
+# Not run from here: it needs a daemon that may not be running, and a fixture
+# builder that silently starts a virtual machine is worse than one that says
+# what it cannot do. The guest kernel mounts XFS perfectly well once the image
+# exists -- making it is the only part that needs the tool.
 if command -v mkfs.xfs >/dev/null 2>&1; then
   if [ ! -f "$OUT/plain-xfs.img" ]; then
     dd if=/dev/zero of="$OUT/plain-xfs.img" bs=1048576 count=0 seek="$MB" 2>/dev/null
