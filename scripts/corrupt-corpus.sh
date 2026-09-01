@@ -26,6 +26,37 @@
 # run that ends in refusal must leave the image byte-identical. That is checked
 # rather than assumed, because a driver that scribbles on a damaged filesystem
 # before giving up is how a recoverable disk becomes an unrecoverable one.
+#
+# AND IT FOUND THREE, WHICH IS THE POINT OF HAVING WRITTEN IT
+#
+# Of the first 27 cases: 17 mounted, 7 were refused and left untouched, and
+# three were refused *and modified*:
+#
+#   created_manually/mft_file_missing_bitmap_attr
+#   created_manually/mft_file_missing_data_attr
+#   created_manually/mft_file_missing_filename_attr
+#
+# All three are MFT records missing an attribute -- structural damage, not a
+# dirty flag. The ladder ends in the repair action, which runs ntfsfix; the
+# strong reading is that ntfsfix wrote, the mount failed anyway, and the volume
+# was handed back changed and still unopenable. Not yet proven rung by rung,
+# and that is the next measurement: hash the image after ntfs3, after ntfs-3g,
+# and after the repair, and see which one moves it.
+#
+# It is exactly what the engine's own documentation warns about:
+#
+#   using any unofficial tools like ntfsfix to clear dirty flag will not really
+#   fix those errors and can lead to further data corruption!
+#
+# The existing guard runs `ntfsfix -n` first and declines what it will not
+# vouch for. On a volume whose $MFTMirr did not match $MFT that guard held and
+# nothing was written. On these three it vouched for damage ntfsfix cannot
+# actually repair, so the dry run is not a sufficient test of whether the wet
+# one is safe.
+#
+# ntfsck, from ntfsprogs-plus, is a real checker rather than a flag-clearer and
+# is the obvious thing to gate on instead. GPL-2, aggregating in the guest like
+# the rest of the userspace. See upstream-notes.md.
 set -uo pipefail
 
 CORPUS="${1:-}"
