@@ -25,6 +25,19 @@
 #   NTFS  -> btrfs  7 files, 0 differing, 1s
 #   btrfs -> NTFS   7 files, 0 differing, 13s
 #
+# And again with the Ubuntu shape, LUKS1 -> LVM -> btrfs, which reaches the
+# volume through a logical volume rather than straight through the container:
+#
+#   NTFS   -> ROOTFS  7 files, 0 differing, 1s
+#   ROOTFS -> NTFS    7 files, 0 differing, 13s
+#
+# Opening one of those without the app needs two things worth writing down.
+# ALFS_PASSPHRASE reaches `mount` but not `list --decrypt`, which prompts on a
+# terminal and ignores it -- the app drives that with expect, and so must
+# anything else. And the identifier is the triple exactly as the listing prints
+# it, "lvm:<vg>:<image-basename>:<lv>", resolved from the directory the image
+# is in; a full path is refused with "Invalid LVM disk path".
+#
 # Both directions, because they are not the same path: one guest is reading
 # what the other wrote, through two different drivers, and NTFS and ext4
 # disagree about almost everything -- names, permissions, timestamps.
