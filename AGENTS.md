@@ -50,6 +50,20 @@ commit, and `scripts/check-private.py`.
 CI runs on pull requests and on request, not on every push: a macOS runner is
 billed at ten times a Linux one while the repository is private.
 
+Four ways of watching a copy that each lie in their own direction, all of them
+hit while measuring one:
+
+- **`du -sm` on the destination.** It counts allocated blocks and went on
+  climbing for minutes after a copy had frozen. Sum `find -printf '%s'` instead.
+- **`find -printf '%s'` as a liveness probe.** It stats every file including the
+  one being written, so it can block on that file alone -- a `find` that times
+  out is not evidence the mount stalled. Ask `stat` about the directory, and
+  time it.
+- **`nfsstat` on a wedged mount.** It blocks too, so bound it and treat its own
+  hanging as the signal rather than waiting for an answer that is not coming.
+- **`ls` output in a shell where `ls` is `eza`.** The columns differ, so
+  `awk '{print $5}'` silently sums zero. Use `find -printf` or `stat`.
+
 ## Layout
 
 Sources are in `sources/`, lowercase, and every target in `Package.swift`
