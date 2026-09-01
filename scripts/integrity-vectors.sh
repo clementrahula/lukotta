@@ -26,6 +26,19 @@
 # it was meant to be -- a copy killed on a volume that was already full -- and
 # it still left nothing corrupt behind.
 #
+# Run again on a 2 GB ext4 image with permissions and concurrency added, all
+# eight passing:
+#
+#   ok   a killed copy leaves no corrupt file behind (40 whole, 0 wrong)
+#   ok   everything written is readable by whoever wrote it (3 of 3)
+#   ok   two writers and a reader at once leave nothing wrong (24, 0 differing)
+#
+# The cycles case failed the first time at two of three, and that was this
+# script being impatient rather than the app being wrong. Mounter.mount says
+# it plainly: the machine keeps the image for another half-minute after the
+# share goes, and opening the same file inside that window meets a locked file.
+# The app waits for that. So does this now.
+#
 # Deliberately a fixture and never a real drive. Force-unmounting a volume
 # mid-write is the operation most likely to damage it, and the drive somebody
 # keeps their photographs on is not the place to find out. The image is made by
@@ -154,12 +167,66 @@ fi
 rm -f "$VOL/vec-full/filler.bin"
 
 # 6. Opened and closed repeatedly, which is what a person does over a week.
+# The machine keeps the image after the share goes. Mounter.mount says so:
+# "An eject returns as soon as the volume leaves the mount table; the machine
+# that served it keeps the image file for another half-minute, and opening the
+# same file inside that window meets a locked file or a read-only mount nothing
+# announced." The app waits for that; anything else driving the engine must too,
+# and a harness that does not reports a failure to reopen that is its own
+# impatience.
 cycles=0
 for _ in 1 2 3; do
   umount -f "$VOL" >/dev/null 2>&1
+  for _ in $(seq 1 30); do
+    pgrep -f "anylinuxfs mount.*$(basename "$IMAGE")" >/dev/null 2>&1 || break
+    sleep 2
+  done
   if open_image; then VOL="$(where)"; [ -n "$VOL" ] && ls "$VOL" >/dev/null 2>&1 && cycles=$((cycles+1)); fi
 done
 note "$([ "$cycles" -eq 3 ] && echo ok || echo no)" "three open/close cycles in a row ($cycles of 3)"
+
+# 7. Permissions. The export squashes who is asking and --ignore-permissions
+#    makes everything appear as the person who opened the drive, which is the
+#    point -- an NTFS volume has no idea what a uid is. What matters is that a
+#    file written as read-only is still readable, that a directory can be
+#    entered, and that nothing arrives inaccessible to the person who put it
+#    there.
+rm -rf "$VOL/vec-perms"; mkdir -p "$VOL/vec-perms"
+printf 'readonly' > "$VOL/vec-perms/ro.txt" 2>/dev/null
+chmod 444 "$VOL/vec-perms/ro.txt" 2>/dev/null
+printf 'executable' > "$VOL/vec-perms/exe.sh" 2>/dev/null
+chmod 755 "$VOL/vec-perms/exe.sh" 2>/dev/null
+mkdir -p "$VOL/vec-perms/dir" 2>/dev/null
+printf 'inside' > "$VOL/vec-perms/dir/f.txt" 2>/dev/null
+readable=0
+[ "$(cat "$VOL/vec-perms/ro.txt" 2>/dev/null)" = readonly ] && readable=$((readable + 1))
+[ "$(cat "$VOL/vec-perms/exe.sh" 2>/dev/null)" = executable ] && readable=$((readable + 1))
+[ "$(cat "$VOL/vec-perms/dir/f.txt" 2>/dev/null)" = inside ] && readable=$((readable + 1))
+note "$([ "$readable" -eq 3 ] && echo ok || echo no)" \
+  "everything written is readable by whoever wrote it ($readable of 3)"
+
+# 8. Two writers and a reader at once. A copy is not the only thing touching a
+#    drive -- Spotlight indexes it, Finder stats it, somebody opens a file from
+#    it -- and the interesting question is whether concurrent work corrupts
+#    anything rather than whether it is fast.
+rm -rf "$VOL/vec-conc"; mkdir -p "$VOL/vec-conc/a" "$VOL/vec-conc/b"
+payload "$WORK/conc" 12 300000
+ditto "$WORK/conc" "$VOL/vec-conc/a" >/dev/null 2>&1 &
+w1=$!
+ditto "$WORK/conc" "$VOL/vec-conc/b" >/dev/null 2>&1 &
+w2=$!
+( for _ in $(seq 1 40); do cat "$VOL"/vec-perms/* >/dev/null 2>&1; sleep 0.25; done ) &
+r1=$!
+wait "$w1" 2>/dev/null; wait "$w2" 2>/dev/null; kill "$r1" 2>/dev/null
+cbad=0; cn=0
+for side in a b; do
+  while IFS= read -r f; do
+    rel="${f#"$WORK/conc"/}"; cn=$((cn + 1))
+    cmp -s "$f" "$VOL/vec-conc/$side/$rel" || cbad=$((cbad + 1))
+  done < <(find "$WORK/conc" -type f)
+done
+note "$([ "$cbad" -eq 0 ] && echo ok || echo no)" \
+  "two writers and a reader at once leave nothing wrong ($cn compared, $cbad differing)"
 
 printf '%s passed, %s failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
