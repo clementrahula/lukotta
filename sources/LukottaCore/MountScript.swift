@@ -370,6 +370,16 @@ public enum MountScript {
         /// two volumes to twelve -- the figure never moved, so nothing degraded
         /// as they accumulated.
         ///
+        /// And on past the dozen, since the fixture holds thirteen -- one more
+        /// than the box claims:
+        ///
+        ///     13 open, 13 writable   1038 MB, then 490 MB a minute later
+        ///
+        /// The footprint fell by half while the volumes stayed open, which is
+        /// the plainest demonstration that most of it was never per-volume
+        /// cost. It is the guests' page cache, and macOS takes it back when
+        /// something else wants it.
+        ///
         /// About 150 MB a volume once written to, against 40 idle: the write is
         /// what fills the guest's cache. Both are far from the 500 that a
         /// single volume under a thirteen-gigabyte copy suggested.
