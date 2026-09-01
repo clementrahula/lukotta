@@ -868,6 +868,19 @@ public enum MountScript {
     /// the separation that matters -- being busy writing is no longer the same
     /// as being unable to answer -- for about eight kilobytes of kernel stack
     /// each, which is why it is not paid for in RAM or in cores.
+    /// Eight is enough, and more is not the lever it looks like.
+    ///
+    /// Measured on the client during a copy: `nfsiod_thread_max` is 16 and
+    /// `nfsiod_thread_count` is 1. One thread is issuing the writes, so the
+    /// server is never short of somebody to answer with, and a mount that goes
+    /// quiet is not a mount whose threads are all taken. Raising this would
+    /// change nothing about that, and it was worth one sysctl to find out
+    /// rather than another forty-minute copy.
+    ///
+    /// It stays at eight rather than two because two is one per vCPU and both
+    /// block in writeback together; eight is what rpc.nfsd's own manual
+    /// suggests as a floor. The quiet is latency inside the write path, which
+    /// is what `writebackLatency` is for.
     public static let nfsServerThreads = 8
 
     /// What the guest is allowed to leave unwritten is left alone.
