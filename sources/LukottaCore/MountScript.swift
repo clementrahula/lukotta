@@ -335,29 +335,39 @@ public enum MountScript {
         /// directory a container's volumes are served from is sized from it,
         /// so an inflated number reports free space that does not exist.
         ///
-        /// This number cannot be raised much further, and that is the shape of
-        /// a problem rather than a detail. Measured with one drive open and a
-        /// copy running: 502 MB resident for the machine and its two helpers,
-        /// against 170 MB when the guest was given 256 and about 1180 MB when
-        /// it was given a gigabyte. Twelve drives open at once is therefore
-        /// about 5.9 GB before macOS has taken anything, which an eight-
-        /// gigabyte Mac does not have -- and this Mac was already down to
-        /// 102 MB free with 4.4 GB compressed while serving one.
+        /// Measured with one drive open and a copy running: 502 MB resident
+        /// for the machine and its two helpers, against 170 MB when the guest
+        /// was given 256 and about 1180 MB when it was given a gigabyte.
         ///
-        /// So a copy that does not stall and a dozen drives open together look
-        /// to be in direct conflict while every drive is its own machine --
-        /// but that reading rests on 256 having failed for want of memory, and
-        /// it did not fail for a reason anybody established. If 256 carries a
-        /// thirteen-gigabyte copy now, twelve drives is about 3 GB rather than
-        /// 5.9 and there is no conflict to resolve.
+        /// Which was then multiplied by twelve, called 5.9 GB, and used to
+        /// conclude that a dozen drives cannot fit on an eight-gigabyte Mac.
+        /// That conclusion is wrong, and it was wrong by an order of magnitude.
+        /// Eleven volumes were opened one at a time on this Mac and each was
+        /// asked whether it answered:
         ///
-        /// If it does not, the way out is still not a smaller number: it is one
-        /// machine serving several drives. libkrun already attaches several
-        /// disks to one VM -- `krun_add_disk2` is called in a loop -- so the
-        /// limit is the engine's model, one mount being one machine and one
-        /// export, rather than anything underneath it. That is a patch to the
-        /// engine, and this repository already carries ten of them; it is not
-        /// started until the cheaper question has an answer.
+        ///     2 open    143 MB      7 open    416 MB
+        ///     3 open    166 MB      8 open    313 MB
+        ///     4 open    190 MB      9 open    409 MB
+        ///     5 open    352 MB     10 open    509 MB
+        ///     6 open    265 MB     11 open    587 MB
+        ///
+        /// Eleven at once for 587 MB, with a home directory still listing in
+        /// 21 ms throughout. About forty megabytes a volume, not five hundred.
+        ///
+        /// The error was measuring one volume *under a thirteen-gigabyte copy*
+        /// and calling that what a volume costs. Almost all of that 502 MB is
+        /// page cache belonging to the copy, and it is not per-volume: an open
+        /// drive nobody is writing to holds a fraction of it. Somebody with a
+        /// dozen drives open is not copying to a dozen drives at once.
+        ///
+        /// So the ceiling is not memory, and the engine does not need patching
+        /// to serve several drives from one machine. That was days of work
+        /// argued for by a number nobody had taken.
+        ///
+        /// There is no conflict between a copy that does not stall and a dozen
+        /// drives open together. Eleven were open at once for 587 MB while this
+        /// Mac stayed responsive, which settles it without changing this number
+        /// at all.
         public static let ramMiB = 512
         /// Half the machine and never more than two, the work being I/O.
         public static var cores: Int {
