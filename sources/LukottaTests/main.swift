@@ -2677,6 +2677,36 @@ group("theMountIsSoftAndTheCodeSaysSo") {
         "and why soft cannot simply be removed")
 }
 
+group("theGuestCarriesWhatTheRepairNeeds") {
+    // A repair the app performs has to have something in the guest to perform
+    // it with, and the guest is trimmed hard -- 67 packages. Reading the
+    // inventory that ships rather than the keep-list that describes it: the
+    // list names e2fsprogs among the filesystems found inside LUKS containers,
+    // and no e2fsprogs is in the image. A keep-list only keeps what is there.
+    //
+    // Which is survivable, and worth knowing rather than assuming. ext and XFS
+    // replay their own journals when the kernel mounts them, so an unclean
+    // shutdown needs no tool. Corruption past that has no answer in this guest,
+    // and the app does not offer one -- NTFS is the only format with a repair
+    // path, and ntfsfix is the thing it calls.
+    let sbom =
+        (try? String(contentsOfFile: "vendor/guest-sbom.json", encoding: .utf8)) ?? ""
+    expect(!sbom.isEmpty, "the guest inventory is readable")
+
+    let script = MountScript.build(sampleInputs(kind: .microsoft))
+    // Whatever the script repairs with must be in the image that ships.
+    for tool in ["ntfsfix", "ntfsls"] where script.contains(tool) {
+        expect(
+            sbom.contains("ntfs-3g-progs"),
+            "the guest carries what \(tool) comes from")
+    }
+
+    // And nothing claims a repair the guest cannot make.
+    expect(
+        !script.contains("e2fsck") && !script.contains("xfs_repair"),
+        "no repair is attempted with a tool the guest does not have")
+}
+
 group("aSlowGuestPausesTheCopyRatherThanFailingIt") {
     // The mount is soft, so a write is failed once the client stops waiting,
     // and Finder stops the whole operation on that one error. How long it waits
