@@ -4,8 +4,8 @@
 """Reduce the Alpine guest image to the packages Lukotta can actually reach.
 
 The image ships whatever anylinuxfs installs, which covers every filesystem it
-supports. Lukotta unlocks BitLocker and mounts NTFS, so most of that is dead
-weight — and every GPL package shipped is a package whose source must be
+supports. Lukotta reaches a smaller set -- BitLocker and NTFS, and ext, btrfs
+and XFS bare or inside LUKS -- so most of that is dead weight — and every GPL package shipped is a package whose source must be
 published alongside the release.
 
 Removes packages outside the dependency closure of the roots below, deletes
@@ -23,8 +23,19 @@ ROOTS = [
     "ntfs-3g", "ntfs-3g-progs",
     # LUKS containers: Ubuntu, Debian, Fedora and openSUSE all put LVM inside
     "lvm2",
-    # filesystems found inside LUKS containers
-    "e2fsprogs", "btrfs-progs",
+    # The Linux filesystems the app offers to open, bare or inside LUKS. Each
+    # is here for its repair tool, not its mkfs: a volume whose journal replays
+    # at mount needs nothing, and a volume that fails to mount needs e2fsck or
+    # xfs_repair present or there is no route but to hand the user an error.
+    #
+    # xfsprogs was missing from this list while the help sheet was telling
+    # people the app opens "ext4, btrfs and XFS filesystems inside them", so a
+    # repack would have deleted XFS's tools as unreachable weight.
+    #
+    # Naming a package here does not install it. This list only keeps what the
+    # image already carries, and the anylinuxfs image carries neither e2fsprogs
+    # nor xfsprogs -- see the note in vendor-engine.sh for putting them in.
+    "e2fsprogs", "btrfs-progs", "xfsprogs",
     # export back to macOS
     "nfs-utils", "rpcbind",
     # mounting and block-device identification
