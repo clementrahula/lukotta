@@ -71,6 +71,61 @@
             open(device, passphrase: passphrase, readOnly: readOnly)
         }
 
+        /// The running daemon's process id, or nil if none is running.
+        private static func daemonProcessID() -> Int32? {
+            let task = Process()
+            task.executableURL = URL(fileURLWithPath: "/usr/bin/pgrep")
+            task.arguments = ["-f", HelperInfo.machServiceName]
+            let pipe = Pipe()
+            task.standardOutput = pipe
+            task.standardError = FileHandle.nullDevice
+            try? task.run()
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            task.waitUntilExit()
+            let text = String(decoding: data, as: UTF8.self)
+            return text.split(separator: "\n").compactMap {
+                Int32($0.trimmingCharacters(in: .whitespaces))
+            }.first
+        }
+
+        /// Whether the daemon running now started before the bundle's copy was
+        /// last written, which is what "stale" means here.
+        private static func daemonIsOlderThanTheBundle() -> Bool {
+            let bundled = HelperInfo.bundledToolPath(inBundle: Bundle.main.bundlePath)
+            guard
+                let written = (try? FileManager.default.attributesOfItem(atPath: bundled))?[
+                    .modificationDate]
+                    as? Date,
+                let pid = daemonProcessID()
+            else { return false }
+            let task = Process()
+            task.executableURL = URL(fileURLWithPath: "/bin/ps")
+            task.arguments = ["-o", "etime=", "-p", "\(pid)"]
+            let pipe = Pipe()
+            task.standardOutput = pipe
+            task.standardError = FileHandle.nullDevice
+            try? task.run()
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            task.waitUntilExit()
+            let elapsed = String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespaces)
+            guard let seconds = secondsIn(elapsed) else { return false }
+            return Date().addingTimeInterval(-seconds) < written
+        }
+
+        /// ps prints elapsed time as [[dd-]hh:]mm:ss.
+        private static func secondsIn(_ elapsed: String) -> TimeInterval? {
+            var text = elapsed
+            var days = 0.0
+            if let dash = text.firstIndex(of: "-") {
+                days = Double(text[text.startIndex..<dash]) ?? 0
+                text = String(text[text.index(after: dash)...])
+            }
+            let parts = text.split(separator: ":").compactMap { Double($0) }
+            guard !parts.isEmpty else { return nil }
+            let withinDay = parts.reduce(0.0) { $0 * 60 + $1 }
+            return days * 86400 + withinDay
+        }
+
         private static func say(_ line: String) {
             FileHandle.standardError.write(Data((line + "\n").utf8))
         }
@@ -109,6 +164,36 @@
             guard helper.isReady else {
                 say("the background daemon is not ready; a real drive cannot be opened without it")
                 exit(3)
+            }
+
+            // The daemon is what builds the mount, and launchd keeps the
+            // running one across an app update: the binary in the bundle is
+            // replaced and the process is not. A measurement taken through a
+            // daemon older than the change being measured is worse than no
+            // measurement, because it looks like a result -- an afternoon went
+            // into a run that was quietly using the previous script.
+            //
+            // So it is not asked for politely and hoped about. The daemon is
+            // told to replace itself and this waits for the process to actually
+            // change, and refuses to mount if it does not.
+            if let before = daemonProcessID(), daemonIsOlderThanTheBundle() {
+                say("the running daemon is older than this build; replacing it")
+                helper.replaceIfStale()
+                let waitUntil = Date().addingTimeInterval(90)
+                while daemonProcessID() == before, Date() < waitUntil {
+                    RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.5))
+                }
+                guard daemonProcessID() != before else {
+                    say("it did not; refusing to measure through a daemon that is not this build")
+                    exit(4)
+                }
+                // And the client's connection went with it.
+                helper.refresh()
+                let readyAgain = Date().addingTimeInterval(30)
+                while !helper.isReady, Date() < readyAgain {
+                    RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.2))
+                }
+                say("replaced; the daemon is now this build's")
             }
 
             let workspace: Workspace
