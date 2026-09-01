@@ -141,3 +141,65 @@ deliberately and specifically, including a `usb_unplug_test` taken from a real
 unplug. `scripts/corrupt-corpus.sh` runs the app's ladder against all of them
 and checks the property that matters: a refusal must leave the image
 byte-identical.
+
+# What the other GUI over this engine has already hit
+
+[anylinuxfs-gui](https://github.com/fenio/anylinuxfs-gui) is a Tauri app doing
+the same job as this one over the same engine. Its changelog is therefore a
+list of the traps a GUI over anylinuxfs falls into, written by somebody who
+fell into them first. Read that way, most of it is reassuring and some of it is
+not.
+
+## Where we are already ahead
+
+Their hardest cluster was **seeing the disk at all**. Across 0.1.8 they fixed:
+Linux-only cards not detected, cards with broken GUID tables, "Linux
+Filesystem" not recognised as a supported partition type, disk detection
+needing native and Microsoft results merged, and a watcher that had to start
+polling for physical disk changes because the events alone missed Linux-only
+disks.
+
+`DiskWatcher.ourContent` already names Microsoft Basic Data, Linux filesystem,
+Linux LVM, Linux RAID, and the `Windows_NTFS` and `Linux` MBR spellings. And it
+does something they do not: it *claims* those disks through the DiskArbitration
+peek callback, so macOS stops offering to initialise them — an offer that sits
+one click away from destroying an encrypted drive, made precisely because macOS
+cannot read it.
+
+## Where they made a choice we should not copy
+
+0.5.1 added "extra mount options with quick-chip buttons (noatime, nodiratime,
+**nobarrier**, compress-force)". `nobarrier` turns off the write barriers that
+keep a journalling filesystem consistent across a crash. It is a real speed
+lever and it is exactly the trade this goal refuses — and a chip button hands
+the choice, and the consequence, to somebody who cannot be expected to know
+what a barrier is. 0.5.0 likewise added a read-only checkbox on every disk
+card. We decide read-only ourselves and say what happened.
+
+## Numbers they settled on, against ours
+
+- `COMMAND_TIMEOUT_SECS = 30`, `MOUNT_TIMEOUT_SECS = 60`
+- mount verification raised **from 2.5 s to 10 s** in 0.1.1
+- **1.5 s settle time** for a disk-list race on eject
+- "Unmount before eject for safer disk removal"
+
+Every one of those is the same shape as the timing faults measured on this
+branch: a first guess at a timeout that turned out to be too short. Ours was
+the half second in `EngineProcesses.stop`.
+
+## Failures they found worth translating
+
+`sanitize_error` in their `cli.rs` catches: not mounted, permission denied,
+elevation blocked by policy, device busy, invalid argument, no space left,
+read-only filesystem, and the LUKS family. Anything else falls through to the
+text after `Error:`, verbatim.
+
+Which means neither app handles the one measured here — `Failed to acquire lock
+on device: file already locked`, from opening a second logical volume on a
+partition that already has one open. Both would put that sentence on screen.
+See `scripts/lvm-lock-rule.sh`.
+
+Also worth having from their fixed list: 0.4.6, "Preserve ALFS_PASSPHRASE
+through sudo for encrypted volume mounting". A passphrase lost across a
+privilege boundary fails as a wrong passphrase, which is the most misleading
+way for it to fail.
