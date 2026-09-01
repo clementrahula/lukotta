@@ -45,13 +45,18 @@ dd if=/dev/zero of="$IMG" bs=1048576 count=0 seek=600 2>/dev/null
 grep -q made "$WORK/mkfs.log" || { echo "error: could not make the volume" >&2; cat "$WORK/mkfs.log" >&2; exit 1; }
 echo "made a clean NTFS volume"
 
+# The engine names a share after what it was made from -- "<image>-img.local:
+# /mnt/LABEL" for a file, "<device>.local:/mnt/LABEL" for a drive -- and only a
+# mount made by hand against the guest's address says 172.27. Polling for the
+# address therefore waited out its timeout on a volume that had mounted
+# perfectly well, and reported that the volume would not open.
 open_it() {  # extra engine args
   pkill -f "anylinuxfs mount.*dirty-ntfs" >/dev/null 2>&1; sleep 3
   nohup "$ENGINE" mount --ignore-permissions -w false -t ntfs3 "$@" "$IMG" > "$WORK/engine.log" 2>&1 &
-  for _ in $(seq 1 40); do mount | grep -q 172.27 && return 0; sleep 2; done
+  for _ in $(seq 1 40); do mount | grep -q ':/mnt/' && return 0; sleep 2; done
   return 1
 }
-where() { mount | awk '/172\.27/ {for(i=1;i<=NF;i++) if($i=="on") print $(i+1)}' | tail -1; }
+where() { mount | awk '/:\/mnt\// {for(i=1;i<=NF;i++) if($i=="on") print $(i+1)}' | tail -1; }
 
 # Known contents, checksummed before anything goes wrong with the volume.
 open_it -a lukottatuned || { echo "error: clean volume would not open" >&2; exit 1; }
