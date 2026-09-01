@@ -1055,13 +1055,19 @@ public enum MountScript {
     /// one was: timing a plain `stat` on the mount once a second through a copy
     /// that recorded no unresponsive spells at all --
     ///
-    ///     median 0.028s, p90 1.1s, p99 4.7s, worst 7.7s, against a
-    ///     threshold of 5 -- ten samples of 122 over two seconds, one over five
+    ///     p50 0.028s, p90 0.70s, p99 5.31s, worst 8.95s, against a
+    ///     threshold of 5 -- over 507 samples, 36 past two seconds and six
+    ///     past five
     ///
-    /// -- which is not a healthy mount that occasionally hesitates, and the
-    /// worst of them is over the line. A request did go unanswered for longer
-    /// than macOS waits, during a copy whose flag was polled every two seconds
-    /// and never once seen raised.
+    /// -- which is not a healthy mount that occasionally hesitates. Six
+    /// requests went unanswered for longer than macOS waits, during a copy
+    /// whose unresponsive flag was polled every two seconds and never once seen
+    /// raised.
+    ///
+    /// The shape is worth as much as the numbers. Half of all requests come
+    /// back in twenty-eight milliseconds and nine in ten inside a second: the
+    /// mount is not slow. It is quick almost always and occasionally stops
+    /// dead, and it is the tail that reaches somebody, not the median.
     ///
     /// So the flag is not merely a coarse view of the latency, it is an
     /// unreliable one: `nfsstat -m` was answering from client state that did
