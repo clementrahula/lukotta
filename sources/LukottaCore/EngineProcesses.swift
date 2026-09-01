@@ -64,19 +64,67 @@ public enum EngineProcesses {
         return found
     }
 
+    /// How long a machine is given to put its writes on the disk before it is
+    /// killed outright.
+    ///
+    /// This used to be a flat half-second sleep followed by `SIGKILL`, and the
+    /// half second was a guess. What is on the other side of that guess was
+    /// measured, and it is not a stray socket: the engine's disk backend makes
+    /// writes durable when it shuts down, not when a write is acknowledged, so
+    /// a machine killed before it finishes loses what it was still holding.
+    ///
+    /// Measured on this Mac, on an image, with nothing else in flight. A four
+    /// megabyte file written with `dd conv=fsync` -- which returns only after
+    /// the client's COMMIT has been answered -- and the machine then killed
+    /// with `SIGKILL`:
+    ///
+    ///     XFS,  three runs:  lost exactly 32768 bytes at offset 0, every time
+    ///     ext4, same test:   lost exactly 32768 bytes at offset 0
+    ///     waiting 30s first: lost the same 32768 bytes
+    ///     waiting 60s first: the whole file came back zero
+    ///
+    /// Same signature on both filesystems, so it is under them rather than in
+    /// them, and waiting does not help because nothing is flushing in the
+    /// meantime. `fsync` does not make data durable against a killed machine.
+    ///
+    /// `SIGTERM` does. The same test, 100 MB written and fsynced, then
+    /// `SIGTERM`: the machine exited in **0.34 s** and all 100 MB came back
+    /// byte for byte.
+    ///
+    /// So the half second was not wrong so much as unlucky -- it happened to
+    /// be larger than the 0.34 s that one measurement needed, with nothing to
+    /// spare and nothing behind it. A machine holding more, or emptying onto a
+    /// drive that takes 7 MB/s rather than an SSD, needs longer, and what
+    /// happens when it does not get it is silent: files that are the right
+    /// length and quietly full of holes.
+    ///
+    /// Twenty seconds is the cap, not the cost. The wait ends the moment the
+    /// process is gone, which in the measured case is a third of a second, so
+    /// nothing a person waits on gets slower. Only a machine that is genuinely
+    /// wedged pays the whole cap, and it is still killed at the end of it --
+    /// a helper left running is the problem this exists to solve.
+    static let flushGrace: TimeInterval = 20
+
     /// End the helpers in `pids`, having asked first.
     ///
-    /// `SIGTERM` lets gvproxy remove its own sockets. The second signal is for
-    /// one that does not answer, since a helper left running is the whole
-    /// problem this exists to solve.
+    /// `SIGTERM` lets gvproxy remove its own sockets, and lets a machine put
+    /// its writes on the disk. The second signal is for one that does not
+    /// answer.
     public static func stop(_ pids: Set<Int32>) {
         guard !pids.isEmpty else { return }
         for pid in pids { kill(pid, SIGTERM) }
-        // Long enough for an orderly exit and short enough not to hold up the
-        // failure the user is waiting to be told about.
-        Thread.sleep(forTimeInterval: 0.5)
-        let stillThere = running()
-        for pid in pids where stillThere.contains(pid) { kill(pid, SIGKILL) }
+
+        // Waited out rather than slept through. Polling means the common case
+        // costs what it actually takes -- a third of a second -- instead of a
+        // fixed half second that is simultaneously too long for a helper with
+        // nothing to write and too short for a machine with something to.
+        let deadline = Date().addingTimeInterval(flushGrace)
+        var stillThere = running().intersection(pids)
+        while !stillThere.isEmpty, Date() < deadline {
+            Thread.sleep(forTimeInterval: 0.1)
+            stillThere = running().intersection(pids)
+        }
+        for pid in stillThere { kill(pid, SIGKILL) }
     }
 
     /// Take down whatever an attempt started, given the helpers that were

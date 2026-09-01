@@ -238,57 +238,93 @@ note "$([ "$cbad" -eq 0 ] && echo ok || echo no)" \
 
 # 9. Power loss mid-write.
 #
-#    Every case above kills the copier. None of them kills the machine, and
-#    those are different accidents. When ditto is killed the guest is still
-#    alive and flushes what it holds; when the power goes the guest dies with
-#    a page cache full of writes that never reached the image, which is the
-#    accident that actually corrupts filesystems. The guest is killed with
-#    SIGKILL and nothing is unmounted first -- an unmount would flush, which
-#    is precisely the courtesy a power cut does not extend.
+#    Every other case here kills the copier. This one kills the machine, and
+#    those are different accidents. With ditto killed the guest is alive and
+#    flushes what it holds; with the machine killed the guest dies with a page
+#    cache full of writes that never reached the image. Nothing is unmounted
+#    first -- an unmount would flush, which is the courtesy a power cut does
+#    not extend.
 #
-#    What is claimed afterwards is deliberately narrow. Files that vanish are
-#    not a failure: a write the guest had not yet put on the image is gone in
-#    a real power cut too, and promising otherwise would be promising
-#    something no filesystem offers. The failures are the filesystem not
-#    coming back at all, and a file that is present at its full length with
-#    the wrong bytes in it. Torn length is honest; torn content is not.
+#    WHAT THIS CLAIMS, AND WHY IT IS NOT WHAT IT CLAIMED FIRST
+#
+#    The first version asserted that a file present at its full length must
+#    have the right bytes: torn length is honest, torn content is not. Run
+#    against XFS it failed 30 of 30 -- every file full length, every one wrong
+#    -- which looked like serious corruption.
+#
+#    It was not. The files hold real data in the middle and zeros at both ends;
+#    one measured 947137 non-zero bytes out of 1000000, and not one of the 30
+#    was entirely zero. That is the NFS client flushing cached writes out of
+#    order: a write landing at a high offset extends the file to full length
+#    and leaves the earlier range unwritten, so when the guest dies the gaps
+#    stay zero. The premise that bytes arrive in order is what was wrong, and
+#    over NFS it was never true.
+#
+#    So the claim is the one that means something to a person: data the writer
+#    was told had been committed is still there afterwards. Files are written
+#    and fsynced one at a time, and only those are held to byte-for-byte
+#    identity. Whatever was still in flight may be anything at all, including a
+#    full-length file that is quietly full of holes -- which is worth knowing
+#    on its own, because after a crash "it is there and it is the right size"
+#    is not evidence that a file is complete.
 rm -rf "$VOL/vec-power"; mkdir -p "$VOL/vec-power"
 payload "$WORK/power" 30 1000000
-ditto "$WORK/power" "$VOL/vec-power" >/dev/null 2>&1 &
+
+# Committed: written and fsynced before anything is killed. dd's conv=fsync
+# returns only once the client has had its COMMIT answered, so each of these
+# is data the writer was told is on the disk.
+committed=0
+for i in 1 2 3 4 5 6 7 8; do
+  if dd if="$WORK/power/f$i.bin" of="$VOL/vec-power/committed-$i.bin" \
+        bs=1000000 conv=fsync status=none 2>/dev/null; then
+    committed=$((committed + 1))
+  fi
+done
+
+# In flight: a bulk copy nobody has confirmed anything about.
+ditto "$WORK/power" "$VOL/vec-power/inflight" >/dev/null 2>&1 &
 ppid=$!
 sleep 5
 kill -9 "$ppid" 2>/dev/null; wait "$ppid" 2>/dev/null
+
 # The machine, not the mount. -9 so nothing gets the chance to be tidy.
 pkill -9 -f "anylinuxfs mount.*$IMAGE" >/dev/null 2>&1
 pkill -9 -f "krun.*$(basename "$IMAGE")" >/dev/null 2>&1
 sleep 3
-# The mount is now a corpse that still answers `mount` and fails every
-# request, which is exactly what it would be after a power cut.
 umount -f "$VOL" >/dev/null 2>&1
 for _ in $(seq 1 30); do
   pgrep -f "anylinuxfs mount.*$(basename "$IMAGE")" >/dev/null 2>&1 || break
   sleep 2
 done
 
-if open_image; then
-  VOL="$(where)"
-else
-  VOL=""
-fi
+if open_image; then VOL="$(where)"; else VOL=""; fi
 if [ -n "$VOL" ] && ls "$VOL" >/dev/null 2>&1; then
   note ok "the filesystem comes back after the machine was killed mid-write"
-  pn=0; pbad=0; pgone=0
-  while IFS= read -r f; do
-    rel="${f#"$WORK/power"/}"
-    dst="$VOL/vec-power/$rel"
-    if [ ! -e "$dst" ]; then pgone=$((pgone + 1)); continue; fi
-    sz="$(stat -c %s "$dst" 2>/dev/null || stat -f %z "$dst")"
-    [ "$sz" = 1000000 ] || { pgone=$((pgone + 1)); continue; }
-    pn=$((pn + 1))
-    cmp -s "$f" "$dst" || pbad=$((pbad + 1))
-  done < <(find "$WORK/power" -type f)
-  note "$([ "$pbad" -eq 0 ] && echo ok || echo no)" \
-    "no whole file has wrong bytes after power loss ($pn whole, $pbad wrong, $pgone did not land)"
+  cn=0; cbad=0; cgone=0
+  for i in 1 2 3 4 5 6 7 8; do
+    dst="$VOL/vec-power/committed-$i.bin"
+    [ -e "$dst" ] || { cgone=$((cgone + 1)); continue; }
+    cn=$((cn + 1))
+    cmp -s "$WORK/power/f$i.bin" "$dst" || cbad=$((cbad + 1))
+  done
+  note "$([ "$cbad" -eq 0 ] && [ "$cgone" -eq 0 ] && echo ok || echo no)" \
+    "every fsynced file survived power loss ($cn of $committed present, $cbad wrong, $cgone lost)"
+
+  # Not a pass or a fail, but the number worth having: how much of what was in
+  # flight came back looking complete while holding holes.
+  looks_whole=0; really_whole=0
+  if [ -d "$VOL/vec-power/inflight" ]; then
+    for f in "$VOL"/vec-power/inflight/*.bin; do
+      [ -e "$f" ] || continue
+      sz="$(stat -c %s "$f" 2>/dev/null || stat -f %z "$f")"
+      [ "$sz" = 1000000 ] || continue
+      looks_whole=$((looks_whole + 1))
+      cmp -s "$WORK/power/$(basename "$f")" "$f" && really_whole=$((really_whole + 1))
+    done
+  fi
+  printf '  note %s of %s in-flight files came back at full length; %s of those were actually complete\n' \
+    "$looks_whole" 30 "$really_whole"
+
   if printf 'after' > "$VOL/vec-power-after" 2>/dev/null \
      && [ "$(cat "$VOL/vec-power-after" 2>/dev/null)" = after ]; then
     note ok "the volume takes a write again after power loss"
@@ -297,7 +333,7 @@ if [ -n "$VOL" ] && ls "$VOL" >/dev/null 2>&1; then
   fi
 else
   note no "the filesystem comes back after the machine was killed mid-write"
-  note no "no whole file has wrong bytes after power loss (never remounted)"
+  note no "every fsynced file survived power loss (never remounted)"
   note no "the volume takes a write again after power loss (never remounted)"
 fi
 
