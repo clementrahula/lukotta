@@ -1109,7 +1109,9 @@ public enum MountScript {
     ///
     /// Nothing over two seconds in the whole read; forty-five over two and nine
     /// over five in the write. Same drive, same guest, same link, two hundred
-    /// times the worst case. So it is not a slow device, not the virtio link,
+    /// times the worst case. Sampled a second time during a later read-back,
+    /// separately: worst 0.031s over forty samples, again nothing past two
+    /// seconds. The read side is not merely better, it is flat. So it is not a slow device, not the virtio link,
     /// and not the microVM being starved of anything: it is the write path,
     /// and specifically what happens to everything else while committed data
     /// is being pushed out.
