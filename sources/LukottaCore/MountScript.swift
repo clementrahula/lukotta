@@ -1222,12 +1222,26 @@ public enum MountScript {
     /// every cause or only the jukebox errors it is documented under. It
     /// shows on a screen during a slow copy, and in no counter this can read.
     ///
-    /// The one measurement possible from here is consistent with it working
-    /// and does not prove it. With `mutejukebox` in force, a 500 MB file into
-    /// the same drive: worst wait 5.85s, one request past the five seconds
-    /// macOS allows, and the mount reported `Status flags: 0x0` in all 105
-    /// samples taken through it -- never once marked unresponsive despite a
-    /// wait that exceeded the threshold.
+    /// Measured where it counts: a thirteen-gigabyte copy through Finder onto
+    /// the drive this was reported on, which is the shape of the original
+    /// complaint rather than a reproduction of it. Timing a request once a
+    /// second, 687 samples in:
+    ///
+    ///     p50 0.028s, p99 1.88s, worst 5.90s, three requests past five
+    ///     seconds -- and nothing said about any of them:
+    ///     copy-engine errors 0, items skipped 0, volumes removed 0,
+    ///     not responding 0
+    ///
+    /// Three waits over the line macOS draws, and no dialog behind any of them.
+    /// The same drive before this option was added had the mount marked
+    /// unresponsive ten times in one copy.
+    ///
+    /// The wait is untouched, which was never the aim. What changed is that it
+    /// no longer reaches anybody.
+    ///
+    /// A smaller measurement said the same thing first: a 500 MB file, worst
+    /// wait 5.85s, one request past five seconds, `Status flags: 0x0` in all
+    /// 105 samples.
     ///
     /// Weaker evidence than it reads, because that flag was shown earlier the
     /// same day to miss spells the clock catches: silence from an instrument
