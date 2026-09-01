@@ -82,6 +82,19 @@ public enum MountScript {
         /// thirteen-gigabyte copy, against six hundred once the numbers agree,
         /// with the socket resets and send failures alongside them gone too.
         ///
+        /// Six hundred was not the floor, and the numbers agreeing was not the
+        /// whole of it. Counted again over a copy through a mount with the same
+        /// rsize and wsize and the retransmit timer fixed: **none at all**.
+        /// 30,470 of them in the twenty-four minutes before the change, about
+        /// 1,270 a minute; zero in ten minutes of the copy after it.
+        ///
+        /// Which says what the message really is. A client whose retransmit
+        /// interval has collapsed to the round-trip time of a healthy virtio
+        /// link resends a write that is still in flight, over and over, and it
+        /// is those resends that arrive malformed. The flood, the `send error`
+        /// bursts and the 100060 that ends the copy are one fault with three
+        /// symptoms, and the size mismatch only ever made it louder.
+        ///
         /// `timeo` is sixty seconds because a healthy copy already spends
         /// twenty unable to answer.
         ///
