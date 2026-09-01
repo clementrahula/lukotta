@@ -23,6 +23,17 @@
 # result resembles one.
 #
 # On an image throughout. Nothing here touches a drive anybody owns.
+#
+# Result on 2026-09-01: volume confirmed dirty, opened by the app through the
+# repair action, writable rather than demoted, and all 41 files byte-identical
+# afterwards. PASS.
+#
+# The refusal was demonstrated on the way there, on real damage rather than a
+# stub. An earlier version dirtied the volume by killing the machine with two
+# hundred megabytes in flight, which left $MFTMirr not matching $MFT, and the
+# guard would not repair it: "Remount failed: I/O error", no mount, nothing
+# written. Clearing a flag on a volume whose mirror is wrong is how data goes
+# missing, and the app declined to.
 set -uo pipefail
 OUT="${1:-$HOME/.lukotta-testvols}"
 ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Dev.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
@@ -45,6 +56,11 @@ dd if=/dev/zero of="$IMG" bs=1048576 count=0 seek=600 2>/dev/null
 grep -q made "$WORK/mkfs.log" || { echo "error: could not make the volume" >&2; cat "$WORK/mkfs.log" >&2; exit 1; }
 echo "made a clean NTFS volume"
 
+where() {
+  mount | awk -v want="$(basename "$IMG" .img)-img.local:" \
+    '$1 ~ want {for(i=1;i<=NF;i++) if($i=="on") {print $(i+1); exit}}'
+}
+
 # The engine names a share after what it was made from -- "<image>-img.local:
 # /mnt/LABEL" for a file, "<device>.local:/mnt/LABEL" for a drive -- and only a
 # mount made by hand against the guest's address says 172.27. Polling for the
@@ -53,17 +69,16 @@ echo "made a clean NTFS volume"
 open_it() {  # extra engine args
   pkill -f "anylinuxfs mount.*dirty-ntfs" >/dev/null 2>&1; sleep 3
   nohup "$ENGINE" mount --ignore-permissions -w false -t ntfs3 "$@" "$IMG" > "$WORK/engine.log" 2>&1 &
-  for _ in $(seq 1 40); do mount | grep -q ':/mnt/' && return 0; sleep 2; done
+  # This image's share, not any engine mount: the owner's drive is mounted the
+  # whole time, so waiting for ":/mnt/" returns at once and the caller then asks
+  # where a volume is that has not appeared yet.
+  for _ in $(seq 1 40); do [ -n "$(where)" ] && return 0; sleep 2; done
   return 1
 }
 # This image's mount, not the last engine mount in the table. Another volume
 # may be open, and a mount whose machine has been killed stays in the table
 # answering `mount` and failing every request -- picking that one reports the
 # repair as read-only and the data as gone, when neither is true.
-where() {
-  mount | awk -v want="$(basename "$IMG" .img)-img.local:" \
-    '$1 ~ want {for(i=1;i<=NF;i++) if($i=="on") {print $(i+1); exit}}'
-}
 
 # Known contents, checksummed before anything goes wrong with the volume.
 open_it -a lukottatuned || { echo "error: clean volume would not open" >&2; exit 1; }
@@ -73,19 +88,52 @@ for i in $(seq 1 40); do head -c 200000 /dev/urandom > "$SRC/f$i.bin"; done
 printf 'the byte that must survive' > "$SRC/witness.txt"
 ditto "$SRC" "$VOL/before" >/dev/null 2>&1
 sync
+
+# Closed properly before anything is broken, and opened again. sync on the Mac
+# does not reach the guest's cache, and the guest is about to be killed -- so
+# without this the corpus is still in memory when the machine dies and the test
+# reports every file lost, which is the fault it exists to detect and not the
+# one that happened.
+#
+# Closed by unmounting the share and letting the engine notice, not by killing
+# it. Killing the machine is what dirties an NTFS volume -- it is the very thing
+# done deliberately two steps below -- so a pkill here left the volume dirty and
+# the reopen met "wrong fs type, bad option, bad superblock", which is ntfs3
+# refusing a volume that was never closed.
+umount "$VOL" >/dev/null 2>&1 || umount -f "$VOL" >/dev/null 2>&1
+for _ in $(seq 1 30); do
+  pgrep -f "anylinuxfs mount.*$(basename "$IMG")" >/dev/null 2>&1 || break
+  sleep 2
+done
+open_it -a lukottatuned || {
+  echo "error: could not reopen after writing the corpus" >&2
+  sed -n '1,25p' "$WORK/engine.log" >&2
+  exit 1
+}
+VOL="$(where)"
+[ -n "$VOL" ] || { echo "error: reopened but nowhere findable" >&2; exit 1; }
+echo "closed and reopened cleanly; the corpus is on the image"
 BEFORE="$WORK/before.sums"
 (cd "$SRC" && find . -type f -exec shasum -a 256 {} \; | sort) > "$BEFORE"
 echo "wrote $(wc -l < "$BEFORE" | tr -d ' ') files and recorded their sums"
 
-# Dirty it the way a real volume gets dirty: take the machine away mid-write.
-dd if=/dev/urandom of="$VOL/interrupted.bin" bs=1048576 count=200 2>/dev/null &
-writer=$!
-sleep 3
+# Dirty it the way Windows leaves a volume dirty: mounted read-write and never
+# unmounted. The machine is taken away with the filesystem still mounted, so the
+# dirty flag stays set and the journal is unfinished -- which is the state a
+# drive is in after a Windows machine is switched off with it attached.
+#
+# Not mid-write, which was tried first and is a different fault. Killing the
+# machine while two hundred megabytes were in flight left $MFTMirr not matching
+# $MFT, and ntfsfix would not vouch for that -- correctly, since clearing a flag
+# on a volume whose mirror is wrong is how data goes missing. That refusal is
+# worth having and is checked separately; it is not what a dirty volume is.
+sync
+sleep 2
 pkill -9 -f "anylinuxfs mount.*dirty-ntfs" >/dev/null 2>&1
-kill -9 "$writer" 2>/dev/null; wait "$writer" 2>/dev/null
+sleep 3
 umount -f "$VOL" >/dev/null 2>&1
 sleep 3
-echo "machine killed mid-write; the volume should now be dirty"
+echo "machine taken away with the volume still mounted; it should now be dirty"
 
 # Confirm it really is, rather than assuming the kill was enough.
 "$ENGINE" shell "$IMG" -c 'ntfsfix -n /dev/vda 2>&1 | head -20' > "$WORK/state.log" 2>&1
@@ -100,8 +148,11 @@ fi
 if open_it -a lukottarepair; then
   VOL="$(where)"; echo "opened dirty volume at $VOL"
 else
-  echo "FAIL: the app could not open the dirty volume at all" >&2; exit 1
+  echo "FAIL: the app could not open the dirty volume at all" >&2
+  sed -n '1,20p' "$WORK/engine.log" >&2
+  exit 1
 fi
+[ -n "$VOL" ] || { echo "FAIL: opened, but no mount for this image" >&2; exit 1; }
 
 # Writable, because that is what was asked for.
 if printf 'writable' > "$VOL/after-repair.txt" 2>/dev/null; then
