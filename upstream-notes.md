@@ -102,7 +102,8 @@ copy. There is no memory case for that patch.
 
 ## Answers to things we are still carrying
 
-**virtiofs, instead of NFS over loopback.** Their own `CONCERNS.md`:
+**virtiofs, instead of NFS over loopback -- with a large caveat.** Their own
+`CONCERNS.md`:
 
 > NFS over loopback adds latency — The NFS stack (guest → gvproxy port forward
 > → host NFS client) adds multiple layers of overhead for every filesystem
@@ -118,8 +119,27 @@ with a resource fork is dropped by every copy because that client refuses
 attribute. None of those exist without an NFS client in the path, and virtiofs
 carries extended attributes natively.
 
-Three separate defects, one cause. That is the argument for it, and it is worth
-more than the sum of the tuning that has gone into working around them. It is a large change and it is the
+Three separate defects, one cause. That is the argument for removing the NFS
+client from the path, and it is worth more than the sum of the tuning that has
+gone into working around them.
+
+But virtiofs is probably not the way to do it, and this was written down here
+too confidently before it was checked. virtiofs is already in this stack: the
+guest boots with `rootfstype=virtiofs` and the LUKS key file is handed over the
+same way. That is host to guest -- it maps a directory on the Mac into the VM.
+
+The direction needed here is the opposite. The guest mounts the drive and has
+to present it back to Finder, and **macOS has no virtiofs client**. That is why
+NFS is in the path at all: macOS ships an NFS client and nothing else that a VM
+can serve a filesystem through without a kernel extension.
+
+So "evaluate virtiofs" cannot mean swapping the export over. Whatever replaces
+NFS has to be something macOS can mount, which means FSKit -- already the first
+item in TODO.md, and blocked on third-party extensions being broken in 26.1 and
+26.2 -- or a DriverKit driver, or living with NFS and tuning it.
+
+The four symptoms and their single cause still stand. The remedy named for them
+did not survive being checked. It is a large change and it is the
 only one that removes the class rather than tuning it.
 
 **ntfsprogs-plus, for repair that is actually repair.** `ntfsck` "fully check[s]
