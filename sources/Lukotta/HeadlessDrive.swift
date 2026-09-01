@@ -259,8 +259,24 @@
         /// ends when the volume is ejected in Finder, so it is how it ends here.
         @MainActor
         private static func eject(_ device: String) {
+            // This device's mount, not every engine mount there is. With one
+            // drive open the difference does not show; with a dozen -- which is
+            // the thing the app claims and the thing being measured -- ejecting
+            // one would have taken all of them down and called it a result.
+            //
+            // The engine names the share after the device it came from, so
+            // "disk4s1.local:/mnt/LABEL" is how /dev/disk4s1 appears in the
+            // table. Matched on that rather than on the label, which is the
+            // volume's name and not the drive's.
+            let node = (device as NSString).lastPathComponent
             let table = LukottaCore.mountTable()
-            let mine = MountTableEntry.all(in: table).filter(\.isEngineMount)
+            let mine = MountTableEntry.all(in: table).filter {
+                $0.isEngineMount && $0.source.hasPrefix("\(node).")
+            }
+            if mine.isEmpty {
+                say("nothing of \(device)'s is mounted")
+                return
+            }
             for entry in mine {
                 let task = Process()
                 task.executableURL = URL(fileURLWithPath: "/sbin/umount")
