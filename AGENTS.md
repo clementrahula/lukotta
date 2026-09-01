@@ -583,6 +583,25 @@ Properties of the design. Each has been decided, and arriving at one and
   run asserts both halves so that a change underneath is noticed. SPECS.md §5
   has the reasoning.
 
+## The Engine Cannot Be Restarted on a Real Drive Without the App
+
+`/dev/diskNsM` is `root:operator` mode 640 and the account here is not in
+`operator`, so the engine cannot open a physical drive by itself. The running
+one was handed the device by the privileged helper, and only the app can ask
+the helper for that. Killing the engine and starting it again from a shell --
+to change `ram_size_mib`, the thread count, or a `before_mount` action -- gets
+
+    macOS: Error: Cannot probe /dev/diskNsM: LibErr(0); Insufficient permissions?
+
+So any experiment that needs a different machine configuration on a real drive
+needs the drive reopened through the app, which is a person clicking. Container
+files have no such problem: the engine opens a file the user owns unprivileged,
+and the machine can be restarted as often as a question needs. Put anything
+that varies the guest's configuration on an image, and keep the real drive for
+what only a real drive can answer -- which is timing, because an image on the
+internal disk is two orders of magnitude faster than the USB stick these faults
+appear on.
+
 ## What Has Never Run Against a Real Disk
 
 - **The plain-NTFS path.** The first-sector probe recognises three formats and
@@ -608,13 +627,28 @@ default`, and `cmd_mount.rs` calls `.extend`), so supplying a key replaces the
 engine's value and supplying a *different* key sits beside it. Three
 consequences, each of which has already misled somebody:
 
-- **The mount is soft, always.** The engine adds `soft,intr,timeo=100,
-  retrans=3`. A comment here once argued at length that this was a hard mount
-  because it had not asked for a soft one, and an audit that flagged the missing
-  `timeo` was answered from that belief. Not asking for an option is not the
-  same as choosing its opposite. `soft` cannot be removed by passing `hard`
-  either -- that is a second key, not a replacement -- and it is there to stop a
-  kernel panic when a drive is pulled without unmounting, so it should not be.
+- **The mount is soft, always -- but not because `hard` cannot be asked for.**
+  The engine adds `soft,intr,timeo=100,retrans=3`. A comment here once argued
+  at length that this was a hard mount because it had not asked for a soft one,
+  and an audit that flagged the missing `timeo` was answered from that belief.
+  Not asking for an option is not the same as choosing its opposite.
+
+  This section also said `soft` could not be removed by passing `hard`, being a
+  second key rather than a replacement. Both keys do reach the command, and
+  mount_nfs takes the last of the pair: mounting the same server by hand with
+  `soft,intr,nolocks,hard` reports current parameters saying `hard`, with no
+  `soft` among them, and ours land last. It stays soft by choice, because it is
+  there to stop a kernel panic when a drive is pulled without unmounting, and
+  that claim has not been tested anywhere it would be safe to be wrong.
+- **`timeo` does nothing on its own.** It sets the *initial* retransmit
+  timeout, and the dynamic estimator -- on unless `dumbtimer` says otherwise --
+  replaces it with an interval learned from observed round trips, which on a
+  virtio link is milliseconds. mount_nfs(8) says so under `timeo`: "Normally,
+  the dumbtimer option should be specified when using this option to manually
+  tune the timeout interval." A mount carrying `timeo=600` and `nodumbtimer`
+  never waited sixty seconds for anything, and three separate runs raised the
+  number, watched a copy fail anyway, and concluded the timeout was innocent.
+  Check `nfsstat -m` for `dumbtimer` before believing any timeout in the table.
 - **`rsize`/`wsize` are asked for at 1 MiB and granted at 128 KiB.** `nfsstat
   -m` prints both: "original mount options" is the request, "current mount
   parameters" is what is in force. Any argument about transfer size should be
