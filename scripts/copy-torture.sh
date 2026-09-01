@@ -26,6 +26,16 @@
 # byte-identical, nothing missing -- and the sparse gigabyte arrived fully
 # allocated, 8 blocks at the source against 2097153 at the destination.
 #
+# The large-file half was checked the same day and in three passes, which is
+# what the claim actually needs: thirteen gigabytes in twenty-six files copied,
+# all twenty-six matching by SHA-256 through the mount they were written to,
+# the drive then ejected and unlocked again in eight seconds, and all
+# twenty-six matching a second time through the new mount.
+#
+# The third pass is the one worth keeping. A copy that lands intact and leaves
+# the volume unopenable afterwards is not a success, and until the drive could
+# be closed and reopened from a shell nobody had ever looked.
+#
 # That last one is the protocol rather than a fault here. NFSv3 has no way to
 # say "this range is a hole": the client sends the zeros and the server writes
 # them, so a file that occupied four kilobytes occupies a gigabyte afterwards.
