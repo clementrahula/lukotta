@@ -583,6 +583,38 @@ Properties of the design. Each has been decided, and arriving at one and
   run asserts both halves so that a change underneath is noticed. SPECS.md §5
   has the reasoning.
 
+## Opening a Real Drive Without a Person
+
+`--drive` on a DEVTOOLS build opens and closes a physical drive from a shell,
+with no window and nobody clicking:
+
+    "/Applications/Lukotta Dev.app/Contents/MacOS/Lukotta Dev" --drive open=/dev/disk4s1
+    …                                                          --drive open=/dev/disk4s1 read-only
+    …                                                          --drive eject=/dev/disk4s1
+
+It uses the saved Keychain key, so nothing is typed. Two things about it are
+not obvious and both cost time to find:
+
+- **`DEVTOOLS` is off for a branded build.** `build-app.sh` compiles the
+  harnesses into an *unbranded* build only, unless `LUKOTTA_DEVTOOLS=1` is
+  passed. `LUKOTTA_BRANDING=dev ./build-app.sh` produces an app with no
+  `--drive`, no `--e2e` and no `--snapshots`, and the flag is simply ignored
+  with no complaint. Build test copies with
+  `LUKOTTA_DEVTOOLS=1 LUKOTTA_BRANDING=dev ./build-app.sh`.
+- **The daemon lives in the app bundle, not in PrivilegedHelperTools.** It is
+  registered with `SMAppService` and runs from
+  `Contents/MacOS/Lukotta<Brand>Helper`. `/Library/PrivilegedHelperTools` holds
+  daemons from the older install route and may be months stale while a current
+  one is running from a bundle. **The daemon carries `MountScript`**, so a
+  change to the mount options or a generated action does nothing until the app
+  is reinstalled and the daemon replaces itself -- reading the app binary and
+  finding the change there proves nothing.
+
+`config.toml` is also worth checking rather than assuming. The generated
+actions are merged into whatever is already in it, so a section written by an
+older daemon can survive a reinstall and keep being used; the engine's command
+line names the action it ran, and the file says what that action does.
+
 ## The Engine Cannot Be Restarted on a Real Drive Without the App
 
 `/dev/diskNsM` is `root:operator` mode 640 and the account here is not in
@@ -594,7 +626,8 @@ to change `ram_size_mib`, the thread count, or a `before_mount` action -- gets
     macOS: Error: Cannot probe /dev/diskNsM: LibErr(0); Insufficient permissions?
 
 So any experiment that needs a different machine configuration on a real drive
-needs the drive reopened through the app, which is a person clicking. Container
+needs the drive reopened through the app -- which is what `--drive` above is
+for, and it needs no person. Container
 files have no such problem: the engine opens a file the user owns unprivileged,
 and the machine can be restarted as often as a question needs. Put anything
 that varies the guest's configuration on an image, and keep the real drive for
