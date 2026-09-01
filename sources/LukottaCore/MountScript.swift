@@ -153,11 +153,17 @@ public enum MountScript {
         ///
         /// The worst is not thirty-six seconds, which is what an earlier run
         /// suggested. Through a thirteen-gigabyte Finder copy the mount went
-        /// unresponsive ten times, of 2, 2, 10, 10, 12, 12, 23, 24 and 60
-        /// seconds -- and the copy came through every one of them, including
+        /// unresponsive at least ten times, of 2, 2, 10, 10, 12, 12, 23, 24 and
+        /// 60 seconds -- and the copy came through every one of them, including
         /// the full minute. That single episode is the case for the margin:
         /// the engine's own three tries would not have survived it, and
         /// neither would anything sized against thirty-six.
+        ///
+        /// "At least": those counts come from polling `nfsstat -m` for the
+        /// unresponsive flag every two seconds, and that flag was later shown
+        /// to miss spells the clock catches -- a plain stat of 7.7 seconds went
+        /// by with the flag never seen raised. Every episode count in this file
+        /// is a floor. The durations are real; the number of them is not.
         ///
         /// Both are overridable where `hard` is not: the engine merges by
         /// option name, so `timeo`, `retrans` and `dumbtimer` replace or join
@@ -990,9 +996,13 @@ public enum MountScript {
     /// than five seconds is enough, and macOS puts that on screen
     /// -- which is a copy that looks broken to somebody watching it, whether or
     /// not it later finishes. Measured on a thirteen-gigabyte copy into a USB
-    /// drive at 92% full: five episodes in nine minutes, of 6, 14, 16, 18 and
-    /// 35 seconds. The copy survived all five. Nobody watching it would have
-    /// believed that.
+    /// drive at 92% full: at least five episodes in nine minutes, of 6, 14, 16,
+    /// 18 and 35 seconds. The copy survived all five. Nobody watching it would
+    /// have believed that.
+    ///
+    /// A floor rather than a count. Those come from polling the unresponsive
+    /// flag every two seconds, and the flag was later shown to miss spells that
+    /// timing a request finds -- see Inputs.nfsOptions.
     ///
     /// An nfsd thread goes quiet because it is inside balance_dirty_pages, not
     /// because it is busy: once dirty pages reach the hard limit the writer is
