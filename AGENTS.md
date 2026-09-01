@@ -63,6 +63,21 @@ hit while measuring one:
   hanging as the signal rather than waiting for an answer that is not coming.
 - **`ls` output in a shell where `ls` is `eza`.** The columns differ, so
   `awk '{print $5}'` silently sums zero. Use `find -printf` or `stat`.
+- **`grep -c` where the count is zero.** It prints `0` and exits non-zero, so
+  `$(grep -c … || echo 0)` prints two zeros.
+- **The NFS unresponsive flag as a stall detector.** Polled every two seconds
+  through a whole copy it was never seen raised, while timing a plain `stat` on
+  the same mount found six requests over five seconds and a worst of 8.9. It
+  answers from client state that does not reflect what the clock catches. Time
+  the request; the flag is a verdict about latency, not a measure of it.
+
+The shape is the same every time and is worth stating on its own: **a probe
+that cannot take a reading must say so, not return zero.** Each of these
+returned a plausible number instead of failing -- `0 MiB` for a listing that
+timed out, `0` episodes for a flag never sampled at the right instant, five
+megabytes for a machine holding five hundred -- and a plausible wrong number is
+believed, acted on, and sends an afternoon after the wrong fault. Bound every
+call that can block, and distinguish "measured zero" from "could not measure".
 
 ## Layout
 
