@@ -24,7 +24,20 @@
 #   one volume read-write                    mounts, writable
 #   a second read-write, first still open    Failed to acquire lock on device:
 #                                            file already locked
+#   a second READ-ONLY, first still writable  the same lock error
 #   all three read-only                      all three mount, all readable
+#
+# That third line is the one that matters, and it was nearly missed. The app
+# already ends its mount ladder by retrying read-only -- "where read-write was
+# asked for and every attempt at it failed, the same attempts are made again
+# read-only rather than reporting a drive that cannot be opened" -- so the
+# obvious conclusion was that this case is already handled gracefully.
+#
+# It is not. The lock is held read-write by the volume already open, so a
+# read-only second is refused exactly like a read-write one. Read-only is only
+# enough when *every* volume on the partition is read-only, the first included.
+# The existing fallback therefore runs its whole ladder and still fails, and
+# what reaches the person is a drive that would not open.
 #
 # So the rule is real and it is exactly as written. What matters is what the
 # person sees. Today the app has no notion of any of this, so the second volume
