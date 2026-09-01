@@ -45,6 +45,24 @@ Creating `.Trashes` on the drive was considered and rejected: it makes Finder's
 delete instant by turning it into a rename, but it writes to a drive we opened,
 which is a thing this application does not do.
 
+## Who does what
+
+Documentation and user-interface work happen only with the owner watching, when
+the owner asks for them. That covers the README, the website, the About page,
+the first-launch consent screen, and anything else that changes what a person
+reads or clicks. They are written below so they are not forgotten, not so they
+are picked up.
+
+Everything else -- formats, filesystems, bugs, the engine, the guest, the test
+harnesses -- is fair game to fix without asking.
+
+Dependencies, patches, kernel modules and libraries may be added where they
+fill a real gap, and a tested thing from upstream beats a bespoke one. The
+licence is checked every time, before it goes in: this app is GPL-3.0-or-later,
+the guest aggregates GPL-2 and compatible userspace, and nothing gets linked
+into the app that cannot be. Whatever is added is recorded with its licence in
+the SBOM and the notices.
+
 ## Say what this is built on, what was wrong, and how anyone can check
 
 The README barely names anylinuxfs, which is the thing doing the mounting. That

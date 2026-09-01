@@ -23,6 +23,14 @@ ROOTS = [
     "ntfs-3g", "ntfs-3g-progs",
     # LUKS containers: Ubuntu, Debian, Fedora and openSUSE all put LVM inside
     "lvm2",
+    # Linux software RAID. Kept because DiskWatcher.ourContent claims the Linux
+    # RAID type GUID, which stops macOS offering to initialise a member disk --
+    # an offer that is one click from destroying an array. Having claimed it,
+    # the app owes the person a way to open it, and mdadm is what assembles the
+    # array inside the guest. Claiming a disk and then refusing it is the one
+    # combination that helps nobody. GPL-2, aggregated in the guest like the
+    # rest of it.
+    "mdadm",
     # The Linux filesystems the app offers to open, bare or inside LUKS. Each
     # is here for its repair tool, not its mkfs: a volume whose journal replays
     # at mount needs nothing, and a volume that fails to mount needs e2fsck or
