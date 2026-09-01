@@ -111,6 +111,40 @@ public enum MountScript {
         /// still finite -- a server that has genuinely gone is a soft mount
         /// returning errors either way.
         ///
+        /// `dumbtimer` is what makes any of the above true, and without it none
+        /// of it was. `timeo` sets the *initial* retransmit timeout, and the
+        /// dynamic estimator -- on unless `dumbtimer` says otherwise, and the
+        /// mount reports `nodumbtimer` -- then replaces it with an interval it
+        /// works out from observed round trips. mount_nfs(8) says so under
+        /// `timeo`: "Normally, the dumbtimer option should be specified when
+        /// using this option to manually tune the timeout interval."
+        ///
+        /// A virtio link answers in milliseconds while the guest is keeping up,
+        /// so that is what the estimator learned, and what it went on using
+        /// when the guest stopped keeping up. Sixty seconds was never spent.
+        /// The number was in the mount table and did nothing, which is why
+        /// raising it and watching a copy still fail read as the timeout being
+        /// innocent -- it had not been tried yet.
+        ///
+        /// Read off a copy that failed at 84%: the guest logged nothing, the
+        /// mount took a twenty-megabyte fsynced write a minute afterwards, and
+        /// in between `Error 100060 ... on write` reached Finder, which stops
+        /// the whole operation on it.
+        ///
+        /// `retrans` is the count those intervals are spent from, and it is the
+        /// other half: at the engine's 3 a write fails after three of them.
+        /// Five sixty-second tries is five minutes of silence tolerated, an
+        /// order of magnitude past the worst stall measured here (thirty-six
+        /// seconds unresponsive, recovering every time) and inside the fifteen
+        /// minutes `deadtimeout` allows, so a server that has genuinely gone is
+        /// still let go of rather than waited on for ever.
+        ///
+        /// Both are overridable where `hard` is not: the engine merges by
+        /// option name, so `timeo`, `retrans` and `dumbtimer` replace or join
+        /// its defaults, while `hard` would land beside `soft` rather than
+        /// instead of it. Keeping `soft` is deliberate -- see nfsOptions(_:)
+        /// for the panic it avoids.
+        ///
         /// This is patience, not durability. Nothing here tells the server to
         /// acknowledge a write it has not made.
         ///
@@ -124,7 +158,7 @@ public enum MountScript {
         /// and cannot be given it twice.
         var nfsOptions =
             "rsize=\(MountScript.transferSize),wsize=\(MountScript.transferSize),"
-            + "readahead=128,timeo=600,deadtimeout=900,noowners"
+            + "readahead=128,dumbtimer,timeo=600,retrans=5,deadtimeout=900,noowners"
 
         /// Which network the microVM's NFS server is reached over.
         ///

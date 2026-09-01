@@ -461,8 +461,8 @@ group("theElevatedMountScript") {
     expect(!msScript.contains("-n '"), "NFS options must never use the separated form")
     expect(
         msScript.contains(
-            "--nfs-options='rsize=131072,wsize=131072,readahead=128,timeo=600,"
-                + "deadtimeout=900,noowners'"),
+            "--nfs-options='rsize=131072,wsize=131072,readahead=128,dumbtimer,"
+                + "timeo=600,retrans=5,deadtimeout=900,noowners'"),
         "NFS options use the joined form")
     // The other half of what --ignore-permissions does, which the read-only
     // route never had: the export squashes who is asking, and this stops macOS
@@ -2675,6 +2675,42 @@ group("theMountIsSoftAndTheCodeSaysSo") {
     expect(
         script.contains("panics the kernel once"),
         "and why soft cannot simply be removed")
+}
+
+group("aSlowGuestPausesTheCopyRatherThanFailingIt") {
+    // The mount is soft, so a write is failed once the client stops waiting,
+    // and Finder stops the whole operation on that one error. How long it waits
+    // is therefore the difference between a copy that pauses and a copy that
+    // dies at 84% -- which is where one died, with the guest logging nothing
+    // and the mount taking a twenty-megabyte fsynced write a minute later.
+    //
+    // "timeo" alone does not set it. It is the *initial* retransmit timeout,
+    // and the dynamic estimator replaces it with an interval learned from
+    // observed round trips -- milliseconds, on a virtio link, right up until
+    // the guest stops keeping up. mount_nfs(8), under timeo: "Normally, the
+    // dumbtimer option should be specified when using this option to manually
+    // tune the timeout interval." A mount carrying timeo=600 and nodumbtimer
+    // was never once waiting sixty seconds.
+    let script = MountScript.build(sampleInputs(kind: .microsoft))
+    expect(
+        script.contains("dumbtimer"),
+        "the estimator is turned off, or the timeout asked for is not the one used")
+    expect(script.contains("timeo=600"), "and the timeout it then uses is a minute")
+
+    // The count those minutes are spent from. The engine's own default is 3,
+    // and it is merged in unless something of the same name replaces it, so
+    // leaving it alone is choosing it.
+    expect(
+        script.contains("retrans=5"),
+        "spent five times over, which is five minutes of silence tolerated")
+    expect(
+        !script.contains("retrans=3"),
+        "rather than the engine's three, which is what failed")
+
+    // Still finite, and still inside deadtimeout: a server that has genuinely
+    // gone is let go of rather than waited on for ever, which is the whole
+    // reason the mount is soft in the first place.
+    expect(script.contains("deadtimeout=900"), "and a departed server is still given up on")
 }
 
 group("aReadOnlyMountAsksForItInOneFlag") {
