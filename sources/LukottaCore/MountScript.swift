@@ -210,6 +210,22 @@ public enum MountScript {
         /// stops macOS applying the ownership it is told about on top. Set for
         /// every mount because the writable route already gets it from the flag
         /// and cannot be given it twice.
+        /// The transfer size stays at 128K because making it smaller was tried
+        /// and was worse. Same drive, one 500 MB file, the flush window after
+        /// the close included:
+        ///
+        ///     wsize=131072   written in 64s   p99 4.10s  worst 4.21s   none over 5s
+        ///     wsize=32768    written in 62s   p99 6.41s  worst 10.03s  two over 5s
+        ///
+        /// The reasoning for trying it was that a write RPC cannot be answered
+        /// until the guest has taken all of it, so a quarter of the payload
+        /// should be a quarter of the wait. It is not: four times the round
+        /// trips for the same bytes means four times as many things queued
+        /// behind whatever is slow, and the tail more than doubles.
+        ///
+        /// With the thread count also tested and also worse, what ships is the
+        /// best of the three configurations measured, not a guess.
+        ///
         /// Checked in force rather than assumed, on a live mount of a real
         /// drive: `nfsstat -m` reports every one of these among the current
         /// parameters -- rsize and wsize at 131072, readahead 128, dumbtimer,
