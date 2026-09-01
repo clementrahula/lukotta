@@ -472,6 +472,7 @@ struct LukottaApp: App {
             MainActor.assumeIsolated { checkHelperIfAsked() }
         #endif
         #if DEVTOOLS
+            MainActor.assumeIsolated { HeadlessDrive.runIfAsked() }
             MainActor.assumeIsolated { EndToEnd.runIfAsked() }
             MainActor.assumeIsolated { Snapshots.runIfAsked() }
             MainActor.assumeIsolated { UpdateHarness.runIfAsked() }
