@@ -19,6 +19,12 @@
 #                  volumes and unlocking the drive again, so nothing was
 #                  answered from the page cache
 #
+# And with a LUKS2 container holding btrfs open beside the same drive, which is
+# encrypted on both sides and a different driver again:
+#
+#   NTFS  -> btrfs  7 files, 0 differing, 1s
+#   btrfs -> NTFS   7 files, 0 differing, 13s
+#
 # Both directions, because they are not the same path: one guest is reading
 # what the other wrote, through two different drivers, and NTFS and ext4
 # disagree about almost everything -- names, permissions, timestamps.
