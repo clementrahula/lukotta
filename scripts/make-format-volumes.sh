@@ -35,10 +35,13 @@
 #              exercised by all three
 #   ext        2 GB image, copied both ways against the drive, and the eight
 #              integrity vectors run against it
-#   exFAT      out of scope for this path. macOS mounts exFAT itself, read and
-#              write, so the app leaves it alone -- VolumeFormat.macOSHandlesFully
-#              says so and a test holds it to that. A fixture is built anyway,
-#              because "the app declines to open it" is worth being able to check
+#   exFAT      out of scope for this path, and checked rather than assumed.
+#              Attached on a Mac, macOS mounted the volume itself -- the mount
+#              table shows it as exfat, local, through fskit, with no microVM
+#              anywhere near it -- and a file written to it read back. The app
+#              declines exFAT deliberately, VolumeFormat.macOSHandlesFully, and
+#              opening one here would turn a local volume into a network one
+#              for nothing
 #   XFS        NOT TESTED. Neither macOS nor the trimmed guest can create one,
 #              so no fixture exists on this machine. The guest kernel mounts XFS
 #              and nothing suggests it is broken -- but nothing here has opened
