@@ -16,6 +16,12 @@
 # drive open, 512 MiB guest, 24 samples thirty seconds apart:
 #
 #   microVM and its two helpers   min 315 MB, median 444 MB, max 455 MB
+#
+# Those figures were taken with ps directly and are sound. The first version of
+# this script was not: it read one line of pgrep output, sized the first process
+# it found -- a five-megabyte wrapper -- and called that the cost of an open
+# drive, while the machine beside it held five hundred. Cross-checked against ps
+# now, and they agree.
 #   host free                     min  15 MB, median  42 MB, max  93 MB
 #   host compressed               min 1222 MB, median 1311 MB, max 1489 MB
 #
@@ -32,7 +38,10 @@ end=$(( $(date +%s) + DURATION ))
 while [ "$(date +%s)" -lt "$end" ]; do
   # pgrep for the pids and ps for their sizes, rather than grepping ps output:
   # the grep matches itself often enough to be worth avoiding.
-  read -ra pids < <(pgrep -f 'anylinuxfs|vmnet-helper')
+  # mapfile, not read: read takes one line, so it sized the first process it
+  # found -- a five-megabyte wrapper -- and reported that as the cost of an
+  # open drive while the machine beside it held five hundred.
+  mapfile -t pids < <(pgrep -f 'anylinuxfs|vmnet-helper')
   if [ "${#pids[@]}" -gt 0 ]; then
     vm=$(ps -o rss= -p "${pids[@]}" 2>/dev/null | awk '{s+=$1} END{print int(s/1024)}')
   else
