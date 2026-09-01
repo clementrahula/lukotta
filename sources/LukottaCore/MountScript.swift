@@ -1045,12 +1045,19 @@ public enum MountScript {
     /// one was: timing a plain `stat` on the mount once a second through a copy
     /// that recorded no unresponsive spells at all --
     ///
-    ///     median 0.028s, p90 2.2s, worst 3.45s, against a threshold of 5
+    ///     median 0.028s, p90 1.1s, p99 4.7s, worst 7.7s, against a
+    ///     threshold of 5 -- ten samples of 122 over two seconds, one over five
     ///
-    /// -- which is not a healthy mount that occasionally hesitates. It is a
-    /// mount spending much of a copy within a second and a half of telling
-    /// somebody the server has stopped answering, and reading as perfect while
-    /// it does. Anything measuring only the flag will call that fixed.
+    /// -- which is not a healthy mount that occasionally hesitates, and the
+    /// worst of them is over the line. A request did go unanswered for longer
+    /// than macOS waits, during a copy whose flag was polled every two seconds
+    /// and never once seen raised.
+    ///
+    /// So the flag is not merely a coarse view of the latency, it is an
+    /// unreliable one: `nfsstat -m` was answering from client state that did
+    /// not show a spell the timing caught plainly. "No unresponsive episodes"
+    /// is what a stall looks like through the wrong instrument, and it was
+    /// nearly written down as the first clean run of the day.
     ///
     /// Which is a different knob from the one tried before. Bounding
     /// `vm.dirty_bytes` -- the hard limit -- at 16 MB and 64 MB took the same
