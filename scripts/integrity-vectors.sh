@@ -8,7 +8,15 @@
 #
 # A copy that completes twice says nothing about what happens when it does
 # not. These are the ways it does not: killed partway, unmounted underneath,
-# run into a full volume, and the same volume opened and closed repeatedly.
+# run into a full volume, the machine killed outright with writes still in
+# flight, and the same volume opened and closed repeatedly.
+#
+# Killing the copier and killing the machine are different accidents and only
+# the first was covered here for a long time. With ditto killed the guest is
+# alive and flushes what it holds; with the machine killed the guest dies with
+# a page cache full of writes that never reached the image, and that is the
+# accident that corrupts filesystems. The power-loss case has no result written
+# below yet -- it has not been run.
 # What is checked afterwards is not "did the copy finish" -- it did not, that
 # is the point -- but whether the filesystem is still sound and whether the
 # files that had already landed are still exactly themselves.
@@ -227,6 +235,71 @@ for side in a b; do
 done
 note "$([ "$cbad" -eq 0 ] && echo ok || echo no)" \
   "two writers and a reader at once leave nothing wrong ($cn compared, $cbad differing)"
+
+# 9. Power loss mid-write.
+#
+#    Every case above kills the copier. None of them kills the machine, and
+#    those are different accidents. When ditto is killed the guest is still
+#    alive and flushes what it holds; when the power goes the guest dies with
+#    a page cache full of writes that never reached the image, which is the
+#    accident that actually corrupts filesystems. The guest is killed with
+#    SIGKILL and nothing is unmounted first -- an unmount would flush, which
+#    is precisely the courtesy a power cut does not extend.
+#
+#    What is claimed afterwards is deliberately narrow. Files that vanish are
+#    not a failure: a write the guest had not yet put on the image is gone in
+#    a real power cut too, and promising otherwise would be promising
+#    something no filesystem offers. The failures are the filesystem not
+#    coming back at all, and a file that is present at its full length with
+#    the wrong bytes in it. Torn length is honest; torn content is not.
+rm -rf "$VOL/vec-power"; mkdir -p "$VOL/vec-power"
+payload "$WORK/power" 30 1000000
+ditto "$WORK/power" "$VOL/vec-power" >/dev/null 2>&1 &
+ppid=$!
+sleep 5
+kill -9 "$ppid" 2>/dev/null; wait "$ppid" 2>/dev/null
+# The machine, not the mount. -9 so nothing gets the chance to be tidy.
+pkill -9 -f "anylinuxfs mount.*$IMAGE" >/dev/null 2>&1
+pkill -9 -f "krun.*$(basename "$IMAGE")" >/dev/null 2>&1
+sleep 3
+# The mount is now a corpse that still answers `mount` and fails every
+# request, which is exactly what it would be after a power cut.
+umount -f "$VOL" >/dev/null 2>&1
+for _ in $(seq 1 30); do
+  pgrep -f "anylinuxfs mount.*$(basename "$IMAGE")" >/dev/null 2>&1 || break
+  sleep 2
+done
+
+if open_image; then
+  VOL="$(where)"
+else
+  VOL=""
+fi
+if [ -n "$VOL" ] && ls "$VOL" >/dev/null 2>&1; then
+  note ok "the filesystem comes back after the machine was killed mid-write"
+  pn=0; pbad=0; pgone=0
+  while IFS= read -r f; do
+    rel="${f#"$WORK/power"/}"
+    dst="$VOL/vec-power/$rel"
+    if [ ! -e "$dst" ]; then pgone=$((pgone + 1)); continue; fi
+    sz="$(stat -c %s "$dst" 2>/dev/null || stat -f %z "$dst")"
+    [ "$sz" = 1000000 ] || { pgone=$((pgone + 1)); continue; }
+    pn=$((pn + 1))
+    cmp -s "$f" "$dst" || pbad=$((pbad + 1))
+  done < <(find "$WORK/power" -type f)
+  note "$([ "$pbad" -eq 0 ] && echo ok || echo no)" \
+    "no whole file has wrong bytes after power loss ($pn whole, $pbad wrong, $pgone did not land)"
+  if printf 'after' > "$VOL/vec-power-after" 2>/dev/null \
+     && [ "$(cat "$VOL/vec-power-after" 2>/dev/null)" = after ]; then
+    note ok "the volume takes a write again after power loss"
+  else
+    note no "the volume takes a write again after power loss"
+  fi
+else
+  note no "the filesystem comes back after the machine was killed mid-write"
+  note no "no whole file has wrong bytes after power loss (never remounted)"
+  note no "the volume takes a write again after power loss (never remounted)"
+fi
 
 printf '%s passed, %s failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
