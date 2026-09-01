@@ -30,6 +30,29 @@
 # Refuses to run while a copy is in flight: eight gigabytes of pressure across
 # a measurement that is already recording latency does not produce two results,
 # it spoils one.
+
+# WHAT IT MEASURED, 2026-09-01, on a Mac16,12 with 16 GB
+#
+# Twelve volumes open and writable, before any ballast:
+#   1892 MB resident in total -- 1545 MB across the machines, 347 MB gvproxy
+#   home listing 17-18 ms, 80% of memory free, no swap in use
+#
+# Then eight gigabytes held from urandom, so what is left is about what an
+# 8 GB Mac has. At 33% free with 6 GB pushed into swap:
+#   all twelve volumes written to and read back: 12 of 12
+#   home listing 16, 17, 20 ms; a walk of the source tree 36 ms
+#   the machines' resident total fell from 1545 MB to 554 MB
+#
+# That last line is the result worth having. The footprint is elastic, not
+# fixed: most of what a machine holds is page cache it gives back when the
+# host wants it, so a dozen volumes do not cost a dozen times a fixed price.
+# It is why "493 MB per drive, so twelve is 5.9 GB" was wrong by an order of
+# magnitude -- that number was one volume measured in the middle of a copy.
+#
+# Said plainly: this is a 16 GB Mac made to feel like an 8 GB one, not an
+# 8 GB M1. The ballast's own resident size falls as macOS compresses it, so
+# the constraint arrives as swap pressure rather than as a hard ceiling. It
+# is the closest thing available here, and it is not the same thing.
 set -u
 
 TOTAL_GB=$(( $(sysctl -n hw.memsize) / 1073741824 ))
