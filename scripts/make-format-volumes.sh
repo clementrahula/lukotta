@@ -21,6 +21,29 @@
 # Sizes are given in bytes rather than "1m": GNU dd wants 1M and BSD dd wants
 # 1m, and a Mac with coreutils ahead of /usr/bin has the GNU one, where the
 # lowercase spelling is an error rather than a smaller block.
+# Where each advertised format stands, measured on 2026-09-01:
+#
+#   BitLocker  the owner's stick: 13 GB copied, 26/26 byte-identical, ejected
+#              and unlocked again, 26/26 identical again through the new mount
+#   NTFS       the same, and a dirty volume repaired writable with all 41 files
+#              intact -- and the repair refused on a volume whose $MFTMirr did
+#              not match $MFT
+#   LUKS       three layouts, each copied both ways against the drive with 7
+#              files and nothing differing: LUKS2 straight to btrfs (Arch),
+#              LUKS1 through LVM (Ubuntu), LUKS2 through LVM (Fedora)
+#   Btrfs      every one of those LUKS layouts holds btrfs, so the driver is
+#              exercised by all three
+#   ext        2 GB image, copied both ways against the drive, and the eight
+#              integrity vectors run against it
+#   exFAT      out of scope for this path. macOS mounts exFAT itself, read and
+#              write, so the app leaves it alone -- VolumeFormat.macOSHandlesFully
+#              says so and a test holds it to that. A fixture is built anyway,
+#              because "the app declines to open it" is worth being able to check
+#   XFS        NOT TESTED. Neither macOS nor the trimmed guest can create one,
+#              so no fixture exists on this machine. The guest kernel mounts XFS
+#              and nothing suggests it is broken -- but nothing here has opened
+#              one, and that is a gap in the evidence rather than a clean bill
+#
 set -euo pipefail
 OUT="${1:-$HOME/.lukotta-testvols}"
 mkdir -p "$OUT"
