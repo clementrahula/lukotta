@@ -108,4 +108,9 @@ else
   diff "$BEFORE" "$AFTER" | head -10 >&2
   fail=1
 fi
-[ -z "${fail:-}" ] && echo "PASS" || { echo "FAILED"; exit 1; }
+if [ -z "${fail:-}" ]; then
+  echo "PASS"
+else
+  echo "FAILED"
+  exit 1
+fi

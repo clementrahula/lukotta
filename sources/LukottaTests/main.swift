@@ -471,7 +471,8 @@ group("theElevatedMountScript") {
     // Asked for at the size the server grants. A megabyte is requested and
     // 128K is given, and the client then logs a malformed write RPC per write:
     // seventy thousand in one thirteen-gigabyte copy.
-    expect(!msScript.contains("rsize=1048576"), "and not at a size that is only ever negotiated down")
+    expect(
+        !msScript.contains("rsize=1048576"), "and not at a size that is only ever negotiated down")
     // Sixty seconds a try, because a healthy thirteen-gigabyte copy was
     // measured spending up to twenty-two seconds unable to answer -- ten
     // separate stalls, mean nine seconds, every one of them recovered. The
@@ -4875,7 +4876,8 @@ group("theGuestIsTunedToKeepAnswering") {
     expect(
         script.contains("NFS_SERVER_THREAD_COUNT=\(MountScript.nfsServerThreads)"),
         "the guest is told how many threads to serve with")
-    expect(MountScript.nfsServerThreads >= 8, "and it is at least what rpc.nfsd's own manual suggests")
+    expect(
+        MountScript.nfsServerThreads >= 8, "and it is at least what rpc.nfsd's own manual suggests")
 
     // Carried in a custom action's environment, which is the only way into the
     // machine that does not mean patching the engine: it passes those entries

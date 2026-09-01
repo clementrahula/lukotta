@@ -116,7 +116,8 @@
                 say("no workspace: \(error)")
                 exit(3)
             }
-            let alias = (try? workspace.makeDeviceAlias(named: drive.name, target: drive.devicePath))?
+            let alias =
+                (try? workspace.makeDeviceAlias(named: drive.name, target: drive.devicePath))?
                 .path
 
             var answer: (status: Int32, transcript: String)??
@@ -166,7 +167,14 @@
             while !EngineProcesses.running().isEmpty, Date() < deadline {
                 RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.5))
             }
-            say(EngineProcesses.running().isEmpty ? "the machine has stopped" : "the machine is still running")
+            // Not a ternary of two literals: the string extractor reads both
+            // halves of one as text shown to somebody, and these are notes to
+            // whoever is running the harness.
+            if EngineProcesses.running().isEmpty {
+                say("the machine has stopped")
+            } else {
+                say("the machine is still running")
+            }
         }
     }
 

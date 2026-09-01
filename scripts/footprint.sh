@@ -30,9 +30,14 @@ INTERVAL="${2:-30}"
 printf '%-8s %8s %8s %10s\n' time vm_mb free_mb compressed_mb
 end=$(( $(date +%s) + DURATION ))
 while [ "$(date +%s)" -lt "$end" ]; do
-  vm=$(ps -eo rss,command 2>/dev/null \
-       | grep -iE 'anylinuxfs|vmnet-helper' | grep -v grep \
-       | awk '{s+=$1} END{print int(s/1024)}')
+  # pgrep for the pids and ps for their sizes, rather than grepping ps output:
+  # the grep matches itself often enough to be worth avoiding.
+  read -ra pids < <(pgrep -f 'anylinuxfs|vmnet-helper')
+  if [ "${#pids[@]}" -gt 0 ]; then
+    vm=$(ps -o rss= -p "${pids[@]}" 2>/dev/null | awk '{s+=$1} END{print int(s/1024)}')
+  else
+    vm=0
+  fi
   read -r free comp <<<"$(vm_stat | awk '
     /Pages free/{f=$3} /Pages occupied by compressor/{c=$5}
     END{gsub(/\./,"",f); gsub(/\./,"",c); printf "%d %d", f*4096/1048576, c*4096/1048576}')"
