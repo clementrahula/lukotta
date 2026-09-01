@@ -192,6 +192,16 @@ public enum MountScript {
         /// stops macOS applying the ownership it is told about on top. Set for
         /// every mount because the writable route already gets it from the flag
         /// and cannot be given it twice.
+        /// Checked in force rather than assumed, on a live mount of a real
+        /// drive: `nfsstat -m` reports every one of these among the current
+        /// parameters -- rsize and wsize at 131072, readahead 128, dumbtimer,
+        /// timeo 600, retrans 5, deadtimeout 900 -- with `noowners` among the
+        /// general flags, where it belongs, and `soft` added by the engine as
+        /// expected. The merge takes all of them.
+        ///
+        /// Worth doing because the merge is the one thing here nobody controls,
+        /// and a value it quietly discards looks exactly like a value that did
+        /// not help.
         var nfsOptions =
             "rsize=\(MountScript.transferSize),wsize=\(MountScript.transferSize),"
             + "readahead=128,dumbtimer,timeo=600,retrans=5,deadtimeout=900,noowners"
