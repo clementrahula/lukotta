@@ -1183,6 +1183,20 @@ public enum MountScript {
     /// whatever asks it a question meanwhile waits. That is arithmetic, and no
     /// setting here repeals it.
     ///
+    /// Two things it is not, both checked rather than assumed.
+    ///
+    /// Not how full the drive is. The same 500 MB measurement at 12,437 MB free
+    /// and again at 20,203 MB free: worst 4.21s and 4.44s, five samples past
+    /// two seconds each time, none past five either time. Six gigabytes of
+    /// headroom changed nothing.
+    ///
+    /// And not every writer. Two Finder cycles moving 2.4 GB of large files
+    /// onto the same drive, sampled through the large-file phase, gave a worst
+    /// of 0.030s -- no tail at all. Finder moved it at about 2.9 MB/s where dd
+    /// with conv=fsync moves it at 6.5, and a writer slow enough for writeback
+    /// to keep up never builds the buffer that has to be emptied. The tail
+    /// belongs to writing faster than the drive can absorb, not to writing.
+    ///
     /// So the remaining question is not how to make the wait shorter. It is
     /// whether macOS has to call a wait of that length a server that has
     /// stopped answering. `mutejukebox` is the answer to that, and it is the
