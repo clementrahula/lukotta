@@ -56,7 +56,14 @@ open_it() {  # extra engine args
   for _ in $(seq 1 40); do mount | grep -q ':/mnt/' && return 0; sleep 2; done
   return 1
 }
-where() { mount | awk '/:\/mnt\// {for(i=1;i<=NF;i++) if($i=="on") print $(i+1)}' | tail -1; }
+# This image's mount, not the last engine mount in the table. Another volume
+# may be open, and a mount whose machine has been killed stays in the table
+# answering `mount` and failing every request -- picking that one reports the
+# repair as read-only and the data as gone, when neither is true.
+where() {
+  mount | awk -v want="$(basename "$IMG" .img)-img.local:" \
+    '$1 ~ want {for(i=1;i<=NF;i++) if($i=="on") {print $(i+1); exit}}'
+}
 
 # Known contents, checksummed before anything goes wrong with the volume.
 open_it -a lukottatuned || { echo "error: clean volume would not open" >&2; exit 1; }
