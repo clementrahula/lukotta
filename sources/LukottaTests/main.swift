@@ -4829,6 +4829,26 @@ group("theGuestIsTunedToKeepAnswering") {
         !script.contains("vm.dirty_bytes="),
         "and nothing starves the writeback that gives a slow drive its throughput")
 
+    // The other end of the same mechanism, which is not the same knob. The
+    // hard limit above is where a writer is stopped; this is where the flusher
+    // starts, and starting it early is what keeps an nfsd thread from sitting
+    // in balance_dirty_pages long enough for macOS to call the mount not
+    // responding and say so on screen.
+    expect(
+        script.contains("/proc/sys/vm/dirty_background_bytes"),
+        "writeback starts early, so the writer rarely reaches the limit")
+    expect(
+        script.contains("/proc/sys/vm/dirty_expire_centisecs"),
+        "and nothing sits dirty for the default thirty seconds first")
+
+    // Both actions, or the drive that needed repairing is the one that stalls.
+    for action in script.components(separatedBy: "before_mount = ").dropFirst() {
+        let line = action.components(separatedBy: "\n").first ?? ""
+        expect(
+            line.contains("dirty_background_bytes"),
+            "every generated action tunes writeback, not only the plain one")
+    }
+
     // Every attempt, not merely the first: an attempt that mounts without the
     // tuning is a mount that stops answering later, and which attempt won is
     // not something anyone chose.
