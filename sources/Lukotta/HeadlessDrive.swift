@@ -198,24 +198,34 @@
             // So it is not asked for politely and hoped about. The daemon is
             // told to replace itself and this waits for the process to actually
             // change, and refuses to mount if it does not.
-            if let before = daemonProcessID(), daemonIsOlderThanTheBundle() {
-                say("the running daemon is older than this build; replacing it")
-                helper.replaceIfStale()
-                let waitUntil = Date().addingTimeInterval(90)
-                while daemonProcessID() == before, Date() < waitUntil {
-                    RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.5))
-                }
-                guard daemonProcessID() != before else {
-                    say("it did not; refusing to measure through a daemon that is not this build")
-                    exit(4)
-                }
-                // And the client's connection went with it.
+            // Ask, always. The daemon builds the mount, and launchd keeps the
+            // running one across an app update: the binary in the bundle is
+            // replaced and the process is not, so a rebuilt app goes on being
+            // served by the daemon it was built to replace.
+            //
+            // This used to ask only when a time comparison here judged the
+            // daemon older than the bundle. That comparison returned false on a
+            // daemon twenty-three minutes older than a bundle written seconds
+            // before, so the question was never put -- and raising the contract
+            // did not help either, because nothing was asking. A check that
+            // decides for itself whether to consult the real check is two
+            // places to be wrong instead of one.
+            //
+            // So the app's own logic decides, on the contract it publishes and
+            // the binaries it can compare, and this only watches for the result.
+            let before = daemonProcessID()
+            helper.replaceIfStale()
+            let replaceBy = Date().addingTimeInterval(60)
+            while daemonProcessID() == before, Date() < replaceBy {
+                RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.5))
+            }
+            if daemonProcessID() != before {
+                say("the daemon was replaced; waiting for the new one")
                 helper.refresh()
                 let readyAgain = Date().addingTimeInterval(30)
                 while !helper.isReady, Date() < readyAgain {
                     RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.2))
                 }
-                say("replaced; the daemon is now this build's")
             }
 
             let workspace: Workspace
