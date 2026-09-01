@@ -21,6 +21,20 @@
 #
 # Everything is invented here and nothing is read off the machine, so the same
 # corpus appears on anybody's drive.
+#
+# Measured through a BitLocker/NTFS stick on 2026-09-01: 2024 of 2024 files
+# byte-identical, nothing missing -- and the sparse gigabyte arrived fully
+# allocated, 8 blocks at the source against 2097153 at the destination.
+#
+# That last one is the protocol rather than a fault here. NFSv3 has no way to
+# say "this range is a hole": the client sends the zeros and the server writes
+# them, so a file that occupied four kilobytes occupies a gigabyte afterwards.
+# It matters for anything macOS keeps sparse -- a disk image most of all -- and
+# it is worth knowing before a copy fills a drive that had room for it.
+#
+# So the block count is checked separately from the content. A sparse file that
+# arrives fully allocated is still byte-identical, and every other check here
+# would call it a pass.
 set -euo pipefail
 
 TARGET="${1:-}"
