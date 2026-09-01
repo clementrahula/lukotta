@@ -65,6 +65,7 @@
 # would let the ladder know which kind of volume it has before touching it.
 # GPL-2, aggregating in the guest like the rest of the userspace.
 set -uo pipefail
+HERE="$(cd "$(dirname "$0")" && pwd)"
 
 CORPUS="${1:-}"
 LIMIT="${2:-0}"
@@ -179,7 +180,7 @@ while IFS= read -r archive; do
   mv "$found" "$IMG"
   n=$((n + 1))
 
-  before="$(shasum -a 256 "$IMG" | awk '{print $1}')"
+  before="$(/usr/bin/python3 "$HERE/sparse-digest.py" "$IMG")"
   outcome="refused"
   # lukottantfs3, not lukottatuned, for the writable ntfs3 rung -- which is
   # what the app itself uses. Getting this wrong is not a detail: the first
@@ -197,7 +198,7 @@ while IFS= read -r archive; do
     fi
   fi
   close_it
-  after="$(shasum -a 256 "$IMG" | awk '{print $1}')"
+  after="$(/usr/bin/python3 "$HERE/sparse-digest.py" "$IMG")"
   changed=same; [ "$before" != "$after" ] && changed=CHANGED
 
   case "$outcome" in
