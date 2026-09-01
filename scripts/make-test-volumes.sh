@@ -26,7 +26,16 @@
 # unaffected, but neither can be given a fixture from here.
 set -euo pipefail
 ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
-OUT="${1:-$HOME/.lukotta-testvols}"
+# --crowd is a flag wherever it appears, and what is left is the output
+# directory. It used to be looked for in $1 or $2 while $1 was also taken as
+# the directory, so the documented invocation -- the flag on its own -- made the
+# output directory "--crowd" and died in mkdir before building anything.
+CROWD=""
+ARGS=()
+for arg in "$@"; do
+  if [ "$arg" = "--crowd" ]; then CROWD="yes"; else ARGS+=("$arg"); fi
+done
+OUT="${ARGS[0]:-$HOME/.lukotta-testvols}"
 PASS='lukotta-test-pass'
 
 [ -x "$ENGINE" ] || { echo "error: no engine at $ENGINE" >&2; exit 1; }
@@ -119,7 +128,7 @@ fi
 # Reaching that by hand means attaching a dozen images one at a time, so it is
 # made here instead. Small and plain: the ceiling is about how many can be
 # served, not about what is in them.
-if [ "${1:-}" = "--crowd" ] || [ "${2:-}" = "--crowd" ]; then
+if [ -n "$CROWD" ]; then
   COUNT="${LUKOTTA_CROWD:-13}"
   echo "Building $COUNT plain volumes for the ceiling (crowd/)…"
   mkdir -p "$OUT/crowd"
