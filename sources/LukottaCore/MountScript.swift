@@ -896,11 +896,21 @@ public enum MountScript {
     /// the volume away, and the engine -- with nothing left to serve -- shut
     /// itself down and ended the copy that had starved it.
     ///
-    /// Which is the shape of the dozen-volumes problem, arriving early and by
-    /// accident. It is not only memory: threads are shared across everything
-    /// one machine serves, and a single drive being written to can starve the
-    /// rest until they are force-unmounted. Eight was chosen against one
-    /// mount's needs.
+    /// It is not the dozen-volumes problem, which is what the first version of
+    /// this note called it. Twelve drives is twelve machines with eight threads
+    /// each, and one drive's copy cannot reach another drive's pool. That much
+    /// was overstated and is withdrawn.
+    ///
+    /// What it is is narrower and still real: one machine's threads are shared
+    /// by everything talking to that machine, and a drive has more than one
+    /// thing talking to it. Finder copies while Spotlight indexes the same
+    /// volume -- mds is in the log beside the eviction -- and anything else
+    /// that stats it joins the same queue. A copy heavy enough to hold every
+    /// thread starves the rest of its own drive's traffic, and fifteen minutes
+    /// of that is a volume macOS takes away.
+    ///
+    /// So eight is chosen against one consumer when a drive routinely has
+    /// several.
     ///
     /// It stays at eight for now because raising it is a change to test rather
     /// than assert, and the last thing asserted here was wrong.
