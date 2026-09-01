@@ -39,21 +39,28 @@ cleanup() {
   rm -rf "$WORK"
 }
 
+# This image's mount, and only this one. Another volume may be open -- the
+# owner's drive usually is -- so the last engine mount in the table is somebody
+# else's, and a mount whose machine has been killed stays there answering
+# `mount` and failing every request. The engine names a share after the file it
+# came from, so that is what to look for.
+where() {
+  mount | awk -v want="$(basename "$IMAGE" .img)-img.local:" \
+    '$1 ~ want {for(i=1;i<=NF;i++) if($i=="on") {print $(i+1); exit}}'
+}
+
 open_image() {
   pkill -f "anylinuxfs mount.*$IMAGE" >/dev/null 2>&1; sleep 3
   nohup "$ENGINE" mount --ignore-permissions -w false "$IMAGE" > "$WORK/engine.log" 2>&1 &
+  # This image's share, not merely its name anywhere in the table: a stale
+  # entry from a previous run carries the same name and answers nothing.
   for _ in $(seq 1 40); do
-    mount | grep -q "$(basename "$IMAGE" .img)" && return 0
+    [ -n "$(where)" ] && return 0
     sleep 2
   done
   return 1
 }
 
-# Where the engine put it. Unelevated mounts land under ~/Volumes, elevated
-# ones under /Volumes, and which happened is not worth guessing at.
-where() {
-  mount | awk '/anylinuxfs|172\.27/ {for(i=1;i<=NF;i++) if($i=="on") print $(i+1)}' | tail -1
-}
 
 pass=0; fail=0
 note() { if [ "$1" = ok ]; then pass=$((pass+1)); printf '  ok   %s\n' "$2";
