@@ -37,26 +37,33 @@
 #   created_manually/mft_file_missing_filename_attr
 #
 # All three are MFT records missing an attribute -- structural damage, not a
-# dirty flag. The ladder ends in the repair action, which runs ntfsfix; the
-# strong reading is that ntfsfix wrote, the mount failed anyway, and the volume
-# was handed back changed and still unopenable. Not yet proven rung by rung,
-# and that is the next measurement: hash the image after ntfs3, after ntfs-3g,
-# and after the repair, and see which one moves it.
+# dirty flag. The obvious suspect was the repair action, since it runs ntfsfix
+# and the engine's own documentation warns that using ntfsfix to clear a dirty
+# flag "can lead to further data corruption". That was written down here as the
+# strong reading, and it was wrong.
 #
-# It is exactly what the engine's own documentation warns about:
+# Measured rung by rung instead -- hash the image, try ntfs3, hash, try
+# ntfs-3g, hash, try the repair, hash -- on all three cases:
 #
-#   using any unofficial tools like ntfsfix to clear dirty flag will not really
-#   fix those errors and can lead to further data corruption!
+#   ntfs3     refused   image CHANGED
+#   ntfs-3g   refused   image unchanged
+#   repair    refused   image unchanged
 #
-# The existing guard runs `ntfsfix -n` first and declines what it will not
-# vouch for. On a volume whose $MFTMirr did not match $MFT that guard held and
-# nothing was written. On these three it vouched for damage ntfsfix cannot
-# actually repair, so the dry run is not a sufficient test of whether the wet
-# one is safe.
+# Identical on all three. It is not ntfsfix and it is not the repair route at
+# all. **The kernel ntfs3 driver writes to a damaged volume during a mount it
+# then refuses**, on the very first rung, before anything of ours has decided
+# to attempt a repair.
+#
+# Which is the same driver the engine declines to make its default, for stated
+# reasons: silent corruption on hibernated volumes, and read-only directories
+# on Windows system disks. This app leads with ntfs3 because it is markedly
+# faster. On a healthy volume that is the right trade. On a damaged one the
+# first thing that happens is a write, to a disk somebody may have brought here
+# precisely because it is damaged.
 #
 # ntfsck, from ntfsprogs-plus, is a real checker rather than a flag-clearer and
-# is the obvious thing to gate on instead. GPL-2, aggregating in the guest like
-# the rest of the userspace. See upstream-notes.md.
+# would let the ladder know which kind of volume it has before touching it.
+# GPL-2, aggregating in the guest like the rest of the userspace.
 set -uo pipefail
 
 CORPUS="${1:-}"
