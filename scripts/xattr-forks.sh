@@ -42,6 +42,19 @@
 # So the files are checked here one at a time on purpose. A directory-wide
 # ditto would have reported this as a pass.
 #
+# WHERE IT ACTUALLY FAILS, narrowed to one refused call
+#
+#   printf data > /Volumes/DRIVE/f.bin                   ok
+#   printf x    > /Volumes/DRIVE/._f.bin                 ok, AppleDouble by hand
+#   printf x    > /Volumes/DRIVE/f.bin/..namedfork/rsrc  not writable
+#   xattr -w com.apple.ResourceFork ... f.bin            [Errno 22] EINVAL
+#
+# Every other extended attribute is accepted and stored beside the original.
+# com.apple.ResourceFork alone is refused by the macOS NFS client, which is why
+# ditto fails on exactly the files that have one and on no others. No mount
+# option reaches this: it is the client, and the app has no lever on it. See
+# upstream-notes.md -- virtiofs carries extended attributes natively.
+#
 # It is the NFS stack rather than the filesystem or the tool. The identical
 # command with the identical file onto local APFS keeps the fork -- 16 bytes,
 # readable at ..namedfork/rsrc -- and onto an XFS image over this same stack it

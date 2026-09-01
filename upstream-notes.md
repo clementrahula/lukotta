@@ -112,8 +112,14 @@ copy. There is no memory case for that patch.
 This is the structural answer to the whole family of faults this branch exists
 for. Error 100060 is `ETIMEDOUT` from an NFS client; "the server is not
 responding" is an NFS client notice; the 6-to-12 second directory listings
-measured during a copy are READDIR requests queued behind writes. None of those
-exist without an NFS client in the path. It is a large change and it is the
+measured during a copy are READDIR requests queued behind writes; and a file
+with a resource fork is dropped by every copy because that client refuses
+`com.apple.ResourceFork` with `EINVAL` while accepting every other extended
+attribute. None of those exist without an NFS client in the path, and virtiofs
+carries extended attributes natively.
+
+Three separate defects, one cause. That is the argument for it, and it is worth
+more than the sum of the tuning that has gone into working around them. It is a large change and it is the
 only one that removes the class rather than tuning it.
 
 **ntfsprogs-plus, for repair that is actually repair.** `ntfsck` "fully check[s]
