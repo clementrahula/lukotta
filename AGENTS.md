@@ -630,6 +630,23 @@ actions are merged into whatever is already in it, so a section written by an
 older daemon can survive a reinstall and keep being used; the engine's command
 line names the action it ran, and the file says what that action does.
 
+## The Drive These Faults Appear On Is Nearly Full
+
+Every timing measurement here was taken against a USB stick at 92% to 96%
+full, and that is not incidental. NTFS allocation slows as free space
+fragments, and a thirteen-gigabyte copy into twelve gigabytes of headroom is
+the hardest thing the app is asked to do. Two things follow.
+
+The numbers do not transfer to an empty drive, and an empty drive is not
+evidence that a fault is gone. Sampled through a copy, the stick was completely
+idle in 119 of 178 one-second samples with a p90 of 12 MB/s and a peak of 18:
+what looks like a slow device is mostly a device doing nothing, waiting on
+something else.
+
+And each run has to clean up after itself. Thirteen gigabytes twice does not
+fit, and a second run started without removing the first fails on ENOSPC --
+which reads exactly like the fault being investigated and is not it.
+
 ## The Engine Cannot Be Restarted on a Real Drive Without the App
 
 `/dev/diskNsM` is `root:operator` mode 640 and the account here is not in
