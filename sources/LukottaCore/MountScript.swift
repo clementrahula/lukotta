@@ -1008,15 +1008,27 @@ public enum MountScript {
     /// 178 samples of a running copy it was completely idle in 119 of them,
     /// with a p90 of 12 MB/s and a peak of 18. It is not being kept busy.
     ///
-    /// Stall lengths measured so far are 59, 71 and 89 seconds against a
-    /// `timeo` of 60, which is close enough to be worth suspecting the client's
-    /// own retransmit timer rather than the guest -- a request that reached the
-    /// guest's socket and was never taken off it would look exactly like this
-    /// from the host, and would end when the timer fires and asks again.
+    /// Stall lengths of 59, 71 and 89 seconds against a `timeo` of 60 looked
+    /// like multiples of the client's retransmit timer, and that guess is
+    /// withdrawn: later runs stalled for 290 and 659 seconds and recovered
+    /// without an error, which no multiple of five sixty-second tries allows.
     ///
-    /// Confirming that needs the guest's side of the socket, which needs a
-    /// machine restarted with more logging, which needs the drive reopened
-    /// through the app. Recorded here rather than guessed at.
+    /// They are two different clocks, and conflating them is what made the
+    /// arithmetic seem broken:
+    ///
+    ///   "not responding"   a mount-level flag, raised when the oldest
+    ///                      outstanding request has gone unanswered for
+    ///                      `nfs.client.initialdowndelay` -- five seconds --
+    ///                      and lowered when one is answered again. It is what
+    ///                      macOS puts on screen.
+    ///   ETIMEDOUT          per call, after `retrans` retransmit intervals with
+    ///                      no reply. It is what ends a copy.
+    ///
+    /// So a mount can be flagged unresponsive for eleven minutes while every
+    /// individual call still completes inside its own budget, which is exactly
+    /// what a 659-second spell that recovered looks like. Widening `retrans`
+    /// buys the copy resilience and does nothing for what is shown on screen;
+    /// only shorter round trips do that.
     ///
     /// Which is a different knob from the one tried before. Bounding
     /// `vm.dirty_bytes` -- the hard limit -- at 16 MB and 64 MB took the same
