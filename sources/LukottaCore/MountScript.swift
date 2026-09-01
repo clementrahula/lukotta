@@ -1208,6 +1208,19 @@ public enum MountScript {
     /// every cause or only the jukebox errors it is documented under. It
     /// shows on a screen during a slow copy, and in no counter this can read.
     ///
+    /// The one measurement possible from here is consistent with it working
+    /// and does not prove it. With `mutejukebox` in force, a 500 MB file into
+    /// the same drive: worst wait 5.85s, one request past the five seconds
+    /// macOS allows, and the mount reported `Status flags: 0x0` in all 105
+    /// samples taken through it -- never once marked unresponsive despite a
+    /// wait that exceeded the threshold.
+    ///
+    /// Weaker evidence than it reads, because that flag was shown earlier the
+    /// same day to miss spells the clock catches: silence from an instrument
+    /// known to under-report is not proof. What it does establish is that the
+    /// latency is untouched, which was expected -- the option changes what is
+    /// reported, not what is waited for.
+    ///
     /// Taken anyway. The app knows the state of its own drives and says so in
     /// its own window; a second opinion from macOS about a volume it is
     /// managing, delivered as an alert in the middle of a copy that is fine,
