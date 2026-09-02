@@ -360,14 +360,17 @@ public enum EngineEnvironment {
         // times, and reports a drive that will not open. For ever, since
         // nothing puts it back.
         //
-        // Asked of what a root filesystem cannot be without. Cheap: three
-        // lookups, no directory listing.
+        // Asked as "is there anything in it", not "does it have bin and etc
+        // and usr". Naming the directories a root filesystem ought to hold ties
+        // this to how the guest happens to be laid out today, and the layout
+        // belongs to another project; the first thing it renames would make
+        // every working environment unready and unpack a new one over it.
+        //
+        // Emptiness is the fault itself and cannot be renamed away.
         let rootfs = directory.appendingPathComponent("rootfs")
-        let manager = FileManager.default
-        guard manager.fileExists(atPath: rootfs.path) else { return false }
-        return ["bin", "etc", "usr"].allSatisfy {
-            manager.fileExists(atPath: rootfs.appendingPathComponent($0).path)
-        }
+        guard let entries = try? FileManager.default.contentsOfDirectory(atPath: rootfs.path)
+        else { return false }
+        return !entries.isEmpty
     }
 
     /// Which Linux environment is unpacked, and which one this app carries.

@@ -2089,7 +2089,7 @@ group("everyMovingPartStatesItsOwnVersion") {
     let guest = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         .appendingPathComponent("parts-check-\(UUID().uuidString)", isDirectory: true)
     try? fm.createDirectory(
-        at: guest.appendingPathComponent("rootfs"), withIntermediateDirectories: true)
+        at: guest.appendingPathComponent("rootfs/etc"), withIntermediateDirectories: true)
     defer { try? fm.removeItem(at: guest) }
     try? "9.9.9-fixture".write(
         to: guest.appendingPathComponent("rootfs.ver"), atomically: true, encoding: .utf8)
@@ -2115,8 +2115,11 @@ group("anUpdatedLinuxEnvironmentActuallyArrives") {
         .appendingPathComponent("guest-check-\(UUID().uuidString)", isDirectory: true)
     let fm = FileManager.default
     defer { try? fm.removeItem(at: base) }
+    // With something in it. An empty directory of that name is what a killed
+    // unpack leaves behind, and it is not an unpacked environment -- the fixture
+    // said it was, which is the state this checks the app no longer accepts.
     try? fm.createDirectory(
-        at: base.appendingPathComponent("rootfs"), withIntermediateDirectories: true)
+        at: base.appendingPathComponent("rootfs/etc"), withIntermediateDirectories: true)
 
     func setVersion(_ text: String?) {
         let file = base.appendingPathComponent("rootfs.ver")
@@ -2148,7 +2151,7 @@ group("anUpdatedLinuxEnvironmentActuallyArrives") {
         try? fm.removeItem(at: mine)
     }
     try? fm.createDirectory(
-        at: shared.appendingPathComponent("rootfs"), withIntermediateDirectories: true)
+        at: shared.appendingPathComponent("rootfs/etc"), withIntermediateDirectories: true)
     try? "1.5.1".write(
         to: shared.appendingPathComponent("rootfs.ver"), atomically: true, encoding: .utf8)
 
@@ -2172,7 +2175,7 @@ group("anUpdatedLinuxEnvironmentActuallyArrives") {
         "a second run finds nothing to move and says so")
     // Never out from under a machine that is serving a drive from it.
     try? fm.createDirectory(
-        at: shared.appendingPathComponent("rootfs"), withIntermediateDirectories: true)
+        at: shared.appendingPathComponent("rootfs/etc"), withIntermediateDirectories: true)
     for marker in ["rootfs.count", "removed-packages.txt", "rootfs.ver"] {
         try? "1".write(
             to: shared.appendingPathComponent(marker), atomically: true, encoding: .utf8)
@@ -3163,12 +3166,8 @@ group("aHollowEnvironmentIsNotReady") {
     make("rootfs")
     expect(!EngineEnvironment.isReady(in: root), "the name on its own is not ready")
 
-    make("rootfs/bin")
-    expect(!EngineEnvironment.isReady(in: root), "a part of one is not ready")
-
     make("rootfs/etc")
-    make("rootfs/usr")
-    expect(EngineEnvironment.isReady(in: root), "a root filesystem with a system in it is ready")
+    expect(EngineEnvironment.isReady(in: root), "something in it is ready")
 }
 
 group("volumeIdentity") {
