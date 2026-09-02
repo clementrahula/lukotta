@@ -563,3 +563,29 @@ The method that got here is worth keeping: instrument
 `.anylinuxfs/alpine/rootfs/usr/local/bin/entrypoint.sh` in the dev engine home,
 and read the engine's log in `Library/Logs`, not its stdout. Put the file back
 afterwards.
+
+## What the guest looks like while it serves — 2026-09-03
+
+Read live, from inside the machine that is serving the volume:
+
+    tmpfs /mnt tmpfs rw,relatime
+    /dev/vda /mnt/LUKOTTAEXT4 ext4 rw,relatime
+    nfsd versions: +3 +4 +4.1 +4.2
+
+The volume is mounted with nothing unusual -- `rw,relatime`, which is
+`data=ordered`, exactly as expected for a mount with no durability option
+applied. Both NFS 3 and 4 are enabled and macOS chooses.
+
+Nothing here is anomalous, and that is the finding: there is no misconfiguration
+left to blame. The guest mounts the filesystem normally, exports it
+synchronously, runs a stock kernel nfsd, and sits on a block device that
+advertises a cache and a host that honours its flushes. A write fsynced from
+inside that machine lands. The same write fsynced through its nfsd does not.
+
+That is as far as this goes without tracing inside the kernel's nfsd, which is
+a different kind of work from anything done here. The three mount options stay
+until it is done, and the two UX costs they carry stay with them.
+
+One practical note for whoever picks this up: the engine's log in Library/Logs
+exists only while the engine runs and is removed when it exits, so read it with
+the mount still up.
