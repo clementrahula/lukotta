@@ -46,10 +46,27 @@
 # says will happen -- clearing a dirty flag does not fix structural damage --
 # and it means the dry run is not a test of whether the wet one is safe.
 #
-# The narrow fix available without new tooling: only attempt the repair when
-# the guest kernel actually said the volume was dirty, rather than whenever a
-# mount failed for any reason. A bad sequence number is not a dirty flag and
-# ntfsfix has nothing to offer it. The complete fix is ntfsck.
+# The narrow fix would be to attempt the repair only when the volume is
+# actually dirty, rather than whenever a mount has failed for any reason. A bad
+# sequence number is not a dirty flag and ntfsfix has nothing to offer it.
+#
+# Two ways to ask, and one of them is already ruled out. `ntfsinfo -m` reports
+# Volume Flags, and on this image it gives 0x0080 -- MODIFIED_BY_CHKDSK, not
+# the 0x0001 dirty bit -- so the flag would have said "do not repair this" and
+# been right. But on `mft_attr_bad_fields`, one of the twenty-four the repair
+# route legitimately opens, ntfsinfo prints nothing at all: the volume is
+# damaged in a way it will not read. A guard that goes silent on exactly the
+# volumes the repair exists for is not a guard, and gating on it would have
+# closed the repair route on the cases it works for.
+#
+# What is left inside the guest is the driver's own refusal. ntfs3 says "volume
+# is dirty and 'force' flag is not set" when that is why it declined, and a
+# read-only ntfs3 mount is already known not to write. So the repair action
+# could attempt one, read the reason, and only reach for ntfsfix when the word
+# it wanted is there. That is untested and it is the next thing to try.
+#
+# The complete fix is still ntfsck, which answers the question these are all
+# proxies for.
 #
 # WHAT IT FOUND FIRST, WHICH IS THE POINT OF HAVING WRITTEN IT
 #
