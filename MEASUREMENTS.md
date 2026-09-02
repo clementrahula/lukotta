@@ -267,3 +267,31 @@ and ntfs3 do differently. The next cheap test is whether a file written and
 fsynced from inside the guest -- no NFS in the path at all -- survives the same
 kill. If it does, the fault is in the NFS layer; if it does not, it is below.
 That test needs a fixture the engine's shell will not truncate.
+
+## Where the fsync fault actually is — 2026-09-03
+
+The same ext4 image, the same machine killed the same way, the same operation
+-- `dd conv=fsync`, per file, no global sync anywhere:
+
+    written inside the guest      8 ok, 0 wrong, 0 missing
+    written over NFS              8 present, 8 wrong
+
+So it is not ext4. The filesystem keeps what it was told to keep when the write
+reaches it directly. What loses it is the path between the macOS client's fsync
+and the guest's file.
+
+A first version of this test used `sync` inside the guest, which flushes
+everything and is a stronger operation than fsyncing one file. That was not a
+comparison and the conclusion drawn from it did not stand. This one uses the
+same call on both sides.
+
+What this means for the two options already shipped: data=journal on ext4 and
+sync on XFS both work by making the guest write through, which covers for
+whatever the NFS path is not doing. If the NFS path were fixed, neither would
+be needed -- and the 48% that sync costs on XFS would go with them, which is
+the only thing in this file still standing against item 10.
+
+Still unknown: which link in that path. The macOS client is given no async
+option; the guest runs kernel nfsd, whose export default is sync; and the block
+layer's FLUSH is patched and applied. One of those three is not doing what its
+documentation says, and which one is the next thing to find out.

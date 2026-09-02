@@ -136,7 +136,20 @@ open_image() {
   # the setting that would say whether ordered mode is the reason.
   OPTS=()
   [ -n "${LUKOTTA_MOUNT_OPTIONS:-}" ] && OPTS=(-o "$LUKOTTA_MOUNT_OPTIONS")
-  nohup "$ENGINE" mount --ignore-permissions -w false "${OPTS[@]}" "$IMAGE" \
+  # LUKOTTA_EXPORT_OPTS asks the same question of the other layer. A file
+  # written and fsynced inside the guest survives the machine being killed --
+  # 8 of 8, measured -- and the same file written over NFS does not, so what
+  # the export promises is worth being able to vary.
+  #
+  # --nfs-export-opts replaces the engine's own template, and the engine
+  # refuses it beside --ignore-permissions, so this replaces that flag rather
+  # than joining it.
+  if [ -n "${LUKOTTA_EXPORT_OPTS:-}" ]; then
+    OPTS+=(--nfs-export-opts="$LUKOTTA_EXPORT_OPTS")
+  else
+    OPTS+=(--ignore-permissions)
+  fi
+  nohup "$ENGINE" mount -w false "${OPTS[@]}" "$IMAGE" \
     > "$WORK/engine.log" 2>&1 &
   # This image's share, not merely its name anywhere in the table: a stale
   # entry from a previous run carries the same name and answers nothing.
