@@ -144,6 +144,10 @@ open_image() {
   # --nfs-export-opts replaces the engine's own template, and the engine
   # refuses it beside --ignore-permissions, so this replaces that flag rather
   # than joining it.
+  # The macOS client's own mount options. A client mounted synchronous sends
+  # its writes stable rather than unstable, and that is where the durability
+  # fault turned out to live: 4 of 4 files kept with it, 0 of 4 without.
+  [ -n "${LUKOTTA_NFS_OPTIONS:-}" ] && OPTS+=(--nfs-options="$LUKOTTA_NFS_OPTIONS")
   if [ -n "${LUKOTTA_EXPORT_OPTS:-}" ]; then
     OPTS+=(--nfs-export-opts="$LUKOTTA_EXPORT_OPTS")
   else

@@ -323,3 +323,35 @@ So: not the filesystem, not the client, not the export, not a discarded block
 flush. What is left is between nfsd's COMMIT and the bytes landing in the image
 file -- and the fact that a write made inside the guest lands while the same
 write made through nfsd does not.
+
+## The last link, and why it is not the fix — 2026-09-03
+
+The macOS client mounted synchronous keeps the data:
+
+    client as it mounts     4 of 4 fsynced files wrong
+    client mounted sync     4 of 4 kept, 0 wrong
+
+And with the client synchronous, the guest needs no option at all:
+
+    ext4, client sync, no data=journal    11 of 11 vectors, 8 of 8 fsynced kept
+    XFS,  client sync, no -o sync         11 of 11 vectors, 8 of 8 fsynced kept
+
+So the whole fault is the client sending its writes unstable and the COMMIT
+that follows not making them durable. That also explains the twenty-second
+wait changing nothing: the writes had already left the client and were sitting
+on the server.
+
+**It is still not what to ship.** The cost, same path, same corpus:
+
+    2000 small files      3 s either way
+    2024 files, 1 GB      12 s -> 17 s, 42% slower
+
+One option covering every filesystem is the shape this should have. But ext4's
+data=journal costs nothing measurable, so moving ext4 onto a synchronous client
+would take it from nothing to 42%, and XFS would be swapped from 48% to 42%.
+That is a worse trade for most drives, so the per-filesystem options stay.
+
+**What would be free is fixing the COMMIT itself.** Only fsync would pay,
+rather than every write. That is server-side, in the guest, and it is the one
+route left that could retire both options and close item 10 with no cost at
+all.
