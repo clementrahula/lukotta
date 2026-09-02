@@ -420,3 +420,20 @@ is inside. Verified in the built app, on the command it actually runs:
 
 Only containers pay for it. 2000 small files cost the same either way; a corpus
 with a gigabyte in it goes from 12 seconds to 17.
+
+## Item 9 across encrypted drives — 2026-09-03
+
+With the fix that ships in 1.22.3, every vector on both:
+
+    LUKS -> ext4    11 of 11, 8 of 8 fsynced kept, 30 of 30 in-flight complete
+    LUKS -> XFS     11 of 11, 8 of 8 fsynced kept, 30 of 30 in-flight complete
+
+The first LUKS run showed two failures beside the durability one -- a killed
+copy reporting "0 whole, 0 wrong" and the unmount vector failing after it. Both
+were the same timing artefact: a container takes longer to open, so the copy had
+not begun when the knife came down, and the vector after it had nothing to check.
+Neither reappears once the mount is up. Recorded because "0 whole, 0 wrong" reads
+like a pass and is not one.
+
+So the eleven vectors now pass on: NTFS, ext4, XFS, btrfs, exFAT, LUKS->ext4 and
+LUKS->XFS.
