@@ -73,10 +73,10 @@ password, open it in Finder. A drive should be fully usable on any computer.
 > [!WARNING]
 > **Early development.** Lukotta is still new. The Linux tools and drivers it
 > relies on have been around for years and are well tested. Lukotta is built on
-> top of them, but it is still in development, so there inevitable are issues yet
-> to be uncovered. For now, using it for opening drives and images in read-only
-> mode is the safest thing to do. Writing does work, but please treat it as
-> experimental, and keep a copy of anything you would be upset to lose.
+> top of them, but it is still in development, so there are inevitably issues
+> yet to be uncovered. For now, using it for opening drives and images in
+> read-only mode is the safest thing to do. Writing does work, but please treat
+> it as experimental, and keep a copy of anything you would be upset to lose.
 >
 > Every known issue is listed under [Limitations](#limitations).
 
@@ -237,8 +237,8 @@ CDDL, as much as a technical one.
 
 - An Apple Silicon Mac. Intel Macs are not supported
 - macOS 15 Sequoia or later
-- 260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks
-  on first use
+- 260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it
+  unpacks on first use
 - 30 MB of RAM per open drive sitting idle, and up to 450 MB for one being
   copied to
 - Up to 12 drives can stay unlocked at once
@@ -293,12 +293,12 @@ recovery key. It appears in Finder under Locations.
 For a disk image, choose **File → Open Disk Image…**, or **File → Open Drive…**
 to see every disk attached to this Mac and what Lukotta can do with each.
 
-Lukotta can also auto-mount what was open after a restart. Switch on **Open drives
-again after restarting** at the top of Settings: it then opens in the background
-when you log in and mounts the drives and images that were open, as they were.
-A drive that needs a password comes back only if the password is saved in your
-Keychain, and anything that is not connected is simply
-passed over. It is off until you turn it on.
+Lukotta can also auto-mount what was open after a restart. Switch on **Open
+drives again after restarting** at the top of Settings: it then opens in the
+background when you log in and mounts the drives and images that were open, as
+they were. A drive that needs a password comes back only if the password is
+saved in your Keychain, and anything that is not connected is simply passed
+over. It is off until you turn it on.
 
 Lukotta remembers a passphrase in your Keychain when you ask it to.
 
