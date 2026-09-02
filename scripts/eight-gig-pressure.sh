@@ -31,6 +31,14 @@
 # a measurement that is already recording latency does not produce two results,
 # it spoils one.
 
+# RE-MEASURED 2026-09-02 under wsize=32768, with the owner's drive open too:
+#
+#   13 engine mounts at once -- twelve NTFS fixtures plus the real BitLocker
+#   drive -- all twelve fixtures written to and read back, 2378 MB resident
+#   across every engine process, 68% of memory free, home listing 17-24 ms.
+#
+# One more than a dozen, and the machine is not noticeably different to use.
+#
 # WHAT IT MEASURED, 2026-09-01, on a Mac16,12 with 16 GB
 #
 # Twelve volumes open and writable, before any ballast:
