@@ -1,6 +1,65 @@
-diff -ruN -x target -x Cargo.lock a/src/file.rs b/src/file.rs
---- a/src/file.rs	2026-09-02 13:29:12
-+++ b/src/file.rs	2026-09-02 13:31:26
+diff -ruN -x target -x Cargo.lock pa/Cargo.toml pb/Cargo.toml
+--- pa/Cargo.toml	2006-07-24 04:21:28
++++ pb/Cargo.toml	2026-09-02 14:34:37
+@@ -103,3 +103,7 @@
+ private_intra_doc_links = "allow"
+ redundant_explicit_links = "deny"
+ unescaped_backticks = "deny"
++
++[[example]]
++name = "devsync"
++path = "examples/devsync.rs"
+diff -ruN -x target -x Cargo.lock pa/examples/devsync.rs pb/examples/devsync.rs
+--- pa/examples/devsync.rs	1970-01-01 03:00:00
++++ pb/examples/devsync.rs	2026-09-02 14:34:37
+@@ -0,0 +1,44 @@
++// Does the patched sync() actually flush a device node?
++//
++//     cargo run --example devsync --features sync-wrappers -- /dev/rdiskN
++//
++// A device node takes DKIOCSYNCHRONIZECACHE and refuses F_FULLFSYNC, so this
++// exercises the whole of the fix. Against unpatched imago it fails with
++// ENOTTY; against the patched one it succeeds.
++use imago::file::File;
++use imago::{Storage, StorageOpenOptions};
++use std::future::Future;
++use std::pin::Pin;
++use std::sync::Arc;
++use std::task::{Context, Poll, Wake, Waker};
++
++struct Nudge;
++impl Wake for Nudge {
++    fn wake(self: Arc<Self>) {}
++}
++
++/// These futures never yield; they are synchronous work behind an async
++/// signature, so one poll is enough.
++fn now<F: Future>(f: F) -> F::Output {
++    let waker = Waker::from(Arc::new(Nudge));
++    let mut cx = Context::from_waker(&waker);
++    let mut f = Box::pin(f);
++    loop {
++        if let Poll::Ready(v) = Pin::new(&mut f).poll(&mut cx) {
++            return v;
++        }
++    }
++}
++
++fn main() {
++    let path = std::env::args().nth(1).expect("usage: devsync /dev/rdiskN");
++    let opts = StorageOpenOptions::new().filename(&path).write(true);
++    let f = now(File::open(opts)).expect("open");
++    match now(f.sync()) {
++        Ok(()) => println!("sync ok on {path}"),
++        Err(e) => {
++            println!("sync FAILED on {path}: {e} (raw {:?})", e.raw_os_error());
++            std::process::exit(1);
++        }
++    }
++}
+diff -ruN -x target -x Cargo.lock pa/src/file.rs pb/src/file.rs
+--- pa/src/file.rs	2006-07-24 04:21:28
++++ pb/src/file.rs	2026-09-02 14:34:37
 @@ -1,5 +1,8 @@
  //! Use a plain file or host block device as storage.
  
