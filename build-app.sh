@@ -546,15 +546,26 @@ if [ -n "$NOTARY_ARGS" ] && [ "$SIGN_ID" != "-" ]; then
     /usr/bin/xcrun stapler staple "$OUT"
     /usr/sbin/spctl -a -vv -t install "$OUT" 2>&1 | sed 's/^/  /'
   else
-    # The commonest cause is a locked screen: the credential lives in the Local
-    # Items keychain, which locks with the session, and reads then exactly like
-    # a credential that was never stored.
+    # "No keychain item found" has two causes needing opposite remedies: a
+    # locked screen, the credential living in the Local Items keychain which
+    # locks with the session, or no credential at all. Guessing between them
+    # cost a run. This said the screen was probably locked while it was
+    # unlocked and on console, and there was simply no credential. So the
+    # answer is looked up.
     printf 'error: notarisation failed; the build is signed but not notarised\n' >&2
-    printf '  If it said no keychain item was found: the screen is probably\n' >&2
-    printf '  locked. The credential is in the Local Items keychain, which\n' >&2
-    printf '  locks with the session and then reads exactly like a credential\n' >&2
-    printf '  that was never stored. Unlock the Mac and run this again.\n' >&2
-    printf '  ./scripts/notary-status.sh tells the two apart.\n' >&2
+    if /usr/bin/python3 -c 'import plistlib,subprocess,sys; d=plistlib.loads(subprocess.run(["ioreg","-n","Root","-d1","-a"],capture_output=True).stdout); sys.exit(0 if any(u.get("CGSSessionScreenIsLocked") for u in d.get("IOConsoleUsers",[])) else 1)' 2>/dev/null; then
+      printf '  The screen is locked. The credential is in the Local Items\n' >&2
+      printf '  keychain, which locks with the session and then reads exactly\n' >&2
+      printf '  like a credential that was never stored. Unlock and run again.\n' >&2
+    else
+      printf '  The screen is not locked, so this is not the Local Items\n' >&2
+      printf '  keychain being asleep. There is no credential to find:\n' >&2
+      printf '    xcrun notarytool store-credentials "lukotta" \\\n' >&2
+      printf '      --apple-id YOUR_APPLE_ID --team-id YOUR_TEAM_ID\n' >&2
+      printf '  or name an App Store Connect key or an Apple ID instead;\n' >&2
+      printf '  this script takes any of the three.\n' >&2
+    fi
+    printf '  ./scripts/notary-status.sh says which credentials it can see.\n' >&2
     rm -f "$ZIP"
     exit 1
   fi
