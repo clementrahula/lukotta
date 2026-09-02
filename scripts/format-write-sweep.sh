@@ -70,7 +70,12 @@ build sweep-sparse.vmdk "$HERE/scripts/make-vmdk-sparse.py" "$RAW" "$WORK/sweep-
 share() { printf '%s' "${1%.*}-${1##*.}"; }
 
 where() {  # this image's share, not merely one with a similar name
-  mount | awk -v want="$(share "$1").local:" '$1 == want {
+  # A literal prefix, not equality and not a regular expression. The first
+  # field is "sweep-qcow2.local:/mnt/SWEEP", so equality never matched, and
+  # every format was recorded as failing to mount while its mount was up and
+  # stacking under the next one. The name carries dots, so index() rather than
+  # a pattern.
+  mount | awk -v want="$(share "$1").local:" 'index($1, want) == 1 {
     for (i = 1; i <= NF; i++) if ($i == "on") { print $(i+1); exit } }'
 }
 
