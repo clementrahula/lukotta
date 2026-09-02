@@ -187,7 +187,8 @@
         private static func savedCredential(for drive: Drive) -> String? {
             var fingerprint: String?
             if let sector = BootSector.readWaiting(devicePath: drive.devicePath) {
-                fingerprint = VolumeIdentity.fingerprint(sector, format: BootSector.identify(sector))
+                fingerprint = VolumeIdentity.fingerprint(
+                    sector, format: BootSector.identify(sector))
             }
             let cache =
                 UserDefaults.standard.dictionary(forKey: AppModel.fingerprintCacheKey)

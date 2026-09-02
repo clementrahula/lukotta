@@ -31,7 +31,6 @@ set -u
 
 DEVICE="${1:-}"
 MB="${2:-8}"
-HERE="$(cd "$(dirname "$0")/.." && pwd)"
 APP="${LUKOTTA_APP:-/Applications/Lukotta Dev.app}"
 ENGINE="${LUKOTTA_ENGINE:-$APP/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 [ -x "$ENGINE" ] || { echo "no engine at $ENGINE"; exit 1; }
@@ -113,7 +112,10 @@ say "wrote ${MB} MiB, fsync returned, sha256 ${WANT:0:16}…"
 PIDS="$(pgrep -f "anylinuxfs mount.*$(basename "$DEV")")"
 [ -n "$PIDS" ] || { say "no machine to kill"; exit 1; }
 say "killing $PIDS"
-kill -9 $PIDS 2>/dev/null
+# Word-split on purpose: PIDS is a list. Said so, rather than quoted
+  # into one argument that is not a pid.
+  # shellcheck disable=SC2086
+  kill -9 $PIDS 2>/dev/null
 sleep 3
 umount -f "$MOUNT" >/dev/null 2>&1
 

@@ -31,7 +31,6 @@
 # and the program that unpacks the image keeps to the directory it is given:
 # 196 checks, none failed, and the shared directory still not created.
 set -uo pipefail
-HERE="$(cd "$(dirname "$0")/.." && pwd)"
 APP="${LUKOTTA_APP:-/Applications/Lukotta Dev.app}"
 NAME="$(basename "$APP" .app)"
 BIN="$APP/Contents/MacOS/$NAME"

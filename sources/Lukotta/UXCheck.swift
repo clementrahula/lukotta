@@ -103,8 +103,11 @@
             let key = AppModel.earlyNoticeKey
             let saved = UserDefaults.standard.object(forKey: key)
             defer {
-                if let saved { UserDefaults.standard.set(saved, forKey: key) }
-                else { UserDefaults.standard.removeObject(forKey: key) }
+                if let saved {
+                    UserDefaults.standard.set(saved, forKey: key)
+                } else {
+                    UserDefaults.standard.removeObject(forKey: key)
+                }
             }
 
             // A first launch, before the drive list is up.

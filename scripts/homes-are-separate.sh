@@ -12,7 +12,6 @@
 # hand the app the one thing it has to supply for itself -- so neither of them
 # could ever fail on this, and neither did.
 set -uo pipefail
-HERE="$(cd "$(dirname "$0")/.." && pwd)"
 SHARED="$HOME/.anylinuxfs"
 
 fail=0

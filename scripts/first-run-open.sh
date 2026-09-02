@@ -16,7 +16,6 @@
 # every silent build earns -- including the one this was first run against,
 # which had no --drive at all and printed nothing.
 set -uo pipefail
-HERE="$(cd "$(dirname "$0")/.." && pwd)"
 APP="/Applications/Lukotta Dev.app/Contents/MacOS/Lukotta Dev"
 GUEST="$HOME/Library/Application Support/com.lukotta.dev/engine/.anylinuxfs/alpine"
 CACHE="${LUKOTTA_E2E_CACHE:-$HOME/Library/Caches/dev.lukotta.e2e}"

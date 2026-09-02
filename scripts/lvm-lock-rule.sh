@@ -125,6 +125,7 @@ open_lv() {  # lv-name, label, extra args...
   return 1
 }
 
+# shellcheck disable=SC2015
 A="$(open_lv root FEDORAROOT)" && note ok "the first volume opens" \
   || note no "the first volume opens"
 if [ -n "${A:-}" ] && touch "$A/.wtest" 2>/dev/null; then
@@ -149,6 +150,8 @@ P="${DEV}s1"
 trap cleanup EXIT
 n=0
 for pair in "root FEDORAROOT" "home FEDORAHOME" "backup FEDORABACKUP"; do
+  # Word-split on purpose: pair is two words.
+  # shellcheck disable=SC2086
   set -- $pair
   m="$(open_lv "$1" "$2" -o ro)" && [ -n "$m" ] && ls "$m" >/dev/null 2>&1 && n=$((n + 1))
 done

@@ -1555,7 +1555,9 @@
             // list is compared after it, and the drive is only in scope inside.
             var openedUUID = ""
             do {
-                guard let (model, drive) = openAndChoose(image, partitioned: partitioned) else { return }
+                guard let (model, drive) = openAndChoose(image, partitioned: partitioned) else {
+                    return
+                }
                 openedUUID = drive.uuid
                 guard
                     waitUntil(
