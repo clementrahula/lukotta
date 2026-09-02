@@ -556,12 +556,33 @@ truncated member answers `Device /dev/vda is not large enough for data described
 in superblock` and the array will not assemble. `make-test-volumes.sh` restores
 the length, as `e2e.sh` does for the same reason.
 
-### A volume group in an image file, opened by the app's image route
+### Writing to a virtual machine image is not thoroughly tested
 
-Opening a `.img` of a Linux laptop disk through the image route reaches the
-app's `openImage` path rather than the drive path. This works — 866/866 e2e
-steps pass — but it is worth knowing that the two routes differ, and that the
-partitioned case must be opened as partitioned.
+Reading is exercised heavily: every image format goes through open, unlock,
+list, relaunch and eject in `e2e.sh`, and the ones that must be refused are
+refused. Writing is not. The qcow2, VMDK, VDI and VHD write paths are drivers
+written for this project (§6) and checked against `qemu-img` when the engine is
+built from source, and that is not the same as having been in use. Open an image
+read-only to copy files out of it, or keep a backup.
+
+A VHDX is read-only by design and is not affected.
+
+### ZFS is not supported
+
+The guest kernel carries no ZFS: the `zfs` and `zfs-libs` packages are trimmed
+and `lib/modules/*/fs/zfs` is removed by path, because no package owns those
+files and dropping the packages alone left the modules behind. Whether to carry
+it is an open question with a licence dimension — ZFS is CDDL — as much as a
+size one. It is neither offered nor tested.
+
+### Two routes into an image, and they differ
+
+Not a defect, recorded because it has already cost one wrong diagnosis. A
+whole-disk image appears in the drive list under the file's own path; a
+partitioned image is attached, and its partition appears under a real volume
+UUID. Code that waits for a row identified by the file path will wait forever
+for a partitioned one, which reads as the app being unable to open it. `e2e.sh`
+passes 866 of 866 steps with the two routes distinguished.
 
 ---
 
