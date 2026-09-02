@@ -381,3 +381,21 @@ measured.
 Everything up to the COMMIT is doing what it says. The COMMIT itself is not,
 and that is where the free fix is: make it durable and only fsync pays, rather
 than every write paying as it does with a synchronous client.
+
+## One more eliminated: the export file is the one that is read — 2026-09-03
+
+The guest writes its exports to /tmp/exports, and /etc/exports in the rootfs is
+a symlink to it, so exportfs reads what vmproxy wrote. The options do apply --
+which was already visible in the run where changing them changed permissions.
+
+So naming sync in the export genuinely did not help, and that is a fact about
+nfsd rather than about the plumbing: a sync export stops the server replying
+before an operation is stable, and does not force a client's UNSTABLE write to
+be written stably. The client asking for UNSTABLE and then committing is a
+different path from the client asking for FILE_SYNC, and only the second one
+survives here.
+
+Everything cheap that can be measured from the host is now measured. What is
+left needs the guest instrumented -- what nfsd does with the COMMIT, and
+whether a virtio flush follows it -- and that is a bigger piece of work than
+anything attempted tonight.
