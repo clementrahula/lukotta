@@ -76,8 +76,16 @@ header instead of from that flat figure, which is the better answer, but the
 > logical volumes from the same partition if you mount all of them read-only.
 
 That is the ordinary Ubuntu and Fedora layout: LUKS holding LVM, root and home
-as separate volumes in one partition. The app has no notion of this rule, so
-whatever a person meets when they open the second volume, they meet it raw.
+as separate volumes in one partition -- and the app does not meet the rule,
+because it opens the container rather than the volumes. All three mount at once
+from one machine, all three writable, concurrent copies into two of them
+byte-identical. One machine takes one lock, so there is no second machine to
+collide with it.
+
+This file previously said the app "has no notion of this rule" and that a
+person would meet a raw lock error. That was measured against `lvm:vg:disk:lv`
+one volume at a time, which is the engine's interface and not the route the app
+takes.
 
 **A volume group spanning drives needs every device named**, as
 `lvm:vg1:/dev/disk3s1:/dev/disk4s1:lv1`. Untested here.

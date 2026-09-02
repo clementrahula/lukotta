@@ -39,24 +39,42 @@
 # The existing fallback therefore runs its whole ladder and still fails, and
 # what reaches the person is a drive that would not open.
 #
-# So the rule is real and it is exactly as written. What matters is what the
-# person sees. Today the app has no notion of any of this, so the second volume
-# fails and whatever the engine said travels to the screen -- which is a raw
-# lock error, about a device, for something the person did not do wrong.
+# The rule is real. What it is not is something a person using this app meets,
+# and that took driving the app rather than the engine to find out.
+#
+# Opening the partition -- which is what the app does -- mounts every logical
+# volume in it from ONE machine:
+#
+#     /Volumes/disk5s1/FEDORAROOT
+#     /Volumes/disk5s1/FEDORAHOME
+#     /Volumes/disk5s1/FEDORABACKUP
+#
+#   all three writable: 3 of 3
+#   concurrent copies into two of them: 4 of 4 byte-identical in each
+#
+# One machine takes one lock on the partition, so there is nothing for a second
+# to collide with. The restriction bites when several machines each want the
+# same partition, which is what `lvm:vg:disk:lv` one at a time asks for -- and
+# that is what the measurements below were doing. It is the engine's own
+# interface being exercised, not the app's route.
+#
+# The earlier version of this file recorded a UX cliff on the strength of it:
+# "the app has no notion of any of this, so the second volume fails and a raw
+# lock error travels to the screen". That was wrong, and wrong in the most
+# ordinary way -- the test drove a layer the app does not use, and the failure
+# it produced was real for that layer and unreachable from the app.
 #
 # THE DECISION, so it is not re-litigated
 #
-# A volume opened while another on the same partition is already open is opened
-# read-only, and shown as read-only, rather than failing.
+# Nothing to decide, as it turns out. The app opens the container and serves
+# every volume in it from one machine, which is both the behaviour a person
+# wants and the one that never meets the lock. A design was written here for
+# demoting volumes to read-only and weighed against asking the user; it was
+# answering a problem that does not exist on this path, and it is gone.
 #
-# Access beats an error dialog, and the app already has a read-only state with
-# a name and a place in the window -- so this is not a new prompt, a new error,
-# or a new thing to understand. The alternative that keeps everything writable
-# is to demote the volume already open, and taking away something a person
-# already has in order to give them something they just asked for is worse than
-# either. Asking them which they would prefer is worse still: they would be
-# choosing between two consequences of a file-lock granularity they should
-# never have to hear about.
+# What is worth keeping is the guard against reintroducing it: anything that
+# opens logical volumes one at a time, each in its own machine, will meet the
+# partition lock and will have to answer for it.
 #
 # The zsh trap, which cost a run: `$P:root` is not "$P then :root". zsh reads
 # `:r` as the root modifier and `:h` as the head modifier, so `lvm:vg:$P:root`
