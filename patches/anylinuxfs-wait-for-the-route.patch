@@ -20,7 +20,7 @@ the same half minute it always cost.
 
 --- a/anylinuxfs/src/cmd_mount.rs
 +++ b/anylinuxfs/src/cmd_mount.rs
-@@ -87,14 +87,37 @@
+@@ -87,13 +87,27 @@
              .context("Failed to resolve VM host address")?;
          host_println!("Checking NFS server on {:?}...", addr);
  
@@ -41,27 +41,17 @@ the same half minute it always cost.
 +        // same address answered a ping without loss immediately afterwards.
 +        //
 +        // Whoever asked then waited for their drive while nothing was trying.
++        // A server that is genuinely not there costs the same half minute it
++        // always cost.
 +        let deadline = Instant::now() + Duration::from_secs(30);
-+        let mut last: Option<std::io::Error> = None;
 +        loop {
 +            match TcpStream::connect_timeout(&addr, Duration::from_secs(10)) {
-+                Ok(_) => {
-+                    return Ok(nfs_ready);
++                Ok(_) => return Ok(nfs_ready),
++                Err(e) if Instant::now() >= deadline => {
++                    host_eprintln!("Error connecting to port {}: {}", port, e);
++                    return Ok(NfsStatus::Failed(None));
 +                }
-+                Err(e) => {
-+                    if Instant::now() >= deadline {
-+                        host_eprintln!("Error connecting to port {}: {}", port, e);
-+                        return Ok(NfsStatus::Failed(None));
-+                    }
-+                    last = Some(e);
-+                    std::thread::sleep(Duration::from_millis(250));
-+                }
++                Err(_) => std::thread::sleep(Duration::from_millis(250)),
              }
-+        }
-+        #[allow(unreachable_code)]
-+        {
-+            let _ = last;
-+            unreachable!()
          }
      }
- 
