@@ -383,7 +383,7 @@
     "“%@” opened in macOS": "“%@” macOS में खुली",
     "“%@” was disconnected.": "“%@” कट गई।",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” ठीक से बंद नहीं हुई, और उसकी अंतिम सामग्री फ़ाइल में वापस नहीं लिखी गई। उसे उसी वर्चुअल मशीन में एक बार खोलें जिसकी वह है, फिर कोशिश करें।",
-    "Early development": "आरंभिक विकास",
+    "Early Development": "आरंभिक विकास",
     "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ अभी नया है। यह जिन Linux टूल और ड्राइवर पर निर्भर है वे वर्षों से मौजूद हैं और अच्छी तरह परखे जा चुके हैं। %@ उन्हीं पर बना है, पर स्वयं अभी विकासाधीन है, इसलिए इसमें अनदेखी समस्याएँ रहना स्वाभाविक है। फ़िलहाल ड्राइव और इमेज को केवल पढ़ने के लिए खोलना सबसे सुरक्षित है। लिखना काम करता है, पर उसे प्रयोगात्मक मानें और जो कुछ खोना आपको अखरेगा उसकी एक प्रति रखें।"
   }
 }

@@ -20,7 +20,7 @@ struct EarlyDevelopmentSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Early development")
+            Text("Early Development")
                 .font(.title2.weight(.semibold))
 
             // The name is interpolated rather than written out: it is a

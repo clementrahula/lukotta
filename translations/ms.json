@@ -375,7 +375,7 @@
     "“%@” opened in macOS": "“%@” dibuka dalam macOS",
     "“%@” was disconnected.": "“%@” telah diputuskan.",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” tidak ditutup dengan betul, dan kandungan terkininya belum ditulis semula ke dalam fail. Bukanya sekali dalam mesin maya pemiliknya, kemudian cuba lagi.",
-    "Early development": "Peringkat pembangunan awal",
+    "Early Development": "Peringkat pembangunan awal",
     "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ masih baharu. Perkakas dan pemacu Linux yang menjadi sandarannya telah wujud bertahun-tahun dan teruji dengan baik. %@ dibina di atasnya, tetapi masih dalam pembangunan, jadi tidak dapat dielakkan ada masalah yang belum ditemui. Buat masa ini, paling selamat menggunakannya untuk membuka pemacu dan imej dalam mod baca sahaja. Penulisan memang berfungsi, tetapi anggaplah ia eksperimen dan simpan salinan apa-apa yang anda tidak sanggup kehilangannya."
   }
 }

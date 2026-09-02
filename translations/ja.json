@@ -375,7 +375,7 @@
     "“%@” opened in macOS": "「%@」を macOS で開きました",
     "“%@” was disconnected.": "「%@」が切断されました。",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "「%@」は正常に終了されておらず、最後の内容がファイルに書き戻されていません。属している仮想マシンで一度開いてから、もう一度試してください。",
-    "Early development": "開発の初期段階",
+    "Early Development": "開発の初期段階",
     "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ はまだ新しいアプリです。土台にしている Linux のツールとドライバは何年も使われてきた実績のあるものですが、%@ 自体はまだ開発中で、未発見の問題が残っているのは避けられません。当面は、ドライブやイメージを読み取り専用で開く使い方がもっとも安全です。書き込みも動作しますが、実験的なものとして扱い、失って困るものは必ず控えを取っておいてください。"
   }
 }

@@ -601,7 +601,7 @@
       "context": "A bullet in the help sheet's list of what the app cannot open. A fragment: no full stop. TPM is a hardware chip and keeps its acronym.",
       "placeholders": []
     },
-    "Early development": {
+    "Early Development": {
       "screens": [
         "first-launch"
       ],

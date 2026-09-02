@@ -391,7 +391,7 @@
     "“%@” opened in macOS": "„%@” a fost deschis în macOS",
     "“%@” was disconnected.": "„%@” a fost deconectat.",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@” nu a fost închis corect, iar conținutul său cel mai recent nu a fost scris înapoi în fișier. Deschideți-l o dată în mașina virtuală căreia îi aparține, apoi încercați din nou.",
-    "Early development": "Etapă incipientă de dezvoltare",
+    "Early Development": "Etapă incipientă de dezvoltare",
     "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ este încă nou. Uneltele și driverele Linux pe care se sprijină există de ani de zile și sunt bine testate. %@ este construit peste ele, dar este încă în dezvoltare, așa că inevitabil rămân probleme nedescoperite. Deocamdată, cel mai sigur este să îl folosiți pentru a deschide discuri și imagini doar în citire. Scrierea funcționează, dar tratați-o ca experimentală și păstrați o copie a tot ce v-ar părea rău să pierdeți."
   }
 }

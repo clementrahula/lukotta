@@ -383,7 +383,7 @@
     "“%@” opened in macOS": "«%@» ble åpnet i macOS",
     "“%@” was disconnected.": "«%@» ble koblet fra.",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "«%@» ble ikke avsluttet ordentlig, og det siste innholdet er ikke skrevet tilbake til filen. Åpne den én gang i den virtuelle maskinen den hører til, og prøv igjen.",
-    "Early development": "Tidlig utvikling",
+    "Early Development": "Tidlig utvikling",
     "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ er fortsatt ny. Linux-verktøyene og -driverne den bygger på har eksistert i årevis og er godt utprøvd. %@ er bygd oppå dem, men er selv fortsatt under utvikling, så det finnes uunngåelig feil som ennå ikke er oppdaget. Foreløpig er det tryggest å bruke den til å åpne enheter og diskbilder skrivebeskyttet. Skriving virker, men se på det som eksperimentelt, og behold en kopi av alt du ville ergre deg over å miste."
   }
 }

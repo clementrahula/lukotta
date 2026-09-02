@@ -399,7 +399,7 @@
     "“%@” opened in macOS": "«%@» відкрито в macOS",
     "“%@” was disconnected.": "«%@» було від’єднано.",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "«%@» було завершено некоректно, і його останній вміст не записано назад у файл. Відкрийте його один раз у тій віртуальній машині, якій він належить, потім спробуйте знову.",
-    "Early development": "Рання стадія розробки",
+    "Early Development": "Рання стадія розробки",
     "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ ще новий. Інструменти та драйвери Linux, на які він спирається, існують багато років і добре перевірені. %@ побудований поверх них, але сам ще в розробці, тож неминуче лишаються невиявлені вади. Наразі найбезпечніше відкривати ним диски та образи лише для читання. Запис працює, але вважайте його експериментальним і зберігайте копію всього, чого не хотіли б втратити."
   }
 }

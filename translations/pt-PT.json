@@ -383,7 +383,7 @@
     "“%@” opened in macOS": "«%@» foi aberto no macOS",
     "“%@” was disconnected.": "«%@» foi desligado.",
     "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "«%@» não foi encerrado corretamente e o seu conteúdo mais recente não foi escrito de volta no ficheiro. Abra-o uma vez na máquina virtual a que pertence e tente novamente.",
-    "Early development": "Desenvolvimento inicial",
+    "Early Development": "Desenvolvimento inicial",
     "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "O %@ é ainda recente. As ferramentas e os controladores Linux em que assenta existem há anos e estão bem testados. O %@ é construído sobre eles, mas está ainda em desenvolvimento, pelo que há inevitavelmente problemas por descobrir. Por agora, o mais seguro é usá-lo para abrir discos e imagens apenas para leitura. A escrita funciona, mas trate-a como experimental e guarde uma cópia de tudo o que lamentaria perder."
   }
 }
