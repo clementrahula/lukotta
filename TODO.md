@@ -122,6 +122,26 @@ which is a thing this application does not do.
   carries patches against imago and krun-devices, so there is a place to put
   them.
 
+## The app cannot open a volume group from an image file
+
+- [ ] `scripts/e2e.sh` fails one step of 851, and it is not a flake or a
+  timeout. A LUKS container holding an LVM volume group fails at the first
+  check after scanning -- `imageOpening == nil && phaseIsUnlock` -- and raising
+  the allowance from 60 s to 140 s changed nothing. A qcow2 immediately above
+  it in the same run passes the same check.
+
+  The engine route works: `--drive open` on the same file takes 67.7 s and
+  mounts everything at /Volumes/LUKOTTATEST. So it is the app's `openImage`
+  path, not the engine, and a volume group has something to decide that a plain
+  filesystem does not -- which volume -- so it may be landing in a phase the
+  test does not expect. Either the app takes a different route for a volume
+  group or the test expects the wrong one; both are worth knowing and neither
+  is known yet.
+
+  Worth weighing against the fact that the same layout works through the drive
+  route, which is how anybody with a real Linux disk arrives. This is the
+  image-file route: opening a .img of a Linux laptop disk.
+
 ## Who does what
 
 Documentation and user-interface work happen only with the owner watching, when

@@ -376,20 +376,27 @@
         ///   "the image opens (gave up)" about an image that had opened.
         @MainActor
         private static func openAndChoose(
-            // Measured rather than guessed. Sixty seconds was enough for every
-            // image here except a LUKS container holding a volume group, which
-            // took 67.7 s on this Mac -- so that one case failed, and it failed
-            // in the way a timeout does: the step is reported as not having
-            // happened when it happens a few seconds later. The volume opens
-            // perfectly well; timing it directly puts it at /Volumes/LUKOTTATEST
-            // with everything mounted.
+            // Sixty seconds, and the volume-group case fails inside it for a
+            // reason that is not time.
             //
-            // A volume group is the slow one because the container is unlocked,
-            // then scanned for physical volumes, then the group activated, then
-            // each logical volume mounted and exported, all inside one machine
-            // boot. Twice the measured time leaves room for a Mac busier than
-            // this one without hiding a genuine hang.
-            _ image: URL, timeout: TimeInterval = 140, partitioned: Bool = false
+            // It was raised to 140 first, on the strength of timing that
+            // container directly: `--drive open` on luks2-lvm.img takes 67.7 s
+            // and mounts everything at /Volumes/LUKOTTATEST. But that is the
+            // helper's route, and this test uses the app's openImage. At 140 s
+            // the step fails exactly as it did at 60, and it fails at the first
+            // check after scanning, where the qcow2 case immediately above it
+            // passes. Twice the time changed nothing, so time is not what is
+            // missing.
+            //
+            // What the check waits for is `imageOpening == nil` together with
+            // `phaseIsUnlock`. A container holding a volume group has more to
+            // decide than one holding a filesystem -- which volume -- so
+            // landing somewhere other than the unlock phase would fail this
+            // wait however long it ran. That is the thing to look at, and it
+            // is either the app taking a different route for a volume group or
+            // this test expecting the wrong one. Left failing and named rather
+            // than papered over with a larger number.
+            _ image: URL, timeout: TimeInterval = 60, partitioned: Bool = false
         ) -> (model: AppModel, drive: Drive)? {
             guard !partitioned else { return openPartitioned(image, timeout: timeout) }
             return openWholeDisk(image, timeout: timeout)
