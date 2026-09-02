@@ -202,7 +202,12 @@ fi
 # With cgo, which it needs: vmrunner beside it is a cgo package with a header,
 # and CGO_ENABLED=0 excludes every file in it -- "build constraints exclude all
 # Go files", which reads like a platform problem and is not one.
-( cd "$SRC/init-rootfs" && go build -trimpath -o "$SRC/init-rootfs/init-rootfs" . )
+# The tag is upstream's own, from its build notes. Without it the OCI library
+# wants gpgme through pkg-config, which is a C library to install, to ship and
+# to license, for signature verification this does not do.
+( cd "$SRC/init-rootfs" \
+    && go build -trimpath -ldflags="-w -s" -tags containers_image_openpgp \
+        -o "$SRC/init-rootfs/init-rootfs" . )
 UNPACKER="$SRC/init-rootfs/init-rootfs"
 [ -x "$UNPACKER" ] || { echo "error: no init-rootfs was built" >&2; exit 1; }
 
