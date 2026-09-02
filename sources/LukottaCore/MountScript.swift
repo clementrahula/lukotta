@@ -780,9 +780,25 @@ public enum MountScript {
                 // turn when the probe has refused ntfs3; not the read-only
                 // retry, which cannot do the damage; and not the repair rung,
                 // which is asked for on purpose and carries its own action.
-                let chosen =
-                    (driver == "ntfs3" && !i.readOnly && action == tunedActionName)
-                    ? ntfs3ProbeActionName : action
+                // DISABLED. The probe stops ntfs3 writing to a volume it then
+                // refuses, which is real and measured -- but on the owner's
+                // BitLocker drive it also stops ntfs3 mounting a volume it
+                // would have mounted. The probe passes, the read-only mount
+                // inside the guest succeeds, and the writable mount of
+                // /dev/mapper/btlk0 that follows it in the same boot fails
+                // with "bad superblock"; ntfs-3g then answers "I/O error, NTFS
+                // is either inconsistent..." and the drive comes up read-only.
+                //
+                // It did not show up on the corpus because those are plain
+                // NTFS images on /dev/vda. The drive is NTFS inside a
+                // BitLocker mapper, and mounting the mapper twice in one boot
+                // is evidently not the same as mounting a partition twice.
+                //
+                // A drive that opens read-only is a worse outcome than the one
+                // this was fixing, and it lands on every BitLocker user rather
+                // than on the damaged-volume case. Off until the probe can be
+                // done without mounting the same device twice.
+                let chosen = action
                 return mountCommand(
                     engineQ: engineQ, target: target, driver: driver,
                     options: nfsOptions(i), readOnly: i.readOnly,
