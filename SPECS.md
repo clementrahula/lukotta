@@ -503,9 +503,25 @@ drive, so the filesystem was never the variable.
 `patches/imago-flush-device-nodes.patch` adds the device branch, decided at open
 rather than stat-ed on every barrier, tolerating a device that answers that it
 has no cache to flush. Without that tolerance every barrier becomes an I/O error
-and nothing mounts. **Not yet proven by measurement:**
-`scripts/kill-durability.sh` is written and its run is still blocked on the
-engine's lock file. What the ioctl costs a copy is also unmeasured.
+and nothing mounts.
+
+**The mechanism is proven.** The patch carries an example that opens a device
+node and calls imago's own `sync()`. Run against both crates on the same
+attached device:
+
+    unpatched   sync FAILED: Inappropriate ioctl for device (os error 25)
+    patched     sync ok
+
+**Durability across a kill is not proven.** `scripts/kill-durability.sh` is
+written, and the only target that reproduces the loss is a physical drive:
+against an unpatched engine the same test on an attached image returned the
+8 MB byte-identical, because writes to an image reach its backing file through
+the host's buffer cache, which a killed guest does not discard.
+
+Timing it did not work either. Same drive, 1 MiB a write, twenty writes: 121.5
+ms median unpatched against 117.0 ms patched, which is noise. 4 KiB gave
+41.2 ms and 64 KiB 35.9 ms, both dominated by the NFS round trip. A flush of a
+few milliseconds cannot be seen underneath that.
 
 Ruled out along the way, each by measurement:
 
