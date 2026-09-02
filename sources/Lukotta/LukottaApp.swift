@@ -709,6 +709,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// a window that cannot repaint, so the panel saying what is happening
     /// could never appear. Done here it is off the main thread, the panel
     /// draws, and AppKit is told when it is finished.
+
+    /// Say yes anyway, if tidying up has not finished in time.
+    ///
+    /// `.terminateLater` is a promise to answer, and an answer that never comes
+    /// is an app that sits in a panel saying "Quitting" until it is force
+    /// quit. That happened here: a beta with no drives open and no engine
+    /// running would not leave, because the tidying detaches container files
+    /// with hdiutil and hdiutil blocks for as long as something holds the
+    /// device -- forever, if whatever holds it is not going to let go.
+    ///
+    /// Nothing is risked by answering. The drives belong to the helper and stay
+    /// open without this process; the rest is housekeeping, which runs again at
+    /// the next launch. Waiting on it is the only part that can be visible, so
+    /// it is the part that is bounded.
+    @MainActor
+    private static func answerWithin(_ seconds: TimeInterval) {
+        let deadline = DispatchTime.now() + seconds
+        DispatchQueue.main.asyncAfter(deadline: deadline) {
+            guard !AppModel.leftTidily else { return }
+            Log.app.notice("leaving is taking too long; quitting anyway")
+            NSApp.reply(toApplicationShouldTerminate: true)
+        }
+    }
     @MainActor
     private func leave(after: (() -> Void)? = nil) -> NSApplication.TerminateReply {
         guard let model else { return .terminateNow }
@@ -717,6 +740,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard !isLeaving else { return .terminateLater }
         isLeaving = true
         QuitProgress.show(String(localized: "Quitting\u{2026}"))
+        Self.answerWithin(8)
         let needs = model.whatLeavingNeeds()
         after?()
         Task.detached(priority: .userInitiated) {
@@ -782,6 +806,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if MainActor.assumeIsolated({ MenuBarItem.shared.tookTheMenuBarsAnswer() }) {
             MainActor.assumeIsolated {
                 QuitProgress.show(String(localized: "Quitting\u{2026}"))
+                Self.answerWithin(8)
                 model.ejectAll { NSApp.reply(toApplicationShouldTerminate: true) }
             }
             return .terminateLater
@@ -914,6 +939,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 guard !isLeaving else { return }
                 isLeaving = true
                 QuitProgress.show(String(localized: "Quitting\u{2026}"))
+                Self.answerWithin(8)
                 let needs = model.whatLeavingNeeds()
                 model.ejectAll {
                     // The ejects are done. The rest of the leaving still has to
