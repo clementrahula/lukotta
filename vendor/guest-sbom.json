@@ -1338,6 +1338,32 @@
       ]
     },
     {
+      "bom-ref": "pkg:apk/alpine/mdadm@4.3-r3?arch=aarch64&distro=alpine-3.24.1",
+      "type": "library",
+      "name": "mdadm",
+      "version": "4.3-r3",
+      "purl": "pkg:apk/alpine/mdadm@4.3-r3?arch=aarch64&distro=alpine-3.24.1",
+      "properties": [
+        {
+          "name": "aquasecurity:trivy:PkgType",
+          "value": "alpine"
+        },
+        {
+          "name": "aquasecurity:trivy:SrcName",
+          "value": "mdadm"
+        },
+        {
+          "name": "aquasecurity:trivy:SrcVersion",
+          "value": "4.3-r3"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "GPL-2.0-only"
+        }
+      ]
+    },
+    {
       "bom-ref": "pkg:apk/alpine/mount@2.42.1-r0?arch=aarch64&distro=alpine-3.24.1",
       "type": "library",
       "name": "mount",
@@ -1925,6 +1951,7 @@
         "pkg:apk/alpine/lvm2@2.03.35-r2?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/lvm2-libs@2.03.35-r2?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/lzo@2.10-r5?arch=aarch64&distro=alpine-3.24.1",
+        "pkg:apk/alpine/mdadm@4.3-r3?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/mount@2.42.1-r0?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/mpdecimal@4.0.1-r0?arch=aarch64&distro=alpine-3.24.1",
         "pkg:apk/alpine/musl@1.2.6-r2?arch=aarch64&distro=alpine-3.24.1",
@@ -2149,6 +2176,10 @@
     },
     {
       "ref": "pkg:apk/alpine/lzo@2.10-r5?arch=aarch64&distro=alpine-3.24.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:apk/alpine/mdadm@4.3-r3?arch=aarch64&distro=alpine-3.24.1",
       "dependsOn": []
     },
     {

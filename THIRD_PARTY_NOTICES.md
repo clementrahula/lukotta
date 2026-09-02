@@ -104,7 +104,7 @@ and `Image-4K` are Linux kernel binaries supplied by libkrunfw.
 ## Linux Guest Image
 
 The application embeds an Alpine Linux root filesystem containing the
-following 66 packages. Licence identifiers are reproduced from the
+following 72 packages. Licence identifiers are reproduced from the
 package metadata contained in that filesystem. Source for each package is
 available from the Alpine Linux package archive at
 <https://pkgs.alpinelinux.org/> at the version stated.
@@ -126,8 +126,11 @@ available from the Alpine Linux package archive at
 | cryptsetup-libs | 2.8.6-r0 | GPL-2.0-or-later WITH cryptsetup-OpenSSL-exception |
 | device-mapper-event-libs | 2.03.35-r3 | GPL-2.0-or-later AND LGPL-2.1-or-later |
 | device-mapper-libs | 2.03.35-r3 | GPL-2.0-or-later AND LGPL-2.1-or-later |
+| e2fsprogs | 1.47.4-r0 | GPL-2.0-or-later AND LGPL-2.0-or-later AND BSD-3-Clause AND MIT |
+| e2fsprogs-libs | 1.47.4-r0 | GPL-2.0-or-later AND LGPL-2.0-or-later AND BSD-3-Clause AND MIT |
 | eudev-libs | 3.2.14-r6 | GPL-2.0-or-later |
 | gdbm | 1.26-r0 | GPL-3.0-or-later |
+| inih | 62-r0 | BSD-3-Clause |
 | json-c | 0.18-r1 | MIT |
 | keyutils-libs | 1.6.3-r4 | GPL-2.0-or-later AND LGPL-2.0-or-later |
 | krb5-conf | 1.0-r2 | MIT |
@@ -141,7 +144,7 @@ available from the Alpine Linux package archive at
 | libcrypto3 | 3.5.7-r0 | Apache-2.0 |
 | libeconf | 0.8.3-r0 | MIT |
 | libevent | 2.1.13-r0 | BSD-3-Clause |
-| libexpat | 2.8.2-r0 | MIT |
+| libexpat | 2.8.3-r0 | MIT |
 | libffi | 3.5.2-r1 | MIT |
 | libgcc | 15.2.0-r5 | GPL-2.0-or-later AND LGPL-2.1-or-later |
 | libmount | 2.42.1-r0 | LGPL-2.1-or-later |
@@ -159,6 +162,7 @@ available from the Alpine Linux package archive at
 | lvm2 | 2.03.35-r2 | GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause |
 | lvm2-libs | 2.03.35-r2 | GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause |
 | lzo | 2.10-r5 | GPL-2.0-or-later |
+| mdadm | 4.3-r3 | GPL-2.0-only |
 | mount | 2.42.1-r0 | GPL-3.0-or-later AND GPL-2.0-or-later AND GPL-2.0-only AND GPL-1.0-only AND LGPL-2.1-or-later AND BSD-1-Clause AND BSD-3-Clause AND BSD-4-Clause-UC AND MIT AND Public-Domain |
 | mpdecimal | 4.0.1-r0 | BSD-2-Clause |
 | musl | 1.2.6-r2 | MIT |
@@ -173,7 +177,9 @@ available from the Alpine Linux package archive at
 | readline | 8.3.3-r1 | GPL-3.0-or-later |
 | rpcbind | 1.2.9-r0 | BSD-3-Clause |
 | scanelf | 1.3.9-r1 | GPL-2.0-only |
-| sqlite-libs | 3.53.2-r0 | blessing |
+| sqlite-libs | 3.53.4-r0 | blessing |
+| userspace-rcu | 0.15.3-r0 | LGPL-2.1-or-later |
+| xfsprogs | 7.0.1-r0 | LGPL-2.1-or-later |
 | xz-libs | 5.8.3-r0 | GPL-2.0-or-later AND 0BSD AND Public-Domain AND LGPL-2.1-or-later |
 | zlib | 1.3.2-r0 | Zlib |
 | zstd-libs | 1.5.7-r2 | BSD-3-Clause OR GPL-2.0-or-later |
@@ -182,6 +188,12 @@ The guest image is a reduced subset of Alpine Linux, containing only the
 packages required to unlock and mount the supported filesystems. It contains
 no ZFS components: neither the `zfs` and `zfs-libs` packages nor the `zfs.ko`
 and `spl.ko` kernel modules are distributed with Lukotta.
+
+The kernel modules are removed by path rather than by package, because no
+package owns them: `zfs.ko` and `spl.ko` are part of the base image's module
+tree, so dropping the `zfs` and `zfs-libs` packages removes the userspace and
+leaves the modules behind. `scripts/trim-image.py` removes `lib/modules/*/fs/zfs`
+explicitly, and the packed archive is checked to contain neither.
 
 ## Notes on the Listings
 

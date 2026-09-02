@@ -130,6 +130,37 @@ def main():
                     if not dry:
                         try: os.remove(path)
                         except OSError: pass
+    # Kernel modules nothing owns.
+    #
+    # Dropping a package removes the files its own database entry names, and
+    # zfs.ko and spl.ko are named by no package at all -- they are baked into
+    # the base image's module tree. So `zfs` and `zfs-libs` were being dropped
+    # correctly, the userspace was gone, and the modules shipped anyway.
+    #
+    # That was not merely dead weight. THIRD_PARTY_NOTICES.md stated that
+    # neither the packages nor "the zfs.ko and spl.ko kernel modules are
+    # distributed with Lukotta", which was untrue of an archive that contained
+    # both -- and ZFS is CDDL, which is the one licence in here it is worth
+    # being exactly right about.
+    #
+    # Removed by path, because there is no package to remove them with.
+    UNOWNED = ["fs/zfs"]
+    for modroot, _, _ in os.walk(os.path.join(rootfs, "lib", "modules")):
+        for rel in UNOWNED:
+            target = os.path.join(modroot, rel)
+            if os.path.isdir(target):
+                for base, _, files in os.walk(target):
+                    for f in files:
+                        path = os.path.join(base, f)
+                        try:
+                            freed += os.path.getsize(path)
+                        except OSError:
+                            pass
+                        removed += 1
+                if not dry:
+                    shutil.rmtree(target, ignore_errors=True)
+                print(f"  removed unowned kernel modules: {rel}")
+
     print(f"  keep {len(keep)} packages, drop {len(drop)}: {', '.join(drop)}")
     print(f"  {removed} files, {freed/1_048_576:.1f} MiB")
 
