@@ -65,6 +65,11 @@ hit while measuring one:
   `awk '{print $5}'` silently sums zero. Use `find -printf` or `stat`.
 - **`grep -c` where the count is zero.** It prints `0` and exits non-zero, so
   `$(grep -c … || echo 0)` prints two zeros.
+- **`pgrep -f` from a shell whose own command line holds the pattern.** A
+  waiting loop written as `until ! pgrep -f 'snapshots.sh'; do sleep; done`
+  matches the zsh running it, so it waits for itself and never finishes. The
+  bracket trick is the fix, `'[s]napshots.sh'`, and it is the same fault as the
+  `pkill -f` one further down this file.
 - **The NFS unresponsive flag as a stall detector.** Polled every two seconds
   through a whole copy it was never seen raised, while timing a plain `stat` on
   the same mount found six requests over five seconds and a worst of 8.9. It
