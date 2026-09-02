@@ -461,7 +461,7 @@ group("theElevatedMountScript") {
     expect(!msScript.contains("-n '"), "NFS options must never use the separated form")
     expect(
         msScript.contains(
-            "--nfs-options='rsize=131072,wsize=131072,readahead=128,dumbtimer,"
+            "--nfs-options='rsize=131072,wsize=32768,readahead=128,dumbtimer,"
                 + "timeo=600,retrans=5,deadtimeout=900,mutejukebox,noowners'"),
         "NFS options use the joined form")
     // The other half of what --ignore-permissions does, which the read-only
