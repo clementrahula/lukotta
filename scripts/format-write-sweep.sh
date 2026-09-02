@@ -42,6 +42,14 @@ say() { printf '%s\n' "$*"; }
 
 # The raw image every format is built from, made once.
 RAW="$WORK/base.img"
+# Rebuilt when it is smaller than asked for. It is made once and kept, which is
+# right -- and meant that raising the size did nothing at all, because the old
+# one was still there. Every format was then built from an image too small for
+# the corpus, and reported as not having room.
+if [ -f "$RAW" ] && [ "$(stat -c %s "$RAW")" -lt "$((MIB * 1048576))" ]; then
+  say "the kept image is smaller than ${MIB} MiB; building it again"
+  rm -f "$RAW" "$WORK"/sweep*.* 2>/dev/null
+fi
 if [ ! -f "$RAW" ]; then
   say "building a ${MIB} MiB NTFS image to wrap…"
   dd if=/dev/zero of="$RAW" bs=1048576 count=0 seek="$MIB" status=none
@@ -113,9 +121,17 @@ for img in sweep.qcow2 sweep.vdi sweep.vhd sweep-dyn.vhd sweep-sparse.vmdk; do
     continue
   fi
   say "  mounted at $at"
-  if "$HERE/scripts/copy-torture.sh" "$at" 2>&1 | sed 's/^/  /'; then
+  # PIPESTATUS, not the pipeline's status. Piping the output through sed to
+  # indent it made the `if` test sed's exit status, which is nought whatever
+  # happened upstream -- so four formats that wrote nothing at all, each
+  # printing "not enough room", were counted as having passed, and the sweep
+  # finished by saying "0 failed". A harness that reports its own omissions as
+  # successes is worse than no harness.
+  "$HERE/scripts/copy-torture.sh" "$at" 2>&1 | sed 's/^/  /'
+  if [ "${PIPESTATUS[0]}" -eq 0 ]; then
     pass=$((pass + 1))
   else
+    say "  FAILED: $img"
     fail=$((fail + 1))
   fi
   close "$img"
