@@ -9,6 +9,18 @@
 #   luks2-direct   LUKS2 -> btrfs                 (Arch-style, no LVM)
 #   luks2-lvm      LUKS2 -> LVM -> btrfs          (Fedora-style, one volume)
 #   luks1-lvm      LUKS1 -> LVM -> two volumes    (Ubuntu-style root + home)
+#   luks-ext4      LUKS2 -> ext4                  (2.4 GB, for the corpus)
+#   luks-xfs       LUKS2 -> xfs                   (2.4 GB, for the corpus)
+#   luks-big       LUKS2 -> btrfs                 (2.4 GB, for the corpus)
+#
+#     The three above exist because the help sheet says the app opens "ext4,
+#     btrfs and XFS filesystems inside them" and only btrfs had ever been
+#     tested inside a container. Built at 2.4 GB rather than 600 MB because
+#     the torture corpus needs about 1089 MB -- the sparse gigabyte in it
+#     arrives fully allocated over NFSv3, so the volume needs the apparent
+#     size and not the size on disk. All three: 2024 identical, 0 differing,
+#     0 missing, on 2026-09-02.
+#
 #   luks-multi     GPT -> LUKS2 -> LVM -> three   (Fedora-style, and the only
 #                  fixture inside a partition, so it is the one the app's own
 #                  drive list can see)

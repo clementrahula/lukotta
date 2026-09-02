@@ -31,6 +31,8 @@
 #   XFS            2024 identical, 0 differing, 0 missing   (copied in 8s)
 #   ext4           2024 identical, 0 differing, 0 missing   (copied in 8s)
 #   LUKS2 -> btrfs 2024 identical, 0 differing, 0 missing   (copied in 30s)
+#   LUKS2 -> ext4  2024 identical, 0 differing, 0 missing
+#   LUKS2 -> xfs   2024 identical, 0 differing, 0 missing
 #   BitLocker/NTFS 1 GB, 4 of 4 byte-identical, 7.0 MB/s, on the owner's drive
 #
 # The ext4 and LUKS fixtures had to be rebuilt at full size first: the corpus
