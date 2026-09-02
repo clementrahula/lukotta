@@ -224,7 +224,26 @@ elif grep -qiE 'no space|full' "$WORK/full.err" 2>/dev/null || [ "$rc" != 0 ]; t
 else
   note no "a full volume answers with an error (dd claimed success)"
 fi
-rm -f "$VOL/vec-full/filler.bin"
+# The whole directory, and then a look at whether the room actually came back.
+#
+# Removing the file alone left the directory, and on a small volume the space
+# was not reclaimed by the time the next vector ran. Every vector after this one
+# then failed with ENOSPC and was reported as a fault in the app: permissions
+# unreadable, concurrent writers all differing, every fsynced file lost. None of
+# that happened. The volume was full, because this filled it.
+rm -rf "$VOL/vec-full"
+for _ in $(seq 1 15); do
+  free_kb="$(df -k "$VOL" 2>/dev/null | tail -1 | awk '{print $4}')"
+  [ "${free_kb:-0}" -gt 20480 ] && break
+  sleep 2
+done
+if [ "${free_kb:-0}" -le 20480 ]; then
+  note no "the room comes back after a full volume (${free_kb:-0} KB free)"
+  printf '\nstopping here: the volume is still full, so every vector after this\n'
+  printf 'one would fail on space and be read as a fault in the app.\n'
+  printf '%%s passed, %%s failed\n' "$pass" "$fail"
+  exit 1
+fi
 
 # 6. Opened and closed repeatedly, which is what a person does over a week.
 # The machine keeps the image after the share goes. Mounter.mount says so:
