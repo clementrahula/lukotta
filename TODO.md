@@ -213,9 +213,12 @@ nothing had ever opened one.
   through every format the app says it can write: qcow2, VDI, VHD fixed and
   dynamic, sparse VMDK. 5 of 5, 2024 identical, 0 differing, 0 missing. Before
   this the write paths had only their unit tests against `qemu-img`.
-- [ ] The filesystems still want the same treatment through
-  `integrity-vectors.sh` for the crash and concurrency cases and
-  `xattr-forks.sh` for what macOS attaches to a file, both directions, results
+- [x] **The vectors run against NTFS as well as XFS.** Eleven of eleven on an
+  NTFS image, including the fsync-across-a-kill case XFS fails: 8 of 8 fsynced
+  files present, 0 wrong, 0 lost. An image is a regular file, so this says
+  nothing about a physical drive.
+- [ ] Still wanted: `integrity-vectors.sh` against btrfs and ext4, and
+  `xattr-forks.sh` against each filesystem rather than only NTFS, results
   written into `make-format-volumes.sh` beside the ones already there.
 - [ ] **Build ntfsck into the guest and gate the ntfs3 probe on it.** The probe
   in `MountScript.ntfs3Probe` asks whether ntfs3 will mount read-only, which is
