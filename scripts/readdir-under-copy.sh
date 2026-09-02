@@ -56,11 +56,35 @@
 #   READDIRPLUS        no. Dropping the per-entry attribute fetch made the
 #                      median worse too.
 #
-# What is left is the thing every measurement has pointed at from the start:
-# the device. Reading a directory that is being written to, on a drive that
-# absorbs about 5 MB/s, costs seconds because the metadata has to reach the
-# platter behind the write stream. Nothing above the device has been able to
-# reorder that. The next place to look is not another mount option.
+# AND IT IS NOT THE DEVICE EITHER. THAT WAS WRITTEN DOWN AND IT WAS WRONG.
+#
+# The device was blamed because NTFS on an SSD behaves like ext4 on an SSD, so
+# the slow drive looked like the only variable left. One measurement kills it:
+# during a copy, time a READDIR of the busy directory, a GETATTR of a single
+# file *inside that same directory*, and a READDIR of a quiet one.
+#
+#   round   readdir-busy   stat-one-file   readdir-quiet
+#       1        10.86s          0.02s          0.05s
+#       2        90.06s          0.03s          2.81s
+#       3         7.21s          0.03s          0.02s
+#       6        90.05s          0.03s          0.02s
+#       9         8.40s          0.03s          0.02s
+#      10         4.15s          0.04s          0.02s
+#
+# Two of the listings ran past a ninety-second timeout. In the same seconds,
+# asking the same drive for the size of a file *in the directory that was
+# taking ninety seconds to list* was answered in thirty milliseconds, every
+# single time.
+#
+# A saturated device cannot do that. If the platter were the queue, the GETATTR
+# would wait in it too -- it reads an MFT record off the same disk behind the
+# same writes. It does not wait. So the drive has spare capacity for metadata
+# throughout, and the cost is in the READDIR itself: enumerating a directory
+# whose index is being modified, not reaching the disk.
+#
+# Which is why none of the four knobs moved it. Thread count, filesystem,
+# queue depth and READDIRPLUS are all about getting requests to the device
+# faster, and the device was never the thing that was slow.
 #
 # Throughput is reported beside latency on purpose. A shorter queue that halves
 # the wait and halves the copy speed is not a win, and this goal will not take

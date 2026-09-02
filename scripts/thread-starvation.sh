@@ -79,6 +79,13 @@
 # NTFS on a fast device behaves exactly like ext4 on a fast device. The
 # filesystem is not the variable. The device is.
 #
+# NOTE, ADDED LATER: the conclusion below is wrong, and the correction is in
+# readdir-under-copy.sh. It is not the device. During a copy a GETATTR of a
+# file inside the directory that is taking ninety seconds to list is answered
+# in thirty milliseconds, off the same drive, behind the same writes. A
+# saturated device cannot do that. The cost is in enumerating a directory whose
+# index is being modified, not in reaching the disk.
+#
 # So the mechanism is queueing, not locking: on a drive that absorbs 7 MB/s the
 # metadata reads for the directory being written have to reach the platter and
 # they queue behind the bulk write stream, while a directory nobody is touching
