@@ -75,7 +75,12 @@ if [ "$HOST_ONLY" = "1" ] && [ ! -f "$OUT/vmproxy" ]; then
   exit 1
 fi
 
-for tool in cargo rustc; do
+# go builds init-rootfs, which unpacks the Linux image. It used to be taken
+# from the bottle, and taking it meant taking one that writes the image into
+# ~/.anylinuxfs whatever ANYLINUXFS_HOME says -- the directory every program
+# using this engine shares. Built here so the patch that gives this engine a
+# directory of its own reaches the program that makes the directory.
+for tool in cargo rustc go; do
   command -v "$tool" >/dev/null || {
     echo "error: no $tool. Install a Rust toolchain: https://rustup.rs" >&2; exit 1; }
 done
@@ -193,8 +198,13 @@ else
   [ -f "$GUEST" ] || { echo "error: no vmproxy was built" >&2; exit 1; }
 fi
 
+# The image unpacker, patched to keep to the directory it is given.
+( cd "$SRC/init-rootfs" && CGO_ENABLED=0 go build -trimpath -o "$SRC/init-rootfs/init-rootfs" . )
+UNPACKER="$SRC/init-rootfs/init-rootfs"
+[ -x "$UNPACKER" ] || { echo "error: no init-rootfs was built" >&2; exit 1; }
+
 rm -rf "$OUT"; mkdir -p "$OUT"
-cp "$HOST" "$GUEST" "$OUT/"
+cp "$HOST" "$GUEST" "$UNPACKER" "$OUT/"
 
 # Checked rather than intended. A remap that stops working -- a flag rustc
 # renames, a RUSTFLAGS somewhere downstream that replaces this one rather than

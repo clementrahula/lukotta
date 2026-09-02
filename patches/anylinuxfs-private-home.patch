@@ -83,8 +83,7 @@ Both programs read the variable now.
 
 --- a/init-rootfs/main.go
 +++ b/init-rootfs/main.go
-@@ -531,7 +531,20 @@
- 	if currentUser.HomeDir == "" {
+@@ -532,7 +532,23 @@
  		fmt.Println("Current user does not have a home directory.")
  		os.Exit(1)
  	}
@@ -93,8 +92,8 @@ Both programs read the variable now.
 +	// follows ANYLINUXFS_HOME like everything else the engine keeps. Unset, it
 +	// is the user's home and nothing changes.
 +	//
-+	// The Rust side of this patch moved the profile, the configuration and the
-+	// logs and left the image here, which is the one that matters most: an
++	// The Rust half of this patch moved the profile, the configuration and the
++	// logs and left the image here, and the image is the one that mattered: an
 +	// application looking in its own directory found nothing, unpacked again,
 +	// and reported a drive that would not open.
 +	stateDir := currentUser.HomeDir
