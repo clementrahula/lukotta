@@ -376,7 +376,20 @@
         ///   "the image opens (gave up)" about an image that had opened.
         @MainActor
         private static func openAndChoose(
-            _ image: URL, timeout: TimeInterval = 60, partitioned: Bool = false
+            // Measured rather than guessed. Sixty seconds was enough for every
+            // image here except a LUKS container holding a volume group, which
+            // took 67.7 s on this Mac -- so that one case failed, and it failed
+            // in the way a timeout does: the step is reported as not having
+            // happened when it happens a few seconds later. The volume opens
+            // perfectly well; timing it directly puts it at /Volumes/LUKOTTATEST
+            // with everything mounted.
+            //
+            // A volume group is the slow one because the container is unlocked,
+            // then scanned for physical volumes, then the group activated, then
+            // each logical volume mounted and exported, all inside one machine
+            // boot. Twice the measured time leaves room for a Mac busier than
+            // this one without hiding a genuine hang.
+            _ image: URL, timeout: TimeInterval = 140, partitioned: Bool = false
         ) -> (model: AppModel, drive: Drive)? {
             guard !partitioned else { return openPartitioned(image, timeout: timeout) }
             return openWholeDisk(image, timeout: timeout)

@@ -10,6 +10,15 @@
 # real Mac rather than in CI. Nothing is drawn, the app exiting before its window
 # is built, and nothing belonging to the user is touched: the container is made
 # here in a cache of its own, and only that is opened.
+# GNU spellings throughout, not BSD ones. This machine puts coreutils ahead of
+# /usr/bin so that shell behaviour matches Linux CI, and this script was written
+# in the other dialect: `dd bs=1m` and `stat -f%z`. GNU dd answers "invalid
+# number: '1m'" and GNU stat answers "invalid option -- '%'", and with
+# `set -e` above them the script exits at the first one without printing
+# anything it did not already print. It got as far as "Building a LUKS
+# container to test against" and stopped, which reads exactly like a slow step
+# rather than a dead one -- so every image format this file covers had never
+# actually been tested here.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 
@@ -78,7 +87,7 @@ case "$APP_ID" in *.beta) OTHER_ID="${APP_ID%.beta}" ;; esac
 OTHER_HOME="$HOME/Library/Application Support/$OTHER_ID"
 OTHER_BEFORE=""
 if [ -d "$OTHER_HOME" ]; then
-  OTHER_BEFORE="$(find "$OTHER_HOME" -exec stat -f '%m %z %N' {} + 2>/dev/null | sort)"
+  OTHER_BEFORE="$(find "$OTHER_HOME" -exec stat -c '%Y %s %n' {} + 2>/dev/null | sort)"
 fi
 
 # Whether a filesystem was really written, by the mark it leaves at a known
@@ -104,7 +113,7 @@ if [ ! -f "$CONTAINER" ]; then
   # refuses to mount against the second:
   #   device total_bytes should be at most 72548352 but found 335544320
   # Also large enough for a filesystem: btrfs refuses anything under ~110 MB.
-  dd if=/dev/zero of="$CONTAINER" bs=1m count=320 2>/dev/null
+  dd if=/dev/zero of="$CONTAINER" bs=1048576 count=320 2>/dev/null
   "$ENGINE" shell "$CONTAINER" -c "
     echo -n '$PASSPHRASE' | cryptsetup luksFormat --type luks2 --batch-mode /dev/vda -
     echo -n '$PASSPHRASE' | cryptsetup luksOpen /dev/vda c -
@@ -126,7 +135,7 @@ fi
 if [ ! -f "$PLAIN" ]; then
   echo "==> Building an unencrypted image to test against (once)"
   mkdir -p "$CACHE"
-  dd if=/dev/zero of="$PLAIN" bs=1m count=320 2>/dev/null
+  dd if=/dev/zero of="$PLAIN" bs=1048576 count=320 2>/dev/null
   "$ENGINE" shell "$PLAIN" -c "mkfs.btrfs -f -q -L LUKOTTAPLAIN /dev/vda" >/dev/null 2>&1
   restore_length "$PLAIN" "$SIZE"
   made_or_go "$PLAIN" 65600 _BHRfS_M "an unencrypted image"
@@ -160,7 +169,7 @@ if [ ! -f "$EXT4" ]; then
   if [ -n "$MKE2FS" ]; then
     echo "==> Building an ext4 image to test against (once)"
     mkdir -p "$CACHE"
-    dd if=/dev/zero of="$EXT4" bs=1m count=320 2>/dev/null
+    dd if=/dev/zero of="$EXT4" bs=1048576 count=320 2>/dev/null
     "$MKE2FS" -t ext4 -F -q -L LUKOTTAEXT4 "$EXT4" >/dev/null 2>&1 \
       || { echo "    mke2fs would not make one; ext4 is not tested"; rm -f "$EXT4"; }
   else
@@ -179,7 +188,7 @@ fi
 if [ ! -f "$NTFS" ]; then
   echo "==> Building an NTFS image to test against (once)"
   mkdir -p "$CACHE"
-  dd if=/dev/zero of="$NTFS" bs=1m count=320 2>/dev/null
+  dd if=/dev/zero of="$NTFS" bs=1048576 count=320 2>/dev/null
   "$ENGINE" shell "$NTFS" -c "mkfs.ntfs -f -F -L LUKOTTANTFS /dev/vda" >/dev/null 2>&1
   restore_length "$NTFS" "$SIZE"
   made_or_go "$NTFS" 3 NTFS "an NTFS image"
@@ -191,7 +200,7 @@ if [ ! -f "$EXFAT" ]; then
   # A raw image and newfs_exfat rather than `hdiutil create -fs ExFAT`, which
   # answers "Operation not permitted" here. This is also the shape that matters:
   # a filesystem with no partition table around it.
-  dd if=/dev/zero of="$EXFAT" bs=1m count=40 2>/dev/null
+  dd if=/dev/zero of="$EXFAT" bs=1048576 count=40 2>/dev/null
   dev="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$EXFAT" | head -1 | awk '{print $1}')"
   newfs_exfat -v EXFAT "$dev" >/dev/null 2>&1
   hdiutil detach "$dev" -force >/dev/null 2>&1
@@ -210,7 +219,7 @@ VMDK="$CACHE/plain.vmdk"
 if [ ! -f "$VMDK" ]; then
   echo "==> Building a VMDK to test against (once)"
   cp "$PLAIN" "$CACHE/plain-flat.vmdk"
-  sectors=$(( $(stat -f%z "$CACHE/plain-flat.vmdk") / 512 ))
+  sectors=$(( $(stat -c %s "$CACHE/plain-flat.vmdk") / 512 ))
   {
     printf '# Disk DescriptorFile\nversion=1\nCID=fffffffe\nparentCID=ffffffff\n'
     printf 'createType="monolithicFlat"\n\nRW %s FLAT "plain-flat.vmdk" 0\n\n' "$sectors"
@@ -345,7 +354,7 @@ done
 check_the_other_channel() {
   [ -n "$OTHER_BEFORE" ] || return 0
   local after
-  after="$(find "$OTHER_HOME" -exec stat -f '%m %z %N' {} + 2>/dev/null | sort)"
+  after="$(find "$OTHER_HOME" -exec stat -c '%Y %s %n' {} + 2>/dev/null | sort)"
   if [ "$after" = "$OTHER_BEFORE" ]; then
     printf '  ok   %s was not touched by this run\n' "$OTHER_ID"
   else
