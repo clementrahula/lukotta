@@ -163,6 +163,14 @@ VOL="$(where)"
 [ -n "$VOL" ] || { echo "error: mounted, but nowhere findable" >&2; exit 1; }
 echo "mounted at $VOL"
 
+# Whatever a previous run left. A run that stopped partway leaves its filler
+# behind, and the next one then starts on a volume with no room and measures
+# that instead of the app -- which is exactly what happened on the exFAT
+# fixture: it arrived with 4 KB free and every vector was about the space.
+for leftover in "$VOL"/vec-*; do [ -e "$leftover" ] && rm -rf "$leftover"; done
+free_kb="$(df -k "$VOL" 2>/dev/null | tail -1 | awk '{print $4}')"
+printf 'starting with %s MB free\n' "$(( ${free_kb:-0} / 1024 ))"
+
 SRC="$WORK/src"; payload "$SRC" 40 2000000     # 80 MB, enough to interrupt
 
 # 1. A copy killed partway. What landed before the knife must still be itself.
@@ -241,7 +249,7 @@ if [ "${free_kb:-0}" -le 20480 ]; then
   note no "the room comes back after a full volume (${free_kb:-0} KB free)"
   printf '\nstopping here: the volume is still full, so every vector after this\n'
   printf 'one would fail on space and be read as a fault in the app.\n'
-  printf '%%s passed, %%s failed\n' "$pass" "$fail"
+  printf '%s passed, %s failed\n' "$pass" "$fail"
   exit 1
 fi
 
