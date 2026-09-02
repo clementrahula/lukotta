@@ -1,0 +1,121 @@
+diff -ruN -x target -x Cargo.lock a/src/file.rs b/src/file.rs
+--- a/src/file.rs	2026-09-02 13:29:12
++++ b/src/file.rs	2026-09-02 13:31:26
+@@ -1,5 +1,8 @@
+ //! Use a plain file or host block device as storage.
+ 
++// Modified on 2026-09-02 by Clement Rahula <lukotta@rahula.dev>: flushed a
++// device node with the call a device node accepts.
++
+ #[cfg(unix)]
+ use crate::io_buffers::IoBuffer;
+ use crate::io_buffers::{IoVector, IoVectorMut};
+@@ -34,6 +37,25 @@
+ #[cfg(windows)]
+ use windows_sys::Win32::System::IO::DeviceIoControl;
+ 
++/// `DKIOCSYNCHRONIZECACHE`: flush the drive's own write cache.
++///
++/// Declared in `<sys/disk.h>` as `_IO('d', 22)`. Spelled as the number it
++/// expands to because there is no macOS disk crate in this tree worth adding
++/// for one constant; the value came out of the header by compiling it, rather
++/// than being worked out by hand.
++#[cfg(target_os = "macos")]
++const DK_SYNCHRONIZE_CACHE: libc::c_ulong = 0x2000_6416;
++
++/// Whether the device is saying it has no cache to flush, rather than that the
++/// flush went wrong.
++///
++/// ENOTTY 25, ENOTSUP 45, EINVAL 22, ENODEV 19, as on Darwin.
++#[cfg(target_os = "macos")]
++fn device_has_no_cache(e: &io::Error) -> bool {
++    matches!(e.raw_os_error(), Some(25) | Some(45) | Some(22) | Some(19))
++        || e.kind() == io::ErrorKind::Unsupported
++}
++
+ /// Use a plain file or host block device as a storage object.
+ #[derive(Debug)]
+ pub struct File {
+@@ -67,6 +89,13 @@
+     #[cfg(target_os = "macos")]
+     relaxed_sync: bool,
+ 
++    /// macOS-only: whether this is a device node rather than a regular file.
++    ///
++    /// Decided once, at open: `sync()` runs on every flush the guest asks for
++    /// and must not stat the file each time.
++    #[cfg(target_os = "macos")]
++    is_device: bool,
++
+     /// Set once we know that discard is unsupported and we can skip trying.
+     discard_unsupported: AtomicBool,
+ }
+@@ -314,7 +343,45 @@
+     }
+ 
+     async fn sync(&self) -> io::Result<()> {
++        // A device node takes neither of the two calls below. Measured on
++        // macOS 26, on a device opened for writing:
++        //
++        //     target         fsync   F_FULLFSYNC   DKIOCSYNCHRONIZECACHE
++        //     device node    ok      ENOTTY        ok
++        //     regular file   ok      ok            ENOTTY
++        //
++        // They are exact complements, and `fsync` on a device node is the
++        // trap: it returns success having done nothing, so both branches
++        // below report a flush that never reached the drive. `sync_all` is
++        // no better -- it is F_FULLFSYNC, which the device refuses outright.
++        //
++        // Written 8 MB through a mount with `dd conv=fsync` and killed the
++        // machine: on a real drive the file was not there at all afterwards,
++        // while the same test against an image file kept it byte-identical.
++        // The image is a regular file, where `fsync` is real. That is the
++        // whole of the difference.
+         #[cfg(target_os = "macos")]
++        if self.is_device {
++            let rc = while_eintr(|| {
++                // Safe: File descriptor is valid, and the request takes no
++                // argument.
++                unsafe {
++                    libc::ioctl(
++                        self.file.write().unwrap().as_raw_fd(),
++                        DK_SYNCHRONIZE_CACHE,
++                    )
++                }
++            });
++            return match rc {
++                Ok(_) => Ok(()),
++                // A device with no cache to flush says so rather than
++                // failing. Turning that into an I/O error would fail every
++                // barrier and nothing would mount.
++                Err(e) if device_has_no_cache(&e) => Ok(()),
++                Err(e) => Err(e),
++            };
++        }
++        #[cfg(target_os = "macos")]
+         if self.relaxed_sync {
+             // Safe: File descriptor is valid and there aren't any other arguments.
+             while_eintr(|| unsafe { libc::fsync(self.file.write().unwrap().as_raw_fd()) })?;
+@@ -444,6 +511,13 @@
+         assert!(req_align.is_power_of_two());
+         assert!(mem_align.is_power_of_two());
+ 
++        // Before `file` is moved into the lock.
++        #[cfg(target_os = "macos")]
++        let is_device = file
++            .metadata()
++            .map(|m| m.file_type().is_block_device() || m.file_type().is_char_device())
++            .unwrap_or(false);
++
+         Ok(File {
+             file: RwLock::new(file),
+             filename,
+@@ -455,6 +529,8 @@
+             common_storage_helper: Default::default(),
+             #[cfg(target_os = "macos")]
+             relaxed_sync,
++            #[cfg(target_os = "macos")]
++            is_device,
+             discard_unsupported: AtomicBool::new(false),
+         })
+     }

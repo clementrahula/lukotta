@@ -74,9 +74,14 @@ to which they apply.
 | anylinuxfs | GPL-3.0-or-later | 2026-08-22 | Recognition of the VMDK, VDI, VHD and VHDX disk-image formats |
 | anylinuxfs | GPL-3.0-or-later | 2026-08-25 | Separation of the image, the configuration and the logs into a directory the caller names, leaving mount points where they were |
 | anylinuxfs | GPL-3.0-or-later | 2026-08-25 | Mounting of the volumes of a volume group without elevation, macOS permitting a mount on a directory its owner holds |
+| anylinuxfs | GPL-3.0-or-later | 2026-08-28 | Assignment to the guest network interface of the MAC address vmnet issued |
+| anylinuxfs | GPL-3.0-or-later | 2026-09-01 | A caller-supplied floor for the memory a LUKS unlock is given, read from the volume's own header, in place of a fixed 2560 MiB for every mount |
 | vmproxy | GPL-3.0-or-later | 2026-08-22 | Unlocking of an encrypted volume detected inside a disk image |
+| vmproxy | GPL-3.0-or-later | 2026-08-28 | Announcement of the guest network interface, so that vmnet forwards to it |
 | imago | MIT | 2026-08-22 | Drivers for VDI, VHD and VHDX, the first two written as well as read; support for the sparse and stream-optimized forms of VMDK |
+| imago | MIT | 2026-09-02 | Flushing of a device node with `DKIOCSYNCHRONIZECACHE`, the call a device node accepts, in place of `fsync` and `F_FULLFSYNC` |
 | krun-devices | Apache-2.0 | 2026-08-22 | Selection of the VDI, VHD and VHDX drivers by disk-format number |
+| krun-devices | Apache-2.0 | 2026-09-02 | Passing of the guest's flush through to a raw device, which was previously answered without being carried out |
 
 Files added to imago by these modifications are licensed under the MIT terms of
 that crate and carry a notice recording it. Lukotta's own source is not
