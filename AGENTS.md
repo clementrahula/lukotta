@@ -887,3 +887,114 @@ mechanism, and it keeps a copy of what was there and puts it back.
 `check-coverage.sh` holds all of it: that `build-app.sh` copies neither branded
 build, that `release.sh` passes `LUKOTTA_INSTALL=0` and writes nothing into
 `/Applications`, and that no other script copies over an installed app.
+
+## The Daemon Serves the Old Mount Script Until the Contract Changes
+
+`MountScript` lives in `LukottaCore`, which the privileged daemon links and
+runs. launchd keeps the running daemon across a rebuild, so replacing the app
+bundle does not replace the code generating mount scripts. A rebuild, an
+install, and a fresh `--drive open` will all happily be served by a daemon from
+before the first of them.
+
+This is not a hypothetical. Three rebuilds in a row were once served by a
+daemon predating all of them, and every reading taken during that window
+described code no longer on disk — including "I turned the change off and the
+symptom is still there", which was read as evidence about the change and was
+evidence about nothing.
+
+`HelperProtocol.contract` is what makes the daemon notice. Raise it whenever
+the generated script changes, and check the daemon's pid actually changed
+before believing a measurement:
+
+```bash
+before=$(pgrep -f 'LukottaDevHelper' | head -1)
+# … eject, open …
+after=$(pgrep -f 'LukottaDevHelper' | head -1)
+[ "$before" != "$after" ] || echo "stale daemon; the reading is worthless"
+```
+
+You cannot kill it yourself. It is privileged, `kill -TERM` from your account
+does nothing, and `sudo` is not available non-interactively. The contract is
+the mechanism; use it.
+
+## Never Sweep With `pkill -9 -f 'anylinuxfs mount'`
+
+That pattern matches the machine serving somebody's real drive exactly as
+readily as one serving a fixture. Killing a machine mid-write is not tidy-up:
+the engine's disk backend makes writes durable when it shuts down, not when a
+write is acknowledged, so what it was holding is lost. On NTFS it leaves
+`$MFTMirr` behind `$MFT` and the volume comes up read-only until something
+repairs it.
+
+The author's own drive was dirtied three times this way during one night of
+testing. Match the image under test, as `corrupt-corpus.sh` and
+`integrity-vectors.sh` do, and end machines with `SIGTERM` — it flushes, and
+100 MB survives with the machine exiting in 0.34 s.
+
+Also beware `pkill -f` matching the shell you are typing in: `pkill -f
+'corrupt-corpus'` kills the command line containing that string, which includes
+its own. Use a bracket — `'corrupt-corpu[s]'`.
+
+## An Action Is a Single-Quoted TOML Value
+
+Guest actions are generated into `config.toml` as `before_mount = '…'`. Two
+consequences, both of which have cost a run:
+
+- **No single quotes inside.** `grep -q 'completed successfully'` ends the TOML
+  string, and the engine answers with a parse error at that line and mounts
+  nothing at all. Double quotes are fine.
+- **No `$NAME`.** The engine reads every action for a shell variable and refuses
+  to start when it finds one it cannot resolve. Use backticks and repeat the
+  command rather than binding a variable, as `ntfsRepair` does.
+
+Removing an action from `config.toml` afterwards is where the subtler trap is.
+The obvious regex — `\[custom_actions\.NAME\][^\[]*` — stops at the first `[` it
+meets, and the line below the header is `environment = ['…']`. So it deletes the
+header, orphans the body, and the file degrades one stray line per run until the
+engine will not parse it. In between, mounts fail for reasons that have nothing
+to do with what is being measured, and a whole set of results looks real. A
+section ends at the next line that *starts* with `[`.
+
+## Instruments That Reported Something Other Than What Was Asked
+
+The pattern is always the same: a number that is true, answering a question
+nobody asked.
+
+- **`stat` on the mount root** was sampled for 45 minutes as evidence that
+  nothing stalled — p50 0.027 s, p99 0.031 s. It is the cheapest, most cached
+  call on an NFS mount. Listing the busy directory at the same moment took
+  10.891 s.
+- **`readdir` was the wrong call** for the same question. Finder uses
+  `getattrlistbulk(2)`, which is *slower* here — median 8.42 s against 5.16 s.
+  `scripts/bulk-list.c` times the one that matters.
+- **A "quiet directory answers in 20 ms"** was used to rule out the nfsd thread
+  pool. It is answered from the client's cache without an RPC, so it never asked
+  the server anything. Asked directly, 32 threads is worse than 8.
+- **`log show` returns nothing at all here**, not even unfiltered, so it has no
+  opinion to give — and it was read as one. `log stream` works.
+- **A complaint counter that has never fired** is indistinguishable from a
+  clean run. `watch-for-complaints.sh --probe` checks the channel is open before
+  a zero is believed.
+- **`[ -w ]` answers differently as root.** Verified from a shell as the owner
+  and deployed inside the privileged daemon, it is not the same test. Create a
+  file instead.
+- **A fixture with a convincing name.** `plain-xfs.img` sat in the fixture
+  directory for months: two gigabytes long, sixteen kilobytes allocated, no
+  superblock. `verify_image` in `make-format-volumes.sh` now asks every image
+  what it is.
+- **`shasum` on a sparse image** reads the holes. One corpus image is declared
+  at 1 TB with 624 MB in it; `scripts/sparse-digest.py` hashes the extents and
+  does it in 0.4 s.
+
+## Killing a Test Run Leaves Fixtures Half-Written
+
+`scripts/e2e.sh` truncates image fixtures and restores their length afterwards.
+Interrupt it and the cache is left in a state where thirty negative tests report
+"it opened, rather than failing" — images that should be refused now parse as
+something else. Delete `~/Library/Caches/dev.lukotta.e2e` and re-run rather than
+debugging it.
+
+That script is also written in BSD shell dialect — `dd bs=1m`, `stat -f%z` —
+and this machine puts GNU coreutils first, where those are errors. Under
+`set -e` it exited silently after its first `echo`, which read as a slow step
+for a long time. Every image format it covers had never actually run here.

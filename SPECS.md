@@ -343,7 +343,219 @@ VirtualBox.
 
 ---
 
-## 7. Licensing
+## 7. What is proven, and how
+
+Every claim below was produced by running it on an Apple Silicon Mac against
+real hardware or a real fixture, and the script that produces it is named. A
+claim with no script behind it is marked as such rather than left to look
+settled.
+
+The corpus referred to throughout is `scripts/copy-torture.sh`: 2024 files
+chosen for the shapes a filesystem bridge breaks on — names NTFS keeps as
+UTF-16 and macOS hands over decomposed, names at the 255-byte limit, trailing
+dots Windows refuses, sizes exactly on and either side of the block and transfer
+boundaries, a sparse gigabyte, empty files, two thousand small files where
+metadata dominates, and a directory deep enough to make the path long. Every
+byte is read back and compared.
+
+### Filesystems and containers
+
+| Claim | Evidence | Script |
+| --- | --- | --- |
+| NTFS/BitLocker reads and writes correctly | 13 GB through Finder onto a real BitLocker drive, 26/26 files byte-identical; 1 GB and 2 GB repeats; 3000 files in nested folders byte-identical | `finder-copy-cycles.sh` |
+| ext4 | corpus: 2024 identical, 0 differing, 0 missing | `copy-torture.sh` |
+| btrfs | corpus, inside LUKS: 2024 identical | `copy-torture.sh` |
+| XFS | corpus: 2024 identical | `copy-torture.sh` |
+| LUKS2 → btrfs | corpus: 2024 identical | `copy-torture.sh` |
+| LUKS2 → ext4 | corpus: 2024 identical | `copy-torture.sh` |
+| LUKS2 → XFS | corpus: 2024 identical | `copy-torture.sh` |
+| LUKS2 → LVM → btrfs | corpus: 2024 identical; container opens every logical volume at once, all writable, concurrent copies into two byte-identical | `copy-torture.sh`, `lvm-lock-rule.sh` |
+| exFAT is handled by macOS, not the guest | attached and checked: mount table shows `exfat, local`, through FSKit, no microVM involved | manual, recorded in `make-format-volumes.sh` |
+| BitLocker unlock survives a copy cycle | drive ejected and unlocked again, 26/26 identical through the new mount | `finder-copy-cycles.sh` |
+
+### Disk images
+
+`scripts/e2e.sh` drives the built app through open, unlock, list, relaunch and
+eject for every image format, including the ones that must be refused. **866 of
+866 steps pass.** Fixtures built and exercised: qcow2, encrypted qcow2, VDI, an
+ancient-format VDI, VHD, dynamic VHD, VHDX, a dirty VHDX, a VHDX with a parent,
+monolithicFlat VMDK, a VMDK reaching outside its directory, sparse VMDK and
+stream-optimized VMDK.
+
+Reading is exercised heavily. **Writing to qcow2, VMDK, VDI and VHD is not
+thoroughly tested**, and §6 says why the drivers are new.
+
+### Crash and integrity vectors
+
+`scripts/integrity-vectors.sh`, run against XFS. Ten of eleven pass:
+
+| Vector | Result |
+| --- | --- |
+| a copy killed partway | 40 whole files, 0 corrupt |
+| the volume still takes a write afterwards | passes |
+| unmounted under load | mounts and reads afterwards |
+| what was written before the unmount | survives |
+| a full volume | answers with an error in 7 s rather than hanging |
+| three open/close cycles | 3 of 3 |
+| permissions | everything written is readable by whoever wrote it |
+| two writers and a reader at once | 24 compared, 0 differing |
+| the filesystem after the machine is killed mid-write | comes back |
+| **fsynced data after the machine is killed** | **fails — see §8** |
+| the volume takes a write again after that | passes |
+
+### Repair of dirty NTFS
+
+`scripts/corrupt-corpus.sh` runs the app's real mount ladder against 83
+deliberately corrupted NTFS images published by the ntfsprogs-plus project —
+boot sectors with impossible geometry, MFT records missing attributes, corrupted
+attribute lists, orphaned inodes, cluster runs past the end of the disk, and an
+image taken from a real USB unplug.
+
+**83 cases: 68 opened at a driver rung, 15 refused, 1 refusal that also wrote to
+the volume.** The check that matters is that a refusal leaves the image
+byte-identical, because a driver that scribbles on a damaged filesystem before
+giving up turns a recoverable disk into an unrecoverable one.
+
+Proven on real hardware as well, three times unattended: the author's BitLocker
+drive was left dirty with `$MFTMirr` behind `$MFT` by abrupt machine kills, and
+each time the app repaired it on the next open — `Correcting differences in
+$MFTMirr record 3...OK` — and mounted it writable with every folder and file
+count unchanged.
+
+### Concurrency and footprint
+
+`scripts/eight-gig-pressure.sh`. Thirteen volumes open at once — twelve NTFS
+fixtures plus a real BitLocker drive — all writable, **2378 MB resident across
+every engine process**, 68% of memory free, home directory listing 17–24 ms.
+
+Under artificial memory pressure (8 GB of incompressible ballast held, so what
+remains is roughly an 8 GB Mac's share): all twelve fixtures written and read
+back, home listing 16–20 ms, and the machines' resident total *fell* from
+1545 MB to 554 MB. Most of what a machine holds is page cache it gives back, so
+a dozen volumes do not cost a dozen times a fixed price.
+
+Stated plainly: this was measured on a 16 GB Mac16,12 made to feel like an 8 GB
+one, not on an 8 GB M1.
+
+### The stall that started this
+
+| | before | after |
+| --- | --- | --- |
+| 13 GB Finder copy onto a BitLocker drive | died at 84% with error 100060, four files at zero length | completes, 26/26 byte-identical |
+| requests past 5 s | 10 "not responding" notices | 4 slow requests, 0 notices |
+| root cause | `timeo` was set and inert | `dumbtimer` makes it the interval that is actually used |
+
+---
+
+## 8. Known defects
+
+Measured, reproducible, and not yet fixed. Each names what is known about the
+cause.
+
+### A file with a resource fork is dropped, and the copy reports success
+
+Copying a file carrying `com.apple.ResourceFork` onto a Lukotta volume creates
+nothing. `ditto` on a single file exits 1 and prints one line; `ditto` on a
+folder exits **0** with the file simply absent, and Finder copies through the
+same machinery.
+
+Narrowed to one refused call:
+
+```
+printf data > /Volumes/DRIVE/f.bin                    ok
+printf x    > /Volumes/DRIVE/._f.bin                  ok
+printf x    > /Volumes/DRIVE/f.bin/..namedfork/rsrc   not writable
+xattr -w com.apple.ResourceFork ... f.bin             [Errno 22] EINVAL
+```
+
+Every other extended attribute is accepted and stored in an AppleDouble file
+beside the original. `com.apple.ResourceFork` alone is refused by the macOS NFS
+client. It is not the filesystem and not the tool: the same command onto local
+APFS keeps the fork, and onto an XFS image over the same stack it fails exactly
+as it does on NTFS. No mount option reaches it. `scripts/xattr-forks.sh`.
+
+### fsync does not survive a killed machine
+
+Data an application was told had been committed is lost if the microVM is killed
+outright. On an image: 4 MB written with `dd conv=fsync`, machine killed,
+returns full length with exactly 32768 bytes of holes at offset 0 — identically
+on XFS and ext4, every run. On the author's physical BitLocker drive the file is
+**absent entirely**.
+
+Three layers ruled out by measurement:
+
+- **The engine's block cache.** `CacheType::auto()` returned `Unsafe` for any
+  `/dev/rdisk*` path, and `Unsafe` answers the guest's flush with a no-op. This
+  is now patched (`patches/krun-devices-raw-device-flush.patch`) so every path
+  gets `Writeback` and a device that genuinely cannot sync is tolerated rather
+  than failing the request. The symptom is unchanged, so the loss is above it.
+- **The NFS export.** vmproxy builds
+  `{rw|ro},no_subtree_check,no_root_squash,insecure` with no `async`, so nfsd is
+  in its default `sync` mode.
+- **The guest mount options.** `dirsync` was tried, confirmed applied in the
+  transcript, and changed nothing. Reverted, because synchronous directory
+  updates cost every many-small-file copy something.
+
+What remains is ntfs3's own fsync path. `-o sync` would fix it and is refused:
+it makes every write synchronous.
+
+A normal eject is safe. `EngineProcesses.stop` sends SIGTERM and waits up to
+twenty seconds — SIGTERM flushes cleanly, 100 MB surviving with the machine
+exiting in 0.34 s — and never escalates while a machine is still running.
+
+### Listing the folder being copied into is slow
+
+While a large copy runs, that one folder takes several seconds to enumerate;
+occasionally much longer. Measured through `getattrlistbulk(2)`, which is what
+Finder uses rather than `readdir`: **median 8.42 s, worst 34.67 s**.
+
+It is the NFS layer, established by timing the same directory from both sides in
+the same seconds during the same copy:
+
+```
+readdir over NFS, from the host     median 7.11s   worst 90.05s
+readdir inside the guest            median 0.01s   worst  2.79s
+```
+
+Not the device — a GETATTR of a file *inside* the stalling directory is answered
+in 0.03 s off the same drive. Not the filesystem — NTFS on an SSD behaves like
+ext4 on an SSD. Not creates — a directory receiving 3000 file creations lists in
+0.04 s. Seven settings were measured:
+
+| Setting | Result |
+| --- | --- |
+| nfsd threads 8 → 32 | worse on all four numbers |
+| ntfs3 → ntfs-3g | worse, and spreads the stall to quiet folders |
+| `nr_requests` 256 → 32 | median worse |
+| `rdirplus` → `nordirplus` | median worse |
+| **wsize 131072 → 32768** | **worst 90.05 s → 16.56 s, copy faster. Kept.** |
+| wsize 32768 → 16384 | better median, worse tail, slower copy |
+| `acdirmin` 5 → 30 | nothing, and slower |
+
+The tail was reachable and the median is what NFS costs here. Removing it means
+removing the NFS client from the path, which means FSKit.
+`scripts/readdir-under-copy.sh`, `scripts/bulk-list.c`.
+
+### RAID members are claimed and cannot be opened
+
+`DiskWatcher.ourContent` includes the Linux RAID type GUID, so macOS stops
+offering to initialise an array member — an offer one click from destroying an
+array. Nothing then opens it. `mdadm` is kept in the guest and the app reads
+arrays out of the engine's listing; what is missing is constructing the
+`raid:<devA>[:<devB>...]` identifier. Read out of the engine rather than
+guessed: `assemble_raid` is set only on the `raid:` and `lvm:` branches of
+`cmd_mount.rs`, so handing it a member's device path assembles nothing.
+
+### A volume group in an image file, opened by the app's image route
+
+Opening a `.img` of a Linux laptop disk through the image route reaches the
+app's `openImage` path rather than the drive path. This works — 866/866 e2e
+steps pass — but it is worth knowing that the two routes differ, and that the
+partitioned case must be opened as partitioned.
+
+---
+
+## 9. Licensing
 
 anylinuxfs is GPL-3.0-or-later, as is Lukotta. imago is MIT and krun-devices is
 Apache-2.0, both compatible with it. The three driver files added to imago are
