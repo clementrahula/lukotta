@@ -21,6 +21,22 @@
 # Sizes are given in bytes rather than "1m": GNU dd wants 1M and BSD dd wants
 # 1m, and a Mac with coreutils ahead of /usr/bin has the GNU one, where the
 # lowercase spelling is an error rather than a smaller block.
+# RE-VERIFIED 2026-09-02, after the write size changed from 131072 to 32768.
+#
+# A mount-option change invalidates every byte-identical result taken before
+# it, so the corpus was run again on each: 2024 files, non-ASCII and 255-byte
+# names, sizes on the block and transfer boundaries, a sparse gigabyte, two
+# thousand small files, deep paths.
+#
+#   XFS            2024 identical, 0 differing, 0 missing   (copied in 8s)
+#   ext4           2024 identical, 0 differing, 0 missing   (copied in 8s)
+#   LUKS2 -> btrfs 2024 identical, 0 differing, 0 missing   (copied in 30s)
+#   BitLocker/NTFS 1 GB, 4 of 4 byte-identical, 7.0 MB/s, on the owner's drive
+#
+# The ext4 and LUKS fixtures had to be rebuilt at full size first: the corpus
+# needs about 1089 MB because the sparse gigabyte arrives fully allocated, and
+# both had been made at 600 MB.
+#
 # Where each advertised format stands, measured on 2026-09-01:
 #
 #   BitLocker  the owner's stick: 13 GB copied, 26/26 byte-identical, ejected
