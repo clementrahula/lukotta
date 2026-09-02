@@ -476,6 +476,7 @@ struct LukottaApp: App {
             MainActor.assumeIsolated { EndToEnd.runIfAsked() }
             MainActor.assumeIsolated { Snapshots.runIfAsked() }
             MainActor.assumeIsolated { UpdateHarness.runIfAsked() }
+            MainActor.assumeIsolated { UXCheck.runIfAsked() }
         #endif
         // Before anything else: a build that has failed to start twice already
         // does not get a third go at it.
