@@ -161,9 +161,22 @@
         }
 
         /// The drive with this device path, as the app's own scan sees it.
+        ///
+        /// The scan lists physical disks unless it is told which attached
+        /// images to include as well, and an image attached by hand is not a
+        /// physical disk. Asking for a whole-disk container this way answered
+        /// "no drive at /dev/disk7" -- for a container the window opens
+        /// perfectly, because the window goes in by the image route and says
+        /// which file it attached.
+        ///
+        /// The device asked for is the answer to that: whatever disk it belongs
+        /// to is named, so an image is found by the same call that finds a
+        /// stick, and a device that is neither is unaffected.
         @MainActor
         private static func find(_ device: String) -> Drive? {
-            DriveScanner.scan().first { $0.devicePath == device }
+            let identifier = (device as NSString).lastPathComponent
+            let whole = DriveScanner.wholeDisk(of: identifier)
+            return DriveScanner.scan(images: [whole]).first { $0.devicePath == device }
         }
 
         /// What the window would have found for this drive.

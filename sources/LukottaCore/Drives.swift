@@ -283,7 +283,7 @@ public enum DriveScanner {
         return "media:\(cleaned):\(size):\(offset ?? 0)"
     }
 
-    /// "disk6s1" belongs to "disk6".    /// "disk6s1" belongs to "disk6".
+    /// "disk6s1" belongs to "disk6".
     ///
     /// By taking the digits after "disk" rather than cutting at an "s": the
     /// word "disk" contains one, and a synthesised volume is named disk3s1s1,
