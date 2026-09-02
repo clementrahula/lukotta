@@ -70,7 +70,13 @@ where() {
 }
 
 open_device() {
-  nohup "$ENGINE" mount --ignore-permissions "$DEV" > "$WORK/engine.log" 2>&1 &
+  # `-w false` twice over: it takes a shared lock on /tmp/anylinuxfs.lock
+  # rather than an exclusive one, so this runs beside whatever the app
+  # already has open, and it stops the engine opening a Finder window per
+  # volume. Without it the run fails with "another instance is already
+  # running" whenever any drive is mounted.
+  nohup "$ENGINE" mount --ignore-permissions -w false "$DEV" \
+    > "$WORK/engine.log" 2>&1 &
   for _ in $(seq 1 40); do
     [ -n "$(where)" ] && return 0
     sleep 2
