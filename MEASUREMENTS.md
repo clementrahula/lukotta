@@ -22,3 +22,18 @@ Keychain lookup that makes it work is the one shipped in 1.22.0-beta.9: the
 key is searched for under the volume's fingerprint, the fingerprint remembered
 from last time, the volume UUID, the device node, and finally under every key
 the app holds, with a refused key falling silently through to the next.
+
+## Finder copies onto the same BitLocker stick — 2026-09-02
+
+Copies performed by Finder, not by `cp`: the volume was already open, and
+Finder was told to duplicate onto it.
+
+    a handful of files   5 files, three separate runs
+                         1.7 s, 1.5 s, 1.5 s — all five arrived every time
+    a large tree         204 files, 88M, two separate runs
+                         20.8 s and 25.9 s
+    Finder dialogs       0, counted from the accessibility tree after each run
+    read back            identical both runs — BYTE-IDENTICAL
+
+No stall, no error, no "some items had to be skipped", at both extremes and
+repeated rather than once. Items 2, 3 and 4 hold on BitLocker/NTFS.
