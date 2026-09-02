@@ -225,3 +225,23 @@ formatting". Nothing else did.
 for it went through `shell`, so every fixture was truncated and would not mount.
 btrfs itself works through the app -- luks2-direct is btrfs and copied 123 files
 byte-identical -- so this is a gap in the fixture, not a known fault.
+
+## Which filesystems keep what they were told to keep — 2026-09-03
+
+The whole set, each run through the same eleven vectors on this Mac, each with
+the machine killed while writes were in flight:
+
+    NTFS       durable as it mounts     8 of 8 fsynced files, 0 wrong
+    btrfs      durable as it mounts     8 of 8, 0 wrong, 0 lost
+    ext4       loses everything         8 of 8 present, 8 wrong  -> data=journal
+    XFS        loses everything         8 of 8 present, 8 wrong  -> sync
+    exFAT      loses everything         8 of 8 present, 8 wrong  -> sync
+               (never served by the app; macOS mounts it)
+
+btrfs was measured through luks2-direct, which holds btrfs inside a LUKS
+container, after every attempt to build a plain fixture was truncated by the
+engine's shell. 11 of 11 vectors passed with no mount option at all.
+
+This is the answer to whether the option should simply go on everything: no. Two
+of the five need nothing, and btrfs would have paid the 48% that sync costs for
+a fault it does not have. Asking the volume what it needs is worth the code.
