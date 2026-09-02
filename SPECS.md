@@ -399,7 +399,19 @@ end-to-end run opens each format and ejects it, which exercises reading alone.
 
 ### Crash and integrity vectors
 
-`scripts/integrity-vectors.sh`, run against XFS. Ten of eleven pass:
+`scripts/integrity-vectors.sh`. Run against an NTFS image, **eleven of eleven
+pass**, including the one XFS fails:
+
+    ok   every fsynced file survived power loss (8 of 8 present, 0 wrong, 0 lost)
+    note 29 of 30 in-flight files came back at full length; 29 were complete
+
+That is an image, which is a regular file, where `fsync` has always worked. It
+is not evidence about a physical drive, where the flush is the ioctl in §8 and
+the outcome is still unproven. What it does show is that ntfs3 and the export
+above it lose nothing across a killed machine once the flush underneath them is
+real.
+
+Run against XFS, ten of eleven pass:
 
 | Vector | Result |
 | --- | --- |
