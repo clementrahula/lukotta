@@ -33,6 +33,35 @@
 #   ./scripts/readdir-under-copy.sh drive.img 256    the shipped depth
 #   ./scripts/readdir-under-copy.sh drive.img 32     a shorter queue
 #
+# THREE LEVERS TRIED ON THE REAL DRIVE. NONE OF THEM MOVED IT.
+#
+# Measured on the owner's BitLocker drive, 2 GB copied each time, the busy
+# folder listed every two seconds throughout, every run byte-identical:
+#
+#   rdirplus, nr_requests=256 (shipped)  median 6.39s  worst 60.05s  4.6 MB/s
+#   rdirplus, nr_requests=32             median 7.59s  worst 60.05s  5.4 MB/s
+#   nordirplus, nr_requests=256          median 7.99s  worst 60.05s  6.0 MB/s
+#
+# The worst case is the sampler's own 60-second timeout in all three, so the
+# tail is at least that and the medians are what separate them -- and they
+# separate the wrong way. The shipped configuration is the best of the three
+# on latency. Neither knob is the lever.
+#
+# With the earlier two, that is four explanations spent:
+#
+#   nfsd thread pool   no. A starved pool cannot answer a quiet directory in
+#                      20 ms while the busy one waits seven seconds.
+#   the filesystem     no. NTFS on an SSD behaves like ext4 on an SSD.
+#   block queue depth  no. Shortening it made the median worse.
+#   READDIRPLUS        no. Dropping the per-entry attribute fetch made the
+#                      median worse too.
+#
+# What is left is the thing every measurement has pointed at from the start:
+# the device. Reading a directory that is being written to, on a drive that
+# absorbs about 5 MB/s, costs seconds because the metadata has to reach the
+# platter behind the write stream. Nothing above the device has been able to
+# reorder that. The next place to look is not another mount option.
+#
 # Throughput is reported beside latency on purpose. A shorter queue that halves
 # the wait and halves the copy speed is not a win, and this goal will not take
 # one number without the other.
