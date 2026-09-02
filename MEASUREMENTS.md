@@ -146,3 +146,34 @@ part-written.
 ext4 here is mounted data=journal, which 1.22.1 added. It is four times slower
 than NTFS on the many-small-files extreme and that is the filesystem, not a
 stall: it is the same on every cycle.
+
+## XFS loses fsynced data too, and the fix is not free — 2026-09-03
+
+XFS has the same fault ext4 had:
+
+    XFS as it mounts    8 of 8 fsynced files present, 8 wrong, 0 of 30 in-flight complete
+    XFS with sync       8 of 8 present, 0 wrong,     30 of 30 in-flight complete
+
+The cost, measured through the same path both times -- the app's own mount,
+served by the helper, 2000 small files:
+
+    prod 1.22.1, no sync                44 s
+    beta 1.22.2-beta.1, sync            65 s
+
+That is 48% slower on the many-small-files extreme. It is not nothing, and an
+earlier note in this file said it was: 2 seconds either way. That number was
+taken through the raw engine mounted unelevated into ~/Volumes, which is not
+the path the app uses, so it was not a comparison at all. The 44 and 65 above
+are the same path, same corpus, same machine.
+
+**The decision, and it is a trade rather than a fix.** sync stays, because
+losing the contents of files that were fsynced is data loss and 48% on one
+extreme is not. But item 10 says no UX cost anywhere, and this is one, so this
+is not where XFS should end up.
+
+**The next route is the root, not the mount option.** ext4 and XFS both lose
+fsynced data for the same underlying reason: a flush inside the guest does not
+reach the image on the host. data=journal and sync each work around that from
+above, one per filesystem, and neither would be needed if the guest's flush
+were honoured all the way down. That fix would cover btrfs as well, which has
+no fixture here and is therefore still unmeasured.
