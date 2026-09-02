@@ -283,7 +283,14 @@ SIGN_TOOL="$(find "$HERE/.build" -name sign_update -type f -perm -111 -print -qu
 KEYS_TOOL="$(find "$HERE/.build" -name generate_keys -type f -perm -111 -print -quit 2>/dev/null || true)"
 if [ -n "$KEYS_TOOL" ]; then
   SPARKLE_ACCOUNT="${LUKOTTA_SPARKLE_ACCOUNT:-lukotta}"
+  # generate_keys writes "ERROR: No existing signing key found!" to stdout and
+  # exits zero, so redirecting stderr and testing for empty catches nothing:
+  # the error text lands in the variable and reads as a key. Anything that is
+  # not a base64 key is treated as no key.
   HAVE_KEY="$("$KEYS_TOOL" --account "$SPARKLE_ACCOUNT" -p 2>/dev/null || true)"
+  case "$HAVE_KEY" in
+    *ERROR*|*error*) HAVE_KEY="" ;;
+  esac
   if [ -z "$HAVE_KEY" ]; then
     echo "error: no Sparkle signing key for account \"$SPARKLE_ACCOUNT\"" >&2
     echo "       Every installed copy trusts one key and no other, so a new one" >&2
