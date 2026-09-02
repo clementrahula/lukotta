@@ -89,6 +89,22 @@
         }
       ]
     },
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": {
+      "screens": [
+        "first-launch"
+      ],
+      "context": "The whole of the first-launch notice. Says the app is early, that reading and copying off a drive is the safe use, and that writing should be treated as experimental. Plain and calm; it is not a warning dialog and there is nothing to decide. The only button says OK.",
+      "placeholders": [
+        {
+          "token": "%@",
+          "is": "the application's own name"
+        },
+        {
+          "token": "%@",
+          "is": "the application's own name"
+        }
+      ]
+    },
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": {
       "screens": [
         "welcome"
@@ -583,6 +599,13 @@
         "help"
       ],
       "context": "A bullet in the help sheet's list of what the app cannot open. A fragment: no full stop. TPM is a hardware chip and keeps its acronym.",
+      "placeholders": []
+    },
+    "Early development": {
+      "screens": [
+        "first-launch"
+      ],
+      "context": "Title of the sheet shown once, on the first launch, as soon as the drive list is up. Two words, a heading rather than a sentence.",
       "placeholders": []
     },
     "Eject": {

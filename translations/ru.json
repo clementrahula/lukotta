@@ -398,6 +398,8 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "«%@» требует «%@», которого нет рядом. Образ такого рода — это набор файлов, и нужны все они.",
     "“%@” opened in macOS": "«%@» открыт в macOS",
     "“%@” was disconnected.": "«%@» был отключён.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "«%@» был завершён некорректно, и его последнее содержимое не записано обратно в файл. Откройте его один раз в той виртуальной машине, которой он принадлежит, затем попробуйте снова."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "«%@» был завершён некорректно, и его последнее содержимое не записано обратно в файл. Откройте его один раз в той виртуальной машине, которой он принадлежит, затем попробуйте снова.",
+    "Early development": "Ранняя стадия разработки",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ ещё новое приложение. Инструменты и драйверы Linux, на которые оно опирается, существуют многие годы и хорошо проверены. %@ построено поверх них, но само пока в разработке, поэтому неизбежно остаются невыявленные неполадки. Пока безопаснее всего открывать с его помощью диски и образы только для чтения. Запись работает, но считайте её экспериментальной и храните копию всего, что не хотели бы потерять."
   }
 }

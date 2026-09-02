@@ -1541,6 +1541,226 @@
         }
       }
     },
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‏%@ لا يزال جديدًا. أدوات ومشغّلات لينكس التي يعتمد عليها موجودة منذ سنوات وجرى اختبارها جيدًا. %@ مبني فوقها، لكنه لا يزال قيد التطوير، لذا لا مفر من وجود مشكلات لم تُكتشف بعد. في الوقت الحالي، أأمن ما يمكن فعله هو استخدامه لفتح محركات الأقراص والصور للقراءة فقط. الكتابة تعمل بالفعل، لكن يرجى التعامل معها على أنها تجريبية، والاحتفاظ بنسخة من أي شيء لا تريد فقدانه."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ е все още нов. Инструментите и драйверите на Linux, на които разчита, съществуват от години и са добре изпитани. %@ е изграден върху тях, но все още е в разработка, така че неизбежно има неоткрити проблеми. Засега най-безопасно е да го използвате за отваряне на дискове и образи само за четене. Записът работи, но го смятайте за експериментален и пазете копие на всичко, което не бихте искали да загубите."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ je stále nový. Linuxové nástroje a ovladače, na kterých staví, existují už léta a jsou dobře prověřené. %@ je postaven na nich, ale sám je stále ve vývoji, takže nevyhnutelně obsahuje dosud neodhalené problémy. Zatím je nejbezpečnější používat jej k otevírání disků a obrazů jen pro čtení. Zápis funguje, ale berte jej jako experimentální a uchovejte si kopii všeho, o co byste neradi přišli."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ er stadig ny. De Linux-værktøjer og -drivere, den bygger på, har eksisteret i årevis og er velafprøvede. %@ er bygget oven på dem, men er stadig under udvikling, så der er uundgåeligt fejl, der endnu ikke er fundet. Indtil videre er det sikreste at bruge den til at åbne enheder og images skrivebeskyttet. Skrivning virker, men betragt det som eksperimentelt, og behold en kopi af alt, du ville ærgre dig over at miste."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ist noch neu. Die Linux-Werkzeuge und -Treiber, auf die es sich stützt, gibt es seit Jahren und sie sind gut erprobt. %@ baut darauf auf, befindet sich aber noch in Entwicklung, sodass es zwangsläufig noch unentdeckte Probleme gibt. Vorerst ist es am sichersten, damit Laufwerke und Images nur zum Lesen zu öffnen. Schreiben funktioniert, betrachten Sie es jedoch als experimentell und behalten Sie eine Kopie von allem, dessen Verlust Sie bedauern würden."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το %@ είναι ακόμη καινούριο. Τα εργαλεία και οι οδηγοί Linux στους οποίους στηρίζεται υπάρχουν εδώ και χρόνια και είναι καλά δοκιμασμένα. Το %@ είναι χτισμένο πάνω τους, αλλά βρίσκεται ακόμη υπό ανάπτυξη, οπότε αναπόφευκτα υπάρχουν ζητήματα που δεν έχουν εντοπιστεί. Προς το παρόν, το ασφαλέστερο είναι να το χρησιμοποιείτε για άνοιγμα δίσκων και ειδώλων μόνο για ανάγνωση. Η εγγραφή λειτουργεί, αλλά θεωρήστε την πειραματική και κρατήστε αντίγραφο όσων δεν θα θέλατε να χάσετε."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ es todavía nuevo. Las herramientas y los controladores de Linux en los que se apoya llevan años entre nosotros y están bien probados. %@ está construido sobre ellos, pero sigue en desarrollo, así que inevitablemente quedan problemas por descubrir. Por ahora, lo más seguro es usarlo para abrir discos e imágenes en modo de solo lectura. La escritura funciona, pero trátela como experimental y conserve una copia de todo lo que lamentaría perder."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ on veel uus. Linuxi tööriistad ja draiverid, millele see tugineb, on olnud olemas aastaid ja on hästi testitud. %@ on ehitatud nende peale, kuid on ise alles arendusjärgus, nii et paratamatult leidub veel avastamata probleeme. Praegu on kõige turvalisem kasutada seda ketaste ja tõmmiste avamiseks ainult lugemiseks. Kirjutamine töötab, kuid suhtuge sellesse kui katselisse ja hoidke alles koopia kõigest, mille kaotamine oleks kahju."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ on vielä uusi. Linux-työkalut ja -ajurit, joihin se nojaa, ovat olleet olemassa vuosia ja ne on hyvin testattu. %@ on rakennettu niiden päälle, mutta on itse yhä kehitteillä, joten löytämättömiä ongelmia on väistämättä. Toistaiseksi turvallisinta on käyttää sitä asemien ja levykuvien avaamiseen vain luku -tilassa. Kirjoittaminen toimii, mutta pidä sitä kokeellisena ja säilytä kopio kaikesta, minkä menettämisestä harmittaisi."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bago pa lang ang %@. Ang mga tool at driver ng Linux na inaasahan nito ay matagal nang umiiral at mahusay nang nasubok. Nakabatay dito ang %@, ngunit binubuo pa rin ito, kaya hindi maiiwasang may mga isyung hindi pa natutuklasan. Sa ngayon, pinakaligtas na gamitin ito sa pagbukas ng mga drive at image nang read-only. Gumagana ang pagsulat, ngunit ituring itong eksperimental at mag-ingat ng kopya ng anumang ayaw mong mawala."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ est encore récent. Les outils et pilotes Linux sur lesquels il repose existent depuis des années et sont bien éprouvés. %@ est bâti par-dessus, mais il est encore en développement, donc il reste forcément des problèmes à découvrir. Pour l’instant, le plus sûr est de s’en servir pour ouvrir des disques et des images en lecture seule. L’écriture fonctionne, mais considérez-la comme expérimentale et gardez une copie de tout ce que vous seriez ennuyé de perdre."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‏%@ עדיין חדש. כלי לינוקס והמנהלים שעליהם הוא נשען קיימים כבר שנים ונבדקו היטב. %@ בנוי מעליהם, אך הוא עדיין בפיתוח, ולכן בהכרח יש בו תקלות שטרם התגלו. לעת עתה, הבטוח ביותר הוא להשתמש בו לפתיחת כוננים ותמונות במצב קריאה בלבד. הכתיבה עובדת, אך התייחסו אליה כאל ניסיונית ושמרו עותק של כל דבר שלא תרצו לאבד."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ अभी नया है। यह जिन Linux टूल और ड्राइवर पर निर्भर है वे वर्षों से मौजूद हैं और अच्छी तरह परखे जा चुके हैं। %@ उन्हीं पर बना है, पर स्वयं अभी विकासाधीन है, इसलिए इसमें अनदेखी समस्याएँ रहना स्वाभाविक है। फ़िलहाल ड्राइव और इमेज को केवल पढ़ने के लिए खोलना सबसे सुरक्षित है। लिखना काम करता है, पर उसे प्रयोगात्मक मानें और जो कुछ खोना आपको अखरेगा उसकी एक प्रति रखें।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ je još nov. Linux alati i upravljački programi na koje se oslanja postoje godinama i dobro su provjereni. %@ je izgrađen na njima, ali je i dalje u razvoju, pa neizbježno ima još neotkrivenih problema. Zasad je najsigurnije koristiti ga za otvaranje diskova i slika samo za čitanje. Zapisivanje radi, ali smatrajte ga eksperimentalnim i sačuvajte kopiju svega što vam ne bi bilo svejedno izgubiti."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A(z) %@ még új. A Linux-eszközök és -illesztőprogramok, amelyekre épül, évek óta léteznek és jól kipróbáltak. A(z) %@ ezekre épül, de maga még fejlesztés alatt áll, így elkerülhetetlenül vannak még fel nem tárt hibái. Egyelőre a legbiztonságosabb csak olvasásra megnyitni vele a meghajtókat és lemezképeket. Az írás működik, de tekintse kísérletinek, és őrizzen meg másolatot mindenről, aminek elvesztése rosszul érintené."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ masih baru. Perkakas dan driver Linux yang menjadi sandarannya sudah ada bertahun-tahun dan telah teruji. %@ dibangun di atasnya, tetapi masih dalam pengembangan, sehingga tak terhindarkan ada masalah yang belum terungkap. Untuk sekarang, paling aman menggunakannya untuk membuka drive dan image dalam mode hanya-baca. Penulisan memang berfungsi, tetapi anggaplah eksperimental dan simpanlah salinan dari apa pun yang tidak ingin Anda kehilangan."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ è ancora nuovo. Gli strumenti e i driver Linux su cui si appoggia esistono da anni e sono ben collaudati. %@ è costruito sopra di essi, ma è ancora in sviluppo, quindi restano inevitabilmente problemi da scoprire. Per ora la cosa più sicura è usarlo per aprire dischi e immagini in sola lettura. La scrittura funziona, ma consideratela sperimentale e conservate una copia di tutto ciò che vi dispiacerebbe perdere."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ はまだ新しいアプリです。土台にしている Linux のツールとドライバは何年も使われてきた実績のあるものですが、%@ 自体はまだ開発中で、未発見の問題が残っているのは避けられません。当面は、ドライブやイメージを読み取り専用で開く使い方がもっとも安全です。書き込みも動作しますが、実験的なものとして扱い、失って困るものは必ず控えを取っておいてください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 은(는) 아직 새 앱입니다. 기반으로 삼는 Linux 도구와 드라이버는 여러 해에 걸쳐 검증되었지만, %@ 자체는 아직 개발 중이라 아직 드러나지 않은 문제가 남아 있을 수밖에 없습니다. 당분간은 드라이브와 이미지를 읽기 전용으로 여는 것이 가장 안전합니다. 쓰기도 동작하지만 실험적인 기능으로 여기고, 잃으면 곤란한 것은 사본을 남겨 두십시오."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ dar naujas. Linux įrankiai ir tvarkyklės, kuriomis jis remiasi, gyvuoja jau daug metų ir yra gerai išbandyti. %@ sukurtas ant jų, bet pats dar tobulinamas, todėl neišvengiamai lieka dar neaptiktų trūkumų. Kol kas saugiausia juo atverti diskus ir atvaizdžius tik skaitymui. Rašymas veikia, tačiau laikykite jį eksperimentiniu ir pasilikite kopiją visko, ko netektis jums būtų nemaloni."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ vēl ir jauna. Linux rīki un draiveri, uz kuriem tā balstās, pastāv jau gadiem un ir labi pārbaudīti. %@ ir veidota uz tiem, taču pati vēl tiek izstrādāta, tāpēc neizbēgami ir vēl neatklātas problēmas. Pagaidām visdrošāk ir izmantot to disku un attēlu atvēršanai tikai lasīšanai. Rakstīšana darbojas, taču uzskatiet to par eksperimentālu un saglabājiet kopiju visam, ko negribētu pazaudēt."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ masih baharu. Perkakas dan pemacu Linux yang menjadi sandarannya telah wujud bertahun-tahun dan teruji dengan baik. %@ dibina di atasnya, tetapi masih dalam pembangunan, jadi tidak dapat dielakkan ada masalah yang belum ditemui. Buat masa ini, paling selamat menggunakannya untuk membuka pemacu dan imej dalam mod baca sahaja. Penulisan memang berfungsi, tetapi anggaplah ia eksperimen dan simpan salinan apa-apa yang anda tidak sanggup kehilangannya."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ er fortsatt ny. Linux-verktøyene og -driverne den bygger på har eksistert i årevis og er godt utprøvd. %@ er bygd oppå dem, men er selv fortsatt under utvikling, så det finnes uunngåelig feil som ennå ikke er oppdaget. Foreløpig er det tryggest å bruke den til å åpne enheter og diskbilder skrivebeskyttet. Skriving virker, men se på det som eksperimentelt, og behold en kopi av alt du ville ergre deg over å miste."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is nog nieuw. De Linux-gereedschappen en -stuurprogramma’s waarop het steunt bestaan al jaren en zijn goed beproefd. %@ is daarop gebouwd, maar is zelf nog in ontwikkeling, dus er zijn onvermijdelijk nog onontdekte problemen. Voorlopig is het het veiligst om er schijven en schijfkopieën alleen-lezen mee te openen. Schrijven werkt, maar beschouw het als experimenteel en bewaar een kopie van alles wat u niet kwijt wilt raken."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ jest wciąż nowy. Narzędzia i sterowniki Linuksa, na których się opiera, istnieją od lat i są dobrze sprawdzone. %@ jest na nich zbudowany, ale sam wciąż powstaje, więc nieuchronnie kryje jeszcze nieodkryte usterki. Na razie najbezpieczniej używać go do otwierania dysków i obrazów tylko do odczytu. Zapis działa, ale traktuj go jako eksperymentalny i zachowaj kopię wszystkiego, czego utrata byłaby przykra."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O %@ é ainda recente. As ferramentas e os controladores Linux em que assenta existem há anos e estão bem testados. O %@ é construído sobre eles, mas está ainda em desenvolvimento, pelo que há inevitavelmente problemas por descobrir. Por agora, o mais seguro é usá-lo para abrir discos e imagens apenas para leitura. A escrita funciona, mas trate-a como experimental e guarde uma cópia de tudo o que lamentaria perder."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ este încă nou. Uneltele și driverele Linux pe care se sprijină există de ani de zile și sunt bine testate. %@ este construit peste ele, dar este încă în dezvoltare, așa că inevitabil rămân probleme nedescoperite. Deocamdată, cel mai sigur este să îl folosiți pentru a deschide discuri și imagini doar în citire. Scrierea funcționează, dar tratați-o ca experimentală și păstrați o copie a tot ce v-ar părea rău să pierdeți."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ещё новое приложение. Инструменты и драйверы Linux, на которые оно опирается, существуют многие годы и хорошо проверены. %@ построено поверх них, но само пока в разработке, поэтому неизбежно остаются невыявленные неполадки. Пока безопаснее всего открывать с его помощью диски и образы только для чтения. Запись работает, но считайте её экспериментальной и храните копию всего, что не хотели бы потерять."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ je še nov. Orodja in gonilniki Linuxa, na katere se opira, obstajajo že leta in so dobro preizkušeni. %@ je zgrajen na njih, a je sam še v razvoju, zato neizogibno ostajajo še neodkrite težave. Zaenkrat je najvarneje z njim odpirati pogone in slike samo za branje. Pisanje deluje, a ga imejte za poskusno in ohranite kopijo vsega, česar ne bi radi izgubili."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ është ende i ri. Mjetet dhe drejtuesit e Linux mbi të cilët mbështetet ekzistojnë prej vitesh dhe janë provuar mirë. %@ është ndërtuar mbi ta, por është ende në zhvillim, prandaj në mënyrë të pashmangshme ka probleme që s’janë zbuluar. Për tani, gjëja më e sigurt është ta përdorni për të hapur disqe dhe imazhe vetëm për lexim. Shkrimi funksionon, por trajtojeni si eksperimental dhe mbani një kopje të gjithçkaje që s’do të donit ta humbnit."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ är fortfarande ny. De Linux-verktyg och drivrutiner den vilar på har funnits i åratal och är väl beprövade. %@ är byggd ovanpå dem, men är själv fortfarande under utveckling, så det finns oundvikligen fel som ännu inte upptäckts. Tills vidare är det säkrast att använda den för att öppna enheter och avbildningar skrivskyddat. Skrivning fungerar, men betrakta den som experimentell och behåll en kopia av allt du skulle ångra att förlora."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ยังใหม่อยู่ เครื่องมือและไดรเวอร์ของ Linux ที่ใช้เป็นฐานนั้นมีมาหลายปีและผ่านการทดสอบมาอย่างดี %@ สร้างขึ้นบนสิ่งเหล่านั้น แต่ตัวมันเองยังอยู่ระหว่างการพัฒนา จึงย่อมมีปัญหาที่ยังไม่ถูกค้นพบ ในตอนนี้ วิธีที่ปลอดภัยที่สุดคือใช้เปิดไดรฟ์และอิมเมจแบบอ่านอย่างเดียว การเขียนใช้งานได้ แต่โปรดถือว่าเป็นการทดลอง และเก็บสำเนาของสิ่งที่คุณไม่อยากสูญเสียไว้ด้วย"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ henüz yeni. Dayandığı Linux araçları ve sürücüleri yıllardır var ve iyice sınanmış durumda. %@ bunların üzerine kurulu, ancak kendisi hâlâ geliştiriliyor; dolayısıyla henüz ortaya çıkmamış sorunlar kaçınılmaz. Şimdilik en güvenlisi, sürücüleri ve kalıpları salt okunur açmakta kullanmak. Yazma çalışıyor, ancak bunu deneysel sayın ve kaybetmek istemeyeceğiniz her şeyin bir kopyasını saklayın."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ще новий. Інструменти та драйвери Linux, на які він спирається, існують багато років і добре перевірені. %@ побудований поверх них, але сам ще в розробці, тож неминуче лишаються невиявлені вади. Наразі найбезпечніше відкривати ним диски та образи лише для читання. Запис працює, але вважайте його експериментальним і зберігайте копію всього, чого не хотіли б втратити."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ vẫn còn mới. Các công cụ và trình điều khiển Linux mà nó dựa vào đã có từ nhiều năm và được kiểm nghiệm kỹ. %@ được xây trên nền đó, nhưng bản thân vẫn đang phát triển, nên tất yếu còn những vấn đề chưa lộ ra. Hiện tại, an toàn nhất là dùng nó để mở ổ đĩa và ảnh đĩa ở chế độ chỉ đọc. Ghi vẫn hoạt động, nhưng xin xem đó là thử nghiệm và hãy giữ một bản sao của bất cứ thứ gì bạn không muốn mất."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 还很新。它所依赖的 Linux 工具和驱动已经存在多年，经过充分检验。%@ 建立在它们之上，但自身仍在开发中，难免还有尚未发现的问题。目前最稳妥的用法，是以只读方式打开驱动器和磁盘映像。写入确实可用，但请把它当作实验性功能，并为任何你不愿失去的内容保留一份副本。"
+          }
+        }
+      }
+    },
     "%@ opens BitLocker, Linux and virtual machine drives and disk images that macOS cannot open on its own.\n\nReading a drive at the raw device level needs Full Disk Access. macOS has no way for an app to request this directly, so it has to be switched on by hand.": {
       "localizations": {
         "ar": {
@@ -16717,6 +16937,226 @@
           "stringUnit": {
             "state": "translated",
             "value": "以 TPM 而非密码封装的驱动器，包括 Ubuntu 较新的硬件加密"
+          }
+        }
+      }
+    },
+    "Early development": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مرحلة تطوير مبكرة"
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ранна разработка"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rané stádium vývoje"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidlig udvikling"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frühes Entwicklungsstadium"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Πρώιμο στάδιο ανάπτυξης"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desarrollo inicial"
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Varajane arendusjärk"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Varhainen kehitysvaihe"
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maagang yugto ng pagbuo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Développement précoce"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "שלב פיתוח מוקדם"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आरंभिक विकास"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rani razvoj"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Korai fejlesztési szakasz"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tahap pengembangan awal"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sviluppo iniziale"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開発の初期段階"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초기 개발 단계"
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ankstyvasis kūrimo etapas"
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agrīna izstrādes stadija"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peringkat pembangunan awal"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidlig utvikling"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vroege ontwikkeling"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wczesny etap rozwoju"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desenvolvimento inicial"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etapă incipientă de dezvoltare"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ранняя стадия разработки"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zgodnji razvoj"
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zhvillim i hershëm"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidig utveckling"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อยู่ระหว่างการพัฒนาช่วงต้น"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erken geliştirme aşaması"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Рання стадія розробки"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giai đoạn phát triển ban đầu"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "早期开发阶段"
           }
         }
       }

@@ -68,6 +68,13 @@ struct ContentView: View {
         .sheet(isPresented: $model.showOpenDrive) {
             OpenDriveSheet().environmentObject(model)
         }
+        // Waits for the drive list. The only way out is the button, so the
+        // setter has nothing to do.
+        .sheet(
+            isPresented: Binding(get: { model.showEarlyNotice }, set: { _ in })
+        ) {
+            EarlyDevelopmentSheet { model.acknowledgeEarlyNotice() }
+        }
         .sheet(isPresented: $model.showHelp) { HelpSheet() }
         .sheet(isPresented: $model.showReport) { ReportIssueSheet() }
         .sheet(isPresented: $model.isUninstalling) {

@@ -374,6 +374,8 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "“%@” cần “%@”, nhưng tệp đó không nằm cạnh nó. Ảnh đĩa loại này là một bộ tệp, và cần tất cả chúng.",
     "“%@” opened in macOS": "“%@” đã mở trong macOS",
     "“%@” was disconnected.": "“%@” đã bị ngắt.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” chưa được tắt đúng cách, và nội dung mới nhất chưa được ghi lại vào tệp. Hãy mở nó một lần trong máy ảo sở hữu nó, rồi thử lại."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” chưa được tắt đúng cách, và nội dung mới nhất chưa được ghi lại vào tệp. Hãy mở nó một lần trong máy ảo sở hữu nó, rồi thử lại.",
+    "Early development": "Giai đoạn phát triển ban đầu",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ vẫn còn mới. Các công cụ và trình điều khiển Linux mà nó dựa vào đã có từ nhiều năm và được kiểm nghiệm kỹ. %@ được xây trên nền đó, nhưng bản thân vẫn đang phát triển, nên tất yếu còn những vấn đề chưa lộ ra. Hiện tại, an toàn nhất là dùng nó để mở ổ đĩa và ảnh đĩa ở chế độ chỉ đọc. Ghi vẫn hoạt động, nhưng xin xem đó là thử nghiệm và hãy giữ một bản sao của bất cứ thứ gì bạn không muốn mất."
   }
 }

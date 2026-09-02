@@ -125,6 +125,14 @@
       "shown": "Above a list or under a title, when something happened that is worth one sentence.",
       "purpose": "A drive that went away, a permission that was refused, a count of volumes.",
       "tone": "One short sentence, past tense."
+    },
+    "first-launch": {
+      "name": "Early development notice",
+      "kind": "sheet over the main window",
+      "shown": "Once, on the first launch of a given build, as soon as the drive list is up. It waits for permission to have been given and the scan to have finished, so it never appears beside another sheet.",
+      "purpose": "Say that the app is early, that reading a drive and copying off it is the safe use, and that writing should be treated as experimental.",
+      "tone": "Plain and calm. It is not a warning dialog and there is nothing to decide; the only button says OK.",
+      "notes": "The app's own name appears twice as a placeholder, because an unbranded build carries a different name."
     }
   }
 }

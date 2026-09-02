@@ -382,6 +382,8 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "„%1$@“ vajab faili „%2$@“, mida tema kõrval ei ole. Sellist liiki tõmmis on failide kogum ja vaja on neid kõiki.",
     "“%@” opened in macOS": "„%@“ avati macOS-is",
     "“%@” was disconnected.": "„%@“ ühendati lahti.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ ei suletud korralikult ja tema viimane sisu on faili tagasi kirjutamata. Ava see korra virtuaalmasinas, kuhu see kuulub, ja proovi siis uuesti."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@“ ei suletud korralikult ja tema viimane sisu on faili tagasi kirjutamata. Ava see korra virtuaalmasinas, kuhu see kuulub, ja proovi siis uuesti.",
+    "Early development": "Varajane arendusjärk",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ on veel uus. Linuxi tööriistad ja draiverid, millele see tugineb, on olnud olemas aastaid ja on hästi testitud. %@ on ehitatud nende peale, kuid on ise alles arendusjärgus, nii et paratamatult leidub veel avastamata probleeme. Praegu on kõige turvalisem kasutada seda ketaste ja tõmmiste avamiseks ainult lugemiseks. Kirjutamine töötab, kuid suhtuge sellesse kui katselisse ja hoidke alles koopia kõigest, mille kaotamine oleks kahju."
   }
 }

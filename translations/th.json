@@ -374,6 +374,8 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "“%@” ต้องใช้ “%@” ซึ่งไม่ได้อยู่ข้างกัน อิมเมจแบบนี้เป็นชุดของไฟล์ และต้องมีครบทุกไฟล์",
     "“%@” opened in macOS": "“%@” ถูกเปิดใน macOS",
     "“%@” was disconnected.": "“%@” ถูกตัดการเชื่อมต่อแล้ว",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” ปิดไม่เรียบร้อย และเนื้อหาล่าสุดยังไม่ถูกเขียนกลับลงไฟล์ เปิดมันหนึ่งครั้งในเครื่องเสมือนที่เป็นเจ้าของ จากนั้นลองใหม่"
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@” ปิดไม่เรียบร้อย และเนื้อหาล่าสุดยังไม่ถูกเขียนกลับลงไฟล์ เปิดมันหนึ่งครั้งในเครื่องเสมือนที่เป็นเจ้าของ จากนั้นลองใหม่",
+    "Early development": "อยู่ระหว่างการพัฒนาช่วงต้น",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ ยังใหม่อยู่ เครื่องมือและไดรเวอร์ของ Linux ที่ใช้เป็นฐานนั้นมีมาหลายปีและผ่านการทดสอบมาอย่างดี %@ สร้างขึ้นบนสิ่งเหล่านั้น แต่ตัวมันเองยังอยู่ระหว่างการพัฒนา จึงย่อมมีปัญหาที่ยังไม่ถูกค้นพบ ในตอนนี้ วิธีที่ปลอดภัยที่สุดคือใช้เปิดไดรฟ์และอิมเมจแบบอ่านอย่างเดียว การเขียนใช้งานได้ แต่โปรดถือว่าเป็นการทดลอง และเก็บสำเนาของสิ่งที่คุณไม่อยากสูญเสียไว้ด้วย"
   }
 }

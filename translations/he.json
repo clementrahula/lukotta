@@ -390,6 +390,8 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "‏“%@” זקוק ל‑“%@”, שאינו לצידו. תמונה מסוג זה היא אוסף קבצים, וכולם נדרשים.",
     "“%@” opened in macOS": "‏“%@” נפתח ב‑macOS",
     "“%@” was disconnected.": "‏“%@” נותק.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "‏“%@” לא נסגר כראוי, והתוכן האחרון שלו לא נכתב בחזרה לקובץ. פתחו אותו פעם אחת במכונה הווירטואלית שהוא שייך לה, ואז נסו שוב."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "‏“%@” לא נסגר כראוי, והתוכן האחרון שלו לא נכתב בחזרה לקובץ. פתחו אותו פעם אחת במכונה הווירטואלית שהוא שייך לה, ואז נסו שוב.",
+    "Early development": "שלב פיתוח מוקדם",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "‏%@ עדיין חדש. כלי לינוקס והמנהלים שעליהם הוא נשען קיימים כבר שנים ונבדקו היטב. %@ בנוי מעליהם, אך הוא עדיין בפיתוח, ולכן בהכרח יש בו תקלות שטרם התגלו. לעת עתה, הבטוח ביותר הוא להשתמש בו לפתיחת כוננים ותמונות במצב קריאה בלבד. הכתיבה עובדת, אך התייחסו אליה כאל ניסיונית ושמרו עותק של כל דבר שלא תרצו לאבד."
   }
 }

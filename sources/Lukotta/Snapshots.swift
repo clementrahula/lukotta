@@ -181,6 +181,14 @@
                         .background(Color(nsColor: .windowBackgroundColor)))
             }
 
+            /// The notice shown once, on a first launch.
+            func earlyDevelopment() -> AnyView {
+                AnyView(
+                    EarlyDevelopmentSheet {}
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(nsColor: .windowBackgroundColor)))
+            }
+
             /// A sheet, rendered on its own. Sheets are separate windows and do not
             /// appear in a picture of the one underneath, so the only way to check
             /// one is to draw it by itself.
@@ -208,6 +216,7 @@
                     }
                 ),
                 ("scanning", model { $0.phase = .scanning }),
+                ("early-development", earlyDevelopment()),
                 ("empty", model { $0.phase = .chooseDrive }),
                 (
                     "drives",

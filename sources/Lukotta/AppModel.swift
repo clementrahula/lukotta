@@ -39,6 +39,16 @@ final class AppModel: ObservableObject {
             if case .needsPermission = self { return true }
             return false
         }
+
+        /// The drive list, and nothing on top of it.
+        ///
+        /// What the early-development notice waits for. Put up any earlier it
+        /// lands beside the permission screen, or beside the sheet an unlock
+        /// puts there, and two things ask at once.
+        var isDriveList: Bool {
+            if case .chooseDrive = self { return true }
+            return false
+        }
     }
 
     /// The screen to draw before anything has been read.
@@ -77,6 +87,28 @@ final class AppModel: ObservableObject {
     @Published var credentialProblem: String?
     @Published var showHelp = false
     @Published var showReport = false
+
+    /// Whether the early-development notice still has to be shown.
+    ///
+    /// Keyed on the bundle identifier rather than a fixed string, so the
+    /// release, the pre-release and a local build each say it once instead of
+    /// one of them answering for the others.
+    static var earlyNoticeKey: String {
+        "com.lukotta.earlyDevelopmentAcknowledged."
+            + (Bundle.main.bundleIdentifier ?? "unknown")
+    }
+    @Published var earlyNoticeUnseen =
+        !UserDefaults.standard.bool(forKey: AppModel.earlyNoticeKey)
+
+    /// Shown once the drive list is up and clean, never before. Permission has
+    /// been given by then, the scan has finished, and nothing else is asking.
+    var showEarlyNotice: Bool { earlyNoticeUnseen && phase.isDriveList }
+
+    /// Written when the button is pressed, not when the sheet appears.
+    func acknowledgeEarlyNotice() {
+        UserDefaults.standard.set(true, forKey: AppModel.earlyNoticeKey)
+        earlyNoticeUnseen = false
+    }
     /// The recent log, read before anybody asks for it.
     ///
     /// Reading it walks the system's log store and takes seconds. Done when the

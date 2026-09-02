@@ -232,7 +232,7 @@ later" is a shorthand for a sentence somebody has to have written.
 Nothing of the owner's goes in this repository: no account name, no path from
 their machine, no identifier of a disk they own, no recovery key that a drive
 would accept. None of it looks like a secret and no scanner recognises it,
-which is why it got in before.
+which is how it got in before.
 
 When real output is needed to get a fixture's shape right, sanitise it in the
 same edit that pastes it. `someone` is the account name; `/Users/someone` is
@@ -439,7 +439,7 @@ file or an external data file is refused before the engine is told anything;
 see `Qcow2Header.namesAnotherFile`. Keep that check ahead of the engine when
 adding formats.
 
-## Invariants Worth Keeping
+## Invariants
 
 Each of these was a fault before it was a rule, and none of them is obvious from
 the code alone. Changing one needs the evidence that established it.
@@ -478,9 +478,8 @@ the code alone. Changing one needs the evidence that established it.
 - **A sweep takes down only what this app can show is its own, and says what
   really came down.** A mount point it wrote down when it made it, or one under
   this user's `~/Volumes`. A probe that could not be started is not a mount that
-  has stopped answering, and one silence is not two. Reporting a forced unmount
-  that did not happen is what sent the sweep on to take down engines still
-  serving it.
+  has stopped answering. Reporting a forced unmount that did not happen is what
+  sent the sweep on to take down engines still serving it.
 
 ## Security Invariants
 
@@ -809,7 +808,7 @@ them force-unmounts:
   the startup disk, and a copy still running writes into it and succeeds. Those
   are reported and never swept; only empty ones are removed.
 
-## What "No Route to Host" Over vmnet Actually Meant
+## What "No Route to Host" Over vmnet Meant
 
 The engine can serve its NFS over gvproxy, a user-space TCP/IP stack, or over
 vmnet, the framework macOS itself uses. vmnet is much faster, two and a half
@@ -897,7 +896,7 @@ bundle does not replace the code generating mount scripts. A rebuild, an
 install, and a fresh `--drive open` will all happily be served by a daemon from
 before the first of them.
 
-This is not a hypothetical. Three rebuilds in a row were once served by a
+Three rebuilds in a row were once served by a
 daemon predating all of them, and every reading taken during that window
 described code no longer on disk, including "I turned the change off and the
 symptom is still there", which was read as evidence about the change and was

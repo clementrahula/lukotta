@@ -398,6 +398,8 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "„%1$@” wymaga pliku „%2$@”, którego nie ma obok. Obraz tego rodzaju to zestaw plików i wymagane są wszystkie.",
     "“%@” opened in macOS": "Otwarto „%@” w systemie macOS",
     "“%@” was disconnected.": "„%@” został odłączony.",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@” nie został poprawnie zamknięty, a jego najnowsza zawartość nie została zapisana z powrotem do pliku. Otwórz go raz w maszynie wirtualnej, do której należy, i spróbuj ponownie."
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "„%@” nie został poprawnie zamknięty, a jego najnowsza zawartość nie została zapisana z powrotem do pliku. Otwórz go raz w maszynie wirtualnej, do której należy, i spróbuj ponownie.",
+    "Early development": "Wczesny etap rozwoju",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ jest wciąż nowy. Narzędzia i sterowniki Linuksa, na których się opiera, istnieją od lat i są dobrze sprawdzone. %@ jest na nich zbudowany, ale sam wciąż powstaje, więc nieuchronnie kryje jeszcze nieodkryte usterki. Na razie najbezpieczniej używać go do otwierania dysków i obrazów tylko do odczytu. Zapis działa, ale traktuj go jako eksperymentalny i zachowaj kopię wszystkiego, czego utrata byłaby przykra."
   }
 }

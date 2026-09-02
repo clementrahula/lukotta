@@ -374,6 +374,8 @@
     "“%@” needs “%@”, which is not beside it. An image of this kind is a set of files, and all of them are required.": "“%@”需要“%@”，而后者并不在它旁边。这类映像是一组文件，缺一不可。",
     "“%@” opened in macOS": "“%@”已在 macOS 中打开",
     "“%@” was disconnected.": "“%@”已被断开。",
-    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@”未正常关闭，其最新内容尚未写回文件。请在它所属的虚拟机中打开一次，然后重试。"
+    "“%@” was not shut down cleanly, and its most recent contents have not been written back into the file. Open it once in the virtual machine it belongs to, then try again.": "“%@”未正常关闭，其最新内容尚未写回文件。请在它所属的虚拟机中打开一次，然后重试。",
+    "Early development": "早期开发阶段",
+    "%@ is still new. The Linux tools and drivers it relies on have been around for years and are well tested. %@ is built on top of them, but it is still in development, so there are inevitably issues yet to be uncovered. For now, using it for opening drives and images in read-only mode is the safest thing to do. Writing does work, but please treat it as experimental, and keep a copy of anything you would be upset to lose.": "%@ 还很新。它所依赖的 Linux 工具和驱动已经存在多年，经过充分检验。%@ 建立在它们之上，但自身仍在开发中，难免还有尚未发现的问题。目前最稳妥的用法，是以只读方式打开驱动器和磁盘映像。写入确实可用，但请把它当作实验性功能，并为任何你不愿失去的内容保留一份副本。"
   }
 }
