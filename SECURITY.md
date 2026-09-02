@@ -130,6 +130,40 @@ The engine is inside the app, so no component is downloaded at first run. The
 only outbound request Lukotta makes on its own is the update check, described in
 [PRIVACY.md](PRIVACY.md).
 
+### How the volume reaches Finder
+
+The mounted volume is exported from the guest over NFS and mounted by macOS's
+own NFS client, on the loopback interface, reachable only from this Mac. The
+export is written by the engine, and Lukotta asks for `--ignore-permissions`,
+which is `{rw|ro},no_subtree_check,all_squash,anonuid=0,anongid=0,insecure`.
+
+Two things about that are worth stating rather than leaving in a source file.
+`all_squash` with `anonuid=0` rewrites every request to root inside the guest,
+which is what makes a drive carrying Linux ownership readable by whoever opened
+it; it changes the credential a request arrives with, not the ownership a
+`GETATTR` reports. And the engine's own default, used when that flag is not
+passed, is `no_root_squash`. Either way the export is confined to a microVM
+holding one volume, on loopback, for as long as that volume is open.
+
+## Data Durability
+
+Lukotta is not yet a safe place for data that exists in only one copy, and this
+is a property of the stack rather than a bug that has been found and left.
+
+If the microVM is killed outright -- a force quit, a crash, the power going --
+data an application was told had been committed can be lost. `fsync` returning
+success does not guarantee the bytes are on the disk. On ext4 and XFS the file
+survives with a hole in it; on NTFS the file can be absent entirely, its
+directory entry never having reached the platter.
+
+An ordinary eject is safe. Ending a machine with `SIGTERM` flushes cleanly, and
+the app waits up to twenty seconds for that and never escalates while a machine
+is still writing.
+
+The cause has been narrowed by measurement and is recorded in
+[SPECS.md](SPECS.md) §8, together with the three layers ruled out. Until it is
+fixed, keep a backup of anything you cannot lose.
+
 ## Update Integrity
 
 An update is verified twice before it is installed: by an EdDSA signature over
@@ -145,6 +179,8 @@ back after two failed starts.
 - A Mac that is already compromised. A process running as root can read the
   environment of another root process, and can talk to anything.
 - Someone who has your passphrase, or a Mac left unlocked with a drive open.
+- Losing recently written data if the virtual machine is killed rather than
+  ejected. See Data Durability above.
 - A drive that was already tampered with. Lukotta unlocks what it is given and
   cannot tell you whether the contents were altered before you plugged it in.
   The same holds for a disk image: the checks above stop an image reaching other

@@ -106,6 +106,44 @@ the packages it uses. Source for every GPL package shipped must be published
 with the release, so trimming cuts both the download and the work of
 complying. Set `LUKOTTA_NO_TRIM=1` to keep the whole image.
 
+### Adding a package to the guest
+
+Two things are needed and neither implies the other. `scripts/trim-image.py`'s
+`ROOTS` list decides what survives trimming — a keep-list only keeps what is
+already there — and the package has to be in the image in the first place.
+
+Install into the **standalone** image, not the app's engine home:
+
+```bash
+./vendor/upstream/anylinuxfs/0.19.0/bin/anylinuxfs apk add e2fsprogs xfsprogs
+LUKOTTA_REPACK_GUEST=1 ./scripts/vendor-engine.sh
+```
+
+The standalone one, because `vendor-engine.sh` will only pack an image that
+carries its own `sha256_<digest>.mtree`, which is what the lock is checked
+against. The app's engine homes under `~/Library/Application Support/com.lukotta*`
+are extracted from the tarball this script produces and carry no mtree, so
+pointing at one earns "the guest image is not the one vendor/engine.lock pins".
+That is the check working. Installing into one of them instead changes the guest
+the app runs today and nothing that ships, which is a confusing place to end up:
+the feature works on the machine that added it and is missing from the release.
+
+No machine may be running while `apk add` works.
+
+Watch for `warning: roots not present in image` in the trim output. It names a
+package the keep-list asks for that the image does not have, and it is the only
+thing that says the guest being packed is not the guest that was prepared.
+
+### Kernel modules nothing owns
+
+Trimming removes the files each dropped package's own database entry names.
+Some files belong to no package: `zfs.ko` and `spl.ko` live in the base image's
+module tree, so dropping `zfs` and `zfs-libs` removes the userspace and leaves
+the modules. `trim-image.py` removes `lib/modules/*/fs/zfs` by path for that
+reason. Anything else added the same way needs the same treatment, and
+`THIRD_PARTY_NOTICES.md` has to agree with the archive rather than with the
+package list.
+
 ## Building the App
 
 `build-app.sh`, in order:
