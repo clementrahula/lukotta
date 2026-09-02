@@ -217,7 +217,21 @@ nothing had ever opened one.
   NTFS image, including the fsync-across-a-kill case XFS fails: 8 of 8 fsynced
   files present, 0 wrong, 0 lost. An image is a regular file, so this says
   nothing about a physical drive.
-- [ ] Still wanted: `integrity-vectors.sh` against btrfs and ext4, and
+- [ ] **ext4 loses fsynced content across a killed machine, and NTFS does not.**
+  Measured on images, with the flush patch in, so the device branch never runs
+  and cannot be the cause: NTFS 8 of 8 present and 0 wrong; ext4 8 of 8 present
+  and **8 wrong**, with 30 of 30 in-flight files back at full length and none
+  complete; XFS 32768 bytes of holes at offset 0.
+
+  Ruled out already: the guest mounts ext4 `rw,relatime`, which is
+  `data=ordered` with barriers on, and `/sys/block/vda/queue/write_cache` reads
+  `write back`, so the guest believes there is a cache and does issue flushes.
+  Same virtio path and same host flush as NTFS, which keeps its content.
+
+  The next cheap test is `data=journal` on ext4. If that passes, the cause is
+  ordered mode and the question becomes what full data journalling costs a copy.
+
+- [ ] Still wanted: `integrity-vectors.sh` against btrfs, and
   `xattr-forks.sh` against each filesystem rather than only NTFS, results
   written into `make-format-volumes.sh` beside the ones already there.
 - [ ] **Build ntfsck into the guest and gate the ntfs3 probe on it.** The probe
