@@ -108,7 +108,8 @@
                 print("")
                 print("the same, for a container holding a volume group")
                 afterARelaunchFlow(
-                    image: group, passphrase: lvmPassphrase.isEmpty ? nil : lvmPassphrase)
+                    image: group, passphrase: lvmPassphrase.isEmpty ? nil : lvmPassphrase,
+                    partitioned: true)
             }
 
             print("")
@@ -376,26 +377,11 @@
         ///   "the image opens (gave up)" about an image that had opened.
         @MainActor
         private static func openAndChoose(
-            // Sixty seconds, and the volume-group case fails inside it for a
-            // reason that is not time.
-            //
-            // It was raised to 140 first, on the strength of timing that
-            // container directly: `--drive open` on luks2-lvm.img takes 67.7 s
-            // and mounts everything at /Volumes/LUKOTTATEST. But that is the
-            // helper's route, and this test uses the app's openImage. At 140 s
-            // the step fails exactly as it did at 60, and it fails at the first
-            // check after scanning, where the qcow2 case immediately above it
-            // passes. Twice the time changed nothing, so time is not what is
-            // missing.
-            //
-            // What the check waits for is `imageOpening == nil` together with
-            // `phaseIsUnlock`. A container holding a volume group has more to
-            // decide than one holding a filesystem -- which volume -- so
-            // landing somewhere other than the unlock phase would fail this
-            // wait however long it ran. That is the thing to look at, and it
-            // is either the app taking a different route for a volume group or
-            // this test expecting the wrong one. Left failing and named rather
-            // than papered over with a larger number.
+            // Sixty seconds is enough for every image here, the volume group
+            // included. It was raised to 140 once, while that case was failing
+            // and time looked like the reason; it failed identically at 140,
+            // which is what proved time was not the reason. The cause was the
+            // flow opening a partitioned image as a whole disk.
             _ image: URL, timeout: TimeInterval = 60, partitioned: Bool = false
         ) -> (model: AppModel, drive: Drive)? {
             guard !partitioned else { return openPartitioned(image, timeout: timeout) }
@@ -419,7 +405,14 @@
                     "the image opens", timeout: timeout,
                     condition: { model.imageOpening == nil && model.phaseIsUnlock })
             else {
+                // Say which half of the condition was not met, and what the
+                // app was actually doing. Printing only a failure reason left
+                // the volume-group case silent -- it is not failing, so there
+                // was no reason to print -- and silence reads as "no
+                // information" when it is in fact half the answer.
                 if case .failed(_, let why) = model.imageOpening { print("      \(why)") }
+                print("      imageOpening: \(String(describing: model.imageOpening))")
+                print("      phase: \(String(describing: model.phase))")
                 return nil
             }
             guard case .unlock(let drive) = model.phase else {
@@ -447,7 +440,16 @@
                             && model.drives.contains { $0.uuid == image.path }
                     })
             else {
+                // Which half of the condition failed, and what the list holds
+                // instead. A reason is printed only when the open failed, and
+                // the volume-group case is not failing -- so the reason was
+                // empty and the silence read as no information.
                 if case .failed(_, let why) = model.imageOpening { print("      \(why)") }
+                print("      imageOpening: \(String(describing: model.imageOpening))")
+                print("      looking for uuid: \(image.path)")
+                for d in model.drives {
+                    print("      drive: uuid=\(d.uuid) name=\(d.name) path=\(d.devicePath)")
+                }
                 return nil
             }
             guard let drive = model.drives.first(where: { $0.uuid == image.path }) else {
@@ -1515,10 +1517,33 @@
         /// second time starts a second machine for a device the first is still
         /// serving.
         @MainActor
-        private static func afterARelaunchFlow(image: URL, passphrase: String?) {
+        /// `partitioned` for an image that carries a partition table.
+        ///
+        /// It matters because the two open differently and the test has to
+        /// wait for different things. A whole-disk image appears in the list
+        /// under the file's own path; a partitioned one is attached and its
+        /// partition appears under a real volume UUID, so waiting for a drive
+        /// whose uuid is the file path waits for something that will never
+        /// arrive.
+        ///
+        /// The volume-group fixture is `luks-multi.img`, which is GPT --
+        /// deliberately, since it is the only fixture the app's own drive list
+        /// can see. Opening it as a whole disk failed this flow for a long
+        /// time and looked like the app being unable to open a volume group.
+        /// It was not: the open succeeded every time, `imageOpening` came back
+        /// nil, and the drive was in the list as
+        /// `uuid=B29D9C6D-… name="Disk Image" path=/dev/disk5s1`. The test was
+        /// looking for the wrong thing.
+        private static func afterARelaunchFlow(
+            image: URL, passphrase: String?, partitioned: Bool = false
+        ) {
             var point = ""
+            // Carried out of the do-block for the same reason as `point`: the
+            // list is compared after it, and the drive is only in scope inside.
+            var openedUUID = ""
             do {
-                guard let (model, drive) = openAndChoose(image) else { return }
+                guard let (model, drive) = openAndChoose(image, partitioned: partitioned) else { return }
+                openedUUID = drive.uuid
                 guard
                     waitUntil(
                         "it is identified", timeout: 60,
@@ -1549,7 +1574,14 @@
             // What the open one looked like, so it comes back as itself rather
             // than as a nameless disk of thirty-two bytes -- which is the size
             // of the symlink the engine is handed when a path holds a space.
-            let was = rowsBefore.first { $0.uuid == image.path }
+            // Identified by the drive that was actually opened, not by the
+            // file's path. They are the same thing for a whole-disk image and
+            // not for a partitioned one: that is attached, and the row is its
+            // partition under a real volume UUID. Matching on the path made
+            // the volume-group fixture -- which is GPT on purpose -- look as
+            // though it had vanished from the list after a relaunch, when it
+            // was there under the name it should have.
+            let was = rowsBefore.first { $0.uuid == openedUUID }
 
             // A new model and a fresh scan, which is all a relaunch is as far as
             // this app's own state goes: the process forgets, the mount does not.
@@ -1559,7 +1591,7 @@
                 return
             }
             check(!after.drives.isEmpty, "the list is there, and not empty")
-            let again = after.drives.first { $0.uuid == image.path }
+            let again = after.drives.first { $0.uuid == openedUUID }
             check(again != nil, "the file that is open is a row of its own")
             if let again, let was {
                 check(
