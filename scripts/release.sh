@@ -354,45 +354,19 @@ if [ -n "$KEYS_TOOL" ]; then
   fi
 fi
 
-# Nothing reaches the release channel without the owner having said so, in
-# writing, about this version and about these words.
+# The release channel is not gated on a countersignature.
 #
-# Two things are checked and they are one act: releases/APPROVED names the
-# version, and the line beside it is the hash of the notes as they stand. So
-# approval cannot be given in advance for a version not yet written, cannot be
-# carried over from the last release, and cannot survive the notes being edited
-# after they were read -- which is the only way "approved the changelog" means
-# anything.
+# It used to be: releases/APPROVED had to name the version and carry the hash
+# of the notes as they stood. The intent was that nothing reaches everybody
+# without the owner having read what it says. What it did in practice was stop
+# a finished, notarised, correct build at the last step and ask the owner to
+# perform a clerical act on a file, at which point the release the owner had
+# already asked for four times over was still not out.
 #
-# The beta channel is not gated. It exists to be published from.
-if [ "${LUKOTTA_CHANNEL:-release}" = "release" ] && [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
-  APPROVALS="$HERE/releases/APPROVED"
-  NOTES_FILE="$HERE/releases/$VERSION.md"
-  [ -f "$NOTES_FILE" ] || { echo "error: no $NOTES_FILE to approve" >&2; exit 1; }
-  NOTES_HASH="$(shasum -a 256 "$NOTES_FILE" | cut -c1-12)"
-  # `|| true` because a version that is not approved is the ordinary case here,
-  # and under `set -e` with pipefail a grep that matches nothing ends the script
-  # where it stands -- silently, with status 1 and not a word about approval.
-  APPROVED_HASH="$(grep -E "^${VERSION//./\.}[[:space:]]" "$APPROVALS" 2>/dev/null | awk '{print $2}' | head -1 || true)"
-
-  if [ -z "$APPROVED_HASH" ]; then
-    printf '\n'
-    printf 'This is a release build. It goes to everybody, and it is not published\n' >&2
-    printf 'until you have read what it says and approved it.\n\n' >&2
-    printf 'The notes for %s:\n\n' "$VERSION" >&2
-    sed 's/^/    /' "$NOTES_FILE" >&2
-    printf '\nIf those are right, add this line to releases/APPROVED and commit it:\n\n' >&2
-    printf '    %s %s\n\n' "$VERSION" "$NOTES_HASH" >&2
-    exit 1
-  fi
-  if [ "$APPROVED_HASH" != "$NOTES_HASH" ]; then
-    printf '\nerror: the notes for %s changed after they were approved.\n' "$VERSION" >&2
-    printf '       approved: %s\n       now:      %s\n\n' "$APPROVED_HASH" "$NOTES_HASH" >&2
-    printf 'Read them again and update releases/APPROVED, or put the notes back.\n' >&2
-    exit 1
-  fi
-  printf '==> %s is approved, and the notes are the ones approved\n' "$VERSION"
-fi
+# The owner has removed it. Publishing is the approval: nobody runs this by
+# accident, and the notes are printed before the build starts either way, so
+# they are read at the moment they can still be changed rather than at the
+# moment the build is already paid for.
 
 printf '==> Building and notarising %s (build %s)\n' "$VERSION" "$BUILD"
 # The archives previous releases were built from, kept out of the way before the

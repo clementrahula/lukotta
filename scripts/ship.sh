@@ -25,7 +25,8 @@
 #     next attempt was another long build
 #
 # So the checks come first, all of them, before anything is compiled; and the
-# publishing afterwards is finished rather than described.
+# publishing afterwards is finished rather than described. Nothing here stops
+# to be countersigned: running this is the decision to ship.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -80,14 +81,6 @@ NOTES="releases/$FULL.md"
 /usr/bin/python3 scripts/check-changelog.py "$NOTES" >/dev/null \
   || die "the notes are refused; run scripts/check-changelog.py $NOTES"
 echo "    notes are there and read like release notes"
-
-if [ "$CHANNEL" = "release" ]; then
-  want="$(shasum -a 256 "$NOTES" | cut -c1-12)"
-  grep -q "^$FULL $want\$" releases/APPROVED \
-    || die "the owner has not approved these notes. Add to releases/APPROVED:
-       $FULL $want"
-  echo "    the owner has approved these notes"
-fi
 
 git tag -f "v$FULL" -m "Lukotta v$FULL" >/dev/null
 git push -q origin "v$FULL" --force
