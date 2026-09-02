@@ -17,6 +17,8 @@ to land and what tends not to.
 - [ ] `./scripts/lint.sh` passes
 - [ ] If it touches mounting, a format or the privileged helper, I have said
       above what I opened it with
+- [ ] If it touches the copy path or a filesystem, I ran at least one of the
+      hardware harnesses in CONTRIBUTING.md and quoted the numbers above
 
 ## Anything else
 

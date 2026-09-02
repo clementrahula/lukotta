@@ -121,6 +121,42 @@ Both must pass. `build-app.sh` runs the tests itself and refuses to produce a
 bundle from a failing tree, since the app reads raw disks and runs part of
 itself as root.
 
+### Against real hardware
+
+The unit tests cover the script the app generates, not what a disk does with
+it. Anything touching mounting, a filesystem or the copy path wants at least
+one of these, and each prints numbers rather than a verdict:
+
+| Script | What it answers |
+| --- | --- |
+| `make-test-volumes.sh` | builds the fixtures the rest need |
+| `copy-torture.sh` | 2024 files copied and read back: non-ASCII and 255-byte names, sizes on the block and transfer boundaries, a sparse gigabyte, two thousand small files, deep paths |
+| `integrity-vectors.sh` | the ways a copy does not finish — killed partway, unmounted under load, a full volume, permissions, concurrent writers, repeated cycles, the machine killed mid-write |
+| `finder-copy-cycles.sh` | Finder's own copy engine, driven by osascript, at both extremes |
+| `corrupt-corpus.sh` | 83 deliberately broken NTFS images; checks that a refusal leaves the volume byte-identical |
+| `xattr-forks.sh` | what macOS attaches to a file and what survives the crossing |
+| `readdir-under-copy.sh` | how long the folder being copied into takes to list |
+| `eight-gig-pressure.sh` | a dozen volumes open at once, with memory constrained |
+| `lvm-lock-rule.sh` | several logical volumes from one partition |
+| `e2e.sh` | the whole flow through the built app for every image format |
+
+Two habits are worth copying from them, because both have produced convincing
+false results here.
+
+**Say what the number is of.** A latency figure sampled from the wrong call is
+still a real number and still worthless: `stat` on a mount root was sampled for
+45 minutes as evidence that nothing stalled, while listing the busy directory at
+the same moment took ten seconds.
+
+**Prove the instrument can fire.** A counter that has never once reported
+anything is indistinguishable from a clean run.
+`watch-for-complaints.sh --probe` exists for that reason.
+
+Do not sweep leftover state with `pkill -9 -f 'anylinuxfs mount'`. It matches
+the machine serving somebody's real drive as readily as one serving a fixture,
+and killing a machine mid-write loses what it was holding. Match the image under
+test, and end machines with `SIGTERM`.
+
 A build that installs and then refuses to launch is the one failure an update
 cannot undo. To check that a built app starts:
 
