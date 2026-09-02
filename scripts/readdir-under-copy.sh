@@ -82,6 +82,33 @@
 # throughout, and the cost is in the READDIR itself: enumerating a directory
 # whose index is being modified, not reaching the disk.
 #
+# SEVEN KNOBS NOW, AND ONE OF THEM MOVED SOMETHING
+#
+# Everything tried against the busy folder during a copy on the owner's drive.
+# Finder's own call (getattrlistbulk) is given where it was measured, because
+# it is the one that matters and it is the slower of the two:
+#
+#   nfsd threads 8 -> 32          worse on all four numbers
+#   ntfs3 -> ntfs-3g              worse, and it spreads the stall to quiet
+#                                 directories that ntfs3 answers in 20 ms
+#   nr_requests 256 -> 32         median worse, tail unchanged
+#   rdirplus -> nordirplus        median worse
+#   wsize 131072 -> 32768         TAIL 90.05s -> 16.56s, copy faster. Kept.
+#   wsize 32768 -> 16384          better median, worse tail, slower copy
+#   acdirmin 5 -> 30              median unchanged (8.71s vs 8.42s through
+#                                 getattrlistbulk), tail within variance,
+#                                 throughput slightly worse
+#
+# The directory attribute cache was the last idea with a mechanism behind it:
+# if each listing expires the cache and re-issues a READDIR that queues behind
+# the writes, then trusting the cache longer should skip the RPC entirely. It
+# does not help, and the reason is visible in the numbers -- the directory is
+# genuinely changing while a file inside it grows, so the client revalidates
+# whatever it has been told to trust.
+#
+# So the median of five to eight seconds is what NFS costs for listing a
+# directory being written to on this hardware, and only the tail was reachable.
+#
 # Which is why none of the four knobs moved it. Thread count, filesystem,
 # queue depth and READDIRPLUS are all about getting requests to the device
 # faster, and the device was never the thing that was slow.
