@@ -63,19 +63,26 @@ build sweep.vhd        "$HERE/scripts/make-vhd.py"         "$RAW" "$WORK/sweep.v
 build sweep-dyn.vhd    "$HERE/scripts/make-vhd.py"         "$RAW" "$WORK/sweep-dyn.vhd" --dynamic
 build sweep-sparse.vmdk "$HERE/scripts/make-vmdk-sparse.py" "$RAW" "$WORK/sweep-sparse.vmdk"
 
+# The engine names the share after the whole file name with the dot turned
+# into a dash, so sweep.vdi is served as "sweep-vdi.local:". Matching on the
+# stem alone found nothing, and every format then reported "did not mount"
+# while its mount was in fact up, stacking one under the next.
+share() { printf '%s' "${1%.*}-${1##*.}"; }
+
 where() {  # this image's share, not merely one with a similar name
-  mount | awk -v want="$1-img.local:" '$1 ~ want {
+  mount | awk -v want="$(share "$1").local:" '$1 == want {
     for (i = 1; i <= NF; i++) if ($i == "on") { print $(i+1); exit } }'
 }
 
 close() {
-  local stem="$1"
-  local at; at="$(where "$stem")"
+  local img="$1"
+  local at; at="$(where "$img")"
   [ -n "$at" ] && umount -f "$at" >/dev/null 2>&1
-  # This image's engine, never every engine there is.
-  pkill -f "anylinuxfs mount.*$stem\." >/dev/null 2>&1
+  # This image's engine, never every engine there is. A sweep of them all takes
+  # down whatever else is open, and has dirtied a real drive before now.
+  pkill -f "anylinuxfs mount.*/$img\$" >/dev/null 2>&1
   for _ in $(seq 1 20); do
-    pgrep -f "anylinuxfs mount.*$stem\." >/dev/null 2>&1 || break
+    pgrep -f "anylinuxfs mount.*/$img\$" >/dev/null 2>&1 || break
     sleep 1
   done
 }
@@ -84,20 +91,19 @@ pass=0; fail=0
 for img in sweep.qcow2 sweep.vdi sweep.vhd sweep-dyn.vhd sweep-sparse.vmdk; do
   path="$WORK/$img"
   [ -f "$path" ] || { say "$img: not built, skipped"; continue; }
-  stem="${img%.*}"
   say ""
   say "=== $img ==="
-  close "$stem"
+  close "$img"
   nohup "$ENGINE" mount --ignore-permissions -w false "$path" \
-    > "$WORK/$stem.log" 2>&1 &
+    > "$WORK/$img.log" 2>&1 &
   at=""
   for _ in $(seq 1 40); do
-    at="$(where "$stem")"
+    at="$(where "$img")"
     [ -n "$at" ] && break
     sleep 2
   done
   if [ -z "$at" ]; then
-    say "  did not mount; see $WORK/$stem.log"
+    say "  did not mount; see $WORK/$img.log"
     fail=$((fail + 1))
     continue
   fi
@@ -107,7 +113,7 @@ for img in sweep.qcow2 sweep.vdi sweep.vhd sweep-dyn.vhd sweep-sparse.vmdk; do
   else
     fail=$((fail + 1))
   fi
-  close "$stem"
+  close "$img"
 done
 
 say ""
