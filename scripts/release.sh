@@ -232,6 +232,7 @@ SINCE="$(last_published_tag "$APPCAST")"
 if [ -n "$SINCE" ] && ! git rev-parse "$SINCE" >/dev/null 2>&1; then
   SINCE=""  # published from somewhere this clone has no tag for
 fi
+NOTES_ARE_A_DRAFT=0
 if [ ! -s "$NOTES_SOURCE" ]; then
   printf '==> No releases/%s.md. Drafting it from the commits since %s\n' \
     "$VERSION" "${SINCE:-the previous version}"
@@ -239,7 +240,45 @@ if [ ! -s "$NOTES_SOURCE" ]; then
   "$HERE/scripts/release-notes.py" "$VERSION" \
     ${SINCE:+--since "$SINCE"} > "$DRAFT"
   NOTES_SOURCE="$DRAFT"
+  NOTES_ARE_A_DRAFT=1
   printf '    to keep it: ./scripts/release-notes.py %s --write, and commit it\n' "$VERSION"
+fi
+
+# A draft is where somebody starts, never what goes out.
+#
+# 1.22.0-beta.2 published sixty commit subjects as its release notes. The file
+# was releases/1.22.0.md and a pre-release looks for
+# releases/1.22.0-beta.2.md, so this drafted from the log, and
+# LUKOTTA_NOTES_REVIEWED=1 waved the draft through unread. "Refuse the two
+# channels that matter, not all four" is a good commit message and means
+# nothing to somebody installing the app.
+#
+# So a draft cannot be published, by anybody, on any channel. Reviewed or not
+# is a question about words a person wrote; it does not apply to words a script
+# assembled out of commit subjects.
+if [ "$NOTES_ARE_A_DRAFT" = "1" ] && [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
+  echo "error: these notes were drafted from commit subjects, and a draft is" >&2
+  echo "       not publishable. Commit subjects are written for whoever made" >&2
+  echo "       the change; release notes are for whoever installs the app." >&2
+  echo "" >&2
+  echo "       Write releases/$VERSION.md, in their words, covering only what" >&2
+  echo "       they would notice. Start from the draft if it helps:" >&2
+  echo "         ./scripts/release-notes.py $VERSION --write" >&2
+  echo "" >&2
+  echo "       LUKOTTA_NOTES_REVIEWED=1 does not apply here. It says a person" >&2
+  echo "       read the notes, and nobody has written any yet." >&2
+  exit 1
+fi
+
+# Mechanically, before anybody reads it. A line that is also a commit subject,
+# or names a file or a function, or uses a word only the people building this
+# would use, is written for the wrong reader and cannot go out whatever anybody
+# says about it. This is not overridable, on any channel.
+if ! "$HERE/scripts/check-changelog.py" "$NOTES_SOURCE"; then
+  echo "" >&2
+  echo "error: these notes do not pass scripts/check-changelog.py." >&2
+  echo "       Rewrite them for somebody installing the app and run again." >&2
+  exit 1
 fi
 
 # Read before it goes out, by somebody.
