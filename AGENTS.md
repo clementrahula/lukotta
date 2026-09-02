@@ -294,6 +294,15 @@ Never answer this question by hand. One script answers it:
 
     ./scripts/notary-status.sh
 
+This rule was broken on 2026-09-02, and the whole of what it warns about
+followed. `xcode-select` pointed at the Command Line Tools, so a hand-run
+`xcrun notarytool history` found the copy that cannot read the credential and
+answered `No Keychain password item found`. `security find-generic-password`
+agreed, because it cannot see those credentials either. Both readings were
+reported as a missing credential and a release was declared blocked on it. The
+credential was there. The script, run afterwards, said `configured: yes` at
+once.
+
 It finds a copy of notarytool that can read the credential. Where it cannot
 find one it answers `unknown`, not `no`: a copy that cannot read a credential
 cannot tell a missing one from one it is unable to see. Treat `unknown` as
