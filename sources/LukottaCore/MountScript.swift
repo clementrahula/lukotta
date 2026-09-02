@@ -1581,6 +1581,34 @@ public enum MountScript {
     ///
     /// Reads stay at 131072. Nothing measured here says a large read hurts,
     /// and a copy off the drive wants them.
+    ///
+    /// 16384 was tried and is not better: median 6.99s, p90 15.92s, worst
+    /// 20.37s, 6.8 MB/s -- a slightly better middle for a worse tail and a
+    /// slower copy. 32768 is the knee, and halving again buys nothing.
+    ///
+    /// WHERE THE REMAINING SEVEN SECONDS GO, AND WHY NO OPTION REACHES THEM
+    ///
+    /// The median sits near seven seconds whatever the write size, so
+    /// head-of-line blocking in the socket was part of it and not all of it.
+    /// Every measurement now points the same way, and it is not the server:
+    ///
+    ///   the guest lists that directory in         0.01s
+    ///   a GETATTR of a file in it, over NFS       0.03s
+    ///   a quiet directory on the same mount       0.02s
+    ///   the directory being written to            7s, and once 90s
+    ///
+    /// Server fast, RPC fast, other directories fast, this directory slow.
+    /// What is different about it is that it has creates in flight, and the
+    /// thing they share is the client's vnode for that one directory. A
+    /// READDIR waits on it while ditto is making files in it; a GETATTR of a
+    /// file underneath it is a different vnode and does not; the quiet
+    /// directory is a different vnode and does not.
+    ///
+    /// That is macOS's own VFS serialisation on one directory, above NFS and
+    /// below anything this app can address. No mount option changes it, which
+    /// is consistent with six of them having been tried and none having moved
+    /// the median. What the write size does reach is the tail, and that is
+    /// what it was chosen for.
     public static let writeSize = 32768
 
     /// What both sides are asked for, and what the server is told to allow.
