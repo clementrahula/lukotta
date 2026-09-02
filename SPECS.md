@@ -115,23 +115,21 @@ closed. Every attempt in the generated script is followed by the same attempt
 read-only, and the script writes a `read-only` stage marker when one of those
 succeeds, so a drive is never described as writable when it is not.
 
-Read-only is the last answer, not the first. Where every writable attempt
-failed but the transcript says the machinery slipped -- a broken pipe, an image
-the last virtual machine had not finished letting go of -- every one of them is
-made again before the read-only ones are reached. A Microsoft drive has two,
-`ntfs3` and `ntfs-3g`, and retrying only the first re-ran the driver that had
-already refused for a real reason: the drive went read-only for the rest of the
-session, and the sentence explaining it blamed the filesystem for a fault in
-the machinery.
+Read-only comes last. Where every writable attempt failed but the transcript
+shows the machinery slipped, a broken pipe or an image the last virtual machine
+had not finished releasing, all of them are made again before the read-only ones
+are reached. A Microsoft drive has two, `ntfs3` and `ntfs-3g`. Retrying only the
+first re-ran the driver that had already refused for a real reason, so the drive
+stayed read-only for the session and the explanation blamed the filesystem for a
+fault in the machinery.
 
-An attempt has an end, on all three routes. The application stops waiting after
-eight minutes; the privileged daemon keeps the same deadline for the mount it
-runs itself; and the generated script keeps a shorter one on top of both, and
-ends the engine it started rather than being killed from outside. That last one
-matters because a privileged attempt belongs to root: killing the shell from
-the application reaches the shell and not the engine under it, which went on
-mounting and produced a drive in Finder minutes after somebody had been told it
-could not be opened, served by nothing that would ever eject it.
+An attempt has an end on all three routes. The application stops waiting after
+eight minutes, the privileged daemon keeps the same deadline for the mount it
+runs itself, and the generated script keeps a shorter one on top of both and
+ends the engine it started. A privileged attempt belongs to root, so killing the
+shell from the application reaches the shell and not the engine under it: that
+engine went on mounting and produced a drive in Finder minutes after somebody
+had been told it could not be opened, with nothing left to eject it.
 
 ---
 
@@ -162,11 +160,10 @@ are not relaxed as further formats are added.
 
 ## 4. What is handed to macOS instead
 
-An exFAT image is attached by macOS and left mounted there instead of carried
-through the virtual machine. macOS reads and writes exFAT natively, so routing
-it through NFS would add a pointless layer and take the volume out of Finder's
-control. The application states this on screen, since the
-volume then appears in `/Volumes` rather than `~/Volumes`.
+An exFAT image is attached by macOS and left mounted there. macOS reads and
+writes exFAT natively, so routing it through NFS would add a layer and take the
+volume out of Finder's control. The application says so on screen, the volume
+appearing in `/Volumes` rather than `~/Volumes`.
 
 The same reasoning applies to the drive list: a disk macOS already reads is
 listed with that as its verdict, and not offered for opening.
@@ -207,15 +204,12 @@ VHDX is read and never written. The format requires every change to its
 allocation table or its metadata to be written into its log first, so that a
 writer interrupted part-way leaves a file the next reader can repair. A writer
 must also stamp a new write identifier into one of the two headers, each of
-which carries a sequence number and a CRC-32C. A writer that skips the log
-leaves no trace that
-anything was interrupted, which is the one failure that cannot be detected
-afterwards. Writing the log is therefore a precondition for writing a VHDX at
-all, and it is not written here.
+which carries a sequence number and a CRC-32C. A writer that skips the log leaves no trace that anything was interrupted, and
+that failure cannot be detected afterwards. Writing the log is therefore a
+precondition for writing a VHDX at all, and it is not written here.
 
-The consequence is deliberate and visible: a VHDX opens read-only, the device
-the guest is given is marked read-only, and the screen that offers to open one
-says so before anything is mounted rather than after a write has failed.
+So a VHDX opens read-only, the device the guest is given is marked read-only,
+and the screen offering to open one says so before anything is mounted.
 
 ### VHDX with a log that is not empty
 
@@ -234,8 +228,8 @@ other.
 
 ### qemu in the guest
 
-Borrowing QEMU's block layer, which has written all of these formats for many
-years, was measured rather than assumed:
+QEMU's block layer has written all of these formats for years. Borrowing it was
+measured:
 
 - `CONFIG_BLK_DEV_NBD` is not set in the kernel libkrunfw builds, and it is not
   available as a module either, so `qemu-nbd` has nothing to attach to. Turning
@@ -260,15 +254,14 @@ what makes a name written on a Linux volume come back the way it was typed.
 
 The same option refuses a symbolic link whose target contains both a directory
 separator and a character outside ASCII. `symlink(2)` answers EINVAL, and a link
-of that shape already on the drive cannot be followed — `readlink` returns the
+of that shape already on the drive cannot be followed: `readlink` returns the
 right text, and opening through it fails. An ASCII target is unaffected, in a
 directory or at the root, and hard links are unaffected entirely.
 
 Both halves belong to the client rather than to this application or the drive:
 the same volume mounted without `nfc` takes such a link and follows it. The
 option stays, because names are what every volume is full of and this shape of
-link is rare — an archive written on a system in another language is where it
-turns up.
+link is rare, turning up in archives written on a system in another language.
 
 ## 6. Where the drivers came from
 
@@ -319,19 +312,18 @@ what was written since the last barrier is what a power cut can take.
 
 ### How it is checked
 
-`qemu-img` is the oracle. QEMU has written these formats for many years, so
-agreeing with it is the strongest statement these drivers can make. The tests in
+`qemu-img` is the oracle, having written these formats for years. The tests in
 `src/write_tests.rs`, carried by the imago patch, create an image with
-`qemu-img`, write to it through the driver, and then have `qemu-img` check the
-image and convert it to raw, comparing every byte against a model kept beside
-the writes.
+`qemu-img`, write to it through the driver, then have `qemu-img` check the image
+and convert it to raw, comparing every byte against a model kept beside the
+writes.
 
 They cover the first block, a write crossing two, one aligned to nothing, a
 second write over ground already allocated, several blocks at once, the last
-byte of the disk, and filling an image completely. Then the awkward ones: a
-grain directory with a gap in it, two hundred randomly placed writes per format
-from a fixed seed, and a qcow2 holding an internal snapshot, whose shared
-clusters have to be copied before they are written.
+byte of the disk, filling an image completely, a grain directory with a gap in
+it, two hundred randomly placed writes per format from a fixed seed, and a qcow2
+holding an internal snapshot, whose shared clusters have to be copied before
+they are written.
 
 Reading was verified the same way and in both directions: images written by
 `qemu-img` read back byte for byte identical to the raw disk they were made
@@ -347,16 +339,15 @@ VirtualBox.
 
 Every claim below was produced by running it on an Apple Silicon Mac against
 real hardware or a real fixture, and the script that produces it is named. A
-claim with no script behind it is marked as such rather than left to look
-settled.
+claim with no script behind it says so.
 
-The corpus referred to throughout is `scripts/copy-torture.sh`: 2024 files
-chosen for the shapes a filesystem bridge breaks on: names NTFS keeps as
-UTF-16 and macOS hands over decomposed, names at the 255-byte limit, trailing
-dots Windows refuses, sizes exactly on and either side of the block and transfer
-boundaries, a sparse gigabyte, empty files, two thousand small files where
-metadata dominates, and a directory deep enough to make the path long. Every
-byte is read back and compared.
+The corpus throughout is `scripts/copy-torture.sh`: 2024 files chosen for the
+shapes a filesystem bridge breaks on. Names NTFS keeps as UTF-16 and macOS hands
+over decomposed, names at the 255-byte limit, trailing dots Windows refuses,
+sizes exactly on and either side of the block and transfer boundaries, a sparse
+gigabyte, empty files, two thousand small files where metadata dominates, and a
+directory deep enough to make the path long. Every byte is read back and
+compared.
 
 ### Filesystems and containers
 
@@ -413,8 +404,8 @@ image taken from a real USB unplug.
 
 **83 cases: 68 opened at a driver rung, 15 refused, 1 refusal that also wrote to
 the volume.** The check that matters is that a refusal leaves the image
-byte-identical, because a driver that scribbles on a damaged filesystem before
-giving up turns a recoverable disk into an unrecoverable one.
+byte-identical: a driver that writes to a damaged filesystem before giving up
+turns a recoverable disk into an unrecoverable one.
 
 Proven on real hardware as well, three times unattended: the author's BitLocker
 drive was left dirty with `$MFTMirr` behind `$MFT` by abrupt machine kills, and
@@ -434,8 +425,8 @@ back, home listing 16–20 ms, and the machines' resident total *fell* from
 1545 MB to 554 MB. Most of what a machine holds is page cache it gives back, so
 a dozen volumes do not cost a dozen times a fixed price.
 
-Stated plainly: this was measured on a 16 GB Mac16,12 made to feel like an 8 GB
-one, not on an 8 GB M1.
+This was measured on a 16 GB Mac16,12 made to feel like an 8 GB one. Not on an
+8 GB M1.
 
 ### The stall that started this
 
@@ -482,28 +473,23 @@ returns full length with exactly 32768 bytes of holes at offset 0, identically
 on XFS and ext4, every run. On the author's physical BitLocker drive the file is
 **absent entirely**.
 
-Three layers ruled out by measurement:
+**The cause, found 2026-09-02: nothing in the stack flushed the drive.**
+Measured on macOS 26, on a target opened for writing:
 
-- **The engine's block cache.** `CacheType::auto()` returned `Unsafe` for any
-  `/dev/rdisk*` path, and `Unsafe` answers the guest's flush with a no-op. This
-  is now patched (`patches/krun-devices-raw-device-flush.patch`) so every path
-  gets `Writeback`, and a device that cannot sync is tolerated rather than
-  failing the request. The symptom is unchanged, so the loss is above it.
-- **The NFS export.** vmproxy builds
-  `{rw|ro},no_subtree_check,no_root_squash,insecure` with no `async`, so nfsd is
-  in its default `sync` mode.
-- **The guest mount options.** `dirsync` was tried, confirmed applied in the
-  transcript, and changed nothing. Reverted, because synchronous directory
-  updates cost every many-small-file copy something.
-- **The export's write gathering.** `no_wdelay` was tried, spelled out as an
-  explicit `--nfs-export-opts` because the engine refuses that flag together
-  with `--ignore-permissions`, and confirmed live on the running engine. The
-  8 MB was written, fsynced, and verified byte-for-byte on the mount before the
-  machine was killed; it was still absent afterwards. Reverted.
+| target | `fsync` | `F_FULLFSYNC` | `DKIOCSYNCHRONIZECACHE` |
+| --- | --- | --- | --- |
+| device node | ok, and does nothing | ENOTTY | ok |
+| regular file | ok | ok | ENOTTY |
 
-What it is **not** is ntfs3's fsync path, which the earlier reading blamed. The
-same test on an NTFS *image* returns the file byte-identical. Three results
-together:
+The two calls are exact complements, and the first column is the trap: `fsync`
+on a device node returns success having done nothing. imago's `sync()` offered
+only those two, `fsync` under libkrun's `relaxed_sync` (which macOS gets
+unconditionally, `libkrun-1.19.3/src/lib.rs:789`) and `F_FULLFSYNC` otherwise,
+which a device refuses. So a raw device could not be flushed by either branch,
+and both reported that it had been.
+
+That also explains the split the earlier readings showed. An image handed to the
+engine is a regular file, where `fsync` is real:
 
 | Target | After the machine is killed |
 | --- | --- |
@@ -512,13 +498,35 @@ together:
 | NTFS physical drive | absent entirely |
 
 NTFS is the most durable of the three on an image and the only total loss on a
-drive, so the filesystem is not the variable. The physical device path is: an
-image is a file that imago opens and flushes, and a drive is `/dev/rdiskNsM`,
-which is the branch `CacheType::auto()` answered with `Unsafe` until it was
-patched. That patch makes the flush attempt happen and tolerates a device that
-refuses to sync, which on a raw device is what `fsync(2)` does, so the attempt
-is still effectively discarded. The macOS call that works on a raw device is
-`fcntl(F_FULLFSYNC)`, and it is not yet wired in.
+drive, so the filesystem was never the variable.
+
+`patches/imago-flush-device-nodes.patch` adds the device branch, decided at open
+rather than stat-ed on every barrier, tolerating a device that answers that it
+has no cache to flush. Without that tolerance every barrier becomes an I/O error
+and nothing mounts. **Not yet proven by measurement:**
+`scripts/kill-durability.sh` is written and its run is still blocked on the
+engine's lock file. What the ioctl costs a copy is also unmeasured.
+
+Ruled out along the way, each by measurement:
+
+- **The engine's block cache.** `CacheType::auto()` returned `Unsafe` for any
+  `/dev/rdisk*` path, and `Unsafe` answers the guest's flush with a no-op.
+  Patched (`patches/krun-devices-raw-device-flush.patch`) so every path gets
+  `Writeback`. The symptom was unchanged, because the flush it now performs was
+  the `fsync` above.
+- **The NFS export.** vmproxy builds
+  `{rw|ro},no_subtree_check,no_root_squash,insecure` with no `async`, so nfsd is
+  in its default `sync` mode.
+- **The guest mount options.** `dirsync` was applied, confirmed in the
+  transcript, and changed nothing. Reverted, because synchronous directory
+  updates cost every many-small-file copy something.
+- **The export's write gathering.** `no_wdelay`, spelled out as an explicit
+  `--nfs-export-opts` because the engine refuses that flag together with
+  `--ignore-permissions`, confirmed live on the running engine. The 8 MB was
+  written, fsynced and verified byte-for-byte on the mount before the kill, and
+  was still absent afterwards. Reverted.
+- **ntfs3's own fsync path**, which an earlier reading blamed. See the table
+  above.
 
 `-o sync` would mask it and is refused: it makes every write synchronous.
 
@@ -562,30 +570,29 @@ removing the NFS client from the path, which means FSKit.
 ### RAID arrays are not yet offered by the app
 
 `DiskWatcher.ourContent` includes the Linux RAID type GUID, so macOS stops
-offering to initialise an array member, an offer one click from destroying an
-array. What is missing is the app constructing the
-`raid:<devA>[:<devB>...]` identifier; `assemble_raid` is set only on the `raid:`
-and `lvm:` branches of `cmd_mount.rs`, so handing the engine a member's device
-path assembles nothing.
+offering to initialise an array member. What is missing is the app constructing
+the `raid:<devA>[:<devB>...]` identifier; `assemble_raid` is set only on the
+`raid:` and `lvm:` branches of `cmd_mount.rs`, so handing the engine a member's
+device path assembles nothing.
 
 The layer underneath works. A two-disk RAID1 built with `mdadm --create`,
 carrying btrfs, assembles and mounts through `raid:a.img:b.img`, and a copy onto
 it reads back **4 of 4 byte-identical**. `mdadm` ships in the guest.
 
-One trap is recorded because it looked exactly like the engine being unable to
-assemble RAID at all: `anylinuxfs shell` truncates an image to the last byte
-written, and a RAID superblock records the device size at creation, so a
-truncated member answers `Device /dev/vda is not large enough for data described
-in superblock` and the array will not assemble. `make-test-volumes.sh` restores
-the length, as `e2e.sh` does for the same reason.
+One trap looked exactly like the engine being unable to assemble RAID at all.
+`anylinuxfs shell` truncates an image to the last byte written, and a RAID
+superblock records the device size at creation, so a truncated member answers
+`Device /dev/vda is not large enough for data described in superblock` and the
+array will not assemble. `make-test-volumes.sh` restores the length, as `e2e.sh`
+does.
 
 ### Writing to a virtual machine image is not thoroughly tested
 
 Reading is exercised heavily: every image format goes through open, unlock,
 list, relaunch and eject in `e2e.sh`, and the ones that must be refused are
 refused. Writing is not. The qcow2, VMDK, VDI and VHD write paths are drivers
-written for this project (§6) and checked against `qemu-img` when the engine is
-built from source, and that is not the same as having been in use. Open an image
+written for this project (§6), checked against `qemu-img` when the engine is
+built from source, which is not the same as having been in use. Open an image
 read-only to copy files out of it, or keep a backup.
 
 A VHDX is read-only by design and is not affected.
@@ -596,16 +603,16 @@ The guest kernel carries no ZFS: the `zfs` and `zfs-libs` packages are trimmed
 and `lib/modules/*/fs/zfs` is removed by path, because no package owns those
 files and dropping the packages alone left the modules behind. Whether to carry
 it is an open question with a licence dimension, ZFS being CDDL, as much as a
-size one. It is neither offered nor tested.
+size one. Neither offered nor tested.
 
 ### Two routes into an image, and they differ
 
-Not a defect, recorded because it has already cost one wrong diagnosis. A
+Not a defect. Recorded because it has already cost one wrong diagnosis. A
 whole-disk image appears in the drive list under the file's own path; a
 partitioned image is attached, and its partition appears under a real volume
-UUID. Code that waits for a row identified by the file path will wait forever
-for a partitioned one, which reads as the app being unable to open it. `e2e.sh`
-passes 866 of 866 steps with the two routes distinguished.
+UUID. Code waiting for a row identified by the file path waits forever for a
+partitioned one, which reads as the app being unable to open it. `e2e.sh` passes
+866 of 866 steps with the two routes distinguished.
 
 ---
 
