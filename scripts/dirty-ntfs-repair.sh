@@ -66,6 +66,30 @@ where() {
 # mount made by hand against the guest's address says 172.27. Polling for the
 # address therefore waited out its timeout on a volume that had mounted
 # perfectly well, and reported that the volume would not open.
+# The app writes its own custom actions into the engine's config.toml as part
+# of building a mount, so an action named on an engine command line that the app
+# never built does not exist. Asking for the repair action this way answered
+# "unknown custom action: lukottarepair" and was read as the app refusing to
+# open a dirty volume -- the app had not been anywhere near it.
+#
+# Item 7 is about what the app does, so the app is what runs. This installs the
+# actions the same way a mount does, before any of them is named.
+"$ENGINE" --version >/dev/null 2>&1 || true
+prepare_actions() {
+  local dev
+  dev="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
+    2>/dev/null | head -1 | awk '{print $1}')"
+  [ -n "${dev:-}" ] || return 1
+  timeout 600 "$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)" \
+    --drive open="$dev" > "$WORK/app.log" 2>&1
+  local point
+  point="$(where)"
+  [ -n "$point" ] && diskutil unmount "$point" >/dev/null 2>&1
+  hdiutil detach "$dev" -quiet 2>/dev/null
+  grep -q "custom_actions.lukottarepair" \
+    "$ANYLINUXFS_HOME/config.toml" 2>/dev/null
+}
+
 open_it() {  # extra engine args
   pkill -f "anylinuxfs mount.*dirty-ntfs" >/dev/null 2>&1; sleep 3
   nohup "$ENGINE" mount --ignore-permissions -w false -t ntfs3 "$@" "$IMG" > "$WORK/engine.log" 2>&1 &
@@ -145,6 +169,7 @@ else
 fi
 
 # Open it the way the app does when a volume is dirty.
+prepare_actions || echo "note: the app did not leave its actions in config.toml"
 if open_it -a lukottarepair; then
   VOL="$(where)"; echo "opened dirty volume at $VOL"
 else
