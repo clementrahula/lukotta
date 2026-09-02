@@ -54,6 +54,24 @@ PRODUCT_NAMES = {
     "tb", "kb", "mib", "gib", "openssl", "sparkle", "homebrew",
 }
 
+# A measurement from a test bench. The reader was not at the bench, does not
+# know which copy died at 84%, and cannot tell whether their own copy is the
+# one that used to fail. Numbers belong in the specification, where the run
+# that produced them is beside them.
+#
+# "A large copy no longer fails part way" is the same fact without asking the
+# reader to have been there.
+BENCH = re.compile(
+    r"\b\d+\s?%"                                   # 84%
+    r"|\b\d[\d.,]*\s?(GB|MB|TB|KB|GiB|MiB|KiB)\b"  # 13 GB
+    r"|\b\d[\d.,]*\s?(ms|milliseconds?|seconds?|minutes?|hours?)\b"
+    r"|\bfell from\b|\brose from\b|\bdown from\b|\bup from\b"
+    r"|\bdied at\b",
+    # "used to" is not here. Saying what something used to do is how anybody
+    # describes a fix, and the fault was never the tense: it was quoting a
+    # number off a test bench and expecting the reader to recognise the run.
+    re.IGNORECASE)
+
 CODE = re.compile(
     r"`[^`]+`"                 # anything quoted as code
     r"|\b\w+\.(swift|rs|sh|py|md|toml|json|plist|xml)\b"
@@ -112,6 +130,11 @@ def check(path, subjects):
                 continue  # a name people read, not an identifier
             faults.append(f"names code or a path ({hit[:24]}): {text[:44]}")
             break
+
+        bench = BENCH.search(text)
+        if bench:
+            faults.append(
+                f"a measurement from a test ({bench.group(0).strip()}): {text[:40]}")
 
         words = {re.sub(r"[^a-z]", "", w.lower()) for w in text.split()}
         internal = words & INTERNAL_WORDS
