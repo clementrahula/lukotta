@@ -278,18 +278,62 @@ if ! "$HERE/scripts/check-changelog.py" "$NOTES_SOURCE"; then
   exit 1
 fi
 
-# Shown, not asked about.
+# Nothing reaches the release channel without the owner having said so, about
+# this version and about these words.
+#
+# The owner says it in conversation -- "approved", "ship it" -- and the line is
+# written here on their behalf, at once, without asking them for anything. They
+# never type a command, and they are never stopped to confirm something they
+# have already said. What this refuses is a release nobody said anything about.
+#
+# Two things are checked and they are one act: releases/APPROVED names the
+# version, and the line beside it is the hash of the notes as they stand. So
+# approval cannot be given in advance for a version not yet written, cannot be
+# carried over from the last release, and cannot survive the notes being edited
+# after they were read.
+#
+# The beta channel is not gated. It exists to be published from.
+if [ "${LUKOTTA_CHANNEL:-release}" = "release" ] && [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
+  APPROVALS="$HERE/releases/APPROVED"
+  NOTES_FILE="$HERE/releases/$VERSION.md"
+  [ -f "$NOTES_FILE" ] || { echo "error: no $NOTES_FILE to approve" >&2; exit 1; }
+  NOTES_HASH="$(shasum -a 256 "$NOTES_FILE" | cut -c1-12)"
+  # `|| true` because a version that is not approved is the ordinary case here,
+  # and under `set -e` with pipefail a grep that matches nothing ends the script
+  # where it stands -- silently, with status 1 and not a word about approval.
+  APPROVED_HASH="$(grep -E "^${VERSION//./\.}[[:space:]]" "$APPROVALS" 2>/dev/null | awk '{print $2}' | head -1 || true)"
+
+  if [ -z "$APPROVED_HASH" ]; then
+    printf '\nerror: %s has not been approved.\n\n' "$VERSION" >&2
+    printf 'The notes:\n\n' >&2
+    sed 's/^/    /' "$NOTES_FILE" >&2
+    printf '\nThe approving line, to be written once the owner has said so:\n\n' >&2
+    printf '    %s %s\n\n' "$VERSION" "$NOTES_HASH" >&2
+    exit 1
+  fi
+  if [ "$APPROVED_HASH" != "$NOTES_HASH" ]; then
+    printf '\nerror: the notes for %s changed after they were approved.\n' "$VERSION" >&2
+    printf '       approved: %s\n       now:      %s\n\n' "$APPROVED_HASH" "$NOTES_HASH" >&2
+    exit 1
+  fi
+  printf '==> %s is approved, and the notes are the ones approved\n' "$VERSION"
+fi
+
+# Shown, never asked about.
 #
 # This text is the only thing most people will ever read about the release, so
 # it goes on the screen in full, before anything is built -- which is the
 # moment it can still be changed.
 #
-# It used to stop here and ask, and refuse outright where nobody was at the
-# keyboard. Both are gone. A question at this point does not improve the notes:
-# whoever ran this has already decided to publish, and the mechanical checks
-# above have already refused anything written for the wrong reader. What the
-# question actually did was strand finished builds -- twice in one evening, on
-# a release that was correct both times.
+# It used to stop here with a y/N, and refuse outright where nobody was at a
+# keyboard. Both are gone, and the approval above is what replaced them: on the
+# release channel nothing publishes unless the owner has said so about these
+# exact words, and that is a stronger check than a prompt, because it is tied
+# to the hash of the notes rather than to whoever happened to press a key.
+#
+# On the beta channel there is nothing to satisfy. Betas exist to be published
+# from, and the mechanical check has already refused anything written for the
+# wrong reader.
 printf '\n==> The notes everybody updating will be shown\n\n'
 sed 's/^/    /' "$NOTES_SOURCE"
 printf '\n'
