@@ -548,9 +548,25 @@ public enum EngineEnvironment {
             let entries = try? fm.contentsOfDirectory(atPath: meta.path)
         {
             for entry in entries where entry != "rootfs.tar.gz" {
-                try? fm.copyItem(
-                    at: meta.appendingPathComponent(entry),
-                    to: staging.appendingPathComponent(entry))
+                do {
+                    try fm.copyItem(
+                        at: meta.appendingPathComponent(entry),
+                        to: staging.appendingPathComponent(entry))
+                } catch {
+                    // Said out loud rather than swallowed. Every one of these
+                    // failed, silently, on a directory the daemon had left
+                    // belonging to root: the root filesystem was there and the
+                    // OCI layout beside it was not, which the engine reads as an
+                    // image it must build. It built one, in the directory it
+                    // shares with everything else, and the mount ended having
+                    // built rather than mounted.
+                    //
+                    // Nothing is thrown: an environment missing one of these is
+                    // still better than none, and the next attempt through the
+                    // daemon puts the ownership right.
+                    Log.app.error(
+                        "could not put \(entry, privacy: .public) beside the root filesystem")
+                }
             }
         }
 

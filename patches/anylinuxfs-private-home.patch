@@ -28,6 +28,16 @@ Unset, state_dir is home_dir and nothing changes: a copy installed on its own
 behaves exactly as it always has. Set, an application can give the engine a
 directory nothing else writes to, and drives still mount where they always did.
 
+The image is unpacked by a second program, written in Go, and the first version
+of this patch changed only the Rust. So the profile, the configuration and the
+logs moved and the image did not: with the variable set to an application's own
+directory, `init` still wrote ~/.anylinuxfs/alpine, holding oci, rootfs, an
+mtree and umoci.json. The application then looked in its own directory, found
+nothing, unpacked again, and told somebody their drive would not open -- for as
+long as the app kept running, since only a fresh launch moved what was left.
+
+Both programs read the variable now.
+
 --- a/anylinuxfs/src/main.rs
 +++ b/anylinuxfs/src/main.rs
 @@ -176,6 +176,21 @@
@@ -70,3 +80,32 @@ directory nothing else writes to, and drives still mount where they always did.
          fs::create_dir_all(&dir)
              .with_context(|| format!("Failed to create log directory {}", dir.display()))?;
          dir
+
+--- a/init-rootfs/main.go
++++ b/init-rootfs/main.go
+@@ -531,7 +531,20 @@
+ 	if currentUser.HomeDir == "" {
+ 		fmt.Println("Current user does not have a home directory.")
+ 		os.Exit(1)
+ 	}
+-	cfg := defaultConfig(currentUser.HomeDir, execDir, dockerRef, baseDir)
++	// Where the image is unpacked, which is state and not a mount point, so it
++	// follows ANYLINUXFS_HOME like everything else the engine keeps. Unset, it
++	// is the user's home and nothing changes.
++	//
++	// The Rust side of this patch moved the profile, the configuration and the
++	// logs and left the image here, which is the one that matters most: an
++	// application looking in its own directory found nothing, unpacked again,
++	// and reported a drive that would not open.
++	stateDir := currentUser.HomeDir
++	if fromEnv := os.Getenv("ANYLINUXFS_HOME"); fromEnv != "" {
++		if err := os.MkdirAll(fromEnv, 0o755); err != nil {
++			fmt.Printf("Failed to create ANYLINUXFS_HOME directory: %v\n", err)
++			os.Exit(1)
++		}
++		stateDir = fromEnv
++	}
++	cfg := defaultConfig(stateDir, execDir, dockerRef, baseDir)
+ 
+ 	err = initRootfs(&cfg, nameserver, setupScript)
+ 	if err != nil {

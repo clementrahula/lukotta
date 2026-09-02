@@ -357,6 +357,26 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 into: URL(fileURLWithPath: stateHome).appendingPathComponent(
                     ".anylinuxfs/alpine", isDirectory: true)
             ) { _ in }
+            // Left belonging to the person whose directory it is.
+            //
+            // This runs as root, so everything it made here is root's, in a
+            // directory under the user's own Library. The app then cannot add
+            // to it: the OCI layout, the mtree and config.json are copied in
+            // beside the root filesystem and every one of those copies failed
+            // with a permission error nobody saw, because they are attempted
+            // with try?.
+            //
+            // What was left was an environment with a root filesystem and none
+            // of the metadata that says which image it is. The engine reads
+            // that as an image it has to build, and builds one -- in the
+            // directory it shares with every other program, because the program
+            // that unpacks it is a second one that this app's private-home
+            // patch never reached. The mount then ends having built an image
+            // rather than opened a drive.
+            //
+            // So: the drive that would not open began here, with a directory
+            // owned by the wrong user.
+            handOver(URL(fileURLWithPath: stateHome), to: invokingUID(), invokingGID())
             let fifo = try workspace.makeCredentialPipe()
             let log = workspace.root.appendingPathComponent("mount.log")
             FileManager.default.createFile(atPath: log.path, contents: nil)
@@ -612,7 +632,25 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     /// root's. It is handed to the engine in the mount script, so a mount made
     /// through the helper reads the same image as one made without it -- this
     /// app's own, and never the shared one another program may be using.
+    /// Give a directory and everything under it back to the user it is for.
+    ///
+    /// Nothing here is the daemon's to keep: it sits in somebody's Library and
+    /// the application that reads it runs as them.
+    private func handOver(_ root: URL, to uid: uid_t, _ gid: gid_t) {
+        let manager = FileManager.default
+        var paths = [root.path]
+        if let walk = manager.enumerator(atPath: root.path) {
+            for case let entry as String in walk {
+                paths.append(root.appendingPathComponent(entry).path)
+            }
+        }
+        for path in paths where chown(path, uid, gid) != 0 {
+            Log.helper.error("could not hand over one of the engine's files")
+        }
+    }
+
     private func engineHome(of home: String) -> String {
+
         // The same expression the app uses, against the invoking user's home
         // rather than root's. Both have to arrive at one path: otherwise a
         // mount made through the helper reads a different Linux environment
