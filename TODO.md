@@ -264,3 +264,14 @@ nothing had ever opened one.
   its own directory and opens the drive, so nobody sees it; the engine should
   not be writing there at all. Needs the image path in the patch and an engine
   rebuild.
+
+  Since measured further: the engine only reaches for that directory when it
+  decides it must build an image, and it decided that because the daemon left
+  its own directory owned by root and the metadata could not be copied in. With
+  the ownership put right, a full run made 196 checks, failed none, and never
+  created the shared directory. So what is left here is the guarantee rather
+  than the fault: the engine still *could* write there, and under "no
+  application ever disturbs another" it should not be able to. The patch is
+  written and applies cleanly to init-rootfs/main.go; what it needs is a Go
+  step in build-engine.sh, since that program comes prebuilt from the bottle
+  today. Go 1.27 is already on this machine.

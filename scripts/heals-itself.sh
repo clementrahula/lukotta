@@ -12,6 +12,19 @@
 #
 # Nothing here exports ANYLINUXFS_HOME: the app has to find its own directory,
 # which is the fault that hid behind every harness that set it.
+#
+# What this found, on this Mac, an hour apart on the same command:
+#
+#   before   71 checks, 13 failed. The engine's directory belonged to root --
+#            the daemon runs as root and made it -- so the app could not copy
+#            the OCI layout, the mtree and config.json in beside the root
+#            filesystem, and every one of those copies failed silently under a
+#            try?. What was left reads as an image the engine has to build, so
+#            it built one on every open, in ~/.anylinuxfs, the directory it
+#            shares with every other program that uses it.
+#   after    196 checks, none failed. The directory belongs to the person whose
+#            Library it is in, holds all four of those files, and the shared
+#            directory was not created once during the run.
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 APP="${LUKOTTA_APP:-/Applications/Lukotta Dev.app}"
