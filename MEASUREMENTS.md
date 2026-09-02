@@ -66,11 +66,18 @@ umlauts, an empty file. Opened by the app, copied in, read back.
     luks2-direct  DIRECTFS    byte-identical
     luks1-lvm     HOMEFS      byte-identical
 
-luks-multi is NOT proven. The first run reported it byte-identical at
-/Volumes/BACKUP2_TS -- which is a physical stick that was mounted at the time,
-not the fixture. The harness took the last mount in the table. Re-run with the
-mount identified by difference, nothing new appeared, so that fixture has not
-opened yet and its result is void rather than bad.
+luks-multi is proven too, and took three tries to measure honestly:
+
+    FEDORAROOT     123 files, byte-identical
+    FEDORAHOME     123 files, byte-identical
+    FEDORABACKUP   123 files, byte-identical
+
+One LUKS container holding an LVM group of three filesystems, served as
+subdirectories of one mount. The first run reported it byte-identical at
+/Volumes/BACKUP2_TS -- a physical stick that happened to be mounted, because
+the harness took the last mount in the table rather than the one that appeared.
+The second run mounted nothing, and the reason was mine as well: the fixture is
+partitioned, so the volume is disk5s1 and I had pointed at disk5.
 
 ## Every disk image format the app claims — 2026-09-02
 
