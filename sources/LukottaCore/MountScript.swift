@@ -1604,11 +1604,34 @@ public enum MountScript {
     /// file underneath it is a different vnode and does not; the quiet
     /// directory is a different vnode and does not.
     ///
-    /// That is macOS's own VFS serialisation on one directory, above NFS and
-    /// below anything this app can address. No mount option changes it, which
-    /// is consistent with six of them having been tried and none having moved
-    /// the median. What the write size does reach is the tail, and that is
-    /// what it was chosen for.
+    /// That reading was wrong too, and the test that killed it is worth
+    /// keeping. If a directory stalls because creates hold its vnode, then a
+    /// directory receiving nothing but creates should stall hardest. Copy
+    /// three thousand small files into one -- it grows continuously, a create
+    /// every few milliseconds -- and list it throughout:
+    ///
+    ///     median 0.04s, worst 0.07s
+    ///
+    /// Creates do not do it. Only sustained large writes to a file inside the
+    /// directory do. Which puts it back on the write stream: a READDIR queued
+    /// behind bulk write RPCs on the one connection, exactly where the write
+    /// size reaches it.
+    ///
+    /// And the thread pool was re-tested, because the reason it was first
+    /// dismissed does not hold. That reason was "a quiet directory answers in
+    /// 20 ms while the busy one waits seven seconds, so there is always a free
+    /// thread" -- but a quiet directory is answered from the client's cache
+    /// without an RPC at all, so it never asked the server anything. Asked
+    /// properly, with 32 threads instead of 8 under the same copy:
+    ///
+    ///     32 threads   median 9.83s   p90 14.04s   worst 17.53s   7.0 MB/s
+    ///      8 threads   median 8.36s   p90 11.18s   worst 16.56s   7.2 MB/s
+    ///
+    /// Worse on all four. The conclusion stands and now rests on something.
+    ///
+    /// So the floor is a READDIR waiting behind a saturated write stream, and
+    /// the write size is the only knob measured to reach it: ninety seconds
+    /// down to sixteen. The median near eight is what NFS costs here.
     public static let writeSize = 32768
 
     /// What both sides are asked for, and what the server is told to allow.
