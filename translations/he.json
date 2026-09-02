@@ -104,7 +104,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "‏%lld כוננים או דמויות כונן פתוחים. אפשר להשאיר פתוחים %lld בלבד בו-זמנית. הוציאו אחד כדי לפתוח אחר.",
     "%lld percent": "‏%lld אחוזים",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "‏260 מ״ב בדיסק: 160 מ״ב ליישום ו‑100 מ״ב לסביבת Linux שנפרסת בשימוש הראשון",
-    "30 to 80 MB of RAM per unlocked drive": "‏30 עד 80 מ״ב זיכרון לכל כונן לא נעול",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "‏30 מ״ב זיכרון לכל כונן פתוח במנוחה, ועד 450 מ״ב לכונן שמעתיקים אליו",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "קובץ VHDX שלא נסגר כראוי. פתחו אותו פעם אחת במכונה הווירטואלית שהוא שייך לה, והיא תכתוב בחזרה את התוכן האחרון",
     "A crash report was found": "נמצא דוח קריסה",
     "A drive %@ can open.": "כונן ש‑%@ יכול לפתוח.",

@@ -96,7 +96,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "%lld enheder eller diskbilleder er åbne. Du kan kun have %lld åbne samtidig. Skub én ud for at åbne en anden.",
     "%lld percent": "%lld procent",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB diskplads: 160 MB til appen og 100 MB til Linux-miljøet, der pakkes ud første gang",
-    "30 to 80 MB of RAM per unlocked drive": "30 til 80 MB hukommelse pr. oplåst enhed",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB RAM pr. åben enhed i hvile og op til 450 MB for en, der kopieres til",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "En VHDX, der ikke blev lukket korrekt ned. Åbn den én gang i den virtuelle maskine, den hører til, så den skriver sit seneste indhold tilbage",
     "A crash report was found": "Der blev fundet en nedbrudsrapport",
     "A drive %@ can open.": "En enhed, %@ kan åbne.",

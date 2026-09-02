@@ -88,7 +88,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "เปิดไดรฟ์หรืออิมเมจดิสก์อยู่ %lld รายการ เปิดพร้อมกันได้เพียง %lld รายการ ดันออกหนึ่งรายการเพื่อเปิดรายการอื่น",
     "%lld percent": "%lld เปอร์เซ็นต์",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "พื้นที่ดิสก์ 260 MB: 160 MB สำหรับแอป และ 100 MB สำหรับสภาพแวดล้อม Linux ที่แตกออกมาเมื่อใช้ครั้งแรก",
-    "30 to 80 MB of RAM per unlocked drive": "หน่วยความจำ 30 ถึง 80 MB ต่อไดรฟ์ที่ปลดล็อกหนึ่งไดรฟ์",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "แรม 30 MB ต่อไดรฟ์ที่เปิดอยู่และไม่มีงาน และมากถึง 450 MB สำหรับไดรฟ์ที่กำลังคัดลอกลงไป",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "VHDX ที่ไม่ได้ปิดอย่างถูกต้อง เปิดมันหนึ่งครั้งในเครื่องเสมือนที่เป็นเจ้าของ ซึ่งจะเขียนเนื้อหาล่าสุดกลับลงไป",
     "A crash report was found": "พบรายงานข้อขัดข้อง",
     "A drive %@ can open.": "ไดรฟ์ที่ %@ เปิดได้",

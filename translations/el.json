@@ -96,7 +96,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "Είναι ανοιχτοί %lld δίσκοι ή είδωλα. Μπορείτε να έχετε ανοιχτά μόνο %lld ταυτόχρονα. Κάντε εξαγωγή ενός για να ανοίξετε άλλο.",
     "%lld percent": "%lld τοις εκατό",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB στον δίσκο: 160 MB για την εφαρμογή και 100 MB για το περιβάλλον Linux που αποσυμπιέζεται στην πρώτη χρήση",
-    "30 to 80 MB of RAM per unlocked drive": "30 έως 80 MB μνήμης για κάθε ξεκλείδωτο δίσκο",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB μνήμης RAM για κάθε ανοιχτό δίσκο σε ηρεμία και έως 450 MB για δίσκο στον οποίο γίνεται αντιγραφή",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "VHDX που δεν τερματίστηκε ομαλά. Ανοίξτε το μία φορά στην εικονική μηχανή στην οποία ανήκει, ώστε να γραφτεί πίσω το τελευταίο του περιεχόμενο",
     "A crash report was found": "Βρέθηκε αναφορά σφάλματος",
     "A drive %@ can open.": "Ένας δίσκος που μπορεί να ανοίξει το %@.",

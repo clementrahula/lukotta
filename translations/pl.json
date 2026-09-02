@@ -112,7 +112,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "Otwartych jest %lld dysków lub obrazów dysku. Jednocześnie możesz mieć otwarte tylko %lld. Wysuń jeden, aby otworzyć kolejny.",
     "%lld percent": "%lld procent",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB miejsca na dysku: 160 MB na aplikację i 100 MB na środowisko Linux rozpakowywane przy pierwszym użyciu",
-    "30 to 80 MB of RAM per unlocked drive": "Od 30 do 80 MB pamięci RAM na każdy odblokowany dysk",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB pamięci RAM na każdy otwarty dysk w spoczynku i do 450 MB na dysk, na który trwa kopiowanie",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "VHDX, który nie został poprawnie zamknięty. Otwórz go raz w maszynie wirtualnej, do której należy, aby zapisała z powrotem jego ostatnią zawartość",
     "A crash report was found": "Znaleziono raport o awarii",
     "A drive %@ can open.": "Dysk, który %@ potrafi otworzyć.",

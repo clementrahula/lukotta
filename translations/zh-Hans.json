@@ -88,7 +88,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "已打开 %lld 个驱动器或磁盘映像。同时最多只能打开 %lld 个。推出一个才能再打开一个。",
     "%lld percent": "%lld%%",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB 磁盘空间：160 MB 用于 App，100 MB 用于首次使用时解压的 Linux 环境",
-    "30 to 80 MB of RAM per unlocked drive": "每个已解锁的驱动器占用 30 到 80 MB 内存",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "每个空闲的已打开驱动器占用 30 MB 内存，正在复制的驱动器最多 450 MB",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "未正常关闭的 VHDX。请在它所属的虚拟机中打开一次，让其把最后的内容写回",
     "A crash report was found": "发现一份崩溃报告",
     "A drive %@ can open.": "%@ 可以打开的驱动器。",

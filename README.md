@@ -73,7 +73,7 @@ password, open it in Finder. A drive should be fully usable on any computer.
 > [!WARNING]
 > **Early development.** Lukotta is still new. The Linux tools and drivers it
 > relies on have been around for years and are well tested. Lukotta is built on
-> top of them, but it is still in development, so it inevitably has issues yet
+> top of them, but it is still in development, so there inevitable are issues yet
 > to be uncovered. For now, using it for opening drives and images in read-only
 > mode is the safest thing to do. Writing does work, but please treat it as
 > experimental, and keep a copy of anything you would be upset to lose.
@@ -239,9 +239,8 @@ CDDL, as much as a technical one.
 - macOS 15 Sequoia or later
 - 260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks
   on first use
-- About 30 MB of memory per open drive at rest. A copy takes more, and most of
-  it is cache macOS reclaims: a dozen drives open and being written to measured
-  2.4 GB with memory free and 554 MB with the machine under pressure
+- 30 MB of RAM per open drive sitting idle, and up to 450 MB for one being
+  copied to
 - Up to 12 drives can stay unlocked at once
 
 ## Languages

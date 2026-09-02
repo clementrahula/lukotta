@@ -96,7 +96,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "%lld sürücü veya disk imajı açık. Aynı anda yalnızca %lld tanesi açık olabilir. Başkasını açmak için birini çıkarın.",
     "%lld percent": "yüzde %lld",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB disk: uygulama için 160 MB, ilk kullanımda paketten çıkarılan Linux ortamı için 100 MB",
-    "30 to 80 MB of RAM per unlocked drive": "Kilidi açılmış her sürücü için 30 ila 80 MB bellek",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "Boştaki her açık sürücü için 30 MB RAM, kopyalama yapılan sürücü için 450 MB’a kadar",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "Düzgün kapatılmamış bir VHDX. Ait olduğu sanal makinede bir kez açın; en son tuttuğu içeriği geri yazacaktır",
     "A crash report was found": "Bir çökme raporu bulundu",
     "A drive %@ can open.": "%@ uygulamasının açabileceği bir sürücü.",

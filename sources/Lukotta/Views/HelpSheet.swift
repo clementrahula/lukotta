@@ -129,7 +129,7 @@ struct HelpSheet: View {
                         Bullet(
                             "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use"
                         )
-                        Bullet("30 to 80 MB of RAM per unlocked drive")
+                        Bullet("30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to")
                         Bullet("Up to \(wantedCount) drives can stay unlocked at once")
                     }
 

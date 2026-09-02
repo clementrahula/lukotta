@@ -96,7 +96,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "Avatud on %lld ketast või tõmmist. Korraga saab avatud olla ainult %lld. Väljuta üks, et avada teine.",
     "%lld percent": "%lld protsenti",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB kettaruumi: 160 MB rakendusele ja 100 MB Linuxi keskkonnale, mis pakitakse lahti esimesel kasutamisel",
-    "30 to 80 MB of RAM per unlocked drive": "30–80 MB muutmälu iga lukust avatud ketta kohta",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB muutmälu iga avatud ketta kohta jõudeolekus ja kuni 450 MB ketta kohta, millele kopeeritakse",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "VHDX, mida korralikult ei suletud. Ava see korra virtuaalmasinas, kuhu see kuulub, et viimane sisu faili tagasi kirjutataks",
     "A crash report was found": "Leiti krahhiaruanne",
     "A drive %@ can open.": "Ketas, mida %@ oskab avada.",

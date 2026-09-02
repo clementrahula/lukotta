@@ -88,7 +88,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "Đang mở %lld ổ đĩa hoặc ảnh đĩa. Bạn chỉ có thể mở %lld cùng lúc. Hãy tháo một cái để mở cái khác.",
     "%lld percent": "%lld phần trăm",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB dung lượng đĩa: 160 MB cho ứng dụng, 100 MB cho môi trường Linux được giải nén ở lần dùng đầu tiên",
-    "30 to 80 MB of RAM per unlocked drive": "30 đến 80 MB bộ nhớ cho mỗi ổ đĩa đã mở khóa",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB RAM cho mỗi ổ đĩa đang mở ở trạng thái nghỉ, và tối đa 450 MB cho ổ đang được sao chép vào",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "Một VHDX chưa được tắt đúng cách. Hãy mở nó một lần trong máy ảo sở hữu nó; máy ảo sẽ ghi lại nội dung cuối cùng",
     "A crash report was found": "Đã tìm thấy một báo cáo sự cố",
     "A drive %@ can open.": "Một ổ đĩa mà %@ mở được.",

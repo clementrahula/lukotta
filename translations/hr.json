@@ -104,7 +104,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "Otvoreno je %lld diskova ili slika diska. Istodobno ih može biti otvoreno samo %lld. Izbacite jedan da biste otvorili drugi.",
     "%lld percent": "%lld posto",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB prostora na disku: 160 MB za aplikaciju i 100 MB za Linux okruženje koje se raspakirava pri prvom korištenju",
-    "30 to 80 MB of RAM per unlocked drive": "30 do 80 MB memorije po otključanom disku",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB RAM-a po otvorenom disku u mirovanju i do 450 MB za disk na koji se kopira",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "VHDX koji nije uredno isključen. Otvorite ga jednom u virtualnom stroju kojem pripada kako bi zapisao natrag svoj posljednji sadržaj",
     "A crash report was found": "Pronađeno je izvješće o rušenju",
     "A drive %@ can open.": "Disk koji %@ može otvoriti.",

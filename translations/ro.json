@@ -104,7 +104,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "Sunt deschise %lld discuri sau imagini de disc. Puteți avea deschise doar %lld în același timp. Ejectați unul pentru a deschide altul.",
     "%lld percent": "%lld la sută",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB pe disc: 160 MB pentru aplicație și 100 MB pentru mediul Linux dezarhivat la prima utilizare",
-    "30 to 80 MB of RAM per unlocked drive": "30–80 MB de memorie pentru fiecare disc deblocat",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB de memorie RAM pentru fiecare disc deschis inactiv și până la 450 MB pentru unul pe care se copiază",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "Un VHDX care nu a fost închis corect. Deschideți-l o dată în mașina virtuală căreia îi aparține, pentru ca ultimul său conținut să fie scris înapoi",
     "A crash report was found": "A fost găsit un raport de blocare",
     "A drive %@ can open.": "Un disc pe care %@ îl poate deschide.",

@@ -208,7 +208,7 @@
       "context": "A bullet in the help sheet's list of requirements. A fragment: no full stop.",
       "placeholders": []
     },
-    "30 to 80 MB of RAM per unlocked drive": {
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": {
       "screens": [
         "help"
       ],

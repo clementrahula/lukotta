@@ -112,7 +112,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "Atverta %lld diskų arba disko atvaizdžių. Vienu metu jų gali būti atverta tik %lld. Išstumkite vieną, kad atvertumėte kitą.",
     "%lld percent": "%lld procentų",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB disko vietos: 160 MB programai ir 100 MB „Linux“ aplinkai, kuri išpakuojama pirmą kartą naudojant",
-    "30 to 80 MB of RAM per unlocked drive": "Nuo 30 iki 80 MB operatyviosios atminties kiekvienam atrakintam diskui",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB operatyviosios atminties kiekvienam neveikiančiam atidarytam diskui ir iki 450 MB diskui, į kurį kopijuojama",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "VHDX, kuris nebuvo tinkamai išjungtas. Atverkite jį kartą virtualioje mašinoje, kuriai jis priklauso, kad naujausias turinys būtų įrašytas atgal",
     "A crash report was found": "Rasta strigties ataskaita",
     "A drive %@ can open.": "Diskas, kurį „%@“ gali atverti.",

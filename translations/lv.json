@@ -104,7 +104,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "Atvērti ir %lld diski vai diska attēli. Vienlaikus var būt atvērti tikai %lld. Izstumiet vienu, lai atvērtu citu.",
     "%lld percent": "%lld procenti",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB diska vietas: 160 MB lietotnei un 100 MB Linux videi, ko tā izpako pirmajā lietošanas reizē",
-    "30 to 80 MB of RAM per unlocked drive": "No 30 līdz 80 MB operatīvās atmiņas katram atbloķētajam diskam",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB operatīvās atmiņas katram atvērtam diskam dīkstāvē un līdz 450 MB diskam, uz kuru notiek kopēšana",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "VHDX, kas netika korekti izslēgts. Atveriet to vienreiz virtuālajā mašīnā, kurai tas pieder, lai tā pēdējais saturs tiktu ierakstīts atpakaļ",
     "A crash report was found": "Tika atrasts avārijas pārskats",
     "A drive %@ can open.": "Disks, ko %@ spēj atvērt.",

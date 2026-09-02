@@ -88,7 +88,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "%lld pemacu atau imej cakera dibuka. Anda hanya boleh membuka %lld pada satu masa. Keluarkan satu untuk membuka yang lain.",
     "%lld percent": "%lld peratus",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB cakera: 160 MB untuk aplikasi, 100 MB untuk persekitaran Linux yang dinyahmampat pada penggunaan pertama",
-    "30 to 80 MB of RAM per unlocked drive": "30 hingga 80 MB memori bagi setiap pemacu yang tidak berkunci",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB RAM bagi setiap pemacu terbuka yang melahu, dan sehingga 450 MB bagi pemacu yang sedang disalin",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "VHDX yang tidak ditutup dengan betul. Bukanya sekali dalam mesin maya pemiliknya, yang akan menulis semula kandungan terakhirnya",
     "A crash report was found": "Satu laporan ranap ditemui",
     "A drive %@ can open.": "Pemacu yang %@ boleh buka.",

@@ -96,7 +96,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "Estão abertos %lld discos ou imagens de disco. Só pode ter %lld abertos ao mesmo tempo. Ejete um para abrir outro.",
     "%lld percent": "%lld por cento",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB de disco: 160 MB para a app e 100 MB para o ambiente Linux descompactado na primeira utilização",
-    "30 to 80 MB of RAM per unlocked drive": "30 a 80 MB de RAM por disco desbloqueado",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB de RAM por disco aberto em repouso e até 450 MB para um disco para o qual se está a copiar",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "Um VHDX que não foi encerrado corretamente. Abra-o uma vez na máquina virtual a que pertence, para que o seu último conteúdo seja escrito de volta",
     "A crash report was found": "Foi encontrado um relatório de falha",
     "A drive %@ can open.": "Um disco que o %@ consegue abrir.",

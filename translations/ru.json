@@ -112,7 +112,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "Открыто %lld дисков или образов диска. Одновременно можно держать открытыми только %lld. Извлеките один, чтобы открыть другой.",
     "%lld percent": "%lld процентов",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 МБ на диске: 160 МБ для приложения и 100 МБ для среды Linux, которая распаковывается при первом запуске",
-    "30 to 80 MB of RAM per unlocked drive": "от 30 до 80 МБ оперативной памяти на каждый разблокированный диск",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 МБ оперативной памяти на каждый открытый диск в простое и до 450 МБ на диск, на который идёт копирование",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "VHDX, который был завершён некорректно. Откройте его один раз в той виртуальной машине, которой он принадлежит, — она запишет обратно последнее содержимое",
     "A crash report was found": "Найден отчёт о сбое",
     "A drive %@ can open.": "Диск, который %@ может открыть.",

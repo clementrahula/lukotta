@@ -88,7 +88,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "%lld 台のドライブまたはディスクイメージが開いています。同時に開けるのは %lld までです。別のものを開くには、どれかを取り出してください。",
     "%lld percent": "%lld パーセント",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "ディスク 260 MB：アプリに 160 MB、初回使用時に展開される Linux 環境に 100 MB",
-    "30 to 80 MB of RAM per unlocked drive": "ロック解除したドライブ 1 台につきメモリ 30〜80 MB",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "アイドル状態で開いているドライブ 1 台につき RAM 30 MB、コピー中のドライブは最大 450 MB",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "正常に終了されなかった VHDX。属している仮想マシンで一度開くと、最後の内容が書き戻されます",
     "A crash report was found": "クラッシュレポートが見つかりました",
     "A drive %@ can open.": "%@ が開けるドライブ。",

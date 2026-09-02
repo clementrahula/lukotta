@@ -88,7 +88,7 @@
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "%lld개의 드라이브 또는 디스크 이미지가 열려 있습니다. 동시에 %lld개까지만 열 수 있습니다. 다른 것을 열려면 하나를 추출하십시오.",
     "%lld percent": "%lld 퍼센트",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "디스크 260MB: 앱에 160MB, 처음 사용할 때 풀리는 Linux 환경에 100MB",
-    "30 to 80 MB of RAM per unlocked drive": "잠금 해제된 드라이브 하나당 메모리 30~80MB",
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "유휴 상태로 열린 드라이브 하나당 RAM 30MB, 복사 중인 드라이브는 최대 450MB",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "정상적으로 종료되지 않은 VHDX. 해당 가상 머신에서 한 번 열면 마지막 내용이 다시 기록됩니다",
     "A crash report was found": "충돌 보고서를 찾았습니다",
     "A drive %@ can open.": "%@이(가) 열 수 있는 드라이브입니다.",

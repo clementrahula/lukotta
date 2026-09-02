@@ -5325,222 +5325,222 @@
         }
       }
     },
-    "30 to 80 MB of RAM per unlocked drive": {
+    "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "من 30 إلى 80 ميجابايت من الذاكرة لكل محرك أقراص غير مقفل"
+            "value": "‏30 ميجابايت من الذاكرة لكل محرك أقراص مفتوح في وضع الخمول، وحتى 450 ميجابايت لمحرك يجري النسخ إليه"
           }
         },
         "bg": {
           "stringUnit": {
             "state": "translated",
-            "value": "От 30 до 80 MB оперативна памет за всеки отключен диск"
+            "value": "30 MB оперативна памет за всеки отворен диск в покой и до 450 MB за диск, върху който се копира"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 až 80 MB paměti na každý odemčený disk"
+            "value": "30 MB paměti RAM na každý otevřený disk v klidu a až 450 MB na disk, na který se kopíruje"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 til 80 MB hukommelse pr. oplåst enhed"
+            "value": "30 MB RAM pr. åben enhed i hvile og op til 450 MB for en, der kopieres til"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 bis 80 MB RAM pro entsperrtem Laufwerk"
+            "value": "30 MB RAM pro geöffnetem Laufwerk im Leerlauf und bis zu 450 MB für eines, auf das kopiert wird"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 έως 80 MB μνήμης για κάθε ξεκλείδωτο δίσκο"
+            "value": "30 MB μνήμης RAM για κάθε ανοιχτό δίσκο σε ηρεμία και έως 450 MB για δίσκο στον οποίο γίνεται αντιγραφή"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "De 30 a 80 MB de RAM por disco desbloqueado"
+            "value": "30 MB de RAM por disco abierto en reposo, y hasta 450 MB para uno en el que se está copiando"
           }
         },
         "et": {
           "stringUnit": {
             "state": "translated",
-            "value": "30–80 MB muutmälu iga lukust avatud ketta kohta"
+            "value": "30 MB muutmälu iga avatud ketta kohta jõudeolekus ja kuni 450 MB ketta kohta, millele kopeeritakse"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "30–80 Mt keskusmuistia jokaista asemaa kohti, jonka lukitus on avattu"
+            "value": "30 Mt keskusmuistia jokaista avointa asemaa kohti lepotilassa ja enintään 450 Mt asemaa kohti, johon kopioidaan"
           }
         },
         "fil": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 hanggang 80 MB ng memory sa bawat na-unlock na drive"
+            "value": "30 MB ng RAM sa bawat bukas na drive na nakatiwangwang, at hanggang 450 MB para sa isang kinokopyahan"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 à 80 Mo de mémoire vive par disque déverrouillé"
+            "value": "30 Mo de mémoire vive par disque ouvert au repos, et jusqu’à 450 Mo pour un disque en cours de copie"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "‏30 עד 80 מ״ב זיכרון לכל כונן לא נעול"
+            "value": "‏30 מ״ב זיכרון לכל כונן פתוח במנוחה, ועד 450 מ״ב לכונן שמעתיקים אליו"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "हर अनलॉक ड्राइव के लिए 30 से 80 MB मेमोरी"
+            "value": "निष्क्रिय खुली हर ड्राइव के लिए 30 MB RAM, और जिस ड्राइव पर कॉपी हो रही हो उसके लिए 450 MB तक"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 do 80 MB memorije po otključanom disku"
+            "value": "30 MB RAM-a po otvorenom disku u mirovanju i do 450 MB za disk na koji se kopira"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "30–80 MB memória minden feloldott meghajtóra"
+            "value": "30 MB RAM minden tétlen, nyitott meghajtóra, és legfeljebb 450 MB arra, amelyre másolás folyik"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 sampai 80 MB memori untuk setiap drive yang tidak terkunci"
+            "value": "30 MB RAM untuk setiap drive terbuka yang diam, dan hingga 450 MB untuk drive yang sedang disalin"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Da 30 a 80 MB di RAM per disco sbloccato"
+            "value": "30 MB di RAM per disco aperto inattivo e fino a 450 MB per uno su cui si sta copiando"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ロック解除したドライブ 1 台につきメモリ 30〜80 MB"
+            "value": "アイドル状態で開いているドライブ 1 台につき RAM 30 MB、コピー中のドライブは最大 450 MB"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "잠금 해제된 드라이브 하나당 메모리 30~80MB"
+            "value": "유휴 상태로 열린 드라이브 하나당 RAM 30MB, 복사 중인 드라이브는 최대 450MB"
           }
         },
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nuo 30 iki 80 MB operatyviosios atminties kiekvienam atrakintam diskui"
+            "value": "30 MB operatyviosios atminties kiekvienam neveikiančiam atidarytam diskui ir iki 450 MB diskui, į kurį kopijuojama"
           }
         },
         "lv": {
           "stringUnit": {
             "state": "translated",
-            "value": "No 30 līdz 80 MB operatīvās atmiņas katram atbloķētajam diskam"
+            "value": "30 MB operatīvās atmiņas katram atvērtam diskam dīkstāvē un līdz 450 MB diskam, uz kuru notiek kopēšana"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 hingga 80 MB memori bagi setiap pemacu yang tidak berkunci"
+            "value": "30 MB RAM bagi setiap pemacu terbuka yang melahu, dan sehingga 450 MB bagi pemacu yang sedang disalin"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 til 80 MB minne per opplåst enhet"
+            "value": "30 MB RAM per åpen enhet i ro, og opptil 450 MB for én det kopieres til"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 tot 80 MB werkgeheugen per ontgrendelde schijf"
+            "value": "30 MB RAM per geopende schijf in rust, en tot 450 MB voor een schijf waarnaar wordt gekopieerd"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Od 30 do 80 MB pamięci RAM na każdy odblokowany dysk"
+            "value": "30 MB pamięci RAM na każdy otwarty dysk w spoczynku i do 450 MB na dysk, na który trwa kopiowanie"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 a 80 MB de RAM por disco desbloqueado"
+            "value": "30 MB de RAM por disco aberto em repouso e até 450 MB para um disco para o qual se está a copiar"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "30–80 MB de memorie pentru fiecare disc deblocat"
+            "value": "30 MB de memorie RAM pentru fiecare disc deschis inactiv și până la 450 MB pentru unul pe care se copiază"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "от 30 до 80 МБ оперативной памяти на каждый разблокированный диск"
+            "value": "30 МБ оперативной памяти на каждый открытый диск в простое и до 450 МБ на диск, на который идёт копирование"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 do 80 MB pomnilnika na odklenjen pogon"
+            "value": "30 MB pomnilnika RAM na odprt pogon v mirovanju in do 450 MB za pogon, na katerega poteka kopiranje"
           }
         },
         "sq": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 deri 80 MB RAM për çdo disk të shkyçur"
+            "value": "30 MB RAM për çdo disk të hapur në pritje, dhe deri në 450 MB për një disk ku po kopjohet"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 till 80 MB minne per upplåst enhet"
+            "value": "30 MB RAM per öppen enhet i vila, och upp till 450 MB för en som det kopieras till"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "หน่วยความจำ 30 ถึง 80 MB ต่อไดรฟ์ที่ปลดล็อกหนึ่งไดรฟ์"
+            "value": "แรม 30 MB ต่อไดรฟ์ที่เปิดอยู่และไม่มีงาน และมากถึง 450 MB สำหรับไดรฟ์ที่กำลังคัดลอกลงไป"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kilidi açılmış her sürücü için 30 ila 80 MB bellek"
+            "value": "Boştaki her açık sürücü için 30 MB RAM, kopyalama yapılan sürücü için 450 MB’a kadar"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "від 30 до 80 МБ оперативної пам’яті на кожен розблокований диск"
+            "value": "30 МБ оперативної пам’яті на кожен відкритий диск у стані спокою і до 450 МБ на диск, на який триває копіювання"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 đến 80 MB bộ nhớ cho mỗi ổ đĩa đã mở khóa"
+            "value": "30 MB RAM cho mỗi ổ đĩa đang mở ở trạng thái nghỉ, và tối đa 450 MB cho ổ đang được sao chép vào"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "每个已解锁的驱动器占用 30 到 80 MB 内存"
+            "value": "每个空闲的已打开驱动器占用 30 MB 内存，正在复制的驱动器最多 450 MB"
           }
         }
       }
