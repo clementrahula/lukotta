@@ -27,7 +27,31 @@
 # rather than assumed, because a driver that scribbles on a damaged filesystem
 # before giving up is how a recoverable disk becomes an unrecoverable one.
 #
-# AND IT FOUND THREE, WHICH IS THE POINT OF HAVING WRITTEN IT
+# THE WHOLE CORPUS, AFTER THE ntfs3 PROBE LANDED
+#
+#   83 cases: 43 mounted through ntfs3, 24 opened by the repair route,
+#             16 refused, and 1 refusal that wrote to the volume
+#
+# Before the probe, three of the first twenty-seven were written to and then
+# refused. Now one is, out of eighty-three, and it is a different rung:
+#
+#   mft_file_bad_sequence_number
+#     ntfs3 (probed)  refused   image unchanged
+#     ntfs-3g         refused   image unchanged
+#     repair          refused   image CHANGED
+#
+# So the driver no longer does it and ntfsfix now does. `ntfsfix -n` is run
+# first as a guard and vouched for this volume; `ntfsfix -d` then wrote to it;
+# the mount failed anyway. That is precisely what the engine's documentation
+# says will happen -- clearing a dirty flag does not fix structural damage --
+# and it means the dry run is not a test of whether the wet one is safe.
+#
+# The narrow fix available without new tooling: only attempt the repair when
+# the guest kernel actually said the volume was dirty, rather than whenever a
+# mount failed for any reason. A bad sequence number is not a dirty flag and
+# ntfsfix has nothing to offer it. The complete fix is ntfsck.
+#
+# WHAT IT FOUND FIRST, WHICH IS THE POINT OF HAVING WRITTEN IT
 #
 # Of the first 27 cases: 17 mounted, 7 were refused and left untouched, and
 # three were refused *and modified*:
