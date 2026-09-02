@@ -463,3 +463,26 @@ Two of my own faults, both worth having written down:
   - CROWD1 then differed with 117 of 123 files. It was full: earlier runs had
     left rd-busy and rd-quiet on it. Cleared, it is byte-identical like the
     rest. A volume with no room reads as a data fault and is not one.
+
+## The block device does advertise a cache — 2026-09-03
+
+Read from inside the guest:
+
+    /sys/block/vda/queue/write_cache    write back
+    /sys/block/vda/queue/fua            0
+
+So the device tells the kernel it has a volatile write cache, and the kernel
+therefore issues a flush on fsync rather than skipping one. That was the last
+cheap explanation and it is gone: nothing in the chain is failing to ask.
+
+The contradiction is now sharp, and it is worth stating exactly because it is
+where the next attempt has to start:
+
+    dd conv=fsync, inside the guest, on /mnt        8 of 8 kept
+    dd conv=fsync, over NFS, on the same volume     8 of 8 wrong
+
+Same device, same filesystem, same flush mechanism, same kill. The only thing
+that differs is whether nfsd is in the path. Everything measurable from the
+host says each link does what it claims, so what is left is what nfsd actually
+does with a COMMIT -- and answering that needs the guest instrumented while a
+mount is live, which is a change to the mount script rather than another run.
