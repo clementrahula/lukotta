@@ -1049,6 +1049,14 @@ nobody asked.
   directory for months: two gigabytes long, sixteen kilobytes allocated, no
   superblock. `verify_image` in `make-format-volumes.sh` now asks every image
   what it is.
+- **A harness that is not in the build it drives.** `--drive`, `--ux-check`,
+  `--update-test` and the rest are behind `#if DEVTOOLS`, and `build-app.sh`
+  compiles them in only for an unbranded build or when `LUKOTTA_DEVTOOLS=1` is
+  set. Handed a branded build, the app ignores the argument, launches, and
+  prints nothing -- and a test written as "fail if the output mentions the
+  fault" passes on that silence. `first-run-open.sh` now checks the binary
+  carries `--drive` before it removes anything, and requires the app to say it
+  opened the drive rather than requiring it not to say it failed.
 - **`shasum` on a sparse image** reads the holes. One corpus image is declared
   at 1 TB with 624 MB in it; `scripts/sparse-digest.py` hashes the extents and
   does it in 0.4 s.
