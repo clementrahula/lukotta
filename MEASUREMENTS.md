@@ -509,3 +509,32 @@ What is known about the export remains what was measured from outside: naming
 sync in it changes nothing, the file is written by vmproxy and read by
 `exportfs -ar` through a symlink at /etc/exports, and the entrypoint adds no
 options of its own.
+
+## The export is sync, read from the server itself — 2026-09-03
+
+The guest's entrypoint was instrumented again, this time reading the engine's
+own log file rather than its stdout, which is where guest output goes. It
+worked, and the answer is unambiguous:
+
+    /mnt/LUKOTTAEXT4
+       <world>(sync,wdelay,hide,no_subtree_check,anonuid=0,anongid=0,
+               sec=sys,rw,insecure,root_squash,all_squash)
+
+So the export really is synchronous, as the server itself reports it. That was
+the last inference in the chain and it is now a measurement.
+
+`no_wdelay` was then tried, since wdelay was the one option in that list never
+tested for this: 8 of 8 still wrong. It is not that either.
+
+The state of it, with everything now measured rather than assumed:
+
+    export                      sync, confirmed by exportfs -v in the guest
+    COMMIT                      sent by the client, counter moves
+    block device                advertises a write-back cache
+    krun's FLUSH                patched, and the patch is in the shipped binary
+    filesystem                  keeps the same fsync when written to directly
+    result                      the data is still lost
+
+Every link reports doing its job and the outcome says one of them is not. The
+next step is inside nfsd's COMMIT path, and the way in is now known: instrument
+the guest's entrypoint, read the engine's log file in Library/Logs, not stdout.
