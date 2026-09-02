@@ -2293,6 +2293,11 @@ final class AppModel: ObservableObject {
 
     func unlock(_ drive: Drive, readOnly: Bool = false) {
         credentialProblem = nil
+        // Whether the Linux environment existed before this. The engine unpacks
+        // it inside the first mount that needs it and then stops, having done
+        // the unpacking rather than the mounting, and that is not a drive that
+        // would not open.
+        guestWasReady = EngineEnvironment.isReady
         // Somebody asked; the slips this app absorbed on their behalf last time
         // are spent.
         mountSlips = 0
@@ -2358,6 +2363,22 @@ final class AppModel: ObservableObject {
     /// for the same passing reason each get their tries.
     private var mountSlips = 0
 
+    /// Whether the Linux environment was already unpacked when this attempt
+    /// began. Read once, at the start, because the attempt itself changes it.
+    private var guestWasReady = true
+
+    /// Whether this attempt spent itself preparing the Linux environment.
+    ///
+    /// Asked of the filesystem rather than of the transcript. The unpacking
+    /// prints a page of upstream wording -- signatures, blobs, a manifest, and
+    /// "removed '/etc/exports'" at the end, which is what somebody was shown as
+    /// the reason their drive would not open -- and every word of it belongs to
+    /// another project and can be reworded there. Whether the environment was
+    /// missing and is now here cannot be reworded by anybody.
+    private var attemptOnlyPreparedTheGuest: Bool {
+        !guestWasReady && EngineEnvironment.isReady
+    }
+
     /// Try again when what failed was the machinery rather than the drive.
     ///
     /// Returns true when another attempt has been started, and the caller must
@@ -2366,6 +2387,24 @@ final class AppModel: ObservableObject {
     private func retriedAfterASlip(
         drive: Drive, credential: String, summary: String, detail: String?
     ) -> Bool {
+        // The first mount on a new install, or after an update replaced the
+        // Linux environment, unpacks it. That takes a minute or so and ends
+        // with nothing mounted -- a first run that told the person their drive
+        // would not open, when what happened is that the app finished setting
+        // itself up. Nothing to say and nothing to decide: go again.
+        if attemptOnlyPreparedTheGuest, mountSlips + 1 < TransientFailure.attempts {
+            guestWasReady = true
+            mountSlips += 1
+            Log.mount.notice("the attempt unpacked the Linux environment; opening the drive now")
+            // Nothing is said. From where the person is sitting the drive is
+            // still opening, which is what is happening.
+            Task { [weak self] in
+                try? await Task.sleep(nanoseconds: UInt64(TransientFailure.pause * 1_000_000_000))
+                guard let self, case .working = self.phase else { return }
+                self.runMount(drive: drive, credential: credential)
+            }
+            return true
+        }
         guard TransientFailure.endedInASlip(summary: summary, detail: detail) else { return false }
         guard mountSlips + 1 < TransientFailure.attempts else {
             Log.mount.error("the machinery slipped every time; showing what it said")
@@ -2780,10 +2819,19 @@ final class AppModel: ObservableObject {
                     if Permissions.isAccessDenied(err.detail ?? "") {
                         self.reportRefusal(drive, err)
                     } else {
-                        self.fail(
-                            drive,
-                            err.errorDescription ?? appString("The drive could not be opened."),
-                            err.detail)
+                        let summary =
+                            err.errorDescription ?? appString("The drive could not be opened.")
+                        // As on the other two routes. This one had no retry at
+                        // all, so the machinery slipping here -- or a first run
+                        // spending its attempt unpacking the Linux environment
+                        // -- was final, on the route taken by anybody who has
+                        // not installed the helper.
+                        guard
+                            !self.retriedAfterASlip(
+                                drive: drive, credential: credential, summary: summary,
+                                detail: err.detail)
+                        else { return }
+                        self.fail(drive, summary, err.detail)
                     }
                 }
             } catch {

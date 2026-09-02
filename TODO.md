@@ -244,3 +244,12 @@ nothing had ever opened one.
 - [ ] Look upstream before hand-rolling. `ntfsprogs-plus` provides `ntfsck`,
   which repairs structural damage our ladder can only refuse. The engine's own
   test suite (`tests/*.bats`) covers cases we re-derived by hand.
+- [ ] **Prove a saved passphrase survives every format on real media.** The
+  identity a saved passphrase is filed under now comes from the volume's own
+  header rather than from the partition table, and `volumeIdentity` covers all
+  nine formats on headers built for the test. What is not covered is the same
+  question asked of real drives: save a passphrase, replug the drive somewhere
+  else so it comes back as a different diskNsM, and open it without being asked
+  again. Each of BitLocker on MBR and on GPT, BitLocker To Go, LUKS on a whole
+  disk and in a partition, LUKS holding ext4, btrfs, XFS and an LVM group, and a
+  container file of each image format. If a passphrase was saved it is saved.
