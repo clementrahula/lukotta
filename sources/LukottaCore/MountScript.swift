@@ -245,6 +245,29 @@ public enum MountScript {
             + "readahead=128,dumbtimer,timeo=600,retrans=5,deadtimeout=900,"
             + "mutejukebox,noowners"
 
+        /// Add `sync` to the client's own options, for a volume this app cannot
+        /// see inside.
+        ///
+        /// The durability option that saves ext4 and XFS is chosen by reading
+        /// the filesystem's superblock, and a LUKS container hides exactly
+        /// that. Measured: ext4 inside LUKS, machine killed, 8 of 8 fsynced
+        /// files present and all 8 wrong, with no option applied because none
+        /// could be chosen.
+        ///
+        /// A synchronous client fixes it whatever is inside -- 8 of 8 kept,
+        /// 30 of 30 in-flight files complete -- because the writes go stable
+        /// rather than going unstable and being committed afterwards, and the
+        /// commit afterwards is the part that does not hold.
+        ///
+        /// It is not used everywhere, because it is not free: 2000 small files
+        /// cost the same either way, and a corpus with a gigabyte in it goes
+        /// from 12 seconds to 17. Where the superblock can be read, the cheaper
+        /// per-filesystem option is used instead and this stays off.
+        public mutating func askForStableWrites() {
+            guard !nfsOptions.contains("sync") else { return }
+            nfsOptions += ",sync"
+        }
+
         /// Which network the microVM's NFS server is reached over.
         ///
         /// See `netHelper(forMajorVersion:)` for why this is decided by the

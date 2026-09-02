@@ -408,29 +408,32 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     identifier: $0.replacingOccurrences(of: "lvm:", with: ""),
                     label: "", filesystem: "", size: "")
             }
-            let script = MountScript.build(
-                MountScript.Inputs(
-                    enginePath: engine.path,
-                    devicePath: devicePath,
-                    driveName: "",
-                    kind: isLinux ? .linux : .microsoft,
-                    volume: volume,
-                    aliasPath: aliasPath,
-                    fifoPath: fifo.path,
-                    logPath: log.path,
-                    discoverLogPath: workspace.root.appendingPathComponent("discover.log").path,
-                    expectScriptPath: expect.path,
-                    configPath: stateHome + "/.anylinuxfs/config.toml",
-                    engineHome: stateHome,
-                    libraryPaths: EnginePaths.libraryPaths(),
-                    uid: invokingUID(), gid: invokingGID(),
-                    cores: MountScript.VirtualMachine.cores,
-                    ramMiB: MountScript.VirtualMachine.ramMiB,
-                    readOnly: readOnly,
-                    luksMinRamMiB: luksFloor(devicePath: devicePath),
-                    // The daemon runs as root and can read any device node, so
-                    // this is the one place the answer is always available.
-                    durability: ExtJournal.durabilityOption(forDevice: devicePath)))
+            var inputs = MountScript.Inputs(
+                enginePath: engine.path,
+                devicePath: devicePath,
+                driveName: "",
+                kind: isLinux ? .linux : .microsoft,
+                volume: volume,
+                aliasPath: aliasPath,
+                fifoPath: fifo.path,
+                logPath: log.path,
+                discoverLogPath: workspace.root.appendingPathComponent("discover.log").path,
+                expectScriptPath: expect.path,
+                configPath: stateHome + "/.anylinuxfs/config.toml",
+                engineHome: stateHome,
+                libraryPaths: EnginePaths.libraryPaths(),
+                uid: invokingUID(), gid: invokingGID(),
+                cores: MountScript.VirtualMachine.cores,
+                ramMiB: MountScript.VirtualMachine.ramMiB,
+                readOnly: readOnly,
+                luksMinRamMiB: luksFloor(devicePath: devicePath),
+                // The daemon runs as root and can read any device node, so
+                // this is the one place the answer is always available.
+                durability: ExtJournal.durabilityOption(forDevice: devicePath))
+            // A container hides the superblock that option is chosen from, so
+            // the client is asked for stable writes instead.
+            if LUKSHeader.isContainer(forDevice: devicePath) { inputs.askForStableWrites() }
+            let script = MountScript.build(inputs)
 
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")
             try script.write(to: scriptURL, atomically: true, encoding: .utf8)
