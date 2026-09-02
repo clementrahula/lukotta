@@ -351,7 +351,7 @@ claim with no script behind it is marked as such rather than left to look
 settled.
 
 The corpus referred to throughout is `scripts/copy-torture.sh`: 2024 files
-chosen for the shapes a filesystem bridge breaks on — names NTFS keeps as
+chosen for the shapes a filesystem bridge breaks on: names NTFS keeps as
 UTF-16 and macOS hands over decomposed, names at the 255-byte limit, trailing
 dots Windows refuses, sizes exactly on and either side of the block and transfer
 boundaries, a sparse gigabyte, empty files, two thousand small files where
@@ -400,13 +400,13 @@ thoroughly tested**, and §6 says why the drivers are new.
 | permissions | everything written is readable by whoever wrote it |
 | two writers and a reader at once | 24 compared, 0 differing |
 | the filesystem after the machine is killed mid-write | comes back |
-| **fsynced data after the machine is killed** | **fails — see §8** |
+| **fsynced data after the machine is killed** | **fails, see §8** |
 | the volume takes a write again after that | passes |
 
 ### Repair of dirty NTFS
 
 `scripts/corrupt-corpus.sh` runs the app's real mount ladder against 83
-deliberately corrupted NTFS images published by the ntfsprogs-plus project —
+deliberately corrupted NTFS images published by the ntfsprogs-plus project:
 boot sectors with impossible geometry, MFT records missing attributes, corrupted
 attribute lists, orphaned inodes, cluster runs past the end of the disk, and an
 image taken from a real USB unplug.
@@ -418,14 +418,14 @@ giving up turns a recoverable disk into an unrecoverable one.
 
 Proven on real hardware as well, three times unattended: the author's BitLocker
 drive was left dirty with `$MFTMirr` behind `$MFT` by abrupt machine kills, and
-each time the app repaired it on the next open — `Correcting differences in
-$MFTMirr record 3...OK` — and mounted it writable with every folder and file
-count unchanged.
+each time the app repaired it on the next open, reporting `Correcting
+differences in $MFTMirr record 3...OK`, and mounted it writable with every
+folder and file count unchanged.
 
 ### Concurrency and footprint
 
-`scripts/eight-gig-pressure.sh`. Thirteen volumes open at once — twelve NTFS
-fixtures plus a real BitLocker drive — all writable, **2378 MB resident across
+`scripts/eight-gig-pressure.sh`. Thirteen volumes open at once, twelve NTFS
+fixtures plus a real BitLocker drive, all writable, **2378 MB resident across
 every engine process**, 68% of memory free, home directory listing 17–24 ms.
 
 Under artificial memory pressure (8 GB of incompressible ballast held, so what
@@ -478,7 +478,7 @@ as it does on NTFS. No mount option reaches it. `scripts/xattr-forks.sh`.
 
 Data an application was told had been committed is lost if the microVM is killed
 outright. On an image: 4 MB written with `dd conv=fsync`, machine killed,
-returns full length with exactly 32768 bytes of holes at offset 0 — identically
+returns full length with exactly 32768 bytes of holes at offset 0, identically
 on XFS and ext4, every run. On the author's physical BitLocker drive the file is
 **absent entirely**.
 
@@ -487,8 +487,8 @@ Three layers ruled out by measurement:
 - **The engine's block cache.** `CacheType::auto()` returned `Unsafe` for any
   `/dev/rdisk*` path, and `Unsafe` answers the guest's flush with a no-op. This
   is now patched (`patches/krun-devices-raw-device-flush.patch`) so every path
-  gets `Writeback` and a device that genuinely cannot sync is tolerated rather
-  than failing the request. The symptom is unchanged, so the loss is above it.
+  gets `Writeback`, and a device that cannot sync is tolerated rather than
+  failing the request. The symptom is unchanged, so the loss is above it.
 - **The NFS export.** vmproxy builds
   `{rw|ro},no_subtree_check,no_root_squash,insecure` with no `async`, so nfsd is
   in its default `sync` mode.
@@ -505,8 +505,8 @@ What remains is ntfs3's own fsync path. `-o sync` would fix it and is refused:
 it makes every write synchronous.
 
 A normal eject is safe. `EngineProcesses.stop` sends SIGTERM and waits up to
-twenty seconds — SIGTERM flushes cleanly, 100 MB surviving with the machine
-exiting in 0.34 s — and never escalates while a machine is still running.
+twenty seconds. SIGTERM flushes cleanly, 100 MB surviving with the machine
+exiting in 0.34 s, and it never escalates while a machine is still running.
 
 ### Listing the folder being copied into is slow
 
@@ -522,9 +522,9 @@ readdir over NFS, from the host     median 7.11s   worst 90.05s
 readdir inside the guest            median 0.01s   worst  2.79s
 ```
 
-Not the device — a GETATTR of a file *inside* the stalling directory is answered
-in 0.03 s off the same drive. Not the filesystem — NTFS on an SSD behaves like
-ext4 on an SSD. Not creates — a directory receiving 3000 file creations lists in
+Not the device: a GETATTR of a file *inside* the stalling directory is answered
+in 0.03 s off the same drive. Not the filesystem: NTFS on an SSD behaves like
+ext4 on an SSD. Not creates: a directory receiving 3000 file creations lists in
 0.04 s. Seven settings were measured:
 
 | Setting | Result |
@@ -544,7 +544,7 @@ removing the NFS client from the path, which means FSKit.
 ### RAID arrays are not yet offered by the app
 
 `DiskWatcher.ourContent` includes the Linux RAID type GUID, so macOS stops
-offering to initialise an array member — an offer one click from destroying an
+offering to initialise an array member, an offer one click from destroying an
 array. What is missing is the app constructing the
 `raid:<devA>[:<devB>...]` identifier; `assemble_raid` is set only on the `raid:`
 and `lvm:` branches of `cmd_mount.rs`, so handing the engine a member's device
@@ -577,7 +577,7 @@ A VHDX is read-only by design and is not affected.
 The guest kernel carries no ZFS: the `zfs` and `zfs-libs` packages are trimmed
 and `lib/modules/*/fs/zfs` is removed by path, because no package owns those
 files and dropping the packages alone left the modules behind. Whether to carry
-it is an open question with a licence dimension — ZFS is CDDL — as much as a
+it is an open question with a licence dimension, ZFS being CDDL, as much as a
 size one. It is neither offered nor tested.
 
 ### Two routes into an image, and they differ

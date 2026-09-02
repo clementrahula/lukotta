@@ -109,8 +109,8 @@ complying. Set `LUKOTTA_NO_TRIM=1` to keep the whole image.
 ### Adding a package to the guest
 
 Two things are needed and neither implies the other. `scripts/trim-image.py`'s
-`ROOTS` list decides what survives trimming — a keep-list only keeps what is
-already there — and the package has to be in the image in the first place.
+`ROOTS` list decides what survives trimming, and a keep-list only keeps what is
+already there, so the package has to be in the image in the first place.
 
 Install into the **standalone** image, not the app's engine home:
 

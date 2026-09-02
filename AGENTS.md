@@ -898,7 +898,7 @@ before the first of them.
 
 This is not a hypothetical. Three rebuilds in a row were once served by a
 daemon predating all of them, and every reading taken during that window
-described code no longer on disk — including "I turned the change off and the
+described code no longer on disk, including "I turned the change off and the
 symptom is still there", which was read as evidence about the change and was
 evidence about nothing.
 
@@ -928,12 +928,12 @@ repairs it.
 
 The author's own drive was dirtied three times this way during one night of
 testing. Match the image under test, as `corrupt-corpus.sh` and
-`integrity-vectors.sh` do, and end machines with `SIGTERM` — it flushes, and
+`integrity-vectors.sh` do, and end machines with `SIGTERM`. It flushes, and
 100 MB survives with the machine exiting in 0.34 s.
 
 Also beware `pkill -f` matching the shell you are typing in: `pkill -f
 'corrupt-corpus'` kills the command line containing that string, which includes
-its own. Use a bracket — `'corrupt-corpu[s]'`.
+its own. Use a bracket: `'corrupt-corpu[s]'`.
 
 ## An Action Is a Single-Quoted TOML Value
 
@@ -948,7 +948,7 @@ consequences, both of which have cost a run:
   command rather than binding a variable, as `ntfsRepair` does.
 
 Removing an action from `config.toml` afterwards is where the subtler trap is.
-The obvious regex — `\[custom_actions\.NAME\][^\[]*` — stops at the first `[` it
+The obvious regex, `\[custom_actions\.NAME\][^\[]*`, stops at the first `[` it
 meets, and the line below the header is `environment = ['…']`. So it deletes the
 header, orphans the body, and the file degrades one stray line per run until the
 engine will not parse it. In between, mounts fail for reasons that have nothing
@@ -961,17 +961,17 @@ The pattern is always the same: a number that is true, answering a question
 nobody asked.
 
 - **`stat` on the mount root** was sampled for 45 minutes as evidence that
-  nothing stalled — p50 0.027 s, p99 0.031 s. It is the cheapest, most cached
+  nothing stalled, at p50 0.027 s and p99 0.031 s. It is the cheapest, most cached
   call on an NFS mount. Listing the busy directory at the same moment took
   10.891 s.
 - **`readdir` was the wrong call** for the same question. Finder uses
-  `getattrlistbulk(2)`, which is *slower* here — median 8.42 s against 5.16 s.
+  `getattrlistbulk(2)`, which is *slower* here: median 8.42 s against 5.16 s.
   `scripts/bulk-list.c` times the one that matters.
 - **A "quiet directory answers in 20 ms"** was used to rule out the nfsd thread
   pool. It is answered from the client's cache without an RPC, so it never asked
   the server anything. Asked directly, 32 threads is worse than 8.
 - **`log show` returns nothing at all here**, not even unfiltered, so it has no
-  opinion to give — and it was read as one. `log stream` works.
+  opinion to give, and it was read as one. `log stream` works.
 - **A complaint counter that has never fired** is indistinguishable from a
   clean run. `watch-for-complaints.sh --probe` checks the channel is open before
   a zero is believed.
@@ -990,11 +990,11 @@ nobody asked.
 
 `scripts/e2e.sh` truncates image fixtures and restores their length afterwards.
 Interrupt it and the cache is left in a state where thirty negative tests report
-"it opened, rather than failing" — images that should be refused now parse as
+"it opened, rather than failing", images that should be refused now parsing as
 something else. Delete `~/Library/Caches/dev.lukotta.e2e` and re-run rather than
 debugging it.
 
-That script is also written in BSD shell dialect — `dd bs=1m`, `stat -f%z` —
+That script is also written in BSD shell dialect, `dd bs=1m` and `stat -f%z`,
 and this machine puts GNU coreutils first, where those are errors. Under
 `set -e` it exited silently after its first `echo`, which read as a slow step
 for a long time. Every image format it covers had never actually run here.

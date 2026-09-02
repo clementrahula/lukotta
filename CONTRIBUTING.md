@@ -131,7 +131,7 @@ one of these, and each prints numbers rather than a verdict:
 | --- | --- |
 | `make-test-volumes.sh` | builds the fixtures the rest need |
 | `copy-torture.sh` | 2024 files copied and read back: non-ASCII and 255-byte names, sizes on the block and transfer boundaries, a sparse gigabyte, two thousand small files, deep paths |
-| `integrity-vectors.sh` | the ways a copy does not finish — killed partway, unmounted under load, a full volume, permissions, concurrent writers, repeated cycles, the machine killed mid-write |
+| `integrity-vectors.sh` | the ways a copy does not finish: killed partway, unmounted under load, a full volume, permissions, concurrent writers, repeated cycles, the machine killed mid-write |
 | `finder-copy-cycles.sh` | Finder's own copy engine, driven by osascript, at both extremes |
 | `corrupt-corpus.sh` | 83 deliberately broken NTFS images; checks that a refusal leaves the volume byte-identical |
 | `xattr-forks.sh` | what macOS attaches to a file and what survives the crossing |
