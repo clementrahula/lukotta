@@ -352,8 +352,22 @@ public enum EngineEnvironment {
     public static var isReady: Bool { isReady(in: alpineDirectory) }
 
     public static func isReady(in directory: URL) -> Bool {
-        FileManager.default.fileExists(
-            atPath: directory.appendingPathComponent("rootfs").path)
+        // Not merely that the directory is there. An unpack that was killed --
+        // the Mac restarted, the app quit, somebody emptying what they took to
+        // be a cache -- leaves the name and nothing inside it, and a check that
+        // asks only for the name calls that ready. The mount then fails, the
+        // retry compares "was it there" with "is it there", gets yes both
+        // times, and reports a drive that will not open. For ever, since
+        // nothing puts it back.
+        //
+        // Asked of what a root filesystem cannot be without. Cheap: three
+        // lookups, no directory listing.
+        let rootfs = directory.appendingPathComponent("rootfs")
+        let manager = FileManager.default
+        guard manager.fileExists(atPath: rootfs.path) else { return false }
+        return ["bin", "etc", "usr"].allSatisfy {
+            manager.fileExists(atPath: rootfs.appendingPathComponent($0).path)
+        }
     }
 
     /// Which Linux environment is unpacked, and which one this app carries.

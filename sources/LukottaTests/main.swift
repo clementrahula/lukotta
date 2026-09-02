@@ -3145,6 +3145,32 @@ group("driveMemory") {
     expect(DriveMemory.knownName(for: "") == nil, "an empty identifier is refused")
 }
 
+group("aHollowEnvironmentIsNotReady") {
+    // An unpack that was killed leaves the directory and nothing inside it.
+    // Called ready, the mount fails, and the retry asks "was it there" and "is
+    // it there", gets yes both times, and reports a drive that will not open --
+    // for ever, because nothing puts it back.
+    let root = FileManager.default.temporaryDirectory
+        .appendingPathComponent("lukotta-heal-\(UUID().uuidString)", isDirectory: true)
+    defer { try? FileManager.default.removeItem(at: root) }
+    func make(_ path: String) {
+        try? FileManager.default.createDirectory(
+            at: root.appendingPathComponent(path), withIntermediateDirectories: true)
+    }
+
+    expect(!EngineEnvironment.isReady(in: root), "nothing at all is not ready")
+
+    make("rootfs")
+    expect(!EngineEnvironment.isReady(in: root), "the name on its own is not ready")
+
+    make("rootfs/bin")
+    expect(!EngineEnvironment.isReady(in: root), "a part of one is not ready")
+
+    make("rootfs/etc")
+    make("rootfs/usr")
+    expect(EngineEnvironment.isReady(in: root), "a root filesystem with a system in it is ready")
+}
+
 group("volumeIdentity") {
     // A saved passphrase is filed under whatever names the volume. The name
     // used to come from the partition table, which on an MBR stick -- what
