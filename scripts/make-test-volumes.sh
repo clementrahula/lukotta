@@ -12,6 +12,9 @@
 #   luks-ext4      LUKS2 -> ext4                  (2.4 GB, for the corpus)
 #   luks-xfs       LUKS2 -> xfs                   (2.4 GB, for the corpus)
 #   luks-big       LUKS2 -> btrfs                 (2.4 GB, for the corpus)
+#   luks-lvm-big   LUKS2 -> LVM -> two volumes    (3.2 GB; the data volume is
+#                  2.6 GB so the corpus fits, the spare one is there to prove
+#                  the container opens both at once)
 #
 #     The three above exist because the help sheet says the app opens "ext4,
 #     btrfs and XFS filesystems inside them" and only btrfs had ever been
