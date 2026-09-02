@@ -486,3 +486,26 @@ that differs is whether nfsd is in the path. Everything measurable from the
 host says each link does what it claims, so what is left is what nfsd actually
 does with a COMMIT -- and answering that needs the guest instrumented while a
 mount is live, which is a change to the mount script rather than another run.
+
+## The guest instrumentation attempt, which produced nothing — 2026-09-03
+
+To see what nfsd actually exports at runtime, the guest's entrypoint was given
+a few lines to print /etc/exports and `exportfs -v` after it runs `exportfs -ar`.
+The edit was to the dev engine home's rootfs only, never to anything shipped,
+and it has been put back.
+
+It produced no output. The engine does not surface the guest's stdout on an
+ordinary mount -- its own stdout is the progress spinner and nothing else --
+and there is no way to run a command inside a live machine: `anylinuxfs` offers
+`shell`, which starts a separate machine with no nfsd in it, and `status` and
+`list`, neither of which reach inside.
+
+So this is not evidence either way. The export table at runtime is still
+unread, and reading it needs either the engine's own logging turned up in a way
+that reaches the guest, or the mount script changed to carry a diagnostic --
+which is a product change and not something to do casually.
+
+What is known about the export remains what was measured from outside: naming
+sync in it changes nothing, the file is written by vmproxy and read by
+`exportfs -ar` through a symlink at /etc/exports, and the entrypoint adds no
+options of its own.
