@@ -109,6 +109,38 @@
 # same evidence twice over: the drive has metadata capacity to spare the whole
 # time, and something above it will not use it for a READDIR.
 #
+# IT IS THE NFS LAYER. MEASURED FROM BOTH SIDES AT ONCE.
+#
+# The guest can be made to time its own listing: a custom action's after_mount
+# starts a loop inside the machine that lists the same directory every two
+# seconds and appends /proc/uptime either side of it, onto the volume, where
+# the host can read the result. So the same directory is timed from inside the
+# guest and from across NFS, in the same seconds, during the same copy:
+#
+#   readdir over NFS, from the host     n=12   median 7.11s   worst 90.05s
+#   readdir inside the guest            n=106  median 0.01s   worst  2.79s
+#
+# Ten milliseconds against seven seconds. The guest walks that directory
+# instantly while it is being written to; the host waits seven seconds for the
+# same answer and sometimes ninety.
+#
+# So it is not the device, not the filesystem, not the driver, and not the
+# thread pool -- and it is not general RPC latency either, because a GETATTR
+# over that same mount is answered in 0.03s throughout. It is READDIR over NFS
+# specifically, on a directory being modified.
+#
+# Which is where the fix has to go, and the levers left are the client's --
+# how it caches a directory, how large a READDIR it asks for, and whether it
+# reissues from the start each time the directory changes underneath it.
+#
+# Getting the probe to run at all took several tries and each is worth knowing:
+# after_mount on the tuned action never fires, because a healthy NTFS mount
+# goes through the ntfs3 probe action instead; a redirect to a glob cannot
+# create a file, so `cd /mnt/*/` first; nested double quotes end the action's
+# TOML string, so no `cut -d" "` -- `cat /proc/uptime` needs no quoting; a
+# plain `&` does not survive the action returning, `setsid` does; and `seq` in
+# backticks left the loop with nothing to iterate, so `while true`.
+#
 # Throughput is reported beside latency on purpose. A shorter queue that halves
 # the wait and halves the copy speed is not a win, and this goal will not take
 # one number without the other.
