@@ -119,3 +119,23 @@ the image file open -- it needs the environment the app builds around it, so a
 bare invocation is not a test of anything. And an earlier such invocation left
 two engines holding a fixture, which then refused to attach; "Resource
 temporarily unavailable" from hdiutil was that, not a fault in the app.
+
+## Finder's own copy engine, both extremes, repeated — 2026-09-02
+
+Through the released 1.22.1, driven by clicking, on volumes it opened itself.
+Not ditto and not cp: the copy that broke was Finder's, and this is Finder's.
+
+    NTFS   3 x 42 MB      1 s each cycle    3 identical, 0 differing, 0 missing
+    NTFS   2000 files    25 s each cycle    2000 identical, 0 differing, 0 missing
+    ext4   3 x 30 MB      3 s each cycle    3 identical, 0 differing, 0 missing
+    ext4   2000 files   101 s each cycle    2000 identical, 0 differing, 0 missing
+
+Three cycles each, 0 failures. The times do not drift between cycles -- 25, 25,
+25 on NTFS and 101, 102, 101 on ext4 -- which is the part that matters: a stall
+that had crept back would show as a cycle that took longer than the one before
+it. No Finder dialog appeared, nothing was skipped, and nothing was left
+part-written.
+
+ext4 here is mounted data=journal, which 1.22.1 added. It is four times slower
+than NTFS on the many-small-files extreme and that is the filesystem, not a
+stall: it is the same on every cycle.
