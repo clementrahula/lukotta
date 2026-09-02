@@ -538,3 +538,28 @@ The state of it, with everything now measured rather than assumed:
 Every link reports doing its job and the outcome says one of them is not. The
 next step is inside nfsd's COMMIT path, and the way in is now known: instrument
 the guest's entrypoint, read the engine's log file in Library/Logs, not stdout.
+
+## The same machine, the same moment, both kinds of write — 2026-09-03
+
+Every earlier comparison used two machines: one VM for the in-guest write, a
+different VM for the NFS write. That is a confound, and this removes it. The
+guest's entrypoint was made to write and fsync four files into the volume while
+it was serving NFS, and four more were written over NFS from macOS with the
+identical `dd conv=fsync`, and then the machine was killed.
+
+    inguest_files=4   inguest_consistent=1
+    overnfs_ok=0      overnfs_wrong=4
+
+One VM. One filesystem. One kill. One call. The four written from inside are
+whole; the four written through nfsd are wrong.
+
+So it is nfsd, and that is no longer an inference from two runs that might have
+differed in some other way. Everything else in the chain has been measured
+doing its job: the export is sync as the server itself reports it, the client
+sends COMMITs and the counter moves, the block device advertises a write-back
+cache, and krun's flush patch is in the shipped binary.
+
+The method that got here is worth keeping: instrument
+`.anylinuxfs/alpine/rootfs/usr/local/bin/entrypoint.sh` in the dev engine home,
+and read the engine's log in `Library/Logs`, not its stdout. Put the file back
+afterwards.
