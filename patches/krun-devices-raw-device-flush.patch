@@ -1,0 +1,89 @@
+diff -ruN -x target -x Cargo.lock a/src/virtio/block/device.rs b/src/virtio/block/device.rs
+--- a/src/virtio/block/device.rs	2026-09-02 09:42:31
++++ b/src/virtio/block/device.rs	2026-09-02 09:42:31
+@@ -1,3 +1,4 @@
++// Modified on 2026-09-02 by Clement Rahula <lukotta@rahula.dev>: honoured the guest's flush on raw devices instead of discarding it.
+ // Modified on 2026-08-22 by Clement Rahula <lukotta@rahula.dev>: opened those image types with the matching imago driver.
+ // Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ // SPDX-License-Identifier: Apache-2.0
+@@ -56,12 +57,23 @@
+ 
+ impl CacheType {
+     /// Picks the appropriate cache type based on disk image or device path.
+-    /// Special files like `/dev/rdisk*` on macOS do not support flush/sync.
++    ///
++    /// Every path gets Writeback, raw devices included. They used to get
++    /// Unsafe, on the grounds that `/dev/rdisk*` does not support flush/sync.
++    /// That is true of plain `fsync(2)` and it is not a reason to answer the
++    /// guest's flush with a no-op: the guest is told the device has a cache
++    /// barrier either way, so under Unsafe it is told a barrier exists that
++    /// the host has already decided never to honour.
++    ///
++    /// Measured before this change, on a real drive: 8 MB written with
++    /// `dd conv=fsync`, which returns only once the NFS client's COMMIT has
++    /// been answered, then the machine killed. The file was not there at all
++    /// afterwards. An application that fsynced and was told it had succeeded
++    /// had nothing on the disk.
++    ///
++    /// A device that genuinely cannot sync is handled in the FLUSH arm of
++    /// worker.rs rather than by refusing to ask it.
+     pub fn auto(_path: &str) -> CacheType {
+-        #[cfg(target_os = "macos")]
+-        if _path.starts_with("/dev/rdisk") {
+-            return CacheType::Unsafe;
+-        }
+         CacheType::Writeback
+     }
+ }
+diff -ruN -x target -x Cargo.lock a/src/virtio/block/worker.rs b/src/virtio/block/worker.rs
+--- a/src/virtio/block/worker.rs	2026-09-02 09:42:31
++++ b/src/virtio/block/worker.rs	2026-09-02 09:42:31
+@@ -1,3 +1,4 @@
++// Modified on 2026-09-02 by Clement Rahula <lukotta@rahula.dev>: flushed raw devices too, and tolerated one that cannot sync.
+ use crate::virtio::descriptor_utils::{Reader, Writer};
+ 
+ use super::super::DeviceQueue;
+@@ -63,6 +64,22 @@
+     stop_fd: EventFd,
+ }
+ 
++
++/// Whether the device is saying it has no sync to give, rather than that the
++/// sync went wrong.
++///
++/// A raw device on macOS answers `fsync(2)` this way. Turning that into a
++/// failed flush would make every barrier an I/O error and nothing would mount;
++/// treating it as satisfied is what the code did before, by never asking.
++///
++/// The numbers rather than `libc`, which this crate does not depend on and
++/// which is not worth adding for four constants: ENOTSUP 45, ENOTTY 25,
++/// EINVAL 22, ENODEV 19, as on Darwin.
++fn device_has_no_sync(e: &io::Error) -> bool {
++    matches!(e.raw_os_error(), Some(45) | Some(25) | Some(22) | Some(19))
++        || e.kind() == io::ErrorKind::Unsupported
++}
++
+ impl BlockWorker {
+     pub fn new(
+         device_queue: DeviceQueue,
+@@ -241,8 +258,19 @@
+             VIRTIO_BLK_T_FLUSH => match self.disk.cache_type() {
+                 CacheType::Writeback => {
+                     let diskfile = self.disk.file.lock().unwrap();
++                    // The format layer's own cache first. This is the half
++                    // that matters for an image, where written blocks sit
++                    // above the file.
+                     diskfile.flush().map_err(RequestError::FlushingToDisk)?;
+-                    diskfile.sync().map_err(RequestError::FlushingToDisk)?;
++                    // Then the file down to the platter. A raw device may
++                    // refuse this outright, which is why these were skipped
++                    // altogether before; a refusal by the device is not turned
++                    // into a failed request, and anything else still is.
++                    if let Err(e) = diskfile.sync() {
++                        if !device_has_no_sync(&e) {
++                            return Err(RequestError::FlushingToDisk(e));
++                        }
++                    }
+                     Ok(0)
+                 }
+                 CacheType::Unsafe => Ok(0),

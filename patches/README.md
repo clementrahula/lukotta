@@ -361,3 +361,32 @@ See `VmdkDescriptor.namesAFileElsewhere`.
 Container files are also opened without privilege, which limits the reach of any
 such reference to what the person who opened the file could already read. These
 checks are not relaxed as further formats are added.
+
+## krun-devices-raw-device-flush.patch
+
+The guest is told the block device has a cache barrier, and on a raw device the
+host had already decided never to honour it. `CacheType::auto()` returned
+`Unsafe` for any path beginning `/dev/rdisk`, and `Unsafe` is documented in that
+same file as "Flushing mechanic will be advertised to the guest driver, but the
+operation will be a noop" -- the FLUSH arm of the worker returns `Ok(0)` without
+touching the disk. A physical drive is exactly what reaches that branch, since
+the engine opens drives through `/dev/rdiskNsM`.
+
+The justification given is that `/dev/rdisk*` does not support flush/sync, which
+is true of plain `fsync(2)` and is not a reason to answer a barrier with a
+no-op. So every path now gets `Writeback`, and the FLUSH arm tolerates a device
+that genuinely refuses to sync rather than turning that into a failed request --
+otherwise every barrier becomes an I/O error and nothing mounts.
+
+WHAT IT DOES NOT FIX, WHICH IS WHY IT IS DESCRIBED CAREFULLY
+
+It does not make `fsync` durable. Measured on a real drive with the patch in:
+8 MB written with `dd conv=fsync`, verified byte-for-byte on the mount, the
+machine then killed -- and the file is still gone afterwards, exactly as before.
+
+So the data is being lost above this layer, inside the guest: nfsd answers the
+NFS COMMIT before ntfs3 has put it on `/dev/vda`. This patch closes the half of
+the chain that was provably broken and leaves the half that is still broken
+plainly visible. It is verified harmless -- 1 GB copied byte-identical at
+7.0 MB/s, the same as without it -- and it is not claimed to fix the symptom.
+

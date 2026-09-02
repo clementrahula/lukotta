@@ -82,6 +82,14 @@ which is a thing this application does not do.
   is what a database would use. So the fix is to attempt F_FULLFSYNC and fall
   back rather than to advertise a barrier and drop it.
 
+  **The host half is patched and it was not enough.**
+  `patches/krun-devices-raw-device-flush.patch` makes every path Writeback and
+  tolerates a device that cannot sync. With it in, the same test on the same
+  drive still loses the file: 8 MB written with `dd conv=fsync`, verified on
+  the mount, machine killed, gone. So the loss is above virtio, in the guest --
+  nfsd answers the COMMIT before ntfs3 has put the data on /dev/vda. The next
+  place to look is the guest's export and mount options, not the host.
+
   Images take the other branch, `Writeback`, where flush does call fsync --
   and they still lose exactly 32768 bytes at offset 0, so there is a second
   cache above this one, in imago. Both need answering. build-engine.sh already
