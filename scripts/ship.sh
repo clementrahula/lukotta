@@ -107,7 +107,29 @@ else
   echo "    the GitHub release is published"
 fi
 
-for repo in "$(dirname "$FEED")" "$HERE/../homebrew-tap"; do
+# The website carries the version in a file of its own, and it was written by
+# hand every release until the release it was not: 1.22.0 shipped, and the site
+# went on offering 1.21.0 to everybody who read it. A number kept in two places
+# is a number that disagrees with itself eventually, so the release writes it.
+#
+# Only on the release channel. The site describes what people install, and a
+# pre-release is not that.
+SITE="$HERE/../lukotta-website"
+if [ "$CHANNEL" = "release" ] && [ -f "$SITE/site.config.json" ]; then
+  git -C "$SITE" pull --quiet --ff-only 2>/dev/null || true
+  /usr/bin/python3 - "$SITE/site.config.json" "$FULL" <<'PY'
+import json, sys
+path, version = sys.argv[1], sys.argv[2]
+config = json.load(open(path, encoding="utf-8"))
+config["appVersion"] = version
+with open(path, "w", encoding="utf-8") as out:
+    json.dump(config, out, indent=2, ensure_ascii=False)
+    out.write("\n")
+PY
+  echo "    the website says $FULL"
+fi
+
+for repo in "$(dirname "$FEED")" "$HERE/../homebrew-tap" "$SITE"; do
   [ -d "$repo/.git" ] || continue
   if [ -n "$(git -C "$repo" status --porcelain)" ]; then
     git -C "$repo" add -A
@@ -116,6 +138,20 @@ for repo in "$(dirname "$FEED")" "$HERE/../homebrew-tap"; do
     echo "    pushed $(basename "$repo")"
   fi
 done
+
+# And main, so the code people read on GitHub is the code that was released.
+# Everything tonight was on a working branch, so the site, the README and the
+# repository front page all described a version that had been superseded.
+if [ "$CHANNEL" = "release" ]; then
+  BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+  if [ "$BRANCH" != "main" ] && git merge-base --is-ancestor main HEAD 2>/dev/null; then
+    git checkout -q main
+    git merge --ff-only "$BRANCH" >/dev/null
+    git push -q origin main
+    git checkout -q "$BRANCH"
+    echo "    main fast-forwarded to $BRANCH"
+  fi
+fi
 
 say "Waiting for the feed to serve it"
 URL="https://updates.lukotta.com/appcast.xml"
