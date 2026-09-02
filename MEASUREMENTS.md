@@ -355,3 +355,29 @@ That is a worse trade for most drives, so the per-filesystem options stay.
 rather than every write. That is server-side, in the guest, and it is the one
 route left that could retire both options and close item 10 with no cost at
 all.
+
+## The COMMIT is sent, and answered, and does not commit — 2026-09-03
+
+    nfsstat -c, Commit counter    155490 before, 155494 after
+                                  four writes fsynced, four commits sent
+
+So the client asks. The server answers. And the data is still wrong after the
+machine is killed.
+
+With the client mounted synchronous the same writes go as FILE_SYNC -- the
+server must put each one down as it arrives, rather than caching it and being
+asked to commit later -- and everything survives. That is the difference, and
+it is the whole of it:
+
+    writes UNSTABLE, then COMMIT     0 of 4 kept
+    writes FILE_SYNC                 4 of 4 kept
+
+The guest runs kernel nfsd (rpc.nfsd and exportfs are both in the rootfs, and
+nfsd is built into its kernel), the export carries no async and naming sync
+explicitly changes nothing, and the shipped engine's own PATCHES record lists
+krun-devices-raw-device-flush, so the block flush is in the binary that was
+measured.
+
+Everything up to the COMMIT is doing what it says. The COMMIT itself is not,
+and that is where the free fix is: make it durable and only fsync pays, rather
+than every write paying as it does with a synchronous client.
