@@ -245,3 +245,25 @@ engine's shell. 11 of 11 vectors passed with no mount option at all.
 This is the answer to whether the option should simply go on everything: no. Two
 of the five need nothing, and btrfs would have paid the 48% that sync costs for
 a fault it does not have. Asking the volume what it needs is worth the code.
+
+## What the fsync fault is not — 2026-09-03
+
+Ruled out, each by measurement rather than reasoning:
+
+    wsync on XFS            8 of 8 fsynced files still wrong. Metadata-only
+                            sync is not enough, so the loss is data, not
+                            directory entries.
+    the block FLUSH         The krun flush patch is applied -- every patch in
+                            patches/ is, and the engine binary post-dates it --
+                            so the guest's flush is being answered with a real
+                            flush and sync of the image. It is not discarded.
+    a general fault         btrfs and NTFS survive the identical accident on
+                            the identical path. Whatever this is, it is not
+                            something every filesystem is subject to.
+
+So the remaining candidates are between the guest's page cache and the image:
+what nfsd does with a COMMIT, and what ext4 and XFS do with an fsync that btrfs
+and ntfs3 do differently. The next cheap test is whether a file written and
+fsynced from inside the guest -- no NFS in the path at all -- survives the same
+kill. If it does, the fault is in the NFS layer; if it does not, it is below.
+That test needs a fixture the engine's shell will not truncate.
