@@ -1,0 +1,67 @@
+Ask the machine whether its server is up until the answer settles.
+
+The engine starts a machine, the machine starts an NFS server, and the engine
+then opens a connection to it to be sure. The connection is attempted once. Any
+error at all -- including one that arrives in milliseconds because the bridge
+carrying it is not up yet -- is taken as the server having failed.
+
+"No route to host" is exactly that error. It is not a timeout, so the ten
+seconds the connection is given never apply: the attempt fails immediately, on
+a machine whose log says READY AND WAITING FOR NFS CLIENT CONNECTIONS, and
+whose address answers a ping without loss a moment later.
+
+Whoever asked for the drive then waited, watching a progress bar that had
+stopped moving, while nothing was trying. Measured on this Mac: minutes of it,
+before the attempt was given up on and the one after opened the drive.
+
+So it is asked until it settles: for half a minute, a quarter of a second
+apart, and only then given up on. A server that is genuinely not there costs
+the same half minute it always cost.
+
+--- a/anylinuxfs/src/cmd_mount.rs
++++ b/anylinuxfs/src/cmd_mount.rs
+@@ -87,14 +87,37 @@
+             .context("Failed to resolve VM host address")?;
+         host_println!("Checking NFS server on {:?}...", addr);
+ 
+-        match TcpStream::connect_timeout(&addr, Duration::from_secs(10)) {
+-            Ok(_) => {
+-                return Ok(nfs_ready);
+-            }
+-            Err(e) => {
+-                host_eprintln!("Error connecting to port {}: {}", port, e);
+-                return Ok(NfsStatus::Failed(None));
++        // Asked until the answer settles, not once.
++        //
++        // The machine has just started and the bridge carrying this connection
++        // comes up a moment after it. "No route to host" arrives in
++        // milliseconds -- it is not a timeout, so the ten seconds above never
++        // apply -- and returning Failed on it gave up on a server that was
++        // already printing READY AND WAITING FOR NFS CLIENT CONNECTIONS. The
++        // same address answered a ping without loss immediately afterwards.
++        //
++        // Whoever asked then waited for their drive while nothing was trying.
++        let deadline = Instant::now() + Duration::from_secs(30);
++        let mut last: Option<std::io::Error> = None;
++        loop {
++            match TcpStream::connect_timeout(&addr, Duration::from_secs(10)) {
++                Ok(_) => {
++                    return Ok(nfs_ready);
++                }
++                Err(e) => {
++                    if Instant::now() >= deadline {
++                        host_eprintln!("Error connecting to port {}: {}", port, e);
++                        return Ok(NfsStatus::Failed(None));
++                    }
++                    last = Some(e);
++                    std::thread::sleep(Duration::from_millis(250));
++                }
+             }
++        }
++        #[allow(unreachable_code)]
++        {
++            let _ = last;
++            unreachable!()
+         }
+     }
+ 
