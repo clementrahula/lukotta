@@ -253,3 +253,14 @@ nothing had ever opened one.
   again. Each of BitLocker on MBR and on GPT, BitLocker To Go, LUKS on a whole
   disk and in a partition, LUKS holding ext4, btrfs, XFS and an LVM group, and a
   container file of each image format. If a passphrase was saved it is saved.
+- [ ] **Give the engine a private home for its image, not only its profile.**
+  `patches/anylinuxfs-private-home.patch` redirects the profile, the
+  configuration and the logs to ANYLINUXFS_HOME. It does not redirect the image
+  store, so `init` unpacks a Linux environment into `~/.anylinuxfs` -- the
+  directory every program using this engine shares -- however the variable is
+  set. Measured on this Mac: with the variable set to the app's own directory,
+  an unpack still created `~/.anylinuxfs/alpine` with `oci`, `rootfs`,
+  `umoci.json` and an mtree in it. The app now moves what it finds there into
+  its own directory and opens the drive, so nobody sees it; the engine should
+  not be writing there at all. Needs the image path in the patch and an engine
+  rebuild.

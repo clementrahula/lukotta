@@ -2416,7 +2416,24 @@ final class AppModel: ObservableObject {
         // with nothing mounted -- a first run that told the person their drive
         // would not open, when what happened is that the app finished setting
         // itself up. Nothing to say and nothing to decide: go again.
-        if attemptOnlyPreparedTheGuest, mountSlips + 1 < TransientFailure.attempts {
+        // What the engine unpacked, moved into this app's own directory.
+        //
+        // The engine puts a new environment in ~/.anylinuxfs -- the directory
+        // every program using it shares -- whatever it is told, because the
+        // patch that gives it a private home covers its profile, its
+        // configuration and its logs, and not its image. So a first run
+        // unpacks there, this app looks in its own directory, finds nothing,
+        // and unpacks again: for ever, within a session, which is what "the
+        // drive keeps spinning" was.
+        //
+        // Moving it is a rename. It happened at launch already, which is why
+        // quitting and starting again made a drive open and made this look
+        // like something else.
+        let adopted = EngineEnvironment.adoptWhatWasLeftInTheSharedHome()
+        if adopted {
+            Log.mount.notice("took over the environment the engine left in the shared directory")
+        }
+        if attemptOnlyPreparedTheGuest || adopted, mountSlips + 1 < TransientFailure.attempts {
             guestWasReady = true
             mountSlips += 1
             Log.mount.notice("the attempt unpacked the Linux environment; opening the drive now")
