@@ -53,15 +53,37 @@ def main(source, destination):
     clusters = virtual // CLUSTER
 
     l2_tables = (clusters + L2_ENTRIES - 1) // L2_ENTRIES
-    # 0 header, 1 refcount table, 2 refcount block, 3 L1, then the L2s, then data.
+    # 0 header, 1 refcount table, then the refcount blocks, then L1, the L2s,
+    # and the data.
+    #
+    # There used to be exactly one refcount block, which put a ceiling of two
+    # gibibytes on anything this could write -- and the sweep that uses it needs
+    # more than that, because the corpus carries a sparse file that arrives at
+    # its apparent size. Raising the sweep's image size therefore did not widen
+    # the coverage, it removed qcow2 from it.
+    #
+    # How many blocks are needed depends on the total, which depends on how many
+    # blocks there are, so it settles rather than being calculated: one more
+    # block pushes everything after it along by one cluster, which can need one
+    # more block. It converges in two passes on any real size, and the loop is
+    # bounded regardless.
     refcount_table_at = 1
-    refcount_block_at = 2
-    l1_at = 3
-    l2_at = 4
-    data_at = l2_at + l2_tables
-    total = data_at + clusters
-    if total > REFCOUNTS_PER_BLOCK:
-        sys.exit("image too large for this deliberately simple writer")
+    refcount_blocks = 1
+    for _ in range(64):
+        refcount_block_at = 2
+        l1_at = refcount_block_at + refcount_blocks
+        l2_at = l1_at + 1
+        data_at = l2_at + l2_tables
+        total = data_at + clusters
+        needed = (total + REFCOUNTS_PER_BLOCK - 1) // REFCOUNTS_PER_BLOCK
+        if needed == refcount_blocks:
+            break
+        refcount_blocks = needed
+    else:
+        sys.exit("the refcount block count would not settle")
+    # The table itself is one cluster, which holds this many entries.
+    if refcount_blocks > CLUSTER // 8:
+        sys.exit("image too large for a one-cluster refcount table")
 
     image = bytearray(total * CLUSTER)
 
@@ -85,12 +107,18 @@ def main(source, destination):
     struct.pack_into(">I", image, 96, REFCOUNT_ORDER)
     struct.pack_into(">I", image, 100, 104)                    # header length
 
-    # Refcount table: one entry, pointing at the single refcount block.
-    struct.pack_into(">Q", image, refcount_table_at * CLUSTER, refcount_block_at * CLUSTER)
+    # Refcount table: one entry per block, in order.
+    for i in range(refcount_blocks):
+        struct.pack_into(
+            ">Q", image, refcount_table_at * CLUSTER + i * 8,
+            (refcount_block_at + i) * CLUSTER)
 
-    # Every cluster this file uses is referenced exactly once.
+    # Every cluster this file uses is referenced exactly once, in whichever
+    # block covers it.
     for cluster in range(total):
-        struct.pack_into(">H", image, refcount_block_at * CLUSTER + cluster * 2, 1)
+        block, index = divmod(cluster, REFCOUNTS_PER_BLOCK)
+        struct.pack_into(
+            ">H", image, (refcount_block_at + block) * CLUSTER + index * 2, 1)
 
     # L1 entries point at the L2 tables; bit 63 marks them allocated.
     for i in range(l2_tables):

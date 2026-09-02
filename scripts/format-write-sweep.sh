@@ -103,7 +103,10 @@ close() {
 pass=0; fail=0
 for img in sweep.qcow2 sweep.vdi sweep.vhd sweep-dyn.vhd sweep-sparse.vmdk; do
   path="$WORK/$img"
-  [ -f "$path" ] || { say "$img: not built, skipped"; continue; }
+  # A format that could not be built is a format that was not covered, and
+  # "skipped" printed among a row of passes reads as though it had been. The
+  # sweep exists to say whether every format the app claims works.
+  [ -f "$path" ] || { say "$img: FAILED, never built"; fail=$((fail + 1)); continue; }
   say ""
   say "=== $img ==="
   close "$img"
