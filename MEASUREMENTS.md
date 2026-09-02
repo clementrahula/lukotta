@@ -295,3 +295,31 @@ Still unknown: which link in that path. The macOS client is given no async
 option; the guest runs kernel nfsd, whose export default is sync; and the block
 layer's FLUSH is patched and applied. One of those three is not doing what its
 documentation says, and which one is the next thing to find out.
+
+## Narrowing it: what holds the data — 2026-09-03
+
+Two more eliminated, each by a run rather than by reading:
+
+    a 20-second wait after fsync, before the kill
+        4 files, 0 ok, 4 wrong, 0 missing. The macOS client is not sitting on
+        it: twenty seconds is long past any client write-behind.
+
+    sync named explicitly in the export
+        rw,sync,no_subtree_check,all_squash,anonuid=0,anongid=0,insecure --
+        the same string --ignore-permissions produces, with sync added.
+        8 of 8 still wrong. So the export was already synchronous and this is
+        not the link either.
+
+    (An earlier attempt at this used no_root_squash, which is not what
+    --ignore-permissions produces. It broke five other vectors on permissions
+    and told us nothing. This one uses the right string.)
+
+The signature is worth recording because it is narrow: **the files are all
+present and all the right length, and their contents are wrong.** Metadata
+reaches the image and data does not. Whatever is holding those blocks lets the
+inode through.
+
+So: not the filesystem, not the client, not the export, not a discarded block
+flush. What is left is between nfsd's COMMIT and the bytes landing in the image
+file -- and the fact that a write made inside the guest lands while the same
+write made through nfsd does not.
