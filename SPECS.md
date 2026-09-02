@@ -521,6 +521,20 @@ unconditionally, `libkrun-1.19.3/src/lib.rs:789`) and `F_FULLFSYNC` otherwise,
 which a device refuses. So a raw device could not be flushed by either branch,
 and both reported that it had been.
 
+**On an image it is not fixed, and the filesystems differ.** Run with the patch
+in, `integrity-vectors.sh` against each:
+
+| Filesystem, on an image | fsync across a killed machine |
+| --- | --- |
+| NTFS | passes: 8 of 8 present, 0 wrong, 0 lost |
+| ext4 | **fails: 8 of 8 present, 8 wrong**, and 30 of 30 in-flight files came back at full length with none complete |
+| XFS | fails, 32768 bytes of holes at offset 0 |
+
+An image is a regular file, so the device branch above never runs for it. What
+ext4 and XFS lose is therefore something else: a file the length it should be,
+holding what it should not. NTFS keeps its content on the same path, so it is
+the filesystem's own fsync rather than anything below it.
+
 That also explains the split the earlier readings showed. An image handed to the
 engine is a regular file, where `fsync` is real:
 
