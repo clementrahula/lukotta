@@ -44,6 +44,15 @@ time it takes to review.
 Better models, given room to reason, produce noticeably better diffs. Use the
 best you have.
 
+## UI Changes
+
+A user-interface change is done when it has been run in the built application
+and every way a person can reach it has been tried: from a cold start, by each
+condition that shows it, by each button that dismisses it, and again after
+quitting and launching. A snapshot proves a scene draws. It proves nothing
+about when the scene appears, when it goes, or what it leaves behind, and that
+is where the faults are. AGENTS.md sets this out in full.
+
 ## House Style
 
 - English is used for code commenting, documentation and all project-related communications exclusively.

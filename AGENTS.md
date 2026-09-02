@@ -91,6 +91,39 @@ megabytes for a machine holding five hundred. A plausible wrong number is
 believed, acted on, and sends an afternoon after the wrong fault. Bound every
 call that can block, and distinguish "measured zero" from "could not measure".
 
+## No UI Change Is Done Until It Has Run
+
+**A UI change is not done when it compiles, not when it renders in a snapshot,
+and not when the logic reads correctly. It is done when it has been run in the
+built application and every way a person can reach it has been tried.**
+
+This is not advice. Two changes went out on the same day without it:
+
+- The early-development notice was gated on the drive list being on screen, so
+  opening a drive took the sheet away with nothing acknowledged, and it
+  appeared at every launch afterwards. It had a snapshot. The snapshot drew it
+  perfectly, because a snapshot draws one moment and this was a fault in what
+  happens next.
+- The quit dialogue appeared twice, again, after already being fixed once.
+
+Both would have been caught by launching the app and using it. Neither was.
+
+Before calling any UI change done:
+
+1. **Build and install it**, and open the built application. Not `swift build`.
+2. **Reach the change the way somebody would**, from a cold start.
+3. **Then try every other way of reaching it**, and every way of leaving it.
+   For anything shown once: quit and launch again, and confirm it is not shown
+   again. For anything with a button: press each button, and close it without
+   pressing any. For anything conditional: reach it by each condition.
+4. **Leave and come back.** A great deal of what breaks is state that was
+   written to the wrong place, or not written before the process ended.
+5. **Say which of these were actually run.** "Tested" without saying what was
+   done means the snapshot was looked at.
+
+A snapshot proves a scene draws. It proves nothing about when the scene
+appears, when it goes, or what it leaves behind. Those are where the faults are.
+
 ## Layout
 
 Sources are in `sources/`, lowercase, and every target in `Package.swift`

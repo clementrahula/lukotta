@@ -58,7 +58,13 @@ final class AppModel: ObservableObject {
     /// reading came back is a flicker on the first launch of every new install.
     /// What was true last time is the best answer available at this instant,
     /// and the reading that follows corrects it either way.
-    @Published var phase: Phase = Permissions.likelyGranted() ? .scanning : .needsPermission
+    @Published var phase: Phase = Permissions.likelyGranted() ? .scanning : .needsPermission {
+        didSet {
+            // One place rather than at each assignment, because the phase is set
+            // from five of them and a missed one is a notice that never appears.
+            if phase.isDriveList { earlyNoticeArmed = true }
+        }
+    }
 
     /// What just happened, in a sentence, for anyone who is not watching.
     ///
@@ -100,13 +106,28 @@ final class AppModel: ObservableObject {
     @Published var earlyNoticeUnseen =
         !UserDefaults.standard.bool(forKey: AppModel.earlyNoticeKey)
 
-    /// Shown once the drive list is up and clean, never before. Permission has
-    /// been given by then, the scan has finished, and nothing else is asking.
-    var showEarlyNotice: Bool { earlyNoticeUnseen && phase.isDriveList }
+    /// Whether the drive list has been reached this launch.
+    ///
+    /// The notice waits for it, and once it has been reached it does not
+    /// un-wait. Gating the sheet on the phase directly meant that opening a
+    /// drive moved the phase off the list and took the sheet away with it, and
+    /// nothing had been acknowledged, so it came back at the next launch and
+    /// the one after: shown every time and never answered. It is latched here
+    /// so that only the button can take it down.
+    @Published var earlyNoticeArmed = false
+
+    /// Shown once the drive list has been reached, never before. Permission has
+    /// been given by then and the scan has finished.
+    var showEarlyNotice: Bool { earlyNoticeUnseen && earlyNoticeArmed }
 
     /// Written when the button is pressed, not when the sheet appears.
+    ///
+    /// Flushed rather than left to the periodic write. This is a once-ever
+    /// answer given seconds before somebody may quit, and a default that has
+    /// not reached disk by then is an answer thrown away.
     func acknowledgeEarlyNotice() {
         UserDefaults.standard.set(true, forKey: AppModel.earlyNoticeKey)
+        UserDefaults.standard.synchronize()
         earlyNoticeUnseen = false
     }
     /// The recent log, read before anybody asks for it.
