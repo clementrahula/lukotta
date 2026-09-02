@@ -275,6 +275,39 @@ fi
 SIGN_TOOL="$(find "$HERE/.build" -name sign_update -type f -perm -111 -print -quit 2>/dev/null || true)"
 [ -n "$SIGN_TOOL" ] || { echo "error: sign_update not found; run swift build" >&2; exit 1; }
 
+# And that it can reach the key, before anything expensive happens. Asked only
+# at signing time, a missing key costs a full build and a notarisation round
+# trip to Apple first: measured at eleven minutes to be told something a second
+# would have said. The key is looked up rather than the signature attempted, so
+# nothing is written.
+KEYS_TOOL="$(find "$HERE/.build" -name generate_keys -type f -perm -111 -print -quit 2>/dev/null || true)"
+if [ -n "$KEYS_TOOL" ]; then
+  SPARKLE_ACCOUNT="${LUKOTTA_SPARKLE_ACCOUNT:-lukotta}"
+  HAVE_KEY="$("$KEYS_TOOL" --account "$SPARKLE_ACCOUNT" -p 2>/dev/null || true)"
+  if [ -z "$HAVE_KEY" ]; then
+    echo "error: no Sparkle signing key for account \"$SPARKLE_ACCOUNT\"" >&2
+    echo "       Every installed copy trusts one key and no other, so a new one" >&2
+    echo "       cannot be generated here: it would leave everybody unable to" >&2
+    echo "       update. Import the backed-up key instead:" >&2
+    echo "         $KEYS_TOOL --account $SPARKLE_ACCOUNT -f <private-key-file>" >&2
+    echo "       Then check it prints the key the builds already trust:" >&2
+    echo "         $KEYS_TOOL --account $SPARKLE_ACCOUNT -p" >&2
+    [ -f "$HERE/.sparkle-public-key" ] &&
+      echo "         it must be $(cat "$HERE/.sparkle-public-key")" >&2
+    exit 1
+  fi
+  # And that it is the key the shipped builds trust, not merely some key.
+  if [ -f "$HERE/.sparkle-public-key" ] &&
+     [ "$HAVE_KEY" != "$(cat "$HERE/.sparkle-public-key")" ]; then
+    echo "error: the Sparkle key in the keychain is not the one builds trust" >&2
+    echo "       keychain: $HAVE_KEY" >&2
+    echo "       expected: $(cat "$HERE/.sparkle-public-key")" >&2
+    echo "       Publishing under this key leaves every installed copy unable" >&2
+    echo "       to update, and that cannot be undone from here." >&2
+    exit 1
+  fi
+fi
+
 # Nothing reaches the release channel without the owner having said so, in
 # writing, about this version and about these words.
 #
