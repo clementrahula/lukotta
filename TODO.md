@@ -67,14 +67,22 @@ by turning it into a rename, and it writes to a drive we opened.
   that it has no cache to flush. Without that tolerance every barrier becomes
   an I/O error and nothing mounts.
 
-- [ ] **Prove it.** `scripts/kill-durability.sh` writes 8 MB with
-  `dd conv=fsync`, kills the machine, reopens and compares. It targets a
-  scratch image attached with hdiutil, which is a device node exactly as a USB
-  disk is, so the drive nobody has a second copy of stays out of an experiment
-  whose whole point is an abrupt kill. The run is currently blocked: the engine
-  answers "another instance is already running" even with `-w false`, and
-  `--rw-rootfs` rather than `-w` is what selects the exclusive lock, so the
-  contention is elsewhere.
+- [x] **The mechanism is proven.** The patch carries an example that opens a
+  device node and calls imago's own `sync()`. On the same attached device:
+  unpatched gives `Inappropriate ioctl for device (os error 25)`, patched gives
+  `sync ok`. So the flush is issued and the device performs it.
+
+- [ ] **Durability across a kill is not.** Only a physical drive reproduces the
+  loss: against an unpatched engine, `kill-durability.sh` on an attached image
+  returned the 8 MB byte-identical, because those writes reach the backing file
+  through the host's buffer cache, which a killed guest does not discard. The
+  run on the one physical drive here needs that drive's engine killed, which is
+  somebody's only backup.
+
+  Timing it instead did not work: 121.5 ms median unpatched against 117.0 ms
+  patched over twenty 1 MiB writes, which is noise, and smaller writes are
+  dominated by the NFS round trip. `scripts/flush-reaches-drive.sh` carries the
+  numbers so it is not tried again.
 
 - [ ] **Then measure what it costs.** `DKIOCSYNCHRONIZECACHE` on every guest
   barrier may undo the copy-time win from `wsize=32768` (worst case 90.05 s to
