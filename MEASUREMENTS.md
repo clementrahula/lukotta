@@ -37,3 +37,37 @@ Finder was told to duplicate onto it.
 
 No stall, no error, no "some items had to be skipped", at both extremes and
 repeated rather than once. Items 2, 3 and 4 hold on BitLocker/NTFS.
+
+## A dirty NTFS volume is repaired, not warned about — 2026-09-02
+
+Volume made by the guest, 41 files written and summed, then the machine taken
+away with the volume still mounted. Confirmed dirty before the app saw it.
+
+    opened            writable, exit 0
+    user-visible      nothing: no dialog, no read-only fallback, no explanation
+    files present     41 of 41
+    corpus digest     35e1a0431c31288689aded22cd1052d62bb0955389641d6fb22729fc79f032c3
+    written to after  yes
+
+Two runs failed before this one and neither was the app. The harness named the
+repair action on an engine command line, but the app installs that action while
+building a mount, so it asked for something that did not exist -- reported as
+"the app could not open the dirty volume at all". And a leftover engine from an
+earlier run held the device lock, which made a mount that had in fact succeeded
+report failure while the volume sat mounted and writable.
+
+## LUKS, and the Linux filesystems inside it — 2026-09-02
+
+Same corpus each time: 123 files, one of 12M, one named in Japanese, Greek and
+umlauts, an empty file. Opened by the app, copied in, read back.
+
+    luks-ext4     LUKSEXT4    byte-identical
+    luks-xfs      LUKSXFS     byte-identical
+    luks2-direct  DIRECTFS    byte-identical
+    luks1-lvm     HOMEFS      byte-identical
+
+luks-multi is NOT proven. The first run reported it byte-identical at
+/Volumes/BACKUP2_TS -- which is a physical stick that was mounted at the time,
+not the fixture. The harness took the last mount in the table. Re-run with the
+mount identified by difference, nothing new appeared, so that fixture has not
+opened yet and its result is void rather than bad.
