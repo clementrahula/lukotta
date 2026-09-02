@@ -202,6 +202,15 @@ fi
 # With cgo, which it needs: vmrunner beside it is a cgo package with a header,
 # and CGO_ENABLED=0 excludes every file in it -- "build constraints exclude all
 # Go files", which reads like a platform problem and is not one.
+# The static library the unpacker links. It is a Rust crate built as a
+# staticlib, and the Go build asks clang for it by a path relative to itself, so
+# it has to exist before the Go build and cannot be built by it.
+( cd "$SRC/vmrunner-sys" && cargo build --release --quiet )
+VMRUNNER_LIB="$SRC/vmrunner-sys/target/release/libvmrunner_sys.a"
+[ -f "$VMRUNNER_LIB" ] || { echo "error: no libvmrunner_sys.a was built" >&2; exit 1; }
+mkdir -p "$SRC/vmrunner-sys/target"
+cp "$VMRUNNER_LIB" "$SRC/vmrunner-sys/target/libvmrunner_sys.a"
+
 # The tag is upstream's own, from its build notes. Without it the OCI library
 # wants gpgme through pkg-config, which is a C library to install, to ship and
 # to license, for signature verification this does not do.
