@@ -495,6 +495,11 @@ Three layers ruled out by measurement:
 - **The guest mount options.** `dirsync` was tried, confirmed applied in the
   transcript, and changed nothing. Reverted, because synchronous directory
   updates cost every many-small-file copy something.
+- **The export's write gathering.** `no_wdelay` was tried, spelled out as an
+  explicit `--nfs-export-opts` because the engine refuses that flag together
+  with `--ignore-permissions`, and confirmed live on the running engine. The
+  8 MB was written, fsynced, and verified byte-for-byte on the mount before the
+  machine was killed; it was still absent afterwards. Reverted.
 
 What remains is ntfs3's own fsync path. `-o sync` would fix it and is refused:
 it makes every write synchronous.
