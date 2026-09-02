@@ -399,3 +399,24 @@ Everything cheap that can be measured from the host is now measured. What is
 left needs the guest instrumented -- what nfsd does with the COMMIT, and
 whether a virtio flush follows it -- and that is a bigger piece of work than
 anything attempted tonight.
+
+## An encrypted drive was losing everything it was told to keep — 2026-09-03
+
+ext4 inside a LUKS container, machine killed mid-write:
+
+    before    8 of 8 fsynced files present, all 8 wrong, 0 of 30 in-flight complete
+    after     8 of 8 present, 0 wrong, 30 of 30 in-flight complete
+
+The fix that shipped for a bare ext4 never reached this. The option is chosen
+by reading the filesystem's superblock and a container hides exactly that, so
+the answer was always "nothing" and nothing was applied. The code said as much
+in a comment and nobody had run it.
+
+A container now asks the client for stable writes instead, which works whatever
+is inside. Verified in the built app, on the command it actually runs:
+
+    luks-ext4.img    --nfs-options=...,noowners,sync   (client asked)
+    plain-xfs.img    -o sync on the guest mount only   (cheaper option kept)
+
+Only containers pay for it. 2000 small files cost the same either way; a corpus
+with a gigabyte in it goes from 12 seconds to 17.
