@@ -56,7 +56,7 @@ hit while measuring one:
 - **`du -sm` on the destination.** It counts allocated blocks and went on
   climbing for minutes after a copy had frozen. Sum `find -printf '%s'` instead.
 - **`find -printf '%s'` as a liveness probe.** It stats every file including the
-  one being written, so it can block on that file alone -- a `find` that times
+  one being written, so it can block on that file alone. A `find` that times
   out is not evidence the mount stalled. Ask `stat` about the directory, and
   time it.
 - **`nfsstat` on a wedged mount.** It blocks too, so bound it and treat its own
@@ -73,9 +73,9 @@ hit while measuring one:
 
 The shape is the same every time and is worth stating on its own: **a probe
 that cannot take a reading must say so, not return zero.** Each of these
-returned a plausible number instead of failing -- `0 MiB` for a listing that
+returned a plausible number instead of failing: `0 MiB` for a listing that
 timed out, `0` episodes for a flag never sampled at the right instant, five
-megabytes for a machine holding five hundred -- and a plausible wrong number is
+megabytes for a machine holding five hundred. A plausible wrong number is
 believed, acted on, and sends an afternoon after the wrong fault. Bound every
 call that can block, and distinguish "measured zero" from "could not measure".
 
@@ -313,7 +313,7 @@ That is a real answer sometimes and never an accidental one.
 
 Those four languages are not a sample. They are the four ways a layout breaks
 -- text that runs long, an interface that turns round, lines that break without
-spaces, and a script taller than its box -- and a fifth language would cost
+spaces, and a script taller than its box. A fifth language would cost
 twenty-seven pictures to prove nothing new.
 
 ## Strings
@@ -461,8 +461,8 @@ the code alone. Changing one needs the evidence that established it.
   `willInstallUpdate`. A copy hung on that one is never made.
 - **A copy of the running version is armed, not spent.** It is dropped only
   when it is of some *other* version, which is proof the swap already happened.
-  Between a download and the quit that installs it -- and Sparkle resumes an
-  extracted update a session later without downloading it again -- the copy is
+  Between a download and the quit that installs it, and Sparkle resumes an
+  extracted update a session later without downloading it again, the copy is
   of what is running, and dropping it there disarms the install it was made
   for. `--smoke-test` runs this path too.
 - **The machinery slipping is not the drive refusing.** A broken pipe, a locked
@@ -473,7 +473,7 @@ the code alone. Changing one needs the evidence that established it.
   is taken down. No real drive needs it and a stuck one would otherwise wait for
   ever. The mount script ends itself a little sooner than that, because ending a
   privileged attempt from outside reaches the shell and not the root engine
-  under it -- which went on mounting, and produced a drive in Finder minutes
+  under it, which went on mounting and produced a drive in Finder minutes
   after somebody had been told it could not be opened.
 - **A sweep takes down only what this app can show is its own, and says what
   really came down.** A mount point it wrote down when it made it, or one under
@@ -507,7 +507,7 @@ recur when a model edits it:
 
 The release channel only. A pre-release's notes stay in English: a beta goes
 out often and to few people, and translating it every time is work out of
-proportion to that. This is a decision, not an omission -- do not "fix" it.
+proportion to that. This is a decision. Do not "fix" it.
 
 The order matters, and each step exists because doing it earlier wastes the
 one after it.
@@ -525,7 +525,7 @@ one after it.
 4. **Build the pack**: `./scripts/notes-audit.py <version> --zip`. It carries
    the approved English, the drafts, and the glossary built from
    `translations/context/terms.json`. It carries no earlier releases on
-   purpose -- a term that must stay consistent between versions belongs in the
+   purpose. A term that must stay consistent between versions belongs in the
    glossary, and if it is not there, that is the thing to fix.
 5. **The owner audits it in a different model** and brings back review notes.
    The result is advisory: it proposes, it does not decide. Every proposal
@@ -636,7 +636,7 @@ not obvious and both cost time to find:
   daemons from the older install route and may be months stale while a current
   one is running from a bundle. **The daemon carries `MountScript`**, so a
   change to the mount options or a generated action does nothing until the app
-  is reinstalled and the daemon replaces itself -- reading the app binary and
+  is reinstalled and the daemon replaces itself, reading the app binary and
   finding the change there proves nothing.
 
   Until it was fixed, a daemon of this kind was never replaced at all.
@@ -649,8 +649,8 @@ not obvious and both cost time to find:
       the running daemon is older than this build; replacing it
       replaced; the daemon is now this build's
 
-  Confirm it from the outside as well -- `ps -eo pid,lstart` on the daemon
-  before and after -- and confirm the change itself from the guest's own line
+  Confirm it from the outside as well, `ps -eo pid,lstart` on the daemon
+  before and after, and confirm the change itself from the guest's own line
   in the transcript, `Running before_mount action: ...`, rather than from the
   config file, which is merged and can keep an older section.
 
@@ -682,17 +682,17 @@ which reads exactly like the fault being investigated and is not it.
 `operator`, so the engine cannot open a physical drive by itself. The running
 one was handed the device by the privileged helper, and only the app can ask
 the helper for that. Killing the engine and starting it again from a shell --
-to change `ram_size_mib`, the thread count, or a `before_mount` action -- gets
+to change `ram_size_mib`, the thread count, or a `before_mount` action, gets
 
     macOS: Error: Cannot probe /dev/diskNsM: LibErr(0); Insufficient permissions?
 
 So any experiment that needs a different machine configuration on a real drive
-needs the drive reopened through the app -- which is what `--drive` above is
+needs the drive reopened through the app, which is what `--drive` above is
 for, and it needs no person. Container
 files have no such problem: the engine opens a file the user owns unprivileged,
 and the machine can be restarted as often as a question needs. Put anything
 that varies the guest's configuration on an image, and keep the real drive for
-what only a real drive can answer -- which is timing, because an image on the
+what only a real drive can answer, which is timing, because an image on the
 internal disk is two orders of magnitude faster than the USB stick these faults
 appear on.
 
@@ -721,7 +721,7 @@ default`, and `cmd_mount.rs` calls `.extend`), so supplying a key replaces the
 engine's value and supplying a *different* key sits beside it. Three
 consequences, each of which has already misled somebody:
 
-- **The mount is soft, always -- but not because `hard` cannot be asked for.**
+- **The mount is soft, always, and not because `hard` cannot be asked for.**
   The engine adds `soft,intr,timeo=100,retrans=3`. A comment here once argued
   at length that this was a hard mount because it had not asked for a soft one,
   and an audit that flagged the missing `timeo` was answered from that belief.
@@ -735,7 +735,7 @@ consequences, each of which has already misled somebody:
   there to stop a kernel panic when a drive is pulled without unmounting, and
   that claim has not been tested anywhere it would be safe to be wrong.
 - **`timeo` does nothing on its own.** It sets the *initial* retransmit
-  timeout, and the dynamic estimator -- on unless `dumbtimer` says otherwise --
+  timeout, and the dynamic estimator, on unless `dumbtimer` says otherwise,
   replaces it with an interval learned from observed round trips, which on a
   virtio link is milliseconds. mount_nfs(8) says so under `timeo`: "Normally,
   the dumbtimer option should be specified when using this option to manually
@@ -755,8 +755,9 @@ Logs/anylinuxfs-*.log`.
 
 ## Why a Copy to a Slow Drive Used to Die
 
-A drive that goes quiet -- shingled media reorganising, an enclosure stalling, a
-Mac whose disk is saturated -- stops answering NFS for far longer than it takes
+A drive that goes quiet, whether shingled media reorganising or an enclosure
+stalling or a Mac whose disk is saturated, stops answering NFS far longer than
+it takes
 macOS to give up on it. At `deadtimeout=45` the client marks the mount dead and
 unmounts it; the engine watches its own share, sees it go, and shuts the microVM
 down. The copy ends there and cannot resume. From the outside it looks like a
@@ -768,7 +769,7 @@ Removing the option entirely is worse: a mount that loses its server then never
 recovers at all.
 
 Reproducing it needs a volume large enough to build a real dirty backlog in the
-guest -- the 64 MB fixtures cannot, and neither can 252 MB. On a 40 GB NTFS
+guest. The 64 MB fixtures cannot, and neither can 252 MB. On a 40 GB NTFS
 volume with the host disk deliberately saturated, the behaviour is reliable:
 
     deadtimeout=45    unmounted within 90 seconds, every run
@@ -777,7 +778,7 @@ volume with the host disk deliberately saturated, the behaviour is reliable:
 
 **Making a large test volume needs no password.** The engine fails with `start
 vm error: Invalid argument (errno 22)` when run from a shell, with or without
-`sudo`, because it is missing `ANYLINUXFS_HOME` -- which the app sets and a bare
+`sudo`, because it is missing `ANYLINUXFS_HOME`, which the app sets and a bare
 invocation does not. Set it and the guest shell works unprivileged:
 
     export ANYLINUXFS_HOME="$HOME/Library/Application Support/com.lukotta/engine"
@@ -794,14 +795,14 @@ Three places used to act on a question that had not been answered, and each of
 them force-unmounts:
 
 - `EngineStatus.current()` returned an empty list when the engine could not be
-  asked, could not be run, exited non-zero, or outlived its deadline -- the same
+  asked, could not be run, exited non-zero, or outlived its deadline. The same
   answer it gives when the engine replies that nothing is mounted. `stale()`
   then read every live mount as abandoned. Use `currentIfAnswered()`, which
   returns nil for all four, and never act destructively without an answer.
 - `deadEngineMounts` called a mount dead after two silent probes a second apart.
   A microVM frozen by a busy Mac was measured silent for forty seconds and came
   back serving its drive. It now needs a minute of silence, and refuses outright
-  while any microVM is still running -- `serving()`, which matches the `mount`
+  while any microVM is still running. `serving()`, which matches the `mount`
   process and deliberately not `gvproxy`, since gvproxy outlives a failed mount
   and is what the sweep exists to clear.
 - A mount point left behind after a mount vanishes is an ordinary directory on
@@ -811,8 +812,8 @@ them force-unmounts:
 ## What "No Route to Host" Over vmnet Actually Meant
 
 The engine can serve its NFS over gvproxy, a user-space TCP/IP stack, or over
-vmnet, the framework macOS itself uses. vmnet is much faster -- two and a half
-times the write throughput, measured -- and every attempt to use it ended at
+vmnet, the framework macOS itself uses. vmnet is much faster, two and a half
+times the write throughput measured, and every attempt to use it ended at
 
     macOS: Checking NFS server on 172.27.1.2:2049...
     macOS: Error connecting to port 2049: No route to host (os error 65)
@@ -826,7 +827,7 @@ separate causes, each of which fully explained the symptom on its own.
 after which it fails with `VMNET_FAILURE` and prints nothing at all, which the
 engine reports as a config it could not parse. `init-rootfs` had no entitlements
 either, so any rebuild of the Linux image died with `start vm error: Invalid
-argument (errno 22)` -- which reads like a bad argument, not a missing
+argument (errno 22)`, which reads like a bad argument rather than a missing
 entitlement, and cost three attempts at `sudo` once already.
 
 **The MAC address.** vmnet assigns one and reports it; the engine gave the guest
@@ -847,7 +848,7 @@ Useful ground truth, in order of how much it settles:
 
 - `/proc/net/snmp` in the guest. `Icmp: InEchos` and `Tcp: InSegs` say whether
   the frames arrived at all, which `ping` on the host cannot.
-- `ifconfig bridge100` -- the address cache says which MAC vmnet has learned on
+- `ifconfig bridge100`. The address cache says which MAC vmnet has learned on
   `vmenet0`, and `arp -an` says which one the host is sending to. They must
   agree, and comparing them across two different runs proves nothing.
 - A socket client of your own on the helper's socket, answering ARP and ICMP in
@@ -865,7 +866,7 @@ signed, notarised and pushed to GitHub; that is the whole of it. Copying it into
 happened to a beta in the middle of testing that very update.
 
 So `build-app.sh` builds a branded app and does not copy it. It says nothing
-about this and fails at nothing -- the step simply does not apply.
+about this and fails at nothing; the step does not apply.
 
 `dev` and `unbranded` still install: "Lukotta Dev" under `com.lukotta.dev` and
 "Drive Unlocker" under `com.example.driveunlocker`, each with its own daemon and

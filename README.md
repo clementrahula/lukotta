@@ -68,18 +68,17 @@ which rules it out for most people. There are graphical wrappers for tools like
 it, but they look and feel like an aeroplane cockpit.
 
 Lukotta's main goal is perfect user experience: plug in the drive, type the
-password, open it in Finder. A drive should be readable on any computer.
+password, open it in Finder. A drive should be fully usable on any computer.
 
-### Early Development
-
-Lukotta is still new. The Linux tools and drivers it relies on have been around
-for years and are well tested. Lukotta is built on top of them, but it is still
-new, so it inevitably has issues yet to be uncovered. For now, using it for
-opening drives and images in read-only mode is the safest thing to do. Writing
-does work, but please treat it as experimental, and keep a copy of anything you
-would be upset to lose.
-
-Every known issue is listed under [Limitations](#limitations).
+> [!WARNING]
+> **Early development.** Lukotta is still new. The Linux tools and drivers it
+> relies on have been around for years and are well tested. Lukotta is built on
+> top of them, but it is still new, so it inevitably has issues yet to be
+> uncovered. For now, using it for opening drives and images in read-only mode
+> is the safest thing to do. Writing does work, but please treat it as
+> experimental, and keep a copy of anything you would be upset to lose.
+>
+> Every known issue is listed under [Limitations](#limitations).
 
 ## Features
 
@@ -199,7 +198,7 @@ directory listing on one TCP connection is time the listing waits.
 
 ## Limitations
 
-All measured on this hardware. Where a fix is known, it is named.
+Where a fix is known, it is named.
 
 **A file with a resource fork is silently dropped.** Copying it onto a Lukotta
 volume creates nothing, and a folder copy still reports success. The macOS NFS
@@ -240,7 +239,9 @@ CDDL, as much as a technical one.
 - macOS 15 Sequoia or later
 - 260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks
   on first use
-- 512MB-1GB of RAM, depending on the number of open drives/disks mounted
+- About 30 MB of memory per open drive at rest. A copy takes more, and most of
+  it is cache macOS reclaims: a dozen drives open and being written to measured
+  2.4 GB with memory free and 554 MB with the machine under pressure
 - Up to 12 drives can stay unlocked at once
 
 ## Languages
@@ -369,7 +370,7 @@ says what that means in practice.
 [Licence][licence] · [Trademarks][trademark] · [Third-party notices][notices] ·
 [Specs][specs] · [Releases][releases]
 
-## About the Name
+## The Name
 
 Lúkotta is Finnish for "without a lock", from *lukko*, a lock, with the ending
 *-tta* marking the absence of something. The stress falls on the first syllable,
