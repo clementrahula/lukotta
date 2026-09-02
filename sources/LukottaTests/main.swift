@@ -850,8 +850,14 @@ group("mountStages") {
     // group on an LVM one, so there is no single name to look for either.
     expect(!checked.contains("disk4s1.local:"), "the check does not guess the share's name")
     let checkedMS = MountScript.build(sampleInputs(kind: .microsoft))
+    // Twelve now, not eight. The four extra are the settled re-check: ntfs-3g
+    // on a dirty volume mounts read-write and demotes itself afterwards, so
+    // every per-attempt test is asked while the answer is still true and the
+    // ladder stops at a rung that later turns out to be read-only. The repair
+    // and read-only rungs are therefore offered a second time, after a settle,
+    // when the mount's state has stopped changing.
     expect(
-        checkedMS.components(separatedBy: "&& __mounted").count - 1 == 8,
+        checkedMS.components(separatedBy: "&& __mounted").count - 1 == 12,
         "every attempt is verified: both drivers, again after a slip, again after a repair, "
             + "then both read-only")
     // The extra one is the retry for a machine that slipped, and it must be
@@ -5080,8 +5086,18 @@ group("theRepairRefusesWhatItWouldDamage") {
 
     // A volume that is merely flagged dirty: nothing is being discarded, so it
     // is cleared and the drive opens writable.
+    // The dry run's words, not its exit status. Real ntfsfix -n on a volume it
+    // can repair says it processed $MFT and $MFTMirr successfully and then
+    // fails to remount, because a dry run writes nothing -- so its status is a
+    // failure on precisely the volumes worth repairing. These stubs print what
+    // it prints.
     stub("ntfsls", "echo Windows")
-    stub("ntfsfix", "case \"$1\" in -n) exit 0;; -d) : > \(didPath); exit 0;; esac")
+    stub(
+        "ntfsfix",
+        "case \"$1\" in "
+            + "-n) echo 'Processing of MFT and MFTMirr completed successfully.'; "
+            + "echo 'Remount failed: I/O error'; exit 1;; "
+            + "-d) : > \(didPath); exit 0;; esac")
     var r = attempt()
     expect(r.status == 0 && r.repaired, "a volume flagged dirty and nothing worse is repaired")
 
@@ -5095,8 +5111,15 @@ group("theRepairRefusesWhatItWouldDamage") {
     // Damage beyond a flag: ntfsfix -n writes nothing and will not answer
     // cleanly, so clearing the flag would let a filesystem be written to that
     // ntfs3 refused for a reason.
+    // Damage the dry run cannot get through: it never reaches the sentence
+    // that says it processed the two copies of the MFT, so there is nothing to
+    // gate on and nothing is written.
     stub("ntfsls", "echo Windows")
-    stub("ntfsfix", "case \"$1\" in -n) exit 1;; -d) : > \(didPath); exit 0;; esac")
+    stub(
+        "ntfsfix",
+        "case \"$1\" in "
+            + "-n) echo 'Failed to startup volume: Input/output error'; exit 1;; "
+            + "-d) : > \(didPath); exit 0;; esac")
     r = attempt()
     expect(r.status != 0, "a volume failing the dry run is refused")
     expect(!r.repaired, "and nothing is written to that either")

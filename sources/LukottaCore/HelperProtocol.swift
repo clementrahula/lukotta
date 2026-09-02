@@ -99,7 +99,13 @@ public enum HelperInfo {
     ///    measured: three rebuilds in a row were served by a daemon from before
     ///    the first of them, and every result came from code that was no longer
     ///    on disk. The number is what makes the daemon notice.
-    public static let contract = 14
+    /// 16: a writable mount has to come back writable. ntfs-3g demotes itself
+    ///    to read-only on a dirty volume and exits 0, so the chain stopped at
+    ///    that rung and the repair below it never ran -- a drive handed back
+    ///    read-only with no repair attempted. The check lives in the mount
+    ///    script, which the daemon generates, so the daemon is what has to
+    ///    change.
+    public static let contract = 22
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"

@@ -667,6 +667,41 @@ public enum MountScript {
             }
         }
         lines.append(chain.joined(separator: " || "))
+
+        // One more look, once everything has settled.
+        //
+        // Every per-attempt check fired too early. ntfs-3g on a dirty volume
+        // comes up read-write and demotes itself afterwards, so at the moment
+        // the attempt returns the mount is genuinely writable and every test
+        // -- the mount table, access(2), even creating a file -- says so
+        // truthfully. The demotion arrives later, the chain has already
+        // stopped at that rung, and the repair below it never runs. That is
+        // how a drive was handed back read-only with no repair attempted, four
+        // engine attempts deep and not one of them the repair.
+        //
+        // So the question is asked again at the end, when the answer has
+        // stopped changing: if writable was asked for and what is mounted is
+        // not writable, drop it and go on down the ladder from the repair.
+        if !i.readOnly, i.kind == .microsoft {
+            let repairedAgain = attempts(
+                i, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ,
+                action: repairActionName
+            ).joined(separator: " || ")
+            var readOnlyAgain = i
+            readOnlyAgain.readOnly = true
+            let roAgain = attempts(readOnlyAgain, engineQ: engineQ, deviceQ: deviceQ, logQ: logQ)
+                .map { "{ \($0) && echo \"\(stageMarker)read-only\" >> \(logQ) ; }" }
+                .joined(separator: " || ")
+            lines.append(
+                """
+                sleep 3
+                if __mounted && ! __mounted_writable; then
+                  __drop_new
+                  { \(repairedAgain) ; } || \(roAgain)
+                fi
+                """)
+        }
+
         lines.append("__rc=$?")
         // Only where something is owed an explanation: a failure, or a mount
         // that had to give up writing. On a clean read-write mount there is
@@ -911,6 +946,27 @@ public enum MountScript {
             __rebase() { __engine_mounts > \(baselineQ); }
             __new_mounts() { __engine_mounts | grep -vxF -f \(baselineQ) || true; }
             __mounted() { [ -n "$(__new_mounts)" ]; }
+            __drop_new() {
+              __new_mounts | while IFS= read -r __m; do
+                [ -n "$__m" ] && /sbin/umount -f "$__m" > /dev/null 2>&1
+              done
+              sleep 2
+              true
+            }
+            __mounted_writable() {
+              __mounted || return 1
+              __m="$(__new_mounts | head -n 1)"
+              [ -n "$__m" ] || return 1
+              sleep 1
+              if ! ( : > "$__m/.lukotta-write-probe" ) 2>/dev/null; then
+                __drop_new; return 1
+              fi
+              rm -f "$__m/.lukotta-write-probe" > /dev/null 2>&1
+              case "$(/sbin/mount | grep -F " on $__m (")" in
+                *read-only*) __drop_new; return 1 ;;
+              esac
+              return 0
+            }
             """
     }
 
@@ -1403,10 +1459,47 @@ public enum MountScript {
     /// blkid is asked twice rather than once because an action may not name a
     /// shell variable: the engine reads every action for `$NAME` and refuses to
     /// start when it finds one it cannot resolve.
+    /// Why the guard reads the dry run's words instead of its exit status.
+    ///
+    /// `ntfsfix -n` is the no-action pass, and the guard used to be
+    /// `ntfsfix -n ... || exit 1` -- refuse whatever the dry run reports a
+    /// failure for. On the owner's drive, whose $MFTMirr had fallen behind
+    /// $MFT, that dry run says:
+    ///
+    ///     Mounting volume... $MFTMirr does not match $MFT (record 3).
+    ///     FAILED
+    ///     Attempting to correct errors...
+    ///     Comparing $MFTMirr to $MFT... FAILED
+    ///     Correcting differences in $MFTMirr record 3...OK
+    ///     Processing of $MFT and $MFTMirr completed successfully.
+    ///     Setting required flags on partition... OK
+    ///     Going to empty the journal (LogFile)... OK
+    ///     $MFTMirr does not match $MFT (record 3).
+    ///     Remount failed: I/O error
+    ///
+    /// It corrects everything, in memory, and then fails to remount because a
+    /// dry run writes nothing and the disk is still as it was. So the failure
+    /// at the end is the dry run being a dry run, and the old guard refused
+    /// exactly the volumes ntfsfix knows how to repair -- which is the whole
+    /// set the repair exists for. A drive was handed back read-only on the
+    /// strength of it.
+    ///
+    /// What the dry run does say, when it can help, is that it processed $MFT
+    /// and $MFTMirr successfully. That is the sentence to gate on: a volume it
+    /// cannot process never prints it, and a volume it can does. The
+    /// hibernation refusal above is unchanged, and so is the rule that this
+    /// only ever runs on NTFS and only when writable was asked for.
+    ///
+    /// Double quotes around the pattern, not single. The whole action is a
+    /// single-quoted TOML value, so a single quote inside it ends the string:
+    /// the first attempt at this guard wrote `grep -q 'completed successfully'`
+    /// and the engine answered with a TOML parse error at that line and mounted
+    /// nothing at all.
     public static let ntfsRepair =
         "ntfsls -f \"`blkid -t TYPE=ntfs -o device | head -n 1`\" 2>/dev/null "
         + "| grep -qi hiberfil && exit 1; "
-        + "ntfsfix -n \"`blkid -t TYPE=ntfs -o device | head -n 1`\" > /dev/null 2>&1 || exit 1; "
+        + "ntfsfix -n \"`blkid -t TYPE=ntfs -o device | head -n 1`\" 2>&1 "
+        + "| grep -q \"completed successfully\" || exit 1; "
         + "ntfsfix -d \"`blkid -t TYPE=ntfs -o device | head -n 1`\" || true"
 
     /// Let ntfs3 look before it writes.
@@ -1582,6 +1675,51 @@ public enum MountScript {
     /// failure.
     private static let mountedCheck = "__mounted"
 
+    /// A mount asked for writable has to come back writable.
+    ///
+    /// ntfs-3g demotes itself. Handed a volume Windows left dirty it mounts it
+    /// read-only, says so only in a line among many, and exits 0 -- so the
+    /// engine reports success, the chain stops at that rung, and everything
+    /// below it never runs. Including the repair.
+    ///
+    /// That is how the owner's drive came back read-only with no repair ever
+    /// attempted. The transcript shows ntfs-3g correcting the volume in memory
+    ///
+    ///     Comparing $MFTMirr to $MFT... FAILED
+    ///     Correcting differences in $MFTMirr record 3...OK
+    ///     Processing of $MFT and $MFTMirr completed successfully.
+    ///     Remount failed: I/O error
+    ///
+    /// and then settling for read-only. The repair rung, which would have run
+    /// ntfsfix and cleared the dirty flag, sat one `||` further down and was
+    /// never reached, because the rung above it had "succeeded".
+    ///
+    /// So a writable attempt now checks that what it produced is writable, and
+    /// unmounts it if it is not, so the next rung starts from nothing. The
+    /// read-only rung keeps the plain check: read-only is what it asked for.
+    ///
+    /// Asked by writing, which is the only question that cannot be answered
+    /// wrongly. Two cheaper tests were tried first and both let a demoted
+    /// mount through.
+    ///
+    /// Reading "read-only" out of the mount table did not fire: the word is
+    /// not there at the instant the attempt returns.
+    ///
+    /// `[ -w ]` did not fire either, and that one is worth remembering. Asked
+    /// from a shell as the owner it answers correctly -- not writable for the
+    /// demoted mount, writable for a healthy one -- which is exactly how it
+    /// was checked and exactly why it looked right. But this script runs as
+    /// root inside the privileged daemon, and root's access(2) is not the same
+    /// question. A test verified in one shell and deployed in another is not
+    /// the same test.
+    ///
+    /// So it creates a file and removes it. A read-only mount refuses that for
+    /// root as readily as for anyone, and nothing is left behind. It only ever
+    /// runs on a mount that has just been produced by a writable attempt, so
+    /// it writes to a volume only where writing was the whole intention. The
+    /// mount-table test stays underneath it as a second opinion.
+    private static let writableCheck = "__mounted_writable"
+
     /// What a driver is mounted with, beyond read-only.
     ///
     /// ntfs-3g is FUSE, so every write crosses from the kernel out to a
@@ -1657,7 +1795,8 @@ public enum MountScript {
             + "\(typeFlag)\(mountOptions(driver: driver, readOnly: readOnly))\(actionFlag) -w false"
             + "\(netHelper)"
             + " --nfs-options=\(shellQuoted(options))"
-            + " \(target) >> \(logQ) 2>&1 && \(mountedCheck)"
+            + " \(target) >> \(logQ) 2>&1 && "
+            + (readOnly ? mountedCheck : writableCheck)
     }
 
     /// How the mount is asked for: who the files belong to, and whether
