@@ -21,6 +21,27 @@
 # is the point -- but whether the filesystem is still sound and whether the
 # files that had already landed are still exactly themselves.
 #
+# RE-RUN 2026-09-02 on XFS, after the write size changed to 32768. Ten of
+# eleven pass:
+#
+#   ok   a killed copy leaves no corrupt file behind (40 whole, 0 wrong)
+#   ok   the volume still takes a write after a copy was killed
+#   ok   the volume mounts and reads after being unmounted under load
+#   ok   what was written before the unmount survived it
+#   ok   a full volume answers with an error, in 7s
+#   ok   three open/close cycles in a row (3 of 3)
+#   ok   everything written is readable by whoever wrote it (3 of 3)
+#   ok   two writers and a reader at once leave nothing wrong (24, 0 differing)
+#   ok   the filesystem comes back after the machine was killed mid-write
+#   FAIL every fsynced file survived power loss (8 of 8 present, 8 wrong)
+#   ok   the volume takes a write again after power loss
+#
+# The failure is the known one and not a regression from the write size: the
+# engine's disk backend makes writes durable when it shuts down rather than
+# when a write is acknowledged, so a machine killed outright loses what it
+# held however small the write unit was. That is what EngineProcesses.stop
+# waits twenty seconds to avoid, and what a SIGKILL from outside still causes.
+#
 # Result on 2026-09-01, against a 64 MB NTFS fixture:
 #
 #   ok   a killed copy leaves no corrupt file behind (32 whole, 0 wrong)
