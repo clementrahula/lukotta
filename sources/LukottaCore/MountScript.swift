@@ -780,24 +780,41 @@ public enum MountScript {
                 // turn when the probe has refused ntfs3; not the read-only
                 // retry, which cannot do the damage; and not the repair rung,
                 // which is asked for on purpose and carries its own action.
-                // DISABLED. The probe stops ntfs3 writing to a volume it then
-                // refuses, which is real and measured -- but on the owner's
-                // BitLocker drive it also stops ntfs3 mounting a volume it
-                // would have mounted. The probe passes, the read-only mount
-                // inside the guest succeeds, and the writable mount of
-                // /dev/mapper/btlk0 that follows it in the same boot fails
-                // with "bad superblock"; ntfs-3g then answers "I/O error, NTFS
-                // is either inconsistent..." and the drive comes up read-only.
+                // DISABLED, and not for the reason first given.
                 //
-                // It did not show up on the corpus because those are plain
-                // NTFS images on /dev/vda. The drive is NTFS inside a
-                // BitLocker mapper, and mounting the mapper twice in one boot
-                // is evidently not the same as mounting a partition twice.
+                // The probe was blamed for the owner's BitLocker drive coming
+                // up read-only. It was not the cause. Turning it off and
+                // rebuilding changed nothing -- because the daemon had not
+                // been replaced either, so three rebuilds in a row were served
+                // by a daemon from before the first of them and every reading
+                // came from code that was no longer on disk. Raising the
+                // contract is what finally replaced it, and with the probe
+                // genuinely gone the drive still refused to mount writable.
                 //
-                // A drive that opens read-only is a worse outcome than the one
-                // this was fixing, and it lands on every BitLocker user rather
-                // than on the damaged-volume case. Off until the probe can be
-                // done without mounting the same device twice.
+                // The real reason is in the guest kernel log:
+                //
+                //     $MFTMirr does not match $MFT (record 3).
+                //     ntfs3(dm-0): volume is dirty and "force" flag is not set!
+                //     ntfs3(dm-0): It is recommened to use chkdsk.
+                //
+                // Which is this repository's own test harnesses doing it. The
+                // corpus and diagnostic runs sweep leftover state with
+                // `pkill -9 -f 'anylinuxfs mount'`, and that matches the
+                // machine serving the owner's drive as readily as the machine
+                // serving a fixture. Killing it mid-write is exactly the case
+                // measured in EngineProcesses.flushGrace, and on NTFS it
+                // leaves $MFTMirr behind $MFT.
+                //
+                // So the app did the right thing: the repair guard declines
+                // $MFTMirr damage rather than letting ntfsfix at it, and the
+                // volume came up read-only with every file readable.
+                //
+                // The probe stays off only because it cannot now be tested. A
+                // dirty drive refuses the writable mount whatever the probe
+                // does, so there is no way to tell from here whether the probe
+                // is innocent -- and turning a safety change back on while the
+                // one machine that could disprove it is unusable is how a
+                // wrong belief gets shipped. Back on once the drive is sound.
                 let chosen = action
                 return mountCommand(
                     engineQ: engineQ, target: target, driver: driver,

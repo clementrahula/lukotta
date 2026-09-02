@@ -91,7 +91,15 @@ public enum HelperInfo {
     /// is no job in /Library. The build comparison added beside it should have
     /// caught this one and did not, on a daemon twenty minutes older than the
     /// bundle -- so the number does the work here, which is what it is for.
-    public static let contract = 13
+    /// 14: ntfs3 is asked to mount read-only before it is trusted to mount
+    ///    writable, and the two NTFS guest actions are generated together. The
+    ///    mount script lives in LukottaCore, which the daemon links and runs,
+    ///    so a daemon on 13 keeps generating the old script no matter what is
+    ///    in the bundle -- which is exactly what happened while this was being
+    ///    measured: three rebuilds in a row were served by a daemon from before
+    ///    the first of them, and every result came from code that was no longer
+    ///    on disk. The number is what makes the daemon notice.
+    public static let contract = 14
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"

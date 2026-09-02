@@ -105,6 +105,14 @@
 # ntfsck, from ntfsprogs-plus, is a real checker rather than a flag-clearer and
 # would let the ladder know which kind of volume it has before touching it.
 # GPL-2, aggregating in the guest like the rest of the userspace.
+# DO NOT SWEEP WITH `pkill -9 -f 'anylinuxfs mount'`.
+#
+# That pattern matches the machine serving somebody's real drive exactly as
+# readily as the one serving a fixture, and killing it mid-write is the case
+# measured in EngineProcesses.flushGrace. It was run repeatedly during a night
+# of testing while the owner's BitLocker drive was mounted, and left it dirty
+# with $MFTMirr behind $MFT -- readable, every file intact, and read-only until
+# a chkdsk. Match the image being tested, as try_open and close do here.
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
