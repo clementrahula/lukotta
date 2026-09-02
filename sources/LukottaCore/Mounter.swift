@@ -102,7 +102,7 @@ public enum Mounter {
                 // Read from the volume itself, here rather than in the script,
                 // for the same reason the LUKS memory floor is: the bytes are
                 // this user's to read, and the answer decides a mount option.
-                journalledExt: ExtJournal.isJournalled(forDevice: drive.devicePath)))
+                durability: ExtJournal.durabilityOption(forDevice: drive.devicePath)))
 
         let scriptURL = workspace.root.appendingPathComponent("mount.sh")
         try script.write(to: scriptURL, atomically: true, encoding: .utf8)

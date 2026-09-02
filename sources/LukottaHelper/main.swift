@@ -430,7 +430,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     luksMinRamMiB: luksFloor(devicePath: devicePath),
                     // The daemon runs as root and can read any device node, so
                     // this is the one place the answer is always available.
-                    journalledExt: ExtJournal.isJournalled(forDevice: devicePath)))
+                    durability: ExtJournal.durabilityOption(forDevice: devicePath)))
 
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")
             try script.write(to: scriptURL, atomically: true, encoding: .utf8)

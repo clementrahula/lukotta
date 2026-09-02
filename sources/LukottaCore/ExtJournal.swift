@@ -3,7 +3,8 @@
 
 import Foundation
 
-/// Whether an ext volume keeps a journal, read out of its own superblock.
+/// What a Linux volume must be mounted with to keep what it was told to keep,
+/// read out of its own superblock.
 ///
 /// ext4 as it mounts by default loses the contents of files that were fsynced
 /// before the machine died. Measured on this Mac: eight files written and
@@ -41,6 +42,52 @@ public enum ExtJournal {
         return compat & hasJournalFlag != 0
     }
 
+    /// XFS writes this at the very front of its superblock.
+    static let xfsMagic: [UInt8] = Array("XFSB".utf8)
+
+    /// The mount option this volume needs, or nil where it needs none.
+    ///
+    /// Two filesystems lose the contents of files that were fsynced before the
+    /// machine died, and each needs a different word for the same promise.
+    /// Measured here, both on this Mac, both against NTFS through the same
+    /// guest and the same accident, which loses nothing:
+    ///
+    ///     ext4 as it mounts     8 of 8 fsynced files present, 8 wrong
+    ///     ext4 data=journal     8 of 8 present, 0 wrong
+    ///     XFS  as it mounts     8 of 8 present, 8 wrong
+    ///     XFS  sync             8 of 8 present, 0 wrong
+    ///
+    /// Neither costs anything measurable: 2024 files copy in nine seconds
+    /// either way on ext4, and two thousand small ones in two seconds either
+    /// way on XFS.
+    ///
+    /// btrfs is not here. There is no fixture for it on this machine, so
+    /// whether it has the same fault and whether the same word fixes it are
+    /// both unmeasured -- and an option shipped on a guess is worse than one
+    /// not shipped at all.
+    public static func durabilityOption(forDevice path: String) -> String? {
+        guard let bytes = read(path) else { return nil }
+        if isJournalled(superblock: bytes) { return "data=journal" }
+        // XFS has no data-journalling mode. Its journal covers metadata and
+        // nothing else, so the only word that makes a write durable here is
+        // the blunt one -- which costs nothing on this filesystem.
+        if bytes.count >= xfsMagic.count,
+            Array(bytes.prefix(xfsMagic.count)) == xfsMagic
+        {
+            return "sync"
+        }
+        return nil
+    }
+
+    private static func read(_ path: String) -> Data? {
+        guard let handle = FileHandle(forReadingAtPath: path) else { return nil }
+        defer { try? handle.close() }
+        let wanted = superblockOffset + featureCompatOffset + 4
+        guard let bytes = try? handle.read(upToCount: wanted), bytes.count == wanted
+        else { return nil }
+        return bytes
+    }
+
     /// The same, for a device this process can read.
     ///
     /// False for anything that cannot be read or is not ext at all, which is
@@ -49,11 +96,7 @@ public enum ExtJournal {
     /// too -- its superblock is encrypted from out here -- so a journalled ext4
     /// inside one does not get the option yet.
     public static func isJournalled(forDevice path: String) -> Bool {
-        guard let handle = FileHandle(forReadingAtPath: path) else { return false }
-        defer { try? handle.close() }
-        let wanted = superblockOffset + featureCompatOffset + 4
-        guard let bytes = try? handle.read(upToCount: wanted), bytes.count == wanted
-        else { return false }
+        guard let bytes = read(path) else { return false }
         return isJournalled(superblock: bytes)
     }
 

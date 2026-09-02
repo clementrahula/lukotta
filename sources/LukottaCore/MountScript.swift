@@ -36,10 +36,10 @@ public enum MountScript {
         /// The engine's config.toml. A container holding several volumes is
         /// served through a custom action generated into this file.
         var configPath: String
-        /// Whether this volume's own superblock says it keeps a journal, which
-        /// is the only condition under which `data=journal` is added. See
-        /// `ExtJournal`.
-        var journalledExt: Bool = false
+        /// What this volume's own superblock says it must be mounted with to
+        /// keep what it was told to keep, or nothing where it needs nothing.
+        /// See `ExtJournal.durabilityOption`.
+        var durability: String? = nil
         /// Where the engine keeps its image, its configuration and its logs.
         ///
         /// Passed in rather than resolved here: the helper composes the script
@@ -260,7 +260,7 @@ public enum MountScript {
             configPath: String, engineHome: String, libraryPaths: [String], uid: UInt32,
             gid: UInt32,
             cores: Int, ramMiB: Int, elevated: Bool = true, readOnly: Bool = false,
-            luksMinRamMiB: Int? = nil, journalledExt: Bool = false
+            luksMinRamMiB: Int? = nil, durability: String? = nil
         ) {
             self.enginePath = enginePath
             self.devicePath = devicePath
@@ -273,7 +273,7 @@ public enum MountScript {
             self.discoverLogPath = discoverLogPath
             self.expectScriptPath = expectScriptPath
             self.configPath = configPath
-            self.journalledExt = journalledExt
+            self.durability = durability
             self.engineHome = engineHome
             self.libraryPaths = libraryPaths
             self.uid = uid
@@ -779,7 +779,7 @@ public enum MountScript {
                     target: shellQuoted(volume.mountIdentifier),
                     driver: nil, options: nfsOptions(i), readOnly: i.readOnly,
                     ownership: ownershipFlags(i), netHelper: netHelperFlag(i),
-                    logQ: logQ, journalledExt: i.journalledExt, action: action)
+                    logQ: logQ, durability: i.durability, action: action)
             ]
         }
 
@@ -848,7 +848,7 @@ public enum MountScript {
                     engineQ: engineQ, target: target, driver: driver,
                     options: nfsOptions(i), readOnly: i.readOnly,
                     ownership: ownershipFlags(i), netHelper: netHelperFlag(i),
-                    logQ: logQ, journalledExt: i.journalledExt, action: chosen)
+                    logQ: logQ, durability: i.durability, action: chosen)
             }
         }
         if i.kind == .linux {
@@ -1820,21 +1820,21 @@ public enum MountScript {
 
     /// One -o carrying everything, or nothing at all.
     ///
-    /// `journalledExt` is set where the volume's own superblock says it keeps a
-    /// journal, and only then: ext4 as it mounts by default loses the contents
-    /// of files that were fsynced before the machine died -- eight of eight
-    /// wrong, measured here -- and `data=journal` is what stops it. The option
-    /// cannot go on blindly, because a volume with no journal refuses to mount
-    /// with it at all, and the app passes no driver for Linux volumes, so
-    /// anything added here would otherwise reach every one of them. See
-    /// `ExtJournal`.
+    /// `durability` is what this volume's own superblock says it needs, and
+    /// nothing otherwise: ext4 and XFS both lose the contents of files that
+    /// were fsynced before the machine died -- eight of eight wrong, measured
+    /// here for each -- and each needs a different word to stop it. The option
+    /// cannot go on blindly: an ext volume with no journal refuses to mount
+    /// with `data=journal` at all, and the app passes no driver for Linux
+    /// volumes, so anything added here would otherwise reach every one of them.
+    /// See `ExtJournal.durabilityOption`.
     public static func mountOptions(
-        driver: String?, readOnly: Bool, journalledExt: Bool = false
+        driver: String?, readOnly: Bool, durability: String? = nil
     ) -> String {
         var opts = driverOptions(driver)
         // Never beside a driver. The drivers named here are the NTFS ones, and
-        // this belongs to ext alone.
-        if journalledExt, driver == nil { opts.append("data=journal") }
+        // this belongs to the Linux filesystems alone.
+        if let durability, driver == nil { opts.append(durability) }
         opts += readOnly ? ["ro"] : []
         return opts.isEmpty ? "" : " -o \(opts.joined(separator: ","))"
     }
@@ -1873,7 +1873,7 @@ public enum MountScript {
         ownership: String,
         netHelper: String,
         logQ: String,
-        journalledExt: Bool = false,
+        durability: String? = nil,
         action: String? = tunedActionName
     ) -> String {
         let typeFlag = driver.map { " -t \($0)" } ?? ""
@@ -1882,7 +1882,7 @@ public enum MountScript {
         // separated form consumes the target that follows it.
         return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount\(ownership)"
             + "\(typeFlag)"
-            + "\(mountOptions(driver: driver, readOnly: readOnly, journalledExt: journalledExt))"
+            + "\(mountOptions(driver: driver, readOnly: readOnly, durability: durability))"
             + "\(actionFlag) -w false"
             + "\(netHelper)"
             + " --nfs-options=\(shellQuoted(options))"
