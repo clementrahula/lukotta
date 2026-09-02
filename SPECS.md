@@ -535,6 +535,20 @@ ext4 and XFS lose is therefore something else: a file the length it should be,
 holding what it should not. NTFS keeps its content on the same path, so it is
 the filesystem's own fsync rather than anything below it.
 
+**`data=journal` fixes it and costs nothing measurable.** Mounted that way ext4
+passes all eleven vectors, including 8 of 8 fsynced files present and 0 wrong,
+and 30 of 30 in-flight files back at full length with all 30 complete. The same
+corpus on the same image, twice:
+
+| ext4 mount | copy | corpus |
+| --- | --- | --- |
+| `data=ordered`, as it ships | 9 s | 2024 identical, 0 differing, 0 missing |
+| `data=journal` | 9 s | 2024 identical, 0 differing, 0 missing |
+
+So the ordered mode is the cause, and full data journalling is not the
+trade-off it is usually assumed to be here: the copy goes through NFS at a rate
+the journal keeps up with easily.
+
 That also explains the split the earlier readings showed. An image handed to the
 engine is a regular file, where `fsync` is real:
 
