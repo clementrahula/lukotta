@@ -36,6 +36,30 @@
 #   FAIL every fsynced file survived power loss (8 of 8 present, 8 wrong)
 #   ok   the volume takes a write again after power loss
 #
+# AND IT IS NOT ONLY IMAGE FILES. TESTED ON THE PHYSICAL DRIVE.
+#
+# The durability gap was measured on images, where the engine keeps a
+# user-space cache of the image file, so it was reasonable to hope a real
+# device -- passed through rather than backed by a file -- would not have it.
+# It does, and worse.
+#
+# On the owner's BitLocker drive: 8 MB written with dd conv=fsync, which
+# returns only once the client's COMMIT has been answered; dd exit 0; the
+# machine then killed with SIGKILL. On reopening, the file is not there at
+# all. On an image the same test returned a full-length file with holes; on
+# the drive it returns nothing.
+#
+# So fsync is not a durability barrier against a killed machine on any storage
+# this app serves. What the app can do about it, it does: EngineProcesses.stop
+# waits up to twenty seconds for SIGTERM, which flushes, and never reaches for
+# SIGKILL while a machine is still going. What remains exposed is a force
+# quit, a crash, or the power going.
+#
+# The same run demonstrated the other half unattended: the kill left the volume
+# dirty, and reopening it repaired it and mounted writable with every folder
+# and file count unchanged and 28 of 28 sampled files readable. That is item
+# seven working in the wild rather than on a fixture, for the second time.
+#
 # The failure is the known one and not a regression from the write size: the
 # engine's disk backend makes writes durable when it shuts down rather than
 # when a write is acknowledged, so a machine killed outright loses what it

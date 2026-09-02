@@ -45,6 +45,22 @@ Creating `.Trashes` on the drive was considered and rejected: it makes Finder's
 delete instant by turning it into a rename, but it writes to a drive we opened,
 which is a thing this application does not do.
 
+## fsync does not survive a killed machine, on any storage
+
+- [ ] The engine makes writes durable when it shuts down, not when a write is
+  acknowledged. Measured both ways: on an image, 4 MB written with
+  `dd conv=fsync` and the machine killed comes back full length with exactly
+  32768 bytes of holes at offset 0, every time, on XFS and ext4 alike; on the
+  owner's physical BitLocker drive the same test loses the file entirely.
+  SIGTERM is clean -- 100 MB survives and the machine exits in 0.34 s -- which
+  is why EngineProcesses.flushGrace waits twenty seconds for it.
+
+  What is left exposed is a force quit, a crash, or the power going. The fix
+  is in the engine's block backend rather than this app: a virtio flush has to
+  reach the host file before it is acknowledged. build-engine.sh already
+  carries patches against imago and krun-devices, so there is a place to put
+  it.
+
 ## Who does what
 
 Documentation and user-interface work happen only with the owner watching, when
