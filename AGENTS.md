@@ -1049,6 +1049,12 @@ nobody asked.
   directory for months: two gigabytes long, sixteen kilobytes allocated, no
   superblock. `verify_image` in `make-format-volumes.sh` now asks every image
   what it is.
+- **`pgrep -f` matching the shell that is waiting.** Written down here once
+  already, and walked into again: `until ! pgrep -f '[r]un-tests.sh'` never
+  ends, because the waiting shell's own command line contains the string and
+  the bracket trick only hides the pattern, not the script name beside it.
+  Nothing was hung; the wait was. Match the process rather than the text --
+  `pgrep -f 'bash \./scripts/run-tests\.sh'` -- or wait on the pid.
 - **A harness that is not in the build it drives.** `--drive`, `--ux-check`,
   `--update-test` and the rest are behind `#if DEVTOOLS`, and `build-app.sh`
   compiles them in only for an unbranded build or when `LUKOTTA_DEVTOOLS=1` is
