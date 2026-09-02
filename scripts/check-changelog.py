@@ -97,7 +97,7 @@ def normalise(text):
     return re.sub(r"[^a-z0-9 ]", "", text.lower()).strip()
 
 
-def check(path, subjects):
+def check(path, subjects, style=True):
     faults = []
     # Continuation lines are joined back on. Whether a bullet is one line is a
     # formatting question and check-coverage.sh already owns it; this is about
@@ -141,20 +141,42 @@ def check(path, subjects):
         if internal:
             faults.append(f"internal word {sorted(internal)}: {text[:44]}")
 
+        # One plain sentence, and a short one. Release notes are read by
+        # somebody deciding whether to update, not by somebody who wants the
+        # reasoning. A bullet that explains why, or what it used to do, or how
+        # the format works, is a paragraph wearing a bullet -- and a whole page
+        # of them was written for this release before anybody noticed. The
+        # approved notes for every earlier version are one sentence each.
+        # Only for the release being cut. Every version already published is
+        # left exactly as it shipped: a rule added today does not get to
+        # reject what people have already read.
+        if not style:
+            continue
+        sentences = [s for s in re.split(r"(?<=[.!?])\s+", text.strip()) if s]
+        if len(sentences) > 1:
+            faults.append(
+                f"{len(sentences)} sentences; release notes get one: {text[:44]}")
+        if len(text.split()) > 25:
+            faults.append(
+                f"{len(text.split())} words; release notes get 25: {text[:44]}")
+
     return faults
 
 
 def main():
     subjects = commit_subjects()
-    targets = ([pathlib.Path(a) for a in sys.argv[1:]]
-               or sorted((ROOT / "releases").glob("*.md")))
+    named = [pathlib.Path(a) for a in sys.argv[1:]]
+    # A named file is a release being cut and is held to the house style. The
+    # sweep over everything is a lint pass across what has already shipped.
+    style = bool(named)
+    targets = named or sorted((ROOT / "releases").glob("*.md"))
     bad = 0
     for path in targets:
         if not path.exists():
             print(f"  MISSING  {path}")
             bad += 1
             continue
-        faults = check(path, subjects)
+        faults = check(path, subjects, style=style)
         if faults:
             bad += 1
             print(f"  REJECTED {path.name}")
