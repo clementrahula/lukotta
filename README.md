@@ -73,9 +73,9 @@ password, open it in Finder. A drive should be fully usable on any computer.
 > [!WARNING]
 > **Early development.** Lukotta is still new. The Linux tools and drivers it
 > relies on have been around for years and are well tested. Lukotta is built on
-> top of them, but it is still new, so it inevitably has issues yet to be
-> uncovered. For now, using it for opening drives and images in read-only mode
-> is the safest thing to do. Writing does work, but please treat it as
+> top of them, but it is still in development, so it inevitably has issues yet
+> to be uncovered. For now, using it for opening drives and images in read-only
+> mode is the safest thing to do. Writing does work, but please treat it as
 > experimental, and keep a copy of anything you would be upset to lose.
 >
 > Every known issue is listed under [Limitations](#limitations).
