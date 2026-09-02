@@ -550,6 +550,23 @@ A normal eject is safe. `EngineProcesses.stop` sends SIGTERM and waits up to
 twenty seconds. SIGTERM flushes cleanly, 100 MB surviving with the machine
 exiting in 0.34 s, and it never escalates while a machine is still running.
 
+### A sparse file arrives fully allocated
+
+A file that occupies four kilobytes on the Mac occupies a gigabyte on the
+volume. Measured by `scripts/copy-torture.sh`, whose corpus carries a
+one-gigabyte file with a single byte at the end: **8 blocks at the source
+against 2097153 at the destination.**
+
+The cause is the protocol rather than anything here. NFSv3 has no way to say
+that a range is a hole, so the client sends the zeros and the server writes
+them. Nothing in the mount options reaches it, and the file is byte-identical
+afterwards, so every other check calls it a pass. The block count is therefore
+checked separately from the content.
+
+It matters most for what macOS keeps sparse of its own accord, a disk image
+above all, and it is worth knowing before a copy fills a drive that had room
+for the file as it stood.
+
 ### Listing the folder being copied into is slow
 
 While a large copy runs, that one folder takes several seconds to enumerate;

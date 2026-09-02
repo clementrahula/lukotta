@@ -214,6 +214,12 @@ that is still writing. `fsync` on a device node returns success without
 reaching the drive and `F_FULLFSYNC` fails there with `ENOTTY`, so the engine
 now issues `DKIOCSYNCHRONIZECACHE`. That is not yet proven by measurement.
 
+**A sparse file arrives fully allocated.** A file taking four kilobytes on the
+Mac takes a gigabyte on the volume: measured at 8 blocks against 2097153. NFSv3
+has no way to say a range is a hole, so the zeros are sent and written. The file
+is byte-identical afterwards, and this matters most for disk images, which macOS
+keeps sparse of its own accord.
+
 **The folder you are copying into is slow to list.** During a large copy it
 takes seconds to refresh, occasionally much longer. Other folders answer
 instantly, the copy is unaffected, and no error appears. READDIR over NFS
