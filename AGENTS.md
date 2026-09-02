@@ -124,6 +124,19 @@ Before calling any UI change done:
 A snapshot proves a scene draws. It proves nothing about when the scene
 appears, when it goes, or what it leaves behind. Those are where the faults are.
 
+`--ux-check` on a DEVTOOLS build drives the model through those routes without
+anybody clicking, which is what makes this rule survive a busy day. It is not a
+substitute for step 1; it is what stops a fault coming back after somebody has
+done step 1 once.
+
+Both fixes above were then run, on 2026-09-02, and both behaved:
+
+    the notice   shown once the list was up, OK pressed, the default read back
+                 as 1 immediately, quit, relaunched, not shown again
+    the quit     one dialogue with a drive open, Leave Open pressed, the app
+                 retreated to the menu bar with the drive still mounted and
+                 readable, and no second dialogue appeared
+
 ## Layout
 
 Sources are in `sources/`, lowercase, and every target in `Package.swift`
