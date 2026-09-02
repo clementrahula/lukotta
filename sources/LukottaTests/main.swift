@@ -3145,6 +3145,137 @@ group("driveMemory") {
     expect(DriveMemory.knownName(for: "") == nil, "an empty identifier is refused")
 }
 
+group("volumeIdentity") {
+    // A saved passphrase is filed under whatever names the volume. The name
+    // used to come from the partition table, which on an MBR stick -- what
+    // Windows writes, and what a BitLocker To Go stick is -- carries no
+    // identifier at all, so it fell through to "disk4s1". Replug the same
+    // stick anywhere else and the saved passphrase belonged to nothing.
+    //
+    // Every format the app opens is checked here, because the fault was never
+    // about BitLocker: it was about asking the partition table a question only
+    // the volume can answer.
+
+    /// A header with `bytes` written at `offset`, in a buffer big enough for
+    /// the superblocks that live well past the first sector.
+    func header(_ pairs: [(Int, [UInt8])]) -> Data {
+        var bytes = [UInt8](repeating: 0, count: 128 * 1024)
+        for (offset, value) in pairs {
+            bytes.replaceSubrange(offset..<(offset + value.count), with: value)
+        }
+        return Data(bytes)
+    }
+    func ascii(_ text: String) -> [UInt8] { Array(text.utf8) }
+
+    // One representative header per format, each carrying the identifier that
+    // format actually writes when the volume is made.
+    let luks1 = header([
+        (0, BootSector.luksMagic), (2 + 4, [0, 1]),
+        (0xA8, ascii("41d4a7ea-1b8e-4c33-9d51-0f2b6c7e8a90")),
+    ])
+    let luks2 = header([
+        (0, BootSector.luksMagic), (2 + 4, [0, 2]),
+        (0xA8, ascii("7c2f1b04-55aa-4e10-8b3d-6e9042ab1cde")),
+    ])
+    let bitlocker = header([
+        (3, ascii("-FVE-FS-")), (0x48, [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88]),
+    ])
+    let toGo = header([
+        (3, ascii("MSWIN4.1")), (0xA0, BootSector.bitlockerIdentifier),
+        (0x43, [0xDE, 0xAD, 0xBE, 0xEF]),
+    ])
+    let ntfs = header([(3, ascii("NTFS    ")), (0x48, [1, 2, 3, 4, 5, 6, 7, 8])])
+    let exfat = header([(3, ascii("EXFAT   ")), (0x64, [9, 8, 7, 6])])
+    let ext = header([(1080, [0x53, 0xEF]), (1024 + 0x68, Array(repeating: 0xA5, count: 16))])
+    let btrfs = header([
+        (65600, ascii("_BHRfS_M")), (65536 + 0x20, Array(repeating: 0x5A, count: 16)),
+    ])
+    let xfs = header([(0, ascii("XFSB")), (32, Array(repeating: 0x3C, count: 16))])
+
+    let volumes: [(String, Data)] = [
+        ("LUKS1", luks1), ("LUKS2", luks2), ("BitLocker", bitlocker),
+        ("BitLocker To Go", toGo), ("NTFS", ntfs), ("exFAT", exfat),
+        ("ext", ext), ("Btrfs", btrfs), ("XFS", xfs),
+    ]
+
+    // Each one is recognised, and each one names itself.
+    var names: [String: String] = [:]
+    for (label, bytes) in volumes {
+        let format = BootSector.identify(bytes)
+        expect(format != .unknown, "\(label) is recognised")
+        guard let name = VolumeIdentity.fingerprint(bytes, format: format) else {
+            expect(false, "\(label) names itself")
+            continue
+        }
+        names[label] = name
+        // The whole point: never a device node, never empty.
+        expect(!name.isEmpty, "\(label) has a name")
+        expect(!name.hasPrefix("disk"), "\(label) is not named after a device node")
+    }
+
+    expect(names.count == volumes.count, "every format the app opens names itself")
+
+    // No two volumes share a name, which is what would hand one drive's
+    // passphrase to another.
+    expect(Set(names.values).count == names.count, "no two volumes share a name")
+
+    // The same volume names itself the same way every time it is read. This is
+    // the property the bug broke: the answer must not depend on anything
+    // outside these bytes.
+    for (label, bytes) in volumes {
+        let format = BootSector.identify(bytes)
+        expect(
+            VolumeIdentity.fingerprint(bytes, format: format) == names[label],
+            "\(label) is named the same on a second reading")
+    }
+
+    // Two volumes of the same format, differing only in the identifier each
+    // one writes, are told apart.
+    let otherBitLocker = header([
+        (3, ascii("-FVE-FS-")), (0x48, [0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11]),
+    ])
+    expect(
+        VolumeIdentity.fingerprint(otherBitLocker, format: .bitlocker) != names["BitLocker"],
+        "two BitLocker volumes are told apart")
+    let otherLUKS = header([
+        (0, BootSector.luksMagic), (0xA8, ascii("00000000-0000-4000-8000-000000000001")),
+    ])
+    expect(
+        VolumeIdentity.fingerprint(otherLUKS, format: .luks) != names["LUKS1"],
+        "two LUKS volumes are told apart")
+
+    // A LUKS2 header is rewritten when a keyslot changes -- a second passphrase
+    // added, one removed -- which bumps its sequence number and its checksum.
+    // Naming it by a digest of the header would forget the saved passphrase on
+    // the next unlock, so the UUID is read out instead.
+    var churned = Array(luks2)
+    churned.replaceSubrange((2 + 4 + 8)..<(2 + 4 + 8 + 8), with: [9, 9, 9, 9, 9, 9, 9, 9])
+    churned.replaceSubrange(0x40..<0x60, with: Array(repeating: 0xFE, count: 32))
+    expect(
+        VolumeIdentity.fingerprint(Data(churned), format: .luks) == names["LUKS2"],
+        "a LUKS2 volume keeps its name after a keyslot changes")
+
+    // Nothing to read is not a name. Better to fall back to the partition UUID
+    // than to give every unreadable drive the same one.
+    expect(
+        VolumeIdentity.fingerprint(Data(), format: .bitlocker) == nil,
+        "no bytes is not a name")
+    expect(
+        VolumeIdentity.fingerprint(header([]), format: .bitlocker) == nil,
+        "an empty header is not a name")
+    expect(
+        VolumeIdentity.fingerprint(luks1, format: .unknown) == nil,
+        "an unrecognised format is not named")
+
+    // A name is a Keychain account, so it has to survive being one.
+    for (label, name) in names {
+        let secret = "passphrase for \(label)"
+        expect(CredentialStore.save(secret, for: name), "\(label) saves under its name")
+        expect(CredentialStore.load(for: name) == secret, "\(label) reads back")
+        CredentialStore.delete(for: name)
+    }
+}
+
 group("keychainRoundTrip") {
     // A saved credential that cannot be read back is worse than not offering to
     // save one, since it is then believed to be stored.

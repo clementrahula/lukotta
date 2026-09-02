@@ -1519,13 +1519,21 @@ final class AppModel: ObservableObject {
     func identity(of drive: Drive) -> String {
         if let file = openedImages[DriveScanner.wholeDisk(of: drive.id)] { return file.path }
         if let file = engineReadDrives[drive.id] { return file.uuid }
+        // What the volume calls itself, before what the partition table calls
+        // it. Only GPT names its partitions; an MBR stick -- which is what
+        // Windows writes, and what a BitLocker To Go stick is -- names nothing,
+        // and macOS reports a locked BitLocker partition with no UUID of any
+        // kind. Both fell through to the device node, so a saved passphrase
+        // was filed under `disk4s1` and lost the moment the stick came back as
+        // `disk5s1`.
+        if let print = volumeFingerprints[drive.id] { return print }
         // A partition table carrying no UUID at all leaves nothing to tell one
         // drive from another, and an empty string would make every such drive
         // the same drive. The device name is at least this drive, now.
         return drive.uuid.isEmpty ? drive.id : drive.uuid
     }
 
-    /// Discard a stored credential and return to entering one.    /// Discard a stored credential and return to entering one.
+    /// Discard a stored credential and return to entering one.
     func forgetSavedCredential(for drive: Drive) {
         CredentialStore.delete(for: identity(of: drive))
         credential = ""
@@ -1801,6 +1809,11 @@ final class AppModel: ObservableObject {
     /// What a probe made of each drive it has read, by drive identifier. The
     /// list says what a volume may be until this says what it is.
     @Published var knownFormats: [String: VolumeFormat] = [:]
+    /// What each drive's own header calls it, by drive identifier.
+    ///
+    /// Filled from the same read that identifies the format, because that read
+    /// has the bytes already and a second one would be a second spin-up.
+    @Published var volumeFingerprints: [String: String] = [:]
     /// What an encrypted drive turned out to hold, once it was open. A lock
     /// says nothing about what is behind it until it is opened.
     @Published var knownFilesystems: [String: String] = [:]
@@ -1938,6 +1951,11 @@ final class AppModel: ObservableObject {
             // here otherwise showed "BitLocker/NTFS" again for a drive the app
             // had just read the boot sector of.
             if format != .unknown { self.knownFormats[identifier] = format }
+            if let sector = read,
+                let print = VolumeIdentity.fingerprint(sector, format: format)
+            {
+                self.volumeFingerprints[identifier] = print
+            }
 
             // Nothing to unlock, so nothing to ask, and a screen that asks
             // anyway is in the way.

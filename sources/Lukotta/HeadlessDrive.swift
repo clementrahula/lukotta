@@ -166,6 +166,22 @@
             DriveScanner.scan().first { $0.devicePath == device }
         }
 
+        /// What the window would have found for this drive.
+        ///
+        /// The volume's own header first, then the partition UUID, in the same
+        /// order and for the same reason as `AppModel.identity(of:)`.
+        @MainActor
+        private static func savedCredential(for drive: Drive) -> String? {
+            if let sector = BootSector.readWaiting(devicePath: drive.devicePath),
+                let name = VolumeIdentity.fingerprint(sector, format: BootSector.identify(sector)),
+                let saved = CredentialStore.load(for: name)
+            {
+                return saved
+            }
+            guard !drive.uuid.isEmpty else { return nil }
+            return CredentialStore.load(for: drive.uuid)
+        }
+
         @MainActor
         private static func open(_ device: String, passphrase: String?, readOnly: Bool) {
             guard let drive = find(device) else {
@@ -177,7 +193,12 @@
             // The saved key is what the window would use; an empty one is
             // right for a volume that is not encrypted, and the engine says so
             // rather than this guessing from the partition type.
-            let credential = passphrase ?? CredentialStore.load(for: drive.uuid) ?? ""
+            //
+            // Looked up the way the window looks it up. Asking by partition
+            // UUID found nothing for the drives that have none -- every MBR
+            // stick, and every locked BitLocker volume -- which is to say it
+            // found nothing for exactly the drives a saved passphrase is for.
+            let credential = passphrase ?? savedCredential(for: drive) ?? ""
             if credential.isEmpty {
                 say("no passphrase given and none saved; opening as an unencrypted volume")
             }
