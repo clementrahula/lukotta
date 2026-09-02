@@ -3267,6 +3267,30 @@ group("volumeIdentity") {
         VolumeIdentity.fingerprint(luks1, format: .unknown) == nil,
         "an unrecognised format is not named")
 
+    // Everything saved before the name came from the volume is filed under the
+    // partition UUID, or under the device node for a drive that has none --
+    // every locked BitLocker volume and every MBR stick. The lookup that only
+    // asked for the new name would have asked all of those people for a
+    // passphrase they had already saved, which is the fault being fixed here.
+    //
+    // The move itself lives on AppModel, which is not built into these tests;
+    // what is checked here is the property it depends on, that the two names
+    // are different and both work as accounts, so a lookup under one can find
+    // what the other saved and write it across.
+    do {
+        let deviceNode = "disk4s1"
+        let volume = names["BitLocker"] ?? ""
+        expect(volume != deviceNode, "the volume's name is not the device node")
+        expect(CredentialStore.save("older", for: deviceNode), "the old name saves")
+        expect(CredentialStore.load(for: volume) == nil, "the new name has nothing yet")
+        expect(CredentialStore.load(for: deviceNode) == "older", "the old name is found")
+        expect(CredentialStore.save("older", for: volume), "it writes across")
+        CredentialStore.delete(for: deviceNode)
+        expect(CredentialStore.load(for: deviceNode) == nil, "the old one is taken away")
+        expect(CredentialStore.load(for: volume) == "older", "and the passphrase is still saved")
+        CredentialStore.delete(for: volume)
+    }
+
     // A name is a Keychain account, so it has to survive being one.
     for (label, name) in names {
         let secret = "passphrase for \(label)"

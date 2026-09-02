@@ -1533,6 +1533,30 @@ final class AppModel: ObservableObject {
         return drive.uuid.isEmpty ? drive.id : drive.uuid
     }
 
+    /// The passphrase saved for this drive, under whatever it was saved as.
+    ///
+    /// Everything saved before the identity came from the volume's own header
+    /// is filed under what the app used then: the partition UUID, or the device
+    /// node for the drives that have no UUID -- which is every locked BitLocker
+    /// volume and every MBR stick, so it is most of them. Looking only under
+    /// the new name would ask all of those people for a passphrase they had
+    /// already saved, which is the fault this was fixing.
+    ///
+    /// So the old names are tried too, and what turns up is written under the
+    /// new one and taken away from the old. It happens once, on the next
+    /// unlock, and nobody is asked anything.
+    func savedCredential(for drive: Drive) -> String? {
+        let name = identity(of: drive)
+        if let saved = CredentialStore.load(for: name) { return saved }
+        for older in [drive.uuid, drive.id] where !older.isEmpty && older != name {
+            guard let saved = CredentialStore.load(for: older) else { continue }
+            Log.mount.notice("moving a saved passphrase to the name the volume gives itself")
+            if CredentialStore.save(saved, for: name) { CredentialStore.delete(for: older) }
+            return saved
+        }
+        return nil
+    }
+
     /// Discard a stored credential and return to entering one.
     func forgetSavedCredential(for drive: Drive) {
         CredentialStore.delete(for: identity(of: drive))
@@ -1720,7 +1744,7 @@ final class AppModel: ObservableObject {
         // interface reports holding.
         if credentialBelongsTo != identity(of: drive) || credential.isEmpty {
             // A stored credential is one that was asked to be remembered.
-            if let saved = CredentialStore.load(for: identity(of: drive)) {
+            if let saved = savedCredential(for: drive) {
                 credential = saved
                 rememberCredential = true
                 usingSavedCredential = true
@@ -2106,7 +2130,7 @@ final class AppModel: ObservableObject {
 
         // A drive that needs a passphrase comes back only if it was saved. The
         // rest open with nothing.
-        let saved = CredentialStore.load(for: identity(of: drive))
+        let saved = savedCredential(for: drive)
         let credential = saved.flatMap { try? Credential.normalise($0).get() } ?? ""
 
         // With no saved passphrase, a locked volume is left locked rather than
