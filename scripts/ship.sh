@@ -158,8 +158,15 @@ PY
   echo "    the website says $FULL"
 fi
 
-for repo in "$(dirname "$FEED")" "$HERE/../homebrew-tap" "$SITE"; do
-  [ -d "$repo/.git" ] || continue
+# The feed's repository, not the feed's directory. A beta lives one level down
+# -- lukotta-appcast/beta/appcast.xml -- so dirname gave a directory with no
+# .git in it, the loop skipped it, and 1.22.1-beta.1 was built, notarised,
+# published on GitHub and offered to nobody, because the feed describing it
+# never left this Mac.
+FEED_REPO="$(git -C "$(dirname "$FEED")" rev-parse --show-toplevel 2>/dev/null || true)"
+
+for repo in "$FEED_REPO" "$HERE/../homebrew-tap" "$SITE"; do
+  [ -n "$repo" ] && [ -d "$repo/.git" ] || continue
   if [ -n "$(git -C "$repo" status --porcelain)" ]; then
     git -C "$repo" add -A
     git -C "$repo" commit -q -m "$CASK $FULL"
