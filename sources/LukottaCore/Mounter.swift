@@ -122,6 +122,18 @@ public enum Mounter {
             osa.executableURL = URL(fileURLWithPath: "/bin/sh")
             osa.arguments = [scriptURL.path]
         }
+        // The engine's home, on the process as well as inside the script.
+        //
+        // The script exports it, and that was taken as enough. It is not: a
+        // beta was found unpacking a Linux environment into ~/.anylinuxfs --
+        // the directory every application that uses this engine shares --
+        // while its own, already unpacked, sat in its own directory unused.
+        // Two applications sharing one environment is two applications one
+        // update can break at once.
+        //
+        // Set here so it does not depend on the script being reached, or on
+        // which branch of the script runs first.
+        osa.environment = EngineEnvironment.environmentForEngine()
         osa.standardOutput = FileHandle.nullDevice
         osa.standardError = osaErr
 
