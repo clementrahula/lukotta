@@ -71,3 +71,27 @@ luks-multi is NOT proven. The first run reported it byte-identical at
 not the fixture. The harness took the last mount in the table. Re-run with the
 mount identified by difference, nothing new appeared, so that fixture has not
 opened yet and its result is void rather than bad.
+
+## Every disk image format the app claims — 2026-09-02
+
+Corpus of 2024 files written to each and read back, through the app's engine.
+
+    sweep.qcow2         2024 identical, 0 differing, 0 missing
+    sweep.vdi           2024 identical, 0 differing, 0 missing
+    sweep.vhd           2024 identical, 0 differing, 0 missing
+    sweep-dyn.vhd       2024 identical, 0 differing, 0 missing
+    sweep-sparse.vmdk   2024 identical, 0 differing, 0 missing
+
+The first run of this said "5 formats written and read back, 0 failed" while
+four of them had written nothing at all, each printing "not enough room" in the
+output directly above the total. Two faults, both in the harness:
+
+  - the copy was piped through sed to indent it, so the test read sed's exit
+    status, which is nought whatever happened upstream
+  - the base image is kept between runs, so raising its size did nothing and
+    every format was built from the old, smaller one
+
+Raising the size then removed qcow2 instead, because that writer used a single
+refcount block and could not describe more than two gibibytes. It allocates as
+many as the image needs now. A format that cannot be built counts as a failure,
+which is what it is.
