@@ -20,7 +20,11 @@
 # because it is written like any raw disk.
 set -u
 
-MIB="${1:-2048}"
+# 2000 rather than 2048: make-qcow2.py is a deliberately simple writer whose
+# refcount block holds 32768 clusters of 64 KiB, which is exactly 2048 MiB, and
+# the metadata clusters come out of the same budget. A 2048 MiB image is
+# refused by one cluster.
+MIB="${1:-2000}"
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 APP="${LUKOTTA_APP:-/Applications/Lukotta Dev.app}"
 ENGINE="${LUKOTTA_ENGINE:-$APP/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
