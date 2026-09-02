@@ -98,7 +98,11 @@ public enum Mounter {
                 // A container file this user attached, so the bytes are theirs
                 // to read without the daemon.
                 luksMinRamMiB: LUKSHeader.floor(
-                    forDevice: drive.devicePath, base: MountScript.VirtualMachine.ramMiB)))
+                    forDevice: drive.devicePath, base: MountScript.VirtualMachine.ramMiB),
+                // Read from the volume itself, here rather than in the script,
+                // for the same reason the LUKS memory floor is: the bytes are
+                // this user's to read, and the answer decides a mount option.
+                journalledExt: ExtJournal.isJournalled(forDevice: drive.devicePath)))
 
         let scriptURL = workspace.root.appendingPathComponent("mount.sh")
         try script.write(to: scriptURL, atomically: true, encoding: .utf8)

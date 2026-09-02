@@ -36,6 +36,10 @@ public enum MountScript {
         /// The engine's config.toml. A container holding several volumes is
         /// served through a custom action generated into this file.
         var configPath: String
+        /// Whether this volume's own superblock says it keeps a journal, which
+        /// is the only condition under which `data=journal` is added. See
+        /// `ExtJournal`.
+        var journalledExt: Bool = false
         /// Where the engine keeps its image, its configuration and its logs.
         ///
         /// Passed in rather than resolved here: the helper composes the script
@@ -256,7 +260,7 @@ public enum MountScript {
             configPath: String, engineHome: String, libraryPaths: [String], uid: UInt32,
             gid: UInt32,
             cores: Int, ramMiB: Int, elevated: Bool = true, readOnly: Bool = false,
-            luksMinRamMiB: Int? = nil
+            luksMinRamMiB: Int? = nil, journalledExt: Bool = false
         ) {
             self.enginePath = enginePath
             self.devicePath = devicePath
@@ -269,6 +273,7 @@ public enum MountScript {
             self.discoverLogPath = discoverLogPath
             self.expectScriptPath = expectScriptPath
             self.configPath = configPath
+            self.journalledExt = journalledExt
             self.engineHome = engineHome
             self.libraryPaths = libraryPaths
             self.uid = uid
@@ -774,7 +779,7 @@ public enum MountScript {
                     target: shellQuoted(volume.mountIdentifier),
                     driver: nil, options: nfsOptions(i), readOnly: i.readOnly,
                     ownership: ownershipFlags(i), netHelper: netHelperFlag(i),
-                    logQ: logQ, action: action)
+                    logQ: logQ, journalledExt: i.journalledExt, action: action)
             ]
         }
 
@@ -843,7 +848,7 @@ public enum MountScript {
                     engineQ: engineQ, target: target, driver: driver,
                     options: nfsOptions(i), readOnly: i.readOnly,
                     ownership: ownershipFlags(i), netHelper: netHelperFlag(i),
-                    logQ: logQ, action: chosen)
+                    logQ: logQ, journalledExt: i.journalledExt, action: chosen)
             }
         }
         if i.kind == .linux {
@@ -1814,8 +1819,23 @@ public enum MountScript {
     }
 
     /// One -o carrying everything, or nothing at all.
-    public static func mountOptions(driver: String?, readOnly: Bool) -> String {
-        let opts = driverOptions(driver) + (readOnly ? ["ro"] : [])
+    ///
+    /// `journalledExt` is set where the volume's own superblock says it keeps a
+    /// journal, and only then: ext4 as it mounts by default loses the contents
+    /// of files that were fsynced before the machine died -- eight of eight
+    /// wrong, measured here -- and `data=journal` is what stops it. The option
+    /// cannot go on blindly, because a volume with no journal refuses to mount
+    /// with it at all, and the app passes no driver for Linux volumes, so
+    /// anything added here would otherwise reach every one of them. See
+    /// `ExtJournal`.
+    public static func mountOptions(
+        driver: String?, readOnly: Bool, journalledExt: Bool = false
+    ) -> String {
+        var opts = driverOptions(driver)
+        // Never beside a driver. The drivers named here are the NTFS ones, and
+        // this belongs to ext alone.
+        if journalledExt, driver == nil { opts.append("data=journal") }
+        opts += readOnly ? ["ro"] : []
         return opts.isEmpty ? "" : " -o \(opts.joined(separator: ","))"
     }
 
@@ -1853,6 +1873,7 @@ public enum MountScript {
         ownership: String,
         netHelper: String,
         logQ: String,
+        journalledExt: Bool = false,
         action: String? = tunedActionName
     ) -> String {
         let typeFlag = driver.map { " -t \($0)" } ?? ""
@@ -1860,7 +1881,9 @@ public enum MountScript {
         // --nfs-options must use the joined form. The flag is variadic, and the
         // separated form consumes the target that follows it.
         return "ALFS_PASSPHRASE=\"$__cred\" \(engineQ) mount\(ownership)"
-            + "\(typeFlag)\(mountOptions(driver: driver, readOnly: readOnly))\(actionFlag) -w false"
+            + "\(typeFlag)"
+            + "\(mountOptions(driver: driver, readOnly: readOnly, journalledExt: journalledExt))"
+            + "\(actionFlag) -w false"
             + "\(netHelper)"
             + " --nfs-options=\(shellQuoted(options))"
             + " \(target) >> \(logQ) 2>&1 && "
