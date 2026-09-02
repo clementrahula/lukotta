@@ -90,7 +90,6 @@ echo "    tagged v$FULL on $(git rev-parse --short HEAD) and pushed"
 # ----------------------------------------------------------------- build ----
 
 say "Building, notarising and publishing $FULL"
-LUKOTTA_NOTES_REVIEWED=1 \
 LUKOTTA_APPCAST="$FEED" \
 LUKOTTA_CHANNEL="$CHANNEL" \
 LUKOTTA_PUBLISH=1 \

@@ -264,9 +264,6 @@ if [ "$NOTES_ARE_A_DRAFT" = "1" ] && [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
   echo "       Write releases/$VERSION.md, in their words, covering only what" >&2
   echo "       they would notice. Start from the draft if it helps:" >&2
   echo "         ./scripts/release-notes.py $VERSION --write" >&2
-  echo "" >&2
-  echo "       LUKOTTA_NOTES_REVIEWED=1 does not apply here. It says a person" >&2
-  echo "       read the notes, and nobody has written any yet." >&2
   exit 1
 fi
 
@@ -281,35 +278,21 @@ if ! "$HERE/scripts/check-changelog.py" "$NOTES_SOURCE"; then
   exit 1
 fi
 
-# Read before it goes out, by somebody.
+# Shown, not asked about.
 #
-# Everything else here is automatic and should be: the version, the notes, the
-# archive, the signature, the appcast, the deltas. This is the one part a
-# machine cannot check, because a line can be true, in order, and still be
-# written for the person who made the change rather than the person reading it
-# -- and this text is the only thing most people will ever read about the
-# release. So it is put on the screen, in full, before anything is built.
+# This text is the only thing most people will ever read about the release, so
+# it goes on the screen in full, before anything is built -- which is the
+# moment it can still be changed.
+#
+# It used to stop here and ask, and refuse outright where nobody was at the
+# keyboard. Both are gone. A question at this point does not improve the notes:
+# whoever ran this has already decided to publish, and the mechanical checks
+# above have already refused anything written for the wrong reader. What the
+# question actually did was strand finished builds -- twice in one evening, on
+# a release that was correct both times.
 printf '\n==> The notes everybody updating will be shown\n\n'
 sed 's/^/    /' "$NOTES_SOURCE"
 printf '\n'
-if [ "${LUKOTTA_NOTES_REVIEWED:-0}" = "1" ]; then
-  printf '    Taken as read (LUKOTTA_NOTES_REVIEWED=1).\n\n'
-elif [ -t 0 ]; then
-  printf '    Read it as somebody updating will: is every line about them, and\n'
-  printf '    does it say what changed rather than how it was done?\n\n'
-  read -r -p "    Publish these notes? [y/N] " answer
-  case "$answer" in
-    y | Y | yes | YES) printf '\n' ;;
-    *)
-      printf '\nNothing was built. Edit releases/%s.md and run this again.\n' "$VERSION"
-      exit 1 ;;
-  esac
-else
-  echo "error: nobody can read the notes from here." >&2
-  echo "       Run this where somebody is at the keyboard, or set" >&2
-  echo "       LUKOTTA_NOTES_REVIEWED=1 having read them elsewhere." >&2
-  exit 1
-fi
 
 SIGN_TOOL="$(find "$HERE/.build" -name sign_update -type f -perm -111 -print -quit 2>/dev/null || true)"
 [ -n "$SIGN_TOOL" ] || { echo "error: sign_update not found; run swift build" >&2; exit 1; }

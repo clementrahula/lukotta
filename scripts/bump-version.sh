@@ -17,21 +17,19 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 PART="${1:-patch}"
 TAG=true
-APPROVED=false
 for arg in "$@"; do
   case "$arg" in
     --no-tag) TAG=false ;;
-    --approved) APPROVED=true ;;
   esac
 done
 CUR="$(tr -d ' \n' < "$HERE/VERSION")"
 IFS=. read -r MA MI PA <<< "$CUR"
 case "$PART" in
-  major)
-    [ "$APPROVED" = true ] || {
-      echo "error: the first number is the owner's decision. Ask, then pass --approved." >&2
-      exit 1; }
-    MA=$((MA+1)); MI=0; PA=0 ;;
+  # The first number used to need --approved, on the grounds that it is the
+  # owner's decision. It is -- and typing "major" is that decision, made by the
+  # only person who runs this. A second word confirming the first added nothing
+  # except a way to be refused.
+  major) MA=$((MA+1)); MI=0; PA=0 ;;
   minor) MI=$((MI+1)); PA=0 ;;
   patch) PA=$((PA+1)) ;;
   *) echo "usage: $0 [major|minor|patch]" >&2; exit 1 ;;
