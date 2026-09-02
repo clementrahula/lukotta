@@ -2452,7 +2452,24 @@ final class AppModel: ObservableObject {
         return true
     }
 
+    /// Note whether the Linux environment exists, before an attempt that may
+    /// create it.
+    ///
+    /// Read on the first attempt of each open and not on the retries, which
+    /// would overwrite the answer with the state the first attempt left.
+    ///
+    /// Called from all three routes rather than from the one place a drive is
+    /// unlocked. Opening an image goes another way entirely, so a drive that
+    /// was an image never healed: the environment was unpacked, the attempt
+    /// ended having unpacked it, and the person was told their drive would not
+    /// open -- which is what happened on this Mac.
+    private func noteWhetherTheGuestExists() {
+        guard mountSlips == 0 else { return }
+        guestWasReady = EngineEnvironment.isReady
+    }
+
     private func runMount(drive: Drive, credential: String) {
+        noteWhetherTheGuestExists()
         // The ceiling is hard. Every way of reaching this is shut while the
         // machine is full -- the rows, both File menu items, the Open Drive
         // sheet -- and this is the backstop: a mount is never started with
@@ -2785,6 +2802,7 @@ final class AppModel: ObservableObject {
     /// Identical to the authorised route apart from the authorisation: the same
     /// script, progress and failures. Only container files reach it.
     private func runMountAsThisUser(drive: Drive, credential: String, workspace ws: Workspace) {
+        noteWhetherTheGuestExists()
         let readOnly = mountingReadOnly
         mountTask = Task.detached(priority: .userInitiated) {
             do {
@@ -2821,6 +2839,7 @@ final class AppModel: ObservableObject {
     private func runMountWithAuthorisation(
         drive: Drive, credential: String, workspace ws: Workspace
     ) {
+        noteWhetherTheGuestExists()
         let readOnly = mountingReadOnly
         // Held as the helper's is, so that Cancel reaches this route as well.
         mountTask = Task.detached(priority: .userInitiated) {
