@@ -171,9 +171,19 @@ losing the contents of files that were fsynced is data loss and 48% on one
 extreme is not. But item 10 says no UX cost anywhere, and this is one, so this
 is not where XFS should end up.
 
-**The next route is the root, not the mount option.** ext4 and XFS both lose
-fsynced data for the same underlying reason: a flush inside the guest does not
-reach the image on the host. data=journal and sync each work around that from
-above, one per filesystem, and neither would be needed if the guest's flush
-were honoured all the way down. That fix would cover btrfs as well, which has
-no fixture here and is therefore still unmeasured.
+**The root is not yet known, and I said it was.** I wrote here that both
+filesystems lose fsynced data because the guest's flush does not reach the
+image, and that is not something I measured. Against it: the block layer's
+FLUSH already calls flush and then sync on the file, for images as well as raw
+devices; the guest's export carries no `async`, so nfsd should be committing;
+and NTFS through the identical path loses nothing. So the flush does appear to
+arrive, and what differs is what each filesystem does with it.
+
+What is actually established is narrower, and it is this:
+
+    ext4 and XFS lose fsynced file contents when the machine dies
+    NTFS, same guest, same accident, does not
+    data=journal fixes ext4; sync fixes XFS; each costs what is written above
+
+btrfs is unmeasured -- there is no fixture for it on this machine -- so whether
+it shares the fault is not known either way.
