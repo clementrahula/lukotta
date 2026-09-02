@@ -55,11 +55,38 @@ which is a thing this application does not do.
   SIGTERM is clean -- 100 MB survives and the machine exits in 0.34 s -- which
   is why EngineProcesses.flushGrace waits twenty seconds for it.
 
-  What is left exposed is a force quit, a crash, or the power going. The fix
-  is in the engine's block backend rather than this app: a virtio flush has to
-  reach the host file before it is acknowledged. build-engine.sh already
+  What is left exposed is a force quit, a crash, or the power going.
+
+  **The line is found.** `krun-devices/src/virtio/block/device.rs`,
+  `CacheType::auto()`:
+
+      if _path.starts_with("/dev/rdisk") {
+          return CacheType::Unsafe;
+      }
+
+  and `CacheType::Unsafe` is documented in that same file as "Flushing
+  mechanic will be advertised to the guest driver, but the operation will be
+  a noop". The worker honours that: `VIRTIO_BLK_T_FLUSH` under `Unsafe`
+  returns `Ok(0)` without touching the disk.
+
+  A physical drive is exactly what reaches that branch. The engine's own log
+  for the owner's drive says `rdisk: /dev/rdisk4s1`, and BootSector.swift
+  rewrites `/dev/disk` to `/dev/rdisk` deliberately. So the guest advertises a
+  flush the host has promised never to perform, and every fsync a person's
+  application makes is answered by a no-op. That is the whole of why the file
+  vanished.
+
+  The comment justifies it -- "special files like /dev/rdisk* on macOS do not
+  support flush/sync" -- and that is true of plain `fsync(2)` on a raw device.
+  It is not true of `fcntl(F_FULLFSYNC)`, which is the macOS call for this and
+  is what a database would use. So the fix is to attempt F_FULLFSYNC and fall
+  back rather than to advertise a barrier and drop it.
+
+  Images take the other branch, `Writeback`, where flush does call fsync --
+  and they still lose exactly 32768 bytes at offset 0, so there is a second
+  cache above this one, in imago. Both need answering. build-engine.sh already
   carries patches against imago and krun-devices, so there is a place to put
-  it.
+  them.
 
 ## Who does what
 
