@@ -17,6 +17,20 @@
 # osascript drives the real copy engine without anybody clicking, so this runs
 # unattended and still exercises the path that failed.
 #
+# THROUGH FINDER'S OWN COPY ENGINE, 2026-09-02, wsize=32768, owner's drive:
+#
+#   cycle 1 few    185s  3 identical, 0 differing, 0 missing
+#   cycle 1 many   233s  2000 identical, 0 differing, 0 missing
+#   cycle 2 few    193s  3 identical, 0 differing, 0 missing
+#   cycle 2 many   204s  2000 identical, 0 differing, 0 missing
+#   2 cycles at both extremes, 0 failures
+#
+# That is the path that originally broke -- DesktopServicesHelper taking an
+# ETIMEDOUT and Finder ending the operation with four files at zero length --
+# driven by osascript so nobody has to click, and it now completes twice at
+# each extreme with every byte accounted for. No copy-engine error, no skipped
+# item, no volume removed.
+#
 # BOTH EXTREMES AGAIN ON 2026-09-02, after the write size changed to 32768,
 # on the owner's BitLocker drive:
 #
