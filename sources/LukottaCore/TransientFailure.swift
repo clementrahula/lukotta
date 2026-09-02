@@ -30,6 +30,18 @@ public enum TransientFailure {
         "failed to start the virtual machine",
         "connection refused",
         "os error 61",
+        // The engine asks the machine it has just started whether its NFS
+        // server is up, and asks before the bridge carrying the answer is
+        // routable. It gets "No route to host", says "NFS server not ready",
+        // and stops. A moment later the address answers a ping perfectly well.
+        //
+        // Seen on this Mac on a first open after the environment was rebuilt:
+        // the guest reached "READY AND WAITING FOR NFS CLIENT CONNECTIONS" and
+        // the host could not reach it yet. Without this the attempt is not a
+        // slip, so nothing retries it until the deadline eight minutes later,
+        // which is eight minutes of a progress bar that has stopped moving.
+        "no route to host",
+        "os error 65",
         // The image is held by a machine that has not finished going away. The
         // retry takes down whatever is serving nothing before it tries again,
         // which is what releases it.
