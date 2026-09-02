@@ -19,18 +19,25 @@ set -uo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 APP="/Applications/Lukotta Dev.app/Contents/MacOS/Lukotta Dev"
 GUEST="$HOME/Library/Application Support/com.lukotta.dev/engine/.anylinuxfs/alpine"
-IMAGE="${1:-$HOME/.lukotta-testvols/ext4run.img}"
+CACHE="${LUKOTTA_E2E_CACHE:-$HOME/Library/Caches/dev.lukotta.e2e}"
+PASSPHRASE="lukotta-e2e"
 
 [ -x "$APP" ] || {
   echo "no dev build; run LUKOTTA_DEVTOOLS=1 LUKOTTA_BRANDING=dev ./build-app.sh"
   exit 2
 }
-[ -f "$IMAGE" ] || { echo "no image at $IMAGE"; exit 2; }
+[ -f "$CACHE/container.img" ] || { echo "no fixtures; run ./scripts/e2e.sh once"; exit 2; }
 
-# The harness has to be in the build, or --drive is ignored and the app simply
-# launches: no output, no drive, and nothing to read a verdict from.
-if ! strings "$APP" 2>/dev/null | grep -q -- "--drive"; then
-  echo "this build has no --drive; rebuild with LUKOTTA_DEVTOOLS=1"
+# The harness has to be in the build, or the argument is ignored and the app
+# simply launches: no output, no drive, and nothing to read a verdict from.
+#
+# Asked by running it. Looking for the string in the binary does not work --
+# "--drive" is seven bytes, and Swift keeps a string that short inside the
+# instruction rather than in a section any tool can read out -- so the guard
+# meant to catch a build without the harness reported every build as one.
+probe="$(timeout 20 "$APP" --drive 2>&1)"
+if ! printf '%s' "$probe" | grep -q "usage: --drive"; then
+  echo "this build has no harness; rebuild with LUKOTTA_DEVTOOLS=1"
   exit 2
 fi
 
@@ -46,25 +53,23 @@ fi
 [ -d "$GUEST" ] && { echo "the environment is still there; nothing was tested"; exit 2; }
 echo "the Linux environment was taken away"
 
+export ANYLINUXFS_HOME="$HOME/Library/Application Support/com.lukotta.dev/engine"
 out="$(mktemp)"
-"$APP" --drive "open=$IMAGE" >"$out" 2>&1
+LUKOTTA_E2E_QUICK=1 "$APP" --e2e \
+  container="$CACHE/container.img" passphrase="$PASSPHRASE" \
+  plain="$CACHE/plain.img" ntfs="$CACHE/plain.ntfs.img" >"$out" 2>&1
 status=$?
 
+ok="$(grep -c '^  ok' "$out" || true)"
+broke="$(grep -c '^  FAIL' "$out" || true)"
 echo "--- what the app said ---"
-cat "$out"
-echo "---"
+tail -8 "$out"
+echo "--- $ok ok, $broke failed, exit $status ---"
 
-if [ ! -s "$out" ]; then
-  echo "FAIL: the app said nothing, so nothing was tested"
-  exit 1
-fi
-if ! grep -q "^opened " "$out"; then
-  echo "FAIL: the app did not say it opened the drive"
-  exit 1
-fi
-if grep -qi "not opened\|could not be opened\|removed '/etc" "$out"; then
-  echo "FAIL: the first run reported a drive that would not open"
-  exit 1
-fi
-[ $status -eq 0 ] || { echo "FAIL: exit $status"; exit 1; }
+# Three things, not one, for the same reason preflight.sh checks three: a
+# harness that dies at launch leaves an empty log, and counting only failures
+# reads that as a clean run.
+[ "$status" -eq 0 ] || { echo "FAIL: the harness exited $status"; exit 1; }
+[ "$ok" -gt 0 ] || { echo "FAIL: nothing was checked, so nothing was tested"; exit 1; }
+[ "$broke" -eq 0 ] || { echo "FAIL: $broke checks failed on a first run"; exit 1; }
 echo "PASS: the drive opened on a first run, and the app said so"
