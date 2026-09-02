@@ -91,6 +91,28 @@ megabytes for a machine holding five hundred. A plausible wrong number is
 believed, acted on, and sends an afternoon after the wrong fault. Bound every
 call that can block, and distinguish "measured zero" from "could not measure".
 
+### Four more of the same shape, all in one night
+
+Each of these produced a clean-looking result that was about the harness rather
+than about the app. They are listed because the signature is the thing to
+recognise, not the individual bug.
+
+- **The mount table's last line is not this run's mount.** A LUKS fixture was
+  reported byte-identical at `/Volumes/BACKUP2_TS`, which is a physical stick
+  that happened to be mounted. Take the mount that *appeared* -- the difference
+  between before and after -- never `tail -1`.
+- **A pipeline's exit status is the last command's.** `copy-torture.sh "$at" |
+  sed 's/^/  /'` made the test read sed's status, which is nought whatever
+  happened upstream, so four formats that wrote nothing at all were counted as
+  passes and the sweep finished saying "0 failed". Use `PIPESTATUS`.
+- **zsh does not word-split an unquoted parameter.** `for m in $mounts` over
+  twelve newline-separated mount points is one iteration with all twelve in it.
+  The write "finished" in 0 seconds and reported one volume wrong. Read the
+  list from a file, or split explicitly.
+- **A full volume reads as a data fault.** 117 of 123 files, "differs" -- the
+  volume had no room, because an earlier run left its filler behind. Check the
+  free space before believing a comparison, and clear what a stopped run left.
+
 ## No UI Change Is Done Until It Has Run
 
 **A UI change is not done when it compiles, not when it renders in a snapshot,
