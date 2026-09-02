@@ -358,6 +358,18 @@ else
 fi
 
 printf '\nan update offered while a drive is open\n'
+# What this section does not cover, so a pass is not read as more than it is.
+#
+# The harness runs no AppKit event loop: it answers Sparkle itself and calls
+# exit(0). applicationShouldTerminate therefore never runs here, and the
+# open-drives dialogue cannot appear whatever the app would do in front of
+# somebody. An update that asked the question, and asked it twice on two
+# screens, passed this file the whole time it was broken.
+#
+# The dialogue is covered two other ways: --ux-check asserts which quits carry
+# the marks that skip the question, and the real thing is taking an update in
+# the built application with a drive open and the helper running, watching
+# every display, because the second one lands wherever an ownerless alert goes.
 # The one an update must not do: replace the bundle while the machine serving
 # somebody's drive is running out of it. Without the helper that machine is the
 # app's own child, so the app puts the update off until the drive is ejected --
