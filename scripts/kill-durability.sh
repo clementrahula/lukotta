@@ -32,6 +32,17 @@ APP="${LUKOTTA_APP:-/Applications/Lukotta Dev.app}"
 ENGINE="${LUKOTTA_ENGINE:-$APP/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 [ -x "$ENGINE" ] || { echo "no engine at $ENGINE"; exit 1; }
 
+# The app's own engine home, not ~/.anylinuxfs. `vm_image::init` upgrades the
+# flock on /tmp/anylinuxfs.lock to exclusive when the rootfs it is pointed at
+# needs unpacking, and an exclusive lock cannot be had while the app holds
+# shared ones for the drives already open. Pointed at a home that is already
+# prepared, init has nothing to do and never asks. Without this the run fails
+# with "another instance is already running", which reads like a stale process
+# and is a rootfs that was never initialised.
+export ANYLINUXFS_HOME="${ANYLINUXFS_HOME:-$HOME/Library/Application Support/com.lukotta.dev/engine}"
+[ -d "$ANYLINUXFS_HOME/.anylinuxfs/alpine" ] || {
+  echo "no prepared guest in $ANYLINUXFS_HOME"; exit 1; }
+
 # Driven through the engine rather than through `--drive`, because the app's
 # own scan does not list a disk image attached with hdiutil and there is
 # nothing in the flush path that the daemon contributes. The device node is
