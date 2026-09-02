@@ -90,6 +90,25 @@ which is a thing this application does not do.
   nfsd answers the COMMIT before ntfs3 has put the data on /dev/vda. The next
   place to look is the guest's export and mount options, not the host.
 
+  **And the guest's export is not the culprit either.** vmproxy builds
+  `{rw|ro},no_subtree_check,no_root_squash,insecure` with no `async`, so nfsd
+  runs in its default `sync` mode and must commit before answering. What is
+  left is the filesystem driver's own fsync, and the two behave differently
+  in a way worth recording:
+
+    XFS and ext4   the fsynced file is there afterwards, full length, with
+                   exactly 32768 bytes of holes at offset 0
+    NTFS (ntfs3)   the fsynced file is not there at all
+
+  Data loss on the Linux filesystems; the directory entry itself never
+  reaching the disk on NTFS. So ntfs3's metadata durability is the worst of
+  the three, and it is the driver the app leads with.
+
+  Mounting ntfs3 with `-o sync` would fix it and is not an option: every write
+  becomes synchronous and the copy this whole branch exists to make fast would
+  crawl. The remaining routes are ntfs3's own fsync path or the newer ntfsplus
+  driver, which is already in this file.
+
   Images take the other branch, `Writeback`, where flush does call fsync --
   and they still lose exactly 32768 bytes at offset 0, so there is a second
   cache above this one, in imago. Both need answering. build-engine.sh already
