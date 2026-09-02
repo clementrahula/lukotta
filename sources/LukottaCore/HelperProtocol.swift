@@ -105,7 +105,7 @@ public enum HelperInfo {
     ///    read-only with no repair attempted. The check lives in the mount
     ///    script, which the daemon generates, so the daemon is what has to
     ///    change.
-    public static let contract = 22
+    public static let contract = 23
 
     public static let machServiceName = "\(appIdentifier).helper"
     public static let plistName = "\(machServiceName).plist"

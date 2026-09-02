@@ -815,42 +815,30 @@ public enum MountScript {
                 // turn when the probe has refused ntfs3; not the read-only
                 // retry, which cannot do the damage; and not the repair rung,
                 // which is asked for on purpose and carries its own action.
-                // DISABLED, and not for the reason first given.
+                // The writable ntfs3 attempt, and nothing else, goes through
+                // the probe. Not the ntfs-3g rung, which must still get its
+                // turn when the probe has refused ntfs3; not the read-only
+                // retry, which cannot do the damage; not the repair rung,
+                // which is asked for on purpose.
                 //
-                // The probe was blamed for the owner's BitLocker drive coming
-                // up read-only. It was not the cause. Turning it off and
-                // rebuilding changed nothing -- because the daemon had not
-                // been replaced either, so three rebuilds in a row were served
-                // by a daemon from before the first of them and every reading
-                // came from code that was no longer on disk. Raising the
-                // contract is what finally replaced it, and with the probe
-                // genuinely gone the drive still refused to mount writable.
+                // This was switched off for a while on a wrong diagnosis. The
+                // owner's BitLocker drive came up read-only, the probe was the
+                // newest change, and it was blamed. It was not the cause: the
+                // volume was dirty with $MFTMirr behind $MFT, and turning the
+                // probe off changed nothing -- though that took a while to see,
+                // because the daemon had not been replaced either and three
+                // rebuilds in a row were served by code no longer on disk.
                 //
-                // The real reason is in the guest kernel log:
-                //
-                //     $MFTMirr does not match $MFT (record 3).
-                //     ntfs3(dm-0): volume is dirty and "force" flag is not set!
-                //     ntfs3(dm-0): It is recommened to use chkdsk.
-                //
-                // Which is this repository's own test harnesses doing it. The
-                // corpus and diagnostic runs sweep leftover state with
-                // `pkill -9 -f 'anylinuxfs mount'`, and that matches the
-                // machine serving the owner's drive as readily as the machine
-                // serving a fixture. Killing it mid-write is exactly the case
-                // measured in EngineProcesses.flushGrace, and on NTFS it
-                // leaves $MFTMirr behind $MFT.
-                //
-                // So the app did the right thing: the repair guard declines
-                // $MFTMirr damage rather than letting ntfsfix at it, and the
-                // volume came up read-only with every file readable.
-                //
-                // The probe stays off only because it cannot now be tested. A
-                // dirty drive refuses the writable mount whatever the probe
-                // does, so there is no way to tell from here whether the probe
-                // is innocent -- and turning a safety change back on while the
-                // one machine that could disprove it is unusable is how a
-                // wrong belief gets shipped. Back on once the drive is sound.
-                let chosen = action
+                // With the drive repaired the question could finally be asked
+                // properly, and the answer is that the probe is harmless here:
+                // the drive opens through ntfs3, writable, a write succeeds,
+                // and it survives an eject and reopen with the probe running
+                // each time. So it is back on, where it stops ntfs3 rewriting
+                // two megabytes of a damaged volume -- the journal's RSTR
+                // signature among it -- during a mount it then refuses.
+                let chosen =
+                    (driver == "ntfs3" && !i.readOnly && action == tunedActionName)
+                    ? ntfs3ProbeActionName : action
                 return mountCommand(
                     engineQ: engineQ, target: target, driver: driver,
                     options: nfsOptions(i), readOnly: i.readOnly,
