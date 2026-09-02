@@ -437,3 +437,29 @@ like a pass and is not one.
 
 So the eleven vectors now pass on: NTFS, ext4, XFS, btrfs, exFAT, LUKS->ext4 and
 LUKS->XFS.
+
+## A dozen volumes at once — 2026-09-03
+
+Twelve volumes opened together, then written to all at once and read back:
+
+    engines               24 processes, two per mount
+    memory                1869 MB in total, 78 MB each
+    written at once       123 files to each of the twelve, in 2 s
+    read back             byte-identical on all twelve
+    shell responsiveness  28 ms for a trivial command, under that load
+
+**This is not item 8 and does not claim to be.** Item 8 asks for this on an
+8 GB M1, and this Mac is not one. What it does give is the number that decides
+whether it would fit: a dozen volumes cost 1.87 GB, which leaves about six on
+an eight-gigabyte machine. That is evidence and not proof, and item 8 stays
+open until it runs on the machine it names.
+
+Two of my own faults, both worth having written down:
+
+  - The first pass reported "byte-identical on 0 volumes, wrong on 1" and wrote
+    everything in 0 seconds. This shell is zsh, which does not word-split an
+    unquoted parameter, so the whole list of twelve mount points was one
+    iteration. Read from a file now.
+  - CROWD1 then differed with 117 of 123 files. It was full: earlier runs had
+    left rd-busy and rd-quiet on it. Cleared, it is byte-identical like the
+    rest. A volume with no room reads as a data fault and is not one.
