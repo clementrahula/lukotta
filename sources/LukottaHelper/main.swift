@@ -603,7 +603,30 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     }
 
     func helperVersion(reply: @escaping (String) -> Void) {
+        // Asked once, early, by every launch -- so it is where the engine's
+        // directory is put back into the hands of the person it belongs to.
+        //
+        // Doing it only when a drive is opened through this daemon was not
+        // enough: a container file opens without any privilege, never reaches
+        // here, and so never had its ownership put right. Measured on this Mac,
+        // that run made 71 checks and failed 13, with the directory still
+        // root's and still missing the metadata the app could not copy into it.
+        //
+        // Cheap, and it does nothing at all once the ownership is right.
+        if let home = userHomeForRepair() {
+            handOver(URL(fileURLWithPath: engineHome(of: home)), to: invokingUID(), invokingGID())
+        }
         reply(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown")
+    }
+
+    /// The home of the user this daemon is answering, when it can be worked out
+    /// without a mount to take it from.
+    private func userHomeForRepair() -> String? {
+        guard let entry = getpwuid(invokingUID()), let dir = entry.pointee.pw_dir else {
+            return nil
+        }
+        let home = String(cString: dir)
+        return home.isEmpty ? nil : home
     }
 
     /// Exit, so that launchd starts the binary that is in the bundle now.
