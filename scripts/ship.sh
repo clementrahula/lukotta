@@ -111,6 +111,31 @@ if [ "$CHANNEL" = "release" ]; then
   esac
 fi
 
+# What the checks said about what is being shipped.
+#
+# A dozen runs went red and stayed red without anybody noticing, because
+# nothing here ever looked. Noticing is not a thing to remember to do; it is a
+# step, and it is this one.
+#
+# The last completed run on this branch, not a run in flight: a release that
+# waits for the checks to finish would wait ten minutes on every ship, and the
+# thing worth catching is a failure that has already happened.
+if command -v gh >/dev/null 2>&1; then
+  CI="$(gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --status completed \
+    --limit 1 --json conclusion -q '.[0].conclusion' 2>/dev/null || true)"
+  case "${CI:-unknown}" in
+    success) echo "    the checks are green" ;;
+    unknown) echo "    no completed check run to read; going on" ;;
+    *)
+      echo "    the checks are ${CI}. Fixing that comes before shipping:" >&2
+      gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --status completed \
+        --limit 1 --json databaseId -q '.[0].databaseId' 2>/dev/null \
+        | xargs -I{} gh run view {} --log-failed 2>/dev/null | tail -20 >&2
+      die "the checks are ${CI}"
+      ;;
+  esac
+fi
+
 git tag -f "v$FULL" -m "Lukotta v$FULL" >/dev/null
 git push -q origin "v$FULL" --force
 git push -q origin HEAD
