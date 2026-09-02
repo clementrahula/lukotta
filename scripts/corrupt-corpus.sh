@@ -27,7 +27,26 @@
 # rather than assumed, because a driver that scribbles on a damaged filesystem
 # before giving up is how a recoverable disk becomes an unrecoverable one.
 #
-# THE WHOLE CORPUS, AFTER THE ntfs3 PROBE LANDED
+# THE WHOLE CORPUS, AFTER THE REPAIR GUARD WAS FIXED
+#
+#   83 cases: 68 opened at a driver rung, 0 needed the repair route,
+#             15 refused, 1 refusal that wrote to the volume
+#
+# Against the run before it: 43 -> 68 opened at a driver, 24 -> 0 needing the
+# repair, 16 -> 15 refused, and the count of refusals that wrote unchanged at
+# one -- though a different case. mft_file_bad_sequence_number stopped being
+# written to; mft_file_bad_base_mft_record started.
+#
+# Twenty-five volumes moving from "opened only after ntfsfix wrote to it" to
+# "opened by a driver, untouched" is the direction this should go, and it is
+# larger than the change alone accounts for. The guard was made to read the dry
+# run's words rather than its exit status, which should affect only the repair
+# rung; these volumes stopped needing that rung at all. The honest position is
+# that the numbers are what they are and the size of the swing is not fully
+# explained. Config state has already faked one set of results tonight, and the
+# lesson taken was to say so rather than to claim the improvement.
+#
+# WHAT THE ntfs3 PROBE DID WHEN IT LANDED
 #
 #   83 cases: 43 mounted through ntfs3, 24 opened by the repair route,
 #             16 refused, and 1 refusal that wrote to the volume
