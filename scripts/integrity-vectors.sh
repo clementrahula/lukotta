@@ -130,7 +130,14 @@ where() {
 
 open_image() {
   pkill -f "anylinuxfs mount.*$IMAGE" >/dev/null 2>&1; sleep 3
-  nohup "$ENGINE" mount --ignore-permissions -w false "$IMAGE" > "$WORK/engine.log" 2>&1 &
+  # LUKOTTA_MOUNT_OPTIONS carries a filesystem mount option into the guest, so
+  # a durability question can be asked of one setting at a time rather than by
+  # hand. ext4 loses fsynced content here and NTFS does not, and data=journal is
+  # the setting that would say whether ordered mode is the reason.
+  OPTS=()
+  [ -n "${LUKOTTA_MOUNT_OPTIONS:-}" ] && OPTS=(-o "$LUKOTTA_MOUNT_OPTIONS")
+  nohup "$ENGINE" mount --ignore-permissions -w false "${OPTS[@]}" "$IMAGE" \
+    > "$WORK/engine.log" 2>&1 &
   # This image's share, not merely its name anywhere in the table: a stale
   # entry from a previous run carries the same name and answers nothing.
   for _ in $(seq 1 40); do
