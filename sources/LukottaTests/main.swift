@@ -449,6 +449,13 @@ group("theElevatedMountScript") {
     expect(
         MountScript.mountOptions(driver: "ntfs-3g", readOnly: false) == " -o big_writes",
         "ntfs-3g read-write carries big_writes alone")
+    // ntfs3 is given no driver options. dirsync was tried, to make its
+    // directory updates synchronous after a killed machine was found to lose
+    // the directory entry outright -- and it changed nothing: the guest
+    // mounted with "-o dirsync,iocharset=utf8,..." and the fsynced file was
+    // still absent afterwards. Reverted rather than kept, because synchronous
+    // directory updates cost every copy of many small files something and
+    // bought nothing.
     expect(
         MountScript.mountOptions(driver: "ntfs3", readOnly: true) == " -o ro",
         "ntfs3 is given no driver options, so read-only stands alone")
@@ -5211,7 +5218,7 @@ group("readOnlyIsBothSidesOfTheConnection") {
     let attempts = script.components(separatedBy: "anylinuxfs' mount").dropFirst()
     expect(!attempts.isEmpty, "there is more than one attempt to check")
     expect(
-        attempts.allSatisfy { $0.contains("-o ro") },
+        attempts.allSatisfy { $0.contains("-o ro") || $0.contains(",ro") },
         "and every one of them asks for read-only")
 
     let linux = MountScript.build(sampleInputs(kind: .linux, readOnly: true))

@@ -104,6 +104,13 @@ which is a thing this application does not do.
   reaching the disk on NTFS. So ntfs3's metadata durability is the worst of
   the three, and it is the driver the app leads with.
 
+  `dirsync` was the narrow form of the obvious fix and it does not work.
+  Directory updates synchronous, file data not -- aimed squarely at a lost
+  directory entry. The guest mounted with `-o dirsync,iocharset=utf8,...`,
+  confirmed in the transcript, and the fsynced file was still absent after the
+  kill. Reverted: it costs every many-small-file copy something and bought
+  nothing.
+
   Mounting ntfs3 with `-o sync` would fix it and is not an option: every write
   becomes synchronous and the copy this whole branch exists to make fast would
   crawl. The remaining routes are ntfs3's own fsync path or the newer ntfsplus
