@@ -95,3 +95,27 @@ Raising the size then removed qcow2 instead, because that writer used a single
 refcount block and could not describe more than two gibibytes. It allocates as
 many as the image needs now. A format that cannot be built counts as a failure,
 which is what it is.
+
+## The shipped release, driven through its own interface — 2026-09-02
+
+1.22.0 build 961 as installed on this Mac, notarised Developer ID, signature
+verified. Driven by clicking, because the harnesses are compiled out of a
+release build and there is no headless route in one.
+
+    launches                    yes, Gatekeeper accepts it
+    early-development notice    shown once, acknowledged, written to disk
+                                and gone at the next launch
+    engine                      set itself up from nothing on first use
+    NTFS   LUKOTTANTFS          123 files BYTE-IDENTICAL
+    ext4   LUKOTTAEXT4          123 files BYTE-IDENTICAL
+    unencrypted volumes         identified as such, no passphrase asked for
+
+data=journal is correctly absent from 1.22.0's ext4 mount: that fix landed
+after it and ships in 1.22.1.
+
+Two things about this run were my own instruments and not the app. Running the
+release's engine binary directly produces no output at all and hangs holding
+the image file open -- it needs the environment the app builds around it, so a
+bare invocation is not a test of anything. And an earlier such invocation left
+two engines holding a fixture, which then refused to attach; "Resource
+temporarily unavailable" from hdiutil was that, not a fault in the app.
