@@ -65,6 +65,13 @@ hit while measuring one:
   `awk '{print $5}'` silently sums zero. Use `find -printf` or `stat`.
 - **`grep -c` where the count is zero.** It prints `0` and exits non-zero, so
   `$(grep -c … || echo 0)` prints two zeros.
+- **`mount`'s first field against an exact share name.** It is
+  `sweep-qcow2.local:/mnt/SWEEP`, not `sweep-qcow2.local:`, so `$1 == want`
+  never matches and every volume reads as one that failed to mount. In the
+  format sweep that turned five passes into five reported failures, and left
+  each mount up under the next, because nothing was ever found to unmount. A
+  literal prefix with `index($1, want) == 1`; the share name carries dots, so
+  not a pattern.
 - **`pgrep -f` from a shell whose own command line holds the pattern.** A
   waiting loop written as `until ! pgrep -f 'snapshots.sh'; do sleep; done`
   matches the zsh running it, so it waits for itself and never finishes. The
