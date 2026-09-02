@@ -445,6 +445,18 @@
             // which the window flags cannot say on their own.
             NSApplication.shared.setActivationPolicy(.prohibited)
 
+            // The notice is drawn here as a picture of its own, further down.
+            // What it must not do is present itself, because a SwiftUI sheet is
+            // a real window that AppKit puts on a screen -- not one of the
+            // windows below, so the off-screen origin and the zero alpha have
+            // no bearing on it at all.
+            //
+            // It is drawn over a hundred times in a run, once per scene, and
+            // never in a baseline: the capture takes the hosting view, and a
+            // sheet is not in it. So the pictures agreed while the screen
+            // flashed, which is why this was not caught by them.
+            UserDefaults.standard.set(true, forKey: AppModel.earlyNoticeKey)
+
             // Pictures for people to look at, rather than baselines to compare
             // against: one screen, both appearances, at the size the window
             // opens, in whichever language this run was given.
