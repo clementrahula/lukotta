@@ -86,6 +86,26 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         // whose account is not the first one on the Mac.
         peerUID = connection.effectiveUserIdentifier
         peerGID = connection.effectiveGroupIdentifier
+
+        // The engine's directory, put back into the hands of the person whose
+        // Library it sits in. Here rather than on any one call, because there
+        // is no one call every app makes: hanging it on the version check meant
+        // it never ran, since the check the app makes at launch asks something
+        // else, and hanging it on a mount meant a container file -- which opens
+        // without any privilege and never reaches this daemon -- never had its
+        // ownership put right at all.
+        //
+        // Every connection passes through here, and it does nothing once the
+        // ownership is already right.
+        if let uid = peerUID, let gid = peerGID,
+            let entry = getpwuid(uid), let directory = entry.pointee.pw_dir
+        {
+            let home = String(cString: directory)
+            if !home.isEmpty {
+                handOver(URL(fileURLWithPath: engineHome(of: home)), to: uid, gid)
+            }
+        }
+
         connection.exportedInterface = NSXPCInterface(with: LukottaHelperProtocol.self)
         connection.exportedObject = self
         connection.resume()
@@ -603,19 +623,6 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     }
 
     func helperVersion(reply: @escaping (String) -> Void) {
-        // Asked once, early, by every launch -- so it is where the engine's
-        // directory is put back into the hands of the person it belongs to.
-        //
-        // Doing it only when a drive is opened through this daemon was not
-        // enough: a container file opens without any privilege, never reaches
-        // here, and so never had its ownership put right. Measured on this Mac,
-        // that run made 71 checks and failed 13, with the directory still
-        // root's and still missing the metadata the app could not copy into it.
-        //
-        // Cheap, and it does nothing at all once the ownership is right.
-        if let home = userHomeForRepair() {
-            handOver(URL(fileURLWithPath: engineHome(of: home)), to: invokingUID(), invokingGID())
-        }
         reply(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown")
     }
 
