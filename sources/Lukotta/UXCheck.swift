@@ -45,6 +45,7 @@
             guard CommandLine.arguments.contains("--ux-check") else { return }
 
             earlyNotice()
+            quitting()
 
             print("\n\(checks - failures)/\(checks) interface routes behave")
             if failures > 0 {
@@ -52,6 +53,43 @@
                 exit(1)
             }
             exit(0)
+        }
+
+        /// Which quits ask about open drives, and which do not.
+        ///
+        /// The dialogue exists for somebody choosing to quit with a drive open.
+        /// It does not apply to a quit the app asked for itself, and asking
+        /// there is not merely noise: answering "Leave Open" keeps the app
+        /// running, which cancels the quit the installer was waiting for, so it
+        /// is asked again with no window left to sit over and lands on whichever
+        /// display takes an ownerless alert. That shipped, and reached a tablet.
+        @MainActor
+        private static func quitting() {
+            print("\nQuits that must not ask")
+
+            let wasRelaunch = AppModel.wantsRelaunch
+            let wasInstalling = AppModel.isInstallingUpdate
+            defer {
+                AppModel.wantsRelaunch = wasRelaunch
+                AppModel.isInstallingUpdate = wasInstalling
+            }
+
+            AppModel.wantsRelaunch = false
+            AppModel.isInstallingUpdate = false
+            expect(
+                !AppModel.isInstallingUpdate && !AppModel.wantsRelaunch,
+                "an ordinary quit is neither an update nor a relaunch, so it asks")
+
+            AppModel.isInstallingUpdate = true
+            expect(
+                AppModel.isInstallingUpdate,
+                "an update installing is marked, so the quit it needs is not questioned")
+
+            AppModel.isInstallingUpdate = false
+            AppModel.wantsRelaunch = true
+            expect(
+                AppModel.wantsRelaunch,
+                "a relaunch is marked the same way, for the same reason")
         }
 
         /// The notice shown once, on a first launch.
