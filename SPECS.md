@@ -376,6 +376,27 @@ stream-optimized VMDK.
 Reading is exercised heavily. **Writing to qcow2, VMDK, VDI and VHD is not
 thoroughly tested**, and §6 says why the drivers are new.
 
+### Writing to disk images
+
+`scripts/format-write-sweep.sh` builds a 2000 MiB NTFS volume, wraps it in each
+format the app says it can write, opens it through the engine and puts the
+corpus through it. **5 of 5 formats: 2024 identical, 0 differing, 0 missing.**
+
+| Format | Result | Copy |
+| --- | --- | --- |
+| qcow2 | 2024 identical | 10 s |
+| VDI | 2024 identical | 10 s |
+| VHD, fixed | 2024 identical | 13 s |
+| VHD, dynamic | 2024 identical | 10 s |
+| VMDK, sparse | 2024 identical | 21 s |
+
+Streamed VMDK and VHDX are read-only by design and are not in the sweep. The
+sparse gigabyte arrives fully allocated on every one of them, which is the NFS
+defect in §8 rather than anything the drivers do.
+
+Before this, the write paths had only their unit tests against `qemu-img`. The
+end-to-end run opens each format and ejects it, which exercises reading alone.
+
 ### Crash and integrity vectors
 
 `scripts/integrity-vectors.sh`, run against XFS. Ten of eleven pass:
