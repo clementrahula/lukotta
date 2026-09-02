@@ -1630,8 +1630,32 @@ final class AppModel: ObservableObject {
             if CredentialStore.save(saved, for: name) { CredentialStore.delete(for: older) }
             return saved
         }
+        // Nothing under any name this drive has. That is not the same as
+        // nobody having a key for it: a key saved while the volume was
+        // unlocked is filed under what it called itself then, and a drive
+        // whose name this app has since learned to read better does not match
+        // what it was saved as. Everything held is offered rather than asking
+        // for a 48-digit recovery key that is already in the Keychain.
+        //
+        // Ordered so the same one is offered every time, and filed under this
+        // drive's own name the moment it opens something.
+        let others = CredentialStore.allSaved()
+            .filter { !names.contains($0.name) }
+            .sorted { $0.name < $1.name }
+        if let first = others.first {
+            Log.mount.notice("no key under this drive's name; offering one already saved")
+            untriedSavedKeys = Array(others.dropFirst().map(\.credential))
+            return first.credential
+        }
+        untriedSavedKeys = []
         return nil
     }
+
+    /// Saved keys not yet offered for the drive being unlocked.
+    ///
+    /// A wrong one is worth one attempt and no sentence: the next is tried in
+    /// its place, and only when they are all spent does anybody get asked.
+    var untriedSavedKeys: [String] = []
 
     /// Discard a stored credential and return to entering one.
     func forgetSavedCredential(for drive: Drive) {
@@ -3063,6 +3087,23 @@ final class AppModel: ObservableObject {
         Log.mount.error(
             "mount failed at \(String(describing: self.failedStage), privacy: .public): \(Diagnostics.scrubbed(summary, secret: self.activeCredential))"
         )
+        // A refused key with others still untried is not a failure to show
+        // anybody. The next one goes in silently, in the same working state,
+        // and only a drive none of them opens reaches the screen below.
+        if failedRule == "wrong-credential", let drive, let next = untriedSavedKeys.first {
+            untriedSavedKeys.removeFirst()
+            Log.mount.notice("that saved key was refused; trying the next one")
+            credential = next
+            usingSavedCredential = true
+            chosenFormat = knownFormats[drive.id]
+            failedStage = nil
+            failedRule = nil
+            statusLines = []
+            stageLines = []
+            phase = .working(drive)
+            runMount(drive: drive, credential: next)
+            return
+        }
         let clean = detail.map { Diagnostics.scrubbed($0, secret: activeCredential) }
         // A restore that did not work says nothing: there is nobody sitting
         // there, and a failure screen for a drive nobody asked about would be

@@ -140,6 +140,41 @@ public enum CredentialStore {
         return entries.compactMap { $0[kSecAttrAccount as String] as? String }
     }
 
+    /// Every key this app has saved, newest first.
+    ///
+    /// A drive whose name does not match anything saved is not the same as a
+    /// drive nobody has a key for. Names have changed as this app learned to
+    /// read them, drives arrive with no name of their own, and a key saved
+    /// while a volume was unlocked is filed under what it called itself then.
+    /// Asking somebody to type a 48-digit recovery key that is already in
+    /// their Keychain, because the label on it no longer matches, is the
+    /// failure this exists to prevent.
+    ///
+    /// A key that turns out to belong to another drive costs one silent
+    /// attempt and nothing else: a wrong key does not open a volume and does
+    /// not damage one.
+    public static func allSaved() -> [(name: String, credential: String)] {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecReturnAttributes as String: true,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitAll,
+        ]
+        var items: CFTypeRef?
+        guard SecItemCopyMatching(query as CFDictionary, &items) == errSecSuccess,
+            let entries = items as? [[String: Any]]
+        else { return [] }
+        return entries.compactMap { entry in
+            guard let name = entry[kSecAttrAccount as String] as? String,
+                let data = entry[kSecValueData as String] as? Data,
+                let credential = String(data: data, encoding: .utf8),
+                !credential.isEmpty
+            else { return nil }
+            return (name, credential)
+        }
+    }
+
     /// Whether any drive credential is stored at all.
     ///
     /// Used when uninstalling, to say that passphrases are being left behind
