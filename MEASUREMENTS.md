@@ -589,3 +589,26 @@ until it is done, and the two UX costs they carry stay with them.
 One practical note for whoever picks this up: the engine's log in Library/Logs
 exists only while the engine runs and is removed when it exits, so read it with
 the mount still up.
+
+## XFS costs nothing after all, on the other mechanism — 2026-09-03
+
+The 48% XFS was paying was a property of *how* it was fixed, not of fixing it.
+Same path -- the app's own, helper-served -- same corpus of 2000 small files:
+
+    no durability option        44 s
+    guest -o sync   (shipped)   65 s
+    client sync     (now)       43 s
+
+Durability is the same either way: 11 of 11 vectors with client sync and no
+guest option, 8 of 8 fsynced files kept, 30 of 30 in-flight complete.
+
+So XFS moves onto the mechanism containers already use, and the cost it was
+carrying disappears. That is one of item 10's two violations gone, and it went
+because the cheap comparison was finally run on the path that matters rather
+than on the raw engine, where every option looks free.
+
+Three mechanisms become two:
+
+    ext with a journal      data=journal, costs nothing
+    XFS, and anything the
+    app cannot see inside   client asked for stable writes

@@ -104,7 +104,11 @@ public enum Mounter {
             durability: ExtJournal.durabilityOption(forDevice: drive.devicePath))
         // A container hides the superblock the option above is chosen from, so
         // ask the client for stable writes instead. See askForStableWrites.
-        if LUKSHeader.isContainer(forDevice: drive.devicePath) { inputs.askForStableWrites() }
+        if LUKSHeader.isContainer(forDevice: drive.devicePath)
+            || ExtJournal.needsStableWrites(forDevice: drive.devicePath)
+        {
+            inputs.askForStableWrites()
+        }
         let script = MountScript.build(inputs)
 
         let scriptURL = workspace.root.appendingPathComponent("mount.sh")

@@ -432,7 +432,11 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 durability: ExtJournal.durabilityOption(forDevice: devicePath))
             // A container hides the superblock that option is chosen from, so
             // the client is asked for stable writes instead.
-            if LUKSHeader.isContainer(forDevice: devicePath) { inputs.askForStableWrites() }
+            if LUKSHeader.isContainer(forDevice: devicePath)
+                || ExtJournal.needsStableWrites(forDevice: devicePath)
+            {
+                inputs.askForStableWrites()
+            }
             let script = MountScript.build(inputs)
 
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")

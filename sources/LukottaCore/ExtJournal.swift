@@ -43,7 +43,19 @@ public enum ExtJournal {
     }
 
     /// XFS writes this at the very front of its superblock.
-    static let xfsMagic: [UInt8] = Array("XFSB".utf8)
+    public static let xfsMagic: [UInt8] = Array("XFSB".utf8)
+
+    /// Whether this volume needs the client asked for stable writes, because
+    /// nothing cheaper will do.
+    ///
+    /// True for XFS, which has no data-journalling mode, and true for anything
+    /// this app cannot see inside. Both lose the contents of files that were
+    /// fsynced when the machine dies, and both are fixed the same way.
+    public static func needsStableWrites(forDevice path: String) -> Bool {
+        guard let bytes = read(path) else { return false }
+        return bytes.count >= xfsMagic.count
+            && Array(bytes.prefix(xfsMagic.count)) == xfsMagic
+    }
 
     /// The mount option this volume needs, or nil where it needs none.
     ///
@@ -68,14 +80,10 @@ public enum ExtJournal {
     public static func durabilityOption(forDevice path: String) -> String? {
         guard let bytes = read(path) else { return nil }
         if isJournalled(superblock: bytes) { return "data=journal" }
-        // XFS has no data-journalling mode. Its journal covers metadata and
-        // nothing else, so the only word that makes a write durable here is
-        // the blunt one -- which costs nothing on this filesystem.
-        if bytes.count >= xfsMagic.count,
-            Array(bytes.prefix(xfsMagic.count)) == xfsMagic
-        {
-            return "sync"
-        }
+        // XFS has no data-journalling mode -- its journal covers metadata and
+        // nothing else -- so there is no cheap word for it here. It is handled
+        // the same way a container is, by asking the client for stable writes,
+        // which is one mechanism rather than two and measured no dearer.
         return nil
     }
 
