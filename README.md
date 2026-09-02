@@ -54,38 +54,34 @@ brew install --cask clementrahula/tap/lukotta@beta
 
 ## About
 
+I wanted backups from a Windows PC and a Mac on the same external disk. The Mac
+could not open the BitLocker volume, and the existing ways of doing it were
+more complicated than they needed to be.
+
 macOS cannot mount BitLocker volumes, Linux filesystems such as ext4, btrfs and
 XFS, LUKS encryption, or most virtual machine disk images. Linux can, and the
-tools for it already exist.
+tools for that already exist.
 
-Lukotta is built on [anylinuxfs][anylinuxfs] by nohajc, which does the mounting.
-It starts a Linux microVM, hands it the drive, and exports the volume back to
-macOS. Every filesystem driver, every unlock, every byte read off a disk is
-anylinuxfs and the Linux kernel. If you are comfortable at a terminal, install
-anylinuxfs and use it directly.
+Lukotta is built on anylinuxfs, which opens the drive inside a small Linux
+virtual machine and hands it back to macOS. anylinuxfs is a command-line tool,
+which rules it out for most people. There are graphical wrappers for tools like
+it, but they look and feel like an aeroplane cockpit.
 
-What is missing is the experience. anylinuxfs is a command-line tool: opening a
-drive means knowing your disk is `/dev/disk4s1`, that the volume inside it is
-`lvm:ubuntuvg:disk4s1:home`, and that you need `sudo`. The graphical wrappers
-that exist mostly look like an aircraft cockpit.
+Lukotta's main goal is perfect user experience: plug in the drive, type the
+password, open it in Finder. A drive should be readable on any computer.
 
-This project fills that gap. Plug in a drive, type the password, and it appears
-in Finder. There are no device paths, no driver names, no mount options, and no
-question about which NTFS driver to try or what to do with a dirty volume, and
-it covers every format macOS cannot open natively, encrypted or not.
+### Early Development
 
-### Where this project is
+Lukotta is still new. The Linux tools and drivers it relies on have been around
+for years and are well tested. Lukotta is built on top of them, but it is still
+new, so it inevitably has issues yet to be uncovered. For now, using it for
+opening drives and images in read-only mode is the safest thing to do. Writing
+does work, but please treat it as experimental, and keep a copy of anything you
+would be upset to lose.
 
-Early development, and not extensively tested. The parts doing the work are
-proven: the Linux kernel's filesystem drivers, cryptsetup, LVM, anylinuxfs. What
-is new is everything around them, the unlock flow and the driver choices and the
-recovery when a copy goes wrong, and that is where the faults are.
+Every known issue is listed under [Limitations](#limitations).
 
-The goal is to remove them. Every known fault is listed under
-[Limitations](#limitations) rather than left for you to find. Until they are
-gone, keep a backup of anything you cannot lose.
-
-## What It Can Open
+## Features
 
 **Encryption**
 
@@ -154,110 +150,89 @@ is written and what is not, and how each is read.
 
 ## How It Works
 
-Nothing on the Mac reads these filesystems. Linux does, so a Linux kernel runs.
+Each volume you open gets a [libkrun][libkrun] microVM: a stripped Alpine root
+filesystem, 512 MB, two virtual CPUs. The drive goes in as a block device, the
+Linux kernel mounts it, and the volume is exported over NFS. macOS mounts that,
+NFS being the one filesystem protocol it takes without a kernel extension.
 
-Lukotta starts a [libkrun][libkrun] microVM per opened volume, a stripped
-Alpine root filesystem with 512 MB and two virtual CPUs by default, and hands it
-the drive as a block device. The kernel inside mounts the filesystem with its own
-driver. The volume is then exported over NFS and mounted by macOS's own NFS
-client, because NFS is the one filesystem protocol macOS can mount without a
-kernel extension. Finder sees a network volume; the bytes come off your disk.
+`/dev/disk4s1` is `root:operator`, so a launchd daemon opens the device and
+passes the descriptor to the microVM, which runs under your account. The app
+never runs as root.
 
-The privileged part is small and separate. A device node like `/dev/disk4s1` is
-`root:operator`, so an unprivileged process cannot open it. A launchd daemon
-opens the device, hands the descriptor to the microVM, and drops out of the
-picture; the VM itself runs as you. The app never runs as root.
+**Encryption.** [cryptsetup][cryptsetup] unlocks BitLocker in the guest with
+the volume password or a 48-digit recovery key, producing `/dev/mapper/btlk0`:
+a block device holding ordinary NTFS. LUKS1 and LUKS2 are the same path. The
+passphrase reaches the guest through its environment, and nothing else of the
+host's does. The machine is sized from the LUKS header, which records what the
+key derivation needs.
 
-**Encryption.** A BitLocker volume is unlocked inside the guest by
-[cryptsetup][cryptsetup] with the volume password or a 48-digit recovery key,
-which produces `/dev/mapper/btlk0`, an ordinary block device holding an
-ordinary NTFS filesystem. LUKS1 and LUKS2 work the same way. The passphrase
-reaches the guest through its environment and nothing else of the host's does.
-A LUKS header records how much memory its key derivation needs, so the machine
-is sized from the header rather than from a fixed number; a container that wants
-2.5 GB gets it.
+**LVM.** Ubuntu, Debian, Mint and Fedora put LVM inside LUKS, so unlocking
+exposes a volume group. One machine activates it and exports every logical
+volume, because anylinuxfs locks whole physical partitions and several machines
+wanting one partition would collide.
 
-**LVM.** Ubuntu, Debian, Mint and Fedora put LVM inside the LUKS container, so
-unlocking exposes a volume group rather than a filesystem. The group is
-activated and *every* logical volume in it is mounted and exported from the one
-machine. That matters for more than convenience: anylinuxfs locks whole physical
-partitions, so several machines each wanting the same partition would collide.
-One machine takes one lock, and root and home come up together, both writable.
+**NTFS.** Lukotta tries `ntfs3`, falls back to `ntfs-3g`, then to read-only.
+ntfs3 is in the kernel: forty thousand deletions take seconds there and an hour
+through FUSE. On a volume Windows left dirty, `ntfsfix` clears the flag and
+rebuilds `$MFTMirr` from `$MFT`, gated on a dry run reporting it can process
+both. A hibernated volume is refused; writing to one destroys the pending
+memory image.
 
-**NTFS.** Two drivers exist and they are not interchangeable. `ntfs3` is in the
-kernel, and deleting forty thousand files is forty thousand unlinks: seconds
-there, an hour through FUSE. `ntfs-3g` is FUSE, slower, and more tolerant. Lukotta tries ntfs3 first, falls
-back to ntfs-3g, and only then falls back to read-only. A volume Windows left
-dirty is repaired rather than demoted: `ntfsfix` clears the flag and rebuilds
-`$MFTMirr` from `$MFT`, gated on a dry run first reporting that it can process
-both. A hibernated volume is refused outright, because writing to a disk whose
-memory image is still pending is how that image is lost.
+**Linux filesystems.** ext2/3/4, btrfs and XFS use the kernel's own drivers,
+bare or inside LUKS.
 
-**Linux filesystems.** ext2/3/4, btrfs and XFS are mounted by the kernel's own
-drivers, bare or inside LUKS. Nothing is translated or reimplemented.
+**exFAT and FAT** are declined. macOS mounts them natively, and opening one
+here would turn a local volume into a network one.
 
-**exFAT and FAT** are declined on purpose. macOS mounts them itself, natively
-and locally; opening one here would turn a local volume into a network one for
-no gain.
+**Disk images.** [imago][imago], compiled into the engine, reads qcow2, VMDK,
+VDI, VHD and VHDX. An image reaches the guest as a block device exactly as a
+drive does, so a LUKS container inside a VMDK unlocks like one on a USB stick.
+Images naming another file are refused: snapshot chains, differencing VHDs,
+qcow2 with a backing file. Opening one lets a file choose which other files get
+read.
 
-**Disk images** are read by [imago][imago], compiled into the engine, which
-understands qcow2, VMDK, VDI, VHD and VHDX. An image is presented to the guest
-as a block device exactly as a physical drive is, so everything above applies
-unchanged: a LUKS container inside a VMDK unlocks the same way one on a USB
-stick does. Images that name another file are refused, whether a snapshot
-chain, a differencing VHD or a qcow2 with a backing file, because opening one
-lets a file decide which other files get read.
-
-**Getting it back to Finder.** The NFS mount is tuned for a slow drive under a
-long copy, and every number in it was measured rather than chosen: `dumbtimer`
-so the retry interval is what was asked for rather than an estimate that
-collapses to milliseconds, a 60-second timeout, `mutejukebox` to stop macOS
-announcing a server that is merely busy, and a write size of 32 KB. A large
-write ahead of a directory listing in the same TCP connection is time the
-listing spends waiting.
+**The NFS mount.** Every number was measured on real hardware. `dumbtimer`,
+because the dynamic estimator otherwise collapses the retry interval to
+milliseconds; a 60-second timeout; `mutejukebox`, which stops macOS announcing
+a server that is only busy; a 32 KB write size, since a large write ahead of a
+directory listing on one TCP connection is time the listing waits.
 
 ## Limitations
 
-Everything here was measured on this hardware. Where a fix is known, it is
-named.
+All measured on this hardware. Where a fix is known, it is named.
 
 **A file with a resource fork is silently dropped.** Copying it onto a Lukotta
-volume creates nothing, and a folder copy reports success anyway. The macOS NFS
-client stores every other extended attribute in an AppleDouble file beside the
+volume creates nothing, and a folder copy still reports success. The macOS NFS
+client keeps every other extended attribute in an AppleDouble file beside the
 original and refuses `com.apple.ResourceFork` with `EINVAL`. No mount option
-reaches it. Ordinary files, Finder tags, quarantine flags and custom attributes
-are unaffected; this is the resource fork alone, which mostly means old files.
+reaches it. Finder tags, quarantine flags and custom attributes are unaffected.
 
 **`fsync` is not durable if the machine is killed.** Data an application was
-told had been committed can be lost if the microVM dies abruptly, whether from a
-force quit, a crash or the power going. On ext4 and XFS the file survives with a
-hole in it; on NTFS it can vanish entirely. A normal eject is safe: the app gives
-the machine twenty seconds to flush and never kills one that is still writing.
-Measurement rules out the engine's block cache, the NFS export and the guest's
-mount options, leaving ntfs3's own fsync path.
+told had been committed can be lost when the microVM dies abruptly. On ext4 and
+XFS the file survives with a hole in it; on NTFS it can vanish. A normal eject
+is safe: the app gives the machine twenty seconds to flush and never kills one
+that is still writing. `fsync` on a device node returns success without
+reaching the drive and `F_FULLFSYNC` fails there with `ENOTTY`, so the engine
+now issues `DKIOCSYNCHRONIZECACHE`. That is not yet proven by measurement.
 
-**The folder you are copying into is slow to list.** While a large copy runs,
-that one folder takes several seconds to refresh, occasionally much longer.
-Every other folder on the volume answers instantly, the copy itself is
-unaffected, and no error is produced. It is READDIR over NFS queued behind the
-write stream: the same folder lists in 0.01 s inside the guest and 7 s across
-the mount. Seven mount and driver settings were measured against it. One helped,
-and it is in use.
+**The folder you are copying into is slow to list.** During a large copy it
+takes seconds to refresh, occasionally much longer. Other folders answer
+instantly, the copy is unaffected, and no error appears. READDIR over NFS
+queues behind the write stream: 0.01 s inside the guest, 7 s across the mount.
+Seven mount and driver settings were measured; one helped and is in use.
 
-**RAID arrays work, but the app does not yet offer them.** Lukotta claims Linux
-RAID partitions so macOS stops offering to initialise them, an offer one click
-from destroying an array. Assembling and serving one is proven: a two-disk RAID1
+**RAID arrays work, but the app does not offer them yet.** Lukotta claims Linux
+RAID partitions so macOS stops offering to initialise them. A two-disk RAID1
 mounts through the engine and a copy onto it reads back byte-identical. `mdadm`
-ships in the guest and the app reads arrays out of the engine's listing. What is
-missing is the app constructing the identifier that opens one, so an array is
-protected from macOS today and not yet offered to you.
+ships in the guest. Missing is the app constructing the identifier that opens
+an array.
 
-**Writing to virtual machine images is not thoroughly tested.** See the warning
-above. Reading is exercised heavily; writing is not.
+**Writing to virtual machine images is not thoroughly tested.** Reading is
+exercised heavily; writing is not.
 
 **ZFS is not supported.** Neither the packages nor the `zfs.ko` and `spl.ko`
-kernel modules ship in the guest. Whether to carry it is an open licence
-question, ZFS being CDDL, as much as a technical one.
+modules ship in the guest. Carrying it is an open licence question, ZFS being
+CDDL, as much as a technical one.
 
 ## Requirements
 
@@ -265,7 +240,7 @@ question, ZFS being CDDL, as much as a technical one.
 - macOS 15 Sequoia or later
 - 260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks
   on first use
-- 30 to 80 MB of RAM per unlocked drive
+- 512MB-1GB of RAM, depending on the number of open drives/disks mounted
 - Up to 12 drives can stay unlocked at once
 
 ## Languages

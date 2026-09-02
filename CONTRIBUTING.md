@@ -22,11 +22,6 @@ Pull requests are welcome for:
   at larger text sizes.
 - Tests for something that is not covered.
 
-Less likely to land:
-- Refactoring for its own sake.
-- Features outside what the app is for. Lukotta opens drives macOS cannot read;
-  a general disk utility is a different program.
-
 ## AI Use Policy
 
 Lukotta was largely written by AI agents, and the README says so. Use whatever
@@ -52,12 +47,10 @@ best you have.
 ## House Style
 
 - English is used for code commenting, documentation and all project-related communications exclusively.
+- Most code is generated and read through AI tools. It is not expected to be pretty and elegant, but it must work and be reliable.
 - Comments explain why rather than what. A line worth writing is one where the
   obvious reading is wrong.
 - No historical narration in comments or documents; git remembers.
-- Commit messages describe the reasoning as well as the change.
-- Fixtures are invented. Real output from your machine is sanitised in the same
-  edit that pastes it.
 - Every source file starts with its SPDX identifier and the copyright line. A
   new file gets them; a file under `patches/` gets that project's instead.
 
