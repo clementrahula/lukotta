@@ -258,11 +258,14 @@ write stream: the same folder lists in 0.01 s inside the guest and 7 s across
 the mount. Seven mount and driver settings were measured against it; one helped,
 and it is in use.
 
-**RAID members are recognised but cannot be opened.** Lukotta claims Linux RAID
-partitions so macOS stops offering to initialise them — that offer is one click
-away from destroying an array — and then has no way to assemble one. Half the
-work is done: `mdadm` ships in the guest and the app reads arrays out of the
-engine's listing. What is missing is building the identifier that mounts one.
+**RAID arrays work, but the app does not yet offer them.** Lukotta claims Linux
+RAID partitions so macOS stops offering to initialise them — that offer is one
+click away from destroying an array. Assembling and serving one is proven: a
+two-disk RAID1 mounts through the engine and a copy onto it reads back
+byte-identical. `mdadm` ships in the guest and the app reads arrays out of the
+engine's listing. What is missing is the app constructing the identifier that
+opens one, so today an array is protected from macOS and not yet offered to
+you.
 
 **Writing to virtual machine images is not thoroughly tested.** See the warning
 above. Reading is exercised heavily; writing is not.

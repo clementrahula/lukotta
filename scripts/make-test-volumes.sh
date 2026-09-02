@@ -171,8 +171,9 @@ fi
 # takes several with `img1:img2`, presenting them as /dev/vda and /dev/vdb, and
 # addresses the assembled result as `raid:<dev>[:<dev>...]`.
 if "$ENGINE" shell "$OUT/luks2-direct.img" -c 'command -v mdadm' 2>/dev/null | grep -q mdadm; then
-  image raid-a 300
-  image raid-b 300
+  RAID_MB=1600
+  image raid-a "$RAID_MB"
+  image raid-b "$RAID_MB"
   echo "Building raid-a + raid-b (RAID1 -> btrfs)…"
   "$ENGINE" shell "$OUT/raid-a.img:$OUT/raid-b.img" -c "
 set -e
@@ -180,6 +181,20 @@ mdadm --create /dev/md0 --level=1 --raid-devices=2 --metadata=1.2 \
   --run --assume-clean /dev/vda /dev/vdb >/dev/null 2>&1
 mkfs.btrfs -f -L RAIDTEST /dev/md0 >/dev/null 2>&1
 mdadm --stop /dev/md0 >/dev/null 2>&1" 2>&1 | grep -vE '^macOS:' || true
+  # Put the length back. `anylinuxfs shell` truncates an image to the last byte
+  # written, and a RAID superblock records how large the device was when the
+  # array was made -- so a truncated member answers
+  #
+  #   mdadm: Device /dev/vda is not large enough for data described in superblock
+  #   mdadm: no RAID superblock on /dev/vda
+  #
+  # and the array will not assemble. That looked exactly like the engine being
+  # unable to assemble RAID at all, and it is the fixture being shorter than it
+  # says it is. e2e.sh has the same guard for the same reason.
+  for f in raid-a raid-b; do
+    /usr/bin/python3 -c 'import os,sys; os.truncate(sys.argv[1], int(sys.argv[2]))' \
+      "$OUT/$f.img" "$(( RAID_MB * 1024 * 1024 ))"
+  done
   if [ -s "$OUT/raid-a.img" ]; then
     printf '  raid-a.img + raid-b.img built; open with raid:<devA>:<devB>\n'
   fi

@@ -536,15 +536,25 @@ The tail was reachable and the median is what NFS costs here. Removing it means
 removing the NFS client from the path, which means FSKit.
 `scripts/readdir-under-copy.sh`, `scripts/bulk-list.c`.
 
-### RAID members are claimed and cannot be opened
+### RAID arrays are not yet offered by the app
 
 `DiskWatcher.ourContent` includes the Linux RAID type GUID, so macOS stops
 offering to initialise an array member — an offer one click from destroying an
-array. Nothing then opens it. `mdadm` is kept in the guest and the app reads
-arrays out of the engine's listing; what is missing is constructing the
-`raid:<devA>[:<devB>...]` identifier. Read out of the engine rather than
-guessed: `assemble_raid` is set only on the `raid:` and `lvm:` branches of
-`cmd_mount.rs`, so handing it a member's device path assembles nothing.
+array. What is missing is the app constructing the
+`raid:<devA>[:<devB>...]` identifier; `assemble_raid` is set only on the `raid:`
+and `lvm:` branches of `cmd_mount.rs`, so handing the engine a member's device
+path assembles nothing.
+
+The layer underneath works. A two-disk RAID1 built with `mdadm --create`,
+carrying btrfs, assembles and mounts through `raid:a.img:b.img`, and a copy onto
+it reads back **4 of 4 byte-identical**. `mdadm` ships in the guest.
+
+One trap is recorded because it looked exactly like the engine being unable to
+assemble RAID at all: `anylinuxfs shell` truncates an image to the last byte
+written, and a RAID superblock records the device size at creation, so a
+truncated member answers `Device /dev/vda is not large enough for data described
+in superblock` and the array will not assemble. `make-test-volumes.sh` restores
+the length, as `e2e.sh` does for the same reason.
 
 ### A volume group in an image file, opened by the app's image route
 
