@@ -428,6 +428,23 @@
 
         @MainActor
         static func runIfAsked() {
+            guard
+                CommandLine.arguments.contains("--snapshots")
+                    || CommandLine.arguments.contains("--screenshots")
+            else { return }
+
+            // Nothing this process draws is for anybody to look at while it is
+            // drawing it. Left as an ordinary application it takes the Dock, it
+            // can be activated, and its windows are windows the display server
+            // is willing to put on a screen -- which is a run of a hundred and
+            // more pictures flickering at the edge of somebody's display, one
+            // per picture, while they are working.
+            //
+            // The off-screen origin and the zero alpha are still there and still
+            // needed; this says the process has no business on a screen at all,
+            // which the window flags cannot say on their own.
+            NSApplication.shared.setActivationPolicy(.prohibited)
+
             // Pictures for people to look at, rather than baselines to compare
             // against: one screen, both appearances, at the size the window
             // opens, in whichever language this run was given.
