@@ -171,6 +171,17 @@ for leftover in "$VOL"/vec-*; do [ -e "$leftover" ] && rm -rf "$leftover"; done
 free_kb="$(df -k "$VOL" 2>/dev/null | tail -1 | awk '{print $4}')"
 printf 'starting with %s MB free\n' "$(( ${free_kb:-0} / 1024 ))"
 
+# These vectors write eighty megabytes and then deliberately fill the volume.
+# On a volume too small for that, every one of them fails on space and reads as
+# a fault in the app -- which is what a forty-megabyte exFAT fixture produced:
+# a page of failures, none of them about the app.
+if [ "${free_kb:-0}" -lt 204800 ]; then
+  printf 'error: %s MB free. These vectors need 200 MB and this volume\n' \
+    "$(( ${free_kb:-0} / 1024 ))" >&2
+  printf '       cannot hold them, so nothing here would be about the app.\n' >&2
+  exit 2
+fi
+
 SRC="$WORK/src"; payload "$SRC" 40 2000000     # 80 MB, enough to interrupt
 
 # 1. A copy killed partway. What landed before the knife must still be itself.

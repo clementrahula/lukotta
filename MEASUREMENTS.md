@@ -187,3 +187,41 @@ What is actually established is narrower, and it is this:
 
 btrfs is unmeasured -- there is no fixture for it on this machine -- so whether
 it shares the fault is not known either way.
+
+## exFAT, and the engine's shell mode — 2026-09-03
+
+exFAT loses fsynced content the same way ext4 and XFS do, and `sync` fixes it
+the same way:
+
+    exFAT as it mounts   8 of 8 fsynced files present, 8 wrong
+    exFAT with sync      8 of 8 present, 0 wrong, 30 of 30 in-flight complete
+
+Nobody reaches that through the app. exFAT is the one format handed to macOS to
+mount, so the app never serves it through the guest, and the fault is in the
+engine rather than in anything a person using Lukotta can hit.
+
+Three of the four filesystems tested lose it, and only NTFS does not, which is
+worth writing down because it says the fault is general rather than something
+about ext.
+
+**The engine's `shell` truncates a sparse image, and `mount` does not.**
+Formatting a 2000 MB sparse image through `shell` left it 1024 MB; formatting
+the result again left it 92 MB. It is being cut back to its allocated size each
+time, which is why a btrfs volume made this way would not mount afterwards: the
+superblock described a device larger than the file.
+
+`mount` was measured for the same thing and does not do it:
+
+    sparse image, 2000 MB apparent, 89 MB on disk
+    before a mount attempt   2097152000 bytes
+    after                    2097152000 bytes, 89 MB on disk
+
+So no drive or image a person opens is at risk. `shell` is a maintenance path
+the app never uses, and `scripts/format-write-sweep.sh` already guards against
+this -- it checks the size after formatting and says "the image was truncated by
+formatting". Nothing else did.
+
+**btrfs is still unmeasured for durability.** Every attempt to build a fixture
+for it went through `shell`, so every fixture was truncated and would not mount.
+btrfs itself works through the app -- luks2-direct is btrfs and copied 123 files
+byte-identical -- so this is a gap in the fixture, not a known fault.
