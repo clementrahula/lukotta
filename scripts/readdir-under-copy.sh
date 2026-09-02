@@ -86,6 +86,29 @@
 # queue depth and READDIRPLUS are all about getting requests to the device
 # faster, and the device was never the thing that was slow.
 #
+# THE DRIVER IS NOT IT EITHER, AND ntfs-3g IS WORSE
+#
+# If enumerating a modified directory is the cost, the driver walking that
+# index is the next suspect. So the whole ladder was reversed to put ntfs-3g
+# first and the same three columns measured on the same drive:
+#
+#   ntfs-3g   readdir-busy   stat-one-file   readdir-quiet
+#         1         2.95s          0.02s          3.14s
+#         3         3.69s          0.04s          7.45s
+#         4        90.13s          0.03s          2.47s
+#         5        90.04s          0.04s          3.20s
+#         9        90.06s          0.03s          3.70s
+#
+# Three listings past the timeout instead of two, and worse than that: the
+# quiet directory, which ntfs3 answers in 20 ms throughout, now takes two to
+# seven seconds as well. ntfs-3g spreads the stall to directories nobody is
+# touching. It is FUSE, so every operation crosses to a userspace process and
+# back, and under a write stream that crossing is the queue.
+#
+# ntfs3 stays first. The stat column is 0.03s under both drivers, which is the
+# same evidence twice over: the drive has metadata capacity to spare the whole
+# time, and something above it will not use it for a READDIR.
+#
 # Throughput is reported beside latency on purpose. A shorter queue that halves
 # the wait and halves the copy speed is not a win, and this goal will not take
 # one number without the other.
