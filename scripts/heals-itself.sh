@@ -25,6 +25,11 @@
 #   after    196 checks, none failed. The directory belongs to the person whose
 #            Library it is in, holds all four of those files, and the shared
 #            directory was not created once during the run.
+#
+# And again with the engine rebuilt, carrying its own two fixes -- it waits for
+# the route to the machine it started rather than giving up in milliseconds,
+# and the program that unpacks the image keeps to the directory it is given:
+# 196 checks, none failed, and the shared directory still not created.
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 APP="${LUKOTTA_APP:-/Applications/Lukotta Dev.app}"
