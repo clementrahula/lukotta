@@ -857,6 +857,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Whatever the answer, it was given. A "no" must not be asked again by
         // the window that is still on its way out.
+        //
+        // The rule is about what the app does, not about which button was
+        // pressed: every answer that leaves the app running is one this
+        // question has already had, and the window closing afterwards is the
+        // rest of the same gesture. Written as a test of the buttons it missed
+        // the retreat: "Leave Open" with somewhere to retreat to keeps the app
+        // running and takes the window away, and the last window closing then
+        // asked the whole question again on a second screen. Fixed once for
+        // Cancel and still there for that one.
+        //
+        // So it is set beside each .terminateCancel below rather than guessed
+        // at from the answer.
         if answer != ejectButton, !(survives && answer == .alertFirstButtonReturn) {
             MainActor.assumeIsolated { declinedQuit = true }
         }
@@ -864,6 +876,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // Not a quit that was turned down: it was answered, by going to
             // the menu bar. The relaunch goes with it for the same reason a
             // cancelled quit drops it.
+            //
+            // And the app stays, so the window going is not a new request.
+            MainActor.assumeIsolated { declinedQuit = true }
             AppModel.wantsRelaunch = false
             MainActor.assumeIsolated { MenuBarItem.shared.keepOnlyTheMenuBar() }
             return .terminateCancel
@@ -901,6 +916,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             return .terminateLater
         }
+        // Nothing was ejected and the app is staying, so this question has been
+        // answered and the window finishing its close must not ask it again.
+        MainActor.assumeIsolated { declinedQuit = true }
         return .terminateCancel
     }
 
