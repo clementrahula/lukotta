@@ -148,8 +148,28 @@ final class AppModel: ObservableObject {
             await MainActor.run { [weak self] in self?.recentLog = text }
         }
     }
-    /// Whether to keep this drive's credential in the Keychain. Opt-in.
-    @Published var rememberCredential = false
+    /// Where the answer to "remember this key" is kept between launches.
+    ///
+    /// Keyed on the bundle identifier, like the notice above: the release, the
+    /// pre-release and a local build each answer for themselves.
+    static var rememberKey: String {
+        "com.lukotta.rememberDriveCredential." + (Bundle.main.bundleIdentifier ?? "unknown")
+    }
+
+    /// Whether to keep this drive's credential in the Keychain.
+    ///
+    /// On unless it has been turned off, and it stays off once it has been:
+    /// this is the app's answer to "should I have to type a 48-digit recovery
+    /// key every time", and the answer is no.
+    ///
+    /// It used to start off, and -- worse -- to be forced off again whenever no
+    /// saved key was found for a drive. Those two together are what made the
+    /// same stick ask every time: the lookup missed, the box unticked itself,
+    /// the passphrase was typed, and the mount then took the unticked box as an
+    /// instruction to delete rather than save. Nothing was ever kept, and the
+    /// only sign of it was a checkbox nobody was looking at.
+    @Published var rememberCredential =
+        UserDefaults.standard.object(forKey: AppModel.rememberKey) as? Bool ?? true
     /// Set when a stored credential was found and filled in, so the interface
     /// can say so rather than showing a field of dots with no explanation.
     @Published var usingSavedCredential = false
@@ -1517,8 +1537,31 @@ final class AppModel: ObservableObject {
     /// Everything else is the volume's own UUID, or the stable name the
     /// scanner makes for a partition table that carries none.
     func identity(of drive: Drive) -> String {
-        if let file = openedImages[DriveScanner.wholeDisk(of: drive.id)] { return file.path }
-        if let file = engineReadDrives[drive.id] { return file.uuid }
+        identities(of: drive).first ?? drive.id
+    }
+
+    /// Every name this drive could be filed under, the one to use first.
+    ///
+    /// There is more than one because the app has not always answered this the
+    /// same way, and because the best answer is not always available yet. The
+    /// volume's own fingerprint is read out of its header a moment after the
+    /// drive is picked, so asking before that read lands gets the answer from
+    /// before it. A lookup that only tried the current answer missed a key
+    /// filed under any of the others, and the drive then asked for a passphrase
+    /// it already had.
+    ///
+    /// Ordered best first, and everything after the first is a name to migrate
+    /// from rather than a name to write.
+    func identities(of drive: Drive) -> [String] {
+        var names: [String] = []
+        func add(_ name: String) {
+            guard !name.isEmpty, !names.contains(name) else { return }
+            names.append(name)
+        }
+        // A container file is the file, wherever it is attached: attaching
+        // gives it a fresh device identifier every time.
+        if let file = openedImages[DriveScanner.wholeDisk(of: drive.id)] { add(file.path) }
+        if let file = engineReadDrives[drive.id] { add(file.uuid) }
         // What the volume calls itself, before what the partition table calls
         // it. Only GPT names its partitions; an MBR stick -- which is what
         // Windows writes, and what a BitLocker To Go stick is -- names nothing,
@@ -1526,11 +1569,43 @@ final class AppModel: ObservableObject {
         // kind. Both fell through to the device node, so a saved passphrase
         // was filed under `disk4s1` and lost the moment the stick came back as
         // `disk5s1`.
-        if let print = volumeFingerprints[drive.id] { return print }
-        // A partition table carrying no UUID at all leaves nothing to tell one
-        // drive from another, and an empty string would make every such drive
-        // the same drive. The device name is at least this drive, now.
-        return drive.uuid.isEmpty ? drive.id : drive.uuid
+        for name in VolumeIdentity.names(
+            fingerprint: volumeFingerprints[drive.id], uuid: drive.uuid, id: drive.id,
+            cache: AppModel.cachedFingerprints())
+        {
+            add(name)
+        }
+        return names
+    }
+
+    /// Where fingerprints already read are kept between launches.
+    static var fingerprintCacheKey: String {
+        "com.lukotta.volumeFingerprints." + (Bundle.main.bundleIdentifier ?? "unknown")
+    }
+
+    /// Fingerprints seen before, by the names macOS gives the same drive.
+    ///
+    /// The fingerprint is the best name a drive has, and it is also the last
+    /// one to arrive: it comes out of the volume header, which is read a moment
+    /// after the drive is picked. Between picking and that read there is no
+    /// fingerprint, so an app that only knew the live one answered "who is
+    /// this" differently at the start of an unlock than at the end of it, and a
+    /// passphrase saved under one name was looked for under the other.
+    ///
+    /// Keeping the answer means the second time a drive is seen the fingerprint
+    /// is known before anything is read, and the name does not change under the
+    /// screen.
+    static func cachedFingerprints() -> [String: String] {
+        UserDefaults.standard.dictionary(forKey: AppModel.fingerprintCacheKey) as? [String: String]
+            ?? [:]
+    }
+
+    /// Filed under both names macOS offers, because either may be the only one
+    /// available next time.
+    func rememberFingerprint(_ print: String, of drive: Drive) {
+        var cache = AppModel.cachedFingerprints()
+        for name in [drive.uuid, drive.id] where !name.isEmpty { cache[name] = print }
+        UserDefaults.standard.set(cache, forKey: AppModel.fingerprintCacheKey)
     }
 
     /// The passphrase saved for this drive, under whatever it was saved as.
@@ -1546,9 +1621,10 @@ final class AppModel: ObservableObject {
     /// new one and taken away from the old. It happens once, on the next
     /// unlock, and nobody is asked anything.
     func savedCredential(for drive: Drive) -> String? {
-        let name = identity(of: drive)
+        let names = identities(of: drive)
+        guard let name = names.first else { return nil }
         if let saved = CredentialStore.load(for: name) { return saved }
-        for older in [drive.uuid, drive.id] where !older.isEmpty && older != name {
+        for older in names.dropFirst() {
             guard let saved = CredentialStore.load(for: older) else { continue }
             Log.mount.notice("moving a saved passphrase to the name the volume gives itself")
             if CredentialStore.save(saved, for: name) { CredentialStore.delete(for: older) }
@@ -1559,7 +1635,10 @@ final class AppModel: ObservableObject {
 
     /// Discard a stored credential and return to entering one.
     func forgetSavedCredential(for drive: Drive) {
-        CredentialStore.delete(for: identity(of: drive))
+        // Every name, not just the current one. A key migrated from an older
+        // name leaves nothing behind, but one saved by an older build and not
+        // yet migrated would survive being forgotten and reappear.
+        for name in identities(of: drive) { CredentialStore.delete(for: name) }
         credential = ""
         // Left on. Forgetting replaces a key; the toggle turns saving off.
         rememberCredential = true
@@ -1750,7 +1829,11 @@ final class AppModel: ObservableObject {
                 usingSavedCredential = true
             } else {
                 credential = ""
-                rememberCredential = false
+                // Not `false`. Having nothing saved for this drive says
+                // nothing about whether the next one should be saved, and
+                // forcing the box off here is what stopped it ever being.
+                rememberCredential =
+                    UserDefaults.standard.object(forKey: AppModel.rememberKey) as? Bool ?? true
                 usingSavedCredential = false
             }
             credentialBelongsTo = identity(of: drive)
@@ -1979,6 +2062,7 @@ final class AppModel: ObservableObject {
                 let print = VolumeIdentity.fingerprint(sector, format: format)
             {
                 self.volumeFingerprints[identifier] = print
+                self.rememberFingerprint(print, of: drive)
             }
 
             // Nothing to unlock, so nothing to ask, and a screen that asks
@@ -2771,12 +2855,15 @@ final class AppModel: ObservableObject {
             readOnlyReason = nil
         }
         if !transcript.isEmpty { noteVolumeCount(transcript) }
+        // What was chosen here is what the next drive starts with, so a person
+        // who turns this off is not asked to turn it off again.
+        UserDefaults.standard.set(rememberCredential, forKey: AppModel.rememberKey)
         if rememberCredential {
             if !CredentialStore.save(credential, for: identity(of: drive)) {
                 ejectProblem = "The drive opened, but the key could not be saved to your Keychain."
             }
         } else {
-            CredentialStore.delete(for: identity(of: drive))
+            for name in identities(of: drive) { CredentialStore.delete(for: name) }
         }
         if mountedReadOnly {
             readOnlyMounts.insert(mountPoint)

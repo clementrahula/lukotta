@@ -172,14 +172,22 @@
         /// order and for the same reason as `AppModel.identity(of:)`.
         @MainActor
         private static func savedCredential(for drive: Drive) -> String? {
-            if let sector = BootSector.readWaiting(devicePath: drive.devicePath),
-                let name = VolumeIdentity.fingerprint(sector, format: BootSector.identify(sector)),
-                let saved = CredentialStore.load(for: name)
-            {
-                return saved
+            var fingerprint: String?
+            if let sector = BootSector.readWaiting(devicePath: drive.devicePath) {
+                fingerprint = VolumeIdentity.fingerprint(sector, format: BootSector.identify(sector))
             }
-            guard !drive.uuid.isEmpty else { return nil }
-            return CredentialStore.load(for: drive.uuid)
+            let cache =
+                UserDefaults.standard.dictionary(forKey: AppModel.fingerprintCacheKey)
+                as? [String: String] ?? [:]
+            let names = VolumeIdentity.names(
+                fingerprint: fingerprint, uuid: drive.uuid, id: drive.id, cache: cache)
+            for name in names {
+                if let saved = CredentialStore.load(for: name) {
+                    say("using the key saved under \(name)")
+                    return saved
+                }
+            }
+            return nil
         }
 
         @MainActor

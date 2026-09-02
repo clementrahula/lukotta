@@ -70,6 +70,34 @@ public enum VolumeIdentity {
         }
     }
 
+    /// Every name a volume could have been filed under, best first.
+    ///
+    /// The order is the whole point, and it is written once here because there
+    /// are two places that unlock a drive -- the window and the headless
+    /// route -- and when they each kept their own copy of it they drifted. One
+    /// looked under the device node and the other did not, so a saved
+    /// passphrase was found by one and not the other on the same stick.
+    ///
+    /// Everything after the first is a name to migrate away from.
+    public static func names(
+        fingerprint: String?, uuid: String, id: String, cache: [String: String] = [:]
+    ) -> [String] {
+        var names: [String] = []
+        func add(_ name: String?) {
+            guard let name, !name.isEmpty, !names.contains(name) else { return }
+            names.append(name)
+        }
+        add(fingerprint)
+        // The same fingerprint from the last time this drive was seen, for the
+        // moments before this time's reading lands.
+        for key in [uuid, id] where !key.isEmpty { add(cache[key]) }
+        add(uuid)
+        // A partition table carrying no UUID at all leaves nothing to tell one
+        // drive from another. The device name is at least this drive, now.
+        add(id)
+        return names
+    }
+
     /// The slice of a Linux superblock that holds its UUID, digested rather
     /// than read out, because each of the three keeps it somewhere different
     /// and none of them keeps anything else in these bytes.

@@ -638,13 +638,20 @@
                 return
             }
 
-            guard let plainPoint = open(model, plainDrive, credential: nil, remember: false) else {
+            guard let plainPoint = open(model, plainDrive, credential: nil, remember: nil) else {
                 return
             }
             model.backToDrives()
+            // Nothing is ticked here on purpose. A drive nobody has saved a key
+            // for used to arrive with the box turned off, and unlocking it then
+            // deleted the key rather than saving it, so the same stick asked
+            // every time. The saving below is the assertion.
             guard
-                let lockedPoint = open(model, lockedDrive, credential: passphrase, remember: true)
+                let lockedPoint = open(model, lockedDrive, credential: passphrase, remember: nil)
             else { return }
+            check(
+                model.rememberCredential,
+                "a drive with nothing saved still offers to save, untouched")
             check(
                 model.mountPoint(for: plainDrive) == plainPoint,
                 "the first drive is still open while the second one opens")
@@ -701,6 +708,9 @@
             else { return }
             check(model.credential.isEmpty, "and it is not offered again")
             check(!model.usingSavedCredential, "with nothing claiming to be saved")
+            check(
+                model.rememberCredential,
+                "and finding nothing saved has not stopped it saving next time")
 
             // And the drive that was never touched is still open through all of it.
             check(
@@ -712,8 +722,11 @@
 
         /// Open one drive from the list and hand back where it landed.
         @MainActor
+        /// `remember` is nil to leave the box exactly as the app offers it,
+        /// which is the only way this proves what happens to somebody who
+        /// unlocks a drive and touches nothing else.
         private static func open(
-            _ model: AppModel, _ drive: Drive, credential: String?, remember: Bool
+            _ model: AppModel, _ drive: Drive, credential: String?, remember: Bool?
         ) -> String? {
             model.choose(drive)
             guard
@@ -723,7 +736,7 @@
             else { return nil }
             if let credential {
                 model.credential = credential
-                model.rememberCredential = remember
+                if let remember { model.rememberCredential = remember }
             }
             model.unlock(drive)
             guard
