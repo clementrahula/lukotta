@@ -145,8 +145,16 @@ final class Updater: ObservableObject {
         checksAutomatically = controller.updater.automaticallyChecksForUpdates
         downloadsAutomatically = controller.updater.automaticallyDownloadsUpdates
         canCheck = controller.updater.canCheckForUpdates
-        relay.onWillInstall = { Rollback.keepCurrentAside() }
-        relay.onWillHandOver = { Rollback.watchTheUpdateLand() }
+        relay.onWillInstall = {
+            // From here the app is going because an update said so, not
+            // because anybody chose to quit.
+            AppModel.isInstallingUpdate = true
+            Rollback.keepCurrentAside()
+        }
+        relay.onWillHandOver = {
+            AppModel.isInstallingUpdate = true
+            Rollback.watchTheUpdateLand()
+        }
         // Only the app holding a drive itself has to postpone: a drive held by
         // the helper belongs to launchd and survives the app being replaced.
         relay.isHoldingADrive = { [weak self] in self?.holdsADrive?() ?? false }

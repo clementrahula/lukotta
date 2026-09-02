@@ -1452,6 +1452,21 @@ final class AppModel: ObservableObject {
     /// the quit were turned down.
     nonisolated(unsafe) static var wantsRelaunch = false
 
+    /// Whether Sparkle is installing an update and needs this copy to go.
+    ///
+    /// A quit that an update asked for is not a quit somebody chose, and the
+    /// question this app asks about open drives does not apply to it: the
+    /// drives are held by the helper and are still there when the new version
+    /// comes up, so there is nothing to decide.
+    ///
+    /// Asking anyway was worse than pointless. "Leave Open" answers by keeping
+    /// the app running, which cancels the quit the installer was waiting for,
+    /// so Sparkle asks again -- and the second dialogue has no window left to
+    /// sit over, so AppKit puts it on whichever display an ownerless alert goes
+    /// to. On a Mac with a tablet beside it that is the tablet: two dialogues,
+    /// on two screens, from one update.
+    nonisolated(unsafe) static var isInstallingUpdate = false
+
     func relaunch() {
         Log.app.notice("relaunching at the user's request")
         AppModel.wantsRelaunch = true

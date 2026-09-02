@@ -757,6 +757,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if AppModel.wantsRelaunch, let model, MainActor.assumeIsolated({ model.helper.isReady }) {
             return MainActor.assumeIsolated { leave() }
         }
+
+        // An update installing is not somebody choosing to quit. The drives are
+        // the helper's and are still there when the new version comes up, so
+        // there is nothing to ask and nothing to decide -- and answering
+        // "Leave Open" would cancel the very quit the installer is waiting for,
+        // which is what put a second dialogue on a second screen.
+        // Only where the drives would actually survive it. Without the helper
+        // this app is the thing holding them, and going would drop them
+        // mid-update -- which is a real question, and the one this dialogue
+        // exists for. Sparkle postpones the install in that case rather than
+        // pressing on.
+        if AppModel.isInstallingUpdate, let model,
+            MainActor.assumeIsolated({ model.helper.isReady })
+        {
+            return MainActor.assumeIsolated { leave() }
+        }
         guard let model, MainActor.assumeIsolated({ model.hasOpenDrive }) else {
             return MainActor.assumeIsolated { leave() }
         }
