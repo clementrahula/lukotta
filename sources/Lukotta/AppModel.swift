@@ -1138,8 +1138,21 @@ final class AppModel: ObservableObject {
         }
         drives = listed
         scanGeneration += 1
+        // This app's mounts, not every mount on the Mac.
+        //
+        // The engine's status reports whatever it is serving, whoever asked for
+        // it, and nothing in a mount says which application that was. Taken
+        // whole, a beta launched beside the release adopted the release's open
+        // drives: it offered to eject them when quitting, and named one of them
+        // in the question, having opened nothing at all itself.
+        //
+        // `OpenedHere` is the record of what this copy made, kept in this
+        // copy's own settings, which a beta and a release do not share. It
+        // existed for exactly this and was not consulted here.
+        let ourPoints = Set(OpenedHere.ours(of: sighting.mounts.map(\.mountPoint)))
         openMounts = Dictionary(
-            sighting.mounts.map { ($0.devicePath, $0.mountPoint) },
+            sighting.mounts.filter { ourPoints.contains($0.mountPoint) }
+                .map { ($0.devicePath, $0.mountPoint) },
             uniquingKeysWith: { first, _ in first })
         // Counted from the engine's own mounts rather than from the rows: a
         // drive serving several volumes is one machine on one address.
