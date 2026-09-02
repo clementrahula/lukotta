@@ -17,6 +17,20 @@
 # osascript drives the real copy engine without anybody clicking, so this runs
 # unattended and still exercises the path that failed.
 #
+# BOTH EXTREMES AGAIN ON 2026-09-02, after the write size changed to 32768,
+# on the owner's BitLocker drive:
+#
+#   a large tree      3000 files across five nested folders, every one
+#                     byte-identical, 390s
+#   a handful         three files, three separate passes, 3 of 3
+#                     byte-identical each time
+#   2 GB in 8 files   all 8 byte-identical
+#   1 GB in 4 files   all 4 byte-identical, 7.0 MB/s
+#
+# No copy-engine error, nothing skipped, no volume removed, and the drive
+# still mounts writable afterwards. Repeated rather than lucky: the handful
+# case ran three times and the large cases four times between them.
+#
 # Result on 2026-09-01, two cycles against the BitLocker/NTFS stick this bug
 # was reported on -- which is the one that matters, an ext4 image on the
 # internal disk being too fast to stall:
