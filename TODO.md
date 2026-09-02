@@ -90,6 +90,14 @@ which is a thing this application does not do.
   nfsd answers the COMMIT before ntfs3 has put the data on /dev/vda. The next
   place to look is the guest's export and mount options, not the host.
 
+  **Nor is it ntfs3.** The same test on an NTFS image returns the file
+  byte-identical, while XFS and ext4 images lose 32768 bytes and the physical
+  drive loses the file entirely. NTFS is the most durable of the three on an
+  image, so the filesystem is not the variable and the physical device path is.
+  The next step is `fcntl(F_FULLFSYNC)` in the flush arm for raw devices: the
+  existing patch makes the attempt and tolerates the refusal that `fsync(2)`
+  gives on `/dev/rdisk*`, which leaves the flush discarded exactly as before.
+
   **And the guest's export is not the culprit either.** vmproxy builds
   `{rw|ro},no_subtree_check,no_root_squash,insecure` with no `async`, so nfsd
   runs in its default `sync` mode and must commit before answering. What is

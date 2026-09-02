@@ -501,8 +501,26 @@ Three layers ruled out by measurement:
   8 MB was written, fsynced, and verified byte-for-byte on the mount before the
   machine was killed; it was still absent afterwards. Reverted.
 
-What remains is ntfs3's own fsync path. `-o sync` would fix it and is refused:
-it makes every write synchronous.
+What it is **not** is ntfs3's fsync path, which the earlier reading blamed. The
+same test on an NTFS *image* returns the file byte-identical. Three results
+together:
+
+| Target | After the machine is killed |
+| --- | --- |
+| NTFS image | survives, byte-identical |
+| XFS and ext4 images | present, 32768 bytes of holes at offset 0 |
+| NTFS physical drive | absent entirely |
+
+NTFS is the most durable of the three on an image and the only total loss on a
+drive, so the filesystem is not the variable. The physical device path is: an
+image is a file that imago opens and flushes, and a drive is `/dev/rdiskNsM`,
+which is the branch `CacheType::auto()` answered with `Unsafe` until it was
+patched. That patch makes the flush attempt happen and tolerates a device that
+refuses to sync, which on a raw device is what `fsync(2)` does, so the attempt
+is still effectively discarded. The macOS call that works on a raw device is
+`fcntl(F_FULLFSYNC)`, and it is not yet wired in.
+
+`-o sync` would mask it and is refused: it makes every write synchronous.
 
 A normal eject is safe. `EngineProcesses.stop` sends SIGTERM and waits up to
 twenty seconds. SIGTERM flushes cleanly, 100 MB surviving with the machine
