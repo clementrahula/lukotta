@@ -2150,3 +2150,46 @@ launch and home listing latencies never printed at all.
 what an 8 GB Mac has, with twelve volumes open through the route a person uses.
 It is not an 8 GB M1. Item 8 names that machine and this is the closest this
 hardware can come.
+
+### One volume of twelve came back empty, and filled in later — 2026-09-03
+
+Third run of `crowd-through-the-app.sh`. Twelve volumes opened through the
+app, sixty files copied onto each at once, read back.
+
+    seconds to open        12, 12, 12, 12, 12, 13, 13, 13, 13, 14, 13, 14
+    written                60 files to each of the twelve at once, in 2 s
+    read back              byte-identical on 11, wrong on 1
+    the wrong one          /Volumes/CROWD8, NTFS, on disk12
+
+Then, by hand, on the volume while it was still mounted:
+
+    12:35        the copy runs; the files carry this timestamp
+    ~12:36:40    ls of /Volumes/CROWD8/crowd-write returns 0 files
+    ~12:37:30    the same ls returns all 60, every one 100000 bytes
+    afterwards   create visible in 1 ms, delete visible in 0 ms
+
+So nothing was lost. Sixty files of the right size were on the volume; a
+listing taken a minute after the copy did not show them, and a listing taken
+a minute after that did. The two runs before this one passed twelve of twelve,
+so it is intermittent — once in three.
+
+**The instrument could not say which failure this was.** `ditto` wrote to
+`/dev/null`, so whatever it said about that volume is gone. The readback sent
+`find`'s errors to `/dev/null` too, so a directory that fails to list produces
+an empty sums file, which differs from the expected sums in exactly the way a
+volume of corrupt files does. An erroring volume and a corrupt one arrived as
+the same line. Both are now kept and told apart, and a short listing is
+watched for a minute so a volume that fills in late is distinguished from one
+that never fills in.
+
+**What is not yet known.** Whether the client held a stale directory or the
+server had not yet made the files. The gap seen by hand is between 90 and 150
+seconds, and the client's own directory cache expires at 60 (`acdirmax`
+default; the app sets rsize, wsize, readahead, dumbtimer, timeo, retrans,
+deadtimeout, mutejukebox and noowners, and no attribute-cache option at all).
+Longer than 60 seconds points away from the client's cache, but the times were
+taken by hand from a shell and are not tight enough to settle it. The next run
+records the settle time from inside the harness.
+
+**This is a user-visible copying failure and counts against item 3.** A person
+who copies a folder and opens it a minute later sees an empty folder.
