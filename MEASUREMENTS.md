@@ -1812,11 +1812,17 @@ told there is no room -- and item 3 says nothing user-visible during a copy,
 while item 1 is about writing not stalling. Sixty-five times NTFS is not a
 detail.
 
-A third number, from XFS inside LUKS, taken an hour later:
+More numbers, from the same vector on every format that would open:
 
     NTFS                          2s
+    btrfs                         2s
+    exFAT                         3s
     ext4 inside LUKS            129s
     XFS inside LUKS             140s
+
+Three unencrypted filesystems answer in two or three seconds. Two encrypted
+ones take over two minutes. It is the encryption, not the filesystem and not
+the Linux mount path -- btrfs is as Linux as ext4 and answers as fast as NTFS.
 
 So it is not ext4. Two different filesystems inside LUKS behave the same, and
 the unencrypted one is sixty-five times quicker. That leaves the encryption
