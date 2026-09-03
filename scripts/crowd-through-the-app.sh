@@ -81,7 +81,7 @@ clean_up() {
   # its copy. It was leftovers, and the next few runs after that would have
   # failed for want of space with nothing wrong with the app.
   for point in $(mount | /usr/bin/grep -oE '/Volumes/CROWD[0-9]+' | sort -u); do
-    rm -rf "$point/crowd-write" >/dev/null 2>&1
+    rm -rf "$point/crowd-write" "$point/fill" >/dev/null 2>&1
   done
   for point in $(mount | /usr/bin/grep -oE '/Volumes/CROWD[0-9]+' | sort -u); do
     umount "$point" >/dev/null 2>&1 || umount -f "$point" >/dev/null 2>&1
@@ -135,6 +135,31 @@ echo "  lo0 now carries $(ifconfig lo0 | /usr/bin/grep -c 'inet ') addresses tha
 # not from the volume, so a file that never arrived is a difference and not a
 # matching pair of absences.
 mount | /usr/bin/grep 'CROWD' | awk '{print $3}' > "$WORK/points"
+# Optionally filled first, to a known margin on every volume.
+#
+# All three stale handles so far landed on volumes an earlier run had left
+# nearly full, and the runs that followed -- on volumes the harness had since
+# cleaned -- were all clean. A full volume on its own is not it: filled to
+# 2.8 MB free and copied 6 MB into, one volume answered "No space left on
+# device" sixty times over, which is exactly right. So what is left to try is
+# both at once, which is what this does.
+if [ -n "${FILL_MARGIN_MB:-}" ]; then
+  echo "filling every volume to ${FILL_MARGIN_MB} MB free before writing"
+  while read -r point; do
+    mkdir -p "$point/fill"
+    n=0
+    while :; do
+      free_mb=$(df -m "$point" | tail -1 | awk '{print $4}')
+      [ "${free_mb:-0}" -le "$FILL_MARGIN_MB" ] && break
+      n=$((n + 1))
+      head -c 1048576 /dev/urandom > "$point/fill/pad$n" 2>/dev/null || break
+      [ "$n" -gt 200 ] && break
+    done
+  done < "$WORK/points"
+  echo "  free on each: $(while read -r p; do df -m "$p" | tail -1 \
+    | awk '{printf "%s ", $4}'; done < "$WORK/points")MB"
+fi
+
 SRC="$WORK/src"; mkdir -p "$SRC"
 for i in $(seq 1 60); do head -c 100000 /dev/urandom > "$SRC/f$i.bin"; done
 (cd "$SRC" && find . -type f -exec shasum -a 256 {} \; | sort) > "$WORK/before.sums"
