@@ -78,11 +78,25 @@ while IFS=$'\t' read -r id tags speed claim cmd <&3; do
     echo skipped >> "$TALLY"; continue
   fi
 
+  # Bounded, because one check that hangs stalls every check after it.
+  #
+  # homes-are-separate.sh ran for forty-six minutes inside a full run and had to
+  # be killed by hand; everything queued behind it simply never happened. A
+  # check that takes longer than its bound has failed as far as this is
+  # concerned -- an answer that never arrives is not a pass.
   printf '%-10s %-52s ' "$id" "$claim"
-  if eval "$cmd" > "$LOG" 2>&1 < /dev/null; then
+  bound="${CHECK_TIMEOUT:-1800}"
+  [ "$speed" = "fast" ] && bound="${FAST_TIMEOUT:-300}"
+  if timeout "$bound" bash -c "$cmd" > "$LOG" 2>&1 < /dev/null; then
     printf 'holds\n'; echo passed >> "$TALLY"
   else
-    printf 'FAILS\n'; echo failed >> "$TALLY"
+    rc=$?
+    if [ "$rc" -eq 124 ]; then
+      printf 'FAILS (took longer than %ss)\n' "$bound"
+    else
+      printf 'FAILS\n'
+    fi
+    echo failed >> "$TALLY"
     echo "      the check was: $cmd"
     sed 's/^/      /' "$LOG" | tail -8
   fi
