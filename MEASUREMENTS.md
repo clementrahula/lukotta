@@ -2943,3 +2943,43 @@ What has no fixture at all: FAT, BitLocker, and the five virtual-disk formats.
 BitLocker cannot be made here — nothing on macOS or Linux creates a BitLocker
 volume, only reads one — so that half rests on the owner's drive and says so.
 The rest can be built.
+
+### Widening the sweep found a regression I had put in this morning — 2026-09-04
+
+Eight more fixtures added to `vectors-every-format.sh`, covering the formats the
+site claims that had never been swept. First run: **14 formats, 5 with
+failures.** Four of the five were the same thing, and it was mine.
+
+    luks1-lvm      the engine never mounted it
+    luks2-lvm      the engine never mounted it
+    luks-lvm-big   the engine never mounted it
+    luks-multi     the engine never mounted it
+    plain-exfat    11 passed, 1 failed (awkward names, the copy would not run)
+
+**LVM inside LUKS was not broken. My guard was refusing it.** Traced by opening
+one by hand: the group activates, three shares are served, and the helper
+reports that nothing was —
+
+    lvm-ubuntuvg.local:/run/disk5        -> /Volumes/disk5
+    lvm-ubuntuvg.local:/run/disk5/ROOTFS -> /Volumes/disk5/ROOTFS
+    lvm-ubuntuvg.local:/run/disk5/HOMEFS -> /Volumes/disk5/HOMEFS
+
+    the mount script reported success and no volume is served
+    open exit 74, drive torn down
+
+The check added this morning — after an exFAT stick was reported as opened when
+it had not — looked for `diskN.local:`, named after the device. A container of
+logical volumes is named after the group. Narrowed to `.local:/mnt/` it was
+still wrong: containers serve from `/run`. Both times it refused a mount that
+had worked, and tore the drive down.
+
+**Fixed and measured:** the same image now opens exit 0 with all three shares
+served. It counts anything with `.local:` in it, before and after, and asks
+whether this mount added one.
+
+**What this says about the guard.** It was added to catch a mount that reported
+success and served nothing, which is a real fault it does catch. It then caused
+a worse one — refusing working mounts of an advertised feature — and nothing
+noticed for a day, because no check covered LVM inside LUKS. The sweep that
+found it exists because item 6 says "if the app claims it, it is tested", and
+the app claims it.
