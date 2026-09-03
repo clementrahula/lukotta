@@ -42,3 +42,5 @@ nfs-stall.md
 .claude/
 architecture.md
 scripts/__pycache__/
+.lint.log
+.tests.log

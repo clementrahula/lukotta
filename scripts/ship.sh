@@ -132,7 +132,30 @@ if command -v gh >/dev/null 2>&1; then
     -q '[.[].conclusion | select(. == "success" or . == "failure")][0]' 2>/dev/null || true)"
   case "${CI:-unknown}" in
     success) echo "    the checks are green" ;;
-    unknown|null) echo "    no conclusive check run to read; going on" ;;
+    unknown|null)
+      # Nothing to read, so run the checks here instead of shipping unchecked.
+      #
+      # macOS runners are scarce and the checks sit queued; on 2026-09-03 forty
+      # consecutive runs were queued or cancelled and not one concluded, so
+      # "no conclusive run" is the normal case during a working session rather
+      # than an oddity. Reading that as permission to go on means every release
+      # of a busy day ships with nothing behind it.
+      #
+      # Waiting for the queue is not the answer either: that is an obstacle
+      # between a finished build and somebody being able to install it, and
+      # those are not allowed. So the same two things the workflow runs are run
+      # here, where there is no queue.
+      echo "    no conclusive check run; running the checks here instead"
+      if ! bash scripts/lint.sh > "$HERE/.lint.log" 2>&1; then
+        tail -20 "$HERE/.lint.log" >&2
+        die "the lint checks fail; fixing that comes before shipping"
+      fi
+      if ! ./scripts/run-tests.sh > "$HERE/.tests.log" 2>&1; then
+        grep -E "FAIL|error:" "$HERE/.tests.log" | head -20 >&2
+        die "the unit checks fail; fixing that comes before shipping"
+      fi
+      echo "    lint and unit checks pass here"
+      ;;
     *)
       echo "    the checks are ${CI}. Fixing that comes before shipping:" >&2
       gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --status completed \
