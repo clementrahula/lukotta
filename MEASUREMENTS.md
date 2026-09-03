@@ -2422,3 +2422,32 @@ handle.
 followed ran on volumes the harness had since emptied. That pairing is what is
 being tried next, deliberately, with every volume filled to 8 MB free before
 the twelve-way write.
+
+### Nearly full and twelve at once: correct errors, no stale handle — 2026-09-03
+
+Every volume filled to about 5 to 8 MB free, then the same twelve-way copy of
+6 MB onto each.
+
+    free on each before the write   5 5 5 8 5 5 5 5 7 5 8 6 MB
+    byte-identical on 3, wrong on 9
+    what the failures said          ditto: .../f10.bin: No space left on device
+                                    ditto: .../f38.bin: No space left on device
+    stale handles                   0, in three runs
+
+So the pairing that every occurrence had in common is not the cause: twelve
+volumes opening at once *and* nearly full produces "No space left on device",
+correctly, on nine volumes at a time.
+
+**And it kills the coincidence the last entry was built on.** `f10.bin` and
+`f38.bin` are named here too, in ordinary out-of-space failures, on nine
+different volumes at once. So `f38.bin` appearing in both stale-handle records
+was never one in 3600 — it is simply where `ditto`'s ordering surfaces a
+failure in a sixty-file copy. That reading is withdrawn.
+
+**What is left.** The stale handle is not fullness, not a damaged fixture, not
+a cached listing, not a single volume, and not the first write after an open on
+its own. It is 3 occurrences in 16 twelve-volume runs, and the only thing every
+one of them shares is the twelve-way first write itself. The harness now watches
+a stale handle for three minutes and records whether the bytes come back, which
+is the one thing that has never been captured and the thing that decides
+whether this is a wrong message or a lost file.
