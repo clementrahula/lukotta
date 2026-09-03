@@ -1291,3 +1291,29 @@ The count is now reported once rather than each time.
 
 Found while reading the daemon's log for something else, which is the only
 reason it was ever seen: nothing about it reaches the screen.
+
+### The mount that never started: ten addresses counted as twelve — 2026-09-03
+
+The app serves each drive's machine on its own loopback address and wants
+twelve of them, one per drive it claims to hold. It counts the ones it can
+serve over, which is IPv4:
+
+    ifconfig lo0 | grep 'inet '        10   127.0.0.1 .. 127.0.0.10
+
+The daemon that adds them counted every address on `lo0`, and `lo0` carries
+`::1` and `fe80::1` as well. So it counted twelve, decided there was nothing to
+add, and said so. The app saw ten, asked for more, was told twelve, and asked
+again -- five times a second, in the log, for the whole ten minutes the harness
+allowed it:
+
+    drives  only 10 addresses; asking for more
+    helper  loopback addresses: 12
+    app     room for 12 drives at once
+
+The mount never started. Nothing reached the screen; the app simply sat there.
+Both sides now count the addresses that can serve, so the daemon adds
+127.0.0.11 and 127.0.0.12 and the number it reports is the number the app is
+asking about.
+
+This is also the ceiling item 8 is about: the app could never have had more
+than ten drives open, whatever the machine had room for.

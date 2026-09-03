@@ -613,7 +613,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 !MountTableEntry.all(in: LukottaCore.mountTable()).contains(where: \.isEngineMount)
             else {
                 Log.helper.notice("not releasing addresses: drives are open")
-                return reply(Capacity.addresses().count)
+                return reply(Capacity.addressesForServing().count)
             }
             var released = 0
             // Every address this app can add, so releasing undoes adding
@@ -622,15 +622,21 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             // remainder stayed on the interface after an uninstall.
             for last in 2...Capacity.lastLoopbackAddress {
                 let address = "127.0.0.\(last)"
-                guard Capacity.addresses().contains(address) else { continue }
+                guard Capacity.addressesForServing().contains(address) else { continue }
                 _ = LukottaCore.run("/sbin/ifconfig", ["lo0", "-alias", address])
                 released += 1
             }
             Log.helper.notice("released \(released, privacy: .public) loopback addresses")
-            return reply(Capacity.addresses().count)
+            return reply(Capacity.addressesForServing().count)
         }
+        // The ones that can serve, which is what the app counts. Counting
+        // every address on lo0 counted ::1 and fe80::1 too, so on a Mac with
+        // ten IPv4 aliases this answered twelve and stopped adding, while the
+        // app -- which serves over IPv4 -- saw ten, asked for more, was told
+        // twelve again, and asked again. The mount never started: the app sat
+        // in that loop until whatever was above it gave up.
         let wanted = min(max(count, 1), Capacity.lastLoopbackAddress - 1)
-        var have = Capacity.addresses().count
+        var have = Capacity.addressesForServing().count
         // 127.0.0.2 upwards, which are loopback by definition and reach nothing
         // outside this Mac. Numbered from a fixed base so calling this again
         // lands on the same addresses rather than filling the interface with
@@ -639,10 +645,10 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         while have < wanted, last < Capacity.lastLoopbackAddress {
             last += 1
             let address = "127.0.0.\(last)"
-            guard !Capacity.addresses().contains(address) else { continue }
+            guard !Capacity.addressesForServing().contains(address) else { continue }
             _ = LukottaCore.run(
                 "/sbin/ifconfig", ["lo0", "alias", address, "netmask", "255.255.255.255"])
-            have = Capacity.addresses().count
+            have = Capacity.addressesForServing().count
         }
         Log.helper.notice("loopback addresses: \(have, privacy: .public)")
         reply(have)

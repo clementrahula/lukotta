@@ -1553,6 +1553,17 @@ group("aRowSaysOnlyWhatIsKnownAboutIt") {
     expect(
         VolumeKind.settled(.microsoft, sectorSays: .ext) == .microsoft,
         "a partition type that says Microsoft is a fact, and stands")
+
+    // The daemon adds addresses until it has as many as the app wants, and the
+    // two have to be counting the same thing. Counting every address on lo0
+    // counted ::1 and fe80::1 as well, so ten IPv4 aliases answered twelve and
+    // the app asked for more forever.
+    expect(
+        Capacity.addressesForServing().allSatisfy { $0.contains(".") && !$0.contains(":") },
+        "only addresses the engine can export over are counted")
+    expect(
+        Capacity.addressesForServing().count <= Capacity.addresses().count,
+        "and they are never more than every address on the interface")
     expect(
         typed.first?.kind.summary == "LUKS/Linux",
         "and it is the pair, since the type allows either")
