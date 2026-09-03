@@ -225,7 +225,17 @@ open_image() {
     APP_DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage \
       "$IMAGE" 2>/dev/null | head -1 | awk '{print $1}')"
     [ -n "${APP_DEV:-}" ] || return 1
-    timeout 300 "$app" --drive open="$APP_DEV" > "$WORK/app.log" 2>&1 || return 1
+    # LUKOTTA_PASSPHRASE for an encrypted fixture. Without it the app opens
+    # what it can and reports an unencrypted volume for what it cannot, so a
+    # LUKS image would fail here for want of a key rather than for anything
+    # this harness is trying to find out. The fixtures made by
+    # make-test-volumes.sh all use the same one.
+    if [ -n "${LUKOTTA_PASSPHRASE:-}" ]; then
+      timeout 300 "$app" --drive open="$APP_DEV" \
+        passphrase="$LUKOTTA_PASSPHRASE" > "$WORK/app.log" 2>&1 || return 1
+    else
+      timeout 300 "$app" --drive open="$APP_DEV" > "$WORK/app.log" 2>&1 || return 1
+    fi
     [ -n "$(where)" ] && return 0
     return 1
   fi
