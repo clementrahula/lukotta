@@ -1034,3 +1034,29 @@ need writing, which is worth more than it sounds.
 What that leaves: the fault is in nfsd generally or below it, on both protocol
 versions, both backings, and three of five filesystems -- while an fsync issued
 inside the same machine at the same moment is durable every time.
+
+## Repeatability, and what limits it — 2026-09-03
+
+Item 9 says a happy path twice is not proof, so the vectors were run again:
+
+    NTFS                        11 of 11, twice in a row
+    ext4 with data=journal      11 of 11 on a clean volume
+    ext4 without the option     the fsync vector fails, as it should
+
+The fsync vector is the one that matters and it passes with the option and
+fails without it, which is the fix doing exactly its job.
+
+What stops a clean second run is fixture hygiene, not the app. These vectors
+need 200 MB free, write 80 MB, and then deliberately fill the volume; the
+fixtures are 320 MB to 2 GB and every run of the night left something on them.
+Three separate "failures" chased tonight were that:
+
+    "0 whole, 40 wrong"      a volume whose operations were timing out, so cmp
+                             read failures and counted them as corruption
+    "out of space"           an NTFS fixture holding 300 MB of my own files
+    "52 MB free"             an ext4 image carrying leftovers into every copy
+
+None of them was the product, and each looked exactly like it was. The vectors
+now refuse a volume too small for them and clear what a stopped run left, which
+catches the second and third; the first needs a fixture rebuilt rather than
+reused, and a volume worn out by repeated kill-9s should simply be thrown away.
