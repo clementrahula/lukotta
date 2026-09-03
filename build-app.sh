@@ -571,6 +571,30 @@ if [ -n "$NOTARY_ARGS" ] && [ "$SIGN_ID" != "-" ]; then
   fi
   rm -f "$ZIP"
 fi
+# Nothing in the finished bundle may name the machine that built it.
+#
+# Checked here because this is the last point at which it is still true that
+# nothing has shipped. The vendoring step has its own sweep, but vendoring
+# happens rarely and a bundle is assembled from whatever is already on disk --
+# which is how a manifest carrying an account name, a hostname and a home
+# directory came to be inside every release, in a file nobody thought to look
+# at because the only guard there looked at two binaries.
+#
+# Counted, not matched: `grep -q` exits on its first hit, the producer dies of
+# SIGPIPE, and `set -o pipefail` reports that as failure -- a guard written
+# that way goes quiet in exactly the case it exists for.
+__named=0
+while IFS= read -r __f; do
+  [ "$(LC_ALL=C strings -a "$__f" 2>/dev/null | grep -cF "$HOME")" -gt 0 ] || continue
+  printf 'error: %s carries the path of the machine that built it.\n' \
+    "${__f#"$OUT"/}" >&2
+  __named=$((__named + 1))
+done < <(/usr/bin/find "$OUT" -type f)
+if [ "$__named" -gt 0 ]; then
+  printf '       %s file(s) name this machine; nothing is shipped.\n' "$__named" >&2
+  exit 1
+fi
+
 printf 'Built %s\n' "$OUT"
 
 # A branded build is not copied into /Applications.
