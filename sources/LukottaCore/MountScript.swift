@@ -847,39 +847,7 @@ public enum MountScript {
         // engine mounts what it found. Only NTFS -- and BitLocker, which is
         // NTFS once it is unlocked -- wants the pair.
         let wantsNTFS = i.kind == .microsoft && i.format != .exfat
-
-        // A volume that had to be repaired is served by ntfs-3g, not handed
-        // straight back to the driver that had just refused it.
-        //
-        // ntfsfix is not a chkdsk. It clears the dirty flag and fixes the boot
-        // sector, and it does not repair what an interrupted copy actually
-        // leaves behind: a directory index entry pointing at an MFT record
-        // whose sequence number has moved on. The kernel says so plainly --
-        // "MFT: r=1b, expect seq=4 instead of 8!" -- and refuses the entry,
-        // which is right, because that check is what stops a handle resolving
-        // to a different file after a record has been reused.
-        //
-        // The old order sent the repaired volume back to ntfs3, which met the
-        // same entry again. Measured, twelve volumes pulled mid-copy and opened
-        // again: all twelve opened and not one could be written to, every time,
-        // with `ditto: /Volumes/CROWDn/crowd-write: Invalid argument` -- errno
-        // 70 by the time it crosses NFS, which Finder shows as a stale file
-        // handle. On the same volume with the flag cleared before each, ntfs3
-        // cannot stat that entry and ntfs-3g reads and writes it.
-        //
-        // So the rung that runs after a repair takes ntfs-3g first. ntfs3 stays
-        // behind it, because a volume that was merely dirty and is otherwise
-        // sound should still get the fast driver once ntfs-3g has declined --
-        // and ntfs3 declines by itself when it finds something it will not
-        // touch.
-        //
-        // This does not make the volume sound. The bad entry is still there,
-        // and a later open of a volume nothing has repaired since will find
-        // ntfs3 meeting it again; that is written down as still open rather
-        // than papered over here.
-        let repairing = action == repairActionName
-        let ntfsLadder = repairing ? ["ntfs-3g", "ntfs3"] : ["ntfs3", "ntfs-3g"]
-        let drivers: [String?] = wantsNTFS ? ntfsLadder : [nil]
+        let drivers: [String?] = wantsNTFS ? ["ntfs3", "ntfs-3g"] : [nil]
         // The engine resolves whatever target it is handed by prefixing /dev/,
         // so an alias elsewhere never resolves and produced a
         // "disk /dev//var/folders/… not found" line ahead of every mount.

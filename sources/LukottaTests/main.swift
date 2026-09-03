@@ -5385,53 +5385,6 @@ group("theRepairRefusesWhatItWouldDamage") {
     try? FileManager.default.removeItem(at: dir)
 }
 
-group("aRepairedVolumeIsNotHandedBackToNtfs3") {
-    // ntfsfix is not a chkdsk. It clears the dirty flag and leaves what an
-    // interrupted copy actually leaves behind: a directory index entry pointing
-    // at an MFT record whose sequence has moved on. ntfs3 refuses that entry --
-    // "MFT: r=1b, expect seq=4 instead of 8!" -- and it is right to, because
-    // that check is what stops a handle resolving to a different file after a
-    // record is reused.
-    //
-    // Sending the repaired volume straight back to ntfs3 meant it met the same
-    // entry again. Twelve volumes pulled mid-copy and opened again: all twelve
-    // opened, not one could be written to, every round. So the rung that runs
-    // after the repair asks ntfs-3g first, which reads and writes that entry.
-    let script = MountScript.build(sampleInputs(kind: .microsoft))
-    guard let repairAt = script.range(of: "ntfsfix -d").map({
-        script.distance(from: script.startIndex, to: $0.lowerBound)
-    }) else {
-        expect(false, "the repair rung is in the script at all")
-        return
-    }
-    let after = String(script.suffix(from: script.index(script.startIndex, offsetBy: repairAt)))
-    let threeGAt = after.range(of: "ntfs-3g").map {
-        after.distance(from: after.startIndex, to: $0.lowerBound)
-    }
-    // "ntfs3" also matches inside "ntfs-3g", so the kernel driver is looked for
-    // where it can only be itself: as the value the mount is given.
-    let kernelAt = after.range(of: "--fs-driver ntfs3 ").map {
-        after.distance(from: after.startIndex, to: $0.lowerBound)
-    } ?? after.range(of: "ntfs3\"").map {
-        after.distance(from: after.startIndex, to: $0.lowerBound)
-    }
-    expect(threeGAt != nil, "ntfs-3g is offered after the repair")
-    expect(
-        (threeGAt ?? 1) < (kernelAt ?? Int.max),
-        "and it is offered before ntfs3, which had just refused the volume")
-
-    // Before any repair, the fast driver still comes first: a sound volume is
-    // not made slow by a rule about a damaged one.
-    let head = String(script.prefix(repairAt))
-    let firstThreeG = head.range(of: "ntfs-3g").map {
-        head.distance(from: head.startIndex, to: $0.lowerBound)
-    } ?? Int.max
-    let firstKernel = head.range(of: "ntfs3").map {
-        head.distance(from: head.startIndex, to: $0.lowerBound)
-    } ?? Int.max
-    expect(firstKernel < firstThreeG, "ntfs3 is still tried first on a volume nothing has repaired")
-}
-
 group("aDirtyVolumeIsRepairedRatherThanDemoted") {
     // Windows leaves a volume dirty and both drivers refuse to write to it:
     // ntfs3 says so in the kernel, ntfs-3g answers the mount with an I/O error.
