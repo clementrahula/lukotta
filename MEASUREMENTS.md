@@ -1580,6 +1580,12 @@ file in the built 1.22.8-beta.1 bundle swept, nothing found, and the manifest
 that carried the header now begins at `keywords:`. The build also had to pass
 its own new guard to finish at all.
 
+The engine binary does not contain the string `mtree` at all -- nought
+occurrences -- so nothing reads or validates the file at run time. It is
+written once by `anylinuxfs init`, and thereafter only its *name* is used, by
+`vendor-engine.sh`, to check the guest digest against the lock. Stripping
+comments from it cannot break a boot.
+
 Checked before doing it that nothing verifies the manifest's contents:
 `vendor/engine.lock` does not mention it, no checksum covers it, the digest
 check reads the file's *name*, and the app only looks for an mtree existing at
