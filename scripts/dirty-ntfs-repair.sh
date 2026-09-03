@@ -76,8 +76,16 @@ where() {
 # actions the same way a mount does, before any of them is named.
 "$ENGINE" --version >/dev/null 2>&1 || true
 prepare_actions() {
+  # On a clean volume, never on the dirty one.
+  #
+  # The app writes its repair action while building a writable NTFS mount, and
+  # the dirty volume is the one that cannot be mounted without that action. So
+  # asking the app to open the dirty image installs nothing and the harness then
+  # reports that the app could not open a dirty volume -- which it never tried.
+  local clean="$OUT/sweep/base.img"
+  [ -f "$clean" ] || clean="$IMG"
   local dev
-  dev="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
+  dev="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$clean" \
     2>/dev/null | head -1 | awk '{print $1}')"
   [ -n "${dev:-}" ] || return 1
   timeout 600 "$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)" \
@@ -86,8 +94,11 @@ prepare_actions() {
   point="$(where)"
   [ -n "$point" ] && diskutil unmount "$point" >/dev/null 2>&1
   hdiutil detach "$dev" -quiet 2>/dev/null
+  # The engine keeps its configuration one directory further down. Looking in
+  # the wrong place here made this report that the app had left no actions,
+  # every time, whether it had or not.
   grep -q "custom_actions.lukottarepair" \
-    "$ANYLINUXFS_HOME/config.toml" 2>/dev/null
+    "$ANYLINUXFS_HOME/.anylinuxfs/config.toml" 2>/dev/null
 }
 
 open_it() {  # extra engine args

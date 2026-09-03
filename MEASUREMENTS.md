@@ -1226,3 +1226,34 @@ The read-only change touches `mountOptions`, which every mount goes through, so
 the whole end-to-end suite was run against it rather than the one path it was
 written for. This is the check that was skipped before 1.22.4 shipped a
 regression, and it is now what happens after a change to shared code.
+
+## A gap in item 7: NTFS on an unpartitioned disk — 2026-09-03
+
+The repair action is generated only when the mount is writable and the volume's
+kind is `.microsoft`:
+
+    withRepair: i.kind == .microsoft && !i.readOnly
+
+and `kind` comes from the partition type the scanner reads. An unpartitioned
+disk has no partition type, and the scanner calls it `.linux` deliberately --
+"a whole disk handed to cryptsetup is what makes one, and the probe corrects it
+either way". The probe does correct the *format*, and it does not correct
+`kind`, which is what the repair is keyed on.
+
+So a disk holding NTFS with no partition table gets no repair action installed,
+and the dirty-NTFS harness -- whose fixture is exactly that shape -- reports
+"unknown custom action: lukottarepair" and "the app could not open the dirty
+volume at all".
+
+**What is and is not proven.** Item 7 is proven for a volume whose partition
+type says Microsoft: the app opened a dirty one writable with all 41 files
+intact and nothing shown to the user. What is not covered is the same
+filesystem on a disk with no partition table, which is how some sticks are
+formatted and how every raw image of one looks.
+
+The fix is not to install the action more widely -- the ladder that would use
+it is keyed on the same `kind`, so the action alone would sit unused. It is for
+the probe's answer to reach `kind`, so a disk that turns out to hold NTFS is
+treated as holding NTFS whatever its partition table says. That is a change to
+how the scan and the probe meet, and it wants doing carefully rather than at
+the end of a long night.
