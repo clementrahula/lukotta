@@ -1009,3 +1009,28 @@ the engine and wants its own testing rather than a quick edit. It is recorded
 here as the most promising route because it is the only candidate that could
 remove the fault rather than paper over it, and the papering-over is what costs
 a real drive forty-seven times its speed.
+
+## NFSv4 has the same fault — the route is closed — 2026-09-03
+
+The note above called NFSv4 the most promising route. It is not, and this is
+the run that says so.
+
+The v4 mount failed at first with EINVAL, which was the client's `nolocks`
+option and not v4 -- v4 has integrated locking and rejects it. Given a
+pseudo-root in the guest (`/mnt` exported with `fsid=0`, added by hand for the
+experiment) and dropped `nolocks`, macOS mounts v4 happily:
+
+    the share mounts, and the mount table lists it as an ordinary NFS mount
+
+Four files written with `dd conv=fsync` over that v4 mount, no guest option at
+all, machine killed:
+
+    NFSv4, no guest option:  ok=0  wrong=4  missing=0
+
+The same as v3. So the loss is not in v3's write-then-COMMIT path, and building
+the pseudo-root into the engine would have bought nothing. That patch does not
+need writing, which is worth more than it sounds.
+
+What that leaves: the fault is in nfsd generally or below it, on both protocol
+versions, both backings, and three of five filesystems -- while an fsync issued
+inside the same machine at the same moment is durable every time.
