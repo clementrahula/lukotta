@@ -75,8 +75,15 @@ jobs:
 
           # And whether the thing it offers can be fetched. A range request, so
           # this does not pull ninety-four megabytes to learn that it exists.
+          #
+          # Whatever the enclosure names, not a guess at the extension. This
+          # looked for a .dmg and a Sparkle appcast offers the zip, so its first
+          # working run reported a perfectly good release as "not being served"
+          # -- the check failing, dressed as the release failing, which is the
+          # one thing a notice like this must never do.
           url="$(curl -fsSL --max-time 30 "$feed" 2>/dev/null \
-                 | grep -o 'https://[^"]*\.dmg' | head -1)"
+                 | grep -o 'url="https://[^"]*"' | sed 's/^url="//; s/"$//' \
+                 | grep -v '\.xml$' | head -1)"
           code=000
           if [ -n "$url" ]; then
             code="$(curl -sSL -o /dev/null -r 0-0 \
@@ -151,7 +158,7 @@ jobs:
               `| channel | ${process.env.CHANNEL} |`,
               `| tag | ${rel.tag_name} |`,
               `| appcast serves it | ${process.env.SERVED} |`,
-              `| disk image reachable | ${process.env.DOWNLOADABLE} |`,
+              `| what the feed offers is reachable | ${process.env.DOWNLOADABLE} |`,
               `| feed | ${process.env.FEED} |`,
               `| release | ${rel.html_url} |`,
             ].join('\n')
