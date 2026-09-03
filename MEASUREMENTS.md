@@ -2780,3 +2780,52 @@ The check is registered because it would catch the tail returning on this
 hardware, and it is written down as a guard rather than a proof. The honest
 gap: no automated check here can prove item 1, and proving it again needs the
 USB drive it was found on.
+
+### What the gate found when every row was made to run — 2026-09-03
+
+The first full run reported six failures. Every one of them was the registry
+and not the app:
+
+    goal2, goal4, forks    the harness takes a mounted volume and the row
+                           passed none, so it printed a usage line
+    goal4 again            integrity-vectors.sh wants a path that exists and an
+                           engine, and defaulted to a dev bundle not installed
+    firstrun, heals        named /Applications/Lukotta Dev.app outright, so a
+                           Mac without one reported "this build has no harness"
+    homes                  ran 46 minutes and had to be killed by hand
+
+That last one is the worst of them: nothing bounded a check, so everything
+queued behind it never happened, and the run before that had stopped after
+three rows entirely because a check read stdin and swallowed the rest of the
+registry — printing "holds: 2" as though that were the whole picture.
+
+**Three faults in the gate itself, all of the same family as the ones it
+exists to catch:** it truncated itself in silence, it could hang for ever, and
+it recorded its own bad rows as broken behaviour. Fixed: the list is read on a
+separate descriptor with every check given /dev/null, each check is bounded
+(1800s, 300s for the fast ones) and a check that outlives its bound fails
+rather than stalling, and the harnesses that needed a mount point are handed
+one by `with-a-drive-open.sh` rather than each growing its own copy of the
+opening.
+
+**With the rows fixed, one at a time:**
+
+    goal1    holds -- as a guard only; the fixture cannot produce the fault
+    goal3    holds -- damaged volume opened through the app, name reclaimed
+    goal4    holds -- NTFS byte-identical through the app
+    goal5    holds -- LUKS and the filesystems inside it
+    goal6    holds -- every format the app advertises
+    goal7    holds -- dirty volume repaired, 41 files byte-identical
+    goal8    holds -- twelve served at every sample under the ballast
+    goal9    holds -- every vector on every format
+    goal10   holds -- 1144 checks
+    firstrun holds -- once it could be pointed at a bundle that exists
+
+**Item 4's claim is narrowed rather than left flattering.** There is no
+BitLocker fixture here, so that half rests on the owner's own drive, and the
+row now says so instead of implying the check covers it.
+
+**Item 2 is the one real gap left.** No crash copying through Finder at both
+extremes, which needs Finder driving the copy rather than ditto, and that is
+what `finder-copy-cycles.sh` does -- now reachable, since the mount point is
+handed to it.
