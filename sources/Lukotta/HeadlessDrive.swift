@@ -206,7 +206,9 @@
             let names = VolumeIdentity.names(
                 fingerprint: fingerprint, uuid: drive.uuid, id: drive.id, cache: cache)
             for name in names {
-                if let saved = CredentialStore.load(for: name) {
+                // Empty is not a passphrase, and saying it was one stopped the
+                // search at a device node with nothing behind it.
+                if let saved = CredentialStore.load(for: name), !saved.isEmpty {
                     say("using the key saved under \(name)")
                     return saved
                 }

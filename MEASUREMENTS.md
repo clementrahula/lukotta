@@ -1364,3 +1364,41 @@ So every stall this morning looked like an app that had quietly done nothing,
 when it had been saying what it was doing the whole time. Both streams are
 line-buffered now. This is why the daemon's own log was the only thing that
 showed the loopback loop, and why it took going and looking by hand to find it.
+
+### Item 7 on a whole disk with no partition table — 2026-09-03
+
+The shape that was never repaired until today, run end to end through the app:
+
+    made a clean NTFS volume
+    opened clean, wrote 41 files, closed and reopened, recorded their sums
+    machine taken away with the volume still mounted
+    confirmed dirty
+    opened dirty volume, mounted under the home directory
+    ok   the repaired volume takes a write
+    ok   all 41 files byte-identical after the repair
+    PASS
+
+And the actions the app left behind, which is what was missing every previous
+attempt:
+
+    [custom_actions.lukottatuned]
+    [custom_actions.lukottantfs3]
+    [custom_actions.lukottarepair]
+
+So item 7 now holds on both shapes: a volume whose partition type says
+Microsoft, proven earlier at 41 of 41, and a whole disk with no partition table
+at all, proven here. Nothing was shown to anybody in either case.
+
+### An empty keychain entry counted as a saved passphrase — 2026-09-03
+
+Found in the same run, in the app's own words once its output stopped being
+swallowed:
+
+    using the key saved under disk5
+    no passphrase given and none saved; opening as an unencrypted volume
+
+Both lines are about the same lookup. An entry existed under `disk5` -- a
+device node, which is whatever was attached last -- and it was empty. Finding
+it ended the search, so a real passphrase saved under any of the names after it
+was never reached, and the drive asked for one again. Empty is not a
+passphrase, on either route.

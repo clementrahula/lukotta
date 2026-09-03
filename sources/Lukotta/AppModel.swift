@@ -1636,9 +1636,13 @@ final class AppModel: ObservableObject {
     func savedCredential(for drive: Drive) -> String? {
         let names = identities(of: drive)
         guard let name = names.first else { return nil }
-        if let saved = CredentialStore.load(for: name) { return saved }
+        // An empty entry is not a passphrase. One was left under a device
+        // node -- "disk5", which is whatever was attached last -- and finding
+        // it ended the search, so a real passphrase saved under any of the
+        // names after it was never reached and the drive asked again.
+        if let saved = CredentialStore.load(for: name), !saved.isEmpty { return saved }
         for older in names.dropFirst() {
-            guard let saved = CredentialStore.load(for: older) else { continue }
+            guard let saved = CredentialStore.load(for: older), !saved.isEmpty else { continue }
             Log.mount.notice("moving a saved passphrase to the name the volume gives itself")
             if CredentialStore.save(saved, for: name) { CredentialStore.delete(for: older) }
             return saved
