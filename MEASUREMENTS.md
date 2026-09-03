@@ -2638,3 +2638,48 @@ repair, and a synchronous guest mount. What is left is the dangling index entry
 itself — and neither driver, `ntfsfix`, nor anything else in the guest can
 repair one. The route that remains is a checker the guest does not currently
 carry.
+
+### What can and cannot be repaired with what the guest already has — 2026-09-03
+
+Everything below was measured against the ninety-second reproducer, on a volume
+carrying the real damage.
+
+**A rename frees the name.** Under ntfs3 itself, no extra tools:
+
+    ls big            ->  Invalid argument
+    mv big damaged    ->  succeeds
+    mkdir big         ->  succeeds
+    5 files written into the reclaimed name  ->  all 5 arrive
+
+So the thing a person actually needs — to copy into their folder again — is
+recoverable today, with a command the guest already has, and without
+destroying anything: the damaged entry is moved aside rather than deleted.
+
+**The remains cannot be removed.** The renamed entry is still unreadable, and:
+
+    find damaged      ->  50 entries
+    unlink each       ->  49 gone, 1 stuck
+    second pass       ->  nothing further; readdir stops at the bad entry
+    rmdir damaged     ->  Directory not empty, under ntfs3 and ntfs-3g alike
+    rm -rf, ntfs-3g   ->  can't stat 'f1705.bin': I/O error
+
+A fresh mount does not clear it, and `ntfsfix -d` before each attempt does not
+either. So a repair built from what is here leaves a folder that looks empty
+and cannot be deleted.
+
+**Which puts the two routes plainly.**
+
+Rename the poisoned entry aside and the person's copy works again. The residue
+is one folder they did not make and cannot remove — and naming it with a
+leading dot would keep it out of Finder, which hides dot-files by default, so
+the cost of that route is a hidden directory rather than a visible mystery.
+What it still needs is a way to *find* the poisoned entries without walking a
+two-terabyte drive, and that is the open part.
+
+Or vendor a checker into the guest that can drop an index entry whose MFT
+reference has a stale sequence. That is what chkdsk does with one, it loses
+nothing that is not already lost — the record has been reused, so what the
+entry pointed at is gone — and it is the only route that leaves the volume
+actually sound. The guest carries ntfsfix, ntfsinfo, ntfsls, ntfscat,
+ntfsclone, ntfscmp, ntfscluster, ntfscp, ntfslabel, ntfsresize and
+ntfsundelete, and no checker at all.
