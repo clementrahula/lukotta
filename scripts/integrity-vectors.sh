@@ -191,6 +191,13 @@ open_image() {
   # The bundle needs both halves -- LUKOTTA_BRANDING=beta with
   # LUKOTTA_DEVTOOLS=1 -- or --drive is not compiled in and the app sits in
   # its run loop saying nothing. See dirty-ntfs-repair.sh.
+  #
+  # OPTS is deliberately not passed. The engine route hands over
+  # --ignore-permissions and whatever LUKOTTA_NFS_OPTIONS says; the app decides
+  # those for itself, and what it decides is the thing being tested. So a
+  # difference here -- vector 7 above all, which is about permissions -- is a
+  # real difference between the two routes and not a fault in the run. Read it
+  # that way before calling it a regression.
   if [ "${THROUGH_APP:-0}" = "1" ]; then
     local app
     app="$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)"
