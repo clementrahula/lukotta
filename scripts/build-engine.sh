@@ -230,7 +230,13 @@ cp "$HOST" "$GUEST" "$UNPACKER" "$OUT/"
 # instead. The home directory is the thing that must not be there; the account
 # name is asked of the system, never written down here.
 for __b in "$OUT/anylinuxfs" "$OUT/vmproxy"; do
-  if LC_ALL=C strings "$__b" 2>/dev/null | grep -qF "$HOME"; then
+  # Counted, not matched. `grep -q` exits the moment it finds the path, the
+  # `strings` feeding it dies of SIGPIPE, and `set -o pipefail` reports that
+  # death as the pipeline's status -- so the guard went quiet in exactly the
+  # case it exists for, and a binary carrying the builder's home directory
+  # would have shipped. Demonstrated on a file that did carry one: matched,
+  # silent; counted, caught.
+  if [ "$(LC_ALL=C strings "$__b" 2>/dev/null | grep -cF "$HOME")" -gt 0 ]; then
     echo "error: $__b carries the path of the machine that built it." >&2
     echo "       RUSTFLAGS did not reach the compiler; nothing is shipped." >&2
     exit 1
