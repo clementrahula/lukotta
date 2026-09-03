@@ -24,6 +24,7 @@
 #
 #   ./scripts/crowd-through-the-app.sh
 #   COUNT=12 ./scripts/crowd-through-the-app.sh
+#   PRESSURE=1 ./scripts/crowd-through-the-app.sh   # and as an 8 GB Mac feels it
 #
 # LUKOTTA_ENGINE names the bundle to test, and it must be one whose daemon is
 # installed -- see the note in dirty-ntfs-repair.sh about a channel with none.
@@ -153,6 +154,19 @@ echo "engines: $procs processes, ${rss:-0} MB resident in total"
 shell_ms="$( { time -p /bin/echo hello >/dev/null ; } 2>&1 \
   | awk '/^real/ {printf "%d", $2 * 1000}')"
 echo "shell responsiveness: ${shell_ms} ms for a trivial command"
+
+# And the same dozen measured as an 8 GB Mac would feel them, if asked.
+#
+# Item 8 names a machine this one is not, and eight-gig-pressure.sh answers
+# that by holding ballast until what is left free is what an 8 GB Mac has. It
+# has only ever run against volumes opened by calling the engine, which is not
+# the route a person takes -- so the two belong in one action rather than two,
+# with the volumes still open and nothing else in flight.
+if [ "${PRESSURE:-0}" = "1" ] && [ "$opened" -eq "$COUNT" ]; then
+  echo
+  echo "holding ballast, and measuring the same $COUNT inside it"
+  bash "$(dirname "$0")/eight-gig-pressure.sh" || fail=1
+fi
 
 echo
 if [ "$opened" -lt "$COUNT" ]; then
