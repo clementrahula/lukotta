@@ -1633,3 +1633,28 @@ number is recorded as a result:**
 
 The footprint and the responsiveness at twelve are therefore still unmeasured
 on this route. The opens, the writes and the read-back are measured and stand.
+
+### What the power-loss vector does and does not simulate — 2026-09-03
+
+The vector called "power loss mid-write" kills the guest machine, not the Mac.
+That is the right test for everything between the application and the host: the
+guest's page cache, the filesystem's journal, virtio's flush, nfsd's COMMIT.
+The fault traced on 2026-09-03 was found exactly there and is real.
+
+What it cannot show is the last hop. When the guest's write reaches the host,
+the host writes it to the backing file or device, and on macOS `fsync()` does
+not flush the drive's own cache -- only `fcntl(F_FULLFSYNC)` does. Killing the
+guest leaves the host's page cache intact, so a missing F_FULLFSYNC is
+invisible to every run so far: the data is in the Mac's memory and comes back
+whether or not it ever reached the platter.
+
+Neither this repository nor the vendored engine mentions F_FULLFSYNC anywhere.
+That is not evidence of a fault -- the engine's virtio backend is upstream code
+and may well do the right thing by another name -- but it is an untested hop on
+the path the owner's goal names explicitly: "files you saved survive the Mac
+losing power".
+
+Two ways to settle it, neither run yet: read what the backend does on a flush
+for a device backing, or cut power to the Mac for real with a volume open and
+files just written. The second is the only one that tests the whole path, and
+it is the one the goal is actually about.
