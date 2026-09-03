@@ -11,7 +11,17 @@ printf 'swift-format…\n'
 # "Sources" this resolved on a case-insensitive volume and linted nothing at
 # all on a case-sensitive one, where the whole style gate quietly did nothing.
 [ -d "$HERE/sources" ] || { printf 'error: no %s/sources to lint\n' "$HERE" >&2; exit 1; }
-if swift format lint --recursive --strict "$HERE/sources" 2>&1 | tee /tmp/lukotta-fmt.log | head -20; then
+# Homebrew's swift-format before the toolchain's, because that is the one the
+# checks run. They are not the same tool: the toolchain's 6.3.0 passed a line
+# that Homebrew's 603.0.0 refused, so a push went red after a local run that
+# had just said everything was fine. The local gate has to be the real gate.
+FMT=(swift format)
+if command -v swift-format >/dev/null 2>&1; then
+  FMT=(swift-format)
+else
+  printf '  using the toolchain formatter; the checks use Homebrew swift-format\n'
+fi
+if "${FMT[@]}" lint --recursive --strict "$HERE/sources" 2>&1 | tee /tmp/lukotta-fmt.log | head -20; then
   [ -s /tmp/lukotta-fmt.log ] && status=1
 else
   status=1
