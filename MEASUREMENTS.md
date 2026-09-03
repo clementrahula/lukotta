@@ -1217,3 +1217,12 @@ The new vector -- awkward names and shapes -- reports 10 whole, 0 wrong, 0
 missing on every one: Japanese, Greek, Cyrillic, umlauts, an emoji, spaces and
 an apostrophe, a 254-character name, a ten-deep path, a mostly-hole 512 MB
 sparse file, and a 100 MB solid one.
+
+## Full regression after the read-only change — 2026-09-03
+
+    868/868 steps passed, 0 failures
+
+The read-only change touches `mountOptions`, which every mount goes through, so
+the whole end-to-end suite was run against it rather than the one path it was
+written for. This is the check that was skipped before 1.22.4 shipped a
+regression, and it is now what happens after a change to shared code.
