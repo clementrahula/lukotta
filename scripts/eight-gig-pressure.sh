@@ -124,14 +124,25 @@ while True:
 PY
   BALLAST=$!
   echo "  filling ${HOLD} GB from urandom (pid $BALLAST)…"
-  # Wait for it to actually be resident, and say so rather than assume it.
+  # Waited for by what the machine feels, not by the holder's resident size.
+  #
+  # Resident size cannot reach the target: macOS compresses those pages as
+  # fast as they are made, so `ps` reported six megabytes of an eight-gigabyte
+  # ballast while the compressor held 7.9 GB and free memory sat at fifteen.
+  # The check ran its full four minutes and then said the ballast had failed,
+  # about a machine that was genuinely down to its last few megabytes.
+  #
+  # Free memory is what the rest of the Mac actually contends for, so that is
+  # what this waits on.
   for _ in $(seq 1 120); do
-    rss=$(ps -o rss= -p "$BALLAST" 2>/dev/null | tr -d ' ')
-    [ -n "$rss" ] || { echo "  ballast died" >&2; exit 1; }
-    [ "$rss" -ge $(( HOLD * 1024 * 1024 * 9 / 10 )) ] && break
+    free_mb=$(vm_stat | awk '/Pages free/ {gsub(/\./,"",$3); print int($3*16384/1048576)}')
+    [ -n "$free_mb" ] || free_mb=0
+    [ "$free_mb" -le 400 ] && break
+    kill -0 "$BALLAST" 2>/dev/null || { echo "  ballast died" >&2; exit 1; }
     sleep 2
   done
-  echo "  ballast resident: $(( rss / 1024 )) MiB of $(( HOLD * 1024 )) MiB asked for"
+  rss=$(ps -o rss= -p "$BALLAST" 2>/dev/null | tr -d ' ')
+  echo "  ballast holding: ${free_mb} MB free, $(( ${rss:-0} / 1024 )) MiB of it uncompressed"
 fi
 
 echo
@@ -151,7 +162,11 @@ for label in "home listing" "spotlight-free find" "process launch"; do
   s=$(/usr/bin/python3 -c 'import time;print(time.time())')
   "${cmd[@]}" >/dev/null 2>&1
   e=$(/usr/bin/python3 -c 'import time;print(time.time())')
-  /usr/bin/python3 -c "print(f'  {'$label':22s} {($e-$s)*1000:7.0f} ms')"
+  # Nested quotes inside an f-string are a syntax error before Python 3.12,
+  # and /usr/bin/python3 here is 3.9. Every one of these latencies printed a
+  # SyntaxError instead of a number, in a script whose whole purpose is
+  # reporting latencies. Formatted without the nesting.
+  /usr/bin/python3 -c "print('  %-22s %7.0f ms' % ('$label', ($e-$s)*1000))"
 done
 
 echo
