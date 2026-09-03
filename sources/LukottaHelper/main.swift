@@ -421,8 +421,8 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             // A Linux volume's own first sector never says NTFS, so nothing
             // that was right before changes.
             let declared: VolumeKind = isLinux ? .linux : .microsoft
-            let probed = BootSector.read(devicePath: devicePath).map(BootSector.identify)
-                ?? .unknown
+            let sector = BootSector.read(devicePath: devicePath)
+            let probed = sector.map(BootSector.identify) ?? .unknown
             let kind = VolumeKind.settled(declared, sectorSays: probed)
             if kind != declared {
                 Log.helper.notice("the first sector says this is not a Linux volume")
