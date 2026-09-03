@@ -236,7 +236,14 @@ open_image() {
     else
       timeout 300 "$app" --drive open="$APP_DEV" > "$WORK/app.log" 2>&1 || return 1
     fi
-    [ -n "$(where)" ] && return 0
+    # Waited for, not glanced at. The engine route polls for eighty seconds and
+    # this checked once: NTFS and LUKS happened to be in the mount table the
+    # instant the app returned, exFAT was not, and the run reported "the engine
+    # never mounted it" about a mount whose own log said `opened EXFATVEC`.
+    for _ in $(seq 1 30); do
+      [ -n "$(where)" ] && return 0
+      sleep 2
+    done
     return 1
   fi
   nohup "$ENGINE" mount -w false "${OPTS[@]}" "$IMAGE" \
