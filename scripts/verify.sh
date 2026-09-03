@@ -53,7 +53,13 @@ BEFORE="$(fingerprint)"
 printf '%-10s %-52s %s\n' claim what result
 echo
 
-while IFS=$'\t' read -r id tags speed claim cmd; do
+# The list is read on fd 3 and every check gets /dev/null for its stdin.
+#
+# On fd 0 the first check that reads stdin swallows the rest of the registry:
+# a full run stopped after three rows and reported "holds: 2" as though that
+# were the whole picture. A gate that truncates itself in silence is worse than
+# no gate, because it reports a clean answer about work it never did.
+while IFS=$'\t' read -r id tags speed claim cmd <&3; do
   case "$id" in ''|\#*) continue;; esac
   [ -n "$ID" ] && [ "$ID" != "$id" ] && continue
   if [ -n "$TAG" ]; then
@@ -73,14 +79,14 @@ while IFS=$'\t' read -r id tags speed claim cmd; do
   fi
 
   printf '%-10s %-52s ' "$id" "$claim"
-  if eval "$cmd" > "$LOG" 2>&1; then
+  if eval "$cmd" > "$LOG" 2>&1 < /dev/null; then
     printf 'holds\n'; echo passed >> "$TALLY"
   else
     printf 'FAILS\n'; echo failed >> "$TALLY"
     echo "      the check was: $cmd"
     sed 's/^/      /' "$LOG" | tail -8
   fi
-done < "$LIST"
+done 3< "$LIST"
 
 tally() { /usr/bin/grep -c "^$1\$" "$TALLY" 2>/dev/null | head -1 | tr -dc 0-9; }
 passed=$(tally passed); failed=$(tally failed)
