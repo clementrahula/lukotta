@@ -52,6 +52,11 @@ break_it() {
   esac
 }
 
+# Noted before anything runs, so a shared home that was already there is not
+# blamed on the app.
+SHARED_BEFORE_MARKER="$(mktemp -d)/absent"
+[ -d "$HOME/.anylinuxfs" ] && SHARED_BEFORE_MARKER="$HOME/.anylinuxfs"
+
 fail=0
 for how in gone half shredded; do
   break_it "$how"
@@ -70,7 +75,17 @@ for how in gone half shredded; do
   else
     echo "ok   $NAME healed from '$how' ($ok checks)"
   fi
-  [ -d "$HOME/.anylinuxfs" ] && { echo "FAIL: it healed into the shared home"; fail=1; }
+  # Whether the app created it, not whether it is there.
+  #
+  # This asserted the shared home did not exist, and never cleared it. Anything
+  # that had run the engine directly beforehand -- which is how the guest is
+  # inspected while chasing a fault -- left it behind, and all three rounds then
+  # failed on a machine where the app had healed perfectly: "ok healed from
+  # gone (198 checks)" immediately followed by "FAIL: it healed into the shared
+  # home". The claim is that the app does not use it, so that is what is asked.
+  if [ ! -d "$SHARED_BEFORE_MARKER" ] && [ -d "$HOME/.anylinuxfs" ]; then
+    echo "FAIL: it healed into the shared home"; fail=1
+  fi
 done
 
 [ $fail -eq 0 ] || exit 1

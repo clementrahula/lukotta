@@ -46,5 +46,5 @@ changelog	release	fast	the release notes read the way the approved ones do	/usr/
 firstrun	engine	slow	a first run on a new install opens a drive	bash scripts/first-run-open.sh
 heals	engine	slow	a removed Linux environment is put back by itself	LUKOTTA_APP="${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}" bash scripts/heals-itself.sh
 homes	engine	slow	two apps using the engine do not share a home	LUKOTTA_APP="${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}" bash scripts/homes-are-separate.sh
-torture	integrity	slow	a corpus copied onto a drive reads back byte for byte	bash scripts/copy-torture.sh
+torture	integrity	slow	a corpus copied onto a drive reads back byte for byte	bash scripts/with-a-drive-open.sh ntfs-vectors.img bash scripts/copy-torture.sh
 forks	integrity	slow	extended attributes and resource forks survive	bash scripts/with-a-drive-open.sh ntfs-vectors.img bash scripts/xattr-forks.sh
