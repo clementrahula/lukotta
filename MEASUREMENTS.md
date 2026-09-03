@@ -1573,6 +1573,12 @@ it. The vendored engine on this Mac was stripped in place as well, 812 lines to
 808, so the next build carries nothing without waiting for a re-vendor.
 
     vendored engine, files naming this machine     0
+    built bundle, files naming this machine        0
+
+Verified on the artefact itself rather than on the script that makes it: every
+file in the built 1.22.8-beta.1 bundle swept, nothing found, and the manifest
+that carried the header now begins at `keywords:`. The build also had to pass
+its own new guard to finish at all.
 
 Checked before doing it that nothing verifies the manifest's contents:
 `vendor/engine.lock` does not mention it, no checksum covers it, the digest
