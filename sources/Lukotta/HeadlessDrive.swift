@@ -44,6 +44,16 @@
         static func runIfAsked() {
             guard let index = CommandLine.arguments.firstIndex(of: "--drive") else { return }
 
+            // A line at a time, because this is nearly always read from a file
+            // or a pipe. C buffers a redirected stream in four-kilobyte blocks,
+            // so everything said here sat unwritten until the process ended --
+            // and a run that was killed for taking too long wrote nothing at
+            // all. Every stalled run this morning produced an empty log and
+            // looked like an app that had quietly done nothing, when it had in
+            // fact been saying so the whole time.
+            setvbuf(stdout, nil, _IOLBF, 0)
+            setvbuf(stderr, nil, _IOLBF, 0)
+
             var toOpen: String?
             var toEject: String?
             var passphrase: String?

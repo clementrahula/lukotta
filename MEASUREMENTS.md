@@ -1335,3 +1335,17 @@ asking about.
 
 This is also the ceiling item 8 is about: the app could never have had more
 than ten drives open, whatever the machine had room for.
+
+### Every stalled run wrote an empty log — 2026-09-03
+
+The headless route prints what it is doing, and it is nearly always read from a
+file or a pipe. C buffers a redirected stream in four-kilobyte blocks, so
+nothing it said was written until the process ended -- and a run killed for
+taking too long ended without flushing, so it wrote nothing at all.
+
+    app.log after a ten-minute stall        0 bytes
+
+So every stall this morning looked like an app that had quietly done nothing,
+when it had been saying what it was doing the whole time. Both streams are
+line-buffered now. This is why the daemon's own log was the only thing that
+showed the loopback loop, and why it took going and looking by hand to find it.
