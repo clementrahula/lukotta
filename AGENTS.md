@@ -1049,6 +1049,13 @@ section ends at the next line that *starts* with `[`.
 The pattern is always the same: a number that is true, answering a question
 nobody asked.
 
+- **A share looked for under the wrong name** reported "the engine never
+  mounted it" while the mount sat in the table and the app's own log said
+  `mount script exited with status 0`. The engine names a share after what it
+  was handed: an image file gives `<name>-img.local`, a device gives
+  `diskN.local`. The harness had only ever handed it images. Taken at face
+  value it would have read as "the app cannot mount at all".
+
 - **`grep -q` under `set -o pipefail`** turned a check that worked into one
   that refused everything. `grep -q` exits the moment it matches, the command
   feeding it dies of SIGPIPE, and pipefail reports that death as the pipeline's
