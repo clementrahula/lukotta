@@ -129,22 +129,63 @@ SRC="$WORK/src"; mkdir -p "$SRC"
 for i in $(seq 1 60); do head -c 100000 /dev/urandom > "$SRC/f$i.bin"; done
 (cd "$SRC" && find . -type f -exec shasum -a 256 {} \; | sort) > "$WORK/before.sums"
 
+# Each copy's complaint is kept, not discarded.
+#
+# It used to be `>/dev/null 2>&1`, and on 2026-09-03 one volume of twelve came
+# back with nothing on it while the run reported "wrote to 12 volumes in 2 s".
+# Whatever ditto said about that volume had been thrown away, so the one line
+# that would have named the fault did not exist.
 started="$(date +%s)"
 while read -r point; do
-  ditto "$SRC" "$point/crowd-write" >/dev/null 2>&1 &
+  ditto "$SRC" "$point/crowd-write" \
+    > "$WORK/ditto$(basename "$point").log" 2>&1 \
+    || echo "$point" >> "$WORK/write-failed" &
 done < "$WORK/points"
 wait
 echo "wrote to $(wc -l < "$WORK/points" | tr -d ' ') volumes in $(( $(date +%s) - started )) s"
+if [ -s "$WORK/write-failed" ]; then
+  while read -r point; do
+    echo "  copy onto $point failed: $(tail -2 "$WORK/ditto$(basename "$point").log" \
+      | tr '\n' ' ')" >&2
+  done < "$WORK/write-failed"
+  fail=1
+fi
 
+# Read back, with a directory that cannot be read told apart from one whose
+# contents are wrong.
+#
+# Both used to arrive as "$point differs": find's errors went to /dev/null, so
+# a listing that failed produced an empty sums file, which differs from the
+# expected sums exactly as a volume of corrupt files would. The first of those
+# is the volume erroring under load; the second is data loss. They need
+# different fixes and the instrument could not say which had happened.
 identical=0; differing=0
 while read -r point; do
   (cd "$point/crowd-write" && find . -type f -exec shasum -a 256 {} \; | sort) \
-    > "$WORK/after.sums" 2>/dev/null
+    > "$WORK/after.sums" 2>"$WORK/after.err"
   if diff -q "$WORK/before.sums" "$WORK/after.sums" >/dev/null 2>&1; then
     identical=$((identical + 1))
   else
     differing=$((differing + 1))
-    echo "  $point differs" >&2
+    want=$(wc -l < "$WORK/before.sums" | tr -d ' ')
+    got=$(wc -l < "$WORK/after.sums" | tr -d ' ')
+    if [ -s "$WORK/after.err" ]; then
+      echo "  $point could not be read: $(head -1 "$WORK/after.err")" >&2
+    elif [ "$got" -lt "$want" ]; then
+      echo "  $point listed $got of $want files, the rest are not there yet" >&2
+      # Whether they arrive at all, and how late. A volume that fills in a
+      # second was written correctly and read too early; one that never fills
+      # in lost data. Those are not the same failure.
+      for _ in $(seq 1 60); do
+        late=$(ls -1 "$point/crowd-write" 2>/dev/null | wc -l | tr -d ' ')
+        [ "$late" -ge "$want" ] && break
+        sleep 1
+      done
+      echo "  $point settled at $late of $want files" >&2
+    else
+      echo "  $point has all $want files and $(comm -13 "$WORK/before.sums" \
+        "$WORK/after.sums" | wc -l | tr -d ' ') of them are not the bytes written" >&2
+    fi
   fi
 done < "$WORK/points"
 echo "byte-identical on $identical, wrong on $differing"
