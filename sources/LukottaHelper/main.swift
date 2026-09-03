@@ -476,6 +476,11 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             // be told from what is serving drives somebody has open.
             let helpersBefore = EngineProcesses.running()
 
+            // What is already being served, so the check below can tell whether
+            // this mount added anything rather than whether anything is there.
+            let mountsBefore = (LukottaCore.run("/sbin/mount", [])?.out ?? "")
+                .split(separator: "\n").filter { $0.contains(".local:/mnt/") }.count
+
             let task = Process()
             task.executableURL = URL(fileURLWithPath: "/bin/sh")
             task.arguments = [scriptURL.path]
@@ -540,13 +545,22 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             // Nothing downstream could tell that from a mount that worked.
             //
             // So the claim is checked against the mount table before it is
-            // made. The engine names a share after the device it was given, so
-            // "diskN.local:" is what appears there.
+            // made -- by whether the table gained anything served from a guest,
+            // not by the name the share was expected to have.
+            //
+            // It looked for "diskN.local:", after the device. That is what a
+            // plain volume is called and not what a container of logical
+            // volumes is: an LVM group comes up as "lvm-<group>.local:", so a
+            // LUKS image holding LVM mounted perfectly, served /Volumes/ROOTFS,
+            // and was reported as having served nothing. A guard that refuses
+            // working mounts is worse than the fault it was added for.
             var status = task.terminationStatus
             if status == 0 {
-                let share = (devicePath as NSString).lastPathComponent + ".local:"
                 let table = LukottaCore.run("/sbin/mount", [])?.out ?? ""
-                if !table.contains(share) {
+                let served = table.split(separator: "\n").filter {
+                    $0.contains(".local:/mnt/")
+                }
+                if served.count <= mountsBefore {
                     Log.helper.error("the script ended well and served nothing")
                     output += "\nthe mount script reported success and no volume is served"
                     status = 74
