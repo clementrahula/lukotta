@@ -1129,3 +1129,31 @@ write size, the helper, the mount point, privileges, the net helper, vmnet
 offloading, the tuned action, the backing, and the kernel's age. What remains
 is inside nfsd's COMMIT path on a 6.12 kernel, and reaching it needs tracing
 rather than another run.
+
+## The server receives the COMMITs — its own counters say so — 2026-09-03
+
+The guest was instrumented to print `nfsstat -s` while serving. Four files
+written with `dd conv=fsync` over NFS, and the server's own v3 procedure
+counters afterwards:
+
+    write 124      commit 8
+
+So the client sends COMMITs, the server receives them, the server answers them,
+and the data is not durable when the machine is killed immediately afterwards.
+That is no longer an inference from the client side: it is the server counting
+the calls it handled.
+
+The diagnosis is complete as far as it can be taken from outside the kernel:
+
+    the client sends COMMIT              nfsstat -c, counter moves
+    the server receives COMMIT           nfsstat -s, commit 8
+    the export is sync                   exportfs -v in the guest
+    async behaves identically            8 of 8 wrong either way
+    the block device advertises a cache  write_cache = write back
+    krun honours the flush               the patch is in the shipped binary
+    an in-guest fsync is durable         8 of 8 kept, same volume, same moment
+    a fsync through nfsd is not          8 of 8 wrong
+
+Everything on that list was measured. The fault is inside nfsd's handling of
+the COMMIT it has counted, on Linux 6.12.62, and the next step is tracing
+inside that kernel rather than another experiment from out here.
