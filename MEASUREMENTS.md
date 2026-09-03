@@ -1796,3 +1796,27 @@ This never touched anybody using the window -- it is on the `--drive` path
 only. What it did touch is every measurement taken through that path: twelve
 crowd opens, and ten more in each vectors run. Fourteen minutes of a
 twenty-minute run were this.
+
+### A full encrypted volume takes two minutes to say so — 2026-09-03
+
+The same vector, the same harness, the same afternoon, two formats:
+
+    NTFS                          a full volume answers with an error, in 2s
+    ext4 inside LUKS              a full volume answers with an error, in 129s
+
+Both are recorded as passes, because what that vector asks is whether a full
+volume answers at all rather than hanging, and both answer. But two minutes is
+not an answer anybody experiences as one. Somebody copying onto a full
+encrypted drive watches Finder do nothing for over two minutes before being
+told there is no room -- and item 3 says nothing user-visible during a copy,
+while item 1 is about writing not stalling. Sixty-five times NTFS is not a
+detail.
+
+What is not yet known is where the two minutes goes: the crypto layer, ext4's
+behaviour as it fills, or the NFS client retrying a write that cannot land. The
+comparison that would separate them is ext4 without LUKS, which is the next
+fixture in the queue anyway -- if plain ext4 is also slow it is the filesystem,
+and if it is quick it is the encryption.
+
+Recorded as a result rather than an obstacle: the number is real, it is bad,
+and the next route is a measurement that says which layer owns it.
