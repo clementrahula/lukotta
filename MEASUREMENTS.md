@@ -464,6 +464,15 @@ Two of my own faults, both worth having written down:
     left rd-busy and rd-quiet on it. Cleared, it is byte-identical like the
     rest. A volume with no room reads as a data fault and is not one.
 
+**A third fault, found later and worth more than either.** Those twelve were
+opened through the engine directly -- twenty-four processes, two per mount --
+and the engine takes an address as it finds one. The app does not: it asks the
+daemon for twelve loopback addresses first, and until 1.22.7-beta.2 the daemon
+counted `::1` and `fe80::1` among them and stopped at ten. So the app could
+never have opened twelve, and this measurement did not touch the path that
+would have shown it. The memory figure stands. The claim that a dozen can be
+open at once was, on the app's own route, two short.
+
 ## The block device does advertise a cache — 2026-09-03
 
 Read from inside the guest:
