@@ -2476,3 +2476,28 @@ Two things fixed rather than remembered: a missing directory now says the copy
 made nothing, and a filename is only taken from a line that carries one. And
 the twelve fixtures are reformatted before a hunt, because leftovers from an
 earlier experiment are what put the volumes in that state in the first place.
+
+### Eight clean runs on fresh fixtures, and what that points at — 2026-09-03
+
+The twelve fixtures reformatted (`mkfs.ntfs` through the engine's guest shell,
+the way `make-test-volumes.sh` builds them), then eight twelve-volume runs back
+to back:
+
+    runs 1 to 8    byte-identical on 12, wrong on 0, every time
+
+Ninety-six volume-copies without a stale handle. Set against 3 occurrences in
+the 16 runs before them, on fixtures that had been through a day of
+experiments.
+
+**What every stale handle followed.** A run killed mid-flight — engines shot,
+images force-detached, nothing unmounted — because that is how this session
+stopped runs that had to be abandoned. That is exactly how a volume is left
+dirty, and exactly what a person does when they pull a drive out during a copy.
+The eight clean runs are the first that did not follow one.
+
+So the next thing is done deliberately rather than by accident:
+`interrupted-then-crowd.sh` opens twelve, copies onto all of them, shoots the
+machines and pulls the images with writes still in the air, and then opens the
+twelve again and copies normally. The app is supposed to repair a volume left
+that way — item 7 — so a stale handle on the next open is a repair that did not
+happen, or one that left the volume mountable without leaving it sound.
