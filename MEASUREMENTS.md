@@ -1574,6 +1574,15 @@ it. The vendored engine on this Mac was stripped in place as well, 812 lines to
 
     vendored engine, files naming this machine     0
     built bundle, files naming this machine        0
+    stripped engine, opening a volume              works
+
+The last of those is the one that mattered: a manifest is packed inside the
+guest's own directory, and a change to anything in there is a change to what
+boots. Opened a volume through the app on a build made from the stripped tree:
+
+    mount script exited with status 0
+    opened CROWD1
+    disk5.local:/mnt/CROWD1 on /Volumes/CROWD1 (nfs, ...)
 
 Verified on the artefact itself rather than on the script that makes it: every
 file in the built 1.22.8-beta.1 bundle swept, nothing found, and the manifest
