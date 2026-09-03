@@ -10,6 +10,21 @@ import SystemConfiguration
 /// Runs as root under launchd so unlocking does not need an administrator
 /// password every time. It accepts parameters, never a command: the script is
 /// composed here, from the same builder the application uses.
+/// How many volumes the guest is serving right now.
+///
+/// Any share the engine has made, whatever it is called and wherever it is
+/// served from. A plain volume arrives as "diskN.local:/mnt/LABEL"; a container
+/// of logical volumes arrives as "lvm-<group>.local:/run/diskN" with each
+/// volume mounted inside it. Matching a narrower shape than that has already
+/// refused two kinds of working mount.
+private func servedCount() -> Int {
+    (LukottaCore.run("/sbin/mount", [])?.out ?? "")
+        .split(separator: "\n")
+        .filter { $0.contains(".local:") }
+        .count
+}
+
+
 final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtocol {
 
     private let listener: NSXPCListener
@@ -478,8 +493,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
 
             // What is already being served, so the check below can tell whether
             // this mount added anything rather than whether anything is there.
-            let mountsBefore = (LukottaCore.run("/sbin/mount", [])?.out ?? "")
-                .split(separator: "\n").filter { $0.contains(".local:/mnt/") }.count
+            let mountsBefore = servedCount()
 
             let task = Process()
             task.executableURL = URL(fileURLWithPath: "/bin/sh")
@@ -546,21 +560,24 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             //
             // So the claim is checked against the mount table before it is
             // made -- by whether the table gained anything served from a guest,
-            // not by the name the share was expected to have.
+            // not by the name or the path the share was expected to have.
             //
-            // It looked for "diskN.local:", after the device. That is what a
-            // plain volume is called and not what a container of logical
-            // volumes is: an LVM group comes up as "lvm-<group>.local:", so a
-            // LUKS image holding LVM mounted perfectly, served /Volumes/ROOTFS,
-            // and was reported as having served nothing. A guard that refuses
-            // working mounts is worse than the fault it was added for.
+            // Twice wrong before it was right. It looked for "diskN.local:",
+            // named after the device, which is what a plain volume is called
+            // and not what a container of logical volumes is -- an LVM group
+            // comes up as "lvm-<group>.local:". Narrowed to ".local:/mnt/" it
+            // was still wrong: a container serves its volumes from /run, as
+            // "lvm-ubuntuvg.local:/run/disk5" with ROOTFS and HOMEFS mounted
+            // inside it. Both times a LUKS image holding LVM activated its
+            // group, served three mounts, and was reported as having served
+            // nothing -- exit 74, with the drive torn down behind it.
+            //
+            // A guard that refuses working mounts is worse than the fault it
+            // was added for, and this one made an advertised feature look
+            // broken while hiding what was actually wrong underneath.
             var status = task.terminationStatus
             if status == 0 {
-                let table = LukottaCore.run("/sbin/mount", [])?.out ?? ""
-                let served = table.split(separator: "\n").filter {
-                    $0.contains(".local:/mnt/")
-                }
-                if served.count <= mountsBefore {
+                if servedCount() <= mountsBefore {
                     Log.helper.error("the script ended well and served nothing")
                     output += "\nthe mount script reported success and no volume is served"
                     status = 74
