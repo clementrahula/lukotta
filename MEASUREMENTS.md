@@ -2829,3 +2829,46 @@ row now says so instead of implying the check covers it.
 extremes, which needs Finder driving the copy rather than ditto, and that is
 what `finder-copy-cycles.sh` does -- now reachable, since the mount point is
 handed to it.
+
+### The resource fork is still dropped, and the route is closed at the protocol — 2026-09-03
+
+The registry surfaced this on its first complete run, and it is not new: it was
+found on 2026-09-01 and never fixed. A file carrying a resource fork is dropped
+entirely during a copy, and a directory-wide `ditto` — which is what copying a
+folder is — exits 0 having left it behind. Finder copies through the same
+machinery.
+
+Reproduced tonight against the app's own mount, with a real fork:
+
+    ditto /tmp/rf/real.bin -> /Volumes/SWEEP/rf/real.bin
+      ditto: /Volumes/SWEEP/rf/.BC.T_Wt441K: Invalid argument
+      nothing arrives
+
+Localised, one operation at a time, on the mounted volume:
+
+    a plain ._ file, written directly        works
+    an ordinary xattr on a file there        works, kept in ._plain.bin
+    setxattr com.apple.ResourceFork          EINVAL
+    writing ..namedfork/rsrc                 no error, and nothing stored
+
+So AppleDouble emulation is working for ordinary attributes on this mount and
+the resource fork alone fails.
+
+**And mount_nfs(8) says why.** Named attributes — "used to store extended
+attributes and named streams (e.g. FinderInfo and resource forks)" — are an
+**NFSv4** feature, off by default, and available only "if the server appears to
+support named attributes". Linux's nfsd has never implemented NFSv4 named
+attributes. So there is no mount option and no export setting that makes this
+work: the client can only store a resource fork over NFSv4 named attributes,
+and the server can never offer them.
+
+**What that means for the fix.** It is not a bug in the app's options, and no
+amount of tuning reaches it. Serving resource forks would mean a protocol that
+carries named streams — SMB does, natively, and macOS maps resource forks onto
+it — which is an architectural change and not a setting. That is the honest
+shape of it, and it is written down here rather than left as a check that
+mysteriously fails.
+
+**It stays a failing row.** Not withdrawn, not narrowed: the claim "extended
+attributes and resource forks survive" is false today, a person loses a file
+without being told, and the row says so every time the gate runs.
