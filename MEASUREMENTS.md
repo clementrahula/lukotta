@@ -2317,3 +2317,32 @@ because that pass ran with nothing deleted between cycles. Both runs that
 survived emptied each cycle before the next. A nearly full volume is one of
 item 9's named vectors anyway, so the next run fills them as it works and
 prints how full each got before the ballast goes on.
+
+### Filled nearly full, then squeezed: twelve still served — 2026-09-03
+
+The last known difference, closed. Twelve worked with nothing deleted, so each
+volume was filled before the ballast went on.
+
+    free on each volume before the squeeze   15 to 16 MB of 64 MB
+    every copy visible within                62 ms, all 144 of them
+    served, every five-second sample         12 of 12
+    fewest served at any sample              12 of 12
+    footprint once squeezed, settled         319 to 340 MB
+    host free through the squeeze            24 to 55 MB
+
+    home listing            21 ms
+    spotlight-free find     21 ms
+    process launch          20 ms
+
+**The collapse has not reproduced in three runs** — empty, worked, and worked
+until nearly full. It was seen once, and the instrument that would have shown
+what happened to it was added afterwards. It stays written down as one
+unexplained loss of all twelve rather than as a fault with a cause, and every
+run from here samples the count so a second one cannot be missed.
+
+**A false alarm worth keeping.** One volume showed 37 MB free where its
+neighbours showed 16, which reads exactly like a volume that did not receive
+its copy. It had received it: the others were carrying sixty files from each
+earlier run, because the harness had never removed what it wrote onto 64 MB
+fixtures. A few runs later they would have begun failing for want of space with
+nothing wrong with the app. The harness cleans up after itself now.
