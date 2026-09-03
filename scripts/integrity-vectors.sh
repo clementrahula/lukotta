@@ -217,6 +217,11 @@ open_image() {
       echo "       LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
       return 1
     fi
+    # Give the previous one back first. This is called again for every reopen
+    # -- vector 6 is nothing but reopens -- and attaching the same image a
+    # second time gives a second device node for one filesystem, which is a way
+    # to corrupt a volume rather than a way to test one.
+    [ -n "${APP_DEV:-}" ] && hdiutil detach "$APP_DEV" -quiet 2>/dev/null
     APP_DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage \
       "$IMAGE" 2>/dev/null | head -1 | awk '{print $1}')"
     [ -n "${APP_DEV:-}" ] || return 1
