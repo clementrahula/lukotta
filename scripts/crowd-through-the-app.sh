@@ -204,7 +204,14 @@ while read -r point; do
     differing=$((differing + 1))
     want=$(wc -l < "$WORK/before.sums" | tr -d ' ')
     got=$(wc -l < "$WORK/after.sums" | tr -d ' ')
-    if [ -s "$WORK/after.err" ]; then
+    if [ ! -d "$point/crowd-write" ]; then
+      # The copy never made the directory, which is what a volume with no room
+      # left does. Said plainly, because it used to arrive here as a "could not
+      # be read" with the shell's own cd failure parsed as a filename -- and a
+      # volume that was simply full then read as the stale-handle fault this
+      # branch exists to catch.
+      echo "  $point has no crowd-write; the copy made nothing" >&2
+    elif [ -s "$WORK/after.err" ]; then
       echo "  $point could not be read: $(head -1 "$WORK/after.err")" >&2
       # Asked again straight away, and asked by name.
       #
@@ -214,7 +221,12 @@ while read -r point; do
       # if the file stats while the walk cannot reach it, everything is on the
       # volume and only the handle was wrong. Both are one second of work and
       # neither can be recovered afterwards.
-      bad="$(head -1 "$WORK/after.err" | sed 's/^find: //; s/:.*//' | tr -d \')"
+      # Only a find(1) complaint carries a filename; anything else does not,
+      # and taking one out of it invents a path nobody asked about.
+      bad=""
+      case "$(head -1 "$WORK/after.err")" in
+        find:*) bad="$(head -1 "$WORK/after.err" | sed "s/^find: //; s/:.*//" | tr -d "'")" ;;
+      esac
       (cd "$point/crowd-write" && find . -type f -exec shasum -a 256 {} \; | sort) \
         > "$WORK/again.sums" 2>"$WORK/again.err"
       if [ -s "$WORK/again.err" ]; then
@@ -224,7 +236,8 @@ while read -r point; do
       else
         echo "    asked again: readable, $(/usr/bin/grep -c . < "$WORK/again.sums") files" >&2
       fi
-      echo "    by name: $(ls -l "$point/crowd-write/$bad" 2>&1 | tail -1 | cut -c1-90)" >&2
+      [ -n "$bad" ] && \
+        echo "    by name: $(ls -l "$point/crowd-write/$bad" 2>&1 | tail -1 | cut -c1-90)" >&2
       echo "    room: $(df -h "$point" 2>&1 | tail -1 | awk '{print $4 " free of " $2}')" >&2
       # Watched, because the first occurrence healed and the second did not
       # heal within a second, and nobody wrote down which it was at the time.
