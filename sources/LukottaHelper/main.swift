@@ -408,11 +408,32 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     identifier: $0.replacingOccurrences(of: "lvm:", with: ""),
                     label: "", filesystem: "", size: "")
             }
+            // A disk with no partition table has no partition type to read,
+            // so the scan calls it Linux -- a whole disk handed to cryptsetup
+            // is what makes one. That guess picks the mount ladder and, with
+            // it, whether a dirty NTFS is repaired, so a stick formatted NTFS
+            // with no partition table, and every raw image of one, was opened
+            // as a Linux volume and never repaired.
+            //
+            // Settled here rather than only in the app, because this runs as
+            // root: the first sector of a real drive is readable from here and
+            // not from there, and this is where the configuration is written.
+            // A Linux volume's own first sector never says NTFS, so nothing
+            // that was right before changes.
+            var kind: VolumeKind = isLinux ? .linux : .microsoft
+            if kind == .linux,
+                let sector = BootSector.read(devicePath: devicePath),
+                let probed = BootSector.identify(sector).kind, probed != .linux
+            {
+                Log.helper.notice("the first sector says this is not a Linux volume")
+                kind = probed
+            }
+
             var inputs = MountScript.Inputs(
                 enginePath: engine.path,
                 devicePath: devicePath,
                 driveName: "",
-                kind: isLinux ? .linux : .microsoft,
+                kind: kind,
                 volume: volume,
                 aliasPath: aliasPath,
                 fifoPath: fifo.path,

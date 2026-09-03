@@ -74,16 +74,22 @@ public enum Mounter {
             [.posixPermissions: 0o700],
             ofItemAtPath: expectURL.path)
 
+        // A disk with no partition table is called Linux by the scan, and that
+        // guess picks the mount ladder and the repair with it. The first
+        // sector knows better, so where the kind is a guess it decides.
+        var kind = drive.kind
+        if !drive.kindIsKnown,
+            let sector = BootSector.read(devicePath: drive.devicePath),
+            let probed = BootSector.identify(sector).kind
+        {
+            kind = probed
+        }
+
         let inputs = MountScript.Inputs(
             enginePath: engine.path,
             devicePath: drive.devicePath,
             driveName: drive.name,
-            // A disk with no partition table is called Linux by the scan,
-            // and that guess picks the ladder and the repair. The first
-            // sector knows better, so where the kind is a guess it decides.
-            kind: drive.kindIsKnown
-                ? drive.kind
-                : (BootSector.read(devicePath: drive.devicePath).map(BootSector.identify)?.kind ?? nil ?? drive.kind),
+            kind: kind,
             volume: volume,
             aliasPath: aliasPath,
             fifoPath: fifo.path,
