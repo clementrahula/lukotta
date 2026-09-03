@@ -92,7 +92,11 @@ APP="$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)"
 # which reads exactly like a mount that hangs and was read as one for most of a
 # morning. One second of strings answers it.
 can_be_driven() {
-  strings -a "$APP" 2>/dev/null | /usr/bin/grep -q -- "--drive"
+  # grep -c rather than -q, and a count rather than an exit status. Under
+  # `set -o pipefail`, `grep -q` matches, exits at once, `strings` dies of
+  # SIGPIPE, and the pipeline reports 141 -- so the check refused every bundle
+  # that was fine, including the one it had just been proved against.
+  [ "$(strings -a "$APP" 2>/dev/null | /usr/bin/grep -c -- "--drive")" -gt 0 ]
 }
 
 daemon_is_there() {
