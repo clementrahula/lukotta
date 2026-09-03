@@ -1690,3 +1690,24 @@ does not: that the call sits on the virtio flush path for a device backing
 rather than somewhere else in the engine. That still wants either reading the
 backend's flush handler or cutting the power for real -- but it is no longer
 the missing-call hypothesis, which was the cheap thing to rule out first.
+
+### Seventy-two seconds to open a drive — 2026-09-03
+
+Measured twelve times over in the crowd run, and again on every reopen the
+vectors do:
+
+    opening a drive through the app     72 to 75 seconds, flat
+
+That is the number a person waits, staring at the app, after asking for a
+drive. It does not grow with the number already open, which is the scaling
+question and the good news. But three quarters of a minute is a long time to
+look at a window, and nothing in the ten items names it, so it has never been
+questioned.
+
+What is not yet known is how much of it is the app and how much is the guest
+booting. The engine route boots the same machine, so most of it is presumably
+Linux coming up -- but "presumably" is exactly the word this file exists to
+avoid. The comparison is one command each way and has not been run.
+
+Written down because item 10 says no UX cost anywhere, and a wait is a cost
+whether or not anybody has called it one.
