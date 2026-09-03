@@ -2193,3 +2193,69 @@ records the settle time from inside the harness.
 
 **This is a user-visible copying failure and counts against item 3.** A person
 who copies a folder and opens it a minute later sees an empty folder.
+
+### The stale handle has a name, and the twelve did not survive the squeeze — 2026-09-03
+
+Two results from one afternoon, both from instruments that had been reporting
+something else.
+
+**What "differs" actually was.** With `find`'s errors kept instead of
+discarded, the twelve-volume harness named it on the first run:
+
+    /Volumes/CROWD8 could not be read: find: './f38.bin': Stale NFS file handle
+
+Not an empty directory and not corrupt data. The listing found the file and
+the handle to it was already dead — ESTALE, which a Linux nfsd returns when it
+cannot resolve a filehandle it issued itself. Twice now, both times CROWD8,
+both times on the copy the harness makes immediately after the twelfth volume
+opens.
+
+**It is not the copy and not the crowd.** Against the same twelve, open and
+already exercised:
+
+    12 cycles x 12 volumes, 15 files each, nothing deleted   324 copies
+    15 cycles x 12 volumes, 60 files each, deleted between   clean, all of them
+    worst wait for a copy to become visible                  65 ms
+    typical                                                  53 to 65 ms
+
+So 324 copies of the same shape onto volumes that had been open a while were
+all visible within 65 ms of the copy returning. What the fault wants is a copy
+landing on a volume that has only just been opened, which is why it costs four
+minutes to reach. `first-write-after-open.sh` does that alone in cycles of
+fifteen seconds, with SETTLE to ask whether the open is simply returning before
+the volume is ready.
+
+Two hypotheses are already dead, checked rather than assumed: the twelve are
+served on twelve distinct vmnet addresses with no collision (`netstat` on port
+2049), and nothing in the mount flow re-exports after the client has mounted.
+
+**Latency under an 8 GB squeeze, at last.** The figures item 8 has never had,
+with twelve volumes open and free memory held down to 65 MB:
+
+    home listing            22 ms
+    spotlight-free find     22 ms
+    process launch          21 ms
+    swap                    7013 MB of 8192 used
+
+**And in the same run, all twelve died.** The footprint table read:
+
+    12:48:47   1246 MB
+    12:49:17    697 MB
+    12:49:47    696 MB
+    12:50:17      1 MB      <- and 1 MB for every sample after
+    ...
+
+which was taken for the app giving memory back. Afterwards there were no CROWD
+mounts, no engine processes at all, and the twelve disk images had been
+detached — which memory pressure alone does not do, so something cleaned up
+after the machines were killed. The ballast script unmounts and detaches
+nothing; that was checked, not assumed.
+
+**The table could not say it.** It sampled megabytes and never the count of
+volumes still served, so twelve volumes holding 300 MB and no volumes holding
+nothing were the same row. The count is now sampled beside the cost, and item 8
+runs as one script rather than three logs to line up by their clocks.
+
+**Item 8 is not proven, and the earlier passes are weaker than they read.**
+Every previous pressure run reported a footprint and never a survival, so none
+of them establishes that the volumes were still there at the end.
