@@ -722,3 +722,31 @@ Two corrections to earlier numbers in this file, both mine:
 
 The 1.22.4 regression was real regardless: the app path went from whatever it
 was to 3 MB/s on large files, and it is back on the guest option now.
+
+## The real cost of durability on a large file, all one path, all fsynced
+
+App path, 190 MB written with `dd conv=fsync`, each filesystem with whatever
+option it actually gets:
+
+    NTFS, no option           190 MB/s
+    ext4, data=journal         63 MB/s
+    XFS,  guest -o sync         7 MB/s
+    XFS,  client sync           3 MB/s   (what 1.22.4 shipped)
+
+So 1.22.5 moved XFS from 3 to 7 MB/s, which is better and is not "free". My
+earlier note said the guest option cost XFS nothing on large files. That came
+from the raw engine path, where the same run reports 190 MB/s -- and I have no
+way to confirm the guest option was even applied there, because it is a mount
+option inside the machine and does not appear in the mount table the way the
+client's `sync` does. It should not have been believed and the note above
+supersedes it.
+
+**Where that leaves item 10.** Durability costs something on two of the four:
+
+    ext4    a third of the speed on a large file
+    XFS     a twenty-seventh
+
+NTFS and btrfs pay nothing because they need nothing. The XFS number is bad
+enough that the route is probably still wrong, and the honest position is that
+item 10 is not met for XFS, rather than that the cost has been argued away --
+which is what I did twice tonight.
