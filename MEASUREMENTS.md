@@ -2,6 +2,43 @@
 
 Every number here was produced by running it on this Mac.
 
+## Where the ten stand, 2026-09-03
+
+Not a MET line. Read the entries themselves for the numbers; this is only so
+that what is proven and what is not can be seen at a glance, and so that
+"measured through the engine" is never again mistaken for "measured".
+
+    1  writing does not stall     the nfsd COMMIT fault traced and worked
+                                  around; the loopback livelock found and
+                                  fixed today, 10 addresses to 12, with the
+                                  before and after written down
+    2  no crash through Finder    copies done by Finder on a real stick, both
+                                  extremes, nothing user-visible
+    3  nothing user-visible       held everywhere it has been looked at, and
+                                  the silent stall found today was exactly
+                                  this fault arriving from a new direction
+    4  NTFS and BitLocker         byte-identical, unlock from the Keychain
+    5  LUKS and Linux             byte-identical
+    6  every other format         all seven writable formats, byte-identical
+    7  dirty NTFS repaired        PROVEN ON BOTH SHAPES: a Microsoft partition
+                                  type, and a whole disk with no partition
+                                  table at all, 41 of 41 each, nothing shown
+    8  a dozen at once            twelve opened through the app and written to
+                                  and read back today, flat at 72-75 s each.
+                                  NOT the 8 GB machine the item names, and the
+                                  footprint and responsiveness at twelve are
+                                  still unmeasured on this route
+    9  every vector               twelve vectors pass twice -- through the
+                                  ENGINE, not the app. Real for the storage
+                                  path, unproven for the app's. THROUGH_APP=1
+                                  now exists to close that
+    10 no UX cost                 unmet for XFS writes on real drives: -o sync
+                                  costs 47x on a device. Everything else free
+
+The three measurements found today to have been taken off the route a person
+takes -- the dozen, the eight-gigabyte figures, and item 9's vectors -- are all
+noted in place rather than deleted. Each says what it does and does not cover.
+
 ## BitLocker/NTFS on the Patriot stick — 2026-09-02
 
 Opened by Lukotta with a key taken from the Keychain. Nothing was typed: the
