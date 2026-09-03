@@ -804,3 +804,16 @@ answering, and that 16384 was no better and 32768 was the size that worked. So
 raising it risks bringing back the fault this whole effort began with, and it
 must be measured against the stall as well as against throughput -- not shipped
 on a hypothesis at five in the morning.
+
+## Verifying what 1.22.5 actually changed — 2026-09-03
+
+1.22.5 moved encrypted drives from a synchronous client onto the guest's
+`-o sync`, and that mechanism had not been checked for the thing it exists to
+do. Checked now:
+
+    LUKS -> ext4, guest -o sync   11 of 11, 8 of 8 fsynced kept, 30 of 30 in-flight
+    LUKS -> XFS,  guest -o sync   11 of 11, 8 of 8 fsynced kept, 30 of 30 in-flight
+
+So the change is safe as well as faster. Written down because not checking this
+is exactly what put the regression into 1.22.4: a mechanism was swapped on the
+strength of one measurement and the thing it was there for was never re-run.
