@@ -631,3 +631,25 @@ that containers pay nothing on the many-small-files extreme, and the large-file
 extreme is unmeasured on this path rather than known to be free.
 
 The temporary switch was reverted and is not in the tree.
+
+## The large-file extreme on an encrypted drive, both ways — 2026-09-03
+
+The one comparison that was still missing, on a 2400 MB LUKS fixture with room
+for the whole corpus, both halves on the app's own path:
+
+    heavy corpus, with stable writes       399 s, 2024 identical, 0 differing
+    heavy corpus, without stable writes    390 s, 2024 identical, 0 differing
+
+Two per cent apart, which is noise. The 399 seconds is what it costs to write a
+gigabyte-apparent corpus into an encrypted container, and it is not what the
+option costs.
+
+So both figures that stood against item 10 are gone, and neither went by
+argument:
+
+    XFS         48% -> nothing, by changing the mechanism (shipped in 1.22.4)
+    containers  the 12-to-17 figure was the wrong path; on the app's path it is
+                61 vs 60 seconds on small files and 399 vs 390 on the heavy one
+
+The durability work adds no click, no prompt, no message, and no fallback. On
+the evidence here it costs nothing measurable either.
