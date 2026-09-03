@@ -235,6 +235,23 @@ if [ "${PRESSURE:-0}" = "1" ] && [ "$opened" -eq "$COUNT" ]; then
   bash "$(dirname "$0")/eight-gig-pressure.sh" || fail=1
 fi
 
+# Kept open, so a second harness can use the same twelve.
+#
+# The visibility fault this harness found happens once in three runs and takes
+# four minutes to reach, all of it spent opening volumes. copy-visibility.sh
+# does the copy part alone against volumes already open, so with HOLD=1 the
+# four minutes are paid once and the fault can be hunted in cycles of seconds.
+if [ "${HOLD:-0}" = "1" ]; then
+  echo
+  echo "holding $opened volumes open; touch /tmp/.crowd-release to let them go"
+  rm -f /tmp/.crowd-release
+  for _ in $(seq 1 3600); do
+    [ -f /tmp/.crowd-release ] && break
+    sleep 1
+  done
+  rm -f /tmp/.crowd-release
+fi
+
 echo
 if [ "$opened" -lt "$COUNT" ]; then
   echo "RESULT: $opened of $COUNT opened through the app" >&2
