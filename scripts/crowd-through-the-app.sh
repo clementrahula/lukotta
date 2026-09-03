@@ -75,14 +75,26 @@ for i in $(seq 1 "$COUNT"); do
   DEVS+=("$dev")
   # Each open returns once the volume is served, so these are sequential and
   # the count below is the count that survived, not the count attempted.
+  began="$(date +%s)"
   if timeout 300 "$APP" --drive open="$dev" > "$WORK/open$i.log" 2>&1; then
     opened=$((opened + 1))
-    printf '  %2d of %s open\n' "$opened" "$COUNT"
+    took=$(( $(date +%s) - began ))
+    echo "$took" >> "$WORK/opens"
+    printf '  %2d of %s open, %s s\n' "$opened" "$COUNT" "$took"
   else
     echo "  drive$i did not open: $(tail -1 "$WORK/open$i.log")" >&2
     fail=1
   fi
 done
+
+# How long each one took, which is what somebody waiting actually feels. The
+# last is the one that matters: if opening the twelfth costs more than opening
+# the first, the app is paying for the ones already open.
+if [ -s "$WORK/opens" ]; then
+  printf 'seconds to open: first %s, last %s, slowest %s\n' \
+    "$(head -1 "$WORK/opens")" "$(tail -1 "$WORK/opens")" \
+    "$(sort -n "$WORK/opens" | tail -1)"
+fi
 
 served="$(mount | /usr/bin/grep -c 'CROWD')"
 echo "mounts being served: $served"
