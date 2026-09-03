@@ -1566,3 +1566,33 @@ show up in any of these runs.
 Item 9 is therefore proven for the storage path and unproven for the app's.
 Running the same vectors against a bundle that can be driven is what closes it,
 and that is now possible: `LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1`.
+
+### A dozen through the app's own route, verified — 2026-09-03
+
+Twelve volumes opened one `--drive open=` at a time, the way the window does
+it, then written to together and read back:
+
+    seconds to open        72 73 73 72 73 73 73 74 74 74 74 75
+    first 72, last 75      the twelfth costs what the first did
+    mounts served          12, twelve distinct shares on twelve mount points
+    lo0 addresses          12 before and after -- nothing asked for twice
+    written                60 files to each of the twelve, at once, in 2 s
+    read back              byte-identical on 12, wrong on 0
+
+The flatness is the answer to the question item 8 asks. Opening the twelfth
+drive costs three seconds more than opening the first, not twelve times more,
+so the app is not paying for the drives already open. Before this morning the
+eleventh could not be opened at all.
+
+**Two of my own instruments returned nonsense in the same run, and neither
+number is recorded as a result:**
+
+  - `engines: 0 processes, 2091 MB resident` -- self-contradictory on its face.
+    The count and the total are taken by two different expressions and only one
+    of them works; nothing that holds two gigabytes is nought processes.
+  - `shell responsiveness: 0 ms` -- `time -p` reports hundredths, and echoing a
+    word takes less than one, so the measurement has no resolution at the size
+    of the thing it is measuring.
+
+The footprint and the responsiveness at twelve are therefore still unmeasured
+on this route. The opens, the writes and the read-back are measured and stand.
