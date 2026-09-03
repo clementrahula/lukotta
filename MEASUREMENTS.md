@@ -1310,6 +1310,12 @@ the rootfs is full of (`cat` -> `/bin/busybox`, which does not exist here):
 So every one of the 455 links refused, and the count of 927 is those links
 reached twice.
 
+**After, on the same Mac, over five real mounts through the fixed daemon:**
+
+    could not hand over ...        0 lines, and no refusals of any kind
+
+Before it was 927 failed calls and 927 lines on every single mount.
+
 ### The mount that never started: ten addresses counted as twelve — 2026-09-03
 
 The app serves each drive's machine on its own loopback address and wants
