@@ -971,3 +971,23 @@ was told were saved is worse than a slow large copy, and the slow copy is at
 least visible and finishes -- 2 cycles of Finder at both extremes passed with
 no dialogue and no drift. But item 10 is not met for XFS, and this is why, and
 it is not going to be argued away.
+
+## The complete model, verified on both backings — 2026-09-03
+
+    on an image file                    on a device node
+    ----------------------------------  ----------------------------------
+    in-guest fsync   8 of 8 kept        in-guest fsync   4 of 4 kept
+    through nfsd     8 of 8 wrong       through nfsd     4 of 4 wrong
+
+The same on both. So the fault is nfsd's COMMIT and nothing to do with what the
+engine is sitting on -- that only decides what the workaround costs:
+
+    -o sync on an image file    190 MB/s   (a flush is an fsync on a file)
+    -o sync on a device           4 MB/s   (a flush is a real device sync)
+    data=journal, ext4 only       cheap    (ext4 batches into its journal)
+
+Four measurements, four filesystems, both backings, and every alternative
+eliminated one at a time. This is as far as the fault can be traced from
+outside the guest kernel, and it is a single component: nfsd receives a COMMIT,
+answers it, and the data is not durable -- while the identical fsync issued
+inside the same machine, on the same volume, in the same instant, is.
