@@ -1116,6 +1116,27 @@ If a new check like this is ever added, count rather than short-circuit; see
 the SIGPIPE entry above for why `strings | grep -q` under `pipefail` reports
 success as failure.
 
+## A Print Statement Killed a Release Halfway Through
+
+`release.sh` ends with a summary that reads `SUFeedURL` out of the built
+bundle. A devtools build has no such key -- automatic checks are off in one --
+so PlistBuddy exited non-zero, and under `set -e` that ended the script.
+
+It ended it *after* the GitHub release was published and *before* `ship.sh`
+committed the appcast. So the release existed and the feed still offered the
+previous version: a build nobody could be offered, which is the exact state
+this pipeline was written to prevent, reached through the one door it had no
+guard on.
+
+Two things follow, and both are worth keeping:
+
+  - The closing summary is now tolerant. Nothing that only prints may end a
+    run, least of all after the irreversible part is done.
+  - Do not rebuild `dist/` while a ship is running. What made the summary read
+    the wrong bundle was a devtools build dropped on top of the shipping one
+    mid-flight. Same shape as editing a running script: leave in-flight things
+    alone.
+
 ## Never Edit a Script While It Is Running
 
 bash reads a script from the file as it goes, at a byte offset. Editing the

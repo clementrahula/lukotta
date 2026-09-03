@@ -763,7 +763,15 @@ printf 'Download: https://github.com/%s/releases/latest/download/%s\n' \
 # custom domain, and the project's website has the other. Point LUKOTTA_APPCAST
 # at a checkout of it and the appcast and notes are written straight in, ready
 # to commit; without it they land in dist/ and have to be copied across.
-FEED_URL="$(/usr/libexec/PlistBuddy -c 'Print SUFeedURL' "$APP/Contents/Info.plist")"
+# Tolerated, because this is the closing summary and everything real has
+# already happened by the time it runs. A build without a feed URL -- a
+# devtools one, which switches automatic checks off -- made PlistBuddy exit
+# non-zero here, and under `set -e` that killed the script *after* the GitHub
+# release was published and *before* ship.sh committed the appcast. The result
+# was the exact state this whole pipeline exists to prevent: a release nobody
+# was being offered. A line of print is never worth that.
+FEED_URL="$(/usr/libexec/PlistBuddy -c 'Print SUFeedURL' "$APP/Contents/Info.plist" \
+  2>/dev/null || echo 'the channel feed')"
 if [ -d "$(dirname "$APPCAST")/.git" ]; then
   printf '\nCommit and push %s so it is served at\n' "$(dirname "$APPCAST")"
   printf '  %s\n' "$FEED_URL"
