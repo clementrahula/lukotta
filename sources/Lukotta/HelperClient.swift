@@ -714,7 +714,14 @@ final class HelperClient: ObservableObject {
     ) async -> (status: Int32, transcript: String)? {
         guard isReady, proxy() != nil, let connection else { return nil }
         let devicePath = drive.devicePath
-        let isLinux = drive.kind == .linux
+        // A disk with no partition table has no partition type to read, and
+        // the scan calls it Linux on purpose. That guess decides the mount
+        // ladder and, with it, whether a dirty NTFS is repaired -- so a stick
+        // formatted NTFS with no partition table, and every raw image of one,
+        // was opened as a Linux volume and never repaired. Where the kind is a
+        // guess, the first sector settles it.
+        let probed = drive.kindIsKnown ? nil : await identify(devicePath: devicePath).kind
+        let isLinux = (probed ?? drive.kind) == .linux
         let identifier = volume?.mountIdentifier
         // Longer than the daemon's own deadline, so an attempt that ended
         // there is reported by the daemon rather than guessed at here. This

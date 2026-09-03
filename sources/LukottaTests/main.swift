@@ -1527,6 +1527,16 @@ group("aRowSaysOnlyWhatIsKnownAboutIt") {
     let typed = DriveScanner.drives(
         inList: partitioned, info: { _ in ["BusProtocol": "USB", "Internal": false] })
     expect(typed.first?.kindIsKnown == true, "a partition type is worth saying")
+
+    // A disk with no partition table is called Linux by the scan, and that
+    // guess picked the mount ladder and, with it, whether a dirty NTFS was
+    // repaired. The first sector settles it instead.
+    expect(VolumeFormat.ntfs.kind == .microsoft, "NTFS is a Microsoft volume wherever it sits")
+    expect(VolumeFormat.bitlocker.kind == .microsoft, "so is BitLocker")
+    expect(VolumeFormat.exfat.kind == .microsoft, "so is exFAT")
+    expect(VolumeFormat.luks.kind == .linux, "LUKS is a Linux one")
+    expect(VolumeFormat.xfs.kind == .linux, "so is XFS")
+    expect(VolumeFormat.unknown.kind == nil, "and an unreadable sector claims nothing")
     expect(
         typed.first?.kind.summary == "LUKS/Linux",
         "and it is the pair, since the type allows either")

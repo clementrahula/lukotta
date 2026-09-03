@@ -58,6 +58,22 @@ public enum VolumeFormat: String, Sendable {
         }
     }
 
+    /// Which family this format belongs to, for a disk whose partition table
+    /// says nothing about it.
+    ///
+    /// A disk with no partition table has no partition type to read, so the
+    /// scan calls it Linux -- a whole disk handed to cryptsetup is what makes
+    /// one. That guess picks the mount ladder, and with it whether a dirty
+    /// volume is repaired, so where the first sector disagrees the first
+    /// sector wins.
+    public var kind: VolumeKind? {
+        switch self {
+        case .bitlocker, .ntfs, .exfat: return .microsoft
+        case .luks, .ext, .btrfs, .xfs: return .linux
+        case .unknown: return nil
+        }
+    }
+
     /// Nothing to unlock: it can be opened without asking for anything.
     public var isUnencrypted: Bool {
         switch self {

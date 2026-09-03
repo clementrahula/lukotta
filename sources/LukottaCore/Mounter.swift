@@ -78,7 +78,12 @@ public enum Mounter {
             enginePath: engine.path,
             devicePath: drive.devicePath,
             driveName: drive.name,
-            kind: drive.kind,
+            // A disk with no partition table is called Linux by the scan,
+            // and that guess picks the ladder and the repair. The first
+            // sector knows better, so where the kind is a guess it decides.
+            kind: drive.kindIsKnown
+                ? drive.kind
+                : (BootSector.read(devicePath: drive.devicePath).map(BootSector.identify)?.kind ?? nil ?? drive.kind),
             volume: volume,
             aliasPath: aliasPath,
             fifoPath: fifo.path,
