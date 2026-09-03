@@ -2259,3 +2259,33 @@ runs as one script rather than three logs to line up by their clocks.
 **Item 8 is not proven, and the earlier passes are weaker than they read.**
 Every previous pressure run reported a footprint and never a survival, so none
 of them establishes that the volumes were still there at the end.
+
+### Twelve stayed served through the squeeze, sampled every five seconds — 2026-09-03
+
+`twelve-under-pressure.sh`, the whole of item 8 as one action: twelve opened
+through the app, held, then eight gigabytes of ballast so what is left free is
+what an 8 GB Mac has, with the count of volumes still served sampled beside
+what they cost.
+
+    served, every sample, ten minutes of squeeze     12 of 12
+    fewest served at any sample                      12 of 12
+    footprint on opening                             2355 MB
+    footprint once squeezed, settled                 334 to 339 MB
+    host free through the squeeze                    14 to 35 MB
+    compressed                                       1925 to 1958 MB
+
+    home listing            21 ms
+    spotlight-free find     20 ms
+    process launch          19 ms
+
+So the collapse did not reproduce here, and the difference between the two runs
+is known: the run in which all twelve died had been through 324 copies first,
+and this one went from opening straight into the ballast. A volume just opened
+holds almost nothing; one that has been copied onto holds a page cache, and the
+second is the state a person's Mac is actually in. The next run works them
+first, which is what `EXERCISE` now does by default.
+
+**What this establishes and what it does not.** Twelve volumes open through the
+app's own route survive ten minutes at 14 to 35 MB free, cost 334 MB between
+them, and leave the Mac answering in about 20 ms. It does not yet establish
+that they survive it after being written to, which is the case that failed.
