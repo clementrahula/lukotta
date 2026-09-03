@@ -2600,3 +2600,41 @@ entry whose MFT reference has a stale sequence, or vendor a checker that can.
 The first is a small, well-defined edit to a directory index — the entry refers
 to a record that has been reused, so what it points at is already gone — and it
 is what chkdsk does with one.
+
+### `-o sync` does not prevent it either, and a ninety-second reproducer — 2026-09-03
+
+Two things came out of trying to stop the damage rather than repair it.
+
+**A reliable trigger, at last.** A folder written, deleted, and written again —
+so the new entries land on MFT records the delete has just freed — with the
+machine cut two seconds into the second write:
+
+    round 1  plain      FOLDER BROKEN (Invalid argument)
+    round 1  -o sync    FOLDER BROKEN (Invalid argument)
+    round 2  plain      FOLDER BROKEN (Invalid argument)
+    round 2  -o sync    FOLDER BROKEN (Invalid argument)
+
+Four for four, about ninety seconds each, against one run in six at five
+minutes through the twelve-volume harness.
+
+**The delete is the whole recipe.** Without it, the same cut leaves nothing
+wrong — three rounds, both arms:
+
+    seq errors 0, the folder is not there
+
+which is exactly what an interrupted copy should look like: the half-made
+folder is simply absent afterwards. The damage needs a record that has been
+freed and reused, because what breaks is a directory index entry keeping the
+old sequence number while the record moves on. This corrects an earlier reading
+in these notes: a first run appeared to show plain ntfs3 poisoning a name where
+`-o sync` did not, and that was the leftover contents of the previous round,
+not the mount option.
+
+**So `-o sync` is not the fix.** Measured, not reasoned: identical outcome in
+both arms of the reproduction. It is not applied.
+
+**Two fixes tried and rejected on measurement now:** the driver order after a
+repair, and a synchronous guest mount. What is left is the dangling index entry
+itself — and neither driver, `ntfsfix`, nor anything else in the guest can
+repair one. The route that remains is a checker the guest does not currently
+carry.
