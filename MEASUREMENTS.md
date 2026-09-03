@@ -843,3 +843,22 @@ That is a thirteen- to twenty-sevenfold difference produced by the mount path
 alone, and it is the whole of item 10's remaining gap. It is also good news:
 the durability option is not expensive, so there is nothing to trade away --
 something about the elevated mount is wrong, and fixing it should give both.
+
+## Slow is not the same as broken — 2026-09-03
+
+Finder's own copy engine, on the app's own XFS mount, the one running at about
+8 MB/s:
+
+    cycle 1  3 x 306 MB   114 s   3 identical, 0 differing, 0 missing
+    cycle 1  2000 files    81 s   2000 identical, 0 differing, 0 missing
+    cycle 2  3 x 306 MB   117 s   3 identical, 0 differing, 0 missing
+    cycle 2  2000 files    88 s   2000 identical, 0 differing, 0 missing
+
+Two cycles, both extremes, no failures. No Finder dialogue, nothing skipped,
+nothing part-written, and the times do not drift between cycles.
+
+So the helper-mount slowness is a throughput cost and not a stall: the machine
+keeps answering, macOS never marks the mount as not responding, and Finder
+never says a word. Item 3 holds on this volume. Item 10 does not, and the two
+are different failures -- worth separating, because "slow" was about to be
+written down as though it were "broken".
