@@ -1301,6 +1301,15 @@ The count is now reported once rather than each time.
 Found while reading the daemon's log for something else, which is the only
 reason it was ever seen: nothing about it reaches the screen.
 
+Measured on this Mac rather than reasoned about, on a link of exactly the shape
+the rootfs is full of (`cat` -> `/bin/busybox`, which does not exist here):
+
+    chown     failed: No such file or directory
+    lchown    ok
+
+So every one of the 455 links refused, and the count of 927 is those links
+reached twice.
+
 ### The mount that never started: ten addresses counted as twelve — 2026-09-03
 
 The app serves each drive's machine on its own loopback address and wants
