@@ -8,6 +8,46 @@ details and are not.
 [BUILDING.md](BUILDING.md) covers requirements, switches, and signing. Read
 those for everything this file leaves out.
 
+## Before You Change Anything, and After
+
+```bash
+./scripts/verify.sh
+```
+
+Every claim this project makes that something can check lives in
+[scripts/checks.tsv](scripts/checks.tsv) as one row: id, tags, speed, claim,
+command. `verify.sh` runs them and says which hold **now**. `FULL=1` runs the
+slow ones too, `TAG=release` runs one set, `ID=goal7` runs one claim.
+
+Run it before a change and after one. What it prints is the answer to "is
+anything broken that used to work", and that is the question that does not get
+asked otherwise.
+
+**Why this exists rather than another paragraph here.** A fix for one fault
+quietly removed the repair from a mount rung and broke dirty-NTFS repair -- a
+thing proven weeks earlier and still written down in MEASUREMENTS.md as proven.
+Nothing caught it. It was found because that item happened to have a harness and
+it happened to get run. This file could not have prevented it: prose has to be
+re-read and believed by whoever comes next, and after a context compaction, or
+in a new session, there is nobody left who remembers to. A command that runs and
+fails does not need to be believed.
+
+**When you fix something, add a row.** That is the whole upkeep. If the claim
+has no check yet, add the row with an empty command -- it then appears in the
+list as unchecked, which is the honest state and is visible rather than assumed.
+An unchecked claim is not a claim that passes.
+
+**It is not about the ten items.** Those are the rows tagged `goal`; `release`,
+`privacy`, `engine`, `integrity` and anything else are their own sets. A task
+that proves something adds its row, whatever it was about, and the row is
+checked from then on.
+
+Three things it has already caught that prose had been carrying: a registered
+check that could never have run because it needed an argument nobody passed; a
+check that tested the guest directly and so could never have seen the fix it was
+registered for; and a claim passing on a fixture that cannot produce the fault
+it is about. All three read as green before it existed.
+
 ## Commands That Report the Wrong Thing
 
 `swift test` prints `no tests found`. The checks are a plain executable target,
