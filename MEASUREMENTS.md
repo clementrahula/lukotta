@@ -1503,3 +1503,36 @@ responsiveness were all still to come when I edited the script's file while
 bash was executing it, and the shell resumed mid-line and died. The opens are a
 result; the rest of this measurement is not taken yet, and nothing about data
 integrity at twelve is claimed from it.
+
+### Every release shipped the name of the machine that built the guest — 2026-09-03
+
+Found in the bundle installed at /Applications, in the release cut this
+morning. `umoci` writes a header at the top of the rootfs manifest naming
+whoever ran `anylinuxfs init`:
+
+    #      user: <the account>
+    #   machine: <the hostname>.local
+    #      tree: <the home directory>/.anylinuxfs/alpine/rootfs
+    #      date: ...
+
+That manifest is packed into the engine and installed with the app, so those
+three facts have gone out inside every release, to everyone who installed one.
+
+There was a guard against exactly this, and it could not have fired, for two
+independent reasons:
+
+  - it looked at two binaries, and this is not a binary;
+  - it was `strings | grep -qF "$HOME"` under `set -o pipefail`, and grep -q
+    exits on its first match, killing strings with SIGPIPE, which pipefail
+    reports as the pipeline failing -- so the `if` was false precisely when the
+    path was there. Demonstrated on a file that did contain one: the matched
+    form reported nothing, the counted form caught it.
+
+Fixed at both ends. The header is dropped when packing -- dropped rather than
+rewritten, because an invented user and hostname would be a lie in a file that
+claims to be provenance -- and the guard is a sweep over every file about to
+ship, counted, placed after the dylib closure so nothing copied late escapes
+it. The vendored engine on this Mac was stripped in place as well, 812 lines to
+808, so the next build carries nothing without waiting for a re-vendor.
+
+    vendored engine, files naming this machine     0
