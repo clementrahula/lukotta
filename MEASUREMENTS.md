@@ -2755,3 +2755,28 @@ coming back on this hardware; it cannot stand in for the drive the fault was
 found on. What would make it real is the same write under the eight-gigabyte
 ballast, where writeback has to compete, or a real slow drive — and until one of
 those is run, item 1 rests on the 2026-09-01 measurement and not on this.
+
+### Item 1 under the ballast: still cannot reach the fault — 2026-09-03
+
+The route named in the last entry, taken. Same write, memory squeezed to what
+an 8 GB Mac has:
+
+    holding 8 GB, 63 MB free while it ran
+    1600 MB in 1 file, written in 4s
+    n=84  p50 0.028s  p90 0.031s  p99 0.059s  worst 0.059s
+    over 2s: 0   over 5s: 0
+
+Against the drive the stall was found on: p99 4.66s, worst 8.95s, nine requests
+past five seconds.
+
+**So memory pressure is not a stand-in for a slow drive.** Taking the memory
+away doubled the tail — 0.031s to 0.059s — and left it two orders of magnitude
+short of the threshold. The writeback still completes at SSD speed; what
+starved was everything else. The fault needs a device that is actually slow to
+write, and nothing on this Mac can make one.
+
+**Item 1 therefore stands on the 2026-09-01 measurement and not on this check.**
+The check is registered because it would catch the tail returning on this
+hardware, and it is written down as a guard rather than a proof. The honest
+gap: no automated check here can prove item 1, and proving it again needs the
+USB drive it was found on.

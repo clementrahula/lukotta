@@ -77,7 +77,53 @@ POINT="$(mount | /usr/bin/grep ':/mnt/' | awk '{print $3}' | head -1)"
 [ -n "${POINT:-}" ] || { echo "error: opened and nothing is served" >&2; exit 2; }
 echo "opened $POINT through the app"
 
+# Optionally with the memory squeezed, which is the only way this fixture can
+# be made to behave like the drive the stall was found on.
+#
+# 1600 MB went in three seconds here -- 533 MB/s, because the image sits on the
+# internal SSD -- and the stall lived in writeback to a slow drive. Nothing on
+# this Mac can make an SSD slow. What it can do is take the memory away, so the
+# writeback has to compete for it instead of being absorbed, which is the same
+# pressure arriving by a different road. It is not the same test and it is not
+# claimed to be; it is the closest this hardware comes.
+#
+# The ballast is the one from eight-gig-pressure.sh, verbatim: from urandom
+# rather than zeroes, because the compressor hands back a zero page for free
+# and ballast that compresses is not ballast, and re-touched on every round so
+# these stay the pages least worth compressing.
+BALLAST=""
+if [ "${PRESSURE:-0}" = "1" ]; then
+  total_gb=$(( $(sysctl -n hw.memsize) / 1073741824 ))
+  hold=$(( total_gb - 8 ))
+  if [ "$hold" -gt 0 ]; then
+    /usr/bin/python3 - "$hold" <<'BALLAST_PY' &
+import os, sys, time
+gb = int(sys.argv[1])
+chunks = []
+for _ in range(gb * 8):
+    chunks.append(bytearray(os.urandom(128 * 1024 * 1024)))
+while True:
+    for c in chunks:
+        c[0] = (c[0] + 1) & 0xFF
+        c[-1] = (c[-1] + 1) & 0xFF
+    time.sleep(5)
+BALLAST_PY
+    BALLAST=$!
+    echo "holding ${hold} GB so ~8 GB is left (pid $BALLAST)"
+    for _ in $(seq 1 120); do
+      free_mb=$(vm_stat | awk '/Pages free/ {gsub(/\./,"",$3); print int($3*16384/1048576)}')
+      [ "${free_mb:-0}" -le 400 ] && break
+      kill -0 "$BALLAST" 2>/dev/null || { echo "  the ballast died" >&2; break; }
+      sleep 2
+    done
+    echo "  ${free_mb:-unknown} MB free while this runs"
+  fi
+fi
+release_ballast() { [ -n "${BALLAST:-}" ] && kill "$BALLAST" 2>/dev/null; BALLAST=""; }
+trap 'release_ballast; release_drives; rm -rf "$WORK"' EXIT
+
 bash scripts/flush-latency.sh "$POINT" "$MB" 1 2>&1 | tee "$WORK/latency.log"
+release_ballast
 
 over=$(/usr/bin/grep -o 'over 5s (the threshold): [0-9]*' "$WORK/latency.log" \
   | awk '{print $NF}' | head -1)
