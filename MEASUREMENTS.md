@@ -1445,3 +1445,22 @@ claim, and it is why item 8 wants the machine it names rather than an argument
 from a 16 GB one. `scripts/eight-gig-pressure.sh` exists to hold ballast and
 measure inside what an 8 GB Mac would have left, and running it against the
 app's own route is what item 8 still needs.
+
+### The same correction applies to the eight-gigabyte measurement — 2026-09-03
+
+`scripts/eight-gig-pressure.sh` holds ballast written from urandom until what
+is left free is what an 8 GB Mac would have, and measures inside that. What it
+found on 2026-09-01 and again on 09-02 stands and is worth having: twelve
+volumes written and read back, home listing 16 to 20 ms, and the machines'
+resident total falling from 1545 MB to 554 MB as the host took its page cache
+back. The footprint is elastic, not a fixed price per drive.
+
+But those twelve were opened through the engine as well. The app asks its
+daemon for addresses first, and until this morning it could not have had more
+than ten -- so the 8 GB figures describe a dozen engines, not a dozen drives
+opened the way a person opens them.
+
+Item 8 therefore needs the two run together: twelve opened through the app by
+`crowd-through-the-app.sh`, and `eight-gig-pressure.sh` measuring inside the
+ballast while they are open. Neither alone answers it, and the engine-route
+numbers should not be read as though it had been answered.
