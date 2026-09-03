@@ -107,8 +107,20 @@ prepare_actions() {
   dev="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$clean" \
     2>/dev/null | head -1 | awk '{print $1}')"
   [ -n "${dev:-}" ] || return 1
+  # The app's own account, kept whether it works or not.
+  #
+  # A run that stalls prints nothing at all: the app writes to the unified log
+  # and its standard output stays empty, so a stall looked exactly like an app
+  # that had quietly done nothing. Ten minutes of silence, and the reason --
+  # the same three lines repeating five times a second -- was there the whole
+  # time and only ever found by going and looking by hand.
+  local started
+  started="$(date '+%Y-%m-%d %H:%M:%S')"
   timeout 600 "$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)" \
     --drive open="$dev" > "$WORK/app.log" 2>&1
+  /usr/bin/log show --start "$started" --info --debug \
+    --predicate "subsystem CONTAINS \"$APP_ID\"" --style compact \
+    > "$WORK/app-unified.log" 2>/dev/null || true
   local point
   point="$(where)"
   [ -n "$point" ] && diskutil unmount "$point" >/dev/null 2>&1
@@ -116,8 +128,19 @@ prepare_actions() {
   # The engine keeps its configuration one directory further down. Looking in
   # the wrong place here made this report that the app had left no actions,
   # every time, whether it had or not.
-  grep -q "custom_actions.lukottarepair" \
-    "$ANYLINUXFS_HOME/.anylinuxfs/config.toml" 2>/dev/null
+  if grep -q "custom_actions.lukottarepair" \
+    "$ANYLINUXFS_HOME/.anylinuxfs/config.toml" 2>/dev/null; then
+    return 0
+  fi
+  # What it was doing instead, in its own words: the most repeated line, which
+  # is what a stall looks like, and then the last few.
+  if [ -s "$WORK/app-unified.log" ]; then
+    echo "the app left no repair action. What it was doing:" >&2
+    sed 's/^[^]]*\] //' "$WORK/app-unified.log" | sort | uniq -c | sort -rn \
+      | head -3 | sed 's/^/      /' >&2
+    tail -3 "$WORK/app-unified.log" | cut -c1-150 | sed 's/^/      /' >&2
+  fi
+  return 1
 }
 
 open_it() {  # extra engine args
