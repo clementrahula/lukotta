@@ -253,7 +253,22 @@ open_image() {
 
 # Whatever the app route attached, given back.
 APP_DEV=""
-detach_app_device() { [ -n "${APP_DEV:-}" ] && hdiutil detach "$APP_DEV" -quiet 2>/dev/null; }
+# Unmounted first, then given back.
+#
+# Detaching the device under a live mount leaves the mount in the table
+# pointing at nothing: it answers `mount`, it answers no request, and the next
+# run to look for a volume by that name finds it. A stray /Volumes/SWEEP from
+# one run was still there while the next was going, which is exactly the shape
+# of instrument fault this harness has been fooled by before.
+detach_app_device() {
+  [ -n "${APP_DEV:-}" ] || return 0
+  local point
+  point="$(mount | awk -v want="$(basename "$APP_DEV").local:" \
+    '$1 ~ want {for(i=1;i<=NF;i++) if($i=="on") {print $(i+1); exit}}')"
+  [ -n "$point" ] && { umount "$point" >/dev/null 2>&1 \
+    || umount -f "$point" >/dev/null 2>&1; }
+  hdiutil detach "$APP_DEV" -quiet 2>/dev/null
+}
 trap detach_app_device EXIT
 
 pass=0; fail=0
