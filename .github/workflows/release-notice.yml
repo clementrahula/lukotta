@@ -42,6 +42,12 @@ jobs:
         env:
           TAG: ${{ github.event.release.tag_name }}
           PRERELEASE: ${{ github.event.release.prerelease }}
+        # bash without -e. GitHub's default is `bash -e {0}`, and under it the
+        # first command that returns non-zero ends the step -- which is wrong
+        # for a script whose whole job is to report that something is not there
+        # yet. It killed the first real run: `[ -n "$url" ] && code=...` with an
+        # empty url returned 1, and the step died before it could say so.
+        shell: bash --noprofile --norc {0}
         run: |
           set -uo pipefail
           version="${TAG#v}"
@@ -72,8 +78,10 @@ jobs:
           url="$(curl -fsSL --max-time 30 "$feed" 2>/dev/null \
                  | grep -o 'https://[^"]*\.dmg' | head -1)"
           code=000
-          [ -n "$url" ] && code="$(curl -sSL -o /dev/null -r 0-0 \
-              -w '%{http_code}' --max-time 60 "$url" 2>/dev/null || printf '000')"
+          if [ -n "$url" ]; then
+            code="$(curl -sSL -o /dev/null -r 0-0 \
+                -w '%{http_code}' --max-time 60 "$url" 2>/dev/null || printf '000')"
+          fi
           case "$code" in
             200|206) echo "downloadable=yes" >> "$GITHUB_OUTPUT" ;;
             *)       echo "downloadable=no"  >> "$GITHUB_OUTPUT" ;;
