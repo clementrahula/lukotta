@@ -149,7 +149,18 @@ cleanup() {
 # `mount` and failing every request. The engine names a share after the file it
 # came from, so that is what to look for.
 where() {
-  mount | awk -v want="$(basename "$IMAGE" .img)-img.local:" \
+  # The engine names a share after what it was handed. Given an image file that
+  # is "<name>-img.local"; given a device -- which is what the app hands it --
+  # it is "diskN.local". So the route decides the name to look for, and looking
+  # for the wrong one reported "the engine never mounted it" about a mount that
+  # had just succeeded and was sitting in the table.
+  local want
+  if [ -n "${APP_DEV:-}" ]; then
+    want="$(basename "$APP_DEV").local:"
+  else
+    want="$(basename "$IMAGE" .img)-img.local:"
+  fi
+  mount | awk -v want="$want" \
     '$1 ~ want {for(i=1;i<=NF;i++) if($i=="on") {print $(i+1); exit}}'
 }
 
