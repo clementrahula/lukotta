@@ -24,7 +24,6 @@ private func servedCount() -> Int {
         .count
 }
 
-
 final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtocol {
 
     private let listener: NSXPCListener
