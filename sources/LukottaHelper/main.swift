@@ -700,8 +700,16 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 paths.append(root.appendingPathComponent(entry).path)
             }
         }
-        for path in paths where chown(path, uid, gid) != 0 {
-            Log.helper.error("could not hand over one of the engine's files")
+        // lchown, not chown: chown follows the link, and the guest's root
+        // filesystem is mostly symlinks into its own tree -- /bin/cat points
+        // at /bin/busybox, which is a path inside the machine and nothing at
+        // all on this Mac. Following those meant 927 failed calls and 927
+        // error lines on every single mount, and the links themselves were
+        // never handed over. What wants owning is the link.
+        var refused = 0
+        for path in paths where lchown(path, uid, gid) != 0 { refused += 1 }
+        if refused > 0 {
+            Log.helper.error("could not hand over \(refused) of the engine's files")
         }
     }
 

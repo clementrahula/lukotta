@@ -1274,3 +1274,20 @@ about the app.
 The beta daemon is installed, and a daemon replaces itself from the new bundle
 without asking anybody for anything. So a fix that needs a real mount to prove
 it goes to the beta channel and is proved there. That is the loop anyway.
+
+### 927 failed chowns on every mount — 2026-09-03
+
+The daemon hands the engine's files to the user who asked for the mount, and
+did it with `chown`, which follows a symlink. The guest's root filesystem is
+mostly symlinks into its own tree: `/bin/cat` points at `/bin/busybox`, a path
+inside the machine and nothing at all on this Mac. There are 455 of them.
+
+    could not hand over one of the engine's files      927 times, every mount
+
+Every one of those is a failed system call and a line written to the log, and
+the links were never handed over -- they stayed owned by root. `lchown` owns
+the link rather than what it points at, which is the thing that wanted owning.
+The count is now reported once rather than each time.
+
+Found while reading the daemon's log for something else, which is the only
+reason it was ever seen: nothing about it reaches the screen.
