@@ -225,6 +225,32 @@ while read -r point; do
         echo "    asked again: readable, $(/usr/bin/grep -c . < "$WORK/again.sums") files" >&2
       fi
       echo "    by name: $(ls -l "$point/crowd-write/$bad" 2>&1 | tail -1 | cut -c1-90)" >&2
+      echo "    room: $(df -h "$point" 2>&1 | tail -1 | awk '{print $4 " free of " $2}')" >&2
+      # Watched, because the first occurrence healed and the second did not
+      # heal within a second, and nobody wrote down which it was at the time.
+      #
+      # A handle that comes back inside a couple of minutes with the right
+      # bytes behind it is a wrong error message, which is bad. One that never
+      # comes back, or comes back short, is data that did not arrive, which is
+      # worse and needs a different fix. This is the only moment either can be
+      # told from the other.
+      healed=""
+      for t in $(seq 1 60); do
+        if (cd "$point/crowd-write" && find . -type f -exec shasum -a 256 {} \; \
+             | sort) > "$WORK/heal.sums" 2>/dev/null; then
+          [ -s "$WORK/heal.sums" ] && { healed="$((t * 3))"; break; }
+        fi
+        sleep 3
+      done
+      if [ -n "$healed" ]; then
+        if diff -q "$WORK/before.sums" "$WORK/heal.sums" >/dev/null 2>&1; then
+          echo "    healed after ${healed}s, every file correct" >&2
+        else
+          echo "    healed after ${healed}s, $(/usr/bin/grep -c . < "$WORK/heal.sums") of $(/usr/bin/grep -c . < "$WORK/before.sums") files" >&2
+        fi
+      else
+        echo "    never healed in 180 s" >&2
+      fi
     elif [ "$got" -lt "$want" ]; then
       echo "  $point listed $got of $want files, the rest are not there yet" >&2
       # Whether they arrive at all, and how late. A volume that fills in a
