@@ -5446,13 +5446,19 @@ group("aPoisonedNameIsFreedAfterTheVolumeIsServing") {
     // damaged volume never reaches the repair rung, and it is not ntfs3 serving
     // it either -- the probe fails, ntfs-3g takes it, and there the same entries
     // answer EIO while ntfs3 never says a word.
-    let threeGSection = script.components(separatedBy: "[custom_actions.")
-        .first { $0.hasPrefix(MountScript.ntfs3gActionName) } ?? ""
+    let threeGSection =
+        script.components(separatedBy: "[custom_actions.")
+        .first {
+            $0.hasPrefix(MountScript.ntfs3gActionName)
+        } ?? ""
     expect(
         threeGSection.contains("after_mount ="),
         "the rung ntfs3 refused is the rung that walks the volume")
-    let probeSection = script.components(separatedBy: "[custom_actions.")
-        .first { $0.hasPrefix(MountScript.ntfs3ProbeActionName + "]") } ?? ""
+    let probeSection =
+        script.components(separatedBy: "[custom_actions.")
+        .first {
+            $0.hasPrefix(MountScript.ntfs3ProbeActionName + "]")
+        } ?? ""
     expect(
         !probeSection.contains("after_mount ="),
         "and a volume ntfs3 is happy with is not walked at all")

@@ -84,6 +84,11 @@ for r in $(seq 1 "$ROUNDS"); do
     continue
   fi
 
+  # shellcheck disable=SC2016
+  # Single quotes on purpose: everything in here is for the guest to expand,
+  # not this shell. Expanding $(ls ...) on the Mac would ask the Mac about a
+  # path inside a virtual machine, which is a different question with a
+  # plausible-looking wrong answer.
   verdict="$(timeout 300 "$ENGINE" shell "$IMG" -c '
     ntfsfix -d /dev/vda >/dev/null 2>&1
     mkdir -p /mnt/x; dmesg -c >/dev/null 2>&1

@@ -237,7 +237,7 @@ while read -r point; do
         echo "    asked again: readable, $(/usr/bin/grep -c . < "$WORK/again.sums") files" >&2
       fi
       [ -n "$bad" ] && \
-        echo "    by name: $(ls -l "$point/crowd-write/$bad" 2>&1 | tail -1 | cut -c1-90)" >&2
+        echo "    by name: $(find "$point/crowd-write/$bad" -maxdepth 0 2>&1 | tail -1 | cut -c1-90)" >&2
       echo "    room: $(df -h "$point" 2>&1 | tail -1 | awk '{print $4 " free of " $2}')" >&2
       # Watched, because the first occurrence healed and the second did not
       # heal within a second, and nobody wrote down which it was at the time.
@@ -270,7 +270,7 @@ while read -r point; do
       # second was written correctly and read too early; one that never fills
       # in lost data. Those are not the same failure.
       for _ in $(seq 1 60); do
-        late=$(ls -1 "$point/crowd-write" 2>/dev/null | wc -l | tr -d ' ')
+        late=$(find "$point/crowd-write" -maxdepth 1 -type f 2>/dev/null | wc -l | tr -d ' ')
         [ "$late" -ge "$want" ] && break
         sleep 1
       done

@@ -82,7 +82,7 @@ echo
 echo "copying $FILES files (about $((FILES / 10)) MB) into what is left"
 ditto "$SRC" "$POINT/spill" > "$WORK/ditto.log" 2>&1
 rc=$?
-arrived=$(ls -1 "$POINT/spill" 2>/dev/null | wc -l | tr -d ' ')
+arrived=$(find "$POINT/spill" -maxdepth 1 -type f 2>/dev/null | wc -l | tr -d ' ')
 echo "ditto exited $rc, $arrived of $FILES arrived"
 echo "what it said:"
 sed 's/^/    /' "$WORK/ditto.log" | head -5

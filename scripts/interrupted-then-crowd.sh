@@ -27,7 +27,7 @@
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$HERE"
+cd "$HERE" || exit 1
 ROUNDS="${ROUNDS:-2}"
 OUT="${OUT:-$HOME/.lukotta-testvols}"
 

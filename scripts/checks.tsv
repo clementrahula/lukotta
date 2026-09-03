@@ -1,0 +1,50 @@
+# Every claim this project makes that something can check, and the check.
+#
+# ONE ROW PER CLAIM. Tab-separated: id, tags, speed, claim, command.
+#
+# WHY IT IS A FILE AND NOT A SCRIPT
+#
+# A fix for one fault quietly removed the repair from a mount rung and broke
+# dirty-NTFS repair -- a thing proven weeks earlier and still written down as
+# proven. Nothing caught it, because what recorded the claim was prose, and
+# prose has to be re-read and believed by whoever comes next. After a
+# compaction, or in a new session, there is nobody left who remembers to.
+#
+# A row here is different: verify.sh runs it, and a claim that no longer holds
+# says so without anyone having to remember it existed.
+#
+# ADDING ONE. When a bug is fixed, or a behaviour is proven, add a row. If the
+# claim has no check yet, still add the row and leave the command empty -- an
+# unchecked claim then appears in the list as unchecked, which is the honest
+# state and is visible rather than assumed.
+#
+# TAGS are free-form and comma-separated. "goal" is the owner's ten items;
+# anything else -- release, privacy, engine, ui -- is its own set, and
+# `TAG=release ./scripts/verify.sh` runs just that one. The point is that this
+# outlives any particular list of goals: a task that proves something adds its
+# row and the row is checked from then on.
+#
+# SPEED is fast or slow. Slow ones need FULL=1, so the fast gate stays quick
+# enough to run on every change.
+#
+# id	tags	speed	claim	command
+goal1	goal	slow	writing does not stall	
+goal2	goal	slow	no crash copying through Finder, both extremes	bash scripts/finder-copy-cycles.sh
+goal3	goal	slow	nothing user-visible during a copy	bash scripts/reused-record-interrupt.sh
+goal4	goal	slow	NTFS and BitLocker, byte-identical	bash scripts/integrity-vectors.sh
+goal5	goal	slow	LUKS and the Linux filesystems inside it	
+goal6	goal	slow	every other format the app advertises	bash scripts/vectors-every-format.sh
+goal7	goal	slow	a dirty NTFS volume is repaired, data intact	bash scripts/dirty-ntfs-repair.sh
+goal8	goal	slow	a dozen volumes under 8 GB of pressure, still served	bash scripts/twelve-under-pressure.sh
+goal9	goal	slow	integrity across every vector devised	bash scripts/vectors-every-format.sh
+goal10	goal	fast	no UX cost anywhere in the above	bash scripts/run-tests.sh
+unit	code	fast	the unit checks pass	bash scripts/run-tests.sh
+lint	code	fast	the sources lint clean	bash scripts/lint.sh
+private	privacy,release	fast	no release carries anything of the owner's	/usr/bin/python3 scripts/check-private.py
+casks	release	fast	the published casks point at files that exist	bash scripts/check-casks.sh
+changelog	release	fast	the release notes read the way the approved ones do	/usr/bin/python3 scripts/check-changelog.py
+firstrun	engine	slow	a first run on a new install opens a drive	bash scripts/first-run-open.sh
+heals	engine	slow	a removed Linux environment is put back by itself	bash scripts/heals-itself.sh
+homes	engine	slow	two apps using the engine do not share a home	bash scripts/homes-are-separate.sh
+torture	integrity	slow	a corpus copied onto a drive reads back byte for byte	bash scripts/copy-torture.sh
+forks	integrity	slow	extended attributes and resource forks survive	bash scripts/xattr-forks.sh

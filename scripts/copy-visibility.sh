@@ -42,11 +42,14 @@ trap 'rm -rf "$SRC"' EXIT
 for i in $(seq 1 "$FILES"); do head -c 100000 /dev/urandom > "$SRC/f$i.bin"; done
 
 echo "$count volumes open, $CYCLES cycles of $FILES files onto each at once"
+[ "${KEEP:-0}" = "1" ] && echo "  keeping every cycle, so nothing here deletes anything"
+export KEEP
 
 /usr/bin/python3 - "$SRC" "$CYCLES" "$FILES" <<'MEASURE'
 import os, subprocess, sys, time
 
 src, cycles, files = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+keep = os.environ.get("KEEP") == "1"
 points = [p.strip() for p in open("/tmp/.cv-points") if p.strip()]
 
 late = []          # every copy that was not immediately visible
@@ -116,10 +119,18 @@ for cycle in range(1, cycles + 1):
 
     took = time.perf_counter() - copied
     worst = max(worst, took)
-    for p in points:
-        try: subprocess.run(["/bin/rm", "-rf", os.path.join(p, dest)],
-                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        except Exception: pass
+    # Cleared between cycles, unless asked not to.
+    #
+    # A stale file handle is what deleting and recreating things produces when
+    # the filesystem reuses an inode, so a harness that deletes on every cycle
+    # can manufacture the fault it is hunting. KEEP=1 runs without deleting
+    # anything -- the volumes are 64 MB, so it needs a small FILES -- and an
+    # ESTALE seen in that mode was not made by this script.
+    if not keep:
+        for p in points:
+            try: subprocess.run(["/bin/rm", "-rf", os.path.join(p, dest)],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except Exception: pass
     print("  cycle %2d: copied in %5.1f s, all visible %.0f ms after"
           % (cycle, copied - began, took * 1000))
 
