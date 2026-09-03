@@ -1842,3 +1842,28 @@ the other four formats.
 
 Written down because "ext4 was skipped" is exactly the sort of thing that
 becomes "ext4 passed" in a later summary if nobody records why.
+
+### btrfs did not open, and the app was right to refuse — 2026-09-03
+
+    BTRFS error (device vda): open_ctree failed: -22
+    mount script exited with status 1
+    the drive did not open (status 1)
+
+That reads as the app failing to open a format it advertises. It is not. The
+fixture is truncated:
+
+    file on disk      92,733,440 bytes
+    superblock says   1,074,790,400 bytes total, 147,456 used
+
+A btrfs superblock describing a gigabyte inside an eighty-eight megabyte file.
+`open_ctree -22` is btrfs refusing a device smaller than the filesystem claims
+to be, which is exactly what it should do, and the app passing that refusal
+back rather than pretending is exactly what it should do.
+
+Settled by reading two numbers out of the image with no engine, no mount and no
+guessing: the file's size, and the size the superblock claims. Item 6 is not
+answered for btrfs either way -- it needs a fixture that is whole.
+
+The image was probably cut short when it was made; `btrfs-vectors.img` has no
+maker in `scripts/`, so it was created by hand at some point and has been
+carrying this ever since.
