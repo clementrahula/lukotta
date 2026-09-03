@@ -110,6 +110,31 @@ APP_ID="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' \
 export ANYLINUXFS_HOME="$HOME/Library/Application Support/$APP_ID/engine"
 
 WORK="$(mktemp -d)"
+
+# Every run gets its own copy of the fixture, and the original is never touched.
+#
+# These vectors write eighty megabytes, fill the volume to the last block, and
+# kill the machine repeatedly. What they leave behind is not tidied by the next
+# run's cleanup, because a kill can happen before an unlink reaches the image --
+# so the run after this one starts on a volume that is part full, and the run
+# after that on one with no room at all. Three separate failures were chased
+# tonight that were exactly this: a volume whose operations timed out, an image
+# holding three hundred megabytes of somebody's test files, and a copy that
+# carried leftovers forward every time it was made.
+#
+# A copy costs a few seconds and a few hundred megabytes of temporary space,
+# and buys a run that means the same thing every time.
+ORIGINAL="$IMAGE"
+# The copy is named after this run's workspace, not after the original.
+#
+# The engine names its share from the image's file name, and `where` finds a
+# mount by that name. Two runs of the same fixture therefore produce two shares
+# called the same thing, and a mount left behind by a killed engine is matched
+# by the next run -- which then measures the previous run's volume, full and
+# already spoiled. That is what "52 MB free" was.
+IMAGE="$WORK/$(basename "$ORIGINAL" .img)-$(basename "$WORK").img"
+printf 'copying the fixture so this run cannot spoil the next one\n'
+cp "$ORIGINAL" "$IMAGE" || { echo "error: could not copy $ORIGINAL" >&2; exit 2; }
 MNT="$WORK/mnt"; mkdir -p "$MNT"
 trap 'cleanup' EXIT
 cleanup() {
