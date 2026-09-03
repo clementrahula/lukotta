@@ -2562,3 +2562,41 @@ undoing the driver's own protective marking, once per open, forever.
 **Detection is cheap, and was measured:** a read-only ntfs3 mount reports
 nothing at mount time and two errors the moment the containing directory is
 listed. So ntfs3 will say the volume is unfit for ntfs3, if anybody asks it.
+
+### The driver swap moved the errno and fixed nothing — 2026-09-03
+
+The first fix tried: after a repair, serve the volume with ntfs-3g instead of
+handing it back to ntfs3. Built, tested (1130/1130), and measured against the
+real app with `interrupted-then-crowd.sh`.
+
+It did exactly what it said. 27 of the mounts came up on ntfs-3g against 3 on
+ntfs3, the volumes were writable — a 100 KB file written to CROWD1's root
+through the same mount, and a write into `crowd-write` itself, both succeeded
+where before every one of the twelve refused everything.
+
+And the copy still failed on all twelve:
+
+    before   ditto: /Volumes/CROWDn/crowd-write: Invalid argument
+             /Volumes/CROWDn has no crowd-write; the copy made nothing
+    after    ditto: /Volumes/CROWDn/crowd-write/f10.bin: Input/output error
+             find: '.': Input/output error
+             never healed in 180 s
+    files landed, either way   none
+
+**So it moves EINVAL to EIO and nothing else.** ntfs-3g reads and writes that
+entry inside the guest — measured, inode 27, a file created inside it — and
+over NFS, which is the only route the app uses, it answers EIO on the same
+entry exactly as ntfs3 answers EINVAL. ntfs-3g is not broken in general: an
+ordinary write to the same volume through the same mount succeeds.
+
+**Reverted.** Keeping it would put the slower metadata driver on every repaired
+volume in exchange for a different error message. A change that costs speed and
+buys no measured improvement is not a fix.
+
+**Where the fix has to be.** The dangling index entry itself. Neither driver
+can use that name over NFS, `ntfsfix` will not repair it, and the guest carries
+no checker that would. The routes left are: teach the repair to drop an index
+entry whose MFT reference has a stale sequence, or vendor a checker that can.
+The first is a small, well-defined edit to a directory index — the entry refers
+to a record that has been reused, so what it points at is already gone — and it
+is what chkdsk does with one.
