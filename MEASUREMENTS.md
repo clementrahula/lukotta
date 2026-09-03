@@ -1776,3 +1776,23 @@ passed, which would have failed every encrypted fixture for want of a key.
 
 Still to do on this route: ext4, btrfs, exFAT and LUKS. NTFS was taken first
 because all four of today's product faults were NTFS ones.
+
+### The sixty seconds, fixed and measured — 2026-09-03
+
+`--drive` waited for the daemon's process id to change whatever the answer, and
+when the installed daemon already matches the bundle nothing is asked for,
+nothing changes, and the loop ran its whole minute. It now asks
+`replaceIfStale` whether it actually requested anything, and waits only then.
+
+    before, every open                  72 s
+    after, daemon freshly replaced      72 s   -- a real replacement, waited for
+    after, daemon already matching      11 s
+
+The middle line is the one worth keeping: the wait is still there when there is
+something to wait for. What has gone is a minute spent waiting for an event
+that was never going to happen.
+
+This never touched anybody using the window -- it is on the `--drive` path
+only. What it did touch is every measurement taken through that path: twelve
+crowd opens, and ten more in each vectors run. Fourteen minutes of a
+twenty-minute run were this.
