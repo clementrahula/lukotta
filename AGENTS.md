@@ -1089,6 +1089,22 @@ nobody asked.
   at 1 TB with 624 MB in it; `scripts/sparse-digest.py` hashes the extents and
   does it in 0.4 s.
 
+## Never Edit a Script While It Is Running
+
+bash reads a script from the file as it goes, at a byte offset. Editing the
+file under a running instance moves everything after that offset, and the shell
+resumes in the middle of a different line:
+
+    scripts/crowd-through-the-app.sh: line 181: unexpected EOF while looking
+    for matching `"'
+
+That killed a measurement at 12 of 12 -- after every volume had opened and
+before a single one had been verified -- and the script it complained about was
+syntactically perfect. `bash -n` passes; the running copy still dies.
+
+Twenty minutes of engine time, thrown away by a one-line edit that could have
+waited. If a script is running, leave its file alone: edit a copy, or wait.
+
 ## A Shipped Build Has No `--drive`, and Says So By Doing Nothing
 
 The headless switches -- `--drive`, `--check-helper`, `--smoke-test`, the

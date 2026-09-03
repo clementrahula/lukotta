@@ -1488,3 +1488,18 @@ Written down rather than acted on: the fix shipped this morning makes the gate
 self-consistent and correct about its own resource, and changing what the gate
 counts is a different change that wants its own measurement of what the vmnet
 actually runs out of.
+
+### Twelve through the app's own route — 2026-09-03
+
+    opening 12 volumes through com.lukotta.beta, one at a time
+      lo0 carries 12 addresses that can serve
+       1 of 12 open ... 12 of 12 open
+
+All twelve opened, one `--drive open=` at a time, the way the window does it.
+This morning the eleventh could not have opened at all.
+
+The run got no further: the write and read-back, the footprint and the
+responsiveness were all still to come when I edited the script's file while
+bash was executing it, and the shell resumed mid-line and died. The opens are a
+result; the rest of this measurement is not taken yet, and nothing about data
+integrity at twelve is claimed from it.
