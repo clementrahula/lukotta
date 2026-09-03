@@ -2058,3 +2058,32 @@ costs 47x on writes to a real drive, which is why item 10 is unmet for XFS, and
 it costs a hundred and ten seconds to notice a volume is full. Both are the
 price of the same workaround. Fixing the COMMIT retires the option and both
 costs with it; nothing else needs to be traded off against anything.
+
+### ext4 inside LUKS pays for an option it does not need — 2026-09-03
+
+The durability option is chosen on this Mac, before the machine boots, by
+reading the volume's superblock. A LUKS container hides that superblock, so
+none can be chosen and the blunt one is used for whatever is inside.
+
+    ext4, superblock readable      data=journal      full volume answered in 3s
+    ext4 inside LUKS, hidden       sync              129s
+    XFS inside LUKS, hidden        sync              140s
+    plain XFS, readable            sync              110s
+
+ext4 is the case that matters: the same filesystem answers in three seconds
+with the option it actually needs and a hundred and twenty-nine with the option
+it is given for want of being able to look. That is not the encryption costing
+anything -- it is the app choosing coarsely because it chose early.
+
+**The superblock is readable a moment later.** The mount script unlocks the
+container inside the guest and then mounts what appears; between those two
+steps `blkid` on the opened mapper device says what it is. Choosing the option
+there rather than here would give ext4 inside LUKS the same `data=journal` it
+gets bare, and would leave btrfs inside LUKS -- which needs no option at all --
+paying nothing instead of paying the most.
+
+Only XFS would still want `sync`, and only until nfsd's COMMIT is fixed.
+
+Not attempted today: it is a change to the generated mount script, which is
+delicate, and the machine was in the middle of a release. Written down with
+the numbers that justify it so it is not rediscovered from scratch.
