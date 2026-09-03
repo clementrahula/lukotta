@@ -991,3 +991,21 @@ eliminated one at a time. This is as far as the fault can be traced from
 outside the guest kernel, and it is a single component: nfsd receives a COMMIT,
 answers it, and the data is not durable -- while the identical fsync issued
 inside the same machine, on the same volume, in the same instant, is.
+
+## NFSv4 refused, and why it is still the most promising route — 2026-09-03
+
+The guest's nfsd offers `+3 +4 +4.1 +4.2`, and the fault is in v3's
+write-then-COMMIT path, so v4 was worth trying: its writes and commits work
+differently and might not carry the fault at all.
+
+    mount with vers=4    mount_nfs: Invalid argument (22)
+
+NFSv4 has no MOUNT protocol and needs a pseudo-root -- an export with `fsid=0`
+that the client walks down from. The guest writes one export line per volume
+and no root, so there is nothing for a v4 client to attach to.
+
+That is a change to how vmproxy builds `/tmp/exports`, which is a patch against
+the engine and wants its own testing rather than a quick edit. It is recorded
+here as the most promising route because it is the only candidate that could
+remove the fault rather than paper over it, and the papering-over is what costs
+a real drive forty-seven times its speed.
