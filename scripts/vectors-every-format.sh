@@ -30,7 +30,20 @@ ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engi
 # with the key the fixtures are made with. A fixture that is not there is named
 # and skipped rather than silently missed: "12 passed" over three formats when
 # five were meant is the kind of result that reads as success.
-FIXTURES="${FIXTURES:-ntfs-vectors ext4-vectors btrfs-vectors exfat-vectors luks-ext4 luks-xfs}"
+# Every format the website claims, not the six that happened to be wired up.
+#
+# The claim is "every other format the app advertises. If the app claims it, it
+# is tested." Against the table on the site, six of the twelve claims had never
+# been through here: ext2 and ext3, XFS other than inside LUKS, FAT, LUKS1, and
+# LVM inside LUKS. Fixtures already existed for most of them -- built for other
+# experiments and never swept -- so the claim was overstated while the work was
+# already done.
+#
+# What still has no fixture: FAT, and BitLocker, which nothing on macOS or
+# Linux can create. BitLocker rests on the owner's own drive and item 4 says so.
+FIXTURES="${FIXTURES:-ntfs-vectors ext4-vectors btrfs-vectors exfat-vectors \
+luks-ext4 luks-xfs plain-xfs plain-ext4 plain-exfat luks1-lvm luks2-direct \
+luks2-lvm luks-lvm-big luks-multi}"
 PASSPHRASE="${LUKOTTA_PASSPHRASE:-lukotta-test-pass}"
 
 ran=0; failed=0; missing=""

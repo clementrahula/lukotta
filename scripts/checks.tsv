@@ -24,8 +24,10 @@
 # outlives any particular list of goals: a task that proves something adds its
 # row and the row is checked from then on.
 #
-# SPEED is fast or slow. Slow ones need FULL=1, so the fast gate stays quick
-# enough to run on every change.
+# SPEED is fast, slow or long. Anything but fast needs FULL=1, so the fast
+# gate stays quick enough to run on every change. long is for checks that
+# genuinely run past half an hour -- launching several apps, each booting a
+# machine -- so a real hang is still told apart from a long job.
 #
 # id	tags	speed	claim	command
 goal1	goal	slow	writing does not stall	bash scripts/writing-does-not-stall.sh
@@ -45,6 +47,6 @@ casks	release	fast	the published casks point at files that exist	bash scripts/ch
 changelog	release	fast	the release notes read the way the approved ones do	/usr/bin/python3 scripts/check-changelog.py
 firstrun	engine	slow	a first run on a new install opens a drive	bash scripts/first-run-open.sh
 heals	engine	slow	a removed Linux environment is put back by itself	LUKOTTA_APP="${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}" bash scripts/heals-itself.sh
-homes	engine	slow	two apps using the engine do not share a home	LUKOTTA_APP="${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}" bash scripts/homes-are-separate.sh
+homes	engine	long	two apps using the engine do not share a home	LUKOTTA_APP="${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}" bash scripts/homes-are-separate.sh
 torture	integrity	slow	a corpus copied onto a drive reads back byte for byte	bash scripts/with-a-drive-open.sh ntfs-vectors.img bash scripts/copy-torture.sh
 forks	integrity	slow	extended attributes and resource forks survive	bash scripts/with-a-drive-open.sh ntfs-vectors.img bash scripts/xattr-forks.sh

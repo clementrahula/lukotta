@@ -73,7 +73,7 @@ while IFS=$'\t' read -r id tags speed claim cmd <&3; do
     printf '%-10s %-52s %s\n' "$id" "$claim" "NO CHECK"
     echo unchecked >> "$TALLY"; continue
   fi
-  if [ "$speed" = "slow" ] && [ "$FULL" != "1" ] && [ -z "$ID" ]; then
+  if [ "$speed" != "fast" ] && [ "$FULL" != "1" ] && [ -z "$ID" ]; then
     printf '%-10s %-52s %s\n' "$id" "$claim" "not run, needs FULL=1"
     echo skipped >> "$TALLY"; continue
   fi
@@ -85,8 +85,16 @@ while IFS=$'\t' read -r id tags speed claim cmd <&3; do
   # check that takes longer than its bound has failed as far as this is
   # concerned -- an answer that never arrives is not a pass.
   printf '%-10s %-52s ' "$id" "$claim"
+  # Three tiers, because two were not enough to tell a hang from a long job.
+  #
+  # homes-are-separate.sh launches every Lukotta installed in /Applications and
+  # each launch boots a machine, so it genuinely runs past half an hour. It was
+  # reported as failing on its bound twice, which reads as broken and is not.
   bound="${CHECK_TIMEOUT:-1800}"
-  [ "$speed" = "fast" ] && bound="${FAST_TIMEOUT:-300}"
+  case "$speed" in
+    fast) bound="${FAST_TIMEOUT:-300}" ;;
+    long) bound="${LONG_TIMEOUT:-5400}" ;;
+  esac
   if timeout "$bound" bash -c "$cmd" > "$LOG" 2>&1 < /dev/null; then
     printf 'holds\n'; echo passed >> "$TALLY"
   else
