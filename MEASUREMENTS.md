@@ -1464,3 +1464,27 @@ Item 8 therefore needs the two run together: twelve opened through the app by
 `crowd-through-the-app.sh`, and `eight-gig-pressure.sh` measuring inside the
 ballast while they are open. Neither alone answers it, and the engine-route
 numbers should not be read as though it had been answered.
+
+### The ceiling counts a resource the mounts do not use — 2026-09-03
+
+With eleven volumes open through the app, nothing at all was listening or
+connected on any `127.0.0.x` alias, including the two the daemon had just
+added. Every mount runs over the vmnet instead:
+
+    mount        disk6.local:/mnt/CROWD1 on /Volumes/CROWD1 (nfs, ...)
+    resolves     disk6.local -> 172.27.1.6
+    established  172.27.1.1, .5, .9, .13, .17, .21, .25, .29, .33, .37, .41, .45
+
+Twelve connections, stepping by four, which is a small subnet per machine.
+
+So the number the app calls its capacity -- and prints to the person as "you
+can only have N open at the same time" -- is a count of loopback aliases that
+no mount is using. Adding the eleventh and twelfth was still what unblocked
+opening the eleventh and twelfth, because the gate is what refuses; but the
+gate is counting the wrong thing, and the real limits are the vmnet addresses
+and memory.
+
+Written down rather than acted on: the fix shipped this morning makes the gate
+self-consistent and correct about its own resource, and changing what the gate
+counts is a different change that wants its own measurement of what the vmnet
+actually runs out of.
