@@ -1704,6 +1704,14 @@ question and the good news. But three quarters of a minute is a long time to
 look at a window, and nothing in the ten items names it, so it has never been
 questioned.
 
+**Not an artefact of the headless route.** `--drive` asks the daemon to replace
+itself on the way in, and waits up to sixty seconds for the new process, which
+a person opening a drive in the window never pays. But that happens only when
+the installed binary differs from the bundle's, so at most the first of the
+twelve crowd opens could have paid it -- and the twelve were 72, 73, 73, 72,
+73, 73, 73, 74, 74, 74, 74, 75. The first is the joint fastest. Whatever the
+seventy-two seconds is, it is not daemon replacement.
+
 What is not yet known is how much of it is the app and how much is the guest
 booting. The engine route boots the same machine, so most of it is presumably
 Linux coming up -- but "presumably" is exactly the word this file exists to
