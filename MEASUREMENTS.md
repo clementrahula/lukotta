@@ -750,3 +750,29 @@ NTFS and btrfs pay nothing because they need nothing. The XFS number is bad
 enough that the route is probably still wrong, and the honest position is that
 item 10 is not met for XFS, rather than that the cost has been argued away --
 which is what I did twice tonight.
+
+## The XFS cost is the helper's mount, not the option — 2026-09-03
+
+The engine's own path, XFS with `-o sync`, 190 MB written with `dd conv=fsync`,
+run with the helper's exact flags one at a time:
+
+    -o sync only                    95 MB/s
+    -o sync + the tuned action      95 MB/s
+    -o sync + vmnet                190 MB/s
+    -o sync + tuned + vmnet        190 MB/s
+
+And the option is genuinely applied on that path: the same mount passes the
+power-loss vector, 8 of 8 fsynced files kept, 11 of 11 vectors.
+
+Through the app -- the same volume, the same flags, the same engine binary --
+the same write is 7 MB/s. And the app's path is not slow in itself: NTFS
+through it writes at 190 MB/s.
+
+So the twenty-sevenfold cost belongs to `-o sync` **on the helper-served
+mount**, and to nothing else that has been varied. What differs there is that
+the helper runs the engine as root and the share lands in /Volumes rather than
+~/Volumes. That is where to look next, and it has not been looked at.
+
+This matters more than it looks: if the slowness is the helper's mount rather
+than durability itself, then item 10 may be reachable for XFS after all, and
+the option is not the thing to blame.
