@@ -32,11 +32,38 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$HERE"
 
+# Run from a copy of itself, always.
+#
+# bash reads a script from the file as it goes, at a byte offset. Editing the
+# file under a running instance shifts everything after that offset and the
+# shell resumes in the middle of a different line:
+#
+#     ./scripts/ship.sh: line 294: unexpected EOF while looking for matching "'
+#
+# That happened twice in one hour, both times to a release, and both times at
+# the worst possible moment: after the GitHub release was published and before
+# the appcast was committed. The result each time was a version that existed
+# and that nobody was being offered -- the exact state this script exists to
+# prevent, reached through the one door it had no lock on.
+#
+# Discipline was tried and did not work: the second one came after writing the
+# rule down. So the door is locked instead. The copy is made before anything
+# happens and removed on the way out, and editing scripts/ship.sh mid-release
+# now changes nothing about the release in flight.
+if [ "${LUKOTTA_SHIP_COPY:-0}" != "1" ]; then
+  __copy="$(/usr/bin/mktemp -t lukotta-ship)"
+  cp "$HERE/scripts/ship.sh" "$__copy"
+  trap 'rm -f "$__copy"' EXIT
+  LUKOTTA_SHIP_COPY=1 exec bash "$__copy" "$@"
+fi
+
 CHANNEL="${1:-beta}"
 case "$CHANNEL" in
   beta)    FEED="$HERE/../lukotta-appcast/beta/appcast.xml"; CASK="lukotta@beta" ;;
   release) FEED="$HERE/../lukotta-appcast/appcast.xml";      CASK="lukotta" ;;
-  *) echo "usage: $0 [beta|release]" >&2; exit 2 ;;
+  # Named rather than "$0": that is the temporary copy this runs from, and a
+  # usage line pointing at /var/folders helps nobody.
+  *) echo "usage: ./scripts/ship.sh [beta|release]" >&2; exit 2 ;;
 esac
 
 say() { printf '\n==> %s\n' "$*"; }
