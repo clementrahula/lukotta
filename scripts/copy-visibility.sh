@@ -80,17 +80,31 @@ for cycle in range(1, cycles + 1):
             if n >= files:
                 pending.remove(p)
                 continue
-            # Short. Take the directory's own mtime before moving on: it says
-            # whether this Mac is holding an old listing of a directory it can
-            # already see is new.
+            # Short. Two things are taken before moving on, and together they
+            # say who is at fault without needing to get inside the guest.
+            #
+            # The directory's own mtime: a directory this Mac can already see
+            # is new, whose listing is still empty, is a listing this Mac is
+            # holding on to.
+            #
+            # And a stat of a file that the listing does not show. A name
+            # resolves by LOOKUP, which is a different cache from READDIR, so
+            # if the last file stats while the listing is empty then the files
+            # are on the volume and only the listing is wrong. If the stat says
+            # ENOENT too, they are not there yet and the fault is behind the
+            # server, not in front of it.
             try:
-                mtime = os.stat(d).st_mtime
-                age = time.time() - mtime
+                age = time.time() - os.stat(d).st_mtime
             except OSError:
                 age = None
+            try:
+                os.stat(os.path.join(d, "f%d.bin" % files))
+                named = "stats"
+            except OSError as e:
+                named = "errno %d" % e.errno
             waited = time.perf_counter() - copied
             if waited > 0.5:
-                late.append((cycle, p, n, waited, age))
+                late.append((cycle, p, n, waited, age, named))
         time.sleep(0.05)
 
     for p in pending:
@@ -115,16 +129,16 @@ if not late:
           "%d cycles x %d volumes" % (cycles, len(points)))
 else:
     seen = {}
-    for cycle, p, n, waited, age in late:
+    for cycle, p, n, waited, age, named in late:
         k = (cycle, p)
         if k not in seen or waited > seen[k][1]:
-            seen[k] = (n, waited, age)
+            seen[k] = (n, waited, age, named)
     print("RESULT: %d of %d copies were not visible when they returned"
           % (len(seen), cycles * len(points)))
-    for (cycle, p), (n, waited, age) in sorted(seen.items()):
+    for (cycle, p), (n, waited, age, named) in sorted(seen.items()):
         print("  cycle %d %s: showed %s files, still short %.1f s later, "
-              "directory mtime %s"
+              "directory mtime %s, the last file %s"
               % (cycle, p, n, waited,
-                 "%.1f s old" % age if age is not None else "unreadable"))
+                 "%.1f s old" % age if age is not None else "unreadable", named))
 print("worst wait for a copy to become visible: %.0f ms" % (worst * 1000))
 MEASURE
