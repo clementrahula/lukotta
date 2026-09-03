@@ -532,7 +532,27 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 + " for \(devicePath)"
             Log.helper.notice(
                 "mount script exited \(task.terminationStatus, privacy: .public)")
-            reply(task.terminationStatus, Diagnostics.scrubbed(output, secret: credential))
+
+            // Zero from the script is not the same as a volume somebody can
+            // use. An exFAT stick was handed the NTFS driver, both rungs
+            // failed, the machine exited 1 twice -- and the script still ended
+            // 0, so this replied 0 and the app said it had opened the drive.
+            // Nothing downstream could tell that from a mount that worked.
+            //
+            // So the claim is checked against the mount table before it is
+            // made. The engine names a share after the device it was given, so
+            // "diskN.local:" is what appears there.
+            var status = task.terminationStatus
+            if status == 0 {
+                let share = (devicePath as NSString).lastPathComponent + ".local:"
+                let table = LukottaCore.run("/sbin/mount", [])?.out ?? ""
+                if !table.contains(share) {
+                    Log.helper.error("the script ended well and served nothing")
+                    output += "\nthe mount script reported success and no volume is served"
+                    status = 74
+                }
+            }
+            reply(status, Diagnostics.scrubbed(output, secret: credential))
         } catch {
             Log.helper.error("the mount could not be run: \(error)")
             reply(71, "\(error)")
