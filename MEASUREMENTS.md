@@ -1812,11 +1812,22 @@ told there is no room -- and item 3 says nothing user-visible during a copy,
 while item 1 is about writing not stalling. Sixty-five times NTFS is not a
 detail.
 
-What is not yet known is where the two minutes goes: the crypto layer, ext4's
-behaviour as it fills, or the NFS client retrying a write that cannot land. The
-comparison that would separate them is ext4 without LUKS, which is the next
-fixture in the queue anyway -- if plain ext4 is also slow it is the filesystem,
-and if it is quick it is the encryption.
+A third number, from XFS inside LUKS, taken an hour later:
+
+    NTFS                          2s
+    ext4 inside LUKS            129s
+    XFS inside LUKS             140s
+
+So it is not ext4. Two different filesystems inside LUKS behave the same, and
+the unencrypted one is sixty-five times quicker. That leaves the encryption
+itself, or the Linux mount path generally, and the measurement that separates
+those is a plain ext4 or XFS volume with no LUKS around it -- which is exactly
+the fixture that turned out to be full. Repairing it stopped being a coverage
+chore and became the deciding experiment.
+
+exFAT would say something too: unencrypted, and it goes down the Microsoft
+ladder like NTFS. If exFAT is quick, the Microsoft path is quick and the Linux
+path is slow whether or not anything is encrypted.
 
 Recorded as a result rather than an obstacle: the number is real, it is bad,
 and the next route is a measurement that says which layer owns it.
