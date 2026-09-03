@@ -62,7 +62,15 @@ DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
 [ -n "${DEV:-}" ] || { echo "error: $IMAGE would not attach" >&2; exit 2; }
 timeout 300 "$APP" --drive open="$DEV" > "$WORK/open.log" 2>&1 \
   || { echo "error: did not open: $(tail -1 "$WORK/open.log")" >&2; exit 2; }
-POINT="$(mount | /usr/bin/grep ':/mnt/' | awk '{print $3}' | head -1)"
+# The mount this opened, found by the device it was given -- the engine names
+# the share after it, so "diskN.local:" is what appears in the table.
+#
+# Taking the first ":/mnt/" line instead measured whatever else happened to be
+# mounted: a leftover exFAT volume from an interrupted run was picked up and
+# reported as this drive failing, complete with stale handles that had nothing
+# to do with the image under test.
+SHARE="$(basename "$DEV").local:"
+POINT="$(mount | /usr/bin/grep -F "$SHARE" | awk '{print $3}' | head -1)"
 [ -n "${POINT:-}" ] || { echo "error: opened and nothing is served" >&2; exit 2; }
 
 echo "opened $IMAGE at $POINT through the app"
