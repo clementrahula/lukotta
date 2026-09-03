@@ -75,7 +75,26 @@ where() {
 # Item 7 is about what the app does, so the app is what runs. This installs the
 # actions the same way a mount does, before any of them is named.
 "$ENGINE" --version >/dev/null 2>&1 || true
+# Whether this bundle's daemon exists at all.
+#
+# Without one the app cannot mount anything, sits in its run loop until the
+# timeout below, and leaves no configuration -- which this script then reported
+# as "the app did not leave its actions", a sentence about the app that was
+# entirely about the machine. Installing a channel's first daemon asks for an
+# administrator password, so the answer is to run this against a channel that
+# has one, and to say which.
+daemon_is_there() {
+  [ -f "/Library/LaunchDaemons/$APP_ID.helper.plist" ]
+}
+
 prepare_actions() {
+  if ! daemon_is_there; then
+    echo "error: no daemon for $APP_ID; this channel cannot mount on this Mac" >&2
+    echo "       installed: $(find /Library/LaunchDaemons -name 'com.lukotta*.helper.plist' \
+      -exec basename {} .helper.plist \; | tr '\n' ' ')" >&2
+    echo "       run this with LUKOTTA_ENGINE pointing at one of those bundles" >&2
+    return 2
+  fi
   # On a clean volume, never on the dirty one.
   #
   # The app writes its repair action while building a writable NTFS mount, and
@@ -180,7 +199,12 @@ else
 fi
 
 # Open it the way the app does when a volume is dirty.
-prepare_actions || echo "note: the app did not leave its actions in config.toml"
+prepare_actions
+case $? in
+  0) ;;
+  2) exit 2 ;;
+  *) echo "note: the app did not leave its actions in config.toml" ;;
+esac
 if open_it -a lukottarepair; then
   VOL="$(where)"; echo "opened dirty volume at $VOL"
 else
