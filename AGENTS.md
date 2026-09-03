@@ -1089,6 +1089,23 @@ nobody asked.
   at 1 TB with 624 MB in it; `scripts/sparse-digest.py` hashes the extents and
   does it in 0.4 s.
 
+## A Channel Without a Daemon Looks Exactly Like a Broken App
+
+The dev build asks for `com.lukotta.dev.helper`, and this Mac has never had
+one: `/Library/LaunchDaemons` holds the release and beta daemons only, and
+installing a channel's first one is SMJobBless, which asks for a password.
+
+With no daemon the app cannot mount anything. It sits in its run loop until
+whatever timeout is above it, writes no configuration, and every harness that
+then reads the configuration reports something about the app -- "the app did
+not leave its actions" -- that is entirely about the machine. An hour went into
+reading the mount ladder for a fault that was not in it.
+
+`scripts/dirty-ntfs-repair.sh` now checks for the daemon first, names the
+channel, lists the ones that do have one, and stops. Anything that needs a real
+mount is run against the beta bundle, whose daemon exists and replaces itself
+from a new build without asking anybody for anything.
+
 ## Killing a Test Run Leaves Fixtures Half-Written
 
 `scripts/e2e.sh` truncates image fixtures and restores their length afterwards.
