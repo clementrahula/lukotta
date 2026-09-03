@@ -32,8 +32,11 @@ that what is proven and what is not can be seen at a glance, and so that
                                   ENGINE, not the app. Real for the storage
                                   path, unproven for the app's. THROUGH_APP=1
                                   now exists to close that
-    10 no UX cost                 unmet for XFS writes on real drives: -o sync
-                                  costs 47x on a device. Everything else free
+    10 no UX cost                 unmet, and it is one cause not two. `-o sync`
+                                  costs 47x on writes to a real drive AND 110
+                                  seconds to notice a full volume. It is there
+                                  only because nfsd's COMMIT is not durable.
+                                  Fix that and both costs go with it
 
 The three measurements found today to have been taken off the route a person
 takes -- the dozen, the eight-gigabyte figures, and item 9's vectors -- are all
