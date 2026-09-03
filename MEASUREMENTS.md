@@ -2683,3 +2683,36 @@ entry pointed at is gone — and it is the only route that leaves the volume
 actually sound. The guest carries ntfsfix, ntfsinfo, ntfsls, ntfscat,
 ntfsclone, ntfscmp, ntfscluster, ntfscp, ntfslabel, ntfsresize and
 ntfsundelete, and no checker at all.
+
+### The poisoned name is freed, through the app — 2026-09-03
+
+A volume damaged by an interrupted copy, opened through the app, nothing else
+done to it:
+
+    root at once            .lukotta-unreadable-big
+    into the reclaimed name 20 written, 0 refused
+    read back               20 files, none the wrong size
+
+Before this the same volume answered every write to that folder with "Invalid
+argument" inside the guest and "Stale NFS file handle" through Finder, for
+ever. The name is now free the moment the drive appears, the remains are kept
+under a hidden name rather than destroyed, and nobody is asked anything.
+
+**Four attempts came before it and each was killed by a measurement.**
+
+    ntfs-3g after a repair   moved the errno from EINVAL to EIO, cured nothing
+    -o sync on the guest     identical damage in both arms, four for four
+    gated on the repair rung the damaged volume never reaches it
+    gated on ntfs3 in dmesg  ntfs3 is not serving it; ntfs-3g is, silently
+
+And two of my own bugs on the way, both caught by things that run rather than
+things that are written down. A here-document made the TOML malformed and the
+mount failed outright — caught by the check that refuses to report a mount that
+did not happen, exit 74. And the walk replaced the repair on the repair rung, so
+`ntfsfix` stopped running and a dirty volume went to a driver that refuses dirty
+volumes — caught by `dirty-ntfs-repair.sh`, which was run out of habit rather
+than by any system.
+
+**Item 7 re-checked after all of it:** clean volume, corpus written, machine
+taken away, confirmed dirty, opened by the app, takes a write, all 41 files
+byte-identical. PASS.
