@@ -178,6 +178,34 @@ open_image() {
   else
     OPTS+=(--ignore-permissions)
   fi
+  # Through the app, when asked, because everything below this line is about
+  # the storage path and nothing above it is about the app.
+  #
+  # Whether a file survived a power cut is a fact about the filesystem, the
+  # guest and the flush path, and those do not change with who asked for the
+  # mount -- so these vectors are worth having either way. What the engine
+  # route cannot see is anything the app puts on top: the daemon that builds
+  # the mount, the options it picks, the identity it mounts under, the ladder
+  # it walks. Faults have been found in all four of those in one morning.
+  #
+  # The bundle needs both halves -- LUKOTTA_BRANDING=beta with
+  # LUKOTTA_DEVTOOLS=1 -- or --drive is not compiled in and the app sits in
+  # its run loop saying nothing. See dirty-ntfs-repair.sh.
+  if [ "${THROUGH_APP:-0}" = "1" ]; then
+    local app
+    app="$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)"
+    if [ "$(strings -a "$app" 2>/dev/null | /usr/bin/grep -c -- "--drive")" -eq 0 ]; then
+      echo "error: $APP_BUNDLE has no --drive; it was not built with devtools" >&2
+      echo "       LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
+      return 1
+    fi
+    APP_DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage \
+      "$IMAGE" 2>/dev/null | head -1 | awk '{print $1}')"
+    [ -n "${APP_DEV:-}" ] || return 1
+    timeout 300 "$app" --drive open="$APP_DEV" > "$WORK/app.log" 2>&1 || return 1
+    [ -n "$(where)" ] && return 0
+    return 1
+  fi
   nohup "$ENGINE" mount -w false "${OPTS[@]}" "$IMAGE" \
     > "$WORK/engine.log" 2>&1 &
   # This image's share, not merely its name anywhere in the table: a stale
@@ -189,6 +217,11 @@ open_image() {
   return 1
 }
 
+
+# Whatever the app route attached, given back.
+APP_DEV=""
+detach_app_device() { [ -n "${APP_DEV:-}" ] && hdiutil detach "$APP_DEV" -quiet 2>/dev/null; }
+trap detach_app_device EXIT
 
 pass=0; fail=0
 note() { if [ "$1" = ok ]; then pass=$((pass+1)); printf '  ok   %s\n' "$2";
