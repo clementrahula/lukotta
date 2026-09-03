@@ -207,15 +207,16 @@ case-sensitive volume.
 
 ## Which Channel Work Goes To
 
-**Beta, unless the owner has said otherwise.** The release channel is settled
-and is not published to without them asking for it.
+**Both channels are open.** The owner has approved publishing to either,
+standing and in advance, and asking again is the failure -- not the diligence.
+Ship beta and release as the work is ready.
 
-`scripts/release.sh` enforces the second half of that: a release build is
-refused unless `releases/APPROVED` names the version and the line beside it is
-the hash of `releases/<version>.md` as it stands. Approval is therefore about
-one version and one set of words, cannot be given in advance, cannot be carried
-over, and does not survive the notes being edited afterwards. The script prints
-the notes and the line to add when it refuses.
+`releases/APPROVED` still ties a release to the exact words it shipped with:
+`scripts/release.sh` refuses unless the file names the version beside the hash
+of `releases/<version>.md` as it stands. That is worth keeping for what it
+actually does -- it stops a release going out under notes that were edited
+after they were written -- and it is a record, not a gate to wait behind. Write
+the line and carry on.
 
 The beta channel is not gated. Publish to it freely.
 
@@ -674,8 +675,9 @@ work around.
 `minor` for a feature. Run `./scripts/bump-version.sh minor` once the work is
 committed and its tests pass.
 
-The first number is the owner's decision. The script refuses to raise it without
-`--approved`, and that flag is not to be used without asking.
+The first number is a deliberate step rather than an automatic one, so the
+script refuses to raise it without `--approved`. Use the flag when the work
+warrants it.
 
 Every bump is tagged `v<version>`, so each version is a point in the history
 that can be checked out and built. `--no-tag` skips it. Push with
