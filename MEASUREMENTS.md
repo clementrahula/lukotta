@@ -2908,3 +2908,38 @@ bytes are.
 **`forks` holds now**, and it is the check that overturned it — a claim tied to
 something that runs, run once, on a Mac. The same claim in prose survived two
 days.
+
+### Item 6 is narrower than the claim it checks — 2026-09-03
+
+Item 6 is "every other format the app advertises. If the app claims it, it is
+tested." What the website claims, against what `vectors-every-format.sh`
+actually sweeps:
+
+    claimed                          swept
+    NTFS                             yes, ntfs-vectors
+    ext2, ext3, ext4                 ext4 only
+    btrfs                            yes, btrfs-vectors
+    XFS                              inside LUKS only, never plain
+    exFAT                            yes, exfat-vectors
+    FAT                              no
+    BitLocker                        no fixture exists; the owner's own drive
+    LUKS1                            no
+    LUKS2                            yes, as luks-ext4 and luks-xfs
+    LVM inside LUKS                  no
+    IMG, DMG                         implicitly, every fixture is one
+    qcow2, VMDK, VDI, VHD, VHDX      no
+
+So six of the twelve claims item 6 covers have never been through the vector
+sweep, and the check has been reporting "every other format the app advertises"
+as holding on six of them.
+
+**Fixtures already exist for most of the gap** and are simply not swept:
+`plain-xfs`, `plain-ext4`, `plain-exfat`, `luks1-lvm`, `luks2-direct`,
+`luks2-lvm`, `luks-lvm-big`, `luks-multi`. They were built for other
+experiments and never wired into the sweep, so the work of making them is
+already done and the claim was still overstated.
+
+What has no fixture at all: FAT, BitLocker, and the five virtual-disk formats.
+BitLocker cannot be made here — nothing on macOS or Linux creates a BitLocker
+volume, only reads one — so that half rests on the owner's drive and says so.
+The rest can be built.
