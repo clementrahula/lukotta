@@ -1201,3 +1201,19 @@ against a 300 MB file. `cp` said "No space left on device" and the truncated
 file naturally did not match. The app behaved correctly -- a copy that cannot
 fit fails loudly, which is what item 3 asks for. Re-run on a volume with room,
 every byte matches.
+
+## The twelve vectors on every filesystem — 2026-09-03
+
+With item 9's named cases folded in as a twelfth vector:
+
+    NTFS                 12 of 12
+    XFS                  12 of 12
+    ext4                 12 of 12
+    btrfs                12 of 12
+    LUKS -> ext4         12 of 12
+    LUKS -> XFS          12 of 12
+
+The new vector -- awkward names and shapes -- reports 10 whole, 0 wrong, 0
+missing on every one: Japanese, Greek, Cyrillic, umlauts, an emoji, spaces and
+an apostrophe, a 254-character name, a ten-deep path, a mostly-hole 512 MB
+sparse file, and a 100 MB solid one.
