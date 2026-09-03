@@ -892,3 +892,20 @@ Then the volume stopped answering at all: `ls` and `rm` both returned
 mid-write many times over. It was rebuilt rather than diagnosed, because a
 fixture destroyed by testing is not evidence about the product -- but a volume
 that times out rather than erroring when full is worth remembering.
+
+## A full volume, on a fresh one — 2026-09-03
+
+The concern raised above -- a volume that times out rather than erroring when
+full -- does not reproduce on a volume that has not been wrecked. Fresh NTFS
+through the app, filled to the last block:
+
+    dd                      "No space left on device", a proper error
+    ls when full            26 ms
+    rm when full            20 ms, and it worked
+    space back              317 MB, five seconds later
+    a 50 MB write after     succeeded
+
+The "8 KB free" reading immediately after the delete was a cached statfs, not a
+volume that had failed to free anything. So the timeout was the fixture I had
+destroyed and nothing else, and item 3 holds here: full is an error, promptly,
+and the volume keeps answering throughout.
