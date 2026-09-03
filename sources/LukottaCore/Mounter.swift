@@ -78,11 +78,9 @@ public enum Mounter {
         // guess picks the mount ladder and the repair with it. The first
         // sector knows better, so where the kind is a guess it decides.
         var kind = drive.kind
-        if !drive.kindIsKnown,
-            let sector = BootSector.read(devicePath: drive.devicePath),
-            let probed = BootSector.identify(sector).kind
-        {
-            kind = probed
+        if !drive.kindIsKnown {
+            let sector = BootSector.read(devicePath: drive.devicePath).map(BootSector.identify)
+            kind = VolumeKind.settled(kind, sectorSays: sector ?? .unknown)
         }
 
         let inputs = MountScript.Inputs(

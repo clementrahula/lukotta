@@ -13,6 +13,27 @@ public enum VolumeKind: String, Hashable, Sendable {
     /// A Linux partition — LUKS, or an unencrypted Linux filesystem.
     case linux
 
+    /// The kind to mount by, once the first sector has been read.
+    ///
+    /// A disk with no partition table has no partition type to read, so the
+    /// scan calls it Linux -- a whole disk handed to cryptsetup is what makes
+    /// one. That guess picks the mount ladder and, with it, whether a dirty
+    /// NTFS is repaired, so a stick formatted NTFS with no partition table,
+    /// and every raw image of one, was opened as a Linux volume and never
+    /// repaired.
+    ///
+    /// Only that direction is corrected. A partition type that says Microsoft
+    /// is a fact about the disk and stands; a Linux volume's own first sector
+    /// never says NTFS, so nothing that was right before changes.
+    public static func settled(_ declared: VolumeKind, sectorSays format: VolumeFormat)
+        -> VolumeKind
+    {
+        guard declared == .linux, let probed = format.kind, probed != .linux else {
+            return declared
+        }
+        return probed
+    }
+
     /// Whether a partition of this type is one this app exists to open, and
     /// what it may hold.
     ///

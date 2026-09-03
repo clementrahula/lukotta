@@ -1537,6 +1537,22 @@ group("aRowSaysOnlyWhatIsKnownAboutIt") {
     expect(VolumeFormat.luks.kind == .linux, "LUKS is a Linux one")
     expect(VolumeFormat.xfs.kind == .linux, "so is XFS")
     expect(VolumeFormat.unknown.kind == nil, "and an unreadable sector claims nothing")
+
+    expect(
+        VolumeKind.settled(.linux, sectorSays: .ntfs) == .microsoft,
+        "a whole disk holding NTFS is mounted as the Windows volume it is")
+    expect(
+        VolumeKind.settled(.linux, sectorSays: .bitlocker) == .microsoft,
+        "and so is one holding BitLocker")
+    expect(
+        VolumeKind.settled(.linux, sectorSays: .ext) == .linux,
+        "a Linux volume is left alone")
+    expect(
+        VolumeKind.settled(.linux, sectorSays: .unknown) == .linux,
+        "and so is a sector that says nothing")
+    expect(
+        VolumeKind.settled(.microsoft, sectorSays: .ext) == .microsoft,
+        "a partition type that says Microsoft is a fact, and stands")
     expect(
         typed.first?.kind.summary == "LUKS/Linux",
         "and it is the pair, since the type allows either")
