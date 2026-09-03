@@ -1542,3 +1542,27 @@ Checked before doing it that nothing verifies the manifest's contents:
 check reads the file's *name*, and the app only looks for an mtree existing at
 all as a sign of what put the directory there. The name is unchanged and the
 manifest body is untouched, so the four lines can go.
+
+### Item 9's vectors were measured through the engine as well — 2026-09-03
+
+`scripts/integrity-vectors.sh` line 181 opens every volume it tests with
+
+    nohup "$ENGINE" mount -w false ... "$IMAGE"
+
+so the twelve vectors that passed twice -- interrupted copies, unmount under
+load, ENOSPC, repeated cycles, permissions, awkward names, concurrent writers,
+power loss -- were all exercised against the engine directly, not against the
+app. That is the third measurement today found to be off the route a person
+takes, after the dozen-volume figures and the eight-gigabyte ones.
+
+What it does and does not mean. The vectors themselves are real and their
+results stand: the data either survived or it did not, and that is a fact about
+the filesystem, the guest and the flush path, all of which are the same
+whichever process asked for the mount. What is not covered is anything the app
+adds on top -- the daemon that builds the mount, the options it chooses, the
+identity it mounts under, the ladder it walks. A fault living there would not
+show up in any of these runs.
+
+Item 9 is therefore proven for the storage path and unproven for the app's.
+Running the same vectors against a bundle that can be driven is what closes it,
+and that is now possible: `LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1`.
