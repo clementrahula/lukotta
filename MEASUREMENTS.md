@@ -1083,3 +1083,25 @@ file surviving that kill, and the volume taking a write again afterwards.
 Without its option ext4 fails the fsync vector and XFS fails it too, which is
 the fix being load-bearing rather than decorative -- it was checked in both
 directions on both.
+
+## The write size does not rescue XFS either — 2026-09-03
+
+`-o sync` makes every write synchronous, so a bigger write means fewer round
+trips. On a device, 190 MB written with `dd conv=fsync`:
+
+    wsize=32768      44 s    4 MB/s   (what ships)
+    wsize=262144     21 s    9 MB/s
+    wsize=1048576    20 s    9 MB/s
+
+Two and a bit times better, and it stops improving after 256 KB. Against
+190 MB/s without `sync`, that is not a fix -- it is twenty times short.
+
+**And it would cost the thing this whole effort started from.** SPECS records
+that the write size was cut to 32768 precisely to keep the folder being copied
+into answering, that 16384 was no better, and that 32768 was the size that
+worked. Trading a stall that is fixed for a speedup that is still twenty times
+short is the wrong way round, so this is not taken.
+
+The lever list for XFS is now empty: wsync does not make it durable, a bigger
+write size does not make it fast, NFSv4 has the same fault, and the client and
+export are not where it goes wrong. What is left is the COMMIT itself.
