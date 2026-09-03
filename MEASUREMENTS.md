@@ -2289,3 +2289,31 @@ first, which is what `EXERCISE` now does by default.
 app's own route survive ten minutes at 14 to 35 MB free, cost 334 MB between
 them, and leave the Mac answering in about 20 ms. It does not yet establish
 that they survive it after being written to, which is the case that failed.
+
+### Worked first, then squeezed: twelve still served — 2026-09-03
+
+Same action, with the twelve written to for a quarter of an hour before the
+ballast went on.
+
+    work before the squeeze      15 cycles x 12 volumes, 60 files each
+    every copy visible within    62 ms, all 180 of them
+    still served after the work  12
+    served, every five-second sample through the squeeze   12 of 12
+    footprint once squeezed, settled                       310 to 312 MB
+    host free through the squeeze                          14 to 22 MB
+
+    home listing            22 ms
+    spotlight-free find     21 ms
+    process launch          20 ms
+
+So the collapse did not reproduce with the volumes worked either. That is now
+504 copies onto volumes already open without a single failure, across three
+runs, which also says plainly that the stale handle belongs to the first write
+after an open and to nothing else.
+
+**One known difference is left.** The run in which all twelve died had been
+left nearly full — 18 MB of files kept on 64 MB volumes with 33 MB free —
+because that pass ran with nothing deleted between cycles. Both runs that
+survived emptied each cycle before the next. A nearly full volume is one of
+item 9's named vectors anyway, so the next run fills them as it works and
+prints how full each got before the ballast goes on.
