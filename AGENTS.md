@@ -1101,3 +1101,11 @@ That script is also written in BSD shell dialect, `dd bs=1m` and `stat -f%z`,
 and this machine puts GNU coreutils first, where those are errors. Under
 `set -e` it exited silently after its first `echo`, which read as a slow step
 for a long time. Every image format it covers had never actually run here.
+
+### The local formatter is not always the checks' formatter
+
+`swift format` from the toolchain and `swift-format` from Homebrew are two
+different programs with two different versions. 6.3.0 passed a line that
+603.0.0 refused, so `scripts/lint.sh` said everything was fine and the push
+went red on the same file seconds later. `lint.sh` now prefers the Homebrew
+one; if it is missing, `brew install swift-format` before trusting a local run.
