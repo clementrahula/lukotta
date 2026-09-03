@@ -1817,12 +1817,16 @@ More numbers, from the same vector on every format that would open:
     NTFS                          2s
     btrfs                         2s
     exFAT                         3s
+    ext4                          3s
     ext4 inside LUKS            129s
     XFS inside LUKS             140s
 
-Three unencrypted filesystems answer in two or three seconds. Two encrypted
-ones take over two minutes. It is the encryption, not the filesystem and not
-the Linux mount path -- btrfs is as Linux as ext4 and answers as fast as NTFS.
+Four unencrypted filesystems answer in two or three seconds. The same
+filesystems inside LUKS take over two minutes. ext4 is the clean comparison
+because it appears on both sides: three seconds bare, a hundred and twenty-nine
+inside a container. Nothing else differs.
+
+It is the encryption. Not the filesystem, not the Linux mount path.
 
 So it is not ext4. Two different filesystems inside LUKS behave the same, and
 the unencrypted one is sixty-five times quicker. That leaves the encryption
