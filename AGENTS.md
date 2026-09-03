@@ -1089,6 +1089,28 @@ nobody asked.
   at 1 TB with 624 MB in it; `scripts/sparse-digest.py` hashes the extents and
   does it in 0.4 s.
 
+## A Shipped Build Has No `--drive`, and Says So By Doing Nothing
+
+The headless switches -- `--drive`, `--check-helper`, `--smoke-test`, the
+snapshot and update harnesses -- are inside `#if DEVTOOLS`, and `build-app.sh`
+compiles them only for an unbranded build or when `LUKOTTA_DEVTOOLS=1` is set.
+A beta or release build does not have them.
+
+Handed one anyway, the app does not complain. It launches, finds nobody asked
+for a window, hides it, and sits in its run loop until something kills it. So
+`--drive open=/dev/disk5` against a beta bundle produces no mount, no message
+and no exit -- which reads exactly like a mount that hangs, and cost most of a
+morning being read as one.
+
+The bundle a harness drives therefore needs both halves:
+
+    LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh
+
+Branding beta so it uses `com.lukotta.beta.helper`, which is installed and
+replaces itself without a password; devtools so `--drive` exists at all. A dev
+build has the switches and, on this Mac, no daemon; a beta build has the daemon
+and no switches. Only the two together can be driven.
+
 ## A Channel Without a Daemon Looks Exactly Like a Broken App
 
 The dev build asks for `com.lukotta.dev.helper`, and this Mac has never had
