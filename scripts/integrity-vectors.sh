@@ -367,6 +367,49 @@ readable=0
 note "$([ "$readable" -eq 3 ] && echo ok || echo no)" \
   "everything written is readable by whoever wrote it ($readable of 3)"
 
+# 7b. The awkward names and shapes item 9 asks for by name: scripts other than
+#     Latin, an emoji, quotes and spaces, a filename at the length limit, a deep
+#     path, a file that is almost entirely hole, and one large enough that it
+#     cannot be held in memory on the way through.
+#
+#     These are checked together because they fail together: a name mangled on
+#     the way out and a name mangled on the way back look identical unless the
+#     bytes are compared, and a sparse file that arrives fully allocated is only
+#     visible beside one that does not.
+awkward="$WORK/awkward"
+rm -rf "$awkward"; mkdir -p "$awkward/a/b/c/d/e/f/g/h/i/j"
+head -c 4096 /dev/urandom > "$awkward/日本語のファイル名.bin"
+head -c 4096 /dev/urandom > "$awkward/Ελληνικά-αρχείο.bin"
+head -c 4096 /dev/urandom > "$awkward/Ärger-Öl-Übung-ß.bin"
+head -c 4096 /dev/urandom > "$awkward/файл-кириллица.bin"
+head -c 4096 /dev/urandom > "$awkward/📁-emoji-🎉.bin"
+# A name carrying an apostrophe, built with printf so the quoting stays
+# readable rather than becoming a puzzle.
+quoted="$(printf "name with spaces and %s quotes %s.bin" "'" "'")"
+head -c 4096 /dev/urandom > "$awkward/$quoted"
+head -c 4096 /dev/urandom > "$awkward/a/b/c/d/e/f/g/h/i/j/deep.bin"
+longname="$(/usr/bin/python3 -c 'print("n" * 250)')"
+head -c 4096 /dev/urandom > "$awkward/$longname.bin" 2>/dev/null || true
+dd if=/dev/zero of="$awkward/sparse.bin" bs=1 count=0 seek=536870912 2>/dev/null
+printf 'end' | dd of="$awkward/sparse.bin" bs=1 seek=536870900 conv=notrunc 2>/dev/null
+head -c 104857600 /dev/urandom > "$awkward/large-100MB.bin"
+
+rm -rf "$VOL/vec-awkward"
+if cp -R "$awkward" "$VOL/vec-awkward" 2>/dev/null; then
+  same=0; differs=0; missing=0
+  while IFS= read -r -d "" f; do
+    rel="${f#"$awkward"/}"
+    if [ ! -f "$VOL/vec-awkward/$rel" ]; then missing=$((missing + 1))
+    elif cmp -s "$f" "$VOL/vec-awkward/$rel"; then same=$((same + 1))
+    else differs=$((differs + 1)); fi
+  done < <(find "$awkward" -type f -print0)
+  note "$([ "$differs" -eq 0 ] && [ "$missing" -eq 0 ] && echo ok || echo no)" \
+    "awkward names and shapes survive a copy ($same whole, $differs wrong, $missing missing)"
+else
+  note no "awkward names and shapes survive a copy (the copy would not run)"
+fi
+rm -rf "$VOL/vec-awkward"
+
 # 8. Two writers and a reader at once. A copy is not the only thing touching a
 #    drive -- Spotlight indexes it, Finder stats it, somebody opens a file from
 #    it -- and the interesting question is whether concurrent work corrupts
