@@ -1105,3 +1105,27 @@ short is the wrong way round, so this is not taken.
 The lever list for XFS is now empty: wsync does not make it durable, a bigger
 write size does not make it fast, NFSv4 has the same fault, and the client and
 export are not where it goes wrong. What is left is the COMMIT itself.
+
+## Both export modes fail, and the guest is a current kernel — 2026-09-03
+
+One hypothesis fitted everything: that a `sync` export makes nfsd claim a
+stability it does not provide and then treat COMMIT as a no-op. If so, `async`
+-- which tells the server the writes are explicitly not stable -- would force a
+real fsync on COMMIT.
+
+    export async, no guest option:  8 of 8 present, 8 wrong
+
+The same as `sync`. So COMMIT achieves nothing in either mode, and that
+hypothesis is gone with the rest.
+
+The guest is Linux 6.12.62 on Alpine 3.24.1 -- a current kernel, not something
+elderly with a long-fixed nfsd bug. So this is not going to be cured by moving
+forward a version.
+
+Every hypothesis reachable from outside the guest kernel has now been tested:
+the filesystem, the client, its cache, the export in both modes, the export
+file, the NFS version, the block flush, the device's advertised cache, the
+write size, the helper, the mount point, privileges, the net helper, vmnet
+offloading, the tuned action, the backing, and the kernel's age. What remains
+is inside nfsd's COMMIT path on a 6.12 kernel, and reaching it needs tracing
+rather than another run.
