@@ -224,6 +224,28 @@ if [ "${free_kb:-0}" -lt 204800 ]; then
   exit 2
 fi
 
+# Is this volume actually usable, before anything is measured on it?
+#
+# A fixture that has been killed mid-write often enough stops answering: `ls`
+# and `rm` return "Operation timed out", and an XFS one comes back with "log
+# mount failed" in the kernel log. Every vector after that fails, and the page
+# of failures reads exactly like corruption in the app. It happened to four
+# separate fixtures in one night.
+#
+# So the volume is asked one cheap question first, and a volume that cannot
+# answer it is called what it is.
+health_start=$(date +%s)
+if ! ls -A "$VOL" >/dev/null 2>&1; then
+  echo "error: this volume will not list its own contents. It is a worn-out" >&2
+  echo "       fixture, not a fault in the app -- rebuild it and run again." >&2
+  exit 2
+fi
+if [ "$(( $(date +%s) - health_start ))" -gt 5 ]; then
+  echo "error: listing this volume took more than five seconds. It is a" >&2
+  echo "       worn-out fixture, not a fault in the app -- rebuild it." >&2
+  exit 2
+fi
+
 SRC="$WORK/src"; payload "$SRC" 40 2000000     # 80 MB, enough to interrupt
 
 # 1. A copy killed partway. What landed before the knife must still be itself.
