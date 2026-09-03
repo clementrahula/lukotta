@@ -421,8 +421,9 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             // A Linux volume's own first sector never says NTFS, so nothing
             // that was right before changes.
             let declared: VolumeKind = isLinux ? .linux : .microsoft
-            let sector = BootSector.read(devicePath: devicePath).map(BootSector.identify)
-            let kind = VolumeKind.settled(declared, sectorSays: sector ?? .unknown)
+            let probed = BootSector.read(devicePath: devicePath).map(BootSector.identify)
+                ?? .unknown
+            let kind = VolumeKind.settled(declared, sectorSays: probed)
             if kind != declared {
                 Log.helper.notice("the first sector says this is not a Linux volume")
             }
@@ -452,7 +453,10 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     // A container hides the superblock that option is read
                     // from, so it gets the blunt one: `sync` is a VFS option
                     // and means the same to every filesystem inside.
-                    ?? (LUKSHeader.isContainer(forDevice: devicePath) ? "sync" : nil))
+                    ?? (LUKSHeader.isContainer(forDevice: devicePath) ? "sync" : nil),
+                // What the sector said, so the driver ladder can choose by the
+                // filesystem rather than by the family it belongs to.
+                format: probed)
             let script = MountScript.build(inputs)
 
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")

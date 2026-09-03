@@ -1934,3 +1934,37 @@ re-extended after a `mkfs`, and both fixtures now are.
 
 The btrfs fixture was not damaged by neglect. It was made this way, and would
 have been made this way again by anybody following the same steps.
+
+### exFAT was handed the NTFS driver — 2026-09-03
+
+From the app's own log, opening an exFAT volume:
+
+    fs_type: Some("exfat")
+    mount args: ["-t", "ntfs3", "/dev/vda", "/mnt/EXFATVEC", ...]
+    then again: "--fs-driver", "ntfs-3g"
+    each time:  NFS server not ready / libkrun VM exited with status: 1
+
+The type was probed correctly. The *driver* was chosen from the family the
+volume belongs to rather than from what it is:
+
+    let drivers: [String?] = i.kind == .microsoft ? ["ntfs3", "ntfs-3g"] : [nil]
+
+exFAT is a Microsoft filesystem and neither NTFS driver will mount it, so both
+rungs failed, the machine exited 1 twice, and the app then said `opened
+EXFATVEC` and returned 0.
+
+**Whose fault, and since when.** Not the change made this morning, though that
+is what exposed it. Before today a whole-disk image was called Linux whatever
+it held, so an exFAT image took the Linux route and the engine mounted it
+correctly; the format sweep that found all seven formats byte-identical was
+made of images, so it passed. A real exFAT stick, with a partition type that
+says Microsoft, has always gone down the NTFS ladder. Making whole-disk images
+honest about themselves put them on the same broken path and made it visible.
+
+The driver now follows the format: only NTFS and BitLocker -- which is NTFS
+once unlocked -- take the pair, and everything else lets the engine mount what
+it found.
+
+Still open, and it is the more serious half: the app reported success for a
+mount that never happened. `opened EXFATVEC`, status 0, no volume. Nothing
+downstream can tell that apart from a mount that worked.

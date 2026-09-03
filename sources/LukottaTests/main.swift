@@ -1554,6 +1554,37 @@ group("aRowSaysOnlyWhatIsKnownAboutIt") {
         VolumeKind.settled(.microsoft, sectorSays: .ext) == .microsoft,
         "a partition type that says Microsoft is a fact, and stands")
 
+    // exFAT is a Microsoft filesystem and neither NTFS driver mounts it. The
+    // ladder used to be chosen from the family, so an exFAT volume was handed
+    // ntfs3 and then ntfs-3g and failed both, twice, with the machine exiting
+    // 1 each time and the app reporting that it had opened the drive.
+    func ladderScript(_ format: VolumeFormat) -> String {
+        MountScript.build(
+            MountScript.Inputs(
+                enginePath: "/opt/engine/anylinuxfs", devicePath: "/dev/disk4s1",
+                driveName: "STICK", kind: .microsoft, aliasPath: nil,
+                fifoPath: "/tmp/w/credential.fifo", logPath: "/tmp/w/mount.log",
+                discoverLogPath: "/tmp/w/discover.log",
+                expectScriptPath: "/tmp/w/discover.exp",
+                configPath: "/tmp/h/config.toml", engineHome: "/tmp/h",
+                libraryPaths: ["/tmp/lib"], uid: 501, gid: 20, cores: 2,
+                ramMiB: 1024, elevated: false, readOnly: false, format: format))
+    }
+    let exfatScript = ladderScript(.exfat)
+    let ntfsScript = ladderScript(.ntfs)
+    // Counted, not searched. The configuration always carries an action that
+    // probes with `mount -t ntfs3`, so the text appears in a script that never
+    // mounts with it; what changes is how many attempts name the driver.
+    func attempts(_ script: String, _ needle: String) -> Int {
+        script.components(separatedBy: needle).count - 1
+    }
+    expect(
+        attempts(exfatScript, "-t ntfs3") < attempts(ntfsScript, "-t ntfs3"),
+        "an exFAT volume is handed the NTFS driver fewer times than an NTFS one")
+    expect(
+        attempts(ntfsScript, "-t ntfs3") > 1,
+        "and an NTFS one is still mounted with it")
+
     // The daemon adds addresses until it has as many as the app wants, and the
     // two have to be counting the same thing. Counting every address on lo0
     // counted ::1 and fe80::1 as well, so ten IPv4 aliases answered twelve and

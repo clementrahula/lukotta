@@ -40,6 +40,17 @@ public enum MountScript {
         /// keep what it was told to keep, or nothing where it needs nothing.
         /// See `ExtJournal.durabilityOption`.
         var durability: String? = nil
+
+        /// What the first sector says the volume is, when anything read it.
+        ///
+        /// The driver ladder used to be chosen from `kind`, which is a family
+        /// -- Microsoft or Linux -- and the Microsoft family's ladder is
+        /// `ntfs3` then `ntfs-3g`. Neither of those mounts exFAT, so an exFAT
+        /// volume whose partition type says Microsoft was handed to two NTFS
+        /// drivers in turn and failed both, twice, with the machine exiting 1
+        /// each time. The format is what picks a driver; the family only says
+        /// which family it is in.
+        var format: VolumeFormat = .unknown
         /// Where the engine keeps its image, its configuration and its logs.
         ///
         /// Passed in rather than resolved here: the helper composes the script
@@ -283,8 +294,10 @@ public enum MountScript {
             configPath: String, engineHome: String, libraryPaths: [String], uid: UInt32,
             gid: UInt32,
             cores: Int, ramMiB: Int, elevated: Bool = true, readOnly: Bool = false,
-            luksMinRamMiB: Int? = nil, durability: String? = nil
+            luksMinRamMiB: Int? = nil, durability: String? = nil,
+            format: VolumeFormat = .unknown
         ) {
+            self.format = format
             self.enginePath = enginePath
             self.devicePath = devicePath
             self.driveName = driveName
@@ -829,7 +842,12 @@ public enum MountScript {
         // ntfs-3g stays as the fallback, for the one thing it is genuinely
         // needed for: a volume Windows left dirty, which ntfs3 refuses to
         // touch. See ntfsOptions for why it is given big_writes.
-        let drivers: [String?] = i.kind == .microsoft ? ["ntfs3", "ntfs-3g"] : [nil]
+        // exFAT is a Microsoft filesystem and neither NTFS driver will touch
+        // it, so it goes down the same route as everything else: nil, and the
+        // engine mounts what it found. Only NTFS -- and BitLocker, which is
+        // NTFS once it is unlocked -- wants the pair.
+        let wantsNTFS = i.kind == .microsoft && i.format != .exfat
+        let drivers: [String?] = wantsNTFS ? ["ntfs3", "ntfs-3g"] : [nil]
         // The engine resolves whatever target it is handed by prefixing /dev/,
         // so an alias elsewhere never resolves and produced a
         // "disk /dev//var/folders/… not found" line ahead of every mount.
