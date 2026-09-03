@@ -1654,7 +1654,18 @@ and may well do the right thing by another name -- but it is an untested hop on
 the path the owner's goal names explicitly: "files you saved survive the Mac
 losing power".
 
-Two ways to settle it, neither run yet: read what the backend does on a flush
-for a device backing, or cut power to the Mac for real with a volume open and
-files just written. The second is the only one that tests the whole path, and
-it is the one the goal is actually about.
+**Settled the cheap way, and the hypothesis is wrong.** Disassembling the
+shipped engine and looking at what is passed to `fcntl` finds the constant:
+
+    mov w1, #0x33     immediately before a call to _fcntl
+
+`0x33` is 51, which is `F_FULLFSYNC`. The engine does ask macOS to flush the
+drive's own cache; the grep for the name found nothing because the name is a
+number by the time it reaches the binary. Twenty seconds of `otool` against an
+hour of setting up a real power cut, and it invalidated the guess.
+
+What this does establish: the code knows about F_FULLFSYNC and uses it. What it
+does not: that the call sits on the virtio flush path for a device backing
+rather than somewhere else in the engine. That still wants either reading the
+backend's flush handler or cutting the power for real -- but it is no longer
+the missing-call hypothesis, which was the cheap thing to rule out first.
