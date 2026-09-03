@@ -1060,3 +1060,26 @@ None of them was the product, and each looked exactly like it was. The vectors
 now refuse a volume too small for them and clear what a stopped run left, which
 catches the second and third; the first needs a fixture rebuilt rather than
 reused, and a volume worn out by repeated kill-9s should simply be thrown away.
+
+## Item 9, twice on every filesystem — 2026-09-03
+
+With the harness giving each run its own fixture copy, every filesystem the app
+serves was put through all eleven vectors twice:
+
+    NTFS                          11 of 11,  11 of 11
+    ext4 + data=journal           11 of 11,  11 of 11
+    XFS + sync                    11 of 11,  11 of 11
+    btrfs (via luks2-direct)      11 of 11,  11 of 11
+    LUKS -> ext4 + sync           11 of 11,  11 of 11
+    LUKS -> XFS + sync            11 of 11,  11 of 11
+
+Twelve runs, no failures. The vectors are: a copy killed partway, the volume
+still writable afterwards, unmount under load, what was written surviving it, a
+full volume answering rather than hanging, three open-and-close cycles,
+permissions readable by their owner, two writers and a reader at once, the
+filesystem coming back after the machine was killed mid-write, every fsynced
+file surviving that kill, and the volume taking a write again afterwards.
+
+Without its option ext4 fails the fsync vector and XFS fails it too, which is
+the fix being load-bearing rather than decorative -- it was checked in both
+directions on both.
