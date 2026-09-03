@@ -1628,12 +1628,28 @@ public enum MountScript {
 
     /// Puts the walk in the guest, as a file, before anything is mounted.
     ///
-    /// A here-document, so the body needs no escaping beyond the one rule this
-    /// file already lives under: no apostrophes anywhere, because the whole
-    /// thing sits inside a single-quoted TOML value.
+    /// Base64, decoded in the guest. It looks indirect and every direct way is
+    /// worse, each having been tried:
+    ///
+    /// `sh -c "..."` closed on the walk\'s own double quotes and the thing never
+    /// ran. A here-document needs newlines and a single-quoted TOML value is one
+    /// line, so the config came out malformed and the mount failed outright --
+    /// caught, at least, by the check that refuses to report a mount that did
+    /// not happen. Escaping the quotes by hand means escaping the dollars and
+    /// the backticks too, all of which the walk uses, and every one of them is a
+    /// silent failure when it is got wrong.
+    ///
+    /// Base64 is letters, digits, plus, slash and equals. There is nothing in it
+    /// for TOML or for a shell to interpret, so it survives both without a
+    /// single escape, and `base64 -d` is in the guest -- checked, at /bin/base64,
+    /// not assumed.
     public static var writeReclaimScript: String {
-        "cat > \(reclaimScriptPath) <<LUKOTTA_RECLAIM_EOF\n"
-            + reclaimUnreadable + "\nLUKOTTA_RECLAIM_EOF"
+        "echo \(reclaimEncoded) | base64 -d > \(reclaimScriptPath)"
+    }
+
+    /// The walk, encoded for the trip through TOML and a shell.
+    public static var reclaimEncoded: String {
+        Data(reclaimUnreadable.utf8).base64EncodedString()
     }
 
     /// Frees a name an interrupted copy poisoned, after the volume is serving.

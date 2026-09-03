@@ -5397,7 +5397,7 @@ group("aPoisonedNameIsFreedAfterTheVolumeIsServing") {
     let script = MountScript.build(sampleInputs(kind: .microsoft))
     expect(script.contains("after_mount ="), "the repair rung has something to do after mounting")
     expect(
-        script.contains(".lukotta-unreadable-"),
+        MountScript.reclaimUnreadable.contains(".lukotta-unreadable-"),
         "and what it does is move the unreadable entry aside, under a hidden name")
     expect(
         script.contains("nohup") && script.contains("&\'"),
@@ -5412,6 +5412,23 @@ group("aPoisonedNameIsFreedAfterTheVolumeIsServing") {
     expect(
         !script.contains("nohup sh -c"),
         "and it is not passed through a second round of shell quoting")
+
+    // The action file is TOML and its values are single-quoted, which is one
+    // line. A here-document needs newlines, and the malformed config that
+    // produced made the mount fail outright. So the walk travels as base64,
+    // which has nothing in it for TOML or a shell to interpret.
+    expect(
+        !MountScript.writeReclaimScript.contains("\n"),
+        "what writes the walk is one line, because a TOML value is one line")
+    expect(
+        MountScript.reclaimEncoded.allSatisfy {
+            $0.isLetter || $0.isNumber || $0 == "+" || $0 == "/" || $0 == "="
+        },
+        "and it travels as base64, so neither TOML nor a shell can misread it")
+    expect(
+        String(data: Data(base64Encoded: MountScript.reclaimEncoded) ?? Data(), encoding: .utf8)
+            == MountScript.reclaimUnreadable,
+        "and what arrives is the walk itself")
 
     // The action file is TOML and the value is single-quoted, so an apostrophe
     // anywhere in the walk ends the string and takes the rest of the config
@@ -5445,9 +5462,15 @@ group("aPoisonedNameIsFreedAfterTheVolumeIsServing") {
 
     // A drive opened read-only is not written to, so nothing is moved on it.
     let readOnly = MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))
+    // Not "does the name appear": it appears in the awk that strips stale
+    // sections out of the config, in every script there is. What must not
+    // happen is a mount choosing it.
     expect(
-        !readOnly.contains(".lukotta-unreadable-"),
+        !readOnly.contains("-a \(MountScript.ntfs3gActionName)"),
         "a drive opened read-only is not written to, and is not walked either")
+    expect(
+        script.contains("-a \(MountScript.ntfs3gActionName)"),
+        "and a writable one reaching the ntfs-3g rung is")
 
     // Bounded. A drive with millions of directories must not leave a shell
     // walking it for ever.
