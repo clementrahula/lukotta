@@ -39,20 +39,33 @@ IMG="$OUT/crowd/$IMAGE"
 [ -x "$ENGINE" ] || { echo "error: no engine at $ENGINE" >&2; exit 2; }
 [ -x "$APP" ] || { echo "error: no app at $APP" >&2; exit 2; }
 [ -f "$IMG" ] || { echo "error: no $IMG" >&2; exit 2; }
-strings -a "$APP" 2>/dev/null | /usr/bin/grep -q -- "--drive" || {
+# grep -c, not grep -q. Under `set -o pipefail` a -q match exits at once,
+# strings dies of SIGPIPE and the pipeline reports 141 -- so the check refuses
+# every bundle that is fine, including the one it was just proved against.
+# crowd-through-the-app.sh carries the same note after the same afternoon; this
+# script repeated the mistake within the hour of reading it.
+[ "$(strings -a "$APP" 2>/dev/null | /usr/bin/grep -c -- "--drive")" -gt 0 ] || {
   echo "error: $APP_BUNDLE has no --drive; build with LUKOTTA_DEVTOOLS=1" >&2; exit 2; }
 
 WORK="$(mktemp -d)"
 DEV=""
-clean_up() {
+# Letting go of drives, and throwing the workspace away, are two different
+# things. They were one function, and calling it at the start to clear leftovers
+# deleted the workspace this script had just made -- every file it wrote after
+# that went nowhere and the run failed for want of its own logs.
+release_drives() {
   for p in $(mount | /usr/bin/grep ':/mnt/' | awk '{print $3}'); do
     umount -f "$p" >/dev/null 2>&1
   done
-  [ -n "$DEV" ] && hdiutil detach "$DEV" -force -quiet >/dev/null 2>&1
-  rm -rf "$WORK"
+  [ -n "${DEV:-}" ] && hdiutil detach "$DEV" -force -quiet >/dev/null 2>&1
+  for d in $(hdiutil info 2>/dev/null | /usr/bin/grep '^/dev/disk' | awk '{print $1}'); do
+    hdiutil detach "$d" -force -quiet >/dev/null 2>&1
+  done
+  DEV=""
 }
+clean_up() { release_drives; rm -rf "$WORK"; }
 trap clean_up EXIT
-clean_up
+release_drives
 
 echo "making the damage: a folder written, removed, written again, and cut"
 timeout 200 "$ENGINE" shell "$IMG" -c "mkfs.ntfs -f -F -L RECLAIM /dev/vda" >/dev/null 2>&1
