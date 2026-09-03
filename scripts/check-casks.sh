@@ -26,6 +26,22 @@ fi
 
 status=0
 found=0
+# Whether a URL is there, without fetching what is behind it.
+#
+# This used to be `curl -sSL -o /dev/null -w '%{http_code}'`, which downloads
+# the whole file to check it exists -- ninety-four megabytes for the disk image
+# -- with a sixty-second limit. Run while a release was uploading, it ran out
+# of time, printed the 200 it already had, and the `|| echo 000` fallback
+# appended to it: "answered 200000". A release that was perfectly fine was
+# refused, which is the one thing this pipeline must never do.
+#
+# A range request asks for the first byte. GitHub answers 206, or 200 if it
+# ignores the range; either means the file is there.
+probe_code() {
+  curl -sSL -o /dev/null -r 0-0 -w '%{http_code}' --max-time 60 "$1" 2>/dev/null \
+    || printf '000'
+}
+
 for cask in "$TAP"/Casks/*.rb; do
   [ -f "$cask" ] || continue
   found=$((found + 1))
@@ -41,8 +57,8 @@ for cask in "$TAP"/Casks/*.rb; do
   fi
   url="${url//\#\{version\}/$version}"
 
-  code="$(curl -sSL -o /dev/null -w '%{http_code}' --max-time 60 "$url" 2>/dev/null || echo 000)"
-  if [ "$code" = "200" ]; then
+  code="$(probe_code "$url")"
+  if [ "$code" = "200" ] || [ "$code" = "206" ]; then
     printf '  %s %s: the download is there\n' "$name" "$version"
   else
     printf '  %s %s: %s answered %s\n' "$name" "$version" "$url" "$code" >&2
@@ -61,8 +77,8 @@ done
 # a beta does not count as one. Between making the repository public and
 # cutting the first stable release, every download link on the site was dead.
 LATEST="https://github.com/${LUKOTTA_REPO:-clementrahula/lukotta}/releases/latest/download/Lukotta.dmg"
-code="$(curl -sSL -o /dev/null -w '%{http_code}' --max-time 60 "$LATEST" 2>/dev/null || echo 000)"
-if [ "$code" = "200" ]; then
+code="$(probe_code "$LATEST")"
+if [ "$code" = "200" ] || [ "$code" = "206" ]; then
   printf '  the latest stable download is there\n'
 else
   printf '  %s answered %s\n' "$LATEST" "$code" >&2
