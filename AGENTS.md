@@ -1096,6 +1096,26 @@ nobody asked.
   at 1 TB with 624 MB in it; `scripts/sparse-digest.py` hashes the extents and
   does it in 0.4 s.
 
+## Nothing That Ships May Name the Machine That Built It
+
+`umoci` writes a header at the top of the guest's rootfs manifest naming the
+account, the hostname and the home directory of whoever ran `anylinuxfs init`,
+and that manifest is packed into the engine and installed with the app. It was
+inside every release until 2026-09-03.
+
+There was a guard, and it could not have fired: it looked at two binaries, and
+this is not a binary. Guards written against a list of files check the list,
+not the bundle.
+
+Three things now stand between that and a release: the header is dropped when
+packing (`vendor-engine.sh`), the vendored tree is swept before it is packed,
+and the finished bundle is swept before `build-app.sh` will call itself done --
+the last point at which nothing has shipped yet. All three sweep every file.
+
+If a new check like this is ever added, count rather than short-circuit; see
+the SIGPIPE entry above for why `strings | grep -q` under `pipefail` reports
+success as failure.
+
 ## Never Edit a Script While It Is Running
 
 bash reads a script from the file as it goes, at a byte offset. Editing the
