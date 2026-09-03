@@ -1336,6 +1336,21 @@ asking about.
 This is also the ceiling item 8 is about: the app could never have had more
 than ten drives open, whatever the machine had room for.
 
+**After, measured the same way.** The fixed daemon, asked once by the app:
+
+    before   127.0.0.1 .. 127.0.0.10                       10, and it asked forever
+    after    127.0.0.1 .. 127.0.0.12                       12, asked once
+
+The same run also answered the probe the repair depends on, on exactly the
+shape that was broken -- a whole disk with no partition table holding NTFS:
+
+    helper state: ready
+    device:       /dev/disk5
+    reply path:   ntfs
+
+So the sector is read correctly through the daemon, which is what
+`VolumeKind.settled` is given.
+
 ### Every stalled run wrote an empty log — 2026-09-03
 
 The headless route prints what it is doing, and it is nearly always read from a
