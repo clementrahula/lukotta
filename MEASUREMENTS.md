@@ -909,3 +909,35 @@ The "8 KB free" reading immediately after the delete was a cached statfs, not a
 volume that had failed to free anything. So the timeout was the fixture I had
 destroyed and nothing else, and item 3 holds here: full is an error, promptly,
 and the volume keeps answering throughout.
+
+## Found it: `-o sync` is cheap on a file and ruinous on a device — 2026-09-03
+
+The whole hunt ends here. XFS, 190 MB written with `dd conv=fsync`, the only
+thing varied being what the engine was pointed at:
+
+    device node, no -o sync      190 MB/s
+    device node, with -o sync      4 MB/s
+    image file,  with -o sync    190 MB/s
+
+Forty-seven times, and it is not the helper, the mount point, the privileges,
+the network helper, vmnet offloading, the tuned action, the NFS version, the
+options, or the filesystem. Every one of those was eliminated. It is what the
+engine has underneath it.
+
+**Why.** On an image file, a flush is an fsync on a file, which lands in macOS's
+page cache and is cheap. On a device node it is a real device sync -- that is
+what `krun-devices-raw-device-flush` exists to make honest -- and `-o sync`
+turns every single write into one. So the cost is one true device sync per
+write, and no amount of tuning above it will help.
+
+**Why it matters.** Every real drive is a device. All my earlier "the option is
+free" measurements were on image files, which is precisely the path a person
+never uses. That is the third time tonight the same error produced a wrong
+conclusion, and this is the one that matters most.
+
+**What it says about the route.** `data=journal` is cheap because ext4 batches
+data into its journal and flushes once. `-o sync` is dear because it flushes
+per write. XFS has no batching equivalent, so on XFS there is no cheap word --
+and the answer is not a better mount option but the thing underneath: nfsd's
+COMMIT, which is where the durability is being lost in the first place. Fix
+that and no filesystem needs an option and nothing pays anything.
