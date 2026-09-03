@@ -747,8 +747,19 @@ fi
 
 if [ "${LUKOTTA_PUBLISH:-0}" = "1" ]; then
   printf '==> What the downloads point at\n'
-  "$HERE/scripts/check-casks.sh" "$TAP" || {
-    echo "error: something people are pointed at is not there" >&2; exit 1; }
+  # Said, not fatal.
+  #
+  # This runs after the release is published and before ship.sh commits the
+  # feed and the cask, so exiting here leaves a release that exists and that
+  # nobody is offered -- the exact state the pipeline is built to prevent. It
+  # happened twice today, once because this check timed out downloading
+  # ninety-four megabytes to see whether ninety-four megabytes were there.
+  #
+  # A cask pointing at a missing download is worth knowing about and is not
+  # worth stranding a release over: the feed poll at the end of ship.sh is the
+  # check that actually decides whether anybody can install this.
+  "$HERE/scripts/check-casks.sh" "$TAP" \
+    || echo "warning: something people are pointed at is not there" >&2
 fi
 
 printf '\nArchive : %s\n' "$ZIP"
