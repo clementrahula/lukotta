@@ -2103,3 +2103,50 @@ option that is slow -- a remembered `data=journal` applied to a volume that
 turned out to be XFS would lose data rather than time. It wants its own
 measurement, on both filesystems, before it is trusted. Written down with the
 numbers that justify it so it is not rediscovered from scratch.
+
+### A dozen volumes under eight-gigabyte pressure, through the app — 2026-09-03
+
+Twelve opened one `--drive open=` at a time, written to and read back, then
+eight gigabytes of ballast held from urandom so what is left free is what an
+8 GB Mac has, and the same twelve measured inside that.
+
+    seconds to open        12 to 15, first 12, last 15
+    written                60 files to each of the twelve at once, in 2 s
+    read back              byte-identical on 12, wrong on 0
+    engines, unpressured   36 processes, 2361 MB resident
+
+    under pressure, what the app and its machines hold:
+
+        time      vm_mb  free_mb  compressed_mb
+        12:20:56    345       31           1908
+        12:21:56    348       26           1922
+        12:22:56    291       15           1915
+        12:23:26    288       14           1932
+        12:24:26    282       34           1914
+        12:25:56    284       16           1917
+        12:27:26    330       23           1927     <- writing
+        12:29:27    345       18           1910     <- writing
+        12:30:27    343       15           1919
+
+        memory free            33 percent
+        swap                   7138 MB used of 8192, 7003 MB after
+        shell responsiveness   2 ms to list the home directory
+
+**2361 MB becomes 284.** The footprint is page cache, and the host takes it
+back the moment it wants it: idle under pressure the twelve hold under 300 MB,
+and writing pushes it to about 345 before it settles again. It does not grow
+without bound and it does not force the machine to thrash -- a shell still
+answers in 2 ms with fifteen megabytes free.
+
+**Two instruments in this run are still wrong, and neither number is used.**
+The ballast check reports "6 MiB of 8192 MiB asked for" because it measures the
+holder's resident size, and macOS compresses those pages as fast as they are
+made; the compressor held 7.9 GB and free memory sat at 15 to 34 MB, which is
+what says the pressure was real. And two lines of the pressure script are
+f-strings with nested quotes, a syntax error before Python 3.12, so the process
+launch and home listing latencies never printed at all.
+
+**What this is and is not.** It is a 16 GB Mac squeezed until what remains is
+what an 8 GB Mac has, with twelve volumes open through the route a person uses.
+It is not an 8 GB M1. Item 8 names that machine and this is the closest this
+hardware can come.
