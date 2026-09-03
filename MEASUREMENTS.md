@@ -1180,3 +1180,24 @@ a separate file naming its extent by filename, so copying the extent under
 another name breaks it. That was the "Failed to start microVM: Invalid
 argument" -- an image describing a file that was not there, not a fault in the
 reader.
+
+## Item 9's named vectors: long names, non-ASCII, sparse, very large — 2026-09-03
+
+A corpus built for exactly the things item 9 names, copied and read back:
+
+    Japanese, Greek, Cyrillic, umlauts, an emoji, spaces and quotes in names
+    a 254-character filename
+    a path ten directories deep
+    a 512 MB sparse file, almost entirely hole
+    a 300 MB solid file
+
+    NTFS    10 files byte-identical
+    XFS     10 files byte-identical
+    ext4    10 files byte-identical
+    LUKS    10 files byte-identical
+
+The first ext4 attempt reported "differs", and it was the fixture: 248 MB free
+against a 300 MB file. `cp` said "No space left on device" and the truncated
+file naturally did not match. The app behaved correctly -- a copy that cannot
+fit fails loudly, which is what item 3 asks for. Re-run on a volume with room,
+every byte matches.
