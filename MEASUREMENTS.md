@@ -862,3 +862,33 @@ keeps answering, macOS never marks the mount as not responding, and Finder
 never says a word. Item 3 holds on this volume. Item 10 does not, and the two
 are different failures -- worth separating, because "slow" was about to be
 written down as though it were "broken".
+
+## A clean regression run, and two failures that were mine — 2026-09-03
+
+The whole end-to-end suite against the current code, every change of the night
+included:
+
+    868/868 steps passed, 0 failures
+
+Two runs before it reported failures, and neither was the app:
+
+  - **"thirty-two megabytes can be written -- the volume is out of space."**
+    The NTFS fixture was 100% full of files I had written during the night's
+    measurements: a 191 MB one, a 104 MB one, a 22 MB directory. The e2e suite
+    does not clear it between runs and nothing else did either.
+
+  - **"it is identified again (gave up after 60s)."** A timeout on a machine
+    with several engines and a wrecked volume on it, not a fault that
+    reproduced.
+
+Trying to clear that fixture found something worth keeping. Deleting its
+contents appeared to work -- `df` showed the space back -- and the files were
+all there again on the next mount, because the machine had been killed before
+the unlinks reached the image. The fault this whole effort is about, applied to
+my own housekeeping.
+
+Then the volume stopped answering at all: `ls` and `rm` both returned
+"Operation timed out" on a volume with 12 KB free that had been kill-9'd
+mid-write many times over. It was rebuilt rather than diagnosed, because a
+fixture destroyed by testing is not evidence about the product -- but a volume
+that times out rather than erroring when full is worth remembering.
