@@ -1,0 +1,156 @@
+# Says, by email, when a release is actually live -- not merely tagged.
+#
+# WHY THIS EXISTS
+#
+# Releases here are published from a Mac by scripts/ship.sh, using the owner's
+# own token, so GitHub records the owner as the author. GitHub never notifies
+# anybody about their own actions, which is why watching the repository -- with
+# Releases ticked or not -- produces no mail for these. There is no setting that
+# changes that; the announcement has to come from somebody else, and here that
+# is this workflow, running as github-actions[bot].
+#
+# AND WHY IT CHECKS BEFORE IT SPEAKS
+#
+# A published release object is not a deploy. Twice in this project a release
+# was half-published: the tag and the notes were there and the appcast still
+# served the version before it, so nobody was offered the update the release
+# page said existed. Mail saying "shipped" on that would be worse than no mail.
+#
+# So it fetches what a person's Mac would fetch -- the appcast for that channel
+# -- and checks the new version is in it, and that the disk image the release
+# points at can actually be reached. Only then does it say the release is live.
+# If the checks fail it still writes, and says plainly what is not there yet.
+name: release notice
+
+on:
+  release:
+    # published, not released: released does not fire for a pre-release, and
+    # the beta channel is exactly what needs watching most.
+    types: [published]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  notice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check the release is really being served
+        id: check
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          set -uo pipefail
+          version="${TAG#v}"
+          if [ "$PRERELEASE" = "true" ]; then
+            feed=https://updates.lukotta.com/beta/appcast.xml
+            channel=beta
+          else
+            feed=https://updates.lukotta.com/appcast.xml
+            channel=release
+          fi
+          echo "channel=$channel" >> "$GITHUB_OUTPUT"
+          echo "feed=$feed" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          # The appcast is cached at the edge, so it is given a little while to
+          # catch up rather than being asked once and declared wrong.
+          served=no
+          for _ in $(seq 1 20); do
+            if curl -fsSL --max-time 30 "$feed" 2>/dev/null | grep -q "$version"; then
+              served=yes; break
+            fi
+            sleep 15
+          done
+          echo "served=$served" >> "$GITHUB_OUTPUT"
+
+          # And whether the thing it offers can be fetched. A range request, so
+          # this does not pull ninety-four megabytes to learn that it exists.
+          url="$(curl -fsSL --max-time 30 "$feed" 2>/dev/null \
+                 | grep -o 'https://[^"]*\.dmg' | head -1)"
+          code=000
+          [ -n "$url" ] && code="$(curl -sSL -o /dev/null -r 0-0 \
+              -w '%{http_code}' --max-time 60 "$url" 2>/dev/null || printf '000')"
+          case "$code" in
+            200|206) echo "downloadable=yes" >> "$GITHUB_OUTPUT" ;;
+            *)       echo "downloadable=no"  >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Say so
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        env:
+          CHANNEL: ${{ steps.check.outputs.channel }}
+          SERVED: ${{ steps.check.outputs.served }}
+          DOWNLOADABLE: ${{ steps.check.outputs.downloadable }}
+          FEED: ${{ steps.check.outputs.feed }}
+        with:
+          script: |
+            const rel = context.payload.release
+            const ok = process.env.SERVED === 'yes' && process.env.DOWNLOADABLE === 'yes'
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+
+            // One thread, commented on, rather than an issue for every release.
+            // This repository is public and it ships several times a day, so a
+            // closed issue per release is a wall of noise anybody can see. A
+            // mention in a comment sends the same mail.
+            const LABEL = 'release-notice'
+            try {
+              await github.rest.issues.createLabel({
+                owner, repo, name: LABEL, color: 'ededed',
+                description: 'Where releases report themselves',
+              })
+            } catch (e) { /* already there */ }
+
+            const existing = await github.rest.issues.listForRepo({
+              owner, repo, labels: LABEL, state: 'open', per_page: 1,
+            })
+            let number = existing.data.length ? existing.data[0].number : null
+            if (number === null) {
+              const made = await github.rest.issues.create({
+                owner, repo,
+                title: 'Release notices',
+                body: [
+                  'Every release reports itself here once it is actually being',
+                  'served, so there is one place to look and one thing to',
+                  'unsubscribe from.',
+                  '',
+                  'It exists because releases are published from a Mac with the',
+                  'owner\'s own token, and GitHub does not notify anybody about',
+                  'their own actions -- so watching the repository produces no',
+                  'mail for them, whatever is ticked.',
+                ].join('\n'),
+                labels: [LABEL],
+              })
+              number = made.data.number
+            }
+
+            const head = ok
+              ? `**${rel.name || rel.tag_name} is live.**`
+              : `**${rel.name || rel.tag_name} is published and not being served.**`
+            const body = [
+              `@${owner} ${head}`,
+              '',
+              ok
+                ? 'A Mac asking for an update is being offered it.'
+                : 'Something a Mac needs is not there yet, so nobody is being offered this.',
+              '',
+              '| | |',
+              '| --- | --- |',
+              `| channel | ${process.env.CHANNEL} |`,
+              `| tag | ${rel.tag_name} |`,
+              `| appcast serves it | ${process.env.SERVED} |`,
+              `| disk image reachable | ${process.env.DOWNLOADABLE} |`,
+              `| feed | ${process.env.FEED} |`,
+              `| release | ${rel.html_url} |`,
+            ].join('\n')
+
+            // The mention is what sends the mail: github-actions[bot] is doing
+            // the mentioning, and GitHub does notify somebody about what a bot
+            // did where it stays silent about what they did themselves.
+            await github.rest.issues.createComment({
+              owner, repo, issue_number: number, body,
+            })
