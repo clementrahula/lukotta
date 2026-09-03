@@ -2371,3 +2371,54 @@ backed by the same bytes, two writers, a corrupted fixture and worthless
 numbers from it. It refuses now. And it printed only when something went wrong,
 so a working run and a hung one looked identical from outside — five minutes
 went on deciding which.
+
+### The stale handle reproduced, and what it is not — 2026-09-03
+
+Six twelve-volume runs back to back, with the harness now keeping what the
+copy says and asking again the moment a handle goes bad.
+
+    run 1   copy onto /Volumes/CROWD8 failed:
+              ditto: /Volumes/CROWD8/crowd-write/f38.bin: Stale NFS file handle
+            find: './f38.bin': Stale NFS file handle
+            asked again: still failing, same file, same error
+            by name:     ls: cannot access it, same error
+            byte-identical on 11, wrong on 1
+    runs 2 to 6   byte-identical on 12, wrong on 0
+
+Three things this settles that reasoning had got wrong.
+
+**The copy itself fails.** `ditto` reports it, which means a person copying in
+Finder is shown an error mid-copy. This is not a readback artefact of the
+harness; it is item 3 broken.
+
+**It does not heal.** Asked again immediately, the walk fails on the same file;
+asked by name — a LOOKUP, which does not go through the dead handle — `ls`
+fails the same way. So the earlier idea that the files were on the volume and
+only a cached listing was wrong is dead. Whatever f38.bin is, it cannot be
+reached again.
+
+**It is the same file twice.** Both occurrences that had a filename recorded
+name `f38.bin`, about 3.8 MB into a 6 MB copy. One in sixty by chance is one in
+3600 for two.
+
+**The fixture is not damaged.** `ntfsfix -n` on drive8.img through the engine's
+guest shell: `$MFT and $MFTMirr completed successfully`, alternate boot sector
+OK, `Volume Flags: 0x0000` — not dirty, no errors. So this is the stack's
+behaviour and not a broken image.
+
+**A full volume is not it either.** `full-volume-error.sh` fills one volume to
+2.8 MB free and copies 6 MB into it:
+
+    ditto exited 1, 23 of 60 arrived
+    ditto: /Volumes/CROWD8/spill/f19.bin: No space left on device
+    RESULT: a full volume says it is full, which is what it should say
+
+So a single volume that runs out of room reports ENOSPC properly, which Finder
+draws as "not enough free space". Fullness alone does not produce a stale
+handle.
+
+**What every occurrence has had in common** is twelve volumes opening at once
+*and* volumes an earlier run had left nearly full; the five clean runs that
+followed ran on volumes the harness had since emptied. That pairing is what is
+being tried next, deliberately, with every volume filled to 8 MB free before
+the twelve-way write.
