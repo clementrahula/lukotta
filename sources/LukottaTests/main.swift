@@ -5410,8 +5410,21 @@ group("aPoisonedNameIsFreedAfterTheVolumeIsServing") {
         !MountScript.reclaimUnreadable.contains("'"),
         "no apostrophes: the walk lives inside a single-quoted TOML value")
 
-    // A volume that came up clean has nothing to look for, so the walk belongs
-    // to the repair rung and not to every NTFS mount.
+    // Not gated on the repair. Measured: a volume carrying the damage mounted
+    // on the first rung with no repair attempted -- ntfsfix -d never ran -- and
+    // the folder was still unusable, which is how the harness saw a stale handle
+    // on volumes that had opened perfectly normally. So the writable ntfs3 rung
+    // carries it too.
+    expect(
+        script.contains("expect seq"),
+        "ntfs3 announcing the fault is what starts the walk")
+    let probeSection = script.components(separatedBy: "[custom_actions.")
+        .first { $0.hasPrefix(MountScript.ntfs3ProbeActionName) } ?? ""
+    expect(
+        probeSection.contains("after_mount ="),
+        "and the writable ntfs3 rung watches for it, not only the repair rung")
+
+    // A drive opened read-only is not written to, so nothing is moved on it.
     let readOnly = MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))
     expect(
         !readOnly.contains(".lukotta-unreadable-"),
