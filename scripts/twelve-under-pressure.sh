@@ -69,8 +69,18 @@ echo "held: $(served_now) volumes served before any pressure"
 if [ "${EXERCISE:-1}" = "1" ]; then
   echo
   echo "working them before the squeeze"
-  CYCLES="${EXERCISE_CYCLES:-15}" FILES="${EXERCISE_FILES:-60}" \
-    bash "$COPY/copy-visibility.sh" 2>&1 | tail -4 | tee -a "$LOG"
+  # KEEP=1 leaves every cycle in place, which fills the volumes as it works.
+  # The run in which all twelve died had been left that way -- 18 MB of files
+  # kept on 64 MB volumes with 33 MB free -- and a nearly full volume is both
+  # one of item 9's named vectors and the last known difference between that
+  # run and the ones that survived.
+  KEEP="${EXERCISE_KEEP:-0}" CYCLES="${EXERCISE_CYCLES:-15}" \
+    FILES="${EXERCISE_FILES:-60}" \
+    bash "$COPY/copy-visibility.sh" 2>&1 | tail -6 | tee -a "$LOG"
+  echo "  free on each volume after the work:"
+  mount | /usr/bin/grep ':/mnt/' | awk '{print $3}' | while read -r p; do
+    printf '    %-24s %s\n' "$p" "$(df -h "$p" | tail -1 | awk '{print $4 " free of " $2}')"
+  done | tee -a "$LOG"
   echo "still served after the work: $(served_now)"
 fi
 
