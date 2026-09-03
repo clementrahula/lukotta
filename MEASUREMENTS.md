@@ -817,3 +817,29 @@ do. Checked now:
 So the change is safe as well as faster. Written down because not checking this
 is exactly what put the regression into 1.22.4: a mechanism was swapped on the
 strength of one measurement and the thing it was there for was never re-run.
+
+## Settled: the XFS cost is the helper's mount, and nothing else — 2026-09-03
+
+Every option the app uses, applied to the engine's own mount, XFS with
+`-o sync`, 190 MB written with `dd conv=fsync`:
+
+    minimal options                  95 MB/s
+    the app's full option string    190 MB/s
+    app options + tuned + vmnet     190 MB/s
+
+And `-o sync` is genuinely in force on that path: the machine was killed
+straight after one of those writes and the file came back whole.
+
+The same write through the app is 7 MB/s. Reads through the app are 190 MB/s,
+so the path is not slow in general -- only writes, and only while the guest is
+synchronous. NTFS through the app, which is not synchronous, writes at 190.
+
+So the cost belongs to `-o sync` on the helper-served mount and to nothing that
+has been varied: not the options, not the tuned action, not vmnet, not the
+filesystem, not the volume, not the binary. What is left is that the helper
+runs the engine as root and the share lands in /Volumes rather than ~/Volumes.
+
+That is a thirteen- to twenty-sevenfold difference produced by the mount path
+alone, and it is the whole of item 10's remaining gap. It is also good news:
+the durability option is not expensive, so there is nothing to trade away --
+something about the elevated mount is wrong, and fixing it should give both.
