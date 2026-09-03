@@ -1351,6 +1351,15 @@ shape that was broken -- a whole disk with no partition table holding NTFS:
 So the sector is read correctly through the daemon, which is what
 `VolumeKind.settled` is given.
 
+And the daemon's own account of a live mount of one, which is the whole fix in
+two lines -- a whole disk with no partition table, which the scan calls Linux:
+
+    helper  partition identified as ntfs
+    helper  mount requested, linux false, read-only false
+
+Before today the second line read `linux true`, the Microsoft ladder never ran,
+and the repair action was never written.
+
 ### Every stalled run wrote an empty log — 2026-09-03
 
 The headless route prints what it is doing, and it is nearly always read from a
