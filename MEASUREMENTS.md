@@ -2035,3 +2035,23 @@ the encryption stands accused.
 
 `plain-xfs.img` is already in the fixtures. This is written down before the run
 so the prediction cannot be adjusted afterwards to fit whatever comes back.
+
+**Run, and the prediction holds. It is `-o sync`.**
+
+    plain XFS, no encryption at all      a full volume answers in 110s
+
+    mounted -o sync    XFS 110s, ext4 in LUKS 129s, XFS in LUKS 140s
+    not                NTFS 2s, btrfs 2s, exFAT 3s, ext4 3s
+
+The line falls exactly on the mount option. An unencrypted volume takes a
+hundred and ten seconds; encryption adds perhaps twenty on top of that and is
+not the cause. The earlier conclusion -- "it is the encryption" -- was wrong,
+and was wrong in the way this file exists to catch: six formats agreeing with
+it, and the seventh, which nobody had run, disagreeing.
+
+**And it joins two open items into one.** `-o sync` is there because nfsd's
+COMMIT is not durable, which is the fault traced on 2026-09-03. That option
+costs 47x on writes to a real drive, which is why item 10 is unmet for XFS, and
+it costs a hundred and ten seconds to notice a volume is full. Both are the
+price of the same workaround. Fixing the COMMIT retires the option and both
+costs with it; nothing else needs to be traded off against anything.
