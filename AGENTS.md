@@ -1103,6 +1103,30 @@ nobody asked.
   at 1 TB with 624 MB in it; `scripts/sparse-digest.py` hashes the extents and
   does it in 0.4 s.
 
+## A `mkfs` Inside the Guest Shortens the Image It Ran On
+
+The image driver turns a discard into a shorter file, and `mkfs` discards the
+whole device before it writes. So making a filesystem inside a disk image
+leaves the image shorter than the filesystem it now contains:
+
+    mkfs.ext4  on 1 GiB     1,073,741,824 -> 1,073,676,288      64 KiB gone
+    mkfs.btrfs on 1 GiB     1,073,741,824 ->    92,667,904     981 MB gone
+
+The difference is only where each filesystem writes last: ext4 puts backup
+superblocks near the end, btrfs writes at the front. Both produce an image that
+mounts nowhere -- `open_ctree failed: -22` for btrfs, and ext4 refusing its own
+geometry -- and both read as "the app cannot open this format".
+
+**After any `mkfs` inside the guest, put the size back:**
+
+    python3 -c "
+    with open(path, 'r+b') as fh: fh.truncate(intended_size)"
+
+Two fixtures in this project were quietly broken this way and stayed broken.
+Ordinary use is not affected -- writing and deleting files, even on btrfs with
+`discard=async`, leaves the file exactly its size; it is the whole-device
+discard that shortens it. See MEASUREMENTS.md for both numbers.
+
 ## Nothing That Ships May Name the Machine That Built It
 
 `umoci` writes a header at the top of the guest's rootfs manifest naming the
