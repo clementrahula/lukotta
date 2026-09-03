@@ -1103,6 +1103,32 @@ nobody asked.
   at 1 TB with 624 MB in it; `scripts/sparse-digest.py` hashes the extents and
   does it in 0.4 s.
 
+## Every Guard Added on 2026-09-03 Was Broken on Its First Use
+
+Four in one day, and the pattern is worth more than any of them:
+
+  - The **privacy sweep** on the engine binaries was `strings | grep -q` under
+    `pipefail`, so it went quiet in exactly the case it existed for, and it
+    only looked at two binaries when the leak was in a manifest.
+  - The **devtools check** was written the same way and refused every bundle,
+    including the one it had just been proved against by hand.
+  - The **ship re-exec**, added so that editing `ship.sh` could not kill a
+    release, computed the repository from the temporary copy's path and
+    stopped the next release before it began.
+  - The **mount wait** on the app route checked once where the engine route
+    polls for eighty seconds, and reported "never mounted" about a mount whose
+    own log said it had opened the volume.
+
+Each was written to prevent a failure that had just happened, each looked
+obviously correct, and each failed the first time it ran. Three of the four
+failed *safe-looking*: they reported trouble where there was none, which is
+the direction that wastes a morning rather than ships a fault.
+
+**So exercise a new guard both ways before trusting it.** Give it the thing it
+must catch and the thing it must pass, and watch it do both. `bash -n` and
+shellcheck say the script parses; they say nothing about whether the check
+checks.
+
 ## A `mkfs` Inside the Guest Shortens the Image It Ran On
 
 The image driver turns a discard into a shorter file, and `mkfs` discards the
