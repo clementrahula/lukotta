@@ -1696,21 +1696,43 @@ the missing-call hypothesis, which was the cheap thing to rule out first.
 Measured twelve times over in the crowd run, and again on every reopen the
 vectors do:
 
-    opening a drive through the app     72 to 75 seconds, flat
+    opening a drive, harness measured   72 to 75 seconds, flat
+    opening a drive, daemon measured    about 10 seconds
 
-That is the number a person waits, staring at the app, after asking for a
-drive. It does not grow with the number already open, which is the scaling
+The first is what the harness saw and the second is what actually happened;
+see below. Ten seconds is the number a person waits after asking for a drive. It does not grow with the number already open, which is the scaling
 question and the good news. But three quarters of a minute is a long time to
 look at a window, and nothing in the ten items names it, so it has never been
 questioned.
 
-**Not an artefact of the headless route.** `--drive` asks the daemon to replace
-itself on the way in, and waits up to sixty seconds for the new process, which
-a person opening a drive in the window never pays. But that happens only when
-the installed binary differs from the bundle's, so at most the first of the
-twelve crowd opens could have paid it -- and the twelve were 72, 73, 73, 72,
-73, 73, 73, 74, 74, 74, 74, 75. The first is the joint fastest. Whatever the
-seventy-two seconds is, it is not daemon replacement.
+**WRONG, and corrected the same hour. It is sixty seconds of the harness and
+about ten of the app.** The daemon's own log, three consecutive mount cycles:
+
+    11:10:31.007  partition identified as ntfs
+    11:10:31.008  mount requested, linux false
+    11:10:41.218  mount script exited with status 0     10.2 s
+    11:11:48.222 -> 11:11:58.493                        10.3 s
+    11:13:03.387 -> 11:13:13.459                        10.1 s
+
+A drive opens in about ten seconds. The other sixty are `--drive` waiting for a
+daemon replacement that was never asked for:
+
+    let before = daemonProcessID()
+    helper.replaceIfStale()
+    let replaceBy = Date().addingTimeInterval(60)
+    while daemonProcessID() == before, Date() < replaceBy { ... }
+
+When the installed daemon already matches the bundle, nothing is replaced, the
+process id never changes, and the loop runs its full minute. Every headless
+open pays it; nobody using the window does.
+
+I had reasoned my way to the opposite conclusion an hour earlier -- "the first
+open was the joint fastest, so the cost is not daemon replacement" -- and that
+reasoning was sound and the conclusion still wrong. The cost is not replacing
+the daemon. It is waiting for a replacement that never comes, which is
+identical in every run and therefore invisible in the spread between them.
+Twelve numbers agreeing to within three seconds looked like evidence of a real
+constant. It was evidence of a constant, and the constant was a timeout.
 
 What is not yet known is how much of it is the app and how much is the guest
 booting. The engine route boots the same machine, so most of it is presumably
