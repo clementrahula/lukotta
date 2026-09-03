@@ -690,3 +690,35 @@ covers both.
 The lesson, and it is the same one as the four instrument faults: check that
 the thing you are varying actually varied. The mount table said `synchronous`
 and I did not read it until the numbers stopped making sense.
+
+## Large writes: what is measured, and what is still open — 2026-09-03
+
+With the 1.22.5 fix in place (client sync gone, guest `-o sync` back), on a
+fresh 2000 MB XFS volume, 190 MB written:
+
+    through the app (helper-served, /Volumes)        7 MB/s
+    through the engine directly (~/Volumes)        190 MB/s
+
+Same filesystem, same volume, and the engine run used the app's exact option
+string -- rsize, wsize, readahead, dumbtimer, timeo, retrans, deadtimeout,
+mutejukebox, noowners -- with and without `-o sync`. All three raw-engine
+variants managed 190 MB/s, so the options are not what makes the difference.
+
+And the app path is not slow in general: NTFS through the app writes the same
+file at 190 MB/s.
+
+So what is left is XFS specifically, on the helper-served mount. That is not
+explained here and is not claimed to be.
+
+Two corrections to earlier numbers in this file, both mine:
+
+  - The "3 MB/s" figures were the app path; the "190 MB/s" ones were the raw
+    engine. Comparing them to each other was comparing two different things,
+    and it is what made client sync look sixty times worse than it is. On one
+    path, with a real flush, it is three times worse -- 63 MB/s against 190.
+  - Several raw-engine writes finished in one second because `cp` returns
+    before anything is flushed. `dd conv=fsync` is what makes a write
+    comparable, and the numbers above that say "fsynced" use it.
+
+The 1.22.4 regression was real regardless: the app path went from whatever it
+was to 3 MB/s on large files, and it is back on the guest option now.
