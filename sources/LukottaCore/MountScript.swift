@@ -1857,7 +1857,11 @@ public enum MountScript {
         var opts = driverOptions(driver)
         // Never beside a driver. The drivers named here are the NTFS ones, and
         // this belongs to the Linux filesystems alone.
-        if let durability, driver == nil { opts.append(durability) }
+        // Never on a read-only mount. The option exists so that a write which
+        // was fsynced survives the machine dying, and a volume opened read-only
+        // takes no writes at all -- so it buys nothing and, on a device, `sync`
+        // is the difference between 190 MB/s and 4.
+        if let durability, driver == nil, !readOnly { opts.append(durability) }
         opts += readOnly ? ["ro"] : []
         return opts.isEmpty ? "" : " -o \(opts.joined(separator: ","))"
     }
