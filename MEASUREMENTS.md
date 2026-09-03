@@ -2005,3 +2005,33 @@ What is still not proven, and is not claimed: item 8 on the machine it names,
 and item 10 for XFS writes on a real drive. The full-volume delay inside LUKS,
 129 and 140 seconds against two or three unencrypted, is a real cost and is
 recorded above rather than waved through because the vector counts it a pass.
+
+### The full-volume delay may be `-o sync`, not the encryption — 2026-09-03
+
+Before that conclusion hardens, a competing explanation that fits every number
+already taken. The app chooses a durability option per volume, and only some
+volumes get `sync`:
+
+    plain XFS         durabilityOption sees the XFS magic       -> sync
+    LUKS container    the header hides the superblock           -> sync
+    ext4              journalled                                -> data=journal
+    btrfs             nothing                                   -> none
+    NTFS, exFAT       a driver is named, so durability is skipped
+
+Lay that beside the measurements:
+
+    slow    ext4 in LUKS 129s, XFS in LUKS 140s     both mounted -o sync
+    fast    NTFS 2s, btrfs 2s, exFAT 3s, ext4 3s    none of them mounted -o sync
+
+The two sets are exactly the volumes that get `sync` and exactly the ones that
+do not. Encryption and `-o sync` are perfectly confounded in everything
+measured so far, because every encrypted volume here is a container and every
+container gets `sync`.
+
+**The experiment that separates them is plain XFS**, which is unencrypted and
+still gets `sync`. If it is slow, the cause is the mount option -- which the
+app chooses and can therefore fix -- and not the encryption. If it is quick,
+the encryption stands accused.
+
+`plain-xfs.img` is already in the fixtures. This is written down before the run
+so the prediction cannot be adjusted afterwards to fit whatever comes back.
