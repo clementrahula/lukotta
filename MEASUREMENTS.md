@@ -1257,3 +1257,20 @@ the probe's answer to reach `kind`, so a disk that turns out to hold NTFS is
 treated as holding NTFS whatever its partition table says. That is a change to
 how the scan and the probe meet, and it wants doing carefully rather than at
 the end of a long night.
+
+### Why the dev channel cannot be tested on this Mac — 2026-09-03
+
+The dev build asks for its own daemon, `com.lukotta.dev.helper`, and there has
+never been one on this machine: `/Library/PrivilegedHelperTools` holds
+`com.lukotta.helper` and `com.lukotta.beta.helper` and nothing else, and
+`/Library/LaunchDaemons` matches. Installing the first one is SMJobBless, which
+asks for an administrator password.
+
+So every `--drive open=` through the dev bundle sits in its run loop until the
+harness's ten-minute timeout, writes no configuration, and the dirty-NTFS
+harness reports that the app left no actions -- which is true, and says nothing
+about the app.
+
+The beta daemon is installed, and a daemon replaces itself from the new bundle
+without asking anybody for anything. So a fix that needs a real mount to prove
+it goes to the beta channel and is proved there. That is the loop anyway.
