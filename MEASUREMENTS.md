@@ -2084,6 +2084,22 @@ paying nothing instead of paying the most.
 
 Only XFS would still want `sync`, and only until nfsd's COMMIT is fixed.
 
-Not attempted today: it is a change to the generated mount script, which is
-delicate, and the machine was in the middle of a release. Written down with
-the numbers that justify it so it is not rediscovered from scratch.
+**How it could be done without touching the engine.** The option is handed to
+the engine before the machine boots, and the engine is what unlocks the
+container, so the app cannot decide inside the guest and cannot pass a
+conditional. But the engine already says what it found, in its own log, on
+every mount:
+
+    macOS: fs_type: Some("exfat")
+
+So the app can learn a container's inner filesystem from the mount it just
+made, remember it beside the fingerprint it already caches for that volume, and
+use the cheap option the next time that volume is opened. The first open of a
+new encrypted volume keeps `sync`, which is the safe direction; every open
+after that costs what a bare volume costs.
+
+Not attempted today: it adds state, and state that is wrong is worse than an
+option that is slow -- a remembered `data=journal` applied to a volume that
+turned out to be XFS would lose data rather than time. It wants its own
+measurement, on both filesystems, before it is trusted. Written down with the
+numbers that justify it so it is not rediscovered from scratch.
