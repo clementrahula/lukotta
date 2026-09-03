@@ -44,7 +44,14 @@ set -uo pipefail
 DURATION="${1:-600}"
 INTERVAL="${2:-30}"
 
-printf '%-8s %8s %8s %10s\n' time vm_mb free_mb compressed_mb
+# The count of volumes still served, beside what they cost.
+#
+# Without it this table reported a total collapse as a small number: on
+# 2026-09-03 twelve volumes died under ballast and the column read "1", which
+# looks like an app that had become admirably frugal. Twelve volumes holding
+# 300 MB and no volumes holding nothing are the same row here unless the count
+# is beside it.
+printf '%-8s %7s %8s %8s %10s\n' time served vm_mb free_mb compressed_mb
 end=$(( $(date +%s) + DURATION ))
 while [ "$(date +%s)" -lt "$end" ]; do
   # pgrep for the pids and ps for their sizes, rather than grepping ps output:
@@ -61,6 +68,7 @@ while [ "$(date +%s)" -lt "$end" ]; do
   read -r free comp <<<"$(vm_stat | awk '
     /Pages free/{f=$3} /Pages occupied by compressor/{c=$5}
     END{gsub(/\./,"",f); gsub(/\./,"",c); printf "%d %d", f*4096/1048576, c*4096/1048576}')"
-  printf '%-8s %8s %8s %10s\n' "$(date '+%H:%M:%S')" "${vm:-0}" "$free" "$comp"
+  served=$(mount | /usr/bin/grep -c ':/mnt/')
+  printf '%-8s %7s %8s %8s %10s\n' "$(date '+%H:%M:%S')" "$served" "${vm:-0}" "$free" "$comp"
   sleep "$INTERVAL"
 done
