@@ -776,3 +776,31 @@ the helper runs the engine as root and the share lands in /Volumes rather than
 This matters more than it looks: if the slowness is the helper's mount rather
 than durability itself, then item 10 may be reachable for XFS after all, and
 the option is not the thing to blame.
+
+## What is left to try on the XFS cost, and what not to try blind
+
+Everything varied so far is identical on both paths: the flags, the tuned
+action, the NFS server thread count, the guest's max block size, the engine
+binary, the volume. The engine's own mount is fast with `-o sync`; the
+helper's is not.
+
+The two things that differ and have not been isolated:
+
+  - the helper runs the engine as root
+  - the share lands in /Volumes rather than ~/Volumes
+
+Isolating those needs a mount into /Volumes made by hand, which needs admin
+rights this session does not have.
+
+**One candidate, and a reason not to reach for it tonight.** The app writes
+with `wsize=32768`. Under `-o sync` every one of those 32 KB writes is a
+separate synchronous round trip, so a path with higher latency would suffer
+far more than a quick one -- which is the shape of what is measured. Raising
+wsize for volumes that carry a durability option is the obvious thing to try.
+
+It is also the thing that was deliberately lowered to stop the stall: SPECS
+records that cutting the write size is what keeps the folder being copied into
+answering, and that 16384 was no better and 32768 was the size that worked. So
+raising it risks bringing back the fault this whole effort began with, and it
+must be measured against the stall as well as against throughput -- not shipped
+on a hypothesis at five in the morning.
