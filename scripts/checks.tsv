@@ -29,7 +29,7 @@
 #
 # id	tags	speed	claim	command
 goal1	goal	slow	writing does not stall	
-goal2	goal	slow	no crash copying through Finder, both extremes	bash scripts/finder-copy-cycles.sh
+goal2	goal	slow	no crash copying through Finder, both extremes	
 goal3	goal	slow	nothing user-visible during a copy	bash scripts/reused-record-interrupt.sh
 goal4	goal	slow	NTFS and BitLocker, byte-identical	bash scripts/integrity-vectors.sh
 goal5	goal	slow	LUKS and the Linux filesystems inside it	

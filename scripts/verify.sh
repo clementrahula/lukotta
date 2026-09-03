@@ -36,6 +36,20 @@ LIST="${CHECKS:-scripts/checks.tsv}"
 LOG="$(mktemp)"; TALLY="$(mktemp)"
 trap 'rm -f "$LOG" "$TALLY"' EXIT
 
+# What the checks looked like when this began.
+#
+# bash reads a script as it runs it, by byte offset, so editing one mid-run
+# makes it resume in the middle of a line it has never seen. A full run of this
+# took an hour and reported two claims broken; both were that -- "line 105: ree:
+# command not found" -- because a file was edited while the run was inside it.
+#
+# It is not prevented, because refusing to run while somebody is working is its
+# own kind of breakage. It is noticed: if the checks changed under the run, the
+# run says its own result is not to be trusted, which is the one thing worse
+# than not running at all.
+fingerprint() { find scripts .claude -type f -newermt "@0" -exec ls -l {} + 2>/dev/null | cksum; }
+BEFORE="$(fingerprint)"
+
 printf '%-10s %-52s %s\n' claim what result
 echo
 
@@ -73,6 +87,11 @@ passed=$(tally passed); failed=$(tally failed)
 unchecked=$(tally unchecked); skipped=$(tally skipped)
 
 echo
+if [ "$(fingerprint)" != "$BEFORE" ]; then
+  echo "the checks were edited while this ran, so this result means nothing;"
+  echo "run it again on a settled tree." >&2
+  exit 2
+fi
 echo "holds: ${passed:-0}   FAILS: ${failed:-0}   unchecked: ${unchecked:-0}   not run: ${skipped:-0}"
 [ "${failed:-0}" -eq 0 ] || echo "something that used to work does not" >&2
 exit "${failed:-0}"
