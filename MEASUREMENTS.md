@@ -1741,3 +1741,38 @@ avoid. The comparison is one command each way and has not been run.
 
 Written down because item 10 says no UX cost anywhere, and a wait is a cost
 whether or not anybody has called it one.
+
+### Item 9's twelve vectors, on the app's own route — 2026-09-03
+
+Every one of them, opened through `--drive` the way the window opens a drive,
+against an NTFS fixture:
+
+    ok  a killed copy leaves no corrupt file behind (40 whole, 0 wrong)
+    ok  the volume still takes a write after a copy was killed
+    ok  the volume mounts and reads after being unmounted under load
+    ok  what was written before the unmount survived it
+    ok  a full volume answers with an error, in 2s
+    ok  three open/close cycles in a row (3 of 3)
+    ok  everything written is readable by whoever wrote it (3 of 3)
+    ok  awkward names and shapes survive a copy (10 whole, 0 wrong, 0 missing)
+    ok  two writers and a reader at once leave nothing wrong (24 compared, 0 differing)
+    ok  the filesystem comes back after the machine was killed mid-write
+    ok  every fsynced file survived power loss (8 of 8 present, 0 wrong, 0 lost)
+    ok  the volume takes a write again after power loss
+    12 passed, 0 failed
+
+These had only ever been run against the engine before. What the engine route
+could not see is everything the app puts on top -- the daemon that builds the
+mount, the options it picks, the identity it mounts under, the ladder it walks
+-- and four faults were found in exactly those four places this morning. So
+this is not a formality; it is the first time the vectors have been asked about
+the thing a person uses.
+
+Getting here took three faults in the harness itself, each of which would have
+produced a confident wrong answer rather than an obvious breakage: the share
+looked for under the image's name when the app mounts a device, the image
+attached again on every reopen without being given back, and no passphrase
+passed, which would have failed every encrypted fixture for want of a key.
+
+Still to do on this route: ext4, btrfs, exFAT and LUKS. NTFS was taken first
+because all four of today's product faults were NTFS ones.

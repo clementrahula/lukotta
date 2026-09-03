@@ -276,11 +276,27 @@
             //
             // So the app's own logic decides, on the contract it publishes and
             // the binaries it can compare, and this only watches for the result.
+            // Waited for only when something was actually asked for.
+            //
+            // This used to wait for the process id to change whatever the
+            // answer, and when the installed daemon already matches the bundle
+            // nothing is asked, nothing changes, and the loop ran its whole
+            // minute. Every open through --drive cost sixty seconds it had no
+            // use for, which is most of the seventy-two that was briefly
+            // written down as how long the app takes to open a drive. It takes
+            // about ten.
             let before = daemonProcessID()
-            helper.replaceIfStale()
-            let replaceBy = Date().addingTimeInterval(60)
-            while daemonProcessID() == before, Date() < replaceBy {
-                RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.5))
+            var wasAsked: Bool?
+            helper.replaceIfStale { wasAsked = $0 }
+            let answerBy = Date().addingTimeInterval(20)
+            while wasAsked == nil, Date() < answerBy {
+                RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.2))
+            }
+            if wasAsked == true {
+                let replaceBy = Date().addingTimeInterval(60)
+                while daemonProcessID() == before, Date() < replaceBy {
+                    RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.5))
+                }
             }
             if daemonProcessID() != before {
                 say("the daemon was replaced; waiting for the new one")

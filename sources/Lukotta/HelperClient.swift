@@ -110,8 +110,14 @@ final class HelperClient: ObservableObject {
     /// answer at all -- an older helper that does not know the question --
     /// means the job is stale, and it is registered again. Silent: the daemon
     /// is already approved, and this is not something to make anybody read.
-    func replaceIfStale() {
-        guard case .ready = state else { return }
+    /// - Parameter asked: called with whether a replacement was requested.
+    ///   A caller that waits for the daemon's process to change has to know
+    ///   this: when nothing is asked for, nothing changes, and waiting for the
+    ///   change is waiting for the timeout. Sixty seconds went onto every
+    ///   headless open that way, and it looked so much like a real cost that
+    ///   it was written down as one.
+    func replaceIfStale(asked: @escaping (Bool) -> Void = { _ in }) {
+        guard case .ready = state else { return asked(false) }
         // A daemon installed with an administrator password is not this app's
         // to re-register: unregistering reaches nothing, and registering again
         // would install the other kind beside it. The one running has to be
@@ -132,12 +138,15 @@ final class HelperClient: ObservableObject {
             // binaries are what it is, and can be compared while it is dead.
             let stale = installedToolIsStale
             askContract { [weak self] theirs in
-                guard let self, theirs < HelperInfo.contract || stale else { return }
+                guard let self, theirs < HelperInfo.contract || stale else {
+                    return asked(false)
+                }
                 Log.app.notice(
                     "the installed helper answers contract \(theirs, privacy: .public), this build wants \(HelperInfo.contract, privacy: .public), binary differs: \(stale, privacy: .public); asking it to replace itself"
                 )
                 self.askItToRefreshItself { [weak self] replaced in
-                    guard let self else { return }
+                    guard let self else { return asked(false) }
+                    asked(replaced)
                     guard replaced else {
                         // Written down and left there. This runs on the way in,
                         // and an administrator panel raised by starting an

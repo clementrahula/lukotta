@@ -2475,7 +2475,10 @@ group("theHelperSaysWhichBuildItIs") {
     let client =
         (try? String(contentsOfFile: "sources/Lukotta/HelperClient.swift", encoding: .utf8)) ?? ""
     expect(helper.contains("func helperVersion("), "the helper can say which build it is")
-    expect(client.contains("func replaceIfStale()"), "and the app asks")
+    // The name, not the whole signature: it grew a completion that says
+    // whether a replacement was actually asked for, and pinning the empty
+    // parameter list made a real improvement look like a broken test.
+    expect(client.contains("func replaceIfStale("), "and the app asks")
 
     // And the answer is used to decide staleness, which it was not before.
     //
