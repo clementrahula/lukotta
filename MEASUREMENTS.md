@@ -612,3 +612,22 @@ Three mechanisms become two:
     ext with a journal      data=journal, costs nothing
     XFS, and anything the
     app cannot see inside   client asked for stable writes
+
+## What stable writes cost an encrypted drive, on the app's own path — 2026-09-03
+
+Measured with a temporary switch in a dev build, both halves on the app's path,
+2000 small files:
+
+    LUKS -> ext4, without stable writes    61 s
+    LUKS -> ext4, with stable writes       60 s
+
+Nothing. The same inversion as XFS: the earlier figure of 12 s to 17 s was
+taken on the raw engine path and with a corpus carrying a gigabyte-apparent
+sparse file, and it does not describe what the app does.
+
+The heavy corpus could not be run here for the comparison: the LUKS fixture is
+about a gigabyte and the corpus needs 1089 MB of it. So the honest statement is
+that containers pay nothing on the many-small-files extreme, and the large-file
+extreme is unmeasured on this path rather than known to be free.
+
+The temporary switch was reverted and is not in the tree.
