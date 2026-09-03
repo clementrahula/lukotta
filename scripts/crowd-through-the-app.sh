@@ -38,6 +38,22 @@ APP="$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)"
 APP_ID="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' \
   "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || echo com.lukotta)"
 
+# And whether this bundle can be driven at all.
+#
+# The headless switches live inside `#if DEVTOOLS`, and a beta or release build
+# does not carry them. Handed --drive anyway the app does not complain: it
+# launches, hides its window and sits in its run loop until something kills it,
+# which reads exactly like a mount that hangs and was read as one for most of a
+# morning. One second of strings answers it.
+can_be_driven() {
+  strings -a "$APP" 2>/dev/null | /usr/bin/grep -q -- "--drive"
+}
+
+can_be_driven || {
+  echo "error: $APP_BUNDLE has no --drive; it was not built with devtools" >&2
+  echo "       build one with LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
+  exit 2
+}
 [ -f "/Library/LaunchDaemons/$APP_ID.helper.plist" ] || {
   echo "error: no daemon for $APP_ID; this channel cannot mount on this Mac" >&2
   exit 2

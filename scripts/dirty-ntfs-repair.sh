@@ -83,11 +83,28 @@ where() {
 # entirely about the machine. Installing a channel's first daemon asks for an
 # administrator password, so the answer is to run this against a channel that
 # has one, and to say which.
+APP="$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)"
+# And whether this bundle can be driven at all.
+#
+# The headless switches live inside `#if DEVTOOLS`, and a beta or release build
+# does not carry them. Handed --drive anyway the app does not complain: it
+# launches, hides its window and sits in its run loop until something kills it,
+# which reads exactly like a mount that hangs and was read as one for most of a
+# morning. One second of strings answers it.
+can_be_driven() {
+  strings -a "$APP" 2>/dev/null | /usr/bin/grep -q -- "--drive"
+}
+
 daemon_is_there() {
   [ -f "/Library/LaunchDaemons/$APP_ID.helper.plist" ]
 }
 
 prepare_actions() {
+  if ! can_be_driven; then
+    echo "error: $APP_BUNDLE has no --drive; it was not built with devtools" >&2
+    echo "       build one with LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
+    return 2
+  fi
   if ! daemon_is_there; then
     echo "error: no daemon for $APP_ID; this channel cannot mount on this Mac" >&2
     echo "       installed: $(find /Library/LaunchDaemons -name 'com.lukotta*.helper.plist' \
