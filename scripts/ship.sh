@@ -29,7 +29,17 @@
 # to be countersigned: running this is the decision to ship.
 set -euo pipefail
 
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# The repository, taken from where this script really lives -- except when it
+# is running from the copy below, which lives in a temporary directory and
+# whose parent is not the repository at all. That mistake made the first run
+# after the copy was introduced look for the appcast in /var/folders/../ and
+# refuse to ship, which is exactly the kind of obstacle the copy exists to
+# prevent.
+if [ -n "${LUKOTTA_SHIP_HERE:-}" ]; then
+  HERE="$LUKOTTA_SHIP_HERE"
+else
+  HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+fi
 cd "$HERE"
 
 # Run from a copy of itself, always.
@@ -54,7 +64,7 @@ if [ "${LUKOTTA_SHIP_COPY:-0}" != "1" ]; then
   __copy="$(/usr/bin/mktemp -t lukotta-ship)"
   cp "$HERE/scripts/ship.sh" "$__copy"
   trap 'rm -f "$__copy"' EXIT
-  LUKOTTA_SHIP_COPY=1 exec bash "$__copy" "$@"
+  LUKOTTA_SHIP_COPY=1 LUKOTTA_SHIP_HERE="$HERE" exec bash "$__copy" "$@"
 fi
 
 CHANNEL="${1:-beta}"
