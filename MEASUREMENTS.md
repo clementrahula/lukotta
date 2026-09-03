@@ -1907,10 +1907,30 @@ the file it lives in. The truncation is not the app's doing directly: the
 discard comes from the guest and the image driver turns it into a shorter file.
 But the app is what puts a person's image under that driver.
 
-Not yet known, and each is a separate measurement: whether the app's own mounts
-enable discard; whether a partial discard truncates or punches; and whether the
-device route -- a real drive rather than an image -- is affected at all, where
-there is no file to shorten.
+**Measured, and the reach is much smaller than the first result suggested.**
+
+The app never asks for `discard`: the word does not appear as a mount option
+anywhere in its sources. But the guest kernel is 6.12, and btrfs turns it on by
+itself -- read out of `/proc/mounts` inside the machine:
+
+    discard=async
+
+So btrfs does issue discards in ordinary use. The question is what an ordinary
+discard does to the file, and the answer is nothing:
+
+    512 MB btrfs image, wrote 200 MB, deleted it, synced, unmounted
+    before   536,870,912 bytes
+    after    536,870,912 bytes
+
+Freeing blocks does not shorten the file. What shortens it is a discard over
+the *whole device*, which is what `mkfs` issues and what nothing in ordinary
+use does. Somebody writing and deleting files -- even on btrfs, even with
+discard on -- is not at risk, and that is the case that matters.
+
+What remains true and worth keeping: making a fixture with `mkfs` inside the
+guest silently shortens the image, which is how two of this project's fixtures
+were quietly broken and how they would be broken again. The image must be
+re-extended after a `mkfs`, and both fixtures now are.
 
 The btrfs fixture was not damaged by neglect. It was made this way, and would
 have been made this way again by anybody following the same steps.
