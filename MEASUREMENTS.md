@@ -1366,6 +1366,18 @@ two lines -- a whole disk with no partition table, which the scan calls Linux:
 Before today the second line read `linux true`, the Microsoft ladder never ran,
 and the repair action was never written.
 
+**And it was on the screen the whole time.** `Capacity.now` takes the ceiling
+straight from the addresses that can serve, and the drive list puts that number
+in a sentence when the ceiling is reached:
+
+    "N drives or images are open. You can only have N open at the same
+     time. Eject one to open another."
+
+So with ten addresses the app told the person their Mac holds ten, beside a
+product that says a dozen. Nobody had to look at a log to see this one -- it
+was written on the window, in words, and read as a fact about the machine
+rather than a bug. It says twelve now.
+
 ### Every stalled run wrote an empty log — 2026-09-03
 
 The headless route prints what it is doing, and it is nearly always read from a
