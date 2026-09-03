@@ -73,6 +73,16 @@ DEVS=()
 fail=0
 
 clean_up() {
+  # What this run wrote is taken off again before the volumes go.
+  #
+  # It never was, and the fixtures are 64 MB, so every run left another sixty
+  # files behind: after a few runs one volume showed 16 MB free where its
+  # neighbour showed 37, which reads exactly like a volume that did not receive
+  # its copy. It was leftovers, and the next few runs after that would have
+  # failed for want of space with nothing wrong with the app.
+  for point in $(mount | /usr/bin/grep -oE '/Volumes/CROWD[0-9]+' | sort -u); do
+    rm -rf "$point/crowd-write" >/dev/null 2>&1
+  done
   for point in $(mount | /usr/bin/grep -oE '/Volumes/CROWD[0-9]+' | sort -u); do
     umount "$point" >/dev/null 2>&1 || umount -f "$point" >/dev/null 2>&1
   done
