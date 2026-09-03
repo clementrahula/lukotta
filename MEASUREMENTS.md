@@ -2501,3 +2501,64 @@ machines and pulls the images with writes still in the air, and then opens the
 twelve again and copies normally. The app is supposed to repair a volume left
 that way — item 7 — so a stale handle on the next open is a repair that did not
 happen, or one that left the volume mountable without leaving it sound.
+
+### The root of the stale handle: a dangling index entry ntfs3 refuses — 2026-09-03
+
+`interrupted-then-crowd.sh` — twelve opened, copied onto, the machines shot and
+the images pulled with writes in the air, then the twelve opened again:
+
+    round 1, 2 and 3, every time:
+      copy onto /Volumes/CROWDn failed:
+        ditto: /Volumes/CROWDn/crowd-write: Invalid argument   (all twelve)
+      byte-identical on 0, wrong on 12
+      RESULT: all 12 opened through the app, 0 byte-identical
+
+All twelve open. Not one can be written to. Reproducible in every round.
+
+**What the app does, from its own log.** ntfs3 refused the volume — "NTFS is
+either inconsistent, or there is a hardware fault" — ntfs-3g refused it too,
+then the repair rung ran `ntfsfix -n` to check and `ntfsfix -d` to correct,
+which reported "processed successfully", and the volume mounted read-write.
+Item 7's repair works: the app does repair and does not demote to read-only.
+
+**What the repair leaves behind.** The kernel names it exactly:
+
+    ntfs3(vda): MFT: r=1b, expect seq=4 instead of 8!
+    ntfs3(vda): Mark volume as dirty due to NTFS errors
+
+The interrupted copy left the parent directory's index entry pointing at MFT
+record 27 with sequence number 4, while the record itself carries sequence 8.
+ntfs3 checks that sequence and refuses — correctly; it is the protection that
+stops a handle resolving to a different file after a record is reused. ntfsfix
+does not repair it, because ntfsfix is not a chkdsk. There is no chkdsk here:
+the guest carries ntfsfix, ntfsinfo, ntfsls, ntfscat, ntfsclone, ntfsundelete
+and no checker at all.
+
+**Measured, on one volume, both drivers, dirty flag cleared before each:**
+
+    ntfs3     stat big  ->  Invalid argument
+    ntfs-3g   stat big  ->  inode 27, directory, readable, and writable
+
+So the driver is the whole difference. Over NFS the same refusal reaches the
+Mac as errno 70, "Stale NFS file handle" — which is what a person copying in
+Finder is shown, and it is the fault this whole afternoon was chasing.
+
+**The name is poisoned, not just the folder.** Under ntfs3 that name cannot be
+read, cannot be deleted, and cannot be recreated:
+
+    mkdir /mnt/x/big  ->  Stale file handle
+
+Removing it under ntfs-3g takes it out of ntfs-3g's listing and leaves ntfs3
+refusing the name exactly as before. So a person who pulls a drive out during a
+copy gets a folder they can never open, never delete, and never copy into
+again — and the app hands that volume back saying it opened fine.
+
+**Why it recurs on every open rather than settling.** ntfs3 marks the volume
+dirty when it meets the bad entry. On the next open, dirty means ntfs3 refuses,
+the ladder reaches the repair rung, `ntfsfix -d` clears the flag, and the volume
+is handed back to ntfs3 — which meets the same entry again. The repair is
+undoing the driver's own protective marking, once per open, forever.
+
+**Detection is cheap, and was measured:** a read-only ntfs3 mount reports
+nothing at mount time and two errors the moment the containing directory is
+listed. So ntfs3 will say the volume is unfit for ntfs3, if anybody asks it.
