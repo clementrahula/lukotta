@@ -74,7 +74,7 @@ public enum Mounter {
             [.posixPermissions: 0o700],
             ofItemAtPath: expectURL.path)
 
-        var inputs = MountScript.Inputs(
+        let inputs = MountScript.Inputs(
             enginePath: engine.path,
             devicePath: drive.devicePath,
             driveName: drive.name,
@@ -101,14 +101,11 @@ public enum Mounter {
             // Read from the volume itself, here rather than in the script,
             // for the same reason the LUKS memory floor is: the bytes are
             // this user's to read, and the answer decides a mount option.
-            durability: ExtJournal.durabilityOption(forDevice: drive.devicePath))
-        // A container hides the superblock the option above is chosen from, so
-        // ask the client for stable writes instead. See askForStableWrites.
-        if LUKSHeader.isContainer(forDevice: drive.devicePath)
-            || ExtJournal.needsStableWrites(forDevice: drive.devicePath)
-        {
-            inputs.askForStableWrites()
-        }
+            durability: ExtJournal.durabilityOption(forDevice: drive.devicePath)
+                // A container hides the superblock that option is read
+                // from, so it gets the blunt one: `sync` is a VFS option
+                // and means the same to every filesystem inside.
+                ?? (LUKSHeader.isContainer(forDevice: drive.devicePath) ? "sync" : nil))
         let script = MountScript.build(inputs)
 
         let scriptURL = workspace.root.appendingPathComponent("mount.sh")

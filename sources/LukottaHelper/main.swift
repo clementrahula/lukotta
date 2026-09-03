@@ -429,14 +429,11 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 luksMinRamMiB: luksFloor(devicePath: devicePath),
                 // The daemon runs as root and can read any device node, so
                 // this is the one place the answer is always available.
-                durability: ExtJournal.durabilityOption(forDevice: devicePath))
-            // A container hides the superblock that option is chosen from, so
-            // the client is asked for stable writes instead.
-            if LUKSHeader.isContainer(forDevice: devicePath)
-                || ExtJournal.needsStableWrites(forDevice: devicePath)
-            {
-                inputs.askForStableWrites()
-            }
+                durability: ExtJournal.durabilityOption(forDevice: devicePath)
+                    // A container hides the superblock that option is read
+                    // from, so it gets the blunt one: `sync` is a VFS option
+                    // and means the same to every filesystem inside.
+                    ?? (LUKSHeader.isContainer(forDevice: devicePath) ? "sync" : nil))
             let script = MountScript.build(inputs)
 
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")

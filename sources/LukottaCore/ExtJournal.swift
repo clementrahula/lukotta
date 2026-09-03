@@ -45,18 +45,6 @@ public enum ExtJournal {
     /// XFS writes this at the very front of its superblock.
     public static let xfsMagic: [UInt8] = Array("XFSB".utf8)
 
-    /// Whether this volume needs the client asked for stable writes, because
-    /// nothing cheaper will do.
-    ///
-    /// True for XFS, which has no data-journalling mode, and true for anything
-    /// this app cannot see inside. Both lose the contents of files that were
-    /// fsynced when the machine dies, and both are fixed the same way.
-    public static func needsStableWrites(forDevice path: String) -> Bool {
-        guard let bytes = read(path) else { return false }
-        return bytes.count >= xfsMagic.count
-            && Array(bytes.prefix(xfsMagic.count)) == xfsMagic
-    }
-
     /// The mount option this volume needs, or nil where it needs none.
     ///
     /// Two filesystems lose the contents of files that were fsynced before the
@@ -80,10 +68,26 @@ public enum ExtJournal {
     public static func durabilityOption(forDevice path: String) -> String? {
         guard let bytes = read(path) else { return nil }
         if isJournalled(superblock: bytes) { return "data=journal" }
-        // XFS has no data-journalling mode -- its journal covers metadata and
-        // nothing else -- so there is no cheap word for it here. It is handled
-        // the same way a container is, by asking the client for stable writes,
-        // which is one mechanism rather than two and measured no dearer.
+        // XFS has no data-journalling mode: its journal covers metadata and
+        // nothing else, so the word here is the blunt one.
+        //
+        // It was briefly moved onto a synchronous client instead, on a
+        // measurement that only looked at small files. That was wrong and
+        // shipped: a synchronous client writes a large file at 3 MB/s where an
+        // ordinary one manages 190, and `-o sync` in the guest costs nothing on
+        // a large file at all. The full picture, on a fresh XFS volume:
+        //
+        //     no option        190 MB/s large,  44 s for 2000 small files
+        //     -o sync          190 MB/s large,  65 s for 2000 small
+        //     client sync        3 MB/s large,  43 s for 2000 small
+        //
+        // Half a minute on a folder of small files is worth paying. A sixtieth
+        // of the speed on every large file is not.
+        if bytes.count >= xfsMagic.count,
+            Array(bytes.prefix(xfsMagic.count)) == xfsMagic
+        {
+            return "sync"
+        }
         return nil
     }
 

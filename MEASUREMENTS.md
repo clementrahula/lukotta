@@ -653,3 +653,40 @@ argument:
 
 The durability work adds no click, no prompt, no message, and no fallback. On
 the evidence here it costs nothing measurable either.
+
+
+## CORRECTION: three A/B runs were void, and 1.22.4 shipped a regression
+
+The switch I added to compare stable writes on and off went into `Mounter.swift`.
+The `--drive` route does not go through Mounter -- it goes through the
+privileged helper -- so the switch never applied and both halves of every
+comparison had stable writes on. These are void and must not be believed:
+
+    LUKS+ext4, 61 s vs 60 s, 2000 small files
+    LUKS+ext4, 399 s vs 390 s, heavy corpus
+    XFS large file, 3 MB/s vs 3 MB/s
+
+What is true, measured directly through the engine on a fresh XFS volume with
+the mount table checked for `synchronous` each time:
+
+    no option        190 MB/s on a large file
+    guest -o sync    190 MB/s on a large file
+    client sync        3 MB/s on a large file
+
+A synchronous client writes a large file at a sixtieth of the speed. The
+earlier "95 MB/s with sync" was a stale mount that was not synchronous at all;
+the mount table said so and I had not looked.
+
+So **1.22.4 shipped a regression**: it moved XFS from the guest option onto a
+synchronous client on the strength of a small-files measurement, and large
+files on XFS went from 190 MB/s to 3. 1.22.3 put encrypted drives on the same
+mechanism and they have the same fault.
+
+Both now use the guest's `-o sync`, which is 190 MB/s on large files and costs
+about half a minute on two thousand small ones. `sync` is a VFS option and
+means the same to whatever filesystem is inside a container, so one answer
+covers both.
+
+The lesson, and it is the same one as the four instrument faults: check that
+the thing you are varying actually varied. The mount table said `synchronous`
+and I did not read it until the numbers stopped making sense.
