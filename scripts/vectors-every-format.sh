@@ -53,8 +53,11 @@ for name in $FIXTURES; do
     | while read -r dev; do hdiutil detach "$dev" -quiet >/dev/null 2>&1; done
   sleep 2
 
+  # LUKOTTA_VECTORS so this can be run from copies. A script edited while it
+  # is running resumes at a shifted byte offset and dies mid-line, which cost a
+  # measurement at 12 of 12 today and half a release twice.
   THROUGH_APP=1 LUKOTTA_PASSPHRASE="$PASSPHRASE" \
-    bash "$HERE/scripts/integrity-vectors.sh" "$image" "$ENGINE"
+    bash "${LUKOTTA_VECTORS:-$HERE/scripts/integrity-vectors.sh}" "$image" "$ENGINE"
   status=$?
   ran=$((ran + 1))
   [ "$status" -eq 0 ] || failed=$((failed + 1))
