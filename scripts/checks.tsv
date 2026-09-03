@@ -31,7 +31,7 @@
 goal1	goal	slow	writing does not stall	bash scripts/writing-does-not-stall.sh
 goal2	goal	slow	no crash copying through Finder, both extremes	bash scripts/with-a-drive-open.sh ntfs-vectors.img bash scripts/finder-copy-cycles.sh
 goal3	goal	slow	nothing user-visible during a copy	bash scripts/reclaims-a-poisoned-name.sh
-goal4	goal	slow	NTFS byte-identical (BitLocker needs the real drive)	bash scripts/integrity-vectors.sh ntfs-vectors.img
+goal4	goal	slow	NTFS byte-identical (BitLocker needs the real drive)	THROUGH_APP=1 bash scripts/integrity-vectors.sh "$HOME/.lukotta-testvols/ntfs-vectors.img" "$LUKOTTA_ENGINE"
 goal5	goal	slow	LUKS and the Linux filesystems inside it	bash scripts/vectors-every-format.sh
 goal6	goal	slow	every other format the app advertises	bash scripts/vectors-every-format.sh
 goal7	goal	slow	a dirty NTFS volume is repaired, data intact	bash scripts/dirty-ntfs-repair.sh
@@ -44,7 +44,7 @@ private	privacy,release	fast	no release carries anything of the owner's	/usr/bin
 casks	release	fast	the published casks point at files that exist	bash scripts/check-casks.sh
 changelog	release	fast	the release notes read the way the approved ones do	/usr/bin/python3 scripts/check-changelog.py
 firstrun	engine	slow	a first run on a new install opens a drive	bash scripts/first-run-open.sh
-heals	engine	slow	a removed Linux environment is put back by itself	bash scripts/heals-itself.sh
-homes	engine	slow	two apps using the engine do not share a home	bash scripts/homes-are-separate.sh
+heals	engine	slow	a removed Linux environment is put back by itself	LUKOTTA_APP="${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}" bash scripts/heals-itself.sh
+homes	engine	slow	two apps using the engine do not share a home	LUKOTTA_APP="${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}" bash scripts/homes-are-separate.sh
 torture	integrity	slow	a corpus copied onto a drive reads back byte for byte	bash scripts/copy-torture.sh
 forks	integrity	slow	extended attributes and resource forks survive	bash scripts/with-a-drive-open.sh ntfs-vectors.img bash scripts/xattr-forks.sh
