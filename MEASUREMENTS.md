@@ -2451,3 +2451,28 @@ one of them shares is the twelve-way first write itself. The harness now watches
 a stale handle for three minutes and records whether the bytes come back, which
 is the one thing that has never been captured and the thing that decides
 whether this is a wrong message or a lost file.
+
+### A withdrawn reading, and why the harness could make one — 2026-09-03
+
+A run reported this, and it read like the worst possible finding:
+
+    /Volumes/CROWD4 could not be read: cd: /Volumes/CROWD4/crowd-write: No such file or directory
+      asked again: still failing
+      room: such free of /Volumes/CROWD4:
+      healed after 150s, 16 of 60 files
+
+A volume gone mid-copy and returning with 16 of 60 files would be data loss.
+It is not what happened. Those volumes were still full from the previous
+experiment — nine of twelve failed with "No space left on device" in the same
+run — so the copy never created `crowd-write` at all. The readback's `cd` then
+failed, and the shell's own message went through the branch that pulls a
+filename out of `find`'s complaint: hence a path nobody had asked about, a `df`
+of a mount point that was perfectly fine, and a three-minute watch, all
+reported as the stale-handle fault that branch exists to catch.
+
+**Withdrawn.** No volume disappeared and no data was lost in that run.
+
+Two things fixed rather than remembered: a missing directory now says the copy
+made nothing, and a filename is only taken from a line that carries one. And
+the twelve fixtures are reformatted before a hunt, because leftovers from an
+earlier experiment are what put the volumes in that state in the first place.
