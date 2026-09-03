@@ -1878,3 +1878,39 @@ answered for btrfs either way -- it needs a fixture that is whole.
 The image was probably cut short when it was made; `btrfs-vectors.img` has no
 maker in `scripts/`, so it was created by hand at some point and has been
 carrying this ever since.
+
+### A discard inside the guest destroys the image file — 2026-09-03
+
+Found while remaking the btrfs fixture, which had been truncated. It had not
+been truncated when it was made; it was truncated by making it.
+
+    dd a 512 MB file, open it through the engine, blkdiscard /dev/vda
+
+    before   536,870,912 bytes
+    after              0 bytes
+
+The file is emptied. Not sparse -- `du` and the apparent size both go to
+nothing. The same thing at a smaller scale explains the fixtures:
+
+    mkfs.ext4 on a 1 GiB image     1,073,741,824 -> 1,073,676,288   64 KiB lost
+    mkfs.btrfs on a 1 GiB image    1,073,741,824 ->    92,667,904   981 MB lost
+
+ext4 writes its backup superblocks near the end of the device, so almost
+nothing is discarded past them; btrfs writes only at the front, so everything
+after about eighty-eight megabytes goes. The file ends at the highest offset
+still written, which is what a discard implemented as a truncate would do.
+
+**What this means, stated carefully.** Every fixture in this project is a disk
+image, and so is every image a person opens with the app. A filesystem that
+issues discards -- mounted `-o discard`, or `fstrim`, or a `mkfs` -- can shorten
+the file it lives in. The truncation is not the app's doing directly: the
+discard comes from the guest and the image driver turns it into a shorter file.
+But the app is what puts a person's image under that driver.
+
+Not yet known, and each is a separate measurement: whether the app's own mounts
+enable discard; whether a partial discard truncates or punches; and whether the
+device route -- a real drive rather than an image -- is affected at all, where
+there is no file to shorten.
+
+The btrfs fixture was not damaged by neglect. It was made this way, and would
+have been made this way again by anybody following the same steps.
