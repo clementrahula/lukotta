@@ -1429,3 +1429,19 @@ device node, which is whatever was attached last -- and it was empty. Finding
 it ended the search, so a real passphrase saved under any of the names after it
 was never reached, and the drive asked for one again. Empty is not a
 passphrase, on either route.
+
+### Nine open through the app, mid-run — 2026-09-03
+
+Taken while the crowd measurement was running, before it reached twelve, on a
+16 GB Mac with nothing else heavy on it:
+
+    engines                31 processes, 1232 MB resident in total
+    memory free            59 percent of the machine
+    swap in use            1740 MB of 3072 MB
+
+The swap figure is the machine's, not this app's -- it was already in use
+before any of this started -- but it is the number that matters for the 8 GB
+claim, and it is why item 8 wants the machine it names rather than an argument
+from a 16 GB one. `scripts/eight-gig-pressure.sh` exists to hold ballast and
+measure inside what an 8 GB Mac would have left, and running it against the
+app's own route is what item 8 still needs.
