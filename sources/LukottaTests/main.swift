@@ -5385,6 +5385,54 @@ group("theRepairRefusesWhatItWouldDamage") {
     try? FileManager.default.removeItem(at: dir)
 }
 
+group("aPoisonedNameIsFreedAfterTheVolumeIsServing") {
+    // What an interrupted copy leaves is not the dirty flag. It is a directory
+    // index entry whose MFT reference keeps a sequence the record has moved
+    // past, which ntfs3 refuses -- and neither ntfsfix nor ntfs-3g nor anything
+    // else in the guest puts it back. Measured: the folder cannot be read,
+    // deleted or recreated, and every later copy to that name fails.
+    //
+    // Moving it aside frees the name, which is the thing somebody actually
+    // needs, and it is done after the mount so nobody waits for a scan.
+    let script = MountScript.build(sampleInputs(kind: .microsoft))
+    expect(script.contains("after_mount ="), "the repair rung has something to do after mounting")
+    expect(
+        script.contains(".lukotta-unreadable-"),
+        "and what it does is move the unreadable entry aside, under a hidden name")
+    expect(
+        script.contains("nohup") && script.contains("&\'"),
+        "detached, so the drive appears at once and the names are freed behind it")
+
+    // The action file is TOML and the value is single-quoted, so an apostrophe
+    // anywhere in the walk ends the string and takes the rest of the config
+    // with it. The awk in volumeAction carries the same rule and the same note.
+    expect(
+        !MountScript.reclaimUnreadable.contains("'"),
+        "no apostrophes: the walk lives inside a single-quoted TOML value")
+
+    // A volume that came up clean has nothing to look for, so the walk belongs
+    // to the repair rung and not to every NTFS mount.
+    let readOnly = MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))
+    expect(
+        !readOnly.contains(".lukotta-unreadable-"),
+        "a drive opened read-only is not written to, and is not walked either")
+
+    // Bounded. A drive with millions of directories must not leave a shell
+    // walking it for ever.
+    expect(
+        MountScript.reclaimUnreadable.contains("\(MountScript.reclaimDirectoryLimit)"),
+        "the walk stops after a bounded number of directories")
+
+    // ls, not stat: a poisoned directory stats perfectly well and refuses to be
+    // listed, which is exactly how it was missed the first time.
+    expect(
+        MountScript.reclaimUnreadable.contains("if ls "),
+        "a directory is judged by whether it can be listed")
+    expect(
+        !MountScript.reclaimUnreadable.contains("if stat "),
+        "and not by whether it can be statted, which a poisoned one does perfectly well")
+}
+
 group("aDirtyVolumeIsRepairedRatherThanDemoted") {
     // Windows leaves a volume dirty and both drivers refuse to write to it:
     // ntfs3 says so in the kernel, ntfs-3g answers the mount with an I/O error.
