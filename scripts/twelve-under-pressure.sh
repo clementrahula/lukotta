@@ -35,7 +35,7 @@ LOG="$SP/twelve-under-pressure.log"
 COPY="$(mktemp -d)"
 trap 'rm -rf "$COPY"' EXIT
 cp scripts/crowd-through-the-app.sh scripts/eight-gig-pressure.sh \
-   scripts/footprint.sh "$COPY/"
+   scripts/footprint.sh scripts/copy-visibility.sh "$COPY/"
 
 echo "opening $COUNT and holding them" | tee "$LOG"
 rm -f /tmp/.crowd-release
@@ -59,6 +59,20 @@ fi
 served_now() { mount | /usr/bin/grep -c ':/mnt/'; }
 echo
 echo "held: $(served_now) volumes served before any pressure"
+
+# Worked before they are squeezed, because the one run in which all twelve died
+# had been through 324 copies first and the run that survived had not. A volume
+# that has just been opened holds almost nothing; one that has been copied onto
+# for ten minutes holds a page cache, and it is the second that a person has
+# when their Mac runs short. Squeezing the empty case only is squeezing the
+# easy one.
+if [ "${EXERCISE:-1}" = "1" ]; then
+  echo
+  echo "working them before the squeeze"
+  CYCLES="${EXERCISE_CYCLES:-15}" FILES="${EXERCISE_FILES:-60}" \
+    bash "$COPY/copy-visibility.sh" 2>&1 | tail -4 | tee -a "$LOG"
+  echo "still served after the work: $(served_now)"
+fi
 
 # Sampled every five seconds rather than thirty, because what is being looked
 # for is the moment they stop being served, and thirty seconds is long enough
