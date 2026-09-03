@@ -61,10 +61,17 @@ public enum ExtJournal {
     /// either way on ext4, and two thousand small ones in two seconds either
     /// way on XFS.
     ///
-    /// btrfs is not here. There is no fixture for it on this machine, so
-    /// whether it has the same fault and whether the same word fixes it are
-    /// both unmeasured -- and an option shipped on a guess is worse than one
-    /// not shipped at all.
+    /// btrfs is not here, and on 2026-09-03 that stopped being an admission
+    /// and became a result. A fixture was made and the vectors run against it
+    /// through the app, with no durability option applied because none is
+    /// chosen for btrfs:
+    ///
+    ///     every fsynced file survived power loss
+    ///     8 of 8 present, 0 wrong, 0 lost
+    ///
+    /// So btrfs does not have the fault that ext4 and XFS have, and needs no
+    /// option. It is still not here, and now that is the measured answer
+    /// rather than the absence of one.
     public static func durabilityOption(forDevice path: String) -> String? {
         guard let bytes = read(path) else { return nil }
         if isJournalled(superblock: bytes) { return "data=journal" }
