@@ -1978,3 +1978,30 @@ it found.
 Still open, and it is the more serious half: the app reported success for a
 mount that never happened. `opened EXFATVEC`, status 0, no volume. Nothing
 downstream can tell that apart from a mount that worked.
+
+### Every format, every vector, on the app's route — 2026-09-03
+
+    NTFS              12 passed, 0 failed
+    ext4              12 passed, 0 failed
+    btrfs             12 passed, 0 failed
+    exFAT             12 passed, 0 failed
+    ext4 in LUKS      12 passed, 0 failed
+    XFS in LUKS       12 passed, 0 failed
+
+Six formats, seventy-two vectors, every one opened through `--drive` the way
+the window opens a drive. Interrupted copies, unmount under load, full volumes,
+repeated mount cycles, permissions, awkward names and shapes, sparse and very
+large files, two writers and a reader at once, and the machine killed
+mid-write with every fsynced file surviving.
+
+Before today all of these had only been run against the engine, which cannot
+see what the app puts on top of it. That mattered: getting here found the
+driver ladder handing exFAT to NTFS, the app reporting a mount that never
+happened, two fixtures silently truncated by their own `mkfs`, and four faults
+in my own harness -- each of which produced a confident wrong answer rather
+than an obvious breakage.
+
+What is still not proven, and is not claimed: item 8 on the machine it names,
+and item 10 for XFS writes on a real drive. The full-volume delay inside LUKS,
+129 and 140 seconds against two or three unencrypted, is a real cost and is
+recorded above rather than waved through because the vector counts it a pass.
