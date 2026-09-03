@@ -941,3 +941,33 @@ per write. XFS has no batching equivalent, so on XFS there is no cheap word --
 and the answer is not a better mount option but the thing underneath: nfsd's
 COMMIT, which is where the durability is being lost in the first place. Fix
 that and no filesystem needs an option and nothing pays anything.
+
+## The trade on a real drive, stated exactly — 2026-09-03
+
+The last thing to check was whether the fault even exists on a device, since
+every earlier durability measurement was on an image file. It does. XFS on a
+device node, four files written with `dd conv=fsync`, machine killed:
+
+    no durability option      0 of 4 kept, 4 wrong
+    with -o sync              durable, and 4 MB/s
+
+So on the drives people actually own there is no free choice. Either fsynced
+files are lost when the Mac dies, or every write costs a real device sync.
+
+That is the whole of item 10's remaining gap, stated exactly:
+
+    ext4    data=journal batches into the journal, so it is cheap
+    XFS     has no batching equivalent, so it pays per write on a device
+    NTFS    needs nothing
+    btrfs   needs nothing
+
+The route out is not a mount option. It is nfsd's COMMIT: a write fsynced from
+inside the guest lands, and the same write through nfsd does not, and if that
+were fixed no filesystem would need an option and nothing would pay anything.
+Everything measured tonight points at that one place.
+
+**The decision stands as shipped.** XFS keeps `-o sync`. Losing files somebody
+was told were saved is worse than a slow large copy, and the slow copy is at
+least visible and finishes -- 2 cycles of Finder at both extremes passed with
+no dialogue and no drift. But item 10 is not met for XFS, and this is why, and
+it is not going to be argued away.
