@@ -151,13 +151,35 @@ echo "byte-identical on $identical, wrong on $differing"
 [ "$differing" -eq 0 ] || fail=1
 
 # What it costs, and whether the Mac is still usable while it does.
-rss="$(ps -Ao rss=,command= | /usr/bin/grep -E 'anylinuxfs|krun|vmproxy' \
-  | /usr/bin/grep -v grep | awk '{sum += $1} END {print int(sum / 1024)}')"
-procs="$(pgrep -c -f 'anylinuxfs|krun|vmproxy' 2>/dev/null || echo 0)"
+# One pass of ps for both numbers.
+#
+# They were taken by two different expressions and printed side by side, which
+# produced "0 processes, 2091 MB resident" -- a line that cannot be true, and
+# that says plainly that one of the two was not working. Counted from the same
+# rows that are summed, so they agree or neither is printed.
+engine_ps="$(ps -Ao rss=,command= | /usr/bin/grep -E 'anylinuxfs|krun|vmproxy' \
+  | /usr/bin/grep -v grep)"
+procs="$(printf '%s\n' "$engine_ps" | /usr/bin/grep -c .)"
+rss="$(printf '%s\n' "$engine_ps" | awk '{sum += $1} END {print int(sum / 1024)}')"
 echo "engines: $procs processes, ${rss:-0} MB resident in total"
-shell_ms="$( { time -p /bin/echo hello >/dev/null ; } 2>&1 \
-  | awk '/^real/ {printf "%d", $2 * 1000}')"
-echo "shell responsiveness: ${shell_ms} ms for a trivial command"
+
+# Something the size of what a person does, timed with a clock that can see it.
+#
+# `time -p` reports hundredths of a second and echoing a word takes far less
+# than one, so the old line read "0 ms" whatever the machine was doing: a
+# measurement with no resolution at the size of the thing being measured. A
+# listing of the home directory is what eight-gig-pressure.sh reports, so the
+# two are comparable, and ten of them average out the noise.
+shell_ms="$(/usr/bin/python3 - "$HOME" <<'MEASURE'
+import subprocess, sys, time
+began = time.perf_counter()
+for _ in range(10):
+    subprocess.run(["/bin/ls", "-l", sys.argv[1]],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+print(int((time.perf_counter() - began) / 10 * 1000))
+MEASURE
+)"
+echo "shell responsiveness: ${shell_ms} ms to list the home directory"
 
 # And the same dozen measured as an 8 GB Mac would feel them, if asked.
 #
