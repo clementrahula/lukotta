@@ -236,4 +236,27 @@ for i in $(seq 1 20); do
   sleep 15
 done
 
+# And what a person reading the site is told, which is not the same thing as
+# what the file says. The file was written and committed and pushed, and the
+# site went on serving the old number for as long as the worker took to deploy
+# and the cache took to turn over. "The website says 1.22.7" was a statement
+# about a file on this Mac.
+if [ "$CHANNEL" = "release" ]; then
+  say "Waiting for the site to say it"
+  for i in $(seq 1 20); do
+    shown="$(curl -sS --max-time 15 "https://lukotta.com/?ship=$i" 2>/dev/null \
+      | /usr/bin/grep -oE '1\.[0-9]+\.[0-9]+' | head -1)"
+    if [ "$shown" = "$FULL" ]; then
+      echo "    lukotta.com offers $FULL"
+      break
+    fi
+    if [ "$i" = 20 ]; then
+      echo "    lukotta.com still offers ${shown:-nothing} after five minutes" >&2
+      echo "    the release is out; the site is behind and wants looking at" >&2
+      break
+    fi
+    sleep 15
+  done
+fi
+
 printf '\n%s is out. Anyone on the %s channel is offered it now.\n' "$FULL" "$CHANNEL"
