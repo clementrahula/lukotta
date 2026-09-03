@@ -121,15 +121,23 @@ fi
 # waits for the checks to finish would wait ten minutes on every ship, and the
 # thing worth catching is a failure that has already happened.
 if command -v gh >/dev/null 2>&1; then
+  # The last run that concluded anything, not the last that stopped. Pushing
+  # twice in a minute cancels the first run, and a cancelled run is not a
+  # failure -- it is a run that never finished having an opinion. Reading it as
+  # one refused a release over a superseded build, which is exactly the kind of
+  # thing that must never stand between a finished build and somebody being
+  # able to install it.
   CI="$(gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --status completed \
-    --limit 1 --json conclusion -q '.[0].conclusion' 2>/dev/null || true)"
+    --limit 15 --json conclusion \
+    -q '[.[].conclusion | select(. == "success" or . == "failure")][0]' 2>/dev/null || true)"
   case "${CI:-unknown}" in
     success) echo "    the checks are green" ;;
-    unknown) echo "    no completed check run to read; going on" ;;
+    unknown|null) echo "    no conclusive check run to read; going on" ;;
     *)
       echo "    the checks are ${CI}. Fixing that comes before shipping:" >&2
       gh run list --branch "$(git rev-parse --abbrev-ref HEAD)" --status completed \
-        --limit 1 --json databaseId -q '.[0].databaseId' 2>/dev/null \
+        --limit 15 --json databaseId,conclusion \
+        -q '[.[] | select(.conclusion == "failure")][0].databaseId' 2>/dev/null \
         | xargs -I{} gh run view {} --log-failed 2>/dev/null | tail -20 >&2
       die "the checks are ${CI}"
       ;;
