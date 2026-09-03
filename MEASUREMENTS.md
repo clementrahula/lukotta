@@ -2346,3 +2346,28 @@ its copy. It had received it: the others were carrying sixty files from each
 earlier run, because the harness had never removed what it wrote onto 64 MB
 fixtures. A few runs later they would have begun failing for want of space with
 nothing wrong with the app. The harness cleans up after itself now.
+
+### One just-opened volume is not enough: 25 first-writes, all clean — 2026-09-03
+
+`first-write-after-open.sh` on drive8 — the image both stale handles appeared
+on — attaching it, opening it through the app, and writing sixty files onto it
+the instant the open returned, twenty-five times over.
+
+    RESULT: 25 clean, 0 stale handles, 0 short, 0 did not run
+
+So the fault is not "a copy onto a volume that has just been opened" either. It
+needs the twelve opening at once as well: both occurrences were the first write
+after the twelfth of twelve came up, and 504 copies onto already-open volumes
+and 25 first-writes onto a single one produced none.
+
+That leaves contention in one window — twelve microVMs all just started, all
+being written to at once — and the fault rate across every twelve-volume run
+so far is 2 in 7.
+
+**Two harness faults found on the way, both able to invent a failure.** The
+twelve-volume harness leaves its images attached when it is interrupted, and
+this one would then have attached the same image file a second time: two disks
+backed by the same bytes, two writers, a corrupted fixture and worthless
+numbers from it. It refuses now. And it printed only when something went wrong,
+so a working run and a hung one looked identical from outside — five minutes
+went on deciding which.
