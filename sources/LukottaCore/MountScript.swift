@@ -882,9 +882,17 @@ public enum MountScript {
                 // each time. So it is back on, where it stops ntfs3 rewriting
                 // two megabytes of a damaged volume -- the journal's RSTR
                 // signature among it -- during a mount it then refuses.
-                let chosen =
-                    (driver == "ntfs3" && !i.readOnly && action == tunedActionName)
-                    ? ntfs3ProbeActionName : action
+                // And the ntfs-3g rung gets its own, for the same reason in
+                // reverse: reaching it means ntfs3 refused the volume, which is
+                // the one signal available that says this volume carries the
+                // damage. That rung walks it and frees the names; no other rung
+                // does, so a sound drive is never walked.
+                var chosen = action
+                if driver == "ntfs3" && !i.readOnly && action == tunedActionName {
+                    chosen = ntfs3ProbeActionName
+                } else if driver == "ntfs-3g" && !i.readOnly {
+                    chosen = ntfs3gActionName
+                }
                 return mountCommand(
                     engineQ: engineQ, target: target, driver: driver,
                     options: nfsOptions(i), readOnly: i.readOnly,
@@ -1083,6 +1091,20 @@ public enum MountScript {
     /// because the ntfs-3g rung and the repair rung must not inherit it: if the
     /// probe fails, the whole point is that those two still get their turn.
     public static let ntfs3ProbeActionName = "lukottantfs3"
+
+    /// The action for the rung ntfs3 has already refused.
+    ///
+    /// Reaching ntfs-3g at all means ntfs3 would not have this volume, and the
+    /// only thing that makes ntfs3 refuse an entry is damage of exactly the kind
+    /// an interrupted copy leaves. So this rung, and only this rung, walks the
+    /// volume in the background and frees the names.
+    ///
+    /// It was gated first on the repair rung and then on ntfs3 complaining in
+    /// dmesg. Both were measured and both were wrong: a volume carrying the
+    /// damage never reached the repair, and it is not ntfs3 serving it either --
+    /// the probe fails and ntfs-3g takes it, where the same entries answer EIO
+    /// instead and ntfs3 never says a word.
+    public static let ntfs3gActionName = "lukottantfs3g"
 
     /// How many threads the guest's NFS server runs with.
     ///
@@ -1594,37 +1616,25 @@ public enum MountScript {
     /// No `$NAME` anywhere: the engine reads every action for a shell variable
     /// and refuses to start when it finds one. Hence blkid asked three times
     /// rather than once, as in ntfsRepair above.
-    /// Waits for ntfs3 to say it has met a poisoned entry, and frees the name.
+    /// Where the walk is kept inside the guest.
     ///
-    /// WHY IT WAITS RATHER THAN LOOKS
+    /// Written by `before_mount` and run by `after_mount`, rather than passed
+    /// to `sh -c` as a quoted string. The first version did the latter and could
+    /// never have run: the walk contains double quotes of its own, and they
+    /// closed the `sh -c "..."` around it the moment the guest parsed it. It sat
+    /// in the config looking correct and did nothing. A file has no such
+    /// problem, and it can be read afterwards when something needs explaining.
+    public static let reclaimScriptPath = "/tmp/lukotta-reclaim"
+
+    /// Puts the walk in the guest, as a file, before anything is mounted.
     ///
-    /// The first version of this ran the walk on the repair rung, on the
-    /// reasoning that a volume damaged by an interrupted copy arrives dirty.
-    /// Measured, it does not: a volume carrying the damage mounted on the first
-    /// rung with no repair attempted at all -- `ntfsfix -d` never ran -- and the
-    /// folder was still unusable, which is exactly how the harness saw a stale
-    /// handle on volumes that had opened perfectly normally. Gating on the
-    /// repair missed the case it was written for.
-    ///
-    /// Walking every NTFS volume on every open instead would put a scan of a
-    /// two-terabyte drive behind every mount, for a fault most drives do not
-    /// have. So neither: ntfs3 announces the fault itself the moment anything
-    /// touches the entry -- "MFT: r=1b, expect seq=4 instead of 8!" -- and that
-    /// announcement is what starts the walk. A sound volume never says it and
-    /// pays a `dmesg` read every few seconds for as long as it is open.
-    ///
-    /// The person's first attempt on that folder still fails. Their next one
-    /// works, which is the difference between a drive that recovers by itself
-    /// and one that never does.
-    ///
-    /// No apostrophes: this goes inside a single-quoted TOML value.
-    public static let reclaimWatcher =
-        "seen=0; "
-        + "while true; do "
-        + "now=`dmesg 2>/dev/null | grep -c \"expect seq\"`; "
-        + "if [ \"${now:-0}\" -gt \"$seen\" ]; then seen=$now; \(reclaimUnreadable); fi; "
-        + "sleep 5; "
-        + "done"
+    /// A here-document, so the body needs no escaping beyond the one rule this
+    /// file already lives under: no apostrophes anywhere, because the whole
+    /// thing sits inside a single-quoted TOML value.
+    public static var writeReclaimScript: String {
+        "cat > \(reclaimScriptPath) <<LUKOTTA_RECLAIM_EOF\n"
+            + reclaimUnreadable + "\nLUKOTTA_RECLAIM_EOF"
+    }
 
     /// Frees a name an interrupted copy poisoned, after the volume is serving.
     ///
@@ -1821,13 +1831,17 @@ public enum MountScript {
         description = 'Generated by Lukotta; ntfs3 must pass a read-only probe first'
         \(guestEnvironment)
         before_mount = '\(nfsBlockSize); \(ntfs3Probe)'
-        after_mount = 'nohup sh -c "\(reclaimWatcher)" >/dev/null 2>&1 &'
 
         [custom_actions.\(repairActionName)]
         description = 'Generated by Lukotta; the same, and clears the dirty flag'
         \(guestEnvironment)
         before_mount = '\(nfsBlockSize); \(ntfsRepair)'
-        after_mount = 'nohup sh -c "\(reclaimWatcher)" >/dev/null 2>&1 &'
+
+        [custom_actions.\(ntfs3gActionName)]
+        description = 'Generated by Lukotta; frees names ntfs3 would not touch'
+        \(guestEnvironment)
+        before_mount = '\(nfsBlockSize); \(writeReclaimScript)'
+        after_mount = 'nohup sh \(reclaimScriptPath) >/dev/null 2>&1 &'
         """
     }
 
@@ -1852,6 +1866,7 @@ public enum MountScript {
               { awk 'BEGIN { skip = 0 }
                      /^\\[/ { skip = ($0 == "[custom_actions.\(tunedActionName)]" \\
                                    || $0 == "[custom_actions.\(ntfs3ProbeActionName)]" \\
+                                   || $0 == "[custom_actions.\(ntfs3gActionName)]" \\
                                    || $0 == "[custom_actions.\(repairActionName)]") }
                      !skip' \(configQ) 2>/dev/null; cat \(actionQ); } > \(mergedQ) || return 1
               cat \(mergedQ) > \(configQ)

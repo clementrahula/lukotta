@@ -5403,6 +5403,16 @@ group("aPoisonedNameIsFreedAfterTheVolumeIsServing") {
         script.contains("nohup") && script.contains("&\'"),
         "detached, so the drive appears at once and the names are freed behind it")
 
+    // Run from a file the guest writes, not handed to sh -c as a quoted string.
+    // The walk has double quotes of its own and they closed the sh -c around it,
+    // so the first version sat in the config looking correct and never ran.
+    expect(
+        script.contains("nohup sh \(MountScript.reclaimScriptPath)"),
+        "the walk is run from a file, so its own quotes cannot close it")
+    expect(
+        !script.contains("nohup sh -c"),
+        "and it is not passed through a second round of shell quoting")
+
     // The action file is TOML and the value is single-quoted, so an apostrophe
     // anywhere in the walk ends the string and takes the rest of the config
     // with it. The awk in volumeAction carries the same rule and the same note.
@@ -5415,14 +5425,23 @@ group("aPoisonedNameIsFreedAfterTheVolumeIsServing") {
     // the folder was still unusable, which is how the harness saw a stale handle
     // on volumes that had opened perfectly normally. So the writable ntfs3 rung
     // carries it too.
+    // The rung that walks is the one ntfs3 refused. Measured twice over: the
+    // damaged volume never reaches the repair rung, and it is not ntfs3 serving
+    // it either -- the probe fails, ntfs-3g takes it, and there the same entries
+    // answer EIO while ntfs3 never says a word.
+    let threeGSection = script.components(separatedBy: "[custom_actions.")
+        .first { $0.hasPrefix(MountScript.ntfs3gActionName) } ?? ""
     expect(
-        script.contains("expect seq"),
-        "ntfs3 announcing the fault is what starts the walk")
+        threeGSection.contains("after_mount ="),
+        "the rung ntfs3 refused is the rung that walks the volume")
     let probeSection = script.components(separatedBy: "[custom_actions.")
-        .first { $0.hasPrefix(MountScript.ntfs3ProbeActionName) } ?? ""
+        .first { $0.hasPrefix(MountScript.ntfs3ProbeActionName + "]") } ?? ""
     expect(
-        probeSection.contains("after_mount ="),
-        "and the writable ntfs3 rung watches for it, not only the repair rung")
+        !probeSection.contains("after_mount ="),
+        "and a volume ntfs3 is happy with is not walked at all")
+    expect(
+        script.contains("--fs-driver ntfs-3g") || script.contains("ntfs-3g"),
+        "the ntfs-3g rung is in the ladder for it to attach to")
 
     // A drive opened read-only is not written to, so nothing is moved on it.
     let readOnly = MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))
