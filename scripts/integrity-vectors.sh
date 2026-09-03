@@ -133,6 +133,31 @@ ORIGINAL="$IMAGE"
 # by the next run -- which then measures the previous run's volume, full and
 # already spoiled. That is what "52 MB free" was.
 IMAGE="$WORK/$(basename "$ORIGINAL" .img)-$(basename "$WORK").img"
+
+# What earlier runs left behind, before making one more.
+#
+# The copy is removed on a clean exit and a killed run keeps its 2.7 GB. Fifty
+# such runs -- every interrupted sweep of a night's work -- put 178 GB into the
+# temporary directory and filled a 461 GB disk to 100%. What that looked like
+# was not "the disk is full": it was exFAT failing three integrity vectors it
+# had passed an hour earlier, which is a fault in the app as far as anybody
+# reading the output could tell. A harness that fills the disk invents failures
+# in whatever runs next.
+#
+# So the copies from runs that did not finish are cleared first. They are
+# recognisable: this is the only thing that names a file "<fixture>-tmp.*.img".
+find "$(dirname "$WORK")" -maxdepth 2 -name '*-tmp.*.img' -mmin +5 -delete 2>/dev/null
+
+# And there has to be room for one. Refusing here says what is wrong; running
+# anyway says the filesystem under test is broken.
+need=$(( $(stat -c %s "$ORIGINAL" 2>/dev/null || echo 0) / 1048576 + 512 ))
+free=$(df -m "$(dirname "$WORK")" | tail -1 | awk '{print $4}')
+if [ "${free:-0}" -lt "$need" ]; then
+  echo "error: ${free:-0} MB free where this needs ${need} MB; not starting" >&2
+  echo "       a run that fills the disk reports the app as broken instead" >&2
+  exit 2
+fi
+
 printf 'copying the fixture so this run cannot spoil the next one\n'
 cp "$ORIGINAL" "$IMAGE" || { echo "error: could not copy $ORIGINAL" >&2; exit 2; }
 MNT="$WORK/mnt"; mkdir -p "$MNT"
