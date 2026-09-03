@@ -2872,3 +2872,39 @@ mysteriously fails.
 **It stays a failing row.** Not withdrawn, not narrowed: the claim "extended
 attributes and resource forks survive" is false today, a person loses a file
 without being told, and the row says so every time the gate runs.
+
+### Withdrawn: the resource fork was never dropped — 2026-09-03
+
+Two hours ago this file recorded a resource fork as the most serious open
+defect in the project: a file carrying one dropped entirely, `ditto` exiting 0
+having left it behind, Finder using the same machinery, and mount_nfs(8) saying
+the route was closed at the protocol. All of it wrong, and it had stood since
+2026-09-01.
+
+**The fixture wrote sixteen bytes and called them a resource fork.**
+`printf 'RESOURCEFORKDATA' > f.bin/..namedfork/rsrc`. That is not a resource
+fork, and macOS will not build an AppleDouble around it on any filesystem that
+needs one.
+
+Measured, both fixtures, both destinations:
+
+    valid fork   -> local exFAT        data 13 bytes, fork 286 bytes
+    valid fork   -> the app's mount    data 13 bytes, fork 286 bytes
+    invalid one  -> local exFAT        ditto: .BC.T_PKvT4i: Invalid argument
+    invalid one  -> the app's mount    ditto: .BC.T_hQ5awn: Invalid argument
+
+A structurally valid fork — a 256-byte header and an empty resource map, which
+is what an empty fork is on disk — copies through this app perfectly. The
+malformed one fails identically on a plain local exFAT image with no NFS, no
+guest, and none of this app anywhere near it.
+
+**So it was never the NFS stack, never the client, and never this app.** The
+earlier entry reasoned from a real error message to a real-sounding cause and
+never asked whether the thing it was copying was what it claimed to be. The
+mount_nfs(8) finding about NFSv4 named attributes is true and irrelevant: the
+client stores forks in AppleDouble files perfectly well, which is what the 286
+bytes are.
+
+**`forks` holds now**, and it is the check that overturned it — a claim tied to
+something that runs, run once, on a Mac. The same claim in prose survived two
+days.
