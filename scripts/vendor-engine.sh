@@ -329,8 +329,30 @@ echo "  the packed guest keeps its mount points, its permissions and its owner"
 for extra in rootfs.ver config.json umoci.json oci; do
   [ -e "$SRC_ROOTFS/$extra" ] && /usr/bin/ditto "$SRC_ROOTFS/$extra" "$OUT/alpine/$extra"
 done
+# The manifest, with the header umoci writes stripped out.
+#
+# `anylinuxfs init` runs on whoever's Mac built the guest, and umoci records
+# who that was at the top of the mtree:
+#
+#     #    user: <the account>
+#     # machine: <the hostname>.local
+#     #    tree: <the home directory>/.anylinuxfs/alpine/rootfs
+#     #    date: ...
+#
+# Those four lines shipped inside every release, in the application bundle, to
+# everybody who installed it. The digest check above reads the file's *name*
+# and nothing else, and the rest of the file is the manifest proper, so the
+# header is metadata about a machine no user has any business knowing about.
+#
+# Comments are dropped rather than rewritten: a plausible-looking fake user and
+# hostname would be a lie in a file that claims to be provenance.
 for mtree in "$SRC_ROOTFS"/*.mtree; do
-  [ -e "$mtree" ] && cp -f "$mtree" "$OUT/alpine/"
+  [ -e "$mtree" ] || continue
+  # -E, because /usr/bin/sed on macOS is BSD sed and `\|` alternation is a GNU
+  # extension it does not have: without it the expression matches nothing, the
+  # file copies through unchanged, and the strip silently does not happen.
+  /usr/bin/sed -E '/^#[[:space:]]*(user|machine|tree|date):/d' \
+    "$mtree" > "$OUT/alpine/$(basename "$mtree")"
 done
 
 fi  # the guest was packed rather than kept
@@ -363,5 +385,26 @@ done
 remaining="$(/usr/bin/otool -L "$BIN" | tail -n +2 | sed 's/ (compatibility.*//; s/^	//' \
   | grep -vE '^(/usr/lib|/System|@)' || true)"
 [ -z "$remaining" ] || { echo "error: unresolved external references: $remaining" >&2; exit 1; }
+
+# Nothing in what ships may name the machine that built it.
+#
+# There was a check for this and it looked at two binaries, so it could not
+# have found the leak that was actually there -- a header inside the guest's
+# manifest, in a file that is not a binary. This sweeps everything about to be
+# packed, and it counts rather than short-circuits: `grep -q` exits on its
+# first match, the producer feeding it dies of SIGPIPE, and `set -o pipefail`
+# reports that death as failure, so a guard written that way goes quiet in
+# exactly the case it exists for.
+leaked=0
+while IFS= read -r __f; do
+  [ "$(LC_ALL=C strings -a "$__f" 2>/dev/null | grep -cF "$HOME")" -gt 0 ] || continue
+  echo "error: ${__f#"$OUT"/} carries the path of the machine that built it." >&2
+  leaked=$((leaked + 1))
+done < <(/usr/bin/find "$OUT" -type f)
+if [ "$leaked" -gt 0 ]; then
+  echo "       $leaked file(s); nothing is packed." >&2
+  exit 1
+fi
+echo "  nothing packed names this machine"
 
 printf 'Vendored %s (%s)\n' "$OUT" "$(du -sh "$OUT" | awk '{print $1}')"

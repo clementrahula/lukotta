@@ -229,6 +229,10 @@ cp "$HOST" "$GUEST" "$UNPACKER" "$OUT/"
 # person to notice is whoever runs `strings` on a release. Fail the build
 # instead. The home directory is the thing that must not be there; the account
 # name is asked of the system, never written down here.
+# Two binaries were checked, and the leak was in neither of them: it was in the
+# guest's mtree manifest, which is not a binary and was never looked at. The
+# sweep below is over everything that ships instead of over a list somebody
+# remembered to keep up to date.
 for __b in "$OUT/anylinuxfs" "$OUT/vmproxy"; do
   # Counted, not matched. `grep -q` exits the moment it finds the path, the
   # `strings` feeding it dies of SIGPIPE, and `set -o pipefail` reports that
