@@ -181,6 +181,25 @@ while read -r point; do
     got=$(wc -l < "$WORK/after.sums" | tr -d ' ')
     if [ -s "$WORK/after.err" ]; then
       echo "  $point could not be read: $(head -1 "$WORK/after.err")" >&2
+      # Asked again straight away, and asked by name.
+      #
+      # A stale handle that heals on the next attempt is one handle going bad
+      # under contention; one that keeps failing is a volume that has gone.
+      # And a name resolves by LOOKUP rather than through the dead handle, so
+      # if the file stats while the walk cannot reach it, everything is on the
+      # volume and only the handle was wrong. Both are one second of work and
+      # neither can be recovered afterwards.
+      bad="$(head -1 "$WORK/after.err" | sed 's/^find: //; s/:.*//' | tr -d \')"
+      (cd "$point/crowd-write" && find . -type f -exec shasum -a 256 {} \; | sort) \
+        > "$WORK/again.sums" 2>"$WORK/again.err"
+      if [ -s "$WORK/again.err" ]; then
+        echo "    asked again: still failing, $(head -1 "$WORK/again.err")" >&2
+      elif diff -q "$WORK/before.sums" "$WORK/again.sums" >/dev/null 2>&1; then
+        echo "    asked again: every file read back correctly" >&2
+      else
+        echo "    asked again: readable, $(/usr/bin/grep -c . < "$WORK/again.sums") files" >&2
+      fi
+      echo "    by name: $(ls -l "$point/crowd-write/$bad" 2>&1 | tail -1 | cut -c1-90)" >&2
     elif [ "$got" -lt "$want" ]; then
       echo "  $point listed $got of $want files, the rest are not there yet" >&2
       # Whether they arrive at all, and how late. A volume that fills in a
