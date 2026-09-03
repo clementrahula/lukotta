@@ -1536,3 +1536,9 @@ it. The vendored engine on this Mac was stripped in place as well, 812 lines to
 808, so the next build carries nothing without waiting for a re-vendor.
 
     vendored engine, files naming this machine     0
+
+Checked before doing it that nothing verifies the manifest's contents:
+`vendor/engine.lock` does not mention it, no checksum covers it, the digest
+check reads the file's *name*, and the app only looks for an mtree existing at
+all as a sign of what put the directory there. The name is unchanged and the
+manifest body is untouched, so the four lines can go.
