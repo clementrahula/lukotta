@@ -179,14 +179,33 @@ where() {
   # it is "diskN.local". So the route decides the name to look for, and looking
   # for the wrong one reported "the engine never mounted it" about a mount that
   # had just succeeded and was sitting in the table.
-  local want
+  local want point
   if [ -n "${APP_DEV:-}" ]; then
     want="$(basename "$APP_DEV").local:"
   else
     want="$(basename "$IMAGE" .img)-img.local:"
   fi
-  mount | awk -v want="$want" \
-    '$1 ~ want {for(i=1;i<=NF;i++) if($i=="on") {print $(i+1); exit}}'
+  point="$(mount | awk -v want="$want" \
+    '$1 ~ want {for(i=1;i<=NF;i++) if($i=="on") {print $(i+1); exit}}')"
+  [ -n "$point" ] && { printf '%s\n' "$point"; return; }
+
+  # A container of logical volumes is not named after what it was handed.
+  #
+  # An LVM group comes up as "lvm-<group>.local:" with each volume mounted
+  # inside a parent, so looking for the device name found nothing and this said
+  # "the engine never mounted it" about four fixtures whose groups had activated
+  # and whose volumes were sitting in the table. The same mistake, in the same
+  # words, as the helper's own check made about the same drives.
+  #
+  # The deepest such mount is the one with a filesystem worth testing on it: the
+  # parent is a one-megabyte tmpfs holding the volumes.
+  mount | awk '$1 ~ /^lvm-[^ ]*\.local:/ {
+                 for (i = 1; i <= NF; i++) if ($i == "on") p[++n] = $(i + 1)
+               }
+               END { if (n) { best = p[1]
+                              for (j = 2; j <= n; j++)
+                                if (length(p[j]) > length(best)) best = p[j]
+                              print best } }'
 }
 
 open_image() {
