@@ -142,9 +142,17 @@ prepare_actions() {
   /usr/bin/log show --start "$started" --info --debug \
     --predicate "subsystem CONTAINS \"$APP_ID\"" --style compact \
     > "$WORK/app-unified.log" 2>/dev/null || true
+  # Found under the device's name, not the image's. `where` looks for
+  # "<image>-img.local", which is what the engine calls a share made from a
+  # file; the app was handed a device, so the share is "diskN.local" and this
+  # found nothing and unmounted nothing. The clean volume was left mounted
+  # after every run, and a stray /Volumes/SWEEP from an earlier one is exactly
+  # the sort of thing this harness has been fooled by before.
   local point
-  point="$(where)"
-  [ -n "$point" ] && diskutil unmount "$point" >/dev/null 2>&1
+  point="$(mount | awk -v want="$(basename "$dev").local:" \
+    '$1 ~ want {for(i=1;i<=NF;i++) if($i=="on") {print $(i+1); exit}}')"
+  [ -n "$point" ] && { umount "$point" >/dev/null 2>&1 \
+    || diskutil unmount force "$point" >/dev/null 2>&1; }
   hdiutil detach "$dev" -quiet 2>/dev/null
   # The engine keeps its configuration one directory further down. Looking in
   # the wrong place here made this report that the app had left no actions,
