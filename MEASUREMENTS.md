@@ -1157,3 +1157,26 @@ The diagnosis is complete as far as it can be taken from outside the kernel:
 Everything on that list was measured. The fault is inside nfsd's handling of
 the COMMIT it has counted, on Linux 6.12.62, and the next step is tracing
 inside that kernel rather than another experiment from out here.
+
+## Item 6 complete: every writable format the app advertises — 2026-09-03
+
+SPECS lists seven formats the app claims it can write. All seven now have a
+corpus written to them and read back:
+
+    raw (.img, .dmg, anything unrecognised)   123 files byte-identical
+    qcow2                                     2024 files, 0 differing, 0 missing
+    VMDK, flat (monolithicFlat)               123 files byte-identical
+    VMDK, sparse (monolithicSparse)           2024 files, 0 differing, 0 missing
+    VDI, dynamic and fixed                    2024 files, 0 differing, 0 missing
+    VHD, fixed                                2024 files, 0 differing, 0 missing
+    VHD, dynamic                              2024 files, 0 differing, 0 missing
+
+The two the app declares read-only -- VMDK stream-optimized and VHDX -- are
+covered by the end-to-end suite, which opens each, confirms it mounts read-only
+whatever was asked for, and confirms the mount refuses a write.
+
+The flat VMDK needed its descriptor built rather than copied: the descriptor is
+a separate file naming its extent by filename, so copying the extent under
+another name breaks it. That was the "Failed to start microVM: Invalid
+argument" -- an image describing a file that was not there, not a fault in the
+reader.
