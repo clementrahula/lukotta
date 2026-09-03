@@ -88,6 +88,10 @@ for c in $(seq 1 "$CYCLES"); do
     echo "  cycle $c: the copy failed: $(tail -1 "$WORK/ditto.log" | cut -c1-100)"
   elif diff -q "$WORK/before.sums" "$WORK/after.sums" >/dev/null 2>&1; then
     clean=$((clean+1))
+    # Said out loud. This printed only when something went wrong, so a run that
+    # was working looked exactly like a run that had hung, and five minutes of
+    # a silent log were spent deciding which.
+    printf '  cycle %2d: clean\n' "$c"
   else
     short=$((short+1))
     echo "  cycle $c: $got of $FILES read back, $(head -1 "$WORK/after.err" | cut -c1-80)"
