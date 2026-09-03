@@ -31,7 +31,19 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$HERE" || exit 1
 OUT="${OUT:-$HOME/.lukotta-testvols}"
 IMAGE="${IMAGE:-ntfs-vectors.img}"
-MB="${MB:-400}"
+# Sized against the measurement this claim came from.
+#
+# The stall was found over a thirteen-gigabyte copy: p50 28ms, p90 31ms, p99
+# 4.66s, worst 8.95s, nine requests past five seconds. At 400 MB this reported
+# a worst case of 31ms, which is not evidence the stall is gone -- it is
+# evidence that 400 MB does not reach the window where it lived. The slow
+# moments cluster in the thirty to fifty seconds after a file closes, and a
+# write that finishes in one second barely opens that window.
+#
+# 1600 MB is what the fixture holds and is the most this can ask for without a
+# larger one. It is still well short of thirteen gigabytes, and that gap is
+# written down beside the result rather than left for somebody to assume away.
+MB="${MB:-1600}"
 ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 APP_BUNDLE="${ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 APP="$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)"

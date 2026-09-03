@@ -2716,3 +2716,42 @@ than by any system.
 **Item 7 re-checked after all of it:** clean volume, corpus written, machine
 taken away, confirmed dirty, opened by the app, takes a write, all 41 files
 byte-identical. PASS.
+
+### The ten items tied to checks that run, and what that exposed — 2026-09-03
+
+`scripts/checks.tsv` and `scripts/verify.sh`: every claim this project makes
+that something can check, with the check, run by one command. Tying them up
+found three things that prose had been carrying.
+
+**Item 2 has no check at all.** Its harness, `finder-copy-cycles.sh`, needs a
+mounted volume passed to it, so the row as first written could never have run.
+It says unchecked now rather than passing by omission.
+
+**Item 3's check could not have seen its own fix.** `reused-record-interrupt.sh`
+makes the damage and asks the guest about it — the right tool for judging a
+candidate fix, and three were rejected on its evidence — but the reclaim runs
+when the app opens a drive, and that harness never opens anything through the
+app. As item 3's check it would have reported the fault unfixed for ever. It is
+now checked by `reclaims-a-poisoned-name.sh`, which damages a volume, opens it
+through the app, and requires the poisoned name gone, something moved aside
+rather than destroyed, and twenty files written into the reclaimed name read
+back whole. It holds.
+
+**Item 1 passes on a fixture that cannot produce the fault.**
+
+    1600 MB in 1 file, written in 3s
+    n=82  p50 0.028s  p90 0.030s  p99 0.031s  worst 0.031s
+    over 2s: 0   over 5s: 0
+
+Set against the measurement the claim came from — thirteen gigabytes onto a
+real USB drive: p50 28ms, p90 31ms, **p99 4.66s, worst 8.95s, nine requests past
+five seconds**. The medians agree exactly and the tail is gone, and that is not
+evidence the stall is fixed: 1600 MB went in three seconds, which is 533 MB/s,
+because the fixture is a disk image on the internal SSD. The stall lived in
+writeback to a slow drive, and this never reaches it.
+
+So item 1's check is a regression guard, not a proof. It would catch the tail
+coming back on this hardware; it cannot stand in for the drive the fault was
+found on. What would make it real is the same write under the eight-gigabyte
+ballast, where writeback has to compete, or a real slow drive — and until one of
+those is run, item 1 rests on the 2026-09-01 measurement and not on this.
