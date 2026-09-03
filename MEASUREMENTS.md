@@ -1820,3 +1820,25 @@ and if it is quick it is the encryption.
 
 Recorded as a result rather than an obstacle: the number is real, it is bad,
 and the next route is a measurement that says which layer owns it.
+
+### The ext4 fixture was full, and the harness said so — 2026-09-03
+
+    ===== ext4-vectors =====
+    mounted at /Volumes/LUKOTTAEXT4
+    starting with 0 MB free
+    error: 0 MB free. These vectors need 200 MB and this volume
+           cannot hold them, so nothing here would be about the app.
+
+That refusal is the space check added after a full volume once read as a data
+fault -- CROWD1 differing on 117 of 123 files, which was not corruption but a
+volume with nowhere to put them. It fired correctly here and cost nothing but
+a fixture.
+
+The image is 335544320 bytes, and the vectors want 200 MB free inside it, so
+even empty it has little room. It was filled by a run from before each run took
+its own copy of the fixture, and has been carrying that ever since. It wants
+remaking larger, which is a job for when the machine is not in the middle of
+the other four formats.
+
+Written down because "ext4 was skipped" is exactly the sort of thing that
+becomes "ext4 passed" in a later summary if nobody records why.
