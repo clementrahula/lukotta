@@ -1707,10 +1707,14 @@ public enum MountScript {
             # that is exactly the drive somebody needs help with. Asking only
             # the log meant the one arrival that matters was waved through.
             #
-            # ntfs3 refusing is a signal rather than a guess. What it refuses is
-            # a directory entry whose MFT reference keeps a sequence the record
-            # has moved past, or a volume left dirty, and the check repairs
-            # both.
+            # ntfs3 refusing is a signal rather than a guess, and it is not the
+            # dirty flag: ntfs3 mounts a dirty volume read-only quite happily
+            # and refuses only to write to it, so a merely unclean drive comes
+            # through the branch above, finds nothing in its log, skips the scan
+            # and has its flag cleared by ntfsfix in seconds. Reaching here
+            # means the volume is refused even read-only, which is the damage a
+            # full check exists for -- a directory entry whose MFT reference
+            # keeps a sequence the record has moved past.
             #
             # Nothing is mounted with ntfs-3g to find out more. That was tried
             # and it hung the app: ntfs-3g is FUSE, its daemon outlives a failed
