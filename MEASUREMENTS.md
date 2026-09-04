@@ -3131,3 +3131,38 @@ cannot have one -- nothing on macOS or Linux creates a BitLocker volume, only
 reads one -- so that half of item 4 rests on the owner's own drive. The
 virtual-disk formats the site marks experimental (qcow2, VMDK, VDI, VHD, VHDX)
 have no fixtures either.
+
+### What the durability options cost, from the sweep's own timings — 2026-09-04
+
+The full-volume vector times one `dd` writing until the volume refuses, so the
+number it reports is how long the volume took to fill, not how long the error
+took to arrive. Across the fourteen:
+
+    1 to 6 s     ntfs, ext4, btrfs, exfat, plain-ext4, plain-exfat,
+                 luks2-lvm, luks-lvm-big
+    76 to 156 s  luks-ext4 143, luks-xfs 156, plain-xfs 122, luks1-lvm 114,
+                 luks2-direct 156, luks-multi 76
+
+**It is not the encryption.** `plain-xfs` is unencrypted and takes 122 s where
+`plain-ext4` takes 6. What the slow ones share is `sync`: XFS is given `-o sync`
+in the guest because it has no data-journalling mode, and a LUKS container is
+given a synchronous client because the app cannot read the superblock inside it
+to choose anything cheaper. ext4 is given `data=journal` and is fast.
+
+**As throughput, on roughly 1.9 GB:**
+
+    plain-ext4, data=journal     6 s     about 316 MB/s
+    plain-xfs, -o sync         122 s     about  16 MB/s
+
+**This contradicts what is written in `ExtJournal.swift`**, which says `-o sync`
+in the guest "costs nothing on a large file at all" and quotes 190 MB/s against
+an ordinary client's 190. Both numbers cannot be right. The note was measured on
+a fresh volume and this is a volume being filled to its last block, where an
+allocator has to work harder — so the honest reading is that the two measure
+different things and the cost of `sync` on a large write is currently unknown
+rather than free.
+
+**That is item 10's remaining question**, and it is now a specific one with a
+cheap test: write a fixed large file to a fresh XFS volume through the app, with
+the durability option and without it, and compare. Item 10 stays unmet until
+that is a number.
