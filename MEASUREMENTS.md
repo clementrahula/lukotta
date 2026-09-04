@@ -288,6 +288,35 @@ app has never checked is checked once.
 **The rest is not mine and is still a fail.** Three requests past five seconds
 with nothing else running, worst 5.618 s. Item 1 remains open.
 
+### The five-second bar does not mean what the harness says it means
+
+The harness's threshold rests on one sentence: macOS tells somebody the server
+has stopped responding when a request goes unanswered for five seconds. That was
+true of a default NFS mount. It is not true of this one, and the reason is the
+options this project added to stop exactly that dialog -- `dumbtimer`,
+`timeo=600`, `retrans=5`, `mutejukebox`, `deadtimeout=900`.
+
+Measured, over six hours that include the 350-second run whose worst request took
+eighteen seconds:
+
+    genuine "not responding" events logged by macOS     0
+    NFS log lines in the same window                   12,645
+
+The instrument was validated before that zero was believed, and the first attempt
+at it was worthless: `log stream` had failed with "too many arguments" and
+produced an empty file, which reads exactly like an absence of events. The second
+attempt streamed correctly and still saw nothing live -- streaming does not carry
+these kernel messages -- so the question was put to `log show` over history
+instead, where 12,645 NFS lines prove the predicate matches and the three
+apparent hits turn out to be the shell echoing the predicate back.
+
+So the latency is real and the dialog it was standing in for did not happen.
+What did happen, once, in the run where the walk was competing: `rm` on the
+volume failed with "Operation timed out" -- a soft mount exhausting its retries,
+which is user-visible trouble whatever the dialog does. That has not recurred
+since the walk was removed.
+
+
 ## The BitLocker drive's five unusable names, repaired — 2026-09-04
 
 Five entries on the owner's 247 GB BitLocker drive that answered `Input/output
