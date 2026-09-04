@@ -560,10 +560,19 @@ rm -rf "$VOL"/vec-*; mkdir -p "$VOL/vec-full"
 # the bound cut it, reported as "a full volume answers rather than hanging" --
 # which is the harness giving up, dressed as the app hanging.
 #
-# Ten megabytes a second is a pessimistic floor for this stack over USB, so the
-# bound is the free space at that rate, never less than the old 300.
+# Four megabytes a second, measured rather than guessed.
+#
+# Ten was the first guess and it was still too tight: the owner's drive had
+# 20 GB free and the fill was cut at 2015 seconds without finishing, so the real
+# rate through this stack is under 10 MB/s. Four gives room for a slow stick and
+# still finishes.
+#
+# It makes this the long vector on a large drive -- 20 GB free is over an hour
+# -- and that is what filling a real volume costs. The alternative is not
+# testing what a full volume does, and a full volume is where a copy goes wrong
+# in the most ordinary way there is.
 fill_free_mb=$(df -m "$VOL" 2>/dev/null | tail -1 | awk '{print $4}')
-fill_bound=$(( ${fill_free_mb:-0} / 10 ))
+fill_bound=$(( ${fill_free_mb:-0} / 4 ))
 [ "$fill_bound" -lt 300 ] && fill_bound=300
 start=$(date +%s)
 timeout "$fill_bound" dd if=/dev/zero of="$VOL/vec-full/filler.bin" bs=1048576 status=none 2>"$WORK/full.err"
