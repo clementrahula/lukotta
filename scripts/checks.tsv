@@ -44,7 +44,7 @@ goal5	goal	long	LUKS and the Linux filesystems inside it	FIXTURES="luks-ext4 luk
 goal6	goal	long	every other format the app advertises	FIXTURES="ntfs-vectors ext4-vectors btrfs-vectors exfat-vectors plain-xfs plain-ext4 plain-exfat plain-fat" bash scripts/vectors-every-format.sh
 goal7	goal	slow	a dirty NTFS volume is repaired, data intact	bash scripts/dirty-ntfs-repair.sh
 ntfsck	integrity	slow	the checker repairs an interrupted copy, damaged before and clean after	bash scripts/ntfsck-repairs.sh
-ntfsckapp	integrity	slow	a volume that would not mount opens writable through the app	bash scripts/repairs-through-the-app.sh
+ntfsckapp	integrity	slow	a damaged volume opens writable through the app, and a healthy one is not scanned	bash scripts/repairs-through-the-app.sh
 goal8	goal	long	a dozen volumes under 8 GB of pressure, still served	bash scripts/twelve-under-pressure.sh
 goal9	goal	long	integrity across every vector devised	bash scripts/vectors-every-format.sh
 goal10	goal	fast	no UX cost anywhere in the above	bash scripts/run-tests.sh
