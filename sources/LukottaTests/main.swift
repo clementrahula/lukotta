@@ -5608,9 +5608,14 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     // name reports success and does nothing -- the older file stays, the newer
     // bytes strand under the copier's temporary name, and ditto exits 0. What
     // that directory does answer to is a read.
+    // And it reads no byte from every file. That was tried, to catch a third
+    // shape of damage, and measured on the owner's drive beside a copy: 1600 MB
+    // took 350 s with the walk running and 196 s without it, worst pause 18.0 s
+    // against 5.6 s. Detection that costs a person half their throughput is not
+    // detection worth having.
     expect(
-        MountScript.reclaimUnreadable.contains("head -c 1"),
-        "the walk notices a file that is there and will not open")
+        !MountScript.reclaimUnreadable.contains("head -c 1"),
+        "the walk reads no byte from every file on the drive")
 
     // And a copier's abandoned temporary, which is the signature of the silent
     // fault: the volume mounts writable, every file reads, the dirty flag is
@@ -5625,9 +5630,7 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     expect(
         MountScript.checkAndRepair.contains("left behind by a copy:"),
         "and the gate reads that line too, or the walk is talking to nobody")
-    expect(
-        MountScript.reclaimUnreadable.components(separatedBy: "head -c 1").count - 1 == 2,
-        "and asks again a second later, as it does for the other two shapes")
+
 
     // Not on a read-only open: nothing is written to the drive, checks
     // included.

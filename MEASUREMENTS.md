@@ -268,6 +268,26 @@ fixed, and nothing yet says which.
 **Not softened.** p99 of 7.2 s is not "close"; 8 requests over the threshold is
 not "nearly none". Item 1 is not met.
 
+### Half of it was mine, made an hour earlier
+
+The reclaim walk had just been taught to read one byte of every file, to catch a
+shape of damage that leaves no other trace. It runs in the background straight
+after the mount -- which is exactly when somebody starts copying. Measured on the
+same drive, same 1600 MB, the only difference being whether the walk had
+finished first:
+
+    walk running beside the copy   350 s   4.6 MB/s   p99 7.200s   worst 18.017s   8 over
+    walk finished first            196 s   8.2 MB/s   p99 4.511s   worst  5.618s   3 over
+
+It nearly doubled the copy and tripled its worst pause. Reverted: detection that
+costs a person half their throughput is not detection worth having, and the
+shape it was after is reached anyway -- by the copier's abandoned temporary, by
+a volume that will not take a writable mount, and by the rule that a volume this
+app has never checked is checked once.
+
+**The rest is not mine and is still a fail.** Three requests past five seconds
+with nothing else running, worst 5.618 s. Item 1 remains open.
+
 ## The BitLocker drive's five unusable names, repaired — 2026-09-04
 
 Five entries on the owner's 247 GB BitLocker drive that answered `Input/output

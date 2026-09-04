@@ -2080,25 +2080,22 @@ public enum MountScript {
         + "continue;; esac; "
         + "bad=0; "
         + "if [ ! -e \"$e\" ]; then bad=1; "
-        + "elif [ -d \"$e\" ] && ! ls \"$e\" >/dev/null 2>&1; then bad=1; "
-        // A file that is there and cannot be read.
+        // No byte is read from every file.
         //
-        // The walk looked for two shapes -- an entry that will not stat, and a
-        // directory that will not list -- and there is a third that is worse
-        // than either because it is silent. An interrupted copy can leave a
-        // directory where a rename over an existing name reports success and
-        // does nothing: the older file stays, the newer bytes are stranded
-        // under the temporary name the copier used, and `ditto` exits 0. What
-        // that directory does answer to is a read: the file it will not replace
-        // is a file it will not open. Measured on a specimen kept from the
-        // twelve-volume run -- before a check, a rename over f14.bin left the
-        // temporary in place and the file unreadable; after one ntfsck pass,
-        // 151 of 157 errors fixed, the same rename replaced it correctly.
+        // A read of one byte per file was added here to catch a third shape of
+        // damage and it was measured on the owner's drive, competing with a
+        // copy the way it would in real use:
         //
-        // One byte, because the question is whether it opens at all. The walk
-        // is already bounded to \(reclaimDirectoryLimit) directories and runs
-        // in the background after the mount, so nobody waits for it.
-        + "elif [ -f \"$e\" ] && ! head -c 1 \"$e\" >/dev/null 2>&1; then bad=1; fi; "
+        //     walk running beside the copy   1600 MB in 350 s, worst 18.0 s
+        //     walk finished first            1600 MB in 196 s, worst  5.6 s
+        //
+        // It nearly doubled the copy and tripled its worst pause, on a drive
+        // that writes at four megabytes a second. Detection that costs a person
+        // half their throughput is not detection worth having, and the shape it
+        // was after is reached anyway: by the copier's abandoned temporary
+        // below, by a volume that will not take a writable mount, and by the
+        // rule that a volume this app has never checked is checked once.
+        + "elif [ -d \"$e\" ] && ! ls \"$e\" >/dev/null 2>&1; then bad=1; fi; "
         // Asked again, a second apart, before anything is moved.
         //
         // This now runs on drives with somebody's own files on them, and a
@@ -2110,8 +2107,7 @@ public enum MountScript {
         // is left alone.
         + "if [ \"$bad\" = 1 ]; then sleep 1; "
         + "if [ ! -e \"$e\" ]; then bad=2; "
-        + "elif [ -d \"$e\" ] && ! ls \"$e\" >/dev/null 2>&1; then bad=2; "
-        + "elif [ -f \"$e\" ] && ! head -c 1 \"$e\" >/dev/null 2>&1; then bad=2; fi; fi; "
+        + "elif [ -d \"$e\" ] && ! ls \"$e\" >/dev/null 2>&1; then bad=2; fi; fi; "
         + "if [ \"$bad\" = 2 ]; then "
         // What it found and whether it could act, left where it can be read.
         //
