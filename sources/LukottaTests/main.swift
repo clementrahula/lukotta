@@ -5527,6 +5527,25 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     expect(
         check.contains("[ \"$scan\" = 1 ] && command -v ntfsck"),
         "the expensive scan is behind a gate")
+
+    // Not cleanly unmounted is a reason on its own. ntfs3 mounts a dirty volume
+    // read-only and refuses only to write to it, so a drive pulled out mid-copy
+    // reads perfectly and says nothing in its log -- and clearing its flag
+    // without checking is what turns an interrupted copy into a silent one
+    // later: a directory where a rename over an existing name fails, the target
+    // then unreadable, and the host's copier told it succeeded.
+    expect(
+        check.contains("was not unmounted cleanly"),
+        "a volume that will not take a writable mount is checked, not just cleared")
+    let dirtyAt = check.range(of: "was not unmounted cleanly").map {
+        check.distance(from: check.startIndex, to: $0.lowerBound)
+    }
+    let gateEnd = check.range(of: "nothing has asked for a full check").map {
+        check.distance(from: check.startIndex, to: $0.lowerBound)
+    }
+    expect(
+        (dirtyAt ?? 1) < (gateEnd ?? 0),
+        "and it is asked before the gate decides nothing has asked")
     let scanOffAt = check.range(of: "scan=0").map {
         check.distance(from: check.startIndex, to: $0.lowerBound)
     }

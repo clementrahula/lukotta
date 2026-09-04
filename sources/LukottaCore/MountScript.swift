@@ -1698,6 +1698,34 @@ public enum MountScript {
             grep -l "could not move:" /tmp/lukotta-ask/.lukotta-reclaim.log \
               >/dev/null 2>&1 && asked=1
             umount /tmp/lukotta-ask 2>/dev/null || true
+            # Not cleanly unmounted is a reason on its own.
+            #
+            # ntfs3 mounts a dirty volume read-only and refuses only to write to
+            # it, so a drive pulled out mid-copy reads perfectly, says nothing in
+            # its reclaim log, and used to be handed the two ntfsfix lines that
+            # clear the flag and check nothing. What that leaves behind was
+            # measured on an image kept from the twelve-volume run: a directory
+            # where writing a file and renaming it over an existing name fails
+            # -- `mv` returns 1 inside the guest, the target then cannot even be
+            # read, and over NFS the host's copier gets success and leaves the
+            # new bytes stranded under its temporary name. One ntfsck pass, 151
+            # of 157 errors fixed, and the same rename replaces the file
+            # correctly.
+            #
+            # So clearing the flag without checking is what turns an
+            # interrupted copy into a silent one later. A volume that will not
+            # take a writable mount is checked properly instead. It costs a full
+            # scan on a drive that was not shut down cleanly, which is exactly
+            # when a check is worth its minute -- and it is what Windows does
+            # with the same flag.
+            if [ "$asked" = 0 ]; then
+              if mount -t ntfs3 "$dev" /tmp/lukotta-ask 2>/dev/null; then
+                umount /tmp/lukotta-ask 2>/dev/null || true
+              else
+                echo "lukotta: $dev was not unmounted cleanly"
+                asked=1
+              fi
+            fi
           else
             # ntfs3 will not have this volume.
             #
