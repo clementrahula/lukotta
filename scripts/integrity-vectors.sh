@@ -313,11 +313,23 @@ APP_DEV=""
 # of instrument fault this harness has been fooled by before.
 detach_app_device() {
   [ -n "${APP_DEV:-}" ] || return 0
+  # Everything the drive is serving, deepest first.
+  #
+  # This unmounted one share, found by the device name. A container of logical
+  # volumes serves three -- a parent and a volume mounted inside it for each --
+  # so unmounting one left the parent holding the device, the next open failed
+  # on a lock that was still held, and the vectors that reopen a volume all
+  # failed together: three open/close cycles reported 0 of 3, and every
+  # power-loss vector said "never remounted". Opened and closed by hand the
+  # same image manages three cycles in a row, exit 0, three shares each time.
+  #
+  # Deepest first, or unmounting the parent is refused for being busy.
   local point
-  point="$(mount | awk -v want="$(basename "$APP_DEV").local:" \
-    '$1 ~ want {for(i=1;i<=NF;i++) if($i=="on") {print $(i+1); exit}}')"
-  [ -n "$point" ] && { umount "$point" >/dev/null 2>&1 \
-    || umount -f "$point" >/dev/null 2>&1; }
+  for point in $(mount | awk '$1 ~ /\.local:/ {
+                   for (i = 1; i <= NF; i++) if ($i == "on") print $(i + 1)
+                 }' | awk '{ print length, $0 }' | sort -rn | cut -d" " -f2-); do
+    umount "$point" >/dev/null 2>&1 || umount -f "$point" >/dev/null 2>&1
+  done
   hdiutil detach "$APP_DEV" -quiet 2>/dev/null
 }
 trap detach_app_device EXIT
