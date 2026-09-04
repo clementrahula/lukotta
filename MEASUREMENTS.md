@@ -25,7 +25,9 @@ says which hold now; `FULL=1` runs the slow ones. A complete pass on 2026-09-04:
                                   app's own route
     4  NTFS and BitLocker         byte-identical both, Keychain unlock with
                                   nothing typed. BitLocker on the owner's drive,
-                                  since no Mac or Linux can create one
+                                  since no Mac or Linux can create one -- and a
+                                  committed write surviving a killed machine on
+                                  that drive, three of three
     5  LUKS and Linux             seven fixtures, twelve vectors each
     6  every other format         every format the site claims that can have a
                                   fixture: NTFS, ext2/3/4, btrfs, XFS, exFAT,
