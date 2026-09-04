@@ -5631,7 +5631,6 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
         MountScript.checkAndRepair.contains("left behind by a copy:"),
         "and the gate reads that line too, or the walk is talking to nobody")
 
-
     // Not on a read-only open: nothing is written to the drive, checks
     // included.
     let readOnly = MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))
