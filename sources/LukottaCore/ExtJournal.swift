@@ -45,6 +45,9 @@ public enum ExtJournal {
     /// XFS writes this at the very front of its superblock.
     public static let xfsMagic: [UInt8] = Array("XFSB".utf8)
 
+    /// What an NTFS boot sector says it is, at offset 3.
+    public static let ntfsMagic: [UInt8] = Array("NTFS    ".utf8)
+
     /// The mount option this volume needs, or nil where it needs none.
     ///
     /// Two filesystems lose the contents of files that were fsynced before the
@@ -105,6 +108,32 @@ public enum ExtJournal {
         // is a cost, and this comment said there was none.
         if bytes.count >= xfsMagic.count,
             Array(bytes.prefix(xfsMagic.count)) == xfsMagic
+        {
+            return "sync"
+        }
+        // NTFS, and this one was found the hard way.
+        //
+        // It was the only format given nothing, on the reasoning that its
+        // vectors passed. They passed on disk images, and a disk image cannot
+        // show this fault: writes to one reach the backing file through the
+        // host's buffer cache, and killing the guest does not discard it, so
+        // macOS writes it out afterwards regardless. A real device has no such
+        // cache behind it.
+        //
+        // Asked of a real drive on 2026-09-04, after `dd conv=fsync` had
+        // returned and the machine was killed:
+        //
+        //     present but changed, 8388608 bytes, a different sha256
+        //     the file is not there. A committed write was lost.
+        //     the file is not there. A committed write was lost.
+        //     the file is not there. A committed write was lost.
+        //
+        // Four for four, on the format most of this app's users have. ntfs3
+        // takes `sync` like any other filesystem, and it costs what sync costs
+        // -- a 500 MB write at 125 MB/s instead of 250 -- which is the price of
+        // the file still being there.
+        if bytes.count >= 3 + ntfsMagic.count,
+            Array(bytes[3..<(3 + ntfsMagic.count)]) == ntfsMagic
         {
             return "sync"
         }
