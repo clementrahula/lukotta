@@ -1105,6 +1105,14 @@ nobody asked.
   with `grep -c`, which reads all its input, had passed by hand minutes before.
   Any `producer | grep -q` inside a pipefail script has this in it.
 
+  **It has now cost three separate days**, and each time the failure was read
+  as the thing under test being broken: a bundle refused as having no `--drive`
+  when it had one, a check refusing every app it was pointed at, and a release
+  feed reported as not serving a version it was serving -- after waiting five
+  minutes to be certain. Write `grep -c` and compare, or read the producer into
+  a variable and match against that. Never `| grep -q` where a pipefail shell
+  will see it.
+
 - **`stat` on the mount root** was sampled for 45 minutes as evidence that
   nothing stalled, at p50 0.027 s and p99 0.031 s. It is the cheapest, most cached
   call on an NFS mount. Listing the busy directory at the same moment took
