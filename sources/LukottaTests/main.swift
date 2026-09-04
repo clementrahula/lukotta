@@ -5771,8 +5771,12 @@ group("aDirtyVolumeIsRepairedRatherThanDemoted") {
     // away, and the engine's own documentation says where that leads. So the
     // two cases where something is actually lost are refused, and the refusal
     // fails the attempt, which opens the drive read-only instead.
+    // The refusal is a non-zero return from the per-volume check, which the
+    // script's own exit status carries out to the rung. It was a bare `exit 1`
+    // until the check grew a loop over every NTFS volume a container holds.
     expect(
-        repair.contains("hiberfil") && repair.contains("exit 1"),
+        repair.contains("hiberfil") && repair.contains("return 1")
+            && repair.contains("exit \"$worst\""),
         "a hibernated volume is refused: its disk is deliberately stale, not merely unclean")
     expect(
         repair.contains("ntfsfix -n"),
