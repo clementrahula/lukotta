@@ -31,15 +31,16 @@
 #
 # id	tags	speed	claim	command
 goal1	goal	slow	writing does not stall	bash scripts/writing-does-not-stall.sh
-goal2	goal	slow	no crash copying through Finder, both extremes	bash scripts/with-a-drive-open.sh ntfs-vectors.img bash scripts/finder-copy-cycles.sh
+goal2	goal	long	no crash copying through Finder, both extremes	bash scripts/with-a-drive-open.sh ntfs-vectors.img bash scripts/finder-copy-cycles.sh
 goal3	goal	slow	nothing user-visible during a copy	bash scripts/reclaims-a-poisoned-name.sh
 goal4	goal	slow	NTFS byte-identical (BitLocker needs the real drive)	THROUGH_APP=1 bash scripts/integrity-vectors.sh "$HOME/.lukotta-testvols/ntfs-vectors.img" "$LUKOTTA_ENGINE"
-goal5	goal	slow	LUKS and the Linux filesystems inside it	bash scripts/vectors-every-format.sh
-goal6	goal	slow	every other format the app advertises	bash scripts/vectors-every-format.sh
+goal5	goal	long	LUKS and the Linux filesystems inside it	FIXTURES="luks-ext4 luks-xfs luks1-lvm luks2-direct luks2-lvm luks-lvm-big luks-multi" bash scripts/vectors-every-format.sh
+goal6	goal	long	every other format the app advertises	FIXTURES="ntfs-vectors ext4-vectors btrfs-vectors exfat-vectors plain-xfs plain-ext4 plain-exfat" bash scripts/vectors-every-format.sh
 goal7	goal	slow	a dirty NTFS volume is repaired, data intact	bash scripts/dirty-ntfs-repair.sh
-goal8	goal	slow	a dozen volumes under 8 GB of pressure, still served	bash scripts/twelve-under-pressure.sh
-goal9	goal	slow	integrity across every vector devised	bash scripts/vectors-every-format.sh
+goal8	goal	long	a dozen volumes under 8 GB of pressure, still served	bash scripts/twelve-under-pressure.sh
+goal9	goal	long	integrity across every vector devised	bash scripts/vectors-every-format.sh
 goal10	goal	fast	no UX cost anywhere in the above	bash scripts/run-tests.sh
+cost	ux	long	a durability option does not cost a copy its speed	
 unit	code	fast	the unit checks pass	bash scripts/run-tests.sh
 lint	code	fast	the sources lint clean	bash scripts/lint.sh
 private	privacy,release	fast	no release carries anything of the owner's	/usr/bin/python3 scripts/check-private.py

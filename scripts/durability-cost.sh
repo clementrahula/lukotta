@@ -1,0 +1,86 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Clement Rahula
+#
+# What a durability option costs on a large write, as a number.
+#
+# WHY
+#
+# XFS is given `-o sync` in the guest because it has no data-journalling mode,
+# and a LUKS container is given a synchronous client because the superblock
+# inside it cannot be read to choose anything cheaper. ExtJournal.swift says
+# `-o sync` "costs nothing on a large file at all" and quotes 190 MB/s; the
+# format sweep's own fill timings put XFS at about 16 MB/s against ext4's 316.
+#
+# Both cannot be right, and item 10 -- no UX cost anywhere -- rests on which is.
+# A copy that runs twenty times slower is a UX cost whatever else is true, so
+# this asks the question directly rather than inferring it from a vector that
+# was timing something else.
+#
+# It measures the option, not the app: the same volume, the same file, mounted
+# by the engine with the option and without it. That isolates the one variable,
+# which is what the question is about.
+#
+#   ./scripts/durability-cost.sh
+#   IMAGE=plain-ext4.img OPTION=data=journal ./scripts/durability-cost.sh
+#   MB=2000 ./scripts/durability-cost.sh
+set -uo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$HERE" || exit 1
+OUT="${OUT:-$HOME/.lukotta-testvols}"
+IMAGE="${IMAGE:-plain-xfs.img}"
+OPTION="${OPTION:-sync}"
+MB="${MB:-1000}"
+ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+[ -x "$ENGINE" ] || { echo "error: no engine at $ENGINE" >&2; exit 2; }
+[ -f "$OUT/$IMAGE" ] || { echo "error: no $OUT/$IMAGE" >&2; exit 2; }
+
+WORK="$(mktemp -d)"
+release() {
+  for p in $(mount | /usr/bin/grep '\.local:' | awk '{print $3}' \
+             | awk '{print length, $0}' | sort -rn | cut -d" " -f2-); do
+    umount "$p" >/dev/null 2>&1 || umount -f "$p" >/dev/null 2>&1
+  done
+  /usr/bin/pkill -f "anylinuxfs mount" >/dev/null 2>&1
+  sleep 2
+}
+trap 'release; rm -rf "$WORK"' EXIT
+release
+
+# A copy of the fixture, so a run cannot spoil the next one, and a fresh
+# filesystem each time: a volume being filled to its last block is a different
+# question from a volume with room, and mixing them is how the two numbers in
+# the record came to disagree.
+cp "$OUT/$IMAGE" "$WORK/t.img" || exit 2
+
+time_one() {
+  local opts="$1" label="$2"
+  release
+  cp "$OUT/$IMAGE" "$WORK/t.img"
+  local args=()
+  [ -n "$opts" ] && args=(-o "$opts")
+  nohup "$ENGINE" mount -w false "${args[@]}" "$WORK/t.img" \
+    > "$WORK/engine.log" 2>&1 &
+  local point=""
+  for _ in $(seq 1 60); do
+    point="$(mount | /usr/bin/grep '\.local:' | awk '{print $3}' | head -1)"
+    [ -n "$point" ] && break
+    sleep 2
+  done
+  [ -n "$point" ] || { printf '  %-22s did not mount\n' "$label"; return 1; }
+
+  local began ended secs
+  began=$(date +%s)
+  dd if=/dev/zero of="$point/durability-probe.bin" bs=1048576 count="$MB" \
+    conv=fsync status=none 2>/dev/null
+  ended=$(date +%s)
+  secs=$(( ended - began )); [ "$secs" -lt 1 ] && secs=1
+  printf '  %-22s %5s s   %4s MB/s\n' "$label" "$secs" "$(( MB / secs ))"
+  rm -f "$point/durability-probe.bin" 2>/dev/null
+  release
+}
+
+echo "$IMAGE, one ${MB} MB file, written with conv=fsync"
+time_one "" "no option"
+time_one "$OPTION" "-o $OPTION"
