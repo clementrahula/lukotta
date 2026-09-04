@@ -5431,6 +5431,63 @@ group("theRepairRefusesWhatItWouldDamage") {
     try? FileManager.default.removeItem(at: dir)
 }
 
+group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
+    // The reclaim walk frees what it can and writes "could not move:" for what
+    // it cannot -- a name that refuses even a rename. Before this, that line
+    // went nowhere: the repair rung is reached only when a writable mount
+    // fails, and a drive carrying these entries mounts perfectly, so nothing
+    // ever checked it and the names stayed unusable for ever. Measured on a
+    // real 247 GB BitLocker drive with five of them.
+    let probe = MountScript.ntfs3Probe
+    expect(
+        probe.contains(".lukotta-reclaim.log"),
+        "the probe asks the volume whether the last walk could not free something")
+    expect(
+        probe.contains("could not move:"),
+        "and it looks for the line the walk actually writes")
+    expect(
+        probe.contains(MountScript.checkScriptPath),
+        "and runs the check when it finds one")
+
+    // Order matters twice over: the check needs the volume unmounted, and the
+    // probe's own read-only mount has to be gone before it starts.
+    func at(_ needle: String) -> Int? {
+        probe.range(of: needle).map { probe.distance(from: probe.startIndex, to: $0.lowerBound) }
+    }
+    expect(
+        (at("could not move:") ?? 1) < (at("umount") ?? 0),
+        "the log is read while the probe still has it mounted")
+    expect(
+        (at("umount") ?? 1) < (at(MountScript.checkScriptPath) ?? 0),
+        "and the check runs only once that mount is gone")
+
+    // The script has to be in the guest before the probe can run it. It was
+    // written by the repair rung alone, which is the one rung this path does
+    // not go through.
+    let writable = MountScript.build(sampleInputs(kind: .microsoft))
+    let wrote = writable.range(of: "base64 -d > " + MountScript.checkScriptPath)
+        .map { writable.distance(from: writable.startIndex, to: $0.lowerBound) }
+    let ran = writable.range(of: "sh " + MountScript.checkScriptPath)
+        .map { writable.distance(from: writable.startIndex, to: $0.lowerBound) }
+    expect(wrote != nil, "the check is carried into the guest on this rung too")
+    expect((wrote ?? 1) < (ran ?? 0), "and written before anything runs it")
+
+    // The log says what the last walk found, not what every walk ever found.
+    // It only appended, so the owner's drive carried four identical copies of
+    // the same five names -- noise on somebody's volume, and useless as an
+    // answer to the question the probe now asks it.
+    expect(
+        MountScript.reclaimUnreadable.contains(": > \"$M/.lukotta-reclaim.log\""),
+        "the walk empties the log before it writes to it")
+
+    // Not on a read-only open: nothing is written to the drive, checks
+    // included.
+    let readOnly = MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))
+    expect(
+        !readOnly.contains("sh " + MountScript.checkScriptPath),
+        "a drive opened read-only is never checked, because checking writes")
+}
+
 group("aPoisonedNameIsFreedAfterTheVolumeIsServing") {
     // What an interrupted copy leaves is not the dirty flag. It is a directory
     // index entry whose MFT reference keeps a sequence the record has moved
