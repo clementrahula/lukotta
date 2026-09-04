@@ -5494,6 +5494,49 @@ group("aPoisonedNameIsFreedAfterTheVolumeIsServing") {
         "and not by whether it can be statted, which a poisoned one does perfectly well")
 }
 
+group("everyVolumeOfAContainerIsAsDurableAsTheFirst") {
+    // A container's first volume is bound from the mount the engine made, so it
+    // inherits what that mount was given -- including the sync a LUKS volume
+    // gets because the app cannot read the filesystem inside it to choose
+    // anything cheaper. Every other volume is mounted by the generated action,
+    // and was mounted with nothing at all.
+    //
+    // Measured on luks1-lvm once the harness began testing the roomiest volume
+    // rather than the first: 8 of 8 fsynced files lost after the machine was
+    // killed, where plain LUKS keeps 8 of 8. Two logical volumes in one
+    // encrypted drive, one safe and one not, and nothing to say which.
+    var encrypted = sampleInputs(kind: .linux)
+    encrypted.askForStableWrites()
+    expect(
+        MountScript.perVolumeOptions(encrypted).contains("sync"),
+        "a volume the client was asked to write stably is mounted that way too")
+
+    // And where the superblock could be read, the cheaper per-filesystem option
+    // is what the volumes get, not a blanket sync.
+    var known = sampleInputs(kind: .linux)
+    known.durability = "data=journal"
+    expect(
+        MountScript.perVolumeOptions(known).contains("data=journal"),
+        "the option chosen from the superblock reaches the volumes")
+    expect(
+        !MountScript.perVolumeOptions(known).contains("sync"),
+        "and it is used instead of sync, not beside it")
+
+    // Nothing asked for, nothing applied: this is not free, and a volume whose
+    // filesystem needs no option should not be slowed for one.
+    let plain = sampleInputs(kind: .linux)
+    expect(
+        MountScript.perVolumeOptions(plain).isEmpty,
+        "a volume that needs no durability option is given none")
+
+    // Read-only still comes first, and survives alongside durability.
+    var readOnly = sampleInputs(kind: .linux, readOnly: true)
+    readOnly.askForStableWrites()
+    expect(
+        MountScript.perVolumeOptions(readOnly).contains("ro"),
+        "read-only is still said")
+}
+
 group("aDirtyVolumeIsRepairedRatherThanDemoted") {
     // Windows leaves a volume dirty and both drivers refuse to write to it:
     // ntfs3 says so in the kernel, ntfs-3g answers the mount with an I/O error.

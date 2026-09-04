@@ -39,7 +39,7 @@ public enum MountScript {
         /// What this volume's own superblock says it must be mounted with to
         /// keep what it was told to keep, or nothing where it needs nothing.
         /// See `ExtJournal.durabilityOption`.
-        var durability: String? = nil
+        public var durability: String? = nil
 
         /// What the first sector says the volume is, when anything read it.
         ///
@@ -2154,11 +2154,39 @@ public enum MountScript {
 
     /// What each volume of a container is mounted with inside the guest.
     ///
+    /// Read-only where that was asked for, and always the durability the rest
+    /// of the app applies.
+    ///
+    /// A container's first volume is bound from the mount the engine made, so
+    /// it inherits everything that mount was given -- including the `sync` a
+    /// LUKS volume gets because the app cannot read the filesystem inside it to
+    /// choose better. Every other volume is mounted here, by this action, and
+    /// was mounted with nothing at all.
+    ///
+    /// Measured on luks1-lvm, once the harness began testing the roomiest
+    /// volume rather than the first: **8 of 8 fsynced files lost** after the
+    /// machine was killed, where plain LUKS keeps 8 of 8. Somebody with two
+    /// logical volumes inside one encrypted drive had one that was safe and one
+    /// that was not, and nothing said which.
+    ///
     /// Written as a guard rather than a ternary of two literals, which the
     /// string extractor reads as text shown to someone.
-    static func perVolumeOptions(_ i: Inputs) -> String {
-        guard i.readOnly else { return "" }
-        return "-o ro "
+    public static func perVolumeOptions(_ i: Inputs) -> String {
+        var options: [String] = []
+        if i.readOnly { options.append("ro") }
+        if let durability = i.durability, !durability.isEmpty {
+            options.append(durability)
+        } else if i.nfsOptions.contains("sync") {
+            // The client was asked for stable writes because the app could not
+            // read the filesystem to choose anything cheaper -- which is every
+            // LUKS container. That option is the client's, and it reaches the
+            // mount the client made; the volumes inside a container are mounted
+            // by the guest and never saw it. So the same intent is carried
+            // here, on the side that actually mounts them.
+            options.append("sync")
+        }
+        guard !options.isEmpty else { return "" }
+        return "-o " + options.joined(separator: ",") + " "
     }
 
     /// The NFS options for a mount, with `ro` added when it is read-only.
