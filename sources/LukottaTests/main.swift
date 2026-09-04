@@ -5502,18 +5502,18 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     // brought here: this app has never walked it, so there is no log -- and
     // that is exactly the drive somebody needs help with. ntfs3 refusing a
     // volume ntfs-3g will take is the other way the volume asks.
+    // Nothing in the check mounts with ntfs-3g. It was tried, to read the log
+    // on a volume ntfs3 refuses, and it hung the app: ntfs-3g is FUSE, its
+    // daemon outlives a failed umount, and the device is then busy for the
+    // mount the rung was about to make. Measured -- two engine processes on one
+    // device, neither exiting, every later drive refused with "another instance
+    // is already running".
+    let mounts = check.components(separatedBy: "mount -t ").dropFirst()
+        .map { String($0.prefix(while: { !$0.isWhitespace })) }
     expect(
-        check.contains("elif mount -t ntfs-3g -o ro"),
-        "a volume ntfs3 refuses and ntfs-3g accepts is checked, log or no log")
-    let ntfs3At = check.range(of: "mount -t ntfs3 -o ro").map {
-        check.distance(from: check.startIndex, to: $0.lowerBound)
-    }
-    let fallbackAt = check.range(of: "elif mount -t ntfs-3g -o ro").map {
-        check.distance(from: check.startIndex, to: $0.lowerBound)
-    }
-    expect(
-        (ntfs3At ?? 1) < (fallbackAt ?? 0),
-        "and ntfs3 is asked first, or its refusal is never the thing observed")
+        mounts.allSatisfy { $0 == "ntfs3" },
+        "the check mounts only with the in-kernel driver, never with FUSE")
+    expect(!mounts.isEmpty, "and it does mount, or that assertion is vacuous")
 
     // Once, not on every open. A volume ntfsck cannot bring clean goes on being
     // refused by ntfs3 for ever, so that signal never stops firing: without
@@ -5525,11 +5525,8 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     // one checked once and later left merely dirty never got its flag cleared
     // again, which is a slower way of losing what the repair rung is for.
     expect(
-        check.contains(".lukotta-check.log") && check.contains("scan=0"),
-        "a volume already checked and still refused is not scanned again")
-    expect(
         check.contains("[ \"$scan\" = 1 ] && command -v ntfsck"),
-        "the suppression gates the scan")
+        "the expensive scan is behind a gate")
     let scanOffAt = check.range(of: "scan=0").map {
         check.distance(from: check.startIndex, to: $0.lowerBound)
     }

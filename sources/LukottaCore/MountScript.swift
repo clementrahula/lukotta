@@ -1698,39 +1698,27 @@ public enum MountScript {
             grep -l "could not move:" /tmp/lukotta-ask/.lukotta-reclaim.log \
               >/dev/null 2>&1 && asked=1
             umount /tmp/lukotta-ask 2>/dev/null || true
-          elif mount -t ntfs-3g -o ro "$dev" /tmp/lukotta-ask 2>/dev/null; then
-            # ntfs3 will not have it and ntfs-3g will.
-            #
-            # That is damage, and it is the case the reclaim log cannot speak
-            # for: a drive damaged somewhere else and brought here has no log,
-            # because this app has never walked it -- and that is exactly the
-            # drive somebody needs help with. Asking only the log meant the
-            # one arrival that matters was the one waved through.
-            #
-            # ntfs3 refusing is a signal rather than a guess. What it refuses
-            # is a directory entry whose MFT reference keeps a sequence the
-            # record has moved past, which is precisely what the check
-            # repairs -- and it is the same signal the ntfs-3g rung's whole
-            # reason for existing is built on.
-            asked=1
-            # Once for the scan, though, not on every open. A volume ntfsck
-            # cannot bring clean goes on being refused by ntfs3 for ever, so
-            # this signal never stops firing: the ladder would run a full scan
-            # on the probe rung, fail, run it again on the ntfs-3g rung, and
-            # charge two minutes to every open of a drive nothing can fix. The
-            # transcript the check leaves behind -- written on failure too, for
-            # exactly this -- says it has already been tried.
-            #
-            # It suppresses the scan and nothing else. Suppressing the whole
-            # check would mean a volume checked once and later left merely
-            # dirty never got its flag cleared again, which is a slower way of
-            # losing what the repair rung is for. The ntfsfix path below costs
-            # seconds and still runs.
-            [ -e /tmp/lukotta-ask/.lukotta-check.log ] && scan=0
-            umount /tmp/lukotta-ask 2>/dev/null || true
           else
-            # Neither driver will mount it read-only, which is damage by
-            # itself: check it.
+            # ntfs3 will not have this volume.
+            #
+            # That is damage or a dirty flag, and it is the case the reclaim log
+            # cannot speak for: a drive damaged somewhere else and brought here
+            # has no log at all, because this app has never walked it -- and
+            # that is exactly the drive somebody needs help with. Asking only
+            # the log meant the one arrival that matters was waved through.
+            #
+            # ntfs3 refusing is a signal rather than a guess. What it refuses is
+            # a directory entry whose MFT reference keeps a sequence the record
+            # has moved past, or a volume left dirty, and the check repairs
+            # both.
+            #
+            # Nothing is mounted with ntfs-3g to find out more. That was tried
+            # and it hung the app: ntfs-3g is FUSE, its daemon outlives a failed
+            # umount, and the device is then busy for the mount this rung was
+            # about to make. Measured -- two engine processes on one device,
+            # neither exiting, and every later drive refused with "another
+            # instance is already running". A read-only look that can wedge the
+            # drive is not worth what it reads.
             asked=1
           fi
           # Nothing asked, so no scan -- and the rest of this still runs.
@@ -1764,19 +1752,19 @@ public enum MountScript {
           record() {
             [ -s /tmp/lukotta-ntfsck.out ] || return 0
             mkdir -p /tmp/lukotta-checked || return 0
-            # Either driver, because the whole point is the volume ntfs3 will
-            # not have. On the owner's drive ntfs3 refuses the volume even after
-            # a clean check -- the mount that ends up serving it is ntfs-3g --
-            # so writing the transcript through ntfs3 alone failed for exactly
-            # the same reason the transcript was wanted.
-            if mount -t ntfs3 "$dev" /tmp/lukotta-checked 2>/dev/null ||
-               mount -t ntfs-3g "$dev" /tmp/lukotta-checked 2>/dev/null; then
+            # ntfs3 only, and the transcript is lost where it will not mount.
+            #
+            # ntfs-3g would write it on a volume ntfs3 refuses, which is exactly
+            # where it is most wanted -- and it is FUSE: its daemon outlives a
+            # failed umount and leaves the device busy for the mount this rung
+            # is about to make. That hung the app, measured. Losing the
+            # transcript is the cheaper of the two.
+            if mount -t ntfs3 "$dev" /tmp/lukotta-checked 2>/dev/null; then
               cp /tmp/lukotta-ntfsck.out /tmp/lukotta-checked/.lukotta-check.log 2>/dev/null
               umount /tmp/lukotta-checked 2>/dev/null || true
             fi
-            # Not with -o force. A volume neither driver will mount is a volume
-            # this has no business writing a log file onto, and losing the
-            # transcript is the cheaper of the two.
+            # Not with -o force either: a volume that will not mount is a
+            # volume this has no business writing a log file onto.
           }
 
           if [ "$scan" = 1 ] && command -v ntfsck >/dev/null 2>&1; then
