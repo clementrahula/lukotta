@@ -227,5 +227,5 @@ else
   exit 1
 fi
 
-rm -rf "$MOUNT/$WITNESS"
+rm -rf "${MOUNT:?}/${WITNESS:?}"
 [ "$REAL" = 1 ] || pkill -f "anylinuxfs mount.*$(basename "$DEV")" >/dev/null 2>&1
