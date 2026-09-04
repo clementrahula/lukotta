@@ -736,6 +736,23 @@ Properties of the design. Each has been decided, and arriving at one and
 - **Apple Silicon, macOS 15 or later, no Mac App Store.** Sandboxed apps cannot
   read raw devices or elevate.
 - **TPM-sealed volumes and detached LUKS headers cannot be opened.**
+- **A hibernated NTFS volume is opened read-only and is not repaired.** Windows
+  left a memory image describing state the disk does not have, so the filesystem
+  is deliberately stale rather than merely unclean. `ntfsck -f` would repair it
+  by discarding that image, which is the one thing here that loses work nobody
+  agreed to lose. The check refuses it, the refusal fails the rung, and the
+  ladder ends at read-only -- which is the right answer to that drive. No rung
+  runs the check with `|| true` after it for this reason; a refusal that cannot
+  fail its rung is decoration.
+- **An NTFS volume is checked only when it has asked, and only once.** A full
+  `ntfsck` reads the whole MFT -- 59 seconds on a 247 GB drive, measured -- so
+  checking wherever it might help would charge every healthy drive for the few
+  damaged ones. A volume asks in one of two ways: the reclaim walk wrote "could
+  not move:" into `.lukotta-reclaim.log`, or ntfs3 refuses a volume ntfs-3g will
+  take. The second exists because a drive damaged somewhere else and brought
+  here has no log at all, and it is bounded by the transcript the check leaves
+  in `.lukotta-check.log` -- written on failure too -- so a volume nothing can
+  fix is scanned once rather than on every open.
 - **A symbolic link whose target holds a slash and a character outside ASCII
   cannot be made, and one that exists cannot be followed.** The `nfc` mount
   option does it, the same volume mounted without it is fine, and the end-to-end
