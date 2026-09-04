@@ -288,6 +288,36 @@ app has never checked is checked once.
 **The rest is not mine and is still a fail.** Three requests past five seconds
 with nothing else running, worst 5.618 s. Item 1 remains open.
 
+### Three runs under the corrected verdict, and what is left
+
+    run 1   1600 MB in 205 s   p50 0.029  p99 2.593  worst 3.765   0 past 5s
+    run 2   1600 MB in 202 s   p50 0.028  p99 3.616  worst 5.616   2 past 5s
+    run 3   1600 MB in 207 s   p50 0.028  p99 3.016  worst 5.222   1 past 5s
+
+    operations that failed                    0, 0, 0
+    times macOS called the server unresponsive 0, 0, 0
+
+Ninety percent of requests answer in 31 ms. What remains is a handful of pauses
+of two to six seconds per 1600 MB, during which the whole mount is quiet -- a
+second sampler watching the growing file stalls in the same window, so it is not
+one unlucky request but the filesystem.
+
+**What has been excluded, each by measurement rather than argument.**
+
+    more nfsd threads          measured; more writers on a drive that manages
+                               twelve megabytes a second, the queue grows
+    vm.dirty_bytes             measured; cost seven eighths of the throughput
+    vm.dirty_background_bytes  measured; the copy never finished, the mount
+                               died and macOS took the volume away
+    the reclaim walk           measured; it was half of it, and is gone
+    a fixture on fast storage  worst 0.031 s -- the tail tracks device speed
+
+**What would settle it and is not available tonight.** A second drive. Every
+number here is from one 247 GB USB stick that writes at 7.6 MB/s; whether the
+residual tail is that device or this stack cannot be told apart with one device.
+The sweep across the new sticks answers it, and until then item 1 stays open
+rather than being called met on three runs of one drive.
+
 ### The five-second bar does not mean what the harness says it means
 
 The harness's threshold rests on one sentence: macOS tells somebody the server
