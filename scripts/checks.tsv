@@ -40,7 +40,7 @@ goal7	goal	slow	a dirty NTFS volume is repaired, data intact	bash scripts/dirty-
 goal8	goal	long	a dozen volumes under 8 GB of pressure, still served	bash scripts/twelve-under-pressure.sh
 goal9	goal	long	integrity across every vector devised	bash scripts/vectors-every-format.sh
 goal10	goal	fast	no UX cost anywhere in the above	bash scripts/run-tests.sh
-cost	ux	long	a durability option does not cost a copy its speed	
+cost	ux	slow	a durability option does not cost a copy its speed	MB=500 bash scripts/durability-cost.sh
 unit	code	fast	the unit checks pass	bash scripts/run-tests.sh
 lint	code	fast	the sources lint clean	bash scripts/lint.sh
 private	privacy,release	fast	no release carries anything of the owner's	/usr/bin/python3 scripts/check-private.py
