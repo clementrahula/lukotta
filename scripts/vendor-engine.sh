@@ -284,6 +284,26 @@ echo "  packing rootfs (this takes a moment)…"
 # attribute beside each file, which ustar cannot carry and pax can. Without them
 # the engine hands the guest a filesystem owned by whoever installed the app,
 # and nothing that needs root inside the machine will run.
+# The NTFS checker, where the guest can reach it.
+#
+# Alpine packages no checker at all -- ntfs-3g and its progs, which is ntfsfix
+# and friends -- and ntfsfix is not a chkdsk: it clears the dirty flag and does
+# not repair a directory index entry pointing at an MFT record that will not
+# resolve. On a real drive that name then refuses ls, stat, mv, rm and mkdir
+# alike, under both drivers, for good. Measured on hardware.
+#
+# scripts/build-ntfsck.sh builds one from ntfsprogs-plus for this architecture
+# and libc. If it has not been run there is simply no checker and the app
+# behaves as it did before, so this is optional in the same way the patched
+# engine is.
+if [ -x "$HERE/vendor/engine-built/ntfsck" ]; then
+  /usr/bin/ditto "$HERE/vendor/engine-built/ntfsck" "$STAGE/usr/sbin/ntfsck"
+  chmod 0755 "$STAGE/usr/sbin/ntfsck"
+  echo "  ntfsck added to the guest ($(wc -c < "$HERE/vendor/engine-built/ntfsck" | tr -d ' ') bytes)"
+else
+  echo "  no ntfsck vendored; run scripts/build-ntfsck.sh to repair NTFS damage"
+fi
+
 /usr/bin/tar --format pax -czf "$OUT/alpine/rootfs.tar.gz" -C "$(dirname "$STAGE")" rootfs
 rm -rf "$(dirname "$STAGE")"
 
@@ -305,7 +325,8 @@ done
 # mounted, or the export served. Each arrives unexecutable if its recorded mode
 # was missing or unreadable, and each then fails somewhere else entirely.
 for tool in bin/lsblk sbin/cryptsetup bin/mount sbin/blkid bin/busybox \
-            sbin/mount.ntfs-3g sbin/rpc.nfsd sbin/exportfs sbin/rpc.mountd; do
+            sbin/mount.ntfs-3g sbin/rpc.nfsd sbin/exportfs sbin/rpc.mountd \
+            usr/sbin/ntfsck; do
   [ -e "$CHECK/rootfs/$tool" ] || continue   # not every image carries every one
   [ -x "$CHECK/rootfs/$tool" ] || fault="$fault $tool-not-executable"
 done
