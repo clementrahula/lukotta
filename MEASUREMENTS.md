@@ -3547,3 +3547,34 @@ from `scripts/build-engine.sh` with a probe in the FLUSH arm to see whether the
 request arrives and what the device answers. That is the next piece of work on
 this, and it is a different kind of work from everything above it: the app has
 no lever left to pull.
+
+## The poisoned name happens on real hardware too — 2026-09-04
+
+The durability harness stopped being able to write, and the reason was not the
+drive and not durability. It was the fault found yesterday on fixtures,
+reproduced on a real BitLocker/NTFS drive by the harness's own kills:
+
+    mkdir lukotta-durability   Input/output error
+    ls    lukotta-durability   Input/output error
+    rmdir lukotta-durability   Input/output error
+    a fresh name               created without complaint
+
+The name is in the listing and cannot be read, removed, or recreated. Exactly
+the shape of the fixture fault -- unreadable, undeletable, unrecreatable -- with
+EIO here where ntfs3 said EINVAL on an image.
+
+**Which means the reclaim does not cover this case.** It is gated on the ntfs-3g
+rung, on the reasoning that reaching ntfs-3g means ntfs3 refused the volume and
+that is the signal of damage. This drive mounts on ntfs3 and is damaged, so the
+reclaim never runs and the name stays poisoned for good.
+
+**And it corrects the durability finding above.** The first run's loss was real
+-- it wrote 8 MiB, fsync returned, a sha was taken, and the file was gone after
+the kill. The runs after it were not: each killed the machine while writing into
+a name its predecessor had poisoned, so the write never happened at all and the
+harness, which did not check, reported "a committed write was lost" about a
+write that was never made. Three of the four, and every run since.
+
+So the honest state of the durability question is **one measured loss, not
+four**, and it needs re-running now that the harness refuses to give a verdict
+when nothing was written and now that a fresh directory name is used each time.

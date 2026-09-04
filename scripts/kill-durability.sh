@@ -127,6 +127,19 @@ else
   say "attached $DEV"
 fi
 
+# Anything already served, let go of first.
+#
+# This kills an engine and leaves its mount in the table: dead, answering
+# `mount`, answering nothing else. The next run then found that stale mount
+# with where(), wrote into it, and got "Input/output error" -- reported first
+# as a lost committed write and later, once the harness checked, as a write
+# that never happened. Neither was about the drive.
+for stale in $(mount | /usr/bin/grep '\.local:' | awk '{print $3}' \
+               | awk '{print length, $0}' | sort -rn | cut -d" " -f2-); do
+  umount "$stale" >/dev/null 2>&1 || umount -f "$stale" >/dev/null 2>&1
+done
+sleep 2
+
 say "opening…"
 open_device || { say "it did not mount"; sed 's/^/    /' "$WORK/engine.log"; exit 1; }
 MOUNT="$(where)"
