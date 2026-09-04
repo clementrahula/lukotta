@@ -1632,6 +1632,14 @@ public enum MountScript {
     /// loses work nobody agreed to lose. Read-only is the right answer to that
     /// drive and it is the answer it keeps.
     ///
+    /// Which is why no rung runs this with `|| true` after it. A refusal that
+    /// cannot fail its rung is not a refusal: the ladder would go on to mount
+    /// the volume writable and the hibernation guard would be decoration. Every
+    /// rung that can serve a writable NTFS volume lets this exit status through,
+    /// and a rung it fails falls to the next -- and past the last of them, to
+    /// read-only, which is exactly what a volume nobody can safely write to
+    /// should get.
+    ///
     /// `-S` is not passed either. Salvage mode "may discard unrecoverable
     /// data"; plain `-a` repairs the structure and keeps what it cannot place,
     /// which is what lost+found is for.
@@ -1671,30 +1679,58 @@ public enum MountScript {
           # is the only durable evidence of damage a mount will not reveal by
           # failing.
           #
-          # LUKOTTA_CHECK=force runs it regardless, so a harness can measure a
-          # check without first having to damage something.
+          # There is no override. One was written -- LUKOTTA_CHECK=force -- and
+          # it could never have fired: the guest inherits nothing from the Mac
+          # but the variables the action names, so the check would have read an
+          # empty string on every machine and the lever would have sat in the
+          # source looking like a way to measure something. That exact shape has
+          # already cost this project a whole invalid comparison. A harness that
+          # wants a check damages a volume, or writes the line the walk writes.
           #
           # Asked here rather than at each call site: the probe rung asked with
           # its own read-only mount and the ntfs-3g rung had no way to ask at
           # all, so the rung that serves damaged drives ran a full scan every
           # time. One gate, and every rung gets the same one.
-          if [ "${LUKOTTA_CHECK:-}" != "force" ]; then
-            asked=0
-            mkdir -p /tmp/lukotta-ask 2>/dev/null
-            if mount -t ntfs3 -o ro "$dev" /tmp/lukotta-ask 2>/dev/null ||
-               mount -t ntfs-3g -o ro "$dev" /tmp/lukotta-ask 2>/dev/null; then
-              grep -l "could not move:" /tmp/lukotta-ask/.lukotta-reclaim.log \
-                >/dev/null 2>&1 && asked=1
-              umount /tmp/lukotta-ask 2>/dev/null || true
-            else
-              # Neither driver will mount it read-only, which is damage by
-              # itself: check it.
-              asked=1
-            fi
-            if [ "$asked" = 0 ]; then
-              echo "lukotta: nothing has asked for a check on $dev"
-              return 0
-            fi
+          asked=0
+          mkdir -p /tmp/lukotta-ask 2>/dev/null
+          if mount -t ntfs3 -o ro "$dev" /tmp/lukotta-ask 2>/dev/null; then
+            grep -l "could not move:" /tmp/lukotta-ask/.lukotta-reclaim.log \
+              >/dev/null 2>&1 && asked=1
+            umount /tmp/lukotta-ask 2>/dev/null || true
+          elif mount -t ntfs-3g -o ro "$dev" /tmp/lukotta-ask 2>/dev/null; then
+            # ntfs3 will not have it and ntfs-3g will.
+            #
+            # That is damage, and it is the case the reclaim log cannot speak
+            # for: a drive damaged somewhere else and brought here has no log,
+            # because this app has never walked it -- and that is exactly the
+            # drive somebody needs help with. Asking only the log meant the
+            # one arrival that matters was the one waved through.
+            #
+            # ntfs3 refusing is a signal rather than a guess. What it refuses
+            # is a directory entry whose MFT reference keeps a sequence the
+            # record has moved past, which is precisely what the check
+            # repairs -- and it is the same signal the ntfs-3g rung's whole
+            # reason for existing is built on.
+            #
+            # Once, though, not on every open. A volume ntfsck cannot bring
+            # clean goes on being refused by ntfs3 for ever, so this signal
+            # never stops firing: the ladder would run a full scan on the
+            # probe rung, fail, run it again on the ntfs-3g rung, and charge
+            # two minutes to every open of a drive nothing can fix. The
+            # transcript the check leaves behind is the record that it has
+            # already been tried -- and it is written on failure too, for
+            # exactly this. Something newly broken still asks through the
+            # reclaim log above.
+            [ -e /tmp/lukotta-ask/.lukotta-check.log ] || asked=1
+            umount /tmp/lukotta-ask 2>/dev/null || true
+          else
+            # Neither driver will mount it read-only, which is damage by
+            # itself: check it.
+            asked=1
+          fi
+          if [ "$asked" = 0 ]; then
+            echo "lukotta: nothing has asked for a check on $dev"
+            return 0
           fi
 
           # What the check did, left on the volume it did it to.
@@ -2020,9 +2056,14 @@ public enum MountScript {
     /// is the first moment one is possible -- a check needs the volume
     /// unmounted, and here it still is.
     ///
-    /// It costs nothing to ask. The probe already mounts read-only and throws
-    /// the mount away; this reads one small file while it is there. A volume
-    /// with nothing to say is mounted exactly as before.
+    /// The check runs before this probe rather than after it, and the order is
+    /// the difference between the in-kernel driver and the FUSE one. The probe
+    /// fails the rung when ntfs3 will not take the volume -- which is exactly
+    /// what a damaged volume makes it do -- so a check placed after it could
+    /// only ever run on volumes that were already fine. The owner's drive fell
+    /// through to ntfs-3g, was repaired there, and went on being served by FUSE
+    /// for the rest of the session although ntfs3 would have had it by then.
+    /// Checking first means the same open ends with ntfs3 serving it.
     ///
     /// So a damaged drive repairs itself on the open after the one that found
     /// the damage, and nobody is asked anything.
@@ -2031,13 +2072,7 @@ public enum MountScript {
         + "mkdir -p /tmp/lukotta-probe; "
         + "mount -t ntfs3 -o ro \"`blkid -t TYPE=ntfs -o device | head -n 1`\" "
         + "/tmp/lukotta-probe 2>/dev/null || exit 1; "
-        + "umount /tmp/lukotta-probe 2>/dev/null || true; "
-        // The check unmounted, and its failure left alone. It reports non-zero
-        // for a volume it will not touch -- a hibernated one above all -- and
-        // that is a reason to mount the drive as it stands, not a reason to
-        // refuse the mount this rung was about to make.
-        + "sh \(checkScriptPath) || true; "
-        + "true"
+        + "umount /tmp/lukotta-probe 2>/dev/null || true"
 
     /// How much of a write goes in one request.
     ///
@@ -2149,7 +2184,7 @@ public enum MountScript {
         [custom_actions.\(ntfs3ProbeActionName)]
         description = 'Generated by Lukotta; ntfs3 must pass a read-only probe first'
         \(guestEnvironment)
-        before_mount = '\(nfsBlockSize); \(writeCheckScript); \(ntfs3Probe); \(writeReclaimScript)'
+        before_mount = '\(nfsBlockSize); \(writeCheckScript); sh \(checkScriptPath); \(ntfs3Probe); \(writeReclaimScript)'
         after_mount = 'nohup sh \(reclaimScriptPath) >/dev/null 2>&1 &'
 
         [custom_actions.\(repairActionName)]
@@ -2161,7 +2196,7 @@ public enum MountScript {
         [custom_actions.\(ntfs3gActionName)]
         description = 'Generated by Lukotta; frees names ntfs3 would not touch'
         \(guestEnvironment)
-        before_mount = '\(nfsBlockSize); \(writeCheckScript); sh \(checkScriptPath) || true; \(writeReclaimScript)'
+        before_mount = '\(nfsBlockSize); \(writeCheckScript); sh \(checkScriptPath); \(writeReclaimScript)'
         after_mount = 'nohup sh \(reclaimScriptPath) >/dev/null 2>&1 &'
         """
     }

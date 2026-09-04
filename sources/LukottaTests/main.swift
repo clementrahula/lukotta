@@ -5440,6 +5440,8 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     // real 247 GB BitLocker drive with five of them.
     let probe = MountScript.ntfs3Probe
     let check = MountScript.checkAndRepair
+    let writableScriptEarly = MountScript.build(sampleInputs(kind: .microsoft))
+    _ = probe
 
     // The gate lives inside the check, not at each call site. It was in the
     // probe, which meant the ntfs-3g rung -- the one a damaged drive actually
@@ -5451,9 +5453,20 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     expect(
         check.contains("could not move:"),
         "and it looks for the line the walk actually writes")
+    // The probe itself no longer runs the check; the rung runs the check first
+    // and the probe after. The probe fails the rung on exactly the volumes a
+    // check would repair, so a check placed after it could only ever run on
+    // volumes that were already fine.
+    let probeAt = writableScriptEarly.range(of: "mount -t ntfs3 -o ro").map {
+        writableScriptEarly.distance(from: writableScriptEarly.startIndex, to: $0.lowerBound)
+    }
+    let checkAt = writableScriptEarly.range(of: "sh " + MountScript.checkScriptPath).map {
+        writableScriptEarly.distance(from: writableScriptEarly.startIndex, to: $0.lowerBound)
+    }
+    expect(checkAt != nil && probeAt != nil, "the rung carries both the check and the probe")
     expect(
-        probe.contains(MountScript.checkScriptPath),
-        "and the probe rung runs the check")
+        (checkAt ?? 1) < (probeAt ?? 0),
+        "and repairs before probing, so ntfs3 can serve a drive it just repaired")
 
     // Order matters: the gate reads the log through its own read-only mount,
     // and that mount is gone before ntfsck touches the device.
@@ -5467,8 +5480,42 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
         (at("umount /tmp/lukotta-ask") ?? 1) < (at("ntfsck -a") ?? 0),
         "and the check runs only once that mount is gone")
     expect(
-        check.contains("exit 0"),
+        check.contains("exit 0") || check.contains("return 0"),
         "a volume that has not asked is left alone rather than scanned")
+
+    // The reclaim log cannot speak for a drive damaged somewhere else and
+    // brought here: this app has never walked it, so there is no log -- and
+    // that is exactly the drive somebody needs help with. ntfs3 refusing a
+    // volume ntfs-3g will take is the other way the volume asks.
+    expect(
+        check.contains("elif mount -t ntfs-3g -o ro"),
+        "a volume ntfs3 refuses and ntfs-3g accepts is checked, log or no log")
+    let ntfs3At = check.range(of: "mount -t ntfs3 -o ro").map {
+        check.distance(from: check.startIndex, to: $0.lowerBound)
+    }
+    let fallbackAt = check.range(of: "elif mount -t ntfs-3g -o ro").map {
+        check.distance(from: check.startIndex, to: $0.lowerBound)
+    }
+    expect(
+        (ntfs3At ?? 1) < (fallbackAt ?? 0),
+        "and ntfs3 is asked first, or its refusal is never the thing observed")
+
+    // Once, not on every open. A volume ntfsck cannot bring clean goes on being
+    // refused by ntfs3 for ever, so that signal never stops firing: without
+    // this the ladder scans on the probe rung, fails, scans again on the
+    // ntfs-3g rung, and charges two minutes to every open of a drive nothing
+    // can fix.
+    expect(
+        check.contains(".lukotta-check.log") && check.contains("|| asked=1"),
+        "a volume already checked and still refused is not scanned again")
+
+    // A refusal that cannot fail its rung is not a refusal. The check exits
+    // non-zero for a hibernated volume and for damage its dry run will not
+    // vouch for; if a rung swallowed that with `|| true`, the ladder would go
+    // on to mount the volume writable and the guard would be decoration.
+    expect(
+        !writableScriptEarly.contains("sh " + MountScript.checkScriptPath + " || true"),
+        "no rung swallows the check's refusal")
 
     // Both rungs that can serve a writable NTFS volume carry it.
     let writableScript = MountScript.build(sampleInputs(kind: .microsoft))
