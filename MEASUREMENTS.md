@@ -3060,3 +3060,42 @@ at that point now.
 
 That is LVM inside LUKS, two fixtures, twenty-four vectors, none failing —
 against an advertised feature that had never been tested at all this morning.
+
+### Eight fsynced files lost, on the second volume of an encrypted drive — 2026-09-04
+
+Found only because the harness began choosing the roomiest logical volume
+instead of the deepest-named one, which happened to be the first.
+
+    luks1-lvm, before
+      FAIL what was written before the unmount survived it
+      FAIL every fsynced file survived power loss (0 of 8 present, 0 wrong, 8 lost)
+      10 passed, 2 failed
+
+    plain LUKS, same vector, same day        8 of 8 present, 0 wrong, 0 lost
+
+**Why one volume of a drive was safe and the other was not.** A container's
+first volume is bound from the mount the engine made, so it inherits everything
+that mount was given -- including the `sync` a LUKS volume gets because the app
+cannot read the filesystem inside it to choose anything cheaper. Every other
+volume is mounted by the generated action:
+
+    mount ${ro}/dev/<vg>/<lv> <scratch>/<name>
+
+with nothing at all. The client-side option cannot reach them: those mounts are
+made by the guest. So somebody with two logical volumes inside one encrypted
+drive had one that survived a power cut and one that did not, and nothing
+anywhere said which was which.
+
+**Fixed and measured:**
+
+    luks1-lvm, after      12 passed, 0 failed
+
+The same intent is carried on the side that mounts them. Where the superblock
+can be read the cheaper per-filesystem option is used instead of a blanket
+sync, and a volume needing neither is given neither, because it is not free --
+a gigabyte corpus costs 12 seconds against 17.
+
+**This is the fourth defect the widened sweep has produced**, and the second
+that was in the app rather than in the harness. Neither would have been found by
+any check that existed yesterday: LVM inside LUKS had never been tested, and the
+first volume of a container is the one that was always safe.
