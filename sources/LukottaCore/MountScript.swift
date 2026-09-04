@@ -1742,7 +1742,19 @@ public enum MountScript {
         + "if [ ! -e \"$e\" ]; then bad=2; "
         + "elif [ -d \"$e\" ] && ! ls \"$e\" >/dev/null 2>&1; then bad=2; fi; fi; "
         + "if [ \"$bad\" = 2 ]; then "
-        + "mv \"$e\" \"$p/.lukotta-unreadable-$b\" 2>/dev/null; "
+        // What it found and whether it could act, left where it can be read.
+        //
+        // The walk runs inside the guest and its output goes nowhere, so when
+        // it did nothing on a real drive there was no way to tell whether it
+        // had not run, not found the entry, or found it and failed to move it.
+        // It was the third: the rename fails with EIO exactly as every other
+        // call on that name does. One hidden line per entry, on the volume,
+        // because that is the only place both sides can see.
+        + "if mv \"$e\" \"$p/.lukotta-unreadable-$b\" 2>/dev/null; then "
+        + "echo \"moved aside: $e\" >> \"$M/.lukotta-reclaim.log\" 2>/dev/null; "
+        + "else "
+        + "echo \"could not move: $e\" >> \"$M/.lukotta-reclaim.log\" 2>/dev/null; "
+        + "fi; "
         + "elif [ -d \"$e\" ]; then printf \"%s\\n\" \"$e\" >> $N; "
         + "fi; "
         + "done; "
