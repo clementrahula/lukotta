@@ -476,7 +476,18 @@ else
 fi
 
 # 5. Run it out of space. ENOSPC is an answer; a hang is not.
-rm -rf "$VOL/vec-full"; mkdir -p "$VOL/vec-full"
+# Everything the vectors have written, not only what filled it.
+#
+# Removing vec-full alone left every earlier vector's data in place, and on a
+# small volume that is most of it: a 376 MB logical volume came back with 28 KB
+# free and this was reported as the room not coming back. By hand, on a clean
+# volume of the same kind, filling to zero and deleting returns 242 MB at once
+# -- so the space is reclaimed properly and what was measured was the harness's
+# own leftovers.
+#
+# Nothing after this point reads what came before it: each vector checks its own
+# data before the next begins.
+rm -rf "$VOL"/vec-*; mkdir -p "$VOL/vec-full"
 start=$(date +%s)
 timeout 300 dd if=/dev/zero of="$VOL/vec-full/filler.bin" bs=1048576 status=none 2>"$WORK/full.err"
 rc=$?; elapsed=$(( $(date +%s) - start ))
