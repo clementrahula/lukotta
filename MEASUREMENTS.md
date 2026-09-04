@@ -3717,3 +3717,28 @@ hardware rather than on an image, ten times.
 `rm`, `mv` and `mkdir` alike. Everything else this testing put there has been
 cleared. It is recorded here rather than quietly left, because it is the
 physical evidence of the fault and because the owner should know it is there.
+
+### ntfs-3g cannot free it either, and Alpine has no checker — 2026-09-04
+
+The earlier "ntfs-3g also fails" was taken through a lever that did nothing, so
+it was never tried. Tried properly, by building the ladder the other way round
+and confirming from the mount action which rung was in force:
+
+    ls      Input/output error
+    stat    Input/output error
+    mv      Input/output error
+    rm -rf  Input/output error
+
+So neither driver can touch the entry on real hardware. On a fixture, ntfs-3g
+could move it aside; here nothing can.
+
+**And there is no checker to be had.** The guest is Alpine, and Alpine packages
+only `ntfs-3g`, `ntfs-3g-libs` and `ntfs-3g-progs` — `ntfsfix`, `ntfsinfo`,
+`ntfsls` and the rest, with no `ntfsck` among them and no separate ntfsprogs.
+Freeing a poisoned index entry means a tool built from source and vendored into
+the guest image, which is a piece of work in itself and is where this goes next.
+
+**What the drive is today.** Ten interrupted copies clean, three committed
+writes surviving a killed machine, copies byte-identical, the Keychain unlock
+working with nothing typed. One folder from this evening's earlier runs cannot
+be removed and everything else has been cleared.
