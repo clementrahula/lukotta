@@ -62,6 +62,72 @@ through the host's buffer cache, which killing the guest does not discard, so
 this vector under-reports on images and clean runs there prove nothing either.
 Only a real drive settles it.
 
+## The BitLocker drive's five unusable names, repaired — 2026-09-04
+
+Five entries on the owner's 247 GB BitLocker drive that answered `Input/output
+error` to `stat`, `ls`, `rm`, `mv` and `mkdir` alike, and had done since an
+interrupted copy days earlier. The volume mounted perfectly; nothing about it
+was dirty. The guest kernel says what they are:
+
+    ntfs3(dm-0): MFT: r=16f8, expect seq=67 instead of b1!
+    ntfs3(dm-0): MFT: r=16f8, expect seq=5f instead of b1!
+    ntfs3(dm-0): MFT: r=16f8, expect seq=4c instead of b1!
+    ntfs3(dm-0): MFT: r=16f8, expect seq=86 instead of b1!
+    ntfs3(dm-0): MFT: r=1a36, expect seq=e  instead of 14!
+
+Five directory index entries whose MFT references keep sequence numbers the
+records have moved past, pointing at two records that have since been reused.
+ntfs3 refuses them, rightly -- that check is what stops a stale handle resolving
+to whatever now occupies the record.
+
+**What the app did before: nothing, for ever.** The repair rung is reached only
+when a writable mount fails, and this volume mounts. The reclaim walk found all
+five and could not move them -- a rename fails with EIO exactly as everything
+else on those names does -- and wrote so into `.lukotta-reclaim.log`, where
+nothing read it.
+
+**Three measurements, in the order they came, two of them bad.**
+
+    ntfsck once, on the repair rung   5599 of 5605 fixed, 2 errors left,
+                                      dirty flag still set, volume unmountable
+    ntfsck to convergence             pass 2 applies the bitmap update pass 1
+                                      declined; Clean; volume mounts again
+    the same, on the real drive       Clean -- and all five names still EIO
+
+The third is the one that mattered and it was wrong in a way worth recording:
+the check ran on the probe rung and the repair rung, and this drive reaches
+neither. ntfs3 refuses it, the ladder falls through, and **ntfs-3g serves it** --
+the one rung that never checked. Every run that evening repaired nothing because
+the checker never saw the volume.
+
+**After the check was put on that rung**, read from `.lukotta-check.log`, which
+the check now leaves on the volume it checked:
+
+      * Directory index: 5 corrupted entry(ies)
+    Clean, No errors found or left (errors:1003, fixed:1003)
+
+    before   5 names, every call EIO, reclaim log 5 lines of "could not move:"
+    after    5 names free, mkdir succeeds on every one, reclaim log 0 lines
+    holds    across an eject and reopen, still 0
+
+**What it costs when nothing is wrong: nothing.** The check reads the whole MFT
+-- 59 s on this drive -- so it runs only where the volume has asked for it, and
+the volume asks by carrying that "could not move:" line. Opening the repaired
+drive twice more:
+
+    open with the check      91 s
+    open, nothing asked      30 s, log says "nothing has asked for a check"
+    open, nothing asked      30 s
+
+Three things were needed to see any of this, and each had hidden the last:
+`ntfsck` had to exist in the guest at all (it is not in Alpine; built from
+ntfsprogs-plus); it had to run more than once, because its first pass declines
+its own mass-free; and it had to run on the rung that actually serves a damaged
+drive. The transcript had to be carried onto the volume as well -- every mount
+attempt runs its own machine, so what the check wrote to /tmp died with the
+attempt, and the mount log lives in a workspace deleted on the way out. The one
+run whose words were needed was the one nobody could read back.
+
 ## BitLocker/NTFS on the Patriot stick — 2026-09-02
 
 Opened by Lukotta with a key taken from the Keychain. Nothing was typed: the
