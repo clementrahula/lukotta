@@ -22,9 +22,6 @@ import SystemConfiguration
 /// The daemon runs as root and can read any device node, so this is the one
 /// place the answer is always available.
 private func durabilityFor(devicePath: String, probed: VolumeFormat) -> String? {
-    if ProcessInfo.processInfo.environment["LUKOTTA_NO_DURABILITY"] == "1" {
-        return nil
-    }
     if let fromSuperblock = ExtJournal.durabilityOption(forDevice: devicePath) {
         return fromSuperblock
     }
@@ -486,9 +483,11 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 luksMinRamMiB: luksFloor(devicePath: devicePath),
                 // The daemon runs as root and can read any device node, so
                 // this is the one place the answer is always available.
-                // LUKOTTA_NO_DURABILITY is an experiment lever, not a
-                // setting: it withholds the option so one drive can be measured
-                // with it and without it. Unset, nothing changes.
+                // No lever for withholding this: one was added and removed
+                // the same evening. It was read here, in the daemon, which does
+                // not inherit the environment of whoever ran the app -- so the
+                // "without the option" runs it was meant to produce all had the
+                // option, and the comparison drawn from them said nothing.
                 //
                 // A container hides the superblock the option is read from, so
                 // it gets the blunt one: `sync` is a VFS option and means the

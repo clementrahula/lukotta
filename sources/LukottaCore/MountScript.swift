@@ -847,14 +847,18 @@ public enum MountScript {
         // engine mounts what it found. Only NTFS -- and BitLocker, which is
         // NTFS once it is unlocked -- wants the pair.
         let wantsNTFS = i.kind == .microsoft && i.format != .exfat
-        // LUKOTTA_NTFS_FIRST is an experiment lever, not a setting: it decides
-        // which NTFS driver is tried first, so the two can be compared on a real
-        // drive without editing and rebuilding for each. Unset, the order is
-        // what ships.
-        let preferThreeG =
-            ProcessInfo.processInfo.environment["LUKOTTA_NTFS_FIRST"] == "ntfs-3g"
-        let ntfsLadder = preferThreeG ? ["ntfs-3g", "ntfs3"] : ["ntfs3", "ntfs-3g"]
-        let drivers: [String?] = wantsNTFS ? ntfsLadder : [nil]
+        // No lever here, and the reason is worth keeping.
+        //
+        // LUKOTTA_NTFS_FIRST was added to compare the two drivers on a real
+        // drive without rebuilding twice, and it could never have worked: this
+        // script is built inside the privileged daemon, which does not inherit
+        // the environment of whoever ran the app. The run that used it reported
+        // the driver it was meant to change and had not changed it.
+        //
+        // An experiment lever that silently does nothing is worse than none. It
+        // produced a measurement that looked like a controlled comparison and
+        // was two runs of the same thing.
+        let drivers: [String?] = wantsNTFS ? ["ntfs3", "ntfs-3g"] : [nil]
         // The engine resolves whatever target it is handed by prefixing /dev/,
         // so an alias elsewhere never resolves and produced a
         // "disk /dev//var/folders/… not found" line ahead of every mount.

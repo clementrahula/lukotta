@@ -3610,3 +3610,51 @@ given one.
 
 **The lever stays.** `LUKOTTA_NO_DURABILITY` withholds the option so this
 comparison can be made again in one command rather than by rebuilding twice.
+
+### The counterfactual was not one, and the answer holds anyway — 2026-09-04
+
+The comparison that justified withdrawing the NTFS durability option was
+invalid. `LUKOTTA_NO_DURABILITY` was read in the privileged daemon, which does
+not inherit the environment of whoever runs the app, so both arms of "with it
+and without it" had it. Six runs of the same thing, presented as a controlled
+comparison. The same flaw applied to `LUKOTTA_NTFS_FIRST`: the run meant to use
+ntfs-3g reported `ntfs3` in its own mount args and had changed nothing.
+
+Both levers are removed. An experiment lever that silently does nothing is worse
+than none.
+
+**Redone properly**, with the option genuinely absent from the build and the
+mount args showing it:
+
+    mount args: ["-t","ntfs3","/dev/mapper/btlk0","/mnt/BACKUP2_TS",
+                 "-o","iocharset=utf8,uid=501,gid=20"]
+
+    run 1  survived, byte-identical (8388608 bytes)
+    run 2  survived, byte-identical (8388608 bytes)
+    run 3  survived, byte-identical (8388608 bytes)
+
+So NTFS survives a killed machine with no durability option, and the withdrawal
+stands — on evidence this time rather than on a comparison that never happened.
+
+### The poisoned name cannot be freed on real hardware — 2026-09-04
+
+The reclaim was broadened to every writable NTFS mount, and made to say what it
+did. On the real drive it says:
+
+    could not move: /mnt/BACKUP2_TS/lukotta-durability
+
+So it runs, it finds the entry, and the rename fails. From the host every call
+on that name fails the same way -- `ls`, `stat`, `mv`, `rm`, `mkdir`, all EIO --
+and `test -e` and `test -d` both answer no while the name sits in the listing.
+
+**This is worse than the fixture case.** There the entry answered EINVAL and a
+rename moved it aside, which freed the name. Here nothing touches it. The
+reclaim is right to try and cannot succeed, so a name poisoned on real hardware
+stays poisoned.
+
+**What is left is a repair the platform does not have.** The entry is a
+directory index record NTFS itself will not resolve; freeing it means editing
+that index, which is what chkdsk does and which nothing on macOS or Linux
+offers. The honest position is that this app cannot undo it, and the work that
+matters is making sure it never happens -- which is item 3, and which is about
+what an interrupted copy leaves behind rather than what can be recovered after.
