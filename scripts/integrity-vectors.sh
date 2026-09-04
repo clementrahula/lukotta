@@ -311,6 +311,27 @@ APP_DEV=""
 # run to look for a volume by that name finds it. A stray /Volumes/SWEEP from
 # one run was still there while the next was going, which is exactly the shape
 # of instrument fault this harness has been fooled by before.
+# Puts away everything the drive is serving, deepest first.
+#
+# `umount -f "$VOL"` takes one share, and a container of logical volumes serves
+# three: a parent, and each volume mounted inside it. Taking one left the parent
+# holding the device, so the next open failed on a lock still held and every
+# vector that reopens a volume failed together -- three open/close cycles
+# reported 0 of 3, and each power-loss vector said "never remounted". The same
+# image opened and closed by hand manages three cycles in a row, exit 0 and
+# three shares each time, which is what said the fault was here.
+#
+# Deepest first, because unmounting a parent while a volume sits inside it is
+# refused for being busy.
+unmount_everything() {
+  local point
+  for point in $(mount | awk '$1 ~ /\.local:/ {
+                   for (i = 1; i <= NF; i++) if ($i == "on") print $(i + 1)
+                 }' | awk '{ print length, $0 }' | sort -rn | cut -d" " -f2-); do
+    umount "$point" >/dev/null 2>&1 || umount -f "$point" >/dev/null 2>&1
+  done
+}
+
 detach_app_device() {
   [ -n "${APP_DEV:-}" ] || return 0
   # Everything the drive is serving, deepest first.
@@ -324,12 +345,7 @@ detach_app_device() {
   # same image manages three cycles in a row, exit 0, three shares each time.
   #
   # Deepest first, or unmounting the parent is refused for being busy.
-  local point
-  for point in $(mount | awk '$1 ~ /\.local:/ {
-                   for (i = 1; i <= NF; i++) if ($i == "on") print $(i + 1)
-                 }' | awk '{ print length, $0 }' | sort -rn | cut -d" " -f2-); do
-    umount "$point" >/dev/null 2>&1 || umount -f "$point" >/dev/null 2>&1
-  done
+  unmount_everything
   hdiutil detach "$APP_DEV" -quiet 2>/dev/null
 }
 trap detach_app_device EXIT
@@ -419,7 +435,7 @@ fi
 rm -rf "$VOL/vec-yanked"; mkdir -p "$VOL/vec-yanked"
 ditto "$SRC" "$VOL/vec-yanked" >/dev/null 2>&1 & dpid=$!
 sleep 3
-umount -f "$VOL" >/dev/null 2>&1
+unmount_everything
 kill -9 "$dpid" 2>/dev/null; wait "$dpid" 2>/dev/null
 if open_image; then
   VOL="$(where)"
@@ -482,7 +498,7 @@ fi
 # impatience.
 cycles=0
 for _ in 1 2 3; do
-  umount -f "$VOL" >/dev/null 2>&1
+  unmount_everything
   for _ in $(seq 1 30); do
     pgrep -f "anylinuxfs mount.*$(basename "$IMAGE")" >/dev/null 2>&1 || break
     sleep 2
@@ -632,7 +648,7 @@ kill -9 "$ppid" 2>/dev/null; wait "$ppid" 2>/dev/null
 pkill -9 -f "anylinuxfs mount.*$IMAGE" >/dev/null 2>&1
 pkill -9 -f "krun.*$(basename "$IMAGE")" >/dev/null 2>&1
 sleep 3
-umount -f "$VOL" >/dev/null 2>&1
+unmount_everything
 for _ in $(seq 1 30); do
   pgrep -f "anylinuxfs mount.*$(basename "$IMAGE")" >/dev/null 2>&1 || break
   sleep 2
