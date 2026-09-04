@@ -62,6 +62,54 @@ through the host's buffer cache, which killing the guest does not discard, so
 this vector under-reports on images and clean runs there prove nothing either.
 Only a real drive settles it.
 
+## One drive at a time, after an update — 2026-09-04
+
+The worst defect found tonight, and it was never about the repair work that
+uncovered it.
+
+    open drive 1    11 s, served
+    open drive 2    "Error: another instance is already running", status 74
+    open drive 3    the same
+    ...             the same, all the way to twelve
+    served          1 of 12
+
+**What holds the lock.** The engine keeps a single flock at
+`/tmp/anylinuxfs.lock`. A mount takes it **shared**, so any number of drives can
+be open at once -- measured directly while one was served: shared available,
+exclusive blocked. But before mounting, the engine compares the `vmproxy` inside
+the unpacked guest against the copy in the app bundle, and where they differ it
+**upgrades that lock to exclusive** to replace it. An upgrade cannot be taken
+while another drive holds the shared lock, so the second drive fails outright.
+
+Neither the global lock nor the device lock was the thing to blame, and both
+were measured before the answer was found: `/dev/rdisk7`, the drive being
+opened, was completely free -- shared and exclusive both available -- while the
+open failed anyway. `lsof` on the serving engine named the file it actually
+held.
+
+**Why the guest was stale.** The app replaces an unpacked guest when the version
+it carries differs from the version on disk, and that comparison had never once
+been true: `rootfs.ver` is upstream's image release, untouched by the trim or by
+any tool this project vendors. Adding a content digest to it -- the obvious fix
+-- would have been worse than the disease, because that file is not ours: the
+engine compiles its own copy in as a constant
+(`include_str!("../../share/alpine/rootfs.ver")`) and compares against it, so a
+home stamped `1.5.1+<digest>` never matches `1.5.1` and the image is
+re-initialised on every mount, taking the exclusive lock every time. The digest
+sat in that file for three hours, harmless only because the refresh it was meant
+to trigger was itself broken. **Two defects hiding each other.**
+
+The digest now lives in `rootfs.build`, which nothing upstream reads, and the
+unpack stamps the home with it.
+
+    before   1 of 12 served; every drive after the first refused
+    after    3 of 3 served, 11 s, 11 s, 12 s; guest refreshed once, then quiet
+
+**What a user would have seen.** Update the app; open a drive; open a second
+drive; be told the app is already running. For ever, on every launch, until the
+guest happened to be re-unpacked by something else. It reached no release only
+because the twelve-volume harness is run on every build.
+
 ## Two dirty fixtures handed back read-only — 2026-09-04
 
 A regression of my own, found the same evening it was written, and worth
