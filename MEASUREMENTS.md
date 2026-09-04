@@ -3270,3 +3270,36 @@ zero dialogs — and that is the strongest evidence obtainable on this hardware.
 The virtual-disk formats the site marks experimental (qcow2, VMDK, VDI, VHD,
 VHDX) still have no fixtures. They are marked experimental on the site, which
 is the one place a claim is allowed to be narrower than the testing.
+
+### An intermittent fsync loss on luks-multi, seen once and not reproduced — 2026-09-04
+
+Inside a full gate:
+
+    FAIL every fsynced file survived power loss (0 of 8 present, 0 wrong, 8 lost)
+    note 0 of 30 in-flight files came back at full length
+    11 passed, 1 failed
+
+Not a partial loss — nothing came back at all. Chased immediately:
+
+    the seven LUKS fixtures, standalone     7 formats, 0 with failures
+    luks-multi alone, five runs             8 of 8 present every time
+    two earlier full gates                  goal5 held in both
+
+So roughly one in eight, and it has not been seen since. **It is written down
+rather than closed**, because a total loss of fsynced data is the worst thing
+this app could do and one occurrence is not noise until it is understood.
+
+**What is known about why it is hard to trust either way.**
+`kill-durability.sh` carries the caveat in its own head: a scratch image does
+not reproduce the durability fault, because writes to an attached image reach
+the backing file through the host's buffer cache, and killing the guest does
+not discard that — macOS writes it out afterwards regardless. Only a real drive
+is evidence. So on image fixtures this vector is approximate in the safe
+direction: it under-reports. An intermittent total loss on an image is
+therefore more likely the kill landing at an unlucky moment relative to the
+host's flush than a fault in the app — and equally, five clean runs on an image
+are not proof that there is none.
+
+**What would settle it** is the same vector on a real drive, which is what
+`kill-durability.sh` takes a device argument for. That needs a drive nobody
+minds losing, plugged in.
