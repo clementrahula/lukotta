@@ -88,6 +88,28 @@ probe() {
     | /usr/bin/grep '^STATE' | sed 's/^STATE //' | head -1
 }
 
+# Entries the directory still lists and nothing can stat.
+#
+# This is the shape the owner's drive is in and it is not the same question as
+# "is the folder usable": the name is gone from a plain `ls` -- the host filters
+# what it cannot look up -- while the glob still produces it and every call on
+# it answers EIO. Counting these separately is what stops a repair that left
+# them behind from reading as a success.
+stale_count() {
+  # shellcheck disable=SC2016
+  timeout 300 "$ENGINE" shell "$IMG" -c '
+    mkdir -p /mnt/x
+    mount -t ntfs3 /dev/vda /mnt/x >/dev/null 2>&1 || { echo "STALE -1"; exit; }
+    n=0
+    for e in /mnt/x/*; do
+      [ "$e" = "/mnt/x/*" ] && [ ! -e "$e" ] && continue
+      [ -e "$e" ] || n=$((n+1))
+    done
+    echo "STALE $n"
+    umount /mnt/x >/dev/null 2>&1' 2>&1 \
+    | /usr/bin/grep '^STALE' | awk '{print $2}' | head -1
+}
+
 is_good() { case "$1" in usable|free) return 0 ;; *) return 1 ;; esac; }
 
 echo "$ROUNDS rounds on $IMAGE, cut ${CUT_AFTER}s into the second write"
@@ -122,7 +144,7 @@ for r in $(seq 1 "$ROUNDS"); do
   fi
 
   before="$(probe)"
-  echo "  round $r: before  ${before:-no answer}"
+  echo "  round $r: before  ${before:-no answer}, stale entries: $(stale_count)"
   if is_good "$before"; then
     echo "           the cut left nothing damaged; discarded"
     discarded=$((discarded + 1)); continue
@@ -156,8 +178,11 @@ for r in $(seq 1 "$ROUNDS"); do
   done
 
   after="$(probe)"
-  echo "  round $r: after   ${after:-no answer}"
-  is_good "$after" && repaired=$((repaired + 1))
+  stale="$(stale_count)"
+  echo "  round $r: after   ${after:-no answer}, stale entries: $stale"
+  # A repair that leaves an entry nothing can stat has not repaired the volume,
+  # however clean the checker says it is.
+  if is_good "$after" && [ "${stale:-1}" = "0" ]; then repaired=$((repaired + 1)); fi
 done
 
 echo
