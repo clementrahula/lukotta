@@ -138,6 +138,17 @@ dd if=/dev/urandom of="$MOUNT/lukotta-durability/witness.bin" bs=1048576 count="
 WANT="$(shasum -a 256 "$MOUNT/lukotta-durability/witness.bin" | awk '{print $1}')"
 say "wrote ${MB} MiB, fsync returned, sha256 ${WANT:0:16}…"
 
+# WAIT tells the difference between a flush and a background writeback.
+#
+# If the file survives a kill delayed by some seconds but not an immediate one,
+# then nothing flushed it when fsync said so -- the data reached the drive later
+# on its own, and the promise fsync made was never kept. If it dies either way,
+# the writes are not reaching the drive at all.
+if [ "${WAIT:-0}" != "0" ]; then
+  say "waiting ${WAIT}s before the kill"
+  sleep "$WAIT"
+fi
+
 # The death the test is about. Not a shutdown: an application that fsynced has
 # been promised the data survives this.
 #

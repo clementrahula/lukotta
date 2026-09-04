@@ -3444,3 +3444,39 @@ through dm-crypt on `/dev/mapper/btlk0`, and a plain NTFS partition on a real
 device would say whether the encryption layer is involved. The only real drive
 here is the one carrying the BitLocker fixture that item 4's proof rests on, so
 that separation costs the evidence for another item and has not been taken.
+
+### On a real drive, nothing is on the disk until the volume is ejected — 2026-09-04
+
+Three measurements, one conclusion.
+
+    kill immediately after fsync returned      the file is not there
+    kill 15 seconds after                      the file is not there
+    kill 60 seconds after                      the file is not there
+    clean unmount, then reopen                 survived, byte-identical
+
+**So it is not writeback timing.** Waiting a minute changes nothing; ejecting
+changes everything. The data is held somewhere that drains only on a clean
+unmount, and a killed machine discards it entirely.
+
+**What that means for somebody using the app.** Pull a drive out without
+ejecting it — the thing every person does at least once — and everything written
+since it was opened is gone. Not the last few seconds: everything. Files copied
+an hour earlier, reported complete by Finder, fsynced and confirmed by the
+platform, are not on the disk.
+
+**And the guest is doing its part.** `/sys/block/vda/queue/write_cache` reads
+`write back`, so the guest believes there is a volatile cache and issues a flush
+on every fsync. The mount carries `-o sync`. The shipped engine's own `PATCHES`
+file lists `imago-flush-device-nodes` and `krun-devices-raw-device-flush`. Every
+layer above the host's device backend is asking for the write to be made
+durable, and it is not being made durable.
+
+**Why no fixture could show it.** An image is a file: imago writes reach the
+host's page cache, which is the kernel's and survives the process being killed,
+so macOS writes them out afterwards regardless. A raw device has no such cache
+behind it — whatever is holding these writes belongs to the process, and dies
+with it.
+
+**This is the root of item 9's power-loss vector on real hardware**, and it is
+below everything the app controls in the mount: the option is applied, the flush
+is issued, and the write is still not on the disk.
