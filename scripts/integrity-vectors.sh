@@ -553,11 +553,23 @@ fi
 # Nothing after this point reads what came before it: each vector checks its own
 # data before the next begins.
 rm -rf "$VOL"/vec-*; mkdir -p "$VOL/vec-full"
+# Long enough to actually fill what is there.
+#
+# 300 seconds is plenty for a two-gigabyte fixture and nothing like enough for a
+# real drive: the owner's stick had 20 GB free and the fill was still going when
+# the bound cut it, reported as "a full volume answers rather than hanging" --
+# which is the harness giving up, dressed as the app hanging.
+#
+# Ten megabytes a second is a pessimistic floor for this stack over USB, so the
+# bound is the free space at that rate, never less than the old 300.
+fill_free_mb=$(df -m "$VOL" 2>/dev/null | tail -1 | awk '{print $4}')
+fill_bound=$(( ${fill_free_mb:-0} / 10 ))
+[ "$fill_bound" -lt 300 ] && fill_bound=300
 start=$(date +%s)
-timeout 300 dd if=/dev/zero of="$VOL/vec-full/filler.bin" bs=1048576 status=none 2>"$WORK/full.err"
+timeout "$fill_bound" dd if=/dev/zero of="$VOL/vec-full/filler.bin" bs=1048576 status=none 2>"$WORK/full.err"
 rc=$?; elapsed=$(( $(date +%s) - start ))
 if [ "$rc" = 124 ]; then
-  note no "a full volume answers rather than hanging (still going after ${elapsed}s)"
+  note no "a full volume answers rather than hanging (still going after ${elapsed}s of ${fill_bound}s)"
 elif grep -qiE 'no space|full' "$WORK/full.err" 2>/dev/null || [ "$rc" != 0 ]; then
   note ok "a full volume answers with an error, in ${elapsed}s"
 else

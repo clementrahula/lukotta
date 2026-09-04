@@ -3742,3 +3742,32 @@ the guest image, which is a piece of work in itself and is where this goes next.
 writes surviving a killed machine, copies byte-identical, the Keychain unlock
 working with nothing typed. One folder from this evening's earlier runs cannot
 be removed and everything else has been cleared.
+
+## The twelve vectors on the real BitLocker drive — 2026-09-04
+
+The suite taught to take a device, and pointed at the owner's stick:
+
+    ok   a killed copy leaves no corrupt file behind (8 whole, 0 wrong)
+    ok   the volume still takes a write after a copy was killed
+    ok   the volume mounts and reads after being unmounted under load
+    ok   what was written before the unmount survived it
+    FAIL a full volume answers rather than hanging (still going after 303s)
+    ok   three open/close cycles in a row (3 of 3)
+    ok   everything written is readable by whoever wrote it (3 of 3)
+    ok   awkward names and shapes survive a copy (10 whole, 0 wrong, 0 missing)
+    ok   two writers and a reader at once leave nothing wrong (24 compared)
+    ok   the filesystem comes back after the machine was killed mid-write
+    ok   every fsynced file survived power loss (8 of 8 present, 0 wrong, 0 lost)
+    ok   the volume takes a write again after power loss
+    11 passed, 1 failed
+
+**Eleven of twelve, on real hardware, through BitLocker.** Including the two
+that no disk image can honestly answer: the filesystem coming back after the
+machine was killed mid-write, and every fsynced file surviving power loss —
+8 of 8, on a device with no host page cache behind it to make it look good.
+
+**The one failure is the harness's bound.** 300 seconds fills a two-gigabyte
+fixture many times over and does not come close to filling a drive with 20 GB
+free, so the fill was cut off and reported as the app hanging. The bound is now
+the free space at ten megabytes a second, which is a pessimistic floor for this
+stack over USB, and never less than the old 300.
