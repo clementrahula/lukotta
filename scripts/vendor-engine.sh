@@ -389,13 +389,24 @@ echo "  the packed guest keeps its mount points, its permissions and its owner"
 for extra in rootfs.ver config.json umoci.json oci; do
   [ -e "$SRC_ROOTFS/$extra" ] && /usr/bin/ditto "$SRC_ROOTFS/$extra" "$OUT/alpine/$extra"
 done
-# The version the app compares, now naming this guest rather than upstream's.
-if [ -f "$OUT/alpine/rootfs.ver" ]; then
-  printf '%s+%s\n' "$(tr -d '[:space:]' < "$OUT/alpine/rootfs.ver")" "$DIGEST" \
-    > "$OUT/alpine/rootfs.ver.new"
-  mv "$OUT/alpine/rootfs.ver.new" "$OUT/alpine/rootfs.ver"
-  echo "  guest version: $(cat "$OUT/alpine/rootfs.ver")"
-fi
+# What this guest is, in a file of our own beside upstream's.
+#
+# NOT IN rootfs.ver, WHICH BELONGS TO THE ENGINE
+#
+# The first version of this appended the digest to rootfs.ver, and that file is
+# not ours to change: the engine compiles its own copy in as a constant
+# (vm_image.rs, `include_str!("../../share/alpine/rootfs.ver")`) and compares it
+# against the unpacked home on every mount. A home stamped "1.5.1+<digest>"
+# would never match the engine's "1.5.1", so the engine would decide the image
+# needed initialising every single time -- and that path takes the global lock
+# exclusively, which serialises every drive on the machine behind whichever one
+# is open. The digest sat there for hours before that was understood, harmless
+# only because the app had not yet refreshed a guest with it.
+#
+# So the number the app compares lives in rootfs.build, which nothing upstream
+# reads, and rootfs.ver is copied through untouched.
+printf '%s\n' "$DIGEST" > "$OUT/alpine/rootfs.build"
+echo "  guest build: $(cat "$OUT/alpine/rootfs.ver" 2>/dev/null | tr -d '[:space:]')+$DIGEST"
 # The manifest, with the header umoci writes stripped out.
 #
 # `anylinuxfs init` runs on whoever's Mac built the guest, and umoci records

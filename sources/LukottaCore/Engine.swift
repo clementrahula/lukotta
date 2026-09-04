@@ -381,13 +381,38 @@ public enum EngineEnvironment {
     /// changed the guest -- a kernel, a filesystem tool, an Alpine security fix
     /// -- reached nobody who already had the app. They kept the environment
     /// from the day they installed it and ran the new engine against it.
+    /// Upstream's release, and this project's build of it.
+    ///
+    /// Two files, because rootfs.ver is not ours: the engine compiles its own
+    /// copy of it in as a constant and compares it against the unpacked home on
+    /// every mount, so a value it does not recognise makes it decide the image
+    /// needs initialising every time -- and that path takes the engine's global
+    /// lock exclusively, which serialises every drive on the machine behind
+    /// whichever one is open. rootfs.build is ours alone: a digest of what was
+    /// actually packed, which nothing upstream reads.
     public static func versionOfGuest(in directory: URL) -> String? {
-        version(at: directory.appendingPathComponent("rootfs.ver"))
+        stamp(
+            release: version(at: directory.appendingPathComponent("rootfs.ver")),
+            build: version(at: directory.appendingPathComponent("rootfs.build")))
     }
 
     public static var versionShipped: String? {
-        EnginePaths.embeddedAlpineDirectory
-            .flatMap { version(at: $0.appendingPathComponent("rootfs.ver")) }
+        EnginePaths.embeddedAlpineDirectory.flatMap {
+            stamp(
+                release: version(at: $0.appendingPathComponent("rootfs.ver")),
+                build: version(at: $0.appendingPathComponent("rootfs.build")))
+        }
+    }
+
+    /// One string from the two, so a guest from before rootfs.build existed
+    /// still compares as itself rather than as nothing.
+    private static func stamp(release: String?, build: String?) -> String? {
+        switch (release, build) {
+        case let (release?, build?): return release + "+" + build
+        case let (release?, nil): return release
+        case let (nil, build?): return build
+        case (nil, nil): return nil
+        }
     }
 
     private static func version(at url: URL) -> String? {
@@ -620,6 +645,21 @@ public enum EngineEnvironment {
             throw EngineError.workspace(
                 "Could not unpack the Linux environment. "
                     + lastLines.joined(separator: " "))
+        }
+
+        // Which build this is, stamped beside what was unpacked.
+        //
+        // rootfs.ver in the home is the engine's: it writes its own compiled-in
+        // constant there and would overwrite anything else. So the app's own
+        // number goes in a file of its own, and it has to be put there by
+        // whoever unpacked -- without it the home reports only upstream's
+        // release, never matches the bundle, and the environment is replaced on
+        // every single launch.
+        if let shipped = EnginePaths.embeddedAlpineDirectory?
+            .appendingPathComponent("rootfs.build"),
+            let build = try? Data(contentsOf: shipped)
+        {
+            try? build.write(to: staging.appendingPathComponent("rootfs.build"))
         }
 
         // The one moment the old environment stops existing and the new one
