@@ -399,14 +399,18 @@ printf 'starting with %s MB free\n' "$(( ${free_kb:-0} / 1024 ))"
 # the app -- which is what a forty-megabyte exFAT fixture produced: a page of
 # failures, none of them about the app.
 #
-# 200 MB was the figure and it was too low by three. A 600 MB exFAT fixture
-# passed the check and then failed the awkward-shapes vector alone, because
-# exFAT has no sparse files and the 512 MB hole is written out in full: 620 MB
-# wanted where 570 were free. One vector failing out of twelve reads as a real
-# and narrow defect, which is worse than a refusal -- it is the shape of a
-# finding rather than of a missing fixture.
-if [ "${free_kb:-0}" -lt 716800 ]; then
-  printf 'error: %s MB free. These vectors need 700 MB and this volume\n' \
+# 200 MB, and the awkward-shapes vector sizes itself to what is there.
+#
+# Raising this to 700 -- what that vector wants at full size -- refused five
+# fixtures that had just passed twelve of twelve, because on ext4, XFS and
+# btrfs its 512 MB file is a hole and costs nothing. Only exFAT, which has no
+# sparse files, writes it out in full, and that is what made a 600 MB exFAT
+# fixture fail one vector out of twelve. A fixed figure is wrong in both
+# directions: too high refuses volumes that work, too low fails a vector on a
+# volume that cannot hold it. So the bar stays where every fixture clears it and
+# the vector fits itself to the room.
+if [ "${free_kb:-0}" -lt 204800 ]; then
+  printf 'error: %s MB free. These vectors need 200 MB and this volume\n' \
     "$(( ${free_kb:-0} / 1024 ))" >&2
   printf '       cannot hold them, so nothing here would be about the app.\n' >&2
   exit 2
@@ -589,9 +593,27 @@ head -c 4096 /dev/urandom > "$awkward/$quoted"
 head -c 4096 /dev/urandom > "$awkward/a/b/c/d/e/f/g/h/i/j/deep.bin"
 longname="$(/usr/bin/python3 -c 'print("n" * 250)')"
 head -c 4096 /dev/urandom > "$awkward/$longname.bin" 2>/dev/null || true
-dd if=/dev/zero of="$awkward/sparse.bin" bs=1 count=0 seek=536870912 2>/dev/null
-printf 'end' | dd of="$awkward/sparse.bin" bs=1 seek=536870900 conv=notrunc 2>/dev/null
-head -c 104857600 /dev/urandom > "$awkward/large-100MB.bin"
+# The hole and the large file, sized to the volume rather than to a constant.
+#
+# 512 MB and 100 MB are what these want. On ext4, XFS and btrfs the hole costs
+# nothing and both fit anywhere; on exFAT there are no sparse files, so the hole
+# is written out in full and 620 MB is wanted. Fixed sizes therefore fail the
+# vector on any small exFAT volume while passing everywhere else, which reads as
+# a narrow defect in the app rather than as a volume with no room in it.
+#
+# Half the free space for the hole, a fifth for the large file, capped at what
+# was asked for. A volume that can take the full sizes gets exactly the test it
+# had before.
+awkward_free_mb=$(df -m "$VOL" 2>/dev/null | tail -1 | awk '{print $4}')
+hole_mb=$(( ${awkward_free_mb:-200} / 2 )); [ "$hole_mb" -gt 512 ] && hole_mb=512
+big_mb=$(( ${awkward_free_mb:-200} / 5 )); [ "$big_mb" -gt 100 ] && big_mb=100
+[ "$hole_mb" -lt 1 ] && hole_mb=1
+[ "$big_mb" -lt 1 ] && big_mb=1
+hole_bytes=$(( hole_mb * 1048576 ))
+dd if=/dev/zero of="$awkward/sparse.bin" bs=1 count=0 seek="$hole_bytes" 2>/dev/null
+printf 'end' | dd of="$awkward/sparse.bin" bs=1 seek=$(( hole_bytes - 12 )) \
+  conv=notrunc 2>/dev/null
+head -c $(( big_mb * 1048576 )) /dev/urandom > "$awkward/large-${big_mb}MB.bin"
 
 rm -rf "$VOL/vec-awkward"
 if cp -R "$awkward" "$VOL/vec-awkward" 2>/dev/null; then
