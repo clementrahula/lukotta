@@ -3321,3 +3321,27 @@ are not proof that there is none.
 **What would settle it** is the same vector on a real drive, which is what
 `kill-durability.sh` takes a device argument for. That needs a drive nobody
 minds losing, plugged in.
+
+### The real drive is not available for a power-loss test — 2026-09-04
+
+`kill-durability.sh` takes a device because only a real drive settles the
+durability question, and one is plugged in: `/dev/disk4`, 247.6 GB, NTFS.
+
+It holds 212 GB of the owner's own data — `2024`, `2025`, `2026`,
+`Laveg Архив` — with 20 GB free.
+
+**It will not be used for this.** The vector kills a machine with writes in the
+air, and an interrupted NTFS write is precisely what poisoned a directory entry
+beyond recovery on 2026-09-03: unreadable, undeletable, and unrecreatable,
+because `ntfsfix` is not a chkdsk and there is none here. That fault lands on
+whatever directory was being written. Risking somebody's archive to chase an
+intermittent that has been seen once is the wrong way round, and this whole goal
+is about not losing their data.
+
+What the drive is good for, and has been used for, is the non-destructive half:
+a corpus copied on and read back byte-identical, Finder's own copies at both
+extremes, the Keychain unlock. Those are on record from 2026-09-02.
+
+So the intermittent stays open on the evidence available, and the route left is
+to reproduce it on fixtures under the conditions it appeared in — inside a long
+run, on a machine that has been busy — rather than on a drive that matters.
