@@ -18,6 +18,12 @@
 # unchecked claim then appears in the list as unchecked, which is the honest
 # state and is visible rather than assumed.
 #
+# The `hardware` tag needs a drive plugged in and LUKOTTA_TEST_DEVICE naming
+# it. That row cannot pass on fixtures and must never be made to: a disk
+# image cannot show the durability fault at all, because imago's writes to a
+# file land in the kernel's page cache and survive the process dying. It is
+# the one claim here that only real hardware can answer.
+#
 # TAGS are free-form and comma-separated. "goal" is the owner's ten items;
 # anything else -- release, privacy, engine, ui -- is its own set, and
 # `TAG=release ./scripts/verify.sh` runs just that one. The point is that this
@@ -41,6 +47,7 @@ goal8	goal	long	a dozen volumes under 8 GB of pressure, still served	bash script
 goal9	goal	long	integrity across every vector devised	bash scripts/vectors-every-format.sh
 goal10	goal	fast	no UX cost anywhere in the above	bash scripts/run-tests.sh
 cost	ux	slow	a durability option does not cost a copy its speed	MB=500 bash scripts/durability-cost.sh
+durable	hardware	slow	a committed write survives the machine dying, on a real drive	bash scripts/kill-durability.sh "${LUKOTTA_TEST_DEVICE:?set it to a spare drive}"
 unit	code	fast	the unit checks pass	bash scripts/run-tests.sh
 lint	code	fast	the sources lint clean	bash scripts/lint.sh
 private	privacy,release	fast	no release carries anything of the owner's	/usr/bin/python3 scripts/check-private.py
