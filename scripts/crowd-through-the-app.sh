@@ -80,10 +80,10 @@ clean_up() {
   # neighbour showed 37, which reads exactly like a volume that did not receive
   # its copy. It was leftovers, and the next few runs after that would have
   # failed for want of space with nothing wrong with the app.
-  for point in $(mount | /usr/bin/grep -oE '/Volumes/CROWD[0-9]+' | sort -u); do
+  for point in $(mount | /usr/bin/grep -F '.local:/mnt/' | awk '{print $3}' | sort -u); do
     rm -rf "$point/crowd-write" "$point/fill" >/dev/null 2>&1
   done
-  for point in $(mount | /usr/bin/grep -oE '/Volumes/CROWD[0-9]+' | sort -u); do
+  for point in $(mount | /usr/bin/grep -F '.local:/mnt/' | awk '{print $3}' | sort -u); do
     umount "$point" >/dev/null 2>&1 || umount -f "$point" >/dev/null 2>&1
   done
   for dev in "${DEVS[@]:-}"; do
@@ -127,14 +127,21 @@ if [ -s "$WORK/opens" ]; then
     "$(sort -n "$WORK/opens" | tail -1)"
 fi
 
-served="$(mount | /usr/bin/grep -c 'CROWD')"
+# Counted by what the engine is serving, not by what the volumes are called.
+#
+# It counted mount lines containing CROWD, which is the label these fixtures
+# usually carry and not a fact about them: two of the twelve had been relabelled
+# by another harness that formats the same images, and this reported ten with
+# all twelve mounted. A count that shrinks because a label changed is a suite
+# proving less than it claims while staying green.
+served="$(mount | /usr/bin/grep -c '\.local:/mnt/')"
 echo "mounts being served: $served"
 echo "  lo0 now carries $(ifconfig lo0 | /usr/bin/grep -c 'inet ') addresses that can serve"
 
 # Written to all of them at once, then read back. Sums taken from the source,
 # not from the volume, so a file that never arrived is a difference and not a
 # matching pair of absences.
-mount | /usr/bin/grep 'CROWD' | awk '{print $3}' > "$WORK/points"
+mount | /usr/bin/grep -F '.local:/mnt/' | awk '{print $3}' > "$WORK/points"
 # Optionally filled first, to a known margin on every volume.
 #
 # All three stale handles so far landed on volumes an earlier run had left
