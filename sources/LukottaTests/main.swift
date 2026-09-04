@@ -5459,9 +5459,17 @@ group("aPoisonedNameIsFreedAfterTheVolumeIsServing") {
         .first {
             $0.hasPrefix(MountScript.ntfs3ProbeActionName + "]")
         } ?? ""
+    // Every writable NTFS mount walks, not only the rung ntfs3 refused.
+    //
+    // It was gated on that rung because reaching ntfs-3g means ntfs3 would not
+    // have the volume, which looked like the signal of damage. Measured on a
+    // real drive on 2026-09-04: a name poisoned by an interrupted write --
+    // listed, and refusing ls, rmdir and mkdir alike -- on a drive that mounts
+    // perfectly well on ntfs3. That gate missed the case on real hardware,
+    // exactly as the two before it missed it on fixtures.
     expect(
-        !probeSection.contains("after_mount ="),
-        "and a volume ntfs3 is happy with is not walked at all")
+        probeSection.contains("after_mount ="),
+        "a volume ntfs3 is happy with is walked too, because it can still be damaged")
     expect(
         script.contains("--fs-driver ntfs-3g") || script.contains("ntfs-3g"),
         "the ntfs-3g rung is in the ladder for it to attach to")
@@ -5487,8 +5495,14 @@ group("aPoisonedNameIsFreedAfterTheVolumeIsServing") {
     // ls, not stat: a poisoned directory stats perfectly well and refuses to be
     // listed, which is exactly how it was missed the first time.
     expect(
-        MountScript.reclaimUnreadable.contains("if ls "),
+        MountScript.reclaimUnreadable.contains("! ls "),
         "a directory is judged by whether it can be listed")
+    // And nothing is moved on one refusal. This runs on drives with somebody's
+    // own files on them, where a single failed read can be a busy moment rather
+    // than damage -- and what is being looked for does not heal.
+    expect(
+        MountScript.reclaimUnreadable.contains("sleep 1"),
+        "and it is asked again before anything is moved")
     expect(
         !MountScript.reclaimUnreadable.contains("if stat "),
         "and not by whether it can be statted, which a poisoned one does perfectly well")
