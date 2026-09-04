@@ -3519,3 +3519,31 @@ patch rather than an app change.
 ejected properly keeps everything, byte-identical, every time — that is measured
 and it is the ordinary case. A drive pulled out without ejecting loses
 everything written since it was opened.
+
+### The guest does issue the flush — counted, not assumed — 2026-09-04
+
+`/sys/block/vda/stat`'s sixteenth field is `flush_ios`, so the kernel will say
+whether a barrier was ever asked for:
+
+    before the write        flush_ios 1
+    after dd conv=fsync     flush_ios 3
+    after umount            flush_ios 12
+
+So the guest issues flushes on fsync, two of them for one file, and eleven more
+when the volume is put away. `/sys/block/vda/queue/write_cache` reads
+`write back`, which is why: the guest believes there is a volatile cache to
+flush and behaves accordingly.
+
+**Which closes the last question above the engine.** The chain is: the client
+asks (verified, `sync` in the mount flags), the filesystem is mounted
+synchronously (verified in the mount args), the guest issues the barrier
+(counted here), and `krun-devices-raw-device-flush` answers it by flushing
+imago's own cache and then calling `sync()` on the file, which for a device node
+is `DKIOCSYNCHRONIZECACHE`. Every link says it is doing its part, and on a real
+drive the write is gone.
+
+**What is left is instrumenting the engine itself**, which means building it
+from `scripts/build-engine.sh` with a probe in the FLUSH arm to see whether the
+request arrives and what the device answers. That is the next piece of work on
+this, and it is a different kind of work from everything above it: the app has
+no lever left to pull.
