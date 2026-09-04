@@ -133,9 +133,32 @@ MOUNT="$(where)"
 say "mounted at $MOUNT"
 
 # Write, and do not return until the write is committed.
-mkdir -p "$MOUNT/lukotta-durability"
-dd if=/dev/urandom of="$MOUNT/lukotta-durability/witness.bin" bs=1048576 count="$MB" conv=fsync status=none
+# Written, and checked to have been written.
+#
+# This did neither: it ran mkdir and dd, ignored both, and went straight to
+# killing the machine. A drive that answered "Input/output error" to the mkdir
+# therefore produced "RESULT: the file is not there. A committed write was
+# lost." -- about a write that never happened. A harness that cannot tell a
+# lost write from an unwritten one is worse than none, because the answer it
+# gives is the alarming one.
+if ! mkdir -p "$MOUNT/lukotta-durability" 2>"$WORK/mkdir.err"; then
+  say "the drive would not take a directory: $(head -1 "$WORK/mkdir.err")"
+  say "nothing was written, so there is nothing to say about durability"
+  exit 2
+fi
+if ! dd if=/dev/urandom of="$MOUNT/lukotta-durability/witness.bin" \
+     bs=1048576 count="$MB" conv=fsync status=none 2>"$WORK/dd.err"; then
+  say "the write itself failed: $(head -1 "$WORK/dd.err")"
+  say "nothing was committed, so there is nothing to say about durability"
+  exit 2
+fi
+WROTE="$(stat -c %s "$MOUNT/lukotta-durability/witness.bin" 2>/dev/null || echo 0)"
+if [ "$WROTE" != "$((MB * 1048576))" ]; then
+  say "only $WROTE bytes of $((MB * 1048576)) arrived; not a durability question"
+  exit 2
+fi
 WANT="$(shasum -a 256 "$MOUNT/lukotta-durability/witness.bin" | awk '{print $1}')"
+[ -n "$WANT" ] || { say "the file could not be read back before the kill"; exit 2; }
 say "wrote ${MB} MiB, fsync returned, sha256 ${WANT:0:16}…"
 
 # WAIT tells the difference between a flush and a background writeback.
