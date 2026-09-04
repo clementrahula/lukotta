@@ -269,6 +269,26 @@ open_image() {
     APP_DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage \
       "$IMAGE" 2>/dev/null | head -1 | awk '{print $1}')"
     [ -n "${APP_DEV:-}" ] || return 1
+
+    # The partition, where there is one.
+    #
+    # `--drive open=` takes /dev/diskNsM, and says so in its own usage line. A
+    # fixture with a partition table was handed the whole disk and the app
+    # answered "no drive at /dev/diskN" -- recorded as "the engine never mounted
+    # it", which reads as a failure to mount rather than as never having been
+    # asked. Given the partition, the same image opens exit 0 and serves its
+    # three logical volumes.
+    #
+    # The largest partition, since an EFI system partition is first on a GPT
+    # disk and holds nothing worth a vector.
+    local biggest
+    biggest="$(diskutil list "$APP_DEV" 2>/dev/null \
+      | awk '$NF ~ /^'"$(basename "$APP_DEV")"'s[0-9]+$/ {
+               size = $(NF - 2); unit = $(NF - 1)
+               mb = size; if (unit == "GB") mb = size * 1024
+               if (mb + 0 > best + 0) { best = mb; node = $NF }
+             } END { if (node) print node }')"
+    [ -n "$biggest" ] && APP_DEV="/dev/$biggest"
     # LUKOTTA_PASSPHRASE for an encrypted fixture. Without it the app opens
     # what it can and reports an unencrypted volume for what it cannot, so a
     # LUKS image would fail here for want of a key rather than for anything
