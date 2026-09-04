@@ -234,6 +234,40 @@ the mount table -- whatever the volume ended up called.
 That is the third time an instrument here has answered a narrower question than
 the one asked, after the discarded stderr and the GNU-tar count.
 
+## Item 1 on the real drive: it still stalls — 2026-09-05
+
+OPEN, and the worst result of the week, because it is the item that was thought
+closed. The first measurement of item 1 on the drive the fault lives on since
+the fixes landed. 1600 MB into the owner's BitLocker drive, through the app,
+served by ntfs3 (the volume having been repaired, ntfs3 now takes it):
+
+    n=464   p50 0.029s   p90 0.032s   p99 7.200s   worst 18.017s
+    over 2s: 17          over 5s: 8
+    1600 MB in 350 s     4.6 MB/s
+
+macOS shows "the server is not responding" when a request to an NFS mount goes
+unanswered for five seconds. Eight did. The worst went unanswered for eighteen.
+That is the dialog, mid-copy, on real hardware.
+
+**Against the fixture, which is why this was not known:**
+
+    fixture on the internal SSD   1600 MB, worst 0.031s, 533 MB/s
+    the owner's drive             1600 MB, worst 18.017s, 4.6 MB/s
+
+The fixture is 580 times faster and has never once reproduced the fault. Its own
+harness note said so and called itself a guard rather than a proof; it took
+giving that harness a device mode to find out how far apart they are.
+
+**What is already known and does not explain it.** The stall traced to nfsd's
+COMMIT handling, and the workarounds for that are in and measured: `dumbtimer`,
+`mutejukebox`, `wsize=32768`, the retransmit fix. Those took the p99 down from
+4.66 s and removed 30,470 malformed-write messages, and they were measured on
+this same drive. So this is either a second fault or the same one incompletely
+fixed, and nothing yet says which.
+
+**Not softened.** p99 of 7.2 s is not "close"; 8 requests over the threshold is
+not "nearly none". Item 1 is not met.
+
 ## The BitLocker drive's five unusable names, repaired — 2026-09-04
 
 Five entries on the owner's 247 GB BitLocker drive that answered `Input/output
