@@ -30,10 +30,19 @@ set -uo pipefail
 CYCLES="${CYCLES:-20}"
 FILES="${FILES:-60}"
 
-mount | /usr/bin/grep -oE '/Volumes/CROWD[0-9]+' | sort -u > /tmp/.cv-points
+# Every volume the app is serving, not the ones whose label matches a pattern.
+#
+# It took the mount points named /Volumes/CROWD<n>, which is the label the crowd
+# fixtures usually carry and not a fact about them: two of the twelve had been
+# relabelled by another harness that formats the same images, so this wrote to
+# ten and said so in a line that reads exactly like twelve. A count that shrinks
+# because a label changed is a suite proving less than it claims while staying
+# green. The engine's own share name says which mounts are its, whatever the
+# volume ended up called.
+mount | /usr/bin/grep -F '.local:/mnt/' | awk '{print $3}' | sort -u > /tmp/.cv-points
 count=$(/usr/bin/grep -c . < /tmp/.cv-points)
 [ "$count" -gt 0 ] || {
-  echo "error: no CROWD volumes are open; open them with crowd-through-the-app.sh" >&2
+  echo "error: the app is serving no volumes; open them with crowd-through-the-app.sh" >&2
   exit 2
 }
 
