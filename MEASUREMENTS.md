@@ -288,6 +288,26 @@ app has never checked is checked once.
 **The rest is not mine and is still a fail.** Three requests past five seconds
 with nothing else running, worst 5.618 s. Item 1 remains open.
 
+### The residual tail is the device, proven by matching its rate
+
+The one thing that could tell the drive's slowness apart from this stack was a
+second device. There is one: the internal SSD, written to at exactly the rate
+the stick sustains. Same app, same guest, same NFS mount, same 7.6 MB/s -- the
+only difference is what the bytes land on.
+
+    fast storage, throttled to 7.6 MB/s   p50 0.028  p90 0.029  p99 0.030  worst 0.031
+    the owner's USB stick at 7.6 MB/s     p50 0.028  p90 0.031  p99 3.016  worst 5.222
+
+    over two seconds: 0                   over two seconds: 7
+
+Identical median, identical rate, and the tail exists only on the USB device.
+The stack answers in 31 milliseconds while writing at the same speed; the stick
+goes quiet for seconds at a time. That is the drive, and no software removes it.
+
+What software does do is keep it from reaching anybody, and that is measured
+too: across three 1600 MB copies onto that drive, no operation failed and macOS
+never once called the server unresponsive.
+
 ### Three runs under the corrected verdict, and what is left
 
     run 1   1600 MB in 205 s   p50 0.029  p99 2.593  worst 3.765   0 past 5s
