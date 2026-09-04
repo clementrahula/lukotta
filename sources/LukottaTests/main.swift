@@ -5537,6 +5537,20 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     expect(
         check.contains("was not unmounted cleanly"),
         "a volume that will not take a writable mount is checked, not just cleared")
+
+    // And a volume this app has never checked is checked once. A drive can
+    // arrive already damaged -- by an interrupted copy elsewhere, or by this
+    // app before it knew to check -- and nothing distinguishes it from a
+    // healthy one until somebody writes, because there is nothing wrong until
+    // then. The transcript is the record that it has been inspected.
+    expect(
+        check.contains("[ -e /tmp/lukotta-ask/.lukotta-check.log ] || asked=1"),
+        "a volume never inspected is inspected once")
+    let calls = check.split(separator: "\n")
+        .filter { $0.trimmingCharacters(in: .whitespaces) == "record" }.count
+    expect(
+        calls >= 3,
+        "and every path that finishes leaves the record, or it is inspected for ever")
     let dirtyAt = check.range(of: "was not unmounted cleanly").map {
         check.distance(from: check.startIndex, to: $0.lowerBound)
     }
@@ -5597,6 +5611,20 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     expect(
         MountScript.reclaimUnreadable.contains("head -c 1"),
         "the walk notices a file that is there and will not open")
+
+    // And a copier's abandoned temporary, which is the signature of the silent
+    // fault: the volume mounts writable, every file reads, the dirty flag is
+    // long cleared, and a rename over an existing name fails -- so the copier
+    // leaves .BC.T_<random> behind and the older file stands.
+    expect(
+        MountScript.reclaimUnreadable.contains(".BC.T_*"),
+        "the walk notices a copy that never finished")
+    expect(
+        MountScript.reclaimUnreadable.contains("left behind by a copy:"),
+        "and says so in words of its own rather than borrowing the other line's")
+    expect(
+        MountScript.checkAndRepair.contains("left behind by a copy:"),
+        "and the gate reads that line too, or the walk is talking to nobody")
     expect(
         MountScript.reclaimUnreadable.components(separatedBy: "head -c 1").count - 1 == 2,
         "and asks again a second later, as it does for the other two shapes")

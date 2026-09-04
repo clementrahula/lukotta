@@ -1695,8 +1695,25 @@ public enum MountScript {
           scan=1
           mkdir -p /tmp/lukotta-ask 2>/dev/null
           if mount -t ntfs3 -o ro "$dev" /tmp/lukotta-ask 2>/dev/null; then
-            grep -l "could not move:" /tmp/lukotta-ask/.lukotta-reclaim.log \
-              >/dev/null 2>&1 && asked=1
+            grep -lE "could not move:|left behind by a copy:" \
+              /tmp/lukotta-ask/.lukotta-reclaim.log >/dev/null 2>&1 && asked=1
+            # A volume this app has never checked is checked once.
+            #
+            # Everything else here is a signal that something went wrong while
+            # this app was watching, and a drive can arrive already damaged --
+            # by an interrupted copy on another machine, or by this app before
+            # it knew to check. Measured on such a drive: it mounts writable,
+            # every file reads, the dirty flag is long cleared, and a rename
+            # over an existing name silently fails, so a copy of a newer file
+            # leaves the older one in place. No cheap signal distinguishes it
+            # from a healthy volume, because there is nothing wrong until
+            # somebody writes.
+            #
+            # So the first time this app opens a volume it inspects it, and the
+            # transcript it leaves is the record that it has. One scan per
+            # drive, ever -- 59 seconds on 247 GB, measured -- against a fault
+            # whose whole nature is that nobody notices it.
+            [ -e /tmp/lukotta-ask/.lukotta-check.log ] || asked=1
             umount /tmp/lukotta-ask 2>/dev/null || true
             # Not cleanly unmounted is a reason on its own.
             #
@@ -1782,7 +1799,11 @@ public enum MountScript {
           # Written on every outcome, not only a clean one: a check that could
           # not finish is exactly the transcript worth keeping.
           record() {
-            [ -s /tmp/lukotta-ntfsck.out ] || return 0
+            # Written even when the check found nothing to do: the file is the
+            # record that this volume has been inspected, and without it every
+            # open would inspect it again.
+            [ -s /tmp/lukotta-ntfsck.out ] || echo "checked, nothing to repair" \
+              > /tmp/lukotta-ntfsck.out
             mkdir -p /tmp/lukotta-checked || return 0
             # ntfs3 only, and the transcript is lost where it will not mount.
             #
@@ -1855,6 +1876,9 @@ public enum MountScript {
           # is what lost+found is for.
           ntfsfix -n "$dev" 2>&1 | grep "completed successfully" >/dev/null 2>&1 || return 1
           ntfsfix -d "$dev" || true
+          # Inspected, whatever was found: the record is what stops the next
+          # open inspecting it again.
+          record
           return 0
         }
 
@@ -2036,6 +2060,24 @@ public enum MountScript {
         + "[ \"$e\" = \"$d/*\" ] && [ ! -e \"$e\" ] && continue; "
         + "b=`basename \"$e\"`; p=`dirname \"$e\"`; "
         + "case $b in .lukotta-unreadable-*) continue;; esac; "
+        // A copier's abandoned temporary is the signature of the silent fault.
+        //
+        // The damage an interrupted copy leaves does not always announce
+        // itself: the volume mounts writable, every file reads, the dirty flag
+        // is long cleared -- and a rename over an existing name fails, so the
+        // copier leaves its temporary behind and the older file stands. `mv`
+        // returns 1 inside the guest; over NFS the host is told it succeeded.
+        //
+        // There is no cheap read-only way to ask a directory whether renames
+        // work in it, and probing one would mean writing into every folder on
+        // the drive and moving its timestamp for nothing. What the fault does
+        // leave is litter with a name nobody else uses: ditto and Finder write
+        // to `.BC.T_<random>` and rename it into place, so one still sitting
+        // there is a copy that did not finish. That is the volume asking to be
+        // checked, and it costs a string comparison the walk is already making.
+        + "case $b in .BC.T_*|.nfs????????????????) "
+        + "echo \"left behind by a copy: $e\" >> \"$M/.lukotta-reclaim.log\" 2>/dev/null; "
+        + "continue;; esac; "
         + "bad=0; "
         + "if [ ! -e \"$e\" ]; then bad=1; "
         + "elif [ -d \"$e\" ] && ! ls \"$e\" >/dev/null 2>&1; then bad=1; "
