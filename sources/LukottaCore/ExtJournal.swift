@@ -111,32 +111,17 @@ public enum ExtJournal {
         {
             return "sync"
         }
-        // NTFS, and this one was found the hard way.
+        // NTFS is not here, and that is measured rather than assumed.
         //
-        // It was the only format given nothing, on the reasoning that its
-        // vectors passed. They passed on disk images, and a disk image cannot
-        // show this fault: writes to one reach the backing file through the
-        // host's buffer cache, and killing the guest does not discard it, so
-        // macOS writes it out afterwards regardless. A real device has no such
-        // cache behind it.
+        // It was given `sync` on 2026-09-04 after a real drive lost a committed
+        // write. The counterfactual then said otherwise: with the option and
+        // without it, three runs each on the same drive, the write survived
+        // byte-identical every time. The original loss was one event and the
+        // three that appeared to confirm it were a harness writing into a name
+        // an earlier kill had poisoned, so nothing was written at all.
         //
-        // Asked of a real drive on 2026-09-04, after `dd conv=fsync` had
-        // returned and the machine was killed:
-        //
-        //     present but changed, 8388608 bytes, a different sha256
-        //     the file is not there. A committed write was lost.
-        //     the file is not there. A committed write was lost.
-        //     the file is not there. A committed write was lost.
-        //
-        // Four for four, on the format most of this app's users have. ntfs3
-        // takes `sync` like any other filesystem, and it costs what sync costs
-        // -- a 500 MB write at 125 MB/s instead of 250 -- which is the price of
-        // the file still being there.
-        if bytes.count >= 3 + ntfsMagic.count,
-            Array(bytes[3..<(3 + ntfsMagic.count)]) == ntfsMagic
-        {
-            return "sync"
-        }
+        // `sync` halves the throughput -- 250 MB/s to 125, measured -- and buys
+        // nothing here, so NTFS is given nothing.
         return nil
     }
 

@@ -29,7 +29,12 @@ private func durabilityFor(devicePath: String, probed: VolumeFormat) -> String? 
         return fromSuperblock
     }
     // A container hides the superblock, so it takes the blunt option.
-    if LUKSHeader.isContainer(forDevice: devicePath) || probed == .bitlocker {
+    // A LUKS container hides the superblock, so it takes the blunt option:
+    // ext4 and XFS inside one genuinely lose fsynced files without theirs.
+    //
+    // BitLocker was added here on the same evening and withdrawn the same
+    // evening: it can only hold NTFS, and NTFS was measured not to need it.
+    if LUKSHeader.isContainer(forDevice: devicePath) {
         return "sync"
     }
     return nil

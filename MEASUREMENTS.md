@@ -3578,3 +3578,35 @@ write that was never made. Three of the four, and every run since.
 So the honest state of the durability question is **one measured loss, not
 four**, and it needs re-running now that the harness refuses to give a verdict
 when nothing was written and now that a fresh directory name is used each time.
+
+### The NTFS durability option is withdrawn: it buys nothing — 2026-09-04
+
+The counterfactual, on the real drive, a fresh witness directory each run:
+
+    without the durability option    survived, byte-identical    3 of 3
+    with it                          survived, byte-identical    3 of 3
+
+**So `sync` on NTFS makes no difference to whether a committed write survives**,
+and it costs half the throughput — 250 MB/s becomes 125, measured. Paying that
+for nothing is not a trade, so the three changes made this evening on the
+strength of the original reading are withdrawn:
+
+    ExtJournal: NTFS -> "sync"                             withdrawn
+    the container fallback extended to BitLocker           withdrawn
+    mountOptions letting durability sit beside a driver    withdrawn
+
+**And the original finding shrinks to one occurrence.** "Four for four" was
+three runs writing into a name the first run's kill had poisoned; the harness
+did not check its own write and reported a lost commit about a write never made.
+What is left is a single run: 8 MiB written, `fsync` returned, a sha taken, the
+file present afterwards at the right size with different bytes. One event, in
+now more than a dozen runs of the same test, and not reproduced since the
+harness was made honest.
+
+**What ext4 and XFS need is unchanged and still measured.** Those lose eight of
+eight fsynced files without their options, on images, which is where that was
+established and where it holds. NTFS was never shown to need one and is not
+given one.
+
+**The lever stays.** `LUKOTTA_NO_DURABILITY` withholds the option so this
+comparison can be made again in one command rather than by rebuilding twice.
