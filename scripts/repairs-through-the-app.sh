@@ -117,7 +117,7 @@ SHARE="$(basename "$DEV").local:"
 POINT="$(mount | /usr/bin/grep -F "$SHARE" | awk '{print $3}' | head -1)"
 [ -n "${POINT:-}" ] || { echo "opened and nothing is served" >&2; exit 1; }
 echo "  served at $POINT"
-echo "  root: $(ls -A "$POINT" 2>&1 | tr '\n' ' ')"
+echo "  root: $(find "$POINT" -maxdepth 1 -mindepth 1 -exec basename {} \; 2>&1 | tr '\n' ' ')"
 
 # Read-only would be the old answer, and it is not the one being asked for.
 if mount | /usr/bin/grep -F "$SHARE" | /usr/bin/grep -q 'read-only'; then
