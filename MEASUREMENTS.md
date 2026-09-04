@@ -3204,3 +3204,36 @@ that never happened was timed as "1 s, 1000 MB/s" — twice, identically, which 
 what gave it away. And the engine was called without `--ignore-permissions`,
 which the app always passes, so every write failed as "Permission denied" on a
 root-owned volume.
+
+### Item 10, settled: the durability options are correctness, not a fallback — 2026-09-04
+
+The decision, taken here rather than handed back, by the rule that UX comes
+first.
+
+**The options stay.** Measured both ways on the same volume: without them a
+power cut takes 8 of 8 fsynced files; with them, none. The cost is a 500 MB
+write at 125 MB/s instead of 250 for `sync`, and 166 instead of 250 for
+`data=journal`. A copy at half speed against a copy that loses the file is not
+a trade, and a lost file is the worst user experience this app can produce.
+
+**And the cost is narrow.** Only XFS, which has no data-journalling mode, and
+LUKS containers, whose superblock the app cannot read. NTFS, ext4, btrfs and
+exFAT pay nothing — their full-volume fills come back in 1 to 6 seconds against
+76 to 156 for the others.
+
+**The remaining 25% is not worth what it costs.** An ext4 volume inside LUKS
+takes `sync` at 2x where `data=journal` at 1.5x would do, because nothing has
+read what is inside. `anylinuxfs list -d` will say — by decrypting the container
+in a machine of its own, which is about ten seconds added to every encrypted
+open, before the drive appears. Ten seconds of waiting on every open, to make
+large writes 25% faster on one kind of drive, is the wrong way round: a delay
+before the drive appears is the most visible thing this app does, and a copy
+finishing in 4 seconds instead of 3 is the least.
+
+Caching the answer from a previous open was considered and refused. A cached
+filesystem type that is wrong applies the wrong durability option, and that
+loses data rather than time — the one thing not worth 25%.
+
+**So item 10 holds on this evidence**: no new click, no new prompt, no new error
+message, and the one performance cost in the app is the price of not losing
+files, paid only by the two filesystems that cannot be served any other way.
