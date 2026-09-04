@@ -5382,6 +5382,52 @@ group("theRepairRefusesWhatItWouldDamage") {
     expect(r.status != 0, "a volume failing the dry run is refused")
     expect(!r.repaired, "and nothing is written to that either")
 
+    // The same damage, on a guest that carries the checker.
+    //
+    // Everything above is the fallback: no ntfsck on this Mac, so the command
+    // falls through to the three ntfsfix steps it always had. That is worth
+    // keeping and it is not the new behaviour, so the checker is stubbed here
+    // and the same refused volume run past it again.
+    //
+    // The stub answers the way the real one does, which is the whole point of
+    // the loop: the first pass leaves errors and only the second reports Clean.
+    // A stub that came back clean immediately would pass a one-pass repair too.
+    let passPath = dir.appendingPathComponent("passes").path
+    stub(
+        "ntfsck",
+        "case \"$1\" in "
+            + "-a) echo x >> \(passPath); "
+            + "if [ \"$(wc -l < \(passPath))\" -lt 2 ]; then "
+            + "echo '2 errors left (errors:5279, fixed:5273)'; exit 4; "
+            + "else echo 'Clean, No errors found or left (errors:1, fixed:1)'; exit 0; fi;; "
+            + "-n) if [ -f \(passPath) ] && [ \"$(wc -l < \(passPath))\" -ge 2 ]; then "
+            + "echo 'Clean, No errors found or left (errors:0, fixed:0)'; exit 0; "
+            + "else echo '1 errors left (errors:1, fixed:0)'; exit 4; fi;; "
+            + "esac")
+    try? FileManager.default.removeItem(at: URL(fileURLWithPath: passPath))
+    r = attempt()
+    expect(
+        r.status == 0 && r.repaired,
+        "damage the dry run refuses is repaired by the checker, and the flag then cleared")
+    let passes = (try? String(contentsOfFile: passPath, encoding: .utf8))?
+        .split(separator: "\n").count ?? 0
+    expect(passes >= 2, "and it kept going past the first pass, which leaves errors behind")
+
+    // Still refused when the checker cannot finish either: a volume nobody can
+    // make clean is a volume nobody should be writing to.
+    stub("ntfsck", "echo '2 errors left (errors:9, fixed:7)'; exit 4")
+    r = attempt()
+    expect(r.status != 0, "a volume the checker cannot bring clean is still refused")
+    expect(!r.repaired, "and the flag is not cleared behind its back")
+
+    // Hibernated, with the checker present: still refused. ntfsck -f would
+    // repair it by discarding the memory image Windows left, which is the one
+    // thing here that loses work nobody agreed to lose.
+    stub("ntfsls", "echo hiberfil.sys")
+    r = attempt()
+    expect(r.status != 0, "a hibernated volume is refused even with a checker to hand")
+    expect(!r.repaired, "and nothing is written to it")
+
     try? FileManager.default.removeItem(at: dir)
 }
 
@@ -5558,7 +5604,17 @@ group("aDirtyVolumeIsRepairedRatherThanDemoted") {
     // the only remedy it left was a chkdsk on a machine the drive may never be
     // plugged into again.
     let writable = MountScript.build(sampleInputs(kind: .microsoft))
-    expect(writable.contains("ntfsfix -d"), "the volume is repaired in the machine that refused it")
+    // The repair is a file the guest decodes and runs, not three commands in
+    // the config, so what it does is asserted against that file and its
+    // presence is asserted against the script. Reading the script for
+    // "ntfsfix -d" found nothing once the commands moved inside the blob, and
+    // would have gone on finding nothing however wrong the file became.
+    let repair = MountScript.checkAndRepair
+    expect(
+        writable.contains(MountScript.checkScriptPath),
+        "the repair rung carries the check into the guest and runs it")
+    expect(repair.contains("ntfsfix -d"), "the volume is repaired in the machine that refused it")
+    expect(repair.contains("ntfsck -a"), "and real damage is checked, not only the dirty flag")
 
     // But not where clearing the flag would be discarding something. ntfsfix
     // does not replay the NTFS journal -- nothing on Linux does -- it throws it
@@ -5566,18 +5622,29 @@ group("aDirtyVolumeIsRepairedRatherThanDemoted") {
     // two cases where something is actually lost are refused, and the refusal
     // fails the attempt, which opens the drive read-only instead.
     expect(
-        writable.contains("hiberfil") && writable.contains("exit 1"),
+        repair.contains("hiberfil") && repair.contains("exit 1"),
         "a hibernated volume is refused: its disk is deliberately stale, not merely unclean")
     expect(
-        writable.contains("ntfsfix -n"),
-        "and a dry run gates the write, so damage beyond a flag is refused too")
-    let dryAt = writable.range(of: "ntfsfix -n").map {
-        writable.distance(from: writable.startIndex, to: $0.lowerBound)
+        repair.contains("ntfsfix -n"),
+        "and a dry run still gates the fallback, so damage beyond a flag is refused too")
+    expect(
+        !repair.contains("-S") && !repair.contains("--salvage"),
+        "salvage is not passed: it may discard data nobody agreed to lose")
+    // Two writes now, each behind its own gate, so one ordering check no longer
+    // covers both. The first `ntfsfix -d` clears the flag after the checker has
+    // said Clean; the last one is the fallback, still behind the dry run. The
+    // old check compared the dry run against the *first* -d, which is the one
+    // the checker gates, and read the reordering as an ungated write.
+    func at(_ needle: String, last: Bool = false) -> Int? {
+        repair.range(of: needle, options: last ? .backwards : [])
+            .map { repair.distance(from: repair.startIndex, to: $0.lowerBound) }
     }
-    let writeAt = writable.range(of: "ntfsfix -d").map {
-        writable.distance(from: writable.startIndex, to: $0.lowerBound)
-    }
-    expect((dryAt ?? 1) < (writeAt ?? 0), "the dry run comes first, or it gates nothing")
+    expect(
+        (at("Clean,") ?? 1) < (at("ntfsfix -d") ?? 0),
+        "the flag is cleared only after the checker says the volume is clean")
+    expect(
+        (at("ntfsfix -n") ?? 1) < (at("ntfsfix -d", last: true) ?? 0),
+        "and the fallback's dry run comes first, or it gates nothing")
     expect(
         !writable.contains("__dirty && "),
         "unguarded: reading the kernel's words back at the right moment is a race, "
@@ -5585,7 +5652,7 @@ group("aDirtyVolumeIsRepairedRatherThanDemoted") {
 
     // Before the fallback, or it would never be reached: the read-only attempts
     // succeed, and a drive nobody asked to be read-only is opened that way.
-    let repairAt = writable.range(of: "ntfsfix").map {
+    let repairAt = writable.range(of: MountScript.checkScriptPath).map {
         writable.distance(from: writable.startIndex, to: $0.lowerBound)
     }
     let fallbackAt = writable.range(of: MountScript.stageMarker + "read-only").map {
@@ -5604,13 +5671,15 @@ group("aDirtyVolumeIsRepairedRatherThanDemoted") {
     // Not on a Linux drive: ntfsfix is for NTFS, and a btrfs volume that will
     // not mount is refused for its own reasons.
     let linux = MountScript.build(sampleInputs(kind: .linux))
-    expect(!linux.contains("ntfsfix"), "and nothing is repaired on a drive that is not NTFS")
+    expect(
+        !linux.contains(MountScript.checkScriptPath),
+        "and nothing is repaired on a drive that is not NTFS")
 
     // Read-only was asked for: nothing is written to the drive at all, repair
     // included.
     let readOnly = MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))
     expect(
-        !readOnly.contains("ntfsfix"),
+        !readOnly.contains(MountScript.checkScriptPath),
         "a drive opened read-only is not written to, not even to repair it")
 }
 
