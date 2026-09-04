@@ -84,6 +84,23 @@ while IFS=$'\t' read -r id tags speed claim cmd <&3; do
   # be killed by hand; everything queued behind it simply never happened. A
   # check that takes longer than its bound has failed as far as this is
   # concerned -- an answer that never arrives is not a pass.
+  # A clean slate between checks.
+  #
+  # heals-itself.sh failed one step of 185 inside a full run and passed on its
+  # own minutes later. Nothing was wrong with it: the check before had left
+  # shares mounted and images attached, and it inherited them. A check that
+  # passes alone and fails in company is the harness contaminating itself, and
+  # it reads as the app being flaky -- which is the most expensive kind of
+  # wrong answer this gate can give.
+  for __point in $(mount | /usr/bin/grep '\.local:' | awk '{print $3}' \
+                   | awk '{print length, $0}' | sort -rn | cut -d" " -f2-); do
+    umount "$__point" >/dev/null 2>&1 || umount -f "$__point" >/dev/null 2>&1
+  done
+  for __dev in $(hdiutil info 2>/dev/null | /usr/bin/grep '^/dev/disk' \
+                 | awk '{print $1}'); do
+    hdiutil detach "$__dev" -force -quiet >/dev/null 2>&1
+  done
+
   printf '%-10s %-52s ' "$id" "$claim"
   # Three tiers, because two were not enough to tell a hang from a long job.
   #
