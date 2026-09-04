@@ -62,6 +62,47 @@ through the host's buffer cache, which killing the guest does not discard, so
 this vector under-reports on images and clean runs there prove nothing either.
 Only a real drive settles it.
 
+## Two dirty fixtures handed back read-only — 2026-09-04
+
+A regression of my own, found the same evening it was written, and worth
+recording because of what nearly hid it.
+
+The check that repairs a damaged NTFS volume reads the whole MFT -- 59 s on a
+247 GB drive -- so it is gated: it runs only where the volume has asked for it.
+The gate returned early when nothing had asked, and that early return also
+skipped the two `ntfsfix` lines that clear a dirty flag. A volume left merely
+dirty has nothing in its reclaim log to say so, so it took that path; both
+drivers refuse a dirty volume read-write; every writable rung failed; and the
+drive was handed back **read-only** -- which is precisely the fallback the
+repair rung exists to prevent.
+
+    twelve fixtures opened      12
+    served                      12
+    writable                    10
+    read-only                   2   ROOTDMG and WARM, both dirty
+    guest kernel                ntfs3(vda): volume is dirty and "force" flag
+                                is not set!
+
+**What nearly hid it.** Both `crowd-through-the-app.sh` and `copy-visibility.sh`
+chose which volumes to write to by matching the mount point `/Volumes/CROWD<n>`
+-- the label those fixtures usually carry, and not a fact about them. Two had
+been relabelled by another harness that formats the same images, so the suite
+wrote to ten of the twelve and reported
+
+    wrote to 10 volumes in 1 s
+    byte-identical on 10, wrong on 0
+
+which reads exactly like a clean run of twelve. The two volumes it skipped were
+the two the app had demoted. With that filter in place the regression would have
+shipped; the count now comes from what the engine is serving -- `.local:/mnt/` in
+the mount table -- whatever the volume ended up called.
+
+    with the label filter       wrote to 10, byte-identical on 10, wrong on 0
+    with the engine's own name  wrote to 12, byte-identical on 10, wrong on 2
+
+That is the third time an instrument here has answered a narrower question than
+the one asked, after the discarded stderr and the GNU-tar count.
+
 ## The BitLocker drive's five unusable names, repaired — 2026-09-04
 
 Five entries on the owner's 247 GB BitLocker drive that answered `Input/output
