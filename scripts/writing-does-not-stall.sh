@@ -25,6 +25,7 @@
 #
 #   ./scripts/writing-does-not-stall.sh
 #   MB=800 ./scripts/writing-does-not-stall.sh
+#   IMAGE=/dev/disk4s1 ./scripts/writing-does-not-stall.sh   # a real drive
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -49,8 +50,26 @@ APP_BUNDLE="${ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 APP="$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)"
 IMG="$OUT/$IMAGE"
 
+# A real drive, or a fixture.
+#
+# IMAGE may name a device -- IMAGE=/dev/disk4s1 -- and then nothing is attached
+# and nothing is detached; the drive is opened where it already is. This exists
+# because the claim cannot be proven any other way: the stall was found on a USB
+# drive, and a fixture on the internal SSD has never reproduced it. Measured,
+# and written down beside the result: 1600 MB through the fixture answers in
+# 31 ms at worst, against a p99 of 4.66 s on the drive the fault lived on. That
+# is not the fault being gone, it is the fixture never reaching it.
+DEVICE_MODE=0
+case "$IMAGE" in
+  /dev/disk*) DEVICE_MODE=1; IMG="$IMAGE" ;;
+esac
+
 [ -x "$APP" ] || { echo "error: no app at $APP" >&2; exit 2; }
-[ -f "$IMG" ] || { echo "error: no $IMG" >&2; exit 2; }
+if [ "$DEVICE_MODE" = 1 ]; then
+  [ -b "$IMG" ] || [ -c "$IMG" ] || { echo "error: no device $IMG" >&2; exit 2; }
+else
+  [ -f "$IMG" ] || { echo "error: no $IMG" >&2; exit 2; }
+fi
 [ "$(strings -a "$APP" 2>/dev/null | /usr/bin/grep -c -- "--drive")" -gt 0 ] || {
   echo "error: $APP_BUNDLE has no --drive; build with LUKOTTA_DEVTOOLS=1" >&2; exit 2; }
 
@@ -60,17 +79,26 @@ release_drives() {
   for p in $(mount | /usr/bin/grep ':/mnt/' | awk '{print $3}'); do
     umount -f "$p" >/dev/null 2>&1
   done
-  for d in $(hdiutil info 2>/dev/null | /usr/bin/grep '^/dev/disk' | awk '{print $1}'); do
-    hdiutil detach "$d" -force -quiet >/dev/null 2>&1
-  done
+  # Only images are detached, and only when this run attached one. Detaching
+  # everything would pull out a drive somebody plugged in, and in device mode
+  # the thing under test is exactly such a drive.
+  if [ "$DEVICE_MODE" = 0 ]; then
+    for d in $(hdiutil info 2>/dev/null | /usr/bin/grep '^/dev/disk' | awk '{print $1}'); do
+      hdiutil detach "$d" -force -quiet >/dev/null 2>&1
+    done
+  fi
   DEV=""
 }
 trap 'release_drives; rm -rf "$WORK"' EXIT
 release_drives
 
-DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
-  2>/dev/null | head -1 | awk '{print $1}')"
-[ -n "${DEV:-}" ] || { echo "error: $IMAGE would not attach" >&2; exit 2; }
+if [ "$DEVICE_MODE" = 1 ]; then
+  DEV="$IMG"
+else
+  DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
+    2>/dev/null | head -1 | awk '{print $1}')"
+  [ -n "${DEV:-}" ] || { echo "error: $IMAGE would not attach" >&2; exit 2; }
+fi
 timeout 300 "$APP" --drive open="$DEV" > "$WORK/open.log" 2>&1 \
   || { echo "error: did not open: $(tail -1 "$WORK/open.log")" >&2; exit 2; }
 # The mount this opened, found by the device it was given -- the engine names
