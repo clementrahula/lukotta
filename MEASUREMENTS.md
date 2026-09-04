@@ -2983,3 +2983,46 @@ a worse one — refusing working mounts of an advertised feature — and nothing
 noticed for a day, because no check covered LVM inside LUKS. The sweep that
 found it exists because item 6 says "if the app claims it, it is tested", and
 the app claims it.
+
+### LVM inside LUKS, twelve vectors, first time — 2026-09-04
+
+    ok   a killed copy leaves no corrupt file behind (40 whole, 0 wrong)
+    ok   the volume still takes a write after a copy was killed
+    ok   the volume mounts and reads after being unmounted under load
+    ok   what was written before the unmount survived it
+    ok   a full volume answers with an error, in 2s
+    ok   three open/close cycles in a row (3 of 3)
+    ok   everything written is readable by whoever wrote it (3 of 3)
+    ok   awkward names and shapes survive a copy (10 whole, 0 wrong, 0 missing)
+    ok   two writers and a reader at once leave nothing wrong (24 compared)
+    ok   the filesystem comes back after the machine was killed mid-write
+    ok   every fsynced file survived power loss (8 of 8 present, 0 wrong, 0 lost)
+    ok   the volume takes a write again after power loss
+    12 passed, 0 failed
+
+The site has advertised "LVM inside LUKS: read yes, write yes" all along and
+nothing had ever tested it.
+
+**Getting there took four fixes, three of them to things that only looked like
+the app failing.**
+
+    the helper's guard      counted shares named after the device; a container
+                            is named after its volume group, and serves from
+                            /run rather than /mnt. It reported three working
+                            mounts as none, exit 74, and tore the drive down.
+    the harness's where()   looked for the same wrong name and said "the engine
+                            never mounted it" about a group that had activated
+    the harness's unmount   took one share of three, so the parent kept holding
+                            the device and every reopen failed on a live lock:
+                            0 of 3 open/close cycles, "never remounted" three
+                            times over
+    the disk                filled to 100% by 178 GB of fixture copies leaked
+                            from killed runs, which showed up as exFAT failing
+                            three vectors it had passed an hour before
+
+Only the first was in the app, and it was mine, added this morning. The other
+three were the harness reporting its own limits as the app's.
+
+**What remains on the LVM fixtures:** `luks1-lvm` and `luks2-lvm` are too small
+for the suite — 139 MB free where the vectors need 200 — and `luks-multi` still
+does not mount. Both are written down rather than counted as passes.
