@@ -3364,3 +3364,38 @@ ruled out: the fixture, the filesystem inside it, repetition, and memory
 pressure. What has not been tried is the only thing that would be evidence
 either way — the same vector on a real drive — and the drive available holds
 212 GB of the owner's archives, which is not a thing to kill a machine over.
+
+## NTFS loses committed writes on a real drive — 2026-09-04
+
+The owner confirmed the 247 GB stick at /dev/disk4 is a test drive with nothing
+unique on it, so the vector that only a real drive can answer was finally run.
+
+`dd conv=fsync` returns once the NFS client's COMMIT has been answered, so an
+application that fsyncs and is told it succeeded has every guarantee the
+platform offers at that moment. The machine is killed straight after.
+
+    run 0    RESULT: present but changed -- 8388608 bytes,
+             sha256 e8271900d5ec86ed... wanted de4342c21015f438...
+    run 1    RESULT: the file is not there. A committed write was lost.
+    run 2    RESULT: the file is not there. A committed write was lost.
+    run 3    RESULT: the file is not there. A committed write was lost.
+
+**Four for four.** Once corrupted at the right size, three times gone entirely.
+This is NTFS, the format most of this app's users have, and it is the one
+format given no durability option at all: `ExtJournal.durabilityOption` returns
+`data=journal` for a journalled ext, `sync` for XFS, and nothing for NTFS.
+
+**No fixture shows this.** Every image sweep passes the same vector, 168 vectors
+across fourteen formats, because writes to an attached image reach the backing
+file through the host's buffer cache and killing the guest does not discard it
+-- macOS writes it out afterwards regardless. `kill-durability.sh` said so in
+its own head and it was right. A real device has no such cache behind it.
+
+**And the harness that says so had never run.** `open_device` is called by that
+script and defined in no version of it in the history; neither is `where`. So it
+has never got past that line, while its head states results as though it had
+measured them. Both are written now, which is how these four runs happened at
+all.
+
+**This is item 9's power-loss vector failing on the app's commonest format**, and
+it was invisible for as long as it was only ever asked of disk images.
