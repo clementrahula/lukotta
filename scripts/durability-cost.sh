@@ -60,7 +60,11 @@ time_one() {
   cp "$OUT/$IMAGE" "$WORK/t.img"
   local args=()
   [ -n "$opts" ] && args=(-o "$opts")
-  nohup "$ENGINE" mount -w false "${args[@]}" "$WORK/t.img" \
+  # --ignore-permissions, as the app passes. Without it the volume is served
+  # with its Linux ownership intact, which for these fixtures is root, and every
+  # write here failed with "Permission denied" -- reported as 0 MB arriving,
+  # which at least said so rather than being timed as a fast write.
+  nohup "$ENGINE" mount -w false --ignore-permissions "${args[@]}" "$WORK/t.img" \
     > "$WORK/engine.log" 2>&1 &
   local point=""
   for _ in $(seq 1 60); do
@@ -70,11 +74,20 @@ time_one() {
   done
   [ -n "$point" ] || { printf '  %-22s did not mount\n' "$label"; return 1; }
 
-  local began ended secs
+  # Checked, not assumed. dd's complaint used to go to /dev/null, so a write
+  # that never happened came back as "1 s, 1000 MB/s" -- twice, identically,
+  # which is what said it was not writing at all rather than writing fast.
+  local began ended secs arrived
   began=$(date +%s)
   dd if=/dev/zero of="$point/durability-probe.bin" bs=1048576 count="$MB" \
-    conv=fsync status=none 2>/dev/null
+    conv=fsync status=none 2>"$WORK/dd.err"
   ended=$(date +%s)
+  arrived=$(( $(wc -c < "$point/durability-probe.bin" 2>/dev/null || echo 0) / 1048576 ))
+  if [ "$arrived" -lt "$MB" ]; then
+    printf '  %-22s only %s MB of %s arrived: %s\n' "$label" "$arrived" "$MB" \
+      "$(head -1 "$WORK/dd.err" 2>/dev/null)"
+    release; return 1
+  fi
   secs=$(( ended - began )); [ "$secs" -lt 1 ] && secs=1
   printf '  %-22s %5s s   %4s MB/s\n' "$label" "$secs" "$(( MB / secs ))"
   rm -f "$point/durability-probe.bin" 2>/dev/null

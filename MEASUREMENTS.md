@@ -3166,3 +3166,41 @@ rather than free.
 cheap test: write a fixed large file to a fresh XFS volume through the app, with
 the durability option and without it, and compare. Item 10 stays unmet until
 that is a number.
+
+### What the durability options actually cost — 2026-09-04
+
+A 500 MB file, `conv=fsync`, the same volume mounted by the engine with the
+option and without it, so the option is the only thing that changes:
+
+    plain-xfs    no option          2 s    250 MB/s
+                 -o sync            4 s    125 MB/s      2x
+
+    plain-ext4   no option          2 s    250 MB/s
+                 -o data=journal    3 s    166 MB/s      1.5x
+                 -o sync            4 s    125 MB/s      2x
+
+**Both earlier readings were wrong.** `ExtJournal.swift` says `-o sync` "costs
+nothing on a large file at all" and quotes 190 MB/s — it is not free, it is
+half. And this file's entry from two hours ago inferred 16 MB/s against 316
+from the sweep's fill timings; that was allocator work as a volume reaches its
+last block, not the option. Filling to ENOSPC and writing a fixed file are
+different questions and the first is not a proxy for the second.
+
+**What that means for item 10.** The options are not free and they are not a
+degraded fallback either: without them a power cut loses 8 of 8 fsynced files,
+with them it loses none. A copy at half speed against a copy that loses the
+file is not a trade — it is the answer. They stay.
+
+**Where there is something left to win.** A LUKS container gets the blanket
+`sync` at 2x because the app cannot read the superblock inside it to choose
+anything cheaper. An ext4 volume inside LUKS would take `data=journal` at 1.5x
+if the app knew what was in there — and the engine reports `fs_type` once the
+container is unlocked. That is a real improvement available to every encrypted
+ext4 drive, and it is the next thing worth doing on item 10.
+
+Two harness faults on the way to these numbers, both of the kind that has cost
+this project whole afternoons: `dd`'s complaint went to `/dev/null`, so a write
+that never happened was timed as "1 s, 1000 MB/s" — twice, identically, which is
+what gave it away. And the engine was called without `--ignore-permissions`,
+which the app always passes, so every write failed as "Permission denied" on a
+root-owned volume.
