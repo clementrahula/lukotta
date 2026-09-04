@@ -3099,3 +3099,35 @@ a gigabyte corpus costs 12 seconds against 17.
 that was in the app rather than in the harness. Neither would have been found by
 any check that existed yesterday: LVM inside LUKS had never been tested, and the
 first volume of a container is the one that was always safe.
+
+### Every advertised format, every vector, none failing — 2026-09-04
+
+    ntfs-vectors    12 passed, 0 failed      luks1-lvm       12 passed, 0 failed
+    ext4-vectors    12 passed, 0 failed      luks2-direct    12 passed, 0 failed
+    btrfs-vectors   12 passed, 0 failed      luks2-lvm       12 passed, 0 failed
+    exfat-vectors   12 passed, 0 failed      luks-lvm-big    12 passed, 0 failed
+    luks-ext4       12 passed, 0 failed      luks-multi      12 passed, 0 failed
+    luks-xfs        12 passed, 0 failed
+    plain-xfs       12 passed, 0 failed
+    plain-ext4      12 passed, 0 failed
+    plain-exfat     12 passed, 0 failed
+
+    14 formats run, 0 with failures
+
+168 vectors. Twelve hours ago the same sweep covered six fixtures and reported
+"every other format the app advertises" as holding; the eight added since found
+two defects in the app and four in the harness, and every one of them read as
+the app failing until it was chased.
+
+The twelve vectors, on each of the fourteen: a killed copy leaving no corrupt
+file, a write after that kill, unmount under load and what survived it, a full
+volume answering with an error and the room coming back, three open/close
+cycles, permissions, awkward names and shapes, two writers and a reader at once,
+the filesystem coming back after the machine was killed mid-write, every fsynced
+file surviving power loss, and a write after that.
+
+**What is still not covered, said plainly.** FAT has no fixture and BitLocker
+cannot have one -- nothing on macOS or Linux creates a BitLocker volume, only
+reads one -- so that half of item 4 rests on the owner's own drive. The
+virtual-disk formats the site marks experimental (qcow2, VMDK, VDI, VHD, VHDX)
+have no fixtures either.
