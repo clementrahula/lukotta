@@ -3237,3 +3237,36 @@ loses data rather than time — the one thing not worth 25%.
 **So item 10 holds on this evidence**: no new click, no new prompt, no new error
 message, and the one performance cost in the app is the price of not losing
 files, paid only by the two filesystems that cannot be served any other way.
+
+### FAT, the last claim that could be built — 2026-09-04
+
+    plain-fat    12 passed, 0 failed
+
+The site lists FAT beside exFAT as read and write, and nothing had ever tested
+it. `newfs_msdos` is part of macOS, so the fixture cost nothing to make and had
+simply never been made — the same shape as the eight fixtures that existed and
+were not swept.
+
+**Item 6's claims and their fixtures, complete:**
+
+    NTFS                   ntfs-vectors                12 of 12
+    ext2, ext3, ext4       ext4-vectors, plain-ext4    12 of 12 each
+    btrfs                  btrfs-vectors               12 of 12
+    XFS                    plain-xfs, luks-xfs         12 of 12 each
+    exFAT                  exfat-vectors, plain-exfat  12 of 12 each
+    FAT                    plain-fat                   12 of 12
+    LUKS1, LUKS2           luks1-lvm, luks2-direct     12 of 12 each
+    LVM inside LUKS        luks2-lvm, luks-lvm-big,
+                           luks-multi                  12 of 12 each
+    BitLocker              no fixture can exist        the owner's own drive,
+                                                       2026-09-02, byte-identical
+
+**BitLocker is the only claim without an automated fixture**, and it cannot have
+one: nothing on macOS or Linux creates a BitLocker volume, only reads one. It
+was proven on the owner's Patriot stick on 2026-09-02 — Keychain unlock with
+nothing typed, 205 files byte-identical, Finder copies at both extremes with
+zero dialogs — and that is the strongest evidence obtainable on this hardware.
+
+The virtual-disk formats the site marks experimental (qcow2, VMDK, VDI, VHD,
+VHDX) still have no fixtures. They are marked experimental on the site, which
+is the one place a claim is allowed to be narrower than the testing.
