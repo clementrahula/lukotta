@@ -393,12 +393,20 @@ for leftover in "$VOL"/vec-*; do [ -e "$leftover" ] && rm -rf "$leftover"; done
 free_kb="$(df -k "$VOL" 2>/dev/null | tail -1 | awk '{print $4}')"
 printf 'starting with %s MB free\n' "$(( ${free_kb:-0} / 1024 ))"
 
-# These vectors write eighty megabytes and then deliberately fill the volume.
-# On a volume too small for that, every one of them fails on space and reads as
-# a fault in the app -- which is what a forty-megabyte exFAT fixture produced:
-# a page of failures, none of them about the app.
-if [ "${free_kb:-0}" -lt 204800 ]; then
-  printf 'error: %s MB free. These vectors need 200 MB and this volume\n' \
+# These vectors write eighty megabytes, then deliberately fill the volume, and
+# the awkward-shapes one alone wants a 512 MB sparse file and a 100 MB solid
+# one. On a volume too small for that, they fail on space and read as a fault in
+# the app -- which is what a forty-megabyte exFAT fixture produced: a page of
+# failures, none of them about the app.
+#
+# 200 MB was the figure and it was too low by three. A 600 MB exFAT fixture
+# passed the check and then failed the awkward-shapes vector alone, because
+# exFAT has no sparse files and the 512 MB hole is written out in full: 620 MB
+# wanted where 570 were free. One vector failing out of twelve reads as a real
+# and narrow defect, which is worse than a refusal -- it is the shape of a
+# finding rather than of a missing fixture.
+if [ "${free_kb:-0}" -lt 716800 ]; then
+  printf 'error: %s MB free. These vectors need 700 MB and this volume\n' \
     "$(( ${free_kb:-0} / 1024 ))" >&2
   printf '       cannot hold them, so nothing here would be about the app.\n' >&2
   exit 2
