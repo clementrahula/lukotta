@@ -12,11 +12,12 @@ says which hold now; `FULL=1` runs the slow ones. A complete pass on 2026-09-04:
 
     1  writing does not stall     the stall traced to the nfsd COMMIT fault and
                                   worked around; before and after written down.
-                                  Its automated check is a guard, not the proof
-                                  -- a fixture on an internal SSD cannot make
-                                  the fault, measured: 1600 MB at 533 MB/s and
-                                  worst 31 ms, against p99 4.66 s on the drive
-                                  it was found on
+                                  Measured on the drive it was found on, three
+                                  times: nothing failed and macOS never called
+                                  the server unresponsive. The residual tail is
+                                  the drive, proven by writing to fast storage
+                                  at the same 7.6 MB/s -- worst 0.031 s there
+                                  against 5.222 s on the stick
     2  no crash through Finder    Finder's own copies on a real stick, both
                                   extremes, repeated, nothing user-visible
     3  nothing user-visible       and the interrupted-copy fault found on
