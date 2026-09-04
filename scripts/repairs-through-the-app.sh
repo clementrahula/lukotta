@@ -137,9 +137,47 @@ if [ -z "$fault" ] && [ "$(wc -c < "$POINT/big/written-after-repair.bin" 2>/dev/
   fault="the file written into it did not arrive whole"
 fi
 
-echo
 if [ -n "$fault" ]; then
+  echo
   echo "RESULT: opened writable and $fault" >&2
   exit 1
 fi
-echo "RESULT: a volume that would not mount opened writable, and the folder took a file"
+echo "  repaired: opened writable, and the folder took a file"
+
+# And a volume with nothing wrong is not scanned.
+#
+# The other half of the same claim, and the half that is easy to lose: a check
+# reads the whole MFT -- 59 seconds on a 247 GB drive -- so a rule that checks
+# whenever it might help would charge every healthy drive for the few damaged
+# ones. The evidence is durable and on the volume: the check writes
+# .lukotta-check.log wherever it runs, on failure as well as success, so a
+# healthy volume that has one has been scanned for nothing.
+echo
+echo "the same drive again, now that it is repaired"
+release_drives
+DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
+  2>/dev/null | head -1 | awk '{print $1}')"
+[ -n "${DEV:-}" ] || { echo "would not attach the second time" >&2; exit 1; }
+timeout 900 "$APP" --drive open="$DEV" > "$WORK/open2.log" 2>&1 \
+  || { echo "the repaired drive did not open: $(tail -2 "$WORK/open2.log")" >&2; exit 1; }
+SHARE="$(basename "$DEV").local:"
+POINT="$(mount | /usr/bin/grep -F "$SHARE" | awk '{print $3}' | head -1)"
+[ -n "${POINT:-}" ] || { echo "the repaired drive opened and nothing is served" >&2; exit 1; }
+rm -f "$POINT/.lukotta-check.log" 2>/dev/null
+release_drives
+DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
+  2>/dev/null | head -1 | awk '{print $1}')"
+[ -n "${DEV:-}" ] || { echo "would not attach the third time" >&2; exit 1; }
+timeout 900 "$APP" --drive open="$DEV" > "$WORK/open3.log" 2>&1 \
+  || { echo "the healthy drive did not open: $(tail -2 "$WORK/open3.log")" >&2; exit 1; }
+SHARE="$(basename "$DEV").local:"
+POINT="$(mount | /usr/bin/grep -F "$SHARE" | awk '{print $3}' | head -1)"
+[ -n "${POINT:-}" ] || { echo "the healthy drive opened and nothing is served" >&2; exit 1; }
+
+echo
+if [ -e "$POINT/.lukotta-check.log" ]; then
+  echo "RESULT: a volume with nothing wrong was scanned anyway" >&2
+  exit 1
+fi
+echo "RESULT: a volume that would not mount opened writable and took a file;"
+echo "        the same volume, repaired, was opened again and not scanned"
