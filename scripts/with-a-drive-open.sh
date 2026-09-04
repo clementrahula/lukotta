@@ -73,6 +73,25 @@ SHARE="$(basename "$DEV").local:"
 POINT="$(mount | /usr/bin/grep -F "$SHARE" | awk '{print $3}' | head -1)"
 [ -n "${POINT:-}" ] || { echo "error: opened and nothing is served" >&2; exit 2; }
 
+# What earlier harnesses left on the fixture, before handing it over.
+#
+# These volumes are shared by every harness here and each leaves its corpus
+# behind. copy-torture.sh then found 765 MB free where it needs 1089 and
+# refused -- reported as a failing claim about the app, on a fixture with two
+# gigabytes of room and most of it full of other runs' test data.
+#
+# Only names these scripts make. Nothing else is touched, so a fixture that
+# holds something deliberate keeps it.
+for leftover in vec-awkward vec-full vec-perms vec-power vec-conc vec-cycle \
+                crowd-write xattr-forks-test copy-torture-test big damaged \
+                damaged2 spill fill first-write fork-probe rf probe; do
+  # ${POINT:?} rather than $POINT: an empty mount point would make this
+  # "rm -rf /vec-awkward", and one of these lists is all it takes.
+  rm -rf "${POINT:?}/$leftover" >/dev/null 2>&1
+done
+rm -rf "${POINT:?}"/copyvis* "${POINT:?}"/.lukotta-unreadable-* >/dev/null 2>&1
+
 echo "opened $IMAGE at $POINT through the app"
+echo "  $(df -m "$POINT" | tail -1 | awk '{print $4}') MB free after clearing earlier runs"
 "$@" "$POINT"
 exit $?

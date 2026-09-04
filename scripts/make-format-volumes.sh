@@ -153,6 +153,28 @@ else
   missing+=("ext4 (brew install e2fsprogs)")
 fi
 
+# FAT. The site lists it beside exFAT as read and write, and nothing had ever
+# tested it: item 6 says if the app claims it, it is tested, and this was the
+# last claim with no fixture behind it that could be built at all. BitLocker
+# cannot be made on any Mac or Linux, so that one stays with the owner's drive.
+#
+# newfs_msdos wants a device, like newfs_exfat, and -F 32 for a volume this
+# size: FAT16 tops out well below two gigabytes and the default would pick it.
+if command -v newfs_msdos >/dev/null 2>&1; then
+  if [ ! -f "$OUT/plain-fat.img" ]; then
+    dd if=/dev/zero of="$OUT/plain-fat.img" bs=1048576 count=0 seek="$MB" 2>/dev/null
+    dev="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage \
+             "$OUT/plain-fat.img" | awk 'NR==1{print $1}')"
+    trap 'hdiutil detach "$dev" >/dev/null 2>&1 || true' EXIT
+    newfs_msdos -F 32 -v PLAINFAT "$dev" >/dev/null 2>&1
+    hdiutil detach "$dev" >/dev/null 2>&1
+    trap - EXIT
+  fi
+  made+=("fat")
+else
+  missing+=("fat (newfs_msdos is part of macOS; this should not happen)")
+fi
+
 # exFAT. newfs_exfat wants a device, so the image is attached without being
 # mounted -- macOS would otherwise mount it and hold it open.
 if command -v newfs_exfat >/dev/null 2>&1; then

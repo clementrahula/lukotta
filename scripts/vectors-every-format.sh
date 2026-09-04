@@ -42,8 +42,8 @@ ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engi
 # What still has no fixture: FAT, and BitLocker, which nothing on macOS or
 # Linux can create. BitLocker rests on the owner's own drive and item 4 says so.
 FIXTURES="${FIXTURES:-ntfs-vectors ext4-vectors btrfs-vectors exfat-vectors \
-luks-ext4 luks-xfs plain-xfs plain-ext4 plain-exfat luks1-lvm luks2-direct \
-luks2-lvm luks-lvm-big luks-multi}"
+luks-ext4 luks-xfs plain-xfs plain-ext4 plain-exfat plain-fat luks1-lvm \
+luks2-direct luks2-lvm luks-lvm-big luks-multi}"
 PASSPHRASE="${LUKOTTA_PASSPHRASE:-lukotta-test-pass}"
 
 ran=0; failed=0; missing=""

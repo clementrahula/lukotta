@@ -34,7 +34,14 @@ for app in "/Applications/Lukotta.app" "/Applications/Lukotta Beta.app" \
 
   # Launching it is enough: what is being asked is whether anything it does
   # reaches for the shared directory, not whether a drive opens.
-  env -u ANYLINUXFS_HOME "$app/Contents/MacOS/$name" --check-helper >/dev/null 2>&1
+  # Bounded. --check-helper talks to a privileged daemon over XPC and one of
+  # the applications installed here never came back from it: a full gate sat on
+  # this line for forty-nine minutes with no process of its own running, and
+  # everything queued behind it never ran. What is being asked is whether the
+  # launch reaches for the shared directory, and thirty seconds is long past
+  # enough to find out.
+  timeout 30 env -u ANYLINUXFS_HOME "$app/Contents/MacOS/$name" \
+    --check-helper >/dev/null 2>&1
   sleep 1
 
   if [ -d "$SHARED" ]; then
