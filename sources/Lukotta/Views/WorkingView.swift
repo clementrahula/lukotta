@@ -22,7 +22,18 @@ struct WorkingView: View {
     /// Only the steps this mount takes: the approval one belongs to a
     /// single route.
     private var steps: [MountStage] {
-        MountStage.shown(askingApproval: model.mountAsksApproval)
+        MountStage.shown(
+            askingApproval: model.mountAsksApproval,
+            checking: MountStage.isChecking(model.stageLines + model.statusLines))
+    }
+
+    /// A check reads the whole MFT, so the usual estimate stops being true the
+    /// moment one starts -- and a minute of apparent nothing is what makes
+    /// somebody pull the drive out.
+    private var estimate: Text {
+        MountStage.isChecking(model.stageLines + model.statusLines)
+            ? Text("This drive needs repairing, so it will take a few minutes.")
+            : Text("This usually takes under a minute.")
     }
 
     var body: some View {
@@ -30,7 +41,7 @@ struct WorkingView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text("Opening “\(isolated(drive.name))”").font(.title3.weight(.semibold))
                     .accessibilityAddTraits(.isHeader)
-                Text("This usually takes under a minute.")
+                estimate
                     .font(.caption).foregroundStyle(.secondary)
             }
 

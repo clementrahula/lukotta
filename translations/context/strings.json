@@ -2676,6 +2676,18 @@
           "is": "the file name"
         }
       ]
+    },
+    "Checking this drive for damage": {
+      "screens": [
+        "working"
+      ],
+      "context": "A step in the list shown while a drive is opening, alongside \"Unlocking and mounting\". It appears only on a drive that turned out to be damaged, and it is the step somebody waits on: the check reads the whole file table, about a minute on a 250 GB drive. Present tense, the same form as the other steps."
+    },
+    "This drive needs repairing, so it will take a few minutes.": {
+      "screens": [
+        "working"
+      ],
+      "context": "Replaces \"This usually takes under a minute.\" under the title while a damaged drive is being repaired, because that estimate stops being true. States a fact and gives a reason to wait; it is not an apology and not a warning, and nothing is being lost."
     }
   }
 }

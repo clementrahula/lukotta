@@ -1769,6 +1769,14 @@ public enum MountScript {
           }
 
           if [ "$scan" = 1 ] && command -v ntfsck >/dev/null 2>&1; then
+            # Say so, because this is the one step somebody waits on.
+            #
+            # A full check reads the whole MFT -- 59 seconds on a 247 GB drive
+            # -- and the window it happens in says "This usually takes under a
+            # minute" with no step to attach the wait to. A minute of apparent
+            # nothing is what makes somebody pull the drive out mid-repair,
+            # which is how the damage got there in the first place.
+            echo "\(stageMarker)checking"
             : > /tmp/lukotta-ntfsck.out
             n=0
             while [ $n -lt 4 ]; do
