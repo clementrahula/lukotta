@@ -1652,6 +1652,41 @@ public enum MountScript {
           exit 1
         fi
 
+        # Does this volume actually want checking?
+        #
+        # A full check reads the whole MFT -- twenty-five seconds on a 247 GB
+        # drive -- so it must not run on every mount of a volume that is fine.
+        # The volume itself says whether it wants one: the reclaim walk writes
+        # "could not move:" when a name refuses even a rename, and that line is
+        # the only durable evidence that something is wrong which a mount will
+        # not reveal by failing.
+        #
+        # LUKOTTA_CHECK=force runs it regardless, so a harness can measure the
+        # check without first having to damage something.
+        #
+        # Asked here rather than at each call site: the probe rung asked with
+        # its own read-only mount and the ntfs-3g rung had no way to ask at all,
+        # so the rung that serves damaged drives ran a full scan every time.
+        # One gate, and every rung gets the same one.
+        if [ "${LUKOTTA_CHECK:-}" != "force" ]; then
+          asked=0
+          mkdir -p /tmp/lukotta-ask 2>/dev/null
+          if mount -t ntfs3 -o ro "$dev" /tmp/lukotta-ask 2>/dev/null ||
+             mount -t ntfs-3g -o ro "$dev" /tmp/lukotta-ask 2>/dev/null; then
+            grep -l "could not move:" /tmp/lukotta-ask/.lukotta-reclaim.log \
+              >/dev/null 2>&1 && asked=1
+            umount /tmp/lukotta-ask 2>/dev/null || true
+          else
+            # Neither driver will mount it read-only, which is damage by
+            # itself: check it.
+            asked=1
+          fi
+          if [ "$asked" = 0 ]; then
+            echo "lukotta: nothing has asked for a check on this volume"
+            exit 0
+          fi
+        fi
+
         # What the check did, left on the volume it did it to.
         #
         # Every mount attempt runs its own machine, so nothing written to /tmp
@@ -1962,16 +1997,12 @@ public enum MountScript {
         + "mkdir -p /tmp/lukotta-probe; "
         + "mount -t ntfs3 -o ro \"`blkid -t TYPE=ntfs -o device | head -n 1`\" "
         + "/tmp/lukotta-probe 2>/dev/null || exit 1; "
-        + "need=0; "
-        + "grep -l \"could not move:\" /tmp/lukotta-probe/.lukotta-reclaim.log "
-        + ">/dev/null 2>&1 && need=1; "
         + "umount /tmp/lukotta-probe 2>/dev/null || true; "
         // The check unmounted, and its failure left alone. It reports non-zero
         // for a volume it will not touch -- a hibernated one above all -- and
         // that is a reason to mount the drive as it stands, not a reason to
         // refuse the mount this rung was about to make.
-        + "echo \"lukotta: probe says this volume needs checking: $need\"; "
-        + "[ \"$need\" = 1 ] && sh \(checkScriptPath); "
+        + "sh \(checkScriptPath) || true; "
         + "true"
 
     /// How much of a write goes in one request.

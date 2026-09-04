@@ -5439,27 +5439,42 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     // ever checked it and the names stayed unusable for ever. Measured on a
     // real 247 GB BitLocker drive with five of them.
     let probe = MountScript.ntfs3Probe
+    let check = MountScript.checkAndRepair
+
+    // The gate lives inside the check, not at each call site. It was in the
+    // probe, which meant the ntfs-3g rung -- the one a damaged drive actually
+    // reaches, because reaching it means ntfs3 refused the volume -- had no way
+    // to ask and ran a full MFT scan on every single mount instead.
     expect(
-        probe.contains(".lukotta-reclaim.log"),
-        "the probe asks the volume whether the last walk could not free something")
+        check.contains(".lukotta-reclaim.log"),
+        "the check asks the volume whether the last walk could not free something")
     expect(
-        probe.contains("could not move:"),
+        check.contains("could not move:"),
         "and it looks for the line the walk actually writes")
     expect(
         probe.contains(MountScript.checkScriptPath),
-        "and runs the check when it finds one")
+        "and the probe rung runs the check")
 
-    // Order matters twice over: the check needs the volume unmounted, and the
-    // probe's own read-only mount has to be gone before it starts.
+    // Order matters: the gate reads the log through its own read-only mount,
+    // and that mount is gone before ntfsck touches the device.
     func at(_ needle: String) -> Int? {
-        probe.range(of: needle).map { probe.distance(from: probe.startIndex, to: $0.lowerBound) }
+        check.range(of: needle).map { check.distance(from: check.startIndex, to: $0.lowerBound) }
     }
     expect(
-        (at("could not move:") ?? 1) < (at("umount") ?? 0),
-        "the log is read while the probe still has it mounted")
+        (at("could not move:") ?? 1) < (at("umount /tmp/lukotta-ask") ?? 0),
+        "the log is read while the gate still has it mounted")
     expect(
-        (at("umount") ?? 1) < (at(MountScript.checkScriptPath) ?? 0),
+        (at("umount /tmp/lukotta-ask") ?? 1) < (at("ntfsck -a") ?? 0),
         "and the check runs only once that mount is gone")
+    expect(
+        check.contains("exit 0"),
+        "a volume that has not asked is left alone rather than scanned")
+
+    // Both rungs that can serve a writable NTFS volume carry it.
+    let writableScript = MountScript.build(sampleInputs(kind: .microsoft))
+    expect(
+        writableScript.components(separatedBy: "sh " + MountScript.checkScriptPath).count - 1 >= 2,
+        "every rung that can serve a damaged NTFS volume runs the check")
 
     // The script has to be in the guest before the probe can run it. It was
     // written by the repair rung alone, which is the one rung this path does
