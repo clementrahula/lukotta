@@ -319,4 +319,35 @@ if [ "$CHANNEL" = "release" ]; then
   done
 fi
 
+# And a note to the owner, somewhere only they can see it.
+#
+# GitHub never notifies anybody about their own actions, and this script is the
+# owner publishing, so no watch setting on lukotta produces mail for a release
+# -- with Releases ticked or not. The announcement has to come from somebody
+# else, so it is started here and made by github-actions[bot] in a private
+# repository of its own, which asks the feed whether the release is really
+# being served before it says anything.
+#
+# It ran in the public repository first and commented on a public issue, which
+# put every release on show to anybody reading. Private now.
+#
+# Failure here is not failure to ship: the release is out by this point, and a
+# note that did not arrive is worth a line on the terminal and nothing more.
+if command -v gh >/dev/null 2>&1; then
+  if [ "$CHANNEL" = "beta" ]; then
+    __feed=https://updates.lukotta.com/beta/appcast.xml
+  else
+    __feed=https://updates.lukotta.com/appcast.xml
+  fi
+  if gh workflow run notice.yml \
+      --repo clementrahula/lukotta-release-notices \
+      -f tag="v$FULL" -f channel="$CHANNEL" -f feed="$__feed" \
+      -f url="https://github.com/clementrahula/lukotta/releases/tag/v$FULL" \
+      >/dev/null 2>&1; then
+    printf '    a note is on its way to the private notices repository\n'
+  else
+    printf '    could not start the release notice; the release itself is out\n' >&2
+  fi
+fi
+
 printf '\n%s is out. Anyone on the %s channel is offered it now.\n' "$FULL" "$CHANNEL"
