@@ -43,7 +43,12 @@ pull_the_cable() {
   for d in $(hdiutil info 2>/dev/null | /usr/bin/grep '^/dev/disk' | awk '{print $1}'); do
     hdiutil detach "$d" -force -quiet >/dev/null 2>&1
   done
-  for p in $(mount | /usr/bin/grep -oE '/Volumes/CROWD[0-9]+' | sort -u); do
+# The engine's own share name, not the volume's label.
+# A mount point matching /Volumes/CROWD<n> is what these fixtures are usually
+# called and not a fact about them: relabelled by another harness that formats
+# the same images, they vanish from the selection and the run quietly measures
+# fewer volumes, or a different one, while staying green.
+  for p in $(mount | /usr/bin/grep -F '.local:/mnt/' | awk '{print $3}' | sort -u); do
     umount -f "$p" >/dev/null 2>&1
   done
 }

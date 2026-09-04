@@ -68,7 +68,12 @@ for c in $(seq 1 "$CYCLES"); do
     echo "  cycle $c: did not open: $(tail -1 "$WORK/open.log")"
     failed=$((failed+1)); release; continue
   fi
-  point="$(mount | /usr/bin/grep -oE '/Volumes/CROWD[0-9]+' | head -1)"
+# The engine's own share name, not the volume's label.
+# A mount point matching /Volumes/CROWD<n> is what these fixtures are usually
+# called and not a fact about them: relabelled by another harness that formats
+# the same images, they vanish from the selection and the run quietly measures
+# fewer volumes, or a different one, while staying green.
+  point="$(mount | /usr/bin/grep -F '.local:/mnt/' | awk '{print $3}' | head -1)"
   [ -n "${point:-}" ] || { echo "  cycle $c: opened and nothing is served"; failed=$((failed+1)); release; continue; }
 
   [ "$SETTLE" != "0" ] && sleep "$SETTLE"

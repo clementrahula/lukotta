@@ -38,7 +38,12 @@ fi
 WORK="$(mktemp -d)"
 DEV=""
 clean_up() {
-  point="$(mount | /usr/bin/grep -oE '/Volumes/CROWD[0-9]+' | head -1)"
+# The engine's own share name, not the volume's label.
+# A mount point matching /Volumes/CROWD<n> is what these fixtures are usually
+# called and not a fact about them: relabelled by another harness that formats
+# the same images, they vanish from the selection and the run quietly measures
+# fewer volumes, or a different one, while staying green.
+  point="$(mount | /usr/bin/grep -F '.local:/mnt/' | awk '{print $3}' | head -1)"
   if [ -n "${point:-}" ]; then
     rm -rf "$point/fill" "$point/spill" >/dev/null 2>&1
     umount "$point" >/dev/null 2>&1 || umount -f "$point" >/dev/null 2>&1
@@ -53,7 +58,7 @@ DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
 [ -n "${DEV:-}" ] || { echo "error: would not attach" >&2; exit 2; }
 timeout 300 "$APP" --drive open="$DEV" > "$WORK/open.log" 2>&1 \
   || { echo "error: did not open: $(tail -1 "$WORK/open.log")" >&2; exit 2; }
-POINT="$(mount | /usr/bin/grep -oE '/Volumes/CROWD[0-9]+' | head -1)"
+POINT="$(mount | /usr/bin/grep -F '.local:/mnt/' | awk '{print $3}' | head -1)"
 [ -n "${POINT:-}" ] || { echo "error: opened and nothing is served" >&2; exit 2; }
 
 echo "$POINT: $(df -h "$POINT" | tail -1 | awk '{print $4 " free of " $2}')"
