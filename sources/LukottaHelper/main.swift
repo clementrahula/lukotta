@@ -467,7 +467,17 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                     // A container hides the superblock that option is read
                     // from, so it gets the blunt one: `sync` is a VFS option
                     // and means the same to every filesystem inside.
-                    ?? (LUKSHeader.isContainer(forDevice: devicePath) ? "sync" : nil),
+                    //
+                    // BitLocker hides it exactly as LUKS does and was asking
+                    // only about LUKS, so it got nothing. Measured on a real
+                    // BitLocker drive on 2026-09-04, after `dd conv=fsync` had
+                    // returned and the machine was killed: once present with
+                    // different bytes, three times gone entirely. Four for
+                    // four. The drive reads `-FVE-FS-` where the app looks for
+                    // a filesystem, so no option could ever have been chosen
+                    // for it by the route above.
+                    ?? (LUKSHeader.isContainer(forDevice: devicePath)
+                        || probed == .bitlocker ? "sync" : nil),
                 // What the sector said, so the driver ladder can choose by the
                 // filesystem rather than by the family it belongs to.
                 format: probed)

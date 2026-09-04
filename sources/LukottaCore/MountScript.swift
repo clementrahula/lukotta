@@ -2026,13 +2026,30 @@ public enum MountScript {
         driver: String?, readOnly: Bool, durability: String? = nil
     ) -> String {
         var opts = driverOptions(driver)
-        // Never beside a driver. The drivers named here are the NTFS ones, and
-        // this belongs to the Linux filesystems alone.
+        // Not beside a driver it means nothing to, which is not the same as
+        // not beside a driver at all.
+        //
+        // This read `driver == nil`, on the reasoning that the named drivers are
+        // the NTFS ones and durability belongs to the Linux filesystems. NTFS
+        // was then given no option, its vectors passed, and that was taken for
+        // proof. The vectors ran on disk images, which cannot show this fault:
+        // writes to one reach the backing file through the host's buffer cache
+        // and killing the guest does not discard it. Asked of a real drive on
+        // 2026-09-04, after `dd conv=fsync` had returned and the machine was
+        // killed -- once present with different bytes, three times gone
+        // entirely. Four for four, on the format most users have.
+        //
+        // `sync` is a plain VFS option and ntfs3 takes it like anything else.
+        // What must not reach an NTFS driver is `data=journal`, which is ext's
+        // and which an ext volume without a journal will not even mount with.
+        // So the test is what the option is, not whether a driver was named.
+        //
         // Never on a read-only mount. The option exists so that a write which
         // was fsynced survives the machine dying, and a volume opened read-only
         // takes no writes at all -- so it buys nothing and, on a device, `sync`
         // is the difference between 190 MB/s and 4.
-        if let durability, driver == nil, !readOnly { opts.append(durability) }
+        let optionFitsDriver = driver == nil || durability == "sync"
+        if let durability, optionFitsDriver, !readOnly { opts.append(durability) }
         opts += readOnly ? ["ro"] : []
         return opts.isEmpty ? "" : " -o \(opts.joined(separator: ","))"
     }
