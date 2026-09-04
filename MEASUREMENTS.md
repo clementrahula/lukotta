@@ -3658,3 +3658,35 @@ that index, which is what chkdsk does and which nothing on macOS or Linux
 offers. The honest position is that this app cannot undo it, and the work that
 matters is making sure it never happens -- which is item 3, and which is about
 what an interrupted copy leaves behind rather than what can be recovered after.
+
+### An interrupted copy on the real drive leaves a clean partial result — 2026-09-04
+
+The vector item 3 is hardest on, run on the owner's drive: a 400-file copy
+started, the machine killed two seconds in, the drive reopened, the folder
+examined.
+
+    round 1   10 files kept, writable yes, removable yes
+    round 2   10 files kept, writable yes, removable yes
+    round 3    9 files kept, writable yes, removable yes
+    round 4    7 files kept, writable yes, removable yes
+
+Four for four. The folder is listed, readable, holds the files that made it,
+takes a new write, and can be deleted. That is exactly what an interrupted copy
+should leave, and it is what a person pulling a drive out mid-copy now gets.
+
+**Which leaves the poisoned `lukotta-durability` needing an explanation, since
+this does not reproduce it.** What is different about it: it was made and killed
+repeatedly during the runs where the app was applying `-o sync` to NTFS -- the
+durability option added and withdrawn this evening. Every interrupted copy since
+that option came out has been clean.
+
+That is a correlation across a handful of runs, not a demonstration, and it is
+written as one. What can be said without stretching: the fault has been seen
+once on real hardware, in a window where an option was in force that is no
+longer in force, and it has not been seen in four attempts since.
+
+**And it makes the reclaim's position clear.** It cannot free a poisoned name on
+real hardware -- measured, "could not move" -- so its value rests entirely on
+the fixture case, where a rename does work. It stays for that, and it is not
+what protects a real drive. What protects a real drive is the interrupted copy
+leaving nothing broken in the first place, which is what these four runs show.
