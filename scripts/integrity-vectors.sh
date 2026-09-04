@@ -197,15 +197,24 @@ where() {
   # and whose volumes were sitting in the table. The same mistake, in the same
   # words, as the helper's own check made about the same drives.
   #
-  # The deepest such mount is the one with a filesystem worth testing on it: the
-  # parent is a one-megabyte tmpfs holding the volumes.
-  mount | awk '$1 ~ /^lvm-[^ ]*\.local:/ {
-                 for (i = 1; i <= NF; i++) if ($i == "on") p[++n] = $(i + 1)
-               }
-               END { if (n) { best = p[1]
-                              for (j = 2; j <= n; j++)
-                                if (length(p[j]) > length(best)) best = p[j]
-                              print best } }'
+  # The roomiest of them, not the deepest-named.
+  #
+  # The parent is a one-megabyte tmpfs holding the volumes, so it is never the
+  # answer; among the volumes themselves the longest name is an arbitrary
+  # choice, and on luks1-lvm it picked one with 139 MB free where the vectors
+  # want 200 -- reported as a volume too small when a roomier one was mounted
+  # beside it the whole time.
+  local candidates best bestfree free
+  candidates="$(mount | awk '$1 ~ /^lvm-[^ ]*\.local:/ {
+                  for (i = 1; i <= NF; i++) if ($i == "on") print $(i + 1)
+                }')"
+  best=""; bestfree=-1
+  for point in $candidates; do
+    free="$(df -m "$point" 2>/dev/null | tail -1 | awk '{print $4}')"
+    [ -n "${free:-}" ] || continue
+    if [ "$free" -gt "$bestfree" ]; then bestfree="$free"; best="$point"; fi
+  done
+  [ -n "$best" ] && printf '%s\n' "$best"
 }
 
 open_image() {
