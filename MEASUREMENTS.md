@@ -3771,3 +3771,42 @@ fixture many times over and does not come close to filling a drive with 20 GB
 free, so the fill was cut off and reported as the app hanging. The bound is now
 the free space at ten megabytes a second, which is a pessimistic floor for this
 stack over USB, and never less than the old 300.
+
+## A real NTFS checker exists, and it builds for the guest — 2026-09-04
+
+The claim that freeing a poisoned index entry needs Windows was wrong. It needs
+a checker, and one is being actively developed: **ntfsprogs-plus**, a fork of
+ntfs-3g's utilities whose stated purpose is `ntfsck`, "a filesystem checking
+utility comparable to Windows' chkdsk". GPLv2, 649 commits, and among its checks
+are the two this fault is made of -- "directory structure verification and index
+checking" and orphaned MFT scanning.
+
+Built for the guest, in an Alpine 3.24 arm64 container matching the guest's own
+distribution and architecture:
+
+    ntfsck v1.0.0
+    -a  auto-repair, no questions      -n  check without repairing
+    -y  yes to every question          -S  aggressive salvage
+    -f  repair even if Windows hibernated the volume
+
+Run against one of this project's own NTFS fixtures:
+
+    Parse #1: Reset logfile.                    100% completed
+    Parse #2: Scan mft entries in volume.       100% completed
+    Parse #3: Check system files.               100% completed
+    Parse #4: Check index entries in volume.    100% completed
+    Parse #5: Scan orphaned MFTs candidiates.   100% completed
+    Parse #6: Check orphaned mft.               100% completed
+    Clean, No errors found or left (errors:0, fixed:0), exit 0
+
+Parses #4 and #5 are the ones that matter here: a poisoned name is an index
+entry pointing at an MFT record that will not resolve.
+
+**Docker is the build environment, not a dependency.** The binary is 1.6 MB of
+aarch64 musl ELF and goes into the guest image beside `ntfsfix`, exactly as the
+rest of the ntfs tools already do. Building the engine already needs Rust, llvm
+and lld that no user installs; this is the same arrangement.
+
+**Still to prove:** that it actually frees a poisoned entry. A clean volume
+coming back clean says the tool runs, not that it repairs. The next measurement
+is a deliberately poisoned fixture, before and after.
