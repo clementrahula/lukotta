@@ -275,10 +275,6 @@ cp "$STAGE/lib/apk/db/installed" "$OUT/alpine/packages.db"
 # installed.
 /usr/bin/python3 "$HERE/scripts/guest-sbom.py" \
   "$OUT/alpine/packages.db" "$HERE/vendor/guest-sbom.json"
-# Number of entries in the archive, so that the first-run unpack shows progress
-# rather than a spinner.
-/usr/bin/find "$STAGE" | wc -l | tr -d ' ' > "$OUT/alpine/rootfs.count"
-
 echo "  packing rootfs (this takes a moment)…"
 # pax rather than ustar: the guest's real owner and mode are kept in an extended
 # attribute beside each file, which ustar cannot carry and pax can. Without them
@@ -304,7 +300,50 @@ else
   echo "  no ntfsck vendored; run scripts/build-ntfsck.sh to repair NTFS damage"
 fi
 
+# What is actually in this guest, as eight hex characters appended to the
+# upstream version.
+#
+# WHY THE UPSTREAM VERSION ALONE IS NOT ENOUGH
+#
+# The app replaces an unpacked guest when the version it carries differs from
+# the version on disk, and rootfs.ver is upstream's -- the anylinuxfs image
+# release. Every change this project makes to the guest leaves it untouched:
+# the trim, the vendored tools, ntfsck. So a release whose whole point was a
+# new guest tool compared 1.5.1 against 1.5.1, decided nothing had changed, and
+# reached nobody who already had the app. They kept the guest from the day they
+# installed and ran the new engine against it -- exactly the fault the version
+# check was added to end, still open underneath it.
+#
+# The digest closes it by construction: any file added, removed, changed in
+# content, or made non-executable moves it, so it cannot be forgotten on a
+# later change the way a hand-kept number can.
+DIGEST="$( { (cd "$STAGE" && /usr/bin/find . -mindepth 1 -type f | LC_ALL=C sort \
+                | /usr/bin/xargs -n 200 /usr/bin/shasum -a 256)
+             (cd "$STAGE" && /usr/bin/find . -mindepth 1 ! -type f -exec ls -ldn {} + \
+                | /usr/bin/awk '{print $1, $NF}' | LC_ALL=C sort)
+             (cd "$STAGE" && /usr/bin/find . -mindepth 1 -type f -perm -u+x | LC_ALL=C sort)
+           } | /usr/bin/shasum -a 256 | /usr/bin/cut -c1-8 )"
+[ -n "$DIGEST" ] || { echo "error: could not digest the packed guest" >&2; exit 1; }
+
 /usr/bin/tar --format pax -czf "$OUT/alpine/rootfs.tar.gz" -C "$(dirname "$STAGE")" rootfs
+
+# Number of entries, so the first-run unpack shows a percentage rather than a
+# spinner -- it is the longest wait a new user ever sees.
+#
+# Counted from the finished archive, with the same tar the unpack runs, rather
+# than from the staging tree. Counting the tree was close but never exact: it
+# ran before the tools above were added, so it was short by however many this
+# build vendors, and it would go short again on the next thing added without
+# anything saying so. Listing the archive counts the very lines `tar -xzpv`
+# will write, so it cannot drift.
+#
+# /usr/bin/tar on purpose, not whichever tar is on PATH. A pax archive made on
+# macOS carries each file's extended attributes as a second member beside it;
+# bsdtar folds those back into the file and lists 1682, GNU tar lists them
+# separately and reports 3363. The app extracts with /usr/bin/tar, so that is
+# the tar whose answer this has to be.
+/usr/bin/tar tzf "$OUT/alpine/rootfs.tar.gz" 2>/dev/null | wc -l | tr -d ' ' \
+  > "$OUT/alpine/rootfs.count"
 rm -rf "$(dirname "$STAGE")"
 
 # Prove the archive still describes a working machine. Everything above is
@@ -350,6 +389,13 @@ echo "  the packed guest keeps its mount points, its permissions and its owner"
 for extra in rootfs.ver config.json umoci.json oci; do
   [ -e "$SRC_ROOTFS/$extra" ] && /usr/bin/ditto "$SRC_ROOTFS/$extra" "$OUT/alpine/$extra"
 done
+# The version the app compares, now naming this guest rather than upstream's.
+if [ -f "$OUT/alpine/rootfs.ver" ]; then
+  printf '%s+%s\n' "$(tr -d '[:space:]' < "$OUT/alpine/rootfs.ver")" "$DIGEST" \
+    > "$OUT/alpine/rootfs.ver.new"
+  mv "$OUT/alpine/rootfs.ver.new" "$OUT/alpine/rootfs.ver"
+  echo "  guest version: $(cat "$OUT/alpine/rootfs.ver")"
+fi
 # The manifest, with the header umoci writes stripped out.
 #
 # `anylinuxfs init` runs on whoever's Mac built the guest, and umoci records
