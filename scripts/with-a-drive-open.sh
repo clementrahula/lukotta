@@ -80,16 +80,28 @@ POINT="$(mount | /usr/bin/grep -F "$SHARE" | awk '{print $3}' | head -1)"
 # refused -- reported as a failing claim about the app, on a fixture with two
 # gigabytes of room and most of it full of other runs' test data.
 #
-# Only names these scripts make. Nothing else is touched, so a fixture that
-# holds something deliberate keeps it.
-for leftover in vec-awkward vec-full vec-perms vec-power vec-conc vec-cycle \
-                crowd-write xattr-forks-test copy-torture-test big damaged \
-                damaged2 spill fill first-write fork-probe rf probe; do
-  # ${POINT:?} rather than $POINT: an empty mount point would make this
-  # "rm -rf /vec-awkward", and one of these lists is all it takes.
+# By the patterns these scripts name things with, not by a list.
+#
+# The list was written out by hand and immediately fell behind: it cleared
+# 765 MB up to 808 and copy-torture.sh still wanted 1089, because its own
+# leftover -- `lukotta-torture`, 1.1 GB of it -- was not among the names
+# somebody had thought of, and neither were vec-yanked or vec-interrupted. A
+# list of names has to be updated by whoever adds a harness, which is to say it
+# will be wrong again.
+#
+# Every harness here names its work `vec-*`, `lukotta-*`, `copyvis*`,
+# `crowd-write`, `.lukotta-unreadable-*` or one of a few fixed names. Anything
+# else on a fixture was put there deliberately and is left alone.
+#
+# ${POINT:?} rather than $POINT throughout: an empty mount point would turn one
+# of these into "rm -rf /vec-*".
+rm -rf "${POINT:?}"/vec-* "${POINT:?}"/lukotta-* "${POINT:?}"/copyvis* \
+       "${POINT:?}"/.lukotta-unreadable-* >/dev/null 2>&1
+for leftover in crowd-write xattr-forks-test big damaged damaged2 spill fill \
+                first-write fork-probe rf probe proper.bin plain.bin \
+                probefile probe.bin; do
   rm -rf "${POINT:?}/$leftover" >/dev/null 2>&1
 done
-rm -rf "${POINT:?}"/copyvis* "${POINT:?}"/.lukotta-unreadable-* >/dev/null 2>&1
 
 echo "opened $IMAGE at $POINT through the app"
 echo "  $(df -m "$POINT" | tail -1 | awk '{print $4}') MB free after clearing earlier runs"
