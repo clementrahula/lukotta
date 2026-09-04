@@ -743,7 +743,11 @@ Properties of the design. Each has been decided, and arriving at one and
   agreed to lose. The check refuses it, the refusal fails the rung, and the
   ladder ends at read-only -- which is the right answer to that drive. No rung
   runs the check with `|| true` after it for this reason; a refusal that cannot
-  fail its rung is decoration.
+  fail its rung is decoration. On a container holding several volumes the
+  refusal takes the whole container read-only, because a mount attempt covers
+  the container and there is no way to serve one of its volumes writable and
+  another not. That is broader than the fault and it is the safe direction: the
+  alternative is writing to the hibernated one.
 - **An NTFS volume is checked only when it has asked, and only once.** A full
   `ntfsck` reads the whole MFT -- 59 seconds on a 247 GB drive, measured -- so
   checking wherever it might help would charge every healthy drive for the few
