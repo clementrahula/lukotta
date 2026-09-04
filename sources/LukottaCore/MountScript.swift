@@ -1692,6 +1692,7 @@ public enum MountScript {
           # all, so the rung that serves damaged drives ran a full scan every
           # time. One gate, and every rung gets the same one.
           asked=0
+          scan=1
           mkdir -p /tmp/lukotta-ask 2>/dev/null
           if mount -t ntfs3 -o ro "$dev" /tmp/lukotta-ask 2>/dev/null; then
             grep -l "could not move:" /tmp/lukotta-ask/.lukotta-reclaim.log \
@@ -1711,17 +1712,21 @@ public enum MountScript {
             # record has moved past, which is precisely what the check
             # repairs -- and it is the same signal the ntfs-3g rung's whole
             # reason for existing is built on.
+            asked=1
+            # Once for the scan, though, not on every open. A volume ntfsck
+            # cannot bring clean goes on being refused by ntfs3 for ever, so
+            # this signal never stops firing: the ladder would run a full scan
+            # on the probe rung, fail, run it again on the ntfs-3g rung, and
+            # charge two minutes to every open of a drive nothing can fix. The
+            # transcript the check leaves behind -- written on failure too, for
+            # exactly this -- says it has already been tried.
             #
-            # Once, though, not on every open. A volume ntfsck cannot bring
-            # clean goes on being refused by ntfs3 for ever, so this signal
-            # never stops firing: the ladder would run a full scan on the
-            # probe rung, fail, run it again on the ntfs-3g rung, and charge
-            # two minutes to every open of a drive nothing can fix. The
-            # transcript the check leaves behind is the record that it has
-            # already been tried -- and it is written on failure too, for
-            # exactly this. Something newly broken still asks through the
-            # reclaim log above.
-            [ -e /tmp/lukotta-ask/.lukotta-check.log ] || asked=1
+            # It suppresses the scan and nothing else. Suppressing the whole
+            # check would mean a volume checked once and later left merely
+            # dirty never got its flag cleared again, which is a slower way of
+            # losing what the repair rung is for. The ntfsfix path below costs
+            # seconds and still runs.
+            [ -e /tmp/lukotta-ask/.lukotta-check.log ] && scan=0
             umount /tmp/lukotta-ask 2>/dev/null || true
           else
             # Neither driver will mount it read-only, which is damage by
@@ -1763,7 +1768,7 @@ public enum MountScript {
             # transcript is the cheaper of the two.
           }
 
-          if command -v ntfsck >/dev/null 2>&1; then
+          if [ "$scan" = 1 ] && command -v ntfsck >/dev/null 2>&1; then
             : > /tmp/lukotta-ntfsck.out
             n=0
             while [ $n -lt 4 ]; do

@@ -5505,9 +5505,25 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     // this the ladder scans on the probe rung, fails, scans again on the
     // ntfs-3g rung, and charges two minutes to every open of a drive nothing
     // can fix.
+    // A volume already checked and still refused is not scanned again -- and
+    // the suppression stops at the scan. Suppressing the whole check would mean
+    // one checked once and later left merely dirty never got its flag cleared
+    // again, which is a slower way of losing what the repair rung is for.
     expect(
-        check.contains(".lukotta-check.log") && check.contains("|| asked=1"),
+        check.contains(".lukotta-check.log") && check.contains("scan=0"),
         "a volume already checked and still refused is not scanned again")
+    expect(
+        check.contains("[ \"$scan\" = 1 ] && command -v ntfsck"),
+        "the suppression gates the scan")
+    let scanOffAt = check.range(of: "scan=0").map {
+        check.distance(from: check.startIndex, to: $0.lowerBound)
+    }
+    let fixAt = check.range(of: "ntfsfix -n", options: .backwards).map {
+        check.distance(from: check.startIndex, to: $0.lowerBound)
+    }
+    expect(
+        (scanOffAt ?? 1) < (fixAt ?? 0),
+        "and the cheap ntfsfix path still runs after it")
 
     // A refusal that cannot fail its rung is not a refusal. The check exits
     // non-zero for a hibernated volume and for damage its dry run will not
