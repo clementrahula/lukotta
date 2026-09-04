@@ -5570,6 +5570,18 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
         MountScript.reclaimUnreadable.contains(": > \"$M/.lukotta-reclaim.log\""),
         "the walk empties the log before it writes to it")
 
+    // Three shapes of damage, not two. The third is the silent one: an
+    // interrupted copy can leave a directory where a rename over an existing
+    // name reports success and does nothing -- the older file stays, the newer
+    // bytes strand under the copier's temporary name, and ditto exits 0. What
+    // that directory does answer to is a read.
+    expect(
+        MountScript.reclaimUnreadable.contains("head -c 1"),
+        "the walk notices a file that is there and will not open")
+    expect(
+        MountScript.reclaimUnreadable.components(separatedBy: "head -c 1").count - 1 == 2,
+        "and asks again a second later, as it does for the other two shapes")
+
     // Not on a read-only open: nothing is written to the drive, checks
     // included.
     let readOnly = MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))
