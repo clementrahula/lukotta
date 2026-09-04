@@ -3690,3 +3690,28 @@ real hardware -- measured, "could not move" -- so its value rests entirely on
 the fixture case, where a rename does work. It stays for that, and it is not
 what protects a real drive. What protects a real drive is the interrupted copy
 leaving nothing broken in the first place, which is what these four runs show.
+
+### Ten interrupted copies on the real drive, all clean — 2026-09-04
+
+Six more rounds on the owner's drive, a 500-file copy killed three seconds in:
+
+    round  5   7 files kept, writable, removable
+    round  6   6 files kept, writable, removable
+    round  7   7 files kept, writable, removable
+    round  8   5 files kept, writable, removable
+    round  9   7 files kept, writable, removable
+    round 10   7 files kept, writable, removable
+
+**Ten of ten**, counting the four before them. Every interrupted copy leaves a
+folder that is listed, readable, holds the files that made it, takes a new
+write, and deletes cleanly. Nothing poisoned, nothing stuck, nothing a person
+would have to work around.
+
+That is item 3's hardest vector — an interrupted copy — measured on real
+hardware rather than on an image, ten times.
+
+**One piece of litter is left on that drive and cannot be removed.** The folder
+`lukotta-durability`, poisoned during this evening's earlier runs, refuses `ls`,
+`rm`, `mv` and `mkdir` alike. Everything else this testing put there has been
+cleared. It is recorded here rather than quietly left, because it is the
+physical evidence of the fault and because the owner should know it is there.
