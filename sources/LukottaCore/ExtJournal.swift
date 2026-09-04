@@ -81,8 +81,7 @@ public enum ExtJournal {
         // It was briefly moved onto a synchronous client instead, on a
         // measurement that only looked at small files. That was wrong and
         // shipped: a synchronous client writes a large file at 3 MB/s where an
-        // ordinary one manages 190, and `-o sync` in the guest costs nothing on
-        // a large file at all. The full picture, on a fresh XFS volume:
+        // ordinary one manages 190. The full picture, on a fresh XFS volume:
         //
         //     no option        190 MB/s large,  44 s for 2000 small files
         //     -o sync          190 MB/s large,  65 s for 2000 small
@@ -90,6 +89,20 @@ public enum ExtJournal {
         //
         // Half a minute on a folder of small files is worth paying. A sixtieth
         // of the speed on every large file is not.
+        //
+        // The middle row said `-o sync` costs nothing on a large file, and it
+        // does not. Re-measured 2026-09-04, a 500 MB file with conv=fsync onto
+        // the same volume with the option and without, so the option is the
+        // only thing that changes:
+        //
+        //     no option        250 MB/s
+        //     -o sync          125 MB/s        half
+        //     data=journal     166 MB/s        two thirds, on ext4
+        //
+        // It stays, because the alternative is not a faster copy but a lost
+        // one: without it a power cut takes 8 of 8 fsynced files and with it
+        // none. Half the speed against losing the file is not a trade. But it
+        // is a cost, and this comment said there was none.
         if bytes.count >= xfsMagic.count,
             Array(bytes.prefix(xfsMagic.count)) == xfsMagic
         {
