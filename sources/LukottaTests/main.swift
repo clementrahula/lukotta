@@ -5409,8 +5409,8 @@ group("theRepairRefusesWhatItWouldDamage") {
     expect(
         r.status == 0 && r.repaired,
         "damage the dry run refuses is repaired by the checker, and the flag then cleared")
-    let passes = (try? String(contentsOfFile: passPath, encoding: .utf8))?
-        .split(separator: "\n").count ?? 0
+    let record = (try? String(contentsOfFile: passPath, encoding: .utf8)) ?? ""
+    let passes = record.split(separator: "\n").count
     expect(passes >= 2, "and it kept going past the first pass, which leaves errors behind")
 
     // Still refused when the checker cannot finish either: a volume nobody can
