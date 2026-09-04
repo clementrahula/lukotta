@@ -3026,3 +3026,37 @@ three were the harness reporting its own limits as the app's.
 **What remains on the LVM fixtures:** `luks1-lvm` and `luks2-lvm` are too small
 for the suite — 139 MB free where the vectors need 200 — and `luks-multi` still
 does not mount. Both are written down rather than counted as passes.
+
+### luks-multi: never asked, then never emptied — 2026-09-04
+
+Two more harness faults, both of which had been reported as the app failing.
+
+**"The engine never mounted it" was never being asked.** `--drive open=` takes
+`/dev/diskNsM` and says so in its own usage line. `luks-multi` is a GPT image
+with a Linux LVM partition, and the harness handed over the whole disk:
+
+    open=/dev/disk5     ->  no drive at /dev/disk5, exit 2
+    open=/dev/disk5s1   ->  exit 0, three volumes served
+                            lvm-fedoravg.local:/run/disk5s1/FEDORAHOME
+                            lvm-fedoravg.local:/run/disk5s1/FEDORAROOT
+                            lvm-fedoravg.local:/run/disk5s1/FEDORABACKUP
+
+**"The room comes back after a full volume (28 KB free)" was the harness's own
+leftovers.** It filled the volume, removed only the directory it had filled, and
+measured. On a 376 MB logical volume every earlier vector's data is most of the
+space, so 28 KB came back. By hand, same kind of volume, clean:
+
+    filled to           0 MB free
+    deleted, +3s        242 MB free
+    +6s, +9s            242 MB free
+
+So the space is reclaimed at once and correctly. Every vector's data is cleared
+at that point now.
+
+**With both fixed:**
+
+    luks-multi     12 passed, 0 failed
+    luks-lvm-big   12 passed, 0 failed
+
+That is LVM inside LUKS, two fixtures, twenty-four vectors, none failing —
+against an advertised feature that had never been tested at all this morning.
