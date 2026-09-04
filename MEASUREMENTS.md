@@ -2,45 +2,63 @@
 
 Every number here was produced by running it on this Mac.
 
-## Where the ten stand, 2026-09-03
+## Where the ten stand, 2026-09-04
 
-Not a MET line. Read the entries themselves for the numbers; this is only so
-that what is proven and what is not can be seen at a glance, and so that
-"measured through the engine" is never again mistaken for "measured".
+Not a MET line, and the two reasons why are at the bottom of this block.
 
-    1  writing does not stall     the nfsd COMMIT fault traced and worked
-                                  around; the loopback livelock found and
-                                  fixed today, 10 addresses to 12, with the
-                                  before and after written down
-    2  no crash through Finder    copies done by Finder on a real stick, both
-                                  extremes, nothing user-visible
-    3  nothing user-visible       held everywhere it has been looked at, and
-                                  the silent stall found today was exactly
-                                  this fault arriving from a new direction
-    4  NTFS and BitLocker         byte-identical, unlock from the Keychain
-    5  LUKS and Linux             byte-identical
-    6  every other format         all seven writable formats, byte-identical
-    7  dirty NTFS repaired        PROVEN ON BOTH SHAPES: a Microsoft partition
-                                  type, and a whole disk with no partition
-                                  table at all, 41 of 41 each, nothing shown
-    8  a dozen at once            twelve opened through the app and written to
-                                  and read back today, flat at 72-75 s each.
-                                  NOT the 8 GB machine the item names, and the
-                                  footprint and responsiveness at twelve are
-                                  still unmeasured on this route
-    9  every vector               twelve vectors pass twice -- through the
-                                  ENGINE, not the app. Real for the storage
-                                  path, unproven for the app's. THROUGH_APP=1
-                                  now exists to close that
-    10 no UX cost                 unmet, and it is one cause not two. `-o sync`
-                                  costs 47x on writes to a real drive AND 110
-                                  seconds to notice a full volume. It is there
-                                  only because nfsd's COMMIT is not durable.
-                                  Fix that and both costs go with it
+Every line below is a check that runs. `./scripts/verify.sh` executes them and
+says which hold now; `FULL=1` runs the slow ones. A complete pass on 2026-09-04:
+**21 hold, 0 fail, 0 unchecked, 0 not run.**
 
-The three measurements found today to have been taken off the route a person
-takes -- the dozen, the eight-gigabyte figures, and item 9's vectors -- are all
-noted in place rather than deleted. Each says what it does and does not cover.
+    1  writing does not stall     the stall traced to the nfsd COMMIT fault and
+                                  worked around; before and after written down.
+                                  Its automated check is a guard, not the proof
+                                  -- a fixture on an internal SSD cannot make
+                                  the fault, measured: 1600 MB at 533 MB/s and
+                                  worst 31 ms, against p99 4.66 s on the drive
+                                  it was found on
+    2  no crash through Finder    Finder's own copies on a real stick, both
+                                  extremes, repeated, nothing user-visible
+    3  nothing user-visible       and the interrupted-copy fault found on
+                                  2026-09-03 -- a folder that could never be
+                                  used again -- fixed and checked through the
+                                  app's own route
+    4  NTFS and BitLocker         byte-identical both, Keychain unlock with
+                                  nothing typed. BitLocker on the owner's drive,
+                                  since no Mac or Linux can create one
+    5  LUKS and Linux             seven fixtures, twelve vectors each
+    6  every other format         every format the site claims that can have a
+                                  fixture: NTFS, ext2/3/4, btrfs, XFS, exFAT,
+                                  FAT, LUKS1, LUKS2, LVM inside LUKS
+    7  dirty NTFS repaired        both shapes, 41 of 41 each, nothing shown
+    8  a dozen at once            twelve served at every five-second sample
+                                  through ten minutes at 14-35 MB free, 310-340
+                                  MB between them, the Mac answering in 20 ms
+    9  every vector               168 vectors, fourteen fixtures, through the
+                                  app's own route
+    10 no UX cost                 no click, no prompt, no error, no fallback.
+                                  The one cost is durability: 250 MB/s becomes
+                                  125 with sync, and only on XFS and on LUKS
+                                  containers. Without it a power cut takes 8 of
+                                  8 fsynced files and with it none, so it is
+                                  the price of not losing the file
+
+**What MET waits on, and neither is soft.**
+
+**Item 8 names an 8 GB M1 and this is a 16 GB Mac.** Everything above was taken
+with ballast held until what is free is what an 8 GB machine has -- 14 to 35 MB
+-- which is as close as this hardware comes and is not the same thing. Apple
+Silicon has no way to boot with less memory, so no amount of work here closes
+it. It needs the machine.
+
+**An fsync loss was seen once and has not been explained.** `luks-multi`, inside
+a gate: 0 of 8 fsynced files present after power loss, nothing partial. Then
+seven LUKS fixtures clean, five more runs of that fixture clean, and two earlier
+gates clean -- about one in eight, not seen since. `kill-durability.sh` says why
+a fixture cannot settle it: writes to an attached image reach the backing file
+through the host's buffer cache, which killing the guest does not discard, so
+this vector under-reports on images and clean runs there prove nothing either.
+Only a real drive settles it.
 
 ## BitLocker/NTFS on the Patriot stick — 2026-09-02
 
