@@ -140,6 +140,15 @@ for stale in $(mount | /usr/bin/grep '\.local:' | awk '{print $3}' \
 done
 sleep 2
 
+# A fresh directory each run.
+#
+# A killed write poisons the name it was using: on a real drive the folder this
+# harness had been using came back listed, unreadable, unremovable and
+# unrecreatable, so every run after the first wrote nothing and reported a lost
+# commit about a write never made. Three of four results were that. The name
+# carries the pid so no run inherits another's wreckage.
+WITNESS="lukotta-durability-$$"
+
 say "opening…"
 open_device || { say "it did not mount"; sed 's/^/    /' "$WORK/engine.log"; exit 1; }
 MOUNT="$(where)"
@@ -154,23 +163,23 @@ say "mounted at $MOUNT"
 # lost." -- about a write that never happened. A harness that cannot tell a
 # lost write from an unwritten one is worse than none, because the answer it
 # gives is the alarming one.
-if ! mkdir -p "$MOUNT/lukotta-durability" 2>"$WORK/mkdir.err"; then
+if ! mkdir -p "$MOUNT/$WITNESS" 2>"$WORK/mkdir.err"; then
   say "the drive would not take a directory: $(head -1 "$WORK/mkdir.err")"
   say "nothing was written, so there is nothing to say about durability"
   exit 2
 fi
-if ! dd if=/dev/urandom of="$MOUNT/lukotta-durability/witness.bin" \
+if ! dd if=/dev/urandom of="$MOUNT/$WITNESS/witness.bin" \
      bs=1048576 count="$MB" conv=fsync status=none 2>"$WORK/dd.err"; then
   say "the write itself failed: $(head -1 "$WORK/dd.err")"
   say "nothing was committed, so there is nothing to say about durability"
   exit 2
 fi
-WROTE="$(stat -c %s "$MOUNT/lukotta-durability/witness.bin" 2>/dev/null || echo 0)"
+WROTE="$(stat -c %s "$MOUNT/$WITNESS/witness.bin" 2>/dev/null || echo 0)"
 if [ "$WROTE" != "$((MB * 1048576))" ]; then
   say "only $WROTE bytes of $((MB * 1048576)) arrived; not a durability question"
   exit 2
 fi
-WANT="$(shasum -a 256 "$MOUNT/lukotta-durability/witness.bin" | awk '{print $1}')"
+WANT="$(shasum -a 256 "$MOUNT/$WITNESS/witness.bin" | awk '{print $1}')"
 [ -n "$WANT" ] || { say "the file could not be read back before the kill"; exit 2; }
 say "wrote ${MB} MiB, fsync returned, sha256 ${WANT:0:16}…"
 
@@ -205,12 +214,12 @@ say "reopening…"
 open_device || { say "RESULT: it did not reopen at all"; exit 1; }
 MOUNT="$(where)"
 
-if [ ! -e "$MOUNT/lukotta-durability/witness.bin" ]; then
+if [ ! -e "$MOUNT/$WITNESS/witness.bin" ]; then
   say "RESULT: the file is not there. A committed write was lost."
   exit 1
 fi
-GOT="$(shasum -a 256 "$MOUNT/lukotta-durability/witness.bin" | awk '{print $1}')"
-SIZE="$(stat -c %s "$MOUNT/lukotta-durability/witness.bin")"
+GOT="$(shasum -a 256 "$MOUNT/$WITNESS/witness.bin" | awk '{print $1}')"
+SIZE="$(stat -c %s "$MOUNT/$WITNESS/witness.bin")"
 if [ "$GOT" = "$WANT" ]; then
   say "RESULT: survived, byte-identical ($SIZE bytes)"
 else
@@ -218,5 +227,5 @@ else
   exit 1
 fi
 
-rm -rf "$MOUNT/lukotta-durability"
+rm -rf "$MOUNT/$WITNESS"
 [ "$REAL" = 1 ] || pkill -f "anylinuxfs mount.*$(basename "$DEV")" >/dev/null 2>&1
