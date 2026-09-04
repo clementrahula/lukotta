@@ -101,7 +101,33 @@ set -uo pipefail
 
 IMAGE="${1:-}"
 ENGINE="${2:-/Applications/Lukotta Dev.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
-[ -f "$IMAGE" ] || { echo "usage: $0 <image> [engine]" >&2; exit 2; }
+
+# A real drive, given as /dev/diskNsM, instead of an image.
+#
+# Everything here has only ever been asked of disk images, and a disk image
+# cannot answer some of it: writes to one reach the backing file through the
+# host's page cache, which survives the machine being killed, so the power-loss
+# vectors are answered by macOS rather than by the drive. A real device has no
+# such cache behind it -- which is where a committed write was first seen to go
+# missing, and where the poisoned directory entry was first seen on hardware.
+#
+# On a device nothing is copied and nothing is formatted: the drive is used as
+# it is, everything this writes lives under names of its own, and they are
+# removed at the end.
+DEVICE=""
+case "$IMAGE" in
+  /dev/*) DEVICE="$IMAGE" ;;
+esac
+if [ -n "$DEVICE" ]; then
+  [ -b "$DEVICE" ] || [ -c "$DEVICE" ] || {
+    echo "error: no device at $DEVICE" >&2; exit 2; }
+  # A device is opened through the app, which is the only route that holds it:
+  # /dev/diskNsM is root:operator and the privileged daemon passes the
+  # descriptor over.
+  THROUGH_APP=1
+else
+  [ -f "$IMAGE" ] || { echo "usage: $0 <image|/dev/diskNsM> [engine]" >&2; exit 2; }
+fi
 [ -x "$ENGINE" ] || { echo "error: no engine at $ENGINE" >&2; exit 2; }
 
 APP_BUNDLE="${ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
@@ -124,6 +150,12 @@ WORK="$(mktemp -d)"
 #
 # A copy costs a few seconds and a few hundred megabytes of temporary space,
 # and buys a run that means the same thing every time.
+if [ -n "$DEVICE" ]; then
+  # Nothing to copy: the drive is the fixture. APP_DEV is what the app is
+  # handed, and the partition-choosing below is skipped because the caller
+  # named the partition.
+  ORIGINAL="$DEVICE"
+else
 ORIGINAL="$IMAGE"
 # The copy is named after this run's workspace, not after the original.
 #
@@ -160,6 +192,7 @@ fi
 
 printf 'copying the fixture so this run cannot spoil the next one\n'
 cp "$ORIGINAL" "$IMAGE" || { echo "error: could not copy $ORIGINAL" >&2; exit 2; }
+fi
 MNT="$WORK/mnt"; mkdir -p "$MNT"
 trap 'cleanup' EXIT
 cleanup() {
@@ -274,10 +307,16 @@ open_image() {
     # -- vector 6 is nothing but reopens -- and attaching the same image a
     # second time gives a second device node for one filesystem, which is a way
     # to corrupt a volume rather than a way to test one.
+    if [ -n "$DEVICE" ]; then
+      # A real drive is not attached and not detached: it is simply there, and
+      # the caller named the partition.
+      APP_DEV="$DEVICE"
+    else
     [ -n "${APP_DEV:-}" ] && hdiutil detach "$APP_DEV" -quiet 2>/dev/null
     APP_DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage \
       "$IMAGE" 2>/dev/null | head -1 | awk '{print $1}')"
     [ -n "${APP_DEV:-}" ] || return 1
+    fi
 
     # The partition, where there is one.
     #
@@ -291,12 +330,14 @@ open_image() {
     # The largest partition, since an EFI system partition is first on a GPT
     # disk and holds nothing worth a vector.
     local biggest
+    if [ -n "$DEVICE" ]; then biggest=""; else
     biggest="$(diskutil list "$APP_DEV" 2>/dev/null \
       | awk '$NF ~ /^'"$(basename "$APP_DEV")"'s[0-9]+$/ {
                size = $(NF - 2); unit = $(NF - 1)
                mb = size; if (unit == "GB") mb = size * 1024
                if (mb + 0 > best + 0) { best = mb; node = $NF }
              } END { if (node) print node }')"
+    fi
     [ -n "$biggest" ] && APP_DEV="/dev/$biggest"
     # LUKOTTA_PASSPHRASE for an encrypted fixture. Without it the app opens
     # what it can and reports an unencrypted volume for what it cannot, so a
@@ -363,6 +404,9 @@ unmount_everything() {
 
 detach_app_device() {
   [ -n "${APP_DEV:-}" ] || return 0
+  # A real drive is let go of, never detached: it is the owner's and it stays
+  # plugged in.
+  if [ -n "$DEVICE" ]; then unmount_everything; return 0; fi
   # Everything the drive is serving, deepest first.
   #
   # This unmounted one share, found by the device name. A container of logical
