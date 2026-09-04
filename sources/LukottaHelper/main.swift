@@ -442,7 +442,7 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 Log.helper.notice("the first sector says this is not a Linux volume")
             }
 
-            var inputs = MountScript.Inputs(
+            let inputs = MountScript.Inputs(
                 enginePath: engine.path,
                 devicePath: devicePath,
                 driveName: "",

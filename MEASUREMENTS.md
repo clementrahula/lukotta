@@ -3480,3 +3480,42 @@ with it.
 **This is the root of item 9's power-loss vector on real hardware**, and it is
 below everything the app controls in the mount: the option is applied, the flush
 is issued, and the write is still not on the disk.
+
+### Every lever the app has, eliminated on the real drive — 2026-09-04
+
+Each of these was applied, verified in the mount, and measured on the real
+drive with `dd conv=fsync` returning before the machine was killed.
+
+    guest -o sync on the filesystem      verified in the mount args   3 of 3 lost
+    a synchronous NFS client             verified: General mount flags
+                                         0x200002 sync,noowners      3 of 3 lost
+    ntfs-3g instead of ntfs3             verified by the ladder       3 of 3 lost
+    waiting 60 s before the kill                                      lost
+    a clean unmount instead of a kill                                 survives
+
+**So it is none of them.** Not the filesystem mount option, not the NFS client,
+not the NTFS driver, not time. The shipped engine already carries
+`imago-flush-device-nodes` and `krun-devices-raw-device-flush`. Every layer the
+app can reach is asking for durability and not getting it, and the data is held
+somewhere that only a clean unmount drains.
+
+**This corrects a claim in this file.** An earlier entry says a synchronous
+client fixes it — "8 of 8 kept, 30 of 30 in-flight files complete". It does not,
+on a real drive. That measurement can only have been taken on a disk image,
+where the host's page cache makes every arrangement look durable.
+
+**The synchronous client is withdrawn.** It was wired up to test this and it
+buys nothing measurable here, while `ExtJournal.swift` records what it costs: a
+large file at 3 MB/s against 190. Paying sixty times the write for no durability
+is the worst trade available, and it is not made.
+
+**Where the fault has to be.** Below everything above: the engine's device write
+path. patches/README.md reaches the same place from the other direction, saying
+`krun-devices-raw-device-flush` "does not make fsync durable" and that the loss
+is above it. Both ends now point at the same middle, and closing it is an engine
+patch rather than an app change.
+
+**What ships today is honest about it in one respect and not another.** A drive
+ejected properly keeps everything, byte-identical, every time — that is measured
+and it is the ordinary case. A drive pulled out without ejecting loses
+everything written since it was opened.
