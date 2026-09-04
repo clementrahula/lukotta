@@ -3345,3 +3345,22 @@ extremes, the Keychain unlock. Those are on record from 2026-09-02.
 So the intermittent stays open on the evidence available, and the route left is
 to reproduce it on fixtures under the conditions it appeared in — inside a long
 run, on a machine that has been busy — rather than on a drive that matters.
+
+### Chasing the fsync loss: eighteen clean attempts, no reproduction — 2026-09-04
+
+    the seven LUKS fixtures, standalone          7 runs, all clean
+    luks-multi alone                             5 runs, all clean
+    luks-multi and luks-lvm-big under ballast    6 runs, all clean, 63 MB free
+    two earlier full gates                       goal5 held in both
+
+Eighteen runs of the vector since the one failure, including six with memory
+squeezed to what an 8 GB Mac has — which was the closest guess at what made the
+failing run different, since it happened deep inside a long gate on a machine
+that had been running microVMs for forty minutes. **Memory pressure is not the
+trigger.**
+
+So it stands at one occurrence in about nineteen, cause unknown. What has been
+ruled out: the fixture, the filesystem inside it, repetition, and memory
+pressure. What has not been tried is the only thing that would be evidence
+either way — the same vector on a real drive — and the drive available holds
+212 GB of the owner's archives, which is not a thing to kill a machine over.
