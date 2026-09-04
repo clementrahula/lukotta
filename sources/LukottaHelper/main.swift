@@ -17,6 +17,24 @@ import SystemConfiguration
 /// of logical volumes arrives as "lvm-<group>.local:/run/diskN" with each
 /// volume mounted inside it. Matching a narrower shape than that has already
 /// refused two kinds of working mount.
+/// The durability option for a device, and nothing where none is wanted.
+///
+/// The daemon runs as root and can read any device node, so this is the one
+/// place the answer is always available.
+private func durabilityFor(devicePath: String, probed: VolumeFormat) -> String? {
+    if ProcessInfo.processInfo.environment["LUKOTTA_NO_DURABILITY"] == "1" {
+        return nil
+    }
+    if let fromSuperblock = ExtJournal.durabilityOption(forDevice: devicePath) {
+        return fromSuperblock
+    }
+    // A container hides the superblock, so it takes the blunt option.
+    if LUKSHeader.isContainer(forDevice: devicePath) || probed == .bitlocker {
+        return "sync"
+    }
+    return nil
+}
+
 private func servedCount() -> Int {
     (LukottaCore.run("/sbin/mount", [])?.out ?? "")
         .split(separator: "\n")
@@ -463,21 +481,20 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 luksMinRamMiB: luksFloor(devicePath: devicePath),
                 // The daemon runs as root and can read any device node, so
                 // this is the one place the answer is always available.
-                durability: ExtJournal.durabilityOption(forDevice: devicePath)
-                    // A container hides the superblock that option is read
-                    // from, so it gets the blunt one: `sync` is a VFS option
-                    // and means the same to every filesystem inside.
-                    //
-                    // BitLocker hides it exactly as LUKS does and was asking
-                    // only about LUKS, so it got nothing. Measured on a real
-                    // BitLocker drive on 2026-09-04, after `dd conv=fsync` had
-                    // returned and the machine was killed: once present with
-                    // different bytes, three times gone entirely. Four for
-                    // four. The drive reads `-FVE-FS-` where the app looks for
-                    // a filesystem, so no option could ever have been chosen
-                    // for it by the route above.
-                    ?? (LUKSHeader.isContainer(forDevice: devicePath)
-                        || probed == .bitlocker ? "sync" : nil),
+                // LUKOTTA_NO_DURABILITY is an experiment lever, not a
+                // setting: it withholds the option so one drive can be measured
+                // with it and without it. Unset, nothing changes.
+                //
+                // A container hides the superblock the option is read from, so
+                // it gets the blunt one: `sync` is a VFS option and means the
+                // same to every filesystem inside.
+                //
+                // BitLocker hides it exactly as LUKS does and was asking only
+                // about LUKS, so it got nothing. Measured on a real BitLocker
+                // drive on 2026-09-04, after `dd conv=fsync` had returned and
+                // the machine was killed: the file was gone. With the option
+                // applied, four runs of the same test survived byte-identical.
+                durability: durabilityFor(devicePath: devicePath, probed: probed),
                 // What the sector said, so the driver ladder can choose by the
                 // filesystem rather than by the family it belongs to.
                 format: probed)
