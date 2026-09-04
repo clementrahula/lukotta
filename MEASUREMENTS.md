@@ -64,8 +64,8 @@ Only a real drive settles it.
 
 ## A file copied over an older one, silently not replaced — 2026-09-04
 
-OPEN. Found at the end of the night, not yet explained, and written down before
-it is understood because that is the rule.
+CLOSED the same night. Found, reproduced from a kept specimen, explained, fixed
+and proven through the app.
 
 One volume of twelve, in the twelve-volume run:
 
@@ -101,6 +101,49 @@ already held the whole tree from an earlier run. Neither has been isolated yet.
 
 **Not counted as anything but a fault.** The eleven that passed are not evidence
 this is rare; they are eleven volumes that had nothing to overwrite.
+
+### What it was
+
+The image was kept before anything could overwrite it, and it reproduces every
+time. Inside the guest the fault is not silent at all:
+
+    mv .probe crowd-write/f14.bin     returns 1
+    wc -c < crowd-write/f14.bin       the file cannot be read afterwards
+    .probe                            still there
+
+It is silent only by the time it reaches the Mac: over NFS the host's copier is
+told the rename succeeded, so `ditto` exits 0 and strands the new bytes under
+its temporary name. The check reads it plainly -- **61 corrupted directory index
+entries** -- and repairs it:
+
+    before   mv returns 1, target unreadable, temporary left
+    ntfsck   pass 1: Clean, 151 of 157 fixed
+    after    mv returns 0, 777 bytes in place, no temporary
+
+### Why nothing asked for that repair
+
+The volume gives no signal. It mounts writable, every file reads, the dirty flag
+is long cleared -- there is nothing wrong until somebody writes. Three changes,
+each measured:
+
+- **A dirty volume is checked, not just cleared.** ntfs3 mounts a dirty volume
+  read-only and refuses only to write to it, so a drive pulled out mid-copy
+  read perfectly and was handed the two ntfsfix lines that clear the flag and
+  check nothing. That is what turns an interrupted copy into a silent one
+  later.
+- **A copier's abandoned temporary is a signal.** `.BC.T_<random>` still sitting
+  in a folder is a copy that did not finish; litter with a name nobody else
+  uses, found by a string comparison the walk was already making.
+- **A volume this app has never checked is checked once, ever.** No signal
+  distinguishes a drive that arrived already damaged, so the first open inspects
+  it and the transcript is the record that it has.
+
+### Proven through the app, on the specimen
+
+    first open        73 s, "Directory index: 61 corrupted entry(ies)", Clean
+    copy a newer file over an older one    replaced correctly
+    record left       .lukotta-check.log, 1904 bytes
+    second open       11 s, no scan
 
 ## One drive at a time, after an update — 2026-09-04
 
