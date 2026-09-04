@@ -4,13 +4,37 @@
 #
 # Item 1, as a pass or a fail: no request goes unanswered long enough to be seen.
 #
-# WHAT THE THRESHOLD IS AND WHY IT IS NOT ARBITRARY
+# WHAT IT JUDGES, AND WHY IT IS NO LONGER FIVE SECONDS
 #
-# macOS tells somebody the server has stopped responding when a request to an
-# NFS mount goes unanswered for five seconds. That dialog is the fault -- not
-# slowness. A copy that takes twice as long and never crosses five seconds is a
-# pass; a copy that finishes quickly with one request at 5.1s is the failure
-# this whole item is about.
+# It used to fail a run where any request went unanswered for five seconds,
+# resting on one sentence: macOS tells somebody the server has stopped
+# responding at five seconds. That was true of a default NFS mount and it is not
+# true of this one, because of the options this project added to stop exactly
+# that dialog -- dumbtimer, timeo=600, retrans=5, mutejukebox, deadtimeout=900.
+#
+# Measured on 2026-09-05, over six hours that include a run whose worst request
+# took eighteen seconds:
+#
+#     genuine "not responding" events logged by macOS     0
+#     NFS log lines in the same window                   12,645
+#
+# So the five-second bar had stopped standing for the thing it was named after,
+# and a harness that fails on a proxy nobody sees is measuring its own history.
+#
+# What reaches a person is judged instead, and both halves are asserted:
+#
+#   - no operation fails. A soft mount that exhausts its retries returns
+#     ETIMEDOUT to whoever asked, and that is a copy erroring in front of
+#     somebody. It happened once, in a run where the reclaim walk was reading a
+#     byte of every file beside the copy.
+#   - macOS logs no "server not responding". Asked of `log show` over the run's
+#     own window, because `log stream` does not carry these kernel messages --
+#     the first attempt at this measurement returned an empty file from a
+#     command that had failed to parse, which reads exactly like an absence of
+#     events.
+#
+# The latency distribution is still printed, in full, because it is the number
+# that steers the work even when it is not the number that fails the run.
 #
 # flush-latency.sh measures the distribution and deliberately renders no verdict
 # -- its own note says so, and it is right to: a worst case of four seconds is
@@ -158,6 +182,9 @@ fi
 release_ballast() { [ -n "${BALLAST:-}" ] && kill "$BALLAST" 2>/dev/null; BALLAST=""; }
 trap 'release_ballast; release_drives; rm -rf "$WORK"' EXIT
 
+# Noted before the writing starts, so the log is asked about this run and not
+# about the week.
+STARTED_AT="$(date '+%Y-%m-%d %H:%M:%S')"
 bash scripts/flush-latency.sh "$POINT" "$MB" 1 2>&1 | tee "$WORK/latency.log"
 release_ballast
 
@@ -165,15 +192,27 @@ over=$(/usr/bin/grep -o 'over 5s (the threshold): [0-9]*' "$WORK/latency.log" \
   | awk '{print $NF}' | head -1)
 worst=$(/usr/bin/grep -o 'worst [0-9.]*s' "$WORK/latency.log" | awk '{print $2}' | head -1)
 
+# Did anything actually fail, and did macOS say anything.
+#
+# `log show` rather than `log stream`: streaming does not carry these kernel
+# messages, and an empty stream reads exactly like a quiet one.
+said=$(/usr/bin/log show --start "$STARTED_AT" --style compact \
+  --predicate 'eventMessage CONTAINS[c] "not responding"' 2>/dev/null \
+  | /usr/bin/grep -c "server not responding" || true)
+errored=$(/usr/bin/grep -ciE "timed out|input/output error|stale" "$WORK/latency.log" || true)
+
 echo
 if [ -z "${over:-}" ]; then
   echo "RESULT: the measurement produced no reading to judge" >&2
   exit 1
 fi
-if [ "$over" -eq 0 ]; then
-  echo "RESULT: nothing went unanswered for five seconds; worst was ${worst:-unknown}"
+echo "  worst request ${worst:-unknown}, ${over:-?} past five seconds"
+echo "  operations that failed: $errored"
+echo "  times macOS called the server unresponsive: $said"
+if [ "${errored:-0}" -eq 0 ] && [ "${said:-0}" -eq 0 ]; then
+  echo "RESULT: the copy finished with nothing failing and nothing said"
   exit 0
 fi
-echo "RESULT: $over request(s) unanswered past five seconds; worst ${worst:-unknown}" >&2
-echo "        that is the dialog a person is shown mid-copy" >&2
+echo "RESULT: $errored operation(s) failed and macOS said it $said time(s)" >&2
+echo "        that is what a person sees mid-copy" >&2
 exit 1
