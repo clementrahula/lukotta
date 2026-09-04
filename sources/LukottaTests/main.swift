@@ -5479,9 +5479,24 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     expect(
         (at("umount /tmp/lukotta-ask") ?? 1) < (at("ntfsck -a") ?? 0),
         "and the check runs only once that mount is gone")
+    // A volume that has not asked is not scanned -- and everything cheap still
+    // runs on it. Returning early instead skipped the two ntfsfix lines that
+    // clear a dirty flag, and both drivers refuse a dirty volume read-write, so
+    // every writable rung failed and the drive was handed back read-only. That
+    // is the fallback the repair rung exists to prevent, reintroduced by the
+    // gate meant to make it cheap.
+    let notAsked = check.range(of: "has not asked").map {
+        check.distance(from: check.startIndex, to: $0.lowerBound)
+    }
+    let lastFix = check.range(of: "ntfsfix -d", options: .backwards).map {
+        check.distance(from: check.startIndex, to: $0.lowerBound)
+    }
     expect(
-        check.contains("exit 0") || check.contains("return 0"),
-        "a volume that has not asked is left alone rather than scanned")
+        check.contains("nothing has asked for a full check"),
+        "a volume that has not asked is not scanned")
+    expect(
+        (notAsked ?? 1) < (lastFix ?? 0),
+        "and the dirty flag is still cleared on it")
 
     // The reclaim log cannot speak for a drive damaged somewhere else and
     // brought here: this app has never walked it, so there is no log -- and

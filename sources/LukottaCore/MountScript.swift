@@ -1733,9 +1733,20 @@ public enum MountScript {
             # itself: check it.
             asked=1
           fi
+          # Nothing asked, so no scan -- and the rest of this still runs.
+          #
+          # Returning here instead was a regression, and a bad one: a volume
+          # left merely dirty has nothing in its reclaim log to say so, and the
+          # early return skipped the two ntfsfix lines below that clear a dirty
+          # flag. Both drivers refuse a dirty volume read-write, so every
+          # writable rung failed and the drive was handed back read-only --
+          # which is precisely the fallback the repair rung exists to prevent.
+          # Measured on two dirty fixtures out of twelve, and only visible once
+          # the crowd harness stopped skipping the volumes whose labels did not
+          # match its pattern.
           if [ "$asked" = 0 ]; then
-            echo "lukotta: nothing has asked for a check on $dev"
-            return 0
+            echo "lukotta: nothing has asked for a full check on $dev"
+            scan=0
           fi
 
           # What the check did, left on the volume it did it to.
