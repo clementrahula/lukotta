@@ -62,6 +62,46 @@ through the host's buffer cache, which killing the guest does not discard, so
 this vector under-reports on images and clean runs there prove nothing either.
 Only a real drive settles it.
 
+## A file copied over an older one, silently not replaced — 2026-09-04
+
+OPEN. Found at the end of the night, not yet explained, and written down before
+it is understood because that is the rule.
+
+One volume of twelve, in the twelve-volume run:
+
+    /Volumes/CROWD1 has all 60 files and 120 of them are not the bytes written
+
+The volume carries **120 entries where 60 were copied**: 60 correctly named
+files and 60 hidden `.BC.T_*` temporaries, ditto's own naming, each a complete
+100,000-byte copy. The timestamps say which is which, and the answer is the
+wrong way round:
+
+    .BC.T_eFyWFa   23:44   this run's copy
+    f14.bin        23:13   a previous run's copy, untouched
+
+    source f14.bin   037904a838e4b32e...
+    f14.bin on disk  bcb68c4491868a12...   the OLD content
+    the new bytes    in .BC.T_eFyWFa, unrenamed
+
+So the copy wrote every byte, failed to rename any of them into place, left the
+older file exactly as it was -- and **ditto exited 0**. Its log for that volume
+is empty and the run's own write-failed list does not name it. Somebody copying
+a newer version of a file onto the drive is told it worked and still has the
+old one.
+
+**What it is not.** Overwriting is not broken in general, measured on another
+open volume of the same run:
+
+    one file over an existing one      identical, 1 entry, no temporaries
+    60 files over an existing 60       identical, 60 entries, no temporaries
+
+So the shape alone does not do it. What differed on CROWD1: the copies run
+twelve at a time in parallel, and this was the one volume whose destination
+already held the whole tree from an earlier run. Neither has been isolated yet.
+
+**Not counted as anything but a fault.** The eleven that passed are not evidence
+this is rare; they are eleven volumes that had nothing to overwrite.
+
 ## One drive at a time, after an update — 2026-09-04
 
 The worst defect found tonight, and it was never about the repair work that
