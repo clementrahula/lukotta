@@ -62,6 +62,41 @@ trap cleanup EXIT
 
 say() { printf '%s\n' "$*"; }
 
+# Opening, and finding what was opened.
+#
+# Both were called and neither was ever written. `open_device` appears in no
+# version of this file in the history, so this harness has never run past the
+# line that calls it -- while its own head states results as though it had
+# measured them. Whatever produced those numbers, it was not this.
+#
+# A real drive goes through the app, which is the only route that holds it:
+# /dev/diskNsM is root:operator and the privileged daemon hands the descriptor
+# over. An image goes through the engine directly, as the note above says, since
+# the app's scan does not list one attached with hdiutil.
+open_device() {
+  if [ "${REAL:-0}" = 1 ]; then
+    timeout 300 "$EXE" --drive open="$DEV" > "$WORK/engine.log" 2>&1 || return 1
+  else
+    nohup "$ENGINE" mount -w false --ignore-permissions "$IMG" \
+      > "$WORK/engine.log" 2>&1 &
+  fi
+  local _
+  for _ in $(seq 1 60); do
+    [ -n "$(where)" ] && return 0
+    sleep 2
+  done
+  return 1
+}
+
+# The share the engine made, by the name it gives it: after the device for a
+# plain volume, after the volume group for a container. Deepest first, because a
+# container serves its volumes inside a parent and the parent is a one-megabyte
+# tmpfs with nothing worth writing to on it.
+where() {
+  mount | /usr/bin/grep '\.local:' | awk '{print $3}' \
+    | awk '{print length, $0}' | sort -rn | cut -d" " -f2- | head -1
+}
+
 # A real drive is opened through the app, the only route that holds the device:
 # /dev/diskNsM is root:operator and the privileged daemon hands the descriptor
 # over. Nothing is formatted and nothing already on it is touched; one file is
