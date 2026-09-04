@@ -3399,3 +3399,48 @@ all.
 
 **This is item 9's power-loss vector failing on the app's commonest format**, and
 it was invisible for as long as it was only ever asked of disk images.
+
+### The NTFS loss survives `sync`, and the flush patches are already in — 2026-09-04
+
+Two fixes were made and neither closed it.
+
+**The option was not reaching NTFS at all.** `mountOptions` dropped `durability`
+whenever a driver was named — `if let durability, driver == nil` — on the
+reasoning that the named drivers are the NTFS ones and durability belongs to
+ext. True of `data=journal`, which an ext volume without a journal will not
+mount with; not true of `sync`, which is a plain VFS option. Fixed: the test is
+what the option is, not whether a driver was named.
+
+**And nothing chose one for this drive anyway.** It is BitLocker, and the app
+reads `-FVE-FS-` where it looks for a filesystem. The fallback for a container
+that hides its superblock existed and asked only about LUKS. Fixed: BitLocker
+takes the same blunt `sync`.
+
+Both verified in the mount itself:
+
+    mount args: ["-t", "ntfs3", "/dev/mapper/btlk0", "/mnt/BACKUP2_TS",
+                 "-o", "sync,iocharset=utf8,uid=501,gid=20"]
+
+**And the drive still loses the write. Four for four:**
+
+    run 1  RESULT: the file is not there. A committed write was lost.
+    run 2  RESULT: the file is not there. A committed write was lost.
+    run 3  RESULT: the file is not there. A committed write was lost.
+    run 4  RESULT: the file is not there. A committed write was lost.
+
+**The engine already carries both flush patches.** Read out of the shipped
+bundle's own `PATCHES` file: `imago-flush-device-nodes` and
+`krun-devices-raw-device-flush` are both there. So this is not an engine built
+without them, which is what the harness's head supposed the fault to be.
+
+**So the write is lost somewhere the guest's `sync` does not reach.** The file
+is *absent* rather than short or wrong in three runs of four, which points at
+NTFS metadata — the MFT entry naming the file — rather than at its data blocks.
+A mount option that makes data writes synchronous need not make ntfs3 commit
+metadata on the same schedule.
+
+**What has not been separated yet** is BitLocker from NTFS. The loss is measured
+through dm-crypt on `/dev/mapper/btlk0`, and a plain NTFS partition on a real
+device would say whether the encryption layer is involved. The only real drive
+here is the one carrying the BitLocker fixture that item 4's proof rests on, so
+that separation costs the evidence for another item and has not been taken.
