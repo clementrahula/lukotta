@@ -1314,6 +1314,7 @@ final class AppModel: ObservableObject {
         // ejected drive leaves in ~/Volumes, and the settings' memory of files
         // that are no longer on this Mac.
         Task.detached(priority: .utility) { Housekeeping.sweep() }
+        startDeadMountWatch()
         // Read now, so the report sheet is filled in before anybody asks for
         // it rather than several seconds after.
         refreshRecentLog()
@@ -2800,6 +2801,42 @@ final class AppModel: ObservableObject {
     /// nested inside it, which only the system mount table can see. A mount the
     /// engine reports itself — as "lvm:<vg>:<disk>:<lv>", which carries the
     /// disk — is the fallback for a drive mounted the ordinary way.
+    /// How often the mounts being served are asked whether their server is
+    /// still there.
+    ///
+    /// A mount whose engine has died stays in the table looking like an open
+    /// drive. macOS notices before long and puts up "Server connections
+    /// interrupted", with the drive listed and a Disconnect All button -- which
+    /// is the one window this app exists to make sure nobody ever sees. It
+    /// reached the owner on 2026-09-05.
+    ///
+    /// The clearing was already written and already tested: Housekeeping.sweep
+    /// takes down every mount whose server has gone. What was missing is that
+    /// nothing ran it unless somebody opened or ejected a drive. An engine that
+    /// dies while the app sits idle was left for macOS to find.
+    ///
+    /// Thirty seconds against a threshold of minutes: the probe inside the sweep
+    /// deliberately spends about a minute deciding a mount is dead rather than
+    /// slow -- a drive gone quiet for forty seconds has come back serving
+    /// perfectly -- so a dead mount is gone within about ninety seconds of
+    /// dying, and macOS's own reckoning does not begin until a request has timed
+    /// out five times at sixty seconds each.
+    static let deadMountWatchInterval: Duration = .seconds(Housekeeping.deadMountWatchSeconds)
+
+    /// Ask, for as long as anything is being served.
+    ///
+    /// Only while drives are open: with none, there is nothing to go quiet, and
+    /// a probe every half minute on an idle Mac is a cost for nobody.
+    private func startDeadMountWatch() {
+        Task.detached(priority: .utility) {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: Self.deadMountWatchInterval)
+                guard !EngineStatus.current().isEmpty else { continue }
+                Housekeeping.sweep()
+            }
+        }
+    }
+
     private func collectVolumes(for drive: Drive, fallback: String) {
         openVolumes = [fallback]
         let identifier = drive.id

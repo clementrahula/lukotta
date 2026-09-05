@@ -621,6 +621,32 @@ group("theElevatedMountScript") {
     expect(msSpaces.contains("'/tmp/My Space/discover.exp'"), "spaces in the expect path quoted")
 }
 
+group("theWindowNobodyMayEverSee") {
+    // macOS puts up "Server connections interrupted", naming the drive and
+    // offering Disconnect All, when an NFS mount's server stops answering. It
+    // is the one window this app exists to make sure nobody ever sees, and it
+    // reached the owner on 2026-09-05 -- from mounts whose engine had been
+    // killed and which nothing then took away.
+    //
+    // The clearing was written and tested long before: Housekeeping.sweep takes
+    // down every mount whose server has gone, and EngineProcesses.deadEngineMounts
+    // decides which those are. What was missing is that nothing ran it unless
+    // somebody opened or ejected a drive, so an engine that died while the app
+    // sat idle was left for macOS to find.
+    //
+    // The interval is asserted rather than the loop: a timing loop cannot be
+    // run in a suite without making the suite wait for it, and the number is
+    // the part that has to stay right. Thirty seconds against a threshold of
+    // minutes -- five timeouts at sixty seconds each before macOS calls a mount
+    // unresponsive at all.
+    expect(
+        Housekeeping.deadMountWatchSeconds <= 60,
+        "dead mounts are looked for far more often than macOS gives up")
+    expect(
+        Housekeeping.deadMountWatchSeconds >= 10,
+        "and not so often that an idle Mac is probed for nothing")
+}
+
 group("multiVolumeServing") {
 
     // All volumes of a container are served from one microVM. The engine holds

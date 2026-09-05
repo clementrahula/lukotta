@@ -48,6 +48,26 @@ public enum Housekeeping {
         }
     }
 
+    /// How often the sweep should run while drives are open.
+    ///
+    /// A mount whose engine has died stays in the table looking like an open
+    /// drive, and macOS eventually puts up "Server connections interrupted",
+    /// naming it and offering Disconnect All. That is the one window this app
+    /// exists to make sure nobody ever sees, and it reached the owner on
+    /// 2026-09-05.
+    ///
+    /// The clearing below was written and tested long before; what was missing
+    /// is that nothing ran it unless somebody opened or ejected a drive, so an
+    /// engine that died while the app sat idle was left for macOS to find.
+    ///
+    /// Thirty seconds against a threshold of minutes. The probe inside
+    /// `deadEngineMounts` deliberately spends about a minute deciding a mount is
+    /// dead rather than slow -- one gone quiet for forty seconds has come back
+    /// serving perfectly -- so a dead mount is away within about ninety seconds
+    /// of dying, and macOS does not begin to reckon a mount unresponsive until a
+    /// request has timed out five times at sixty seconds each.
+    public static let deadMountWatchSeconds: Int = 30
+
     /// Take away everything finished with. Safe at any moment, including with
     /// drives open: everything in use fails one of the two rules.
     @discardableResult
