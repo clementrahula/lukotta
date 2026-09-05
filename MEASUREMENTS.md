@@ -50,9 +50,10 @@ says which hold now; `FULL=1` runs the slow ones. A complete pass on 2026-09-04:
 
 **Item 8 names an 8 GB M1 and this is a 16 GB Mac.** Everything above was taken
 with ballast held until what is free is what an 8 GB machine has -- 14 to 35 MB
--- which is as close as this hardware comes and is not the same thing. Apple
-Silicon has no way to boot with less memory, so no amount of work here closes
-it. It needs the machine.
+-- which is as close as this hardware comes and is not the same thing. What used
+to stand here said Apple Silicon has no way to boot with less memory, so no
+amount of work here closes it. That was wrong, and the section below says what
+this machine actually is and what closing it now costs.
 
 **An fsync loss was seen once and has not been explained.** `luks-multi`, inside
 a gate: 0 of 8 fsynced files present after power loss, nothing partial. Then
@@ -62,6 +63,66 @@ a fixture cannot settle it: writes to an attached image reach the backing file
 through the host's buffer cache, which killing the guest does not discard, so
 this vector under-reports on images and clean runs there prove nothing either.
 Only a real drive settles it.
+
+## The machine is an M4, and item 8 is not closed by hardware — 2026-09-05
+
+The reason written above for item 8 standing open was that Apple Silicon cannot
+boot with less memory than it has. It is not true here, and it was never checked
+against the machine it was written on.
+
+    hw.model                Mac16,12
+    cpu                     Apple M4
+    hw.memsize              17179869184        16 GB
+    macOS                   26.6.2 (25G83)
+    kern.hv_support         1
+    System Integrity        enabled
+    boot-args               unset
+
+Two routes to an 8 GB kernel, and what each costs.
+
+**A boot-arg is closed.** Capping physical memory at boot needs `boot-args`, and
+setting it on Apple Silicon needs SIP turned off, which needs 1TR recovery and
+somebody physically at the machine. Not available to this work, and not worth
+asking for while the second route is open.
+
+**A virtual machine is open, and this is the part that was wrong.** Nested
+virtualization arrived with M3, and this is an M4 -- so a macOS guest given
+exactly 8 GB is a real 8 GB Apple Silicon Mac, with its own kernel, its own
+caches sized for 8 GB and its own jetsam thresholds, and the app's krun microVM
+still runs inside it. That is the measurement item 8 asks for, and nothing about
+the hardware prevents it.
+
+What prevents it today is disk:
+
+    free on /                          30 GB
+    a macOS 26 restore image        ~17 GB, needed throughout the install
+    the guest disk after install    ~20 GB
+    peak needed                     ~37 GB
+
+Where the disk has gone, measured rather than guessed:
+
+    ~/Library/Containers               63 GB
+    /Applications                      36 GB    iMovie 3.7, Xcode 3.5, Affinity 3.5
+    ~/.lukotta-testvols                34 GB
+    ~/Repos                            20 GB
+    ~/Library/Caches                   13 GB
+    all five Lukotta bundles          0.8 GB    165 MB each; not the space
+
+Only one of those belongs to this work. The fixtures are 34 GB and every one of
+them can be rebuilt by the scripts that made it, so the order is: finish the
+goals that need fixtures, then reclaim the 34 GB, then build the 8 GB guest and
+run the twelve-volume harness inside it. Nothing here is the user's to clear and
+nothing here is the machine's fault.
+
+**And a fact that shrinks what the guest has to settle.** Nothing in the app or
+the engine reads how much memory the Mac has -- there is no `hw.memsize`, no
+`physicalMemory`, in any source file. A microVM's RAM is a constant the mount
+asks for: 2048 MiB for a plain volume, and for LUKS the engine's 2560 MiB floor
+or the KDF cost read out of the volume's own header, which is what
+`LUKSHeader.swift` exists to do. So the app's demand at twelve volumes is the
+same number on an 8 GB Mac as on this one. What differs is only what the host
+has left over -- and the ballast run drove that to 14 MB free, which is less
+than a real 8 GB Mac would have with twelve volumes open, not more.
 
 ## A file copied over an older one, silently not replaced — 2026-09-04
 

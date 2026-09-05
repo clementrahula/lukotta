@@ -4199,6 +4199,55 @@ group("unencryptedFilesystemsNeedNoPassword") {
     }
 }
 
+group("theOlderExtFilesystemsTakeTheOtherBranch") {
+    // SPECS.md advertises ext2, ext3 and ext4, and until now every ext fixture
+    // in the tree was ext4. That left the branch this project reasons most
+    // carefully about untested by anything: `data=journal` is meaningless on a
+    // filesystem with no journal, and the kernel does not ignore it there -- an
+    // ext2 volume asked for it refuses to mount at all. So the option is chosen
+    // by reading the journal flag, and no fixture had ever made that read
+    // answer no.
+    //
+    // The words below are the ones Homebrew's mke2fs 1.47.4 actually wrote,
+    // read back out of the three fixtures on 2026-09-05:
+    //
+    //     plain-ext2      s_feature_compat = 0x00000038   no journal
+    //     plain-ext3      s_feature_compat = 0x0000003C   journal
+    //     plain-ext4      s_feature_compat = 0x0000103C   journal
+    //
+    // 0x3C is 0x38 with bit 2 set, which is the whole difference between ext2
+    // and ext3, and it is the bit the app reads.
+    func superblock(featureCompat: UInt32, magic: UInt16 = 0xEF53) -> Data {
+        var buffer = [UInt8](repeating: 0, count: 2048)
+        let m = magic.littleEndian
+        buffer[1024 + 0x38] = UInt8(m & 0xFF)
+        buffer[1024 + 0x39] = UInt8((m >> 8) & 0xFF)
+        let f = featureCompat.littleEndian
+        for i in 0..<4 { buffer[1024 + 0x5C + i] = UInt8((f >> (8 * UInt32(i))) & 0xFF) }
+        return Data(buffer)
+    }
+
+    expect(
+        !ExtJournal.isJournalled(superblock: superblock(featureCompat: 0x0000_0038)),
+        "ext2 has no journal, so it is asked for no journal option")
+    expect(
+        ExtJournal.isJournalled(superblock: superblock(featureCompat: 0x0000_003C)),
+        "ext3 has one")
+    expect(
+        ExtJournal.isJournalled(superblock: superblock(featureCompat: 0x0000_103C)),
+        "and so does ext4")
+
+    // Not an ext superblock at all is not a journalled one. Answering yes here
+    // would put `data=journal` on a volume that is not ext, and the mount that
+    // refuses it is the one the person is waiting for.
+    expect(
+        !ExtJournal.isJournalled(superblock: superblock(featureCompat: 0x0000_003C, magic: 0)),
+        "a superblock with no ext magic is not read for a journal flag")
+    expect(
+        !ExtJournal.isJournalled(superblock: Data()),
+        "and neither is nothing at all")
+}
+
 group("whatMacOSDoesBetterOnItsOwn") {
     // The app is needed only where macOS cannot manage. macOS mounts exFAT
     // locally, read and write, and opening one here would turn a local volume
