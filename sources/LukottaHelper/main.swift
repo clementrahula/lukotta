@@ -673,8 +673,41 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
 
     func unmount(mountPoint: String, reply: @escaping (Int32, String) -> Void) {
         let result = EngineStatus.unmount(mountPoint: mountPoint)
-        Log.helper.notice("unmount succeeded: \(result.ok, privacy: .public)")
-        reply(result.ok ? 0 : 1, result.message)
+        // Still in the table is still mounted, whatever the engine answered.
+        //
+        // The engine's unmount asks the machine serving the share to stop. When
+        // that machine has already gone -- an engine killed, a crash, a drive
+        // pulled -- there is nobody to ask, and it answers ok while the mount
+        // stays exactly where it was. What is left is an NFS mount on a dead
+        // server: `ls` on it times out with os error 60, and an ordinary
+        // account cannot remove it because the helper made it.
+        //
+        // Measured on 2026-09-05: three volumes of a container in that state,
+        // every unmount reported successful, all three still there afterwards,
+        // and nothing in the app able to take them away.
+        //
+        // This is the one place that can. Root's `umount -f` removes a mount
+        // whose server is gone, and it is only reached when the polite route
+        // has already been tried and the mount is demonstrably still there.
+        guard stillMounted(mountPoint) else {
+            Log.helper.notice("unmount succeeded: \(result.ok, privacy: .public)")
+            reply(result.ok ? 0 : 1, result.message)
+            return
+        }
+        let forced = Process()
+        forced.executableURL = URL(fileURLWithPath: "/sbin/umount")
+        forced.arguments = ["-f", mountPoint]
+        try? forced.run()
+        forced.waitUntilExit()
+        let gone = !stillMounted(mountPoint)
+        Log.helper.notice("forced unmount removed it: \(gone, privacy: .public)")
+        reply(gone ? 0 : 1, gone ? "" : result.message)
+    }
+
+    /// Whether the mount table still has this mount point.
+    private func stillMounted(_ mountPoint: String) -> Bool {
+        MountTableEntry.all(in: LukottaCore.mountTable())
+            .contains { $0.mountPoint == mountPoint }
     }
 
     /// Add link-local loopback addresses until there are enough for `count`

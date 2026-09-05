@@ -100,12 +100,22 @@ cleanup() {
   done
   pkill -9 -f 'anylinuxfs mount.*fedoravg' >/dev/null 2>&1
   [ -n "$DEV" ] && hdiutil detach "$DEV" >/dev/null 2>&1
-  # And the copy this run made. Folded in here rather than given a trap of its
-  # own: a second `trap ... EXIT` replaces the first, and installing one would
-  # have quietly taken away the unmount and detach above.
+}
+
+# What runs when the script ends, which is not the same as the reset above.
+#
+# cleanup is called mid-script too, between the rounds, to give the drive back
+# before the next one attaches it. The copy was removed in there at first, so
+# that mid-script call deleted the image the very next line re-attached: the
+# round after it reported "no drive at s1" and every assertion in it failed.
+#
+# A second `trap ... EXIT` replaces the first rather than adding to it, so the
+# two are chained here instead.
+finish() {
+  cleanup
   [ -n "${WORKIMG:-}" ] && rm -rf "$(dirname "$WORKIMG")"
 }
-trap cleanup EXIT
+trap finish EXIT
 
 # Its own copy of the fixture, so the rounds cannot spoil each other.
 #
@@ -213,7 +223,7 @@ done
 DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
        2>/dev/null | awk 'NR==1{print $1}')"
 P="${DEV}s1"
-trap cleanup EXIT
+trap finish EXIT
 # What a person actually meets: the app opens the partition, and every logical
 # volume in it is served.
 #
@@ -249,12 +259,14 @@ if [ -x "$APP" ] &&
   note "$([ "$served" -eq 3 ] && echo ok || echo no)" \
     "opening the partition through the app serves every volume ($served of 3)"
   [ "$served" -eq 3 ] || sed 's/^/       /' /tmp/lvm-app.log 2>/dev/null | tail -4
-  # Let go of what the app opened, so the next run starts clean. The guard at
-  # the top refuses a contaminated run; this is what stops it needing to.
-  for m in $(mount | awk '/FEDORA/ {for(i=1;i<=NF;i++) if($i=="on") print $(i+1)}'); do
-    umount -f "$m" >/dev/null 2>&1
-  done
-  pkill -9 -f 'anylinuxfs mount' >/dev/null 2>&1
+  # Let go through the app, which is the only thing that can.
+  #
+  # `umount -f` as the user was tried here and cannot remove these: the
+  # privileged helper made them, so it answers "Operation not permitted". The
+  # next run then found three volumes of this fixture still served and refused
+  # to start, which is the guard at the top doing its job about a mess this
+  # round had left.
+  timeout 300 "$APP" --drive eject="$P" >/dev/null 2>&1
 else
   note no "no app with --drive to open the partition with"
 fi
