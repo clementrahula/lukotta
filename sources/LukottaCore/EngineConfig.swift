@@ -35,8 +35,8 @@ public enum EngineConfig {
     /// Every generated section goes, not just the ejected drive's. The action is
     /// read once, when a mount is made, and regenerated on every mount -- so
     /// removing one another drive still has open costs that drive nothing, and
-    /// leaving them costs a section per drive for ever. This Mac's config had
-    /// five, one still naming a device detached hours earlier.
+    /// leaving them costs a section per drive for ever. This Mac's config held a
+    /// generated section still naming a device detached hours earlier.
     public static func isGeneratedHeader(_ line: String) -> Bool {
         let flat = "[custom_actions.\(MountScript.generatedActionPrefix.dropLast())]"
         let prefixed = "[custom_actions.\(MountScript.generatedActionPrefix)"

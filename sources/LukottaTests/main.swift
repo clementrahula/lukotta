@@ -776,8 +776,8 @@ group("engineConfigCleanup") {
     // and the mount writes the section, strips any section of that name, then
     // mounts with `-a lukotta`. Two containers opening at once each replace the
     // other's, and one is served with the other's export path. Found in this
-    // Mac's own config on 2026-09-05: five accumulated sections, one still
-    // naming /run/disk5 for a drive detached hours earlier.
+    // Mac's own config on 2026-09-05: the generated section still naming
+    // /run/disk5, a drive detached hours earlier.
     let alpha = MountScript.generatedAction(driveName: "BACKUP", devicePath: "/dev/disk4s1")
     let beta = MountScript.generatedAction(driveName: "PHOTOS", devicePath: "/dev/disk5s1")
     expect(alpha != beta, "two drives do not share one action name")

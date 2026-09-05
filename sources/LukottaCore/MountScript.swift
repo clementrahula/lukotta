@@ -477,9 +477,12 @@ public enum MountScript {
     /// containers opening at once each replace the other's section, and one is
     /// then served with the other's export path and volume list.
     ///
-    /// Found on 2026-09-05 in this Mac's own config: five accumulated sections,
-    /// one of them still naming `/run/disk5` for a drive detached hours before.
-    /// Ejecting was supposed to take it away and had not.
+    /// Found on 2026-09-05 in this Mac's own config: the generated section still
+    /// naming `/run/disk5`, a drive detached hours before. Ejecting was supposed
+    /// to take it away and had not. (The four sections beside it --
+    /// `lukottatuned`, `lukottantfs3`, `lukottarepair`, `lukottantfs3g` -- are
+    /// the fixed rungs of the mount ladder and belong there; an earlier note
+    /// here counted all five as leftovers, which was wrong.)
     public static let generatedActionPrefix = "lukotta_"
 
     /// The action name for one drive, which no other drive shares.
