@@ -760,6 +760,40 @@ note "$([ "$cbad" -eq 0 ] && echo ok || echo no)" \
 #    on its own, because after a crash "it is there and it is the right size"
 #    is not evidence that a file is complete.
 rm -rf "$VOL/vec-power"; mkdir -p "$VOL/vec-power"
+
+# 13. A copy over files that are already there.
+#
+#    The most ordinary thing anybody does with a drive, and no vector above did
+#    it: every one of them copies into a name that is free. On 2026-09-05 that
+#    gap hid a fault for a whole evening. A directory an interrupted copy had
+#    damaged took a copy over existing files, reported success, kept the older
+#    files and left the newer bytes stranded under the copier's temporary names
+#    -- `mv` returns 1 inside the guest, and over NFS the host is told it
+#    worked, so ditto exits 0. Sixty files, every one of them the old one.
+#
+#    Both halves are checked, because either alone would have missed it: the
+#    content must be the second tree, and nothing of the copier's may be left
+#    lying about. The two trees have the same names and different sizes, so a
+#    file that was not replaced is unambiguous rather than merely different.
+payload "$WORK/ow-first" 20 100000
+payload "$WORK/ow-second" 20 150000
+rm -rf "$VOL/vec-overwrite"
+ditto "$WORK/ow-first" "$VOL/vec-overwrite" >/dev/null 2>&1
+ditto "$WORK/ow-second" "$VOL/vec-overwrite" > "$WORK/ow.err" 2>&1
+want="$( (cd "$WORK/ow-second" && find . -type f -exec shasum -a 256 {} \; | sort) \
+  | shasum -a 256 | awk '{print $1}')"
+got="$( (cd "$VOL/vec-overwrite" && find . -type f ! -name '.*' -exec shasum -a 256 {} \; \
+  | sort) | shasum -a 256 | awk '{print $1}')"
+strays="$(find "$VOL/vec-overwrite" -maxdepth 1 \( -name '.BC.T_*' -o -name '.nfs*' \) \
+  2>/dev/null | wc -l | tr -d ' ')"
+if [ "$want" = "$got" ] && [ "${strays:-0}" -eq 0 ]; then
+  note ok "a copy over files already there replaced every one of them"
+elif [ "$want" != "$got" ]; then
+  note bad "a copy over files already there left older ones in place"
+else
+  note bad "the copy replaced them and left $strays temporary file(s) behind"
+fi
+rm -rf "$VOL/vec-overwrite"
 payload "$WORK/power" 30 1000000
 
 # Committed: written and fsynced before anything is killed. dd's conv=fsync
