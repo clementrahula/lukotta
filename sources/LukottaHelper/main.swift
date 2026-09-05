@@ -102,7 +102,35 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             Log.helper.fault("unsigned or teamless build; every connection will be refused")
         }
         listener.resume()
+        watchForDeadMounts()
         RunLoop.main.run()
+    }
+
+    /// Take away mounts whose server has gone, without waiting to be asked.
+    ///
+    /// macOS puts up "Server connections interrupted", naming the drive and
+    /// offering Disconnect All, when an NFS mount stops answering. It is the one
+    /// window this app exists to make sure nobody ever sees, and it reached the
+    /// owner on 2026-09-05.
+    ///
+    /// The app sweeps for these too, but only while it is running. A drive stays
+    /// served after the window is closed, and an app that has crashed sweeps
+    /// nothing at all -- so the sweep cannot live only there, or the case where
+    /// nobody is watching is exactly the case that reaches somebody.
+    ///
+    /// Here it is, in the one thing that is still around: the helper is what
+    /// made those mounts, it runs as root, and root's forced unmount is the only
+    /// thing that removes a mount whose server is gone.
+    ///
+    /// Costs nothing when there is nothing to do. `EngineStatus.current()` reads
+    /// the mount table, and with no drives open the sweep is never reached.
+    private func watchForDeadMounts() {
+        let interval = TimeInterval(Housekeeping.deadMountWatchSeconds)
+        let timer = Timer(timeInterval: interval, repeats: true) { _ in
+            guard !EngineStatus.current().isEmpty else { return }
+            Housekeeping.sweep()
+        }
+        RunLoop.main.add(timer, forMode: .common)
     }
 
     // MARK: Accepting connections
