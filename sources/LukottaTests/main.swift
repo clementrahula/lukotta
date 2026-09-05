@@ -621,6 +621,48 @@ group("theElevatedMountScript") {
     expect(msSpaces.contains("'/tmp/My Space/discover.exp'"), "spaces in the expect path quoted")
 }
 
+group("aConfigNamingAnActionTwiceIsRepaired") {
+    // TOML refuses a document with a duplicate table, so one repeated section
+    // stops the engine reading its config at all -- and then every mount of
+    // every drive fails with "duplicate key ... in table custom_actions" until
+    // somebody edits the file. Measured on 2026-09-05: twenty volumes that had
+    // opened that morning all refused, and the app looked broken.
+    let doubled = """
+        [krun]
+        num_vcpus = 4
+
+        [custom_actions.lukottatuned]
+        description = 'first'
+
+        [custom_actions.lukottantfs3]
+        description = 'only one of these'
+
+        [custom_actions.lukottatuned]
+        description = 'second'
+        """
+    let fixed = EngineConfig.withoutDuplicateActions(doubled)
+    expect(
+        fixed.components(separatedBy: "[custom_actions.lukottatuned]").count == 2,
+        "the repeated section is gone")
+    expect(
+        fixed.contains("description = 'first'"),
+        "and the first of the two is what stays")
+    expect(
+        !fixed.contains("description = 'second'"),
+        "with the later one's body taken with it")
+    expect(
+        fixed.contains("[custom_actions.lukottantfs3]"),
+        "a section named once is untouched")
+    expect(
+        fixed.contains("[krun]") && fixed.contains("num_vcpus = 4"),
+        "and so is everything that is not an action")
+    // Nothing to do is nothing done: an untouched config keeps its modification
+    // time, so this does not rewrite the file on every launch.
+    expect(
+        EngineConfig.withoutDuplicateActions(fixed) == fixed,
+        "repairing a repaired config changes nothing")
+}
+
 group("aDeadMountIsNotCalledAlive") {
     // The fault that made every sweep useless, and the one that let macOS put
     // "Server connections interrupted" in front of the owner on 2026-09-05.

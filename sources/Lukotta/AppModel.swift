@@ -1314,6 +1314,10 @@ final class AppModel: ObservableObject {
         // ejected drive leaves in ~/Volumes, and the settings' memory of files
         // that are no longer on this Mac.
         Task.detached(priority: .utility) { Housekeeping.sweep() }
+        // A config naming an action twice stops the engine reading it at all,
+        // and then no drive opens and nothing says why. Repaired here rather
+        // than left for somebody to find. See EngineConfig.
+        EngineConfig.repairDuplicateActions()
         startDeadMountWatch()
         // Read now, so the report sheet is filled in before anybody asks for
         // it rather than several seconds after.
