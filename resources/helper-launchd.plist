@@ -3,6 +3,27 @@
 <plist version="1.0">
 <dict>
   <key>Label</key><string>__BUNDLE_ID__.helper</string>
+  <!-- Woken on a schedule, so a mount whose server has gone does not sit
+       there waiting for somebody to open a drive.
+
+       macOS puts up "Server connections interrupted", naming the drive and
+       offering Disconnect All, when an NFS mount stops answering. The app
+       sweeps those away, and so does this helper -- but only while either is
+       running, and this is an on-demand Mach service that launchd stops when
+       nothing is talking to it. Measured on 2026-09-05: helper not running,
+       a mount with nothing behind it still in the table three minutes after
+       its engine was killed, and macOS had already said something.
+
+       Sixty seconds, not five minutes. Five was written here first with a
+       justification that does not hold: the worst case is a whole interval
+       plus the minute the probe spends deciding a mount is dead rather than
+       slow, so 300 would let one sit for six minutes -- past the point macOS
+       begins to reckon, which is five request timeouts at sixty seconds each.
+       At sixty the worst case is about two minutes.
+
+       It costs almost nothing: the sweep reads the mount table and returns at
+       once when nothing is served, which on an idle Mac is every time. -->
+  <key>StartInterval</key><integer>60</integer>
   <key>MachServices</key>
   <dict><key>__BUNDLE_ID__.helper</key><true/></dict>
 </dict>
