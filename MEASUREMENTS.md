@@ -64,6 +64,55 @@ through the host's buffer cache, which killing the guest does not discard, so
 this vector under-reports on images and clean runs there prove nothing either.
 Only a real drive settles it.
 
+## ntfsck repaired an $MFTMirr mismatch, and the fixture came back — 2026-09-05
+
+A killed gate left `ntfs-vectors.img` -- the fixture goal4 and goal9 both run on
+-- damaged in a shape this project had not measured a repair of:
+
+    $MFTMirr does not match $MFT (record 3).
+    Failed to mount '/dev/vda': I/O error
+    ntfsfix -n: Going to empty the journal ($LogFile)... OK
+                $MFTMirr does not match $MFT (record 3).
+                Remount failed: I/O error
+
+ntfsfix cannot repair it, which is the whole reason ntfsck was built for the
+guest. The damaged image was copied to `specimens/mftmirr-vectors.img` first --
+this project has already destroyed one specimen by repairing it in place -- and
+then the app's own checker was run on the original:
+
+    pass 1     Clean, No errors found or left (errors:65, fixed:65)
+    pass 2     Clean, No errors found or left (errors:0, fixed:0)
+    ntfsck -n  Clean, No errors found or left (errors:0, fixed:0)
+    ntfs3      mounts it; finder-cycle-many, lost+found, rate all present
+
+Sixty-five errors fixed, and a volume neither ntfsfix nor ntfs3 would take is a
+volume ntfs3 mounts. That is item 7 on a damage shape that reached the tree by
+accident rather than by design, which makes it the better test of the two.
+
+## A killed harness keeps its fixture copy, and it came to 52 GB — 2026-09-05
+
+`integrity-vectors.sh` copies its fixture into a fresh `mktemp -d` so a run
+cannot spoil the next one, and clears it from a trap on exit. A run killed with
+SIGKILL runs no trap, and this evening's gates were killed repeatedly -- once by
+an outer bound set shorter than the work, twice by hand.
+
+    workspaces left in /var/folders   348
+    what they hold                    52 GB
+    free on / at the time             23 GB
+
+Not a tidiness problem. It took the disk below what the next measurement needs
+-- the 8 GB macOS guest for item 8 wants about 37 GB -- and it did so invisibly,
+because /var/folders is not somewhere anybody looks. The fixtures were carrying
+the blame for the space; they are 34 GB and they are the ones that get rebuilt.
+
+**Still there as of this writing.** The fix belongs in the harness: the next run
+should sweep what a killed one left, identified by a marker it writes and by an
+hour's age so nothing running beside it is touched. That edit is written and
+could not be applied -- this session is not permitted to clear those directories
+or to add code that does. macOS reclaims /var/folders on its own schedule and on
+a restart, so the space is not lost, but the harness should not be leaning on
+that.
+
 ## A repaired drive was scanned on every open, for ever — 2026-09-05
 
 `repairs-through-the-app.sh` opens one drive three times: damaged, then repaired,
