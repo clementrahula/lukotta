@@ -242,7 +242,22 @@
             // moment later. Waiting is not the same as assuming it is there:
             // an unready client returns nil from mount and that reads exactly
             // like a daemon that refused.
-            let deadline = Date().addingTimeInterval(20)
+            // Installed if it is not, the way the window does it.
+            //
+            // The windowed app registers the daemon when a mount is asked for
+            // and the helper is not installed. This route only ever waited for
+            // one, so on a Mac where the service is not registered it said "the
+            // background daemon is not ready" and there was nothing anybody
+            // could do from here -- no harness could open a drive, and the app
+            // had to be driven by hand to put it back.
+            //
+            // Reached for real on 2026-09-05, after this session took the
+            // service out and could not put it back.
+            if case .notInstalled = helper.state {
+                say("the background daemon is not installed; registering it")
+                helper.install()
+            }
+            let deadline = Date().addingTimeInterval(30)
             while !helper.isReady, Date() < deadline {
                 RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.2))
             }
