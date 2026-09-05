@@ -78,6 +78,17 @@ public enum Durability {
         if LUKSHeader.isContainer(forDevice: path) {
             return Choice(guestOption: "sync", stableWrites: false)
         }
-        return Choice(guestOption: "sync", stableWrites: false)
+        // The client's option, not the guest's, for everything else.
+        //
+        // Both keep a committed write on real hardware. They are not the same
+        // inside the guest: `-o sync` changes how the filesystem itself writes,
+        // and on 2026-09-06 that cost two things the client option does not.
+        // The NTFS vectors came back with seven of eight fsynced files wrong
+        // after a killed machine, on an image where nothing had been wrong
+        // before it; and a full volume took 45 seconds to say so where NTFS had
+        // taken 2. A person watching a copy stop for three quarters of a minute
+        // before being told the drive is full is a UX cost, and item 10 does not
+        // allow one.
+        return Choice(guestOption: nil, stableWrites: true)
     }
 }

@@ -4862,18 +4862,29 @@ went on for the setting where both hold. The rate was never a bandwidth limit:
 at a 32 KiB write size a durable stream is 53 writes a second, which is one
 device flush of about 19 ms each. The write size is the whole of it.
 
-**Where it landed, at 04:20 on 2026-09-06.** Every volume is mounted `-o sync`
-inside the guest, and the NFS write size is 131072 rather than 32768:
+**The guest's own `-o sync` was tried first and rejected.** It keeps the data --
+three of three on each of the three drives -- and it is the fastest of anything
+measured, 14.0 MB/s on the 247 GB drive. It also changes how the filesystem
+itself writes, and the full gate found what that costs: the NTFS vectors came
+back with **seven of eight fsynced files wrong** after a killed machine, on an
+image where nothing had ever been wrong, and a full volume took 45 seconds to
+say so where NTFS had taken 2. Faster, and it breaks the thing it was for.
 
-    Patriot 247 GB, BitLocker/NTFS   3 of 3 kept   14.0 MB/s
+**Where it landed.** The client is asked to write stably -- the writes go out
+stable rather than going out unstable and relying on a commit that is not
+honoured -- and the NFS write size is 131072 rather than 32768:
+
+    Patriot 247 GB, BitLocker/NTFS   3 of 3 kept    5.8 MB/s
     Kingston 62 GB, exFAT            3 of 3 kept
-    Kingston 62 GB, LUKS + ext4      3 of 3 kept
+    ntfs-vectors.img, all 13 vectors 13 passed, 0 failed, 8 of 8 fsynced kept
 
-Faster than the unsafe mount it replaces, which did 7.7 to 8.5 MB/s on the same
-drive and lost the data three times out of three. The write size had been chosen
-at 32768 to keep a directory listing answerable under a copy, which was right
-for an unsafe mount and does not survive `-o sync`: a durable write costs one
-flush whatever its size.
+Against 7.7 to 8.5 MB/s for the unsafe mount it replaces, which lost the data
+three times out of three; and against 1.7 MB/s for the same guarantee at the old
+32 KiB write size. The write size had been chosen at 32768 to keep a directory
+listing answerable under a copy, which was right for an unsafe mount and does
+not survive a durable one: a stable write costs one device flush of about 19 ms
+whatever its size, so the small size was buying nothing but round trips. The
+stall row was re-run at the new size and holds.
 
 Two things had to change beside the option itself.
 
