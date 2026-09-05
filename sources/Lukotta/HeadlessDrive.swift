@@ -80,6 +80,40 @@
                 exit(0)
             }
 
+            // One sweep, in the foreground, saying what it decided.
+            //
+            // The sweep that takes away mounts whose server has gone runs on a
+            // timer in the app and in the helper, and on 2026-09-05 neither was
+            // clearing anything while the launch-time one did. It could not be
+            // watched: os_log returns nothing for these subsystems on this Mac,
+            // so every attempt to find out was a guess followed by a rebuild.
+            //
+            // This runs exactly what those timers run, once, and prints the
+            // mount table before and after with the record it was given. An
+            // instrument for a fault that could not otherwise be seen.
+            if CommandLine.arguments.contains("sweep") {
+                let before = MountTableEntry.all(in: LukottaCore.mountTable())
+                    .filter(\.isEngineMount)
+                say("engine mounts before: \(before.count)")
+                for entry in before { say("  \(entry.mountPoint)  from \(entry.source)") }
+                let opened = OpenedHere.all()
+                say("this app's record of what it mounted: \(opened.sorted())")
+                // The two gates, separately, because "judged dead: []" does
+                // not say which of them closed.
+                say("microVMs still serving: \(EngineProcesses.serving())")
+                for entry in before {
+                    let answer = EngineProcesses.mountAnswers(entry.mountPoint)
+                    say("  \(entry.mountPoint) answers: \(answer)")
+                }
+                let dead = EngineProcesses.deadEngineMounts(in: LukottaCore.mountTable())
+                say("judged dead: \(dead)")
+                Housekeeping.sweep()
+                let after = MountTableEntry.all(in: LukottaCore.mountTable())
+                    .filter(\.isEngineMount)
+                say("engine mounts after: \(after.count)")
+                exit(after.count < before.count ? 0 : 1)
+            }
+
             if let device = toEject { eject(device) }
             guard let device = toOpen else {
                 if toEject != nil { exit(0) }

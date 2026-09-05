@@ -222,8 +222,36 @@ public enum EngineProcesses {
         // client has never seen has to go to the server.
         let probe = (point as NSString).appendingPathComponent(".lukotta-is-anyone-there")
         switch LukottaCore.ask("/usr/bin/stat", ["-f", "%d", probe], timeout: timeout) {
-        // Any answer at all, including "no such file", means a server answered.
-        case .finished: return .alive
+        // What it answered, not that it answered.
+        //
+        // This took any return at all -- including "no such file" -- as proof a
+        // server had replied, on the reasoning that a dead one would leave the
+        // stat hanging until the deadline. That is true of a hard mount. These
+        // are soft, and a soft mount's client answers for itself once it has
+        // given up on the server: the stat comes back at once with a timeout or
+        // a stale handle, and this called that alive.
+        //
+        // Measured on 2026-09-05 with `--drive sweep`, which exists because none
+        // of this could be seen from outside: nothing serving, both mounts'
+        // engines killed, and both answering `alive` immediately. Every timer
+        // was firing and every sweep found nothing to do.
+        //
+        // "No such file or directory" is the one answer only a live server
+        // gives, since the name is one it has never seen. Anything else --
+        // timed out, stale NFS file handle, host is down, input/output error --
+        // is the client speaking for a server that is not there.
+        case .finished(let output):
+            let said = output.combined.lowercased()
+            if said.contains("no such file") { return .alive }
+            for gone in [
+                "timed out", "stale", "host is down", "input/output error",
+                "operation not permitted", "device not configured",
+            ] where said.contains(gone) {
+                return .silent
+            }
+            // An answer this does not recognise is not called dead: forcing a
+            // mount down is not something to do on a guess.
+            return .alive
         case .silent: return .silent
         case .couldNotAsk: return .couldNotAsk
         }
