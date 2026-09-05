@@ -333,6 +333,22 @@
             // The transcript is the engine's own account, and it is the thing
             // worth having when a mount goes wrong at four in the morning.
             print(outcome.transcript)
+            // And the volumes the check looked at are remembered here too.
+            //
+            // The windowed app records these as each line arrives, in
+            // `AppModel.appendStatus`. This route never goes through it -- it
+            // calls the helper and is handed the whole transcript at the end --
+            // so on this path the record was never written. Every harness in
+            // the gate opens drives this way, which means the rule those
+            // records exist for was inert in exactly the runs that claim to
+            // test it, and a full check would have run again on every open of a
+            // volume nothing can repair.
+            //
+            // Before the status is looked at, deliberately: a volume the check
+            // could not bring clean is precisely the one that must not be
+            // scanned again, and it is the one whose mount fails.
+            CheckedVolumes.note(
+                reportedIn: outcome.transcript.components(separatedBy: .newlines))
             if outcome.status == 0 {
                 say("opened \(drive.name)")
                 exit(0)

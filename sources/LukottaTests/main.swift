@@ -5767,6 +5767,23 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     expect(
         CheckedVolumes.serials(reportedIn: ["lukotta: nothing to see"]).isEmpty,
         "while an ordinary line names nothing")
+
+    // A whole transcript, which is how the headless route is handed it.
+    //
+    // The windowed app sees these one line at a time as they arrive; `--drive
+    // open=` calls the helper and gets the engine's whole account at the end.
+    // Every harness in the gate uses that route, so a record written only on
+    // the windowed path is inert in exactly the runs that claim to test it.
+    let transcript = """
+        lukotta: checking /dev/sda1
+        \(MountScript.stageMarker)checked 205DEDCB3E41DEF6
+        lukotta: /dev/sda1 is clean
+        \(MountScript.stageMarker)checked 23E3D0CD4CDEFAE0
+        """
+    expect(
+        CheckedVolumes.serials(reportedIn: transcript.components(separatedBy: .newlines))
+            == ["205DEDCB3E41DEF6", "23E3D0CD4CDEFAE0"],
+        "every volume a container's check looked at is read out of one transcript")
     // Moved, not removed. These are the bytes of the file somebody was copying
     // when the copy stopped, and this app does not delete those.
     expect(
