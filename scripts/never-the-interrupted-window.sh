@@ -112,9 +112,20 @@ done
 left="$(mount | /usr/bin/grep -c -F "$POINT" || true)"
 
 # And whether macOS said anything to anybody while that happened.
+# Neither of the two ways this counted itself.
+#
+# `log show` prints "Filtering the log data using ..." with the predicate in it,
+# and the predicate contains the words being counted. Excluding that line was
+# not enough: `log` also logs its own invocation, arguments and all, so the
+# query writes a line containing its own predicate into the very log it is
+# reading. Both were counted, and this reported that macOS had complained on
+# every run -- including runs where nothing of the sort had happened.
+#
+# So the filter line goes, and so does anything the `log` process itself said.
 said=$(/usr/bin/log show --start "$STARTED_AT" --style compact \
-  --predicate 'eventMessage CONTAINS[c] "not responding" OR eventMessage CONTAINS[c] "connections interrupted"' \
-  2>/dev/null | /usr/bin/grep -c -iE "not responding|connections interrupted" || true)
+  --predicate 'process != "log" AND (eventMessage CONTAINS[c] "not responding" OR eventMessage CONTAINS[c] "connections interrupted")' \
+  2>/dev/null | /usr/bin/grep -v '^Filtering' \
+  | /usr/bin/grep -c -iE "not responding|connections interrupted" || true)
 
 echo
 echo "  seconds until the mount was taken away: ${waited}"
