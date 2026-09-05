@@ -44,3 +44,8 @@ architecture.md
 scripts/__pycache__/
 .lint.log
 .tests.log
+
+# One log per gate row, rewritten on every run of scripts/verify.sh.
+# Kept on disk because a failing check's whole output is the evidence; kept
+# out of git because it is the output of a run, not a source of one.
+.verify-logs/
