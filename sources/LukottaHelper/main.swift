@@ -472,6 +472,22 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             reply(71, "Could not tell which user this is for.")
             return
         }
+
+        // macOS lets go of the disk before the engine is asked for anything.
+        //
+        // An exFAT or FAT volume is mounted by macOS the moment the stick goes
+        // in. The mount script then answered "Error: /dev/disk8s1 is already
+        // mounted" on every rung and gave up, and what reached the person was
+        // "macOS already has this drive mounted. Eject it in Finder and try
+        // again" -- the app asking somebody to go and do its work in another
+        // application. There is nothing to decide: the drive was asked for, so
+        // it is taken.
+        //
+        // Here rather than in the window, because this is the one place every
+        // mount passes through: the same fault reached a harness driving the
+        // app headlessly, which has no failure screen and no button on it.
+        letGoOfTheDisk(behind: devicePath)
+
         do {
             let workspace = try Workspace()
             defer { workspace.destroy() }
@@ -789,6 +805,42 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         let gone = !stillMounted(mountPoint)
         Log.helper.notice("forced unmount removed it: \(gone, privacy: .public)")
         reply(gone ? 0 : 1, gone ? "" : result.message)
+    }
+
+    /// Take back from macOS every volume of the disk this device belongs to.
+    ///
+    /// Its siblings as well as itself: a disk handed to the engine is read
+    /// whole, and one partition of it mounted by macOS is enough to make the
+    /// open fail. A container is one row in the window and several devices
+    /// here.
+    ///
+    /// Never forced. A volume macOS is still writing to is one somebody is
+    /// using, and taking it away mid-copy would cost the very thing this app
+    /// exists to protect. `diskutil unmount` flushes and refuses while it is
+    /// busy, and refusing is the right answer then -- the mount that follows
+    /// fails with a sentence about a busy drive, which is true.
+    private func letGoOfTheDisk(behind devicePath: String) {
+        let identifier = (devicePath as NSString).lastPathComponent
+        let disk = DriveScanner.wholeDisk(of: identifier)
+        let held = MountTableEntry.all(in: LukottaCore.mountTable())
+            .filter { entry in
+                guard entry.source.hasPrefix("/dev/") else { return false }
+                let source = (entry.source as NSString).lastPathComponent
+                return source == identifier || DriveScanner.wholeDisk(of: source) == disk
+            }
+        guard !held.isEmpty else { return }
+        for entry in held {
+            let unmount = Process()
+            unmount.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+            unmount.arguments = ["unmount", entry.mountPoint]
+            unmount.standardOutput = FileHandle.nullDevice
+            unmount.standardError = FileHandle.nullDevice
+            try? unmount.run()
+            unmount.waitUntilExit()
+            Log.helper.notice(
+                "macOS had \(disk, privacy: .public) mounted; letting go returned \(unmount.terminationStatus, privacy: .public)"
+            )
+        }
     }
 
     /// Whether the mount table still has this mount point.

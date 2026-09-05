@@ -390,6 +390,17 @@ final class AppModel: ObservableObject {
     /// announced the drive as disconnected while its mount was still serving.
     private var imageDrives: [String: Drive] = [:]
 
+    /// Volumes in the list because their first sector said so, keyed by device
+    /// path. Their partition type says nothing this app handles, and on a stick
+    /// that has been reformatted since it was partitioned the type is simply
+    /// out of date.
+    private var adoptedVolumes: [String: Drive] = [:]
+
+    /// What one reading of each volume's first sector found, `unknown`
+    /// included. Kept so a volume is read once rather than on every scan, and
+    /// dropped with the disk it belongs to.
+    private var sectorFormats: [String: VolumeFormat] = [:]
+
     /// Container files the engine reads itself, by drive id. Nothing is
     /// attached for these, so nothing is detached: closing one is forgetting it.
     private var engineReadDrives: [String: Drive] = [:]
@@ -1136,6 +1147,19 @@ final class AppModel: ObservableObject {
                 "keeping \(kept.count, privacy: .public) rows for drives that are still mounted")
             listed = inArrivalOrder(listed + kept)
         }
+
+        // Volumes admitted by their first sector rather than by their partition
+        // type. They belong in the list exactly as long as the machine still
+        // has them, and the scan is what says so.
+        let present = Set(sighting.found.map(\.devicePath))
+            .union(sighting.unclaimed.map(\.devicePath))
+        adoptedVolumes = adoptedVolumes.filter { present.contains($0.key) }
+        sectorFormats = sectorFormats.filter { present.contains($0.key) }
+        let adopted = adoptedVolumes.values.filter { row in
+            !listed.contains { $0.devicePath == row.devicePath }
+        }
+        if !adopted.isEmpty { listed = inArrivalOrder(listed + adopted) }
+
         drives = listed
         scanGeneration += 1
         // This app's mounts, not every mount on the Mac.
@@ -1159,7 +1183,58 @@ final class AppModel: ObservableObject {
         refreshEjectables()
         refreshCapacity(mounts: Set(sighting.mounts.map(\.devicePath)).count)
         refreshSpace()
+        readWhatTheTypesCouldNotSay(unclaimed: sighting.unclaimed)
         return listed
+    }
+
+    /// The 512 bytes that decide what a row says, and whether there is a row.
+    ///
+    /// A partition type is all `diskutil` offers and it is not enough for
+    /// either question. "Windows_NTFS" and "Microsoft Basic Data" cover NTFS,
+    /// exFAT and BitLocker alike, so two exFAT sticks sat in the list called
+    /// "BitLocker/NTFS" -- a name for neither of them. And a stick formatted
+    /// NTFS years after somebody had partitioned it on a Mac still declares an
+    /// Apple partition map holding Apple_HFS, so its one volume was thrown away
+    /// before anything read it and the app showed nothing at all for a stick
+    /// that was plugged in.
+    ///
+    /// The daemon can read a device node; nothing else here can. So it reads
+    /// one sector per volume, once, and that answer names the row and admits
+    /// the ones the types dropped. An answer of "nothing I recognise" is kept
+    /// too -- an EFI partition and an APFS container come through here on every
+    /// scan, and asking about them again each time would be a reading a second.
+    private func readWhatTheTypesCouldNotSay(unclaimed: [Drive]) {
+        guard helper.isReady else { return }
+        let unnamed = drives.filter {
+            knownFormats[$0.id] == nil && sectorFormats[$0.devicePath] == nil
+        }
+        let candidates = unclaimed.filter { sectorFormats[$0.devicePath] == nil }
+        guard !unnamed.isEmpty || !candidates.isEmpty else { return }
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            for drive in unnamed {
+                let format = await self.helper.identify(devicePath: drive.devicePath)
+                self.sectorFormats[drive.devicePath] = format
+                if format != .unknown { self.knownFormats[drive.id] = format }
+            }
+            var admitted: [Drive] = []
+            for candidate in candidates {
+                let format = await self.helper.identify(devicePath: candidate.devicePath)
+                self.sectorFormats[candidate.devicePath] = format
+                guard format != .unknown, format.kind != nil else { continue }
+                let row = candidate.knowing(format)
+                self.adoptedVolumes[row.devicePath] = row
+                self.knownFormats[row.id] = format
+                admitted.append(row)
+                Log.drives.notice(
+                    "\(row.devicePath, privacy: .public) holds \(format.rawValue, privacy: .public), whatever its partition type says"
+                )
+            }
+            guard !admitted.isEmpty else { return }
+            let already = Set(self.drives.map(\.devicePath))
+            self.drives = self.inArrivalOrder(
+                self.drives + admitted.filter { !already.contains($0.devicePath) })
+        }
     }
 
     /// One look at the machine: what is attached, what is mounted, and which
@@ -1173,6 +1248,9 @@ final class AppModel: ObservableObject {
         var found: [Drive]
         var mounts: [EngineMount]
         var attachments: [String: String]?
+        /// Volumes the partition types dropped, kept for a reading of their
+        /// first sector. Not drives until something has read one.
+        var unclaimed: [Drive] = []
     }
 
     /// The files this app is serving drives from, as the person chose them.
@@ -1241,10 +1319,12 @@ final class AppModel: ObservableObject {
                 known.insert(identifier)
             }
         }
+        let survey = DriveScanner.survey(images: known)
         return Sighting(
-            found: DriveScanner.scan(images: known),
+            found: survey.listed,
             mounts: EngineStatus.current(),
-            attachments: attachments)
+            attachments: attachments,
+            unclaimed: survey.unclaimed)
     }
 
     /// What to say when mounts went away without anybody ejecting them.
@@ -3187,22 +3267,29 @@ final class AppModel: ObservableObject {
     /// proceed anyway, and is not: two systems with the same filesystem open,
     /// one of them caching it, is how a volume gets corrupted. Unmounting first
     /// leaves exactly one reader, which is the state everything else assumes.
-    func takeBackFromMacOSAndOpen(_ drive: Drive) {
-        // Whatever macOS has mounted from this disk: the drive's own device,
-        // and any sibling partition of the same disk, since a container is one
-        // row here and several devices there.
+    /// Whatever macOS has mounted from this disk: the drive's own device, and
+    /// any sibling partition of the same disk, since a container is one row
+    /// here and several devices there.
+    private func heldByMacOS(_ drive: Drive) -> [MountTableEntry] {
         let disk = DriveScanner.wholeDisk(of: drive.id)
-        let taken = MountTableEntry.all(in: mountTable())
+        return MountTableEntry.all(in: mountTable())
             .filter {
                 guard $0.source.hasPrefix("/dev/") else { return false }
                 let identifier = ($0.source as NSString).lastPathComponent
                 return identifier == drive.id || DriveScanner.wholeDisk(of: identifier) == disk
             }
-        guard !taken.isEmpty else {
-            // Nothing of it is mounted any more; the retry is the whole answer.
-            unlock(drive, readOnly: mountingReadOnly)
-            return
-        }
+    }
+
+    /// Ask macOS to let go of this disk, and say what stopped it if anything
+    /// did.
+    ///
+    /// Not forced. A volume macOS is still writing to is one somebody is using,
+    /// and taking it away mid-copy to open it here would cost the very thing
+    /// this app exists to protect. `diskutil unmount` flushes and refuses while
+    /// it is busy, and refusing is the right answer then.
+    private func takeFromMacOS(_ drive: Drive) -> String? {
+        let taken = heldByMacOS(drive)
+        guard !taken.isEmpty else { return nil }
         for entry in taken {
             let result = run("/usr/sbin/diskutil", ["unmount", entry.mountPoint])
             guard result?.ok == true else {
@@ -3210,15 +3297,22 @@ final class AppModel: ObservableObject {
                 Log.mount.error(
                     "could not take \(entry.source, privacy: .private) back from macOS: \(Diagnostics.scrubbed(why), privacy: .public)"
                 )
-                fail(
-                    drive,
-                    appString(
-                        "macOS would not let go of this drive. Close anything using it, then try again."
-                    ), why.isEmpty ? nil : Diagnostics.scrubbed(why))
-                return
+                return why.isEmpty ? "" : Diagnostics.scrubbed(why)
             }
         }
         Log.mount.notice("took \(taken.count, privacy: .public) volumes back from macOS")
+        return nil
+    }
+
+    func takeBackFromMacOSAndOpen(_ drive: Drive) {
+        if let why = takeFromMacOS(drive) {
+            fail(
+                drive,
+                appString(
+                    "macOS would not let go of this drive. Close anything using it, then try again."
+                ), why.isEmpty ? nil : why)
+            return
+        }
         unlock(drive, readOnly: mountingReadOnly)
     }
 

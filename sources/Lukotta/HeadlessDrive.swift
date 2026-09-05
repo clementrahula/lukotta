@@ -56,6 +56,7 @@
 
             var toOpen: String?
             var toEject: String?
+            var toIdentify: String?
             var passphrase: String?
             var readOnly = false
 
@@ -67,6 +68,7 @@
                 switch key {
                 case "open": toOpen = value
                 case "eject": toEject = value
+                case "identify": toIdentify = value
                 case "passphrase": passphrase = value
                 default: break
                 }
@@ -112,6 +114,21 @@
                     .filter(\.isEngineMount)
                 say("engine mounts after: \(after.count)")
                 exit(after.count < before.count ? 0 : 1)
+            }
+
+            // What every device node on this Mac really holds, beside what the
+            // app's own list makes of it.
+            //
+            // Two faults on 2026-09-05 that the list itself could not explain:
+            // two exFAT sticks shown as "BitLocker/NTFS", and an NTFS stick
+            // that appeared nowhere at all. Both decisions come from diskutil's
+            // partition type, which says Windows_NTFS for NTFS, exFAT and
+            // BitLocker alike, and says nothing usable about a stick carrying
+            // an Apple partition map. Only the first sector settles it, reading
+            // a device node needs root, and so the daemon is asked -- which is
+            // exactly how the window asks.
+            if toIdentify != nil || CommandLine.arguments.contains("identify") {
+                identifyEverything(only: toIdentify)
             }
 
             if let device = toEject { eject(device) }
@@ -220,7 +237,80 @@
         private static func find(_ device: String) -> Drive? {
             let identifier = (device as NSString).lastPathComponent
             let whole = DriveScanner.wholeDisk(of: identifier)
-            return DriveScanner.scan(images: [whole]).first { $0.devicePath == device }
+            let survey = DriveScanner.survey(images: [whole])
+            if let listed = survey.listed.first(where: { $0.devicePath == device }) {
+                return listed
+            }
+            // A volume whose partition type this app makes nothing of. The
+            // window offers these once the daemon has read their first sector,
+            // and the mount path reads it again anyway for a row that says it
+            // does not know its own kind -- so it is handed over as it stands.
+            // Without this the one route a harness has could not open a stick
+            // the window can.
+            return survey.unclaimed.first { $0.devicePath == device }
+        }
+
+        /// Every device node, what the daemon reads in its first sector, and
+        /// whether the app's list has it at all.
+        ///
+        /// Printed for all of them or for one, because the interesting node is
+        /// usually the one the list left out, and a listing of what the list
+        /// already knows cannot show that.
+        @MainActor
+        private static func identifyEverything(only wanted: String?) -> Never {
+            let nodes: [String]
+            if let wanted {
+                nodes = [wanted]
+            } else {
+                let all = (try? FileManager.default.contentsOfDirectory(atPath: "/dev")) ?? []
+                nodes =
+                    all
+                    .filter {
+                        $0.hasPrefix("disk")
+                            && $0.dropFirst(4).allSatisfy { $0.isNumber || $0 == "s" }
+                            && $0.count > 4
+                    }
+                    .sorted { left, right in
+                        left.compare(right, options: .numeric) == .orderedAscending
+                    }
+                    .map { "/dev/" + $0 }
+            }
+
+            let listed = Set(DriveScanner.scan(images: []).map(\.devicePath))
+            let helper = HelperClient()
+            if case .notInstalled = helper.state { helper.install() }
+            let ready = Date().addingTimeInterval(30)
+            while !helper.isReady, Date() < ready {
+                RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.2))
+            }
+            if !helper.isReady { say("the daemon never became ready; sectors will be unread") }
+
+            for node in nodes {
+                var answer: VolumeFormat?
+                if helper.isReady {
+                    Task { @MainActor in answer = await helper.identify(devicePath: node) }
+                    let by = Date().addingTimeInterval(15)
+                    while answer == nil, Date() < by {
+                        RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.1))
+                    }
+                }
+                // The bytes as well as the verdict: an unrecognised sector says
+                // nothing about why, and the first sixteen bytes name every
+                // format this app cares about.
+                let head =
+                    BootSector.read(devicePath: node)?
+                    .prefix(16).map { String(format: "%02x", $0) }.joined(separator: " ")
+                    ?? "not readable without the daemon"
+                let name = answer.map(\.rawValue) ?? "no answer"
+                // Written out rather than chosen with a ternary: two literals
+                // either side of a colon in an app file is how the string
+                // extractor recognises interface text, and these two are
+                // diagnostics on stderr that no window ever shows.
+                var inTheList = "NOT LISTED"
+                if listed.contains(node) { inTheList = "listed" }
+                say("\(node)  \(inTheList)  \(name)  [\(head)]")
+            }
+            exit(0)
         }
 
         /// What the window would have found for this drive.

@@ -194,6 +194,18 @@ public struct Drive: Identifiable, Hashable, Sendable {
     /// read the first sector.
     public let kindIsKnown: Bool
 
+    /// The same volume, once its first sector has been read.
+    ///
+    /// The kind follows the sector where the two disagree, by the rule in
+    /// `VolumeKind.settled`, and a volume whose sector named a format is no
+    /// longer one this app is guessing about.
+    public func knowing(_ format: VolumeFormat) -> Drive {
+        Drive(
+            id: id, devicePath: devicePath, name: name, sizeBytes: sizeBytes,
+            connection: connection, kind: VolumeKind.settled(kind, sectorSays: format),
+            uuid: uuid, kindIsKnown: format.kind != nil || kindIsKnown)
+    }
+
     public init(
         id: String, devicePath: String, name: String, sizeBytes: Int64,
         connection: String, kind: VolumeKind, uuid: String, kindIsKnown: Bool = true
@@ -267,21 +279,44 @@ public enum DriveScanner {
     /// LUKOTTA_INCLUDE_IMAGES=1 lets them all in, which is how the interface is
     /// exercised with several drives without owning several drives.
     public static func scan(images: Set<String> = []) -> [Drive] {
+        survey(images: images).listed
+    }
+
+    /// The list, and the volumes the partition types alone would throw away.
+    ///
+    /// A partition type is a claim about a volume, and on a USB stick it is
+    /// often a stale one. An NTFS stick that had once been formatted on a Mac
+    /// came back as an Apple partition map holding Apple_HFS, and its one
+    /// volume -- exFAT, by its own first sector -- was dropped before anything
+    /// looked at it: the app reported no drive at all for a stick plugged into
+    /// the machine. Nothing here can read that sector, since a device node
+    /// belongs to root, so the leftovers are handed back rather than discarded
+    /// and whoever can read them decides.
+    ///
+    /// Both halves come out of one reading of the table. A second `diskutil
+    /// list` would be a second answer, and two answers about the same machine
+    /// taken a moment apart is how a drive ends up in neither.
+    public static func survey(images: Set<String> = []) -> (listed: [Drive], unclaimed: [Drive]) {
         let all = ProcessInfo.processInfo.environment["LUKOTTA_INCLUDE_IMAGES"] == "1"
         var argv = ["/usr/sbin/diskutil", "list", "-plist"]
         if !all && images.isEmpty { argv.append("physical") }
-        guard let plist = runPlist(argv) else { return [] }
-        let found = drives(inList: plist, info: { info(for: $0) ?? [:] })
-        guard !all, !images.isEmpty else { return found }
+        guard let plist = runPlist(argv) else { return ([], []) }
+        let ask: (String) -> [String: Any] = { info(for: $0) ?? [:] }
+        let found = drives(inList: plist, info: ask)
+        let leftovers = unclaimedVolumes(inList: plist, info: ask)
+        guard !all, !images.isEmpty else { return (found, leftovers) }
         // Everything came back, so the images nobody asked about go now. A
         // partition of disk6 belongs to disk6.
         let physical = Set(
             (runPlist(["/usr/sbin/diskutil", "list", "-plist", "physical"])?["WholeDisks"]
                 as? [String]) ?? [])
-        return found.filter { drive in
-            let whole = wholeDisk(of: drive.id)
-            return physical.contains(whole) || images.contains(whole)
+        let mine: ([Drive]) -> [Drive] = { rows in
+            rows.filter { drive in
+                let whole = wholeDisk(of: drive.id)
+                return physical.contains(whole) || images.contains(whole)
+            }
         }
+        return (mine(found), mine(leftovers))
     }
 
     /// A name for a volume whose partition table carries no UUID.
@@ -323,6 +358,28 @@ public enum DriveScanner {
     public static func drives(
         inList plist: [String: Any],
         info: (String) -> [String: Any]
+    ) -> [Drive] {
+        rows(inList: plist, info: info, claimed: true)
+    }
+
+    /// The volumes the partition types dropped: external, not a whole disk, and
+    /// of a type this app makes nothing of.
+    ///
+    /// Provisional, every one of them -- an EFI partition and an APFS container
+    /// come out of here too. They are worth a row only if their first sector
+    /// names a format the app opens, and that reading needs root, so these are
+    /// candidates handed to whoever can read them and not drives yet.
+    public static func unclaimedVolumes(
+        inList plist: [String: Any],
+        info: (String) -> [String: Any]
+    ) -> [Drive] {
+        rows(inList: plist, info: info, claimed: false)
+    }
+
+    private static func rows(
+        inList plist: [String: Any],
+        info: (String) -> [String: Any],
+        claimed: Bool
     ) -> [Drive] {
         guard let allDisks = plist["AllDisksAndPartitions"] as? [[String: Any]] else { return [] }
 
@@ -374,8 +431,20 @@ public enum DriveScanner {
                 // An unpartitioned disk has no type to go by. Linux, because a
                 // whole disk handed to cryptsetup is what makes one, and the
                 // probe corrects it either way.
-                guard let kind = isWholeDisk ? VolumeKind.linux : VolumeKind.holding(content)
-                else { continue }
+                let declared = isWholeDisk ? VolumeKind.linux : VolumeKind.holding(content)
+                let kind: VolumeKind
+                if claimed {
+                    guard let declared else { continue }
+                    kind = declared
+                } else {
+                    // The leftovers: a partition on an external disk whose type
+                    // this app makes nothing of. Called Linux the way an
+                    // unpartitioned disk is -- a neutral guess the first sector
+                    // overrules -- and marked as telling us nothing, so no row
+                    // claims a format nobody has read.
+                    guard declared == nil, !isWholeDisk, !internalDisk else { continue }
+                    kind = .linux
+                }
 
                 let partInfo = info(ident)
                 let size =
@@ -442,7 +511,7 @@ public enum DriveScanner {
                         connection: connection.joined(separator: " · "),
                         kind: kind,
                         uuid: uuid,
-                        kindIsKnown: !isWholeDisk))
+                        kindIsKnown: claimed && !isWholeDisk))
             }
         }
         return drives

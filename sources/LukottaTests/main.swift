@@ -1654,6 +1654,80 @@ group("aSynthesisedContainerIsNotAContainerFile") {
     expect(rows.allSatisfy { $0.drive == nil }, "so neither is offered as a drive to open")
 }
 
+group("aStalePartitionTypeDoesNotHideADrive") {
+    // A stick formatted exFAT on Windows, years after somebody partitioned it
+    // on a Mac, still declares an Apple partition map holding Apple_HFS. Every
+    // volume on it was dropped before anything read one, and the app showed no
+    // drive for a stick that was plugged into the machine -- measured on
+    // 2026-09-05, when the daemon read exFAT out of the first sector of a
+    // volume the list did not have.
+    let stale: [String: Any] = [
+        "AllDisksAndPartitions": [
+            [
+                "DeviceIdentifier": "disk6",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk6s1", "Content": "Apple_partition_map",
+                        "Size": NSNumber(value: 4096),
+                    ],
+                    [
+                        "DeviceIdentifier": "disk6s2", "Content": "Apple_HFS",
+                        "Size": NSNumber(value: 4_063_232),
+                    ],
+                ],
+            ]
+        ]
+    ]
+    let external: (String) -> [String: Any] = { _ in
+        ["BusProtocol": "USB", "Internal": false]
+    }
+    expect(
+        DriveScanner.drives(inList: stale, info: external).isEmpty,
+        "no partition type on it says anything this app opens")
+    let leftovers = DriveScanner.unclaimedVolumes(inList: stale, info: external)
+    expect(leftovers.count == 2, "so both volumes are kept as candidates instead")
+    expect(
+        leftovers.allSatisfy { !$0.kindIsKnown },
+        "and neither claims to know what it holds")
+
+    // What the daemon's reading then makes of them: the one that answers
+    // becomes a row, the one that does not is left where it was.
+    let admitted = leftovers.first { $0.devicePath == "/dev/disk6s2" }?.knowing(.exfat)
+    expect(admitted?.kind == .microsoft, "an exFAT volume is a Microsoft one")
+    expect(admitted?.kindIsKnown == true, "and a volume that has been read is no longer a guess")
+    expect(
+        leftovers.first?.knowing(.unknown).kindIsKnown == false,
+        "a sector that says nothing leaves the row saying nothing")
+
+    // Nothing changes for a disk whose types are already understood, and the
+    // internal disk is not offered whatever it carries.
+    let ordinary: [String: Any] = [
+        "AllDisksAndPartitions": [
+            [
+                "DeviceIdentifier": "disk4",
+                "Partitions": [
+                    [
+                        "DeviceIdentifier": "disk4s1", "Content": "Windows_NTFS",
+                        "Size": NSNumber(value: 64_000_000_000),
+                    ]
+                ],
+            ]
+        ]
+    ]
+    expect(
+        DriveScanner.drives(inList: ordinary, info: external).count == 1,
+        "a typed volume is listed as it always was")
+    expect(
+        DriveScanner.unclaimedVolumes(inList: ordinary, info: external).isEmpty,
+        "and is not offered twice")
+    let inside: (String) -> [String: Any] = { _ in
+        ["BusProtocol": "Apple Fabric", "Internal": true]
+    }
+    expect(
+        DriveScanner.unclaimedVolumes(inList: stale, info: inside).isEmpty,
+        "the disk inside the Mac is nobody's candidate")
+}
+
 group("aRowSaysOnlyWhatIsKnownAboutIt") {
     // A partition type is worth two possibilities and the row says both. A disk
     // with no partition table has no type at all -- a stick somebody ran

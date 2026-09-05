@@ -168,7 +168,16 @@ if ! mkdir -p "$MOUNT/$WITNESS" 2>"$WORK/mkdir.err"; then
   say "nothing was written, so there is nothing to say about durability"
   exit 2
 fi
-if ! dd if=/dev/urandom of="$MOUNT/$WITNESS/witness.bin" \
+# The bytes are kept, not only their digest.
+#
+# "present but changed" is four different faults wearing one sentence: the tail
+# never landed, scattered blocks never landed, the blocks landed as zeros, or
+# something else is in them. A digest cannot tell them apart, and the first real
+# failure on a drive -- 2026-09-05, 8 MiB present and the digest wrong -- had
+# nothing to say beyond that it differed. Eight megabytes on disk here buys the
+# shape of the damage, which is the whole diagnosis.
+dd if=/dev/urandom of="$WORK/witness.src" bs=1048576 count="$MB" status=none
+if ! dd if="$WORK/witness.src" of="$MOUNT/$WITNESS/witness.bin" \
      bs=1048576 count="$MB" conv=fsync status=none 2>"$WORK/dd.err"; then
   say "the write itself failed: $(head -1 "$WORK/dd.err")"
   say "nothing was committed, so there is nothing to say about durability"
@@ -224,6 +233,23 @@ if [ "$GOT" = "$WANT" ]; then
   say "RESULT: survived, byte-identical ($SIZE bytes)"
 else
   say "RESULT: present but changed — $SIZE bytes, sha256 ${GOT:0:16}… wanted ${WANT:0:16}…"
+  # What shape the damage has. Told in bytes, offsets and block alignment,
+  # because "changed" alone cannot separate a lost tail from lost blocks in the
+  # middle, nor either of those from blocks that arrived as zeros.
+  cmp -l "$WORK/witness.src" "$MOUNT/$WITNESS/witness.bin" > "$WORK/diff.txt" 2>/dev/null
+  awk '
+    { n++; if (!first) first = $1; last = $1; if ($3 == "0") zero++ }
+    END {
+      if (!n) { print "      every byte matches, so the difference is not in the data"; exit }
+      printf "      %d of %d bytes differ (%.1f%%)\n", n, '"$((MB * 1048576))"', n * 100 / '"$((MB * 1048576))"'
+      printf "      first at offset %d, last at offset %d\n", first - 1, last - 1
+      printf "      %d of them read back as zero\n", zero + 0
+      printf "      first difference is %d bytes into a 4096-byte block\n", (first - 1) % 4096
+      printf "      the damage begins %.1f%% of the way through the file\n", (first - 1) * 100 / '"$((MB * 1048576))"'
+    }' "$WORK/diff.txt"
+  # The drive does not keep this run's wreckage: a folder left behind is one
+  # more name the next run has to work around, and this one is the owner's.
+  rm -rf "${MOUNT:?}/${WITNESS:?}" 2>/dev/null
   exit 1
 fi
 
