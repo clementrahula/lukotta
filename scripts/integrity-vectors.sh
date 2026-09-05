@@ -504,7 +504,15 @@ echo "opening $IMAGE"
 # fixture of seven that failed, and nothing left to say why.
 open_image || {
   echo "error: the engine never mounted it. Its last words:" >&2
-  sed 's/^/       /' "$WORK/engine.log" 2>/dev/null | tail -12 >&2
+  # Whichever log this route wrote. THROUGH_APP=1 drives the app and its output
+  # goes to app.log; the engine's own route writes engine.log. Naming only the
+  # second printed nothing at all for the case that actually failed -- an empty
+  # "Its last words:" under a fixture whose reason was sitting in the other file.
+  for said in "$WORK/app.log" "$WORK/engine.log"; do
+    [ -s "$said" ] || continue
+    echo "       from $(basename "$said"):" >&2
+    sed 's/^/       /' "$said" 2>/dev/null | tail -12 >&2
+  done
   exit 1
 }
 VOL="$(where)"

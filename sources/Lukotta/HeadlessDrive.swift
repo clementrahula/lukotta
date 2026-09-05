@@ -365,6 +365,11 @@
                 (try? workspace.makeDeviceAlias(named: drive.name, target: drive.devicePath))?
                 .path
 
+            // Counted before the mount is asked for, so the comparison after it
+            // is about this open and not about whatever else is already served.
+            let servedBefore = MountTableEntry.all(in: LukottaCore.mountTable())
+                .filter(\.isEngineMount).count
+
             var answer: (status: Int32, transcript: String)??
             Task { @MainActor in
                 answer = await helper.mount(
@@ -418,9 +423,39 @@
             // Asked of the mount table rather than of the transcript, because
             // the question is whether anything is actually being served -- and
             // that is the same question wherever the failure came from.
-            let serving = MountTableEntry.all(in: LukottaCore.mountTable()).contains {
-                $0.isEngineMount && isThisDrive($0, drive.devicePath)
-            }
+            // Anything new in the table, rather than a guess at its name.
+            //
+            // This matched "diskNsM." at the front of the share, or the device
+            // inside the export path. Both are real shapes and neither is all of
+            // them: a container holding one logical volume comes up as
+            // "lvm-<group>.local:/mnt/<LABEL>", which names the volume group and
+            // the label and mentions the device nowhere. So this reported
+            // "nothing is served" for a drive that was serving perfectly, and
+            // failed luks2-lvm in a gate on 2026-09-05 -- a fault of this check,
+            // dressed as a fault of the app.
+            //
+            // Counted instead: what the engine was serving before the mount, and
+            // what it is serving after. Something new is something served, and it
+            // needs no opinion about how the engine names things.
+            // Given a moment to appear, because it does not appear at once.
+            //
+            // The mount script exiting is not the mount being in the table: the
+            // share is registered a beat later, and for a container of logical
+            // volumes later still. Asked immediately, this said "nothing is
+            // served" about an open that served perfectly -- exit 75 with the
+            // volume sitting in `mount` a second afterwards. Ten seconds is far
+            // longer than it takes and costs nothing when the answer is yes,
+            // which is the usual case and returns on the first look.
+            var serving = false
+            let appears = Date().addingTimeInterval(10)
+            repeat {
+                let servedNow = MountTableEntry.all(in: LukottaCore.mountTable())
+                    .filter(\.isEngineMount)
+                    .count
+                serving = servedNow > servedBefore
+                if serving { break }
+                RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.5))
+            } while Date() < appears
             if outcome.status == 0 && serving {
                 // Written down, the way the window writes it down.
                 //
@@ -433,15 +468,20 @@
                 // at all. Measured on 2026-09-05: the record empty, a dead mount
                 // sitting for three minutes, the helper's timer firing over it
                 // and finding nothing it was allowed to touch.
-                for entry in MountTableEntry.all(in: LukottaCore.mountTable())
-                where entry.isEngineMount && isThisDrive(entry, drive.devicePath) {
-                    OpenedHere.add(entry.mountPoint)
-                }
+                for point in servedBy(drive.devicePath) { OpenedHere.add(point) }
                 say("opened \(drive.name)")
                 exit(0)
             }
             if outcome.status == 0 {
-                say("the drive did not open: the mount finished but nothing is served")
+                // The numbers, not just the verdict. A count that disagrees with
+                // the mount table is the kind of thing that costs an afternoon
+                // when the message only says "nothing is served".
+                let now = MountTableEntry.all(in: LukottaCore.mountTable())
+                    .filter(\.isEngineMount)
+                say(
+                    "the drive did not open: the mount finished but nothing is served"
+                        + " (engine mounts before \(servedBefore), now \(now.count))")
+                for entry in now { say("  serving \(entry.mountPoint) from \(entry.source)") }
                 exit(75)
             }
             say("the drive did not open (status \(outcome.status))")
@@ -456,9 +496,42 @@
         /// and the device is still in the export path, which is what the second
         /// half matches. Matching only the first missed every logical volume of
         /// a LUKS or LVM drive.
-        private static func isThisDrive(_ entry: MountTableEntry, _ devicePath: String) -> Bool {
+        /// The mount points this device is serving.
+        ///
+        /// The engine is asked first, because it is the only thing that knows:
+        /// it reports each mount with the device it came from. Matching the
+        /// share's name instead was tried and is not enough -- "diskNsM." at the
+        /// front covers a plain volume and "/run/diskNsM/" covers a container of
+        /// several, but a container holding one logical volume comes up as
+        /// "lvm-<group>.local:/mnt/<LABEL>", which names the group and the label
+        /// and mentions the device nowhere. That shape made eject find nothing
+        /// and made an open report that it had served nothing, on a drive that
+        /// was serving perfectly.
+        ///
+        /// The name match is kept behind it for the case the engine cannot
+        /// answer -- it is asked over a socket, and the thing it is being asked
+        /// about is sometimes a machine that has just died.
+        private static func servedBy(_ devicePath: String) -> [String] {
+            // Matched on the device itself. A Drive cannot be conjured from a
+            // path -- it carries an id, a name, a size and more -- and none of
+            // that is needed to ask which mounts came from this node. The engine
+            // reports the device each mount came from; a partition of the drive
+            // counts as the drive, which is what opening /dev/diskN and being
+            // served /dev/diskNsM means.
             let node = (devicePath as NSString).lastPathComponent
-            return entry.source.hasPrefix("\(node).") || entry.source.contains("/run/\(node)/")
+            let reported = EngineStatus.current()
+                .filter {
+                    let theirs = ($0.devicePath as NSString).lastPathComponent
+                    return theirs == node || theirs.hasPrefix(node + "s") || node.hasPrefix(theirs)
+                }
+                .map(\.mountPoint)
+            if !reported.isEmpty { return reported }
+            return MountTableEntry.all(in: LukottaCore.mountTable())
+                .filter {
+                    $0.isEngineMount
+                        && ($0.source.hasPrefix("\(node).") || $0.source.contains("/run/\(node)/"))
+                }
+                .map(\.mountPoint)
         }
 
         /// Close whatever this device is serving.
@@ -494,9 +567,8 @@
             // EngineStatus for the volumes nested under the drive's own mount --
             // and this is the same set by a different road.
             let table = LukottaCore.mountTable()
-            let mine = MountTableEntry.all(in: table).filter {
-                $0.isEngineMount && isThisDrive($0, device)
-            }
+            let points = Set(servedBy(device))
+            let mine = MountTableEntry.all(in: table).filter { points.contains($0.mountPoint) }
             if mine.isEmpty {
                 say("nothing of \(device)'s is mounted")
                 return
