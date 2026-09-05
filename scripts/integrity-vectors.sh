@@ -496,7 +496,17 @@ payload() {  # directory, count, size-bytes
 }
 
 echo "opening $IMAGE"
-open_image || { echo "error: the engine never mounted it; see $WORK/engine.log" >&2; exit 1; }
+# The engine's own last words, not a path to them.
+#
+# This said "see $WORK/engine.log", and $WORK is removed by this script's own
+# trap -- and by the next run's sweep if this one is killed. The file was always
+# gone by the time anybody looked. Measured on 2026-09-05: luks2-lvm the one
+# fixture of seven that failed, and nothing left to say why.
+open_image || {
+  echo "error: the engine never mounted it. Its last words:" >&2
+  sed 's/^/       /' "$WORK/engine.log" 2>/dev/null | tail -12 >&2
+  exit 1
+}
 VOL="$(where)"
 [ -n "$VOL" ] || { echo "error: mounted, but nowhere findable" >&2; exit 1; }
 echo "mounted at $VOL"
