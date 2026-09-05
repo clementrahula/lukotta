@@ -137,7 +137,15 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 
 CORPUS="${1:-}"
 LIMIT="${2:-0}"
-ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Dev.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+# The same default as every other harness here, and for the same reason.
+#
+# This named the Dev build, which on this Mac is not compiled with devtools and
+# has no --drive. Run without LUKOTTA_ENGINE set it drove that app anyway and
+# hung: thirteen minutes on `--drive actions` with nothing printed, no timeout on
+# the call, and eighty-three images still to go. verify.sh resolves an app that
+# answers to --drive and exports it, which is the real fix; this is so a run
+# started by hand agrees with a run started by the gate.
+ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 [ -x "$ENGINE" ] || { echo "error: no engine at $ENGINE" >&2; exit 2; }
 APP_BUNDLE="${ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 APP_ID="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' \
@@ -173,7 +181,16 @@ where() {
 APP="$APP_BUNDLE/Contents/MacOS/$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' \
   "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null)"
 CFG="$ANYLINUXFS_HOME/.anylinuxfs/config.toml"
-if [ -x "$APP" ] && LUKOTTA_DEVTOOLS=1 "$APP" --drive actions > "$WORK/actions.toml" 2>/dev/null \
+# Bounded, and refused rather than hung.
+#
+# This call had no timeout. Pointed at a build without devtools it does not
+# answer and does not exit: measured at thirteen minutes with nothing printed
+# and eighty-three images still to come, on a run that looked like it was
+# working. An unbounded call to something that can hang is not a step, it is a
+# place a run goes to stop.
+if [ -x "$APP" ] &&
+   [ "$(strings -a "$APP" 2>/dev/null | /usr/bin/grep -c -- "--drive")" -gt 0 ] &&
+   timeout 120 env LUKOTTA_DEVTOOLS=1 "$APP" --drive actions > "$WORK/actions.toml" 2>/dev/null \
    && [ -s "$WORK/actions.toml" ]; then
   /usr/bin/python3 - "$CFG" "$WORK/actions.toml" <<'PY'
 import sys, pathlib, re
