@@ -337,17 +337,21 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
         reply(true)
         // Long enough for the reply to reach the app. launchd starts the new
         // binary the next time anything asks for the service.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            // launchd holds the job as it was loaded, so a rewritten plist is
-            // read only after the job is taken out and put back. Booting out
-            // ends this process, which is what was about to happen anyway.
-            guard jobChanged else { exit(0) }
-            let label = "system/\(HelperInfo.machServiceName)"
-            _ = LukottaCore.run("/bin/launchctl", ["bootout", label], timeout: 20)
-            _ = LukottaCore.run(
-                "/bin/launchctl", ["bootstrap", "system", HelperInfo.installedJobPath],
-                timeout: 20)
-        }
+        // Not booted out and back in from in here.
+        //
+        // That was written first, on the reasoning that launchd holds a job as
+        // it was loaded and will not re-read a rewritten file. The reasoning is
+        // right and the remedy was wrong: `bootout` took the service away and
+        // the `bootstrap` after it failed, leaving this Mac with no daemon at
+        // all and an app that could not put it back -- "Could not find service
+        // com.lukotta.beta.helper in domain for system". Measured, on 2026-09-05,
+        // by doing it.
+        //
+        // The new definition is on disk for whoever loads the job next, and the
+        // app owns registering the service. Taking the daemon down is not this
+        // process's decision to make about itself.
+        _ = jobChanged
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { exit(0) }
     }
 
     private func isTrusted(_ connection: NSXPCConnection) -> Bool {
