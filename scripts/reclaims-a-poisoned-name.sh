@@ -128,11 +128,24 @@ echo "  root: $(find "$POINT" -maxdepth 1 -mindepth 1 -exec basename {} \; 2>&1 
 # asked, below, and the only thing required here is that the reclaim did
 # something rather than nothing.
 fail=0
-# Moved aside rather than destroyed, and hidden rather than left to be wondered
-# about. Both matter: a repair that deletes somebody's folder is not a repair.
-if ! find "$POINT" -maxdepth 1 -name '.lukotta-unreadable-*' 2>/dev/null \
-  | /usr/bin/grep -q .; then
-  echo "nothing was moved aside; what was there may have been destroyed" >&2
+# Not destroyed. Which remedy did it is not the claim.
+#
+# This required a `.lukotta-unreadable-*` entry, because moving the name aside
+# was the only remedy there was. The app now checks the volume before mounting
+# it and ntfsck repairs the directory, so there is nothing left to move aside --
+# the folder is simply there, with anything the repair could not place in
+# lost+found. Measured on 2026-09-05: root held `big` and `lost+found`, twenty
+# files written into the name and twenty read back, and this called it a
+# failure because one particular remedy had not been used.
+#
+# So the two things that matter are asked for instead: something was done, and
+# nothing was thrown away. A moved-aside entry says so; so does a repair, which
+# leaves its transcript and puts what it could not place in lost+found.
+if ! find "$POINT" -maxdepth 1 \
+    \( -name '.lukotta-unreadable-*' -o -name '.lukotta-check.log' -o -name 'lost+found' \) \
+    2>/dev/null | /usr/bin/grep -q .; then
+  echo "nothing was moved aside and nothing was repaired;" >&2
+  echo "what was there may have been destroyed" >&2
   fail=1
 fi
 

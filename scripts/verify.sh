@@ -33,6 +33,11 @@ ID="${ID:-}"
 LIST="${CHECKS:-scripts/checks.tsv}"
 [ -f "$LIST" ] || { echo "error: no $LIST" >&2; exit 2; }
 
+# One file per row, under the tree, so a failure can still be read after the
+# run. Cleared at the start rather than at the end: the logs of the run you
+# just did are the ones worth having.
+LOGDIR=".verify-logs"
+rm -rf "$LOGDIR"; mkdir -p "$LOGDIR"
 LOG="$(mktemp)"; TALLY="$(mktemp)"
 trap 'rm -f "$LOG" "$TALLY"' EXIT
 
@@ -49,6 +54,63 @@ trap 'rm -f "$LOG" "$TALLY"' EXIT
 # than not running at all.
 fingerprint() { find scripts .claude -type f -newermt "@0" -exec ls -l {} + 2>/dev/null | cksum; }
 BEFORE="$(fingerprint)"
+
+# The app the checks drive, chosen because it can be driven.
+#
+# Several rows pass "$LUKOTTA_ENGINE" and nothing ever set it, so it expanded to
+# nothing and each harness fell back to its own default -- a path naming an app
+# by name and hoping. On 2026-09-05 that default was a Dev build compiled
+# without devtools, five Lukotta bundles were installed, and goal4 failed with
+# "has no --drive" against an app nobody had asked it to use.
+#
+# So it is resolved once, here, by the only property that matters: the binary
+# answers to --drive. Newest first, because that is the one just built.
+#
+# grep -c rather than -q: under pipefail a -q match exits at once, strings dies
+# of SIGPIPE, and the test rejects every bundle that is fine.
+if [ -z "${LUKOTTA_ENGINE:-}" ]; then
+  for bundle in $(/bin/ls -td /Applications/*.app 2>/dev/null); do
+    binary="$bundle/Contents/MacOS/$(basename "$bundle" .app)"
+    engine="$bundle/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs"
+    [ -x "$binary" ] && [ -x "$engine" ] || continue
+    [ "$(strings -a "$binary" 2>/dev/null | /usr/bin/grep -c -- "--drive")" -gt 0 ] || continue
+    LUKOTTA_ENGINE="$engine"; break
+  done
+  export LUKOTTA_ENGINE
+fi
+if [ -z "${LUKOTTA_ENGINE:-}" ]; then
+  echo "no installed app answers to --drive; build one:" >&2
+  echo "  LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
+  exit 2
+fi
+echo "driving ${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+
+# And whether that app was built from these sources.
+#
+# Every check that opens a drive runs whatever is installed in /Applications,
+# and nothing here said whether that was built from the tree it is being taken
+# as evidence about. On 2026-09-05 a full run spent twenty-five minutes
+# measuring a build from before a revert: the numbers described code that no
+# longer existed, and the run had no way to say so. It reads as a clean answer
+# about the work in front of you, which is the same shape as every other
+# instrument that has lied here.
+#
+# Noticed at the end rather than refused at the start, for the same reason as
+# the fingerprint above: a run that took half an hour should say what it
+# learned and then say what it was measuring, not throw both away.
+STALE_BUILD=""
+_bundle="${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+_binary="$_bundle/Contents/MacOS/$(basename "$_bundle" .app)"
+# The tests are excluded on purpose. They are not compiled into the app, so
+# editing one cannot make the installed bundle describe different behaviour --
+# and a guard that fires on them would cry stale after every test written
+# during a run, which is how a true guard gets switched off.
+if [ -x "$_binary" ] && [ -n "$(find sources resources -type f \
+     -newer "$_binary" -not -path 'sources/LukottaTests/*' -print 2>/dev/null | head -1)" ]; then
+  STALE_BUILD="$_bundle"
+fi
+
+echo
 
 printf '%-10s %-52s %s\n' claim what result
 echo
@@ -112,6 +174,7 @@ while IFS=$'\t' read -r id tags speed claim cmd <&3; do
     fast) bound="${FAST_TIMEOUT:-300}" ;;
     long) bound="${LONG_TIMEOUT:-5400}" ;;
   esac
+  LOG="$LOGDIR/$id.log"
   if timeout "$bound" bash -c "$cmd" > "$LOG" 2>&1 < /dev/null; then
     printf 'holds\n'; echo passed >> "$TALLY"
   else
@@ -124,6 +187,7 @@ while IFS=$'\t' read -r id tags speed claim cmd <&3; do
     echo failed >> "$TALLY"
     echo "      the check was: $cmd"
     sed 's/^/      /' "$LOG" | tail -8
+    echo "      all of it: $LOGDIR/$id.log"
   fi
 done 3< "$LIST"
 
@@ -132,6 +196,16 @@ passed=$(tally passed); failed=$(tally failed)
 unchecked=$(tally unchecked); skipped=$(tally skipped)
 
 echo
+if [ -n "${STALE_BUILD:-}" ]; then
+  echo "$STALE_BUILD is older than the sources, so this measured code that is"
+  echo "no longer in the tree; rebuild and run it again." >&2
+  echo "  LUKOTTA_BRANDING=beta LUKOTTA_DEVTOOLS=1 ./build-app.sh" >&2
+  # And installed. build-app.sh writes into dist/ and stops there; every check
+  # here drives what is in /Applications. Saying only the first half is how a
+  # run came back green about a build that was never replaced.
+  echo "  ditto \"dist/$(basename "$STALE_BUILD")\" \"$STALE_BUILD\"" >&2
+  exit 2
+fi
 if [ "$(fingerprint)" != "$BEFORE" ]; then
   echo "the checks were edited while this ran, so this result means nothing;"
   echo "run it again on a settled tree." >&2

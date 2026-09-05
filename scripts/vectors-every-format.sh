@@ -42,11 +42,12 @@ ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engi
 # What still has no fixture: FAT, and BitLocker, which nothing on macOS or
 # Linux can create. BitLocker rests on the owner's own drive and item 4 says so.
 FIXTURES="${FIXTURES:-ntfs-vectors ext4-vectors btrfs-vectors exfat-vectors \
-luks-ext4 luks-xfs plain-xfs plain-ext4 plain-exfat plain-fat luks1-lvm \
+luks-ext4 luks-xfs plain-xfs plain-ext4 plain-ext3 plain-ext2 plain-exfat plain-fat luks1-lvm \
 luks2-direct luks2-lvm luks-lvm-big luks-multi}"
 PASSPHRASE="${LUKOTTA_PASSPHRASE:-lukotta-test-pass}"
 
 ran=0; failed=0; missing=""
+failed_names=""
 for name in $FIXTURES; do
   image="$OUT/$name.img"
   if [ ! -f "$image" ]; then
@@ -73,10 +74,11 @@ for name in $FIXTURES; do
     bash "${LUKOTTA_VECTORS:-$HERE/scripts/integrity-vectors.sh}" "$image" "$ENGINE"
   status=$?
   ran=$((ran + 1))
-  [ "$status" -eq 0 ] || failed=$((failed + 1))
+  [ "$status" -eq 0 ] || { failed=$((failed + 1)); failed_names="$failed_names $name"; }
 done
 
 printf '\n===== every format =====\n'
 printf '%s formats run, %s with failures\n' "$ran" "$failed"
+[ -n "$failed_names" ] && printf 'failed:%s\n' "$failed_names"
 [ -n "$missing" ] && printf 'no fixture for:%s\n' "$missing" >&2
 [ "$failed" -eq 0 ] && [ -z "$missing" ]

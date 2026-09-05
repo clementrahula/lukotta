@@ -100,7 +100,13 @@
 set -uo pipefail
 
 IMAGE="${1:-}"
-ENGINE="${2:-/Applications/Lukotta Dev.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+# The same default as vectors-every-format.sh, which calls this. They
+# disagreed: that one named the Beta build and this one a Dev build, and a
+# Dev build is not compiled with devtools unless somebody asks -- so a run
+# started directly here drove an app with no --drive and stopped before it
+# opened anything. verify.sh now resolves an app that answers to --drive and
+# passes it, which is the real fix; this is so the two agree when nobody does.
+ENGINE="${2:-/Applications/Lukotta Beta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 
 # A real drive, given as /dev/diskNsM, instead of an image.
 #
@@ -237,7 +243,42 @@ where() {
   # choice, and on luks1-lvm it picked one with 139 MB free where the vectors
   # want 200 -- reported as a volume too small when a roomier one was mounted
   # beside it the whole time.
-  local candidates best bestfree free
+  # And the same one every time after that.
+  #
+  # Roomiest is the right way to choose once and the wrong way to choose twice.
+  # This is called again after every reopen -- power loss, unmount under load,
+  # repeated mount cycles -- and luks-multi has three logical volumes of equal
+  # size whose data is cleared between vectors, so all three sit at the same
+  # free space and the winner is settled by `-gt` keeping whichever the mount
+  # table listed first. That order is not stable across a reopen.
+  #
+  # So the harness could write eight fsynced files into one volume, kill the
+  # machine, reopen, and read a different one. An empty volume reads exactly
+  # like total loss, and it was reported as one:
+  #
+  #     FAIL every fsynced file survived power loss (0 of 8, 8 lost)
+  #     note 0 of 30 in-flight files came back at full length
+  #
+  # Absent rather than truncated, on multi-volume fixtures only, about one run
+  # in eight -- the shape of a coin toss rather than of a filesystem. The name
+  # is remembered in a file because this runs in a subshell, so an assignment
+  # here would not outlive the call that made it.
+  local candidates best bestfree free source kept
+  kept="${CHOSEN_VOLUME:-$WORK/.chosen-volume}"
+  # Remembered by the volume's own name, not by the whole share string. That
+  # string carries the device -- lvm-fedoravg.local:/run/disk5s1/FEDORAHOME --
+  # and hdiutil does not promise the same disk number on the next attach, so
+  # keying on the whole thing would fail to find a volume that is sitting right
+  # there and report the engine as never having mounted it.
+  if [ -s "$kept" ]; then
+    source="$(cat "$kept")"
+    point="$(mount | awk -v s="/$source" \
+      '$1 ~ /^lvm-[^ ]*\.local:/ && substr($1, length($1) - length(s) + 1) == s {
+         for(i=1;i<=NF;i++) if($i=="on") {print $(i+1); exit}}')"
+    [ -n "$point" ] && { printf '%s\n' "$point"; return; }
+    # Gone from the table: the container was reopened and the volume is not
+    # back. Say nothing rather than quietly reading a different one.
+  fi
   candidates="$(mount | awk '$1 ~ /^lvm-[^ ]*\.local:/ {
                   for (i = 1; i <= NF; i++) if ($i == "on") print $(i + 1)
                 }')"
@@ -247,7 +288,11 @@ where() {
     [ -n "${free:-}" ] || continue
     if [ "$free" -gt "$bestfree" ]; then bestfree="$free"; best="$point"; fi
   done
-  [ -n "$best" ] && printf '%s\n' "$best"
+  if [ -n "$best" ]; then
+    mount | awk -v p="$best" '{for(i=1;i<=NF;i++) if($i=="on" && $(i+1)==p) {print $1; exit}}' \
+      | sed 's|.*/||' > "$kept" 2>/dev/null
+    printf '%s\n' "$best"
+  fi
 }
 
 open_image() {
