@@ -208,6 +208,14 @@ the sweep; both guards ask the mount table rather than asking the engine that ma
 be the very thing that died; and the helper forces an unmount the engine's own
 could not.
 
+**What stops this taking a live drive from somebody.** Two things, and both are
+needed. The sweep does nothing at all while any microVM is running -- a drive
+that has merely gone slow still has its engine, so it is never a candidate; one
+was measured silent for fifteen minutes and came back serving perfectly. And
+past that guard the probe still asks six times over a minute before calling a
+mount dead. Neither half should be removed without the other being made
+stronger: forcing a mount down takes whatever was being written to it.
+
 **What this does not cover.** A mount whose engine has died, which is this. A
 mount that is merely slow is the stall work, items 1 to 3, measured by
 writing-does-not-stall.sh.
