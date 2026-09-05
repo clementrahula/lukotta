@@ -131,13 +131,13 @@ prose and registered in no table, so nothing re-checked it -- and the first
 attempt to run it reached no image at all, because its default named a build
 with no `--drive` and the call asking that build for its actions had no timeout.
 
-## The window nobody may ever see, and what actually stops it — 2026-09-05
+## The window nobody may ever see, and what was actually wrong — 2026-09-05
 
 The owner was shown "Server connections interrupted", naming disk5s1 and
 offering Disconnect All. It came from mounts whose engine this session had
-killed with -9 and which nothing then took away. Cleared, and the instruction
-was stronger than the incident: that window must never appear, even if a copy
-stalls for a moment.
+killed with -9 and which nothing then took away. The instruction was stronger
+than the incident: that window must never appear, even if a copy stalls for a
+moment.
 
 **There is no mount option for it.** Asked of mount_nfs(5) rather than assumed.
 `mutejukebox` -- which this app already passes, and which was added for a popup
@@ -146,38 +146,71 @@ stalls for a moment.
 being included in the list of unresponsive file systems that would be included
 in a dialog presented to the user". A server that has gone is not that.
 `deadtimeout` only decides how long after being reported unresponsive macOS
-force-unmounts it, which is later still. So the only way the window never
-appears is that a mount is never left unresponsive long enough for macOS to say
-so.
+force-unmounts it. So the only way the window never appears is that a mount is
+never left unresponsive long enough for macOS to say so.
 
-**The clearing already existed and ran almost nowhere.** `Housekeeping.sweep`
-takes down every mount whose server has gone, and `EngineProcesses.deadEngineMounts`
-decides which those are -- probing six times over about a minute, because a drive
-that has merely gone slow has been silent for forty seconds and come back serving
-perfectly. Nothing ran it unless somebody opened or ejected a drive.
+**The root: the probe called a dead mount alive.**
 
-**What is measured now, with the check registered as `nowindow`:**
+`mountAnswers` probes a mount by stat'ing a name that cannot exist, and took any
+return -- including "no such file" -- as proof a server had replied. That holds
+for a hard mount, where a dead server leaves the stat hanging until the
+deadline. These mounts are soft, and a soft mount's client answers for itself
+once it has given up on the server: the stat comes back at once with a timeout
+or a stale handle, and this called that alive.
 
-    the app launched after the engine died      cleared in about 20 s
-    the app already running when it died        not cleared in 120 s
-    no app running, helper only                 not cleared in 300 s
+So every timer fired, every sweep ran, and every one judged nothing dead. The
+clearing had been written, tested and shipped, and could never do anything.
 
-So the launch-time sweep works and the two periodic ones do not, and the second
-line is the ordinary case: somebody has the app open and a drive's engine dies.
-macOS reckons a mount unresponsive after five request timeouts at sixty seconds
-each, and the run's own log query saw it mention one during the window.
+Seen only after building an instrument for it. `--drive sweep` runs one sweep in
+the foreground and prints the table, the app's record, whether anything is
+serving, and what each mount answered -- because os_log returns nothing for
+these subsystems on this Mac, so every previous attempt was a guess costing a
+rebuild. Its first run:
 
-**This is not fixed.** The row is red and stays red. What went in and is worth
-keeping regardless: the sweep now exists in the helper as well as the app, the
-helper reads the console user's record of what this app mounted rather than
-root's empty one, `--drive open=` writes that record like the window does, both
-guards ask the mount table rather than asking the engine that may be the thing
-that died, and the helper forces an unmount the engine's own could not.
+    microVMs still serving: []
+    /Volumes/PLAINEXT4    answers: alive        <- engine killed
+    /Volumes/PLAINEXT4-1  answers: alive        <- engine killed
+    judged dead: []
 
-Three of those were faults that would have kept any timer inert. None of them
-was the whole of it, and the remaining cause is not yet known -- os_log from
-these subsystems returns nothing on this Mac, so the sweep cannot be watched from
-outside while it runs.
+And after the fix, the same two mounts:
+
+    /Volumes/PLAINEXT4    answers: silent
+    /Volumes/PLAINEXT4-1  answers: silent
+    judged dead: [both]
+    engine mounts after: 0
+
+"No such file or directory" is the one answer only a live server gives, since
+the name is one it has never seen. Timed out, stale NFS file handle, host is
+down, input/output error: the client speaking for a server that is not there. An
+answer not recognised is still called alive -- forcing a mount down is not
+something to do on a guess.
+
+**Three runs of `nowindow`, engine killed the way a crash kills it, nobody
+ejecting anything:**
+
+    seconds until the mount was taken away    65    70    65
+    mounts still there                         0     0     0
+    times macOS mentioned it                   0     0     0
+
+**The check was counting itself, in two ways.** It reported macOS complaining on
+every run, including runs where the log held nothing. `log show` prints
+"Filtering the log data using ..." with the predicate in it, and the predicate
+contains the words being counted; and `log` also logs its own invocation with
+its arguments, so the query writes a line containing its own predicate into the
+log it is reading. Both are excluded now.
+
+**What else went in, each of which would on its own have kept a timer inert.**
+The sweep runs on a clock in the app and in the helper rather than only when a
+drive is opened or ejected; the helper reads the console user's record of what
+this app mounted rather than root's, which is always empty; `--drive open=`
+writes that record as the window does, so anything a harness opens is visible to
+the sweep; both guards ask the mount table rather than asking the engine that may
+be the very thing that died; and the helper forces an unmount the engine's own
+could not.
+
+**What this does not cover.** A mount whose engine has died, which is this. A
+mount that is merely slow is the stall work, items 1 to 3, measured by
+writing-does-not-stall.sh.
 
 ## A stopped gate kept killing the next run's engines — 2026-09-05
 
