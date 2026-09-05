@@ -64,6 +64,51 @@ through the host's buffer cache, which killing the guest does not discard, so
 this vector under-reports on images and clean runs there prove nothing either.
 Only a real drive settles it.
 
+## The luks-multi fsync loss: the tie is real, and it is 149 MB — 2026-09-05
+
+The loss recorded on 2026-09-04 as "seen once and not explained" -- 0 of 8
+fsynced files after power loss, absent rather than truncated, about one run in
+eight, on multi-volume fixtures only -- was blamed on the harness picking a
+different volume than it wrote to. That was a hypothesis. Here is the mechanism,
+measured.
+
+`where()` picks the roomiest logical volume of a container and is called again
+after every reopen. luks-multi's three volumes, mounted and measured directly:
+
+    Filesystem              1M-blocks   Used   Available   Use%
+    /dev/mapper/fedoravg-root     252     28         149    16%
+    /dev/mapper/fedoravg-home     252     28         149    16%
+    /dev/mapper/fedoravg-backup   376     28         273     9%
+
+`root` and `home` are equal to the megabyte. `backup` is roomiest at rest, which
+is why every run picks FEDORABACKUP -- and `-gt` is a strict comparison, so a tie
+is settled by whichever the mount table listed first, and that order is not
+promised across a reopen.
+
+The run then changes which volume is roomiest, by design. Vector 5 fills the
+chosen volume until ENOSPC; vector 9, power loss, runs after it. Between them the
+space comes back, but not instantly -- measured on 2026-09-04 at about three
+seconds on a volume of this kind. Any call to `where()` while backup is still
+reading below 149 MB hands back `root` or `home` instead, chosen by the tie. The
+harness then kills the machine, reopens, and reads eight files it never wrote,
+in a volume that never had them. Absent, not truncated. Intermittent, because it
+is a race. Multi-volume fixtures only, because nothing else has a second volume
+to pick.
+
+**With the volume remembered by its own name, ten runs and no loss:**
+
+    run 1 .. run 10   ok  8 of 8 present, 0 wrong, 0 lost   FEDORABACKUP
+    RESULT: 10 runs of luks-multi, 0 lost their fsynced files
+
+Plus two more inside the gate, goal5 and goal9, both clean. Twelve in a row.
+
+**What that is worth on its own, stated honestly:** at one run in eight, twelve
+clean runs happen by luck about one time in five. Absence of failure is not the
+evidence here. The numbers above are: an exact tie between two volumes, a third
+that the run itself drives below them, and a `-gt` that resolves the tie by mount
+order. Every volume the ten runs touched was FEDORABACKUP, which is the fix
+working rather than the fault sleeping.
+
 ## A damaged volume cannot be asked its own name, except by its boot sector — 2026-09-05
 
 A volume ntfsck cannot bring clean is refused by ntfs3 for ever, so the gate
