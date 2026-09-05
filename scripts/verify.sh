@@ -59,6 +59,14 @@ cleanup_run() {
   # first and is a different thing entirely: this script is not a group leader
   # when it is started from a shell, so that would have signalled the shell's
   # group -- the terminal, and whatever else was running in it.
+  # The engines a row started, which are not in its process group.
+  #
+  # `anylinuxfs mount` detaches into a session of its own, so signalling the
+  # row's group takes the shell and the harness and leaves the engine serving.
+  # Measured on 2026-09-05: a stopped gate, its whole tree gone, and three engine
+  # processes still holding a device. The harnesses kill by pattern for the same
+  # reason; this does what they do, once, on the way out.
+  /usr/bin/pkill -9 -f 'anylinuxfs|krun|vmnet-helper' >/dev/null 2>&1
   if [ -n "${ROW_PID:-}" ] && kill -0 "$ROW_PID" 2>/dev/null; then
     kill -TERM -- "-$ROW_PID" 2>/dev/null || kill -TERM "$ROW_PID" 2>/dev/null
     sleep 2
