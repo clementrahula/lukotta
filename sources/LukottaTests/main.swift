@@ -5695,6 +5695,52 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     expect(
         MountScript.reclaimUnreadable.contains(".lukotta-leftover-*"),
         "and the walk skips what it moved, or it would report it again anyway")
+
+    // The same "once, not for ever" rule on the branch that lost it.
+    //
+    // A volume ntfsck cannot bring clean goes on being refused by ntfs3, so the
+    // signal that sends it to a full check never stops firing: every open paid
+    // 59 seconds on a 247 GB drive, with no way out and nothing said. The branch
+    // that can mount the volume read-only has asked "have I seen this before"
+    // since it was written; the branch that cannot lost the question when the
+    // ntfs-3g look was taken out for hanging the app.
+    //
+    // Reading the marker off the volume without mounting was tried first,
+    // because it would have needed no state on the Mac at all. Measured, and it
+    // cannot work: ntfsls and ntfscat both go through libntfs-3g, which refuses
+    // the volume for the same reason ntfs3 does.
+    expect(
+        MountScript.checkAndRepair.contains("blkid -o value -s UUID \"$dev\""),
+        "a damaged volume is named by its boot sector, which damage cannot touch")
+    expect(
+        MountScript.checkAndRepair.contains("grep -qx \"$serial\" \(MountScript.checkedListPath)"),
+        "and the branch that cannot mount it asks whether it has been seen")
+    expect(
+        MountScript.checkAndRepair.contains("\(MountScript.stageMarker)checked $serial"),
+        "and every check says which volume it looked at, whatever the outcome")
+    // The invocation, not the word: the comment that records why this route was
+    // abandoned names the tool, and an assertion on the bare name failed against
+    // its own explanation.
+    expect(
+        !MountScript.checkAndRepair.contains("ntfscat \"$dev\""),
+        "nothing asks libntfs about a volume libntfs refuses")
+    expect(
+        MountScript.ntfsRepair.contains(MountScript.checkedListPath),
+        "and the list reaches the guest wherever the check runs")
+
+    // Read back the way the guest spells it.
+    CheckedVolumes.record("205dedcb-3e41-def6")
+    expect(
+        CheckedVolumes.hasSeen("205DEDCB3E41DEF6"),
+        "one volume written two ways is one volume, not two")
+    expect(
+        CheckedVolumes.serials(
+            reportedIn: ["\(MountScript.stageMarker)checked 23E3D0CD4CDEFAE0"])
+            == ["23E3D0CD4CDEFAE0"],
+        "and a serial the mount reported is read back out of its line")
+    expect(
+        CheckedVolumes.serials(reportedIn: ["lukotta: nothing to see"]).isEmpty,
+        "while an ordinary line names nothing")
     // Moved, not removed. These are the bytes of the file somebody was copying
     // when the copy stopped, and this app does not delete those.
     expect(

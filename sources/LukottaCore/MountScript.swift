@@ -1586,7 +1586,7 @@ public enum MountScript {
     /// is one: a single-quoted TOML value is one line and cannot hold a loop, a
     /// case, or a quote of its own. See `writeReclaimScript`.
     public static var ntfsRepair: String {
-        "\(writeCheckScript); sh \(checkScriptPath)"
+        "\(writeCheckedList); \(writeCheckScript); sh \(checkScriptPath)"
     }
 
     /// Where the check is kept inside the guest.
@@ -1600,6 +1600,21 @@ public enum MountScript {
     /// The check, encoded for the trip through TOML and a shell.
     public static var checkEncoded: String {
         Data(checkAndRepair.utf8).base64EncodedString()
+    }
+
+    /// Where the list of volumes this Mac has already inspected is kept inside
+    /// the guest.
+    public static let checkedListPath = "/tmp/lukotta-checked-serials"
+
+    /// Puts that list in the guest, beside the check.
+    ///
+    /// Written as a file rather than compiled into the check, because the check
+    /// is one static script every mount shares and this differs per Mac and
+    /// grows by a line every time a new drive is looked at. Base64 for the same
+    /// reason the check is: it goes through TOML and a shell on the way in.
+    public static var writeCheckedList: String {
+        let encoded = Data(CheckedVolumes.guestList.utf8).base64EncodedString()
+        return "echo \(encoded) | base64 -d > \(checkedListPath)"
     }
 
     /// Repairing an NTFS volume that would not mount, before anything mounts it.
@@ -1664,6 +1679,22 @@ public enum MountScript {
         # the first one checked twice over and the second never.
         check_one() {
           dev="$1"
+
+          # What this volume is called, in a way damage cannot take away.
+          #
+          # The NTFS volume serial is eight bytes at offset 0x48 of the boot
+          # sector, and blkid reports it as the UUID. It is in the first sector,
+          # so nothing about MFT damage touches it: read from one fixture before
+          # and after a repair of 65 errors it was 205DEDCB3E41DEF6 both times.
+          #
+          # That matters because every other way of naming a damaged volume goes
+          # through libntfs-3g, which refuses it. Measured: `ntfsls -f` and
+          # `ntfscat` both answer "$MFTMirr does not match $MFT (record 3)" and
+          # print nothing, on the one volume whose identity is most wanted.
+          #
+          # Spelled one way -- upper case, no dashes -- so the guest's answer and
+          # the Mac's list are comparable as strings.
+          serial="$(blkid -o value -s UUID "$dev" 2>/dev/null | tr -d - | tr a-f A-F)"
 
           if ntfsls -f "$dev" 2>/dev/null | grep -i hiberfil >/dev/null 2>&1; then
             echo "lukotta: Windows left $dev hibernated; not repairing it"
@@ -1768,7 +1799,28 @@ public enum MountScript {
             # neither exiting, and every later drive refused with "another
             # instance is already running". A read-only look that can wedge the
             # drive is not worth what it reads.
-            asked=1
+            #
+            # Once, though, and not on every open for ever.
+            #
+            # A volume ntfsck cannot bring clean goes on being refused by ntfs3,
+            # so this signal never stops firing: the ladder scanned it, failed,
+            # and then charged the same scan to every future open of a drive
+            # nothing can fix -- 59 seconds each time on a 247 GB drive, with no
+            # way out and nothing said about it. The branch above has had a
+            # check-once-ever rule since the day it was written; this one lost it
+            # when the ntfs-3g look was taken out for hanging the app.
+            #
+            # It cannot read the marker off the volume, because nothing can read
+            # a volume in this state. So the record is kept on the Mac, keyed by
+            # the serial above, and written into the machine before the check
+            # runs. grep reads a file here, not a pipe, so there is no producer
+            # for -q to kill.
+            if [ -n "$serial" ] &&
+               grep -qx "$serial" \(checkedListPath) 2>/dev/null; then
+              echo "lukotta: $dev has been looked at before"
+            else
+              asked=1
+            fi
           fi
           # Nothing asked, so no scan -- and the rest of this still runs.
           #
@@ -1858,6 +1910,15 @@ public enum MountScript {
               echo "lukotta: ntfsck $dev pass $n: $out"
               case "$out" in Clean,*) break ;; esac
             done
+            # Said upward, so this Mac does not do it again.
+            #
+            # Reported whatever the outcome, and that is the point: a volume the
+            # check could not fix is exactly the one that must not be scanned on
+            # every open for the rest of its life. The app is the only side that
+            # can hold this -- inside a container it hands over one device and
+            # the engine finds however many volumes are in it, so it cannot name
+            # them in advance and has to be told.
+            [ -n "$serial" ] && echo "\(stageMarker)checked $serial"
             case "$(ntfsck -n "$dev" 2>&1 | tail -n 1)" in
               Clean,*)
                 ntfsfix -d "$dev" >/dev/null 2>&1 || true
@@ -2303,7 +2364,7 @@ public enum MountScript {
         [custom_actions.\(ntfs3ProbeActionName)]
         description = 'Generated by Lukotta; ntfs3 must pass a read-only probe first'
         \(guestEnvironment)
-        before_mount = '\(nfsBlockSize); \(writeCheckScript); sh \(checkScriptPath); \(ntfs3Probe); \(writeReclaimScript)'
+        before_mount = '\(nfsBlockSize); \(writeCheckedList); \(writeCheckScript); sh \(checkScriptPath); \(ntfs3Probe); \(writeReclaimScript)'
         after_mount = 'nohup sh \(reclaimScriptPath) >/dev/null 2>&1 &'
 
         [custom_actions.\(repairActionName)]
@@ -2315,7 +2376,7 @@ public enum MountScript {
         [custom_actions.\(ntfs3gActionName)]
         description = 'Generated by Lukotta; frees names ntfs3 would not touch'
         \(guestEnvironment)
-        before_mount = '\(nfsBlockSize); \(writeCheckScript); sh \(checkScriptPath); \(writeReclaimScript)'
+        before_mount = '\(nfsBlockSize); \(writeCheckedList); \(writeCheckScript); sh \(checkScriptPath); \(writeReclaimScript)'
         after_mount = 'nohup sh \(reclaimScriptPath) >/dev/null 2>&1 &'
         """
     }

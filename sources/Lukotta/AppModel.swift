@@ -3192,7 +3192,17 @@ final class AppModel: ObservableObject {
         statusLines.append(Diagnostics.scrubbed(line, secret: activeCredential))
         // Stage markers drive the indicator and are not output to be read.
         if line.contains("LUKOTTA_") { statusLines.removeLast() }
-        if line.contains(MountScript.stageMarker) { stageLines.append(line) }
+        if line.contains(MountScript.stageMarker) {
+            stageLines.append(line)
+            // A volume the check has looked at is not looked at again.
+            //
+            // Recorded as the line arrives rather than when the mount finishes,
+            // because a mount that fails is exactly the case worth remembering:
+            // a volume ntfsck cannot bring clean is refused by ntfs3 for ever,
+            // and without this it would be scanned in full on every open of the
+            // drive from now on. See `CheckedVolumes`.
+            CheckedVolumes.note(reportedIn: [line])
+        }
         if statusLines.count > 400 { statusLines.removeFirst(statusLines.count - 400) }
     }
 
