@@ -442,7 +442,29 @@
             // eject, and it reports whether it worked.
             for entry in mine {
                 let result = EngineStatus.unmount(mountPoint: entry.mountPoint)
-                if result.ok {
+                // Still there is still there.
+                //
+                // The engine's unmount can answer ok and leave the mount in the
+                // table -- it does when the machine serving it has already gone,
+                // which is exactly the state a container's volumes are left in
+                // when their engine dies. And these mounts were made by the
+                // privileged helper, so removing one as the user gets
+                // "Operation not permitted".
+                //
+                // Measured on 2026-09-05: three volumes of a container, their
+                // server dead, `ls` on the mount point timing out with os error
+                // 60, the engine reporting each unmount as successful, and all
+                // three still in the table afterwards.
+                //
+                // So the table is asked, and the helper -- which made them -- is
+                // asked to take away what is left.
+                let stillThere = MountTableEntry.all(in: LukottaCore.mountTable())
+                    .contains { $0.mountPoint == entry.mountPoint }
+                var gone = result.ok && !stillThere
+                if !gone {
+                    gone = PrivilegedUnmount.unmount(entry.mountPoint, within: 60)
+                }
+                if gone {
                     say("unmounted \(entry.mountPoint)")
                 } else {
                     say("could not unmount \(entry.mountPoint): \(result.message)")
