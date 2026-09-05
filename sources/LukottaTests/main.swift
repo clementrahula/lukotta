@@ -630,9 +630,26 @@ group("multiVolumeServing") {
     // together, falling back to one volume at a time if that fails.
     let script = MountScript.build(sampleInputs(kind: .linux))
 
-    expect(script.contains("-a lukotta"), "the generated action is selected for the mount")
+    // Named for this drive, not `lukotta` flat. One shared section meant two
+    // containers opening at once each replaced the other's, and the section
+    // carries that drive's scratch path, bind mounts and volume list.
+    // The same drive sampleInputs describes: "Elements" on /dev/disk4s1.
+    let ownAction = MountScript.generatedAction(
+        driveName: "Elements", devicePath: "/dev/disk4s1")
+    expect(
+        script.contains("-a \(ownAction) "),
+        "the generated action is selected for the mount, by this drive's name")
     expect(script.contains("\"lvm:$__first\""), "one volume carries the primary mount")
-    expect(script.contains("[custom_actions.lukotta]"), "the action section is generated")
+    // The header is assembled by awk now, from the name handed to it, so what
+    // is asserted is that the name reaches awk and that awk writes a header
+    // with it -- not a literal string that would go stale the moment the name
+    // stopped being one word.
+    expect(
+        script.contains("-v act='\(ownAction)'"),
+        "the action's name is handed to the awk that writes the section")
+    expect(
+        MountScript.volumeAction.contains("print \"[custom_actions.\" act \"]\""),
+        "and the section is headed with it")
     expect(script.contains("'/run/Elements'"), "the export scratch dir is named after the drive")
     expect(
         script.contains(#"mount -o bind \"$ALFS_VM_MOUNT_POINT\""#),
@@ -752,6 +769,38 @@ group("engineConfigCleanup") {
         [krun]
         num_vcpus = 4
         """
+    // One name per drive, because the section carries that drive's own paths.
+    //
+    // It was `lukotta` flat, shared by every drive. A container's action holds
+    // its scratch directory, its bind mounts and its list of logical volumes,
+    // and the mount writes the section, strips any section of that name, then
+    // mounts with `-a lukotta`. Two containers opening at once each replace the
+    // other's, and one is served with the other's export path. Found in this
+    // Mac's own config on 2026-09-05: five accumulated sections, one still
+    // naming /run/disk5 for a drive detached hours earlier.
+    let alpha = MountScript.generatedAction(driveName: "BACKUP", devicePath: "/dev/disk4s1")
+    let beta = MountScript.generatedAction(driveName: "PHOTOS", devicePath: "/dev/disk5s1")
+    expect(alpha != beta, "two drives do not share one action name")
+    expect(
+        alpha.hasPrefix(MountScript.generatedActionPrefix),
+        "and the name says whose it is")
+    // Removal takes every section this app generated, old flat name included:
+    // the action is read once at mount time and regenerated on every mount, so
+    // taking another drive's costs nothing and leaving them costs a section per
+    // drive for ever.
+    expect(
+        EngineConfig.isGeneratedHeader("[custom_actions.\(alpha)]"),
+        "a per-drive section is recognised as this app's")
+    expect(
+        EngineConfig.isGeneratedHeader("[custom_actions.lukotta]"),
+        "and so is the flat name a build before this change left behind")
+    expect(
+        !EngineConfig.isGeneratedHeader("[custom_actions.somebodyelse]"),
+        "while somebody else's action is left alone")
+    expect(
+        !EngineConfig.isGeneratedHeader("[krun]"),
+        "and so is a section that is not an action at all")
+
     let cleaned = EngineConfig.withoutGeneratedAction(config)
     expect(!cleaned.contains("[custom_actions.lukotta]"), "the generated section is removed")
     expect(!cleaned.contains("override_nfs_export"), "its body goes with it")

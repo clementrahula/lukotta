@@ -23,7 +23,25 @@ public enum EngineConfig {
             .appendingPathComponent(".anylinuxfs/config.toml").path
     }
 
-    static var generatedHeader: String { "[custom_actions.\(MountScript.generatedAction)]" }
+    /// Whether a header line is one of this app's own generated sections.
+    ///
+    /// Every drive gets its own name now -- `lukotta_<drive>` -- because one
+    /// shared section meant two containers opening at once each replaced the
+    /// other's, and a container's action carries its own scratch path, bind
+    /// mounts and list of logical volumes. So removal matches the prefix rather
+    /// than one exact string, and it still takes the old flat `lukotta` section
+    /// left by a build before this change.
+    ///
+    /// Every generated section goes, not just the ejected drive's. The action is
+    /// read once, when a mount is made, and regenerated on every mount -- so
+    /// removing one another drive still has open costs that drive nothing, and
+    /// leaving them costs a section per drive for ever. This Mac's config had
+    /// five, one still naming a device detached hours earlier.
+    public static func isGeneratedHeader(_ line: String) -> Bool {
+        let flat = "[custom_actions.\(MountScript.generatedActionPrefix.dropLast())]"
+        let prefixed = "[custom_actions.\(MountScript.generatedActionPrefix)"
+        return line == flat || (line.hasPrefix(prefixed) && line.hasSuffix("]"))
+    }
 
     /// The text with the generated section removed: its header line up to, but
     /// not including, the next section header. Pure, so the exact behaviour can
@@ -33,7 +51,7 @@ public enum EngineConfig {
         var kept: [String] = []
         var skipping = false
         for line in text.components(separatedBy: "\n") {
-            if line.hasPrefix("[") { skipping = line == generatedHeader }
+            if line.hasPrefix("[") { skipping = isGeneratedHeader(line) }
             if !skipping { kept.append(line) }
         }
         return kept.joined(separator: "\n")
