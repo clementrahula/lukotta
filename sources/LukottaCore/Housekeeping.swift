@@ -66,7 +66,21 @@ public enum Housekeeping {
     /// serving perfectly -- so a dead mount is away within about ninety seconds
     /// of dying, and macOS does not begin to reckon a mount unresponsive until a
     /// request has timed out five times at sixty seconds each.
-    public static let deadMountWatchSeconds: Int = 30
+    /// Ten seconds, not thirty.
+    ///
+    /// The whole budget is the interval plus the probe ladder, and the ladder is
+    /// about seventy seconds by design -- six questions over a minute, because a
+    /// drive that has gone slow has been silent for forty seconds and come back
+    /// serving perfectly, and taking that away from somebody mid-copy would be
+    /// far worse than the wait. That minute is not negotiable, so the interval
+    /// is where the budget has to come from.
+    ///
+    /// Measured on 2026-09-05 at thirty: a mount whose engine had been killed
+    /// was still there after three minutes, and macOS had already mentioned it
+    /// once. The bar is macOS's own reckoning -- five request timeouts at sixty
+    /// seconds each -- so the answer has to be comfortably inside five minutes,
+    /// not near it.
+    public static let deadMountWatchSeconds: Int = 10
 
     /// Take away everything finished with. Safe at any moment, including with
     /// drives open: everything in use fails one of the two rules.
