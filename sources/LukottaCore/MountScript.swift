@@ -1768,7 +1768,39 @@ public enum MountScript {
             # neither exiting, and every later drive refused with "another
             # instance is already running". A read-only look that can wedge the
             # drive is not worth what it reads.
-            asked=1
+            #
+            # Once, though, and not on every open for ever.
+            #
+            # A volume ntfsck cannot bring clean goes on being refused by ntfs3
+            # for ever, so this signal never stops firing: the ladder ran a full
+            # scan here, failed, and charged the same scan to every future open
+            # of a drive nothing can fix -- 59 seconds each time on 247 GB, with
+            # no way out and nothing said. The branch above has kept a
+            # check-once-ever rule since the day it was written; this one lost
+            # it when the ntfs-3g mount was taken out, and nothing replaced it.
+            #
+            # The volume can still be read without being mounted. ntfsls and
+            # ntfscat go at the raw device -- no kernel driver, no FUSE daemon,
+            # nothing that can hold the device busy for the mount this rung is
+            # about to make -- so the same two questions the branch above asks a
+            # mounted volume are asked here of an unmounted one: has this app
+            # checked it before, and has anything happened since that asks for
+            # another look.
+            #
+            # grep -c and a comparison, never `| grep -q`: a -q match exits at
+            # once and kills the producer with SIGPIPE, and this project has
+            # already spent an afternoon on that shape.
+            names="$(ntfsls -f "$dev" 2>/dev/null)"
+            case "$names" in
+              *.lukotta-check.log*) ;;
+              *) asked=1 ;;
+            esac
+            if [ "$asked" = 0 ]; then
+              since="$(ntfscat "$dev" /.lukotta-reclaim.log 2>/dev/null \
+                | grep -cE "could not move:|left behind by a copy:")"
+              [ "${since:-0}" -gt 0 ] && asked=1
+            fi
+            [ "$asked" = 0 ] && echo "lukotta: $dev has been checked before"
           fi
           # Nothing asked, so no scan -- and the rest of this still runs.
           #

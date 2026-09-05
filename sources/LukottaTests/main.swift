@@ -5695,6 +5695,34 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     expect(
         MountScript.reclaimUnreadable.contains(".lukotta-leftover-*"),
         "and the walk skips what it moved, or it would report it again anyway")
+
+    // The same "once, not for ever" rule on the branch that lost it.
+    //
+    // A volume ntfsck cannot bring clean goes on being refused by ntfs3, so the
+    // signal that sends it to a full check never stops firing: every open paid
+    // 59 seconds on a 247 GB drive, with no way out. The branch that can mount
+    // the volume read-only has asked "have I checked this before" since it was
+    // written; the branch that cannot lost the question when the ntfs-3g mount
+    // was removed, and nothing replaced it.
+    //
+    // Asked of the raw device instead. ntfsls and ntfscat need no driver and no
+    // FUSE daemon, so neither can hold the device busy for the mount this rung
+    // is about to make -- which is the whole reason the ntfs-3g look was taken
+    // out.
+    expect(
+        MountScript.checkAndRepair.contains("ntfsls -f \"$dev\""),
+        "a volume ntfs3 refuses is still asked whether it has been checked")
+    expect(
+        MountScript.checkAndRepair.contains("ntfscat \"$dev\" /.lukotta-reclaim.log"),
+        "and whether anything has happened to it since")
+    expect(
+        !MountScript.checkAndRepair.contains("mount -t ntfs-3g"),
+        "and nothing mounts ntfs-3g to find out, which hung the app")
+    // grep -c and a comparison. `| grep -q` exits on the first match and kills
+    // the producer with SIGPIPE, which has already cost this project a day.
+    expect(
+        !MountScript.checkAndRepair.contains("| grep -q"),
+        "nothing in the check pipes a producer into grep -q")
     // Moved, not removed. These are the bytes of the file somebody was copying
     // when the copy stopped, and this app does not delete those.
     expect(
