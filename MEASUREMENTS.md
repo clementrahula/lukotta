@@ -64,6 +64,50 @@ through the host's buffer cache, which killing the guest does not discard, so
 this vector under-reports on images and clean runs there prove nothing either.
 Only a real drive settles it.
 
+## A damaged volume cannot be asked its own name, except by its boot sector — 2026-09-05
+
+A volume ntfsck cannot bring clean is refused by ntfs3 for ever, so the gate
+reaches the branch that cannot mount it, cannot read the `.lukotta-check.log`
+marker, and orders a full check. Every open. For the life of the drive. Fifty-nine
+seconds each time on a 247 GB drive, with nothing said and no way out — an item 10
+fault hiding inside item 7.
+
+The cheap fix would have been to read the marker without mounting, and it was
+tried first because it needs no state on the Mac at all. It cannot work:
+
+    ntfsls -f /dev/vda        $MFTMirr does not match $MFT (record 3).
+    ntfscat /dev/vda /...     Failed to mount '/dev/vda': I/O error
+
+Both go through libntfs-3g, which refuses the volume for the same reason ntfs3
+does. There is no read-side tool in the guest that answers on a damaged volume,
+so that route is closed, and the code written for it was reverted rather than
+left in looking like a fix.
+
+What does survive is the NTFS volume serial: eight bytes at offset 0x48 of the
+boot sector, in the first sector, nowhere near the MFT. Read straight from the
+fixture before and after the repair of 65 errors described below:
+
+    specimens/mftmirr-vectors.img   (damaged)    205DEDCB3E41DEF6
+    ntfs-vectors.img                (repaired)   205DEDCB3E41DEF6
+    dirty-ntfs.img                               23E3D0CD4CDEFAE0
+
+So the record lives on the Mac, keyed by that serial, and is written into the
+machine before the check runs. The check reports what it looked at on a
+`LUKOTTA_STAGE:` line whatever the outcome — a volume it could not fix is exactly
+the one that must not be scanned again — because inside a container the app hands
+over one device and the engine finds however many volumes are in it, so the app
+cannot name them in advance.
+
+The generated check is 285 lines of shell and `sh -n` accepts it. The matching
+itself, run on its own with blkid's dashed lower-case spelling against the Mac's
+undashed upper-case list:
+
+    blkid says      205dedcb-3e41-def6
+    normalised to   205DEDCB3E41DEF6
+    in the list     seen before -> no scan
+    another list    not in it    -> scan
+    empty list                   -> scan
+
 ## ntfsck repaired an $MFTMirr mismatch, and the fixture came back — 2026-09-05
 
 A killed gate left `ntfs-vectors.img` -- the fixture goal4 and goal9 both run on
