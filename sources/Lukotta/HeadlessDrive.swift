@@ -373,22 +373,50 @@
             // "disk4s1.local:/mnt/LABEL" is how /dev/disk4s1 appears in the
             // table. Matched on that rather than on the label, which is the
             // volume's name and not the drive's.
+            // A container's volumes are named after the group, not the device.
+            //
+            // Matching only "diskNsM." misses every logical volume of a LUKS or
+            // LVM container: those come up as
+            // "lvm-fedoravg.local:/run/diskNsM/FEDORAHOME", which starts with
+            // the group's name. So this ejected nothing for a container and said
+            // "nothing of /dev/diskNsM's is mounted" while three of its volumes
+            // were served -- and since the helper made those mounts, nothing
+            // short of root could then remove them. Measured on 2026-09-05: a
+            // machine left with three of them, unremovable by the app that made
+            // them, after the device they came from had been detached.
+            //
+            // The device is still in the export path, so that is what is
+            // matched on. The windowed app has always found these -- it asks
+            // EngineStatus for the volumes nested under the drive's own mount --
+            // and this is the same set by a different road.
             let node = (device as NSString).lastPathComponent
             let table = LukottaCore.mountTable()
             let mine = MountTableEntry.all(in: table).filter {
-                $0.isEngineMount && $0.source.hasPrefix("\(node).")
+                guard $0.isEngineMount else { return false }
+                return $0.source.hasPrefix("\(node).") || $0.source.contains("/run/\(node)/")
             }
             if mine.isEmpty {
                 say("nothing of \(device)'s is mounted")
                 return
             }
+            // Through the engine, not /sbin/umount.
+            //
+            // These mounts were made by the privileged helper, so unmounting one
+            // as the user gets "Operation not permitted" -- and this said
+            // "unmounted …" regardless, because it never looked at the exit
+            // status. A machine was left on 2026-09-05 with three container
+            // volumes that the app which made them could not remove, each line
+            // of the eject claiming it had.
+            //
+            // EngineStatus.unmount is the same route the windowed app takes to
+            // eject, and it reports whether it worked.
             for entry in mine {
-                let task = Process()
-                task.executableURL = URL(fileURLWithPath: "/sbin/umount")
-                task.arguments = ["-f", entry.mountPoint]
-                try? task.run()
-                task.waitUntilExit()
-                say("unmounted \(entry.mountPoint)")
+                let result = EngineStatus.unmount(mountPoint: entry.mountPoint)
+                if result.ok {
+                    say("unmounted \(entry.mountPoint)")
+                } else {
+                    say("could not unmount \(entry.mountPoint): \(result.message)")
+                }
             }
             // Give the engine the moment it takes to notice and stop.
             let deadline = Date().addingTimeInterval(30)

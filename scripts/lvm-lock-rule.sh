@@ -100,8 +100,45 @@ cleanup() {
   done
   pkill -9 -f 'anylinuxfs mount.*fedoravg' >/dev/null 2>&1
   [ -n "$DEV" ] && hdiutil detach "$DEV" >/dev/null 2>&1
+  # And the copy this run made. Folded in here rather than given a trap of its
+  # own: a second `trap ... EXIT` replaces the first, and installing one would
+  # have quietly taken away the unmount and detach above.
+  [ -n "${WORKIMG:-}" ] && rm -rf "$(dirname "$WORKIMG")"
 }
 trap cleanup EXIT
+
+# Its own copy of the fixture, so the rounds cannot spoil each other.
+#
+# The rounds before the last one mount volumes of this container through the
+# engine, one at a time, and what they leave behind is a mount point at
+# /Volumes/<disk>/FEDORA* that the next open needs. Mounting onto one that is
+# still occupied fails with "invalid file system", and the app reports the open
+# as successful anyway -- so the last round read 0 of 3 and looked like the app
+# serving nothing, on an app that serves all three the moment it is given a
+# clean host to serve onto. Measured both ways on 2026-09-05.
+#
+# integrity-vectors.sh has taken a copy for exactly this reason since the night
+# it filled the disk. Same here.
+WORKIMG="$(mktemp -d)/luks-multi.img"
+cp "$IMG" "$WORKIMG" || { echo "error: could not copy the fixture" >&2; exit 2; }
+IMG="$WORKIMG"
+
+# Nothing of this fixture is served before this starts.
+#
+# The last round opens the partition through the app, and the app's mounts
+# outlive this script: `cleanup` umounts what it can, and a mount the app still
+# holds is not always one of them. The next run then found FEDORAHOME already
+# served and reported the second volume as wrongly accepted -- it was looking at
+# the run before it.
+#
+# Refused rather than cleaned around, for the same reason as everywhere else
+# here: a run that cannot tell whose mounts it is looking at cannot be believed.
+if [ "$(mount | /usr/bin/grep -c FEDORA || true)" -gt 0 ]; then
+  echo "error: volumes of this fixture are still served; not starting" >&2
+  mount | /usr/bin/grep FEDORA | sed 's/^/       /' >&2
+  echo "       eject them, or umount them, and run this again" >&2
+  exit 2
+fi
 
 DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
        2>/dev/null | awk 'NR==1{print $1}')"
@@ -177,28 +214,49 @@ DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
        2>/dev/null | awk 'NR==1{print $1}')"
 P="${DEV}s1"
 trap cleanup EXIT
-n=0
-PHASE="ro"
-missed=""
-for pair in "root FEDORAROOT" "home FEDORAHOME" "backup FEDORABACKUP"; do
-  # Word-split on purpose: pair is two words.
-  # shellcheck disable=SC2086
-  set -- $pair
-  if m="$(open_lv "$1" "$2" -o ro)" && [ -n "$m" ] && ls "$m" >/dev/null 2>&1; then
-    n=$((n + 1))
-  else
-    missed="$missed $1"
-  fi
-done
-note "$([ "$n" -eq 3 ] && echo ok || echo no)" \
-  "all three open together when all three are read-only ($n of 3)"
-# Which one, and what it said. A count on its own cannot be acted on, and this
-# reported "2 of 3" for a morning with every log truncated behind it.
-if [ "$n" -ne 3 ]; then
-  for lv in $missed; do
-    echo "       $lv did not open:"
-    sed 's/^/         /' "$(lv_log "$lv")" 2>/dev/null | tail -4
+# What a person actually meets: the app opens the partition, and every logical
+# volume in it is served.
+#
+# The round that used to sit here opened the three volumes one at a time,
+# read-only, through the engine's own `lvm:vg:disk:lv` interface -- the interface
+# this file exists to warn people off. It measured the engine's multi-mount rule
+# rather than anything the app does, and it was not stable: the volume opened
+# read-write in the round before it would not come back read-only, whatever the
+# previous round was given to settle. Three assertions above already hold the
+# guard this file is for -- one opens, it is writable, a second is refused and
+# the reason is the partition lock -- and they are about the same interface.
+#
+# So the last word goes to the app's route, which nothing else asserts: open the
+# container once and every volume in it is there. goal5 runs its vectors against
+# one volume of a container, chosen for room; that all of them are served is a
+# different claim and was written down in this file's own header without a check
+# behind it.
+PHASE="app"
+APP="$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)"
+served=0
+if [ -x "$APP" ] &&
+   [ "$(strings -a "$APP" 2>/dev/null | /usr/bin/grep -c -- "--drive")" -gt 0 ]; then
+  # The passphrase goes to the app as an argument, not through ALFS_PASSPHRASE.
+  # That variable is the engine's; the app has its own credential path, and
+  # without `passphrase=` it opens nothing on an encrypted container and reports
+  # "mount script exited with status 1" -- which reads as the app failing to
+  # serve a drive it was never given the key to.
+  timeout 300 "$APP" --drive open="$P" passphrase="$ALFS_PASSPHRASE" \
+    > /tmp/lvm-app.log 2>&1
+  for name in FEDORAROOT FEDORAHOME FEDORABACKUP; do
+    mount | /usr/bin/grep -q "$name" && served=$((served + 1))
   done
+  note "$([ "$served" -eq 3 ] && echo ok || echo no)" \
+    "opening the partition through the app serves every volume ($served of 3)"
+  [ "$served" -eq 3 ] || sed 's/^/       /' /tmp/lvm-app.log 2>/dev/null | tail -4
+  # Let go of what the app opened, so the next run starts clean. The guard at
+  # the top refuses a contaminated run; this is what stops it needing to.
+  for m in $(mount | awk '/FEDORA/ {for(i=1;i<=NF;i++) if($i=="on") print $(i+1)}'); do
+    umount -f "$m" >/dev/null 2>&1
+  done
+  pkill -9 -f 'anylinuxfs mount' >/dev/null 2>&1
+else
+  note no "no app with --drive to open the partition with"
 fi
 
 printf '%s passed, %s failed\n' "$pass" "$fail"
