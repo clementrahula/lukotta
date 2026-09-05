@@ -24,6 +24,13 @@
 # registry: a task that proves something adds a row and it is checked from then
 # on, whatever it was about.
 set -uo pipefail
+# Job control, so a backgrounded check becomes its own process group leader and
+# can be signalled as a group. Without it `&` starts no new group in a
+# non-interactive shell, and stopping this script leaves the row -- and the
+# harnesses and engines beneath it -- running. Those harnesses kill engine
+# processes by pattern, so an orphan goes on killing the engines of whatever
+# runs next; that cost a goal1 measurement on 2026-09-05 before it was noticed.
+set -m
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$HERE" || exit 1
@@ -39,7 +46,26 @@ LIST="${CHECKS:-scripts/checks.tsv}"
 LOGDIR=".verify-logs"
 rm -rf "$LOGDIR"; mkdir -p "$LOGDIR"
 LOG="$(mktemp)"; TALLY="$(mktemp)"
-trap 'rm -f "$LOG" "$TALLY"' EXIT
+# Stopped by hand, and the tree goes too.
+#
+# Without this, killing verify.sh left the running row -- and its harnesses, and
+# their engines -- alive. See the note on the row launch below for what that
+# orphan then did to the next run's numbers.
+cleanup_run() {
+  rm -f "$LOG" "$TALLY"
+  # The row that is running, and everything under it.
+  #
+  # Only that one process group is signalled. `kill -- -$$` was written here
+  # first and is a different thing entirely: this script is not a group leader
+  # when it is started from a shell, so that would have signalled the shell's
+  # group -- the terminal, and whatever else was running in it.
+  if [ -n "${ROW_PID:-}" ] && kill -0 "$ROW_PID" 2>/dev/null; then
+    kill -TERM -- "-$ROW_PID" 2>/dev/null || kill -TERM "$ROW_PID" 2>/dev/null
+    sleep 2
+    kill -KILL -- "-$ROW_PID" 2>/dev/null || kill -KILL "$ROW_PID" 2>/dev/null
+  fi
+}
+trap cleanup_run EXIT INT TERM
 
 # What the checks looked like when this began.
 #
@@ -214,7 +240,28 @@ while IFS=$'\t' read -r id tags speed claim cmd <&3; do
     long) bound="${LONG_TIMEOUT:-5400}" ;;
   esac
   LOG="$LOGDIR/$id.log"
-  if timeout "$bound" bash -c "$cmd" > "$LOG" 2>&1 < /dev/null; then
+  # The check dies with this run, and so does everything it started.
+  #
+  # `timeout` signals one process. A row is a shell that starts harnesses that
+  # start engines, so killing this script left the whole tree running -- and
+  # these harnesses kill engine processes by pattern, which means an orphan from
+  # a run somebody stopped goes on killing the engines of whatever runs next.
+  #
+  # Measured on 2026-09-05, and it had already cost a measurement before it was
+  # noticed: a goal5 sweep orphaned by a stopped gate was still running fifteen
+  # minutes later, holding the engine lock and killing engines, while the next
+  # thing along wrote into a mount whose server had gone -- "dd: error writing:
+  # Device not configured", reported by that row as a clean copy.
+  #
+  # Plain `timeout` already runs the command in its own process group and
+  # signals the whole group, which is what is wanted here. `--foreground` turns
+  # that off -- it exists for interactive use -- and was written here first by
+  # somebody reading the name rather than the manual. -k adds a KILL for a
+  # harness that ignores the TERM.
+  ROW_PID=""
+  timeout -k 10 "$bound" bash -c "$cmd" > "$LOG" 2>&1 < /dev/null &
+  ROW_PID=$!
+  if wait "$ROW_PID"; then
     printf 'holds\n'; echo passed >> "$TALLY"
   else
     rc=$?
