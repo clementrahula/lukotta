@@ -65,7 +65,14 @@ cleanup_run() {
     kill -KILL -- "-$ROW_PID" 2>/dev/null || kill -KILL "$ROW_PID" 2>/dev/null
   fi
 }
-trap cleanup_run EXIT INT TERM
+# A signal cleans up and stops. A trap handler runs and then bash carries on
+# with what it was doing, so `trap cleanup_run TERM` reaped the running row and
+# then started the next one -- a gate that has been asked to stop and answers by
+# continuing. Measured: TERM took the row and its engines and left verify.sh
+# running.
+stop_run() { cleanup_run; trap - EXIT; exit 130; }
+trap cleanup_run EXIT
+trap stop_run INT TERM
 
 # What the checks looked like when this began.
 #
