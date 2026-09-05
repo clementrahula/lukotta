@@ -621,6 +621,48 @@ group("theElevatedMountScript") {
     expect(msSpaces.contains("'/tmp/My Space/discover.exp'"), "spaces in the expect path quoted")
 }
 
+group("aDeadMountIsNotCalledAlive") {
+    // The fault that made every sweep useless, and the one that let macOS put
+    // "Server connections interrupted" in front of the owner on 2026-09-05.
+    //
+    // The probe stats a name that cannot exist and reads the answer. It used to
+    // take any return at all -- including "no such file" -- as proof a server
+    // had replied, on the reasoning that a dead one leaves the stat hanging
+    // until the deadline. That is true of a hard mount. These are soft, and a
+    // soft mount's client answers for itself once it has given up: the stat
+    // comes back at once with a timeout or a stale handle, and that was called
+    // alive. So every timer fired, every sweep ran, and every one judged nothing
+    // dead.
+    //
+    // "No such file or directory" is the one answer only a live server gives,
+    // because the name is one it has never seen and ruling on it takes a lookup
+    // that reached the far end.
+    let absent = "stat: /Volumes/X/probe: No such file or directory"
+    expect(
+        EngineProcesses.reading(absent) == .alive,
+        "a server that says the name is not there is a server that answered")
+
+    // What the client says for a server that is not there. Each of these was
+    // seen coming back from a mount whose engine had been killed.
+    for words in [
+        "Operation timed out", "Stale NFS file handle", "Host is down",
+        "Input/output error", "Device not configured",
+    ] {
+        expect(
+            EngineProcesses.reading("stat: /Volumes/X/probe: \(words)") == .silent,
+            "\(words) is the client speaking, not the server")
+    }
+
+    // Anything unrecognised stays alive. Forcing a mount down takes somebody's
+    // data with it, and that is not a thing to do on a guess.
+    expect(
+        EngineProcesses.reading("stat: something nobody has seen before") == .alive,
+        "an answer this does not know is not treated as death")
+    expect(
+        EngineProcesses.reading("") == .alive,
+        "and neither is no words at all")
+}
+
 group("theWindowNobodyMayEverSee") {
     // macOS puts up "Server connections interrupted", naming the drive and
     // offering Disconnect All, when an NFS mount's server stops answering. It

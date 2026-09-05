@@ -240,21 +240,32 @@ public enum EngineProcesses {
         // gives, since the name is one it has never seen. Anything else --
         // timed out, stale NFS file handle, host is down, input/output error --
         // is the client speaking for a server that is not there.
-        case .finished(let output):
-            let said = output.combined.lowercased()
-            if said.contains("no such file") { return .alive }
-            for gone in [
-                "timed out", "stale", "host is down", "input/output error",
-                "operation not permitted", "device not configured",
-            ] where said.contains(gone) {
-                return .silent
-            }
-            // An answer this does not recognise is not called dead: forcing a
-            // mount down is not something to do on a guess.
-            return .alive
+        case .finished(let output): return reading(output.combined)
         case .silent: return .silent
         case .couldNotAsk: return .couldNotAsk
         }
+    }
+
+    /// What a probe's own words mean, separated so it can be asserted.
+    ///
+    /// Pure on purpose: the decision is the part that was wrong for a long time,
+    /// and it cannot be exercised through a real mount in a suite.
+    public static func reading(_ said: String) -> MountAnswer {
+        let text = said.lowercased()
+        // The one answer only a live server gives. The name probed is one it has
+        // never seen, so ruling that it does not exist takes a lookup that
+        // reached the far end.
+        if text.contains("no such file") { return .alive }
+        // The client speaking for a server that is not there.
+        for gone in [
+            "timed out", "stale", "host is down", "input/output error",
+            "operation not permitted", "device not configured",
+        ] where text.contains(gone) {
+            return .silent
+        }
+        // An answer this does not recognise is not called dead: forcing a mount
+        // down is not something to do on a guess.
+        return .alive
     }
 
     /// The engine mounts in this table that no longer answer.
