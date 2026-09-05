@@ -220,6 +220,53 @@ the line and carry on.
 
 The beta channel is not gated. Publish to it freely.
 
+## The v2 Line Is Built Beside v1, Not After It
+
+`v2-coverage` is where the coverage work happens, and `main` goes on shipping
+v1 fixes throughout. The two must never reach each other, so v2 has a branding
+of its own:
+
+    LUKOTTA_BRANDING=v2 ./build-app.sh
+
+which produces "Lukotta v2" under `com.lukotta.v2`, with `LukottaV2Helper`, its
+own saved passphrases, its own engine home and its own feed. Nothing it does
+can touch the release, the pre-release or the dev app, and a fault found in one
+is never reported against another. Automatic update checks are off, for the
+dev channel's reason: a build that updated itself would replace what is being
+tested, halfway through testing it.
+
+`VERSION` on this branch is **2.3.0**. `v2.0.0`, `v2.1.0` and `v2.2.0` are
+already tags from the earlier FSKit attempt, now parked on `v3-fskit`, so 2.3.0
+is the first number this line can take without reusing one. The 2.x series is
+what keeps v2's artifacts out of v1's: two builds of "1.22.10" that differ is
+the fault the version numbering section below exists to prevent, and it applies
+across lines as much as across channels.
+
+**This Mac has no daemon for `com.lukotta.v2`, and until it does, a v2 build
+cannot mount anything.** Installing a channel's first daemon is SMJobBless and
+asks for an administrator password once. Until somebody pays that once, this
+channel behaves exactly as the dev channel does further down this file: the app
+launches, writes no configuration, mounts nothing, and every harness that then
+reads the configuration reports something about the app that is entirely about
+the machine. `dirty-ntfs-repair.sh` already names the channel and lists the
+daemons that do exist, because it discovers them by glob rather than by a list
+somebody has to remember to update. Run anything needing a real mount against
+the beta bundle until the v2 daemon is installed.
+
+**Staying in sync with v1 is a forward merge, and it is done often.**
+
+    git merge main
+
+from this branch. The coverage work lands in `BootSector.swift`,
+`MountScript.swift` and `DiskWatcher.swift`, which is exactly where v1's fixes
+land too, so a merge left until the end is a reconciliation instead of a merge.
+
+**There is no v2 release channel, on purpose.** `release.sh` accepts `release`
+and `beta` and refuses anything else, and that stays true until v2 has
+something to release. Building the channel first would be machinery for a
+requirement that does not exist yet; the separation that matters while v2 is
+being developed is the branding above, which is built and works.
+
 ## Version Numbering
 
 `VERSION` holds the version being worked towards, as plain semver: `1.20.1`.

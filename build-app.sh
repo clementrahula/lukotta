@@ -85,6 +85,27 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     FEED_URL="https://updates.lukotta.com/dev/appcast.xml"
     AUTO_CHECKS="false"
     ;;
+  v2)
+    # The v2 line, developed beside v1 rather than after it. v1 goes on
+    # shipping fixes from main while this is built, so the two must never
+    # touch: its own identifier, its own daemon, its own saved passphrases and
+    # its own feed mean a v2 build cannot reach the release, the beta or the
+    # dev app, and a fault found in one is never reported against another.
+    #
+    # The unbranded artwork rather than a mark of its own. The marks belong to
+    # releases and v2 has not made one; see TRADEMARKS.txt.
+    APP_NAME="Lukotta v2"
+    BUNDLE_ID="com.lukotta.v2"
+    ICON_SET="AppIconUnbranded"
+    MARK_SET="MarkUnbranded"
+    SWITCH_SET="FullDiskAccessSwitchUnbranded"
+    HELPER_NAME="LukottaV2Helper"
+    # Nothing is served here and nothing is meant to be yet. A build that
+    # updated itself would replace what is being tested, halfway through
+    # testing it -- the dev channel's reasoning, and the same answer.
+    FEED_URL="https://updates.lukotta.com/v2/appcast.xml"
+    AUTO_CHECKS="false"
+    ;;
   unbranded)
     APP_NAME="Drive Unlocker"
     BUNDLE_ID="com.example.driveunlocker"
@@ -95,7 +116,7 @@ case "${LUKOTTA_BRANDING:-unbranded}" in
     FEED_URL="https://updates.lukotta.com/appcast.xml"
     ;;
   *)
-    echo "error: LUKOTTA_BRANDING must be 'official', 'beta', 'dev' or 'unbranded'" >&2; exit 1 ;;
+    echo "error: LUKOTTA_BRANDING must be 'official', 'beta', 'dev', 'v2' or 'unbranded'" >&2; exit 1 ;;
 esac
 
 OUT="${1:-$HERE/dist/$APP_NAME.app}"
@@ -605,9 +626,10 @@ printf 'Built %s\n' "$OUT"
 # there was to update from, which has happened to a beta in the middle of
 # testing that very update.
 #
-# dev and unbranded still install: dev is "Lukotta Dev" under com.lukotta.dev,
-# unbranded is "Drive Unlocker" under com.example.driveunlocker, each with its
-# own daemon and its own saved passphrases, and neither can reach the two above.
+# dev, v2 and unbranded still install: dev is "Lukotta Dev" under
+# com.lukotta.dev, v2 is "Lukotta v2" under com.lukotta.v2, unbranded is
+# "Drive Unlocker" under com.example.driveunlocker, each with its own daemon
+# and its own saved passphrases, and none of them can reach the two above.
 case "${LUKOTTA_BRANDING:-unbranded}" in
   official | beta) MAY_INSTALL=false ;;
   *) MAY_INSTALL=true ;;
