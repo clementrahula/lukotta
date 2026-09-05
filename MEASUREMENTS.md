@@ -64,6 +64,139 @@ through the host's buffer cache, which killing the guest does not discard, so
 this vector under-reports on images and clean runs there prove nothing either.
 Only a real drive settles it.
 
+## A repaired drive was scanned on every open, for ever — 2026-09-05
+
+`repairs-through-the-app.sh` opens one drive three times: damaged, then repaired,
+then healthy. The third open is the claim -- a volume with nothing wrong is not
+made to wait for a full check. It failed:
+
+    opening it through the app
+      served at /Volumes/REPAIR
+      root: .lukotta-check.log .lukotta-reclaim.log big lost+found
+      repaired: opened writable, and the folder took a file
+    the same drive again, now that it is repaired
+
+    RESULT: a volume with nothing wrong was scanned anyway
+
+The cause is one `continue` in the reclaim walk. When the walk finds a copier's
+abandoned temporary -- `.BC.T_<random>`, the signature of the silent rename
+fault -- it writes `left behind by a copy:` into the volume's reclaim log and
+moves on, leaving the temporary where it found it. The gate that decides whether
+to run a full check reads that log. So the next walk found the same temporary,
+wrote the same line, and the check ran again:
+
+    one abandoned temporary   ->  a full MFT scan on every open, for the life
+                                  of the drive
+    on the owner's 247 GB stick   59 seconds, every time
+
+That is an item 10 fault as much as an item 7 one. Nobody is asked anything and
+no error is shown, which is exactly why it could sit there: the only symptom is
+a minute of waiting that never goes away.
+
+**Fixed by moving the temporary aside rather than deleting it**, under
+`.lukotta-leftover-`, a prefix the walk skips. Those bytes are the file somebody
+was copying when the copy stopped and they are the only copy of that fragment --
+the same reason an unreadable name is moved instead of removed. A later
+interrupted copy writes a new temporary and asks again, which is what the signal
+is for: new damage, not the damage it already reported.
+
+## The gate could not say what failed, and could read the wrong volume — 2026-09-05
+
+A full run reported five failures. Four of them were the instrument.
+
+**Two rows drove an app nobody had chosen.** `checks.tsv` passes
+`"$LUKOTTA_ENGINE"` and nothing in the tree ever set it, so it expanded to
+nothing and each harness fell back to its own hard-coded default. Five Lukotta
+bundles are installed here and only two answer to `--drive`:
+
+    Drive Unlocker.app     --drive  yes    built 09-04 20:31
+    Lukotta Beta.app       --drive  yes    built 09-05 02:58
+    Lukotta Dev.app        --drive  no     built 09-03 09:28
+    Lukotta v2.app         --drive  no     built 08-28 21:28
+    Lukotta.app            --drive  no     built 09-03 23:04
+
+goal4 and goal7 both failed with "has no --drive" against the Dev build. It is
+resolved once now, by the only property that matters -- the binary answers to
+`--drive` -- newest first.
+
+**The reclaim harness asked for a remedy instead of an outcome.** It required a
+`.lukotta-unreadable-*` entry, from when moving the name aside was the only
+remedy there was. The app now repairs the volume, so nothing needs moving aside,
+and the run it failed showed a working drive: `root: big lost+found`, twenty
+files written into the reclaimed name and twenty read back at full length.
+
+**The run threw away the evidence for the only row that failed.** verify.sh kept
+`tail -8` of a failing check in one reused temporary file. goal5 failed on one of
+seven LUKS fixtures and the summary could not say which -- and it was the
+intermittent fsync loss this project has been chasing since 2026-09-04. Every
+row's whole output is kept under `.verify-logs/` now, and the format sweep names
+the fixtures that failed rather than counting them.
+
+**And the vectors harness could read a different volume than it wrote to.**
+`where()` picks the roomiest logical volume of a container, and it is called
+again after every reopen -- power loss, unmount under load, repeated mount
+cycles. `luks-multi` holds three logical volumes of the same size:
+
+    lvm-fedoravg.local:/run/diskNs1/FEDORAHOME
+    lvm-fedoravg.local:/run/diskNs1/FEDORAROOT
+    lvm-fedoravg.local:/run/diskNs1/FEDORABACKUP
+
+Every vector's data is cleared between vectors, so all three sit at the same
+free space, and `-gt` keeps whichever the mount table listed first. That order is
+not promised across a reopen. Writing eight fsynced files into one volume and
+reading a different one afterwards is indistinguishable from losing all eight,
+and that is what was reported:
+
+    FAIL every fsynced file survived power loss (0 of 8 present, 0 wrong, 8 lost)
+    note 0 of 30 in-flight files came back at full length
+
+Absent rather than truncated, on multi-volume fixtures only, about one run in
+eight. That is the shape of a coin toss, not of a filesystem.
+
+**This is a hypothesis until it is measured.** The harness is fixed either way --
+one that may read a volume it did not write to cannot answer the question in
+either direction, and has now been read as both. What settles it is repeated
+runs of `luks-multi` alone with the fix in: if the loss is gone, the coin toss
+was the whole of it; if it survives, there is a real fsync fault underneath and
+the harness can finally see it.
+
+## ext2 and ext3 exist now, and the guest mounts them — 2026-09-05
+
+SPECS.md advertises "ext2, ext3, ext4" and item 6 says if the app claims it, it
+is tested. Every ext fixture in the tree was ext4 -- `ext4-vectors`,
+`plain-ext4`, `luks-ext4` -- so two of the three advertised formats had never
+been opened by a check, and the branch the app reasons most carefully about had
+never been taken: `data=journal` is meaningless on a filesystem with no journal
+and the kernel refuses the mount outright, so the option is chosen by reading the
+journal flag, and no fixture had ever made that read answer no.
+
+Made on the Mac with Homebrew's mke2fs 1.47.4, deliberately not in the guest: a
+fixture built by the thing under test can agree with it and both still be wrong.
+Read back from the three superblocks:
+
+    plain-ext2      s_feature_compat = 0x00000038   no journal   option: none
+    plain-ext3      s_feature_compat = 0x0000003C   journal      data=journal
+    plain-ext4      s_feature_compat = 0x0000103C   journal      data=journal
+
+0x3C is 0x38 with bit 2 set, and that bit is the whole difference between ext2
+and ext3.
+
+The first instrument used to check them was wrong, which is worth writing down.
+Homebrew's `blkid` aborts on this Mac before printing anything --
+`dyld: symbol not found in flat namespace '__et_list'`, exit 134 -- and an
+instrument that dies silently reads as a verdict. It failed both fixtures that
+mke2fs had in fact written correctly. `dumpe2fs` runs, and its feature list is a
+better answer anyway: it says what the filesystem has rather than what a probe
+chose to call it.
+
+Then asked of the guest, which is the question that decides whether they can
+join goal6:
+
+    ext2   MOUNTED type=ext2   READBACK=hello
+    ext3   MOUNTED type=ext3   READBACK=hello
+
+Both are in goal6's fixture list now.
+
 ## The machine is an M4, and item 8 is not closed by hardware — 2026-09-05
 
 The reason written above for item 8 standing open was that Apple Silicon cannot
