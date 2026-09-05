@@ -96,6 +96,41 @@ space, and the run itself drives the chosen one below the others. Twelve clean
 runs since, and the tie measured directly rather than inferred from their
 absence.
 
+## 83 broken NTFS images, and nothing scribbled on — 2026-09-05
+
+The ntfsprogs-plus project publishes NTFS images broken on purpose: boot sectors
+with impossible geometry, MFT records missing their data attribute, corrupted
+attribute lists, orphaned inodes, cluster runs past the end of the disk, and one
+taken from a real USB unplug. `corrupt-corpus.sh` puts every one of them through
+the app's own three-rung ladder and records two things -- what happened, and
+whether the image changed.
+
+The second is the one that decides the run. Repairing an image and refusing an
+image are both acceptable; writing to one the app could not understand and then
+refusing it is not, because that is how a recoverable disk becomes an
+unrecoverable one.
+
+    cases 83: mounted 77, repaired 0, refused 6
+    refusals that wrote to the volume anyway: 0
+
+Against what was recorded the last time it ran, before it was registered and
+before tonight's work:
+
+                                    then    now
+    opened at a driver rung           68     77
+    needed the repair route            0      0
+    refused                           15      6
+    refusals that wrote to the volume  1      0
+
+The last row is the one that matters and it is now zero. Nine images that were
+refused are opened, and the single case that was written to before being refused
+is gone.
+
+Worth saying plainly: this had never been run. It was quoted in SPECS.md as
+prose and registered in no table, so nothing re-checked it -- and the first
+attempt to run it reached no image at all, because its default named a build
+with no `--drive` and the call asking that build for its actions had no timeout.
+
 ## A stopped gate kept killing the next run's engines — 2026-09-05
 
 Five instruments lied in one morning and four of them had the same root.

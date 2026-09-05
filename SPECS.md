@@ -435,10 +435,14 @@ boot sectors with impossible geometry, MFT records missing attributes, corrupted
 attribute lists, orphaned inodes, cluster runs past the end of the disk, and an
 image taken from a real USB unplug.
 
-**83 cases: 68 opened at a driver rung, 15 refused, 1 refusal that also wrote to
-the volume.** The check that matters is that a refusal leaves the image
+**83 cases: 77 opened at a driver rung, 6 refused, 0 refusals that wrote to the
+volume.** The check that matters is that a refusal leaves the image
 byte-identical: a driver that writes to a damaged filesystem before giving up
 turns a recoverable disk into an unrecoverable one.
+
+Measured again on 2026-09-05, the first time this ran as a registered check
+rather than as a number quoted here. It was 68 opened, 15 refused and 1 written
+to; it is 77, 6 and 0.
 
 Proven on real hardware as well, three times unattended: the author's BitLocker
 drive was left dirty with `$MFTMirr` behind `$MFT` by abrupt machine kills, and
