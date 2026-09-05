@@ -96,6 +96,67 @@ space, and the run itself drives the chosen one below the others. Twelve clean
 runs since, and the tie measured directly rather than inferred from their
 absence.
 
+## A stopped gate kept killing the next run's engines — 2026-09-05
+
+Five instruments lied in one morning and four of them had the same root.
+
+`verify.sh` runs each row as `timeout ... bash -c "$cmd"`, and `timeout` signals
+one process. A row is a shell that starts harnesses that start engines, so
+stopping the gate left the whole tree alive. These harnesses kill engine
+processes by pattern -- `pkill -9 -f 'krun|anylinuxfs|vmproxy'` is how they
+simulate power loss -- so an orphan from a stopped run goes on killing the
+engines of whatever runs next.
+
+Measured, because it was still happening while it was being read about:
+
+    gate stopped at                       08:24
+    goal5 sweep still running at          08:39, on luks-multi
+    stray engine mount still held         lvm:fedoravg:disk5s1:root
+    what it was doing to the next run     killing its engines
+
+**That is the cause of the goal1 fault, not a coincidence beside it.** goal1
+opened `/Volumes/LUKSXFS` while testing `ntfs-vectors.img`, wrote into a mount
+whose server had been killed underneath it, and reported the run clean:
+
+    opened /Volumes/LUKSXFS through the app
+    dd: error writing '/Volumes/LUKSXFS/...': Device not configured
+    1600 MB in 1 file(s), written in 27s
+      operations that failed: 0
+    RESULT: the copy finished with nothing failing and nothing said
+
+Three faults stacked to produce that line. The orphan killed the engine.
+`release_drives` could not clear the stale mount -- `umount -f` fails on a busy
+one -- and macOS reuses device numbers, so the lookup matched the leftover entry
+and `head -1` preferred it to the mount just made. And the failure detector was
+three phrases, `timed out|input/output error|stale`, so ENXIO passed silently.
+
+An allow-list of three strings is not a check for "did anything fail", and the
+comment directly above that lookup already recorded the stale-mount fault
+happening once before, with a leftover exFAT volume.
+
+**Fixed at each level.** The row is backgrounded under job control so it leads
+its own process group, and the trap signals that group and only that group.
+Proven rather than assumed: a synthetic row with four descendants, four alive
+while it ran and none after the script exited. goal1 asserts a clean mount table
+before it starts and refuses to run without one. And it counts anything the
+writer itself called an error.
+
+Two things written here first were wrong and are worth keeping. `timeout
+--foreground` does the opposite of what the name suggests -- it turns off the
+process-group signalling that was wanted. And `kill -- -$$` would have signalled
+the parent shell's group, because this script is not a group leader when started
+from a shell.
+
+**The fifth was the corpus harness, and it had never run.** `corrupt-corpus.sh`
+puts 83 deliberately broken NTFS images through the app's own ladder and is the
+strongest evidence there is for items 7 and 9. It was quoted in SPECS.md as prose
+and registered nowhere, so nothing ran it. Registered and run, it reached no
+image at all: its default named the Dev build, which on this Mac has no
+`--drive`, and the call asking the app for its guest actions had no timeout. It
+sat there for thirteen minutes with nothing printed. The `else` branch under that
+call says exactly the right thing and could never be reached -- the call did not
+fail, it hung.
+
 ## The 8 GB guest is closed too, and the reason is in the SDK — 2026-09-05
 
 The section below concluded that item 8 was a disk problem rather than a
