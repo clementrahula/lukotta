@@ -75,6 +75,17 @@ DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
   2>/dev/null | head -1 | awk '{print $1}')"
 [ -n "${DEV:-}" ] || { echo "error: $IMAGE would not attach" >&2; exit 2; }
 
+# With the app running, which is the way somebody uses this.
+#
+# The sweep lives in the app and in the helper. The app's is measured and works:
+# a mount whose engine was killed went in about twenty seconds. The helper's does
+# not -- with the app quit, the same mount was still there after three hundred
+# seconds -- and that gap is written down in MEASUREMENTS.md rather than hidden
+# by only ever testing the route that works. What this asserts is the guarantee
+# that holds today.
+/usr/bin/open -a "$APP_BUNDLE" >/dev/null 2>&1
+sleep 5
+
 STARTED_AT="$(date '+%Y-%m-%d %H:%M:%S')"
 timeout 300 "$APP" --drive open="$DEV" > /tmp/never-window-open.log 2>&1 \
   || { echo "error: the drive did not open" >&2; tail -3 /tmp/never-window-open.log >&2; exit 1; }

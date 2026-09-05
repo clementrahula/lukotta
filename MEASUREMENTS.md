@@ -131,6 +131,54 @@ prose and registered in no table, so nothing re-checked it -- and the first
 attempt to run it reached no image at all, because its default named a build
 with no `--drive` and the call asking that build for its actions had no timeout.
 
+## The window nobody may ever see, and what actually stops it — 2026-09-05
+
+The owner was shown "Server connections interrupted", naming disk5s1 and
+offering Disconnect All. It came from mounts whose engine this session had
+killed with -9 and which nothing then took away. Cleared, and the instruction
+was stronger than the incident: that window must never appear, even if a copy
+stalls for a moment.
+
+**There is no mount option for it.** Asked of mount_nfs(5) rather than assumed.
+`mutejukebox` -- which this app already passes, and which was added for a popup
+-- keeps a file system out of that dialog only for jukebox errors:
+"NFS requests repeatedly get jukebox errors ... prevent the file system from
+being included in the list of unresponsive file systems that would be included
+in a dialog presented to the user". A server that has gone is not that.
+`deadtimeout` only decides how long after being reported unresponsive macOS
+force-unmounts it, which is later still. So the only way the window never
+appears is that a mount is never left unresponsive long enough for macOS to say
+so.
+
+**The clearing already existed and ran almost nowhere.** `Housekeeping.sweep`
+takes down every mount whose server has gone, and `EngineProcesses.deadEngineMounts`
+decides which those are -- probing six times over about a minute, because a drive
+that has merely gone slow has been silent for forty seconds and come back serving
+perfectly. Nothing ran it unless somebody opened or ejected a drive.
+
+**What is measured now, with the check registered as `nowindow`:**
+
+    the app launched after the engine died      cleared in about 20 s
+    the app already running when it died        not cleared in 120 s
+    no app running, helper only                 not cleared in 300 s
+
+So the launch-time sweep works and the two periodic ones do not, and the second
+line is the ordinary case: somebody has the app open and a drive's engine dies.
+macOS reckons a mount unresponsive after five request timeouts at sixty seconds
+each, and the run's own log query saw it mention one during the window.
+
+**This is not fixed.** The row is red and stays red. What went in and is worth
+keeping regardless: the sweep now exists in the helper as well as the app, the
+helper reads the console user's record of what this app mounted rather than
+root's empty one, `--drive open=` writes that record like the window does, both
+guards ask the mount table rather than asking the engine that may be the thing
+that died, and the helper forces an unmount the engine's own could not.
+
+Three of those were faults that would have kept any timer inert. None of them
+was the whole of it, and the remaining cause is not yet known -- os_log from
+these subsystems returns nothing on this Mac, so the sweep cannot be watched from
+outside while it runs.
+
 ## A stopped gate kept killing the next run's engines — 2026-09-05
 
 Five instruments lied in one morning and four of them had the same root.
