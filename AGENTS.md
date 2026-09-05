@@ -242,16 +242,33 @@ what keeps v2's artifacts out of v1's: two builds of "1.22.10" that differ is
 the fault the version numbering section below exists to prevent, and it applies
 across lines as much as across channels.
 
-**This Mac has no daemon for `com.lukotta.v2`, and until it does, a v2 build
-cannot mount anything.** Installing a channel's first daemon is SMJobBless and
-asks for an administrator password once. Until somebody pays that once, this
-channel behaves exactly as the dev channel does further down this file: the app
-launches, writes no configuration, mounts nothing, and every harness that then
-reads the configuration reports something about the app that is entirely about
-the machine. `dirty-ntfs-repair.sh` already names the channel and lists the
-daemons that do exist, because it discovers them by glob rather than by a list
-somebody has to remember to update. Run anything needing a real mount against
-the beta bundle until the v2 daemon is installed.
+**The v2 daemon is installed and ready, and getting there took no password.**
+It is `SMAppService`, not `SMJobBless`: registration needs no password and
+instead leaves the daemon switched off until somebody enables the app in System
+Settings under General, Login Items and Extensions. Between those two steps the
+app reports `helper state: awaitingApproval` and mounts nothing. Done on this
+Mac on 2026-09-05; `--check-helper` now answers `helper state: ready` with both
+XPC paths returning without trapping.
+
+Two instruments lie about this, and both cost a wrong conclusion while it was
+being set up:
+
+- **`/Library/LaunchDaemons` is the wrong place to look.** An `SMAppService`
+  daemon runs out of the app bundle and puts no plist there at all. The two
+  plists in that directory are the release and the pre-release, installed by
+  the older route. A registered, running v2 daemon is absent from that listing,
+  and so is an unregistered one, so the listing cannot tell them apart. Ask
+  `launchctl print system/com.lukotta.v2.helper`, or ask the app.
+- **Running the binary directly reports a failure that is not the state.**
+  Executed straight from `Contents/MacOS`, registration answers `could not
+  register the helper: Operation not permitted`. Launched through
+  LaunchServices -- `open -a "/Applications/Lukotta v2.app" --args
+  --reinstall-helper` -- the same registration succeeds. Taken at face value
+  the first answer sends somebody after a signing or entitlement fault that
+  does not exist.
+
+`dirty-ntfs-repair.sh` needs nothing added for this channel: it discovers
+daemons by glob rather than from a list somebody has to remember to update.
 
 **Staying in sync with v1 is a forward merge, and it is done often.**
 
@@ -261,11 +278,14 @@ from this branch. The coverage work lands in `BootSector.swift`,
 `MountScript.swift` and `DiskWatcher.swift`, which is exactly where v1's fixes
 land too, so a merge left until the end is a reconciliation instead of a merge.
 
-**There is no v2 release channel, on purpose.** `release.sh` accepts `release`
-and `beta` and refuses anything else, and that stays true until v2 has
-something to release. Building the channel first would be machinery for a
-requirement that does not exist yet; the separation that matters while v2 is
-being developed is the branding above, which is built and works.
+**v2 is local only, and there is no v2 release channel on purpose.** Nothing
+built here is published to GitHub. `release.sh` accepts `release` and `beta`
+and refuses anything else, which is exactly the guard wanted: it cannot publish
+a v2 build even by mistake. The feed URL in the branding is never fetched --
+automatic checks are off -- and is there so the field is not empty, not because
+anything serves it. This stays true until v2 has something to release, and the
+separation that matters meanwhile is the branding above, which is built,
+installed and answering.
 
 ## Version Numbering
 
