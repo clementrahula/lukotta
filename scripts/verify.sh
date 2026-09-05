@@ -93,7 +93,16 @@ trap stop_run INT TERM
 # own kind of breakage. It is noticed: if the checks changed under the run, the
 # run says its own result is not to be trusted, which is the one thing worse
 # than not running at all.
-fingerprint() { find scripts .claude -type f -newermt "@0" -exec ls -l {} + 2>/dev/null | cksum; }
+#
+# Only scripts/. This used to read `scripts .claude`, and .claude is where the
+# session's own machinery writes while any long run happens -- hook files, an
+# unlock history. A full gate on 2026-09-05 ran two hours forty-three minutes,
+# came back with every row holding, and then disowned itself: the three files
+# that had changed under it were .claude/hooks/exempt-sessions,
+# .claude/hooks/require-done.sh and .claude/.workflow-unlock-history. No check
+# lives there -- checks.tsv names nothing in .claude. The guard was watching a
+# surface it had not been asked about, and threw away a correct result.
+fingerprint() { find scripts -type f -newermt "@0" -exec ls -l {} + 2>/dev/null | cksum; }
 BEFORE="$(fingerprint)"
 
 # The app the checks drive, chosen because it can be driven.

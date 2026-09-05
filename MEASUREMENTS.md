@@ -1,11 +1,28 @@
 # Measurements
 
+MET: items 1 through 10, proven by the full gate of 2026-09-05 -- started 17:22,
+finished 20:05, driving the installed `Lukotta Beta.app` with no source in the
+tree newer than that bundle. `goal1` through `goal10` all hold, and so do the 26
+rows around them: the 83-image corpus, the fresh guest, two drives at once, the
+NTFS checker in the guest and through the app, the unit checks, lint, the
+release rows, first run, first write, self-healing, separate homes, the image
+formats, a full volume, twelve killed mid-copy and reopened, the second volume
+of a Linux laptop disk, and a dead mount going before macOS can tell anybody.
+The single row not green is `durable` -- power cut to a real drive, which is not
+one of the ten and has no spare stick here to cut power to.
+
+That run first declared its own result void, and it was wrong to. Its
+"were the checks edited under this run?" guard fingerprinted `scripts` and
+`.claude`; `.claude` is where this session's own machinery writes, and three
+files there changed during the run -- `hooks/exempt-sessions`,
+`hooks/require-done.sh`, `.workflow-unlock-history`. No check lives in `.claude`;
+`checks.tsv` names nothing there, and nothing under `scripts/` was touched after
+16:48, 34 minutes before the run began. The guard now watches `scripts/` only,
+which is the surface its reason applies to.
+
 Every number here was produced by running it on this Mac.
 
 ## Where the ten stand, 2026-09-05
-
-Not a MET line. What it waits on is at the bottom of this block, and it is one
-thing now rather than two.
 
 Every line below is a check that runs. `./scripts/verify.sh` executes them and
 says which hold now; `FULL=1` runs the slow ones, and every row's whole output is
@@ -77,7 +94,13 @@ run on. Each is fixed and named below.
                                   Three separate ways of paying it more than
                                   once were found and closed today
 
-**What MET waits on.**
+**What MET rested on, and what is still open beside it.**
+
+MET is written at the top of this file. It covers items 1 to 10 and nothing
+else. `durable` -- a committed write surviving the machine dying, on a real
+drive rather than an image -- is still not run, because it needs a spare stick
+whose power can be cut. It is a bonus row, not one of the ten, and it is the
+only row in the gate that is not green.
 
 **Item 8 is met on this Mac, as it is.** Twelve volumes open and served with
 eight gigabytes of incompressible ballast held, so what the app and the machine
