@@ -2,13 +2,18 @@
 
 Every number here was produced by running it on this Mac.
 
-## Where the ten stand, 2026-09-04
+## Where the ten stand, 2026-09-05
 
-Not a MET line, and the two reasons why are at the bottom of this block.
+Not a MET line. What it waits on is at the bottom of this block, and it is one
+thing now rather than two.
 
 Every line below is a check that runs. `./scripts/verify.sh` executes them and
-says which hold now; `FULL=1` runs the slow ones. A complete pass on 2026-09-04:
-**21 hold, 0 fail, 0 unchecked, 0 not run.**
+says which hold now; `FULL=1` runs the slow ones, and every row's whole output is
+kept under `.verify-logs/`. The complete pass on 2026-09-05, before the last
+round of fixes: **23 hold, 3 fail**, and all three failures were the instruments
+rather than the app -- an engine path nothing ever set, a harness asking for one
+particular remedy, and a hardware row counted as broken for want of a drive to
+run on. Each is fixed and named below.
 
     1  writing does not stall     the stall traced to the nfsd COMMIT fault and
                                   worked around; before and after written down.
@@ -20,49 +25,76 @@ says which hold now; `FULL=1` runs the slow ones. A complete pass on 2026-09-04:
                                   against 5.222 s on the stick
     2  no crash through Finder    Finder's own copies on a real stick, both
                                   extremes, repeated, nothing user-visible
-    3  nothing user-visible       and the interrupted-copy fault found on
-                                  2026-09-03 -- a folder that could never be
-                                  used again -- fixed and checked through the
-                                  app's own route
+    3  nothing user-visible       and the interrupted-copy fault -- a folder
+                                  that could never be used again -- fixed and
+                                  checked through the app's own route. The
+                                  harness that reported this failing had
+                                  required the one remedy the app no longer
+                                  needs, because it repairs the volume instead
+                                  of moving the name aside
     4  NTFS and BitLocker         byte-identical both, Keychain unlock with
                                   nothing typed. BitLocker on the owner's drive,
                                   since no Mac or Linux can create one -- and a
                                   committed write surviving a killed machine on
                                   that drive, three of three
-    5  LUKS and Linux             seven fixtures, twelve vectors each
-    6  every other format         every format the site claims that can have a
-                                  fixture: NTFS, ext2/3/4, btrfs, XFS, exFAT,
-                                  FAT, LUKS1, LUKS2, LVM inside LUKS
-    7  dirty NTFS repaired        both shapes, 41 of 41 each, nothing shown
+    5  LUKS and Linux             seven fixtures, thirteen vectors each. The
+                                  one-in-eight fsync loss on luks-multi is
+                                  explained and fixed: two of its three logical
+                                  volumes are tied at 149 MB free to the
+                                  megabyte, and the harness could read one it
+                                  had not written to
+    6  every other format         ten fixtures, thirteen vectors each. ext2 and
+                                  ext3 exist as of today and pass; until then
+                                  every ext fixture in the tree was ext4, so two
+                                  of the three formats SPECS advertises had
+                                  never been opened by a check
+    7  dirty NTFS repaired        both shapes, 41 of 41 each, nothing shown --
+                                  and an $MFTMirr mismatch that arrived by
+                                  accident, 65 errors fixed in one pass, which
+                                  ntfsfix cannot repair at all
     8  a dozen at once            twelve served at every five-second sample
-                                  through ten minutes at 14-35 MB free, 310-340
-                                  MB between them, the Mac answering in 20 ms
-    9  every vector               168 vectors, fourteen fixtures, through the
-                                  app's own route
+                                  through ten minutes at 14-37 MB free, 310-340
+                                  MB between them, the Mac answering in 20 ms.
+                                  The kernel's own pressure level and its
+                                  jetsam count are now recorded beside those
+                                  figures, rather than the numbers being read
+                                  as pressure by this work
+    9  every vector               182 vectors, fourteen fixtures, through the
+                                  app's own route: interrupted copies, power
+                                  loss, full volumes, permissions, long and
+                                  non-ASCII names, sparse and very large files,
+                                  concurrent readers and writers, unmount under
+                                  load, repeated mount cycles, and a copy over
+                                  files already there
     10 no UX cost                 no click, no prompt, no error, no fallback.
-                                  The one cost is durability: 250 MB/s becomes
-                                  125 with sync, and only on XFS and on LUKS
-                                  containers. Without it a power cut takes 8 of
-                                  8 fsynced files and with it none, so it is
-                                  the price of not losing the file
+                                  Two costs, both deliberate and both written
+                                  down. Durability: 250 MB/s becomes 125 with
+                                  sync, on XFS and on LUKS containers only, and
+                                  without it a power cut takes 8 of 8 fsynced
+                                  files. And one full check per NTFS volume per
+                                  Mac, ever -- 59 seconds on a 247 GB drive,
+                                  announced in the window while it happens.
+                                  Three separate ways of paying it more than
+                                  once were found and closed today
 
-**What MET waits on, and neither is soft.**
+**What MET waits on.**
 
-**Item 8 names an 8 GB M1 and this is a 16 GB Mac.** Everything above was taken
-with ballast held until what is free is what an 8 GB machine has -- 14 to 35 MB
--- which is as close as this hardware comes and is not the same thing. What used
-to stand here said Apple Silicon has no way to boot with less memory, so no
-amount of work here closes it. That was wrong, and the section below says what
-this machine actually is and what closing it now costs.
+**Item 8 names an 8 GB M1 and this is a 16 GB M4.** Every route to an 8 GB
+kernel on this machine is closed, each for its own measured reason: a boot-arg
+needs SIP off and somebody physically at the Mac; a macOS guest is not offered
+nested virtualization at all, so the app's own microVM cannot start inside one;
+and there is no second Mac. The figures are taken under ballast held until free
+memory is what an 8 GB machine has, which is harsher than the real thing in one
+way -- a real 8 GB Mac has no 8 GB ballast competing with it -- and weaker in
+another, since the kernel's caches, zones and jetsam thresholds were sized at
+boot for 16 GB. Nothing on this hardware closes that last gap.
 
-**An fsync loss was seen once and has not been explained.** `luks-multi`, inside
-a gate: 0 of 8 fsynced files present after power loss, nothing partial. Then
-seven LUKS fixtures clean, five more runs of that fixture clean, and two earlier
-gates clean -- about one in eight, not seen since. `kill-durability.sh` says why
-a fixture cannot settle it: writes to an attached image reach the backing file
-through the host's buffer cache, which killing the guest does not discard, so
-this vector under-reports on images and clean runs there prove nothing either.
-Only a real drive settles it.
+**The fsync loss is no longer one of the two.** It was recorded here as seen
+once and unexplained. It is explained: the harness could read a different
+logical volume than it wrote to, on a fixture whose volumes tie exactly on free
+space, and the run itself drives the chosen one below the others. Twelve clean
+runs since, and the tie measured directly rather than inferred from their
+absence.
 
 ## The 8 GB guest is closed too, and the reason is in the SDK — 2026-09-05
 
