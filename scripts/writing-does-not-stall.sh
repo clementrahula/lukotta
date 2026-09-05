@@ -116,6 +116,30 @@ release_drives() {
 trap 'release_drives; rm -rf "$WORK"' EXIT
 release_drives
 
+# And nothing is served before this starts, or there is nothing to measure.
+#
+# release_drives unmounts what it finds, and `umount -f` can still fail on a
+# busy mount. What is left is a line in the table with a share name macOS is
+# free to hand to the next attach, because device numbers are reused -- so the
+# lookup below matches the stale entry, `head -1` prefers it to the mount just
+# made, and the run measures a volume whose engine is gone.
+#
+# That is not a hypothetical. On 2026-09-05 this row measured /Volumes/LUKSXFS
+# while testing ntfs-vectors.img, wrote into a dead mount, and reported "the
+# copy finished with nothing failing" over the top of dd saying "Device not
+# configured". The comment further down already recorded the same thing
+# happening once with a leftover exFAT volume.
+#
+# Refused rather than worked around: a run that cannot get a clean table cannot
+# tell which volume it is holding, and a number from it means nothing.
+still="$(mount | /usr/bin/grep -c ':/mnt/' || true)"
+if [ "${still:-0}" -gt 0 ]; then
+  echo "error: $still volume(s) still served after clearing; not starting" >&2
+  mount | /usr/bin/grep ':/mnt/' | sed 's/^/       /' >&2
+  echo "       a stale mount takes the device name this run is about to use" >&2
+  exit 2
+fi
+
 if [ "$DEVICE_MODE" = 1 ]; then
   DEV="$IMG"
 else
@@ -199,7 +223,18 @@ worst=$(/usr/bin/grep -o 'worst [0-9.]*s' "$WORK/latency.log" | awk '{print $2}'
 said=$(/usr/bin/log show --start "$STARTED_AT" --style compact \
   --predicate 'eventMessage CONTAINS[c] "not responding"' 2>/dev/null \
   | /usr/bin/grep -c "server not responding" || true)
-errored=$(/usr/bin/grep -ciE "timed out|input/output error|stale" "$WORK/latency.log" || true)
+# Anything the writer called an error, not three phrases it might have used.
+#
+# This was `timed out|input/output error|stale`, which is an allow-list wearing
+# a check's clothes: every other errno passed silently. "Device not configured"
+# -- ENXIO, what writing to a mount whose engine has gone looks like -- went
+# uncounted, and the row reported a clean copy on top of a failed one.
+#
+# dd prints diagnostics only on failure, so its name at the start of a line is
+# the writer saying so itself, whatever errno it goes on to name.
+errored=$(/usr/bin/grep -ciE \
+  "^dd: |timed out|input/output error|stale|not configured|no space left" \
+  "$WORK/latency.log" || true)
 
 echo
 if [ -z "${over:-}" ]; then
