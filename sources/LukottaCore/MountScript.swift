@@ -275,8 +275,19 @@ public enum MountScript {
         /// from 12 seconds to 17. Where the superblock can be read, the cheaper
         /// per-filesystem option is used instead and this stays off.
         public mutating func askForStableWrites() {
-            guard !nfsOptions.contains("sync") else { return }
+            guard !asksForStableWrites else { return }
             nfsOptions += ",sync"
+        }
+
+        /// Whether the client was asked to write stably.
+        ///
+        /// Matched as a whole option rather than as a substring: "async" ends
+        /// in the same four letters, and `contains("sync")` answered yes for an
+        /// option list carrying it -- which would put the expensive `-o sync`
+        /// on every volume of a container whose mount had asked for the
+        /// opposite.
+        public var asksForStableWrites: Bool {
+            nfsOptions.split(separator: ",").contains("sync")
         }
 
         /// Which network the microVM's NFS server is reached over.
@@ -2390,7 +2401,17 @@ public enum MountScript {
     /// So the floor is a READDIR waiting behind a saturated write stream, and
     /// the write size is the only knob measured to reach it: ninety seconds
     /// down to sixteen. The median near eight is what NFS costs here.
-    public static let writeSize = 32768
+    /// Raised from 32768 to 131072 on 2026-09-06, when every write became a
+    /// synchronous one.
+    ///
+    /// The paragraphs above chose 32768 to keep a directory listing answerable
+    /// while a copy saturates the write stream, and that reasoning held for an
+    /// unsafe mount. It does not survive `-o sync`: a durable write costs one
+    /// device flush, about 19 ms, whatever its size, so the write size is the
+    /// whole of the throughput. On the 247 GB drive, 256 MiB in one stream:
+    /// 2.0 MB/s at 32 KiB, 14.0 MB/s at 128 KiB, both durable, against
+    /// 7.7 MB/s for the unsafe mount that shipped before either.
+    public static let writeSize = 131072
 
     /// What both sides are asked for, and what the server is told to allow.
     public static let transferSize = 131072
@@ -2594,19 +2615,22 @@ public enum MountScript {
         driver: String?, readOnly: Bool, durability: String? = nil
     ) -> String {
         var opts = driverOptions(driver)
-        // Never beside a driver. The drivers named here are the NTFS ones,
-        // and this belongs to the Linux filesystems alone.
+        // Beside a driver as well, since 2026-09-05.
         //
-        // Relaxed on 2026-09-04 to let `sync` through to NTFS, and put back the
-        // same evening: the counterfactual on a real drive showed NTFS survives
-        // a kill with the option and without it, three runs each, so the
-        // relaxation bought nothing and `sync` halves the throughput.
+        // It was kept away from the NTFS drivers on a counterfactual that said
+        // NTFS survives a kill either way, three runs each -- taken with the
+        // durability harness that never ran past the line which opens the
+        // drive, so those runs measured nothing. Measured again on the owner's
+        // BitLocker drive with a harness that works: without the option, three
+        // of three fsynced writes came back with their leading 128 KiB wrong.
+        // An exFAT stick given the option keeps three of three; NTFS, which was
+        // the one filesystem the option could not reach, kept one of three.
         //
         // Never on a read-only mount. The option exists so that a write which
         // was fsynced survives the machine dying, and a volume opened read-only
         // takes no writes at all -- so it buys nothing and, on a device, `sync`
         // is the difference between 190 MB/s and 4.
-        if let durability, driver == nil, !readOnly { opts.append(durability) }
+        if let durability, !readOnly { opts.append(durability) }
         opts += readOnly ? ["ro"] : []
         return opts.isEmpty ? "" : " -o \(opts.joined(separator: ","))"
     }
@@ -2750,7 +2774,7 @@ public enum MountScript {
         if i.readOnly { options.append("ro") }
         if let durability = i.durability, !durability.isEmpty {
             options.append(durability)
-        } else if i.nfsOptions.contains("sync") {
+        } else if i.asksForStableWrites {
             // The client was asked for stable writes because the app could not
             // read the filesystem to choose anything cheaper -- which is every
             // LUKS container. That option is the client's, and it reaches the

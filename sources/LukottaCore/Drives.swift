@@ -22,15 +22,23 @@ public enum VolumeKind: String, Hashable, Sendable {
     /// and every raw image of one, was opened as a Linux volume and never
     /// repaired.
     ///
-    /// Only that direction is corrected. A partition type that says Microsoft
-    /// is a fact about the disk and stands; a Linux volume's own first sector
-    /// never says NTFS, so nothing that was right before changes.
+    /// Both directions, since 2026-09-06. A partition type was treated as a
+    /// fact about the disk when it says Microsoft, and it is not one: it is a
+    /// claim written when the disk was partitioned, and it stays behind when
+    /// somebody reformats the volume inside it.
+    ///
+    /// Measured that morning on a stick whose exFAT was replaced with a LUKS
+    /// container: the MBR still typed it Windows_NTFS, the daemon's own reading
+    /// of the first sector said LUKS, and the type won -- so an encrypted Linux
+    /// volume was handed to the ntfs3 driver with `iocharset=utf8` and the open
+    /// ended in "wrong fs type, bad option, bad superblock".
+    ///
+    /// The sector is what the volume is. The type is only consulted where the
+    /// sector says nothing this app recognises.
     public static func settled(_ declared: VolumeKind, sectorSays format: VolumeFormat)
         -> VolumeKind
     {
-        guard declared == .linux, let probed = format.kind, probed != .linux else {
-            return declared
-        }
+        guard let probed = format.kind else { return declared }
         return probed
     }
 
@@ -410,15 +418,36 @@ public enum DriveScanner {
             // disk look alike from out here -- so it is offered, and the boot
             // sector settles it when it is chosen. Skipped before, which made
             // exactly those drives invisible.
-            let unpartitioned =
-                partitions == nil && apfs == nil && !internalDisk
-                ? [
-                    [
-                        "DeviceIdentifier": wholeIdent ?? "", "Content": "",
-                        "Size": disk["Size"] ?? 0,
-                    ]
+            // A partition table macOS reads is not always the one that is in
+            // use. A stick partitioned on a Mac years ago and formatted NTFS on
+            // Windows today still carries the old Apple partition map, and macOS
+            // reads that one: it reported a 4 MB Apple_HFS volume and nothing
+            // else, so every row for a 123 GB NTFS stick was thrown away and the
+            // app showed no drive for a stick that was plugged in.
+            //
+            // The guest reads tables macOS will not, so where nothing on a disk
+            // is a type this app opens, the disk itself is offered as a
+            // candidate and the engine is left to find what is on it. Only as a
+            // candidate: whether it becomes a row is decided further up, by
+            // whether anything on the disk turned out to be openable and whether
+            // macOS is using any of it.
+            let noneClaimable = !(partitions ?? []).contains {
+                VolumeKind.holding(($0["Content"] as? String) ?? "") != nil
+            }
+            let wholeDiskRow = [
+                [
+                    "DeviceIdentifier": wholeIdent ?? "", "Content": "",
+                    "Size": disk["Size"] ?? 0,
                 ]
-                : []
+            ]
+            var unpartitioned: [[String: Any]] = []
+            if partitions == nil && apfs == nil && !internalDisk {
+                unpartitioned = wholeDiskRow
+            } else if !claimed, apfs == nil, !internalDisk, noneClaimable,
+                partitions?.isEmpty == false
+            {
+                unpartitioned = wholeDiskRow
+            }
 
             for part in (partitions ?? []) + unpartitioned {
                 guard let ident = part["DeviceIdentifier"] as? String else { continue }
@@ -438,11 +467,12 @@ public enum DriveScanner {
                     kind = declared
                 } else {
                     // The leftovers: a partition on an external disk whose type
-                    // this app makes nothing of. Called Linux the way an
+                    // this app makes nothing of, or the whole disk of one where
+                    // no partition is a type it opens. Called Linux the way an
                     // unpartitioned disk is -- a neutral guess the first sector
                     // overrules -- and marked as telling us nothing, so no row
                     // claims a format nobody has read.
-                    guard declared == nil, !isWholeDisk, !internalDisk else { continue }
+                    guard !internalDisk, isWholeDisk || declared == nil else { continue }
                     kind = .linux
                 }
 

@@ -468,7 +468,7 @@ group("theElevatedMountScript") {
     expect(!msScript.contains("-n '"), "NFS options must never use the separated form")
     expect(
         msScript.contains(
-            "--nfs-options='rsize=131072,wsize=32768,readahead=128,dumbtimer,"
+            "--nfs-options='rsize=131072,wsize=131072,readahead=128,dumbtimer,"
                 + "timeo=600,retrans=5,deadtimeout=900,mutejukebox,noowners'"),
         "NFS options use the joined form")
     // The other half of what --ignore-permissions does, which the read-only
@@ -1685,7 +1685,10 @@ group("aStalePartitionTypeDoesNotHideADrive") {
         DriveScanner.drives(inList: stale, info: external).isEmpty,
         "no partition type on it says anything this app opens")
     let leftovers = DriveScanner.unclaimedVolumes(inList: stale, info: external)
-    expect(leftovers.count == 2, "so both volumes are kept as candidates instead")
+    expect(leftovers.count == 3, "both volumes are kept as candidates, and the disk itself")
+    expect(
+        leftovers.contains { $0.devicePath == "/dev/disk6" },
+        "the disk whole, for the guest to read a table macOS will not")
     expect(
         leftovers.allSatisfy { !$0.kindIsKnown },
         "and neither claims to know what it holds")
@@ -1783,9 +1786,15 @@ group("aRowSaysOnlyWhatIsKnownAboutIt") {
     expect(
         VolumeKind.settled(.linux, sectorSays: .unknown) == .linux,
         "and so is a sector that says nothing")
+    // A partition type is a claim written when the disk was partitioned, and a
+    // reformat leaves it behind. A stick typed Windows_NTFS in its MBR held a
+    // LUKS container on 2026-09-06, and the type sent it to the ntfs3 driver.
     expect(
-        VolumeKind.settled(.microsoft, sectorSays: .ext) == .microsoft,
-        "a partition type that says Microsoft is a fact, and stands")
+        VolumeKind.settled(.microsoft, sectorSays: .luks) == .linux,
+        "a volume whose sector says LUKS is a Linux one, whatever the table says")
+    expect(
+        VolumeKind.settled(.microsoft, sectorSays: .unknown) == .microsoft,
+        "and a sector that says nothing leaves the partition type standing")
 
     // exFAT is a Microsoft filesystem and neither NTFS driver mounts it. The
     // ladder used to be chosen from the family, so an exFAT volume was handed

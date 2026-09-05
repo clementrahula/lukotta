@@ -1221,7 +1221,42 @@ final class AppModel: ObservableObject {
             for candidate in candidates {
                 let format = await self.helper.identify(devicePath: candidate.devicePath)
                 self.sectorFormats[candidate.devicePath] = format
-                guard format != .unknown, format.kind != nil else { continue }
+                let isWholeDisk = DriveScanner.wholeDisk(of: candidate.id) == candidate.id
+                if isWholeDisk {
+                    // A whole disk whose partitions said nothing this app opens.
+                    //
+                    // Its own first sector usually says nothing either -- the
+                    // stale Apple partition map that hid a 123 GB NTFS stick is
+                    // a partition table, not a filesystem -- so this one is not
+                    // admitted on the sector. It is admitted when nothing else
+                    // on the disk was, and when macOS is not using any of it:
+                    // the guest reads partition tables macOS refuses, and a
+                    // disk nobody can otherwise open is exactly where that is
+                    // worth doing. An HFS+ or FAT stick macOS has mounted keeps
+                    // out of the list, because macOS is already serving it.
+                    let disk = candidate.id
+                    let somethingElse = self.drives.contains {
+                        DriveScanner.wholeDisk(of: $0.id) == disk && $0.id != disk
+                    }
+                    let macOSUsesIt = MountTableEntry.all(in: mountTable()).contains {
+                        $0.source.hasPrefix("/dev/")
+                            && DriveScanner.wholeDisk(
+                                of: ($0.source as NSString).lastPathComponent) == disk
+                    }
+                    guard
+                        Admission.admitsWholeDisk(
+                            otherRowsOnTheSameDisk: somethingElse,
+                            macOSIsUsingTheDisk: macOSUsesIt)
+                    else { continue }
+                    let row = candidate
+                    self.adoptedVolumes[row.devicePath] = row
+                    admitted.append(row)
+                    Log.drives.notice(
+                        "\(row.devicePath, privacy: .public) is offered whole: nothing macOS reads on it is openable"
+                    )
+                    continue
+                }
+                guard Admission.admitsVolume(sectorSays: format) else { continue }
                 let row = candidate.knowing(format)
                 self.adoptedVolumes[row.devicePath] = row
                 self.knownFormats[row.id] = format

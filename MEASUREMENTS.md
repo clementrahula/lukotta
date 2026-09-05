@@ -1,6 +1,18 @@
 # Measurements
 
-MET: items 1 through 10, proven by the full gate of 2026-09-05 -- started 17:22,
+MET WITHDRAWN, 2026-09-05 23:40. Item 9 is not met: a write that `fsync`
+returned success for is lost when the machine serving it dies, on real drives.
+Three spare sticks and the owner's BitLocker drive arrived after the gate, and
+the first thing they were asked was the one question an image cannot answer --
+an attached image is backed by a file, so the host's own buffer cache writes it
+out even when the guest is killed, and every durability pass in this file rests
+on that. On a physical device, three of three runs on a 247 GB BitLocker drive
+and three of three on a 62 GB exFAT stick came back with the file present and
+its first 128 KiB wrong, mostly zeros. The work on it is below, under "A
+committed write on a real drive". The line beneath this one is what the gate
+said and remains true of the other nine.
+
+Was: items 1 through 10, proven by the full gate of 2026-09-05 -- started 17:22,
 finished 20:05, driving the installed `Lukotta Beta.app` with no source in the
 tree newer than that bundle. `goal1` through `goal10` all hold, and so do the 26
 rows around them: the 83-image corpus, the fresh guest, two drives at once, the
@@ -4801,3 +4813,86 @@ and lld that no user installs; this is the same arrangement.
 **Still to prove:** that it actually frees a poisoned entry. A clean volume
 coming back clean says the tool runs, not that it repairs. The next measurement
 is a deliberately poisoned fixture, before and after.
+
+## A committed write on a real drive — 2026-09-05, overnight
+
+Every durability figure in this file before tonight was taken on a disk image.
+An image is a file, so a flush the guest never issued still reaches the platter:
+macOS holds the written blocks in its own buffer cache and writes them out
+whatever happens to the microVM. A raw device has nothing behind it that does
+that. The first measurement on real hardware, the hour it arrived:
+
+    8 MiB written with dd conv=fsync, which returns only once the NFS client's
+    COMMIT has been answered, then the engine killed the way a crash kills it
+
+    Patriot 247 GB, BitLocker/NTFS   3 of 3 wrong
+    Kingston 62 GB, exFAT            3 of 3 wrong
+
+The shape is the same every time: the file is there, the right size, and its
+leading 128 KiB is wrong -- 130,5xx of 8,388,608 bytes, most of them zeros --
+with everything after it byte-identical. Occasionally two chunks rather than one.
+
+Four things were eliminated by measurement rather than by argument:
+
+    a clean eject and reopen      byte-identical, so the write path is sound
+    ten seconds before the kill   the same 130,520 bytes wrong
+    sixty seconds before it       byte-identical
+    read by macOS, not the app    the same bytes wrong, with no microVM, no NFS
+                                  and no repair pass anywhere near it
+
+Sixty seconds is the guest's own writeback timer catching up. So the data is not
+lost and it is not the macOS client's cache: it sits in the guest waiting for a
+timer while the application has been told it is on the drive. And the fourth
+line rules out the reopen -- macOS mounts exFAT itself, and it reads the same
+damage.
+
+**What fixes it, measured on the drives:**
+
+    guest-side -o sync            3 of 3 kept
+    client-side stable writes     6 of 6 kept
+
+**What it costs, on the 247 GB drive, 256 MiB in one stream:**
+
+    nothing applied (what ships)  7.7 - 8.5 MB/s   and loses the data
+    client stable writes          1.7 MB/s
+    guest-side -o sync            2.0 MB/s
+
+A four-fold cost is not shippable and neither is losing the write, so the search
+went on for the setting where both hold. The rate was never a bandwidth limit:
+at a 32 KiB write size a durable stream is 53 writes a second, which is one
+device flush of about 19 ms each. The write size is the whole of it.
+
+**Where it landed, at 04:20 on 2026-09-06.** Every volume is mounted `-o sync`
+inside the guest, and the NFS write size is 131072 rather than 32768:
+
+    Patriot 247 GB, BitLocker/NTFS   3 of 3 kept   14.0 MB/s
+    Kingston 62 GB, exFAT            3 of 3 kept
+    Kingston 62 GB, LUKS + ext4      3 of 3 kept
+
+Faster than the unsafe mount it replaces, which did 7.7 to 8.5 MB/s on the same
+drive and lost the data three times out of three. The write size had been chosen
+at 32768 to keep a directory listing answerable under a copy, which was right
+for an unsafe mount and does not survive `-o sync`: a durable write costs one
+flush whatever its size.
+
+Two things had to change beside the option itself.
+
+The option was **blocked from reaching the NTFS drivers**, by a counterfactual
+that said NTFS survives a kill either way -- three runs each, taken with the
+harness that never ran past the line which opens the drive. Measured again with
+one that works: NTFS keeps 1 of 3 without it and 3 of 3 with it.
+
+And a **partition type was being treated as a fact**. `VolumeKind.settled` let a
+type of Windows_NTFS overrule the daemon's own reading of the first sector, so
+the LUKS stick -- made minutes earlier inside a partition still typed from its
+exFAT days -- was handed to the ntfs3 driver with `iocharset=utf8`, and the open
+ended in "wrong fs type, bad option, bad superblock". The sector decides now, in
+both directions; the type is consulted only where the sector says nothing.
+
+**A method error worth keeping.** Three configurations were measured, and
+reported here in an earlier draft, with the durability line left at
+`stableWrites: false` by an experiment that had not been put back -- so a build
+with no durability measure at all was tested twice and read as the safe one, and
+"the safe configuration lost data in 5 of 6 runs" was written down about a build
+that had nothing switched on. Every run below now prints what the mount was
+given, and no configuration is believed without it.

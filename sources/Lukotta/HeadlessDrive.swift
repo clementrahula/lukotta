@@ -276,7 +276,10 @@
                     .map { "/dev/" + $0 }
             }
 
-            let listed = Set(DriveScanner.scan(images: []).map(\.devicePath))
+            let survey = DriveScanner.survey(images: [])
+            let listed = Set(survey.listed.map(\.devicePath))
+            let candidates = Set(survey.unclaimed.map(\.devicePath))
+            let mounted = MountTableEntry.all(in: LukottaCore.mountTable())
             let helper = HelperClient()
             if case .notInstalled = helper.state { helper.install() }
             let ready = Date().addingTimeInterval(30)
@@ -306,8 +309,35 @@
                 // either side of a colon in an app file is how the string
                 // extractor recognises interface text, and these two are
                 // diagnostics on stderr that no window ever shows.
-                var inTheList = "NOT LISTED"
-                if listed.contains(node) { inTheList = "listed" }
+                // What the window would do with it, not merely what the
+                // scan found: a volume the partition types dropped is offered
+                // when its sector names a format, and a disk none of whose
+                // partitions is openable is offered whole. Reporting the raw
+                // scan here said "NOT LISTED" about a stick the app opens.
+                var inTheList = "not offered"
+                let identifier = (node as NSString).lastPathComponent
+                let disk = DriveScanner.wholeDisk(of: identifier)
+                if listed.contains(node) {
+                    inTheList = "listed"
+                } else if candidates.contains(node) {
+                    if identifier == disk {
+                        let others = survey.listed.contains {
+                            DriveScanner.wholeDisk(of: $0.id) == disk && $0.id != disk
+                        }
+                        let used = mounted.contains {
+                            $0.source.hasPrefix("/dev/")
+                                && DriveScanner.wholeDisk(
+                                    of: ($0.source as NSString).lastPathComponent) == disk
+                        }
+                        if Admission.admitsWholeDisk(
+                            otherRowsOnTheSameDisk: others, macOSIsUsingTheDisk: used)
+                        {
+                            inTheList = "offered whole"
+                        }
+                    } else if let answer, Admission.admitsVolume(sectorSays: answer) {
+                        inTheList = "offered by its sector"
+                    }
+                }
                 say("\(node)  \(inTheList)  \(name)  [\(head)]")
             }
             exit(0)

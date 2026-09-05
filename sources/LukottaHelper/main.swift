@@ -17,26 +17,6 @@ import SystemConfiguration
 /// of logical volumes arrives as "lvm-<group>.local:/run/diskN" with each
 /// volume mounted inside it. Matching a narrower shape than that has already
 /// refused two kinds of working mount.
-/// The durability option for a device, and nothing where none is wanted.
-///
-/// The daemon runs as root and can read any device node, so this is the one
-/// place the answer is always available.
-private func durabilityFor(devicePath: String, probed: VolumeFormat) -> String? {
-    if let fromSuperblock = ExtJournal.durabilityOption(forDevice: devicePath) {
-        return fromSuperblock
-    }
-    // A container hides the superblock, so it takes the blunt option.
-    // A LUKS container hides the superblock, so it takes the blunt option:
-    // ext4 and XFS inside one genuinely lose fsynced files without theirs.
-    //
-    // BitLocker was added here on the same evening and withdrawn the same
-    // evening: it can only hold NTFS, and NTFS was measured not to need it.
-    if LUKSHeader.isContainer(forDevice: devicePath) {
-        return "sync"
-    }
-    return nil
-}
-
 private func servedCount() -> Int {
     (LukottaCore.run("/sbin/mount", [])?.out ?? "")
         .split(separator: "\n")
@@ -565,7 +545,10 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 Log.helper.notice("the first sector says this is not a Linux volume")
             }
 
-            let inputs = MountScript.Inputs(
+            // What this volume needs for a write it has acknowledged to
+            // survive the machine dying. See `Durability`.
+            let durability = Durability.choice(forDevice: devicePath)
+            var inputs = MountScript.Inputs(
                 enginePath: engine.path,
                 devicePath: devicePath,
                 driveName: "",
@@ -601,10 +584,11 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
                 // drive on 2026-09-04, after `dd conv=fsync` had returned and
                 // the machine was killed: the file was gone. With the option
                 // applied, four runs of the same test survived byte-identical.
-                durability: durabilityFor(devicePath: devicePath, probed: probed),
+                durability: durability.guestOption,
                 // What the sector said, so the driver ladder can choose by the
                 // filesystem rather than by the family it belongs to.
                 format: probed)
+            if durability.stableWrites { inputs.askForStableWrites() }
             let script = MountScript.build(inputs)
 
             let scriptURL = workspace.root.appendingPathComponent("mount.sh")

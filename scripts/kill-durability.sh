@@ -75,7 +75,13 @@ say() { printf '%s\n' "$*"; }
 # the app's scan does not list one attached with hdiutil.
 open_device() {
   if [ "${REAL:-0}" = 1 ]; then
-    timeout 300 "$EXE" --drive open="$DEV" > "$WORK/engine.log" 2>&1 || return 1
+    # An encrypted drive needs its key, and the app has none saved for a stick
+    # made minutes ago: LUKOTTA_TEST_PASSPHRASE carries it. Without this the
+    # LUKS fixture answered "the drive did not open (status 74)", which reads
+    # like a broken volume and is a harness with no key.
+    local key=()
+    [ -n "${LUKOTTA_TEST_PASSPHRASE:-}" ] && key=("passphrase=$LUKOTTA_TEST_PASSPHRASE")
+    timeout 300 "$EXE" --drive open="$DEV" "${key[@]}" > "$WORK/engine.log" 2>&1 || return 1
   else
     nohup "$ENGINE" mount -w false --ignore-permissions "$IMG" \
       > "$WORK/engine.log" 2>&1 &
@@ -247,6 +253,12 @@ else
       printf "      first difference is %d bytes into a 4096-byte block\n", (first - 1) % 4096
       printf "      the damage begins %.1f%% of the way through the file\n", (first - 1) * 100 / '"$((MB * 1048576))"'
     }' "$WORK/diff.txt"
+  # What the reopen did on its way in. A volume left dirty by the kill is
+  # repaired before it is served, and a repair is a thing that writes: it
+  # belongs in front of anybody reading this result rather than in a workspace
+  # this script removes on its way out.
+  say "  what the reopen said:"
+  sed 's/^/      /' "$WORK/engine.log" 2>/dev/null | tail -25
   # The drive does not keep this run's wreckage: a folder left behind is one
   # more name the next run has to work around, and this one is the owner's.
   rm -rf "${MOUNT:?}/${WITNESS:?}" 2>/dev/null
