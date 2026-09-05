@@ -64,6 +64,48 @@ through the host's buffer cache, which killing the guest does not discard, so
 this vector under-reports on images and clean runs there prove nothing either.
 Only a real drive settles it.
 
+## The 8 GB guest is closed too, and the reason is in the SDK — 2026-09-05
+
+The section below concluded that item 8 was a disk problem rather than a
+hardware one: this is an M4, nested virtualization arrived with M3, so a macOS
+guest given exactly 8 GB would be a real 8 GB Apple Silicon Mac with the app's
+own microVM running inside it. The disk was then freed -- 16 GB to 71 GB, more
+than the ~37 GB such a guest needs -- so the route was open and worth the
+17 GB download.
+
+It is not open. Asked of the SDK on this machine before anything was downloaded:
+
+    VZGenericPlatformConfiguration.h:45   isNestedVirtualizationSupported
+    VZGenericPlatformConfiguration.h:57   isNestedVirtualizationEnabled
+    VZMacPlatformConfiguration.h          no mention of nested, at all
+
+`VZGenericPlatformConfiguration` is the Linux and generic platform.
+A macOS guest is configured with `VZMacPlatformConfiguration`, and nested
+virtualization is not offered there in any form. So Hypervisor.framework is not
+available inside a macOS guest on this Mac, krun cannot start, and the app
+cannot serve a single volume in there, let alone twelve.
+
+That closes all three routes to an 8 GB kernel on this machine, each for its own
+measured reason:
+
+    a boot-arg          needs SIP off, which needs 1TR and somebody at the Mac
+    a macOS guest       nested virtualization is not offered to macOS guests
+    another Mac         not here
+
+**What remains, and what it is worth.** The twelve-volume measurement is taken
+with ballast held until free memory is what an 8 GB machine has -- 14 to 37 MB --
+which is occupancy, not a smaller kernel. Two things are worth saying about that
+plainly. It is harsher than the real thing in one respect: a real 8 GB Mac
+running this load has no 8 GB ballast competing with it. And it is weaker in
+another: the kernel's caches, zones and jetsam thresholds were sized at boot for
+16 GB, and no amount of occupancy changes that.
+
+The next route is `memory_pressure -S`, which makes the kernel report the
+pressure level it would report on a smaller machine, so every process -- the app
+and its machines included -- is told what an 8 GB Mac would tell them. That is
+not the same as a smaller kernel either, and it will be written down as what it
+is.
+
 ## The luks-multi fsync loss: the tie is real, and it is 149 MB — 2026-09-05
 
 The loss recorded on 2026-09-04 as "seen once and not explained" -- 0 of 8
