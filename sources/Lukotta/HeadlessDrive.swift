@@ -385,12 +385,24 @@
             // the question is whether anything is actually being served -- and
             // that is the same question wherever the failure came from.
             let serving = MountTableEntry.all(in: LukottaCore.mountTable()).contains {
-                $0.isEngineMount
-                    && ($0.source.hasPrefix("\((drive.devicePath as NSString).lastPathComponent).")
-                        || $0.source.contains(
-                            "/run/\((drive.devicePath as NSString).lastPathComponent)/"))
+                $0.isEngineMount && isThisDrive($0, drive.devicePath)
             }
             if outcome.status == 0 && serving {
+                // Written down, the way the window writes it down.
+                //
+                // The sweep that takes away mounts whose server has gone will
+                // only force one this app recorded making -- everything else in
+                // the table is somebody else's, and forcing it is data somebody
+                // loses. The windowed app records each mount as it makes it;
+                // this route never did, so every drive opened here was invisible
+                // to the sweep, and a harness could not see the behaviour work
+                // at all. Measured on 2026-09-05: the record empty, a dead mount
+                // sitting for three minutes, the helper's timer firing over it
+                // and finding nothing it was allowed to touch.
+                for entry in MountTableEntry.all(in: LukottaCore.mountTable())
+                where entry.isEngineMount && isThisDrive(entry, drive.devicePath) {
+                    OpenedHere.add(entry.mountPoint)
+                }
                 say("opened \(drive.name)")
                 exit(0)
             }
@@ -400,6 +412,19 @@
             }
             say("the drive did not open (status \(outcome.status))")
             exit(Int32(truncatingIfNeeded: Int(outcome.status)))
+        }
+
+        /// Whether a mount in the table came from this drive.
+        ///
+        /// The engine names a share after the device it was handed, so
+        /// /dev/diskNsM appears as "diskNsM.local:". A container is named after
+        /// its volume group instead -- "lvm-fedoravg.local:/run/diskNsM/HOME" --
+        /// and the device is still in the export path, which is what the second
+        /// half matches. Matching only the first missed every logical volume of
+        /// a LUKS or LVM drive.
+        private static func isThisDrive(_ entry: MountTableEntry, _ devicePath: String) -> Bool {
+            let node = (devicePath as NSString).lastPathComponent
+            return entry.source.hasPrefix("\(node).") || entry.source.contains("/run/\(node)/")
         }
 
         /// Close whatever this device is serving.
@@ -434,11 +459,9 @@
             // matched on. The windowed app has always found these -- it asks
             // EngineStatus for the volumes nested under the drive's own mount --
             // and this is the same set by a different road.
-            let node = (device as NSString).lastPathComponent
             let table = LukottaCore.mountTable()
             let mine = MountTableEntry.all(in: table).filter {
-                guard $0.isEngineMount else { return false }
-                return $0.source.hasPrefix("\(node).") || $0.source.contains("/run/\(node)/")
+                $0.isEngineMount && isThisDrive($0, device)
             }
             if mine.isEmpty {
                 say("nothing of \(device)'s is mounted")
