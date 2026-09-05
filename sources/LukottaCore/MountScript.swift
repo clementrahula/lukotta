@@ -2059,7 +2059,7 @@ public enum MountScript {
         + "for e in \"$d\"/*; do "
         + "[ \"$e\" = \"$d/*\" ] && [ ! -e \"$e\" ] && continue; "
         + "b=`basename \"$e\"`; p=`dirname \"$e\"`; "
-        + "case $b in .lukotta-unreadable-*) continue;; esac; "
+        + "case $b in .lukotta-unreadable-*|.lukotta-leftover-*) continue;; esac; "
         // A copier's abandoned temporary is the signature of the silent fault.
         //
         // The damage an interrupted copy leaves does not always announce
@@ -2077,6 +2077,24 @@ public enum MountScript {
         // checked, and it costs a string comparison the walk is already making.
         + "case $b in .BC.T_*|.nfs????????????????) "
         + "echo \"left behind by a copy: $e\" >> \"$M/.lukotta-reclaim.log\" 2>/dev/null; "
+        // And moved aside, so it is said once rather than for ever.
+        //
+        // Reporting it and leaving it there meant the line went back into
+        // the log on every walk, and the gate above reads that log: one
+        // abandoned temporary bought a full MFT scan on every open of the
+        // drive, for the life of the drive. On the owner's 247 GB stick
+        // that is 59 seconds, every time, for a volume with nothing left
+        // wrong with it. Caught by repairs-through-the-app.sh on
+        // 2026-09-05: "a volume with nothing wrong was scanned anyway".
+        //
+        // Renamed rather than deleted, under the prefix the walk skips.
+        // These are the bytes of a file somebody was copying when the copy
+        // stopped, and they are the only copy of that fragment; the same
+        // reason an unreadable name is moved aside instead of removed. A
+        // later interrupted copy writes a new temporary and asks again,
+        // which is right -- the signal is meant to fire on new damage, not
+        // to keep firing on the damage it already reported.
+        + "mv -f \"$e\" \"$p/.lukotta-leftover-$b\" 2>/dev/null; "
         + "continue;; esac; "
         + "bad=0; "
         + "if [ ! -e \"$e\" ]; then bad=1; "

@@ -5680,6 +5680,27 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
         MountScript.checkAndRepair.contains("left behind by a copy:"),
         "and the gate reads that line too, or the walk is talking to nobody")
 
+    // Said once, not for ever.
+    //
+    // The walk reported the temporary and left it on the volume, so the next
+    // walk found it again and wrote the same line, and the gate reads that log:
+    // one abandoned temporary bought a full MFT scan on every open of the drive
+    // for the life of the drive -- 59 seconds each time on the owner's 247 GB
+    // stick, for a volume with nothing wrong left. Caught on 2026-09-05 by
+    // repairs-through-the-app.sh, whose third open of a repaired drive was
+    // scanned: "a volume with nothing wrong was scanned anyway".
+    expect(
+        MountScript.reclaimUnreadable.contains(".lukotta-leftover-$b"),
+        "a reported leftover is moved aside, so the signal does not repeat")
+    expect(
+        MountScript.reclaimUnreadable.contains(".lukotta-leftover-*"),
+        "and the walk skips what it moved, or it would report it again anyway")
+    // Moved, not removed. These are the bytes of the file somebody was copying
+    // when the copy stopped, and this app does not delete those.
+    expect(
+        !MountScript.reclaimUnreadable.contains("rm -f \"$e\""),
+        "and it is moved rather than deleted")
+
     // Not on a read-only open: nothing is written to the drive, checks
     // included.
     let readOnly = MountScript.build(sampleInputs(kind: .microsoft, readOnly: true))
