@@ -123,7 +123,27 @@ while True:
     time.sleep(5)
 PY
   BALLAST=$!
-  echo "  filling ${HOLD} GB from urandom (pid $BALLAST)…"
+  # What the kernel calls this, rather than what a free-page count looks like.
+#
+# 1 is normal, 2 is warning, 4 is critical. Reading it turns "14 MB free" from
+# an inference into the kernel's own word, and the second number is the one item
+# 8 actually turns on: the way a dozen volumes stop being served on a small Mac
+# is jetsam taking one of the machines, or one of the person's windows.
+pressure_level() {
+  case "$(sysctl -n kern.memorystatus_vm_pressure_level 2>/dev/null)" in
+    1) echo "normal" ;;
+    2) echo "warning" ;;
+    4) echo "critical" ;;
+    *) echo "unknown" ;;
+  esac
+}
+pressure_kills() {
+  sysctl -n kern.memorystatus.kill_on_sustained_pressure_count 2>/dev/null || echo 0
+}
+KILLS_BEFORE="$(pressure_kills)"
+echo "  before the ballast: pressure $(pressure_level), $KILLS_BEFORE killed for it"
+
+echo "  filling ${HOLD} GB from urandom (pid $BALLAST)…"
   # Waited for by what the machine feels, not by the holder's resident size.
   #
   # Resident size cannot reach the target: macOS compresses those pages as
@@ -147,6 +167,9 @@ fi
 
 echo
 echo "=== with ~8 GB left ==="
+# The kernel's verdict, next to the numbers it is the verdict on.
+echo "  kernel pressure level        $(pressure_level)"
+echo "  killed for sustained pressure $(( $(pressure_kills) - KILLS_BEFORE )) during this run"
 memory_pressure 2>/dev/null | grep -i 'free percentage'
 echo "swap: $(sysctl -n vm.swapusage)"
 echo
