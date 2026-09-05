@@ -5718,6 +5718,19 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     expect(
         MountScript.checkAndRepair.contains("\(MountScript.stageMarker)checked $serial"),
         "and every check says which volume it looked at, whatever the outcome")
+
+    // One memory, in one place, for both branches.
+    //
+    // The transcript on the volume used to be the answer, and anything that
+    // removed the file asked for a full scan by doing so.
+    // repairs-through-the-app.sh deleted it between opens -- from when its
+    // presence meant "a scan happened just now" -- and then reported the app as
+    // scanning a volume with nothing wrong. It was right that a scan happened
+    // and wrong about why.
+    expect(
+        MountScript.checkAndRepair.components(
+            separatedBy: "grep -qx \"$serial\" \(MountScript.checkedListPath)").count == 3,
+        "both branches ask the same question of the same place")
     // The invocation, not the word: the comment that records why this route was
     // abandoned names the tool, and an assertion on the bare name failed against
     // its own explanation.

@@ -1744,7 +1744,26 @@ public enum MountScript {
             # transcript it leaves is the record that it has. One scan per
             # drive, ever -- 59 seconds on 247 GB, measured -- against a fault
             # whose whole nature is that nobody notices it.
-            [ -e /tmp/lukotta-ask/.lukotta-check.log ] || asked=1
+            # Asked of this Mac, not of the volume.
+            #
+            # The transcript on the volume used to be the answer, and it made a
+            # poor one for two reasons. A volume ntfs3 refuses cannot be read at
+            # all, so the branch below could not ask it -- that is what the
+            # serial list was built for. And anything that removes the file asks
+            # for a full scan by doing so: `repairs-through-the-app.sh` deleted
+            # it between opens, from when its presence meant "a scan happened
+            # just now", and then reported the app as scanning a volume with
+            # nothing wrong. It was right that a scan happened and wrong about
+            # why.
+            #
+            # So both branches ask the same question of the same place, and the
+            # file on the volume goes back to being what it says it is: an
+            # account of what was done, for whoever opens the drive next.
+            if [ -n "$serial" ]; then
+              grep -qx "$serial" \(checkedListPath) 2>/dev/null || asked=1
+            else
+              [ -e /tmp/lukotta-ask/.lukotta-check.log ] || asked=1
+            fi
             umount /tmp/lukotta-ask 2>/dev/null || true
             # Not cleanly unmounted is a reason on its own.
             #
