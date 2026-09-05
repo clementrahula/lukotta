@@ -333,10 +333,19 @@ public enum EngineProcesses {
     @discardableResult
     public static func deadMountsCleared(
         in table: String,
-        unmountAsRoot: ((String) -> Bool)? = nil
+        unmountAsRoot: ((String) -> Bool)? = nil,
+        opened: Set<String> = OpenedHere.all()
     ) -> Bool {
         let unmountAsRoot = unmountAsRoot ?? rootUnmount()
-        let dead = deadEngineMounts(in: table)
+        // `opened` is passed in because the daemon cannot read it.
+        //
+        // OpenedHere is UserDefaults, and a daemon running as root reads root's
+        // defaults -- always empty. So every candidate failed isOursToForce and
+        // the helper's sweep did nothing at all, silently, which is the worst
+        // way for a guard to fail: it looks like there was nothing to clear.
+        // The helper reads the console user's own preferences and hands the set
+        // over.
+        let dead = deadEngineMounts(in: table, opened: opened)
         guard !dead.isEmpty else { return false }
         Log.mount.notice("taking away \(dead.count, privacy: .public) mounts whose server has gone")
         var went = 0

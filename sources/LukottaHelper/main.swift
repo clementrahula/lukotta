@@ -126,9 +126,9 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     /// the mount table, and with no drives open the sweep is never reached.
     private func watchForDeadMounts() {
         let interval = TimeInterval(Housekeeping.deadMountWatchSeconds)
-        let timer = Timer(timeInterval: interval, repeats: true) { _ in
+        let timer = Timer(timeInterval: interval, repeats: true) { [weak self] _ in
             guard !EngineStatus.current().isEmpty else { return }
-            Housekeeping.sweep()
+            Housekeeping.sweep(opened: self?.openedByConsoleUser() ?? [])
         }
         RunLoop.main.add(timer, forMode: .common)
     }
@@ -963,6 +963,33 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     private func invokingGID() -> UInt32 {
         if let peerUID, peerUID != 0, let peerGID { return UInt32(peerGID) }
         return consoleUser().gid
+    }
+
+    /// The mount points this app has recorded making, read from the console
+    /// user's own preferences.
+    ///
+    /// `OpenedHere` is UserDefaults, and this process is root: UserDefaults.
+    /// standard here is root's, and it has never held anything. So the sweep's
+    /// "is this ours to force" test failed every candidate and the helper's
+    /// clearing did nothing at all -- silently, which is the worst way for a
+    /// guard to fail, because it looks exactly like having nothing to clear.
+    /// Measured on 2026-09-05: helper running, its timer firing, a dead mount in
+    /// the table for three minutes, and not one line in the log.
+    ///
+    /// Read from the plist rather than through UserDefaults, because a daemon
+    /// cannot open another account's defaults domain.
+    private func openedByConsoleUser() -> Set<String> {
+        guard let entry = getpwuid(consoleUser().uid), let dir = entry.pointee.pw_dir else {
+            return []
+        }
+        let preferences = "/Library/Preferences/\(HelperInfo.appIdentifier).plist"
+        let path = String(cString: dir) + preferences
+        guard let data = FileManager.default.contents(atPath: path),
+            let plist = try? PropertyListSerialization.propertyList(
+                from: data, options: [], format: nil) as? [String: Any],
+            let points = plist[OpenedHere.key] as? [String]
+        else { return [] }
+        return Set(points)
     }
 
     /// Whether there is a user to do this for at all.

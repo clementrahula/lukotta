@@ -74,13 +74,14 @@ public enum Housekeeping {
     public static func sweep(
         now: Date = Date(),
         mountTable: String = LukottaCore.mountTable(),
-        attached: Set<String>? = nil
+        attached: Set<String>? = nil,
+        opened: Set<String> = OpenedHere.all()
     ) -> Result {
         var result = Result()
         // Mounts whose server has gone, before anything is counted: they are in
         // the table, they look like drives somebody has open, and macOS refuses
         // the next mount at the same name while one is there.
-        EngineProcesses.deadMountsCleared(in: mountTable)
+        EngineProcesses.deadMountsCleared(in: mountTable, opened: opened)
         result.workspaces = removeFinishedWorkspaces(now: now)
         result.mountPoints = removeEmptyMountPoints(in: mountTable)
         // Said loudly and separately. An empty one is litter; one with files in
