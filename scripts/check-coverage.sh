@@ -336,4 +336,47 @@ if [ "$FAIL" = "1" ]; then
   printf 'Something is not covered. Add the missing check rather than the exception.\n'
   exit 1
 fi
+# 12. Every harness is reachable from the registry, directly or through one
+#     that is.
+#
+#     A harness that runs nowhere is prose with a shebang. corrupt-corpus.sh put
+#     83 deliberately broken NTFS images through the app's own ladder, its
+#     numbers sat in SPECS.md as settled fact, and nothing ran it: when it was
+#     finally registered and run on 2026-09-05 it reached no image at all,
+#     because its default named a build that has no --drive and the call it hung
+#     on had no timeout. It had been that way long enough for nobody to know.
+#
+#     The tooling list is written out rather than guessed. A rule that infers
+#     which scripts are claims is a rule that quietly stops firing; naming them
+#     makes a new script force the decision -- put it in the registry, or say
+#     here why it is not a claim.
+printf 'Harnesses something actually runs…\n'
+# Build and release steps, and four probes that take arguments: each needs a
+# volume or an image named on the command line and exists to be pointed at
+# something during an investigation. A probe is not a claim -- it has no fixture
+# of its own and renders no verdict -- so registering one would put a row in the
+# table that cannot say whether it holds.
+tooling="build-app build-engine build-ntfsck bump-version check-coverage
+check-engine-updates collect-sources fetch-engine generate-notices lint
+make-dmg make-format-volumes make-test-volumes notary-status release
+run-tests screenshots ship snapshots sparkle-keys translation-bundle
+vendor-engine verify verify-goal
+cross-guest-copy flush-reaches-drive thread-starvation watch-for-complaints"
+unreached=0
+for script in scripts/*.sh; do
+  name="$(basename "$script" .sh)"
+  # Newlines to spaces without an echo: the list is written over several
+  # lines to stay readable, and the pattern below matches on spaces.
+  case " ${tooling//$'\n'/ } " in *" $name "*) continue ;; esac
+  # Named by a row, or called by another harness. Called-by is enough: the
+  # caller is what the registry runs, and a helper is not a claim of its own.
+  if /usr/bin/grep -q -- "$name\.sh" scripts/checks.tsv 2>/dev/null; then continue; fi
+  callers="$(/usr/bin/grep -l -- "$name\.sh" scripts/*.sh 2>/dev/null \
+    | /usr/bin/grep -v "scripts/$name.sh" | wc -l | tr -d ' ')"
+  [ "${callers:-0}" -gt 0 ] && continue
+  bad "nothing runs $name.sh: it is in no row and no harness calls it"
+  unreached=$((unreached + 1))
+done
+[ "$unreached" -eq 0 ] && note "every harness is reached"
+
 printf 'The checks are keeping up.\n'

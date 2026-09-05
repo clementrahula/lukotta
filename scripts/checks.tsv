@@ -63,3 +63,8 @@ heals	engine	slow	a removed Linux environment is put back by itself	LUKOTTA_APP=
 homes	engine	long	two apps using the engine do not share a home	LUKOTTA_APP="${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}" bash scripts/homes-are-separate.sh
 torture	integrity	slow	a corpus copied onto a drive reads back byte for byte	bash scripts/with-a-drive-open.sh ntfs-vectors.img bash scripts/copy-torture.sh
 forks	integrity	slow	extended attributes and resource forks survive	bash scripts/with-a-drive-open.sh ntfs-vectors.img bash scripts/xattr-forks.sh
+firstwrite	goal	slow	the first write after a volume opens, over and over	bash scripts/first-write-after-open.sh
+imageformats	goal	long	every image container the app claims it can write to	bash scripts/format-write-sweep.sh
+fullvolume	goal	slow	what a person is told when a volume runs out of room	bash scripts/full-volume-error.sh
+crowdafter	goal	long	twelve volumes killed mid-copy, then opened again	bash scripts/interrupted-then-crowd.sh
+lvmlock	goal	slow	the second volume of a Linux laptop disk opens too	bash scripts/lvm-lock-rule.sh

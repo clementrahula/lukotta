@@ -35,6 +35,14 @@ WORK="$(mktemp -d)"
 DST="$TARGET/flush-latency-test"
 SAMPLES="$WORK/samples"
 trap 'rm -rf "$WORK" "$DST"' EXIT
+# And cleared before writing, because a killed run clears nothing.
+#
+# The trap above removes this on a clean exit. A run killed with SIGKILL runs no
+# trap, and what it leaves is most of the volume: measured on 2026-09-05, 1152 MB
+# of flush-latency-test sitting on a 2000 MB fixture with 28 MB free. Three rows
+# then failed in a row -- goal1 on ENOSPC, goal2 and goal4 refusing to start for
+# want of room -- and none of them was about the app.
+rm -rf "$DST"
 mkdir -p "$DST"
 : > "$SAMPLES"
 
