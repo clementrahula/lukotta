@@ -36,7 +36,7 @@
 # missing, and the app declined to.
 set -uo pipefail
 OUT="${1:-$HOME/.lukotta-testvols}"
-ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Dev.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 [ -x "$ENGINE" ] || { echo "error: no engine at $ENGINE" >&2; exit 2; }
 APP_BUNDLE="${ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 APP_ID="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' \

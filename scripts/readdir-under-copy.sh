@@ -176,7 +176,7 @@ IMAGE="${1:-}"
 NR="${2:-256}"
 SECONDS_TO_RUN="${3:-180}"
 [ -f "$IMAGE" ] || { echo "usage: $0 <image> [nr_requests] [seconds]" >&2; exit 2; }
-ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Dev.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 [ -x "$ENGINE" ] || { echo "error: no engine at $ENGINE" >&2; exit 2; }
 APP_BUNDLE="${ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 APP_ID="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' \

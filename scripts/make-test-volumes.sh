@@ -40,7 +40,7 @@
 # guest still carries. Mounting ext4 and XFS is the kernel's job and is
 # unaffected, but neither can be given a fixture from here.
 set -euo pipefail
-ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 # --crowd is a flag wherever it appears, and what is left is the output
 # directory. It used to be looked for in $1 or $2 while $1 was also taken as
 # the directory, so the documented invocation -- the flag on its own -- made the

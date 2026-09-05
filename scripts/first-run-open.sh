@@ -22,7 +22,7 @@ set -uo pipefail
 # reported "this build has no harness" -- which reads as a broken build rather
 # than as a missing app, and was recorded as a failing claim twice on a machine
 # where nothing was wrong.
-LUKOTTA_ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Dev.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+LUKOTTA_ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 APP_BUNDLE="${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 APP="$APP_BUNDLE/Contents/MacOS/$(basename "$APP_BUNDLE" .app)"
 GUEST="$HOME/Library/Application Support/com.lukotta.dev/engine/.anylinuxfs/alpine"

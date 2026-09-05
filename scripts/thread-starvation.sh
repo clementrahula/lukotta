@@ -99,7 +99,7 @@ set -uo pipefail
 IMAGE="${1:-}"
 THREADS="${2:-8}"
 SECONDS_TO_RUN="${3:-420}"
-ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Dev.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 [ -f "$IMAGE" ] || { echo "usage: $0 <image> [threads] [seconds]" >&2; exit 2; }
 [ -x "$ENGINE" ] || { echo "error: no engine at $ENGINE" >&2; exit 2; }
 

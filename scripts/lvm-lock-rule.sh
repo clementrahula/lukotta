@@ -84,7 +84,7 @@
 set -uo pipefail
 V="${LUKOTTA_TESTVOLS:-$HOME/.lukotta-testvols}"
 IMG="$V/luks-multi.img"
-ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Dev.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+ENGINE="${LUKOTTA_ENGINE:-/Applications/Lukotta Beta.app/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
 [ -f "$IMG" ] || { echo "error: no $IMG -- run make-test-volumes.sh" >&2; exit 2; }
 [ -x "$ENGINE" ] || { echo "error: no engine at $ENGINE" >&2; exit 2; }
 APP_BUNDLE="${ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
@@ -113,10 +113,20 @@ pass=0; fail=0
 note() { if [ "$1" = ok ]; then pass=$((pass+1)); printf '  ok   %s\n' "$2";
          else fail=$((fail+1)); printf '  FAIL %s\n' "$2"; fi }
 
+# Each attempt keeps its own log.
+#
+# It was one file per volume, so the read-only phase opened the same three
+# volumes again and truncated what the read-write phase had written. The
+# read-write findings were still correct -- they are read while that phase is
+# running -- but by the end every log was empty, and "2 of 3" could not say
+# which volume or why. PHASE is set before each round.
+PHASE="rw"
+lv_log() { echo "/tmp/lvm-$PHASE-$1.log"; }
+
 open_lv() {  # lv-name, label, extra args...
   local lv="$1" label="$2"; shift 2
   nohup "$ENGINE" mount --ignore-permissions -w false "$@" \
-    "lvm:fedoravg:${P}:${lv}" > "/tmp/lvm-$lv.log" 2>&1 < /dev/null &
+    "lvm:fedoravg:${P}:${lv}" > "$(lv_log "$lv")" 2>&1 < /dev/null &
   for _ in $(seq 1 45); do
     local m; m="$(mount | awk -v l="$label" '$0 ~ l {for(i=1;i<=NF;i++) if($i=="on") print $(i+1)}' | head -1)"
     [ -n "$m" ] && { echo "$m"; return 0; }
@@ -135,28 +145,61 @@ else note no "the first volume is writable"; fi
 if B="$(open_lv home FEDORAHOME)"; then
   note no "the second volume on the same partition is refused (it mounted at $B)"
 else
-  if grep -qi 'already locked' /tmp/lvm-home.log 2>/dev/null; then
+  if grep -qi 'already locked' "$(lv_log home)" 2>/dev/null; then
     note ok "the second volume is refused, and the reason is the partition lock"
   else
     note no "the second volume is refused for the documented reason"
-    sed 's/^/       /' /tmp/lvm-home.log 2>/dev/null | tail -3
+    sed 's/^/       /' "$(lv_log home)" 2>/dev/null | tail -3
   fi
 fi
 
 cleanup; trap - EXIT
+# Settled, not merely asked to stop.
+#
+# cleanup umounts and sends KILL and returns at once. The next phase then opened
+# the same three volumes read-only and reported "2 of 3" -- always the volume
+# that had been open read-write, because its engine was still letting go of the
+# partition while the read-only open asked for it.
+#
+# Measured on 2026-09-05: on a machine cleaned and left to settle, all three open
+# read-only, 3 of 3, in either order. The rule the header quotes is intact; what
+# was being measured was this harness's own previous phase.
+for _ in $(seq 1 30); do
+  # `pgrep -c` is a GNU spelling; this is BSD pgrep and it answers with its
+  # usage text, which is not zero and not a count. Written that way first, and
+  # the loop then fell through to the timer on every pass -- a check that reads
+  # as running and decides nothing.
+  [ "$(pgrep -f 'anylinuxfs mount.*fedoravg' | wc -l | tr -d ' ')" = 0 ] &&
+    [ "$(mount | /usr/bin/grep -c FEDORA || true)" = 0 ] && break
+  sleep 2
+done
 DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
        2>/dev/null | awk 'NR==1{print $1}')"
 P="${DEV}s1"
 trap cleanup EXIT
 n=0
+PHASE="ro"
+missed=""
 for pair in "root FEDORAROOT" "home FEDORAHOME" "backup FEDORABACKUP"; do
   # Word-split on purpose: pair is two words.
   # shellcheck disable=SC2086
   set -- $pair
-  m="$(open_lv "$1" "$2" -o ro)" && [ -n "$m" ] && ls "$m" >/dev/null 2>&1 && n=$((n + 1))
+  if m="$(open_lv "$1" "$2" -o ro)" && [ -n "$m" ] && ls "$m" >/dev/null 2>&1; then
+    n=$((n + 1))
+  else
+    missed="$missed $1"
+  fi
 done
 note "$([ "$n" -eq 3 ] && echo ok || echo no)" \
   "all three open together when all three are read-only ($n of 3)"
+# Which one, and what it said. A count on its own cannot be acted on, and this
+# reported "2 of 3" for a morning with every log truncated behind it.
+if [ "$n" -ne 3 ]; then
+  for lv in $missed; do
+    echo "       $lv did not open:"
+    sed 's/^/         /' "$(lv_log "$lv")" 2>/dev/null | tail -4
+  done
+fi
 
 printf '%s passed, %s failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
