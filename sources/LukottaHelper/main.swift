@@ -302,11 +302,52 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
             try? FileManager.default.removeItem(at: staged)
             return reply(false)
         }
+        // The job definition too, not only the binary.
+        //
+        // This replaced the tool and left the plist launchd was registered with
+        // exactly as it was. So anything living in the job rather than in the
+        // code -- StartInterval, which is what wakes this to take away mounts
+        // whose server has gone -- could be changed in the source, shipped,
+        // installed, and never reach a Mac that already had the helper. Found on
+        // 2026-09-05: a new plist in the bundle with sixty seconds in it, and
+        // `launchctl print` still showing a job with no interval at all.
+        //
+        // Written as root, which is the only thing that can, and only when the
+        // two differ: rewriting an identical file would take the daemon out and
+        // put it back on every open, for nothing.
+        let bundledJob = bundle.appendingPathComponent(
+            "Contents/Library/LaunchDaemons/\(HelperInfo.plistName)")
+        let installedJob = URL(fileURLWithPath: HelperInfo.installedJobPath)
+        var jobChanged = false
+        if let carried = try? Data(contentsOf: bundledJob),
+            (try? Data(contentsOf: installedJob)) != carried
+        {
+            do {
+                try carried.write(to: installedJob, options: .atomic)
+                try? FileManager.default.setAttributes(
+                    [.posixPermissions: 0o644], ofItemAtPath: installedJob.path)
+                jobChanged = true
+                Log.helper.notice("the job definition changed; wrote the new one")
+            } catch {
+                Log.helper.error("could not write the new job definition: \(error)")
+            }
+        }
+
         Log.helper.notice("replaced by the daemon in the application; standing down")
         reply(true)
         // Long enough for the reply to reach the app. launchd starts the new
         // binary the next time anything asks for the service.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { exit(0) }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            // launchd holds the job as it was loaded, so a rewritten plist is
+            // read only after the job is taken out and put back. Booting out
+            // ends this process, which is what was about to happen anyway.
+            guard jobChanged else { exit(0) }
+            let label = "system/\(HelperInfo.machServiceName)"
+            _ = LukottaCore.run("/bin/launchctl", ["bootout", label], timeout: 20)
+            _ = LukottaCore.run(
+                "/bin/launchctl", ["bootstrap", "system", HelperInfo.installedJobPath],
+                timeout: 20)
+        }
     }
 
     private func isTrusted(_ connection: NSXPCConnection) -> Bool {

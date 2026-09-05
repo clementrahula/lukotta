@@ -92,9 +92,24 @@ final class HelperClient: ObservableObject {
         guard FileManager.default.fileExists(atPath: HelperInfo.installedJobPath) else {
             return false
         }
-        return !HelperInfo.installedToolIsCurrent(
+        if !HelperInfo.installedToolIsCurrent(
             installed: HelperInfo.installedToolPath,
             bundled: HelperInfo.bundledToolPath(inBundle: Bundle.main.bundlePath))
+        {
+            return true
+        }
+        // And the job definition, which was not looked at before.
+        //
+        // Everything that lives in the plist rather than in the code --
+        // StartInterval, which is what wakes the helper to take away mounts
+        // whose server has gone -- could be changed, shipped and installed
+        // without ever reaching a Mac that already had the helper, because
+        // nothing here ever compared the two. Found on 2026-09-05: a new plist
+        // in the bundle and `launchctl print` showing a job with no interval.
+        let daemons = "/Contents/Library/LaunchDaemons/"
+        let bundledJob = Bundle.main.bundlePath + daemons + HelperInfo.plistName
+        guard let carried = FileManager.default.contents(atPath: bundledJob) else { return false }
+        return FileManager.default.contents(atPath: HelperInfo.installedJobPath) != carried
     }
 
     /// Replace the running daemon when it is not the one in this app.
