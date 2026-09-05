@@ -127,7 +127,21 @@ final class HelperService: NSObject, NSXPCListenerDelegate, LukottaHelperProtoco
     private func watchForDeadMounts() {
         let interval = TimeInterval(Housekeeping.deadMountWatchSeconds)
         let timer = Timer(timeInterval: interval, repeats: true) { [weak self] _ in
-            guard !EngineStatus.current().isEmpty else { return }
+            // Asked of the mount table, not of the engine.
+            //
+            // This guard was `EngineStatus.current()`, which runs
+            // `anylinuxfs status` -- it asks the engine. With the engine dead it
+            // answers nothing, so the sweep was skipped in exactly the case it
+            // exists for: a mount left behind by an engine that has gone.
+            // Measured on 2026-09-05, three runs over, each reporting the mount
+            // still in the table after three minutes.
+            //
+            // The table is the thing that has the answer, and reading it costs
+            // nothing.
+            guard
+                MountTableEntry.all(in: LukottaCore.mountTable())
+                    .contains(where: \.isEngineMount)
+            else { return }
             Housekeeping.sweep(opened: self?.openedByConsoleUser() ?? [])
         }
         RunLoop.main.add(timer, forMode: .common)

@@ -2831,7 +2831,13 @@ final class AppModel: ObservableObject {
         Task.detached(priority: .utility) {
             while !Task.isCancelled {
                 try? await Task.sleep(for: Self.deadMountWatchInterval)
-                guard !EngineStatus.current().isEmpty else { continue }
+                // The table, not the engine: see the note in the helper's
+                // copy of this. Asking `anylinuxfs status` means asking a
+                // process that may be the very thing that has died.
+                guard
+                    MountTableEntry.all(in: LukottaCore.mountTable())
+                        .contains(where: \.isEngineMount)
+                else { continue }
                 Housekeeping.sweep()
             }
         }
