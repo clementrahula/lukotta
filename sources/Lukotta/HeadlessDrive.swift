@@ -349,9 +349,39 @@
             // scanned again, and it is the one whose mount fails.
             CheckedVolumes.note(
                 reportedIn: outcome.transcript.components(separatedBy: .newlines))
-            if outcome.status == 0 {
+            // A mount that serves nothing has not opened the drive.
+            //
+            // The engine can finish with status 0 having failed every one of
+            // the additional NFS exports a container needs. Measured on
+            // 2026-09-05, with the host's mount points still occupied by an
+            // earlier run:
+            //
+            //     mount: /Volumes/disk5s1/FEDORAROOT: invalid file system.
+            //     macOS: Failed to mount additional NFS exports: exit code 75
+            //     mount script exited with status 0
+            //     opened Disk Image
+            //
+            // Three volumes asked for, none served, and the word "opened".
+            // Whatever the reason a mount fails, saying it worked is the one
+            // answer that helps nobody: the drive is not in Finder and the app
+            // has said it is.
+            //
+            // Asked of the mount table rather than of the transcript, because
+            // the question is whether anything is actually being served -- and
+            // that is the same question wherever the failure came from.
+            let serving = MountTableEntry.all(in: LukottaCore.mountTable()).contains {
+                $0.isEngineMount
+                    && ($0.source.hasPrefix("\((drive.devicePath as NSString).lastPathComponent).")
+                        || $0.source.contains(
+                            "/run/\((drive.devicePath as NSString).lastPathComponent)/"))
+            }
+            if outcome.status == 0 && serving {
                 say("opened \(drive.name)")
                 exit(0)
+            }
+            if outcome.status == 0 {
+                say("the drive did not open: the mount finished but nothing is served")
+                exit(75)
             }
             say("the drive did not open (status \(outcome.status))")
             exit(Int32(truncatingIfNeeded: Int(outcome.status)))
