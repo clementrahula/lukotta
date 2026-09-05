@@ -5591,10 +5591,23 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     // arrive already damaged -- by an interrupted copy elsewhere, or by this
     // app before it knew to check -- and nothing distinguishes it from a
     // healthy one until somebody writes, because there is nothing wrong until
-    // then. The transcript is the record that it has been inspected.
+    // then.
+    //
+    // Two records say it has been inspected, and both are needed. The list on
+    // the Mac is the durable one and the only one a damaged volume can be asked
+    // about. It cannot answer within a single open: the ladder tries three
+    // rungs, each mount attempt gets its own machine, and every one of them is
+    // handed the list as it was when the actions were generated -- before any
+    // rung ran. So the transcript the scanning rung leaves on the volume is what
+    // stops the next rung repeating it, minutes before the app could have
+    // remembered anything. Asserted as a property rather than as one spelling of
+    // it: this last failed against a rewrite that kept the behaviour exactly.
     expect(
-        check.contains("[ -e /tmp/lukotta-ask/.lukotta-check.log ] || asked=1"),
+        check.contains("/tmp/lukotta-ask/.lukotta-check.log"),
         "a volume never inspected is inspected once")
+    expect(
+        check.contains("asked=1"),
+        "and something has to be able to ask for it")
     let calls = check.split(separator: "\n")
         .filter { $0.trimmingCharacters(in: .whitespaces) == "record" }.count
     expect(

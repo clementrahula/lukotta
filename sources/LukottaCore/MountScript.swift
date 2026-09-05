@@ -1759,10 +1759,29 @@ public enum MountScript {
             # So both branches ask the same question of the same place, and the
             # file on the volume goes back to being what it says it is: an
             # account of what was done, for whoever opens the drive next.
-            if [ -n "$serial" ]; then
-              grep -qx "$serial" \(checkedListPath) 2>/dev/null || asked=1
+            # Either place will do, and both are needed.
+            #
+            # The Mac's list is what a damaged volume can be asked about, and it
+            # is the durable answer across opens. It cannot answer within one
+            # open: the ladder tries three rungs, every mount attempt gets its
+            # own machine, and the list is written into each of them from what
+            # the app knew when it generated the actions -- before any of them
+            # ran. Consulting only the list therefore scanned the same volume on
+            # every rung it took, and a full check is 59 seconds on a 247 GB
+            # drive, so a drive that needed the whole ladder paid three of them
+            # in one open.
+            #
+            # The transcript on the volume is what covers that gap. The rung
+            # that scanned wrote it there, so the next rung finds it in the same
+            # open, minutes before the app has had a chance to remember
+            # anything.
+            if [ -n "$serial" ] &&
+               grep -qx "$serial" \(checkedListPath) 2>/dev/null; then
+              :
+            elif [ -e /tmp/lukotta-ask/.lukotta-check.log ]; then
+              :
             else
-              [ -e /tmp/lukotta-ask/.lukotta-check.log ] || asked=1
+              asked=1
             fi
             umount /tmp/lukotta-ask 2>/dev/null || true
             # Not cleanly unmounted is a reason on its own.
