@@ -220,7 +220,21 @@ def drop_action(text, name):
     return "".join(out)
 cfg, act = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]).read_text()
 s = cfg.read_text() if cfg.exists() else ""
-for name in ("lukottantfs3", "lukottarepair"):
+# Every action the incoming block defines, not a hard-coded pair.
+#
+# This dropped "lukottantfs3" and "lukottarepair" and then appended the app's
+# whole block, which defines four: lukottatuned, lukottantfs3, lukottarepair and
+# lukottantfs3g. So the second run of this script left two sections defined
+# twice, and the engine will not parse a config with a duplicate key:
+#
+#     Failed to parse config file .../config.toml:
+#     duplicate key `lukottantfs3g` in table `custom_actions`
+#
+# Which is not a mount failing -- it is every mount failing, for every drive,
+# until somebody edits the file. Measured on 2026-09-05: twenty corpus images
+# that had opened at a driver rung in the morning were all refused in the
+# afternoon, and the app looked badly broken when the config was unreadable.
+for name in re.findall(r"^\[custom_actions\.([A-Za-z0-9_]+)\]", act, re.M):
     s = drop_action(s, name)
 cfg.write_text(s.rstrip() + "\n\n" + act.strip() + "\n")
 PY
