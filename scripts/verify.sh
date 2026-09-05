@@ -68,14 +68,23 @@ BEFORE="$(fingerprint)"
 #
 # grep -c rather than -q: under pipefail a -q match exits at once, strings dies
 # of SIGPIPE, and the test rejects every bundle that is fine.
+# The glob itself, never `for x in $(ls)`. Every bundle worth finding here is
+# called "Lukotta Beta.app" or "Drive Unlocker.app", and word splitting cut both
+# in half: the first attempt at this looked for "/Applications/Lukotta" and
+# "Beta.app" and concluded that no installed app answers to --drive, on a Mac
+# with two that do.
 if [ -z "${LUKOTTA_ENGINE:-}" ]; then
-  for bundle in $(/bin/ls -td /Applications/*.app 2>/dev/null); do
+  newest=""; newest_engine=""
+  for bundle in /Applications/*.app; do
     binary="$bundle/Contents/MacOS/$(basename "$bundle" .app)"
     engine="$bundle/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs"
     [ -x "$binary" ] && [ -x "$engine" ] || continue
     [ "$(strings -a "$binary" 2>/dev/null | /usr/bin/grep -c -- "--drive")" -gt 0 ] || continue
-    LUKOTTA_ENGINE="$engine"; break
+    if [ -z "$newest" ] || [ "$binary" -nt "$newest" ]; then
+      newest="$binary"; newest_engine="$engine"
+    fi
   done
+  LUKOTTA_ENGINE="$newest_engine"
   export LUKOTTA_ENGINE
 fi
 if [ -z "${LUKOTTA_ENGINE:-}" ]; then
