@@ -163,7 +163,10 @@ timeout 900 "$APP" --drive open="$DEV" > "$WORK/open2.log" 2>&1 \
 SHARE="$(basename "$DEV").local:"
 POINT="$(mount | /usr/bin/grep -F "$SHARE" | awk '{print $3}' | head -1)"
 [ -n "${POINT:-}" ] || { echo "the repaired drive opened and nothing is served" >&2; exit 1; }
-rm -f "$POINT/.lukotta-check.log" 2>/dev/null
+# Left where it is. Removing it used to be how this made the third open a
+# fair test, back when the file meant "a scan happened just now". It is now the
+# record that the volume has been looked at at all, and taking it away is a
+# request for a full scan rather than a way of watching for one.
 release_drives
 DEV="$(hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage "$IMG" \
   2>/dev/null | head -1 | awk '{print $1}')"
@@ -175,8 +178,25 @@ POINT="$(mount | /usr/bin/grep -F "$SHARE" | awk '{print $3}' | head -1)"
 [ -n "${POINT:-}" ] || { echo "the healthy drive opened and nothing is served" >&2; exit 1; }
 
 echo
-if [ -e "$POINT/.lukotta-check.log" ]; then
+# The run says so itself.
+#
+# The check announces a scan with a stage marker -- the same one the window
+# reads to say "Checking this drive for damage" -- and says nothing when it
+# skips one. So the third open's own output answers the question directly,
+# instead of it being inferred from a file whose meaning has changed once
+# already.
+#
+# grep -c and a comparison: under pipefail a -q match exits at once and kills
+# whatever is feeding it.
+if [ "$(/usr/bin/grep -c 'LUKOTTA_STAGE:checking' "$WORK/open3.log")" -gt 0 ]; then
   echo "RESULT: a volume with nothing wrong was scanned anyway" >&2
+  echo "        $(/usr/bin/grep -c 'ntfsck' "$WORK/open3.log") lines of ntfsck in the third open" >&2
+  exit 1
+fi
+# And the second open, of the volume just repaired, must not scan it again
+# either: one scan per volume, ever.
+if [ "$(/usr/bin/grep -c 'LUKOTTA_STAGE:checking' "$WORK/open2.log")" -gt 0 ]; then
+  echo "RESULT: the drive was scanned again on the open after it was repaired" >&2
   exit 1
 fi
 echo "RESULT: a volume that would not mount opened writable and took a file;"

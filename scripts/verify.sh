@@ -105,19 +105,30 @@ echo "driving ${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinu
 # instrument that has lied here.
 #
 # Noticed at the end rather than refused at the start, for the same reason as
-# the fingerprint above: a run that took half an hour should say what it
-# learned and then say what it was measuring, not throw both away.
-STALE_BUILD=""
-_bundle="${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
-_binary="$_bundle/Contents/MacOS/$(basename "$_bundle" .app)"
+# the fingerprint above: a run that took half an hour should say what it learned
+# and then say what it was measuring, not throw both away.
+#
+# Asked at the end too, which is not the same thing and is why this is a
+# function. It was first written as a variable set here, and that answered a
+# different question -- whether the build was stale when the run began. A run on
+# 2026-09-05 measured a build from 05:03 against sources committed at 05:13 and
+# 06:01, edited while it ran, which is the ordinary way of working here, and
+# this said nothing: at the moment it looked, the build was current. What matters
+# is whether the numbers describe the tree they will be read against, and only
+# the end of the run knows that.
+#
 # The tests are excluded on purpose. They are not compiled into the app, so
 # editing one cannot make the installed bundle describe different behaviour --
-# and a guard that fires on them would cry stale after every test written
-# during a run, which is how a true guard gets switched off.
-if [ -x "$_binary" ] && [ -n "$(find sources resources -type f \
-     -newer "$_binary" -not -path 'sources/LukottaTests/*' -print 2>/dev/null | head -1)" ]; then
-  STALE_BUILD="$_bundle"
-fi
+# and a guard that fires on them would cry stale after every test written during
+# a run, which is how a true guard gets switched off.
+stale_build() {
+  _bundle="${LUKOTTA_ENGINE%/Contents/Resources/engine/anylinuxfs/bin/anylinuxfs}"
+  _binary="$_bundle/Contents/MacOS/$(basename "$_bundle" .app)"
+  [ -x "$_binary" ] || return 1
+  [ -n "$(find sources resources -type f -newer "$_binary" \
+        -not -path 'sources/LukottaTests/*' -print 2>/dev/null | head -1)" ] || return 1
+  printf '%s\n' "$_bundle"
+}
 
 echo
 
@@ -148,6 +159,25 @@ while IFS=$'\t' read -r id tags speed claim cmd <&3; do
     printf '%-10s %-52s %s\n' "$id" "$claim" "not run, needs FULL=1"
     echo skipped >> "$TALLY"; continue
   fi
+  # A row that wants a drive nobody has plugged in has not failed.
+  #
+  # `durable` writes to a spare device and kills the machine, so it cannot run
+  # on an image -- the host's buffer cache survives the kill and the vector
+  # under-reports. Without LUKOTTA_TEST_DEVICE it stopped at its first line and
+  # was counted as FAILS, which reads as "a committed write no longer survives"
+  # on a run where nothing of the kind was measured. A missing instrument is not
+  # a bad measurement.
+  #
+  # Still not a pass: it lands in the same tally as everything else that did not
+  # run, and the summary shows that number beside the ones that did.
+  case ",$tags," in
+    *,hardware,*)
+      if [ -z "${LUKOTTA_TEST_DEVICE:-}" ] || [ ! -e "${LUKOTTA_TEST_DEVICE:-}" ]; then
+        printf '%-10s %-52s %s\n' "$id" "$claim" "not run, needs a spare drive"
+        echo skipped >> "$TALLY"; continue
+      fi
+      ;;
+  esac
 
   # Bounded, because one check that hangs stalls every check after it.
   #
@@ -205,6 +235,7 @@ passed=$(tally passed); failed=$(tally failed)
 unchecked=$(tally unchecked); skipped=$(tally skipped)
 
 echo
+STALE_BUILD="$(stale_build)"
 if [ -n "${STALE_BUILD:-}" ]; then
   echo "$STALE_BUILD is older than the sources, so this measured code that is"
   echo "no longer in the tree; rebuild and run it again." >&2

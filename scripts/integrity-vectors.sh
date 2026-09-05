@@ -186,6 +186,24 @@ IMAGE="$WORK/$(basename "$ORIGINAL" .img)-$(basename "$WORK").img"
 # recognisable: this is the only thing that names a file "<fixture>-tmp.*.img".
 find "$(dirname "$WORK")" -maxdepth 2 -name '*-tmp.*.img' -mmin +5 -delete 2>/dev/null
 
+# And the workspace it sat in, which this used to leave standing.
+#
+# Clearing the image alone left the corpora -- awkward, conc, src, mnt -- and
+# they are most of it. Measured on 2026-09-05 after an evening of interrupted
+# gates, with every image already swept by a later run: 348 workspaces still
+# holding 52 GB, on a Mac with 23 GB free. The same fault as the one above,
+# found the same way, half-fixed the first time.
+#
+# Recognised by the two corpus directories every workspace of this harness has,
+# so nothing else in the temporary directory is touched, and only after an hour
+# so a run happening right now beside this one is left alone.
+find "$(dirname "$WORK")" -maxdepth 1 -type d -name 'tmp.*' -mmin +60 2>/dev/null \
+  | while read -r old_work; do
+      [ "$old_work" = "$WORK" ] && continue
+      [ -d "$old_work/awkward" ] && [ -d "$old_work/conc" ] || continue
+      rm -rf "$old_work" 2>/dev/null
+    done
+
 # And there has to be room for one. Refusing here says what is wrong; running
 # anyway says the filesystem under test is broken.
 need=$(( $(stat -c %s "$ORIGINAL" 2>/dev/null || echo 0) / 1048576 + 512 ))

@@ -5727,9 +5727,9 @@ group("aVolumeThatCannotFreeANameIsCheckedNextTime") {
     // presence meant "a scan happened just now" -- and then reported the app as
     // scanning a volume with nothing wrong. It was right that a scan happened
     // and wrong about why.
+    let asksTheList = "grep -qx \"$serial\" " + MountScript.checkedListPath
     expect(
-        MountScript.checkAndRepair.components(
-            separatedBy: "grep -qx \"$serial\" \(MountScript.checkedListPath)").count == 3,
+        MountScript.checkAndRepair.components(separatedBy: asksTheList).count == 3,
         "both branches ask the same question of the same place")
     // The invocation, not the word: the comment that records why this route was
     // abandoned names the tool, and an assertion on the bare name failed against
