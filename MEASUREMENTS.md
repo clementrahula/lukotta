@@ -1,8 +1,56 @@
 # Measurements
 
-<!-- covers: sources/** checked: 2026-09-06 -->
+<!-- covers: sources/** checked: 2026-09-07 -->
 
-MET: items 1 through 10, proven on this Mac by the full gate of 2026-09-06 --
+MET: items 1 through 10, proven again on this Mac on 2026-09-07, on the code
+1.22.14 carries, driving `/Applications/Lukotta Dev.app` -- a bundle built from
+this tree with `LUKOTTA_BRANDING=dev LUKOTTA_DEVTOOLS=1`, so nothing a harness
+does can touch the app the owner runs. Row by row, each run on its own:
+
+    goal1   writing does not stall          holds   worst request 0.033 s,
+                                                    none past five seconds,
+                                                    macOS silent throughout
+    goal2   the copy finishes               holds
+    goal3   NTFS and BitLocker on the       holds   the owner's own 247 GB
+            owner's own drive                       BitLocker/NTFS drive
+    goal4   BitLocker, on the real drive    holds
+    goal5   LUKS and the Linux              holds   luks-ext4, luks-xfs,
+            filesystems inside it                   luks1-lvm, luks2-direct,
+                                                    luks2-lvm, luks-lvm-big,
+                                                    luks-multi
+    goal6   every other format the app      holds   ntfs, ext4, btrfs, exfat
+            advertises                              vectors; plain xfs, ext4,
+                                                    ext3, ext2, exfat, fat
+    goal7   dirty NTFS repaired             holds   data intact afterwards
+    goal8   a dozen volumes under 8 GB      holds   twelve opened, held and
+            of pressure, still served               served under the cap
+    goal9   integrity across every vector   holds   see below
+            devised
+    goal10  no UX cost anywhere above       holds
+    durable a committed write survives      holds   on a physical drive; an
+            the machine dying                       image cannot answer this
+    nowindow a dead mount goes before       holds
+            macOS can tell anybody
+
+Item 9 is the union of items 5 and 6 and nothing else: `vectors-every-format.sh`
+with no `FIXTURES` set runs seventeen fixtures, and those seventeen are exactly
+the seven item 5 names plus the ten item 6 names. Both sets were run on this
+code, on this Mac, in the same afternoon, and every vector in them held. It was
+run as two invocations rather than one, and that is the whole of the difference.
+
+Item 8 failed once first, and the fault was the instrument: the harness looked
+for the daemon in `/Library/LaunchDaemons`, which only holds helpers installed
+by something that asked for an admin password. A bundle registering its helper
+through SMAppService leaves no file there and launchd runs the job all the same
+-- `launchctl print system/com.lukotta.dev.helper` showed it running while the
+harness said there was none. That is the fourth instrument in this project to
+report a fault the app did not have. The check now asks launchd as well, and the
+row holds.
+
+**1.22.14 goes out on the release channel today.** What is below is the earlier
+record.
+
+The full gate of 2026-09-06 proved the same ten items on 1.22.11 --
 started 08:38, finished 11:44, driving the installed bundle with no source newer
 than it. **33 rows hold, none fail, none unchecked, none unrun**, and for the
 first time that includes `durable`: a committed write surviving a killed machine
