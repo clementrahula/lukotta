@@ -4948,6 +4948,35 @@ imageformats, fullvolume, crowdafter -- the six that each rebuild a fixture or
 take a drive through a long cycle. The distinction is written down rather than
 glossed: what was measured on this code, and what is being carried over.
 
+## What a scan may not do — 2026-09-06, late
+
+Three times in one evening the end-to-end check "the app finishes scanning"
+failed, each time because work had been added to a scan without a bound on it,
+each time by this work:
+
+    a sector read per disk, per scan     cached per device instead; what admits
+                                         a whole disk changes between scans,
+                                         what it holds does not
+    `diskutil info` per leftover volume  a process each, on a Mac the harness
+                                         leaves sixteen disks attached to. The
+                                         leftovers are candidates, not rows, and
+                                         the table already carries what they
+                                         need
+    the reading pass unbounded           five seconds, and what is not read this
+                                         time is read on the next scan
+
+A scan is on the path between plugging a drive in and seeing it. Anything added
+to it needs a bound decided before it is added, not after a check finds it.
+
+And three runs were lost to a harness looking at the wrong app:
+`first-run-open.sh` and `heals-itself.sh` named the Beta bundle, which is the
+app the owner runs, so the moment it was updated to a published build -- which
+carries no harness -- they reported "this build has no harness". They resolve by
+capability now, as `verify.sh` does. The dev build is what testing drives; the
+owner's app is theirs.
+
+    215 of 215 steps, on the dev build, after all three bounds were put back.
+
 ## The drives this Mac has, and what each is for — 2026-09-06
 
 Written down because a later session will otherwise work it out again from
