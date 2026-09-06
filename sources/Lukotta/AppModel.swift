@@ -299,13 +299,17 @@ final class AppModel: ObservableObject {
         let mine = openMounts.mapValues {
             (point: $0, readOnly: readOnlyMounts.contains($0))
         }
+        let read = knownFormats
         Task.detached(priority: .userInitiated) {
             let plist = DriveSurvey.diskutilList()
             let table = mountTable()
             let openable = DriveScanner.scan(images: images)
             let entries = DriveSurvey.survey(
                 list: plist, info: { DriveScanner.info(for: $0) ?? [:] },
-                mountTable: table, openable: openable, openHere: mine)
+                mountTable: table, openable: openable, openHere: mine,
+                // What the daemon read of each volume, so a disk with no
+                // partition table can still say what it holds.
+                formats: read)
             await MainActor.run { self.survey = entries }
         }
     }

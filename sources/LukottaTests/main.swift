@@ -1709,6 +1709,28 @@ group("aStickThatIsStillAnInstallerSaysSo") {
         "a filesystem nobody here knows is still reported as one")
 }
 
+group("aDiskWithNoTableStillSaysWhatItHolds") {
+    // A disk formatted across the whole device has no partition table, so it
+    // has no type to describe, and the row said nothing at all about it -- an
+    // NTFS stick listed as a size and a bus and no more. The end-to-end check
+    // "every row says what it is" caught it on 2026-09-06, on a stick this app
+    // had formatted itself an hour earlier.
+    expect(
+        DriveSurvey.describedWhole("", read: .ntfs) == "NTFS",
+        "a read of the first sector answers where the table cannot")
+    expect(
+        DriveSurvey.describedWhole("", read: .unknown).isEmpty,
+        "and a sector nobody could read leaves it as it was")
+    expect(
+        DriveSurvey.describedWhole("", read: nil).isEmpty,
+        "as does never having read one")
+    // A disk that does have a table keeps what the table says: the scheme is
+    // not a thing the disk holds, and the row carries the device name already.
+    expect(
+        DriveSurvey.describedWhole("GUID_partition_scheme", read: .ntfs).isEmpty,
+        "a partitioned disk is not relabelled by whatever its first sector holds")
+}
+
 group("aPartitionTypeIsNeverADriveName") {
     // A volume nobody named fell through to `IORegistryEntryName`, which for a
     // partition is the type, so a nameless NTFS stick was listed in the app as

@@ -100,7 +100,8 @@ public enum DriveSurvey {
         info: (String) -> [String: Any],
         mountTable: String,
         openable: [Drive],
-        openHere: [String: (point: String, readOnly: Bool)] = [:]
+        openHere: [String: (point: String, readOnly: Bool)] = [:],
+        formats: [String: VolumeFormat] = [:]
     ) -> [Entry] {
         guard let disks = plist["AllDisksAndPartitions"] as? [[String: Any]] else { return [] }
         let byIdentifier = Dictionary(openable.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
@@ -181,6 +182,13 @@ public enum DriveSurvey {
                 {
                     kind = apfsVolume
                 }
+                // A disk with no partition table has no type to describe, and
+                // the row then said nothing at all about what is on it -- which
+                // is exactly what a whole-device NTFS stick is. Where the first
+                // sector has been read, it answers instead.
+                if kind.isEmpty, let read = formats[identifier], read != .unknown {
+                    kind = read.name
+                }
 
                 entries.append(
                     Entry(
@@ -218,7 +226,8 @@ public enum DriveSurvey {
                         disk: whole,
                         name: nonEmpty(product) ?? whole,
                         sizeBytes: size,
-                        content: described((disk["Content"] as? String) ?? ""),
+                        content: describedWhole(
+                            (disk["Content"] as? String) ?? "", read: formats[whole]),
                         verdict: verdict,
                         drive: byIdentifier[whole]
                             ?? Drive(
@@ -244,6 +253,18 @@ public enum DriveSurvey {
     ///
     /// Anything unrecognised is passed through as diskutil said it. It is rare,
     /// and a name that is odd is better than one that is wrong.
+    /// The same, for a whole disk, where a read of the first sector can say
+    /// what a missing partition table cannot.
+    /// Only where there is no table at all. A disk that has one is not
+    /// relabelled by what its first sector happens to hold: the sector of a
+    /// partitioned disk is a table, and the scheme is not a thing the disk
+    /// holds. Caught by its own check, which had this returning "NTFS" for a
+    /// GUID-partitioned disk.
+    public static func describedWhole(_ content: String, read: VolumeFormat?) -> String {
+        guard content.isEmpty, let read, read != .unknown else { return described(content) }
+        return read.name
+    }
+
     public static func described(_ content: String) -> String {
         if let kind = VolumeKind.holding(content) { return kind.summary }
         switch content {
