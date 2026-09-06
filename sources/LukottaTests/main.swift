@@ -4086,6 +4086,32 @@ group("driveScannerParsing") {
         DriveScanner.drives(inList: blank, info: { _ in [:] })[0].name, "disk8s1",
         "with nothing left to call it, the device identifier is used")
 
+    // This Mac's own disk is never a candidate, however it is asked about.
+    //
+    // 1.22.14 offered /dev/disk0 -- the internal boot disk -- as a drive to
+    // unlock, described as "External". The guards that keep an internal disk
+    // out all read `Internal` out of `diskutil info`, and the leftovers pass
+    // had been given an `info` that answered nothing at all, so every one of
+    // them saw `false`. The whole disk is asked about again here, and the
+    // answer says which it is.
+    let bootDisk: [String: Any] = [
+        "AllDisksAndPartitions": [
+            [
+                "DeviceIdentifier": "disk0",
+                "Partitions": [
+                    ["DeviceIdentifier": "disk0s1", "Content": "Apple_APFS"],
+                    ["DeviceIdentifier": "disk0s2", "Content": "Apple_APFS_Recovery"],
+                ],
+            ]
+        ]
+    ]
+    expect(
+        "\(DriveScanner.unclaimedVolumes(inList: bootDisk, info: { _ in ["Internal": true] }).count)",
+        "0", "the Mac's own disk is not offered as a drive to unlock")
+    expect(
+        "\(DriveScanner.unclaimedVolumes(inList: bootDisk, info: { _ in ["Internal": false] }).count)",
+        "3", "the same shape on an external disk still yields candidates")
+
     // Malformed input is empty, not a crash.
     expect(
         "\(DriveScanner.drives(inList: [:], info: { _ in [:] }).count)", "0",

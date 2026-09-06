@@ -358,7 +358,18 @@ public enum DriveScanner {
         // every unclaimable partition put a Mac with sixteen attached disks
         // over the thirty seconds the end-to-end harness allows for a scan --
         // twice in one evening.
-        let leftovers = unclaimedVolumes(inList: plist, info: { _ in [:] })
+        //
+        // Whole disks are the exception, and they cost nothing: the pass above
+        // has already asked about every one of them, so these all come back out
+        // of the cache. They have to be asked, because `Internal` is what keeps
+        // this Mac's own boot disk out of the list -- with nothing answering,
+        // every guard that reads it saw `false`, and 1.22.14 offered to unlock
+        // /dev/disk0, called it External, and gave it no bus.
+        let aboutWholeDisks: (String) -> [String: Any] = { identifier in
+            guard wholeDisk(of: identifier) == identifier else { return [:] }
+            return answers.value(for: identifier) { info(for: identifier) ?? [:] }
+        }
+        let leftovers = unclaimedVolumes(inList: plist, info: aboutWholeDisks)
         guard !all, !images.isEmpty else { return (found, leftovers) }
         // Everything came back, so the images nobody asked about go now. A
         // partition of disk6 belongs to disk6.
