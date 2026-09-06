@@ -1,5 +1,18 @@
 # Measurements
 
+MET: items 1 through 10, proven on this Mac by the full gate of 2026-09-06 --
+started 08:38, finished 11:44, driving the installed bundle with no source newer
+than it. **33 rows hold, none fail, none unchecked, none unrun**, and for the
+first time that includes `durable`: a committed write surviving a killed machine
+on a real drive, not on an image. The hardware the images could never stand in
+for is in the tally -- a 247 GB BitLocker/NTFS drive, two 62 GB sticks (one
+exFAT, one LUKS holding ext4) -- alongside the 83-image corpus, eighteen fixtures
+through every vector devised, twelve volumes under 8 GB of pressure, and a dead
+mount going before macOS can tell anybody.
+
+What it took is below: every durability figure this file held before that day was
+taken on a disk image, and an image cannot answer the question.
+
 1.22.11-beta.1 shipped 2026-09-06 07:21, with the durability fault below fixed
 and measured on the drives: 3 of 3 committed writes kept on BitLocker/NTFS, on
 exFAT and on LUKS holding ext4, where it had been 0 of 6. All four sticks open
@@ -7,7 +20,9 @@ and eject through the app, leaving nothing mounted. Still open: the BitLocker
 drive occasionally needs a second attempt to open immediately after a killed
 engine, while it is being repaired.
 
-MET WITHDRAWN, 2026-09-05 23:40. Item 9 is not met: a write that `fsync`
+MET was withdrawn on 2026-09-05 at 23:40 and is restored above. What it said
+then, kept because the reason it was withdrawn is the work of that night --
+item 9 was not met: a write that `fsync`
 returned success for is lost when the machine serving it dies, on real drives.
 Three spare sticks and the owner's BitLocker drive arrived after the gate, and
 the first thing they were asked was the one question an image cannot answer --
