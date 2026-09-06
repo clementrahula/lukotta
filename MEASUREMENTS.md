@@ -1,5 +1,12 @@
 # Measurements
 
+1.22.11-beta.1 shipped 2026-09-06 07:21, with the durability fault below fixed
+and measured on the drives: 3 of 3 committed writes kept on BitLocker/NTFS, on
+exFAT and on LUKS holding ext4, where it had been 0 of 6. All four sticks open
+and eject through the app, leaving nothing mounted. Still open: the BitLocker
+drive occasionally needs a second attempt to open immediately after a killed
+engine, while it is being repaired.
+
 MET WITHDRAWN, 2026-09-05 23:40. Item 9 is not met: a write that `fsync`
 returned success for is lost when the machine serving it dies, on real drives.
 Three spare sticks and the owner's BitLocker drive arrived after the gate, and
