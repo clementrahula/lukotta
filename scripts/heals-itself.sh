@@ -70,6 +70,12 @@ for how in gone half shredded; do
 
   if [ "$status" -ne 0 ] || [ "$ok" -eq 0 ] || [ "$broke" -ne 0 ]; then
     echo "FAIL: $NAME did not heal from '$how' ($ok ok, $broke failed, exit $status)"
+    # The failures themselves, not the last four lines of a run with hundreds.
+    # This printed a tail, the tail was passing steps, and a row reporting two
+    # failures said nothing at all about which two.
+    if [ "$broke" -gt 0 ]; then
+      /usr/bin/grep -E '^  FAIL' "$out" | sed 's/^/       /' | head -10
+    fi
     tail -4 "$out" | sed 's/^/       /'
     fail=1
   else

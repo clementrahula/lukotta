@@ -348,7 +348,17 @@ public enum DriveScanner {
             answers.value(for: identifier) { info(for: identifier) ?? [:] }
         }
         let found = drives(inList: plist, info: ask)
-        let leftovers = unclaimedVolumes(inList: plist, info: ask)
+        // The leftovers are asked about with what the table already says, and
+        // nothing more.
+        //
+        // `diskutil info` is a process per volume, and a leftover is a
+        // candidate rather than a row: what decides it is a reading of its
+        // first sector, later, and what it needs before then is an identifier
+        // and a size, both of which the list carries. Asking properly about
+        // every unclaimable partition put a Mac with sixteen attached disks
+        // over the thirty seconds the end-to-end harness allows for a scan --
+        // twice in one evening.
+        let leftovers = unclaimedVolumes(inList: plist, info: { _ in [:] })
         guard !all, !images.isEmpty else { return (found, leftovers) }
         // Everything came back, so the images nobody asked about go now. A
         // partition of disk6 belongs to disk6.

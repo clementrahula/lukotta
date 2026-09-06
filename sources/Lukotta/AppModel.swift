@@ -1323,13 +1323,21 @@ final class AppModel: ObservableObject {
         guard !unnamed.isEmpty || !candidates.isEmpty else { return }
         Task { @MainActor [weak self] in
             guard let self else { return }
+            // Bounded. Each reading is a round trip to the daemon, and a daemon
+            // that is slow -- unpacking a guest, or gone -- would otherwise
+            // hold this pass open for as long as there are devices. What is not
+            // read this time is read on the next scan, since the answers are
+            // kept as they arrive.
+            let by = Date().addingTimeInterval(5)
             for drive in unnamed {
+                if Date() >= by { break }
                 let format = await self.helper.identify(devicePath: drive.devicePath)
                 self.sectorFormats[drive.devicePath] = format
                 if format != .unknown { self.knownFormats[drive.id] = format }
             }
             var admitted: [Drive] = []
             for candidate in candidates {
+                if Date() >= by, self.sectorFormats[candidate.devicePath] == nil { break }
                 let isWholeDisk = DriveScanner.wholeDisk(of: candidate.id) == candidate.id
                 // Read, whole disk or not.
                 //
