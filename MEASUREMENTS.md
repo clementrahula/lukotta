@@ -76,7 +76,26 @@ again, each saying what it holds:
 Two checks hold it: the Mac's own disk yields no candidates, and the same shape
 on an external disk still yields three. 1268 of 1268 pass.
 
-**1.22.15 goes out with that fix.** What is below is the earlier record.
+**1.22.15 went out on the release channel at 02:22**, after 1.22.15-beta.1 at
+02:12. The published archive was downloaded back: its digest matches the build's
+own record, and the bundle is Developer ID, notarized, stapled and accepted by
+Gatekeeper as 1.22.15. Launched, it lists four drives and this Mac's own disk is
+not among them.
+
+One thing could not be measured on the released build and is written down rather
+than glossed: the format on the row for the whole-disk NTFS stick. It reads
+correctly on a build of this same code -- "Ultra Fit ... USB · External · NTFS"
+-- and is blank when the released bundle is run out of a download directory,
+because the privileged helper registered on this Mac for the release channel
+belongs to `/Applications/Lukotta.app`, which is 1.22.10, and the helper is what
+reads a first sector. Identifying a disk with no partition table is work that
+landed in 1.22.14; a 1.22.10 helper does not do it. Writing the new bundle into
+/Applications, which is what pairs an app with its own helper, was refused in
+this session, so the released build was exercised beside a two-version-old
+daemon. Installing 1.22.15 the ordinary way -- which replaces the helper --
+is what closes this, and it has not been done here.
+
+What is below is the earlier record.
 
 The full gate of 2026-09-06 proved the same ten items on 1.22.11 --
 started 08:38, finished 11:44, driving the installed bundle with no source newer
