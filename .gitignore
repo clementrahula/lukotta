@@ -39,7 +39,14 @@ translation_audit/
 # The working note for a night of work. Not part of the repository.
 /TONIGHT.md
 nfs-stall.md
-.claude/
+# Contents, not the directory: git will not re-include anything inside an
+# excluded directory, so `.claude/` followed by a negation silently ignores
+# the negation.
+.claude/*
+# The project halves of the role briefs are the exception. They are project
+# knowledge - this project's commands, paths and hard-won facts - and a role
+# reads them from a fresh clone, so they belong in the repository.
+!.claude/roles/
 architecture.md
 scripts/__pycache__/
 .lint.log
