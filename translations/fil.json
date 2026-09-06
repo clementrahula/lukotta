@@ -96,6 +96,7 @@
     "%@ will be moved to the Bin.": "Ilalagay ang %@ sa Bin.",
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "May %lld drive o disk image na nakabukas. %lld lang ang puwedeng nakabukas nang sabay. Mag-eject ng isa para makapagbukas ng iba.",
     "%lld percent": "%lld porsiyento",
+    "%lld volumes are open on this Mac already, and %lld is as many as can be served at once. They were opened somewhere else — close them there to open a drive here.": "May %1$lld volume nang bukas sa Mac na ito, at %2$lld ang kayang ihain nang sabay. Sa ibang lugar binuksan ang mga ito — isara ang mga ito roon para makapagbukas ng drive dito.",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB ng disk: 160 MB para sa app, 100 MB para sa Linux environment na ina-unpack sa unang paggamit",
     "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB ng RAM sa bawat bukas na drive na nakatiwangwang, at hanggang 450 MB para sa isang kinokopyahan",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "Isang VHDX na hindi maayos na isinara. Buksan ito nang isang beses sa virtual machine na may-ari nito, na isusulat pabalik ang huling laman nito",

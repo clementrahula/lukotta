@@ -96,6 +96,7 @@
     "%@ will be moved to the Bin.": "A(z) %@ a Kukába kerül.",
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "%lld meghajtó vagy lemezkép van megnyitva. Egyszerre csak %lld lehet nyitva. Adjon ki egyet, hogy másikat nyithasson meg.",
     "%lld percent": "%lld százalék",
+    "%lld volumes are open on this Mac already, and %lld is as many as can be served at once. They were opened somewhere else — close them there to open a drive here.": "Ezen a Macen már %1$lld kötet van megnyitva, és %2$lld az egyszerre kiszolgálható mennyiség. Máshol nyitották meg őket – zárja be ott, hogy itt megnyithasson egy meghajtót.",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB lemezterület: 160 MB az alkalmazásnak és 100 MB a Linux-környezetnek, amelyet az első használatkor csomagol ki",
     "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB RAM minden tétlen, nyitott meghajtóra, és legfeljebb 450 MB arra, amelyre másolás folyik",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "Nem szabályosan leállított VHDX. Nyissa meg egyszer abban a virtuális gépben, amelyhez tartozik, hogy a legutóbbi tartalma visszaíródjon",

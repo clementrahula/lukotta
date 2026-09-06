@@ -96,6 +96,7 @@
     "%@ will be moved to the Bin.": "%@ wird in den Papierkorb bewegt.",
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "%lld Laufwerke oder Images sind geöffnet. Es können nur %lld gleichzeitig geöffnet sein. Wirf eines aus, um ein anderes zu öffnen.",
     "%lld percent": "%lld Prozent",
+    "%lld volumes are open on this Mac already, and %lld is as many as can be served at once. They were opened somewhere else — close them there to open a drive here.": "Auf diesem Mac sind bereits %1$lld Volumes geöffnet, und %2$lld ist das Maximum, das gleichzeitig bereitgestellt werden kann. Sie wurden anderswo geöffnet – schließe sie dort, um hier ein Laufwerk zu öffnen.",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB Speicherplatz: 160 MB für die App, 100 MB für die Linux-Umgebung, die beim ersten Verwenden entpackt wird",
     "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB RAM pro geöffnetem Laufwerk im Leerlauf und bis zu 450 MB für eines, auf das kopiert wird",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "Eine VHDX, die nicht sauber heruntergefahren wurde. Öffne sie einmal in der virtuellen Maschine, zu der sie gehört, damit ihr letzter Stand zurückgeschrieben wird",

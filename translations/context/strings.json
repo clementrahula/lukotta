@@ -217,6 +217,17 @@
         "drive-list"
       ]
     },
+    "%lld volumes are open on this Mac already, and %lld is as many as can be served at once. They were opened somewhere else — close them there to open a drive here.": {
+      "context": "Shown when this copy of the app has nothing open but the Mac's capacity is already spoken for -- another copy of the app, or a test harness driving the engine, is serving volumes. The first number is how many are open on the machine, the second the most that can be served at once. It replaces the 'eject one to open another' sentence, which asked for an ejection of something the person cannot see in this window.",
+      "placeholders": [
+        "%lld",
+        "%lld"
+      ],
+      "screens": [
+        "drive-list",
+        "unlock"
+      ]
+    },
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": {
       "context": "A bullet in the help sheet's list of requirements. A fragment: no full stop.",
       "placeholders": [],

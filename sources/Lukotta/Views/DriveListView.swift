@@ -71,7 +71,9 @@ struct DriveListView: View {
                             .foregroundStyle(.orange)
                             .accessibilityHidden(true)
                         Text(
-                            "\(model.capacity.openCount) drives or images are open. You can only have \(model.capacity.limitCount) open at the same time. Eject one to open another."
+                            model.capacity.openCount > 0
+                                ? "\(model.capacity.openCount) drives or images are open. You can only have \(model.capacity.limitCount) open at the same time. Eject one to open another."
+                                : "\(model.capacity.openCount + model.openedElsewhere) volumes are open on this Mac already, and \(model.capacity.limitCount) is as many as can be served at once. They were opened somewhere else — close them there to open a drive here."
                         )
                         .font(.callout)
                         .fixedSize(horizontal: false, vertical: true)

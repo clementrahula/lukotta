@@ -128,6 +128,7 @@
     "%@ will be moved to the Bin.": "سيُنقل %@ إلى المهملات.",
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "مفتوح الآن %lld من محركات الأقراص والصور. لا يمكن أن يبقى مفتوحًا أكثر من %lld في وقت واحد. أخرج واحدًا لفتح غيره.",
     "%lld percent": "%lld بالمئة",
+    "%lld volumes are open on this Mac already, and %lld is as many as can be served at once. They were opened somewhere else — close them there to open a drive here.": "‏%1$lld وحدة تخزين مفتوحة على هذا الـ Mac بالفعل، و%2$lld هو أقصى ما يمكن تقديمه في وقت واحد. فُتحت في مكان آخر — أغلقها هناك لفتح قرص هنا.",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 ميجابايت من القرص: 160 ميجابايت للتطبيق و100 ميجابايت لبيئة Linux التي تُفكّ عند أول استخدام",
     "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "‏30 ميجابايت من الذاكرة لكل محرك أقراص مفتوح في وضع الخمول، وحتى 450 ميجابايت لمحرك يجري النسخ إليه",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "ملف VHDX لم يُغلق بشكل سليم. افتحه مرة واحدة في الجهاز الافتراضي الذي يخصّه، فيعيد كتابة آخر محتوى له",

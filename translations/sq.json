@@ -96,6 +96,7 @@
     "%@ will be moved to the Bin.": "%@ do të zhvendoset në Bin.",
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "Janë hapur %lld disqe ose imazhe disku. Mund të keni vetëm %lld të hapur njëkohësisht. Nxirr një për të hapur një tjetër.",
     "%lld percent": "%lld për qind",
+    "%lld volumes are open on this Mac already, and %lld is as many as can be served at once. They were opened somewhere else — close them there to open a drive here.": "Në këtë Mac janë tashmë të hapur %1$lld vëllime, dhe %2$lld është sa mund të shërbehen njëherësh. U hapën diku tjetër — mbyllini atje për të hapur një disk këtu.",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB disk: 160 MB për aplikacionin, 100 MB për mjedisin Linux që shpaketohet në përdorimin e parë",
     "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 MB RAM për çdo disk të hapur në pritje, dhe deri në 450 MB për një disk ku po kopjohet",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "Një VHDX që nuk u fik si duhet. Hape një herë në makinën virtuale së cilës i përket, e cila shkruan sërish atë që mbante së fundi",

@@ -96,6 +96,7 @@
     "%@ will be moved to the Bin.": "%@ siirretään roskakoriin.",
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "Avoinna on %lld asemaa tai levytiedostoa. Niitä voi olla avoinna vain %lld kerrallaan. Poista yksi käytöstä avataksesi toisen.",
     "%lld percent": "%lld prosenttia",
+    "%lld volumes are open on this Mac already, and %lld is as many as can be served at once. They were opened somewhere else — close them there to open a drive here.": "Tällä Macilla on jo %1$lld taltiota auki, ja %2$lld on enimmäismäärä kerralla. Ne avattiin muualla — sulje ne siellä avataksesi aseman täällä.",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 Mt levytilaa: 160 Mt ohjelmalle ja 100 Mt Linux-ympäristölle, joka puretaan ensimmäisellä käyttökerralla",
     "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "30 Mt keskusmuistia jokaista avointa asemaa kohti lepotilassa ja enintään 450 Mt asemaa kohti, johon kopioidaan",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "VHDX, jota ei sammutettu siististi. Avaa se kerran siinä virtuaalikoneessa, johon se kuuluu, jotta sen viimeisin sisältö kirjoitetaan takaisin",

@@ -1186,7 +1186,16 @@ final class AppModel: ObservableObject {
         // Counted from the engine's own mounts rather than from the rows: a
         // drive serving several volumes is one machine on one address.
         refreshEjectables()
-        refreshCapacity(mounts: Set(sighting.mounts.map(\.devicePath)).count)
+        // Ours for the count, everything for the ceiling.
+        //
+        // This counted every engine mount on the Mac, and the list shows only
+        // what this copy opened: with a harness holding twelve images up, the
+        // banner said "12 drives or images are open ... eject one" over a list
+        // of four locked drives. The count has to be about what is on screen.
+        refreshCapacity(
+            mounts: Set(openMounts.keys).count,
+            elsewhere: Set(sighting.mounts.map(\.devicePath)).count
+                - Set(openMounts.keys).count)
         refreshSpace()
         readWhatTheTypesCouldNotSay(unclaimed: sighting.unclaimed)
         return listed
@@ -1931,8 +1940,9 @@ final class AppModel: ObservableObject {
         Capacity.hasRoom(limitCount: capacity.limitCount, openCount: capacity.openCount)
     }
 
-    private func refreshCapacity(mounts: Int) {
+    private func refreshCapacity(mounts: Int, elsewhere: Int = 0) {
         capacity = Capacity.now(mounts: mounts)
+        openedElsewhere = max(0, elsewhere)
         // The loopback addresses belong to the Mac, not to this copy of the
         // app, so another copy uninstalling releases them all -- and this one
         // then has three where it had twelve, until its next launch asked for
@@ -1943,6 +1953,14 @@ final class AppModel: ObservableObject {
             "only \(self.capacity.limitCount, privacy: .public) addresses; asking for more")
         helper.makeRoomForDrives()
     }
+
+    /// Volumes served on this Mac that this copy did not open: another copy of
+    /// the app, or a harness driving the engine.
+    ///
+    /// They take capacity -- the loopback addresses belong to the machine --
+    /// and they are not in this window's list, so the sentence about a full
+    /// machine has to name them rather than tell somebody to eject one of them.
+    @Published var openedElsewhere: Int = 0
 
     /// Bumped every time a scan's results are applied.
     ///

@@ -96,6 +96,7 @@
     "%@ will be moved to the Bin.": "%@ को ट्रैश में ले जाया जाएगा।",
     "%lld drives or images are open. You can only have %lld open at the same time. Eject one to open another.": "%lld ड्राइव या डिस्क इमेज खुली हैं। एक साथ सिर्फ़ %lld खुली रह सकती हैं। दूसरी खोलने के लिए एक निकालें।",
     "%lld percent": "%lld प्रतिशत",
+    "%lld volumes are open on this Mac already, and %lld is as many as can be served at once. They were opened somewhere else — close them there to open a drive here.": "इस Mac पर पहले से %1$lld वॉल्यूम खुले हैं, और एक साथ %2$lld ही दिए जा सकते हैं। वे कहीं और खोले गए थे — यहाँ ड्राइव खोलने के लिए उन्हें वहीं बंद करें।",
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": "260 MB डिस्क: ऐप के लिए 160 MB, और पहली बार इस्तेमाल पर अनपैक होने वाले Linux environment के लिए 100 MB",
     "30 MB of RAM per open drive sitting idle, and up to 450 MB for one being copied to": "निष्क्रिय खुली हर ड्राइव के लिए 30 MB RAM, और जिस ड्राइव पर कॉपी हो रही हो उसके लिए 450 MB तक",
     "A VHDX that was not shut down cleanly. Open it once in the virtual machine it belongs to, which writes back what it last held": "ऐसा VHDX जो ठीक से बंद नहीं हुआ। इसे उसी वर्चुअल मशीन में एक बार खोलें जिसका यह है; वह इसकी अंतिम सामग्री वापस लिख देगी",

@@ -5325,6 +5325,226 @@
         }
       }
     },
+    "%lld volumes are open on this Mac already, and %lld is as many as can be served at once. They were opened somewhere else — close them there to open a drive here.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‏%1$lld وحدة تخزين مفتوحة على هذا الـ Mac بالفعل، و%2$lld هو أقصى ما يمكن تقديمه في وقت واحد. فُتحت في مكان آخر — أغلقها هناك لفتح قرص هنا."
+          }
+        },
+        "bg": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вече са отворени %1$lld тома на този Mac, а %2$lld е максимумът, който може да се обслужва наведнъж. Отворени са другаде — затворете ги там, за да отворите устройство тук."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na tomto Macu je již otevřeno %1$lld svazků a %2$lld je maximum, které lze obsloužit najednou. Byly otevřeny jinde — zavřete je tam, abyste zde mohli otevřít disk."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der er allerede %1$lld arkiver åbne på denne Mac, og %2$lld er så mange, der kan betjenes ad gangen. De blev åbnet et andet sted — luk dem der for at åbne et drev her."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf diesem Mac sind bereits %1$lld Volumes geöffnet, und %2$lld ist das Maximum, das gleichzeitig bereitgestellt werden kann. Sie wurden anderswo geöffnet – schließe sie dort, um hier ein Laufwerk zu öffnen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Σε αυτόν τον Mac είναι ήδη ανοιχτοί %1$lld τόμοι, και %2$lld είναι όσοι μπορούν να εξυπηρετηθούν ταυτόχρονα. Άνοιξαν αλλού — κλείστε τους εκεί για να ανοίξετε δίσκο εδώ."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En este Mac ya hay %1$lld volúmenes abiertos, y %2$lld es el máximo que puede servirse a la vez. Se abrieron en otro sitio: ciérralos allí para abrir una unidad aquí."
+          }
+        },
+        "et": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selles Macis on juba %1$lld köidet avatud ja %2$lld on nii palju, kui korraga saab teenindada. Need avati mujal — sulge need seal, et siin ketast avada."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tällä Macilla on jo %1$lld taltiota auki, ja %2$lld on enimmäismäärä kerralla. Ne avattiin muualla — sulje ne siellä avataksesi aseman täällä."
+          }
+        },
+        "fil": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "May %1$lld volume nang bukas sa Mac na ito, at %2$lld ang kayang ihain nang sabay. Sa ibang lugar binuksan ang mga ito — isara ang mga ito roon para makapagbukas ng drive dito."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld volumes sont déjà ouverts sur ce Mac, et %2$lld est le maximum pouvant être servi à la fois. Ils ont été ouverts ailleurs : fermez-les là-bas pour ouvrir un disque ici."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‏%1$lld כרכים כבר פתוחים ב‑Mac הזה, ו‑%2$lld הוא המרב שניתן להגיש בבת אחת. הם נפתחו במקום אחר — סגרו אותם שם כדי לפתוח כאן כונן."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इस Mac पर पहले से %1$lld वॉल्यूम खुले हैं, और एक साथ %2$lld ही दिए जा सकते हैं। वे कहीं और खोले गए थे — यहाँ ड्राइव खोलने के लिए उन्हें वहीं बंद करें।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na ovom Macu već je otvoreno %1$lld volumena, a %2$lld je najviše što se može posluživati odjednom. Otvoreni su drugdje — zatvorite ih ondje da biste ovdje otvorili pogon."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ezen a Macen már %1$lld kötet van megnyitva, és %2$lld az egyszerre kiszolgálható mennyiség. Máshol nyitották meg őket – zárja be ott, hogy itt megnyithasson egy meghajtót."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sudah ada %1$lld volume terbuka di Mac ini, dan %2$lld adalah jumlah maksimum yang dapat dilayani sekaligus. Volume itu dibuka di tempat lain — tutup di sana untuk membuka drive di sini."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Su questo Mac ci sono già %1$lld volumi aperti, e %2$lld è il massimo servibile per volta. Sono stati aperti altrove: chiudili lì per aprire un'unità qui."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この Mac ではすでに %1$lld 個のボリュームが開いており、同時に扱えるのは %2$lld 個までです。別の場所で開かれたものなので、そちらで閉じてからここで開いてください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 Mac에서 이미 %1$lld개의 볼륨이 열려 있으며, 동시에 제공할 수 있는 최대는 %2$lld개입니다. 다른 곳에서 열린 것이므로 그곳에서 닫은 뒤 여기서 드라이브를 여십시오."
+          }
+        },
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šiame „Mac“ jau atidaryta %1$lld tomų, o %2$lld yra daugiausia, kiek galima aptarnauti vienu metu. Jie atidaryti kitur — uždarykite juos ten, kad čia atidarytumėte diską."
+          }
+        },
+        "lv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šajā Mac jau ir atvērti %1$lld sējumi, un %2$lld ir vairāk, nekā var apkalpot vienlaikus. Tie tika atvērti citur — aizveriet tos tur, lai šeit atvērtu disku."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sudah ada %1$lld volum dibuka pada Mac ini, dan %2$lld ialah jumlah maksimum yang boleh dilayan serentak. Ia dibuka di tempat lain — tutupnya di sana untuk membuka pemacu di sini."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det er allerede %1$lld volumer åpne på denne Macen, og %2$lld er så mange som kan betjenes samtidig. De ble åpnet et annet sted – lukk dem der for å åpne en stasjon her."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er zijn al %1$lld volumes geopend op deze Mac, en %2$lld is het maximum dat tegelijk kan worden bediend. Ze zijn elders geopend — sluit ze daar om hier een schijf te openen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na tym Macu jest już otwartych %1$lld woluminów, a %2$lld to najwięcej, ile można obsłużyć naraz. Otwarto je gdzie indziej — zamknij je tam, aby otworzyć dysk tutaj."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Já estão abertos %1$lld volumes neste Mac, e %2$lld é o máximo que pode ser servido de cada vez. Foram abertos noutro sítio — feche-os aí para abrir uma unidade aqui."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pe acest Mac sunt deja deschise %1$lld volume, iar %2$lld este maximul care poate fi servit simultan. Au fost deschise în altă parte — închideți-le acolo pentru a deschide o unitate aici."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На этом Mac уже открыто %1$lld томов, а %2$lld — это максимум, который можно обслуживать одновременно. Они открыты в другом месте: закройте их там, чтобы открыть диск здесь."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V tem Macu je že odprtih %1$lld nosilcev, %2$lld pa je največ, kolikor jih je mogoče streči hkrati. Odprti so bili drugje – zaprite jih tam, da tu odprete pogon."
+          }
+        },
+        "sq": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Në këtë Mac janë tashmë të hapur %1$lld vëllime, dhe %2$lld është sa mund të shërbehen njëherësh. U hapën diku tjetër — mbyllini atje për të hapur një disk këtu."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det finns redan %1$lld volymer öppna på den här Macen, och %2$lld är så många som kan betjänas samtidigt. De öppnades någon annanstans – stäng dem där för att öppna en enhet här."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "มี %1$lld วอลุ่มเปิดอยู่บน Mac เครื่องนี้แล้ว และ %2$lld คือจำนวนสูงสุดที่ให้บริการพร้อมกันได้ วอลุ่มเหล่านี้ถูกเปิดจากที่อื่น — ปิดที่นั่นก่อนจึงจะเปิดไดรฟ์ที่นี่ได้"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu Mac'te zaten %1$lld birim açık ve aynı anda en fazla %2$lld birim sunulabilir. Başka bir yerde açıldılar — burada bir sürücü açmak için onları orada kapatın."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На цьому Mac уже відкрито %1$lld томів, а %2$lld — це максимум, який можна обслуговувати водночас. Їх відкрито в іншому місці: закрийте їх там, щоб відкрити диск тут."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã có %1$lld ổ đĩa được mở trên máy Mac này, và %2$lld là số tối đa có thể phục vụ cùng lúc. Chúng được mở ở nơi khác — hãy đóng ở đó để mở một ổ đĩa tại đây."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这台 Mac 上已经打开了 %1$lld 个宗卷，同时最多只能提供 %2$lld 个。它们是在别处打开的——请在那里关闭，才能在这里打开磁盘。"
+          }
+        }
+      }
+    },
     "260 MB of disk: 160 MB for the app, 100 MB for the Linux environment it unpacks on first use": {
       "localizations": {
         "ar": {
